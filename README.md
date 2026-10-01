@@ -55,10 +55,19 @@ Update with:
 brew upgrade --cask holzice
 ```
 
+### If macOS says holzIce "can't be opened"
+
+holzIce is signed ad hoc, without an Apple Developer ID. The Homebrew cask removes the quarantine flag for you, but if you downloaded the zip yourself — or macOS still blocks the app — take it out of quarantine:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/holzIce.app
+```
+
+Then open holzIce again. Alternatively: open it once, then go to **System Settings → Privacy & Security** and click **Open Anyway** next to the holzIce message.
+
 > [!NOTE]
 > holzIce replaces the original Ice — run `brew uninstall --cask jordanbaird-ice` first if you have it.
 > Your Ice settings (layout, hotkeys, appearance) are imported automatically on the first launch.
-> The app is signed ad hoc (there is no Developer ID); the cask removes the quarantine flag so it opens normally.
 
 ### Build from source
 
