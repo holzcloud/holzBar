@@ -278,7 +278,7 @@ private struct SpacersSection: View {
                 Text("Spacers: \(spacers.count)")
             }
             .annotation("Empty items that add space between others. ⌘ Command-drag them where you want them, or arrange them below.")
-            if spacers.count > 0 {
+            if spacers.count >= 1 {
                 LabeledContent {
                     Slider(value: $spacers.width, in: 4...60, step: 2)
                         .frame(maxWidth: 200)
