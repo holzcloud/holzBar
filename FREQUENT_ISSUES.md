@@ -1,5 +1,8 @@
 # Frequent Issues <!-- omit in toc -->
 
+> [!NOTE]
+> This page comes from the original [Ice](https://github.com/jordanbaird/Ice) and links to its issue tracker. For problems with holzIce, please use [holzIce's issues](https://github.com/holzcloud/holzIce/issues).
+
 - [Items are moved to the always-hidden section](#items-are-moved-to-the-always-hidden-section)
 - [Ice removed an item](#ice-removed-an-item)
 - [Ice does not remember the order of items](#ice-does-not-remember-the-order-of-items)

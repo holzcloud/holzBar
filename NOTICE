@@ -1,0 +1,25 @@
+holzIce
+Copyright (C) 2026 holzcloud
+
+holzIce is a fork of Ice, a menu bar manager for macOS:
+
+    Ice
+    Copyright (C) 2023-2025 Jordan Baird
+    https://github.com/jordanbaird/Ice
+
+Ice is licensed under the GNU General Public License, version 3. holzIce is
+distributed under the same license; see LICENSE for the full text.
+
+As required by section 5 of the GPL-3.0, this is a modified version of Ice.
+Changes made in holzIce since forking on 2026-10-01 include:
+
+  - A macOS 27 backend, contributed upstream by RabenkoYevhenii in
+    https://github.com/jordanbaird/Ice/pull/995 and merged into holzIce.
+  - Resetting a stale permission from the permissions window.
+  - Distribution through Homebrew; Sparkle updates are disabled.
+  - A new logo and app icon.
+
+The full history of changes is available in this repository's Git history.
+
+The original Ice name, app and screenshots belong to Jordan Baird. holzIce is
+an independent fork and is not affiliated with or endorsed by the Ice project.
