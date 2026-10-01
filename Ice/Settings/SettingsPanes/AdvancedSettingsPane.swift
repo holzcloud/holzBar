@@ -199,19 +199,9 @@ struct AdvancedSettingsPane: View {
         .annotation("Exports layout, hotkeys and appearance to a file that can be imported on another Mac.")
     }
 
-    private var settingsSyncAnnotation: LocalizedStringKey {
-        if SettingsSync.iCloudDriveURL == nil {
-            "Turn on iCloud Drive in System Settings to sync holzIce's settings between your Macs."
-        } else {
-            "Keeps layout, profiles, hotkeys and appearance the same on all your Macs. Changes from another Mac apply after a restart."
-        }
-    }
-
     @ViewBuilder
     private var settingsSync: some View {
-        Toggle("Sync settings with iCloud Drive", isOn: $appState.settingsSync.isEnabled)
-            .disabled(SettingsSync.iCloudDriveURL == nil)
-            .annotation(settingsSyncAnnotation)
+        SettingsSyncToggle(sync: appState.settingsSync)
     }
 
     @ViewBuilder
@@ -254,5 +244,26 @@ private struct RevealRulesSettings: View {
         }
         Toggle("When the network connection is lost", isOn: $rules.revealsWhenOffline)
             .annotation("Hidden items are shown for the temporarily shown item delay, then hidden again.")
+    }
+}
+
+// MARK: - SettingsSyncToggle
+
+/// Turns syncing the settings through iCloud Drive on or off (jordanbaird/Ice#95).
+private struct SettingsSyncToggle: View {
+    @ObservedObject var sync: SettingsSync
+
+    private var annotation: LocalizedStringKey {
+        if SettingsSync.iCloudDriveURL == nil {
+            "Turn on iCloud Drive in System Settings to sync holzIce's settings between your Macs."
+        } else {
+            "Keeps layout, profiles, hotkeys and appearance the same on all your Macs. Changes from another Mac apply after a restart."
+        }
+    }
+
+    var body: some View {
+        Toggle("Sync settings with iCloud Drive", isOn: $sync.isEnabled)
+            .disabled(SettingsSync.iCloudDriveURL == nil)
+            .annotation(annotation)
     }
 }
