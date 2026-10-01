@@ -17,7 +17,7 @@ struct AboutSettingsPane: View {
 
     private var contributeURL: URL {
         // swiftlint:disable:next force_unwrapping
-        URL(string: "https://github.com/jordanbaird/Ice")!
+        URL(string: "https://github.com/holzcloud/holzIce")!
     }
 
     private var issuesURL: URL {
@@ -105,13 +105,26 @@ struct AboutSettingsPane: View {
     @ViewBuilder
     private var updatesSection: some View {
         IceSection(options: .hasDividers) {
-            automaticallyCheckForUpdates
-            automaticallyDownloadUpdates
             if updatesManager.canCheckForUpdates {
+                automaticallyCheckForUpdates
+                automaticallyDownloadUpdates
                 checkForUpdates
+            } else {
+                homebrewUpdates
             }
         }
         .frame(maxWidth: 600)
+    }
+
+    @ViewBuilder
+    private var homebrewUpdates: some View {
+        HStack {
+            Text("Updates are installed with Homebrew:")
+            Spacer()
+            Text("brew upgrade --cask holzice")
+                .font(.body.monospaced())
+                .textSelection(.enabled)
+        }
     }
 
     @ViewBuilder

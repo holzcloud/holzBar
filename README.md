@@ -26,17 +26,26 @@ Ice is a powerful menu bar management tool. While its primary function is hiding
 
 ## Install
 
-### Manual Installation
-
-Download the "Ice.zip" file from the [latest release](https://github.com/jordanbaird/Ice/releases/latest) and move the unzipped app into your `Applications` folder.
-
 ### Homebrew
 
-Install Ice using the following command:
+```sh
+brew tap holzcloud/holzice https://github.com/holzcloud/holzIce
+brew install --cask holzice
+```
+
+Update with `brew upgrade --cask holzice`. holzIce replaces the original `jordanbaird-ice` cask; uninstall that one first.
+
+The app is signed ad hoc (no Developer ID); the cask removes the quarantine attribute so that it opens. After an update, macOS may need the Accessibility permission granted again — use "Reset and Grant Again" in the permissions window.
+
+### Build from source
 
 ```sh
-brew install --cask jordanbaird-ice
+Scripts/install.sh
 ```
+
+### Releasing
+
+Push a tag `v<version>` (or run the "Release" workflow). It builds the app, publishes the release and updates `Casks/holzice.rb` on `main`.
 
 ## Features/Roadmap
 

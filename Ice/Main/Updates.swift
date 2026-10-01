@@ -19,8 +19,12 @@ final class UpdatesManager: NSObject, ObservableObject {
     private(set) weak var appState: AppState?
 
     /// The underlying updater controller.
+    ///
+    /// holzIce is updated with Homebrew (`brew upgrade --cask holzice`). The
+    /// updater is never started: its feed is the upstream one, and it would
+    /// replace holzIce with the original Ice.
     private(set) lazy var updaterController = SPUStandardUpdaterController(
-        startingUpdater: true,
+        startingUpdater: false,
         updaterDelegate: self,
         userDriverDelegate: self
     )
