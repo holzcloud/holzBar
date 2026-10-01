@@ -20,6 +20,7 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 - `Casks/holzice.rb` – the Homebrew cask; this repository is also the tap.
 - `.github/workflows/release.yml` – a `v*` tag builds the app on a macOS runner, publishes the release and updates the cask on `main`.
 - `Resources/Logo/` – logo and README banner sources (SVG).
+- `docs/upstream-bugs.md` – the open bug reports of the original Ice, grouped, and which of them holzIce has fixed. Update it when fixing one.
 
 ## Building
 

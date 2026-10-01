@@ -203,7 +203,14 @@ final class MenuBarManager: ObservableObject {
                             }
                         } else {
                             if let hiddenControlItem = items.firstIndex(matching: .hiddenControlItem).map({ items.remove(at: $0) }) {
-                                items.trimPrefix { $0.bounds.maxX <= hiddenControlItem.bounds.minX }
+                                // Only while the hidden section is hidden are its items off
+                                // the screen. Shown, they are the very items that may cover
+                                // the application menus, and dropping them meant the menus
+                                // were only ever hidden with the always-hidden section on
+                                // (jordanbaird/Ice#434).
+                                if self.section(withName: .hidden)?.controlItem.state == .hideSection {
+                                    items.trimPrefix { $0.bounds.maxX <= hiddenControlItem.bounds.minX }
+                                }
                             }
                         }
 
