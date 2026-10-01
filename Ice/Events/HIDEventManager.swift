@@ -663,7 +663,7 @@ extension HIDEventManager {
     private func handlePreventShowOnHover(with event: NSEvent, appState: AppState, screen: NSScreen) {
         guard
             appState.settings.general.showOnHover,
-            !appState.settings.general.useIceBar
+            !appState.settings.general.usesIceBar
         else {
             return
         }
