@@ -26,6 +26,9 @@ jobs:
           [ -n "$VERSION" ] || VERSION="${GITHUB_REF_NAME#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Check the release notes
+        run: test -f "docs/release-notes/v${{ steps.version.outputs.version }}.md" || { echo "::error::Missing docs/release-notes/v${{ steps.version.outputs.version }}.md"; exit 1; }
+
       - name: Select the newest Xcode
         run: |
           XCODE="$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
@@ -63,8 +66,13 @@ jobs:
           if [[ "$TAG" == v0.* || "$TAG" == *-* ]]; then
             PRERELEASE=(--prerelease)
           fi
+          NOTES="docs/release-notes/$TAG.md"
+          if [ ! -f "$NOTES" ]; then
+            echo "::error::Missing release notes: $NOTES"
+            exit 1
+          fi
           gh release create "$TAG" "${{ steps.package.outputs.zip }}" \
-            --target "$GITHUB_SHA" --title "holzIce $TAG" --generate-notes "${PRERELEASE[@]}"
+            --target "$GITHUB_SHA" --title "holzIce $TAG" --notes-file "$NOTES" "${PRERELEASE[@]}"
 
       - name: Update the Homebrew cask
         run: |

@@ -33,9 +33,7 @@ enum Constants {
     static let releasesURL = repositoryURL.appendingPathComponent("releases")
 
     /// The holzIce website.
-    ///
-    /// holzIce has no website of its own yet, so this is the repository for now.
-    static let websiteURL = repositoryURL
+    static let websiteURL = URL(string: "https://holzcloud.ch/holzice")!
 
     /// The original Ice by Jordan Baird, which holzIce is a fork of.
     static let originalIceURL = URL(string: "https://github.com/jordanbaird/Ice")!

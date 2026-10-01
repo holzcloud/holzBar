@@ -11,8 +11,14 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 
 - The app is called **holzIce** everywhere a user can see it (UI strings, menus, README). The bundle identifier is `com.holzcloud.holzIce`, the product is `holzIce.app`.
 - The Xcode project, target, scheme and Swift module are still called `Ice`, and so are internal type names (`IceBar`, `IceSection`, …). Leave them; renaming them would only churn the code.
-- Links in the app and the repository lead to holzIce (`Constants.repositoryURL`, `Constants.issuesURL`, `Constants.websiteURL`). The only exception is the credit to the original: "Based on Ice by Jordan Baird" in the About pane (`Constants.originalIceURL`), the README and NOTICE. `websiteURL` points to the repository until holzIce has a website.
+- Links in the app and the repository lead to holzIce (`Constants.repositoryURL`, `Constants.issuesURL`, `Constants.websiteURL`). The only exception is the credit to the original: "Based on Ice by Jordan Baird" in the About pane (`Constants.originalIceURL`), the README and NOTICE. The website is https://holzcloud.ch/holzice (`Constants.websiteURL`, README, cask `homepage`).
 - Keep `com.jordanbaird.Ice` only where it refers to the original app (importing its settings, the `jordanbaird-ice` cask conflict).
+
+## Releases
+
+- Every release gets clean, hand-written release notes in `docs/release-notes/v<version>.md` (English; sections such as Highlights, New, Fixed, Changed, Known issues, Install). The release workflow publishes that file as the release body and fails without it. Write it in the same pull request as the version's last change.
+- Releases before 1.0 are pre-releases (beta).
+- Keep the README's feature list and the comparison with Ice up to date when adding a feature.
 
 ## Layout
 
