@@ -43,11 +43,20 @@ final class AppState: ObservableObject {
     /// Manager for input events received by the app.
     let hidEventManager = HIDEventManager()
 
-    /// Manager for app updates.
-    let updatesManager = UpdatesManager()
+    /// Saved layout profiles.
+    let profiles = LayoutProfiles()
 
-    /// Manager for user notifications.
-    let userNotificationManager = UserNotificationManager()
+    /// Keeps the settings in step with other Macs through iCloud.
+    let settingsSync = SettingsSync()
+
+    /// Groups of menu bar items behind icons of their own.
+    let itemGroups = MenuBarItemGroups()
+
+    /// Empty menu bar items that add space between others.
+    let spacers = MenuBarSpacers()
+
+    /// Rules that show hidden items when something happens.
+    let revealRules = RevealRules()
 
     /// Storage for ``concealer27``, typed loosely so the property exists on every macOS.
     private var concealer27Storage: AnyObject?
@@ -107,8 +116,11 @@ final class AppState: ObservableObject {
         }
         await itemManager.performSetup(with: self)
         imageCache.performSetup(with: self)
-        updatesManager.performSetup(with: self)
-        userNotificationManager.performSetup(with: self)
+        profiles.performSetup(with: self)
+        settingsSync.performSetup(with: self)
+        itemGroups.performSetup(with: self)
+        spacers.performSetup()
+        revealRules.performSetup(with: self)
 
         configureCancellables()
     }
@@ -220,11 +232,6 @@ final class AppState: ObservableObject {
             }
             .store(in: &c)
         settings.objectWillChange
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &c)
-        updatesManager.objectWillChange
             .sink { [weak self] in
                 self?.objectWillChange.send()
             }

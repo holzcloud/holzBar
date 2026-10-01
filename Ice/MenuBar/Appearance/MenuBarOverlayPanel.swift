@@ -639,6 +639,13 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
         let drawableBounds = getDrawableBounds()
 
+        // A black menu bar replaces every other style: the notch disappears into it.
+        if fullConfiguration.blackBackground.applies(to: overlayPanel.owningScreen) {
+            NSColor.black.setFill()
+            drawableBounds.fill()
+            return
+        }
+
         let shapePath = switch fullConfiguration.shapeKind {
         case .noShape:
             NSBezierPath(rect: drawableBounds)

@@ -169,7 +169,7 @@ final class MenuBarManager: ObservableObject {
                 //   * The settings window is visible.
                 guard
                     appState.settings.advanced.hideApplicationMenus,
-                    !appState.settings.general.useIceBar,
+                    !appState.settings.general.usesIceBar,
                     !isMenuBarHiddenBySystem,
                     !appState.activeSpace.isFullscreen,
                     !appState.navigationState.isSettingsPresented

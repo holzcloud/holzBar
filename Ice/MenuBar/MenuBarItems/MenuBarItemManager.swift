@@ -381,6 +381,7 @@ extension MenuBarItemManager {
                 // An upgrade from an earlier macOS arrives with its sections in the bar's order and
                 // nowhere else, so the first readable bar is where they come from.
                 appState.concealer27.seedLayoutIfNeeded(items: items)
+                appState.concealer27.placeNewApplications(items: items)
                 let cache = appState.concealer27.cacheFromSavedLayout(items: items, displayID: displayID)
                 if itemCache != cache {
                     itemCache = cache
@@ -409,6 +410,13 @@ extension MenuBarItemManager {
                 await enforceControlItemOrder(controlItems: controlItems)
             }
             await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
+
+            if #unavailable(macOS 27.0) {
+                // Moving runs outside the cache task, which it would otherwise hold up.
+                Task {
+                    await self.placeNewItems(items, controlItems: controlItems)
+                }
+            }
         }
     }
 
@@ -432,6 +440,134 @@ extension MenuBarItemManager {
         let itemWindowIDs = Bridging.getMenuBarWindowList(option: [.itemsOnly, .activeSpace])
         if await cacheActor.cachedItemWindowIDs != itemWindowIDs {
             await cacheItemsRegardless(itemWindowIDs)
+        }
+    }
+}
+
+// MARK: - Moving Items Into Sections
+
+extension MenuBarItemManager {
+    /// Moves items into the sections given by their tags' descriptions, for
+    /// example to apply a layout profile. Items already in their section, and
+    /// items that are not on the bar, are left alone.
+    func move(itemsTo sections: [String: MenuBarSection.Name]) async {
+        var items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
+        guard let controlItems = ControlItemPair(items: &items) else {
+            logger.warning("Missing control item for hidden section, cannot move items into sections")
+            return
+        }
+        for item in items where item.isMovable && !item.isControlItem {
+            guard
+                var section = sections[item.tag.description],
+                itemCache.address(for: item.tag)?.section != section
+            else {
+                continue
+            }
+            if section == .alwaysHidden && controlItems.alwaysHidden == nil {
+                section = .hidden
+            }
+            let destination: MoveDestination = switch section {
+            case .visible: .rightOfItem(controlItems.hidden)
+            case .hidden: .leftOfItem(controlItems.hidden)
+            case .alwaysHidden: .leftOfItem(controlItems.alwaysHidden ?? controlItems.hidden)
+            }
+            do {
+                try await move(item: item, to: destination)
+            } catch {
+                logger.error("Error moving \(item.logString, privacy: .public) into \(section.logString, privacy: .public): \(error, privacy: .public)")
+            }
+        }
+        await cacheItemsRegardless()
+    }
+}
+
+// MARK: - Placing New Items
+
+extension MenuBarItemManager {
+    /// Moves menu bar items that holzIce has not seen before into the section
+    /// chosen in the settings (jordanbaird/Ice#6, jordanbaird/Ice#767,
+    /// jordanbaird/Ice#378).
+    ///
+    /// macOS puts a new item at the far left of the bar, which is wherever the
+    /// leftmost section happens to be. holzIce remembers every item it has seen,
+    /// so only items that are new to it are moved, and the first run only records
+    /// what is there. Items whose identity changes on every launch are left alone,
+    /// as they would be new every time.
+    private func placeNewItems(_ items: [MenuBarItem], controlItems: ControlItemPair) async {
+        guard let appState else {
+            return
+        }
+
+        if appState.settings.advanced.keepLiveActivitiesVisible {
+            await keepLiveActivitiesVisible(items, controlItems: controlItems)
+        }
+
+        let candidates = items.filter { item in
+            item.isMovable &&
+            item.canBeHidden &&
+            !item.isControlItem &&
+            !item.isSystemClone &&
+            !item.tag.namespace.isUUID
+        }
+        let stored = Defaults.array(forKey: .knownItemTags) as? [String]
+        var known = Set(stored ?? [])
+        let newItems = candidates.filter { !known.contains($0.tag.description) }
+
+        guard stored == nil || !newItems.isEmpty else {
+            return
+        }
+        known.formUnion(candidates.map(\.tag.description))
+        Defaults.set(known.sorted(), forKey: .knownItemTags)
+
+        guard
+            stored != nil,
+            var section = appState.settings.advanced.newItemsPlacement.section
+        else {
+            return
+        }
+        if section == .alwaysHidden && controlItems.alwaysHidden == nil {
+            section = .hidden
+        }
+
+        for item in newItems where itemCache.address(for: item.tag)?.section != section {
+            let destination: MoveDestination = switch section {
+            case .visible: .rightOfItem(controlItems.hidden)
+            case .hidden: .leftOfItem(controlItems.hidden)
+            case .alwaysHidden: .leftOfItem(controlItems.alwaysHidden ?? controlItems.hidden)
+            }
+            do {
+                logger.info("Placing new item \(item.logString, privacy: .public) in \(section.logString, privacy: .public)")
+                try await move(item: item, to: destination)
+            } catch {
+                logger.error("Error placing new item \(item.logString, privacy: .public): \(error, privacy: .public)")
+            }
+        }
+    }
+}
+
+extension MenuBarItemManager {
+    /// Moves Live Activities that macOS put in a hidden section to the visible
+    /// one (jordanbaird/Ice#731).
+    ///
+    /// A Live Activity appears as a new item at the far left of the bar, which
+    /// is a hidden section, so without this it is only seen by showing that section.
+    private func keepLiveActivitiesVisible(_ items: [MenuBarItem], controlItems: ControlItemPair) async {
+        for item in items where item.isMovable && !item.isControlItem {
+            let isHidden = item.bounds.maxX <= controlItems.hidden.bounds.minX
+            guard isHidden else {
+                continue
+            }
+            if item.tag.isLiveActivity {
+                do {
+                    logger.info("Keeping Live Activity \(item.logString, privacy: .public) visible")
+                    try await move(item: item, to: .rightOfItem(controlItems.hidden))
+                } catch {
+                    logger.error("Error moving Live Activity \(item.logString, privacy: .public): \(error, privacy: .public)")
+                }
+            } else if item.tag.namespace.isUUID || item.tag.namespace.description.hasPrefix("com.apple.") {
+                // Helps find the process that draws Live Activities.
+                logger.debug("Hidden system item: \(item.tag.description, privacy: .public)")
+            }
         }
     }
 }

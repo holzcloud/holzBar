@@ -31,6 +31,9 @@ final class MenuBarAppearanceManager: ObservableObject {
     /// The currently managed menu bar overlay panels.
     private(set) var overlayPanels = Set<MenuBarOverlayPanel>()
 
+    /// The rounded screen corners.
+    private let screenCorners = ScreenCorners()
+
     /// The amount to inset the menu bar if called for by the configuration.
     let menuBarInsetAmount: CGFloat = if #available(macOS 26.0, *) { 3.5 } else { 5 }
 
@@ -39,6 +42,7 @@ final class MenuBarAppearanceManager: ObservableObject {
         self.appState = appState
         loadInitialState()
         configureCancellables()
+        screenCorners.performSetup(with: self)
     }
 
     /// Loads the initial values for the configuration.
@@ -115,6 +119,9 @@ final class MenuBarAppearanceManager: ObservableObject {
             return true
         }
         if current.tintKind != .noTint {
+            return true
+        }
+        if configuration.blackBackground != .off {
             return true
         }
         return false

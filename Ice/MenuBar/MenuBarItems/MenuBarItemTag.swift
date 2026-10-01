@@ -52,6 +52,26 @@ struct MenuBarItemTag: Hashable, CustomStringConvertible {
         namespace.isUUID && title == "System Status Item Clone"
     }
 
+    /// The processes known to draw Live Activities in the menu bar.
+    ///
+    /// None of the reports name the process (jordanbaird/Ice#731), so these are
+    /// the likely candidates; ``MenuBarItemManager`` logs the namespaces of
+    /// short-lived items to find the real one.
+    private static let liveActivityNamespaces: Set<String> = [
+        "com.apple.ActivityKit",
+        "com.apple.liveactivitiesd",
+        "com.apple.ScreenContinuityAgent",
+        "com.apple.ScreenContinuityUI",
+        "com.apple.chronod",
+    ]
+
+    /// A Boolean value that indicates whether the item identified by this tag
+    /// shows a Live Activity.
+    var isLiveActivity: Bool {
+        Self.liveActivityNamespaces.contains(namespace.description) ||
+        title.localizedCaseInsensitiveContains("LiveActivit")
+    }
+
     /// A textual representation of the tag.
     var description: String {
         var result = String(describing: namespace)

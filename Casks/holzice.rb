@@ -6,7 +6,7 @@ cask "holzice" do
   url "https://github.com/holzcloud/holzIce/releases/download/v#{version}/holzIce-#{version}.zip"
   name "holzIce"
   desc "Menu bar manager (fork of Ice with macOS 27 support)"
-  homepage "https://github.com/holzcloud/holzIce"
+  homepage "https://holzcloud.ch/holzice"
 
   # Releases before 1.0 are pre-releases, which :github_latest skips.
   livecheck do

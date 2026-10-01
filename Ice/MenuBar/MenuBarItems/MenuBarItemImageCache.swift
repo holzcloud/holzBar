@@ -402,6 +402,10 @@ final class MenuBarItemImageCache: ObservableObject {
             let section = await appState.menuBarManager.iceBarPanel.currentSection
         {
             sectionsNeedingDisplay.append(section)
+            // Items covered by the notch are shown along with the hidden section.
+            if section == .hidden, await appState.settings.general.showsNotchOverflowInIceBar {
+                sectionsNeedingDisplay.append(.visible)
+            }
         }
 
         await updateCache(sections: sectionsNeedingDisplay)

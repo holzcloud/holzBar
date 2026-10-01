@@ -29,12 +29,21 @@ struct AdvancedSettingsPane: View {
                 enableAlwaysHiddenSection
                 showAllSectionsOnUserDrag
                 sectionDividerStyle
+                newItemsPlacement
+                keepLiveActivitiesVisible
             }
             IceSection("Other") {
                 hideApplicationMenus
                 enableSecondaryContextMenu
                 showOnHoverDelay
                 tempShowInterval
+            }
+            IceSection("Show Hidden Items Automatically") {
+                RevealRulesSettings(rules: appState.revealRules)
+            }
+            IceSection("Settings") {
+                settingsBackup
+                settingsSync
             }
             IceSection("Permissions") {
                 allPermissions
@@ -59,6 +68,24 @@ struct AdvancedSettingsPane: View {
     }
 
     @ViewBuilder
+    private var newItemsPlacement: some View {
+        IcePicker("Place new menu bar items in", selection: $settings.newItemsPlacement) {
+            ForEach(NewItemsPlacement.allCases) { placement in
+                if placement != .alwaysHidden || settings.enableAlwaysHiddenSection {
+                    Text(placement.localized).tag(placement)
+                }
+            }
+        }
+        .annotation("Applies to items holzIce has not seen before. Items that are already arranged stay where they are.")
+    }
+
+    @ViewBuilder
+    private var keepLiveActivitiesVisible: some View {
+        Toggle("Keep Live Activities visible", isOn: $settings.keepLiveActivitiesVisible)
+            .annotation("Live Activities from your iPhone stay in the menu bar instead of being hidden. Experimental.")
+    }
+
+    @ViewBuilder
     private var sectionDividerStyle: some View {
         IcePicker("Section divider style", selection: $settings.sectionDividerStyle) {
             ForEach(SectionDividerStyle.allCases) { style in
@@ -74,14 +101,28 @@ struct AdvancedSettingsPane: View {
             isOn: $settings.hideApplicationMenus
         )
         .annotation {
-            Text(
-                """
-                Make more room in the menu bar by hiding the current app menus if \
-                needed. macOS requires holzIce to make itself visible in the Dock while \
-                this setting is in effect.
-                """
-            )
-            .padding(.trailing, 75)
+            if #available(macOS 27.0, *) {
+                Text("Not needed on macOS 27, which folds items that do not fit behind its own overflow button.")
+                    .padding(.trailing, 75)
+            } else {
+                Text(
+                    """
+                    Make more room in the menu bar by hiding the current app menus if \
+                    needed. macOS requires holzIce to make itself visible in the Dock while \
+                    this setting is in effect.
+                    """
+                )
+                .padding(.trailing, 75)
+            }
+        }
+        .disabled(isMacOS27)
+    }
+
+    private var isMacOS27: Bool {
+        if #available(macOS 27.0, *) {
+            true
+        } else {
+            false
         }
     }
 
@@ -142,6 +183,28 @@ struct AdvancedSettingsPane: View {
     }
 
     @ViewBuilder
+    private var settingsBackup: some View {
+        LabeledContent {
+            HStack {
+                Button("Export…") {
+                    SettingsBackup.exportToFile()
+                }
+                Button("Import…") {
+                    SettingsBackup.importFromFile()
+                }
+            }
+        } label: {
+            Text("Back up or move your settings")
+        }
+        .annotation("Exports layout, hotkeys and appearance to a file that can be imported on another Mac.")
+    }
+
+    @ViewBuilder
+    private var settingsSync: some View {
+        SettingsSyncToggle(sync: appState.settingsSync)
+    }
+
+    @ViewBuilder
     private var allPermissions: some View {
         ForEach(appState.permissions.allPermissions) { permission in
             LabeledContent {
@@ -162,5 +225,45 @@ struct AdvancedSettingsPane: View {
             }
             .frame(height: 22)
         }
+    }
+}
+
+// MARK: - RevealRulesSettings
+
+/// Settings for showing hidden items when something needs attention
+/// (jordanbaird/Ice#62).
+private struct RevealRulesSettings: View {
+    @ObservedObject var rules: RevealRules
+
+    var body: some View {
+        Toggle("When the battery is low", isOn: $rules.revealsOnLowBattery)
+        if rules.revealsOnLowBattery {
+            Stepper(value: $rules.lowBatteryThreshold, in: 5...50, step: 5) {
+                Text("Below \(rules.lowBatteryThreshold) %")
+            }
+        }
+        Toggle("When the network connection is lost", isOn: $rules.revealsWhenOffline)
+            .annotation("Hidden items are shown for the temporarily shown item delay, then hidden again.")
+    }
+}
+
+// MARK: - SettingsSyncToggle
+
+/// Turns syncing the settings through iCloud Drive on or off (jordanbaird/Ice#95).
+private struct SettingsSyncToggle: View {
+    @ObservedObject var sync: SettingsSync
+
+    private var annotation: LocalizedStringKey {
+        if SettingsSync.iCloudDriveURL == nil {
+            "Turn on iCloud Drive in System Settings to sync holzIce's settings between your Macs."
+        } else {
+            "Keeps layout, profiles, hotkeys and appearance the same on all your Macs. Changes from another Mac apply after a restart."
+        }
+    }
+
+    var body: some View {
+        Toggle("Sync settings with iCloud Drive", isOn: $sync.isEnabled)
+            .disabled(SettingsSync.iCloudDriveURL == nil)
+            .annotation(annotation)
     }
 }

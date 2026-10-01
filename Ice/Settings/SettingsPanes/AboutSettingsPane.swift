@@ -7,20 +7,11 @@ import SwiftUI
 
 struct AboutSettingsPane: View {
     @EnvironmentObject var appState: AppState
-    @ObservedObject var updatesManager: UpdatesManager
     @Environment(\.openURL) private var openURL
 
     private var acknowledgementsURL: URL {
         // swiftlint:disable:next force_unwrapping
         Bundle.main.url(forResource: "Acknowledgements", withExtension: "pdf")!
-    }
-
-    private var lastUpdateCheckString: String {
-        if let date = updatesManager.lastUpdateCheckDate {
-            date.formatted(date: .abbreviated, time: .standard)
-        } else {
-            "Never"
-        }
     }
 
     var body: some View {
@@ -108,54 +99,22 @@ struct AboutSettingsPane: View {
     @ViewBuilder
     private var updatesSection: some View {
         IceSection(options: .hasDividers) {
-            if updatesManager.canCheckForUpdates {
-                automaticallyCheckForUpdates
-                automaticallyDownloadUpdates
-                checkForUpdates
-            } else {
-                homebrewUpdates
+            HStack {
+                Text("Updates are installed with Homebrew:")
+                Spacer()
+                Text("brew upgrade --cask holzice")
+                    .font(.body.monospaced())
+                    .textSelection(.enabled)
+            }
+            HStack {
+                Text("Release notes for every version are on GitHub.")
+                Spacer()
+                Button("Releases") {
+                    openURL(Constants.releasesURL)
+                }
             }
         }
         .frame(maxWidth: 600)
-    }
-
-    @ViewBuilder
-    private var homebrewUpdates: some View {
-        HStack {
-            Text("Updates are installed with Homebrew:")
-            Spacer()
-            Text("brew upgrade --cask holzice")
-                .font(.body.monospaced())
-                .textSelection(.enabled)
-        }
-    }
-
-    @ViewBuilder
-    private var automaticallyCheckForUpdates: some View {
-        Toggle(
-            "Automatically check for updates",
-            isOn: $updatesManager.automaticallyChecksForUpdates
-        )
-    }
-
-    @ViewBuilder
-    private var automaticallyDownloadUpdates: some View {
-        Toggle(
-            "Automatically download updates",
-            isOn: $updatesManager.automaticallyDownloadsUpdates
-        )
-    }
-
-    @ViewBuilder
-    private var checkForUpdates: some View {
-        HStack {
-            Button("Check for Updates") {
-                updatesManager.checkForUpdates()
-            }
-            Spacer()
-            Text("Last checked: \(lastUpdateCheckString)")
-                .font(.caption)
-        }
     }
 
     @ViewBuilder

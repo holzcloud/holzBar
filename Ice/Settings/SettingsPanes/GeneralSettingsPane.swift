@@ -177,6 +177,9 @@ struct GeneralSettingsPane: View {
         useIceBar
         if settings.useIceBar {
             iceBarLocationPicker
+            iceBarDisplaysPicker
+            Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInIceBar)
+                .annotation("Visible items that the notch hides, for example behind a long application menu, also appear in the holzIce Bar.")
         }
     }
 
@@ -203,6 +206,16 @@ struct GeneralSettingsPane: View {
                 Text("The holzIce Bar is centered below the holzIce icon.")
             }
         }
+    }
+
+    @ViewBuilder
+    private var iceBarDisplaysPicker: some View {
+        IcePicker("Use on", selection: $settings.iceBarDisplays) {
+            ForEach(IceBarDisplays.allCases) { displays in
+                Text(displays.localized).tag(displays)
+            }
+        }
+        .annotation("On other displays, hidden menu bar items are shown in the menu bar itself.")
     }
 
     // MARK: Show Options

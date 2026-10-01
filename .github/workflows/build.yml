@@ -1,0 +1,38 @@
+name: Build
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/build.yml"
+      - "**/*.swift"
+      - "Ice.xcodeproj/**"
+      - "Ice/Resources/**"
+      - "MenuBarItemService/**"
+  push:
+    branches: [ "main" ]
+    paths:
+      - "**/*.swift"
+      - "Ice.xcodeproj/**"
+
+jobs:
+  build:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select the newest Xcode
+        run: |
+          XCODE="$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      # Same settings as the release build (see release.yml), without publishing.
+      - name: Build
+        run: |
+          set +e
+          xcodebuild -project Ice.xcodeproj -scheme Ice -configuration Release \
+            -destination 'platform=macOS' -derivedDataPath build build \
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
+            ENABLE_HARDENED_RUNTIME=NO > build.log 2>&1
+          STATUS=$?
+          grep -E "error:|\*\* BUILD" build.log || tail -50 build.log
+          exit $STATUS

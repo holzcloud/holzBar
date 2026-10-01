@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     override init() {
         // Must come before the app state, which reads the settings.
         MigrationManager.importIceSettingsIfNeeded()
+        SettingsSync.pullIfNeeded()
         self.appState = AppState()
         super.init()
     }
@@ -24,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Initial chore work.
         NSSplitViewItem.swizzle()
         MigrationManager(appState: appState).migrateAll()
+        URLCommands.register(appState: appState)
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {

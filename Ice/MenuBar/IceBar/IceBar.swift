@@ -293,7 +293,23 @@ private struct IceBarContentView: View {
     let section: MenuBarSection.Name
 
     private var items: [MenuBarItem] {
-        itemManager.itemCache.managedItems(for: section)
+        let sectionItems = itemManager.itemCache.managedItems(for: section)
+        guard
+            section == .hidden,
+            appState.settings.general.showsNotchOverflowInIceBar,
+            let notch = screen.frameOfNotch
+        else {
+            return sectionItems
+        }
+        // Visible items under the notch cannot be seen or clicked, so the bar
+        // offers them too (jordanbaird/Ice#227, jordanbaird/Ice#570). The
+        // horizontal coordinates of item bounds and screen frames agree.
+        let covered = itemManager.itemCache.managedItems(for: .visible).filter { item in
+            !item.isControlItem &&
+            item.bounds.maxX > notch.minX &&
+            item.bounds.minX < notch.maxX
+        }
+        return covered + sectionItems
     }
 
     private var configuration: MenuBarAppearanceConfigurationV2 {
