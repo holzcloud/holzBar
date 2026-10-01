@@ -36,6 +36,9 @@ final class AdvancedSettings: ObservableObject {
     /// Time interval to temporarily show items for.
     @Published var tempShowInterval: TimeInterval = 15
 
+    /// The section that new menu bar items are placed in.
+    @Published var newItemsPlacement: NewItemsPlacement = .systemDefault
+
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
 
@@ -61,6 +64,12 @@ final class AdvancedSettings: ObservableObject {
         Defaults.ifPresent(key: .sectionDividerStyle) { rawValue in
             if let style = SectionDividerStyle(rawValue: rawValue) {
                 sectionDividerStyle = style
+            }
+        }
+
+        Defaults.ifPresent(key: .newItemsPlacement) { rawValue in
+            if let placement = NewItemsPlacement(rawValue: rawValue) {
+                newItemsPlacement = placement
             }
         }
     }
@@ -118,6 +127,13 @@ final class AdvancedSettings: ObservableObject {
             }
             .store(in: &c)
 
+        $newItemsPlacement
+            .receive(on: DispatchQueue.main)
+            .sink { placement in
+                Defaults.set(placement.rawValue, forKey: .newItemsPlacement)
+            }
+            .store(in: &c)
+
         cancellables = c
     }
 }
@@ -135,6 +151,42 @@ enum SectionDividerStyle: Int, CaseIterable, Identifiable {
         switch self {
         case .noDivider: "None"
         case .chevron: "Chevron"
+        }
+    }
+}
+
+// MARK: - NewItemsPlacement
+
+/// Where holzIce places menu bar items it has not seen before.
+enum NewItemsPlacement: Int, CaseIterable, Identifiable {
+    /// Leave new items where macOS puts them.
+    case systemDefault = 0
+    /// Move new items to the visible section.
+    case visible = 1
+    /// Move new items to the hidden section.
+    case hidden = 2
+    /// Move new items to the always-hidden section.
+    case alwaysHidden = 3
+
+    var id: Int { rawValue }
+
+    /// The section that new items are placed in, or `nil` to leave them alone.
+    var section: MenuBarSection.Name? {
+        switch self {
+        case .systemDefault: nil
+        case .visible: .visible
+        case .hidden: .hidden
+        case .alwaysHidden: .alwaysHidden
+        }
+    }
+
+    /// Localized string key representation.
+    var localized: LocalizedStringKey {
+        switch self {
+        case .systemDefault: "Where macOS puts them"
+        case .visible: "Visible"
+        case .hidden: "Hidden"
+        case .alwaysHidden: "Always-Hidden"
         }
     }
 }

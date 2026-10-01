@@ -29,6 +29,7 @@ struct AdvancedSettingsPane: View {
                 enableAlwaysHiddenSection
                 showAllSectionsOnUserDrag
                 sectionDividerStyle
+                newItemsPlacement
             }
             IceSection("Other") {
                 hideApplicationMenus
@@ -56,6 +57,18 @@ struct AdvancedSettingsPane: View {
             "Show all sections when ⌘ Command + dragging menu bar items",
             isOn: $settings.showAllSectionsOnUserDrag
         )
+    }
+
+    @ViewBuilder
+    private var newItemsPlacement: some View {
+        IcePicker("Place new menu bar items in", selection: $settings.newItemsPlacement) {
+            ForEach(NewItemsPlacement.allCases) { placement in
+                if placement != .alwaysHidden || settings.enableAlwaysHiddenSection {
+                    Text(placement.localized).tag(placement)
+                }
+            }
+        }
+        .annotation("Applies to items holzIce has not seen before. Items that are already arranged stay where they are.")
     }
 
     @ViewBuilder

@@ -300,6 +300,50 @@ final class Concealer27: ObservableObject {
         endTemporaryShow(bundleIDs: CollectionOfOne(bundleID))
     }
 
+    /// Puts applications that holzIce has not seen before into the section chosen
+    /// in the settings (jordanbaird/Ice#6, jordanbaird/Ice#767).
+    ///
+    /// An application missing from the saved layout is visible. holzIce remembers
+    /// every application it has seen on the bar, so only new ones are placed, and
+    /// the first run only records what is there.
+    func placeNewApplications(items: [MenuBarItem]) {
+        guard let appState else {
+            return
+        }
+        let bundleIDs = Set(items.compactMap { item -> String? in
+            guard item.canBeHidden, !item.isSystemClone, !item.isControlItem else {
+                return nil
+            }
+            return item.sourceApplication?.bundleIdentifier
+        })
+        let stored = Defaults.array(forKey: .knownApplications27) as? [String]
+        let known = Set(stored ?? [])
+        let newBundleIDs = bundleIDs.subtracting(known).subtracting(savedLayout.keys)
+
+        guard stored == nil || !newBundleIDs.isEmpty else {
+            return
+        }
+        Defaults.set(known.union(bundleIDs).sorted(), forKey: .knownApplications27)
+
+        guard
+            stored != nil,
+            var name = appState.settings.advanced.newItemsPlacement.section,
+            name != .visible
+        else {
+            return
+        }
+        if name == .alwaysHidden && !appState.settings.advanced.enableAlwaysHiddenSection {
+            name = .hidden
+        }
+        var layout = savedLayout
+        for bundleID in newBundleIDs {
+            layout = SectionLayout27.settingSection(MacOS27Section(name), for: bundleID, in: layout)
+            logger.notice("Placed new application \(bundleID, privacy: .public) in \(name.logString, privacy: .public)")
+        }
+        Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
+        update()
+    }
+
     /// Moves an application to a section of the saved layout and applies it.
     func setSection(_ section: MacOS27Section, for bundleID: String) {
         let updated = SectionLayout27.settingSection(section, for: bundleID, in: savedLayout)
