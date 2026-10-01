@@ -18,6 +18,13 @@ and make the bar look the way you like — on the notch, on every display, on ma
 
 ---
 
+> [!IMPORTANT]
+> ### 🧊 holzIce is a fork of the wonderful [Ice](https://github.com/jordanbaird/Ice) by [Jordan Baird](https://github.com/jordanbaird)
+> Ice is one of the best menu bar managers ever made for the Mac, and nearly everything you see here is Jordan's work.
+> holzIce only keeps it going on macOS 27 while upstream development is slow. **If you enjoy holzIce, please ⭐ star
+> [Ice](https://github.com/jordanbaird/Ice) and consider [sponsoring Jordan](https://github.com/sponsors/jordanbaird).**
+> holzIce is independent and not affiliated with or endorsed by the Ice project.
+
 ## ✨ Why holzIce?
 
 holzIce is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird. Ice is a fantastic tool, but its development has slowed down — and macOS 27 broke it for most people. holzIce picks it up from there:
@@ -138,9 +145,9 @@ git tag v0.11.13-holz.1 && git push origin v0.11.13-holz.1
 
 ## 🙏 Credits
 
-- [**Ice**](https://github.com/jordanbaird/Ice) by [Jordan Baird](https://github.com/jordanbaird) — the app holzIce is built on. If you like it, consider [sponsoring Jordan](https://github.com/sponsors/jordanbaird).
+- [**Ice**](https://github.com/jordanbaird/Ice) by [Jordan Baird](https://github.com/jordanbaird) — the app holzIce is built on: its design, its features and almost all of its code. Thank you, Jordan! 💙 If you like it, [sponsor Jordan](https://github.com/sponsors/jordanbaird) or [buy him a coffee](https://www.buymeacoffee.com/jordanbaird).
 - [**RabenkoYevhenii**](https://github.com/RabenkoYevhenii) — the macOS 27 backend ([jordanbaird/Ice#995](https://github.com/jordanbaird/Ice/pull/995)).
 
 ## 📄 License
 
-holzIce is available under the [GPL-3.0 license](LICENSE), like Ice.
+holzIce is available under the [GPL-3.0 license](LICENSE), like Ice. See [NOTICE](NOTICE) for attribution and a summary of the changes made in this fork.
