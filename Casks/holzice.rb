@@ -8,9 +8,11 @@ cask "holzice" do
   desc "Menu bar manager (fork of Ice with macOS 27 support)"
   homepage "https://github.com/holzcloud/holzIce"
 
+  # Releases before 1.0 are pre-releases, which :github_latest skips.
   livecheck do
-    url :url
-    strategy :github_latest
+    url "https://github.com/holzcloud/holzIce.git"
+    strategy :git
+    regex(/^v?(\d+(?:\.\d+)+(?:-[\w.]+)?)$/i)
   end
 
   conflicts_with cask: "jordanbaird-ice"
