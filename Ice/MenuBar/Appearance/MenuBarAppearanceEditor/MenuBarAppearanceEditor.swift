@@ -76,6 +76,34 @@ struct MenuBarAppearanceEditor: View {
                 shapePicker
                 isInset
             }
+            IceSection("Notch and Screen") {
+                blackBackgroundPicker
+                screenCorners
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var blackBackgroundPicker: some View {
+        IcePicker("Black menu bar", selection: $appearanceManager.configuration.blackBackground) {
+            ForEach(MenuBarBlackBackground.allCases) { option in
+                Text(option.localized).tag(option)
+            }
+        }
+        .annotation("Draws the menu bar solid black, so the notch blends into it. Works best in dark mode, where the menu bar text is light.")
+    }
+
+    @ViewBuilder
+    private var screenCorners: some View {
+        Toggle("Round the screen corners", isOn: $appearanceManager.configuration.roundsScreenCorners)
+            .annotation("Draws rounded corners on every display, like the corners of a MacBook display.")
+        if appearanceManager.configuration.roundsScreenCorners {
+            LabeledContent {
+                Slider(value: $appearanceManager.configuration.screenCornerRadius, in: 4...24, step: 1)
+                    .frame(maxWidth: 200)
+            } label: {
+                Text("Corner radius: \(Int(appearanceManager.configuration.screenCornerRadius)) pt")
+            }
         }
     }
 

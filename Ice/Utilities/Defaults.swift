@@ -164,6 +164,7 @@ extension Defaults {
         case showOnHoverDelay = "ShowOnHoverDelay"
         case tempShowInterval = "TempShowInterval"
         case newItemsPlacement = "NewItemsPlacement"
+        case keepLiveActivitiesVisible = "KeepLiveActivitiesVisible"
         case knownItemTags = "KnownItemTags"
         case knownApplications27 = "KnownApplications27"
 

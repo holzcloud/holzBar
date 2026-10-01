@@ -39,6 +39,10 @@ final class AdvancedSettings: ObservableObject {
     /// The section that new menu bar items are placed in.
     @Published var newItemsPlacement: NewItemsPlacement = .systemDefault
 
+    /// A Boolean value that indicates whether Live Activities stay in the
+    /// visible section.
+    @Published var keepLiveActivitiesVisible = true
+
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
 
@@ -60,6 +64,7 @@ final class AdvancedSettings: ObservableObject {
         Defaults.ifPresent(key: .enableSecondaryContextMenu, assign: &enableSecondaryContextMenu)
         Defaults.ifPresent(key: .showOnHoverDelay, assign: &showOnHoverDelay)
         Defaults.ifPresent(key: .tempShowInterval, assign: &tempShowInterval)
+        Defaults.ifPresent(key: .keepLiveActivitiesVisible, assign: &keepLiveActivitiesVisible)
 
         Defaults.ifPresent(key: .sectionDividerStyle) { rawValue in
             if let style = SectionDividerStyle(rawValue: rawValue) {
@@ -124,6 +129,13 @@ final class AdvancedSettings: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { interval in
                 Defaults.set(interval, forKey: .tempShowInterval)
+            }
+            .store(in: &c)
+
+        $keepLiveActivitiesVisible
+            .receive(on: DispatchQueue.main)
+            .sink { keep in
+                Defaults.set(keep, forKey: .keepLiveActivitiesVisible)
             }
             .store(in: &c)
 

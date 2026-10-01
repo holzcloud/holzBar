@@ -14,6 +14,9 @@ struct MenuBarAppearanceConfigurationV2: Hashable {
     var splitShapeInfo: MenuBarSplitShapeInfo
     var isInset: Bool
     var isDynamic: Bool
+    var blackBackground: MenuBarBlackBackground = .off
+    var roundsScreenCorners = false
+    var screenCornerRadius: Double = 10
 
     var hasRoundedShape: Bool {
         switch shapeKind {
@@ -59,6 +62,9 @@ extension MenuBarAppearanceConfigurationV2: Codable {
         case splitShapeInfo
         case isInset
         case isDynamic
+        case blackBackground
+        case roundsScreenCorners
+        case screenCornerRadius
     }
 
     init(from decoder: any Decoder) throws {
@@ -71,7 +77,10 @@ extension MenuBarAppearanceConfigurationV2: Codable {
             fullShapeInfo: container.decodeIfPresent(MenuBarFullShapeInfo.self, forKey: .fullShapeInfo) ?? Self.defaultConfiguration.fullShapeInfo,
             splitShapeInfo: container.decodeIfPresent(MenuBarSplitShapeInfo.self, forKey: .splitShapeInfo) ?? Self.defaultConfiguration.splitShapeInfo,
             isInset: container.decodeIfPresent(Bool.self, forKey: .isInset) ?? Self.defaultConfiguration.isInset,
-            isDynamic: container.decodeIfPresent(Bool.self, forKey: .isDynamic) ?? Self.defaultConfiguration.isDynamic
+            isDynamic: container.decodeIfPresent(Bool.self, forKey: .isDynamic) ?? Self.defaultConfiguration.isDynamic,
+            blackBackground: container.decodeIfPresent(MenuBarBlackBackground.self, forKey: .blackBackground) ?? Self.defaultConfiguration.blackBackground,
+            roundsScreenCorners: container.decodeIfPresent(Bool.self, forKey: .roundsScreenCorners) ?? Self.defaultConfiguration.roundsScreenCorners,
+            screenCornerRadius: container.decodeIfPresent(Double.self, forKey: .screenCornerRadius) ?? Self.defaultConfiguration.screenCornerRadius
         )
     }
 
@@ -85,6 +94,9 @@ extension MenuBarAppearanceConfigurationV2: Codable {
         try container.encode(splitShapeInfo, forKey: .splitShapeInfo)
         try container.encode(isInset, forKey: .isInset)
         try container.encode(isDynamic, forKey: .isDynamic)
+        try container.encode(blackBackground, forKey: .blackBackground)
+        try container.encode(roundsScreenCorners, forKey: .roundsScreenCorners)
+        try container.encode(screenCornerRadius, forKey: .screenCornerRadius)
     }
 }
 
@@ -150,5 +162,36 @@ extension MenuBarAppearancePartialConfiguration: Codable {
         try container.encode(tintKind, forKey: .tintKind)
         try container.encode(IceColor(cgColor: tintColor), forKey: .tintColor)
         try container.encode(tintGradient, forKey: .tintGradient)
+    }
+}
+
+// MARK: - MenuBarBlackBackground
+
+/// Where the menu bar is drawn solid black, which hides the notch
+/// (jordanbaird/Ice#82).
+enum MenuBarBlackBackground: Int, Codable, CaseIterable, Identifiable {
+    case off = 0
+    case notchedDisplays = 1
+    case allDisplays = 2
+
+    var id: Int { rawValue }
+
+    /// Localized string key representation.
+    var localized: LocalizedStringKey {
+        switch self {
+        case .off: "Off"
+        case .notchedDisplays: "Displays with a notch"
+        case .allDisplays: "All displays"
+        }
+    }
+
+    /// Returns a Boolean value that indicates whether the menu bar is black on
+    /// the given screen.
+    func applies(to screen: NSScreen) -> Bool {
+        switch self {
+        case .off: false
+        case .notchedDisplays: screen.hasNotch
+        case .allDisplays: true
+        }
     }
 }

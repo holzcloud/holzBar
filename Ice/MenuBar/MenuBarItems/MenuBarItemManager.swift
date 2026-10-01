@@ -461,6 +461,10 @@ extension MenuBarItemManager {
             return
         }
 
+        if appState.settings.advanced.keepLiveActivitiesVisible {
+            await keepLiveActivitiesVisible(items, controlItems: controlItems)
+        }
+
         let candidates = items.filter { item in
             item.isMovable &&
             item.canBeHidden &&
@@ -499,6 +503,33 @@ extension MenuBarItemManager {
                 try await move(item: item, to: destination)
             } catch {
                 logger.error("Error placing new item \(item.logString, privacy: .public): \(error, privacy: .public)")
+            }
+        }
+    }
+}
+
+extension MenuBarItemManager {
+    /// Moves Live Activities that macOS put in a hidden section to the visible
+    /// one (jordanbaird/Ice#731).
+    ///
+    /// A Live Activity appears as a new item at the far left of the bar, which
+    /// is a hidden section, so without this it is only seen by showing that section.
+    private func keepLiveActivitiesVisible(_ items: [MenuBarItem], controlItems: ControlItemPair) async {
+        for item in items where item.isMovable && !item.isControlItem {
+            let isHidden = item.bounds.maxX <= controlItems.hidden.bounds.minX
+            guard isHidden else {
+                continue
+            }
+            if item.tag.isLiveActivity {
+                do {
+                    logger.info("Keeping Live Activity \(item.logString, privacy: .public) visible")
+                    try await move(item: item, to: .rightOfItem(controlItems.hidden))
+                } catch {
+                    logger.error("Error moving Live Activity \(item.logString, privacy: .public): \(error, privacy: .public)")
+                }
+            } else if item.tag.namespace.isUUID || item.tag.namespace.description.hasPrefix("com.apple.") {
+                // Helps find the process that draws Live Activities.
+                logger.debug("Hidden system item: \(item.tag.description, privacy: .public)")
             }
         }
     }

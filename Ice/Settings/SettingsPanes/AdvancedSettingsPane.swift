@@ -30,12 +30,16 @@ struct AdvancedSettingsPane: View {
                 showAllSectionsOnUserDrag
                 sectionDividerStyle
                 newItemsPlacement
+                keepLiveActivitiesVisible
             }
             IceSection("Other") {
                 hideApplicationMenus
                 enableSecondaryContextMenu
                 showOnHoverDelay
                 tempShowInterval
+            }
+            IceSection("Settings") {
+                settingsBackup
             }
             IceSection("Permissions") {
                 allPermissions
@@ -69,6 +73,12 @@ struct AdvancedSettingsPane: View {
             }
         }
         .annotation("Applies to items holzIce has not seen before. Items that are already arranged stay where they are.")
+    }
+
+    @ViewBuilder
+    private var keepLiveActivitiesVisible: some View {
+        Toggle("Keep Live Activities visible", isOn: $settings.keepLiveActivitiesVisible)
+            .annotation("Live Activities from your iPhone stay in the menu bar instead of being hidden. Experimental.")
     }
 
     @ViewBuilder
@@ -152,6 +162,23 @@ struct AdvancedSettingsPane: View {
                 }
         }
         .annotation("The amount of time to wait before hiding temporarily shown menu bar items.")
+    }
+
+    @ViewBuilder
+    private var settingsBackup: some View {
+        LabeledContent {
+            HStack {
+                Button("Export…") {
+                    SettingsBackup.exportToFile()
+                }
+                Button("Import…") {
+                    SettingsBackup.importFromFile()
+                }
+            }
+        } label: {
+            Text("Back up or move your settings")
+        }
+        .annotation("Exports layout, hotkeys and appearance to a file that can be imported on another Mac.")
     }
 
     @ViewBuilder

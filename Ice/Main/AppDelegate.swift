@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Initial chore work.
         NSSplitViewItem.swizzle()
         MigrationManager(appState: appState).migrateAll()
+        URLCommands.register(appState: appState)
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
