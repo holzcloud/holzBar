@@ -178,6 +178,8 @@ struct GeneralSettingsPane: View {
         if settings.useIceBar {
             iceBarLocationPicker
             iceBarDisplaysPicker
+            Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInIceBar)
+                .annotation("Visible items that the notch hides, for example behind a long application menu, also appear in the holzIce Bar.")
         }
     }
 

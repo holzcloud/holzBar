@@ -150,7 +150,7 @@ final class MenuBarItemGroups: ObservableObject {
         popover.contentViewController = NSHostingController(rootView: view)
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         Task {
-            await appState.imageCache.updateCache()
+            await appState.imageCache.updateCache(sections: MenuBarSection.Name.allCases)
         }
     }
 

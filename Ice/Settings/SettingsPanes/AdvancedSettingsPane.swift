@@ -101,14 +101,28 @@ struct AdvancedSettingsPane: View {
             isOn: $settings.hideApplicationMenus
         )
         .annotation {
-            Text(
-                """
-                Make more room in the menu bar by hiding the current app menus if \
-                needed. macOS requires holzIce to make itself visible in the Dock while \
-                this setting is in effect.
-                """
-            )
-            .padding(.trailing, 75)
+            if #available(macOS 27.0, *) {
+                Text("Not needed on macOS 27, which folds items that do not fit behind its own overflow button.")
+                    .padding(.trailing, 75)
+            } else {
+                Text(
+                    """
+                    Make more room in the menu bar by hiding the current app menus if \
+                    needed. macOS requires holzIce to make itself visible in the Dock while \
+                    this setting is in effect.
+                    """
+                )
+                .padding(.trailing, 75)
+            }
+        }
+        .disabled(isMacOS27)
+    }
+
+    private var isMacOS27: Bool {
+        if #available(macOS 27.0, *) {
+            true
+        } else {
+            false
         }
     }
 

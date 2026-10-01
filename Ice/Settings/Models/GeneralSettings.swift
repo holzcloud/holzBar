@@ -37,6 +37,10 @@ final class GeneralSettings: ObservableObject {
     /// The displays the Ice Bar is used on.
     @Published var iceBarDisplays: IceBarDisplays = .all
 
+    /// A Boolean value that indicates whether the Ice Bar also shows the
+    /// visible items that the notch covers.
+    @Published var showsNotchOverflowInIceBar = true
+
     /// A Boolean value that indicates whether the Ice Bar is used right now:
     /// it is turned on, and the display under the mouse pointer is one it is
     /// used on.
@@ -109,6 +113,7 @@ final class GeneralSettings: ObservableObject {
                 iceBarLocation = location
             }
         }
+        Defaults.ifPresent(key: .showsNotchOverflowInIceBar, assign: &showsNotchOverflowInIceBar)
         Defaults.ifPresent(key: .iceBarDisplays) { rawValue in
             if let displays = IceBarDisplays(rawValue: rawValue) {
                 iceBarDisplays = displays
@@ -179,6 +184,13 @@ final class GeneralSettings: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { location in
                 Defaults.set(location.rawValue, forKey: .iceBarLocation)
+            }
+            .store(in: &c)
+
+        $showsNotchOverflowInIceBar
+            .receive(on: DispatchQueue.main)
+            .sink { shows in
+                Defaults.set(shows, forKey: .showsNotchOverflowInIceBar)
             }
             .store(in: &c)
 
