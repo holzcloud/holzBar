@@ -1,0 +1,74 @@
+name: Release
+on:
+  push:
+    tags: [ "v*" ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without the leading v, e.g. 0.11.13-holz.1"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          [ -n "$VERSION" ] || VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Select the newest Xcode
+        run: |
+          XCODE="$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      # Signed ad hoc: there is no Developer ID. The hardened runtime would then
+      # refuse to load Sparkle, which carries a team of its own (see Scripts/install.sh).
+      - name: Build
+        run: |
+          xcodebuild -project Ice.xcodeproj -scheme Ice -configuration Release \
+            -destination 'platform=macOS' -derivedDataPath build build \
+            MARKETING_VERSION="${{ steps.version.outputs.version }}" \
+            CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
+            ENABLE_HARDENED_RUNTIME=NO
+          codesign --verify --deep --strict build/Build/Products/Release/Ice.app
+
+      - name: Package
+        id: package
+        run: |
+          ZIP="holzIce-${{ steps.version.outputs.version }}.zip"
+          ditto -c -k --keepParent build/Build/Products/Release/Ice.app "$ZIP"
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+          echo "sha256=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          gh release create "$TAG" "${{ steps.package.outputs.zip }}" \
+            --target "$GITHUB_SHA" --title "holzIce $TAG" --generate-notes
+
+      - name: Update the Homebrew cask
+        run: |
+          git fetch origin main
+          git checkout -B main origin/main
+          sed -i '' -E \
+            -e 's/^  version ".*"/  version "${{ steps.version.outputs.version }}"/' \
+            -e 's/^  sha256 .*/  sha256 "${{ steps.package.outputs.sha256 }}"/' \
+            Casks/holzice.rb
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "holzice ${{ steps.version.outputs.version }}"
+          git push origin main
