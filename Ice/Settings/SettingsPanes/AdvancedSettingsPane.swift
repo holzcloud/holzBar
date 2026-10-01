@@ -38,8 +38,12 @@ struct AdvancedSettingsPane: View {
                 showOnHoverDelay
                 tempShowInterval
             }
+            IceSection("Show Hidden Items Automatically") {
+                RevealRulesSettings(rules: appState.revealRules)
+            }
             IceSection("Settings") {
                 settingsBackup
+                settingsSync
             }
             IceSection("Permissions") {
                 allPermissions
@@ -181,6 +185,21 @@ struct AdvancedSettingsPane: View {
         .annotation("Exports layout, hotkeys and appearance to a file that can be imported on another Mac.")
     }
 
+    private var settingsSyncAnnotation: LocalizedStringKey {
+        if SettingsSync.iCloudDriveURL == nil {
+            "Turn on iCloud Drive in System Settings to sync holzIce's settings between your Macs."
+        } else {
+            "Keeps layout, profiles, hotkeys and appearance the same on all your Macs. Changes from another Mac apply after a restart."
+        }
+    }
+
+    @ViewBuilder
+    private var settingsSync: some View {
+        Toggle("Sync settings with iCloud Drive", isOn: $appState.settingsSync.isEnabled)
+            .disabled(SettingsSync.iCloudDriveURL == nil)
+            .annotation(settingsSyncAnnotation)
+    }
+
     @ViewBuilder
     private var allPermissions: some View {
         ForEach(appState.permissions.allPermissions) { permission in
@@ -202,5 +221,24 @@ struct AdvancedSettingsPane: View {
             }
             .frame(height: 22)
         }
+    }
+}
+
+// MARK: - RevealRulesSettings
+
+/// Settings for showing hidden items when something needs attention
+/// (jordanbaird/Ice#62).
+private struct RevealRulesSettings: View {
+    @ObservedObject var rules: RevealRules
+
+    var body: some View {
+        Toggle("When the battery is low", isOn: $rules.revealsOnLowBattery)
+        if rules.revealsOnLowBattery {
+            Stepper(value: $rules.lowBatteryThreshold, in: 5...50, step: 5) {
+                Text("Below \(rules.lowBatteryThreshold) %")
+            }
+        }
+        Toggle("When the network connection is lost", isOn: $rules.revealsWhenOffline)
+            .annotation("Hidden items are shown for the temporarily shown item delay, then hidden again.")
     }
 }

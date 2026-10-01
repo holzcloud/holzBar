@@ -165,6 +165,13 @@ extension Defaults {
         case tempShowInterval = "TempShowInterval"
         case newItemsPlacement = "NewItemsPlacement"
         case keepLiveActivitiesVisible = "KeepLiveActivitiesVisible"
+        case layoutProfiles = "LayoutProfiles"
+        case currentLayoutProfile = "CurrentLayoutProfile"
+        case syncsSettingsWithICloud = "SyncsSettingsWithICloud"
+        case itemGroups = "ItemGroups"
+        case spacerCount = "SpacerCount"
+        case spacerWidth = "SpacerWidth"
+        case revealRules = "RevealRules"
         case knownItemTags = "KnownItemTags"
         case knownApplications27 = "KnownApplications27"
 

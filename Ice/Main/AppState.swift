@@ -43,6 +43,21 @@ final class AppState: ObservableObject {
     /// Manager for input events received by the app.
     let hidEventManager = HIDEventManager()
 
+    /// Saved layout profiles.
+    let profiles = LayoutProfiles()
+
+    /// Keeps the settings in step with other Macs through iCloud.
+    let settingsSync = SettingsSync()
+
+    /// Groups of menu bar items behind icons of their own.
+    let itemGroups = MenuBarItemGroups()
+
+    /// Empty menu bar items that add space between others.
+    let spacers = MenuBarSpacers()
+
+    /// Rules that show hidden items when something happens.
+    let revealRules = RevealRules()
+
     /// Storage for ``concealer27``, typed loosely so the property exists on every macOS.
     private var concealer27Storage: AnyObject?
 
@@ -101,6 +116,11 @@ final class AppState: ObservableObject {
         }
         await itemManager.performSetup(with: self)
         imageCache.performSetup(with: self)
+        profiles.performSetup(with: self)
+        settingsSync.performSetup(with: self)
+        itemGroups.performSetup(with: self)
+        spacers.performSetup()
+        revealRules.performSetup(with: self)
 
         configureCancellables()
     }

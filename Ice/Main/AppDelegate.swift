@@ -14,6 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     override init() {
         // Must come before the app state, which reads the settings.
         MigrationManager.importIceSettingsIfNeeded()
+        SettingsSync.pullIfNeeded()
         self.appState = AppState()
         super.init()
     }

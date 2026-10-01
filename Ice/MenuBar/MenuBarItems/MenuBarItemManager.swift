@@ -444,6 +444,43 @@ extension MenuBarItemManager {
     }
 }
 
+// MARK: - Moving Items Into Sections
+
+extension MenuBarItemManager {
+    /// Moves items into the sections given by their tags' descriptions, for
+    /// example to apply a layout profile. Items already in their section, and
+    /// items that are not on the bar, are left alone.
+    func move(itemsTo sections: [String: MenuBarSection.Name]) async {
+        var items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
+        guard let controlItems = ControlItemPair(items: &items) else {
+            logger.warning("Missing control item for hidden section, cannot move items into sections")
+            return
+        }
+        for item in items where item.isMovable && !item.isControlItem {
+            guard
+                var section = sections[item.tag.description],
+                itemCache.address(for: item.tag)?.section != section
+            else {
+                continue
+            }
+            if section == .alwaysHidden && controlItems.alwaysHidden == nil {
+                section = .hidden
+            }
+            let destination: MoveDestination = switch section {
+            case .visible: .rightOfItem(controlItems.hidden)
+            case .hidden: .leftOfItem(controlItems.hidden)
+            case .alwaysHidden: .leftOfItem(controlItems.alwaysHidden ?? controlItems.hidden)
+            }
+            do {
+                try await move(item: item, to: destination)
+            } catch {
+                logger.error("Error moving \(item.logString, privacy: .public) into \(section.logString, privacy: .public): \(error, privacy: .public)")
+            }
+        }
+        await cacheItemsRegardless()
+    }
+}
+
 // MARK: - Placing New Items
 
 extension MenuBarItemManager {
