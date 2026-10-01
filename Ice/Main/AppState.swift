@@ -49,6 +49,34 @@ final class AppState: ObservableObject {
     /// Manager for user notifications.
     let userNotificationManager = UserNotificationManager()
 
+    /// Storage for ``concealer27``, typed loosely so the property exists on every macOS.
+    private var concealer27Storage: AnyObject?
+
+    /// Hides menu bar items on macOS 27.
+    @available(macOS 27.0, *)
+    var concealer27: Concealer27 {
+        if let concealer = concealer27Storage as? Concealer27 {
+            return concealer
+        }
+        let concealer = Concealer27()
+        concealer27Storage = concealer
+        return concealer
+    }
+
+    /// Storage for ``itemImageStore27``, typed loosely so the property exists on every macOS.
+    private var itemImageStore27Storage: AnyObject?
+
+    /// Images of menu bar items on macOS 27.
+    @available(macOS 27.0, *)
+    var itemImageStore27: ItemImageStore27 {
+        if let store = itemImageStore27Storage as? ItemImageStore27 {
+            return store
+        }
+        let store = ItemImageStore27()
+        itemImageStore27Storage = store
+        return store
+    }
+
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
 
@@ -62,12 +90,21 @@ final class AppState: ObservableObject {
         settings.performSetup(with: self)
         menuBarManager.performSetup(with: self)
 
-        if #available(macOS 26.0, *) {
+        if #available(macOS 27.0, *) {
+            // macOS 27 has no item windows: bounds come from Accessibility, and the
+            // owning process is known directly, without the item service.
+            Bridging.syntheticWindowBoundsProvider = MenuBarItemProvider27.currentBounds(for:)
+        } else if #available(macOS 26.0, *) {
             await MenuBarItemService.Connection.shared.start()
         }
 
         appearanceManager.performSetup(with: self)
         hidEventManager.performSetup(with: self)
+        if #available(macOS 27.0, *) {
+            // Hiding does not need the item cache, and the first read of the items can
+            // take seconds (measured 9 s), so it starts before the item manager's setup.
+            concealer27.performSetup(with: self)
+        }
         await itemManager.performSetup(with: self)
         imageCache.performSetup(with: self)
         updatesManager.performSetup(with: self)
