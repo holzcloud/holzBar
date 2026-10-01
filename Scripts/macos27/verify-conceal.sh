@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# Verifies plan 1 on macOS 27: Ice hides the hidden and always-hidden sections soon
+# Verifies plan 1 on macOS 27: holzIce hides the hidden and always-hidden sections soon
 # after launch, reveals the hidden section on hover without exposing always-hidden items, and
-# every item comes back when Ice quits.
+# every item comes back when holzIce quits.
 #
-# Requirements: Ice installed with Scripts/install.sh, Thaw not running, the
+# Requirements: holzIce installed with Scripts/install.sh, Thaw not running, the
 # external display at the origin, and no app menus reaching into REGION.
 #
 # Usage: Scripts/macos27/verify-conceal.sh [empty-x] [empty-y]
@@ -25,8 +25,8 @@ swiftc -O "$ROOT/Scripts/macos27/analyze-frames.swift" -o "$WORK/bin/analyze-fra
 
 now() { perl -MTime::HiRes=time -e 'printf "%.3f", time'; }
 quit_ice() {
-    osascript -e 'tell application id "com.jordanbaird.Ice" to quit' >/dev/null 2>&1 || true
-    for _ in $(seq 1 40); do pgrep -x Ice >/dev/null || return 0; sleep 0.25; done
+    osascript -e 'tell application id "com.holzcloud.holzIce" to quit' >/dev/null 2>&1 || true
+    for _ in $(seq 1 40); do pgrep -x holzIce >/dev/null || return 0; sleep 0.25; done
 }
 # The bar draws its items dimmer while it is inactive, which moves the measured edge by a
 # few points, so steady captures are taken with the starting application frontmost.
@@ -40,18 +40,18 @@ leftmost() {
 
 # `defaults read` prints 1/0, but `defaults write -bool` only accepts true/false.
 as_bool() { case "$1" in 1|true|YES|yes) echo true ;; *) echo false ;; esac; }
-ORIGINAL_ICE_BAR=$(as_bool "$(defaults read com.jordanbaird.Ice UseIceBar 2>/dev/null || echo 1)")
-ORIGINAL_HOVER=$(as_bool "$(defaults read com.jordanbaird.Ice ShowOnHover 2>/dev/null || echo 1)")
+ORIGINAL_ICE_BAR=$(as_bool "$(defaults read com.holzcloud.holzIce UseIceBar 2>/dev/null || echo 1)")
+ORIGINAL_HOVER=$(as_bool "$(defaults read com.holzcloud.holzIce ShowOnHover 2>/dev/null || echo 1)")
 start_ice() {
-    open "$HOME/Applications/Ice.app"
-    for _ in $(seq 1 40); do pgrep -x Ice >/dev/null && return 0; sleep 0.25; done
+    open "$HOME/Applications/holzIce.app"
+    for _ in $(seq 1 40); do pgrep -x holzIce >/dev/null && return 0; sleep 0.25; done
 }
-# Leave Ice running, the way the run found it. A run that ended with Ice down left the
+# Leave holzIce running, the way the run found it. A run that ended with holzIce down left the
 # machine concealing nothing, and whatever was looked at next showed nothing worth seeing.
 restore() {
     quit_ice
-    defaults write com.jordanbaird.Ice UseIceBar -bool "$ORIGINAL_ICE_BAR"
-    defaults write com.jordanbaird.Ice ShowOnHover -bool "$ORIGINAL_HOVER"
+    defaults write com.holzcloud.holzIce UseIceBar -bool "$ORIGINAL_ICE_BAR"
+    defaults write com.holzcloud.holzIce ShowOnHover -bool "$ORIGINAL_HOVER"
     start_ice
 }
 trap restore EXIT
@@ -60,9 +60,9 @@ quit_ice
 "$WORK/bin/pointer" glide 960 540
 ALL_VISIBLE=$(leftmost all-visible)
 
-defaults write com.jordanbaird.Ice UseIceBar -bool false
-defaults write com.jordanbaird.Ice ShowOnHover -bool true
-open "$HOME/Applications/Ice.app"
+defaults write com.holzcloud.holzIce UseIceBar -bool false
+defaults write com.holzcloud.holzIce ShowOnHover -bool true
+open "$HOME/Applications/holzIce.app"
 sleep 3
 EARLY=$(leftmost early)
 sleep 7
@@ -101,6 +101,6 @@ check "always-hidden items stay hidden while revealed" "[ $REVEALED -gt $((ALL_V
 # The reveal animation overshoots its resting place by up to 4 pt (measured). An
 # always-hidden item that flashes moves the edge by a whole item, at least 24 pt.
 check "always-hidden items never flash in $CYCLES cycles" "[ $LOWEST -ge $((REVEALED - 10)) ]"
-check "every item returns when Ice quits" "[ $AFTER_QUIT -ge $((ALL_VISIBLE - 3)) ] && [ $AFTER_QUIT -le $((ALL_VISIBLE + 3)) ]"
+check "every item returns when holzIce quits" "[ $AFTER_QUIT -ge $((ALL_VISIBLE - 3)) ] && [ $AFTER_QUIT -le $((ALL_VISIBLE + 3)) ]"
 echo "frames: $WORK"
 exit $FAILED

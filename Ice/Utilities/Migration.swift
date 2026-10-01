@@ -55,6 +55,40 @@ extension MigrationManager {
     }
 }
 
+// MARK: - Import Ice Settings
+
+extension MigrationManager {
+    /// The bundle identifier of the original Ice.
+    private static let iceBundleIdentifier = "com.jordanbaird.Ice"
+
+    /// Copies the settings of the original Ice into holzIce's own defaults, once.
+    ///
+    /// holzIce has a bundle identifier of its own, so it starts out with empty
+    /// defaults. Without this, a user switching from Ice would lose their layout,
+    /// hotkeys and appearance. It must run before anything reads the defaults, so
+    /// the app delegate calls it before it creates the app state.
+    static func importIceSettingsIfNeeded() {
+        let defaults = UserDefaults.standard
+        let flag = Defaults.Key.hasImportedIceSettings.rawValue
+        guard !defaults.bool(forKey: flag) else {
+            return
+        }
+        let ownSettings = Bundle.main.bundleIdentifier.flatMap(defaults.persistentDomain(forName:)) ?? [:]
+        defaults.set(true, forKey: flag)
+        guard
+            ownSettings.isEmpty,
+            let iceSettings = defaults.persistentDomain(forName: iceBundleIdentifier),
+            !iceSettings.isEmpty
+        else {
+            return
+        }
+        for (key, value) in iceSettings {
+            defaults.set(value, forKey: key)
+        }
+        Logger(category: "Migration").notice("Imported \(iceSettings.count, privacy: .public) settings from Ice")
+    }
+}
+
 // MARK: - Migrate 0.8.0
 
 extension MigrationManager {
@@ -248,7 +282,7 @@ extension MigrationManager {
             let alert = NSAlert()
             alert.messageText = """
                 Due to a bug in a previous version of the app, the data for \
-                Ice’s menu bar sections was corrupted and had to be reset.
+                holzIce’s menu bar sections was corrupted and had to be reset.
                 """
 
             return .successButShowAlert(alert)

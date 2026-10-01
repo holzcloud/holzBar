@@ -109,7 +109,7 @@ final class GeneralSettings: ObservableObject {
             do {
                 iceIcon = try decoder.decode(ControlItemImageSet.self, from: data)
             } catch {
-                Logger.serialization.error("Error decoding Ice icon: \(error, privacy: .public)")
+                Logger.serialization.error("Error decoding holzIce icon: \(error, privacy: .public)")
             }
             if case .custom = iceIcon.name {
                 lastCustomIceIcon = iceIcon
@@ -141,7 +141,7 @@ final class GeneralSettings: ObservableObject {
                     let data = try encoder.encode(iceIcon)
                     Defaults.set(data, forKey: .iceIcon)
                 } catch {
-                    Logger.serialization.error("Error encoding Ice icon: \(error, privacy: .public)")
+                    Logger.serialization.error("Error encoding holzIce icon: \(error, privacy: .public)")
                 }
             }
             .store(in: &c)

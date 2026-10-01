@@ -30,7 +30,7 @@ final class IceBarPanel: NSPanel {
             backing: .buffered,
             defer: false
         )
-        self.title = "Ice Bar"
+        self.title = "holzIce Bar"
         self.titlebarAppearsTransparent = true
         self.isMovableByWindowBackground = true
         self.allowsToolTipsWhenApplicationIsInactive = true
@@ -217,7 +217,7 @@ final class IceBarPanel: NSPanel {
         if #available(macOS 27.0, *) {
             let elapsed = (ContinuousClock.now - requestedAt).components
             let milliseconds = Double(elapsed.seconds) * 1000 + Double(elapsed.attoseconds) / 1e15
-            Logger.default.notice("Ice Bar shown \(milliseconds, privacy: .public) ms after it was requested")
+            Logger.default.notice("holzIce Bar shown \(milliseconds, privacy: .public) ms after it was requested")
         }
     }
 
@@ -366,7 +366,7 @@ private struct IceBarContentView: View {
     private var content: some View {
         if !ScreenCapture.cachedCheckPermissions() {
             HStack {
-                Text("The Ice Bar requires screen recording permissions.")
+                Text("The holzIce Bar requires screen recording permissions.")
 
                 Button {
                     menuBarManager.section(withName: section)?.hide()
@@ -374,14 +374,14 @@ private struct IceBarContentView: View {
                     appState.activate(withPolicy: .regular)
                     appState.openWindow(.settings)
                 } label: {
-                    Text("Open Ice Settings")
+                    Text("Open holzIce Settings")
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.link)
             }
             .padding(.horizontal, 10)
         } else if menuBarManager.isMenuBarHiddenBySystemUserDefaults {
-            Text("Ice cannot display menu bar items for automatically hidden menu bars")
+            Text("holzIce cannot display menu bar items for automatically hidden menu bars")
                 .padding(.horizontal, 10)
         } else if itemManager.itemCache.managedItems.isEmpty {
             HStack {

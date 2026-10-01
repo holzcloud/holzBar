@@ -15,20 +15,6 @@ struct AboutSettingsPane: View {
         Bundle.main.url(forResource: "Acknowledgements", withExtension: "pdf")!
     }
 
-    private var contributeURL: URL {
-        // swiftlint:disable:next force_unwrapping
-        URL(string: "https://github.com/holzcloud/holzIce")!
-    }
-
-    private var issuesURL: URL {
-        contributeURL.appendingPathComponent("issues")
-    }
-
-    private var donateURL: URL {
-        // swiftlint:disable:next force_unwrapping
-        URL(string: "https://icemenubar.app/Donate")!
-    }
-
     private var lastUpdateCheckString: String {
         if let date = updatesManager.lastUpdateCheckDate {
             date.formatted(date: .abbreviated, time: .standard)
@@ -96,10 +82,27 @@ struct AboutSettingsPane: View {
                     Text(Constants.copyrightString)
                         .font(.system(size: 14))
                         .foregroundStyle(.secondary.opacity(0.67))
+
+                    basedOnIce
+                        .padding(.top, 6)
                 }
                 .fontWeight(.medium)
             }
         }
+    }
+
+    /// The credit to the original Ice, which holzIce is a fork of.
+    @ViewBuilder
+    private var basedOnIce: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "heart.fill")
+                .foregroundStyle(.pink)
+            Text("Based on")
+            Link("Ice", destination: Constants.originalIceURL)
+            Text("by Jordan Baird")
+        }
+        .font(.system(size: 14))
+        .foregroundStyle(.secondary)
     }
 
     @ViewBuilder
@@ -158,21 +161,21 @@ struct AboutSettingsPane: View {
     @ViewBuilder
     private func bottomBar(containerShape: some InsettableShape) -> some View {
         HStack {
-            Button("Quit Ice") {
+            Button("Quit holzIce") {
                 NSApp.terminate(nil)
             }
             Spacer()
             Button("Acknowledgements") {
                 NSWorkspace.shared.open(acknowledgementsURL)
             }
+            Button("Website") {
+                openURL(Constants.websiteURL)
+            }
             Button("Contribute") {
-                openURL(contributeURL)
+                openURL(Constants.repositoryURL)
             }
-            Button("Report a Bug") {
-                openURL(issuesURL)
-            }
-            Button("Support Ice", systemImage: "heart.circle.fill") {
-                openURL(donateURL)
+            Button("Report a Bug", systemImage: "ladybug") {
+                openURL(Constants.issuesURL)
             }
         }
         .padding(8)

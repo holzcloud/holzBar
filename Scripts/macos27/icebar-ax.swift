@@ -1,5 +1,5 @@
-// Prints the Ice Bar panel's frame and, for each item image it shows, "item <x> <y> <label>".
-// Prints "none" when no Ice Bar is on screen. Read from Ice's Accessibility tree.
+// Prints the holzIce Bar panel's frame and, for each item image it shows, "item <x> <y> <label>".
+// Prints "none" when no holzIce Bar is on screen. Read from holzIce's Accessibility tree.
 import AppKit
 import ApplicationServices
 
@@ -38,7 +38,7 @@ func images(in element: AXUIElement, depth: Int = 0) -> [(CGRect, String)] {
     return result
 }
 
-guard let ice = NSRunningApplication.runningApplications(withBundleIdentifier: "com.jordanbaird.Ice").first else {
+guard let ice = NSRunningApplication.runningApplications(withBundleIdentifier: "com.holzcloud.holzIce").first else {
     print("none")
     exit(0)
 }

@@ -53,6 +53,7 @@ brew upgrade --cask holzice
 
 > [!NOTE]
 > holzIce replaces the original Ice — run `brew uninstall --cask jordanbaird-ice` first if you have it.
+> Your Ice settings (layout, hotkeys, appearance) are imported automatically on the first launch.
 > The app is signed ad hoc (there is no Developer ID); the cask removes the quarantine flag so it opens normally.
 
 ### Build from source
@@ -71,14 +72,14 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 - **Hiding** via assessment-mode assertions, with per-app sections
 - **Item discovery** through Accessibility instead of window lists
-- **Ice Bar** with real item images and even spacing
+- **holzIce Bar** with real item images and even spacing
 - **Layout editor** that assigns apps to sections — your old layout is carried over on first launch
 
 **Known limitations on macOS 27**
 
 - Items can't be reordered on the bar itself — only assigned to sections.
 - Opening a system item (clock, battery, Wi-Fi) while hidden items are concealed adds ~150 ms.
-- After an update, macOS may ask for Accessibility again. If Ice is stuck on the permissions window, click **Reset and Grant Again**.
+- After an update, macOS may ask for Accessibility again. If holzIce is stuck on the permissions window, click **Reset and Grant Again**.
 
 ## 🧰 Features
 
@@ -93,7 +94,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - ✅ Automatically rehide
 - ✅ Hide app menus when they overlap
 - ✅ Drag-and-drop layout
-- ✅ Ice Bar (great with the notch)
+- ✅ holzIce Bar (great with the notch)
 - ✅ Search menu bar items
 - ✅ Item spacing <sub>BETA</sub>
 - ⬜ Layout profiles
@@ -112,7 +113,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 #### Hotkeys
 - ✅ Toggle sections
 - ✅ Search panel
-- ✅ Ice Bar on/off
+- ✅ holzIce Bar on/off
 - ✅ Toggle app menus
 - ⬜ Toggle auto rehide
 
@@ -124,7 +125,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 <table>
 <tr>
-<td width="50%"><b>Ice Bar</b> — hidden items below the menu bar<br><img src="https://github.com/user-attachments/assets/f1429589-6186-4e1b-8aef-592219d49b9b" alt="Ice Bar"></td>
+<td width="50%"><b>holzIce Bar</b> — hidden items below the menu bar<br><img src="https://github.com/user-attachments/assets/f1429589-6186-4e1b-8aef-592219d49b9b" alt="Ice Bar"></td>
 <td width="50%"><b>Layout</b> — drag and drop your items<br><img src="https://github.com/user-attachments/assets/095442ba-f2d0-4bb4-9632-91e26ef8d45b" alt="Menu Bar Layout"></td>
 </tr>
 <tr>

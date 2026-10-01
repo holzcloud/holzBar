@@ -1,4 +1,4 @@
-// Reads Ice's settings window: "sidebar <x> <y>" for the Menu Bar Layout entry, and
+// Reads holzIce's settings window: "sidebar <x> <y>" for the Menu Bar Layout entry, and
 // "image <row> <x> <y> <label>" for each layout item, rows 0 Visible, 1 Hidden, 2 Always Hidden.
 import AppKit
 import ApplicationServices
@@ -38,7 +38,7 @@ func walk(_ element: AXUIElement, depth: Int) {
     }
 }
 
-guard let ice = NSRunningApplication.runningApplications(withBundleIdentifier: "com.jordanbaird.Ice").first else {
+guard let ice = NSRunningApplication.runningApplications(withBundleIdentifier: "com.holzcloud.holzIce").first else {
     exit(1)
 }
 let app = AXUIElementCreateApplication(ice.processIdentifier)

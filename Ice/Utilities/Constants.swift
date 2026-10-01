@@ -23,5 +23,19 @@ enum Constants {
     /// The app's display name.
     static let displayName = Bundle.main.displayName!
 
+    /// The holzIce repository.
+    static let repositoryURL = URL(string: "https://github.com/holzcloud/holzIce")!
+
+    /// The holzIce issue tracker.
+    static let issuesURL = repositoryURL.appendingPathComponent("issues")
+
+    /// The holzIce website.
+    ///
+    /// holzIce has no website of its own yet, so this is the repository for now.
+    static let websiteURL = repositoryURL
+
+    /// The original Ice by Jordan Baird, which holzIce is a fork of.
+    static let originalIceURL = URL(string: "https://github.com/jordanbaird/Ice")!
+
     // swiftlint:enable force_unwrapping
 }
