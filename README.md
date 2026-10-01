@@ -186,14 +186,6 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 <sub>Screenshots from the original Ice.</sub>
 
-## 📦 Releasing
-
-Write the release notes in `docs/release-notes/v<version>.md`, then push a tag `v<version>` — or run the **Release** workflow by hand. It builds the app, publishes a GitHub release with those notes and updates [`Casks/holzice.rb`](Casks/holzice.rb) on `main`. holzIce is in beta: every `0.x` release is published as a pre-release.
-
-```sh
-git tag v0.0.2 && git push origin v0.0.2
-```
-
 ## 🙏 Credits
 
 - [**Ice**](https://github.com/jordanbaird/Ice) by [Jordan Baird](https://github.com/jordanbaird) — the app holzIce is built on: its design, its features and almost all of its code. Thank you, Jordan! 💙 If you like it, [sponsor Jordan](https://github.com/sponsors/jordanbaird) or [buy him a coffee](https://www.buymeacoffee.com/jordanbaird).
