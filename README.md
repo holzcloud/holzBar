@@ -38,6 +38,7 @@ holzIce is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jord
 | 🍺 **Homebrew first** | Install and update with one command. |
 | 🔐 **No more permission loop** | A stale permission can be reset right from the permissions window. |
 | 🌲 **Actively maintained** | Fixes land here instead of waiting upstream. |
+| ✨ **More features** | Profiles, groups, spacers, a black menu bar, URL commands, settings sync — [see below](#-features). |
 
 ## 🚀 Install
 
@@ -91,38 +92,75 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 <td valign="top" width="50%">
 
 #### Menu bar items
-- ✅ Hide menu bar items
-- ✅ "Always-hidden" section
-- ✅ Show on hover, click or scroll
-- ✅ Automatically rehide
-- ✅ Hide app menus when they overlap
-- ✅ Drag-and-drop layout
-- ✅ holzIce Bar (great with the notch)
+- ✅ Hide items in a hidden and an always-hidden section
+- ✅ Show on hover, click or scroll (trackpad **and mouse wheel**)
+- ✅ Automatic rehide
+- ✅ Drag-and-drop layout editor
+- ✅ **Layout profiles** — "Work", "Home", … one click or URL away
+- ✅ **Groups** — several items behind an icon of their own
+- ✅ **Spacers** — empty items of adjustable width
+- ✅ **Choose where new items appear**
 - ✅ Search menu bar items
 - ✅ Item spacing <sub>BETA</sub>
-- ⬜ Layout profiles
-- ⬜ Spacer items & groups
 
 </td>
 <td valign="top" width="50%">
 
-#### Appearance
-- ✅ Tint (solid and gradient)
-- ✅ Shadow and border
-- ✅ Rounded and split shapes
-- ⬜ Remove the bar's background
-- ⬜ Separate light/dark settings
+#### holzIce Bar
+- ✅ Hidden items in a bar below the menu bar
+- ✅ **Only on the built-in display or on displays with a notch**
+- ✅ **Shows items the notch covers**
 
-#### Hotkeys
-- ✅ Toggle sections
-- ✅ Search panel
-- ✅ holzIce Bar on/off
-- ✅ Toggle app menus
-- ⬜ Toggle auto rehide
+#### Appearance
+- ✅ Tint, shadow, border, rounded and split shapes
+- ✅ **Black menu bar that hides the notch**
+- ✅ **Rounded screen corners**
+
+</td>
+</tr>
+<tr>
+<td valign="top" width="50%">
+
+#### Automation
+- ✅ **Show hidden items when the battery is low or the network drops**
+- ✅ **`holzice://` URL commands** and [Raycast script commands](Integrations/Raycast)
+- ✅ Hotkeys for sections, search, the holzIce Bar, app menus, **auto-rehide** and **a quick peek**
+
+</td>
+<td valign="top" width="50%">
+
+#### Settings
+- ✅ **Export and import** all settings
+- ✅ **Sync between Macs** through iCloud Drive
+- ✅ **Imports your Ice settings** on first launch
+- ✅ Launch at login
 
 </td>
 </tr>
 </table>
+
+### holzIce vs. Ice
+
+| | Ice 0.11.12 | holzIce |
+|---|:---:|:---:|
+| macOS 14 – 26 | ✅ | ✅ |
+| **macOS 27** | ❌ | ✅ |
+| Install and update with Homebrew | ✅ | ✅ |
+| Updates | Sparkle (dialog can hang on macOS 26) | Homebrew |
+| Hidden and always-hidden sections, Ice Bar, search, appearance | ✅ | ✅ |
+| Layout profiles | ❌ | ✅ |
+| Groups and spacers | ❌ | ✅ |
+| Choose where new items appear | ❌ | ✅ |
+| Bar only on some displays, notch overflow | ❌ | ✅ |
+| Black menu bar, rounded screen corners | ❌ | ✅ |
+| Show hidden items on low battery or when offline | ❌ | ✅ |
+| URL commands and Raycast | ❌ | ✅ |
+| Export, import and sync settings | ❌ | ✅ |
+| Keep Live Activities visible | ❌ | ✅ <sub>experimental</sub> |
+| Show on scroll with a mouse wheel | ❌ | ✅ |
+| Fix for the permissions loop | ❌ | ✅ |
+| Fixes from 280 open bug reports | — | [see the list](docs/upstream-bugs.md) |
+| Signed with a Developer ID | ✅ | ❌ (ad hoc; the cask handles it) |
 
 ## 🖼 Gallery
 
@@ -141,7 +179,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ## 📦 Releasing
 
-Push a tag `v<version>` — or run the **Release** workflow by hand. It builds the app, publishes a GitHub release and updates [`Casks/holzice.rb`](Casks/holzice.rb) on `main`. holzIce is in beta: every `0.x` release is published as a pre-release.
+Write the release notes in `docs/release-notes/v<version>.md`, then push a tag `v<version>` — or run the **Release** workflow by hand. It builds the app, publishes a GitHub release with those notes and updates [`Casks/holzice.rb`](Casks/holzice.rb) on `main`. holzIce is in beta: every `0.x` release is published as a pre-release.
 
 ```sh
 git tag v0.0.2 && git push origin v0.0.2
