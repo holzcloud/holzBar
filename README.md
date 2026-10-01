@@ -5,6 +5,9 @@
 
 Ice is a powerful menu bar management tool. While its primary function is hiding and showing menu bar items, it aims to cover a wide variety of additional features to make it one of the most versatile menu bar tools available.
 
+> [!NOTE]
+> **holzIce** ist ein Fork von [jordanbaird/Ice](https://github.com/jordanbaird/Ice) (GPL-3.0, © Jordan Baird), da das Original nur langsam weiterentwickelt wird. Weiterentwicklung findet hier statt; Upstream-Änderungen werden bei Bedarf über den Remote `upstream` übernommen.
+
 ![Banner](https://github.com/user-attachments/assets/4423085c-4e4b-4f3d-ad0f-90a217c03470)
 
 [![Download](https://img.shields.io/badge/download-latest-brightgreen?style=flat-square)](https://github.com/jordanbaird/Ice/releases/latest)
