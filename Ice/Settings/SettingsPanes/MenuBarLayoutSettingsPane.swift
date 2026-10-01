@@ -68,7 +68,7 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var cannotArrange: some View {
-        Text("Ice cannot arrange menu bar items in automatically hidden menu bars.")
+        Text("holzIce cannot arrange menu bar items in automatically hidden menu bars.")
             .font(.title3)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
@@ -132,7 +132,7 @@ private struct StuckOverflowWarning: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Some items are folded away on the built-in display.")
                         .font(.headline)
-                    Text("macOS stopped laying them out when Ice freed the space beside the notch, and left no control to reach them. Quitting and reopening the application whose item is missing brings it back.")
+                    Text("macOS stopped laying them out when holzIce freed the space beside the notch, and left no control to reach them. Quitting and reopening the application whose item is missing brings it back.")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)

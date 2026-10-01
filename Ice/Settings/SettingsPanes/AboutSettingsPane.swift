@@ -158,7 +158,7 @@ struct AboutSettingsPane: View {
     @ViewBuilder
     private func bottomBar(containerShape: some InsettableShape) -> some View {
         HStack {
-            Button("Quit Ice") {
+            Button("Quit holzIce") {
                 NSApp.terminate(nil)
             }
             Spacer()
@@ -171,7 +171,7 @@ struct AboutSettingsPane: View {
             Button("Report a Bug") {
                 openURL(issuesURL)
             }
-            Button("Support Ice", systemImage: "heart.circle.fill") {
+            Button("Support Ice's Developer", systemImage: "heart.circle.fill") {
                 openURL(donateURL)
             }
         }

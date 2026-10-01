@@ -12,10 +12,10 @@
 # A revealed section appears on every display, so each check reads the external
 # bar: the built-in bar folds most items behind its overflow button.
 #
-# Requirements: Ice installed with Scripts/install.sh, Thaw not running, EXT_APP
+# Requirements: holzIce installed with Scripts/install.sh, Thaw not running, EXT_APP
 # with a window on the external display and BUILTIN_APP with one on the built-in
 # display. The application frontmost when the script starts decides the display
-# Ice's icon lives on, so run it once with each display's menu bar active. Leave
+# holzIce's icon lives on, so run it once with each display's menu bar active. Leave
 # the keyboard and mouse alone: another application coming to the front moves the
 # active menu bar, and a hover during which that happened is repeated.
 #
@@ -36,15 +36,15 @@ swiftc -O "$ROOT/Scripts/macos27/analyze-frames.swift" -o "$WORK/bin/analyze-fra
 swiftc -O "$ROOT/Scripts/macos27/ax-items.swift" -o "$WORK/bin/ax-items"
 
 quit_ice() {
-    osascript -e 'tell application id "com.jordanbaird.Ice" to quit' >/dev/null 2>&1 || true
-    for _ in $(seq 1 40); do pgrep -x Ice >/dev/null || return 0; sleep 0.25; done
+    osascript -e 'tell application id "com.holzcloud.holzIce" to quit' >/dev/null 2>&1 || true
+    for _ in $(seq 1 40); do pgrep -x holzIce >/dev/null || return 0; sleep 0.25; done
 }
 front_app() {
     osascript -e 'tell application "System Events" to get name of first process whose frontmost is true'
 }
 activate() {
     osascript -e "tell application \"$1\" to activate" >/dev/null
-    # Ice reads the items again about a second after an application activates.
+    # holzIce reads the items again about a second after an application activates.
     sleep 2.5
 }
 ensure_front() {
@@ -77,26 +77,26 @@ hover_and_read() {
 
 # `defaults read` prints 1/0, but `defaults write -bool` only accepts true/false.
 as_bool() { case "$1" in 1|true|YES|yes) echo true ;; *) echo false ;; esac; }
-ORIGINAL_ICE_BAR=$(as_bool "$(defaults read com.jordanbaird.Ice UseIceBar 2>/dev/null || echo 1)")
-ORIGINAL_HOVER=$(as_bool "$(defaults read com.jordanbaird.Ice ShowOnHover 2>/dev/null || echo 1)")
+ORIGINAL_ICE_BAR=$(as_bool "$(defaults read com.holzcloud.holzIce UseIceBar 2>/dev/null || echo 1)")
+ORIGINAL_HOVER=$(as_bool "$(defaults read com.holzcloud.holzIce ShowOnHover 2>/dev/null || echo 1)")
 start_ice() {
-    open "$HOME/Applications/Ice.app"
-    for _ in $(seq 1 40); do pgrep -x Ice >/dev/null && return 0; sleep 0.25; done
+    open "$HOME/Applications/holzIce.app"
+    for _ in $(seq 1 40); do pgrep -x holzIce >/dev/null && return 0; sleep 0.25; done
 }
-# Leave Ice running, the way the run found it. A run that ended with Ice down left the
+# Leave holzIce running, the way the run found it. A run that ended with holzIce down left the
 # machine concealing nothing, and whatever was looked at next showed nothing worth seeing.
 restore() {
     quit_ice
-    defaults write com.jordanbaird.Ice UseIceBar -bool "$ORIGINAL_ICE_BAR"
-    defaults write com.jordanbaird.Ice ShowOnHover -bool "$ORIGINAL_HOVER"
+    defaults write com.holzcloud.holzIce UseIceBar -bool "$ORIGINAL_ICE_BAR"
+    defaults write com.holzcloud.holzIce ShowOnHover -bool "$ORIGINAL_HOVER"
     start_ice
 }
 trap restore EXIT
 
 quit_ice
-defaults write com.jordanbaird.Ice UseIceBar -bool false
-defaults write com.jordanbaird.Ice ShowOnHover -bool true
-open "$HOME/Applications/Ice.app"
+defaults write com.holzcloud.holzIce UseIceBar -bool false
+defaults write com.holzcloud.holzIce ShowOnHover -bool true
+open "$HOME/Applications/holzIce.app"
 sleep 10
 
 # The external menu bar is active.
@@ -134,8 +134,8 @@ check "hover over the application menu does not reveal" "[ $EXT_OVER_MENU -ge 0 
 check "hover on the inactive built-in bar reveals" "[ $INACTIVE_BUILTIN -ge 0 ] && [ $INACTIVE_BUILTIN -lt $((EXT_HIDDEN - 20)) ]"
 check "hover on the active built-in bar reveals" "[ $ACTIVE_BUILTIN -ge 0 ] && [ $ACTIVE_BUILTIN -lt $((DIM_HIDDEN - 20)) ]"
 check "hover over the built-in application menu does not reveal" "[ $BUILTIN_OVER_MENU -ge 0 ] && [ $BUILTIN_OVER_MENU -ge $((DIM_HIDDEN - 3)) ]"
-# Ice activating itself while showing items takes keyboard focus from the user's application.
-check "no hover takes the front from the active application" "! grep -q '^Ice ' \"$WORK/front-changes\" 2>/dev/null"
+# holzIce activating itself while showing items takes keyboard focus from the user's application.
+check "no hover takes the front from the active application" "! grep -q '^holzIce ' \"$WORK/front-changes\" 2>/dev/null"
 [ -s "$WORK/front-changes" ] && sed 's/^/      front changed: /' "$WORK/front-changes"
 echo "frames: $WORK/frames"
 exit $FAILED

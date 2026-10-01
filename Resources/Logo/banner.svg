@@ -42,6 +42,6 @@
   <g font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Inter, Arial, sans-serif" fill="#FFFFFF">
     <text x="500" y="285" font-size="132" font-weight="800" letter-spacing="-3">holz<tspan fill="#8FDCFA">Ice</tspan></text>
     <text x="506" y="350" font-size="38" font-weight="500" fill-opacity="0.82">The menu bar manager for macOS — ready for macOS 27.</text>
-    <text x="506" y="410" font-size="26" font-weight="500" fill-opacity="0.55">Hide · Layout · Ice Bar · Search · Hotkeys · Appearance</text>
+    <text x="506" y="410" font-size="26" font-weight="500" fill-opacity="0.55">Hide · Layout · holzIce Bar · Search · Hotkeys · Appearance</text>
   </g>
 </svg>

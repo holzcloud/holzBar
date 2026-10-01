@@ -7,6 +7,12 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 - **Everything in this repository is written in English**: code, comments, commit messages, pull requests, issues, README and other docs. This applies even when the conversation is in another language.
 - Always credit Ice and Jordan Baird as the original project (README, NOTICE). Keep the GPL-3.0 license.
 
+## Naming
+
+- The app is called **holzIce** everywhere a user can see it (UI strings, menus, README). The bundle identifier is `com.holzcloud.holzIce`, the product is `holzIce.app`.
+- The Xcode project, target, scheme and Swift module are still called `Ice`, and so are internal type names (`IceBar`, `IceSection`, …). Leave them; renaming them would only churn the code.
+- Keep `com.jordanbaird.Ice` only where it refers to the original app (importing its settings, the `jordanbaird-ice` cask conflict).
+
 ## Layout
 
 - `Ice/` – the app. `Ice/MenuBar/MacOS27/` is the macOS 27 backend.

@@ -42,13 +42,13 @@ jobs:
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
             ENABLE_HARDENED_RUNTIME=NO
-          codesign --verify --deep --strict build/Build/Products/Release/Ice.app
+          codesign --verify --deep --strict build/Build/Products/Release/holzIce.app
 
       - name: Package
         id: package
         run: |
           ZIP="holzIce-${{ steps.version.outputs.version }}.zip"
-          ditto -c -k --keepParent build/Build/Products/Release/Ice.app "$ZIP"
+          ditto -c -k --keepParent build/Build/Products/Release/holzIce.app "$ZIP"
           echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
           echo "sha256=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 

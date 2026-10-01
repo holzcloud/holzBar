@@ -9,7 +9,14 @@ import SwiftUI
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     /// The shared app state.
-    let appState = AppState()
+    let appState: AppState
+
+    override init() {
+        // Must come before the app state, which reads the settings.
+        MigrationManager.importIceSettingsIfNeeded()
+        self.appState = AppState()
+        super.init()
+    }
 
     // MARK: NSApplicationDelegate Methods
 

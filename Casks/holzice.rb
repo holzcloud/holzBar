@@ -16,21 +16,21 @@ cask "holzice" do
   conflicts_with cask: "jordanbaird-ice"
   depends_on macos: ">= :sonoma"
 
-  app "Ice.app"
+  app "holzIce.app"
 
   # The app is signed ad hoc, not with a Developer ID, so Gatekeeper would
   # refuse to open it while it carries the quarantine attribute.
   postflight do
     system_command "/usr/bin/xattr",
-                   args: ["-dr", "com.apple.quarantine", "#{appdir}/Ice.app"]
+                   args: ["-dr", "com.apple.quarantine", "#{appdir}/holzIce.app"]
   end
 
-  uninstall quit: "com.jordanbaird.Ice"
+  uninstall quit: "com.holzcloud.holzIce"
 
   zap trash: [
-    "~/Library/Application Support/Ice",
-    "~/Library/Caches/com.jordanbaird.Ice",
-    "~/Library/HTTPStorages/com.jordanbaird.Ice",
-    "~/Library/Preferences/com.jordanbaird.Ice.plist",
+    "~/Library/Application Support/holzIce",
+    "~/Library/Caches/com.holzcloud.holzIce",
+    "~/Library/HTTPStorages/com.holzcloud.holzIce",
+    "~/Library/Preferences/com.holzcloud.holzIce.plist",
   ]
 end

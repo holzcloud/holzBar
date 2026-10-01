@@ -43,7 +43,7 @@ final class ItemImageStore27 {
 
     private let logger = Logger(category: "ItemImageStore27")
     private let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("Ice/ItemImages", isDirectory: true)
+        .appendingPathComponent("holzIce/ItemImages", isDirectory: true)
     private var index = [String: IndexEntry]()
     private var loaded = [String: CapturedImage]()
     private var photoSchedule = PhotoSchedule27()

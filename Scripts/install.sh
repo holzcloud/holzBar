@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Builds Ice and installs it, signed.
+# Builds holzIce and installs it, signed.
 #
 # Replaces the project's "Copy to Applications" build phase, which cannot work:
 # Xcode signs a target *after* its script phases run, so that phase always copies
@@ -28,7 +28,7 @@ xcodebuild -project "$ROOT/Ice.xcodeproj" -scheme Ice -configuration Release \
     ENABLE_HARDENED_RUNTIME=NO \
     | tail -3
 
-APP="$DERIVED/Build/Products/Release/Ice.app"
+APP="$DERIVED/Build/Products/Release/holzIce.app"
 [ -d "$APP" ] || { echo "error: no product at $APP" >&2; exit 1; }
 
 echo "==> Verifying the signature before installing"
@@ -37,33 +37,33 @@ codesign --verify --deep --strict "$APP"
 codesign -dv "$APP" 2>&1 | grep -E 'Identifier=|TeamIdentifier=' | sed 's/^/    /'
 
 echo "==> Installing to $DEST"
-if pgrep -x Ice >/dev/null 2>&1; then
-    osascript -e 'quit app "Ice"' >/dev/null 2>&1 || true
+if pgrep -x holzIce >/dev/null 2>&1; then
+    osascript -e 'quit app "holzIce"' >/dev/null 2>&1 || true
     for _ in 1 2 3 4 5 6 7 8 9 10; do
-        pgrep -x Ice >/dev/null 2>&1 || break
+        pgrep -x holzIce >/dev/null 2>&1 || break
         sleep 0.3
     done
-    pgrep -x Ice >/dev/null 2>&1 && pkill -x Ice || true
+    pgrep -x holzIce >/dev/null 2>&1 && pkill -x holzIce || true
 fi
 
 mkdir -p "$DEST"
-rm -rf "${DEST:?}/Ice.app"
+rm -rf "${DEST:?}/holzIce.app"
 # ditto, not cp: it preserves the code signature.
-ditto "$APP" "$DEST/Ice.app"
+ditto "$APP" "$DEST/holzIce.app"
 
 echo "==> Verifying the installed copy"
-codesign --verify --deep --strict "$DEST/Ice.app"
+codesign --verify --deep --strict "$DEST/holzIce.app"
 
 # An ad hoc signature changes with every build, and macOS keeps the permissions it
-# granted to the previous one: System Settings shows them as on while Ice is denied,
-# and Ice never gets past its permissions window (jordanbaird/Ice#1004). Clear them
+# granted to the previous one: System Settings shows them as on while holzIce is denied,
+# and holzIce never gets past its permissions window (jordanbaird/Ice#1004). Clear them
 # so that the new build is asked for them afresh.
-if codesign -dv "$DEST/Ice.app" 2>&1 | grep -q 'TeamIdentifier=not set'; then
-    BUNDLE_ID="$(defaults read "$DEST/Ice.app/Contents/Info" CFBundleIdentifier)"
+if codesign -dv "$DEST/holzIce.app" 2>&1 | grep -q 'TeamIdentifier=not set'; then
+    BUNDLE_ID="$(defaults read "$DEST/holzIce.app/Contents/Info" CFBundleIdentifier)"
     echo "==> Ad hoc signature: resetting the permissions of the previous build"
     tccutil reset Accessibility "$BUNDLE_ID" >/dev/null 2>&1 || true
     tccutil reset ScreenCapture "$BUNDLE_ID" >/dev/null 2>&1 || true
 fi
 
-open -a "$DEST/Ice.app"
-echo "==> Running from $DEST/Ice.app"
+open -a "$DEST/holzIce.app"
+echo "==> Running from $DEST/holzIce.app"
