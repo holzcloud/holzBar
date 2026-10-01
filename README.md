@@ -9,6 +9,7 @@
 [![macOS](https://img.shields.io/badge/macOS-14%20→%2027-111827?style=for-the-badge&logo=apple&logoColor=white)](#-macos-27)
 [![License](https://img.shields.io/github/license/holzcloud/holzIce?style=for-the-badge&color=4B5563)](LICENSE)
 [![Website](https://img.shields.io/badge/website-holzcloud.ch%2Fholzice-0E7C66?style=for-the-badge)](https://holzcloud.ch/holzice)
+[![Sponsor](https://img.shields.io/badge/sponsor-%E2%99%A5-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/holzcloud)
 
 **holzIce** keeps your menu bar tidy: hide what you don't need, reveal it when you do,<br>
 and make the bar look the way you like — on the notch, on every display, on macOS 27.
