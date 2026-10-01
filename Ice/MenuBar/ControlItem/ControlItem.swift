@@ -632,12 +632,10 @@ final class ControlItem {
         appState?.menuBarManager.searchPanel.show()
     }
 
-    /// Opens the settings window and checks for app updates.
+    /// Opens the releases page. holzIce is updated with Homebrew, which the
+    /// page explains.
     @objc private func checkForUpdates() {
-        guard let appState else {
-            return
-        }
-        appState.updatesManager.checkForUpdates()
+        NSWorkspace.shared.open(Constants.releasesURL)
     }
 }
 

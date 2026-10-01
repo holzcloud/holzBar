@@ -12,7 +12,7 @@ Issue numbers below refer to [jordanbaird/Ice](https://github.com/jordanbaird/Ic
 | Stuck on the permissions window although permissions are granted | #1004, #834 | "Reset and Grant Again" in the permissions window; `Scripts/install.sh` resets them for ad hoc builds |
 | Crash on clicking the icon or with the Ice Bar on macOS 26 (`EXC_BREAKPOINT`, `NSStatusBarWindow.windowNumber`) | #786, #796, #810, #821, #855, #867, #880, #905, #925, #947, #977, #779, #742, #669 | The `macos-26` base no longer casts window numbers with `CGWindowID(_:)`; see also [#989](https://github.com/jordanbaird/Ice/pull/989) |
 | "Check for updates automatically?" dialog that cannot be closed | #681, #688, #699, #837, #882, #912, #926, #931, #932, #937, #957, #969 | Sparkle is not started; holzIce updates through Homebrew |
-| Outdated Sparkle | #785 | Sparkle is never started (still linked; removing it is a follow-up) |
+| Outdated Sparkle | #785 | Sparkle is removed |
 | Main thread hangs in screen capture | #777 | Captures run on their own queue (`macos-26` base) |
 | Ice Bar images too small or too large on another display | #825, #829, #929, #955, #987 | Scale derived from the capture (#995) |
 | Show on scroll ignores a mouse wheel | #717 | Wheel deltas are scaled from lines to points |

@@ -29,6 +29,9 @@ enum Constants {
     /// The holzIce issue tracker.
     static let issuesURL = repositoryURL.appendingPathComponent("issues")
 
+    /// The holzIce releases.
+    static let releasesURL = repositoryURL.appendingPathComponent("releases")
+
     /// The holzIce website.
     ///
     /// holzIce has no website of its own yet, so this is the repository for now.

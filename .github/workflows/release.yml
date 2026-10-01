@@ -33,7 +33,7 @@ jobs:
           xcodebuild -version
 
       # Signed ad hoc: there is no Developer ID. The hardened runtime would then
-      # refuse to load Sparkle, which carries a team of its own (see Scripts/install.sh).
+      # refuse any embedded framework with a team of its own (see Scripts/install.sh).
       - name: Build
         run: |
           xcodebuild -project Ice.xcodeproj -scheme Ice -configuration Release \
