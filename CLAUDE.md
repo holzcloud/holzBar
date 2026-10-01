@@ -11,6 +11,7 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 
 - The app is called **holzIce** everywhere a user can see it (UI strings, menus, README). The bundle identifier is `com.holzcloud.holzIce`, the product is `holzIce.app`.
 - The Xcode project, target, scheme and Swift module are still called `Ice`, and so are internal type names (`IceBar`, `IceSection`, …). Leave them; renaming them would only churn the code.
+- Links in the app and the repository lead to holzIce (`Constants.repositoryURL`, `Constants.issuesURL`, `Constants.websiteURL`). The only exception is the credit to the original: "Based on Ice by Jordan Baird" in the About pane (`Constants.originalIceURL`), the README and NOTICE. `websiteURL` points to the repository until holzIce has a website.
 - Keep `com.jordanbaird.Ice` only where it refers to the original app (importing its settings, the `jordanbaird-ice` cask conflict).
 
 ## Layout
