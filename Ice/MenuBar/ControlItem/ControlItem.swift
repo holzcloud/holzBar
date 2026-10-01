@@ -299,6 +299,22 @@ final class ControlItem {
                     .store(in: &c)
             }
 
+            if identifier == .hidden {
+                // The hidden section's divider must always be in the menu bar, but
+                // it can still be dragged out of it with Command held down. Nothing
+                // brought it back, and the hidden section was gone for good
+                // (jordanbaird/Ice#619).
+                statusItem.publisher(for: \.isVisible)
+                    .removeDuplicates()
+                    .receive(on: DispatchQueue.main)
+                    .sink { [weak self] isVisible in
+                        if !isVisible {
+                            self?.addToMenuBar()
+                        }
+                    }
+                    .store(in: &c)
+            }
+
             if identifier == .alwaysHidden {
                 appState.settings.advanced.$enableAlwaysHiddenSection
                     .combineLatest(statusItem.publisher(for: \.isVisible))

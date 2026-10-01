@@ -710,7 +710,15 @@ extension HIDEventManager {
             return
         }
 
-        let averageDelta = (event.scrollingDeltaX + event.scrollingDeltaY) / 2
+        let averageDelta: CGFloat
+        if event.hasPreciseScrollingDeltas {
+            averageDelta = (event.scrollingDeltaX + event.scrollingDeltaY) / 2
+        } else {
+            // A mouse wheel reports whole lines rather than points, so a single
+            // notch has a delta of 1 and never reached the threshold below
+            // (jordanbaird/Ice#717).
+            averageDelta = (event.scrollingDeltaX + event.scrollingDeltaY) * 10
+        }
 
         if averageDelta > 5 {
             hiddenSection.show()
@@ -734,6 +742,14 @@ extension HIDEventManager {
     /// the bounds of the menu bar.
     func isMouseInsideMenuBar(appState: AppState, screen: NSScreen) -> Bool {
         guard let mouseLocation = MouseHelpers.locationAppKit else {
+            return false
+        }
+
+        // With "Displays have separate Spaces" off, only the primary display has
+        // a menu bar. The top edge of any other display is ordinary space, and
+        // treating it as a menu bar showed hidden items and holzIce's menu there
+        // (jordanbaird/Ice#383, jordanbaird/Ice#456, jordanbaird/Ice#646).
+        if !NSScreen.screensHaveSeparateSpaces, screen != NSScreen.screens.first {
             return false
         }
 
