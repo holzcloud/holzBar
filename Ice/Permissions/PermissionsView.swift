@@ -166,6 +166,24 @@ struct PermissionsView: View {
                 }
                 .allowsHitTesting(!permission.hasPermission)
 
+                if !permission.hasPermission && permission.canReset {
+                    VStack(spacing: 2) {
+                        Text("Already granted in System Settings?")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                        Button("Reset and Grant Again") {
+                            permission.resetAndRequest()
+                            Task {
+                                await permission.waitForPermission()
+                                appState.activate(withPolicy: .regular)
+                                appState.openWindow(.permissions)
+                            }
+                        }
+                        .buttonStyle(.link)
+                        .font(.callout)
+                    }
+                }
+
                 if !permission.isRequired {
                     CalloutBox("Ice can work in a limited mode without this permission.") {
                         Image(systemName: "checkmark.shield")

@@ -54,5 +54,16 @@ ditto "$APP" "$DEST/Ice.app"
 echo "==> Verifying the installed copy"
 codesign --verify --deep --strict "$DEST/Ice.app"
 
+# An ad hoc signature changes with every build, and macOS keeps the permissions it
+# granted to the previous one: System Settings shows them as on while Ice is denied,
+# and Ice never gets past its permissions window (jordanbaird/Ice#1004). Clear them
+# so that the new build is asked for them afresh.
+if codesign -dv "$DEST/Ice.app" 2>&1 | grep -q 'TeamIdentifier=not set'; then
+    BUNDLE_ID="$(defaults read "$DEST/Ice.app/Contents/Info" CFBundleIdentifier)"
+    echo "==> Ad hoc signature: resetting the permissions of the previous build"
+    tccutil reset Accessibility "$BUNDLE_ID" >/dev/null 2>&1 || true
+    tccutil reset ScreenCapture "$BUNDLE_ID" >/dev/null 2>&1 || true
+fi
+
 open -a "$DEST/Ice.app"
 echo "==> Running from $DEST/Ice.app"
