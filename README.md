@@ -4,7 +4,7 @@
 
 <br>
 
-[![Release](https://img.shields.io/github/v/release/holzcloud/holzIce?style=for-the-badge&label=release&color=2A86E0)](https://github.com/holzcloud/holzIce/releases/latest)
+[![Release](https://img.shields.io/github/v/release/holzcloud/holzIce?include_prereleases&style=for-the-badge&label=release&color=2A86E0)](https://github.com/holzcloud/holzIce/releases)
 [![Homebrew](https://img.shields.io/badge/brew-holzice-D58C4A?style=for-the-badge&logo=homebrew&logoColor=white)](#-install)
 [![macOS](https://img.shields.io/badge/macOS-14%20→%2027-111827?style=for-the-badge&logo=apple&logoColor=white)](#-macos-27)
 [![License](https://img.shields.io/github/license/holzcloud/holzIce?style=for-the-badge&color=4B5563)](LICENSE)
@@ -138,10 +138,10 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ## 📦 Releasing
 
-Push a tag `v<version>` — or run the **Release** workflow by hand. It builds the app, publishes a GitHub release and updates [`Casks/holzice.rb`](Casks/holzice.rb) on `main`.
+Push a tag `v<version>` — or run the **Release** workflow by hand. It builds the app, publishes a GitHub release and updates [`Casks/holzice.rb`](Casks/holzice.rb) on `main`. holzIce is in beta: every `0.x` release is published as a pre-release.
 
 ```sh
-git tag v0.11.13-holz.1 && git push origin v0.11.13-holz.1
+git tag v0.0.2 && git push origin v0.0.2
 ```
 
 ## 🙏 Credits

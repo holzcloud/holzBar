@@ -57,8 +57,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="v${{ steps.version.outputs.version }}"
+          # holzIce is in beta until 1.0: every 0.x release, and every tag with a
+          # suffix such as -beta.1, is published as a pre-release.
+          PRERELEASE=()
+          if [[ "$TAG" == v0.* || "$TAG" == *-* ]]; then
+            PRERELEASE=(--prerelease)
+          fi
           gh release create "$TAG" "${{ steps.package.outputs.zip }}" \
-            --target "$GITHUB_SHA" --title "holzIce $TAG" --generate-notes
+            --target "$GITHUB_SHA" --title "holzIce $TAG" --generate-notes "${PRERELEASE[@]}"
 
       - name: Update the Homebrew cask
         run: |
