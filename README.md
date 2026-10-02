@@ -80,7 +80,16 @@ brew trust --cask holzcloud/holzice/holzbar
 brew update && brew upgrade --cask holzbar
 ```
 
-Your tap `holzcloud/holzice` keeps working: Homebrew knows the cask was renamed and moves your install to `holzbar` during `brew update`. The new trust is needed because Homebrew trusts casks by name and only loads a renamed cask you have trusted. If you ran `brew update` before trusting it, run `brew migrate --cask holzice` once after `brew trust`. Until the first holzBar release there is nothing new to download; you keep holzIce 0.0.5 under the new name.
+Your tap `holzcloud/holzice` keeps working: Homebrew knows the cask was renamed and moves your install to `holzbar` during `brew update`. The new trust is needed because Homebrew trusts casks by name and only loads a renamed cask you have trusted; trusting `holzcloud/holzice/holzice` does not help, and `brew install --cask holzice` asks you to trust `holzbar`. If you ran `brew update` before trusting it, run `brew migrate --cask holzice` once after `brew trust`. Until the first holzBar release there is nothing new to download; you keep holzIce 0.0.5 under the new name.
+
+To switch to the new tap name instead (recommended for a fresh install):
+
+```sh
+brew untap --force holzcloud/holzice
+brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
+brew trust --cask holzcloud/holzbar/holzbar
+brew install --cask holzbar
+```
 
 On its first launch, holzBar takes over holzIce's settings, layout profiles, item images and iCloud sync file, and offers to quit holzIce. Then:
 
