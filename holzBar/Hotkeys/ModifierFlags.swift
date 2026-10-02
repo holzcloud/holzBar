@@ -1,44 +1,17 @@
 //
-//  Modifiers.swift
+//  ModifierFlags.swift
 //  holzBar
 //
 
 import Carbon.HIToolbox
 import Cocoa
 
-/// A bit mask containing the modifier keys for a hotkey.
-struct Modifiers: OptionSet, Codable, Hashable {
-    let rawValue: Int
-
-    static let control = Modifiers(rawValue: 1 << 0)
-    static let option = Modifiers(rawValue: 1 << 1)
-    static let shift = Modifiers(rawValue: 1 << 2)
-    static let command = Modifiers(rawValue: 1 << 3)
-}
-
+/// Conversions between ``Modifiers`` and the system's modifier flags (Cocoa,
+/// CoreGraphics and Carbon).
+///
+/// The type itself lives in `holzBar/Core/Modifiers.swift`, without AppKit or Carbon,
+/// so that it can be unit tested.
 extension Modifiers {
-    /// All modifiers in the order displayed by the system,
-    /// according to Apple's style guide.
-    static let canonicalOrder = [control, option, shift, command]
-
-    /// A symbolic string representation of the modifiers.
-    var symbolicValue: String {
-        var result = ""
-        if contains(.control) {
-            result.append("⌃")
-        }
-        if contains(.option) {
-            result.append("⌥")
-        }
-        if contains(.shift) {
-            result.append("⇧")
-        }
-        if contains(.command) {
-            result.append("⌘")
-        }
-        return result
-    }
-
     /// Cocoa flags.
     var nsEventFlags: NSEvent.ModifierFlags {
         var result: NSEvent.ModifierFlags = []
@@ -93,7 +66,8 @@ extension Modifiers {
         return result
     }
 
-    init(nsEventFlags: NSEvent.ModifierFlags) {
+    /// Creates modifiers from Cocoa flags.
+    init(nsEventFlags:NSEvent.ModifierFlags) {
         self.init()
         if nsEventFlags.contains(.control) {
             insert(.control)
@@ -109,7 +83,8 @@ extension Modifiers {
         }
     }
 
-    init(cgEventFlags: CGEventFlags) {
+    /// Creates modifiers from CoreGraphics flags.
+    init(cgEventFlags:CGEventFlags) {
         self.init()
         if cgEventFlags.contains(.maskControl) {
             insert(.control)
@@ -125,7 +100,8 @@ extension Modifiers {
         }
     }
 
-    init(carbonFlags: Int) {
+    /// Creates modifiers from raw Carbon flags.
+    init(carbonFlags:Int) {
         self.init()
         if carbonFlags & controlKey == controlKey {
             insert(.control)
