@@ -201,10 +201,6 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 </tr>
 </table>
 
-<p align="center"><b>Search</b> — find any item<br><img src="https://github.com/user-attachments/assets/d1a7df3a-4989-4077-a0b1-8e7d5a1ba5b8" alt="Menu Bar Item Search" width="420"></p>
-
-<sub>Search is still a screenshot from the original Ice; all the others are holzIce.</sub>
-
 ## 🙏 Credits
 
 <img src="Resources/Screenshots/settings-about.png" alt="holzIce settings, About pane: the app icon, Version 0.0.5, copyright Jordan Baird and holzcloud, Based on Ice by Jordan Baird, the command brew upgrade --cask holzice and a Releases button" width="420" align="right">
