@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: planning
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-10-02T10:19:00.589Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-10-02T10:32:05.507Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: dcdba1e313676eeea10a1b700a49d44d32402f17
+state_head: 5e864828cdc29da05c36e8c2fc4697a0b6a29c74
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 01 P01 | 20min | 2 tasks | 2 files |
+| Phase 01 P02 | 10min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,7 @@ Recent decisions affecting current work:
 - Roadmap: hotkey signature stays identical to Ice's (BUG-05 must not change it)
 - [Phase 01]: CI pins Xcode 26.6 exactly via .github/actions/select-xcode (inputs.version.default is the single source); no fallback
 - [Phase 01]: build.yml runs on every pull request (no paths filter)
+- [Phase 01]: Lint runs the official SwiftLint 0.65.1 image pinned by sha256 digest via plain docker run; no lint rule was switched off (legacy_swiftui_aspect_ratio fixed in code)
 
 ### Pending Todos
 
@@ -89,6 +91,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T10:19:00.566Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-10-02T10:32:05.485Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None

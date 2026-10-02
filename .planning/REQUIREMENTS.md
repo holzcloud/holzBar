@@ -10,7 +10,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 ### CI and build
 
 - [x] **CI-01**: Workflows use current action versions (`actions/checkout` v5 or newer) and no deprecated runtime warnings remain
-- [ ] **CI-02**: SwiftLint runs with a maintained setup (official SwiftLint, not `norio-nomura/action-swiftlint@3.2.1`) and still passes `--strict`
+- [x] **CI-02**: SwiftLint runs with a maintained setup (official SwiftLint, not `norio-nomura/action-swiftlint@3.2.1`) and still passes `--strict`
 - [x] **CI-03**: The unit tests (`swift test`, `Tests/IceMacOS27CoreTests`) run on every pull request
 - [x] **CI-04**: The build workflow prints compiler warnings (deprecations) so they are visible in the log
 - [x] **CI-05**: Xcode version is pinned explicitly in CI and the README states the real build requirement
@@ -92,7 +92,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | CI-01 | Phase 1 | Complete |
-| CI-02 | Phase 1 | Pending |
+| CI-02 | Phase 1 | Complete |
 | CI-03 | Phase 1 | Complete |
 | CI-04 | Phase 1 | Complete |
 | CI-05 | Phase 1 | Complete |
