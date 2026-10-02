@@ -37,6 +37,7 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 - `.github/workflows/build.yml` – builds every pull request on a macOS runner; the only way to compile without a Mac.
 - `.github/workflows/release.yml` – a `v*` tag builds the app on a macOS runner, publishes the release and updates the cask on `main`.
 - `Resources/Logo/` – logo and README banner sources (SVG).
+- `Resources/Screenshots/` – real screenshots of holzIce, used by the README gallery (and on https://holzcloud.ch/holzice). Replace a screenshot of the original Ice there with one of holzIce when one exists.
 - `docs/upstream-bugs.md` – the open bug reports of the original Ice, grouped, and which of them holzIce has fixed. Update it when fixing one.
 
 ## Building

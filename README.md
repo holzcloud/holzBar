@@ -177,20 +177,37 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ## 🖼 Gallery
 
+<p align="center"><img src="Resources/Screenshots/settings-general.png" alt="holzIce settings, General pane: Launch at login, the holzIce icon, the holzIce Bar and showing hidden items on click, hover or scroll" width="760"></p>
+
 <table>
 <tr>
-<td width="50%"><b>holzIce Bar</b> — hidden items below the menu bar<br><img src="https://github.com/user-attachments/assets/f1429589-6186-4e1b-8aef-592219d49b9b" alt="Ice Bar"></td>
-<td width="50%"><b>Layout</b> — drag and drop your items<br><img src="https://github.com/user-attachments/assets/095442ba-f2d0-4bb4-9632-91e26ef8d45b" alt="Menu Bar Layout"></td>
+<td width="50%" valign="top"><b>Hidden</b> — only holzIce's dot in the menu bar<br><img src="Resources/Screenshots/menu-bar.png" alt="The right side of the menu bar with holzIce's dot; the hidden items are collapsed"></td>
+<td width="50%" valign="top"><b>holzIce Bar</b> — hidden items below the menu bar<br><img src="Resources/Screenshots/holzice-bar.png" alt="The menu bar with the holzIce Bar open below it, showing the hidden items"></td>
 </tr>
 <tr>
-<td width="50%"><b>Appearance</b> — tint, shadow, shapes<br><img src="https://github.com/user-attachments/assets/8c22c185-c3d2-49bb-971e-e1fc17df04b3" alt="Menu Bar Appearance"></td>
-<td width="50%"><b>Search</b> — find any item<br><img src="https://github.com/user-attachments/assets/d1a7df3a-4989-4077-a0b1-8e7d5a1ba5b8" alt="Menu Bar Item Search"></td>
+<td width="50%" valign="top"><b>Menu</b> — right-click the dot for settings, search and updates<br><img src="Resources/Screenshots/menu.png" alt="holzIce's menu: holzIce Settings…, Search Menu Bar Items, Show Hidden Section, Check for Updates…, Quit holzIce"></td>
+<td width="50%" valign="top"><b>Rehide and spacing</b> — automatic rehide and item spacing <sub>BETA</sub><br><img src="Resources/Screenshots/settings-spacing.png" alt="holzIce settings: show on click, hover or scroll, automatically rehide with the Smart strategy, and the menu bar item spacing slider marked BETA"></td>
 </tr>
 </table>
 
-<sub>Screenshots from the original Ice.</sub>
+<table>
+<tr>
+<td width="50%" valign="top"><b>Layout</b> — drag items into sections, with profiles, groups and spacers<br><img src="Resources/Screenshots/settings-layout.png" alt="holzIce settings, Menu Bar Layout pane: profiles with Save Current Layout…, groups with New Group…, spacers, and the Visible and Hidden sections with the menu bar items"></td>
+<td width="50%" valign="top"><b>Appearance</b> — tint, shadow, border, shapes, a black bar and rounded screen corners<br><img src="Resources/Screenshots/settings-appearance.png" alt="holzIce settings, Menu Bar Appearance pane: Dynamic appearance, Tint, Shadow, Border, Shape Kind, Black menu bar and Round the screen corners"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action<br><img src="Resources/Screenshots/settings-hotkeys.png" alt="holzIce settings, Hotkeys pane: hotkeys for the hidden section, the search, the holzIce Bar, app menus and auto-rehide, each with Record Hotkey"></td>
+<td width="50%" valign="top"><b>Advanced</b> — the always-hidden section, Live Activities and delays<br><img src="Resources/Screenshots/settings-advanced.png" alt="holzIce settings, Advanced pane: the always-hidden section, section dividers, where new items go, Live Activities, hiding app menus, the secondary context menu and the hover and temporary-show delays"></td>
+</tr>
+</table>
+
+<p align="center"><b>Search</b> — find any item<br><img src="https://github.com/user-attachments/assets/d1a7df3a-4989-4077-a0b1-8e7d5a1ba5b8" alt="Menu Bar Item Search" width="420"></p>
+
+<sub>Search is still a screenshot from the original Ice; all the others are holzIce.</sub>
 
 ## 🙏 Credits
+
+<img src="Resources/Screenshots/settings-about.png" alt="holzIce settings, About pane: the app icon, Version 0.0.5, copyright Jordan Baird and holzcloud, Based on Ice by Jordan Baird, the command brew upgrade --cask holzice and a Releases button" width="420" align="right">
 
 - [**Ice**](https://github.com/jordanbaird/Ice) by [Jordan Baird](https://github.com/jordanbaird) — the app holzIce is built on: its design, its features and almost all of its code. Thank you, Jordan! 💙 If you like it, [sponsor Jordan](https://github.com/sponsors/jordanbaird) or [buy him a coffee](https://www.buymeacoffee.com/jordanbaird).
 - [**RabenkoYevhenii**](https://github.com/RabenkoYevhenii) — the macOS 27 backend ([jordanbaird/Ice#995](https://github.com/jordanbaird/Ice/pull/995)).
