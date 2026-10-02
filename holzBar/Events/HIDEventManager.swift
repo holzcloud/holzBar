@@ -33,6 +33,18 @@ final class HIDEventManager: ObservableObject {
     /// swallowing an unrelated one later.
     private var heldBackReleaseUntil: ContinuousClock.Instant?
 
+    /// What show on hover does once its delay has passed.
+    private enum HoverAction {
+        case show
+        case hide
+    }
+
+    /// The hover action waiting for its delay, so mouse moves start one task, not one each.
+    private var hoverSchedule = HoverSchedule<HoverAction>()
+
+    /// The task that performs the pending hover action after the delay.
+    private var hoverTask: Task<Void, Never>?
+
     /// A Boolean value that indicates whether the manager is enabled.
     private var isEnabled = false {
         didSet {
@@ -44,8 +56,16 @@ final class HIDEventManager: ObservableObject {
                 for monitor in allMonitors {
                     monitor.stop()
                 }
+                cancelHoverAction()
             }
         }
+    }
+
+    /// Cancels the pending hover action.
+    private func cancelHoverAction() {
+        hoverTask?.cancel()
+        hoverTask = nil
+        hoverSchedule.cancel()
     }
 
     // MARK: Monitors
@@ -629,8 +649,17 @@ extension HIDEventManager {
             if let location = MouseHelpers.locationCoreGraphics {
                 lastEmptyMenuBarPoints[screen.displayID] = location
             }
-            Task {
-                try await Task.sleep(for: .seconds(delay))
+            // A show already waiting keeps its timing, counted from the first move.
+            guard let generation = hoverSchedule.request(.show) else {
+                return
+            }
+            hoverTask?.cancel()
+            hoverTask = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(delay))
+                guard let self, !Task.isCancelled else {
+                    return
+                }
+                hoverSchedule.finish(generation)
                 // Make sure the mouse is still inside.
                 guard isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) else {
                     return
@@ -644,8 +673,17 @@ extension HIDEventManager {
             else {
                 return
             }
-            Task {
-                try await Task.sleep(for: .seconds(delay))
+            // A hide already waiting keeps its timing, counted from the first move.
+            guard let generation = hoverSchedule.request(.hide) else {
+                return
+            }
+            hoverTask?.cancel()
+            hoverTask = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(delay))
+                guard let self, !Task.isCancelled else {
+                    return
+                }
+                hoverSchedule.finish(generation)
                 // Make sure the mouse is still outside.
                 guard
                     !isMouseInsideMenuBar(appState: appState, screen: screen),
