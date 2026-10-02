@@ -41,26 +41,26 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Leftovers
 
-- [ ] **LEFT-01**: (also fixes the "Ice uses …" sentence found in Phase 01.1 verification) Acknowledgements and license information are shown natively inside the app (a SwiftUI view in About, no PDF/RTF), list the packages actually used with their licenses, and no longer mention Sparkle; `Acknowledgements.pdf`/`.rtf` are removed
-- [ ] **LEFT-02**: NOTICE and the README credits name Barometer and Thaw for the adapted macOS 27 code
-- [ ] **LEFT-03**: `FREQUENT_ISSUES.md` describes holzIce (or is removed and its useful parts moved to the README)
-- [ ] **LEFT-04**: Unused files and dead code are removed (`Resources/rearranging.mov`, `rearranging.gif`, `Icon.png`, `RunLoopLocalEventMonitor.swift`, `ObjectStorage.swift`, the "Copy to Applications" stub phase, `ENABLE_USER_SELECTED_FILES`, redundant `managedItems(for:)`)
-- [ ] **LEFT-05**: The bug report template asks for holzIce version, macOS version and install method with current placeholders
-- [ ] **LEFT-06**: README and docs are consistent (Thaw in the conflicting apps list, one bug-report count)
-- [ ] **LEFT-08**: (superseded by REN-06) The settings sidebar shows the colored holzIce logo as on the website (ice cube with chevron on the wooden plank, sparkle, transparent background — the motif from `Resources/Logo/banner.svg` without the dark tile) to the left of the "holzIce" title, as a vector image asset (`Logo.imageset`, SVG with preserved vector data), sized to the title height
-- [ ] **LEFT-07**: The hard-coded logger subsystem uses the shared `Logger(category:)`; the `"SU"` exclusion is commented
+- [x] **LEFT-01**: (also fixes the "Ice uses …" sentence found in Phase 01.1 verification) Acknowledgements and license information are shown natively inside the app (a SwiftUI view in About, no PDF/RTF), list the packages actually used with their licenses, and no longer mention Sparkle; `Acknowledgements.pdf`/`.rtf` are removed
+- [x] **LEFT-02**: NOTICE and the README credits name Barometer and Thaw for the adapted macOS 27 code
+- [x] **LEFT-03**: `FREQUENT_ISSUES.md` describes holzIce (or is removed and its useful parts moved to the README)
+- [x] **LEFT-04**: Unused files and dead code are removed (`Resources/rearranging.mov`, `rearranging.gif`, `Icon.png`, `RunLoopLocalEventMonitor.swift`, `ObjectStorage.swift`, the "Copy to Applications" stub phase, `ENABLE_USER_SELECTED_FILES`, redundant `managedItems(for:)`)
+- [x] **LEFT-05**: The bug report template asks for holzIce version, macOS version and install method with current placeholders
+- [x] **LEFT-06**: README and docs are consistent (Thaw in the conflicting apps list, one bug-report count)
+- [x] **LEFT-08**: (superseded by REN-06) The settings sidebar shows the colored holzIce logo as on the website (ice cube with chevron on the wooden plank, sparkle, transparent background — the motif from `Resources/Logo/banner.svg` without the dark tile) to the left of the "holzIce" title, as a vector image asset (`Logo.imageset`, SVG with preserved vector data), sized to the title height
+- [x] **LEFT-07**: The hard-coded logger subsystem uses the shared `Logger(category:)`; the `"SU"` exclusion is commented
 
 ### Outdated APIs
 
-- [ ] **API-01**: `URL.appendingPathComponent` and `URL.path` are replaced by `appending(path:)` / `path(percentEncoded:)`
-- [ ] **API-02**: `UserDefaults.synchronize()` and the shell relaunch are replaced by `NSWorkspace.openApplication`
-- [ ] **API-03**: `Host.current()` is gone; settings sync identifies devices by a stored UUID (display name from `SCDynamicStoreCopyComputerName`)
-- [ ] **API-04**: Spacing writes preferences through `CFPreferences` instead of spawning `defaults`
-- [ ] **API-05**: `holzice://` URLs arrive through `application(_:open:)` instead of `NSAppleEventManager`
-- [ ] **API-06**: The Screen Recording deep link uses the current System Settings identifier
-- [ ] **API-07**: AXSwift is replaced by direct AX calls and removed from both targets
-- [ ] **DEP-01**: Every Swift package (`Package.resolved`) is on its latest stable release (e.g. Ifrit 2.0.6 → latest), and the app still builds and behaves the same
-- [ ] **API-08**: Windows are opened and closed through a captured `OpenWindowAction`/`DismissWindowAction`, not a fresh `EnvironmentValues()`
+- [x] **API-01**: `URL.appendingPathComponent` and `URL.path` are replaced by `appending(path:)` / `path(percentEncoded:)`
+- [x] **API-02**: `UserDefaults.synchronize()` and the shell relaunch are replaced by `NSWorkspace.openApplication`
+- [x] **API-03**: `Host.current()` is gone; settings sync identifies devices by a stored UUID (display name from `SCDynamicStoreCopyComputerName`)
+- [x] **API-04**: Spacing writes preferences through `CFPreferences` instead of spawning `defaults`
+- [x] **API-05**: `holzice://` URLs arrive through `application(_:open:)` instead of `NSAppleEventManager`
+- [x] **API-06**: The Screen Recording deep link uses the current System Settings identifier
+- [x] **API-07**: AXSwift is replaced by direct AX calls and removed from both targets
+- [x] **DEP-01**: Every Swift package (`Package.resolved`) is on its latest stable release (Ifrit is replaced by holzBar's own fuzzy search — user decision 2026-10-02), and the app still builds and behaves the same
+- [x] **API-08**: Windows are opened and closed through a captured `OpenWindowAction`/`DismissWindowAction`, not a fresh `EnvironmentValues()`
 
 ### Modern, lean and private
 
@@ -79,11 +79,12 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Security and performance
 
-- [ ] **SEC-01**: Settings import and sync only apply known keys with the expected types
-- [ ] **SEC-02**: URL commands log only the command, not the full URL as public
-- [ ] **SEC-03**: Captured item images are stored in Caches (excluded from backups), not Application Support; old files are moved or deleted
+- [x] **SEC-01**: Settings import and sync only apply known keys with the expected types
+- [x] **SEC-02**: URL commands log only the command, not the full URL as public
+- [x] **SEC-03**: Captured item images are stored in Caches (excluded from backups), not Application Support; old files are moved or deleted
 - [ ] **PERF-01**: Show on hover keeps one cancellable task instead of starting a task per mouse move
 - [ ] **PERF-02**: Permission polling stops once all permissions are granted
+- [ ] **PERF-04**: The menu bar search tolerates 1–2 typos (own code, no dependency) while in-order matches rank first
 - [ ] **PERF-03**: Reveal rules react to power and network notifications instead of polling every 60 s
 
 ### Compatibility
@@ -142,28 +143,29 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | BUG-06 | Phase 2 | Complete |
 | BUG-07 | Phase 2 | Complete |
 | BUG-08 | Phase 2 | Complete |
-| LEFT-01 | Phase 3 | Pending |
-| LEFT-02 | Phase 3 | Pending |
-| LEFT-03 | Phase 3 | Pending |
-| LEFT-04 | Phase 3 | Pending |
-| LEFT-05 | Phase 3 | Pending |
-| LEFT-06 | Phase 3 | Pending |
-| LEFT-08 | Phase 3 | Pending |
-| LEFT-07 | Phase 3 | Pending |
-| API-01 | Phase 4 | Pending |
-| API-02 | Phase 4 | Pending |
-| API-03 | Phase 4 | Pending |
-| API-04 | Phase 4 | Pending |
-| API-05 | Phase 4 | Pending |
-| API-06 | Phase 4 | Pending |
-| API-07 | Phase 4 | Pending |
-| DEP-01 | Phase 4 | Pending |
-| API-08 | Phase 4 | Pending |
-| SEC-01 | Phase 5 | Pending |
-| SEC-02 | Phase 5 | Pending |
-| SEC-03 | Phase 5 | Pending |
+| LEFT-01 | Phase 3 | Complete |
+| LEFT-02 | Phase 3 | Complete |
+| LEFT-03 | Phase 3 | Complete |
+| LEFT-04 | Phase 3 | Complete |
+| LEFT-05 | Phase 3 | Complete |
+| LEFT-06 | Phase 3 | Complete |
+| LEFT-08 | Phase 3 | Complete |
+| LEFT-07 | Phase 3 | Complete |
+| API-01 | Phase 4 | Complete |
+| API-02 | Phase 4 | Complete |
+| API-03 | Phase 4 | Complete |
+| API-04 | Phase 4 | Complete |
+| API-05 | Phase 4 | Complete |
+| API-06 | Phase 4 | Complete |
+| API-07 | Phase 4 | Complete |
+| DEP-01 | Phase 4 | Complete |
+| API-08 | Phase 4 | Complete |
+| SEC-01 | Phase 5 | Complete |
+| SEC-02 | Phase 5 | Complete |
+| SEC-03 | Phase 5 | Complete |
 | PERF-01 | Phase 5 | Pending |
 | PERF-02 | Phase 5 | Pending |
+| PERF-04 | Phase 5 | Pending |
 | PERF-03 | Phase 5 | Pending |
 | LEAN-01 | Phase 05.1 | Pending |
 | MOD-01 | Phase 05.1 | Pending |

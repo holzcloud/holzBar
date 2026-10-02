@@ -8,17 +8,18 @@ import SwiftUI
 struct AboutSettingsPane: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.openURL) private var openURL
-
-    private var acknowledgementsURL: URL {
-        // swiftlint:disable:next force_unwrapping
-        Bundle.main.url(forResource: "Acknowledgements", withExtension: "pdf")!
-    }
+    @State private var isShowingAcknowledgements = false
 
     var body: some View {
-        if #available(macOS 26.0, *) {
-            contentForm(cornerStyle: .continuous)
-        } else {
-            contentForm(cornerStyle: .circular)
+        Group {
+            if #available(macOS 26.0, *) {
+                contentForm(cornerStyle: .continuous)
+            } else {
+                contentForm(cornerStyle: .circular)
+            }
+        }
+        .sheet(isPresented: $isShowingAcknowledgements) {
+            AcknowledgementsView()
         }
     }
 
@@ -125,7 +126,7 @@ struct AboutSettingsPane: View {
             }
             Spacer()
             Button("Acknowledgements") {
-                NSWorkspace.shared.open(acknowledgementsURL)
+                isShowingAcknowledgements = true
             }
             Button("Website") {
                 openURL(Constants.websiteURL)

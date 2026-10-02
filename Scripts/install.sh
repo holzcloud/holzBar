@@ -2,7 +2,7 @@
 #
 # Builds holzBar and installs it, signed.
 #
-# Replaces the project's "Copy to Applications" build phase, which cannot work:
+# Replaces the "Copy to Applications" build phase the project used to have, which cannot work:
 # Xcode signs a target *after* its script phases run, so that phase always copies
 # an unsigned bundle. macOS then refuses to launch it — "Launchd job spawn
 # failed" — and the freshly built app appears simply broken.

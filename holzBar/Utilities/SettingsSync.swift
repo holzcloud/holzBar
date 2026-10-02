@@ -6,6 +6,7 @@
 import AppKit
 import Combine
 import OSLog
+import SystemConfiguration
 
 /// Keeps holzBar's settings in step across Macs through a file in iCloud Drive
 /// (jordanbaird/Ice#95).
@@ -26,11 +27,32 @@ final class SettingsSync: ObservableObject {
 
     private static let lastSyncedKey = "SettingsSyncLastSynced"
 
+    /// The key of this Mac's sync id. Keys starting with "SettingsSync" are never exported,
+    /// imported or synced (`SettingsBackup.excludedKeyPrefixes`).
+    private static let deviceIDKey = "SettingsSyncDeviceID"
+
+    /// The id this Mac writes into the sync file, created once and kept in this Mac's
+    /// defaults.
+    static var deviceID: String {
+        if let deviceID = UserDefaults.standard.string(forKey: deviceIDKey) {
+            return deviceID
+        }
+        let deviceID = UUID().uuidString
+        UserDefaults.standard.set(deviceID, forKey: deviceIDKey)
+        return deviceID
+    }
+
+    /// This Mac's computer name, read from the system configuration without a network
+    /// lookup.
+    static var computerName: String? {
+        SCDynamicStoreCopyComputerName(nil, nil) as String?
+    }
+
     /// iCloud Drive's folder, if iCloud Drive is turned on.
     static var iCloudDriveURL: URL? {
         let url = FileManager.default.homeDirectoryForCurrentUser
             .appending(path: "Library/Mobile Documents/com~apple~CloudDocs", directoryHint: .isDirectory)
-        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+        return FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) ? url : nil
     }
 
     /// The file the settings are synced through.
@@ -95,7 +117,8 @@ final class SettingsSync: ObservableObject {
         let modified = Date.now
         let file: [String: Any] = [
             "modified": modified,
-            "device": Host.current().localizedName ?? "",
+            SettingsSyncDevice.deviceIDKey: Self.deviceID,
+            SettingsSyncDevice.deviceNameKey: Self.computerName ?? "",
             "settings": settings,
         ]
         do {
@@ -118,7 +141,7 @@ final class SettingsSync: ObservableObject {
             let file = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
             let modified = file["modified"] as? Date,
             let settings = file["settings"] as? [String: Any],
-            (file["device"] as? String) != Host.current().localizedName
+            !SettingsSyncDevice.isFromThisMac(file: file, deviceID: deviceID, computerName: computerName)
         else {
             return nil
         }

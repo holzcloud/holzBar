@@ -4,7 +4,6 @@
 //
 
 import Combine
-import Ifrit
 import OSLog
 import SwiftUI
 
@@ -299,7 +298,6 @@ private struct MenuBarSearchContentView: View {
 
     private func updateDisplayedItems() {
         typealias SearchItem = (listItem: ListItem, title: String)
-        typealias ScoredItem = (listItem: ListItem, score: Double)
 
         let searchItems: [SearchItem] = MenuBarSection.Name.allCases
             .reduce(into: []) { items, name in
@@ -320,7 +318,7 @@ private struct MenuBarSearchContentView: View {
                 }
                 items.append(SearchItem(headerItem, name.displayString))
 
-                for item in itemManager.itemCache.managedItems(for: name).reversed() {
+                for item in itemManager.itemCache[name].reversed() {
                     let listItem = ListItem.item(id: .item(item.tag)) {
                         performAction(for: item)
                     } content: {
@@ -334,32 +332,7 @@ private struct MenuBarSearchContentView: View {
             model.displayedItems = searchItems.map { $0.listItem }
         } else {
             let selectableItems = searchItems.filter { $0.listItem.isSelectable }
-            let fuseResults = model.fuse.searchSync(
-                model.searchText,
-                in: selectableItems.map { $0.title }
-            )
-            let maxFuseScore = Double(fuseResults.count)
-
-            model.displayedItems = fuseResults.enumerated()
-                .map { index, result in
-                    let fuseScore = maxFuseScore - Double(index)
-                    let (listItem, title) = selectableItems[result.index]
-
-                    guard let match = bestMatch(
-                        query: model.searchText,
-                        input: title,
-                        boundaryBonus: 16,
-                        camelCaseBonus: 16
-                    ) else {
-                        return ScoredItem(listItem, fuseScore)
-                    }
-
-                    let matchScore = Double(match.score.value)
-                    let averageScore = (matchScore + fuseScore) / 2
-
-                    return ScoredItem(listItem, averageScore)
-                }
-                .sorted { $0.score > $1.score }
+            model.displayedItems = FuzzyMatch.rank(selectableItems, query: model.searchText) { $0.title }
                 .map { $0.listItem }
         }
     }

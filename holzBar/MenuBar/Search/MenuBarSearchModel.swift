@@ -5,7 +5,6 @@
 
 import Cocoa
 import Combine
-import Ifrit
 
 @MainActor
 final class MenuBarSearchModel: ObservableObject {
@@ -20,8 +19,6 @@ final class MenuBarSearchModel: ObservableObject {
     @Published private(set) var averageColorInfo: MenuBarAverageColorInfo?
 
     private var cancellables = Set<AnyCancellable>()
-
-    let fuse = Fuse(threshold: 0.5)
 
     func performSetup(with panel: MenuBarSearchPanel) {
         configureCancellables(with: panel)

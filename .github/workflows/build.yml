@@ -33,7 +33,14 @@ jobs:
           grep "warning:" build.log | sed "s|$GITHUB_WORKSPACE/||g" | sort -u > warnings.txt
           echo "==> $(wc -l < warnings.txt | tr -d ' ') compiler warnings"
           cat warnings.txt
+          # The packages and versions the build really used.
+          echo "==> Resolved source packages"
+          sed -n '/^Resolved source packages:/,/^$/p' build.log
           grep -E "error:|\*\* BUILD" build.log || tail -50 build.log
+          APP=build/Build/Products/Release/holzBar.app
+          if [ -d "$APP" ]; then
+            echo "==> App size: $(du -sk "$APP" | cut -f1) KB"
+          fi
           exit $STATUS
 
       # The app connects to its embedded XPC service by MenuBarItemService.name; a mismatch
@@ -62,6 +69,26 @@ jobs:
             echo "::error::The XPC service's bundle identifier ($SERVICE_ID) is not the app's ($APP_ID) plus .MenuBarItemService"
             exit 1
           fi
+
+      # Every license text shown under Settings, About, Acknowledgements must be in the app.
+      - name: Check the acknowledgements
+        run: |
+          RESOURCES=build/Build/Products/Release/holzBar.app/Contents/Resources
+          COUNT=0
+          MISSING=0
+          for FILE in holzBar/Resources/Acknowledgements/*.txt; do
+            NAME=$(basename "$FILE")
+            if [ -n "$(find "$RESOURCES" -name "$NAME" -print -quit)" ]; then
+              COUNT=$((COUNT + 1))
+            else
+              echo "::error::$NAME is missing from the built holzBar.app"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+          if [ "$MISSING" -ne 0 ]; then
+            exit 1
+          fi
+          echo "==> Acknowledgements: $COUNT license files in the app"
 
   # The app's former name must not appear anywhere in the repository (see CLAUDE.md).
   # .planning/ and .claude/ are GSD's working state; .github/cms-version.py is a copy

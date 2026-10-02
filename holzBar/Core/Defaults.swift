@@ -136,7 +136,12 @@ enum Defaults {
 }
 
 extension Defaults {
-    enum Key: String {
+    /// The keys holzBar stores its settings under.
+    ///
+    /// Every key declares the kind of value it holds (``settingsKind``), so an imported
+    /// or synced settings file can only set holzBar's own keys, with values of the
+    /// expected kind (``SettingsSchema``).
+    enum Key: String, CaseIterable {
         // MARK: General Settings
 
         /// The stored strings keep the names that earlier versions of the app
@@ -219,4 +224,90 @@ extension Defaults {
         // MARK: Deprecated (Other)
         case sections = "Sections"
     }
+}
+
+// MARK: - Value Kinds
+
+extension Defaults.Key {
+    /// The kind of value stored under this key.
+    ///
+    /// The switch has no `default`, so a new key must declare its kind before it
+    /// can be built; imported and synced settings are checked against these kinds.
+    var settingsKind: SettingsSchema.Kind {
+        switch self {
+        case .showHolzBarIcon,
+            .customHolzBarIconIsTemplate,
+            .useShelf,
+            .showsNotchOverflowInShelf,
+            .showOnClick,
+            .showOnHover,
+            .showOnScroll,
+            .autoRehide,
+            .enableAlwaysHiddenSection,
+            .showAllSectionsOnUserDrag,
+            .hideApplicationMenus,
+            .enableSecondaryContextMenu,
+            .keepLiveActivitiesVisible,
+            .syncsSettingsWithICloud,
+            .macOS27LayoutSeeded,
+            .macOS27ShelfWaitsForRefresh,
+            .hasMigrated0_8_0,
+            .hasMigrated0_10_0,
+            .hasMigrated0_10_1,
+            .hasMigrated0_11_10,
+            .hasMigrated0_11_13,
+            .hasMigrated0_11_13_1,
+            .hasImportedPreviousSettings,
+            .menuBarHasBorder,
+            .menuBarHasShadow,
+            .showSectionDividers,
+            .canToggleAlwaysHiddenSection:
+            .bool
+        case .shelfLocation,
+            .shelfDisplays,
+            .rehideStrategy,
+            .rehideInterval,
+            .itemSpacingOffset,
+            .sectionDividerStyle,
+            .showOnHoverDelay,
+            .tempShowInterval,
+            .newItemsPlacement,
+            .spacerCount,
+            .spacerWidth,
+            .macOS27ClickRestoreDelay,
+            .menuBarBorderWidth,
+            .menuBarTintKind:
+            .number
+        case .holzBarIcon,
+            .layoutProfiles,
+            .itemGroups,
+            .menuBarAppearanceConfigurationV2,
+            .menuBarBorderColor,
+            .menuBarTintColor,
+            .menuBarTintGradient,
+            .menuBarShapeKind,
+            .menuBarFullShapeInfo,
+            .menuBarSplitShapeInfo,
+            .menuBarAppearanceConfiguration,
+            .sections:
+            .data
+        case .currentLayoutProfile:
+            .string
+        case .knownItemTags,
+            .knownApplications27:
+            .stringArray
+        case .hotkeys,
+            .revealRules,
+            .macOS27Layout:
+            // Their readers cast the contents themselves, so the kind is checked
+            // only at the top level.
+            .dictionary
+        }
+    }
+
+    /// The stored key names an imported or synced settings file may set, with the
+    /// kind of value each one takes.
+    static let importableKinds: [String: SettingsSchema.Kind] = Dictionary(
+        uniqueKeysWithValues: allCases.map { ($0.rawValue, $0.settingsKind) }
+    )
 }

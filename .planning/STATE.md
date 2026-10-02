@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 02-04-PLAN.md
-last_updated: "2026-10-02T16:19:14.704Z"
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-10-02T23:14:20.375Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: af48d9aad9173cc07b401acf9d469091728c89d2
+state_head: 1dc43e57736f2c8d77e9e00d51d71bd2af8e81d2
 progress:
   total_phases: 10
   completed_phases: 0
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 20
+  completed_plans: 19
 ---
 
 # Project State
@@ -68,6 +68,12 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P02 | 15min | 2 tasks | 7 files |
 | Phase 02 P03 | 20min | 2 tasks | 7 files |
 | Phase 02 P04 | 12min | 2 tasks | 4 files |
+| Phase 03 P01 | 16min | 2 tasks | 17 files |
+| Phase 03 P02 | 10min | 3 tasks | 15 files |
+| Phase 04 P01 | 18min | 3 tasks | 12 files |
+| Phase 04 P02 | 16min | 3 tasks | 12 files |
+| Phase 04 P03 | 20min | 2 tasks | 10 files |
+| Phase 05 P01 | 7min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -102,6 +108,20 @@ Recent decisions affecting current work:
 - [Phase 02]: BUG-06: the app sets its same-team peer requirement only when it has a team; LightweightCodeRequirements is imported only in MenuBarItemService/Listener.swift
 - [Phase 02]: BUG-08 (D-03): macOS 27 system item allowlist is 0 through 127, the measured range, held in SystemItems27; 63 only matched jordanbaird/Ice#1001
 - [Phase 02]: BUG-04: event source cache guarded by one OSAllocatedUnfairLock (withLockUnchecked; CGEventSource is not Sendable)
+- [Phase 03]: LEFT-01: acknowledgements are pure Core data checked by swift test against Package.resolved, shown in a native SwiftUI sheet; PDF/RTF removed
+- [Phase 03]: LEFT-08 superseded by REN-06 (sidebar logo already in place)
+- [Phase 03]: LEFT-04: unused media, dead types, the Copy to Applications stub phase, ENABLE_USER_SELECTED_FILES and ItemCache.managedItems(for:) removed
+- [Phase 03]: LEFT-07: click bridge logs through Logger(category:); Core derives the subsystem from the bundle (cannot see Shared/)
+- [Phase 04]: API-04: spacing written through CFPreferences in the current host's global domain, no defaults process
+- [Phase 04]: API-03: sync files carry a per-Mac UUID (SettingsSync prefix never exported or synced) plus SCDynamicStoreCopyComputerName; name-only files still recognised
+- [Phase 04]: API-02: relaunch through NSWorkspace.openApplication with a pid hand-off; the new instance waits at most 10 s for the old
+- [Phase 04]: API-05: URL commands through application(_:open:) and a tested Core URLCommand; scenes match no external event
+- [Phase 04]: API-08: AppState opens windows through the actions captured from the scenes, replaying early requests
+- [Phase 04]: API-07: AXHelpers call the AX C API with CFGetTypeID checks; AXSwift imported nowhere
+- [Phase 04]: User decision: Ifrit replaced by holzBar's own FuzzyMatch (Core, tested); misspellings no longer match
+- [Phase 04]: API-07/DEP-01: AXSwift removed from both targets; CompactSlider 2.1.0, LaunchAtLogin-Modern 1.1.0, Semaphore 0.1.0 are latest; build log lists resolved packages and app size
+- [Phase 05]: SEC-01: imported, synced and Ice settings apply only Defaults.Key keys whose value has the declared kind (exhaustive settingsKind); exports carry only holzBar's keys
+- [Phase 05]: SEC-03: item images live in Caches/com.holzcloud.holzBar/ItemImages, moved once from Application Support
 
 ### Pending Todos
 
@@ -121,6 +141,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T16:19:14.654Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-10-02T23:14:20.317Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None

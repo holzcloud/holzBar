@@ -26,7 +26,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Initial chore work.
         NSSplitViewItem.swizzle()
         MigrationManager(appState: appState).migrateAll()
-        URLCommands.register(appState: appState)
+    }
+
+    func application(_ application: NSApplication, open urls: [URL]) {
+        // holzbar:// commands from other apps. The scenes never handle them
+        // (`HolzBarWindow` matches no external event).
+        for url in urls {
+            URLCommands.perform(url, appState: appState)
+        }
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -47,6 +54,56 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         #endif
 
+        // After a relaunch, the previous instance may still hold the hotkeys and status
+        // items for a moment, so wait until it has quit.
+        if
+            let pid = Relaunch.previousPID(in: ProcessInfo.processInfo.environment),
+            let previous = NSRunningApplication(processIdentifier: pid),
+            previous.bundleIdentifier == Bundle.main.bundleIdentifier
+        {
+            Task {
+                await waitUntilTerminated(previous)
+                finishLaunching()
+            }
+        } else {
+            finishLaunching()
+        }
+    }
+
+    /// Waits until the given instance has quit, for at most ``Relaunch/waitTimeout``.
+    private func waitUntilTerminated(_ app: NSRunningApplication) async {
+        // React to the termination instead of checking it on a timer. The initial value
+        // covers an instance that quits before the observation starts.
+        let (terminated, continuation) = AsyncStream.makeStream(of: Void.self)
+        let observation = app.observe(\.isTerminated, options: [.initial, .new]) { @Sendable _, change in
+            if change.newValue == true {
+                continuation.yield()
+                continuation.finish()
+            }
+        }
+
+        let didQuit = await SpacingRelaunch.waitUntil(timeout: Relaunch.waitTimeout) {
+            for await _ in terminated {
+                return
+            }
+        }
+
+        observation.invalidate()
+        continuation.finish()
+
+        if !didQuit, !app.isTerminated {
+            let seconds = Relaunch.waitTimeout.components.seconds
+            Logger.default.debug(
+                """
+                The previous instance did not quit within \(seconds, privacy: .public) seconds, \
+                so holzBar sets up anyway
+                """
+            )
+        }
+    }
+
+    /// Checks for conflicting apps and sets up holzBar.
+    private func finishLaunching() {
         // Another menu bar manager would fight holzBar over the same items.
         guard ConflictingApps.resolve() else {
             NSApp.terminate(nil)

@@ -9,22 +9,41 @@ import IOKit.ps
 import Network
 import OSLog
 
+/// Posted on the main thread whenever IOKit reports a change of a power source
+/// (its charge, or whether it is plugged in).
+///
+/// IOKit's callback is a C function that cannot capture the rules, so it posts this
+/// notification instead.
+private let powerSourcesDidChange = Notification.Name("PowerSourcesDidChange")
+
+/// IOKit's power-source callback. It runs on the run loop its source was added to.
+private func postPowerSourcesDidChange(_ context: UnsafeMutableRawPointer?) {
+    NotificationCenter.default.post(name: powerSourcesDidChange, object: nil)
+}
+
 /// Shows the hidden section by itself when something needs attention
 /// (jordanbaird/Ice#62): the battery runs low, or the Mac goes offline.
 ///
 /// The section is shown for the "temporarily shown item" interval, then hidden
 /// again. Each rule fires once when its condition starts, not again while it
-/// lasts.
+/// lasts (``RevealTrigger``). Both rules react to system events, power-source
+/// notifications and ``NWPathMonitor``, so nothing polls.
 @MainActor
 final class RevealRules: ObservableObject {
     /// Shows hidden items when the battery falls below ``lowBatteryThreshold``.
     @Published var revealsOnLowBattery = false {
-        didSet { save() }
+        didSet {
+            save()
+            batteryRuleChanged()
+        }
     }
 
     /// The battery level, in percent, below which hidden items are shown.
     @Published var lowBatteryThreshold = 20 {
-        didSet { save() }
+        didSet {
+            save()
+            batteryRuleChanged()
+        }
     }
 
     /// Shows hidden items when the network connection is lost.
@@ -35,21 +54,43 @@ final class RevealRules: ObservableObject {
     private let logger = Logger(category: "RevealRules")
     private weak var appState: AppState?
     private var cancellables = Set<AnyCancellable>()
+
+    /// Watches whether a network path is available.
+    ///
+    /// `NWPathMonitor` only observes the status of the Mac's network paths; it never
+    /// opens a connection or sends anything.
     private let pathMonitor = NWPathMonitor()
-    private var wasBatteryLow = false
-    private var wasOffline = false
+
+    /// The run loop source of IOKit's power-source notifications, kept for the
+    /// lifetime of the rules.
+    private var powerSource: CFRunLoopSource?
+
+    private var batteryTrigger = RevealTrigger()
+    private var networkTrigger = RevealTrigger()
     private var isLoading = false
+    private var isSetUp = false
 
     func performSetup(with appState: AppState) {
         self.appState = appState
         load()
 
-        Timer.publish(every: 60, on: .main, in: .default)
-            .autoconnect()
+        NotificationCenter.default.publisher(for: powerSourcesDidChange)
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.checkBattery()
             }
             .store(in: &cancellables)
+
+        // IOKit calls this whenever a power source changes; the source runs on the
+        // main run loop, so the notification is posted on the main thread.
+        if let source = IOPSNotificationCreateRunLoopSource(postPowerSourcesDidChange, nil)?.takeRetainedValue() {
+            CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
+            powerSource = source
+        } else {
+            logger.error("Could not observe power source changes")
+        }
+        isSetUp = true
+        checkBattery()
 
         pathMonitor.pathUpdateHandler = { [weak self] path in
             let isOffline = path.status != .satisfied
@@ -71,6 +112,15 @@ final class RevealRules: ObservableObject {
         revealsOnLowBattery = stored["LowBattery"] as? Bool ?? revealsOnLowBattery
         lowBatteryThreshold = stored["LowBatteryThreshold"] as? Int ?? lowBatteryThreshold
         revealsWhenOffline = stored["Offline"] as? Bool ?? revealsWhenOffline
+    }
+
+    /// Checks the battery at once when the rule is turned on or off or its threshold
+    /// changes, instead of waiting for the next power-source change.
+    private func batteryRuleChanged() {
+        guard isSetUp, !isLoading else {
+            return
+        }
+        checkBattery()
     }
 
     private func save() {
@@ -105,32 +155,36 @@ final class RevealRules: ObservableObject {
                 description[kIOPSPowerSourceStateKey] as? String == kIOPSBatteryPowerValue,
                 let current = description[kIOPSCurrentCapacityKey] as? Int,
                 let maximum = description[kIOPSMaxCapacityKey] as? Int,
-                maximum > 0
+                let level = RevealTrigger.percent(current: current, maximum: maximum)
             else {
                 continue
             }
-            return current * 100 / maximum
+            return level
         }
         return nil
     }
 
     private func checkBattery() {
         guard revealsOnLowBattery else {
-            wasBatteryLow = false
+            batteryTrigger = RevealTrigger()
             return
         }
-        let isLow = (Self.dischargingBatteryLevel() ?? 100) < lowBatteryThreshold
-        if isLow, !wasBatteryLow {
+        // While the Mac charges (or has no battery) the level is unknown, so the
+        // condition neither starts nor ends: plugging in and out again while the
+        // battery stays low does not show the items again.
+        guard let level = Self.dischargingBatteryLevel() else {
+            return
+        }
+        if batteryTrigger.update(level < lowBatteryThreshold) {
             reveal(because: "the battery is low")
         }
-        wasBatteryLow = isLow
     }
 
     private func networkChanged(isOffline: Bool) {
-        if revealsWhenOffline, isOffline, !wasOffline {
+        let started = networkTrigger.update(isOffline)
+        if started, revealsWhenOffline {
             reveal(because: "the network connection was lost")
         }
-        wasOffline = isOffline
     }
 
     // MARK: Revealing

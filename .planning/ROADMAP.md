@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: CI and build** - Current actions, maintained SwiftLint, unit tests on every PR, visible warnings, pinned Xcode, holzIce project metadata
 - [x] **Phase 01.1: Rename to holzBar** (INSERTED) - Name, logo, identifiers, code and links say holzBar; holzIce settings are imported
-- [ ] **Phase 2: Bug fixes** - Spacing relaunch, data race, hotkey recorder, XPC ad hoc check, permission continuation, allowlist
+- [x] **Phase 2: Bug fixes** - Spacing relaunch, data race, hotkey recorder, XPC ad hoc check, permission continuation, allowlist
 - [ ] **Phase 3: Ice and Sparkle leftovers** - Acknowledgements, credits, docs, templates, dead code and files removed
 - [ ] **Phase 4: Outdated APIs** - Modern URL, UserDefaults, CFPreferences, URL-open, window and AX APIs; AXSwift removed
 - [ ] **Phase 5: Security and performance** - Validated settings import, private logging, Caches storage, no needless tasks or polling
@@ -99,10 +99,13 @@ Plans:
   3. `FREQUENT_ISSUES.md` describes holzIce (or is gone) and the bug report template asks for holzIce version, macOS version and install method
   4. The listed unused files, stub build phase, setting and redundant code are gone and the app still builds
   5. The logger subsystem uses the shared `Logger(category:)` and the `"SU"` exclusion is commented
-  6. The settings sidebar shows the colored holzIce logo (as on the website) left of the title
-  6. The settings sidebar shows the colored holzIce logo (as on the website) left of the title
+  6. The settings sidebar shows the colored holzIce logo (as on the website) left of the title (superseded by REN-06, done)
 
-**Plans**: TBD
+**Plans**: 2/2 plans executed (sequential waves; one PR for Phases 3 to 5, pushed once per plan)
+
+Plans:
+- [x] 03-01-PLAN.md — Tracer: native, tested acknowledgements sheet in About (Core data checked against Package.resolved, license texts in the app, build check), PDF/RTF removed; Barometer/Thaw credits, README Troubleshooting replaces FREQUENT_ISSUES.md, README/docs agree, modern bug template; LEFT-08 superseded; draft PR opened
+- [x] 03-02-PLAN.md — Unused media, dead types, stub build phase and sandbox-only setting removed; item cache read through its subscript; click bridge on Logger(category:), SU exclusion commented
 
 ### Phase 4: Outdated APIs
 
@@ -116,7 +119,13 @@ Plans:
   4. The Screen Recording link opens the correct System Settings pane, and windows open and close through a captured `OpenWindowAction`/`DismissWindowAction`
   5. AXSwift is no longer a dependency of either target, and the menu bar items are still discovered through direct AX calls
 
-**Plans**: TBD
+**Plans**: 3/3 plans executed (sequential waves; same PR; 04-03 starts with a user decision on Ifrit 4.0.0)
+
+Plans:
+- [x] 04-01-PLAN.md — Tracer: spacing through CFPreferences; sync device UUID with SCDynamicStoreCopyComputerName; relaunch through NSWorkspace with a bounded wait for the old instance; modern URL path APIs
+- [x] 04-02-PLAN.md — holzbar:// through application(_:open:) with a tested URLCommand parse; captured OpenWindowAction/DismissWindowAction; current Screen Recording pane; direct AX calls instead of AXSwift
+- [x] 04-03-PLAN.md — Decision on search ranking for Ifrit 4.0.0; AXSwift removed from both targets; every package on its latest stable release; resolved packages in the build log; acknowledgements follow
+
 **UI hint**: yes
 
 ### Phase 5: Security and performance
@@ -131,7 +140,11 @@ Plans:
   4. Moving the mouse over show-on-hover keeps one cancellable task, and permission polling stops once all permissions are granted
   5. Reveal rules react to power and network notifications instead of polling every 60 s
 
-**Plans**: TBD
+**Plans**: 1/2 plans executed (sequential waves; same PR, completed by 05-02)
+
+Plans:
+- [x] 05-01-PLAN.md — Tracer: imported, synced and Ice settings validated against Defaults.Key kinds (Defaults moved to Core, tested); URL logs name only the command; item images in Caches with a tested one-time move
+- [ ] 05-02-PLAN.md — One cancellable hover task (tested HoverSchedule); permission checks stop once granted; reveal rules on IOPSNotificationCreateRunLoopSource and NWPathMonitor (tested RevealTrigger); final PR body
 
 ### Phase 05.1: Modern, lean and private (INSERTED)
 
@@ -199,8 +212,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 1. CI and build | 3/3 | Complete (human check: install.sh on a Mac) | 2026-10-02 |
 | 01.1. Rename to holzBar | 6/6 | In Progress|  |
 | 2. Bug fixes | 4/4 | In Progress|  |
-| 3. Ice and Sparkle leftovers | 0/0 | Not started | - |
-| 4. Outdated APIs | 0/0 | Not started | - |
-| 5. Security and performance | 0/0 | Not started | - |
+| 3. Ice and Sparkle leftovers | 2/2 | In Progress|  |
+| 4. Outdated APIs | 3/3 | In Progress|  |
+| 5. Security and performance | 1/2 | In Progress|  |
 | 6. Security audit | 0/0 | Not started | - |
 | 7. Release 0.0.6-beta1 | 0/0 | Not started | - |

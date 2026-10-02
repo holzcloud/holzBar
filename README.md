@@ -17,7 +17,7 @@ and make the bar look the way you like — on the notch, on every display, on ma
 
 **[🌐 holzcloud.ch/holzbar](https://holzcloud.ch/holzbar)**
 
-[Install](#-install) · [Principles](#-principles) · [macOS 27](#-macos-27) · [Features](#-features) · [Gallery](#-gallery) · [Credits](#-credits)
+[Install](#-install) · [Principles](#-principles) · [macOS 27](#-macos-27) · [Features](#-features) · [Gallery](#-gallery) · [Troubleshooting](#-troubleshooting) · [Credits](#-credits)
 
 </div>
 
@@ -48,7 +48,7 @@ Every change to holzBar follows four rules — without taking a feature away:
 
 - **Modern** — written the way a macOS app is written in 2026: current Swift, Swift concurrency and current SwiftUI and AppKit APIs. Outdated APIs are replaced as the code is touched.
 - **Lean and fast** — as little CPU, energy, memory and disk as possible; no polling where macOS sends an event; a small app that launches fast.
-- **Private** — holzBar never connects to the network: no telemetry, no analytics, no crash reports, no update checks, no remote content. The only exception is a link you click, which opens in your browser. Your data stays on your Mac and out of the logs.
+- **Private** — holzBar never connects to the network: no telemetry, no analytics, no crash reports, no update checks, no remote content. The only exception is a link you click, which opens in your browser. Your data stays on your Mac and out of the logs. To show hidden items when the network drops, holzBar only watches whether a network path is available (Apple's NWPathMonitor); it never opens a connection.
 - **Least privilege** — holzBar asks only for the permissions a feature really needs, when it needs them, and says why.
 
 Where holzBar doesn't meet a rule yet, that is a bug to fix — for example, it still asks for Accessibility and Screen Recording together on the first launch.
@@ -82,7 +82,7 @@ xattr -dr com.apple.quarantine /Applications/holzBar.app
 Then open holzBar again. Alternatively: open it once, then go to **System Settings → Privacy & Security** and click **Open Anyway** next to the holzBar message.
 
 > [!NOTE]
-> holzBar replaces the original Ice — quit Ice and run `brew uninstall --cask jordanbaird-ice` first if you have it. Two menu bar managers must never run at the same time; holzBar offers to quit Ice, Bartender or Hidden Bar when it finds one running.
+> holzBar replaces the original Ice — quit Ice and run `brew uninstall --cask jordanbaird-ice` first if you have it. Two menu bar managers must never run at the same time; holzBar offers to quit Ice, Thaw, Bartender or Hidden Bar when it finds one running.
 > Your Ice settings (layout, hotkeys, appearance) are imported automatically on the first launch.
 
 ### Build from source
@@ -125,7 +125,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - ✅ **Groups** — several items behind an icon of their own
 - ✅ **Spacers** — empty items of adjustable width
 - ✅ **Choose where new items appear**
-- ✅ Search menu bar items
+- ✅ Search menu bar items — by abbreviation ("cc" for Control Centre) and despite typos
 - ✅ Item spacing <sub>BETA</sub>
 
 </td>
@@ -185,7 +185,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 | Keep Live Activities visible | ❌ | ✅ <sub>experimental</sub> |
 | Show on scroll with a mouse wheel | ❌ | ✅ |
 | Fix for the permissions loop | ❌ | ✅ |
-| Fixes from 280 open bug reports | — | [see the list](docs/upstream-bugs.md) |
+| Fixes from 282 open bug reports | — | [see the list](docs/upstream-bugs.md) |
 | Signed with a Developer ID | ✅ | ❌ (ad hoc; the cask handles it) |
 
 ## 🖼 Gallery
@@ -214,12 +214,24 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 </tr>
 </table>
 
+## 🛠 Troubleshooting
+
+**"holzBar cannot arrange menu bar items in automatically hidden menu bars."** holzBar can only arrange the items while the menu bar stays visible. Open **System Settings → Control Center**, set **Automatically hide and show the menu bar** to **Never**, arrange your items in holzBar, then set the option back to what you had.
+
+**New items end up in the always-hidden section.** macOS puts new menu bar items at the far left of the bar, which is where the always-hidden section is. Choose where they go in **Settings → Advanced → Place new menu bar items in**.
+
+**holzBar is stuck on the permissions window.** After an update macOS may no longer accept the old permission. Click **Reset and Grant Again** in the permissions window and grant the permission once more.
+
 ## 🙏 Credits
 
 <img src="Resources/Screenshots/settings-about.png" alt="holzBar settings, About pane: the app icon, the version, copyright Jordan Baird and holzcloud, Based on Ice by Jordan Baird, the command brew upgrade --cask holzbar and a Releases button" width="420" align="right">
 
 - [**Ice**](https://github.com/jordanbaird/Ice) by [Jordan Baird](https://github.com/jordanbaird) — the app holzBar is built on: its design, its features and almost all of its code. Thank you, Jordan! 💙 If you like it, [sponsor Jordan](https://github.com/sponsors/jordanbaird) or [buy him a coffee](https://www.buymeacoffee.com/jordanbaird).
 - [**RabenkoYevhenii**](https://github.com/RabenkoYevhenii) — the macOS 27 backend ([jordanbaird/Ice#995](https://github.com/jordanbaird/Ice/pull/995)).
+- [**Barometer**](https://github.com/mackid1993/Barometer) by [mackid1993](https://github.com/mackid1993) — the macOS 27 assertion code holzBar's hiding on macOS 27 is adapted from.
+- [**Thaw**](https://github.com/thaw-app/Thaw) by [thaw-app](https://github.com/thaw-app) — the PlatformRuntimeKit Barometer's assertion code is adapted from.
+
+The open-source packages holzBar uses and their licenses are listed in the app under **Settings → About → Acknowledgements**.
 
 ## 📄 License
 

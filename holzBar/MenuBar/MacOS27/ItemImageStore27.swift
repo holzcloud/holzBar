@@ -15,8 +15,9 @@ import ScreenCaptureKit
 /// includes the bar's background. That background is cut away, leaving the glyph on
 /// transparency, so the holzBar Shelf and the layout window draw every item on their own
 /// colour whatever is behind the menu bar. Items on an inactive bar are drawn dimmer, so
-/// only the active bar is captured. Images are kept on disk, so an item that is concealed
-/// still has one.
+/// only the active bar is captured. Images are kept in the caches
+/// (`~/Library/Caches/com.holzcloud.holzBar/ItemImages`, which Time Machine skips), so an
+/// item that is concealed still has one.
 @available(macOS 27.0, *)
 @MainActor
 final class ItemImageStore27 {
@@ -42,8 +43,12 @@ final class ItemImageStore27 {
     private static let glyphMargin: CGFloat = 11
 
     private let logger = Logger(category: "ItemImageStore27")
-    private let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("holzBar/ItemImages", isDirectory: true)
+    private let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        .appending(path: "\(Constants.bundleIdentifier)/ItemImages", directoryHint: .isDirectory)
+
+    /// Where earlier versions kept the images: in Application Support, which is backed up.
+    private static let legacyDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        .appending(path: "holzBar/ItemImages", directoryHint: .isDirectory)
     private var index = [String: IndexEntry]()
     private var loaded = [String: CapturedImage]()
     private var photoSchedule = PhotoSchedule27()
@@ -63,13 +68,20 @@ final class ItemImageStore27 {
     private var appearanceObserver: NSObjectProtocol?
 
     init() {
-        let versionFile = directory.appendingPathComponent("version.txt")
+        // A one-time move of the images earlier versions kept in Application Support.
+        do {
+            let outcome = try ItemImageFolder.moveLegacyFolder(from: Self.legacyDirectory, to: directory)
+            logger.debug("Item images from earlier versions: \(String(describing: outcome), privacy: .public)")
+        } catch {
+            logger.error("Error moving the item images to the caches: \(error, privacy: .private)")
+        }
+        let versionFile = directory.appending(path: "version.txt")
         guard (try? String(contentsOf: versionFile, encoding: .utf8)) == Self.storeVersion else {
             try? FileManager.default.removeItem(at: directory)
             return
         }
         if
-            let data = try? Data(contentsOf: directory.appendingPathComponent("index.json")),
+            let data = try? Data(contentsOf: directory.appending(path: "index.json")),
             let stored = try? JSONDecoder().decode([String: IndexEntry].self, from: data)
         {
             index = stored
@@ -106,7 +118,7 @@ final class ItemImageStore27 {
         }
         guard
             let entry = index[key],
-            let source = CGImageSourceCreateWithURL(directory.appendingPathComponent(entry.fileName) as CFURL, nil),
+            let source = CGImageSourceCreateWithURL(directory.appending(path: entry.fileName) as CFURL, nil),
             let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil)
         else {
             return nil
@@ -410,7 +422,7 @@ final class ItemImageStore27 {
         let directory = directory
         Task.detached(priority: .utility) {
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            try? data.write(to: directory.appendingPathComponent(fileName), options: .atomic)
+            try? data.write(to: directory.appending(path: fileName), options: .atomic)
         }
     }
 
@@ -422,8 +434,8 @@ final class ItemImageStore27 {
         let version = Self.storeVersion
         Task.detached(priority: .utility) {
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            try? data.write(to: directory.appendingPathComponent("index.json"), options: .atomic)
-            try? version.write(to: directory.appendingPathComponent("version.txt"), atomically: true, encoding: .utf8)
+            try? data.write(to: directory.appending(path: "index.json"), options: .atomic)
+            try? version.write(to: directory.appending(path: "version.txt"), atomically: true, encoding: .utf8)
         }
     }
 }

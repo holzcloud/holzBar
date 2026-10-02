@@ -10,10 +10,11 @@ import UniformTypeIdentifiers
 /// Exports holzBar's settings to a file and imports them from one
 /// (jordanbaird/Ice#326).
 ///
-/// The file is a property list of the app's defaults domain, so it holds
-/// everything: layout, hotkeys, appearance and the macOS 27 layout. Importing
-/// replaces the current settings and relaunches the app, as every model reads
-/// its settings once at launch.
+/// The file is a property list of holzBar's own settings (the `Defaults.Key` keys), so it
+/// holds the layout, hotkeys, appearance and the macOS 27 layout, but no window frames or
+/// other keys AppKit keeps in the defaults domain. Importing replaces the current settings
+/// with the ones that are holzBar's and have the expected kind (``SettingsSchema``), and
+/// relaunches the app, as every model reads its settings once at launch.
 @MainActor
 enum SettingsBackup {
     private static let logger = Logger(category: "SettingsBackup")
@@ -24,31 +25,59 @@ enum SettingsBackup {
         "NSWindow Frame",
         "NSStatusItem Preferred Position",
         "NSStatusItem Visible",
+        // The original Ice updated itself with Sparkle, whose keys start with "SU"; holzBar
+        // updates through Homebrew, so they are neither exported nor imported from Ice.
         "SU",
+        // This Mac's sync state (its sync id and the date of the last sync). A copied id
+        // would make two Macs ignore each other's changes, so these keys are never
+        // exported, imported, replaced or synced.
+        "SettingsSync",
     ]
 
-    /// The settings that are exported.
+    /// Returns a Boolean value that indicates whether the key is never exported,
+    /// imported, replaced or synced.
+    private static func isExcluded(_ key: String) -> Bool {
+        excludedKeyPrefixes.contains { key.hasPrefix($0) }
+    }
+
+    /// The settings that are exported and synced: holzBar's own keys only.
     static func currentSettings() -> [String: Any] {
         guard let bundleIdentifier = Bundle.main.bundleIdentifier else {
             return [:]
         }
         let domain = UserDefaults.standard.persistentDomain(forName: bundleIdentifier) ?? [:]
         return domain.filter { key, _ in
-            !excludedKeyPrefixes.contains { key.hasPrefix($0) }
+            Defaults.Key.importableKinds[key] != nil && !isExcluded(key)
         }
     }
 
     /// Replaces the current settings with the given ones.
-    static func apply(_ settings: [String: Any]) {
+    ///
+    /// Only holzBar's own keys with a value of the expected kind are applied; every other
+    /// key is ignored, counted in the log and returned.
+    ///
+    /// - Parameter settings: The settings from a file or from iCloud Drive.
+    /// - Returns: The keys that were ignored, sorted.
+    @discardableResult
+    static func apply(_ settings: [String: Any]) -> [String] {
         let defaults = UserDefaults.standard
-        for (key, _) in currentSettings() where settings[key] == nil {
+        let incoming = settings.filter { key, _ in !isExcluded(key) }
+        let (accepted, ignored) = SettingsSchema.validated(incoming, kinds: Defaults.Key.importableKinds)
+        for (key, _) in currentSettings() where accepted[key] == nil {
             defaults.removeObject(forKey: key)
         }
-        for (key, value) in settings where !excludedKeyPrefixes.contains(where: { key.hasPrefix($0) }) {
+        for (key, value) in accepted {
             defaults.set(value, forKey: key)
         }
         // Don't import a previous app's settings again on the next launch.
         defaults.set(true, forKey: Defaults.Key.hasImportedPreviousSettings.rawValue)
+        if !ignored.isEmpty {
+            let names = ignored.joined(separator: ", ")
+            logger.warning(
+                "Ignored \(ignored.count, privacy: .public) settings that are not holzBar's or have an unexpected type: \(names, privacy: .private)"
+            )
+        }
+        return ignored
     }
 
     /// Asks for a location and writes the settings there.
@@ -64,7 +93,7 @@ enum SettingsBackup {
         do {
             let data = try PropertyListSerialization.data(fromPropertyList: currentSettings(), format: .xml, options: 0)
             try data.write(to: url, options: .atomic)
-            logger.notice("Exported settings to \(url.path, privacy: .public)")
+            logger.notice("Exported settings to \(url.path(percentEncoded: false), privacy: .private)")
         } catch {
             show(error, message: "The settings could not be exported.")
         }
@@ -94,7 +123,7 @@ enum SettingsBackup {
                 return
             }
             apply(settings)
-            logger.notice("Imported settings from \(url.path, privacy: .public)")
+            logger.notice("Imported settings from \(url.path(percentEncoded: false), privacy: .private)")
             relaunch()
         } catch {
             show(error, message: "The settings could not be imported.")
@@ -102,13 +131,28 @@ enum SettingsBackup {
     }
 
     /// Starts a new instance of the app and quits this one.
+    ///
+    /// The new instance gets this one's process identifier (``Relaunch``) and waits until
+    /// this one has quit before it sets up. When the new instance cannot be started, this one
+    /// keeps running and says so.
     static func relaunch() {
-        UserDefaults.standard.synchronize()
-        let process = Process()
-        process.executableURL = URL(filePath: "/bin/sh")
-        process.arguments = ["-c", "sleep 1; /usr/bin/open \"$0\"", Bundle.main.bundlePath]
-        try? process.run()
-        NSApp.terminate(nil)
+        // The new instance reads the settings at once, so write them out first.
+        CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
+
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.createsNewApplicationInstance = true
+        configuration.addsToRecentItems = false
+        configuration.environment = Relaunch.environment(previousPID: ProcessInfo.processInfo.processIdentifier)
+
+        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { @Sendable _, error in
+            Task { @MainActor in
+                if let error {
+                    Self.show(error, message: "holzBar could not restart itself. Quit holzBar and open it again.")
+                } else {
+                    NSApp.terminate(nil)
+                }
+            }
+        }
     }
 
     private static func show(_ error: Error, message: String) {

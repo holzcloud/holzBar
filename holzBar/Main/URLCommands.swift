@@ -19,6 +19,8 @@ import OSLog
 /// - `holzbar://profile/<name>` – apply a saved layout profile
 ///
 /// `ice-bar` still works as another name for `shelf`.
+///
+/// The URLs arrive through the app delegate's `application(_:open:)`.
 @MainActor
 enum URLCommands {
     private static let logger = Logger(category: "URLCommands")
@@ -26,26 +28,17 @@ enum URLCommands {
     /// The URL scheme holzBar accepts.
     private static let scheme = "holzbar"
 
-    /// Starts receiving `holzbar://` URLs.
-    static func register(appState: AppState) {
-        Handler.shared.appState = appState
-        NSAppleEventManager.shared().setEventHandler(
-            Handler.shared,
-            andSelector: #selector(Handler.handleGetURL(_:withReplyEvent:)),
-            forEventClass: AEEventClass(kInternetEventClass),
-            andEventID: AEEventID(kAEGetURL)
-        )
-    }
-
     /// Performs the command in the given URL.
     static func perform(_ url: URL, appState: AppState) {
-        guard let scheme = url.scheme?.lowercased(), scheme == Self.scheme, let host = url.host()?.lowercased() else {
-            logger.warning("Ignoring URL \(url.absoluteString, privacy: .public)")
+        guard let command = URLCommand(url: url, scheme: scheme) else {
+            // The URL itself is not logged: its path can hold a profile name.
+            logger.warning("Ignoring a URL that is not a holzBar command")
             return
         }
-        let arguments = url.pathComponents.filter { $0 != "/" }.map { $0.removingPercentEncoding ?? $0 }
+        let arguments = command.arguments
         let manager = appState.menuBarManager
-        logger.notice("Performing \(url.absoluteString, privacy: .public)")
+        // Only the command is logged, never the URL or its arguments (profile names).
+        logger.notice("Performing \(command.name, privacy: .public)")
 
         func section() -> MenuBarSection? {
             switch arguments.first?.lowercased() {
@@ -54,7 +47,7 @@ enum URLCommands {
             }
         }
 
-        switch host {
+        switch command.name {
         case "toggle":
             section()?.toggle()
         case "show":
@@ -79,29 +72,7 @@ enum URLCommands {
             }
             appState.profiles.apply(named: name)
         default:
-            logger.warning("Unknown command \(host, privacy: .public)")
-        }
-    }
-
-    /// Receives the Apple events that carry the URLs.
-    private final class Handler: NSObject {
-        static let shared = Handler()
-
-        weak var appState: AppState?
-
-        @objc func handleGetURL(_ event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
-            guard
-                let string = event.paramDescriptor(forKeyword: AEKeyword(keyDirectObject))?.stringValue,
-                let url = URL(string: string)
-            else {
-                return
-            }
-            MainActor.assumeIsolated {
-                guard let appState else {
-                    return
-                }
-                URLCommands.perform(url, appState: appState)
-            }
+            logger.warning("Unknown command \(command.name, privacy: .public)")
         }
     }
 }

@@ -2,30 +2,12 @@
   "originHash" : "977d7500481760b6dc046c9b6e7def6420058990c9c91809fa741c67a8f83c48",
   "pins" : [
     {
-      "identity" : "axswift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tmandry/AXSwift",
-      "state" : {
-        "revision" : "81dcc36aced905d6464cc25e35f8d13184bbf21c",
-        "version" : "0.3.2"
-      }
-    },
-    {
       "identity" : "compactslider",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/buh/CompactSlider",
       "state" : {
         "revision" : "52a01bd09156152881c53ba235c862e3bf5690b1",
         "version" : "2.1.0"
-      }
-    },
-    {
-      "identity" : "ifrit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/ukushu/Ifrit",
-      "state" : {
-        "revision" : "3f961f6d39cd2188305671f2ec65914d297571d0",
-        "version" : "2.0.6"
       }
     },
     {

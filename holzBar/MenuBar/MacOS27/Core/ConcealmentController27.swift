@@ -41,7 +41,8 @@ final class ConcealmentController27 {
     }
 
     private let backend: ConcealmentBackend27
-    private let logger = Logger(subsystem: "com.holzcloud.holzBar", category: "ConcealmentController27")
+    // The subsystem is derived like Logger(category:) does; the Core package cannot see Shared/Utilities/Logging.swift.
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "", category: "ConcealmentController27")
     private var live = [Live]()
 
     /// Whether any assertion is currently live.
