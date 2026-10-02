@@ -152,7 +152,9 @@ struct PermissionsView: View {
                 Button {
                     permission.performRequest()
                     Task {
-                        await permission.waitForPermission()
+                        guard await permission.waitForPermission() else {
+                            return
+                        }
                         appState.activate(withPolicy: .regular)
                         appState.openWindow(.permissions)
                     }
@@ -174,7 +176,9 @@ struct PermissionsView: View {
                         Button("Reset and Grant Again") {
                             permission.resetAndRequest()
                             Task {
-                                await permission.waitForPermission()
+                                guard await permission.waitForPermission() else {
+                                    return
+                                }
                                 appState.activate(withPolicy: .regular)
                                 appState.openWindow(.permissions)
                             }

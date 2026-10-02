@@ -13,7 +13,13 @@ import Cocoa
 @MainActor
 class Permission: ObservableObject, Identifiable {
     /// A Boolean value that indicates whether the app has this permission.
-    @Published private(set) var hasPermission = false
+    @Published private(set) var hasPermission = false {
+        didSet {
+            if hasPermission, !waiters.isEmpty {
+                endWaits(with: true)
+            }
+        }
+    }
 
     /// The title of the permission.
     let title: String
@@ -39,8 +45,8 @@ class Permission: ObservableObject, Identifiable {
     /// Observer that runs on a timer to check permissions.
     private var timerCancellable: AnyCancellable?
 
-    /// Observer that observes the ``hasPermission`` property.
-    private var hasPermissionCancellable: AnyCancellable?
+    /// The pending waits for this permission, each with its own stream.
+    private var waiters: [UUID: AsyncStream<Bool>.Continuation] = [:]
 
     /// Creates a permission.
     ///
@@ -126,23 +132,40 @@ class Permission: ObservableObject, Identifiable {
         }
     }
 
-    /// Asynchronously waits for the app to be granted this permission.
-    func waitForPermission() async {
+    /// Waits for the app to be granted this permission.
+    ///
+    /// Every call waits on its own stream, so any number of waits can run at the
+    /// same time and each one returns.
+    ///
+    /// - Returns: `true` once the app has the permission (at once when it already
+    ///   has it), and `false` when ``stopCheck()`` ends the checks first or the
+    ///   waiting task is cancelled.
+    @discardableResult
+    func waitForPermission() async -> Bool {
         configureCancellables()
         guard !hasPermission else {
-            return
+            return true
         }
-        return await withCheckedContinuation { continuation in
-            hasPermissionCancellable = $hasPermission.sink { [weak self] hasPermission in
-                guard let self else {
-                    continuation.resume()
-                    return
-                }
-                if hasPermission {
-                    hasPermissionCancellable?.cancel()
-                    continuation.resume()
-                }
-            }
+        let (stream, continuation) = AsyncStream.makeStream(of: Bool.self)
+        let id = UUID()
+        waiters[id] = continuation
+        defer {
+            waiters.removeValue(forKey: id)
+        }
+        for await granted in stream {
+            return granted
+        }
+        // Only reached when the waiting task is cancelled, which ends the iteration.
+        return hasPermission
+    }
+
+    /// Ends every pending wait with the given result.
+    private func endWaits(with granted: Bool) {
+        let continuations = waiters.values
+        waiters.removeAll()
+        for continuation in continuations {
+            continuation.yield(granted)
+            continuation.finish()
         }
     }
 
@@ -150,8 +173,7 @@ class Permission: ObservableObject, Identifiable {
     func stopCheck() {
         timerCancellable?.cancel()
         timerCancellable = nil
-        hasPermissionCancellable?.cancel()
-        hasPermissionCancellable = nil
+        endWaits(with: false)
     }
 }
 
