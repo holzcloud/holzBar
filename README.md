@@ -75,7 +75,7 @@ Then open holzIce again. Alternatively: open it once, then go to **System Settin
 
 ### Build from source
 
-Requires Xcode 27 on macOS 14 or later.
+Requires Xcode 26.6, which runs on macOS Tahoe 26.2 or later. CI builds with the same Xcode (pinned in `.github/actions/select-xcode`); holzIce itself runs on macOS 14 or later.
 
 ```sh
 git clone https://github.com/holzcloud/holzIce
