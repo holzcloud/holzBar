@@ -82,9 +82,9 @@ Plans:
 **Plans**: 4 plans (sequential waves: one PR branch, every task verified by its CI checks)
 
 Plans:
-- [ ] 02-01-PLAN.md — Tracer: tested `Ice/Core` package target; spacing relaunch keeps going past skipped processes (MenuBarAgent skipped on macOS 27), 10 s quit wait, no force-termination; phase PR opened
+- [ ] 02-01-PLAN.md — Tracer: tested `holzBar/Core` package target (`HolzBarCore`); spacing relaunch keeps going past skipped processes (MenuBarAgent skipped on macOS 27), 10 s event-driven quit wait, no force-termination; phase PR opened
 - [ ] 02-02-PLAN.md — Hotkey recorder refuses Option-only combinations on macOS 15+ and says why (signature unchanged); every permission wait returns
-- [ ] 02-03-PLAN.md — XPC service accepts holzIce's ad hoc build by pinning the embedding app's signing identifier and code directory hashes (proven by a CodeSignature test suite); foreign processes still rejected
+- [ ] 02-03-PLAN.md — XPC service accepts holzBar's ad hoc build by pinning the embedding app's signing identifier and code directory hashes (proven by a CodeSignature test suite); foreign processes still rejected
 - [ ] 02-04-PLAN.md — Lock-guarded event source cache; macOS 27 system item allowlist 0 to 127 with matching comment and tests; PR body complete
 
 ### Phase 3: Ice and Sparkle leftovers
