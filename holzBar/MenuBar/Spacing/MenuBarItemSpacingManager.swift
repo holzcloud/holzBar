@@ -158,26 +158,41 @@ final class MenuBarItemSpacingManager {
 
         try? await Task.sleep(for: .milliseconds(100))
 
-        let items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
-        let pids = Set(items.map { $0.sourcePID ?? $0.ownerPID })
+        let items: [MenuBarItem]
+        if #available(macOS 27.0, *) {
+            // macOS 27 has no item windows. Accessibility names the owning process of
+            // every item, concealed ones included.
+            items = await MenuBarItemProvider27.items()
+        } else {
+            items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
+        }
+
+        let owners = Set(items.map { $0.sourcePID ?? $0.ownerPID }).map { pid in
+            SpacingRelaunch.Owner(
+                pid: pid,
+                bundleIdentifier: NSRunningApplication(processIdentifier: pid)?.bundleIdentifier
+            )
+        }
+        let pids = SpacingRelaunch.processesToRelaunch(
+            owners: owners,
+            ownPID: ProcessInfo.processInfo.processIdentifier
+        )
 
         var failedApps = [String]()
 
-        await withTaskGroup(of: Void.self) { group in
+        await withTaskGroup(of: String?.self) { group in
             for pid in pids {
-                guard
-                    let app = NSRunningApplication(processIdentifier: pid),
-                    app.bundleIdentifier != "com.apple.controlcenter", // ControlCenter handles its own relaunch, so skip it.
-                    app != .current
-                else {
-                    break
+                guard let app = NSRunningApplication(processIdentifier: pid) else {
+                    // The process is gone, so there is nothing to relaunch.
+                    continue
                 }
                 group.addTask { @MainActor in
                     do {
                         try await self.relaunchApp(app)
+                        return nil
                     } catch {
                         guard let name = app.localizedName else {
-                            return
+                            return nil
                         }
                         if app.bundleIdentifier == "com.apple.Spotlight" {
                             // Spotlight automatically relaunches, so only consider it a failure if it never quit.
@@ -185,12 +200,17 @@ final class MenuBarItemSpacingManager {
                                 let latestSpotlightInstance = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Spotlight").first,
                                 latestSpotlightInstance.processIdentifier == app.processIdentifier
                             {
-                                failedApps.append(name)
+                                return name
                             }
-                        } else {
-                            failedApps.append(name)
+                            return nil
                         }
+                        return name
                     }
+                }
+            }
+            for await name in group {
+                if let name {
+                    failedApps.append(name)
                 }
             }
         }
