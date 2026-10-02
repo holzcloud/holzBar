@@ -14,8 +14,8 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [x] **CI-03**: The unit tests (`swift test`, `Tests/IceMacOS27CoreTests`) run on every pull request
 - [x] **CI-04**: The build workflow prints compiler warnings (deprecations) so they are visible in the log
 - [x] **CI-05**: Xcode version is pinned explicitly in CI and the README states the real build requirement
-- [ ] **CI-06**: The Xcode project carries holzIce's version (not `0.11.13-dev.2a`) and no Development Team of the original project; `Scripts/install.sh` builds for anyone (ad hoc signing)
-- [ ] **CI-07**: `release.yml` uses the `0.0.6-beta1` scheme in its examples/comments, checks the release notes once, and passes the version input through an environment variable instead of inline `${{ }}` in shell
+- [x] **CI-06**: The Xcode project carries holzIce's version (not `0.11.13-dev.2a`) and no Development Team of the original project; `Scripts/install.sh` builds for anyone (ad hoc signing)
+- [x] **CI-07**: `release.yml` uses the `0.0.6-beta1` scheme in its examples/comments, checks the release notes once, and passes the version input through an environment variable instead of inline `${{ }}` in shell
 
 ### Bugs
 
@@ -97,8 +97,8 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | CI-03 | Phase 1 | Complete |
 | CI-04 | Phase 1 | Complete |
 | CI-05 | Phase 1 | Complete |
-| CI-06 | Phase 1 | Pending |
-| CI-07 | Phase 1 | Pending |
+| CI-06 | Phase 1 | Complete |
+| CI-07 | Phase 1 | Complete |
 | BUG-01 | Phase 2 | Pending |
 | BUG-02 | Phase 2 | Pending |
 | BUG-03 | Phase 2 | Pending |
