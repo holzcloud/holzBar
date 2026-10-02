@@ -1,0 +1,460 @@
+//
+//  Concealer27.swift
+//  holzBar
+//
+
+import Cocoa
+import Combine
+import OSLog
+
+/// Hides menu bar items on macOS 27, where Ice's expanding dividers no longer work.
+///
+/// On macOS 27 the section of each application comes from a saved layout, first
+/// taken from the user's Ice layout: MenuBarAgent reorders items on its own, so their
+/// order on the bar no longer says which section they belong to. The concealer hides
+/// applications through `MenuBarAssessmentAssertion27`, following that layout and the
+/// state of Ice's sections.
+@available(macOS 27.0, *)
+@MainActor
+final class Concealer27: ObservableObject {
+    private let controller = ConcealmentController27(backend: MenuBarAssessmentAssertion27())
+    private let logger = Logger(category: "Concealer27")
+    private weak var appState: AppState?
+    private var observers = [NSObjectProtocol]()
+    private var applyTask: Task<Void, Never>?
+    private var suspendedUntil: ContinuousClock.Instant?
+
+    /// When concealment last changed, which is when the bar last started moving.
+    private var lastChangeAt = ContinuousClock.now
+
+    /// How long MenuBarAgent animates the bar after items are concealed or released
+    /// (measured on macOS 27.0: about 250 ms, with a margin here).
+    private static let settleAfterChange = Duration.milliseconds(400)
+
+    /// Applications shown for a moment, with the number of callers showing each.
+    private var temporarilyShown = [String: Int]()
+    private var cancellables = Set<AnyCancellable>()
+
+    /// Whether any application is meant to be concealed right now.
+    private(set) var isConcealing = false
+
+    /// Process identifiers of the applications meant to be concealed right now.
+    private(set) var concealedPIDs = Set<pid_t>()
+
+    /// The section of each application. Applications missing from it are visible.
+    private var savedLayout: [String: MacOS27Section] {
+        let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
+        return stored.compactMapValues(MacOS27Section.init(rawValue:))
+    }
+
+    func performSetup(with appState: AppState) {
+        self.appState = appState
+        guard MenuBarAssessmentAssertion27.isAvailable else {
+            logger.error("MenuBarClientCore assertions are unavailable, so items will not be hidden")
+            return
+        }
+        let workspaceCenter = NSWorkspace.shared.notificationCenter
+        for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
+            observers.append(workspaceCenter.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.update()
+                }
+            })
+        }
+        observers.append(NotificationCenter.default.addObserver(
+            forName: NSApplication.willTerminateNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.controller.releaseAll()
+            }
+        })
+        // Entering or leaving fullscreen swaps the menu bar the items are drawn in, and nothing
+        // else here notices: the concealment was left exactly as the previous bar had it, so
+        // Ice's own item was missing from the bar that slides down over a fullscreen window and
+        // there was nothing to click. `HIDEventManager` watches the same publisher, for the same
+        // reason, on earlier versions of macOS.
+        appState.$activeSpace
+            .map(\.isFullscreen)
+            .removeDuplicates()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.update()
+                }
+            }
+            .store(in: &cancellables)
+        let navigation = appState.navigationState
+        navigation.$isSettingsPresented
+            .combineLatest(navigation.$settingsNavigationIdentifier)
+            .removeDuplicates { $0.0 == $1.0 && $0.1 == $1.1 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                MainActor.assumeIsolated {
+                    self?.update()
+                }
+            }
+            .store(in: &cancellables)
+        update()
+    }
+
+    /// Derives what to conceal from Ice's sections and applies it.
+    func update() {
+        guard let appState, MenuBarAssessmentAssertion27.isAvailable else {
+            return
+        }
+        if let suspendedUntil, ContinuousClock.now < suspendedUntil {
+            return
+        }
+        let applications = NSWorkspace.shared.runningApplications
+        let running = Set(applications.compactMap(\.bundleIdentifier))
+        let layout = SectionLayout27.effectiveLayout(observed: [:], saved: savedLayout, running: running)
+        let target = ConcealmentPlanner27.concealedSets(
+            layout: layout,
+            state: revealState(appState),
+            temporarilyShown: Set(temporarilyShown.keys)
+        )
+        let concealed = ConcealmentPlanner27.effectivelyConcealed(sets: target)
+        isConcealing = !target.isEmpty
+        defer { MenuBarItemProvider27.setConcealedPIDs(concealedPIDs) }
+        concealedPIDs = Set(applications.compactMap { application in
+            guard let bundleID = application.bundleIdentifier, concealed.contains(bundleID) else {
+                return nil
+            }
+            return application.processIdentifier
+        })
+        lastChangeAt = .now
+        let previous = applyTask
+        let task = Task { [controller, logger] in
+            await previous?.value
+            do {
+                try await controller.apply(target: target, running: running)
+            } catch {
+                logger.error("Could not apply concealment: \(error, privacy: .public)")
+            }
+        }
+        applyTask = task
+        // Concealing moves the remaining items, and hover hit-testing uses their cached
+        // frames. The refresh stays out of `applyTask`, so a slow read never holds up the
+        // next change. The bar animates for about 250 ms (measured).
+        Task { [weak self] in
+            await task.value
+            try? await Task.sleep(for: .milliseconds(400))
+            await self?.appState?.itemManager.cacheItemsIfNeeded()
+            await self?.checkStuckOverflow()
+        }
+    }
+
+    /// Whether the notched bar looks stuck with items folded away and no way to reach them.
+    ///
+    /// Settings shows this; nothing acts on it. The cure measured so far is to relaunch the
+    /// application whose item is missing, and which application that is cannot be told apart
+    /// from the frames Accessibility keeps for items it no longer draws.
+    @Published private(set) var isOverflowStuck = false
+
+    /// Notes whether concealment has left the notched bar's items folded with no overflow button.
+    ///
+    /// Seen twice on this machine (2026-09-29 and 2026-10-01), both times after Ice restarted
+    /// with the bar already crowded: macOS folds what does not fit beside the notch, concealing
+    /// frees the room again, and the fold is not reconsidered — the "«" goes away with the items
+    /// still behind it. Measured against that live state: neither `Scripts/macos27/reflow-probe.swift`
+    /// nor restarting Ice unfolds them, while relaunching the application whose item is missing
+    /// does, at once.
+    private func checkStuckOverflow() async {
+        let items = await MenuBarItemProvider27.items()
+        guard let screen = NSScreen.screenWithActiveMenuBar, screen.hasNotch else {
+            isOverflowStuck = false
+            return
+        }
+        let displayBounds = CGDisplayBounds(screen.displayID)
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+        let frames = items
+            .filter { !concealedPIDs.contains($0.ownerPID) && $0.ownerPID != ownPID && displayBounds.intersects($0.bounds) }
+            .map(\.bounds)
+        let stuck = StuckOverflow27.isStuck(
+            visibleItemFrames: frames,
+            chevronFrame: MenuBarItemProvider27.overflowButtonFrame(),
+            notchSpan: StuckOverflow27.notchSpan(
+                displayBounds: displayBounds,
+                leftAreaWidth: screen.auxiliaryTopLeftArea?.width,
+                rightAreaWidth: screen.auxiliaryTopRightArea?.width
+            )
+        )
+        guard stuck != isOverflowStuck else {
+            return
+        }
+        isOverflowStuck = stuck
+        if stuck {
+            logger.notice("The notched bar looks stuck: items folded away with no overflow button")
+        } else {
+            logger.notice("The notched bar lays its items out again")
+        }
+    }
+
+    /// Releases every assertion for a moment, so a click can reach a system item.
+    func suspend(for duration: Duration) {
+        lastChangeAt = .now
+        suspendedUntil = .now + duration
+        isConcealing = false
+        concealedPIDs.removeAll()
+        let previous = applyTask
+        applyTask = Task { [controller] in
+            await previous?.value
+            controller.releaseAll()
+        }
+        Task { [weak self] in
+            try? await Task.sleep(for: duration)
+            self?.suspendedUntil = nil
+            self?.update()
+        }
+    }
+
+    /// Releases every assertion and returns once that has actually happened.
+    ///
+    /// Releasing goes through MenuBarAgent and queues behind whatever concealment change came
+    /// before it. A click replayed on a timer could therefore arrive while the assertion was
+    /// still live, and MenuBarAgent ignores those — which is why a click on the clock sometimes
+    /// did nothing and worked on the second try.
+    func suspendReleased(for duration: Duration) async {
+        lastChangeAt = .now
+        suspendedUntil = .now + duration
+        isConcealing = false
+        concealedPIDs.removeAll()
+        let previous = applyTask
+        let release = Task { [controller] in
+            await previous?.value
+            controller.releaseAll()
+        }
+        applyTask = release
+        await release.value
+        Task { [weak self] in
+            try? await Task.sleep(for: duration)
+            self?.suspendedUntil = nil
+            self?.update()
+        }
+    }
+
+    /// Puts concealment back before the suspension would have run out.
+    func endSuspension() {
+        guard suspendedUntil != nil else {
+            return
+        }
+        suspendedUntil = nil
+        update()
+    }
+
+    /// How much of the bar's movement is still to come after the last concealment change.
+    ///
+    /// Work that runs while MenuBarAgent animates the bar lands on top of that animation:
+    /// revealing the hidden items set off four overlapping display captures of 260–290 ms
+    /// each and six Accessibility sweeps in little over a second (measured 2026-09-16), and
+    /// the animation stuttered. Heavy work waits this out.
+    func timeUntilSettled() -> Duration? {
+        let settleAt = lastChangeAt + Self.settleAfterChange
+        let now = ContinuousClock.now
+        return now < settleAt ? settleAt - now : nil
+    }
+
+    /// Shows applications for a moment, to click or photograph their items.
+    /// Every call must be balanced by ``endTemporaryShow(bundleIDs:)``.
+    ///
+    /// The whole set is shown in one change. Shown one at a time, each call re-applied
+    /// concealment and MenuBarAgent animated the bar again, so photographing ten items meant
+    /// ten reflows in a row and the capture caught the items in mid-fade: a faint glyph in a
+    /// wide haze of bar that the background removal could not account for (measured
+    /// 2026-09-17: those tiles held 1.6–2.3 % opaque pixels against 21–26 % faint ones, where
+    /// an item photographed while it stood still holds 5–20 % against 3–9 %).
+    func showTemporarily(bundleIDs: some Collection<String>) {
+        guard !bundleIDs.isEmpty else {
+            return
+        }
+        for bundleID in bundleIDs {
+            temporarilyShown[bundleID, default: 0] += 1
+        }
+        update()
+    }
+
+    /// Ends one ``showTemporarily(bundleIDs:)``.
+    func endTemporaryShow(bundleIDs: some Collection<String>) {
+        guard !bundleIDs.isEmpty else {
+            return
+        }
+        for bundleID in bundleIDs {
+            guard let count = temporarilyShown[bundleID] else {
+                continue
+            }
+            temporarilyShown[bundleID] = count > 1 ? count - 1 : nil
+        }
+        update()
+    }
+
+    /// Shows an application for a moment, to click or photograph its item.
+    /// Every call must be balanced by ``endTemporaryShow(bundleID:)``.
+    func showTemporarily(bundleID: String) {
+        showTemporarily(bundleIDs: CollectionOfOne(bundleID))
+    }
+
+    /// Ends one ``showTemporarily(bundleID:)``.
+    func endTemporaryShow(bundleID: String) {
+        endTemporaryShow(bundleIDs: CollectionOfOne(bundleID))
+    }
+
+    /// Puts applications that holzIce has not seen before into the section chosen
+    /// in the settings (jordanbaird/Ice#6, jordanbaird/Ice#767).
+    ///
+    /// An application missing from the saved layout is visible. holzIce remembers
+    /// every application it has seen on the bar, so only new ones are placed, and
+    /// the first run only records what is there.
+    func placeNewApplications(items: [MenuBarItem]) {
+        guard let appState else {
+            return
+        }
+        let bundleIDs = Set(items.compactMap { item -> String? in
+            guard item.canBeHidden, !item.isSystemClone, !item.isControlItem else {
+                return nil
+            }
+            return item.sourceApplication?.bundleIdentifier
+        })
+        let stored = Defaults.array(forKey: .knownApplications27) as? [String]
+        let known = Set(stored ?? [])
+        let newBundleIDs = bundleIDs.subtracting(known).subtracting(savedLayout.keys)
+
+        guard stored == nil || !newBundleIDs.isEmpty else {
+            return
+        }
+        Defaults.set(known.union(bundleIDs).sorted(), forKey: .knownApplications27)
+
+        guard
+            stored != nil,
+            var name = appState.settings.advanced.newItemsPlacement.section,
+            name != .visible
+        else {
+            return
+        }
+        if name == .alwaysHidden && !appState.settings.advanced.enableAlwaysHiddenSection {
+            name = .hidden
+        }
+        var layout = savedLayout
+        for bundleID in newBundleIDs {
+            layout = SectionLayout27.settingSection(MacOS27Section(name), for: bundleID, in: layout)
+            logger.notice("Placed new application \(bundleID, privacy: .public) in \(name.logString, privacy: .public)")
+        }
+        Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
+        update()
+    }
+
+    /// Moves an application to a section of the saved layout and applies it.
+    func setSection(_ section: MacOS27Section, for bundleID: String) {
+        let updated = SectionLayout27.settingSection(section, for: bundleID, in: savedLayout)
+        Defaults.set(updated.mapValues(\.rawValue), forKey: .macOS27Layout)
+        update()
+        Task { [weak self] in
+            await self?.appState?.itemManager.cacheItemsRegardless()
+        }
+    }
+
+    /// Writes the sections the bar still holds from before macOS 27 into the saved layout, once.
+    ///
+    /// Nothing recorded them before: an item's section was where it sat between Ice's dividers.
+    /// On 27 that order no longer means anything, and an application missing from the layout is
+    /// visible, so without this an upgrade left Ice hiding nothing until the whole layout was
+    /// rebuilt by hand — reported on jordanbaird/Ice#1006, and the likeliest reading of several
+    /// "Ice hides nothing on 27" issues.
+    ///
+    /// The bar is read once, the first time it can be: a user who has arranged a layout of their
+    /// own keeps it, and a bar whose order macOS 27 has already rearranged is left alone (see
+    /// ``SectionLayout27/seededLayout(items:hiddenControlItem:alwaysHiddenControlItem:)``).
+    func seedLayoutIfNeeded(items: [MenuBarItem]) {
+        guard
+            !Defaults.bool(forKey: .macOS27LayoutSeeded),
+            savedLayout.isEmpty,
+            !isConcealing,
+            let hiddenControlItem = items.first(where: { $0.tag == .hiddenControlItem })
+        else {
+            return
+        }
+        // Once the bar can be read, this runs whatever it says: a bar that says nothing is still
+        // an answer, and asking it again later would risk reading one Ice itself had concealed.
+        Defaults.set(true, forKey: .macOS27LayoutSeeded)
+        let alwaysHiddenControlItem = items.first { $0.tag == .alwaysHiddenControlItem }
+        let managed = items.compactMap { item -> (bundleID: String, bounds: CGRect)? in
+            guard
+                item.canBeHidden,
+                !item.isSystemClone,
+                !item.isControlItem,
+                let bundleID = item.sourceApplication?.bundleIdentifier
+            else {
+                return nil
+            }
+            return (bundleID, item.bounds)
+        }
+        guard let seeded = SectionLayout27.seededLayout(
+            items: managed,
+            hiddenControlItem: hiddenControlItem.bounds,
+            alwaysHiddenControlItem: alwaysHiddenControlItem?.bounds
+        ) else {
+            logger.notice("The bar's order says nothing about sections, so the macOS 27 layout stays empty")
+            return
+        }
+        Defaults.set(seeded.mapValues(\.rawValue), forKey: .macOS27Layout)
+        let described = seeded
+            .sorted { $0.key < $1.key }
+            .map { "\($0.key)=\($0.value.rawValue)" }
+            .joined(separator: " ")
+        logger.notice("Took the macOS 27 layout from the order on the bar: \(described, privacy: .public)")
+        update()
+    }
+
+    /// Builds the item cache from the saved layout rather than the order on the bar.
+    func cacheFromSavedLayout(items: [MenuBarItem], displayID: CGDirectDisplayID?) -> MenuBarItemManager.ItemCache {
+        var cache = MenuBarItemManager.ItemCache(displayID: displayID)
+        let layout = savedLayout
+        for item in items.sorted(by: { $0.bounds.minX < $1.bounds.minX }) where item.canBeHidden && !item.isSystemClone {
+            if item.isControlItem {
+                if item.tag == .visibleControlItem {
+                    cache[.visible].append(item)
+                }
+                continue
+            }
+            switch layout[item.sourceApplication?.bundleIdentifier ?? ""] ?? .visible {
+            case .visible: cache[.visible].append(item)
+            case .hidden: cache[.hidden].append(item)
+            case .alwaysHidden: cache[.alwaysHidden].append(item)
+            }
+        }
+        return cache
+    }
+
+    // MARK: Private
+
+    private func revealState(_ appState: AppState) -> RevealState27 {
+        let navigation = appState.navigationState
+        if navigation.isSettingsPresented, navigation.settingsNavigationIdentifier == .menuBarLayout {
+            // Everything is drawn while the layout window is open, so every item can be photographed.
+            return .allRevealed
+        }
+        if appState.settings.general.usesIceBar {
+            // The Ice Bar shows hidden items in its own panel, so the bar stays concealed.
+            return .allHidden
+        }
+        let manager = appState.menuBarManager
+        if let alwaysHidden = manager.section(withName: .alwaysHidden), alwaysHidden.isEnabled, !alwaysHidden.isHidden {
+            return .allRevealed
+        }
+        if let hidden = manager.section(withName: .hidden), !hidden.isHidden {
+            return .hiddenRevealed
+        }
+        return .allHidden
+    }
+}
+
+extension MacOS27Section {
+    init(_ name: MenuBarSection.Name) {
+        switch name {
+        case .visible: self = .visible
+        case .hidden: self = .hidden
+        case .alwaysHidden: self = .alwaysHidden
+        }
+    }
+}

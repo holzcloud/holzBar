@@ -45,18 +45,18 @@ jobs:
       # refuse any embedded framework with a team of its own (see Scripts/install.sh).
       - name: Build
         run: |
-          xcodebuild -project Ice.xcodeproj -scheme Ice -configuration Release \
+          xcodebuild -project holzBar.xcodeproj -scheme holzBar -configuration Release \
             -destination 'platform=macOS' -derivedDataPath build build \
             MARKETING_VERSION="$VERSION" \
             CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
             CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
             ENABLE_HARDENED_RUNTIME=NO
-          codesign --verify --deep --strict build/Build/Products/Release/holzIce.app
+          codesign --verify --deep --strict build/Build/Products/Release/holzBar.app
 
       - name: Package
         run: |
-          ZIP="holzIce-$VERSION.zip"
-          ditto -c -k --keepParent build/Build/Products/Release/holzIce.app "$ZIP"
+          ZIP="holzBar-$VERSION.zip"
+          ditto -c -k --keepParent build/Build/Products/Release/holzBar.app "$ZIP"
           echo "ZIP=$ZIP" >> "$GITHUB_ENV"
           echo "SHA256=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
@@ -65,7 +65,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="v$VERSION"
-          # holzIce is in beta until 1.0: every 0.x release, and every tag with a
+          # holzBar is in beta until 1.0: every 0.x release, and every tag with a
           # suffix such as -beta1, is published as a pre-release.
           PRERELEASE=()
           if [[ "$TAG" == v0.* || "$TAG" == *-* ]]; then
@@ -73,7 +73,7 @@ jobs:
           fi
           NOTES="docs/release-notes/$TAG.md"
           gh release create "$TAG" "$ZIP" \
-            --target "$GITHUB_SHA" --title "holzIce $TAG" --notes-file "$NOTES" "${PRERELEASE[@]}"
+            --target "$GITHUB_SHA" --title "holzBar $TAG" --notes-file "$NOTES" "${PRERELEASE[@]}"
 
       - name: Update the Homebrew cask
         run: |
