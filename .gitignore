@@ -7,3 +7,4 @@ xcuserdata/
 # GSD (OpenGSD gsd-core) install staging and local overrides
 .claude/.gsd-staging/
 .claude/settings.local.json
+.claude/worktrees/
