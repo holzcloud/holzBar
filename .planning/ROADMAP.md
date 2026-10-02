@@ -68,7 +68,7 @@ Plans:
 ### Phase 4: Outdated APIs
 **Goal**: Deprecated and outdated APIs are replaced by their macOS 14 compatible modern equivalents, and AXSwift is removed
 **Depends on**: Phase 3
-**Requirements**: API-01, API-02, API-03, API-04, API-05, API-06, API-07, API-08
+**Requirements**: API-01, API-02, API-03, API-04, API-05, API-06, API-07, API-08, DEP-01
 **Success Criteria** (what must be TRUE):
   1. The app relaunches through `NSWorkspace.openApplication`, spacing writes use `CFPreferences`, and no `defaults` process or shell relaunch is spawned
   2. `holzice://` URL commands still work, arriving through `application(_:open:)`

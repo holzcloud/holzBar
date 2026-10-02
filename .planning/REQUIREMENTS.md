@@ -47,6 +47,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [ ] **API-05**: `holzice://` URLs arrive through `application(_:open:)` instead of `NSAppleEventManager`
 - [ ] **API-06**: The Screen Recording deep link uses the current System Settings identifier
 - [ ] **API-07**: AXSwift is replaced by direct AX calls and removed from both targets
+- [ ] **DEP-01**: Every Swift package (`Package.resolved`) is on its latest stable release (e.g. Ifrit 2.0.6 → latest), and the app still builds and behaves the same
 - [ ] **API-08**: Windows are opened and closed through a captured `OpenWindowAction`/`DismissWindowAction`, not a fresh `EnvironmentValues()`
 
 ### Security and performance
@@ -119,6 +120,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | API-05 | Phase 4 | Pending |
 | API-06 | Phase 4 | Pending |
 | API-07 | Phase 4 | Pending |
+| DEP-01 | Phase 4 | Pending |
 | API-08 | Phase 4 | Pending |
 | SEC-01 | Phase 5 | Pending |
 | SEC-02 | Phase 5 | Pending |
@@ -130,8 +132,8 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | REL-01 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 38 total
-- Mapped to phases: 38
+- v1 requirements: 39 total
+- Mapped to phases: 39
 - Unmapped: 0 ✓
 
 ---
