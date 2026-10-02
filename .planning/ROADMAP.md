@@ -12,7 +12,7 @@ The "Modernize" milestone removes everything outdated that the codebase audit (`
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: CI and build** - Current actions, maintained SwiftLint, unit tests on every PR, visible warnings, pinned Xcode, holzIce project metadata
+- [x] **Phase 1: CI and build** - Current actions, maintained SwiftLint, unit tests on every PR, visible warnings, pinned Xcode, holzIce project metadata
 - [ ] **Phase 2: Bug fixes** - Spacing relaunch, data race, hotkey recorder, XPC ad hoc check, permission continuation, allowlist
 - [ ] **Phase 3: Ice and Sparkle leftovers** - Acknowledgements, credits, docs, templates, dead code and files removed
 - [ ] **Phase 4: Outdated APIs** - Modern URL, UserDefaults, CFPreferences, URL-open, window and AX APIs; AXSwift removed
@@ -133,7 +133,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. CI and build | 3/3 | In Progress|  |
+| 1. CI and build | 3/3 | Complete (human check: install.sh on a Mac) | 2026-10-02 |
 | 2. Bug fixes | 0/0 | Not started | - |
 | 3. Ice and Sparkle leftovers | 0/0 | Not started | - |
 | 4. Outdated APIs | 0/0 | Not started | - |
