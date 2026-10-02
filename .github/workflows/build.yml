@@ -27,6 +27,12 @@ jobs:
             CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
             ENABLE_HARDENED_RUNTIME=NO > build.log 2>&1
           STATUS=$?
+          # The Release build compiles arm64 and x86_64, so every warning
+          # appears twice in build.log; list each one once, relative to the
+          # repository. Warnings never fail the build.
+          grep "warning:" build.log | sed "s|$GITHUB_WORKSPACE/||g" | sort -u > warnings.txt
+          echo "==> $(wc -l < warnings.txt | tr -d ' ') compiler warnings"
+          cat warnings.txt
           grep -E "error:|\*\* BUILD" build.log || tail -50 build.log
           exit $STATUS
 
