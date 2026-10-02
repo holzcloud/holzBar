@@ -30,7 +30,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Leftovers
 
-- [ ] **LEFT-01**: Acknowledgements (RTF and PDF shown in About) no longer list Sparkle and do list the packages actually used
+- [ ] **LEFT-01**: Acknowledgements and license information are shown natively inside the app (a SwiftUI view in About, no PDF/RTF), list the packages actually used with their licenses, and no longer mention Sparkle; `Acknowledgements.pdf`/`.rtf` are removed
 - [ ] **LEFT-02**: NOTICE and the README credits name Barometer and Thaw for the adapted macOS 27 code
 - [ ] **LEFT-03**: `FREQUENT_ISSUES.md` describes holzIce (or is removed and its useful parts moved to the README)
 - [ ] **LEFT-04**: Unused files and dead code are removed (`Resources/rearranging.mov`, `rearranging.gif`, `Icon.png`, `RunLoopLocalEventMonitor.swift`, `ObjectStorage.swift`, the "Copy to Applications" stub phase, `ENABLE_USER_SELECTED_FILES`, redundant `managedItems(for:)`)
@@ -61,6 +61,10 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 ### Release
 
 - [ ] **REL-01**: `0.0.6-beta1` is released with hand-written notes (brew trust, update, quarantine) and the cask points at it
+
+### Security audit
+
+- [ ] **AUDIT-01**: After the release, a full security analysis of the whole app (code, XPC service, URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline, cask) is written to `.planning/` with severity-ranked findings, and the user decides which to fix
 
 ## v2 Requirements
 
@@ -123,10 +127,11 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | PERF-02 | Phase 5 | Pending |
 | PERF-03 | Phase 5 | Pending |
 | REL-01 | Phase 6 | Pending |
+| AUDIT-01 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 37 total
-- Mapped to phases: 37
+- v1 requirements: 38 total
+- Mapped to phases: 38
 - Unmapped: 0 ✓
 
 ---

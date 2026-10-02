@@ -18,6 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 4: Outdated APIs** - Modern URL, UserDefaults, CFPreferences, URL-open, window and AX APIs; AXSwift removed
 - [ ] **Phase 5: Security and performance** - Validated settings import, private logging, Caches storage, no needless tasks or polling
 - [ ] **Phase 6: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated
+- [ ] **Phase 7: Security audit** - Full security analysis of the whole app, findings ranked, user decides fixes
 
 Each phase is one pull request and must build green on the macOS CI runner before merge.
 
@@ -52,7 +53,7 @@ Each phase is one pull request and must build green on the macOS CI runner befor
 **Depends on**: Phase 2
 **Requirements**: LEFT-01, LEFT-02, LEFT-03, LEFT-04, LEFT-05, LEFT-06, LEFT-07
 **Success Criteria** (what must be TRUE):
-  1. The Acknowledgements shown in About no longer list Sparkle and list the packages actually used
+  1. Acknowledgements and licenses are shown natively in the app (no PDF/RTF), list the packages actually used and no longer mention Sparkle
   2. NOTICE and the README credit Barometer and Thaw for the adapted macOS 27 code, and the README and docs agree (Thaw listed as conflicting app, one bug-report count)
   3. `FREQUENT_ISSUES.md` describes holzIce (or is gone) and the bug report template asks for holzIce version, macOS version and install method
   4. The listed unused files, stub build phase, setting and redundant code are gone and the app still builds
@@ -94,10 +95,20 @@ Each phase is one pull request and must build green on the macOS CI runner befor
   3. The cask on `main` points at `0.0.6-beta1`
 **Plans**: TBD
 
+### Phase 7: Security audit
+**Goal**: The user knows every security risk of the app, ranked, and has decided which to fix
+**Depends on**: Phase 6
+**Requirements**: AUDIT-01
+**Success Criteria** (what must be TRUE):
+  1. A security report covers the app, the XPC service, the URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline and the cask
+  2. Every finding has a severity, a location and a proposed fix
+  3. The user has chosen which findings become follow-up work
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -107,3 +118,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 4. Outdated APIs | 0/0 | Not started | - |
 | 5. Security and performance | 0/0 | Not started | - |
 | 6. Release 0.0.6-beta1 | 0/0 | Not started | - |
+| 7. Security audit | 0/0 | Not started | - |
