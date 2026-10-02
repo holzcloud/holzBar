@@ -4,10 +4,10 @@
 # @raycast.schemaVersion 1
 # @raycast.title Search Menu Bar Items
 # @raycast.mode silent
-# @raycast.packageName holzIce
+# @raycast.packageName holzBar
 
 # Optional parameters:
-# @raycast.icon 🧊
-# @raycast.description Open holzIce's menu bar item search.
+# @raycast.icon 🪵
+# @raycast.description Open holzBar's menu bar item search.
 
-open "holzice://search"
+open "holzbar://search"

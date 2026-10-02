@@ -6,22 +6,28 @@
 import AppKit
 import OSLog
 
-/// Commands that other apps can send to holzIce with `holzice://` URLs, for
+/// Commands that other apps can send to holzBar with `holzbar://` URLs, for
 /// example from Raycast, Alfred, Shortcuts or a script (jordanbaird/Ice#501).
 ///
-/// - `holzice://toggle/hidden`, `holzice://show/hidden`, `holzice://hide/hidden`
+/// - `holzbar://toggle/hidden`, `holzbar://show/hidden`, `holzbar://hide/hidden`
 ///   (also `always-hidden`)
-/// - `holzice://search` – the menu bar item search
-/// - `holzice://settings` – the settings window
-/// - `holzice://ice-bar/toggle` – turn the holzIce Bar on or off
-/// - `holzice://auto-rehide/toggle` – turn auto-rehide on or off
-/// - `holzice://application-menus/toggle`
-/// - `holzice://profile/<name>` – apply a saved layout profile
+/// - `holzbar://search` – the menu bar item search
+/// - `holzbar://settings` – the settings window
+/// - `holzbar://shelf/toggle` – turn the holzBar Shelf on or off
+/// - `holzbar://auto-rehide/toggle` – turn auto-rehide on or off
+/// - `holzbar://application-menus/toggle`
+/// - `holzbar://profile/<name>` – apply a saved layout profile
+///
+/// `holzice://` URLs and the `ice-bar` command still work.
 @MainActor
 enum URLCommands {
     private static let logger = Logger(category: "URLCommands")
 
-    /// Starts receiving `holzice://` URLs.
+    /// The URL schemes holzBar accepts: `holzbar://` is holzBar's own, and
+    /// `holzice://` keeps scripts written for holzIce working.
+    private static let schemes: Set<String> = ["holzbar", "holzice"]
+
+    /// Starts receiving `holzbar://` and `holzice://` URLs.
     static func register(appState: AppState) {
         Handler.shared.appState = appState
         NSAppleEventManager.shared().setEventHandler(
@@ -34,7 +40,7 @@ enum URLCommands {
 
     /// Performs the command in the given URL.
     static func perform(_ url: URL, appState: AppState) {
-        guard url.scheme?.lowercased() == "holzice", let host = url.host()?.lowercased() else {
+        guard let scheme = url.scheme?.lowercased(), schemes.contains(scheme), let host = url.host()?.lowercased() else {
             logger.warning("Ignoring URL \(url.absoluteString, privacy: .public)")
             return
         }
@@ -62,7 +68,7 @@ enum URLCommands {
         case "settings":
             appState.activate(withPolicy: .regular)
             appState.openWindow(.settings)
-        case "ice-bar":
+        case "shelf", "ice-bar":
             appState.settings.general.useShelf.toggle()
         case "auto-rehide":
             appState.settings.general.autoRehide.toggle()
