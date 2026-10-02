@@ -23,9 +23,12 @@ runs:
           exit 1
         fi
         sudo xcode-select -s "$XCODE_APP"
-        ACTUAL="$(xcodebuild -version | head -1)"
+        # Read the whole output: piping xcodebuild into head makes it crash
+        # with a broken pipe.
+        VERSION_OUTPUT="$(xcodebuild -version)"
+        ACTUAL="${VERSION_OUTPUT%%$'\n'*}"
         if [ "$ACTUAL" != "Xcode $XCODE_VERSION" ]; then
           echo "::error::Selected $XCODE_APP reports '$ACTUAL', expected 'Xcode $XCODE_VERSION'"
           exit 1
         fi
-        xcodebuild -version
+        echo "$VERSION_OUTPUT"
