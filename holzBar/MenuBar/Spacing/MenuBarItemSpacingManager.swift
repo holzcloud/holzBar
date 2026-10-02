@@ -4,7 +4,6 @@
 //
 
 import Cocoa
-import Combine
 import OSLog
 
 /// Manager for menu bar item spacing.
@@ -29,7 +28,9 @@ final class MenuBarItemSpacingManager {
         let failedApps: [String]
 
         var errorDescription: String? {
-            "The following applications failed to quit and were not restarted:\n" + failedApps.joined(separator: "\n")
+            let seconds = SpacingRelaunch.quitTimeout.components.seconds
+            return "The following applications did not quit within \(seconds) seconds and were not restarted:\n"
+                + failedApps.joined(separator: "\n")
         }
 
         var recoverySuggestion: String? {
@@ -39,9 +40,6 @@ final class MenuBarItemSpacingManager {
 
     /// Logger for the menu bar item spacing manager.
     private let logger = Logger(category: "MenuBarItemSpacingManager")
-
-    /// Delay before force terminating an app.
-    private let forceTerminateDelay = 1
 
     /// The offset to apply to the default spacing and padding.
     /// Does not take effect until ``applyOffset()`` is called.
@@ -72,45 +70,52 @@ final class MenuBarItemSpacingManager {
         try await runCommand("defaults", with: ["-currentHost", "write", "-globalDomain", key.rawValue, "-int", String(key.defaultValue + offset)])
     }
 
-    /// Asynchronously signals the given app to quit.
-    private func signalAppToQuit(_ app: NSRunningApplication) async throws {
+    /// Asks the given app to quit and waits until it has, for at most
+    /// ``SpacingRelaunch/quitTimeout``.
+    ///
+    /// An app that is still running then is left alone; it is never force terminated.
+    ///
+    /// - Returns: Whether the app has quit.
+    private func quit(_ app: NSRunningApplication) async -> Bool {
         if app.isTerminated {
             logger.debug("Application \"\(app.logString, privacy: .public)\" is already terminated")
-            return
-        } else {
-            logger.debug("Signaling application \"\(app.logString, privacy: .public)\" to quit")
+            return true
         }
 
+        // React to the app's termination instead of checking it on a timer. The initial
+        // value covers an app that quits before the observation starts.
+        let (terminated, continuation) = AsyncStream.makeStream(of: Void.self)
+        let observation = app.observe(\.isTerminated, options: [.initial, .new]) { @Sendable _, change in
+            if change.newValue == true {
+                continuation.yield()
+                continuation.finish()
+            }
+        }
+
+        logger.debug("Signaling application \"\(app.logString, privacy: .public)\" to quit")
         app.terminate()
 
-        var cancellable: AnyCancellable?
-        return try await withCheckedThrowingContinuation { continuation in
-            let timeoutTask = Task {
-                try await Task.sleep(for: .seconds(forceTerminateDelay))
-                if !app.isTerminated {
-                    logger.debug(
-                        """
-                        Application \"\(app.logString, privacy: .public)\" did not terminate within \
-                        \(self.forceTerminateDelay, privacy: .public) seconds, attempting to force terminate
-                        """
-                    )
-                    app.forceTerminate()
-                }
-            }
-
-            cancellable = app.publisher(for: \.isTerminated).sink { [weak self] isTerminated in
-                guard
-                    let self,
-                    isTerminated
-                else {
-                    return
-                }
-                timeoutTask.cancel()
-                cancellable?.cancel()
-                logger.debug("Application \"\(app.logString, privacy: .public)\" terminated successfully")
-                continuation.resume()
+        let didQuit = await SpacingRelaunch.waitUntil(timeout: SpacingRelaunch.quitTimeout) {
+            for await _ in terminated {
+                return
             }
         }
+
+        observation.invalidate()
+        continuation.finish()
+
+        if didQuit || app.isTerminated {
+            logger.debug("Application \"\(app.logString, privacy: .public)\" terminated successfully")
+            return true
+        }
+        let seconds = SpacingRelaunch.quitTimeout.components.seconds
+        logger.debug(
+            """
+            Application \"\(app.logString, privacy: .public)\" did not quit within \
+            \(seconds, privacy: .public) seconds, so it is left running
+            """
+        )
+        return false
     }
 
     /// Asynchronously launches the app at the given URL.
@@ -136,12 +141,10 @@ final class MenuBarItemSpacingManager {
         else {
             throw RelaunchError()
         }
-        try await signalAppToQuit(app)
-        if app.isTerminated {
-            try await launchApp(at: url, bundleIdentifier: bundleIdentifier)
-        } else {
+        guard await quit(app) else {
             throw RelaunchError()
         }
+        try await launchApp(at: url, bundleIdentifier: bundleIdentifier)
     }
 
     /// Applies the current ``offset``.
@@ -217,13 +220,11 @@ final class MenuBarItemSpacingManager {
 
         try? await Task.sleep(for: .milliseconds(100))
 
-        if let app = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.controlcenter").first {
-            do {
-                try await signalAppToQuit(app)
-            } catch {
-                if let name = app.localizedName {
-                    failedApps.append(name)
-                }
+        // Control Center relaunches itself once told to quit.
+        if let app = NSRunningApplication.runningApplications(withBundleIdentifier: SpacingRelaunch.controlCenterBundleIdentifier).first {
+            let didQuit = await quit(app)
+            if !didQuit, let name = app.localizedName {
+                failedApps.append(name)
             }
         }
 

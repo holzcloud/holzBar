@@ -60,10 +60,36 @@ enum SpacingRelaunch {
     }
 
     /// How long an app gets to quit after being asked.
-    static let quitTimeout: Duration = .seconds(1)
+    ///
+    /// Long enough for an app that saves or syncs on quit. An app that is still running
+    /// then is left alone and reported.
+    static let quitTimeout: Duration = .seconds(10)
 
     /// Waits for `event` for at most `timeout`.
+    ///
+    /// Runs `event` and a sleep of `timeout` side by side, takes whichever finishes first and
+    /// cancels the other. It always returns: with no continuation to leak and nothing polled.
+    /// `event` must return when its task is cancelled (iterating an `AsyncStream` does),
+    /// because the wait finishes only once both of them have.
+    ///
+    /// - Parameters:
+    ///   - timeout: How long to wait for the event.
+    ///   - event: Returns once the event has happened.
+    /// - Returns: `true` as soon as the event happens, `false` once the timeout has passed
+    ///   and `false` at once when the waiting task is cancelled.
     static func waitUntil(timeout: Duration, _ event: @escaping @Sendable () async -> Void) async -> Bool {
-        false
+        await withTaskGroup(of: Bool.self) { group in
+            group.addTask {
+                await event()
+                return !Task.isCancelled
+            }
+            group.addTask {
+                try? await Task.sleep(for: timeout)
+                return false
+            }
+            let happened = await group.next() ?? false
+            group.cancelAll()
+            return happened
+        }
     }
 }
