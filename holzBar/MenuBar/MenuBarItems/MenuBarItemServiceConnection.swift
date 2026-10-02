@@ -145,7 +145,16 @@ extension MenuBarItemService {
                     logger.warning("Session was cancelled with error \(error.localizedDescription)")
                     self.session = nil
                 }
-                session.setPeerRequirement(.isFromSameTeam())
+                // A build signed with a team requires the service to be from the
+                // same team. An ad hoc build has no team to compare: launchd
+                // resolves this service name only inside this app's own bundle,
+                // so no other code can answer, and the service in turn pins this
+                // app's exact code. LightweightCodeRequirements, which could pin
+                // the service's code here too, needs macOS 14.4, and the app
+                // still launches on macOS 14.0.
+                if CodeSignature.currentTeamIdentifier != nil {
+                    session.setPeerRequirement(.isFromSameTeam(andMatchesSigningIdentifier: MenuBarItemService.name))
+                }
                 session.setTargetQueue(queue)
                 try session.activate()
                 self.session = session
