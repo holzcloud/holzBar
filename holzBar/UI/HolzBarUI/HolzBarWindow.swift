@@ -62,6 +62,9 @@ struct HolzBarWindow<Content: View>: Scene {
             windowContentView
         }
         .defaultLaunchBehavior(.suppressed)
+        // An empty set never matches, so SwiftUI never opens a holzBar window
+        // for a holzbar:// URL; the app delegate handles them.
+        .handlesExternalEvents(matching: [])
     }
 
     private var windowSceneLegacy: some Scene {
@@ -73,6 +76,9 @@ struct HolzBarWindow<Content: View>: Scene {
                 dismissWindow(id: id)
             }
         }
+        // An empty set never matches, so SwiftUI never opens a holzBar window
+        // for a holzbar:// URL; the app delegate handles them.
+        .handlesExternalEvents(matching: [])
     }
 }
 

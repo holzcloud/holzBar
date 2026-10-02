@@ -26,7 +26,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Initial chore work.
         NSSplitViewItem.swizzle()
         MigrationManager(appState: appState).migrateAll()
-        URLCommands.register(appState: appState)
+    }
+
+    func application(_ application: NSApplication, open urls: [URL]) {
+        // holzbar:// commands from other apps. The scenes never handle them
+        // (`HolzBarWindow` matches no external event).
+        for url in urls {
+            URLCommands.perform(url, appState: appState)
+        }
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
