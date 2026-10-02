@@ -64,7 +64,7 @@ Plans:
 - [x] 01.1-02-PLAN.md — Type, file and folder names: HolzBar<Name> UI components, HolzBarShelf<Name> in MenuBar/Shelf/, shelf/holzBarIcon members; stored key strings unchanged
 - [x] 01.1-03-PLAN.md — Every Swift text and comment says holzBar / holzBar Shelf; holzBar data folders, autosave names and links; developer scripts, docs and issue templates
 - [x] 01.1-04-PLAN.md — First-launch import of holzIce's settings, item images and iCloud file (before Ice's); ConflictingApps quits holzIce; holzbar:// with holzice:// alias; Raycast scripts
-- [ ] 01.1-05-PLAN.md — holzBar logo: app icon in all sizes, vector sidebar logo next to the title, Resources/Logo/holzBar.svg, banner.svg/png
+- [x] 01.1-05-PLAN.md — holzBar logo: app icon in all sizes, vector sidebar logo next to the title, Resources/Logo/holzBar.svg, banner.svg/png
 - [ ] 01.1-06-PLAN.md — Casks/holzbar.rb + cask_renames.json proven by a cask CI job, release workflow, README/NOTICE/CLAUDE.md; user renames the repository after the merge
 
 ### Phase 2: Bug fixes
