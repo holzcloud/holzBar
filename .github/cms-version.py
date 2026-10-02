@@ -61,6 +61,11 @@ V = r"(\d+\.\d+\.\d+)"
 BARE = r"(?<![\w./-])" + V + r"(?!\.?\d)(?![\w-])"
 
 
+def holzbar_archive(text: str) -> str:
+    """The archive name a holzBar release publishes: holzBar-<v>.zip."""
+    return re.sub(r"^holzIce-", "holzBar-", text)
+
+
 def tag_link(repo: str) -> str:
     """A release link; repo is a regex, so a renamed repository can be named too."""
     return r"github\.com/holzcloud/(?:" + repo + r")/releases/tag/v" + V + r"(?![\w.-])"
@@ -70,6 +75,9 @@ def tag_link(repo: str) -> str:
 # per page). "where" names the block fields the regex is applied to:
 #   stand -> fields.text of a "stand" block
 #   text  -> markdown of a "text" block
+# A rule may carry a fourth element, a function that is handed the matched
+# text with the new version already in it and returns what is written. The
+# archive rule of holzbar uses it to rename the archive along with the version.
 PROJECTS = {
     "holzkube-manager": {
         "slug": "holzkube-manager",
@@ -103,7 +111,10 @@ PROJECTS = {
             ("stand", BARE, 1),
             ("stand text", tag_link("holzIce|holzBar"), 1),
             ("text", r"github\.com/holzcloud/(?:holzIce|holzBar)/releases/download/v" + V + r"/", 1),
-            ("text", r"(?:holzIce|holzBar)-" + V + r"\.zip", 2),
+            # Releases are published as holzBar-<v>.zip since the rename; the
+            # pages still name holzIce-0.0.5.zip, the last archive under the old
+            # name, so the next release writes the new name with its version.
+            ("text", r"(?:holzIce|holzBar)-" + V + r"\.zip", 2, holzbar_archive),
         ],
     },
 }
@@ -199,7 +210,7 @@ def fields_of(block: dict, where: str):
 def find(blocks: list, rules: list) -> list:
     """Every version a rule finds, as [(rule index, version)]."""
     out = []
-    for i, (where, rx, _) in enumerate(rules):
+    for i, (where, rx, *_) in enumerate(rules):
         pattern = re.compile(rx)
         for block in blocks:
             for container, key in fields_of(block, where):
@@ -212,13 +223,14 @@ def rewrite(blocks: list, rules: list, version: str) -> tuple[list, list]:
     """A copy of blocks with every match set to version, and the changes."""
     blocks = json.loads(json.dumps(blocks))
     originals = {}
-    for where, rx, _ in rules:
+    for where, rx, _, *rename in rules:
         pattern = re.compile(rx)
 
-        def put(m: re.Match) -> str:
+        def put(m: re.Match, rename=rename) -> str:
             whole = m.group(0)
             s, e = m.start(1) - m.start(0), m.end(1) - m.start(0)
-            return whole[:s] + version + whole[e:]
+            out = whole[:s] + version + whole[e:]
+            return rename[0](out) if rename else out
 
         for block in blocks:
             for container, key in fields_of(block, where):
@@ -235,7 +247,7 @@ def check_counts(page: dict, blocks: list, rules: list) -> list:
     """The versions found on one page, after checking every count."""
     found = find(blocks, rules)
     wrong = []
-    for i, (where, rx, expected) in enumerate(rules):
+    for i, (where, rx, expected, *_) in enumerate(rules):
         n = sum(1 for r, _ in found if r == i)
         if n != expected:
             wrong.append(f"rule {i + 1} ({where}: /{rx}/) found {n}, expects {expected}")
