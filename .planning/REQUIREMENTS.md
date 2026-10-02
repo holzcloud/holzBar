@@ -82,10 +82,10 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [x] **SEC-01**: Settings import and sync only apply known keys with the expected types
 - [x] **SEC-02**: URL commands log only the command, not the full URL as public
 - [x] **SEC-03**: Captured item images are stored in Caches (excluded from backups), not Application Support; old files are moved or deleted
-- [ ] **PERF-01**: Show on hover keeps one cancellable task instead of starting a task per mouse move
-- [ ] **PERF-02**: Permission polling stops once all permissions are granted
-- [ ] **PERF-04**: The menu bar search tolerates 1–2 typos (own code, no dependency) while in-order matches rank first
-- [ ] **PERF-03**: Reveal rules react to power and network notifications instead of polling every 60 s
+- [x] **PERF-01**: Show on hover keeps one cancellable task instead of starting a task per mouse move
+- [x] **PERF-02**: Permission polling stops once all permissions are granted
+- [x] **PERF-04**: The menu bar search tolerates 1–2 typos (own code, no dependency) while in-order matches rank first
+- [x] **PERF-03**: Reveal rules react to power and network notifications instead of polling every 60 s
 
 ### Compatibility
 
@@ -163,10 +163,10 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | SEC-01 | Phase 5 | Complete |
 | SEC-02 | Phase 5 | Complete |
 | SEC-03 | Phase 5 | Complete |
-| PERF-01 | Phase 5 | Pending |
-| PERF-02 | Phase 5 | Pending |
-| PERF-04 | Phase 5 | Pending |
-| PERF-03 | Phase 5 | Pending |
+| PERF-01 | Phase 5 | Complete |
+| PERF-02 | Phase 5 | Complete |
+| PERF-04 | Phase 5 | Complete |
+| PERF-03 | Phase 5 | Complete |
 | LEAN-01 | Phase 05.1 | Pending |
 | MOD-01 | Phase 05.1 | Pending |
 | MOD-02 | Phase 05.1 | Pending |

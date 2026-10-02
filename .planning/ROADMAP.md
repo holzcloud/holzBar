@@ -140,11 +140,11 @@ Plans:
   4. Moving the mouse over show-on-hover keeps one cancellable task, and permission polling stops once all permissions are granted
   5. Reveal rules react to power and network notifications instead of polling every 60 s
 
-**Plans**: 1/2 plans executed (sequential waves; same PR, completed by 05-02)
+**Plans**: 2/2 plans executed (sequential waves; same PR, completed by 05-02)
 
 Plans:
 - [x] 05-01-PLAN.md — Tracer: imported, synced and Ice settings validated against Defaults.Key kinds (Defaults moved to Core, tested); URL logs name only the command; item images in Caches with a tested one-time move
-- [ ] 05-02-PLAN.md — One cancellable hover task (tested HoverSchedule); permission checks stop once granted; reveal rules on IOPSNotificationCreateRunLoopSource and NWPathMonitor (tested RevealTrigger); final PR body
+- [x] 05-02-PLAN.md — One cancellable hover task (tested HoverSchedule); permission checks stop once granted; reveal rules on IOPSNotificationCreateRunLoopSource and NWPathMonitor (tested RevealTrigger); final PR body
 
 ### Phase 05.1: Modern, lean and private (INSERTED)
 
@@ -214,6 +214,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 2. Bug fixes | 4/4 | In Progress|  |
 | 3. Ice and Sparkle leftovers | 2/2 | In Progress|  |
 | 4. Outdated APIs | 3/3 | In Progress|  |
-| 5. Security and performance | 1/2 | In Progress|  |
+| 5. Security and performance | 2/2 | In Progress|  |
 | 6. Security audit | 0/0 | Not started | - |
 | 7. Release 0.0.6-beta1 | 0/0 | Not started | - |
