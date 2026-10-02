@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-10-02T10:47:38.060Z"
+stopped_at: Completed 01.1-01-PLAN.md
+last_updated: "2026-10-02T12:30:00.628Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: 9594596840c2ce53fc8e2b6ec071a59cfe17b0ce
+state_head: 4bb26f509ae4d7dd1af541b3fb69eee775b01c0b
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 0
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 13
+  completed_plans: 4
 ---
 
 # Project State
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P01 | 20min | 2 tasks | 2 files |
 | Phase 01 P02 | 10min | 2 tasks | 5 files |
 | Phase 01 P03 | 12min | 2 tasks | 4 files |
+| Phase 01.1 P01 | 15min | 2 tasks | 190 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,8 @@ Recent decisions affecting current work:
 - [Phase 01]: Lint runs the official SwiftLint 0.65.1 image pinned by sha256 digest via plain docker run; no lint rule was switched off (legacy_swiftui_aspect_ratio fixed in code)
 - [Phase 01]: Source builds sign ad hoc with the CI overrides; the Xcode project sets no DEVELOPMENT_TEAM and carries version 0.0.5 / build 1
 - [Phase 01]: release.yml validates the version (0.0.6 / 0.0.6-beta1) before writing it to GITHUB_ENV; no expression inside any run block
+- [Phase 01.1]: Phase 01.1 PR is #33 (draft, claude/ice-fork-development-hzdl1d -> main); later plans push to the branch and update its body
+- [Phase 01.1]: build.yml 'Check the identifiers' reads MenuBarItemService.name from the Swift source and fails the build when the embedded XPC service's bundle id differs from it or from the app id plus .MenuBarItemService
 
 ### Pending Todos
 
@@ -94,6 +97,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T10:47:32.771Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-10-02T12:30:00.578Z
+Stopped at: Completed 01.1-01-PLAN.md
 Resume file: None

@@ -55,10 +55,11 @@ Plans:
   3. On first launch holzBar imports the settings and data of an installed holzIce; `brew upgrade` moves holzIce users to the holzbar cask
   4. The Xcode project, target, scheme, module, source folder and type names no longer say Ice; build, test and swiftlint are green
   5. The new logo is in the app icon, the settings sidebar, README banner and Resources/Logo
-**Plans:** 6 plans (sequential waves: one PR branch, every task verified by its CI checks)
+
+**Plans:** 1/6 plans executed (sequential waves: one PR branch, every task verified by its CI checks)
 
 Plans:
-- [ ] 01.1-01-PLAN.md — Tracer: holzBar.xcodeproj, target/scheme/module holzBar, folder holzBar/, test package HolzBarMacOS27Core, bundle ids com.holzcloud.holzBar(.MenuBarItemService) with a CI identifier check; phase PR opened
+- [x] 01.1-01-PLAN.md — Tracer: holzBar.xcodeproj, target/scheme/module holzBar, folder holzBar/, test package HolzBarMacOS27Core, bundle ids com.holzcloud.holzBar(.MenuBarItemService) with a CI identifier check; phase PR opened
 - [ ] 01.1-02-PLAN.md — Type, file and folder names: HolzBar<Name> UI components, HolzBarShelf<Name> in MenuBar/Shelf/, shelf/holzBarIcon members; stored key strings unchanged
 - [ ] 01.1-03-PLAN.md — Every Swift text and comment says holzBar / holzBar Shelf; holzBar data folders, autosave names and links; developer scripts, docs and issue templates
 - [ ] 01.1-04-PLAN.md — First-launch import of holzIce's settings, item images and iCloud file (before Ice's); ConflictingApps quits holzIce; holzbar:// with holzice:// alias; Raycast scripts
@@ -162,7 +163,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. CI and build | 3/3 | Complete (human check: install.sh on a Mac) | 2026-10-02 |
-| 01.1. Rename to holzBar | 0/6 | Planned | - |
+| 01.1. Rename to holzBar | 1/6 | In Progress|  |
 | 2. Bug fixes | 0/4 | Planned | - |
 | 3. Ice and Sparkle leftovers | 0/0 | Not started | - |
 | 4. Outdated APIs | 0/0 | Not started | - |
