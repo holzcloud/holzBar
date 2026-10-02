@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 01.1-01-PLAN.md
-last_updated: "2026-10-02T12:30:00.628Z"
+stopped_at: Completed 01.1-02-PLAN.md
+last_updated: "2026-10-02T12:54:34.143Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: 4bb26f509ae4d7dd1af541b3fb69eee775b01c0b
+state_head: ad64b27a257a511ee6332dc44c64342dcbfff307
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 0
   total_plans: 13
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -60,6 +60,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P02 | 10min | 2 tasks | 5 files |
 | Phase 01 P03 | 12min | 2 tasks | 4 files |
 | Phase 01.1 P01 | 15min | 2 tasks | 190 files |
+| Phase 01.1 P02 | 20min | 2 tasks | 48 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,7 @@ Recent decisions affecting current work:
 - [Phase 01]: release.yml validates the version (0.0.6 / 0.0.6-beta1) before writing it to GITHUB_ENV; no expression inside any run block
 - [Phase 01.1]: Phase 01.1 PR is #33 (draft, claude/ice-fork-development-hzdl1d -> main); later plans push to the branch and update its body
 - [Phase 01.1]: build.yml 'Check the identifiers' reads MenuBarItemService.name from the Swift source and fails the build when the embedded XPC service's bundle id differs from it or from the app id plus .MenuBarItemService
+- [Phase 01.1]: 01.1-02: Identifiers renamed by prefix rule (HolzBar<Name>, HolzBarShelf<Name>/shelf<Name>, holzBarIcon<Name>); every Defaults.Key and HotkeyAction raw value unchanged
 
 ### Pending Todos
 
@@ -97,6 +99,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T12:30:00.578Z
-Stopped at: Completed 01.1-01-PLAN.md
+Last session: 2026-10-02T12:54:34.096Z
+Stopped at: Completed 01.1-02-PLAN.md
 Resume file: None
