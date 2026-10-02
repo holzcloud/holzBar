@@ -14,6 +14,9 @@ permissions:
 jobs:
   release:
     runs-on: macos-26
+    # The version, for the holzcloud-ch job below.
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -34,6 +37,7 @@ jobs:
             exit 1
           fi
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check the release notes
         run: |
@@ -96,3 +100,27 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "holzbar $VERSION"
           git push origin main
+
+  # holzcloud.ch shows the released version on the holzBar (formerly
+  # holzIce) page in five languages. This writes it there through the holzcloud-CMS once the
+  # release exists, and reads it back. A beta (0.0.6-beta1) is skipped: the
+  # site keeps showing the last plain release. .github/cms-version.py is a
+  # copy of holzcloud-design's tools/cms-version.py, where its tests live
+  # (that repository is private, so its reusable workflow cannot be called
+  # from here). Without the CMS_TOKEN secret it prints a notice and succeeds.
+  holzcloud-ch:
+    name: Show the version on holzcloud.ch
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/cms-version.py
+          sparse-checkout-cone-mode: false
+      - name: Write the version into the project pages and read it back
+        env:
+          CMS_TOKEN: ${{ secrets.CMS_TOKEN }}
+          VERSION: ${{ needs.release.outputs.version }}
+        run: python3 .github/cms-version.py --project holzbar --version "$VERSION"
