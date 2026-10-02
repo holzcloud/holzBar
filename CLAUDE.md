@@ -47,4 +47,4 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 
 ## Building
 
-macOS only (Xcode 27): `Scripts/install.sh`. There is no Linux build; CI runs SwiftLint (`.swiftlint.yml`, `--strict`).
+macOS only (the Xcode pinned in `.github/actions/select-xcode/action.yml`, currently 26.6): `Scripts/install.sh`. There is no Linux build; CI builds, runs `swift test` and runs SwiftLint (official image pinned in `lint.yml`, `.swiftlint.yml`, `--strict`).
