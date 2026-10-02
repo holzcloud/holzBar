@@ -70,7 +70,7 @@ xattr -dr com.apple.quarantine /Applications/holzIce.app
 Then open holzIce again. Alternatively: open it once, then go to **System Settings → Privacy & Security** and click **Open Anyway** next to the holzIce message.
 
 > [!NOTE]
-> holzIce replaces the original Ice — run `brew uninstall --cask jordanbaird-ice` first if you have it.
+> holzIce replaces the original Ice — quit Ice and run `brew uninstall --cask jordanbaird-ice` first if you have it. Two menu bar managers must never run at the same time; holzIce offers to quit Ice, Bartender or Hidden Bar when it finds one running.
 > Your Ice settings (layout, hotkeys, appearance) are imported automatically on the first launch.
 
 ### Build from source

@@ -1,6 +1,6 @@
 //
 //  SourcePIDCache.swift
-//  MenuBarItemService
+//  Shared
 //
 
 import AXSwift

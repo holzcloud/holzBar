@@ -82,10 +82,18 @@ extension MigrationManager {
         else {
             return
         }
-        for (key, value) in iceSettings {
+        // Window frames and status item positions belong to Ice's own windows and
+        // items, not to holzIce's. The first launch after importing them locked up
+        // a Mac on macOS 27 until it was restarted; the next launch was fine.
+        let imported = iceSettings.filter { key, _ in
+            !SettingsBackup.excludedKeyPrefixes.contains { key.hasPrefix($0) }
+        }
+        for (key, value) in imported {
             defaults.set(value, forKey: key)
         }
-        Logger(category: "Migration").notice("Imported \(iceSettings.count, privacy: .public) settings from Ice")
+        Logger(category: "Migration").notice(
+            "Imported \(imported.count, privacy: .public) of \(iceSettings.count, privacy: .public) settings from Ice"
+        )
     }
 }
 

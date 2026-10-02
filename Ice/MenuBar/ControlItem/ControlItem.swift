@@ -220,7 +220,11 @@ final class ControlItem {
             .flatMap { $0.publisher(for: \.window) }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] window in
-                self?.window = window
+                guard let self else {
+                    return
+                }
+                self.window = window
+                OwnStatusItemWindows.set(window?.windowNumber, for: self)
             }
             .store(in: &c)
 

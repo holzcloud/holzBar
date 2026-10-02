@@ -5,6 +5,7 @@
 
 import Foundation
 import OSLog
+import os
 
 // MARK: - MenuBarItemService.Connection
 
@@ -23,6 +24,19 @@ extension MenuBarItemService {
 
         /// The connection's logger.
         private let logger: Logger
+
+        /// A Boolean value that indicates whether the service could not be reached.
+        ///
+        /// On macOS 26.7.1 the service failed to start for some users, and every
+        /// request failed with `XPCRichError` code 1 (the app's own items then went
+        /// unrecognised and the layout settings showed "Loading menu bar items…"
+        /// forever). Once that happens, the same lookup runs in the app instead, on
+        /// its own queue so that its blocking Accessibility calls stay off the main
+        /// thread and the concurrency pool.
+        private let usesLocalCache = OSAllocatedUnfairLock(initialState: false)
+
+        /// The queue for lookups that run in the app.
+        private let localQueue = DispatchQueue(label: "MenuBarItemService.Connection.local", qos: .userInitiated)
 
         /// Creates a new connection.
         private init() {
@@ -43,7 +57,8 @@ extension MenuBarItemService {
 
             await withCheckedContinuation { continuation in
                 guard let response = session.send(request: .start) else {
-                    logger.error("Start request returned nil")
+                    logger.error("Start request returned nil, looking up source processes in the app instead")
+                    switchToLocalCache()
                     continuation.resume()
                     return
                 }
@@ -58,17 +73,43 @@ extension MenuBarItemService {
 
         /// Returns the source process identifier for the given window.
         func sourcePID(for window: WindowInfo) async -> pid_t? {
+            if usesLocalCache.withLock({ $0 }) {
+                return await localSourcePID(for: window)
+            }
+            let response: MenuBarItemService.Response? = await withCheckedContinuation { continuation in
+                continuation.resume(returning: session.send(request: .sourcePID(window)))
+            }
+            guard let response else {
+                logger.error("Source PID request returned nil, looking up source processes in the app instead")
+                switchToLocalCache()
+                return await localSourcePID(for: window)
+            }
+            if case .sourcePID(let pid) = response {
+                return pid
+            }
+            logger.error("Source PID request returned invalid response \(String(describing: response))")
+            return nil
+        }
+
+        /// Stops using the service and looks up source processes in the app.
+        private func switchToLocalCache() {
+            let isFirstSwitch = usesLocalCache.withLock { usesLocalCache in
+                defer { usesLocalCache = true }
+                return !usesLocalCache
+            }
+            guard isFirstSwitch else {
+                return
+            }
+            localQueue.async {
+                SourcePIDCache.shared.start()
+            }
+        }
+
+        /// Looks up the source process of the given window in the app.
+        private func localSourcePID(for window: WindowInfo) async -> pid_t? {
             await withCheckedContinuation { continuation in
-                guard let response = session.send(request: .sourcePID(window)) else {
-                    logger.error("Source PID request returned nil")
-                    continuation.resume(returning: nil)
-                    return
-                }
-                if case .sourcePID(let pid) = response {
-                    continuation.resume(returning: pid)
-                } else {
-                    logger.error("Source PID request returned invalid response \(String(describing: response))")
-                    continuation.resume(returning: nil)
+                localQueue.async {
+                    continuation.resume(returning: SourcePIDCache.shared.pid(for: window))
                 }
             }
         }

@@ -368,7 +368,10 @@ private extension MenuBarItemTag.Namespace {
         // Most apps have a bundle ID, but we should be able to handle apps
         // that don't. We should also be able to handle daemons and helpers,
         // which are more likely not to have a bundle ID.
-        if let sourcePID, let app = NSRunningApplication(processIdentifier: sourcePID) {
+        if OwnStatusItemWindows.contains(itemWindow.windowID) {
+            // holzIce's own items are recognised without the item service.
+            self = .ice
+        } else if let sourcePID, let app = NSRunningApplication(processIdentifier: sourcePID) {
             self = .optional(app.bundleIdentifier ?? app.localizedName)
         } else if let uuid = Self.uuidCache[itemWindow.windowID] {
             self = .uuid(uuid)

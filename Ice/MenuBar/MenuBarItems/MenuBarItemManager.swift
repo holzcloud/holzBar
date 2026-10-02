@@ -399,7 +399,13 @@ extension MenuBarItemManager {
 
             guard let controlItems = ControlItemPair(items: &items) else {
                 // ???: Is clearing the cache the best thing to do here?
-                logger.warning("Missing control item for hidden section, clearing menu bar item cache")
+                logger.error(
+                    """
+                    Missing control item for hidden section, clearing menu bar item cache \
+                    (\(items.count, privacy: .public) items: \
+                    \(items.prefix(12).map(\.tag.description).joined(separator: ", "), privacy: .public))
+                    """
+                )
                 itemCache = ItemCache(displayID: nil)
                 return
             }
