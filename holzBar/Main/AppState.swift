@@ -58,6 +58,15 @@ final class AppState: ObservableObject {
     /// Rules that show hidden items when something happens.
     let revealRules = RevealRules()
 
+    /// The action that opens holzBar's windows, handed over by its scenes.
+    private var openWindowAction: OpenWindowAction?
+
+    /// The action that dismisses holzBar's windows, handed over by its scenes.
+    private var dismissWindowAction: DismissWindowAction?
+
+    /// Window requests made before the scenes handed over their actions, in order.
+    private var pendingWindowRequests: [(id: HolzBarWindowIdentifier, opens: Bool)] = []
+
     /// Storage for ``concealer27``, typed loosely so the property exists on every macOS.
     private var concealer27Storage: AnyObject?
 
@@ -266,12 +275,35 @@ final class AppState: ObservableObject {
         }
     }
 
+    /// Stores the window actions of holzBar's scenes.
+    ///
+    /// Every scene hands over its environment's actions when it first appears. The first
+    /// call also performs, in order, the window requests made before any scene existed;
+    /// later calls only refresh the actions.
+    func setWindowActions(open: OpenWindowAction, dismiss: DismissWindowAction) {
+        openWindowAction = open
+        dismissWindowAction = dismiss
+        let requests = pendingWindowRequests
+        pendingWindowRequests.removeAll()
+        for request in requests {
+            if request.opens {
+                openWindow(request.id)
+            } else {
+                dismissWindow(request.id)
+            }
+        }
+    }
+
     /// Opens the window with the given identifier.
     func openWindow(_ id: HolzBarWindowIdentifier) {
         // Async prevents conflicts with SwiftUI.
         DispatchQueue.main.async {
+            guard let action = self.openWindowAction else {
+                self.pendingWindowRequests.append((id: id, opens: true))
+                return
+            }
             self.logger.debug("Opening window with id: \(id, privacy: .public)")
-            EnvironmentValues().openWindow(id: id)
+            action(id: id)
         }
     }
 
@@ -279,8 +311,12 @@ final class AppState: ObservableObject {
     func dismissWindow(_ id: HolzBarWindowIdentifier) {
         // Async prevents conflicts with SwiftUI.
         DispatchQueue.main.async {
+            guard let action = self.dismissWindowAction else {
+                self.pendingWindowRequests.append((id: id, opens: false))
+                return
+            }
             self.logger.debug("Dismissing window with id: \(id, privacy: .public)")
-            EnvironmentValues().dismissWindow(id: id)
+            action(id: id)
         }
     }
 

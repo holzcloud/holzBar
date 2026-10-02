@@ -15,6 +15,9 @@ struct HolzBarWindow<Content: View>: Scene {
     /// The window's identifier.
     let id: HolzBarWindowIdentifier
 
+    /// The app state, which opens and dismisses windows through this scene's actions.
+    let appState: AppState
+
     /// The window's content view.
     let content: Content
 
@@ -22,14 +25,20 @@ struct HolzBarWindow<Content: View>: Scene {
     ///
     /// - Parameters:
     ///   - id: A custom identifier constant.
+    ///   - appState: The app state that receives the scene's window actions.
     ///   - content: The content view to display in the window.
-    init(id: HolzBarWindowIdentifier, @ViewBuilder content: () -> Content) {
+    init(id: HolzBarWindowIdentifier, appState: AppState, @ViewBuilder content: () -> Content) {
         self.id = id
+        self.appState = appState
         self.content = content()
     }
 
     var body: some Scene {
         windowScene.once {
+            // Hand the real window actions to the app state, which opens and
+            // dismisses holzBar's windows through them.
+            appState.setWindowActions(open: openWindow, dismiss: dismissWindow)
+
             // SwiftUI waits to create the underlying NSWindow until the scene
             // is first presented. We may need a valid window reference before
             // that point, so we open the window and immediately dismiss it.

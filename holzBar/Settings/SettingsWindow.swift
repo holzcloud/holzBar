@@ -13,7 +13,7 @@ struct SettingsWindow: Scene {
     @StateObject private var model = SettingsWindowModel()
 
     var body: some Scene {
-        HolzBarWindow(id: .settings) {
+        HolzBarWindow(id: .settings, appState: appState) {
             SettingsView(navigationState: appState.navigationState)
                 .onWindowChange { window in
                     model.observeWindowToolbar(window)
