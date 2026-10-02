@@ -14,38 +14,38 @@ import SwiftUI
 final class GeneralSettings: ObservableObject {
     /// A Boolean value that indicates whether the Ice icon
     /// should be shown.
-    @Published var showIceIcon = true
+    @Published var showHolzBarIcon = true
 
     /// An icon to show in the menu bar, with a different image
     /// for when items are visible or hidden.
-    @Published var iceIcon: ControlItemImageSet = .defaultIceIcon
+    @Published var holzBarIcon: ControlItemImageSet = .defaultHolzBarIcon
 
     /// The last user-selected custom Ice icon.
-    @Published var lastCustomIceIcon: ControlItemImageSet?
+    @Published var lastCustomHolzBarIcon: ControlItemImageSet?
 
     /// A Boolean value that indicates whether custom Ice icons
     /// should be rendered as template images.
-    @Published var customIceIconIsTemplate = false
+    @Published var customHolzBarIconIsTemplate = false
 
     /// A Boolean value that indicates whether to show hidden items
     /// in a separate bar below the menu bar.
-    @Published var useIceBar = false
+    @Published var useShelf = false
 
     /// The location where the Ice Bar appears.
-    @Published var iceBarLocation: IceBarLocation = .dynamic
+    @Published var shelfLocation: HolzBarShelfLocation = .dynamic
 
     /// The displays the Ice Bar is used on.
-    @Published var iceBarDisplays: IceBarDisplays = .all
+    @Published var shelfDisplays: HolzBarShelfDisplays = .all
 
     /// A Boolean value that indicates whether the Ice Bar also shows the
     /// visible items that the notch covers.
-    @Published var showsNotchOverflowInIceBar = true
+    @Published var showsNotchOverflowInShelf = true
 
     /// A Boolean value that indicates whether the Ice Bar is used right now:
     /// it is turned on, and the display under the mouse pointer is one it is
     /// used on.
-    var usesIceBar: Bool {
-        useIceBar && iceBarDisplays.includes(NSScreen.screenWithMouse ?? NSScreen.main)
+    var usesShelf: Bool {
+        useShelf && shelfDisplays.includes(NSScreen.screenWithMouse ?? NSScreen.main)
     }
 
     /// A Boolean value that indicates whether the hidden section
@@ -98,9 +98,9 @@ final class GeneralSettings: ObservableObject {
 
     /// Loads the model's initial state.
     private func loadInitialState() {
-        Defaults.ifPresent(key: .showIceIcon, assign: &showIceIcon)
-        Defaults.ifPresent(key: .customIceIconIsTemplate, assign: &customIceIconIsTemplate)
-        Defaults.ifPresent(key: .useIceBar, assign: &useIceBar)
+        Defaults.ifPresent(key: .showHolzBarIcon, assign: &showHolzBarIcon)
+        Defaults.ifPresent(key: .customHolzBarIconIsTemplate, assign: &customHolzBarIconIsTemplate)
+        Defaults.ifPresent(key: .useShelf, assign: &useShelf)
         Defaults.ifPresent(key: .showOnClick, assign: &showOnClick)
         Defaults.ifPresent(key: .showOnHover, assign: &showOnHover)
         Defaults.ifPresent(key: .showOnScroll, assign: &showOnScroll)
@@ -108,15 +108,15 @@ final class GeneralSettings: ObservableObject {
         Defaults.ifPresent(key: .autoRehide, assign: &autoRehide)
         Defaults.ifPresent(key: .rehideInterval, assign: &rehideInterval)
 
-        Defaults.ifPresent(key: .iceBarLocation) { rawValue in
-            if let location = IceBarLocation(rawValue: rawValue) {
-                iceBarLocation = location
+        Defaults.ifPresent(key: .shelfLocation) { rawValue in
+            if let location = HolzBarShelfLocation(rawValue: rawValue) {
+                shelfLocation = location
             }
         }
-        Defaults.ifPresent(key: .showsNotchOverflowInIceBar, assign: &showsNotchOverflowInIceBar)
-        Defaults.ifPresent(key: .iceBarDisplays) { rawValue in
-            if let displays = IceBarDisplays(rawValue: rawValue) {
-                iceBarDisplays = displays
+        Defaults.ifPresent(key: .showsNotchOverflowInShelf, assign: &showsNotchOverflowInShelf)
+        Defaults.ifPresent(key: .shelfDisplays) { rawValue in
+            if let displays = HolzBarShelfDisplays(rawValue: rawValue) {
+                shelfDisplays = displays
             }
         }
         Defaults.ifPresent(key: .rehideStrategy) { rawValue in
@@ -125,14 +125,14 @@ final class GeneralSettings: ObservableObject {
             }
         }
 
-        if let data = Defaults.data(forKey: .iceIcon) {
+        if let data = Defaults.data(forKey: .holzBarIcon) {
             do {
-                iceIcon = try decoder.decode(ControlItemImageSet.self, from: data)
+                holzBarIcon = try decoder.decode(ControlItemImageSet.self, from: data)
             } catch {
                 Logger.serialization.error("Error decoding holzIce icon: \(error, privacy: .public)")
             }
-            if case .custom = iceIcon.name {
-                lastCustomIceIcon = iceIcon
+            if case .custom = holzBarIcon.name {
+                lastCustomHolzBarIcon = holzBarIcon
             }
         }
     }
@@ -141,63 +141,63 @@ final class GeneralSettings: ObservableObject {
     private func configureCancellables() {
         var c = Set<AnyCancellable>()
 
-        $showIceIcon
+        $showHolzBarIcon
             .receive(on: DispatchQueue.main)
-            .sink { showIceIcon in
-                Defaults.set(showIceIcon, forKey: .showIceIcon)
+            .sink { showHolzBarIcon in
+                Defaults.set(showHolzBarIcon, forKey: .showHolzBarIcon)
             }
             .store(in: &c)
 
-        $iceIcon
+        $holzBarIcon
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] iceIcon in
+            .sink { [weak self] holzBarIcon in
                 guard let self else {
                     return
                 }
-                if case .custom = iceIcon.name {
-                    lastCustomIceIcon = iceIcon
+                if case .custom = holzBarIcon.name {
+                    lastCustomHolzBarIcon = holzBarIcon
                 }
                 do {
-                    let data = try encoder.encode(iceIcon)
-                    Defaults.set(data, forKey: .iceIcon)
+                    let data = try encoder.encode(holzBarIcon)
+                    Defaults.set(data, forKey: .holzBarIcon)
                 } catch {
                     Logger.serialization.error("Error encoding holzIce icon: \(error, privacy: .public)")
                 }
             }
             .store(in: &c)
 
-        $customIceIconIsTemplate
+        $customHolzBarIconIsTemplate
             .receive(on: DispatchQueue.main)
             .sink { isTemplate in
-                Defaults.set(isTemplate, forKey: .customIceIconIsTemplate)
+                Defaults.set(isTemplate, forKey: .customHolzBarIconIsTemplate)
             }
             .store(in: &c)
 
-        $useIceBar
+        $useShelf
             .receive(on: DispatchQueue.main)
-            .sink { useIceBar in
-                Defaults.set(useIceBar, forKey: .useIceBar)
+            .sink { useShelf in
+                Defaults.set(useShelf, forKey: .useShelf)
             }
             .store(in: &c)
 
-        $iceBarLocation
+        $shelfLocation
             .receive(on: DispatchQueue.main)
             .sink { location in
-                Defaults.set(location.rawValue, forKey: .iceBarLocation)
+                Defaults.set(location.rawValue, forKey: .shelfLocation)
             }
             .store(in: &c)
 
-        $showsNotchOverflowInIceBar
+        $showsNotchOverflowInShelf
             .receive(on: DispatchQueue.main)
             .sink { shows in
-                Defaults.set(shows, forKey: .showsNotchOverflowInIceBar)
+                Defaults.set(shows, forKey: .showsNotchOverflowInShelf)
             }
             .store(in: &c)
 
-        $iceBarDisplays
+        $shelfDisplays
             .receive(on: DispatchQueue.main)
             .sink { displays in
-                Defaults.set(displays.rawValue, forKey: .iceBarDisplays)
+                Defaults.set(displays.rawValue, forKey: .shelfDisplays)
             }
             .store(in: &c)
 

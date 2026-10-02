@@ -14,7 +14,10 @@ enum HotkeyAction: String, Codable, CaseIterable {
     case searchMenuBarItems = "SearchMenuBarItems"
 
     // Other
-    case enableIceBar = "EnableIceBar"
+
+    /// The stored string keeps the name that earlier versions of the app
+    /// stored this hotkey under, so imported settings keep working.
+    case enableShelf = "EnableIceBar"
     case toggleApplicationMenus = "ToggleApplicationMenus"
     case toggleAutoRehide = "ToggleAutoRehide"
 
@@ -56,8 +59,8 @@ enum HotkeyAction: String, Codable, CaseIterable {
             }
         case .searchMenuBarItems:
             appState.menuBarManager.searchPanel.toggle()
-        case .enableIceBar:
-            appState.settings.general.useIceBar.toggle()
+        case .enableShelf:
+            appState.settings.general.useShelf.toggle()
         case .toggleApplicationMenus:
             appState.menuBarManager.toggleApplicationMenus()
         case .toggleAutoRehide:

@@ -41,7 +41,7 @@ final class MenuBarManager: ObservableObject {
     private var isHidingApplicationMenus = false
 
     /// The panel that contains the Ice Bar interface.
-    let iceBarPanel = IceBarPanel()
+    let shelfPanel = HolzBarShelfPanel()
 
     /// The panel that contains the menu bar search interface.
     let searchPanel = MenuBarSearchPanel()
@@ -67,7 +67,7 @@ final class MenuBarManager: ObservableObject {
     func performSetup(with appState: AppState) {
         self.appState = appState
         configureCancellables()
-        iceBarPanel.performSetup(with: appState)
+        shelfPanel.performSetup(with: appState)
         searchPanel.performSetup(with: appState)
         appearanceEditorPanel.performSetup(with: appState)
         for section in sections {
@@ -169,7 +169,7 @@ final class MenuBarManager: ObservableObject {
                 //   * The settings window is visible.
                 guard
                     appState.settings.advanced.hideApplicationMenus,
-                    !appState.settings.general.usesIceBar,
+                    !appState.settings.general.usesShelf,
                     !isMenuBarHiddenBySystem,
                     !appState.activeSpace.isFullscreen,
                     !appState.navigationState.isSettingsPresented
@@ -246,7 +246,7 @@ final class MenuBarManager: ObservableObject {
         }
 
         if #available(macOS 27.0, *) {
-            let info = MenuBarAverageColorInfo(color: IceBarColorManager.flatColor27(), source: .menuBarWindow)
+            let info = MenuBarAverageColorInfo(color: HolzBarShelfColorManager.flatColor27(), source: .menuBarWindow)
             if averageColorInfo != info {
                 averageColorInfo = info
             }

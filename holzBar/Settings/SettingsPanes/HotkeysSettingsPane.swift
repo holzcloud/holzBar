@@ -20,7 +20,7 @@ struct HotkeysSettingsPane: View {
                 hotkeyRecorder(forAction: .searchMenuBarItems)
             }
             HolzBarSection("Other") {
-                hotkeyRecorder(forAction: .enableIceBar)
+                hotkeyRecorder(forAction: .enableShelf)
                 hotkeyRecorder(forAction: .toggleApplicationMenus)
                 hotkeyRecorder(forAction: .toggleAutoRehide)
             }
@@ -38,7 +38,7 @@ struct HotkeysSettingsPane: View {
                     Text("Toggle the always-hidden section")
                 case .searchMenuBarItems:
                     Text("Search menu bar items")
-                case .enableIceBar:
+                case .enableShelf:
                     Text("Enable the holzIce Bar")
                 case .toggleApplicationMenus:
                     Text("Toggle application menus")

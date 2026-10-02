@@ -1,5 +1,5 @@
 //
-//  IceBar.swift
+//  HolzBarShelf.swift
 //  holzBar
 //
 
@@ -7,14 +7,14 @@ import Combine
 import OSLog
 import SwiftUI
 
-// MARK: - IceBarPanel
+// MARK: - HolzBarShelfPanel
 
-final class IceBarPanel: NSPanel {
+final class HolzBarShelfPanel: NSPanel {
     /// The shared app state.
     private weak var appState: AppState?
 
     /// Manager for the Ice Bar's color.
-    private let colorManager = IceBarColorManager()
+    private let colorManager = HolzBarShelfColorManager()
 
     /// The currently displayed section.
     private(set) var currentSection: MenuBarSection.Name?
@@ -108,7 +108,7 @@ final class IceBarPanel: NSPanel {
             return
         }
 
-        func getOrigin(for iceBarLocation: IceBarLocation) -> CGPoint {
+        func getOrigin(for shelfLocation: HolzBarShelfLocation) -> CGPoint {
             let menuBarHeight = screen.getMenuBarHeight() ?? 0
             let originY = ((screen.frame.maxY - 1) - menuBarHeight) - frame.height
 
@@ -116,15 +116,15 @@ final class IceBarPanel: NSPanel {
                 CGPoint(x: screen.frame.maxX - frame.width, y: originY)
             }
 
-            switch iceBarLocation {
+            switch shelfLocation {
             case .dynamic:
                 if appState.hidEventManager.isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) {
                     return getOrigin(for: .mousePointer)
                 }
-                return getOrigin(for: .iceIcon)
+                return getOrigin(for: .holzBarIcon)
             case .mousePointer:
                 guard let location = MouseHelpers.locationAppKit else {
-                    return getOrigin(for: .iceIcon)
+                    return getOrigin(for: .holzBarIcon)
                 }
 
                 let lowerBound = screen.frame.minX
@@ -135,7 +135,7 @@ final class IceBarPanel: NSPanel {
                 }
 
                 return CGPoint(x: (location.x - frame.width / 2).clamped(to: lowerBound...upperBound), y: originY)
-            case .iceIcon:
+            case .holzBarIcon:
                 let lowerBound = screen.frame.minX
                 let upperBound = screen.frame.maxX - frame.width
 
@@ -153,7 +153,7 @@ final class IceBarPanel: NSPanel {
             }
         }
 
-        setFrameOrigin(getOrigin(for: appState.settings.general.iceBarLocation))
+        setFrameOrigin(getOrigin(for: appState.settings.general.shelfLocation))
     }
 
     /// Shows the panel on the given screen, displaying the given
@@ -166,10 +166,10 @@ final class IceBarPanel: NSPanel {
 
         // IMPORTANT: We must set the navigation state and current section
         // before updating the caches.
-        appState.navigationState.isIceBarPresented = true
+        appState.navigationState.isShelfPresented = true
         currentSection = section
 
-        if #available(macOS 27.0, *), !Defaults.bool(forKey: .macOS27IceBarWaitsForRefresh) {
+        if #available(macOS 27.0, *), !Defaults.bool(forKey: .macOS27ShelfWaitsForRefresh) {
             // Waiting for this refresh cannot help the bar that is about to open on macOS 27:
             // the hidden items are concealed, so they can be neither read nor photographed,
             // and the bar shows the images stored while they were drawn. The wait only held
@@ -189,11 +189,11 @@ final class IceBarPanel: NSPanel {
             do {
                 try await cacheTask.value
             } catch {
-                Logger.default.error("Cache update failed when showing IceBarPanel - \(error)")
+                Logger.default.error("Cache update failed when showing HolzBarShelfPanel - \(error)")
             }
         }
 
-        contentView = IceBarHostingView(
+        contentView = HolzBarShelfHostingView(
             appState: appState,
             colorManager: colorManager,
             screen: screen,
@@ -236,22 +236,22 @@ final class IceBarPanel: NSPanel {
         super.close()
         contentView = nil
         currentSection = nil
-        appState?.navigationState.isIceBarPresented = false
+        appState?.navigationState.isShelfPresented = false
     }
 }
 
-// MARK: - IceBarHostingView
+// MARK: - HolzBarShelfHostingView
 
-private final class IceBarHostingView: NSHostingView<IceBarContentView> {
+private final class HolzBarShelfHostingView: NSHostingView<HolzBarShelfContentView> {
     override var safeAreaInsets: NSEdgeInsets { NSEdgeInsets() }
 
     init(
         appState: AppState,
-        colorManager: IceBarColorManager,
+        colorManager: HolzBarShelfColorManager,
         screen: NSScreen,
         section: MenuBarSection.Name
     ) {
-        let rootView = IceBarContentView(
+        let rootView = HolzBarShelfContentView(
             appState: appState,
             colorManager: colorManager,
             itemManager: appState.itemManager,
@@ -269,7 +269,7 @@ private final class IceBarHostingView: NSHostingView<IceBarContentView> {
     }
 
     @available(*, unavailable)
-    required init(rootView: IceBarContentView) {
+    required init(rootView: HolzBarShelfContentView) {
         fatalError("init(rootView:) has not been implemented")
     }
 
@@ -278,11 +278,11 @@ private final class IceBarHostingView: NSHostingView<IceBarContentView> {
     }
 }
 
-// MARK: - IceBarContentView
+// MARK: - HolzBarShelfContentView
 
-private struct IceBarContentView: View {
+private struct HolzBarShelfContentView: View {
     @ObservedObject var appState: AppState
-    @ObservedObject var colorManager: IceBarColorManager
+    @ObservedObject var colorManager: HolzBarShelfColorManager
     @ObservedObject var itemManager: MenuBarItemManager
     @ObservedObject var imageCache: MenuBarItemImageCache
     @ObservedObject var menuBarManager: MenuBarManager
@@ -296,7 +296,7 @@ private struct IceBarContentView: View {
         let sectionItems = itemManager.itemCache.managedItems(for: section)
         guard
             section == .hidden,
-            appState.settings.general.showsNotchOverflowInIceBar,
+            appState.settings.general.showsNotchOverflowInShelf,
             let notch = screen.frameOfNotch
         else {
             return sectionItems
@@ -413,7 +413,7 @@ private struct IceBarContentView: View {
             ScrollView(.horizontal) {
                 HStack(spacing: 0) {
                     ForEach(items, id: \.windowID) { item in
-                        IceBarItemView(
+                        HolzBarShelfItemView(
                             imageCache: imageCache,
                             itemManager: itemManager,
                             menuBarManager: menuBarManager,
@@ -433,9 +433,9 @@ private struct IceBarContentView: View {
     }
 }
 
-// MARK: - IceBarItemView
+// MARK: - HolzBarShelfItemView
 
-private struct IceBarItemView: View {
+private struct HolzBarShelfItemView: View {
     @ObservedObject var imageCache: MenuBarItemImageCache
     @ObservedObject var itemManager: MenuBarItemManager
     @ObservedObject var menuBarManager: MenuBarManager
@@ -448,12 +448,12 @@ private struct IceBarItemView: View {
             guard let itemManager, let menuBarManager else {
                 return
             }
-            let iceBarDisplayID = menuBarManager.iceBarPanel.screen?.displayID
+            let shelfDisplayID = menuBarManager.shelfPanel.screen?.displayID
             menuBarManager.section(withName: section)?.hide()
             Task {
                 try await Task.sleep(for: .milliseconds(25))
                 if #available(macOS 27.0, *), let appState = itemManager.appState {
-                    await ItemClicker27.click(item: item, mouseButton: .left, iceBarDisplayID: iceBarDisplayID, appState: appState)
+                    await ItemClicker27.click(item: item, mouseButton: .left, shelfDisplayID: shelfDisplayID, appState: appState)
                     return
                 }
                 if Bridging.isWindowOnScreen(item.windowID) {
@@ -470,12 +470,12 @@ private struct IceBarItemView: View {
             guard let itemManager, let menuBarManager else {
                 return
             }
-            let iceBarDisplayID = menuBarManager.iceBarPanel.screen?.displayID
+            let shelfDisplayID = menuBarManager.shelfPanel.screen?.displayID
             menuBarManager.section(withName: section)?.hide()
             Task {
                 try await Task.sleep(for: .milliseconds(25))
                 if #available(macOS 27.0, *), let appState = itemManager.appState {
-                    await ItemClicker27.click(item: item, mouseButton: .right, iceBarDisplayID: iceBarDisplayID, appState: appState)
+                    await ItemClicker27.click(item: item, mouseButton: .right, shelfDisplayID: shelfDisplayID, appState: appState)
                     return
                 }
                 if Bridging.isWindowOnScreen(item.windowID) {
@@ -499,7 +499,7 @@ private struct IceBarItemView: View {
             Image(nsImage: image)
                 .contentShape(Rectangle())
                 .overlay {
-                    IceBarItemClickView(
+                    HolzBarShelfItemClickView(
                         item: item,
                         leftClickAction: leftClickAction,
                         rightClickAction: rightClickAction
@@ -512,9 +512,9 @@ private struct IceBarItemView: View {
     }
 }
 
-// MARK: - IceBarItemClickView
+// MARK: - HolzBarShelfItemClickView
 
-private struct IceBarItemClickView: NSViewRepresentable {
+private struct HolzBarShelfItemClickView: NSViewRepresentable {
     private final class Represented: NSView {
         let item: MenuBarItem
 

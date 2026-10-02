@@ -63,7 +63,7 @@ enum URLCommands {
             appState.activate(withPolicy: .regular)
             appState.openWindow(.settings)
         case "ice-bar":
-            appState.settings.general.useIceBar.toggle()
+            appState.settings.general.useShelf.toggle()
         case "auto-rehide":
             appState.settings.general.autoRehide.toggle()
         case "application-menus":

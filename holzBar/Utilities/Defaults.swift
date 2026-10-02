@@ -138,13 +138,16 @@ enum Defaults {
 extension Defaults {
     enum Key: String {
         // MARK: General Settings
-        case showIceIcon = "ShowIceIcon"
-        case iceIcon = "IceIcon"
-        case customIceIconIsTemplate = "CustomIceIconIsTemplate"
-        case useIceBar = "UseIceBar"
-        case iceBarLocation = "IceBarLocation"
-        case iceBarDisplays = "IceBarDisplays"
-        case showsNotchOverflowInIceBar = "ShowsNotchOverflowInIceBar"
+
+        /// The stored strings keep the names that earlier versions of the app
+        /// stored these settings under, so imported settings keep working.
+        case showHolzBarIcon = "ShowIceIcon"
+        case holzBarIcon = "IceIcon"
+        case customHolzBarIconIsTemplate = "CustomIceIconIsTemplate"
+        case useShelf = "UseIceBar"
+        case shelfLocation = "IceBarLocation"
+        case shelfDisplays = "IceBarDisplays"
+        case showsNotchOverflowInShelf = "ShowsNotchOverflowInIceBar"
         case showOnClick = "ShowOnClick"
         case showOnHover = "ShowOnHover"
         case showOnScroll = "ShowOnScroll"
@@ -183,7 +186,7 @@ extension Defaults {
         case macOS27Layout = "MacOS27Layout"
         case macOS27LayoutSeeded = "MacOS27LayoutSeeded"
         case macOS27ClickRestoreDelay = "MacOS27ClickRestoreDelay"
-        case macOS27IceBarWaitsForRefresh = "MacOS27IceBarWaitsForRefresh"
+        case macOS27ShelfWaitsForRefresh = "MacOS27IceBarWaitsForRefresh"
 
         // MARK: Migration
         case hasMigrated0_8_0 = "hasMigrated0_8_0"

@@ -1,30 +1,30 @@
 //
-//  IceBarColorManager.swift
+//  HolzBarShelfColorManager.swift
 //  holzBar
 //
 
 import Combine
 import SwiftUI
 
-final class IceBarColorManager: ObservableObject {
+final class HolzBarShelfColorManager: ObservableObject {
     @Published private(set) var colorInfo: MenuBarAverageColorInfo?
 
-    private weak var iceBarPanel: IceBarPanel?
+    private weak var shelfPanel: HolzBarShelfPanel?
 
     private var windowImage: CGImage?
 
     private var cancellables = Set<AnyCancellable>()
 
-    func performSetup(with iceBarPanel: IceBarPanel) {
-        self.iceBarPanel = iceBarPanel
+    func performSetup(with shelfPanel: HolzBarShelfPanel) {
+        self.shelfPanel = shelfPanel
         configureCancellables()
     }
 
     private func configureCancellables() {
         var c = Set<AnyCancellable>()
 
-        if let iceBarPanel {
-            iceBarPanel.publisher(for: \.screen)
+        if let shelfPanel {
+            shelfPanel.publisher(for: \.screen)
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] screen in
                     guard
@@ -38,30 +38,30 @@ final class IceBarColorManager: ObservableObject {
                 }
                 .store(in: &c)
 
-            iceBarPanel.publisher(for: \.isVisible)
+            shelfPanel.publisher(for: \.isVisible)
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self, weak iceBarPanel] isVisible in
+                .sink { [weak self, weak shelfPanel] isVisible in
                     guard
                         let self,
-                        let iceBarPanel,
-                        let screen = iceBarPanel.screen,
+                        let shelfPanel,
+                        let screen = shelfPanel.screen,
                         isVisible,
                         screen == .main
                     else {
                         return
                     }
-                    updateColorInfo(with: iceBarPanel.frame, screen: screen)
+                    updateColorInfo(with: shelfPanel.frame, screen: screen)
                 }
                 .store(in: &c)
 
-            iceBarPanel.publisher(for: \.frame)
+            shelfPanel.publisher(for: \.frame)
                 .throttle(for: 0.1, scheduler: DispatchQueue.main, latest: true)
-                .sink { [weak self, weak iceBarPanel] frame in
+                .sink { [weak self, weak shelfPanel] frame in
                     guard
                         let self,
-                        let iceBarPanel,
-                        let screen = iceBarPanel.screen,
-                        iceBarPanel.isVisible,
+                        let shelfPanel,
+                        let screen = shelfPanel.screen,
+                        shelfPanel.isVisible,
                         screen == .main
                     else {
                         return
@@ -87,19 +87,19 @@ final class IceBarColorManager: ObservableObject {
                     .replace(with: ())
             )
             .receive(on: DispatchQueue.main)
-            .sink { [weak self, weak iceBarPanel] in
+            .sink { [weak self, weak shelfPanel] in
                 guard
                     let self,
-                    let iceBarPanel,
-                    let screen = iceBarPanel.screen,
+                    let shelfPanel,
+                    let screen = shelfPanel.screen,
                     screen == .main
                 else {
                     return
                 }
                 updateWindowImage(for: screen)
-                if iceBarPanel.isVisible {
+                if shelfPanel.isVisible {
                     withAnimation {
-                        self.updateColorInfo(with: iceBarPanel.frame, screen: screen)
+                        self.updateColorInfo(with: shelfPanel.frame, screen: screen)
                     }
                 }
             }

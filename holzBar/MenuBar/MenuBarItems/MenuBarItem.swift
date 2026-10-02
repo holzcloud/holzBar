@@ -370,7 +370,7 @@ private extension MenuBarItemTag.Namespace {
         // which are more likely not to have a bundle ID.
         if OwnStatusItemWindows.contains(itemWindow.windowID) {
             // holzIce's own items are recognised without the item service.
-            self = .ice
+            self = .holzBar
         } else if let sourcePID, let app = NSRunningApplication(processIdentifier: sourcePID) {
             self = .optional(app.bundleIdentifier ?? app.localizedName)
         } else if let uuid = Self.uuidCache[itemWindow.windowID] {

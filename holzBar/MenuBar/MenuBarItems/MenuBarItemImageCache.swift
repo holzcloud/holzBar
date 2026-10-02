@@ -362,10 +362,10 @@ final class MenuBarItemImageCache: ObservableObject {
             return
         }
 
-        let isIceBarPresented = await appState.navigationState.isIceBarPresented
+        let isShelfPresented = await appState.navigationState.isShelfPresented
         let isSearchPresented = await appState.navigationState.isSearchPresented
 
-        if !isIceBarPresented && !isSearchPresented {
+        if !isShelfPresented && !isSearchPresented {
             guard
                 await appState.navigationState.isAppFrontmost,
                 await appState.navigationState.isSettingsPresented,
@@ -389,7 +389,7 @@ final class MenuBarItemImageCache: ObservableObject {
             return
         }
 
-        let isIceBarPresented = await appState.navigationState.isIceBarPresented
+        let isShelfPresented = await appState.navigationState.isShelfPresented
         let isSearchPresented = await appState.navigationState.isSearchPresented
         let isSettingsPresented = await appState.navigationState.isSettingsPresented
 
@@ -398,12 +398,12 @@ final class MenuBarItemImageCache: ObservableObject {
         if isSettingsPresented || isSearchPresented {
             sectionsNeedingDisplay = MenuBarSection.Name.allCases
         } else if
-            isIceBarPresented,
-            let section = await appState.menuBarManager.iceBarPanel.currentSection
+            isShelfPresented,
+            let section = await appState.menuBarManager.shelfPanel.currentSection
         {
             sectionsNeedingDisplay.append(section)
             // Items covered by the notch are shown along with the hidden section.
-            if section == .hidden, await appState.settings.general.showsNotchOverflowInIceBar {
+            if section == .hidden, await appState.settings.general.showsNotchOverflowInShelf {
                 sectionsNeedingDisplay.append(.visible)
             }
         }

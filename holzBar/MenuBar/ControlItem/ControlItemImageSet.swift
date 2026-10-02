@@ -39,14 +39,14 @@ struct ControlItemImageSet: Codable, Hashable, Identifiable {
 extension ControlItemImageSet {
     /// The default image set for the holzIce icon: the ice cube with its
     /// chevron, standing on the plank, from the app icon.
-    static let defaultIceIcon = ControlItemImageSet(
+    static let defaultHolzBarIcon = ControlItemImageSet(
         name: .logo,
         hidden: .catalog("LogoFill"),
         visible: .catalog("LogoStroke")
     )
 
     /// The image sets that the user can choose to display in the holzIce icon.
-    static let userSelectableIceIcons = [
+    static let userSelectableHolzBarIcons = [
         ControlItemImageSet(
             name: .arrow,
             hidden: .symbol("arrowshape.left.fill"),

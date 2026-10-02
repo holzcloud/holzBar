@@ -9,7 +9,7 @@ import SwiftUI
 struct GeneralSettingsPane: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject var settings: GeneralSettings
-    @State private var isImportingCustomIceIcon = false
+    @State private var isImportingCustomHolzBarIcon = false
     @State private var isPresentingError = false
     @State private var presentedError: LocalizedErrorWrapper?
     @State private var isApplyingItemSpacingOffset = false
@@ -39,10 +39,10 @@ struct GeneralSettingsPane: View {
                 appOptions
             }
             HolzBarSection {
-                iceIconOptions
+                holzBarIconOptions
             }
             HolzBarSection {
-                iceBarOptions
+                shelfOptions
             }
             HolzBarSection {
                 showOptions
@@ -66,40 +66,40 @@ struct GeneralSettingsPane: View {
     // MARK: Ice Icon Options
 
     @ViewBuilder
-    private var iceIconOptions: some View {
-        showIceIcon
-        if settings.showIceIcon {
-            iceIconPicker
+    private var holzBarIconOptions: some View {
+        showHolzBarIcon
+        if settings.showHolzBarIcon {
+            holzBarIconPicker
         }
     }
 
     @ViewBuilder
-    private var showIceIcon: some View {
-        Toggle("Show holzIce icon", isOn: $settings.showIceIcon)
+    private var showHolzBarIcon: some View {
+        Toggle("Show holzIce icon", isOn: $settings.showHolzBarIcon)
             .annotation("Click to show hidden menu bar items. Right-click to access holzIce's settings.")
     }
 
     @ViewBuilder
-    private var iceIconPicker: some View {
+    private var holzBarIconPicker: some View {
         let labelKey = LocalizedStringKey("holzIce icon")
 
         HolzBarMenu(labelKey) {
-            Picker(labelKey, selection: $settings.iceIcon) {
-                ForEach(ControlItemImageSet.userSelectableIceIcons) { imageSet in
+            Picker(labelKey, selection: $settings.holzBarIcon) {
+                ForEach(ControlItemImageSet.userSelectableHolzBarIcons) { imageSet in
                     Button {
-                        settings.iceIcon = imageSet
+                        settings.holzBarIcon = imageSet
                     } label: {
-                        iceIconMenuItem(for: imageSet)
+                        holzBarIconMenuItem(for: imageSet)
                     }
                     .tag(imageSet)
                 }
-                if let lastCustomIceIcon = settings.lastCustomIceIcon {
+                if let lastCustomHolzBarIcon = settings.lastCustomHolzBarIcon {
                     Button {
-                        settings.iceIcon = lastCustomIceIcon
+                        settings.holzBarIcon = lastCustomHolzBarIcon
                     } label: {
-                        iceIconMenuItem(for: lastCustomIceIcon)
+                        holzBarIconMenuItem(for: lastCustomHolzBarIcon)
                     }
-                    .tag(lastCustomIceIcon)
+                    .tag(lastCustomHolzBarIcon)
                 }
             }
             .pickerStyle(.inline)
@@ -108,14 +108,14 @@ struct GeneralSettingsPane: View {
             Divider()
 
             Button("Choose image…") {
-                isImportingCustomIceIcon = true
+                isImportingCustomHolzBarIcon = true
             }
         } title: {
-            iceIconMenuItem(for: settings.iceIcon)
+            holzBarIconMenuItem(for: settings.holzBarIcon)
         }
         .annotation("Choose a custom icon to show in the menu bar.")
         .fileImporter(
-            isPresented: $isImportingCustomIceIcon,
+            isPresented: $isImportingCustomHolzBarIcon,
             allowedContentTypes: [.image]
         ) { result in
             do {
@@ -123,7 +123,7 @@ struct GeneralSettingsPane: View {
                 if url.startAccessingSecurityScopedResource() {
                     defer { url.stopAccessingSecurityScopedResource() }
                     let data = try Data(contentsOf: url)
-                    settings.iceIcon = ControlItemImageSet(name: .custom, image: .data(data))
+                    settings.holzBarIcon = ControlItemImageSet(name: .custom, image: .data(data))
                 }
             } catch {
                 presentedError = LocalizedErrorWrapper(error)
@@ -137,8 +137,8 @@ struct GeneralSettingsPane: View {
             }
         }
 
-        if case .custom = settings.iceIcon.name {
-            Toggle("Custom icon uses dynamic appearance", isOn: $settings.customIceIconIsTemplate)
+        if case .custom = settings.holzBarIcon.name {
+            Toggle("Custom icon uses dynamic appearance", isOn: $settings.customHolzBarIconIsTemplate)
                 .annotation {
                     Text(
                         """
@@ -153,7 +153,7 @@ struct GeneralSettingsPane: View {
     }
 
     @ViewBuilder
-    private func iceIconMenuItem(for imageSet: ControlItemImageSet) -> some View {
+    private func holzBarIconMenuItem(for imageSet: ControlItemImageSet) -> some View {
         Label {
             Text(imageSet.name.rawValue)
         } icon: {
@@ -173,45 +173,45 @@ struct GeneralSettingsPane: View {
     // MARK: Ice Bar Options
 
     @ViewBuilder
-    private var iceBarOptions: some View {
-        useIceBar
-        if settings.useIceBar {
-            iceBarLocationPicker
-            iceBarDisplaysPicker
-            Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInIceBar)
+    private var shelfOptions: some View {
+        useShelf
+        if settings.useShelf {
+            shelfLocationPicker
+            shelfDisplaysPicker
+            Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInShelf)
                 .annotation("Visible items that the notch hides, for example behind a long application menu, also appear in the holzIce Bar.")
         }
     }
 
     @ViewBuilder
-    private var useIceBar: some View {
-        Toggle("Use holzIce Bar", isOn: $settings.useIceBar)
+    private var useShelf: some View {
+        Toggle("Use holzIce Bar", isOn: $settings.useShelf)
             .annotation("Show hidden menu bar items in a separate bar below the menu bar.")
     }
 
     @ViewBuilder
-    private var iceBarLocationPicker: some View {
-        HolzBarPicker("Location", selection: $settings.iceBarLocation) {
-            ForEach(IceBarLocation.allCases) { location in
+    private var shelfLocationPicker: some View {
+        HolzBarPicker("Location", selection: $settings.shelfLocation) {
+            ForEach(HolzBarShelfLocation.allCases) { location in
                 Text(location.localized).tag(location)
             }
         }
         .annotation {
-            switch settings.iceBarLocation {
+            switch settings.shelfLocation {
             case .dynamic:
                 Text("The holzIce Bar's location changes based on context.")
             case .mousePointer:
                 Text("The holzIce Bar is centered below the mouse pointer.")
-            case .iceIcon:
+            case .holzBarIcon:
                 Text("The holzIce Bar is centered below the holzIce icon.")
             }
         }
     }
 
     @ViewBuilder
-    private var iceBarDisplaysPicker: some View {
-        HolzBarPicker("Use on", selection: $settings.iceBarDisplays) {
-            ForEach(IceBarDisplays.allCases) { displays in
+    private var shelfDisplaysPicker: some View {
+        HolzBarPicker("Use on", selection: $settings.shelfDisplays) {
+            ForEach(HolzBarShelfDisplays.allCases) { displays in
                 Text(displays.localized).tag(displays)
             }
         }

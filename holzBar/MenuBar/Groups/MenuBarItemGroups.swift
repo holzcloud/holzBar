@@ -228,7 +228,7 @@ enum MenuBarItemActions {
     static func click(_ item: MenuBarItem, with mouseButton: CGMouseButton, itemManager: MenuBarItemManager) async {
         try? await Task.sleep(for: .milliseconds(25))
         if #available(macOS 27.0, *), let appState = itemManager.appState {
-            await ItemClicker27.click(item: item, mouseButton: mouseButton, iceBarDisplayID: nil, appState: appState)
+            await ItemClicker27.click(item: item, mouseButton: mouseButton, shelfDisplayID: nil, appState: appState)
             return
         }
         if Bridging.isWindowOnScreen(item.windowID) {

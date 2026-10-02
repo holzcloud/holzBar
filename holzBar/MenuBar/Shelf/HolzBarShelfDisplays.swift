@@ -1,5 +1,5 @@
 //
-//  IceBarDisplays.swift
+//  HolzBarShelfDisplays.swift
 //  holzBar
 //
 
@@ -10,7 +10,7 @@ import SwiftUI
 /// On the other displays, hidden items are shown in the menu bar itself
 /// (jordanbaird/Ice#223, jordanbaird/Ice#188, jordanbaird/Ice#703,
 /// jordanbaird/Ice#797, jordanbaird/Ice#303).
-enum IceBarDisplays: Int, CaseIterable, Identifiable {
+enum HolzBarShelfDisplays: Int, CaseIterable, Identifiable {
     /// The Ice Bar is used on every display.
     case all = 0
 

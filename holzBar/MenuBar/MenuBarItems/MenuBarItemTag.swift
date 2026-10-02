@@ -89,7 +89,7 @@ struct MenuBarItemTag: Hashable, CustomStringConvertible {
 
     /// Creates a tag for the control item with the given identifier.
     private init(controlItem identifier: ControlItem.Identifier) {
-        self.init(namespace: .ice, title: identifier.rawValue)
+        self.init(namespace: .holzBar, title: identifier.rawValue)
     }
 }
 
@@ -253,7 +253,7 @@ extension MenuBarItemTag {
 // MARK: MenuBarItemTag.Namespace Constants
 extension MenuBarItemTag.Namespace {
     /// The namespace for the "Ice" process.
-    static let ice = string(Constants.bundleIdentifier)
+    static let holzBar = string(Constants.bundleIdentifier)
 
     /// The namespace for the "Control Center" process.
     static let controlCenter = string("com.apple.controlcenter")
