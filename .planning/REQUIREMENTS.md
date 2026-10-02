@@ -84,6 +84,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [ ] **SEC-03**: Captured item images are stored in Caches (excluded from backups), not Application Support; old files are moved or deleted
 - [ ] **PERF-01**: Show on hover keeps one cancellable task instead of starting a task per mouse move
 - [ ] **PERF-02**: Permission polling stops once all permissions are granted
+- [ ] **PERF-04**: The menu bar search tolerates 1–2 typos (own code, no dependency) while in-order matches rank first
 - [ ] **PERF-03**: Reveal rules react to power and network notifications instead of polling every 60 s
 
 ### Compatibility
@@ -164,6 +165,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | SEC-03 | Phase 5 | Pending |
 | PERF-01 | Phase 5 | Pending |
 | PERF-02 | Phase 5 | Pending |
+| PERF-04 | Phase 5 | Pending |
 | PERF-03 | Phase 5 | Pending |
 | LEAN-01 | Phase 05.1 | Pending |
 | MOD-01 | Phase 05.1 | Pending |
