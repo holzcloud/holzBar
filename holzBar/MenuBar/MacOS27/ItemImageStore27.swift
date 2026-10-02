@@ -15,8 +15,9 @@ import ScreenCaptureKit
 /// includes the bar's background. That background is cut away, leaving the glyph on
 /// transparency, so the holzBar Shelf and the layout window draw every item on their own
 /// colour whatever is behind the menu bar. Items on an inactive bar are drawn dimmer, so
-/// only the active bar is captured. Images are kept on disk, so an item that is concealed
-/// still has one.
+/// only the active bar is captured. Images are kept in the caches
+/// (`~/Library/Caches/com.holzcloud.holzBar/ItemImages`, which Time Machine skips), so an
+/// item that is concealed still has one.
 @available(macOS 27.0, *)
 @MainActor
 final class ItemImageStore27 {
@@ -42,7 +43,11 @@ final class ItemImageStore27 {
     private static let glyphMargin: CGFloat = 11
 
     private let logger = Logger(category: "ItemImageStore27")
-    private let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+    private let directory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        .appending(path: "\(Constants.bundleIdentifier)/ItemImages", directoryHint: .isDirectory)
+
+    /// Where earlier versions kept the images: in Application Support, which is backed up.
+    private static let legacyDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         .appending(path: "holzBar/ItemImages", directoryHint: .isDirectory)
     private var index = [String: IndexEntry]()
     private var loaded = [String: CapturedImage]()
@@ -63,6 +68,13 @@ final class ItemImageStore27 {
     private var appearanceObserver: NSObjectProtocol?
 
     init() {
+        // A one-time move of the images earlier versions kept in Application Support.
+        do {
+            let outcome = try ItemImageFolder.moveLegacyFolder(from: Self.legacyDirectory, to: directory)
+            logger.debug("Item images from earlier versions: \(String(describing: outcome), privacy: .public)")
+        } catch {
+            logger.error("Error moving the item images to the caches: \(error, privacy: .private)")
+        }
         let versionFile = directory.appending(path: "version.txt")
         guard (try? String(contentsOf: versionFile, encoding: .utf8)) == Self.storeVersion else {
             try? FileManager.default.removeItem(at: directory)

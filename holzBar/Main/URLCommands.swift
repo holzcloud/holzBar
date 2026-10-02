@@ -31,12 +31,14 @@ enum URLCommands {
     /// Performs the command in the given URL.
     static func perform(_ url: URL, appState: AppState) {
         guard let command = URLCommand(url: url, scheme: scheme) else {
-            logger.warning("Ignoring URL \(url.absoluteString, privacy: .public)")
+            // The URL itself is not logged: its path can hold a profile name.
+            logger.warning("Ignoring a URL that is not a holzBar command")
             return
         }
         let arguments = command.arguments
         let manager = appState.menuBarManager
-        logger.notice("Performing \(url.absoluteString, privacy: .public)")
+        // Only the command is logged, never the URL or its arguments (profile names).
+        logger.notice("Performing \(command.name, privacy: .public)")
 
         func section() -> MenuBarSection? {
             switch arguments.first?.lowercased() {
