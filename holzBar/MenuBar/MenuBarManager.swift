@@ -290,7 +290,7 @@ final class MenuBarManager: ObservableObject {
         else {
             return false
         }
-        return AXHelpers.role(for: element) == .menuBar
+        return AXHelpers.role(for: element) == kAXMenuBarRole
     }
 
     /// Shows the secondary context menu.
