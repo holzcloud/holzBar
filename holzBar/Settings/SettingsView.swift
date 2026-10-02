@@ -49,6 +49,11 @@ struct SettingsView: View {
         }
     }
 
+    /// The size of the sidebar title and of the logo next to it.
+    private var titleSize: CGFloat {
+        sidebarFontSize * 2.67
+    }
+
     private var sidebarTextStyle: some ShapeStyle {
         appearsActive ? .primary : .secondary
     }
@@ -74,11 +79,18 @@ struct SettingsView: View {
                     sidebarItem(for: identifier)
                 }
             } header: {
-                Text("holzBar")
-                    .font(.system(size: sidebarFontSize * 2.67, weight: .medium))
-                    .foregroundStyle(sidebarTextStyle)
-                    .padding(.leading, sidebarPadding)
-                    .padding(.bottom, sidebarFontSize)
+                HStack(spacing: sidebarFontSize * 0.6) {
+                    Image(.appLogo)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: titleSize, height: titleSize)
+                        .accessibilityHidden(true)
+                    Text("holzBar")
+                        .font(.system(size: titleSize, weight: .medium))
+                        .foregroundStyle(sidebarTextStyle)
+                }
+                .padding(.leading, sidebarPadding)
+                .padding(.bottom, sidebarFontSize)
             }
             .collapsible(false)
         }
