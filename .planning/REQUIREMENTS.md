@@ -79,9 +79,9 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Security and performance
 
-- [ ] **SEC-01**: Settings import and sync only apply known keys with the expected types
-- [ ] **SEC-02**: URL commands log only the command, not the full URL as public
-- [ ] **SEC-03**: Captured item images are stored in Caches (excluded from backups), not Application Support; old files are moved or deleted
+- [x] **SEC-01**: Settings import and sync only apply known keys with the expected types
+- [x] **SEC-02**: URL commands log only the command, not the full URL as public
+- [x] **SEC-03**: Captured item images are stored in Caches (excluded from backups), not Application Support; old files are moved or deleted
 - [ ] **PERF-01**: Show on hover keeps one cancellable task instead of starting a task per mouse move
 - [ ] **PERF-02**: Permission polling stops once all permissions are granted
 - [ ] **PERF-04**: The menu bar search tolerates 1–2 typos (own code, no dependency) while in-order matches rank first
@@ -160,9 +160,9 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | API-07 | Phase 4 | Complete |
 | DEP-01 | Phase 4 | Complete |
 | API-08 | Phase 4 | Complete |
-| SEC-01 | Phase 5 | Pending |
-| SEC-02 | Phase 5 | Pending |
-| SEC-03 | Phase 5 | Pending |
+| SEC-01 | Phase 5 | Complete |
+| SEC-02 | Phase 5 | Complete |
+| SEC-03 | Phase 5 | Complete |
 | PERF-01 | Phase 5 | Pending |
 | PERF-02 | Phase 5 | Pending |
 | PERF-04 | Phase 5 | Pending |
