@@ -24,7 +24,7 @@ struct AboutSettingsPane: View {
 
     @ViewBuilder
     private func contentForm(cornerStyle: RoundedCornerStyle) -> some View {
-        IceForm(spacing: 0) {
+        HolzBarForm(spacing: 0) {
             mainContent(containerShape: RoundedRectangle(cornerRadius: 20, style: cornerStyle))
             Spacer(minLength: 10)
             bottomBar(containerShape: Capsule(style: cornerStyle))
@@ -33,7 +33,7 @@ struct AboutSettingsPane: View {
 
     @ViewBuilder
     private func mainContent(containerShape: some InsettableShape) -> some View {
-        IceSection(spacing: 0, options: .plain) {
+        HolzBarSection(spacing: 0, options: .plain) {
             appIconAndCopyrightSection
                 .layoutPriority(1)
 
@@ -52,7 +52,7 @@ struct AboutSettingsPane: View {
 
     @ViewBuilder
     private var appIconAndCopyrightSection: some View {
-        IceSection(options: .plain) {
+        HolzBarSection(options: .plain) {
             HStack(spacing: 10) {
                 if let nsImage = NSImage(named: NSImage.applicationIconName) {
                     Image(nsImage: nsImage)
@@ -98,7 +98,7 @@ struct AboutSettingsPane: View {
 
     @ViewBuilder
     private var updatesSection: some View {
-        IceSection(options: .hasDividers) {
+        HolzBarSection(options: .hasDividers) {
             HStack {
                 Text("Updates are installed with Homebrew:")
                 Spacer()

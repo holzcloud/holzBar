@@ -1,12 +1,12 @@
 //
-//  IceApp.swift
+//  HolzBarApp.swift
 //  holzBar
 //
 
 import SwiftUI
 
 @main
-struct IceApp: App {
+struct HolzBarApp: App {
     @NSApplicationDelegateAdaptor var appDelegate: AppDelegate
 
     var body: some Scene {

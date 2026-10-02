@@ -1,5 +1,5 @@
 //
-//  IceColor.swift
+//  HolzBarColor.swift
 //  holzBar
 //
 
@@ -7,13 +7,13 @@ import CoreGraphics
 import Foundation
 
 /// A custom color.
-struct IceColor: Hashable {
+struct HolzBarColor: Hashable {
     /// The color, represented as a `CGColor`.
     var cgColor: CGColor
 }
 
-// MARK: IceColor: Codable
-extension IceColor: Codable {
+// MARK: HolzBarColor: Codable
+extension HolzBarColor: Codable {
     private enum CodingKeys: CodingKey {
         case components
         case colorSpace

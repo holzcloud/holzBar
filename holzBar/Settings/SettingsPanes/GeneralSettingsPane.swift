@@ -34,23 +34,23 @@ struct GeneralSettingsPane: View {
     }
 
     var body: some View {
-        IceForm {
-            IceSection {
+        HolzBarForm {
+            HolzBarSection {
                 appOptions
             }
-            IceSection {
+            HolzBarSection {
                 iceIconOptions
             }
-            IceSection {
+            HolzBarSection {
                 iceBarOptions
             }
-            IceSection {
+            HolzBarSection {
                 showOptions
             }
-            IceSection {
+            HolzBarSection {
                 rehideOptions
             }
-            IceSection {
+            HolzBarSection {
                 spacingOptions
             }
         }
@@ -83,7 +83,7 @@ struct GeneralSettingsPane: View {
     private var iceIconPicker: some View {
         let labelKey = LocalizedStringKey("holzIce icon")
 
-        IceMenu(labelKey) {
+        HolzBarMenu(labelKey) {
             Picker(labelKey, selection: $settings.iceIcon) {
                 ForEach(ControlItemImageSet.userSelectableIceIcons) { imageSet in
                     Button {
@@ -191,7 +191,7 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var iceBarLocationPicker: some View {
-        IcePicker("Location", selection: $settings.iceBarLocation) {
+        HolzBarPicker("Location", selection: $settings.iceBarLocation) {
             ForEach(IceBarLocation.allCases) { location in
                 Text(location.localized).tag(location)
             }
@@ -210,7 +210,7 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var iceBarDisplaysPicker: some View {
-        IcePicker("Use on", selection: $settings.iceBarDisplays) {
+        HolzBarPicker("Use on", selection: $settings.iceBarDisplays) {
             ForEach(IceBarDisplays.allCases) { displays in
                 Text(displays.localized).tag(displays)
             }
@@ -248,7 +248,7 @@ struct GeneralSettingsPane: View {
     @ViewBuilder
     private var rehideStrategyPicker: some View {
         VStack {
-            IcePicker("Strategy", selection: $settings.rehideStrategy) {
+            HolzBarPicker("Strategy", selection: $settings.rehideStrategy) {
                 ForEach(RehideStrategy.allCases) { strategy in
                     Text(strategy.localized).tag(strategy)
                 }
@@ -265,7 +265,7 @@ struct GeneralSettingsPane: View {
             }
 
             if case .timed = settings.rehideStrategy {
-                IceSlider(
+                HolzBarSlider(
                     rehideIntervalKey,
                     value: $settings.rehideInterval,
                     in: 0...30,
@@ -280,7 +280,7 @@ struct GeneralSettingsPane: View {
     @ViewBuilder
     private var spacingOptions: some View {
         LabeledContent {
-            IceSlider(
+            HolzBarSlider(
                 itemSpacingOffsetKey,
                 value: $tempItemSpacingOffset,
                 in: -16...16,

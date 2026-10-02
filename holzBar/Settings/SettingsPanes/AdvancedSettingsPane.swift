@@ -24,28 +24,28 @@ struct AdvancedSettingsPane: View {
     }
 
     var body: some View {
-        IceForm {
-            IceSection("Menu Bar Sections") {
+        HolzBarForm {
+            HolzBarSection("Menu Bar Sections") {
                 enableAlwaysHiddenSection
                 showAllSectionsOnUserDrag
                 sectionDividerStyle
                 newItemsPlacement
                 keepLiveActivitiesVisible
             }
-            IceSection("Other") {
+            HolzBarSection("Other") {
                 hideApplicationMenus
                 enableSecondaryContextMenu
                 showOnHoverDelay
                 tempShowInterval
             }
-            IceSection("Show Hidden Items Automatically") {
+            HolzBarSection("Show Hidden Items Automatically") {
                 RevealRulesSettings(rules: appState.revealRules)
             }
-            IceSection("Settings") {
+            HolzBarSection("Settings") {
                 settingsBackup
                 settingsSync
             }
-            IceSection("Permissions") {
+            HolzBarSection("Permissions") {
                 allPermissions
             }
         }
@@ -69,7 +69,7 @@ struct AdvancedSettingsPane: View {
 
     @ViewBuilder
     private var newItemsPlacement: some View {
-        IcePicker("Place new menu bar items in", selection: $settings.newItemsPlacement) {
+        HolzBarPicker("Place new menu bar items in", selection: $settings.newItemsPlacement) {
             ForEach(NewItemsPlacement.allCases) { placement in
                 if placement != .alwaysHidden || settings.enableAlwaysHiddenSection {
                     Text(placement.localized).tag(placement)
@@ -87,7 +87,7 @@ struct AdvancedSettingsPane: View {
 
     @ViewBuilder
     private var sectionDividerStyle: some View {
-        IcePicker("Section divider style", selection: $settings.sectionDividerStyle) {
+        HolzBarPicker("Section divider style", selection: $settings.sectionDividerStyle) {
             ForEach(SectionDividerStyle.allCases) { style in
                 Text(style.localized).tag(style)
             }
@@ -147,7 +147,7 @@ struct AdvancedSettingsPane: View {
     @ViewBuilder
     private var showOnHoverDelay: some View {
         LabeledContent {
-            IceSlider(
+            HolzBarSlider(
                 formattedToSeconds(settings.showOnHoverDelay),
                 value: $settings.showOnHoverDelay,
                 in: 0...1,
@@ -166,7 +166,7 @@ struct AdvancedSettingsPane: View {
     @ViewBuilder
     private var tempShowInterval: some View {
         LabeledContent {
-            IceSlider(
+            HolzBarSlider(
                 formattedToSeconds(settings.tempShowInterval),
                 value: $settings.tempShowInterval,
                 in: 0...60,

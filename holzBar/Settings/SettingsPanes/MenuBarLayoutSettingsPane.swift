@@ -19,7 +19,7 @@ struct MenuBarLayoutSettingsPane: View {
         } else if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             cannotArrange
         } else {
-            IceForm(spacing: 20) {
+            HolzBarForm(spacing: 20) {
                 header
                 LayoutProfilesSection(profiles: appState.profiles)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
@@ -34,7 +34,7 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var header: some View {
-        IceSection {
+        HolzBarSection {
             VStack(spacing: 3) {
                 Text("Drag to arrange your menu bar items into different sections.")
                     .font(.title3.bold())
@@ -131,7 +131,7 @@ private struct StuckOverflowWarning: View {
 
     var body: some View {
         if concealer.isOverflowStuck {
-            IceSection {
+            HolzBarSection {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Some items are folded away on the built-in display.")
                         .font(.headline)
@@ -157,7 +157,7 @@ private struct LayoutProfilesSection: View {
     @State private var newProfileName = ""
 
     var body: some View {
-        IceSection("Profiles") {
+        HolzBarSection("Profiles") {
             HStack {
                 if profiles.profiles.isEmpty {
                     Text("Save the current layout as a profile, for example \u{201C}Work\u{201D} or \u{201C}Home\u{201D}.")
@@ -213,7 +213,7 @@ private struct ItemGroupsSection: View {
     }
 
     var body: some View {
-        IceSection("Groups") {
+        HolzBarSection("Groups") {
             ForEach(groups.groups) { group in
                 HStack {
                     Menu {
@@ -273,7 +273,7 @@ private struct SpacersSection: View {
     @ObservedObject var spacers: MenuBarSpacers
 
     var body: some View {
-        IceSection("Spacers") {
+        HolzBarSection("Spacers") {
             Stepper(value: $spacers.count, in: 0...MenuBarSpacers.maximumCount) {
                 Text("Spacers: \(spacers.count)")
             }

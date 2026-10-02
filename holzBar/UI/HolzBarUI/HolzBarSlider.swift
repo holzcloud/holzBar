@@ -1,12 +1,12 @@
 //
-//  IceSlider.swift
+//  HolzBarSlider.swift
 //  holzBar
 //
 
 import CompactSlider
 import SwiftUI
 
-struct IceSlider<Value: BinaryFloatingPoint, ValueLabel: View>: View {
+struct HolzBarSlider<Value: BinaryFloatingPoint, ValueLabel: View>: View {
     @Binding private var value: Value
 
     private let bounds: ClosedRange<Value>

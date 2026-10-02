@@ -1,11 +1,11 @@
 //
-//  IcePicker.swift
+//  HolzBarPicker.swift
 //  holzBar
 //
 
 import SwiftUI
 
-struct IcePicker<Label: View, SelectionValue: Hashable, Content: View>: View {
+struct HolzBarPicker<Label: View, SelectionValue: Hashable, Content: View>: View {
     @Binding var selection: SelectionValue
 
     let label: Label

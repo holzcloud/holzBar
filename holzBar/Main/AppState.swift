@@ -252,7 +252,7 @@ final class AppState: ObservableObject {
     }
 
     /// Returns a publisher for the window with the given identifier.
-    func publisherForWindow(_ id: IceWindowIdentifier) -> some Publisher<NSWindow?, Never> {
+    func publisherForWindow(_ id: HolzBarWindowIdentifier) -> some Publisher<NSWindow?, Never> {
         NSApp.publisher(for: \.windows).mergeMap { window in
             window.publisher(for: \.identifier)
                 .map { [weak window] identifier in
@@ -267,7 +267,7 @@ final class AppState: ObservableObject {
     }
 
     /// Opens the window with the given identifier.
-    func openWindow(_ id: IceWindowIdentifier) {
+    func openWindow(_ id: HolzBarWindowIdentifier) {
         // Async prevents conflicts with SwiftUI.
         DispatchQueue.main.async {
             self.logger.debug("Opening window with id: \(id, privacy: .public)")
@@ -276,7 +276,7 @@ final class AppState: ObservableObject {
     }
 
     /// Dismisses the window with the given identifier.
-    func dismissWindow(_ id: IceWindowIdentifier) {
+    func dismissWindow(_ id: HolzBarWindowIdentifier) {
         // Async prevents conflicts with SwiftUI.
         DispatchQueue.main.async {
             self.logger.debug("Dismissing window with id: \(id, privacy: .public)")

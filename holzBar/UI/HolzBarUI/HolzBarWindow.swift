@@ -1,19 +1,19 @@
 //
-//  IceWindow.swift
+//  HolzBarWindow.swift
 //  holzBar
 //
 
 import SwiftUI
 
-// MARK: - IceWindow
+// MARK: - HolzBarWindow
 
 /// A custom scene representing one of Ice's windows.
-struct IceWindow<Content: View>: Scene {
+struct HolzBarWindow<Content: View>: Scene {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
     /// The window's identifier.
-    let id: IceWindowIdentifier
+    let id: HolzBarWindowIdentifier
 
     /// The window's content view.
     let content: Content
@@ -23,7 +23,7 @@ struct IceWindow<Content: View>: Scene {
     /// - Parameters:
     ///   - id: A custom identifier constant.
     ///   - content: The content view to display in the window.
-    init(id: IceWindowIdentifier, @ViewBuilder content: () -> Content) {
+    init(id: HolzBarWindowIdentifier, @ViewBuilder content: () -> Content) {
         self.id = id
         self.content = content()
     }
@@ -76,10 +76,10 @@ struct IceWindow<Content: View>: Scene {
     }
 }
 
-// MARK: - IceWindowIdentifier
+// MARK: - HolzBarWindowIdentifier
 
 /// Custom identifier constants uses to create Ice's windows.
-enum IceWindowIdentifier: String, Sendable, CustomStringConvertible {
+enum HolzBarWindowIdentifier: String, Sendable, CustomStringConvertible {
     /// The identifier for Ice's main settings window.
     case settings = "SettingsWindow"
 
@@ -115,7 +115,7 @@ extension OpenWindowAction {
     /// Opens the corresponding window for the given identifier.
     ///
     /// - Parameter id: An identifier for one of Ice's windows.
-    func callAsFunction(id: IceWindowIdentifier) {
+    func callAsFunction(id: HolzBarWindowIdentifier) {
         callAsFunction(id: id.rawValue)
     }
 }
@@ -126,7 +126,7 @@ extension DismissWindowAction {
     /// Dismisses the corresponding window for the given identifier.
     ///
     /// - Parameter id: An identifier for one of Ice's windows.
-    func callAsFunction(id: IceWindowIdentifier) {
+    func callAsFunction(id: HolzBarWindowIdentifier) {
         callAsFunction(id: id.rawValue)
     }
 }

@@ -53,7 +53,7 @@ struct MenuBarAppearanceEditor: View {
 
     @ViewBuilder
     private var mainForm: some View {
-        IceForm {
+        HolzBarForm {
             if
                 case .settings = location,
                 appState.settings.advanced.enableSecondaryContextMenu
@@ -63,7 +63,7 @@ struct MenuBarAppearanceEditor: View {
                     systemImage: "lightbulb"
                 )
             }
-            IceSection {
+            HolzBarSection {
                 isDynamicToggle
             }
             if appearanceManager.configuration.isDynamic {
@@ -72,11 +72,11 @@ struct MenuBarAppearanceEditor: View {
             } else {
                 StaticPartialEditor(configuration: $appearanceManager.configuration)
             }
-            IceSection("Menu Bar Shape") {
+            HolzBarSection("Menu Bar Shape") {
                 shapePicker
                 isInset
             }
-            IceSection("Notch and Screen") {
+            HolzBarSection("Notch and Screen") {
                 blackBackgroundPicker
                 screenCorners
             }
@@ -85,7 +85,7 @@ struct MenuBarAppearanceEditor: View {
 
     @ViewBuilder
     private var blackBackgroundPicker: some View {
-        IcePicker("Black menu bar", selection: $appearanceManager.configuration.blackBackground) {
+        HolzBarPicker("Black menu bar", selection: $appearanceManager.configuration.blackBackground) {
             ForEach(MenuBarBlackBackground.allCases) { option in
                 Text(option.localized).tag(option)
             }
@@ -169,11 +169,11 @@ private struct UnlabeledPartialEditor: View {
     @Binding var configuration: MenuBarAppearancePartialConfiguration
 
     var body: some View {
-        IceSection {
+        HolzBarSection {
             tintPicker
             shadowToggle
         }
-        IceSection {
+        HolzBarSection {
             borderToggle
             borderColor
             borderWidth
@@ -184,7 +184,7 @@ private struct UnlabeledPartialEditor: View {
     private var tintPicker: some View {
         LabeledContent("Tint") {
             HStack {
-                IcePicker("Tint", selection: $configuration.tintKind) {
+                HolzBarPicker("Tint", selection: $configuration.tintKind) {
                     ForEach(MenuBarTintKind.allCases) { tintKind in
                         Text(tintKind.localized).tag(tintKind)
                     }
@@ -202,7 +202,7 @@ private struct UnlabeledPartialEditor: View {
                     )
                     .labelsHidden()
                 case .gradient:
-                    IceGradientPicker(
+                    HolzBarGradientPicker(
                         configuration.tintKind.localized,
                         gradient: $configuration.tintGradient,
                         supportsOpacity: false
@@ -238,7 +238,7 @@ private struct UnlabeledPartialEditor: View {
     @ViewBuilder
     private var borderWidth: some View {
         if configuration.hasBorder {
-            IcePicker(
+            HolzBarPicker(
                 "Border Width",
                 selection: $configuration.borderWidth
             ) {
@@ -258,7 +258,7 @@ private struct LabeledPartialEditor: View {
     let appearance: SystemAppearance
 
     var body: some View {
-        IceSection(options: .plain) {
+        HolzBarSection(options: .plain) {
             labelStack
         } content: {
             partialEditor

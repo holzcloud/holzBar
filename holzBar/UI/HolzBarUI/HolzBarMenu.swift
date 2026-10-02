@@ -1,11 +1,11 @@
 //
-//  IceMenu.swift
+//  HolzBarMenu.swift
 //  holzBar
 //
 
 import SwiftUI
 
-struct IceMenu<Title: View, Label: View, Content: View>: View {
+struct HolzBarMenu<Title: View, Label: View, Content: View>: View {
     private let title: Title
     private let label: Label
     private let content: Content
