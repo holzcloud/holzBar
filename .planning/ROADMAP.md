@@ -34,7 +34,12 @@ Each phase is one pull request and must build green on the macOS CI runner befor
   3. The `swift test` job for `Tests/IceMacOS27CoreTests` runs on every pull request and passes
   4. The build log lists compiler warnings, and the CI Xcode version is pinned and matches the README's stated build requirement
   5. The Xcode project reports holzIce's version with no foreign Development Team, and `Scripts/install.sh` builds with ad hoc signing; `release.yml` uses the `0.0.6-beta1` scheme and passes the version through an environment variable
-**Plans**: TBD
+**Plans**: 3 plans (sequential waves: one PR branch, every task verified by its CI checks)
+
+Plans:
+- [ ] 01-01-PLAN.md — Tracer: pinned Xcode 26.6 (composite action, fails loudly), `swift test` job on every PR, compiler warnings in the build log, checkout v7, phase PR opened
+- [ ] 01-02-PLAN.md — Official SwiftLint 0.65.1 (digest-pinned image) with `--strict`; fix or deliberately configure what it reports
+- [ ] 01-03-PLAN.md — holzIce version and no foreign team in the project, ad hoc `install.sh`, README build requirement, hardened `release.yml`; PR ready for review
 
 ### Phase 2: Bug fixes
 **Goal**: The real bugs found by the audit are fixed so spacing, hotkeys, XPC and permissions behave correctly on every supported macOS version
