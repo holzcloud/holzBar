@@ -149,9 +149,9 @@ extension MenuBarItemService {
                 // same team. An ad hoc build has no team to compare: launchd
                 // resolves this service name only inside this app's own bundle,
                 // so no other code can answer, and the service in turn pins this
-                // app's exact code. LightweightCodeRequirements, which could pin
-                // the service's code here too, needs macOS 14.4, and the app
-                // still launches on macOS 14.0.
+                // app's exact code. The framework for lightweight code
+                // requirements, which could pin the service's code here too,
+                // needs macOS 14.4, and the app still launches on macOS 14.0.
                 if CodeSignature.currentTeamIdentifier != nil {
                     session.setPeerRequirement(.isFromSameTeam(andMatchesSigningIdentifier: MenuBarItemService.name))
                 }
