@@ -18,8 +18,9 @@ import UniformTypeIdentifiers
 enum SettingsBackup {
     private static let logger = Logger(category: "SettingsBackup")
 
-    /// Keys that describe this Mac rather than the user's choices.
-    private static let excludedKeyPrefixes = [
+    /// Keys that describe this Mac or a particular app's windows rather than
+    /// the user's choices.
+    static let excludedKeyPrefixes = [
         "NSWindow Frame",
         "NSStatusItem Preferred Position",
         "NSStatusItem Visible",
