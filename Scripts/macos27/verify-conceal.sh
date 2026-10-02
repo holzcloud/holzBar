@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# Verifies plan 1 on macOS 27: holzIce hides the hidden and always-hidden sections soon
+# Verifies plan 1 on macOS 27: holzBar hides the hidden and always-hidden sections soon
 # after launch, reveals the hidden section on hover without exposing always-hidden items, and
-# every item comes back when holzIce quits.
+# every item comes back when holzBar quits.
 #
-# Requirements: holzIce installed with Scripts/install.sh, Thaw not running, the
+# Requirements: holzBar installed with Scripts/install.sh, Thaw not running, the
 # external display at the origin, and no app menus reaching into REGION.
 #
 # Usage: Scripts/macos27/verify-conceal.sh [empty-x] [empty-y]
@@ -17,16 +17,16 @@ EMPTY_Y="${2:-12}"
 REGION="${REGION:-700,0,1220,34}"
 IFS=, read -r REGION_X _ REGION_W _ <<< "$REGION"
 CYCLES="${CYCLES:-10}"
-WORK="$(mktemp -d /tmp/ice-verify-conceal.XXXXXX)"
+WORK="$(mktemp -d /tmp/holzbar-verify-conceal.XXXXXX)"
 mkdir -p "$WORK/bin" "$WORK/steady" "$WORK/cycles"
 
 swiftc -O "$ROOT/Scripts/macos27/pointer.swift" -o "$WORK/bin/pointer"
 swiftc -O "$ROOT/Scripts/macos27/analyze-frames.swift" -o "$WORK/bin/analyze-frames"
 
 now() { perl -MTime::HiRes=time -e 'printf "%.3f", time'; }
-quit_ice() {
-    osascript -e 'tell application id "com.holzcloud.holzIce" to quit' >/dev/null 2>&1 || true
-    for _ in $(seq 1 40); do pgrep -x holzIce >/dev/null || return 0; sleep 0.25; done
+quit_holzbar() {
+    osascript -e 'tell application id "com.holzcloud.holzBar" to quit' >/dev/null 2>&1 || true
+    for _ in $(seq 1 40); do pgrep -x holzBar >/dev/null || return 0; sleep 0.25; done
 }
 # The bar draws its items dimmer while it is inactive, which moves the measured edge by a
 # few points, so steady captures are taken with the starting application frontmost.
@@ -40,29 +40,29 @@ leftmost() {
 
 # `defaults read` prints 1/0, but `defaults write -bool` only accepts true/false.
 as_bool() { case "$1" in 1|true|YES|yes) echo true ;; *) echo false ;; esac; }
-ORIGINAL_ICE_BAR=$(as_bool "$(defaults read com.holzcloud.holzIce UseIceBar 2>/dev/null || echo 1)")
-ORIGINAL_HOVER=$(as_bool "$(defaults read com.holzcloud.holzIce ShowOnHover 2>/dev/null || echo 1)")
-start_ice() {
-    open "$HOME/Applications/holzIce.app"
-    for _ in $(seq 1 40); do pgrep -x holzIce >/dev/null && return 0; sleep 0.25; done
+ORIGINAL_SHELF=$(as_bool "$(defaults read com.holzcloud.holzBar UseIceBar 2>/dev/null || echo 1)")
+ORIGINAL_HOVER=$(as_bool "$(defaults read com.holzcloud.holzBar ShowOnHover 2>/dev/null || echo 1)")
+start_holzbar() {
+    open "$HOME/Applications/holzBar.app"
+    for _ in $(seq 1 40); do pgrep -x holzBar >/dev/null && return 0; sleep 0.25; done
 }
-# Leave holzIce running, the way the run found it. A run that ended with holzIce down left the
+# Leave holzBar running, the way the run found it. A run that ended with holzBar down left the
 # machine concealing nothing, and whatever was looked at next showed nothing worth seeing.
 restore() {
-    quit_ice
-    defaults write com.holzcloud.holzIce UseIceBar -bool "$ORIGINAL_ICE_BAR"
-    defaults write com.holzcloud.holzIce ShowOnHover -bool "$ORIGINAL_HOVER"
-    start_ice
+    quit_holzbar
+    defaults write com.holzcloud.holzBar UseIceBar -bool "$ORIGINAL_SHELF"
+    defaults write com.holzcloud.holzBar ShowOnHover -bool "$ORIGINAL_HOVER"
+    start_holzbar
 }
 trap restore EXIT
 
-quit_ice
+quit_holzbar
 "$WORK/bin/pointer" glide 960 540
 ALL_VISIBLE=$(leftmost all-visible)
 
-defaults write com.holzcloud.holzIce UseIceBar -bool false
-defaults write com.holzcloud.holzIce ShowOnHover -bool true
-open "$HOME/Applications/holzIce.app"
+defaults write com.holzcloud.holzBar UseIceBar -bool false
+defaults write com.holzcloud.holzBar ShowOnHover -bool true
+open "$HOME/Applications/holzBar.app"
 sleep 3
 EARLY=$(leftmost early)
 sleep 7
@@ -87,7 +87,7 @@ wait "$CAPTURE"
 LOWEST=$("$WORK/bin/analyze-frames" "$WORK/cycles" "$REGION_X" "$REGION_W" | awk '$2 >= 0 { print $2 }' | sort -n | head -1)
 FRAMES=$(ls "$WORK/cycles" | wc -l | tr -d ' ')
 
-quit_ice
+quit_holzbar
 sleep 2
 AFTER_QUIT=$(leftmost after-quit)
 
@@ -101,6 +101,6 @@ check "always-hidden items stay hidden while revealed" "[ $REVEALED -gt $((ALL_V
 # The reveal animation overshoots its resting place by up to 4 pt (measured). An
 # always-hidden item that flashes moves the edge by a whole item, at least 24 pt.
 check "always-hidden items never flash in $CYCLES cycles" "[ $LOWEST -ge $((REVEALED - 10)) ]"
-check "every item returns when holzIce quits" "[ $AFTER_QUIT -ge $((ALL_VISIBLE - 3)) ] && [ $AFTER_QUIT -le $((ALL_VISIBLE + 3)) ]"
+check "every item returns when holzBar quits" "[ $AFTER_QUIT -ge $((ALL_VISIBLE - 3)) ] && [ $AFTER_QUIT -le $((ALL_VISIBLE + 3)) ]"
 echo "frames: $WORK"
 exit $FAILED

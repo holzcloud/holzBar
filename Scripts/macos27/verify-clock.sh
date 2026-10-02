@@ -1,31 +1,31 @@
 #!/bin/bash
 #
-# Verifies that the clock and Control Center open while holzIce conceals items on macOS 27.
-# Requirements: holzIce installed with Scripts/install.sh, Thaw not running.
+# Verifies that the clock and Control Center open while holzBar conceals items on macOS 27.
+# Requirements: holzBar installed with Scripts/install.sh, Thaw not running.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-WORK="$(mktemp -d /tmp/ice-verify-clock.XXXXXX)"
+WORK="$(mktemp -d /tmp/holzbar-verify-clock.XXXXXX)"
 swiftc -O "$ROOT/Scripts/macos27/system-click.swift" -o "$WORK/system-click"
 
-quit_ice() {
-    osascript -e 'tell application id "com.holzcloud.holzIce" to quit' >/dev/null 2>&1 || true
-    for _ in $(seq 1 40); do pgrep -x holzIce >/dev/null || return 0; sleep 0.25; done
+quit_holzbar() {
+    osascript -e 'tell application id "com.holzcloud.holzBar" to quit' >/dev/null 2>&1 || true
+    for _ in $(seq 1 40); do pgrep -x holzBar >/dev/null || return 0; sleep 0.25; done
 }
-start_ice() {
-    open "$HOME/Applications/holzIce.app"
-    for _ in $(seq 1 40); do pgrep -x holzIce >/dev/null && return 0; sleep 0.25; done
+start_holzbar() {
+    open "$HOME/Applications/holzBar.app"
+    for _ in $(seq 1 40); do pgrep -x holzBar >/dev/null && return 0; sleep 0.25; done
 }
-# Leave holzIce running, the way the run found it. A run that ended with holzIce down left the
+# Leave holzBar running, the way the run found it. A run that ended with holzBar down left the
 # machine concealing nothing, and whatever was looked at next showed nothing worth seeing.
 restore() {
-    quit_ice
-    start_ice
+    quit_holzbar
+    start_holzbar
 }
 trap restore EXIT
 
-quit_ice
-open "$HOME/Applications/holzIce.app"
+quit_holzbar
+open "$HOME/Applications/holzBar.app"
 sleep 10
 
 FAILED=0

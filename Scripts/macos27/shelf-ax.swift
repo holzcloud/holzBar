@@ -1,5 +1,5 @@
-// Prints the holzIce Bar panel's frame and, for each item image it shows, "item <x> <y> <label>".
-// Prints "none" when no holzIce Bar is on screen. Read from holzIce's Accessibility tree.
+// Prints the holzBar Shelf panel's frame and, for each item image it shows, "item <x> <y> <label>".
+// Prints "none" when no holzBar Shelf is on screen. Read from holzBar's Accessibility tree.
 import AppKit
 import ApplicationServices
 
@@ -38,11 +38,11 @@ func images(in element: AXUIElement, depth: Int = 0) -> [(CGRect, String)] {
     return result
 }
 
-guard let ice = NSRunningApplication.runningApplications(withBundleIdentifier: "com.holzcloud.holzIce").first else {
+guard let holzBar = NSRunningApplication.runningApplications(withBundleIdentifier: "com.holzcloud.holzBar").first else {
     print("none")
     exit(0)
 }
-let app = AXUIElementCreateApplication(ice.processIdentifier)
+let app = AXUIElementCreateApplication(holzBar.processIdentifier)
 AXUIElementSetMessagingTimeout(app, 2)
 let panels = (value(app, kAXWindowsAttribute) as? [AXUIElement] ?? []).compactMap { window -> (CGRect, [(CGRect, String)])? in
     guard let f = frame(window), f.height < 90, f.width > 20, f.width < 1400 else {
