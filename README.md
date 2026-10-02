@@ -47,8 +47,11 @@ holzIce is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jord
 
 ```sh
 brew tap holzcloud/holzice https://github.com/holzcloud/holzIce
+brew trust --cask holzcloud/holzice/holzice
 brew install --cask holzice
 ```
+
+`brew trust` is needed once: Homebrew only installs casks from third-party taps that you have trusted.
 
 Update with:
 
