@@ -10,7 +10,12 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 ## Workflow
 
 - Work with **GSD** ([OpenGSD gsd-core](https://github.com/open-gsd/gsd-core)) whenever possible. It is installed locally in `.claude/` (commands `/gsd-*`, agents, hooks in `.claude/settings.json`), so every session has it. Planning state lives in `.planning/`. Start with `/gsd-help`; for this existing codebase, `/gsd-map-codebase` maps it and `/gsd-new-project` / `/gsd-plan-phase` / `/gsd-execute-phase` drive the work.
+- Ask the user every question as a multiple choice (the AskUserQuestion tool), never as free text.
 - Update GSD with `npx -y @opengsd/gsd-core@latest --claude --local` and commit the result.
+
+## Dependencies
+
+- Always use the latest stable version of every library, package, tool and GitHub Action (Swift packages, SwiftLint, Xcode, actions). No pre-releases. When touching a dependency, update it to the latest stable release.
 
 ## Naming
 
@@ -42,4 +47,4 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 
 ## Building
 
-macOS only (Xcode 27): `Scripts/install.sh`. There is no Linux build; CI runs SwiftLint (`.swiftlint.yml`, `--strict`).
+macOS only (the Xcode pinned in `.github/actions/select-xcode/action.yml`, currently 26.6): `Scripts/install.sh`. There is no Linux build; CI builds, runs `swift test` and runs SwiftLint (official image pinned in `lint.yml`, `.swiftlint.yml`, `--strict`).
