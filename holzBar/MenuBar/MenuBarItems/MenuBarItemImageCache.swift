@@ -61,7 +61,7 @@ final class MenuBarItemImageCache: ObservableObject {
     /// The queue is serial, so a stuck capture costs one thread rather than one
     /// per item.
     private static let captureQueue = DispatchQueue(
-        label: "com.holzcloud.holzIce.ImageCapture",
+        label: "com.holzcloud.holzBar.ImageCapture",
         qos: .userInitiated
     )
 

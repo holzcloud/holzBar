@@ -36,6 +36,33 @@ jobs:
           grep -E "error:|\*\* BUILD" build.log || tail -50 build.log
           exit $STATUS
 
+      # The app connects to its embedded XPC service by MenuBarItemService.name; a mismatch
+      # silently breaks item discovery on macOS 26, which no CI test would otherwise notice.
+      - name: Check the identifiers
+        run: |
+          APP=build/Build/Products/Release/holzBar.app
+          SERVICE="$APP/Contents/XPCServices/MenuBarItemService.xpc"
+          APP_ID=$(plutil -extract CFBundleIdentifier raw -o - "$APP/Contents/Info.plist")
+          APP_NAME=$(plutil -extract CFBundleName raw -o - "$APP/Contents/Info.plist")
+          DISPLAY_NAME=$(plutil -extract CFBundleDisplayName raw -o - "$APP/Contents/Info.plist")
+          SERVICE_ID=$(plutil -extract CFBundleIdentifier raw -o - "$SERVICE/Contents/Info.plist")
+          URL_SCHEMES=$(plutil -extract CFBundleURLTypes.0.CFBundleURLSchemes json -o - "$APP/Contents/Info.plist")
+          SERVICE_NAME=$(sed -nE 's/^[[:space:]]*static let name = "([^"]+)".*/\1/p' Shared/Services/MenuBarItemService.swift)
+          echo "==> Identifiers"
+          echo "app: $APP_ID"
+          echo "name: $APP_NAME"
+          echo "display name: $DISPLAY_NAME"
+          echo "service: $SERVICE_ID"
+          echo "URL schemes: $URL_SCHEMES"
+          if [ "$SERVICE_ID" != "$SERVICE_NAME" ]; then
+            echo "::error::The XPC service's bundle identifier ($SERVICE_ID) differs from MenuBarItemService.name ($SERVICE_NAME)"
+            exit 1
+          fi
+          if [ "$SERVICE_ID" != "$APP_ID.MenuBarItemService" ]; then
+            echo "::error::The XPC service's bundle identifier ($SERVICE_ID) is not the app's ($APP_ID) plus .MenuBarItemService"
+            exit 1
+          fi
+
   test:
     runs-on: macos-26
     steps:
