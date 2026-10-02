@@ -13,6 +13,7 @@ The "Modernize" milestone removes everything outdated that the codebase audit (`
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: CI and build** - Current actions, maintained SwiftLint, unit tests on every PR, visible warnings, pinned Xcode, holzIce project metadata
+- [ ] **Phase 01.1: Rename to holzBar** (INSERTED) - Name, logo, identifiers, code and links say holzBar; holzIce settings are imported
 - [ ] **Phase 2: Bug fixes** - Spacing relaunch, data race, hotkey recorder, XPC ad hoc check, permission continuation, allowlist
 - [ ] **Phase 3: Ice and Sparkle leftovers** - Acknowledgements, credits, docs, templates, dead code and files removed
 - [ ] **Phase 4: Outdated APIs** - Modern URL, UserDefaults, CFPreferences, URL-open, window and AX APIs; AXSwift removed
@@ -42,6 +43,22 @@ Plans:
 - [x] 01-01-PLAN.md — Tracer: pinned Xcode 26.6 (composite action, fails loudly), `swift test` job on every PR, compiler warnings in the build log, checkout v7, phase PR opened
 - [x] 01-02-PLAN.md — Official SwiftLint 0.65.1 (digest-pinned image) with `--strict`; fix or deliberately configure what it reports
 - [x] 01-03-PLAN.md — holzIce version and no foreign team in the project, ad hoc `install.sh`, README build requirement, hardened `release.yml`; PR ready for review
+
+### Phase 01.1: Rename to holzBar (INSERTED)
+
+**Goal:** The app is called holzBar everywhere — name, logo, identifiers, code, project, repository links, cask — while the credit to the original Ice stays and existing holzIce users keep their settings
+**Requirements**: REN-01, REN-02, REN-03, REN-04, REN-05, REN-06, REN-07, REN-08
+**Depends on:** Phase 1
+**Success Criteria** (what must be TRUE):
+  1. No user-visible "holzIce" or "Ice" remains except the credit to the original Ice (About, README, NOTICE) and the Ice settings import; the Ice Bar is called "holzBar Shelf"
+  2. Bundle id, XPC service, product, URL scheme, cask, folders and links use holzBar (`com.holzcloud.holzBar`, `holzBar.app`, `holzbar://`, `holzcloud/holzBar`)
+  3. On first launch holzBar imports the settings and data of an installed holzIce; `brew upgrade` moves holzIce users to the holzbar cask
+  4. The Xcode project, target, scheme, module, source folder and type names no longer say Ice; build, test and swiftlint are green
+  5. The new logo is in the app icon, the settings sidebar, README banner and Resources/Logo
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 01.1 to break down)
 
 ### Phase 2: Bug fixes
 

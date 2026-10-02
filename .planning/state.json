@@ -1,0 +1,48 @@
+{
+  "contract": "1.0.0",
+  "flavor": "core",
+  "milestone": "v0.0.6",
+  "phases": [
+    {
+      "number": "1",
+      "name": "CI and build",
+      "status": "pending"
+    },
+    {
+      "number": "2",
+      "name": "Bug fixes",
+      "status": "pending"
+    },
+    {
+      "number": "3",
+      "name": "Ice and Sparkle leftovers",
+      "status": "pending"
+    },
+    {
+      "number": "4",
+      "name": "Outdated APIs",
+      "status": "pending"
+    },
+    {
+      "number": "5",
+      "name": "Security and performance",
+      "status": "pending"
+    },
+    {
+      "number": "6",
+      "name": "Security audit",
+      "status": "pending"
+    },
+    {
+      "number": "7",
+      "name": "Release 0.0.6-beta1",
+      "status": "pending"
+    }
+  ],
+  "next": {
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step (verify)",
+    "reason": "Phase 1 of 7 · ready to verify"
+  },
+  "updated_at": "2026-10-02T11:32:31.039Z"
+}
