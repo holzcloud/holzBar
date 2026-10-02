@@ -25,6 +25,7 @@ Each phase is one pull request and must build green on the macOS CI runner befor
 ## Phase Details
 
 ### Phase 1: CI and build
+
 **Goal**: Every pull request is built, linted and tested with current, pinned tooling, and the project carries holzIce's own identity
 **Depends on**: Nothing (first phase)
 **Requirements**: CI-01, CI-02, CI-03, CI-04, CI-05, CI-06, CI-07
@@ -34,14 +35,16 @@ Each phase is one pull request and must build green on the macOS CI runner befor
   3. The `swift test` job for `Tests/IceMacOS27CoreTests` runs on every pull request and passes
   4. The build log lists compiler warnings, and the CI Xcode version is pinned and matches the README's stated build requirement
   5. The Xcode project reports holzIce's version with no foreign Development Team, and `Scripts/install.sh` builds with ad hoc signing; `release.yml` uses the `0.0.6-beta1` scheme and passes the version through an environment variable
-**Plans**: 3 plans (sequential waves: one PR branch, every task verified by its CI checks)
+
+**Plans**: 1/3 plans executed (sequential waves: one PR branch, every task verified by its CI checks)
 
 Plans:
-- [ ] 01-01-PLAN.md — Tracer: pinned Xcode 26.6 (composite action, fails loudly), `swift test` job on every PR, compiler warnings in the build log, checkout v7, phase PR opened
+- [x] 01-01-PLAN.md — Tracer: pinned Xcode 26.6 (composite action, fails loudly), `swift test` job on every PR, compiler warnings in the build log, checkout v7, phase PR opened
 - [ ] 01-02-PLAN.md — Official SwiftLint 0.65.1 (digest-pinned image) with `--strict`; fix or deliberately configure what it reports
 - [ ] 01-03-PLAN.md — holzIce version and no foreign team in the project, ad hoc `install.sh`, README build requirement, hardened `release.yml`; PR ready for review
 
 ### Phase 2: Bug fixes
+
 **Goal**: The real bugs found by the audit are fixed so spacing, hotkeys, XPC and permissions behave correctly on every supported macOS version
 **Depends on**: Phase 1
 **Requirements**: BUG-01, BUG-02, BUG-03, BUG-04, BUG-05, BUG-06, BUG-07, BUG-08
@@ -51,9 +54,11 @@ Plans:
   3. An ad hoc build is accepted by the XPC menu bar item service, and foreign processes are still rejected
   4. Waiting for a permission twice never hangs, and the event source cache has no data race
   5. The macOS 27 system item allowlist comment and code agree
+
 **Plans**: TBD
 
 ### Phase 3: Ice and Sparkle leftovers
+
 **Goal**: Nothing of Ice or Sparkle remains unless it is credited, and the repository contains no unused files or dead code
 **Depends on**: Phase 2
 **Requirements**: LEFT-01, LEFT-02, LEFT-03, LEFT-04, LEFT-05, LEFT-06, LEFT-07
@@ -63,9 +68,11 @@ Plans:
   3. `FREQUENT_ISSUES.md` describes holzIce (or is gone) and the bug report template asks for holzIce version, macOS version and install method
   4. The listed unused files, stub build phase, setting and redundant code are gone and the app still builds
   5. The logger subsystem uses the shared `Logger(category:)` and the `"SU"` exclusion is commented
+
 **Plans**: TBD
 
 ### Phase 4: Outdated APIs
+
 **Goal**: Deprecated and outdated APIs are replaced by their macOS 14 compatible modern equivalents, and AXSwift is removed
 **Depends on**: Phase 3
 **Requirements**: API-01, API-02, API-03, API-04, API-05, API-06, API-07, API-08, DEP-01
@@ -75,10 +82,12 @@ Plans:
   3. Settings sync identifies devices by a stored UUID with the computer name as display name, and `Host.current()` is gone
   4. The Screen Recording link opens the correct System Settings pane, and windows open and close through a captured `OpenWindowAction`/`DismissWindowAction`
   5. AXSwift is no longer a dependency of either target, and the menu bar items are still discovered through direct AX calls
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 5: Security and performance
+
 **Goal**: Imported data is validated, private data stays private, and the app does no needless background work
 **Depends on**: Phase 4
 **Requirements**: SEC-01, SEC-02, SEC-03, PERF-01, PERF-02, PERF-03
@@ -88,9 +97,11 @@ Plans:
   3. Captured item images are stored in Caches, and old files in Application Support are moved or deleted
   4. Moving the mouse over show-on-hover keeps one cancellable task, and permission polling stops once all permissions are granted
   5. Reveal rules react to power and network notifications instead of polling every 60 s
+
 **Plans**: TBD
 
 ### Phase 6: Security audit
+
 **Goal**: The user knows every security risk of the app, ranked, and has decided which to fix
 **Depends on**: Phase 5
 **Requirements**: AUDIT-01
@@ -98,9 +109,11 @@ Plans:
   1. A security report covers the app, the XPC service, the URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline and the cask
   2. Every finding has a severity, a location and a proposed fix
   3. The user has chosen which findings to fix, and those fixes are merged before the release
+
 **Plans**: TBD
 
 ### Phase 7: Release 0.0.6-beta1
+
 **Goal**: Users can install and update to `0.0.6-beta1` through Homebrew with clear instructions
 **Depends on**: Phase 6
 **Requirements**: REL-01
@@ -108,6 +121,7 @@ Plans:
   1. The `v0.0.6-beta1` GitHub pre-release exists with hand-written notes from `docs/release-notes/v0.0.6-beta1.md`
   2. The notes' install section covers `brew tap`, `brew trust`, `brew install`, the `brew update && brew upgrade` path and the quarantine command
   3. The cask on `main` points at `0.0.6-beta1`
+
 **Plans**: TBD
 
 ## Progress
@@ -117,7 +131,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. CI and build | 0/0 | Not started | - |
+| 1. CI and build | 1/3 | In Progress|  |
 | 2. Bug fixes | 0/0 | Not started | - |
 | 3. Ice and Sparkle leftovers | 0/0 | Not started | - |
 | 4. Outdated APIs | 0/0 | Not started | - |

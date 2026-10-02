@@ -9,11 +9,11 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### CI and build
 
-- [ ] **CI-01**: Workflows use current action versions (`actions/checkout` v5 or newer) and no deprecated runtime warnings remain
+- [x] **CI-01**: Workflows use current action versions (`actions/checkout` v5 or newer) and no deprecated runtime warnings remain
 - [ ] **CI-02**: SwiftLint runs with a maintained setup (official SwiftLint, not `norio-nomura/action-swiftlint@3.2.1`) and still passes `--strict`
-- [ ] **CI-03**: The unit tests (`swift test`, `Tests/IceMacOS27CoreTests`) run on every pull request
-- [ ] **CI-04**: The build workflow prints compiler warnings (deprecations) so they are visible in the log
-- [ ] **CI-05**: Xcode version is pinned explicitly in CI and the README states the real build requirement
+- [x] **CI-03**: The unit tests (`swift test`, `Tests/IceMacOS27CoreTests`) run on every pull request
+- [x] **CI-04**: The build workflow prints compiler warnings (deprecations) so they are visible in the log
+- [x] **CI-05**: Xcode version is pinned explicitly in CI and the README states the real build requirement
 - [ ] **CI-06**: The Xcode project carries holzIce's version (not `0.11.13-dev.2a`) and no Development Team of the original project; `Scripts/install.sh` builds for anyone (ad hoc signing)
 - [ ] **CI-07**: `release.yml` uses the `0.0.6-beta1` scheme in its examples/comments, checks the release notes once, and passes the version input through an environment variable instead of inline `${{ }}` in shell
 
@@ -91,11 +91,11 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CI-01 | Phase 1 | Pending |
+| CI-01 | Phase 1 | Complete |
 | CI-02 | Phase 1 | Pending |
-| CI-03 | Phase 1 | Pending |
-| CI-04 | Phase 1 | Pending |
-| CI-05 | Phase 1 | Pending |
+| CI-03 | Phase 1 | Complete |
+| CI-04 | Phase 1 | Complete |
+| CI-05 | Phase 1 | Complete |
 | CI-06 | Phase 1 | Pending |
 | CI-07 | Phase 1 | Pending |
 | BUG-01 | Phase 2 | Pending |
