@@ -36,6 +36,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [ ] **LEFT-04**: Unused files and dead code are removed (`Resources/rearranging.mov`, `rearranging.gif`, `Icon.png`, `RunLoopLocalEventMonitor.swift`, `ObjectStorage.swift`, the "Copy to Applications" stub phase, `ENABLE_USER_SELECTED_FILES`, redundant `managedItems(for:)`)
 - [ ] **LEFT-05**: The bug report template asks for holzIce version, macOS version and install method with current placeholders
 - [ ] **LEFT-06**: README and docs are consistent (Thaw in the conflicting apps list, one bug-report count)
+- [ ] **LEFT-08**: The settings sidebar shows the colored holzIce logo as on the website (ice cube with chevron on the wooden plank, sparkle, transparent background — the motif from `Resources/Logo/banner.svg` without the dark tile) to the left of the "holzIce" title, as a vector image asset (`Logo.imageset`, SVG with preserved vector data), sized to the title height
 - [ ] **LEFT-07**: The hard-coded logger subsystem uses the shared `Logger(category:)`; the `"SU"` exclusion is commented
 
 ### Outdated APIs
@@ -112,6 +113,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | LEFT-04 | Phase 3 | Pending |
 | LEFT-05 | Phase 3 | Pending |
 | LEFT-06 | Phase 3 | Pending |
+| LEFT-08 | Phase 3 | Pending |
 | LEFT-07 | Phase 3 | Pending |
 | API-01 | Phase 4 | Pending |
 | API-02 | Phase 4 | Pending |
@@ -132,8 +134,8 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | REL-01 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 39 total
-- Mapped to phases: 39
+- v1 requirements: 40 total
+- Mapped to phases: 40
 - Unmapped: 0 ✓
 
 ---

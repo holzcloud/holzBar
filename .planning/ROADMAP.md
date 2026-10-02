@@ -61,13 +61,14 @@ Plans:
 
 **Goal**: Nothing of Ice or Sparkle remains unless it is credited, and the repository contains no unused files or dead code
 **Depends on**: Phase 2
-**Requirements**: LEFT-01, LEFT-02, LEFT-03, LEFT-04, LEFT-05, LEFT-06, LEFT-07
+**Requirements**: LEFT-01, LEFT-02, LEFT-03, LEFT-04, LEFT-05, LEFT-06, LEFT-07, LEFT-08
 **Success Criteria** (what must be TRUE):
   1. Acknowledgements and licenses are shown natively in the app (no PDF/RTF), list the packages actually used and no longer mention Sparkle
   2. NOTICE and the README credit Barometer and Thaw for the adapted macOS 27 code, and the README and docs agree (Thaw listed as conflicting app, one bug-report count)
   3. `FREQUENT_ISSUES.md` describes holzIce (or is gone) and the bug report template asks for holzIce version, macOS version and install method
   4. The listed unused files, stub build phase, setting and redundant code are gone and the app still builds
   5. The logger subsystem uses the shared `Logger(category:)` and the `"SU"` exclusion is commented
+  6. The settings sidebar shows the colored holzIce logo (as on the website) left of the title
 
 **Plans**: TBD
 
