@@ -123,4 +123,21 @@ struct SpacingRelaunchTests {
     func quitTimeoutIsTenSeconds() {
         #expect(SpacingRelaunch.quitTimeout == .seconds(10))
     }
+
+    @Test("No offset removes the spacing preferences")
+    func noOffsetRemovesThePreferences() {
+        #expect(SpacingRelaunch.spacingPreferenceValue(forOffset: 0) == nil)
+    }
+
+    @Test("An offset is added to macOS's default")
+    func offsetIsAddedToTheDefault() {
+        #expect(SpacingRelaunch.spacingPreferenceValue(forOffset: 4) == 20)
+        #expect(SpacingRelaunch.spacingPreferenceValue(forOffset: -8) == 8)
+    }
+
+    @Test("Both spacing keys are written")
+    func bothSpacingKeysAreWritten() {
+        #expect(SpacingRelaunch.spacingPreferenceKeys == ["NSStatusItemSpacing", "NSStatusItemSelectionPadding"])
+        #expect(SpacingRelaunch.defaultSpacing == 16)
+    }
 }

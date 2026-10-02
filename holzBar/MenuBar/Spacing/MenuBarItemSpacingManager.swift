@@ -9,17 +9,10 @@ import OSLog
 /// Manager for menu bar item spacing.
 @MainActor
 final class MenuBarItemSpacingManager {
-    /// UserDefaults keys.
-    private enum Key: String {
-        case spacing = "NSStatusItemSpacing"
-        case padding = "NSStatusItemSelectionPadding"
-
-        /// The default value for the key.
-        var defaultValue: Int {
-            switch self {
-            case .spacing: 16
-            case .padding: 16
-            }
+    /// An error thrown when the spacing preferences could not be saved.
+    private struct SaveError: LocalizedError {
+        var errorDescription: String? {
+            "The menu bar item spacing could not be saved."
         }
     }
 
@@ -45,29 +38,24 @@ final class MenuBarItemSpacingManager {
     /// Does not take effect until ``applyOffset()`` is called.
     var offset = 0
 
-    /// Runs a command with the given arguments.
-    private func runCommand(_ command: String, with arguments: [String]) async throws {
-        let process = Process()
-
-        process.executableURL = URL(filePath: "/usr/bin/env")
-        process.arguments = CollectionOfOne(command) + arguments
-
-        let task = Task.detached {
-            try process.run()
-            process.waitUntilExit()
+    /// Writes the spacing preferences for the current ``offset`` to the current host's
+    /// global domain, the same domain `defaults -currentHost -globalDomain` uses.
+    ///
+    /// An offset of 0 removes the preferences, which restores macOS's default.
+    private func writeSpacingPreferences() throws {
+        let value = SpacingRelaunch.spacingPreferenceValue(forOffset: offset).map { NSNumber(value: $0) }
+        for key in SpacingRelaunch.spacingPreferenceKeys {
+            CFPreferencesSetValue(
+                key as CFString,
+                value,
+                kCFPreferencesAnyApplication,
+                kCFPreferencesCurrentUser,
+                kCFPreferencesCurrentHost
+            )
         }
-
-        return try await task.value
-    }
-
-    /// Removes the value for the specified key.
-    private func removeValue(forKey key: Key) async throws {
-        try await runCommand("defaults", with: ["-currentHost", "delete", "-globalDomain", key.rawValue])
-    }
-
-    /// Sets the value for the specified key to the key's default value plus the given offset.
-    private func setOffset(_ offset: Int, forKey key: Key) async throws {
-        try await runCommand("defaults", with: ["-currentHost", "write", "-globalDomain", key.rawValue, "-int", String(key.defaultValue + offset)])
+        guard CFPreferencesSynchronize(kCFPreferencesAnyApplication, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost) else {
+            throw SaveError()
+        }
     }
 
     /// Asks the given app to quit and waits until it has, for at most
@@ -151,13 +139,7 @@ final class MenuBarItemSpacingManager {
     ///
     /// - Note: Calling this restarts all apps with a menu bar item.
     func applyOffset() async throws {
-        if offset == 0 {
-            try await removeValue(forKey: .spacing)
-            try await removeValue(forKey: .padding)
-        } else {
-            try await setOffset(offset, forKey: .spacing)
-            try await setOffset(offset, forKey: .padding)
-        }
+        try writeSpacingPreferences()
 
         try? await Task.sleep(for: .milliseconds(100))
 

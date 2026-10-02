@@ -27,10 +27,10 @@ enum Constants {
     static let repositoryURL = URL(string: "https://github.com/holzcloud/holzBar")!
 
     /// The holzBar issue tracker.
-    static let issuesURL = repositoryURL.appendingPathComponent("issues")
+    static let issuesURL = repositoryURL.appending(path: "issues")
 
     /// The holzBar releases.
-    static let releasesURL = repositoryURL.appendingPathComponent("releases")
+    static let releasesURL = repositoryURL.appending(path: "releases")
 
     /// The holzBar website.
     static let websiteURL = URL(string: "https://holzcloud.ch/holzbar")!
