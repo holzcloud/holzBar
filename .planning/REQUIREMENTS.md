@@ -58,8 +58,8 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [x] **API-04**: Spacing writes preferences through `CFPreferences` instead of spawning `defaults`
 - [x] **API-05**: `holzice://` URLs arrive through `application(_:open:)` instead of `NSAppleEventManager`
 - [x] **API-06**: The Screen Recording deep link uses the current System Settings identifier
-- [ ] **API-07**: AXSwift is replaced by direct AX calls and removed from both targets
-- [ ] **DEP-01**: Every Swift package (`Package.resolved`) is on its latest stable release (Ifrit is replaced by holzBar's own fuzzy search — user decision 2026-10-02), and the app still builds and behaves the same
+- [x] **API-07**: AXSwift is replaced by direct AX calls and removed from both targets
+- [x] **DEP-01**: Every Swift package (`Package.resolved`) is on its latest stable release (Ifrit is replaced by holzBar's own fuzzy search — user decision 2026-10-02), and the app still builds and behaves the same
 - [x] **API-08**: Windows are opened and closed through a captured `OpenWindowAction`/`DismissWindowAction`, not a fresh `EnvironmentValues()`
 
 ### Modern, lean and private
@@ -156,8 +156,8 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | API-04 | Phase 4 | Complete |
 | API-05 | Phase 4 | Complete |
 | API-06 | Phase 4 | Complete |
-| API-07 | Phase 4 | Pending |
-| DEP-01 | Phase 4 | Pending |
+| API-07 | Phase 4 | Complete |
+| DEP-01 | Phase 4 | Complete |
 | API-08 | Phase 4 | Complete |
 | SEC-01 | Phase 5 | Pending |
 | SEC-02 | Phase 5 | Pending |

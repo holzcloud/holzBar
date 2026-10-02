@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-10-02T18:14:38.378Z"
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-10-02T18:23:05.146Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: 6108602bbb85a99ebe1251d6fe16102d02502dc3
+state_head: d23fec178327ab23971b1cf64d4219fbef8f8d7c
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 20
-  completed_plans: 17
+  completed_plans: 18
 ---
 
 # Project State
@@ -72,6 +72,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P02 | 10min | 3 tasks | 15 files |
 | Phase 04 P01 | 18min | 3 tasks | 12 files |
 | Phase 04 P02 | 16min | 3 tasks | 12 files |
+| Phase 04 P03 | 20min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,8 @@ Recent decisions affecting current work:
 - [Phase 04]: API-05: URL commands through application(_:open:) and a tested Core URLCommand; scenes match no external event
 - [Phase 04]: API-08: AppState opens windows through the actions captured from the scenes, replaying early requests
 - [Phase 04]: API-07: AXHelpers call the AX C API with CFGetTypeID checks; AXSwift imported nowhere
+- [Phase 04]: User decision: Ifrit replaced by holzBar's own FuzzyMatch (Core, tested); misspellings no longer match
+- [Phase 04]: API-07/DEP-01: AXSwift removed from both targets; CompactSlider 2.1.0, LaunchAtLogin-Modern 1.1.0, Semaphore 0.1.0 are latest; build log lists resolved packages and app size
 
 ### Pending Todos
 
@@ -135,6 +138,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T18:14:38.316Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-10-02T18:23:05.076Z
+Stopped at: Completed 04-03-PLAN.md
 Resume file: None
