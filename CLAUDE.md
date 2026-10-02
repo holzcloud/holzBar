@@ -7,6 +7,11 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 - **Everything in this repository is written in English**: code, comments, commit messages, pull requests, issues, README and other docs. This applies even when the conversation is in another language.
 - Always credit Ice and Jordan Baird as the original project (README, NOTICE). Keep the GPL-3.0 license.
 
+## Workflow
+
+- Work with **GSD** ([OpenGSD gsd-core](https://github.com/open-gsd/gsd-core)) whenever possible. It is installed locally in `.claude/` (commands `/gsd-*`, agents, hooks in `.claude/settings.json`), so every session has it. Planning state lives in `.planning/`. Start with `/gsd-help`; for this existing codebase, `/gsd-map-codebase` maps it and `/gsd-new-project` / `/gsd-plan-phase` / `/gsd-execute-phase` drive the work.
+- Update GSD with `npx -y @opengsd/gsd-core@latest --claude --local` and commit the result.
+
 ## Naming
 
 - The app is called **holzIce** everywhere a user can see it (UI strings, menus, README). The bundle identifier is `com.holzcloud.holzIce`, the product is `holzIce.app`.
