@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 02-04-PLAN.md
-last_updated: "2026-10-02T16:19:14.704Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-10-02T17:50:07.361Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: af48d9aad9173cc07b401acf9d469091728c89d2
+state_head: 12129ad2e0dcfe8a2a0ef8d54818a4e867332c56
 progress:
   total_phases: 10
   completed_phases: 0
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 20
+  completed_plans: 14
 ---
 
 # Project State
@@ -68,6 +68,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P02 | 15min | 2 tasks | 7 files |
 | Phase 02 P03 | 20min | 2 tasks | 7 files |
 | Phase 02 P04 | 12min | 2 tasks | 4 files |
+| Phase 03 P01 | 16min | 2 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,8 @@ Recent decisions affecting current work:
 - [Phase 02]: BUG-06: the app sets its same-team peer requirement only when it has a team; LightweightCodeRequirements is imported only in MenuBarItemService/Listener.swift
 - [Phase 02]: BUG-08 (D-03): macOS 27 system item allowlist is 0 through 127, the measured range, held in SystemItems27; 63 only matched jordanbaird/Ice#1001
 - [Phase 02]: BUG-04: event source cache guarded by one OSAllocatedUnfairLock (withLockUnchecked; CGEventSource is not Sendable)
+- [Phase 03]: LEFT-01: acknowledgements are pure Core data checked by swift test against Package.resolved, shown in a native SwiftUI sheet; PDF/RTF removed
+- [Phase 03]: LEFT-08 superseded by REN-06 (sidebar logo already in place)
 
 ### Pending Todos
 
@@ -121,6 +124,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T16:19:14.654Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-10-02T17:50:07.301Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
