@@ -11,13 +11,19 @@ on:
       - ".github/workflows/lint.yml"
       - ".swiftlint.yml"
       - "**/*.swift"
+permissions:
+  contents: read
 jobs:
   swiftlint:
-    if: '!github.event.pull_request.merged'
     runs-on: ubuntu-latest
+    env:
+      # The official SwiftLint image, pinned by digest so a re-pushed tag
+      # cannot change what runs. Bumping SwiftLint means updating both the
+      # version tag and the digest.
+      SWIFTLINT_IMAGE: ghcr.io/realm/swiftlint:0.65.1@sha256:f47e083201e47a136cda5ae847595bfe00226c444ca226fa74fa5dc648a9b057
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: Run SwiftLint
-        uses: norio-nomura/action-swiftlint@3.2.1
-        with:
-          args: --strict
+        run: |
+          docker run --rm -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" "$SWIFTLINT_IMAGE" swiftlint version
+          docker run --rm -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" "$SWIFTLINT_IMAGE" swiftlint lint --strict
