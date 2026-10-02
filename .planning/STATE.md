@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-10-02T17:50:07.361Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-10-02T17:57:03.623Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: 12129ad2e0dcfe8a2a0ef8d54818a4e867332c56
+state_head: 4ad4304ead4e63065e2bf69f42b708c9f5cb860d
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 20
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -69,6 +69,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P03 | 20min | 2 tasks | 7 files |
 | Phase 02 P04 | 12min | 2 tasks | 4 files |
 | Phase 03 P01 | 16min | 2 tasks | 17 files |
+| Phase 03 P02 | 10min | 3 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,8 @@ Recent decisions affecting current work:
 - [Phase 02]: BUG-04: event source cache guarded by one OSAllocatedUnfairLock (withLockUnchecked; CGEventSource is not Sendable)
 - [Phase 03]: LEFT-01: acknowledgements are pure Core data checked by swift test against Package.resolved, shown in a native SwiftUI sheet; PDF/RTF removed
 - [Phase 03]: LEFT-08 superseded by REN-06 (sidebar logo already in place)
+- [Phase 03]: LEFT-04: unused media, dead types, the Copy to Applications stub phase, ENABLE_USER_SELECTED_FILES and ItemCache.managedItems(for:) removed
+- [Phase 03]: LEFT-07: click bridge logs through Logger(category:); Core derives the subsystem from the bundle (cannot see Shared/)
 
 ### Pending Todos
 
@@ -124,6 +127,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T17:50:07.301Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-10-02T17:57:03.567Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None

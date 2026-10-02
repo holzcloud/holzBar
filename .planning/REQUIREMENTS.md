@@ -44,11 +44,11 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [x] **LEFT-01**: (also fixes the "Ice uses …" sentence found in Phase 01.1 verification) Acknowledgements and license information are shown natively inside the app (a SwiftUI view in About, no PDF/RTF), list the packages actually used with their licenses, and no longer mention Sparkle; `Acknowledgements.pdf`/`.rtf` are removed
 - [x] **LEFT-02**: NOTICE and the README credits name Barometer and Thaw for the adapted macOS 27 code
 - [x] **LEFT-03**: `FREQUENT_ISSUES.md` describes holzIce (or is removed and its useful parts moved to the README)
-- [ ] **LEFT-04**: Unused files and dead code are removed (`Resources/rearranging.mov`, `rearranging.gif`, `Icon.png`, `RunLoopLocalEventMonitor.swift`, `ObjectStorage.swift`, the "Copy to Applications" stub phase, `ENABLE_USER_SELECTED_FILES`, redundant `managedItems(for:)`)
+- [x] **LEFT-04**: Unused files and dead code are removed (`Resources/rearranging.mov`, `rearranging.gif`, `Icon.png`, `RunLoopLocalEventMonitor.swift`, `ObjectStorage.swift`, the "Copy to Applications" stub phase, `ENABLE_USER_SELECTED_FILES`, redundant `managedItems(for:)`)
 - [x] **LEFT-05**: The bug report template asks for holzIce version, macOS version and install method with current placeholders
 - [x] **LEFT-06**: README and docs are consistent (Thaw in the conflicting apps list, one bug-report count)
 - [x] **LEFT-08**: (superseded by REN-06) The settings sidebar shows the colored holzIce logo as on the website (ice cube with chevron on the wooden plank, sparkle, transparent background — the motif from `Resources/Logo/banner.svg` without the dark tile) to the left of the "holzIce" title, as a vector image asset (`Logo.imageset`, SVG with preserved vector data), sized to the title height
-- [ ] **LEFT-07**: The hard-coded logger subsystem uses the shared `Logger(category:)`; the `"SU"` exclusion is commented
+- [x] **LEFT-07**: The hard-coded logger subsystem uses the shared `Logger(category:)`; the `"SU"` exclusion is commented
 
 ### Outdated APIs
 
@@ -145,11 +145,11 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | LEFT-01 | Phase 3 | Complete |
 | LEFT-02 | Phase 3 | Complete |
 | LEFT-03 | Phase 3 | Complete |
-| LEFT-04 | Phase 3 | Pending |
+| LEFT-04 | Phase 3 | Complete |
 | LEFT-05 | Phase 3 | Complete |
 | LEFT-06 | Phase 3 | Complete |
 | LEFT-08 | Phase 3 | Complete |
-| LEFT-07 | Phase 3 | Pending |
+| LEFT-07 | Phase 3 | Complete |
 | API-01 | Phase 4 | Pending |
 | API-02 | Phase 4 | Pending |
 | API-03 | Phase 4 | Pending |

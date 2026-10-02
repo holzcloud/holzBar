@@ -101,11 +101,11 @@ Plans:
   5. The logger subsystem uses the shared `Logger(category:)` and the `"SU"` exclusion is commented
   6. The settings sidebar shows the colored holzIce logo (as on the website) left of the title (superseded by REN-06, done)
 
-**Plans**: 1/2 plans executed (sequential waves; one PR for Phases 3 to 5, pushed once per plan)
+**Plans**: 2/2 plans executed (sequential waves; one PR for Phases 3 to 5, pushed once per plan)
 
 Plans:
 - [x] 03-01-PLAN.md — Tracer: native, tested acknowledgements sheet in About (Core data checked against Package.resolved, license texts in the app, build check), PDF/RTF removed; Barometer/Thaw credits, README Troubleshooting replaces FREQUENT_ISSUES.md, README/docs agree, modern bug template; LEFT-08 superseded; draft PR opened
-- [ ] 03-02-PLAN.md — Unused media, dead types, stub build phase and sandbox-only setting removed; item cache read through its subscript; click bridge on Logger(category:), SU exclusion commented
+- [x] 03-02-PLAN.md — Unused media, dead types, stub build phase and sandbox-only setting removed; item cache read through its subscript; click bridge on Logger(category:), SU exclusion commented
 
 ### Phase 4: Outdated APIs
 
@@ -212,7 +212,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 1. CI and build | 3/3 | Complete (human check: install.sh on a Mac) | 2026-10-02 |
 | 01.1. Rename to holzBar | 6/6 | In Progress|  |
 | 2. Bug fixes | 4/4 | In Progress|  |
-| 3. Ice and Sparkle leftovers | 1/2 | In Progress|  |
+| 3. Ice and Sparkle leftovers | 2/2 | In Progress|  |
 | 4. Outdated APIs | 0/0 | Not started | - |
 | 5. Security and performance | 0/0 | Not started | - |
 | 6. Security audit | 0/0 | Not started | - |
