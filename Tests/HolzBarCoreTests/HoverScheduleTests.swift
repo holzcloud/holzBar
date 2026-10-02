@@ -8,10 +8,14 @@ struct HoverScheduleTests {
         case hide
     }
 
+    // The schedule is mutated outside `#expect` and `#require`, whose expansions cannot
+    // call a mutating method.
+
     @Test("The first request starts an action")
     func firstRequestStartsAnAction() {
         var schedule = HoverSchedule<Action>()
-        #expect(schedule.request(.show) != nil)
+        let generation = schedule.request(.show)
+        #expect(generation != nil)
         #expect(schedule.pending == .show)
     }
 
@@ -19,15 +23,18 @@ struct HoverScheduleTests {
     func secondRequestForTheSameActionStartsNothing() {
         var schedule = HoverSchedule<Action>()
         _ = schedule.request(.show)
-        #expect(schedule.request(.show) == nil)
+        let second = schedule.request(.show)
+        #expect(second == nil)
         #expect(schedule.pending == .show)
     }
 
     @Test("A different action replaces the pending one")
     func differentActionReplacesThePendingOne() throws {
         var schedule = HoverSchedule<Action>()
-        let first = try #require(schedule.request(.show))
-        let second = try #require(schedule.request(.hide))
+        let showing = schedule.request(.show)
+        let replacing = schedule.request(.hide)
+        let first = try #require(showing)
+        let second = try #require(replacing)
         #expect(second > first)
         #expect(schedule.pending == .hide)
     }
@@ -35,17 +42,20 @@ struct HoverScheduleTests {
     @Test("Finishing the current action allows the next one")
     func finishingTheCurrentActionAllowsTheNextOne() throws {
         var schedule = HoverSchedule<Action>()
-        let generation = try #require(schedule.request(.show))
+        let requested = schedule.request(.show)
+        let generation = try #require(requested)
         schedule.finish(generation)
         #expect(schedule.pending == nil)
-        #expect(schedule.request(.show) != nil)
+        let next = schedule.request(.show)
+        #expect(next != nil)
     }
 
     @Test("Finishing an older action changes nothing")
     func finishingAnOlderActionChangesNothing() throws {
         var schedule = HoverSchedule<Action>()
-        let older = try #require(schedule.request(.show))
-        _ = try #require(schedule.request(.hide))
+        let requested = schedule.request(.show)
+        let older = try #require(requested)
+        _ = schedule.request(.hide)
         schedule.finish(older)
         #expect(schedule.pending == .hide)
     }

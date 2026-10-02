@@ -3,10 +3,14 @@ import Testing
 
 @Suite("RevealTrigger")
 struct RevealTriggerTests {
+    // The trigger is updated outside `#expect`, whose expansion cannot call a mutating
+    // method.
+
     @Test("A rule fires when its condition starts")
     func firesWhenTheConditionStarts() {
         var trigger = RevealTrigger()
-        #expect(trigger.update(true))
+        let fired = trigger.update(true)
+        #expect(fired)
         #expect(trigger.isActive)
     }
 
@@ -14,15 +18,18 @@ struct RevealTriggerTests {
     func doesNotFireAgainWhileTheConditionLasts() {
         var trigger = RevealTrigger()
         _ = trigger.update(true)
-        #expect(!trigger.update(true))
+        let firedAgain = trigger.update(true)
+        #expect(!firedAgain)
     }
 
     @Test("A rule fires again after its condition ended")
     func firesAgainAfterTheConditionEnded() {
         var trigger = RevealTrigger()
         _ = trigger.update(true)
-        #expect(!trigger.update(false))
-        #expect(trigger.update(true))
+        let firedOnEnd = trigger.update(false)
+        let firedAgain = trigger.update(true)
+        #expect(!firedOnEnd)
+        #expect(firedAgain)
     }
 
     @Test("The battery level is a whole percentage")
