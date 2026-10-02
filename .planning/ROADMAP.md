@@ -13,10 +13,12 @@ The "Modernize" milestone removes everything outdated that the codebase audit (`
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: CI and build** - Current actions, maintained SwiftLint, unit tests on every PR, visible warnings, pinned Xcode, holzIce project metadata
+- [x] **Phase 01.1: Rename to holzBar** (INSERTED) - Name, logo, identifiers, code and links say holzBar; holzIce settings are imported
 - [ ] **Phase 2: Bug fixes** - Spacing relaunch, data race, hotkey recorder, XPC ad hoc check, permission continuation, allowlist
 - [ ] **Phase 3: Ice and Sparkle leftovers** - Acknowledgements, credits, docs, templates, dead code and files removed
 - [ ] **Phase 4: Outdated APIs** - Modern URL, UserDefaults, CFPreferences, URL-open, window and AX APIs; AXSwift removed
 - [ ] **Phase 5: Security and performance** - Validated settings import, private logging, Caches storage, no needless tasks or polling
+- [ ] **Phase 05.1: Modern, lean and private** (INSERTED) - 2026 code, Swift 6, @Observable, fewer dependencies, no network, least privilege
 - [ ] **Phase 6: Security audit** - Full security analysis of the whole app, findings ranked, fixes chosen by the user done before the release
 - [ ] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated
 
@@ -43,6 +45,28 @@ Plans:
 - [x] 01-02-PLAN.md — Official SwiftLint 0.65.1 (digest-pinned image) with `--strict`; fix or deliberately configure what it reports
 - [x] 01-03-PLAN.md — holzIce version and no foreign team in the project, ad hoc `install.sh`, README build requirement, hardened `release.yml`; PR ready for review
 
+### Phase 01.1: Rename to holzBar (INSERTED)
+
+**Goal:** The app is called holzBar everywhere — name, logo, identifiers, code, project, repository links, cask — while the credit to the original Ice stays and existing holzIce users keep their settings
+**Requirements**: REN-01, REN-02, REN-03, REN-04, REN-05, REN-06, REN-07, REN-08
+**Depends on:** Phase 1
+**Success Criteria** (what must be TRUE):
+  1. No user-visible "holzIce" or "Ice" remains except the credit to the original Ice (About, README, NOTICE) and the Ice settings import; the Ice Bar is called "holzBar Shelf"
+  2. Bundle id, XPC service, product, URL scheme, cask, folders and links use holzBar (`com.holzcloud.holzBar`, `holzBar.app`, `holzbar://`, `holzcloud/holzBar`)
+  3. On first launch holzBar imports the settings and data of an installed holzIce; `brew upgrade` moves holzIce users to the holzbar cask
+  4. The Xcode project, target, scheme, module, source folder and type names no longer say Ice; build, test and swiftlint are green
+  5. The new logo is in the app icon, the settings sidebar, README banner and Resources/Logo
+
+**Plans:** 6/6 plans executed (sequential waves: one PR branch, every task verified by its CI checks)
+
+Plans:
+- [x] 01.1-01-PLAN.md — Tracer: holzBar.xcodeproj, target/scheme/module holzBar, folder holzBar/, test package HolzBarMacOS27Core, bundle ids com.holzcloud.holzBar(.MenuBarItemService) with a CI identifier check; phase PR opened
+- [x] 01.1-02-PLAN.md — Type, file and folder names: HolzBar<Name> UI components, HolzBarShelf<Name> in MenuBar/Shelf/, shelf/holzBarIcon members; stored key strings unchanged
+- [x] 01.1-03-PLAN.md — Every Swift text and comment says holzBar / holzBar Shelf; holzBar data folders, autosave names and links; developer scripts, docs and issue templates
+- [x] 01.1-04-PLAN.md — First-launch import of holzIce's settings, item images and iCloud file (before Ice's); ConflictingApps quits holzIce; holzbar:// with holzice:// alias; Raycast scripts
+- [x] 01.1-05-PLAN.md — holzBar logo: app icon in all sizes, vector sidebar logo next to the title, Resources/Logo/holzBar.svg, banner.svg/png
+- [x] 01.1-06-PLAN.md — Casks/holzbar.rb + cask_renames.json proven by a cask CI job, release workflow, README/NOTICE/CLAUDE.md; user renames the repository after the merge
+
 ### Phase 2: Bug fixes
 
 **Goal**: The real bugs found by the audit are fixed so spacing, hotkeys, XPC and permissions behave correctly on every supported macOS version
@@ -55,7 +79,13 @@ Plans:
   4. Waiting for a permission twice never hangs, and the event source cache has no data race
   5. The macOS 27 system item allowlist comment and code agree
 
-**Plans**: TBD
+**Plans**: 4 plans (sequential waves: one PR branch, every task verified by its CI checks)
+
+Plans:
+- [ ] 02-01-PLAN.md — Tracer: tested `Ice/Core` package target; spacing relaunch keeps going past skipped processes (MenuBarAgent skipped on macOS 27), 10 s quit wait, no force-termination; phase PR opened
+- [ ] 02-02-PLAN.md — Hotkey recorder refuses Option-only combinations on macOS 15+ and says why (signature unchanged); every permission wait returns
+- [ ] 02-03-PLAN.md — XPC service accepts holzIce's ad hoc build by pinning the embedding app's signing identifier and code directory hashes (proven by a CodeSignature test suite); foreign processes still rejected
+- [ ] 02-04-PLAN.md — Lock-guarded event source cache; macOS 27 system item allowlist 0 to 127 with matching comment and tests; PR body complete
 
 ### Phase 3: Ice and Sparkle leftovers
 
@@ -102,6 +132,23 @@ Plans:
 
 **Plans**: TBD
 
+### Phase 05.1: Modern, lean and private (INSERTED)
+
+**Goal:** holzBar is written the way a macOS app is written in 2026, uses as little CPU, memory, disk and as few permissions as possible, and never talks to the network — without losing a feature
+**Requirements**: LEAN-01, MOD-01, MOD-02, MOD-03, MOD-04, MOD-05, MOD-06, LEAN-02, LEAN-03, PRIV-01, PRIV-02, PERM-01
+**Depends on:** Phase 5
+**Success Criteria** (what must be TRUE):
+  1. An analysis lists every modernisation, efficiency, size and speed improvement with gain and risk, and the user has chosen what to do
+  2. All targets build in Swift 6 language mode; models use `@Observable`
+  3. Dependencies that the system can replace are gone and the bundle is smaller; no needless polling remains
+  4. A CI check proves there is no network code, and the README states it; logs keep personal data private
+  5. Every permission and entitlement is justified by a feature, asked for only when needed, and anything unneeded is gone
+
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 05.1 to break down)
+
 ### Phase 6: Security audit
 
 **Goal**: The user knows every security risk of the app, ranked, and has decided which to fix
@@ -134,7 +181,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. CI and build | 3/3 | Complete (human check: install.sh on a Mac) | 2026-10-02 |
-| 2. Bug fixes | 0/0 | Not started | - |
+| 01.1. Rename to holzBar | 6/6 | In Progress|  |
+| 2. Bug fixes | 0/4 | Planned | - |
 | 3. Ice and Sparkle leftovers | 0/0 | Not started | - |
 | 4. Outdated APIs | 0/0 | Not started | - |
 | 5. Security and performance | 0/0 | Not started | - |

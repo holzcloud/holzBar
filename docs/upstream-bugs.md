@@ -1,17 +1,17 @@
 # Upstream bug reports
 
-In October 2026, [Ice](https://github.com/jordanbaird/Ice) had 282 open bug reports. This page groups them and records where each group stands in holzIce. Reports were read through their issue pages; most have no logs, so groups marked **open** need someone to reproduce them on a Mac.
+In October 2026, [Ice](https://github.com/jordanbaird/Ice) had 282 open bug reports. This page groups them and records where each group stands in holzBar. Reports were read through their issue pages; most have no logs, so groups marked **open** need someone to reproduce them on a Mac.
 
 Issue numbers below refer to [jordanbaird/Ice](https://github.com/jordanbaird/Ice/issues).
 
-## Fixed in holzIce
+## Fixed in holzBar
 
 | Group | Issues | Fix |
 |---|---|---|
 | macOS 27: nothing hides, "Loading menu bar items", layout editor spins | #954, #965, #970, #991, #992, #996, #999, #1003, #1006 | macOS 27 backend from [#995](https://github.com/jordanbaird/Ice/pull/995) |
 | Stuck on the permissions window although permissions are granted | #1004, #834 | "Reset and Grant Again" in the permissions window; `Scripts/install.sh` resets them for ad hoc builds |
 | Crash on clicking the icon or with the Ice Bar on macOS 26 (`EXC_BREAKPOINT`, `NSStatusBarWindow.windowNumber`) | #786, #796, #810, #821, #855, #867, #880, #905, #925, #947, #977, #779, #742, #669 | The `macos-26` base no longer casts window numbers with `CGWindowID(_:)`; see also [#989](https://github.com/jordanbaird/Ice/pull/989) |
-| "Check for updates automatically?" dialog that cannot be closed | #681, #688, #699, #837, #882, #912, #926, #931, #932, #937, #957, #969 | Sparkle is not started; holzIce updates through Homebrew |
+| "Check for updates automatically?" dialog that cannot be closed | #681, #688, #699, #837, #882, #912, #926, #931, #932, #937, #957, #969 | Sparkle is not started; holzBar updates through Homebrew |
 | Outdated Sparkle | #785 | Sparkle is removed |
 | Main thread hangs in screen capture | #777 | Captures run on their own queue (`macos-26` base) |
 | Ice Bar images too small or too large on another display | #825, #829, #929, #955, #987 | Scale derived from the capture (#995) |
@@ -19,7 +19,7 @@ Issue numbers below refer to [jordanbaird/Ice](https://github.com/jordanbaird/Ic
 | Hidden section's divider gone after Command-dragging it out | #619 | The divider is put back |
 | "Hide application menus" only works with the always-hidden section on | #434, #620, #879 | Shown hidden items are no longer dropped from the check |
 | Menu bar behaviour on displays without a menu bar ("Displays have separate Spaces" off) | #383, #456, #646 | Only the primary display counts as having a menu bar |
-| Layout editor or Ice Bar stuck on "Loading menu bar items…" on macOS 26 | #687, #710, #711, #677, #679, #762 and others | The menu bar item service failed to start (`XPCRichError` code 1, seen on 26.7.1). holzIce recognises its own dividers directly and looks up the other items in the app when the service fails |
+| Layout editor or Ice Bar stuck on "Loading menu bar items…" on macOS 26 | #687, #710, #711, #677, #679, #762 and others | The menu bar item service failed to start (`XPCRichError` code 1, seen on 26.7.1). holzBar recognises its own dividers directly and looks up the other items in the app when the service fails |
 
 ## Open
 
