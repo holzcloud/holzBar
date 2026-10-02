@@ -69,6 +69,7 @@ Plans:
   4. The listed unused files, stub build phase, setting and redundant code are gone and the app still builds
   5. The logger subsystem uses the shared `Logger(category:)` and the `"SU"` exclusion is commented
   6. The settings sidebar shows the colored holzIce logo (as on the website) left of the title
+  6. The settings sidebar shows the colored holzIce logo (as on the website) left of the title
 
 **Plans**: TBD
 
