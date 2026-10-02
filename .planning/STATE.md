@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-10-02T15:00:45.330Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-10-02T15:22:42.210Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: 652b1e6b93e91256898378a0fa3a28a514b5e278
+state_head: b66fe376939c4d2dca91cb8b118528b003182242
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 13
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Project State
@@ -65,6 +65,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01.1 P04 | 20min | 2 tasks | 15 files |
 | Phase 01.1 P06 | 20min | 2 tasks | 10 files |
 | Phase 02 P01 | 16min | 2 tasks | 4 files |
+| Phase 02 P02 | 15min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -93,6 +94,8 @@ Recent decisions affecting current work:
 - [Phase 01.1]: No conflicts_with cask holzice and no tap_migrations.json: the rename mapping would make holzbar conflict with itself, and both tap names are this repository
 - [Phase 02]: Spacing relaunch skips only holzBar, Control Center and MenuBarAgent (SpacingRelaunch.processesToRelaunch)
 - [Phase 02]: Apps get 10 s (SpacingRelaunch.quitTimeout) to quit and are never force terminated; the wait is KVO-driven and always returns
+- [Phase 02]: Option-only and Option+Shift-only hotkeys are refused on macOS 15+ in the recorder (alert, recording continues) and in HotkeyRegistry (logged); the Carbon signature stays OSType(1231250720) (D-01)
+- [Phase 02]: A permission wait returns false when stopCheck() ends it or its task is cancelled; the Grant buttons only reopen the permissions window on true
 
 ### Pending Todos
 
@@ -112,6 +115,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T15:00:45.280Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-10-02T15:22:42.160Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
