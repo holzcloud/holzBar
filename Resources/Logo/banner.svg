@@ -32,7 +32,9 @@
       <circle cx="1490" cy="93" r="7" fill-opacity="0.9"/>
       <rect x="1400" y="84" width="62" height="18" rx="5" fill-opacity="0.85"/>
       <rect x="1350" y="84" width="30" height="18" rx="5" fill-opacity="0.85"/>
-      <path d="M1316 84 l8 9 -8 9 -8 -9z" fill-opacity="0.95"/>
+      <rect x="1298" y="83" width="38" height="20" rx="10" fill="none" stroke="#FFFFFF" stroke-width="2.4"/>
+      <path d="M1313 88 l-5 5 5 5" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="1323" cy="93" r="3"/>
       <rect x="1270" y="84" width="22" height="18" rx="5" fill-opacity="0.3"/>
       <rect x="1236" y="84" width="22" height="18" rx="5" fill-opacity="0.3"/>
       <rect x="1202" y="84" width="22" height="18" rx="5" fill-opacity="0.3"/>

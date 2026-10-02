@@ -10,7 +10,7 @@ struct ControlItemImageSet: Codable, Hashable, Identifiable {
     enum Name: String, Codable, Hashable {
         case arrow = "Arrow"
         case chevron = "Chevron"
-        case crystal = "Crystal"
+        case logo = "holzIce"
         case door = "Door"
         case dot = "Dot"
         case ellipsis = "Ellipsis"
@@ -37,11 +37,12 @@ struct ControlItemImageSet: Codable, Hashable, Identifiable {
 }
 
 extension ControlItemImageSet {
-    /// The default image set for the holzIce icon: the crystals from the app icon.
+    /// The default image set for the holzIce icon: the menu bar with its
+    /// chevron from the app icon.
     static let defaultIceIcon = ControlItemImageSet(
-        name: .crystal,
-        hidden: .catalog("CrystalFill"),
-        visible: .catalog("CrystalStroke")
+        name: .logo,
+        hidden: .catalog("LogoFill"),
+        visible: .catalog("LogoStroke")
     )
 
     /// The image sets that the user can choose to display in the holzIce icon.
@@ -57,9 +58,9 @@ extension ControlItemImageSet {
             visible: .symbol("chevron.right")
         ),
         ControlItemImageSet(
-            name: .crystal,
-            hidden: .catalog("CrystalFill"),
-            visible: .catalog("CrystalStroke")
+            name: .logo,
+            hidden: .catalog("LogoFill"),
+            visible: .catalog("LogoStroke")
         ),
         ControlItemImageSet(
             name: .door,

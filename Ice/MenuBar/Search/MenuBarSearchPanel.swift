@@ -391,7 +391,7 @@ private struct SettingsButton: View {
 
     var body: some View {
         Button(action: action) {
-            Image(.crystalStroke)
+            Image(.logoStroke)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .foregroundStyle(.secondary)
