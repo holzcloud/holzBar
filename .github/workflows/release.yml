@@ -75,7 +75,7 @@ jobs:
           gh release create "$TAG" "$ZIP" \
             --target "$GITHUB_SHA" --title "holzBar $TAG" --notes-file "$NOTES" "${PRERELEASE[@]}"
 
-      # Until the first holzBar release the cask installs holzIce 0.0.5. Every
+      # Until the first holzBar release the cask installs 0.0.5, the app under its former name. Every
       # release points it at the holzBar zip and app just published; once that
       # is done, these edits change nothing but the version and sha256.
       - name: Update the Homebrew cask
@@ -88,8 +88,8 @@ jobs:
             -e '/^  # Until the first holzBar release/d' \
             -e 's|^  url ".*"$|  url "https://github.com/holzcloud/holzBar/releases/download/v#{version}/holzBar-#{version}.zip"|' \
             -e 's|^  app ".*"$|  app "holzBar.app"|' \
-            -e 's|"[{][{]appdir[}][}]/holzIce[.]app"|"{{appdir}}/holzBar.app"|' \
-            -e 's|writable_paths: [[]"holzIce[.]app"[]]|writable_paths: ["holzBar.app"]|' \
+            -e 's|"[{][{]appdir[}][}]/[^"/]*[.]app"|"{{appdir}}/holzBar.app"|' \
+            -e 's|writable_paths: [[]"[^"/]*[.]app"[]]|writable_paths: ["holzBar.app"]|' \
             -e 's|^  uninstall quit: .*|  uninstall quit: "com.holzcloud.holzBar"|' \
             Casks/holzbar.rb
           git config user.name "github-actions[bot]"
