@@ -71,33 +71,6 @@ Update with:
 brew update && brew upgrade --cask holzbar
 ```
 
-### Coming from holzIce
-
-holzIce is now holzBar. If you installed holzIce with Homebrew, trust the new cask name once, then update as usual:
-
-```sh
-brew trust --cask holzcloud/holzice/holzbar
-brew update && brew upgrade --cask holzbar
-```
-
-Your tap `holzcloud/holzice` keeps working: Homebrew knows the cask was renamed and moves your install to `holzbar` during `brew update`. The new trust is needed because Homebrew trusts casks by name and only loads a renamed cask you have trusted; trusting `holzcloud/holzice/holzice` does not help, and `brew install --cask holzice` asks you to trust `holzbar`. If you ran `brew update` before trusting it, run `brew migrate --cask holzice` once after `brew trust`. Until the first holzBar release there is nothing new to download; you keep holzIce 0.0.5 under the new name.
-
-To switch to the new tap name instead (recommended for a fresh install):
-
-```sh
-brew untap --force holzcloud/holzice
-brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
-brew trust --cask holzcloud/holzbar/holzbar
-brew install --cask holzbar
-```
-
-On its first launch, holzBar takes over holzIce's settings, layout profiles, item images and iCloud sync file, and offers to quit holzIce. Then:
-
-- macOS asks for Accessibility and Screen Recording again, because holzBar is a new app to it.
-- Turn on **Launch at login** again.
-- `holzice://` URLs and the old Raycast scripts keep working; the new scripts use `holzbar://`.
-- Sync between Macs continues once every Mac runs holzBar.
-
 ### If macOS says holzBar "can't be opened"
 
 holzBar is signed ad hoc, without an Apple Developer ID. The Homebrew cask removes the quarantine flag for you, but if you downloaded the zip yourself — or macOS still blocks the app — take it out of quarantine:
@@ -216,8 +189,6 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 | Signed with a Developer ID | ✅ | ❌ (ad hoc; the cask handles it) |
 
 ## 🖼 Gallery
-
-<sub>These screenshots were taken when holzBar was called holzIce and show that name until they are retaken.</sub>
 
 <p align="center"><img src="Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, the holzBar icon, the holzBar Shelf and showing hidden items on click, hover or scroll" width="760"></p>
 

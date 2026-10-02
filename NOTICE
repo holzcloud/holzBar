@@ -20,9 +20,8 @@ Changes made in holzBar since forking on 2026-10-01 include:
   - New features: layout profiles, groups, spacers, placement of new items,
     per-display holzBar Shelf, notch overflow, black menu bar, rounded screen
     corners, reveal rules, URL commands, settings export, import and sync.
-  - A new name (holzBar, bundle identifier com.holzcloud.holzBar; first
-    released as holzIce, com.holzcloud.holzIce), logo, app icon and menu bar
-    icon; settings of holzIce and of Ice are imported on first launch.
+  - A new name (holzBar, bundle identifier com.holzcloud.holzBar), logo, app
+    icon and menu bar icon; settings of Ice are imported on first launch.
 
 The full history of changes is available in this repository's Git history.
 

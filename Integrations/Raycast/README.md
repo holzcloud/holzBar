@@ -18,4 +18,4 @@ The scripts open `holzbar://` URLs, so the same commands work from Alfred, Short
 | `holzbar://application-menus/toggle` | Hide or show the application menus |
 | `holzbar://profile/<name>` | Apply a saved layout profile |
 
-The `holzice://` URLs from holzIce, including `holzice://ice-bar/toggle`, still work.
+`holzbar://ice-bar/toggle`, the command's name in Ice, still works.
