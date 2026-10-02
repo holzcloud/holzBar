@@ -10,10 +10,11 @@ import UniformTypeIdentifiers
 /// Exports holzBar's settings to a file and imports them from one
 /// (jordanbaird/Ice#326).
 ///
-/// The file is a property list of the app's defaults domain, so it holds
-/// everything: layout, hotkeys, appearance and the macOS 27 layout. Importing
-/// replaces the current settings and relaunches the app, as every model reads
-/// its settings once at launch.
+/// The file is a property list of holzBar's own settings (the `Defaults.Key` keys), so it
+/// holds the layout, hotkeys, appearance and the macOS 27 layout, but no window frames or
+/// other keys AppKit keeps in the defaults domain. Importing replaces the current settings
+/// with the ones that are holzBar's and have the expected kind (``SettingsSchema``), and
+/// relaunches the app, as every model reads its settings once at launch.
 @MainActor
 enum SettingsBackup {
     private static let logger = Logger(category: "SettingsBackup")
@@ -33,28 +34,50 @@ enum SettingsBackup {
         "SettingsSync",
     ]
 
-    /// The settings that are exported.
+    /// Returns a Boolean value that indicates whether the key is never exported,
+    /// imported, replaced or synced.
+    private static func isExcluded(_ key: String) -> Bool {
+        excludedKeyPrefixes.contains { key.hasPrefix($0) }
+    }
+
+    /// The settings that are exported and synced: holzBar's own keys only.
     static func currentSettings() -> [String: Any] {
         guard let bundleIdentifier = Bundle.main.bundleIdentifier else {
             return [:]
         }
         let domain = UserDefaults.standard.persistentDomain(forName: bundleIdentifier) ?? [:]
         return domain.filter { key, _ in
-            !excludedKeyPrefixes.contains { key.hasPrefix($0) }
+            Defaults.Key.importableKinds[key] != nil && !isExcluded(key)
         }
     }
 
     /// Replaces the current settings with the given ones.
-    static func apply(_ settings: [String: Any]) {
+    ///
+    /// Only holzBar's own keys with a value of the expected kind are applied; every other
+    /// key is ignored, counted in the log and returned.
+    ///
+    /// - Parameter settings: The settings from a file or from iCloud Drive.
+    /// - Returns: The keys that were ignored, sorted.
+    @discardableResult
+    static func apply(_ settings: [String: Any]) -> [String] {
         let defaults = UserDefaults.standard
-        for (key, _) in currentSettings() where settings[key] == nil {
+        let incoming = settings.filter { key, _ in !isExcluded(key) }
+        let (accepted, ignored) = SettingsSchema.validated(incoming, kinds: Defaults.Key.importableKinds)
+        for (key, _) in currentSettings() where accepted[key] == nil {
             defaults.removeObject(forKey: key)
         }
-        for (key, value) in settings where !excludedKeyPrefixes.contains(where: { key.hasPrefix($0) }) {
+        for (key, value) in accepted {
             defaults.set(value, forKey: key)
         }
         // Don't import a previous app's settings again on the next launch.
         defaults.set(true, forKey: Defaults.Key.hasImportedPreviousSettings.rawValue)
+        if !ignored.isEmpty {
+            let names = ignored.joined(separator: ", ")
+            logger.warning(
+                "Ignored \(ignored.count, privacy: .public) settings that are not holzBar's or have an unexpected type: \(names, privacy: .private)"
+            )
+        }
+        return ignored
     }
 
     /// Asks for a location and writes the settings there.

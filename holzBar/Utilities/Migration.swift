@@ -87,9 +87,12 @@ extension MigrationManager {
         // and items, not to holzBar's. The first launch after importing them
         // locked up a Mac on macOS 27 until it was restarted; the next launch
         // was fine.
-        let imported = settings.filter { key, _ in
+        let candidates = settings.filter { key, _ in
             !SettingsBackup.excludedKeyPrefixes.contains { key.hasPrefix($0) }
         }
+        // Only the settings holzBar stores, with the kind of value it expects, are taken
+        // over; anything else in Ice's domain stays there.
+        let imported = SettingsSchema.validated(candidates, kinds: Defaults.Key.importableKinds).accepted
         for (key, value) in imported {
             defaults.set(value, forKey: key)
         }
