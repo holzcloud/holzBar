@@ -4,6 +4,7 @@ import PackageDescription
 // Test-only package. It compiles holzBar's pure logic, `holzBar/Core` (any macOS) and
 // `holzBar/MenuBar/MacOS27/Core` (macOS 27), so it can be unit tested with `swift test`.
 // The app compiles the same files through the synchronized `holzBar` folder group.
+// It also compiles `Shared/CodeSigning`, the code signing helpers shared by the app and the XPC service.
 let package = Package(
     name: "HolzBarMacOS27Core",
     platforms: [.macOS(.v14)],
@@ -28,6 +29,17 @@ let package = Package(
             name: "HolzBarCoreTests",
             dependencies: ["HolzBarCore"],
             path: "Tests/HolzBarCoreTests",
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
+        .target(
+            name: "SharedCodeSigning",
+            path: "Shared/CodeSigning",
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
+        .testTarget(
+            name: "SharedCodeSigningTests",
+            dependencies: ["SharedCodeSigning"],
+            path: "Tests/SharedCodeSigningTests",
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
     ]
