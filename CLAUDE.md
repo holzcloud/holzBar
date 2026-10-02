@@ -50,7 +50,7 @@ These hold for every change, always, without taking a feature away:
 - `holzBar/` – the app. `holzBar/MenuBar/MacOS27/` is the macOS 27 backend (its core is the Swift package `HolzBarMacOS27Core`, tested by `swift test`).
 - `Casks/holzbar.rb` – the Homebrew cask; this repository is also the tap. `cask_renames.json` moves installs of the old `holzice` cask to `holzbar`.
 - `.github/workflows/build.yml` – builds every pull request on a macOS runner; the only way to compile without a Mac.
-- `.github/workflows/release.yml` – a `v*` tag builds the app on a macOS runner, publishes the release and updates the cask on `main`.
+- `.github/workflows/release.yml` – a `v*` tag builds the app on a macOS runner, publishes the release and updates the cask on `main`; a second job writes the version into the app's pages on holzcloud.ch (`.github/cms-version.py`, skipped for betas and without the `CMS_TOKEN` secret).
 - `.github/workflows/cask.yml` – for every pull request that touches the cask: `brew style`, `brew audit` and the move of an installed holzice to holzbar on a macOS runner.
 - `Resources/Logo/` – logo and README banner sources (SVG).
 - `Resources/Screenshots/` – real screenshots of the app, used by the README gallery (and on https://holzcloud.ch/holzbar). Most were taken when it was called holzIce; replace those, and the one of the original Ice, with screenshots of holzBar when they exist.
