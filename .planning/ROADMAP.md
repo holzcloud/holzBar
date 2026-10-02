@@ -131,6 +131,22 @@ Plans:
 
 **Plans**: TBD
 
+### Phase 05.1: Modern, lean and private (INSERTED)
+
+**Goal:** holzBar is written the way a macOS app is written in 2026, uses as little CPU, memory, disk and as few permissions as possible, and never talks to the network — without losing a feature
+**Requirements**: LEAN-01, MOD-01, MOD-02, MOD-03, MOD-04, MOD-05, MOD-06, LEAN-02, LEAN-03, PRIV-01, PRIV-02, PERM-01
+**Depends on:** Phase 5
+**Success Criteria** (what must be TRUE):
+  1. An analysis lists every modernisation, efficiency, size and speed improvement with gain and risk, and the user has chosen what to do
+  2. All targets build in Swift 6 language mode; models use `@Observable`
+  3. Dependencies that the system can replace are gone and the bundle is smaller; no needless polling remains
+  4. A CI check proves there is no network code, and the README states it; logs keep personal data private
+  5. Every permission and entitlement is justified by a feature, asked for only when needed, and anything unneeded is gone
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 05.1 to break down)
+
 ### Phase 6: Security audit
 
 **Goal**: The user knows every security risk of the app, ranked, and has decided which to fix

@@ -13,6 +13,15 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 - Ask the user every question as a multiple choice (the AskUserQuestion tool), never as free text.
 - Update GSD with `npx -y @opengsd/gsd-core@latest --claude --local` and commit the result.
 
+## Principles
+
+These hold for every change, always, without taking a feature away:
+
+- **Modern**: write code the way a macOS app is written today (current Swift language mode, Swift concurrency, `@Observable`, current SwiftUI/AppKit APIs); replace outdated APIs when touching code.
+- **Lean and fast**: as little CPU, energy, memory and disk as possible; no polling when an event or notification exists; small bundle, fast launch.
+- **Private**: the app never connects to the network — no telemetry, analytics, crash reporting, update checks or remote content. Opening a link in the browser is the only exception. Personal data stays on the Mac and out of logs.
+- **Least privilege**: request only the permissions and entitlements a feature really needs, only when it needs them, and say why.
+
 ## Dependencies
 
 - Always use the latest stable version of every library, package, tool and GitHub Action (Swift packages, SwiftLint, Xcode, actions). No pre-releases. When touching a dependency, update it to the latest stable release.
