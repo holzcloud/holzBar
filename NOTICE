@@ -1,29 +1,30 @@
-holzIce
+holzBar
 Copyright (C) 2026 holzcloud
 
-holzIce is a fork of Ice, a menu bar manager for macOS:
+holzBar is a fork of Ice, a menu bar manager for macOS:
 
     Ice
     Copyright (C) 2023-2025 Jordan Baird
     https://github.com/jordanbaird/Ice
 
-Ice is licensed under the GNU General Public License, version 3. holzIce is
+Ice is licensed under the GNU General Public License, version 3. holzBar is
 distributed under the same license; see LICENSE for the full text.
 
 As required by section 5 of the GPL-3.0, this is a modified version of Ice.
-Changes made in holzIce since forking on 2026-10-01 include:
+Changes made in holzBar since forking on 2026-10-01 include:
 
   - A macOS 27 backend, contributed upstream by RabenkoYevhenii in
-    https://github.com/jordanbaird/Ice/pull/995 and merged into holzIce.
+    https://github.com/jordanbaird/Ice/pull/995 and merged into holzBar.
   - Resetting a stale permission from the permissions window.
   - Distribution through Homebrew; the Sparkle updater is removed.
   - New features: layout profiles, groups, spacers, placement of new items,
-    per-display holzIce Bar, notch overflow, black menu bar, rounded screen
+    per-display holzBar Shelf, notch overflow, black menu bar, rounded screen
     corners, reveal rules, URL commands, settings export, import and sync.
-  - A new name (holzIce, bundle identifier com.holzcloud.holzIce), logo,
-    app icon and menu bar icon; settings of Ice are imported on first launch.
+  - A new name (holzBar, bundle identifier com.holzcloud.holzBar; first
+    released as holzIce, com.holzcloud.holzIce), logo, app icon and menu bar
+    icon; settings of holzIce and of Ice are imported on first launch.
 
 The full history of changes is available in this repository's Git history.
 
-The original Ice name, app and screenshots belong to Jordan Baird. holzIce is
+The original Ice name, app and screenshots belong to Jordan Baird. holzBar is
 an independent fork and is not affiliated with or endorsed by the Ice project.
