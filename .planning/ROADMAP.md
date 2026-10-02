@@ -20,6 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 5: Security and performance** - Validated settings import, private logging, Caches storage, no needless tasks or polling
 - [ ] **Phase 05.1: Modern, lean and private** (INSERTED) - 2026 code, Swift 6, @Observable, fewer dependencies, no network, least privilege
 - [ ] **Phase 6: Security audit** - Full security analysis of the whole app, findings ranked, fixes chosen by the user done before the release
+- [ ] **Phase 06.1: Compatibility check** (INSERTED) - Which macOS versions really work; 26 and 27 required, older ones optional
 - [ ] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated
 
 Each phase is one pull request and must build green on the macOS CI runner before merge.
@@ -160,6 +161,20 @@ Plans:
   3. The user has chosen which findings to fix, and those fixes are merged before the release
 
 **Plans**: TBD
+
+### Phase 06.1: Compatibility check (INSERTED)
+
+**Goal:** It is known and documented which macOS versions holzBar really runs on; macOS 26 and 27 are guaranteed, older versions are kept only where they cost little
+**Requirements**: COMPAT-01, COMPAT-02, COMPAT-03
+**Depends on:** Phase 6
+**Success Criteria** (what must be TRUE):
+  1. CI builds and runs the unit tests on every macOS runner GitHub offers (macos-14, macos-15, macos-26), and the deployment target matches the oldest version that really works
+  2. macOS 26 and 27 are verified on real Macs by the user with a short checklist (hiding, Shelf, layout editor, hotkeys, settings import)
+  3. README, cask `depends_on macos:` and release notes state the supported versions truthfully; if the user decides to drop 14/15, the old backend code is removed (lean)
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 06.1 to break down)
 
 ### Phase 7: Release 0.0.6-beta1
 

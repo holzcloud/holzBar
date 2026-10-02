@@ -86,6 +86,12 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [ ] **PERF-02**: Permission polling stops once all permissions are granted
 - [ ] **PERF-03**: Reveal rules react to power and network notifications instead of polling every 60 s
 
+### Compatibility
+
+- [ ] **COMPAT-01**: macOS 26 (Tahoe) and macOS 27 are supported without restriction; this is mandatory
+- [ ] **COMPAT-02**: For macOS 14 and 15 it is measured (CI builds and tests on macos-14 and macos-15 runners, `#available` branches reviewed) what works and what it costs to keep; the user decides whether to keep them or raise the deployment target to macOS 26 (which removes the pre-26 backend code)
+- [ ] **COMPAT-03**: README, the cask's `depends_on macos:`, the badge and the release notes state exactly the supported versions
+
 ### Release
 
 - [ ] **REL-01**: `0.0.6-beta1` is released with hand-written notes (brew trust, update, quarantine) and the cask points at it
@@ -172,11 +178,14 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | PRIV-02 | Phase 05.1 | Pending |
 | PERM-01 | Phase 05.1 | Pending |
 | AUDIT-01 | Phase 6 | Pending |
+| COMPAT-01 | Phase 06.1 | Pending |
+| COMPAT-02 | Phase 06.1 | Pending |
+| COMPAT-03 | Phase 06.1 | Pending |
 | REL-01 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 60 total
-- Mapped to phases: 60
+- v1 requirements: 63 total
+- Mapped to phases: 63
 - Unmapped: 0 ✓
 
 ---
