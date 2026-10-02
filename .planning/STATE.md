@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-10-02T18:05:13.837Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-10-02T18:14:38.378Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: 654c05d2d847383a3b6fa3010280aac47d8b55ee
+state_head: 6108602bbb85a99ebe1251d6fe16102d02502dc3
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 20
-  completed_plans: 16
+  completed_plans: 17
 ---
 
 # Project State
@@ -71,6 +71,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P01 | 16min | 2 tasks | 17 files |
 | Phase 03 P02 | 10min | 3 tasks | 15 files |
 | Phase 04 P01 | 18min | 3 tasks | 12 files |
+| Phase 04 P02 | 16min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -112,6 +113,9 @@ Recent decisions affecting current work:
 - [Phase 04]: API-04: spacing written through CFPreferences in the current host's global domain, no defaults process
 - [Phase 04]: API-03: sync files carry a per-Mac UUID (SettingsSync prefix never exported or synced) plus SCDynamicStoreCopyComputerName; name-only files still recognised
 - [Phase 04]: API-02: relaunch through NSWorkspace.openApplication with a pid hand-off; the new instance waits at most 10 s for the old
+- [Phase 04]: API-05: URL commands through application(_:open:) and a tested Core URLCommand; scenes match no external event
+- [Phase 04]: API-08: AppState opens windows through the actions captured from the scenes, replaying early requests
+- [Phase 04]: API-07: AXHelpers call the AX C API with CFGetTypeID checks; AXSwift imported nowhere
 
 ### Pending Todos
 
@@ -131,6 +135,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T18:05:03.847Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-10-02T18:14:38.316Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
