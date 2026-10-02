@@ -2,7 +2,8 @@
  <!--
   The holzBar README banner (holzcloud project banner layout): the logo, the name,
   the tagline and tags at the left, a menu bar with the holzBar menu open at the right.
-  Resources/Logo/banner.png is rendered from this file at 3200x800 with Chromium;
+  Resources/Logo/banner.png is rendered from this file at 3200x800 with Chromium by
+  Resources/Logo/render-banner.js, which turns the screen group (#screen-tilt) towards the text;
   the PNG uses Plus Jakarta Sans (SIL Open Font License 1.1), which is not committed.
  -->
  <defs>
@@ -86,8 +87,8 @@
   <rect x="1127.5" y="613.5" width="286" height="69" rx="34.5" fill="#0E1E31" stroke="#2A4157" stroke-width="3"/>
   <text x="1270.5" y="659" text-anchor="middle" class="tag" fill="#C9D2DE">Native macOS</text>
 
- <!-- screen, slightly tilted -->
- <g transform="rotate(-1.4 2490 400)">
+ <!-- screen; render-banner.js turns it towards the text in 3D -->
+ <g id="screen-tilt">
   <g filter="url(#shadow)">
    <rect x="1940" y="50" width="1092" height="710" rx="42" fill="#09121D"/>
   </g>
