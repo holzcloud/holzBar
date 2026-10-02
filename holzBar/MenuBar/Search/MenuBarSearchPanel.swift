@@ -320,7 +320,7 @@ private struct MenuBarSearchContentView: View {
                 }
                 items.append(SearchItem(headerItem, name.displayString))
 
-                for item in itemManager.itemCache.managedItems(for: name).reversed() {
+                for item in itemManager.itemCache[name].reversed() {
                     let listItem = ListItem.item(id: .item(item.tag)) {
                         performAction(for: item)
                     } content: {

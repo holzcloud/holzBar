@@ -168,12 +168,6 @@ extension MenuBarItemManager {
             self.displayID = displayID
         }
 
-        // TODO: This is redundant now, so remove it.
-        /// Returns the managed menu bar items for the given section.
-        func managedItems(for section: MenuBarSection.Name) -> [MenuBarItem] {
-            self[section]
-        }
-
         /// Returns the address for the menu bar item with the given tag,
         /// if it exists in the cache.
         func address(for tag: MenuBarItemTag) -> (section: MenuBarSection.Name, index: Int)? {

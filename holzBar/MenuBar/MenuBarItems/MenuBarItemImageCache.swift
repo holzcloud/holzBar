@@ -285,7 +285,7 @@ final class MenuBarItemImageCache: ObservableObject {
     /// Captures the images of the menu bar items in the given section and returns
     /// a dictionary containing the images, keyed by their menu bar item tags.
     private func captureImages(for section: MenuBarSection.Name, scale: CGFloat, appState: AppState) async -> [MenuBarItemTag: CapturedImage] {
-        let items = await appState.itemManager.itemCache.managedItems(for: section)
+        let items = await appState.itemManager.itemCache[section]
         let captureResult = await captureImages(of: items, scale: scale, appState: appState)
         if !captureResult.excluded.isEmpty {
             logger.error("Some items failed capture: \(captureResult.excluded, privacy: .public)")
@@ -309,7 +309,7 @@ final class MenuBarItemImageCache: ObservableObject {
             // There are no item windows to capture on macOS 27. See `ItemImageStore27`.
             var items = [MenuBarItem]()
             for section in sections {
-                items += await appState.itemManager.itemCache.managedItems(for: section)
+                items += await appState.itemManager.itemCache[section]
             }
             let store = await appState.itemImageStore27
             await store.captureActiveMenuBar(appState: appState)
