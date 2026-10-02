@@ -56,7 +56,7 @@ brew install --cask holzice
 Update with:
 
 ```sh
-brew upgrade --cask holzice
+brew update && brew upgrade --cask holzice
 ```
 
 ### If macOS says holzIce "can't be opened"

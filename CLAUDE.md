@@ -20,6 +20,8 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 - Releases before 1.0 are pre-releases (beta).
 - During the beta, don't bump the version for every release. Publish numbered betas of the next version instead: `0.0.6-beta1`, `0.0.6-beta2`, … (tag `v0.0.6-beta1`, notes `docs/release-notes/v0.0.6-beta1.md`). Publish a version without the `-betaN` suffix (a stable release) only when the user says there is a new stable release.
 - Every install guide (README, release notes) runs `brew trust --cask holzcloud/holzice/holzice` between `brew tap` and `brew install`; Homebrew refuses casks from untrusted third-party taps.
+- Updating is `brew update && brew upgrade --cask holzice`: without `brew update` Homebrew may not have fetched the tap and reports the old version as the latest.
+- The cask uses Homebrew's structured steps (`postflight_steps`), not Ruby `postflight` blocks, and `depends_on macos: :sonoma` (a symbol, not a comparison string).
 - Every release note's install section includes how to take the app out of quarantine (`xattr -dr com.apple.quarantine /Applications/holzIce.app`).
 - Keep the README's feature list and the comparison with Ice up to date when adding a feature.
 

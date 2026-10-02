@@ -102,7 +102,7 @@ struct AboutSettingsPane: View {
             HStack {
                 Text("Updates are installed with Homebrew:")
                 Spacer()
-                Text("brew upgrade --cask holzice")
+                Text("brew update && brew upgrade --cask holzice")
                     .font(.body.monospaced())
                     .textSelection(.enabled)
             }
