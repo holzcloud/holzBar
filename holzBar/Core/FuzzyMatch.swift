@@ -12,6 +12,13 @@ import Foundation
 /// characters can be found, the best one is scored: matches at the start, at the start of
 /// a word and at camel-case humps score higher, so do consecutive characters, and gaps
 /// cost a little. Typing "cc" therefore ranks "Control Centre" above "accent".
+///
+/// When the characters are not all there in order, a misspelt query can still match: if
+/// it is a few edits (a character added, missing, replaced, or two neighbours swapped)
+/// away from a word of the candidate, or from the start of one, it matches with fewer
+/// edits ranking higher. Queries of 4 to 7 characters may be 1 edit off, longer ones 2;
+/// shorter queries must match in order. Such typo matches always rank below every match
+/// in order.
 enum FuzzyMatch {
     /// The score of every matched character.
     private static let matchScore = 16
@@ -44,8 +51,32 @@ enum FuzzyMatch {
     /// - Returns: `nil` when the query's characters do not all appear in the candidate in
     ///   order; otherwise the score of the best match, higher is better.
     static func score(query: String, in candidate: String) -> Int? {
-        let characters = Array(fold(query).filter { !$0.isWhitespace })
-        let positions = Self.positions(of: candidate)
+        score(of: queryCharacters(query), in: positions(of: candidate))
+    }
+
+    /// The fewest edits that turn `query` into a word of `candidate`, or the start of one.
+    ///
+    /// An edit adds, removes or replaces a character, or swaps two neighbouring ones. Case,
+    /// diacritics, the query's spaces and the candidate's punctuation are ignored, and the
+    /// words that follow a word count as its continuation, so a query can span words.
+    ///
+    /// - Returns: `nil` when the query is shorter than 4 characters or more edits away than
+    ///   its length allows (1 edit for 4 to 7 characters, 2 for 8 or more).
+    static func typoEdits(query: String, in candidate: String) -> Int? {
+        typoEdits(of: queryCharacters(query), in: positions(of: candidate))
+    }
+
+    /// The edits a query of the given length may be off by; 0 when it must match in order.
+    static func allowedEdits(forQueryLength length: Int) -> Int {
+        switch length {
+        case ..<4: 0
+        case 4...7: 1
+        default: 2
+        }
+    }
+
+    /// The in-order score of the folded query `characters` in the candidate's `positions`.
+    private static func score(of characters: [Character], in positions: [Position]) -> Int? {
         guard !characters.isEmpty, characters.count <= positions.count else {
             return nil
         }
@@ -109,15 +140,23 @@ enum FuzzyMatch {
         guard query.contains(where: { !$0.isWhitespace }) else {
             return items
         }
+        let characters = queryCharacters(query)
         return items.enumerated()
-            .compactMap { offset, item -> (offset: Int, score: Int, item: T)? in
-                guard let score = Self.score(query: query, in: key(item)) else {
-                    return nil
+            .compactMap { offset, item -> (offset: Int, isTypo: Bool, score: Int, item: T)? in
+                let positions = Self.positions(of: key(item))
+                if let inOrder = Self.score(of: characters, in: positions) {
+                    return (offset, false, inOrder, item)
                 }
-                return (offset, score, item)
+                if let edits = Self.typoEdits(of: characters, in: positions) {
+                    return (offset, true, -edits, item)
+                }
+                return nil
             }
             .sorted { lhs, rhs in
-                lhs.score != rhs.score ? lhs.score > rhs.score : lhs.offset < rhs.offset
+                if lhs.isTypo != rhs.isTypo {
+                    return !lhs.isTypo
+                }
+                return lhs.score != rhs.score ? lhs.score > rhs.score : lhs.offset < rhs.offset
             }
             .map(\.item)
     }
@@ -127,6 +166,81 @@ enum FuzzyMatch {
     /// `string` without case and diacritics.
     private static func fold(_ string: String) -> String {
         string.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
+    }
+
+    /// The folded characters of `query`, without its spaces.
+    private static func queryCharacters(_ query: String) -> [Character] {
+        Array(fold(query).filter { !$0.isWhitespace })
+    }
+
+    /// The fewest edits between the folded query `characters` and a prefix of the
+    /// candidate's letters and digits that starts at a word, or `nil` beyond the bound.
+    ///
+    /// This is the optimal string alignment form of the Damerau–Levenshtein distance,
+    /// computed one candidate character at a time in two rows that are reused for every
+    /// word. The last entry of a row is the distance to the prefix read so far; once every
+    /// entry of a row exceeds the bound, longer prefixes cannot come closer, so the word is
+    /// left early.
+    private static func typoEdits(of characters: [Character], in positions: [Position]) -> Int? {
+        let maxEdits = allowedEdits(forQueryLength: characters.count)
+        guard maxEdits > 0 else {
+            return nil
+        }
+        let count = characters.count
+        // previousRow: the row of the prefix one character shorter. currentRow holds the
+        // row of the prefix two characters shorter until it is overwritten.
+        var previousRow = [Int](repeating: 0, count: count + 1)
+        var currentRow = [Int](repeating: 0, count: count + 1)
+        var fewest = Int.max
+
+        for (start, position) in positions.enumerated() where position.startsWord && isWordCharacter(position.character) {
+            for index in 0...count {
+                previousRow[index] = index
+            }
+            var previousCharacter: Character?
+            var length = 0
+            for candidatePosition in positions[start...] where isWordCharacter(candidatePosition.character) {
+                let character = candidatePosition.character
+                length += 1
+                // The entries of the row two characters shorter at index - 1 and index - 2,
+                // read before they are overwritten, for a swap of neighbours.
+                var twoShorterBeforeOne = 0
+                var twoShorterBeforeTwo = 0
+                var rowMinimum = Int.max
+                for index in 0...count {
+                    let twoShorter = currentRow[index]
+                    var edits = length
+                    if index > 0 {
+                        let substitution = previousRow[index - 1] + (characters[index - 1] == character ? 0 : 1)
+                        edits = min(previousRow[index] + 1, currentRow[index - 1] + 1, substitution)
+                        if
+                            index > 1,
+                            let previousCharacter,
+                            characters[index - 1] == previousCharacter,
+                            characters[index - 2] == character
+                        {
+                            edits = min(edits, twoShorterBeforeTwo + 1)
+                        }
+                    }
+                    currentRow[index] = edits
+                    rowMinimum = min(rowMinimum, edits)
+                    twoShorterBeforeTwo = twoShorterBeforeOne
+                    twoShorterBeforeOne = twoShorter
+                }
+                fewest = min(fewest, currentRow[count])
+                swap(&previousRow, &currentRow)
+                previousCharacter = character
+                if rowMinimum > maxEdits {
+                    break
+                }
+            }
+        }
+        return fewest <= maxEdits ? fewest : nil
+    }
+
+    /// A Boolean value that indicates whether the folded `character` belongs to a word.
+    private static func isWordCharacter(_ character: Character) -> Bool {
+        character.isLetter || character.isNumber
     }
 
     /// The folded characters of `candidate`, each with the word and hump it starts.

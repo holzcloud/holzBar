@@ -125,7 +125,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - ✅ **Groups** — several items behind an icon of their own
 - ✅ **Spacers** — empty items of adjustable width
 - ✅ **Choose where new items appear**
-- ✅ Search menu bar items
+- ✅ Search menu bar items — by abbreviation ("cc" for Control Centre) and despite typos
 - ✅ Item spacing <sub>BETA</sub>
 
 </td>

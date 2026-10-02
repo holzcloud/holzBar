@@ -73,4 +73,51 @@ struct FuzzyMatchTests {
         #expect(FuzzyMatch.rank(items, query: "") { $0 } == items)
         #expect(FuzzyMatch.rank(items, query: "  ") { $0 } == items)
     }
+
+    // MARK: Typos
+
+    @Test("A misspelt name finds Spotify")
+    func spotfyFindsSpotify() {
+        #expect(FuzzyMatch.typoEdits(query: "spotfy", in: "Spotify") == 1)
+        #expect(FuzzyMatch.rank(["Music", "Spotify"], query: "spotfy") { $0 } == ["Spotify"])
+        #expect(FuzzyMatch.rank(["Music", "Spotlight"], query: "spotlihgt") { $0 } == ["Spotlight"])
+    }
+
+    @Test("A misspelt name finds Bluetooth")
+    func blutoothFindsBluetooth() {
+        #expect(FuzzyMatch.typoEdits(query: "blutooth", in: "Bluetooth") == 1)
+        #expect(FuzzyMatch.rank(["Battery", "Bluetooth"], query: "blutooth") { $0 } == ["Bluetooth"])
+    }
+
+    @Test("A query of three letters does not match with a typo")
+    func shortQueryHasNoTypoMatch() {
+        #expect(FuzzyMatch.typoEdits(query: "wfi", in: "wfo") == nil)
+        #expect(FuzzyMatch.rank(["wfo"], query: "wfi") { $0 }.isEmpty)
+        #expect(FuzzyMatch.allowedEdits(forQueryLength: 3) == 0)
+        #expect(FuzzyMatch.allowedEdits(forQueryLength: 4) == 1)
+        #expect(FuzzyMatch.allowedEdits(forQueryLength: 7) == 1)
+        #expect(FuzzyMatch.allowedEdits(forQueryLength: 8) == 2)
+    }
+
+    @Test("An in-order match ranks above a typo match")
+    func inOrderRanksAboveTypo() {
+        // "contorl" is one swap away from "Control", but its letters appear in order only
+        // in "Contoso Remote Launcher".
+        #expect(FuzzyMatch.score(query: "contorl", in: "Control Centre") == nil)
+        let ranked = FuzzyMatch.rank(["Control Centre", "Contoso Remote Launcher"], query: "contorl") { $0 }
+        #expect(ranked == ["Contoso Remote Launcher", "Control Centre"])
+    }
+
+    @Test("Swapped neighbours find Control Centre")
+    func transpositionFindsControlCentre() {
+        #expect(FuzzyMatch.typoEdits(query: "contorl", in: "Control Centre") == 1)
+        #expect(FuzzyMatch.typoEdits(query: "cnetre", in: "Control Centre") == 1)
+    }
+
+    @Test("A query too many edits away does not match")
+    func tooManyEditsDoNotMatch() {
+        #expect(FuzzyMatch.typoEdits(query: "sputfa", in: "Spotify") == nil)
+        #expect(FuzzyMatch.typoEdits(query: "xxxx", in: "Spotify") == nil)
+        #expect(FuzzyMatch.typoEdits(query: "CAFFE", in: "Café") == 1)
+    }
 }
