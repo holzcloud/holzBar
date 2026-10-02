@@ -43,7 +43,7 @@ final class ItemImageStore27 {
 
     private let logger = Logger(category: "ItemImageStore27")
     private let directory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        .appendingPathComponent("holzBar/ItemImages", isDirectory: true)
+        .appending(path: "holzBar/ItemImages", directoryHint: .isDirectory)
     private var index = [String: IndexEntry]()
     private var loaded = [String: CapturedImage]()
     private var photoSchedule = PhotoSchedule27()
@@ -63,13 +63,13 @@ final class ItemImageStore27 {
     private var appearanceObserver: NSObjectProtocol?
 
     init() {
-        let versionFile = directory.appendingPathComponent("version.txt")
+        let versionFile = directory.appending(path: "version.txt")
         guard (try? String(contentsOf: versionFile, encoding: .utf8)) == Self.storeVersion else {
             try? FileManager.default.removeItem(at: directory)
             return
         }
         if
-            let data = try? Data(contentsOf: directory.appendingPathComponent("index.json")),
+            let data = try? Data(contentsOf: directory.appending(path: "index.json")),
             let stored = try? JSONDecoder().decode([String: IndexEntry].self, from: data)
         {
             index = stored
@@ -106,7 +106,7 @@ final class ItemImageStore27 {
         }
         guard
             let entry = index[key],
-            let source = CGImageSourceCreateWithURL(directory.appendingPathComponent(entry.fileName) as CFURL, nil),
+            let source = CGImageSourceCreateWithURL(directory.appending(path: entry.fileName) as CFURL, nil),
             let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil)
         else {
             return nil
@@ -410,7 +410,7 @@ final class ItemImageStore27 {
         let directory = directory
         Task.detached(priority: .utility) {
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            try? data.write(to: directory.appendingPathComponent(fileName), options: .atomic)
+            try? data.write(to: directory.appending(path: fileName), options: .atomic)
         }
     }
 
@@ -422,8 +422,8 @@ final class ItemImageStore27 {
         let version = Self.storeVersion
         Task.detached(priority: .utility) {
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            try? data.write(to: directory.appendingPathComponent("index.json"), options: .atomic)
-            try? version.write(to: directory.appendingPathComponent("version.txt"), atomically: true, encoding: .utf8)
+            try? data.write(to: directory.appending(path: "index.json"), options: .atomic)
+            try? version.write(to: directory.appending(path: "version.txt"), atomically: true, encoding: .utf8)
         }
     }
 }

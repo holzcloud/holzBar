@@ -27,6 +27,10 @@ enum SettingsBackup {
         // The original Ice updated itself with Sparkle, whose keys start with "SU"; holzBar
         // updates through Homebrew, so they are neither exported nor imported from Ice.
         "SU",
+        // This Mac's sync state (its sync id and the date of the last sync). A copied id
+        // would make two Macs ignore each other's changes, so these keys are never
+        // exported, imported, replaced or synced.
+        "SettingsSync",
     ]
 
     /// The settings that are exported.
@@ -66,7 +70,7 @@ enum SettingsBackup {
         do {
             let data = try PropertyListSerialization.data(fromPropertyList: currentSettings(), format: .xml, options: 0)
             try data.write(to: url, options: .atomic)
-            logger.notice("Exported settings to \(url.path, privacy: .public)")
+            logger.notice("Exported settings to \(url.path(percentEncoded: false), privacy: .private)")
         } catch {
             show(error, message: "The settings could not be exported.")
         }
@@ -96,7 +100,7 @@ enum SettingsBackup {
                 return
             }
             apply(settings)
-            logger.notice("Imported settings from \(url.path, privacy: .public)")
+            logger.notice("Imported settings from \(url.path(percentEncoded: false), privacy: .private)")
             relaunch()
         } catch {
             show(error, message: "The settings could not be imported.")
