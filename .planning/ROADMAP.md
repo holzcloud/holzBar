@@ -20,6 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 5: Security and performance** - Validated settings import, private logging, Caches storage, no needless tasks or polling
 - [ ] **Phase 05.1: Modern, lean and private** (INSERTED) - 2026 code, Swift 6, @Observable, fewer dependencies, no network, least privilege
 - [ ] **Phase 6: Security audit** - Full security analysis of the whole app, findings ranked, fixes chosen by the user done before the release
+- [ ] **Phase 06.1: Compatibility check** (INSERTED) - Which macOS versions really work; 26 and 27 required, older ones optional
 - [ ] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated
 
 Each phase is one pull request and must build green on the macOS CI runner before merge.
@@ -79,13 +80,13 @@ Plans:
   4. Waiting for a permission twice never hangs, and the event source cache has no data race
   5. The macOS 27 system item allowlist comment and code agree
 
-**Plans**: 4 plans (sequential waves: one PR branch, every task verified by its CI checks)
+**Plans**: 4/4 plans executed (sequential waves: one PR branch, every task verified by its CI checks)
 
 Plans:
-- [ ] 02-01-PLAN.md — Tracer: tested `Ice/Core` package target; spacing relaunch keeps going past skipped processes (MenuBarAgent skipped on macOS 27), 10 s quit wait, no force-termination; phase PR opened
-- [ ] 02-02-PLAN.md — Hotkey recorder refuses Option-only combinations on macOS 15+ and says why (signature unchanged); every permission wait returns
-- [ ] 02-03-PLAN.md — XPC service accepts holzIce's ad hoc build by pinning the embedding app's signing identifier and code directory hashes (proven by a CodeSignature test suite); foreign processes still rejected
-- [ ] 02-04-PLAN.md — Lock-guarded event source cache; macOS 27 system item allowlist 0 to 127 with matching comment and tests; PR body complete
+- [x] 02-01-PLAN.md — Tracer: tested `holzBar/Core` package target (`HolzBarCore`); spacing relaunch keeps going past skipped processes (MenuBarAgent skipped on macOS 27), 10 s event-driven quit wait, no force-termination; phase PR opened
+- [x] 02-02-PLAN.md — Hotkey recorder refuses Option-only combinations on macOS 15+ and says why (signature unchanged); every permission wait returns
+- [x] 02-03-PLAN.md — XPC service accepts holzBar's ad hoc build by pinning the embedding app's signing identifier and code directory hashes (proven by a CodeSignature test suite); foreign processes still rejected
+- [x] 02-04-PLAN.md — Lock-guarded event source cache; macOS 27 system item allowlist 0 to 127 with matching comment and tests; PR body complete
 
 ### Phase 3: Ice and Sparkle leftovers
 
@@ -161,6 +162,21 @@ Plans:
 
 **Plans**: TBD
 
+### Phase 06.1: Compatibility check (INSERTED)
+
+**Goal:** It is known and documented which macOS versions holzBar really runs on; macOS 26 and 27 are guaranteed, older versions are kept only where they cost little
+**Requirements**: COMPAT-01, COMPAT-02, COMPAT-03
+**Depends on:** Phase 6
+**Success Criteria** (what must be TRUE):
+  1. CI builds and runs the unit tests on every macOS runner GitHub offers (macos-14, macos-15, macos-26), and the deployment target matches the oldest version that really works
+  2. macOS 26 and 27 are verified on real Macs by the user with a short checklist (hiding, Shelf, layout editor, hotkeys, settings import)
+  3. README, cask `depends_on macos:` and release notes state the supported versions truthfully; if the user decides to drop 14/15, the old backend code is removed (lean)
+
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 06.1 to break down)
+
 ### Phase 7: Release 0.0.6-beta1
 
 **Goal**: Users can install and update to `0.0.6-beta1` through Homebrew with clear instructions
@@ -182,7 +198,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 |-------|----------------|--------|-----------|
 | 1. CI and build | 3/3 | Complete (human check: install.sh on a Mac) | 2026-10-02 |
 | 01.1. Rename to holzBar | 6/6 | In Progress|  |
-| 2. Bug fixes | 0/4 | Planned | - |
+| 2. Bug fixes | 4/4 | In Progress|  |
 | 3. Ice and Sparkle leftovers | 0/0 | Not started | - |
 | 4. Outdated APIs | 0/0 | Not started | - |
 | 5. Security and performance | 0/0 | Not started | - |

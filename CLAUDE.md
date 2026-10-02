@@ -1,6 +1,6 @@
 # holzBar
 
-holzBar (formerly holzIce) is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, a menu bar manager for macOS, with macOS 27 support and Homebrew distribution.
+holzBar is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, a menu bar manager for macOS, with macOS 27 support and Homebrew distribution.
 
 ## Rules
 
@@ -28,11 +28,12 @@ These hold for every change, always, without taking a feature away:
 
 ## Naming
 
-- The app is called **holzBar** (exactly so) everywhere a user can see it (UI strings, menus, README). The bundle identifier is `com.holzcloud.holzBar`, the product is `holzBar.app`, the XPC service is `com.holzcloud.holzBar.MenuBarItemService`, and the URL scheme is `holzbar://` with `holzice://` as an alias. Ice's bar is the **holzBar Shelf**.
+- The app is called **holzBar** (exactly so) everywhere a user can see it (UI strings, menus, README). The bundle identifier is `com.holzcloud.holzBar`, the product is `holzBar.app`, the XPC service is `com.holzcloud.holzBar.MenuBarItemService`, and the URL scheme is `holzbar://`. Ice's bar is the **holzBar Shelf**.
 - Internal names say holzBar too: the Xcode project `holzBar.xcodeproj`, target, scheme and Swift module `holzBar`, the source folder `holzBar/`, the test package `HolzBarMacOS27Core`. Types that carry the app's name are `HolzBar<Name>` (`HolzBarSection`, `HolzBarForm`, …), the Shelf's are `HolzBarShelf<Name>` with members `shelf<Name>`, and the holzBar icon's are `holzBarIcon<Name>`.
-- Persisted strings keep their old names: `Defaults.Key` and `HotkeyAction` raw values (such as `HasImportedIceSettings`) and the hotkey signature `OSType(1231250720)`. Renaming them would lose every user's settings and hotkeys, and the imports of holzIce and Ice settings rely on them.
+- Persisted strings keep their old names: `Defaults.Key` and `HotkeyAction` raw values (such as `HasImportedIceSettings`) and the hotkey signature `OSType(1231250720)`. Renaming them would lose every user's settings and hotkeys, and the import of Ice settings relies on them.
 - Links in the app and the repository lead to holzBar (`Constants.repositoryURL`, `Constants.issuesURL`, `Constants.websiteURL`). The only exception is the credit to the original: "Based on Ice by Jordan Baird" in the About pane (`Constants.originalIceURL`), the README and NOTICE. The website is https://holzcloud.ch/holzbar (`Constants.websiteURL`, README, cask `homepage`).
-- Keep `com.jordanbaird.Ice` and `com.holzcloud.holzIce` (and the names Ice and holzIce) only where they refer to those apps: importing their settings, the conflicting-app check, the `holzice://` alias, the cask rename and the `jordanbaird-ice` cask conflict, and the README's "Coming from holzIce" section.
+- Keep `com.jordanbaird.Ice` (and the name Ice) only where it refers to the original app: importing its settings, the conflicting-app check and the `jordanbaird-ice` cask conflict.
+- The app's former name (`holz` followed by `Ice`, in any capitalization or spelling) must not appear anywhere in the repository. The `former-name` job in `.github/workflows/build.yml` fails when it does; only `.planning/`, `.claude/` and `.github/cms-version.py` are exempt.
 
 ## Releases
 
@@ -48,12 +49,12 @@ These hold for every change, always, without taking a feature away:
 ## Layout
 
 - `holzBar/` – the app. `holzBar/MenuBar/MacOS27/` is the macOS 27 backend (its core is the Swift package `HolzBarMacOS27Core`, tested by `swift test`).
-- `Casks/holzbar.rb` – the Homebrew cask; this repository is also the tap. `cask_renames.json` moves installs of the old `holzice` cask to `holzbar`.
-- `.github/workflows/build.yml` – builds every pull request on a macOS runner; the only way to compile without a Mac.
+- `Casks/holzbar.rb` – the Homebrew cask; this repository is also the tap.
+- `.github/workflows/build.yml` – builds every pull request on a macOS runner (the only way to compile without a Mac), runs `swift test` and checks that the former name appears nowhere.
 - `.github/workflows/release.yml` – a `v*` tag builds the app on a macOS runner, publishes the release and updates the cask on `main`; a second job writes the version into the app's pages on holzcloud.ch (`.github/cms-version.py`, skipped for betas and without the `CMS_TOKEN` secret).
-- `.github/workflows/cask.yml` – for every pull request that touches the cask: `brew style`, `brew audit` and the move of an installed holzice to holzbar on a macOS runner.
+- `.github/workflows/cask.yml` – for every pull request that touches the cask: `brew style` and `brew audit` of the cask from this repository as the tap, on a macOS runner.
 - `Resources/Logo/` – logo and README banner sources (SVG).
-- `Resources/Screenshots/` – real screenshots of the app, used by the README gallery (and on https://holzcloud.ch/holzbar). Most were taken when it was called holzIce; replace those, and the one of the original Ice, with screenshots of holzBar when they exist.
+- `Resources/Screenshots/` – real screenshots of the app, used by the README gallery (and on https://holzcloud.ch/holzbar). Replace any that do not show holzBar as it is now, and the one of the original Ice, with new screenshots of holzBar when they exist.
 - `docs/upstream-bugs.md` – the open bug reports of the original Ice, grouped, and which of them holzBar has fixed. Update it when fixing one.
 
 ## Building

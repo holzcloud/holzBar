@@ -30,14 +30,14 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Bugs
 
-- [ ] **BUG-01**: Applying menu bar item spacing relaunches every affected app (`continue` instead of `break`)
-- [ ] **BUG-02**: Spacing relaunch waits long enough for apps to quit, does not force-terminate them after 1 s, and always resumes its continuation
-- [ ] **BUG-03**: Spacing relaunch collects the owning apps on macOS 27 too
-- [ ] **BUG-04**: The event source cache in `MenuBarItemManager` is free of data races
-- [ ] **BUG-05**: The hotkey recorder rejects combinations that macOS 15+ cannot register (Option or Option+Shift only) and tells the user; the hotkey signature stays identical to Ice's
-- [ ] **BUG-06**: The XPC menu bar item service accepts the app on ad hoc builds (no team identifier) while still rejecting foreign processes
-- [ ] **BUG-07**: Waiting for a permission twice never leaves a continuation unresumed
-- [ ] **BUG-08**: Comment and code of the macOS 27 system item allowlist agree
+- [x] **BUG-01**: Applying menu bar item spacing relaunches every affected app (`continue` instead of `break`)
+- [x] **BUG-02**: Spacing relaunch waits long enough for apps to quit, does not force-terminate them after 1 s, and always resumes its continuation
+- [x] **BUG-03**: Spacing relaunch collects the owning apps on macOS 27 too
+- [x] **BUG-04**: The event source cache in `MenuBarItemManager` is free of data races
+- [x] **BUG-05**: The hotkey recorder rejects combinations that macOS 15+ cannot register (Option or Option+Shift only) and tells the user; the hotkey signature stays identical to Ice's
+- [x] **BUG-06**: The XPC menu bar item service accepts the app on ad hoc builds (no team identifier) while still rejecting foreign processes
+- [x] **BUG-07**: Waiting for a permission twice never leaves a continuation unresumed
+- [x] **BUG-08**: Comment and code of the macOS 27 system item allowlist agree
 
 ### Leftovers
 
@@ -86,6 +86,12 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [ ] **PERF-02**: Permission polling stops once all permissions are granted
 - [ ] **PERF-03**: Reveal rules react to power and network notifications instead of polling every 60 s
 
+### Compatibility
+
+- [ ] **COMPAT-01**: macOS 26 (Tahoe) and macOS 27 are supported without restriction; this is mandatory
+- [ ] **COMPAT-02**: For macOS 14 and 15 it is measured (CI builds and tests on macos-14 and macos-15 runners, `#available` branches reviewed) what works and what it costs to keep; the user decides whether to keep them or raise the deployment target to macOS 26 (which removes the pre-26 backend code)
+- [ ] **COMPAT-03**: README, the cask's `depends_on macos:`, the badge and the release notes state exactly the supported versions
+
 ### Release
 
 - [ ] **REL-01**: `0.0.6-beta1` is released with hand-written notes (brew trust, update, quarantine) and the cask points at it
@@ -128,14 +134,14 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | REN-06 | Phase 01.1 | Complete |
 | REN-07 | Phase 01.1 | Complete |
 | REN-08 | Phase 01.1 | Complete |
-| BUG-01 | Phase 2 | Pending |
-| BUG-02 | Phase 2 | Pending |
-| BUG-03 | Phase 2 | Pending |
-| BUG-04 | Phase 2 | Pending |
-| BUG-05 | Phase 2 | Pending |
-| BUG-06 | Phase 2 | Pending |
-| BUG-07 | Phase 2 | Pending |
-| BUG-08 | Phase 2 | Pending |
+| BUG-01 | Phase 2 | Complete |
+| BUG-02 | Phase 2 | Complete |
+| BUG-03 | Phase 2 | Complete |
+| BUG-04 | Phase 2 | Complete |
+| BUG-05 | Phase 2 | Complete |
+| BUG-06 | Phase 2 | Complete |
+| BUG-07 | Phase 2 | Complete |
+| BUG-08 | Phase 2 | Complete |
 | LEFT-01 | Phase 3 | Pending |
 | LEFT-02 | Phase 3 | Pending |
 | LEFT-03 | Phase 3 | Pending |
@@ -172,11 +178,14 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | PRIV-02 | Phase 05.1 | Pending |
 | PERM-01 | Phase 05.1 | Pending |
 | AUDIT-01 | Phase 6 | Pending |
+| COMPAT-01 | Phase 06.1 | Pending |
+| COMPAT-02 | Phase 06.1 | Pending |
+| COMPAT-03 | Phase 06.1 | Pending |
 | REL-01 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 60 total
-- Mapped to phases: 60
+- v1 requirements: 63 total
+- Mapped to phases: 63
 - Unmapped: 0 ✓
 
 ---

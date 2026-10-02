@@ -5,6 +5,7 @@
 
 import Cocoa
 import Combine
+import os
 import OSLog
 import Semaphore
 
@@ -729,20 +730,26 @@ extension MenuBarItemManager {
     }
 
     /// Returns an event source for a menu bar item event operation.
+    ///
+    /// Moves and clicks call this concurrently from nonisolated code, so the cache
+    /// is guarded by a lock. The unchecked lock API is used because `CGEventSource`
+    /// is not Sendable.
     private nonisolated func getEventSource(
         with stateID: CGEventSourceStateID = .hidSystemState
     ) throws -> CGEventSource {
         enum Context {
-            static var cache = [CGEventSourceStateID: CGEventSource]()
+            static let sources = OSAllocatedUnfairLock(uncheckedState: [CGEventSourceStateID: CGEventSource]())
         }
-        if let source = Context.cache[stateID] {
+        return try Context.sources.withLockUnchecked { sources in
+            if let source = sources[stateID] {
+                return source
+            }
+            guard let source = CGEventSource(stateID: stateID) else {
+                throw EventError.invalidEventSource
+            }
+            sources[stateID] = source
             return source
         }
-        guard let source = CGEventSource(stateID: stateID) else {
-            throw EventError.invalidEventSource
-        }
-        Context.cache[stateID] = source
-        return source
     }
 
     /// Prevents local events from being suppressed.

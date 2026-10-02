@@ -61,12 +61,12 @@ final class MenuBarAssessmentAssertion27: ConcealmentBackend27 {
 
     /// The system items holzBar keeps on the bar.
     ///
-    /// MenuBarAgent numbers them, and on macOS 27.0 only five numbers draw anything: 0 is the
-    /// battery, 2 the clock, 6 Wi-Fi and 8 Control Centre; 1, 3, 4, 5 and 7 draw nothing, and so
-    /// does every number above 8. All of them are accepted, though, up to 127 at least, so the
-    /// range is wider than what this build of macOS draws: a system item added by a later build
-    /// would otherwise be concealed, and holzBar hides applications' items, not the system's. The
-    /// range matches the one @carlossantos74 arrived at in jordanbaird/Ice#1001.
+    /// MenuBarAgent numbers its system items, and on macOS 27.0 only 0 (battery), 2 (clock),
+    /// 6 (Wi-Fi) and 8 (Control Centre) draw anything. It accepted every number up to 127,
+    /// offered one at a time and all at once. holzBar keeps that whole measured range
+    /// (`SystemItems27`), so a system item added by a later build is not concealed: holzBar hides
+    /// applications' items, not the system's. jordanbaird/Ice#1001 (@carlossantos74) keeps 0 to
+    /// 63, which lies inside it.
     ///
     /// Control Centre's capture indicator — the green camera button, orange for the microphone,
     /// indigo for screen sharing — is not one of these numbers and cannot be kept. It is drawn
@@ -74,7 +74,7 @@ final class MenuBarAssessmentAssertion27: ConcealmentBackend27 {
     /// number to 127, Control Centre's bundle identifier, the capturing application's own. The
     /// small green dot beside the clock is not an item and stays either way. Measured with
     /// `Scripts/macos27/system-item-probe.swift` on macOS 27.0 (2026-09-29).
-    private static let systemItems = (0...63).map { NSNumber(value: $0) } as NSArray
+    private static let systemItems = SystemItems27.allowed.map { NSNumber(value: $0) } as NSArray
 
     private static let classes: (configuration: AnyClass, assertion: AnyClass)? = {
         guard

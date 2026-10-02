@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 01.1-06-PLAN.md (repository rename by the user pending)
-last_updated: "2026-10-02T14:16:00.237Z"
+stopped_at: Completed 02-04-PLAN.md
+last_updated: "2026-10-02T16:19:14.704Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: d6f029dd4b1360b625a6b5c50a0c9ca9ec3b066a
+state_head: af48d9aad9173cc07b401acf9d469091728c89d2
 progress:
-  total_phases: 9
+  total_phases: 10
   completed_phases: 0
   total_plans: 13
-  completed_plans: 9
+  completed_plans: 13
 ---
 
 # Project State
@@ -64,6 +64,10 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01.1 P03 | 11min | 2 tasks | 69 files |
 | Phase 01.1 P04 | 20min | 2 tasks | 15 files |
 | Phase 01.1 P06 | 20min | 2 tasks | 10 files |
+| Phase 02 P01 | 16min | 2 tasks | 4 files |
+| Phase 02 P02 | 15min | 2 tasks | 7 files |
+| Phase 02 P03 | 20min | 2 tasks | 7 files |
+| Phase 02 P04 | 12min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -90,6 +94,14 @@ Recent decisions affecting current work:
 - [Phase 01.1]: holzIce users must trust holzcloud/holzice/holzbar once before brew update: Homebrew 7.0.7 does not carry the holzice trust over to the renamed cask (measured in the cask job)
 - [Phase 01.1]: Interim cask holzbar installs holzIce 0.0.5 until the first holzBar release; release.yml switches url, app, postflight and uninstall to holzBar
 - [Phase 01.1]: No conflicts_with cask holzice and no tap_migrations.json: the rename mapping would make holzbar conflict with itself, and both tap names are this repository
+- [Phase 02]: Spacing relaunch skips only holzBar, Control Center and MenuBarAgent (SpacingRelaunch.processesToRelaunch)
+- [Phase 02]: Apps get 10 s (SpacingRelaunch.quitTimeout) to quit and are never force terminated; the wait is KVO-driven and always returns
+- [Phase 02]: Option-only and Option+Shift-only hotkeys are refused on macOS 15+ in the recorder (alert, recording continues) and in HotkeyRegistry (logged); the Carbon signature stays OSType(1231250720) (D-01)
+- [Phase 02]: A permission wait returns false when stopCheck() ends it or its task is cancelled; the Grant buttons only reopen the permissions window on true
+- [Phase 02]: BUG-06: on ad hoc builds the XPC listener requires SigningIdentifier(com.holzcloud.holzBar) plus CodeDirectoryHash.in(hashes of the embedding app); team builds require same team plus identifier; it fails closed (D-02)
+- [Phase 02]: BUG-06: the app sets its same-team peer requirement only when it has a team; LightweightCodeRequirements is imported only in MenuBarItemService/Listener.swift
+- [Phase 02]: BUG-08 (D-03): macOS 27 system item allowlist is 0 through 127, the measured range, held in SystemItems27; 63 only matched jordanbaird/Ice#1001
+- [Phase 02]: BUG-04: event source cache guarded by one OSAllocatedUnfairLock (withLockUnchecked; CGEventSource is not Sendable)
 
 ### Pending Todos
 
@@ -109,6 +121,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T14:16:00.190Z
-Stopped at: Completed 01.1-06-PLAN.md (repository rename by the user pending)
+Last session: 2026-10-02T16:19:14.654Z
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None

@@ -10,7 +10,6 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>holzbar</string>
-				<string>holzice</string>
 			</array>
 		</dict>
 	</array>

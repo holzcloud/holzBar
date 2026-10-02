@@ -19,7 +19,7 @@ Issue numbers below refer to [jordanbaird/Ice](https://github.com/jordanbaird/Ic
 | Hidden section's divider gone after Command-dragging it out | #619 | The divider is put back |
 | "Hide application menus" only works with the always-hidden section on | #434, #620, #879 | Shown hidden items are no longer dropped from the check |
 | Menu bar behaviour on displays without a menu bar ("Displays have separate Spaces" off) | #383, #456, #646 | Only the primary display counts as having a menu bar |
-| Layout editor or Ice Bar stuck on "Loading menu bar items…" on macOS 26 | #687, #710, #711, #677, #679, #762 and others | The menu bar item service failed to start (`XPCRichError` code 1, seen on 26.7.1). holzBar recognises its own dividers directly and looks up the other items in the app when the service fails |
+| Layout editor or Ice Bar stuck on "Loading menu bar items…" on macOS 26 | #687, #710, #711, #677, #679, #762 and others | The menu bar item service failed to start (`XPCRichError` code 1, seen on 26.7.1). holzBar recognises its own dividers directly and looks up the other items in the app when the service fails; the service also accepts holzBar's own ad hoc builds, which have no team identifier, by requiring the exact code of the app it is embedded in (signing identifier and code directory hashes) |
 
 ## Open
 

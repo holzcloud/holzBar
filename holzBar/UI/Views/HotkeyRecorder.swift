@@ -25,12 +25,15 @@ struct HotkeyRecorder<Label: View>: View {
             label
         }
         .alert(
-            "Hotkey is reserved by macOS",
-            isPresented: $model.isPresentingSystemReservedError
-        ) {
+            model.presentedProblem?.title ?? "",
+            isPresented: $model.isPresentingProblem,
+            presenting: model.presentedProblem
+        ) { _ in
             Button("OK") {
-                model.isPresentingSystemReservedError = false
+                model.presentedProblem = nil
             }
+        } message: { problem in
+            Text(problem.message)
         }
     }
 
@@ -124,7 +127,51 @@ private final class HotkeyRecorderModel: ObservableObject {
 
     @Published private(set) var isRecording = false
 
-    @Published var isPresentingSystemReservedError = false
+    /// A reason why the recorder refused the typed combination.
+    enum Problem {
+        /// macOS uses the combination for one of its own shortcuts.
+        case systemReserved
+        /// The only modifiers are Option, or Option and Shift, which macOS 15 and
+        /// later do not register.
+        case optionOnly
+
+        /// The title of the alert that explains the problem.
+        var title: String {
+            switch self {
+            case .systemReserved:
+                "Hotkey is reserved by macOS"
+            case .optionOnly:
+                "macOS does not allow this hotkey"
+            }
+        }
+
+        /// The message of the alert, which says what to do instead.
+        var message: String {
+            switch self {
+            case .systemReserved:
+                "macOS uses this combination for one of its own shortcuts. Choose another one."
+            case .optionOnly:
+                "Since macOS 15, a hotkey whose only modifiers are Option, or Option and Shift, cannot be registered. Add Command or Control."
+            }
+        }
+    }
+
+    /// The problem the alert presents, if any.
+    @Published var presentedProblem: Problem?
+
+    /// A Boolean value that indicates whether the alert for a problem is presented.
+    ///
+    /// Setting it to `false` clears the problem.
+    var isPresentingProblem: Bool {
+        get {
+            presentedProblem != nil
+        }
+        set {
+            if !newValue {
+                presentedProblem = nil
+            }
+        }
+    }
 
     let hotkey: Hotkey
 
@@ -175,20 +222,27 @@ private final class HotkeyRecorderModel: ObservableObject {
 
     private func handleKeyDown(event: NSEvent) {
         let keyCombination = KeyCombination(event: event)
-        guard !keyCombination.modifiers.isEmpty else {
+        let refusesOptionOnly = if #available(macOS 15.0, *) { true } else { false }
+        switch keyCombination.modifiers.rejection(refusesOptionOnly: refusesOptionOnly) {
+        case .missing:
             if keyCombination.key == .escape {
                 stopRecording()
             } else {
                 NSSound.beep()
             }
             return
-        }
-        guard keyCombination.modifiers != .shift else {
+        case .shiftOnly:
             NSSound.beep()
             return
+        case .optionOnly:
+            // Keep recording, so that the user can type another combination.
+            presentedProblem = .optionOnly
+            return
+        case nil:
+            break
         }
         guard !keyCombination.isSystemReserved else {
-            isPresentingSystemReservedError = true
+            presentedProblem = .systemReserved
             return
         }
         hotkey.keyCombination = keyCombination

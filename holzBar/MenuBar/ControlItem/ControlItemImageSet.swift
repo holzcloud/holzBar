@@ -17,25 +17,12 @@ struct ControlItemImageSet: Codable, Hashable, Identifiable {
         case iceCube = "Ice Cube"
         case sunglasses = "Sunglasses"
         case custom = "Custom"
+    }
 
-        /// The name the logo image set was stored under before the app
-        /// was renamed holzBar, decoded as ``logo``.
-        private static let previousLogoName = "holzIce"
-
-        init(from decoder: any Decoder) throws {
-            let container = try decoder.singleValueContainer()
-            let rawValue = try container.decode(String.self)
-            if rawValue == Self.previousLogoName {
-                self = .logo
-            } else if let name = Name(rawValue: rawValue) {
-                self = name
-            } else {
-                throw DecodingError.dataCorruptedError(
-                    in: container,
-                    debugDescription: "Unknown image set name \(rawValue)"
-                )
-            }
-        }
+    private enum CodingKeys: String, CodingKey {
+        case name
+        case hidden
+        case visible
     }
 
     let name: Name
@@ -48,6 +35,23 @@ struct ControlItemImageSet: Codable, Hashable, Identifiable {
         self.name = name
         self.hidden = hidden
         self.visible = visible
+    }
+
+    /// Decodes a stored image set. A name this version does not know, such as
+    /// one stored by an older version, decodes as the default image set, so
+    /// old settings never keep the rest of the settings from loading.
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let rawName = try container.decode(String.self, forKey: .name)
+        guard let name = Name(rawValue: rawName) else {
+            self = .defaultHolzBarIcon
+            return
+        }
+        self.init(
+            name: name,
+            hidden: try container.decode(ControlItemImage.self, forKey: .hidden),
+            visible: try container.decode(ControlItemImage.self, forKey: .visible)
+        )
     }
 
     init(name: Name, image: ControlItemImage) {
