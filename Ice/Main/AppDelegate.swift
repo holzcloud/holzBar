@@ -46,6 +46,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         #endif
 
+        // Another menu bar manager would fight holzIce over the same items.
+        guard ConflictingApps.resolve() else {
+            NSApp.terminate(nil)
+            return
+        }
+
         // Depending on the permissions state, either perform setup
         // or prompt to grant permissions.
         switch appState.permissions.permissionsState {
