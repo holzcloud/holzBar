@@ -86,11 +86,48 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
+| CI-01 | Phase 1 | Pending |
+| CI-02 | Phase 1 | Pending |
+| CI-03 | Phase 1 | Pending |
+| CI-04 | Phase 1 | Pending |
+| CI-05 | Phase 1 | Pending |
+| CI-06 | Phase 1 | Pending |
+| CI-07 | Phase 1 | Pending |
+| BUG-01 | Phase 2 | Pending |
+| BUG-02 | Phase 2 | Pending |
+| BUG-03 | Phase 2 | Pending |
+| BUG-04 | Phase 2 | Pending |
+| BUG-05 | Phase 2 | Pending |
+| BUG-06 | Phase 2 | Pending |
+| BUG-07 | Phase 2 | Pending |
+| BUG-08 | Phase 2 | Pending |
+| LEFT-01 | Phase 3 | Pending |
+| LEFT-02 | Phase 3 | Pending |
+| LEFT-03 | Phase 3 | Pending |
+| LEFT-04 | Phase 3 | Pending |
+| LEFT-05 | Phase 3 | Pending |
+| LEFT-06 | Phase 3 | Pending |
+| LEFT-07 | Phase 3 | Pending |
+| API-01 | Phase 4 | Pending |
+| API-02 | Phase 4 | Pending |
+| API-03 | Phase 4 | Pending |
+| API-04 | Phase 4 | Pending |
+| API-05 | Phase 4 | Pending |
+| API-06 | Phase 4 | Pending |
+| API-07 | Phase 4 | Pending |
+| API-08 | Phase 4 | Pending |
+| SEC-01 | Phase 5 | Pending |
+| SEC-02 | Phase 5 | Pending |
+| SEC-03 | Phase 5 | Pending |
+| PERF-01 | Phase 5 | Pending |
+| PERF-02 | Phase 5 | Pending |
+| PERF-03 | Phase 5 | Pending |
+| REL-01 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 37 total
-- Mapped to phases: 0
-- Unmapped: 37 ⚠️
+- Mapped to phases: 37
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-10-02*
