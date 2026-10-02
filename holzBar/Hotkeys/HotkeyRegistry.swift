@@ -136,6 +136,11 @@ final class HotkeyRegistry {
             return nil
         }
 
+        if #available(macOS 15.0, *), keyCombination.modifiers.rejection(refusesOptionOnly: true) == .optionOnly {
+            Logger.hotkeys.error("Hotkey not registered: macOS 15 and later do not register hotkeys whose only modifiers are Option, or Option and Shift")
+            return nil
+        }
+
         var status = installIfNeeded()
 
         guard status == noErr else {

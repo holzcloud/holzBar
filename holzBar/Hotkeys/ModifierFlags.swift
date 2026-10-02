@@ -67,7 +67,7 @@ extension Modifiers {
     }
 
     /// Creates modifiers from Cocoa flags.
-    init(nsEventFlags:NSEvent.ModifierFlags) {
+    init(nsEventFlags: NSEvent.ModifierFlags) {
         self.init()
         if nsEventFlags.contains(.control) {
             insert(.control)
@@ -84,7 +84,7 @@ extension Modifiers {
     }
 
     /// Creates modifiers from CoreGraphics flags.
-    init(cgEventFlags:CGEventFlags) {
+    init(cgEventFlags: CGEventFlags) {
         self.init()
         if cgEventFlags.contains(.maskControl) {
             insert(.control)
@@ -101,7 +101,7 @@ extension Modifiers {
     }
 
     /// Creates modifiers from raw Carbon flags.
-    init(carbonFlags:Int) {
+    init(carbonFlags: Int) {
         self.init()
         if carbonFlags & controlKey == controlKey {
             insert(.control)

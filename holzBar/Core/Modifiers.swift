@@ -62,6 +62,15 @@ extension Modifiers {
     ///   modifiers are Option, or Option and Shift. Callers pass `true` on macOS 15
     ///   and later.
     func rejection(refusesOptionOnly: Bool) -> Rejection? {
-        nil
+        switch self {
+        case []:
+            .missing
+        case .shift:
+            .shiftOnly
+        case .option, [.option, .shift]:
+            refusesOptionOnly ? .optionOnly : nil
+        default:
+            nil
+        }
     }
 }
