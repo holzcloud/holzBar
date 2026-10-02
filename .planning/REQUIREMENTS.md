@@ -64,7 +64,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Security audit
 
-- [ ] **AUDIT-01**: After the release, a full security analysis of the whole app (code, XPC service, URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline, cask) is written to `.planning/` with severity-ranked findings, and the user decides which to fix
+- [ ] **AUDIT-01**: Before the release, a full security analysis of the whole app (code, XPC service, URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline, cask) is written to `.planning/` with severity-ranked findings, the user decides which to fix, and those fixes ship in `0.0.6-beta1`
 
 ## v2 Requirements
 
@@ -126,8 +126,8 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | PERF-01 | Phase 5 | Pending |
 | PERF-02 | Phase 5 | Pending |
 | PERF-03 | Phase 5 | Pending |
-| REL-01 | Phase 6 | Pending |
-| AUDIT-01 | Phase 7 | Pending |
+| AUDIT-01 | Phase 6 | Pending |
+| REL-01 | Phase 7 | Pending |
 
 **Coverage:**
 - v1 requirements: 38 total

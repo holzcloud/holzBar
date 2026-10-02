@@ -17,8 +17,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 3: Ice and Sparkle leftovers** - Acknowledgements, credits, docs, templates, dead code and files removed
 - [ ] **Phase 4: Outdated APIs** - Modern URL, UserDefaults, CFPreferences, URL-open, window and AX APIs; AXSwift removed
 - [ ] **Phase 5: Security and performance** - Validated settings import, private logging, Caches storage, no needless tasks or polling
-- [ ] **Phase 6: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated
-- [ ] **Phase 7: Security audit** - Full security analysis of the whole app, findings ranked, user decides fixes
+- [ ] **Phase 6: Security audit** - Full security analysis of the whole app, findings ranked, fixes chosen by the user done before the release
+- [ ] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated
 
 Each phase is one pull request and must build green on the macOS CI runner before merge.
 
@@ -85,24 +85,24 @@ Each phase is one pull request and must build green on the macOS CI runner befor
   5. Reveal rules react to power and network notifications instead of polling every 60 s
 **Plans**: TBD
 
-### Phase 6: Release 0.0.6-beta1
-**Goal**: Users can install and update to `0.0.6-beta1` through Homebrew with clear instructions
+### Phase 6: Security audit
+**Goal**: The user knows every security risk of the app, ranked, and has decided which to fix
 **Depends on**: Phase 5
+**Requirements**: AUDIT-01
+**Success Criteria** (what must be TRUE):
+  1. A security report covers the app, the XPC service, the URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline and the cask
+  2. Every finding has a severity, a location and a proposed fix
+  3. The user has chosen which findings to fix, and those fixes are merged before the release
+**Plans**: TBD
+
+### Phase 7: Release 0.0.6-beta1
+**Goal**: Users can install and update to `0.0.6-beta1` through Homebrew with clear instructions
+**Depends on**: Phase 6
 **Requirements**: REL-01
 **Success Criteria** (what must be TRUE):
   1. The `v0.0.6-beta1` GitHub pre-release exists with hand-written notes from `docs/release-notes/v0.0.6-beta1.md`
   2. The notes' install section covers `brew tap`, `brew trust`, `brew install`, the `brew update && brew upgrade` path and the quarantine command
   3. The cask on `main` points at `0.0.6-beta1`
-**Plans**: TBD
-
-### Phase 7: Security audit
-**Goal**: The user knows every security risk of the app, ranked, and has decided which to fix
-**Depends on**: Phase 6
-**Requirements**: AUDIT-01
-**Success Criteria** (what must be TRUE):
-  1. A security report covers the app, the XPC service, the URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline and the cask
-  2. Every finding has a severity, a location and a proposed fix
-  3. The user has chosen which findings become follow-up work
 **Plans**: TBD
 
 ## Progress
@@ -117,5 +117,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 3. Ice and Sparkle leftovers | 0/0 | Not started | - |
 | 4. Outdated APIs | 0/0 | Not started | - |
 | 5. Security and performance | 0/0 | Not started | - |
-| 6. Release 0.0.6-beta1 | 0/0 | Not started | - |
-| 7. Security audit | 0/0 | Not started | - |
+| 6. Security audit | 0/0 | Not started | - |
+| 7. Release 0.0.6-beta1 | 0/0 | Not started | - |
