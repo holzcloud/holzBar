@@ -6,7 +6,7 @@
 import Foundation
 
 enum MenuBarItemService {
-    static let name = "com.holzcloud.holzIce.MenuBarItemService"
+    static let name = "com.holzcloud.holzBar.MenuBarItemService"
 }
 
 extension MenuBarItemService {

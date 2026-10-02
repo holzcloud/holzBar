@@ -60,7 +60,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement through
-the repository's [issue tracker](https://github.com/holzcloud/holzIce/issues)
+the repository's [issue tracker](https://github.com/holzcloud/holzBar/issues)
 or by contacting the maintainers of [holzcloud](https://github.com/holzcloud) on GitHub.
 All complaints will be reviewed and investigated promptly and fairly.
 

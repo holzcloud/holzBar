@@ -49,18 +49,18 @@ jobs:
       # refuse any embedded framework with a team of its own (see Scripts/install.sh).
       - name: Build
         run: |
-          xcodebuild -project Ice.xcodeproj -scheme Ice -configuration Release \
+          xcodebuild -project holzBar.xcodeproj -scheme holzBar -configuration Release \
             -destination 'platform=macOS' -derivedDataPath build build \
             MARKETING_VERSION="$VERSION" \
             CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
             CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
             ENABLE_HARDENED_RUNTIME=NO
-          codesign --verify --deep --strict build/Build/Products/Release/holzIce.app
+          codesign --verify --deep --strict build/Build/Products/Release/holzBar.app
 
       - name: Package
         run: |
-          ZIP="holzIce-$VERSION.zip"
-          ditto -c -k --keepParent build/Build/Products/Release/holzIce.app "$ZIP"
+          ZIP="holzBar-$VERSION.zip"
+          ditto -c -k --keepParent build/Build/Products/Release/holzBar.app "$ZIP"
           echo "ZIP=$ZIP" >> "$GITHUB_ENV"
           echo "SHA256=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
@@ -69,7 +69,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="v$VERSION"
-          # holzIce is in beta until 1.0: every 0.x release, and every tag with a
+          # holzBar is in beta until 1.0: every 0.x release, and every tag with a
           # suffix such as -beta1, is published as a pre-release.
           PRERELEASE=()
           if [[ "$TAG" == v0.* || "$TAG" == *-* ]]; then
@@ -77,8 +77,11 @@ jobs:
           fi
           NOTES="docs/release-notes/$TAG.md"
           gh release create "$TAG" "$ZIP" \
-            --target "$GITHUB_SHA" --title "holzIce $TAG" --notes-file "$NOTES" "${PRERELEASE[@]}"
+            --target "$GITHUB_SHA" --title "holzBar $TAG" --notes-file "$NOTES" "${PRERELEASE[@]}"
 
+      # Until the first holzBar release the cask installs 0.0.5, the app under its former name. Every
+      # release points it at the holzBar zip and app just published; once that
+      # is done, these edits change nothing but the version and sha256.
       - name: Update the Homebrew cask
         run: |
           git fetch origin main
@@ -86,14 +89,20 @@ jobs:
           sed -i '' -E \
             -e "s/^  version \".*\"/  version \"$VERSION\"/" \
             -e "s/^  sha256 .*/  sha256 \"$SHA256\"/" \
-            Casks/holzice.rb
+            -e '/^  # Until the first holzBar release/d' \
+            -e 's|^  url ".*"$|  url "https://github.com/holzcloud/holzBar/releases/download/v#{version}/holzBar-#{version}.zip"|' \
+            -e 's|^  app ".*"$|  app "holzBar.app"|' \
+            -e 's|"[{][{]appdir[}][}]/[^"/]*[.]app"|"{{appdir}}/holzBar.app"|' \
+            -e 's|writable_paths: [[]"[^"/]*[.]app"[]]|writable_paths: ["holzBar.app"]|' \
+            -e 's|^  uninstall quit: .*|  uninstall quit: "com.holzcloud.holzBar"|' \
+            Casks/holzbar.rb
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "holzice $VERSION"
+          git commit -am "holzbar $VERSION"
           git push origin main
 
-  # holzcloud.ch shows the released version on the holzIce page in five
-  # languages. This writes it there through the holzcloud-CMS once the
+  # holzcloud.ch shows the released version on the holzBar (formerly
+  # holzIce) page in five languages. This writes it there through the holzcloud-CMS once the
   # release exists, and reads it back. A beta (0.0.6-beta1) is skipped: the
   # site keeps showing the last plain release. .github/cms-version.py is a
   # copy of holzcloud-design's tools/cms-version.py, where its tests live
@@ -114,4 +123,4 @@ jobs:
         env:
           CMS_TOKEN: ${{ secrets.CMS_TOKEN }}
           VERSION: ${{ needs.release.outputs.version }}
-        run: python3 .github/cms-version.py --project holzice --version "$VERSION"
+        run: python3 .github/cms-version.py --project holzbar --version "$VERSION"

@@ -2,7 +2,7 @@
 // that overlaps the panel's own animation — and so whether the restore delay takes effect.
 //
 // usage: reveal-window [offset ...] -- [delay ...]     (all in milliseconds)
-// Requirements: holzIce installed and running and concealing, Thaw not running. Takes the pointer.
+// Requirements: holzBar installed and running and concealing, Thaw not running. Takes the pointer.
 import AppKit
 import ApplicationServices
 import ImageIO
@@ -85,7 +85,7 @@ func pressEscape() {
 func setDelay(_ milliseconds: Int) {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
-    process.arguments = ["write", "com.holzcloud.holzIce", "MacOS27ClickRestoreDelay", "-int", "\(milliseconds)"]
+    process.arguments = ["write", "com.holzcloud.holzBar", "MacOS27ClickRestoreDelay", "-int", "\(milliseconds)"]
     try? process.run()
     process.waitUntilExit()
     usleep(1_500_000)
@@ -156,10 +156,10 @@ for delay in delays {
     }
 }
 
-// Leave the default unset, so holzIce's own measured value decides again.
+// Leave the default unset, so holzBar's own measured value decides again.
 let clear = Process()
 clear.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
-clear.arguments = ["delete", "com.holzcloud.holzIce", "MacOS27ClickRestoreDelay"]
+clear.arguments = ["delete", "com.holzcloud.holzBar", "MacOS27ClickRestoreDelay"]
 try? clear.run()
 clear.waitUntilExit()
 _ = concealed

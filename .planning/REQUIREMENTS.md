@@ -17,6 +17,17 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [x] **CI-06**: The Xcode project carries holzIce's version (not `0.11.13-dev.2a`) and no Development Team of the original project; `Scripts/install.sh` builds for anyone (ad hoc signing)
 - [x] **CI-07**: `release.yml` uses the `0.0.6-beta1` scheme in its examples/comments, checks the release notes once, and passes the version input through an environment variable instead of inline `${{ }}` in shell
 
+### Rename to holzBar
+
+- [x] **REN-01**: Every user-visible text says "holzBar" (written exactly so) instead of "holzIce"/"Ice": UI strings, menus, alerts, permissions texts, Info.plist display names, README, docs, CLAUDE.md, NOTICE, issue templates, Raycast scripts. Exceptions: the credit to the original Ice by Jordan Baird (About, README, NOTICE), the Ice settings import, the `jordanbaird-ice` cask conflict, and past release notes (historical)
+- [x] **REN-02**: The "Ice Bar"/"holzIce Bar" feature is called "holzBar Shelf" in the UI and docs
+- [x] **REN-03**: Identifiers use holzBar: bundle id `com.holzcloud.holzBar`, XPC service `com.holzcloud.holzBar.MenuBarItemService`, product `holzBar.app`, URL scheme `holzbar://` (the old `holzice://` keeps working as an alias), logger subsystems, Application Support / Caches / iCloud Drive folders `holzBar`, release asset `holzBar-<version>.zip`
+- [x] **REN-04**: On first launch holzBar imports the settings and data (layout profiles, item images, iCloud sync file) of an installed holzIce (`com.holzcloud.holzIce`) with the same exclusions as the Ice import, before and instead of the Ice import; holzBar offers to quit a running holzIce like the other conflicting apps
+- [x] **REN-05**: The Xcode project, target, scheme, Swift module, source folder (`Ice/`), test targets, file names and type names no longer say Ice (e.g. `IceBar` → `HolzBarShelf`, `IceSection` → `HolzBarSection`); `Ice.xcodeproj` → `holzBar.xcodeproj`; CI, scripts, `.swiftlint.yml`, `Package.swift` follow
+- [x] **REN-06**: The new logo (`.planning/ideas/holzbar-logo.svg`: light menu bar with chevron and dots on the holzcloud plank) is the app icon in all sizes, the logo in the settings sidebar next to the title (replaces LEFT-08's holzIce logo), the README banner and `Resources/Logo/`
+- [x] **REN-07**: The Homebrew cask is `Casks/holzbar.rb` (token `holzbar`, app `holzBar.app`, zap paths for holzBar, `conflicts_with` holzice and jordanbaird-ice); `cask_renames.json` maps `holzice` → `holzbar` so `brew upgrade` migrates; all install guides use `brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar`, `brew trust --cask holzcloud/holzbar/holzbar`, `brew install --cask holzbar`
+- [x] **REN-08**: All links point to `https://github.com/holzcloud/holzBar` and the website `https://holzcloud.ch/holzbar` (`Constants`, README, cask homepage, release workflow); the user renames the GitHub repository
+
 ### Bugs
 
 - [ ] **BUG-01**: Applying menu bar item spacing relaunches every affected app (`continue` instead of `break`)
@@ -30,13 +41,13 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Leftovers
 
-- [ ] **LEFT-01**: Acknowledgements and license information are shown natively inside the app (a SwiftUI view in About, no PDF/RTF), list the packages actually used with their licenses, and no longer mention Sparkle; `Acknowledgements.pdf`/`.rtf` are removed
+- [ ] **LEFT-01**: (also fixes the "Ice uses …" sentence found in Phase 01.1 verification) Acknowledgements and license information are shown natively inside the app (a SwiftUI view in About, no PDF/RTF), list the packages actually used with their licenses, and no longer mention Sparkle; `Acknowledgements.pdf`/`.rtf` are removed
 - [ ] **LEFT-02**: NOTICE and the README credits name Barometer and Thaw for the adapted macOS 27 code
 - [ ] **LEFT-03**: `FREQUENT_ISSUES.md` describes holzIce (or is removed and its useful parts moved to the README)
 - [ ] **LEFT-04**: Unused files and dead code are removed (`Resources/rearranging.mov`, `rearranging.gif`, `Icon.png`, `RunLoopLocalEventMonitor.swift`, `ObjectStorage.swift`, the "Copy to Applications" stub phase, `ENABLE_USER_SELECTED_FILES`, redundant `managedItems(for:)`)
 - [ ] **LEFT-05**: The bug report template asks for holzIce version, macOS version and install method with current placeholders
 - [ ] **LEFT-06**: README and docs are consistent (Thaw in the conflicting apps list, one bug-report count)
-- [ ] **LEFT-08**: The settings sidebar shows the colored holzIce logo as on the website (ice cube with chevron on the wooden plank, sparkle, transparent background — the motif from `Resources/Logo/banner.svg` without the dark tile) to the left of the "holzIce" title, as a vector image asset (`Logo.imageset`, SVG with preserved vector data), sized to the title height
+- [ ] **LEFT-08**: (superseded by REN-06) The settings sidebar shows the colored holzIce logo as on the website (ice cube with chevron on the wooden plank, sparkle, transparent background — the motif from `Resources/Logo/banner.svg` without the dark tile) to the left of the "holzIce" title, as a vector image asset (`Logo.imageset`, SVG with preserved vector data), sized to the title height
 - [ ] **LEFT-07**: The hard-coded logger subsystem uses the shared `Logger(category:)`; the `"SU"` exclusion is commented
 
 ### Outdated APIs
@@ -50,6 +61,21 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [ ] **API-07**: AXSwift is replaced by direct AX calls and removed from both targets
 - [ ] **DEP-01**: Every Swift package (`Package.resolved`) is on its latest stable release (e.g. Ifrit 2.0.6 → latest), and the app still builds and behaves the same
 - [ ] **API-08**: Windows are opened and closed through a captured `OpenWindowAction`/`DismissWindowAction`, not a fresh `EnvironmentValues()`
+
+### Modern, lean and private
+
+- [ ] **LEAN-01**: An analysis of the whole code base (written to `.planning/phases/05.1-modern-lean-and-private/05.1-ANALYSIS.md`) lists everything that can be more modern (2026 Swift/SwiftUI/AppKit idioms), more efficient (CPU, energy, memory, wake-ups, polling), smaller (binary and bundle size, dependencies, assets) and faster (launch time, UI), each with location, gain and risk; the user picks what gets done
+- [ ] **MOD-01**: Swift 6 language mode for all targets (strict concurrency, no `@unchecked Sendable` without a written reason)
+- [ ] **MOD-02**: Models use `@Observable` instead of `ObservableObject` + `@Published` + Combine
+- [ ] **MOD-03**: The old Ice migration chain is collapsed into one import step
+- [ ] **MOD-04**: `MenuBarItemManager` and `HIDEventManager` are split per backend (pre-26, 26, 27)
+- [ ] **MOD-05**: Tests for migration, settings import/sync, URL commands and hotkeys
+- [ ] **MOD-06**: Settings sync uses `NSFileCoordinator` / `NSMetadataQuery`
+- [ ] **LEAN-02**: Every third-party dependency that the system frameworks can replace without losing a feature is removed (candidates: LaunchAtLogin-Modern → `SMAppService`, CompactSlider, Semaphore, Ifrit); the app bundle is measurably smaller (size before/after in the PR)
+- [ ] **LEAN-03**: No polling or timer runs while nothing can change (event- and notification-driven instead); idle CPU wake-ups are measured before/after where possible
+- [ ] **PRIV-01**: The app makes no network connection at all: no telemetry, analytics, crash reporting, update checks or remote fetches; a CI check fails if networking APIs (`URLSession`, `NWConnection`, `Network` framework sockets, web views) appear outside an explicit allowlist (opening links in the browser is allowed); entitlements contain no network client/server entitlement; documented in README ("Principles" section and banner, added in Phase 01.1, kept accurate here)
+- [ ] **PRIV-02**: No personal data leaves the Mac or lands in logs: logs use `privacy: .private` for anything user-specific, item images and settings stay local (iCloud sync only when the user turns it on)
+- [ ] **PERM-01**: holzBar asks only for the permissions it really needs, only when a feature needs them, and explains why in the permissions window; every permission, entitlement and Info.plist usage string is listed with the feature that needs it, and anything not needed is removed — without removing a feature
 
 ### Security and performance
 
@@ -70,12 +96,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ## v2 Requirements
 
-- **MOD-01**: Swift 6 language mode for all targets
-- **MOD-02**: Models use `@Observable` instead of `ObservableObject` + Combine
-- **MOD-03**: Ice migration chain collapsed into one import step
-- **MOD-04**: `MenuBarItemManager` and `HIDEventManager` split per backend
-- **MOD-05**: Tests for migration, settings import/sync, URL commands, hotkeys
-- **MOD-06**: Settings sync with `NSFileCoordinator` / `NSMetadataQuery`
+(MOD-01 to MOD-06 moved into v1, Phase 05.1)
 
 ## Out of Scope
 
@@ -99,6 +120,14 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | CI-05 | Phase 1 | Complete |
 | CI-06 | Phase 1 | Complete |
 | CI-07 | Phase 1 | Complete |
+| REN-01 | Phase 01.1 | Complete |
+| REN-02 | Phase 01.1 | Complete |
+| REN-03 | Phase 01.1 | Complete |
+| REN-04 | Phase 01.1 | Complete |
+| REN-05 | Phase 01.1 | Complete |
+| REN-06 | Phase 01.1 | Complete |
+| REN-07 | Phase 01.1 | Complete |
+| REN-08 | Phase 01.1 | Complete |
 | BUG-01 | Phase 2 | Pending |
 | BUG-02 | Phase 2 | Pending |
 | BUG-03 | Phase 2 | Pending |
@@ -130,12 +159,24 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | PERF-01 | Phase 5 | Pending |
 | PERF-02 | Phase 5 | Pending |
 | PERF-03 | Phase 5 | Pending |
+| LEAN-01 | Phase 05.1 | Pending |
+| MOD-01 | Phase 05.1 | Pending |
+| MOD-02 | Phase 05.1 | Pending |
+| MOD-03 | Phase 05.1 | Pending |
+| MOD-04 | Phase 05.1 | Pending |
+| MOD-05 | Phase 05.1 | Pending |
+| MOD-06 | Phase 05.1 | Pending |
+| LEAN-02 | Phase 05.1 | Pending |
+| LEAN-03 | Phase 05.1 | Pending |
+| PRIV-01 | Phase 05.1 | Pending |
+| PRIV-02 | Phase 05.1 | Pending |
+| PERM-01 | Phase 05.1 | Pending |
 | AUDIT-01 | Phase 6 | Pending |
 | REL-01 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 40 total
-- Mapped to phases: 40
+- v1 requirements: 60 total
+- Mapped to phases: 60
 - Unmapped: 0 ✓
 
 ---

@@ -1,4 +1,4 @@
-// Reads holzIce's settings window: "sidebar <x> <y>" for the Menu Bar Layout entry, and
+// Reads holzBar's settings window: "sidebar <x> <y>" for the Menu Bar Layout entry, and
 // "image <row> <x> <y> <label>" for each layout item, rows 0 Visible, 1 Hidden, 2 Always Hidden.
 import AppKit
 import ApplicationServices
@@ -38,10 +38,10 @@ func walk(_ element: AXUIElement, depth: Int) {
     }
 }
 
-guard let ice = NSRunningApplication.runningApplications(withBundleIdentifier: "com.holzcloud.holzIce").first else {
+guard let holzBar = NSRunningApplication.runningApplications(withBundleIdentifier: "com.holzcloud.holzBar").first else {
     exit(1)
 }
-let app = AXUIElementCreateApplication(ice.processIdentifier)
+let app = AXUIElementCreateApplication(holzBar.processIdentifier)
 AXUIElementSetMessagingTimeout(app, 3)
 for window in value(app, kAXWindowsAttribute) as? [AXUIElement] ?? [] {
     guard let f = frame(window), f.height > 300 else {

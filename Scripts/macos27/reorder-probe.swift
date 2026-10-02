@@ -1,7 +1,7 @@
 // Finds out whether macOS 27 lets a menu bar item be moved with a ⌘ Command-drag,
-// which holzIce would need to reorder items on the bar itself (holzIce feature 16).
+// which holzBar would need to reorder items on the bar itself (holzBar feature 16).
 //
-// Run on macOS 27 with Accessibility granted to the terminal, and holzIce quit:
+// Run on macOS 27 with Accessibility granted to the terminal, and holzBar quit:
 //   swiftc -O Scripts/macos27/reorder-probe.swift -o /tmp/reorder-probe && /tmp/reorder-probe
 //
 // It takes the two leftmost application items, ⌘-drags the first past the second,

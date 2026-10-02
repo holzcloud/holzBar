@@ -7,14 +7,14 @@
 //   APP=/tmp/probe/Probe.app
 //   mkdir -p "$APP/Contents/MacOS"
 //   /usr/libexec/PlistBuddy -c "Add :CFBundleExecutable string Probe" \
-//       -c "Add :CFBundleIdentifier string com.holzcloud.holzIce.SystemItemProbe" \
+//       -c "Add :CFBundleIdentifier string com.holzcloud.holzBar.SystemItemProbe" \
 //       -c "Add :CFBundlePackageType string APPL" -c "Add :LSUIElement bool true" \
 //       "$APP/Contents/Info.plist"
 //   swiftc -O Scripts/macos27/system-item-probe.swift -o "$APP/Contents/MacOS/Probe"
 //   codesign --force --sign - "$APP"
 //   "$APP/Contents/MacOS/Probe" --items 0,1,2 --apps com.foo.bar --seconds 3
 //
-// Quit holzIce first: live assertions combine as a union of their allowlists, so holzIce's own
+// Quit holzBar first: live assertions combine as a union of their allowlists, so holzBar's own
 // would answer for the items this one leaves out.
 //
 // Measured on macOS 27.0 with every number from 0 to 127 offered, one at a time
