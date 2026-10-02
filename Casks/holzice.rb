@@ -1,7 +1,7 @@
 # Updated by .github/workflows/release.yml for every release.
 cask "holzice" do
-  version "0.0.4"
-  sha256 "b1b2c4e34322e02e7a79f8e91ec79622b78619e7bac9d812bf76e1ed47231880"
+  version "0.0.5"
+  sha256 "ae6d4edf024babbfdbb0e0ceb954d68e62b662ffb8e6278fdd3c1315f68b515e"
 
   url "https://github.com/holzcloud/holzIce/releases/download/v#{version}/holzIce-#{version}.zip"
   name "holzIce"
