@@ -119,10 +119,10 @@ Plans:
   4. The Screen Recording link opens the correct System Settings pane, and windows open and close through a captured `OpenWindowAction`/`DismissWindowAction`
   5. AXSwift is no longer a dependency of either target, and the menu bar items are still discovered through direct AX calls
 
-**Plans**: 3 plans (sequential waves; same PR; 04-03 starts with a user decision on Ifrit 4.0.0)
+**Plans**: 1/3 plans executed (sequential waves; same PR; 04-03 starts with a user decision on Ifrit 4.0.0)
 
 Plans:
-- [ ] 04-01-PLAN.md — Tracer: spacing through CFPreferences; sync device UUID with SCDynamicStoreCopyComputerName; relaunch through NSWorkspace with a bounded wait for the old instance; modern URL path APIs
+- [x] 04-01-PLAN.md — Tracer: spacing through CFPreferences; sync device UUID with SCDynamicStoreCopyComputerName; relaunch through NSWorkspace with a bounded wait for the old instance; modern URL path APIs
 - [ ] 04-02-PLAN.md — holzbar:// through application(_:open:) with a tested URLCommand parse; captured OpenWindowAction/DismissWindowAction; current Screen Recording pane; direct AX calls instead of AXSwift
 - [ ] 04-03-PLAN.md — Decision on search ranking for Ifrit 4.0.0; AXSwift removed from both targets; every package on its latest stable release; resolved packages in the build log; acknowledgements follow
 
@@ -213,7 +213,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 01.1. Rename to holzBar | 6/6 | In Progress|  |
 | 2. Bug fixes | 4/4 | In Progress|  |
 | 3. Ice and Sparkle leftovers | 2/2 | In Progress|  |
-| 4. Outdated APIs | 0/0 | Not started | - |
+| 4. Outdated APIs | 1/3 | In Progress|  |
 | 5. Security and performance | 0/0 | Not started | - |
 | 6. Security audit | 0/0 | Not started | - |
 | 7. Release 0.0.6-beta1 | 0/0 | Not started | - |

@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-10-02T17:57:03.623Z"
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-10-02T18:05:13.837Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: 4ad4304ead4e63065e2bf69f42b708c9f5cb860d
+state_head: 654c05d2d847383a3b6fa3010280aac47d8b55ee
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 20
-  completed_plans: 15
+  completed_plans: 16
 ---
 
 # Project State
@@ -70,6 +70,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02 P04 | 12min | 2 tasks | 4 files |
 | Phase 03 P01 | 16min | 2 tasks | 17 files |
 | Phase 03 P02 | 10min | 3 tasks | 15 files |
+| Phase 04 P01 | 18min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,9 @@ Recent decisions affecting current work:
 - [Phase 03]: LEFT-08 superseded by REN-06 (sidebar logo already in place)
 - [Phase 03]: LEFT-04: unused media, dead types, the Copy to Applications stub phase, ENABLE_USER_SELECTED_FILES and ItemCache.managedItems(for:) removed
 - [Phase 03]: LEFT-07: click bridge logs through Logger(category:); Core derives the subsystem from the bundle (cannot see Shared/)
+- [Phase 04]: API-04: spacing written through CFPreferences in the current host's global domain, no defaults process
+- [Phase 04]: API-03: sync files carry a per-Mac UUID (SettingsSync prefix never exported or synced) plus SCDynamicStoreCopyComputerName; name-only files still recognised
+- [Phase 04]: API-02: relaunch through NSWorkspace.openApplication with a pid hand-off; the new instance waits at most 10 s for the old
 
 ### Pending Todos
 
@@ -127,6 +131,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T17:57:03.567Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-10-02T18:05:03.847Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None

@@ -52,10 +52,10 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Outdated APIs
 
-- [ ] **API-01**: `URL.appendingPathComponent` and `URL.path` are replaced by `appending(path:)` / `path(percentEncoded:)`
-- [ ] **API-02**: `UserDefaults.synchronize()` and the shell relaunch are replaced by `NSWorkspace.openApplication`
-- [ ] **API-03**: `Host.current()` is gone; settings sync identifies devices by a stored UUID (display name from `SCDynamicStoreCopyComputerName`)
-- [ ] **API-04**: Spacing writes preferences through `CFPreferences` instead of spawning `defaults`
+- [x] **API-01**: `URL.appendingPathComponent` and `URL.path` are replaced by `appending(path:)` / `path(percentEncoded:)`
+- [x] **API-02**: `UserDefaults.synchronize()` and the shell relaunch are replaced by `NSWorkspace.openApplication`
+- [x] **API-03**: `Host.current()` is gone; settings sync identifies devices by a stored UUID (display name from `SCDynamicStoreCopyComputerName`)
+- [x] **API-04**: Spacing writes preferences through `CFPreferences` instead of spawning `defaults`
 - [ ] **API-05**: `holzice://` URLs arrive through `application(_:open:)` instead of `NSAppleEventManager`
 - [ ] **API-06**: The Screen Recording deep link uses the current System Settings identifier
 - [ ] **API-07**: AXSwift is replaced by direct AX calls and removed from both targets
@@ -150,10 +150,10 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | LEFT-06 | Phase 3 | Complete |
 | LEFT-08 | Phase 3 | Complete |
 | LEFT-07 | Phase 3 | Complete |
-| API-01 | Phase 4 | Pending |
-| API-02 | Phase 4 | Pending |
-| API-03 | Phase 4 | Pending |
-| API-04 | Phase 4 | Pending |
+| API-01 | Phase 4 | Complete |
+| API-02 | Phase 4 | Complete |
+| API-03 | Phase 4 | Complete |
+| API-04 | Phase 4 | Complete |
 | API-05 | Phase 4 | Pending |
 | API-06 | Phase 4 | Pending |
 | API-07 | Phase 4 | Pending |
