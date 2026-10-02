@@ -7,7 +7,7 @@ cask "holzbar" do
   # Until the first holzBar release this installs holzIce 0.0.5; the release workflow then switches it to holzBar.
   url "https://github.com/holzcloud/holzIce/releases/download/v#{version}/holzIce-#{version}.zip"
   name "holzBar"
-  desc "Menu bar manager (fork of Ice with macOS 27 support)"
+  desc "Menu bar manager forked from Ice"
   homepage "https://holzcloud.ch/holzbar"
 
   # Releases before 1.0 are pre-releases, which :github_latest skips.
