@@ -24,6 +24,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Run SwiftLint
+        # The image's entrypoint is /usr/bin/swiftlint, so the container takes
+        # SwiftLint's arguments directly. The checkout is mounted at the same
+        # path so the reported paths match it.
         run: |
-          docker run --rm -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" "$SWIFTLINT_IMAGE" swiftlint version
-          docker run --rm -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" "$SWIFTLINT_IMAGE" swiftlint lint --strict
+          swiftlint() {
+            docker run --rm -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" "$SWIFTLINT_IMAGE" "$@"
+          }
+          swiftlint version
+          swiftlint lint --strict
