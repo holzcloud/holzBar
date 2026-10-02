@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 01.1-02-PLAN.md
-last_updated: "2026-10-02T12:54:34.143Z"
+stopped_at: Completed 01.1-03-PLAN.md
+last_updated: "2026-10-02T13:10:19.773Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: ad64b27a257a511ee6332dc44c64342dcbfff307
+state_head: 7e3d86a272f472e8f306ed34f3e60ae10a62a1ae
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 13
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # Project State
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01 P03 | 12min | 2 tasks | 4 files |
 | Phase 01.1 P01 | 15min | 2 tasks | 190 files |
 | Phase 01.1 P02 | 20min | 2 tasks | 48 files |
+| Phase 01.1 P03 | 11min | 2 tasks | 69 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 01.1]: Phase 01.1 PR is #33 (draft, claude/ice-fork-development-hzdl1d -> main); later plans push to the branch and update its body
 - [Phase 01.1]: build.yml 'Check the identifiers' reads MenuBarItemService.name from the Swift source and fails the build when the embedded XPC service's bundle id differs from it or from the app id plus .MenuBarItemService
 - [Phase 01.1]: 01.1-02: Identifiers renamed by prefix rule (HolzBar<Name>, HolzBarShelf<Name>/shelf<Name>, holzBarIcon<Name>); every Defaults.Key and HotkeyAction raw value unchanged
+- [Phase 01.1]: 01.1-03: comments that mean the upstream project say 'the original Ice'; bare holzBar means this app
+- [Phase 01.1]: 01.1-03: ControlItemImageSet.Name decodes the stored holzIce logo name as .logo via an explicit init(from:); unknown names throw
 
 ### Pending Todos
 
@@ -99,6 +102,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T12:54:34.096Z
-Stopped at: Completed 01.1-02-PLAN.md
+Last session: 2026-10-02T13:10:19.729Z
+Stopped at: Completed 01.1-03-PLAN.md
 Resume file: None
