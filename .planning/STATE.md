@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 01.1-06-PLAN.md (repository rename by the user pending)
-last_updated: "2026-10-02T14:16:00.237Z"
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-10-02T15:00:45.330Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: d6f029dd4b1360b625a6b5c50a0c9ca9ec3b066a
+state_head: 652b1e6b93e91256898378a0fa3a28a514b5e278
 progress:
-  total_phases: 9
+  total_phases: 10
   completed_phases: 0
   total_plans: 13
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -64,6 +64,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01.1 P03 | 11min | 2 tasks | 69 files |
 | Phase 01.1 P04 | 20min | 2 tasks | 15 files |
 | Phase 01.1 P06 | 20min | 2 tasks | 10 files |
+| Phase 02 P01 | 16min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,8 @@ Recent decisions affecting current work:
 - [Phase 01.1]: holzIce users must trust holzcloud/holzice/holzbar once before brew update: Homebrew 7.0.7 does not carry the holzice trust over to the renamed cask (measured in the cask job)
 - [Phase 01.1]: Interim cask holzbar installs holzIce 0.0.5 until the first holzBar release; release.yml switches url, app, postflight and uninstall to holzBar
 - [Phase 01.1]: No conflicts_with cask holzice and no tap_migrations.json: the rename mapping would make holzbar conflict with itself, and both tap names are this repository
+- [Phase 02]: Spacing relaunch skips only holzBar, Control Center and MenuBarAgent (SpacingRelaunch.processesToRelaunch)
+- [Phase 02]: Apps get 10 s (SpacingRelaunch.quitTimeout) to quit and are never force terminated; the wait is KVO-driven and always returns
 
 ### Pending Todos
 
@@ -109,6 +112,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T14:16:00.190Z
-Stopped at: Completed 01.1-06-PLAN.md (repository rename by the user pending)
+Last session: 2026-10-02T15:00:45.280Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None

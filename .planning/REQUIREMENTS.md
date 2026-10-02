@@ -30,9 +30,9 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Bugs
 
-- [ ] **BUG-01**: Applying menu bar item spacing relaunches every affected app (`continue` instead of `break`)
-- [ ] **BUG-02**: Spacing relaunch waits long enough for apps to quit, does not force-terminate them after 1 s, and always resumes its continuation
-- [ ] **BUG-03**: Spacing relaunch collects the owning apps on macOS 27 too
+- [x] **BUG-01**: Applying menu bar item spacing relaunches every affected app (`continue` instead of `break`)
+- [x] **BUG-02**: Spacing relaunch waits long enough for apps to quit, does not force-terminate them after 1 s, and always resumes its continuation
+- [x] **BUG-03**: Spacing relaunch collects the owning apps on macOS 27 too
 - [ ] **BUG-04**: The event source cache in `MenuBarItemManager` is free of data races
 - [ ] **BUG-05**: The hotkey recorder rejects combinations that macOS 15+ cannot register (Option or Option+Shift only) and tells the user; the hotkey signature stays identical to Ice's
 - [ ] **BUG-06**: The XPC menu bar item service accepts the app on ad hoc builds (no team identifier) while still rejecting foreign processes
@@ -134,9 +134,9 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | REN-06 | Phase 01.1 | Complete |
 | REN-07 | Phase 01.1 | Complete |
 | REN-08 | Phase 01.1 | Complete |
-| BUG-01 | Phase 2 | Pending |
-| BUG-02 | Phase 2 | Pending |
-| BUG-03 | Phase 2 | Pending |
+| BUG-01 | Phase 2 | Complete |
+| BUG-02 | Phase 2 | Complete |
+| BUG-03 | Phase 2 | Complete |
 | BUG-04 | Phase 2 | Pending |
 | BUG-05 | Phase 2 | Pending |
 | BUG-06 | Phase 2 | Pending |
