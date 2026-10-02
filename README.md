@@ -48,7 +48,7 @@ Every change to holzBar follows four rules — without taking a feature away:
 
 - **Modern** — written the way a macOS app is written in 2026: current Swift, Swift concurrency and current SwiftUI and AppKit APIs. Outdated APIs are replaced as the code is touched.
 - **Lean and fast** — as little CPU, energy, memory and disk as possible; no polling where macOS sends an event; a small app that launches fast.
-- **Private** — holzBar never connects to the network: no telemetry, no analytics, no crash reports, no update checks, no remote content. The only exception is a link you click, which opens in your browser. Your data stays on your Mac and out of the logs.
+- **Private** — holzBar never connects to the network: no telemetry, no analytics, no crash reports, no update checks, no remote content. The only exception is a link you click, which opens in your browser. Your data stays on your Mac and out of the logs. To show hidden items when the network drops, holzBar only watches whether a network path is available (Apple's NWPathMonitor); it never opens a connection.
 - **Least privilege** — holzBar asks only for the permissions a feature really needs, when it needs them, and says why.
 
 Where holzBar doesn't meet a rule yet, that is a bug to fix — for example, it still asks for Accessibility and Screen Recording together on the first launch.

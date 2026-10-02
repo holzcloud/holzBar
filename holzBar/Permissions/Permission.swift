@@ -42,7 +42,8 @@ class Permission: ObservableObject, Identifiable {
     /// The function that requests permissions.
     private let request: () -> Void
 
-    /// Observer that runs on a timer to check permissions.
+    /// Observer that runs on a timer to check permissions while the app does not
+    /// have this one.
     private var timerCancellable: AnyCancellable?
 
     /// The pending waits for this permission, each with its own stream.
@@ -74,29 +75,50 @@ class Permission: ObservableObject, Identifiable {
         self.tccService = tccService
         self.check = check
         self.request = request
-        self.hasPermission = check()
-        configureCancellables()
+        startCheck()
     }
 
-    /// Sets up the internal observers for the permission.
-    private func configureCancellables() {
+    /// Checks the permission now and, while the app does not have it, once a second.
+    ///
+    /// The check stops as soon as the permission is granted, so nothing polls once the app
+    /// has every permission.
+    private func startCheck() {
+        hasPermission = check()
+        guard !hasPermission else {
+            stopTimer()
+            return
+        }
+        guard timerCancellable == nil else {
+            return
+        }
         timerCancellable = Timer.publish(every: 1, on: .main, in: .default)
             .autoconnect()
-            .merge(with: Just(.now))
             .sink { [weak self] _ in
                 guard let self else {
                     return
                 }
                 hasPermission = check()
+                if hasPermission {
+                    stopTimer()
+                }
             }
     }
 
+    /// Stops the timer of the permission check.
+    private func stopTimer() {
+        timerCancellable?.cancel()
+        timerCancellable = nil
+    }
+
     /// Performs the request and opens the System Settings app to the appropriate pane.
+    ///
+    /// The check runs again afterwards, as a reset can take away a permission the app had.
     func performRequest() {
         request()
         if let settingsURL {
             NSWorkspace.shared.open(settingsURL)
         }
+        startCheck()
     }
 
     /// A Boolean value that indicates whether the app's entry for this permission
@@ -142,7 +164,7 @@ class Permission: ObservableObject, Identifiable {
     ///   waiting task is cancelled.
     @discardableResult
     func waitForPermission() async -> Bool {
-        configureCancellables()
+        startCheck()
         guard !hasPermission else {
             return true
         }
@@ -171,8 +193,7 @@ class Permission: ObservableObject, Identifiable {
 
     /// Stops running the permission check.
     func stopCheck() {
-        timerCancellable?.cancel()
-        timerCancellable = nil
+        stopTimer()
         endWaits(with: false)
     }
 }
