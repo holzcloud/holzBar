@@ -40,7 +40,7 @@ holzIce is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 - `Ice/` – the app. `Ice/MenuBar/MacOS27/` is the macOS 27 backend.
 - `Casks/holzice.rb` – the Homebrew cask; this repository is also the tap.
 - `.github/workflows/build.yml` – builds every pull request on a macOS runner; the only way to compile without a Mac.
-- `.github/workflows/release.yml` – a `v*` tag builds the app on a macOS runner, publishes the release and updates the cask on `main`.
+- `.github/workflows/release.yml` – a `v*` tag builds the app on a macOS runner, publishes the release and updates the cask on `main`; a second job writes the version into the holzIce pages of holzcloud.ch (`.github/cms-version.py`, skipped for betas and without the `CMS_TOKEN` secret).
 - `Resources/Logo/` – logo and README banner sources (SVG).
 - `Resources/Screenshots/` – real screenshots of holzIce, used by the README gallery (and on https://holzcloud.ch/holzice). Replace a screenshot of the original Ice there with one of holzIce when one exists.
 - `docs/upstream-bugs.md` – the open bug reports of the original Ice, grouped, and which of them holzIce has fixed. Update it when fixing one.
