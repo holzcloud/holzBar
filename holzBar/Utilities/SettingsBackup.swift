@@ -24,6 +24,8 @@ enum SettingsBackup {
         "NSWindow Frame",
         "NSStatusItem Preferred Position",
         "NSStatusItem Visible",
+        // The original Ice updated itself with Sparkle, whose keys start with "SU"; holzBar
+        // updates through Homebrew, so they are neither exported nor imported from Ice.
         "SU",
     ]
 
