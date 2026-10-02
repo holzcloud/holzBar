@@ -35,7 +35,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [x] **BUG-03**: Spacing relaunch collects the owning apps on macOS 27 too
 - [ ] **BUG-04**: The event source cache in `MenuBarItemManager` is free of data races
 - [x] **BUG-05**: The hotkey recorder rejects combinations that macOS 15+ cannot register (Option or Option+Shift only) and tells the user; the hotkey signature stays identical to Ice's
-- [ ] **BUG-06**: The XPC menu bar item service accepts the app on ad hoc builds (no team identifier) while still rejecting foreign processes
+- [x] **BUG-06**: The XPC menu bar item service accepts the app on ad hoc builds (no team identifier) while still rejecting foreign processes
 - [x] **BUG-07**: Waiting for a permission twice never leaves a continuation unresumed
 - [ ] **BUG-08**: Comment and code of the macOS 27 system item allowlist agree
 
@@ -139,7 +139,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | BUG-03 | Phase 2 | Complete |
 | BUG-04 | Phase 2 | Pending |
 | BUG-05 | Phase 2 | Complete |
-| BUG-06 | Phase 2 | Pending |
+| BUG-06 | Phase 2 | Complete |
 | BUG-07 | Phase 2 | Complete |
 | BUG-08 | Phase 2 | Pending |
 | LEFT-01 | Phase 3 | Pending |

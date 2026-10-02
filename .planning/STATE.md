@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-10-02T15:22:42.210Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-10-02T16:06:25.502Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: b66fe376939c4d2dca91cb8b118528b003182242
+state_head: 32b5ccdcee9e89ffd2393ab4656ee2cf438f2e0b
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -66,6 +66,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01.1 P06 | 20min | 2 tasks | 10 files |
 | Phase 02 P01 | 16min | 2 tasks | 4 files |
 | Phase 02 P02 | 15min | 2 tasks | 7 files |
+| Phase 02 P03 | 20min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,8 @@ Recent decisions affecting current work:
 - [Phase 02]: Apps get 10 s (SpacingRelaunch.quitTimeout) to quit and are never force terminated; the wait is KVO-driven and always returns
 - [Phase 02]: Option-only and Option+Shift-only hotkeys are refused on macOS 15+ in the recorder (alert, recording continues) and in HotkeyRegistry (logged); the Carbon signature stays OSType(1231250720) (D-01)
 - [Phase 02]: A permission wait returns false when stopCheck() ends it or its task is cancelled; the Grant buttons only reopen the permissions window on true
+- [Phase 02]: BUG-06: on ad hoc builds the XPC listener requires SigningIdentifier(com.holzcloud.holzBar) plus CodeDirectoryHash.in(hashes of the embedding app); team builds require same team plus identifier; it fails closed (D-02)
+- [Phase 02]: BUG-06: the app sets its same-team peer requirement only when it has a team; LightweightCodeRequirements is imported only in MenuBarItemService/Listener.swift
 
 ### Pending Todos
 
@@ -115,6 +118,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T15:22:42.160Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-10-02T16:06:25.451Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None
