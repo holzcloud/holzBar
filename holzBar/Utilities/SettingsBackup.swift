@@ -108,13 +108,28 @@ enum SettingsBackup {
     }
 
     /// Starts a new instance of the app and quits this one.
+    ///
+    /// The new instance gets this one's process identifier (``Relaunch``) and waits until
+    /// this one has quit before it sets up. When the new instance cannot be started, this one
+    /// keeps running and says so.
     static func relaunch() {
-        UserDefaults.standard.synchronize()
-        let process = Process()
-        process.executableURL = URL(filePath: "/bin/sh")
-        process.arguments = ["-c", "sleep 1; /usr/bin/open \"$0\"", Bundle.main.bundlePath]
-        try? process.run()
-        NSApp.terminate(nil)
+        // The new instance reads the settings at once, so write them out first.
+        CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
+
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.createsNewApplicationInstance = true
+        configuration.addsToRecentItems = false
+        configuration.environment = Relaunch.environment(previousPID: ProcessInfo.processInfo.processIdentifier)
+
+        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { @Sendable _, error in
+            Task { @MainActor in
+                if let error {
+                    Self.show(error, message: "holzBar could not restart itself. Quit holzBar and open it again.")
+                } else {
+                    NSApp.terminate(nil)
+                }
+            }
+        }
     }
 
     private static func show(_ error: Error, message: String) {
