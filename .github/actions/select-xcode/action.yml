@@ -1,0 +1,31 @@
+name: Select Xcode
+description: >-
+  Selects the pinned Xcode version and fails if the runner does not have it.
+  It never falls back to another Xcode.
+inputs:
+  version:
+    description: >-
+      The Xcode version to select. It must be installed as
+      /Applications/Xcode_VERSION.app.
+    default: "26.6"
+runs:
+  using: composite
+  steps:
+    - name: Select Xcode
+      shell: bash
+      env:
+        XCODE_VERSION: ${{ inputs.version }}
+      run: |
+        XCODE_APP="/Applications/Xcode_${XCODE_VERSION}.app"
+        if [ ! -d "$XCODE_APP" ]; then
+          INSTALLED="$(ls -d /Applications/Xcode*.app 2>/dev/null | tr '\n' ' ' || true)"
+          echo "::error::Xcode $XCODE_VERSION is not installed on this runner (expected $XCODE_APP). Installed: ${INSTALLED:-none}"
+          exit 1
+        fi
+        sudo xcode-select -s "$XCODE_APP"
+        ACTUAL="$(xcodebuild -version | head -1)"
+        if [ "$ACTUAL" != "Xcode $XCODE_VERSION" ]; then
+          echo "::error::Selected $XCODE_APP reports '$ACTUAL', expected 'Xcode $XCODE_VERSION'"
+          exit 1
+        fi
+        xcodebuild -version

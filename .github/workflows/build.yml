@@ -1,29 +1,22 @@
 name: Build
 on:
   pull_request:
-    paths:
-      - ".github/workflows/build.yml"
-      - "**/*.swift"
-      - "Ice.xcodeproj/**"
-      - "Ice/Resources/**"
-      - "MenuBarItemService/**"
   push:
     branches: [ "main" ]
     paths:
       - "**/*.swift"
       - "Ice.xcodeproj/**"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - name: Select the newest Xcode
-        run: |
-          XCODE="$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
-          sudo xcode-select -s "$XCODE"
-          xcodebuild -version
+      - uses: ./.github/actions/select-xcode
 
       # Same settings as the release build (see release.yml), without publishing.
       - name: Build
@@ -36,3 +29,13 @@ jobs:
           STATUS=$?
           grep -E "error:|\*\* BUILD" build.log || tail -50 build.log
           exit $STATUS
+
+  test:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/select-xcode
+
+      - name: Run the unit tests
+        run: swift test
