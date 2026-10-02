@@ -55,37 +55,19 @@ extension MigrationManager {
     }
 }
 
-// MARK: - Import Previous Settings
+// MARK: - Import Ice Settings
 
 extension MigrationManager {
-    /// An app whose settings holzBar takes over.
-    private struct PreviousApp {
-        /// The app's name, for the log.
-        let name: String
-        /// The app's bundle identifier, which names its defaults domain.
-        let bundleIdentifier: String
-        /// The app's folder in Application Support and in iCloud Drive, if its
-        /// files are copied as well.
-        let folderName: String?
-    }
+    /// The bundle identifier of the original Ice, which names its defaults domain.
+    private static let iceBundleIdentifier = "com.jordanbaird.Ice"
 
-    /// The apps holzBar replaces, in order of precedence: holzIce, the app
-    /// holzBar used to be, then the original Ice, whose import stays
-    /// settings-only.
-    private static let previousApps = [
-        PreviousApp(name: "holzIce", bundleIdentifier: "com.holzcloud.holzIce", folderName: "holzIce"),
-        PreviousApp(name: "Ice", bundleIdentifier: "com.jordanbaird.Ice", folderName: nil),
-    ]
-
-    /// Takes over the settings of the app holzBar replaces, once.
+    /// Takes over the settings of the original Ice, once.
     ///
     /// holzBar has a bundle identifier of its own, so it starts out with empty
-    /// defaults, an empty Application Support folder and a sync file of its
-    /// own. Without this, a user switching from holzIce or Ice would lose their
-    /// layout, hotkeys and appearance. holzIce's settings take precedence; Ice's
-    /// are imported only when holzIce has none. It must run before anything
-    /// reads the defaults, so the app delegate calls it before it creates the
-    /// app state.
+    /// defaults. Without this, a user switching from Ice would lose their
+    /// layout, hotkeys and appearance. Only the settings are imported, no
+    /// files. It must run before anything reads the defaults, so the app
+    /// delegate calls it before it creates the app state.
     static func importPreviousSettingsIfNeeded() {
         let defaults = UserDefaults.standard
         let flag = Defaults.Key.hasImportedPreviousSettings.rawValue
@@ -94,76 +76,26 @@ extension MigrationManager {
         }
         let ownSettings = Bundle.main.bundleIdentifier.flatMap(defaults.persistentDomain(forName:)) ?? [:]
         defaults.set(true, forKey: flag)
-        guard ownSettings.isEmpty else {
-            return
-        }
-        for app in previousApps {
-            guard
-                let settings = defaults.persistentDomain(forName: app.bundleIdentifier),
-                !settings.isEmpty
-            else {
-                continue
-            }
-            // Window frames and status item positions belong to the previous
-            // app's own windows and items, not to holzBar's. The first launch
-            // after importing them locked up a Mac on macOS 27 until it was
-            // restarted; the next launch was fine.
-            let imported = settings.filter { key, _ in
-                !SettingsBackup.excludedKeyPrefixes.contains { key.hasPrefix($0) }
-            }
-            for (key, value) in imported {
-                defaults.set(value, forKey: key)
-            }
-            Logger(category: "Migration").notice(
-                "Imported \(imported.count, privacy: .public) of \(settings.count, privacy: .public) settings from \(app.name, privacy: .public)"
-            )
-            if let folderName = app.folderName {
-                copyFiles(fromFolderNamed: folderName)
-            }
-            return
-        }
-    }
-
-    /// Copies a previous app's Application Support folder and iCloud Drive
-    /// sync file to holzBar's.
-    ///
-    /// The previous app may still be installed, and the user may go back to
-    /// it, so its files are copied, never moved or deleted, and nothing holzBar
-    /// already has is overwritten. A failed copy is logged and does not stop
-    /// the launch.
-    private static func copyFiles(fromFolderNamed folderName: String) {
-        if let applicationSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
-            copyItem(
-                at: applicationSupport.appending(path: folderName, directoryHint: .isDirectory),
-                to: applicationSupport.appending(path: "holzBar", directoryHint: .isDirectory)
-            )
-        }
-        if let iCloudDrive = SettingsSync.iCloudDriveURL, let fileURL = SettingsSync.fileURL {
-            copyItem(at: iCloudDrive.appending(path: "\(folderName)/Settings.plist"), to: fileURL)
-        }
-    }
-
-    /// Copies an item when it exists and its destination does not, creating
-    /// the destination's parent folder.
-    private static func copyItem(at source: URL, to destination: URL) {
-        let fileManager = FileManager.default
-        let logger = Logger(category: "Migration")
         guard
-            fileManager.fileExists(atPath: source.path),
-            !fileManager.fileExists(atPath: destination.path)
+            ownSettings.isEmpty,
+            let settings = defaults.persistentDomain(forName: iceBundleIdentifier),
+            !settings.isEmpty
         else {
             return
         }
-        do {
-            try fileManager.createDirectory(
-                at: destination.deletingLastPathComponent(),
-                withIntermediateDirectories: true
-            )
-            try fileManager.copyItem(at: source, to: destination)
-            logger.notice("Copied \(source.path, privacy: .public) to \(destination.path, privacy: .public)")
-        } catch {
-            logger.error("Could not copy \(source.path, privacy: .public): \(error, privacy: .public)")
+        // Window frames and status item positions belong to Ice's own windows
+        // and items, not to holzBar's. The first launch after importing them
+        // locked up a Mac on macOS 27 until it was restarted; the next launch
+        // was fine.
+        let imported = settings.filter { key, _ in
+            !SettingsBackup.excludedKeyPrefixes.contains { key.hasPrefix($0) }
         }
+        for (key, value) in imported {
+            defaults.set(value, forKey: key)
+        }
+        Logger(category: "Migration").notice(
+            "Imported \(imported.count, privacy: .public) of \(settings.count, privacy: .public) settings from Ice"
+        )
     }
 }
 

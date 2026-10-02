@@ -18,18 +18,14 @@ enum ConflictingApps {
     private static let logger = Logger(category: "ConflictingApps")
 
     /// Bundle identifiers of menu bar managers that conflict with holzBar.
-    ///
-    /// holzIce is the app holzBar used to be: the two register the same hotkeys
-    /// and manage the same items.
     private static let bundleIdentifiers: Set<String> = [
-        "com.holzcloud.holzIce",
         "com.jordanbaird.Ice",
         "com.surteesstudios.Bartender",
         "com.dwarvesv.minimalbar",
     ]
 
     /// Names of conflicting menu bar managers whose bundle identifier is not known.
-    private static let names: Set<String> = ["holzIce", "Ice", "Thaw", "Bartender", "Hidden Bar"]
+    private static let names: Set<String> = ["Ice", "Thaw", "Bartender", "Hidden Bar"]
 
     /// The running menu bar managers other than holzBar.
     static var running: [NSRunningApplication] {

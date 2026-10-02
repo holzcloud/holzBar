@@ -18,16 +18,15 @@ import OSLog
 /// - `holzbar://application-menus/toggle`
 /// - `holzbar://profile/<name>` – apply a saved layout profile
 ///
-/// `holzice://` URLs and the `ice-bar` command still work.
+/// `ice-bar` still works as another name for `shelf`.
 @MainActor
 enum URLCommands {
     private static let logger = Logger(category: "URLCommands")
 
-    /// The URL schemes holzBar accepts: `holzbar://` is holzBar's own, and
-    /// `holzice://` keeps scripts written for holzIce working.
-    private static let schemes: Set<String> = ["holzbar", "holzice"]
+    /// The URL scheme holzBar accepts.
+    private static let scheme = "holzbar"
 
-    /// Starts receiving `holzbar://` and `holzice://` URLs.
+    /// Starts receiving `holzbar://` URLs.
     static func register(appState: AppState) {
         Handler.shared.appState = appState
         NSAppleEventManager.shared().setEventHandler(
@@ -40,7 +39,7 @@ enum URLCommands {
 
     /// Performs the command in the given URL.
     static func perform(_ url: URL, appState: AppState) {
-        guard let scheme = url.scheme?.lowercased(), schemes.contains(scheme), let host = url.host()?.lowercased() else {
+        guard let scheme = url.scheme?.lowercased(), scheme == Self.scheme, let host = url.host()?.lowercased() else {
             logger.warning("Ignoring URL \(url.absoluteString, privacy: .public)")
             return
         }
