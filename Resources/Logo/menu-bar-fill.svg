@@ -1,7 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
-  <g fill="#000">
-    <polygon points="20,2 26.5,9 26.5,30 20,38 13.5,30 13.5,9"/>
-    <polygon points="8,13 11.5,17 11.5,30 8,34.5 4.5,30 4.5,17"/>
-    <polygon points="32,15 35.5,19 35.5,30 32,34.5 28.5,30 28.5,19"/>
-  </g>
+  <defs>
+    <mask id="cut">
+      <rect width="40" height="40" fill="#fff"/>
+      <path d="M17 15 l-5 5 5 5" fill="none" stroke="#000" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="27" cy="20" r="3.2" fill="#000"/>
+    </mask>
+  </defs>
+  <rect x="1.2" y="8.2" width="37.6" height="23.6" rx="11.8" fill="#000" mask="url(#cut)"/>
 </svg>
