@@ -41,50 +41,76 @@ jobs:
           PR_COMMIT=$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD)
           SRC="$RUNNER_TEMP/tap-src"
           git clone --quiet "$GITHUB_WORKSPACE" "$SRC"
-          git -C "$SRC" checkout --quiet -B main "$OLD_COMMIT"
 
-          brew tap holzcloud/holzice "$SRC"
-          if brew trust --help > /dev/null 2>&1; then
+          # A holzIce user as of before the rename: tapped, trusted holzice, installed it.
+          install_holzice() {
+            git -C "$SRC" checkout --quiet -B main "$OLD_COMMIT"
+            brew tap holzcloud/holzice "$SRC"
             brew trust --cask holzcloud/holzice/holzice
-          fi
-          brew install --cask holzcloud/holzice/holzice
-          test -d /Applications/holzIce.app
-          echo "==> installed holzice from the pre-rename tap"
+            brew install --cask holzcloud/holzice/holzice
+            test -d /Applications/holzIce.app
+            echo "==> installed holzice from the pre-rename tap"
+            # The rename lands on main; the next `brew update` fetches it.
+            git -C "$SRC" checkout --quiet -B main "$PR_COMMIT"
+          }
 
-          # What a holzIce user gets with `brew update` once this is on main.
-          git -C "$SRC" checkout --quiet -B main "$PR_COMMIT"
+          migrated() {
+            grep -qx holzbar <<< "$(brew list --cask)"
+          }
+
+          upgrade_and_uninstall() {
+            brew upgrade --cask holzbar
+            brew uninstall --cask holzbar
+            test ! -e /Applications/holzIce.app
+            test ! -e /Applications/holzBar.app
+          }
+
+          # 1. Does the trust given to holzice carry over to holzbar? Homebrew loads a
+          #    tap's casks only when they are trusted, and the migration loads holzbar.
+          install_holzice
+          brew update
+          if migrated; then
+            echo "==> trust carried over: yes"
+          else
+            echo "==> trust carried over: no"
+            # A user who ran `brew update` before trusting holzbar: trust it, then
+            # `brew migrate` does what the update would have done.
+            brew trust --cask holzcloud/holzice/holzbar
+            brew migrate --cask holzice
+            if migrated; then
+              echo "==> migrated after brew migrate: yes"
+            else
+              echo "==> migrated after brew migrate: no"
+              brew list --cask
+              exit 1
+            fi
+          fi
+          upgrade_and_uninstall
+          brew untap holzcloud/holzice
+          # The migration leaves Caskroom/holzice as a link to Caskroom/holzbar.
+          CASKROOM=$(brew --caskroom)
+          if [ -L "$CASKROOM/holzice" ]; then
+            echo "Removing the leftover link $CASKROOM/holzice"
+            rm "$CASKROOM/holzice"
+          fi
+
+          # 2. The README's path: trust holzbar, then `brew update && brew upgrade`.
+          install_holzice
+          brew trust --cask holzcloud/holzice/holzbar
           brew update 2>&1 | tee "$RUNNER_TEMP/update.log"
-          INSTALLED=$(brew list --cask)
-          if grep -qx holzbar <<< "$INSTALLED"; then
+          if migrated; then
             echo "==> migrated: yes"
           else
             echo "==> migrated: no"
             echo "brew list --cask:"
-            echo "$INSTALLED"
+            brew list --cask
             echo "brew update output:"
             cat "$RUNNER_TEMP/update.log"
-            exit 1
-          fi
-
-          # Trust was given to holzice; find out whether holzbar inherits it.
-          if brew upgrade --cask holzbar > "$RUNNER_TEMP/upgrade.log" 2>&1; then
-            cat "$RUNNER_TEMP/upgrade.log"
-            echo "==> trust carried over: yes"
-          elif grep -q "untrusted" "$RUNNER_TEMP/upgrade.log"; then
-            cat "$RUNNER_TEMP/upgrade.log"
-            echo "==> trust carried over: no"
-            brew trust --cask holzcloud/holzice/holzbar
-            brew upgrade --cask holzbar
-          else
-            cat "$RUNNER_TEMP/upgrade.log"
-            echo "::error::brew upgrade --cask holzbar failed."
             exit 1
           fi
 
           brew style --cask holzcloud/holzice/holzbar
           brew audit --cask --strict holzcloud/holzice/holzbar
 
-          brew uninstall --cask holzbar
-          test ! -e /Applications/holzIce.app
-          test ! -e /Applications/holzBar.app
+          upgrade_and_uninstall
           echo "==> uninstalled: yes"
