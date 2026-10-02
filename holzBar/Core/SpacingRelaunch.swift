@@ -58,4 +58,12 @@ enum SpacingRelaunch {
         }
         return Set(pids).sorted()
     }
+
+    /// How long an app gets to quit after being asked.
+    static let quitTimeout: Duration = .seconds(1)
+
+    /// Waits for `event` for at most `timeout`.
+    static func waitUntil(timeout: Duration, _ event: @escaping @Sendable () async -> Void) async -> Bool {
+        false
+    }
 }

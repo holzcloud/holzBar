@@ -58,4 +58,69 @@ struct SpacingRelaunchTests {
         ]
         #expect(SpacingRelaunch.processesToRelaunch(owners: owners, ownPID: 1) == [11, 12])
     }
+
+    @Test("Waiting returns at once when the event has already happened")
+    func eventAlreadyHappened() async {
+        let clock = ContinuousClock()
+        let start = clock.now
+        let happened = await SpacingRelaunch.waitUntil(timeout: .seconds(5)) {}
+        #expect(happened)
+        #expect(clock.now - start < .seconds(4))
+    }
+
+    @Test("Waiting returns as soon as the event happens")
+    func eventHappensLater() async {
+        let (stream, continuation) = AsyncStream.makeStream(of: Void.self)
+        let yielder = Task {
+            try? await Task.sleep(for: .milliseconds(20))
+            continuation.yield()
+            continuation.finish()
+        }
+        let clock = ContinuousClock()
+        let start = clock.now
+        let happened = await SpacingRelaunch.waitUntil(timeout: .seconds(30)) {
+            for await _ in stream {
+                return
+            }
+        }
+        await yielder.value
+        #expect(happened)
+        #expect(clock.now - start < .seconds(5))
+    }
+
+    @Test("Waiting gives up at the timeout")
+    func waitingGivesUpAtTheTimeout() async {
+        let (stream, continuation) = AsyncStream.makeStream(of: Void.self)
+        let happened = await SpacingRelaunch.waitUntil(timeout: .milliseconds(50)) {
+            for await _ in stream {
+                return
+            }
+        }
+        continuation.finish()
+        #expect(!happened)
+    }
+
+    @Test("A cancelled wait returns at once")
+    func cancelledWaitReturnsAtOnce() async {
+        let (stream, continuation) = AsyncStream.makeStream(of: Void.self)
+        let clock = ContinuousClock()
+        let start = clock.now
+        let wait = Task {
+            await SpacingRelaunch.waitUntil(timeout: .seconds(30)) {
+                for await _ in stream {
+                    return
+                }
+            }
+        }
+        wait.cancel()
+        let happened = await wait.value
+        continuation.finish()
+        #expect(!happened)
+        #expect(clock.now - start < .seconds(5))
+    }
+
+    @Test("An app gets 10 seconds to quit")
+    func quitTimeoutIsTenSeconds() {
+        #expect(SpacingRelaunch.quitTimeout == .seconds(10))
+    }
 }
