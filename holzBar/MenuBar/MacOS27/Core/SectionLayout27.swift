@@ -49,9 +49,9 @@ enum SectionLayout27 {
 
     /// The sections the bar itself held before macOS 27, read once from the order of its items.
     ///
-    /// Until macOS 27 an item's section *was* its place on the bar, between Ice's dividers, and
+    /// Until macOS 27 an item's section *was* its place on the bar, between holzBar's dividers, and
     /// nothing wrote it down — the bar was the record. On 27 the record has to be a saved layout,
-    /// and an application missing from it is visible, so an upgrade used to leave Ice hiding
+    /// and an application missing from it is visible, so an upgrade used to leave holzBar hiding
     /// nothing at all until the whole layout was rebuilt by hand (reported on jordanbaird/Ice#1006).
     /// The order still stands at the first launch after the upgrade, so it is read there.
     ///
@@ -61,7 +61,7 @@ enum SectionLayout27 {
     ///
     /// - Parameters:
     ///   - items: The manageable items on the bar, each with the bundle identifier of the
-    ///     application that created it. Ice's own dividers are not among them.
+    ///     application that created it. holzBar's own dividers are not among them.
     ///   - hiddenControlItem: The bounds of the divider for the hidden section.
     ///   - alwaysHiddenControlItem: The bounds of the divider for the always-hidden section,
     ///     if that section is enabled.
@@ -82,7 +82,7 @@ enum SectionLayout27 {
 
     /// The section an item's bounds put it in, or `nil` for one lying across a divider.
     ///
-    /// The rules are the ones Ice used on the bar before macOS 27.
+    /// The rules are the ones the original Ice used on the bar before macOS 27.
     private static func section(
         of bounds: CGRect,
         hiddenControlItem: CGRect,

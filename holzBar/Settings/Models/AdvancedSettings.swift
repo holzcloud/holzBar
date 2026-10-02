@@ -169,7 +169,7 @@ enum SectionDividerStyle: Int, CaseIterable, Identifiable {
 
 // MARK: - NewItemsPlacement
 
-/// Where holzIce places menu bar items it has not seen before.
+/// Where holzBar places menu bar items it has not seen before.
 enum NewItemsPlacement: Int, CaseIterable, Identifiable {
     /// Leave new items where macOS puts them.
     case systemDefault = 0

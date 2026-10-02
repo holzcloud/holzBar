@@ -5,7 +5,7 @@
 
 import Foundation
 
-/// How much of Ice's hidden content is currently revealed.
+/// How much of holzBar's hidden content is currently revealed.
 enum RevealState27: Equatable {
     case allHidden
     case hiddenRevealed

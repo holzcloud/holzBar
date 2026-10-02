@@ -71,7 +71,7 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var cannotArrange: some View {
-        Text("holzIce cannot arrange menu bar items in automatically hidden menu bars.")
+        Text("holzBar cannot arrange menu bar items in automatically hidden menu bars.")
             .font(.title3)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
@@ -122,7 +122,7 @@ struct MenuBarLayoutSettingsPane: View {
 /// macOS 27 folds the items that do not fit on the built-in display's bar. Concealing the
 /// hidden applications frees the room again, but the fold is not reconsidered: the "«" that
 /// reaches the folded items goes away with the items still behind it. Relaunching the
-/// application whose item is missing lays it out again, which Ice cannot do for the user —
+/// application whose item is missing lays it out again, which holzBar cannot do for the user —
 /// Accessibility keeps reporting the frames of items it no longer draws, so which application
 /// is missing cannot be told from them.
 @available(macOS 27.0, *)
@@ -135,7 +135,7 @@ private struct StuckOverflowWarning: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Some items are folded away on the built-in display.")
                         .font(.headline)
-                    Text("macOS stopped laying them out when holzIce freed the space beside the notch, and left no control to reach them. Quitting and reopening the application whose item is missing brings it back.")
+                    Text("macOS stopped laying them out when holzBar freed the space beside the notch, and left no control to reach them. Quitting and reopening the application whose item is missing brings it back.")
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -193,7 +193,7 @@ private struct LayoutProfilesSection: View {
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
-                Text("A profile with the same name is replaced. Apply it later from here, or with holzice://profile/<name>.")
+                Text("A profile with the same name is replaced. Apply it later from here, or with holzbar://profile/<name>.")
             }
         }
     }

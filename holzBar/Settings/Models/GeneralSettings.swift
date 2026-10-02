@@ -12,7 +12,7 @@ import SwiftUI
 /// Model for the app's General settings.
 @MainActor
 final class GeneralSettings: ObservableObject {
-    /// A Boolean value that indicates whether the Ice icon
+    /// A Boolean value that indicates whether the holzBar icon
     /// should be shown.
     @Published var showHolzBarIcon = true
 
@@ -20,10 +20,10 @@ final class GeneralSettings: ObservableObject {
     /// for when items are visible or hidden.
     @Published var holzBarIcon: ControlItemImageSet = .defaultHolzBarIcon
 
-    /// The last user-selected custom Ice icon.
+    /// The last user-selected custom holzBar icon.
     @Published var lastCustomHolzBarIcon: ControlItemImageSet?
 
-    /// A Boolean value that indicates whether custom Ice icons
+    /// A Boolean value that indicates whether custom holzBar icons
     /// should be rendered as template images.
     @Published var customHolzBarIconIsTemplate = false
 
@@ -31,17 +31,17 @@ final class GeneralSettings: ObservableObject {
     /// in a separate bar below the menu bar.
     @Published var useShelf = false
 
-    /// The location where the Ice Bar appears.
+    /// The location where the holzBar Shelf appears.
     @Published var shelfLocation: HolzBarShelfLocation = .dynamic
 
-    /// The displays the Ice Bar is used on.
+    /// The displays the holzBar Shelf is used on.
     @Published var shelfDisplays: HolzBarShelfDisplays = .all
 
-    /// A Boolean value that indicates whether the Ice Bar also shows the
+    /// A Boolean value that indicates whether the holzBar Shelf also shows the
     /// visible items that the notch covers.
     @Published var showsNotchOverflowInShelf = true
 
-    /// A Boolean value that indicates whether the Ice Bar is used right now:
+    /// A Boolean value that indicates whether the holzBar Shelf is used right now:
     /// it is turned on, and the display under the mouse pointer is one it is
     /// used on.
     var usesShelf: Bool {
@@ -129,7 +129,7 @@ final class GeneralSettings: ObservableObject {
             do {
                 holzBarIcon = try decoder.decode(ControlItemImageSet.self, from: data)
             } catch {
-                Logger.serialization.error("Error decoding holzIce icon: \(error, privacy: .public)")
+                Logger.serialization.error("Error decoding holzBar icon: \(error, privacy: .public)")
             }
             if case .custom = holzBarIcon.name {
                 lastCustomHolzBarIcon = holzBarIcon
@@ -161,7 +161,7 @@ final class GeneralSettings: ObservableObject {
                     let data = try encoder.encode(holzBarIcon)
                     Defaults.set(data, forKey: .holzBarIcon)
                 } catch {
-                    Logger.serialization.error("Error encoding holzIce icon: \(error, privacy: .public)")
+                    Logger.serialization.error("Error encoding holzBar icon: \(error, privacy: .public)")
                 }
             }
             .store(in: &c)

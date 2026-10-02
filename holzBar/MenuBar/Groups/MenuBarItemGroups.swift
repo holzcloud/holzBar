@@ -26,7 +26,7 @@ struct MenuBarItemGroup: Codable, Hashable, Identifiable {
 /// (jordanbaird/Ice#46).
 ///
 /// Each group adds an icon to the menu bar. Clicking it shows the group's items
-/// in a small panel, where they can be clicked as in the holzIce Bar. The items
+/// in a small panel, where they can be clicked as in the holzBar Shelf. The items
 /// themselves stay wherever they are, usually in a hidden section.
 @MainActor
 final class MenuBarItemGroups: ObservableObject {
@@ -114,7 +114,7 @@ final class MenuBarItemGroups: ObservableObject {
         for group in groups {
             let statusItem = statusItems[group.id] ?? {
                 let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-                statusItem.autosaveName = "holzIce.Group.\(group.id.uuidString)"
+                statusItem.autosaveName = "holzBar.Group.\(group.id.uuidString)"
                 return statusItem
             }()
             statusItems[group.id] = statusItem
@@ -190,7 +190,7 @@ private struct MenuBarItemGroupPanel: View {
             Text(group.name)
                 .font(.headline)
             if items.isEmpty {
-                Text("Add items to this group in holzIce's Menu Bar Layout settings.")
+                Text("Add items to this group in holzBar's Menu Bar Layout settings.")
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
@@ -222,7 +222,7 @@ private struct MenuBarItemGroupPanel: View {
 // MARK: - MenuBarItemActions
 
 /// Clicks a menu bar item from outside the menu bar, showing it first if it is
-/// hidden, the way the holzIce Bar does.
+/// hidden, the way the holzBar Shelf does.
 @MainActor
 enum MenuBarItemActions {
     static func click(_ item: MenuBarItem, with mouseButton: CGMouseButton, itemManager: MenuBarItemManager) async {

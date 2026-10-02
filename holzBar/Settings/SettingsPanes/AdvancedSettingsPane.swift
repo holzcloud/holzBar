@@ -76,7 +76,7 @@ struct AdvancedSettingsPane: View {
                 }
             }
         }
-        .annotation("Applies to items holzIce has not seen before. Items that are already arranged stay where they are.")
+        .annotation("Applies to items holzBar has not seen before. Items that are already arranged stay where they are.")
     }
 
     @ViewBuilder
@@ -108,7 +108,7 @@ struct AdvancedSettingsPane: View {
                 Text(
                     """
                     Make more room in the menu bar by hiding the current app menus if \
-                    needed. macOS requires holzIce to make itself visible in the Dock while \
+                    needed. macOS requires holzBar to make itself visible in the Dock while \
                     this setting is in effect.
                     """
                 )
@@ -136,7 +136,7 @@ struct AdvancedSettingsPane: View {
             Text(
                 """
                 Right-click in an empty area of the menu bar to display a minimal \
-                version of holzIce's menu. Disable this setting if you encounter conflicts \
+                version of holzBar's menu. Disable this setting if you encounter conflicts \
                 with other apps.
                 """
             )
@@ -255,7 +255,7 @@ private struct SettingsSyncToggle: View {
 
     private var annotation: LocalizedStringKey {
         if SettingsSync.iCloudDriveURL == nil {
-            "Turn on iCloud Drive in System Settings to sync holzIce's settings between your Macs."
+            "Turn on iCloud Drive in System Settings to sync holzBar's settings between your Macs."
         } else {
             "Keeps layout, profiles, hotkeys and appearance the same on all your Macs. Changes from another Mac apply after a restart."
         }

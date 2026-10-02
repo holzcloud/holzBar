@@ -7,7 +7,7 @@ import SwiftUI
 
 // MARK: - HolzBarWindow
 
-/// A custom scene representing one of Ice's windows.
+/// A custom scene representing one of holzBar's windows.
 struct HolzBarWindow<Content: View>: Scene {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
@@ -78,12 +78,12 @@ struct HolzBarWindow<Content: View>: Scene {
 
 // MARK: - HolzBarWindowIdentifier
 
-/// Custom identifier constants uses to create Ice's windows.
+/// Custom identifier constants uses to create holzBar's windows.
 enum HolzBarWindowIdentifier: String, Sendable, CustomStringConvertible {
-    /// The identifier for Ice's main settings window.
+    /// The identifier for holzBar's main settings window.
     case settings = "SettingsWindow"
 
-    /// The identifier for Ice's permissions window.
+    /// The identifier for holzBar's permissions window.
     case permissions = "PermissionsWindow"
 
     /// The non-localized title of the corresponding window.
@@ -91,7 +91,7 @@ enum HolzBarWindowIdentifier: String, Sendable, CustomStringConvertible {
     /// - Note: Use ``titleKey`` to get the localized title.
     var titleString: String {
         switch self {
-        case .settings: "holzIce"
+        case .settings: "holzBar"
         case .permissions: "Permissions"
         }
     }
@@ -114,7 +114,7 @@ enum HolzBarWindowIdentifier: String, Sendable, CustomStringConvertible {
 extension OpenWindowAction {
     /// Opens the corresponding window for the given identifier.
     ///
-    /// - Parameter id: An identifier for one of Ice's windows.
+    /// - Parameter id: An identifier for one of holzBar's windows.
     func callAsFunction(id: HolzBarWindowIdentifier) {
         callAsFunction(id: id.rawValue)
     }
@@ -125,7 +125,7 @@ extension OpenWindowAction {
 extension DismissWindowAction {
     /// Dismisses the corresponding window for the given identifier.
     ///
-    /// - Parameter id: An identifier for one of Ice's windows.
+    /// - Parameter id: An identifier for one of holzBar's windows.
     func callAsFunction(id: HolzBarWindowIdentifier) {
         callAsFunction(id: id.rawValue)
     }

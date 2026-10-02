@@ -53,7 +53,8 @@ final class HotkeyRegistry {
         }
     }
 
-    private let signature = OSType(1231250720) // OSType for Ice
+    // The same four-character code as the original Ice's; the two apps never run together.
+    private let signature = OSType(1231250720)
 
     private var eventHandlerRef: EventHandlerRef?
 

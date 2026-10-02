@@ -46,7 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         #endif
 
-        // Another menu bar manager would fight holzIce over the same items.
+        // Another menu bar manager would fight holzBar over the same items.
         guard ConflictingApps.resolve() else {
             NSApp.terminate(nil)
             return

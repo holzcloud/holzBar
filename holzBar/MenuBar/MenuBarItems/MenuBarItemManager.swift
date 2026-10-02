@@ -376,8 +376,8 @@ extension MenuBarItemManager {
 
             if #available(macOS 27.0, *), let appState {
                 // On macOS 27 the saved layout, not the order on the bar, places items in sections,
-                // so Ice's dividers are not needed. Accessibility reports them only on the display
-                // Ice launched on, and requiring them emptied the cache on the other display.
+                // so holzBar's dividers are not needed. Accessibility reports them only on the display
+                // holzBar launched on, and requiring them emptied the cache on the other display.
                 // An upgrade from an earlier macOS arrives with its sections in the bar's order and
                 // nowhere else, so the first readable bar is where they come from.
                 appState.concealer27.seedLayoutIfNeeded(items: items)
@@ -490,12 +490,12 @@ extension MenuBarItemManager {
 // MARK: - Placing New Items
 
 extension MenuBarItemManager {
-    /// Moves menu bar items that holzIce has not seen before into the section
+    /// Moves menu bar items that holzBar has not seen before into the section
     /// chosen in the settings (jordanbaird/Ice#6, jordanbaird/Ice#767,
     /// jordanbaird/Ice#378).
     ///
     /// macOS puts a new item at the far left of the bar, which is wherever the
-    /// leftmost section happens to be. holzIce remembers every item it has seen,
+    /// leftmost section happens to be. holzBar remembers every item it has seen,
     /// so only items that are new to it are moved, and the first run only records
     /// what is there. Items whose identity changes on every launch are left alone,
     /// as they would be new every time.

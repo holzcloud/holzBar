@@ -10,13 +10,32 @@ struct ControlItemImageSet: Codable, Hashable, Identifiable {
     enum Name: String, Codable, Hashable {
         case arrow = "Arrow"
         case chevron = "Chevron"
-        case logo = "holzIce"
+        case logo = "holzBar"
         case door = "Door"
         case dot = "Dot"
         case ellipsis = "Ellipsis"
         case iceCube = "Ice Cube"
         case sunglasses = "Sunglasses"
         case custom = "Custom"
+
+        /// The name the logo image set was stored under before the app
+        /// was renamed holzBar, decoded as ``logo``.
+        private static let previousLogoName = "holzIce"
+
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            let rawValue = try container.decode(String.self)
+            if rawValue == Self.previousLogoName {
+                self = .logo
+            } else if let name = Name(rawValue: rawValue) {
+                self = name
+            } else {
+                throw DecodingError.dataCorruptedError(
+                    in: container,
+                    debugDescription: "Unknown image set name \(rawValue)"
+                )
+            }
+        }
     }
 
     let name: Name
@@ -37,7 +56,7 @@ struct ControlItemImageSet: Codable, Hashable, Identifiable {
 }
 
 extension ControlItemImageSet {
-    /// The default image set for the holzIce icon: the ice cube with its
+    /// The default image set for the holzBar icon: the ice cube with its
     /// chevron, standing on the plank, from the app icon.
     static let defaultHolzBarIcon = ControlItemImageSet(
         name: .logo,
@@ -45,7 +64,7 @@ extension ControlItemImageSet {
         visible: .catalog("LogoStroke")
     )
 
-    /// The image sets that the user can choose to display in the holzIce icon.
+    /// The image sets that the user can choose to display in the holzBar icon.
     static let userSelectableHolzBarIcons = [
         ControlItemImageSet(
             name: .arrow,

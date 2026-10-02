@@ -7,13 +7,13 @@ import Cocoa
 import Combine
 import OSLog
 
-/// Hides menu bar items on macOS 27, where Ice's expanding dividers no longer work.
+/// Hides menu bar items on macOS 27, where holzBar's expanding dividers no longer work.
 ///
 /// On macOS 27 the section of each application comes from a saved layout, first
-/// taken from the user's Ice layout: MenuBarAgent reorders items on its own, so their
+/// taken from the user's holzBar layout: MenuBarAgent reorders items on its own, so their
 /// order on the bar no longer says which section they belong to. The concealer hides
 /// applications through `MenuBarAssessmentAssertion27`, following that layout and the
-/// state of Ice's sections.
+/// state of holzBar's sections.
 @available(macOS 27.0, *)
 @MainActor
 final class Concealer27: ObservableObject {
@@ -72,7 +72,7 @@ final class Concealer27: ObservableObject {
         })
         // Entering or leaving fullscreen swaps the menu bar the items are drawn in, and nothing
         // else here notices: the concealment was left exactly as the previous bar had it, so
-        // Ice's own item was missing from the bar that slides down over a fullscreen window and
+        // holzBar's own item was missing from the bar that slides down over a fullscreen window and
         // there was nothing to click. `HIDEventManager` watches the same publisher, for the same
         // reason, on earlier versions of macOS.
         appState.$activeSpace
@@ -99,7 +99,7 @@ final class Concealer27: ObservableObject {
         update()
     }
 
-    /// Derives what to conceal from Ice's sections and applies it.
+    /// Derives what to conceal from holzBar's sections and applies it.
     func update() {
         guard let appState, MenuBarAssessmentAssertion27.isAvailable else {
             return
@@ -155,11 +155,11 @@ final class Concealer27: ObservableObject {
 
     /// Notes whether concealment has left the notched bar's items folded with no overflow button.
     ///
-    /// Seen twice on this machine (2026-09-29 and 2026-10-01), both times after Ice restarted
+    /// Seen twice on this machine (2026-09-29 and 2026-10-01), both times after holzBar restarted
     /// with the bar already crowded: macOS folds what does not fit beside the notch, concealing
     /// frees the room again, and the fold is not reconsidered — the "«" goes away with the items
     /// still behind it. Measured against that live state: neither `Scripts/macos27/reflow-probe.swift`
-    /// nor restarting Ice unfolds them, while relaunching the application whose item is missing
+    /// nor restarting holzBar unfolds them, while relaunching the application whose item is missing
     /// does, at once.
     private func checkStuckOverflow() async {
         let items = await MenuBarItemProvider27.items()
@@ -300,10 +300,10 @@ final class Concealer27: ObservableObject {
         endTemporaryShow(bundleIDs: CollectionOfOne(bundleID))
     }
 
-    /// Puts applications that holzIce has not seen before into the section chosen
+    /// Puts applications that holzBar has not seen before into the section chosen
     /// in the settings (jordanbaird/Ice#6, jordanbaird/Ice#767).
     ///
-    /// An application missing from the saved layout is visible. holzIce remembers
+    /// An application missing from the saved layout is visible. holzBar remembers
     /// every application it has seen on the bar, so only new ones are placed, and
     /// the first run only records what is there.
     func placeNewApplications(items: [MenuBarItem]) {
@@ -356,11 +356,11 @@ final class Concealer27: ObservableObject {
 
     /// Writes the sections the bar still holds from before macOS 27 into the saved layout, once.
     ///
-    /// Nothing recorded them before: an item's section was where it sat between Ice's dividers.
+    /// Nothing recorded them before: an item's section was where it sat between holzBar's dividers.
     /// On 27 that order no longer means anything, and an application missing from the layout is
-    /// visible, so without this an upgrade left Ice hiding nothing until the whole layout was
+    /// visible, so without this an upgrade left holzBar hiding nothing until the whole layout was
     /// rebuilt by hand — reported on jordanbaird/Ice#1006, and the likeliest reading of several
-    /// "Ice hides nothing on 27" issues.
+    /// of the original Ice's "hides nothing on 27" issues.
     ///
     /// The bar is read once, the first time it can be: a user who has arranged a layout of their
     /// own keeps it, and a bar whose order macOS 27 has already rearranged is left alone (see
@@ -375,7 +375,7 @@ final class Concealer27: ObservableObject {
             return
         }
         // Once the bar can be read, this runs whatever it says: a bar that says nothing is still
-        // an answer, and asking it again later would risk reading one Ice itself had concealed.
+        // an answer, and asking it again later would risk reading one holzBar itself had concealed.
         Defaults.set(true, forKey: .macOS27LayoutSeeded)
         let alwaysHiddenControlItem = items.first { $0.tag == .alwaysHiddenControlItem }
         let managed = items.compactMap { item -> (bundleID: String, bounds: CGRect)? in
@@ -435,7 +435,7 @@ final class Concealer27: ObservableObject {
             return .allRevealed
         }
         if appState.settings.general.usesShelf {
-            // The Ice Bar shows hidden items in its own panel, so the bar stays concealed.
+            // The holzBar Shelf shows hidden items in its own panel, so the bar stays concealed.
             return .allHidden
         }
         let manager = appState.menuBarManager

@@ -14,11 +14,11 @@ final class ControlItem {
     /// An identifier for a control item.
     enum Identifier: String, CaseIterable {
         /// The identifier for the control item for the visible section.
-        case visible = "Ice.ControlItem.Visible"
+        case visible = "holzBar.ControlItem.Visible"
         /// The identifier for the control item for the hidden section.
-        case hidden = "Ice.ControlItem.Hidden"
+        case hidden = "holzBar.ControlItem.Hidden"
         /// The identifier for the control item for the always-hidden section.
-        case alwaysHidden = "Ice.ControlItem.AlwaysHidden"
+        case alwaysHidden = "holzBar.ControlItem.AlwaysHidden"
 
         /// A tag for the control item with this identifier.
         var tag: MenuBarItemTag {
@@ -92,7 +92,7 @@ final class ControlItem {
                     self.constraint = nil
                 }
 
-                // On macOS 27, Ice finds its own items through Accessibility by this identifier.
+                // On macOS 27, holzBar finds its own items through Accessibility by this identifier.
                 button.setAccessibilityIdentifier(controlItem.identifier.rawValue)
                 button.target = controlItem
                 button.action = #selector(controlItem.performAction)
@@ -392,7 +392,7 @@ final class ControlItem {
             button.image = image
         case .hidden, .alwaysHidden:
             if #available(macOS 27.0, *) {
-                // Ice is signed locally, so MenuBarAgent drops its items whenever anything is
+                // holzBar is signed locally, so MenuBarAgent drops its items whenever anything is
                 // concealed (measured on macOS 27.0). A divider is therefore never drawn, yet a
                 // standard-width status item still holds 18 points of the bar, which reads as a
                 // gap between the neighbouring icons. Sections come from the saved layout on 27,
@@ -537,10 +537,10 @@ final class ControlItem {
             appState.settings.hotkeys.hotkey(withAction: action)
         }
 
-        let menu = NSMenu(title: "holzIce")
+        let menu = NSMenu(title: "holzBar")
 
         let settingsItem = NSMenuItem(
-            title: "holzIce Settings…",
+            title: "holzBar Settings…",
             action: #selector(AppDelegate.openSettingsWindow),
             keyEquivalent: ","
         )
@@ -604,7 +604,7 @@ final class ControlItem {
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
-            title: "Quit holzIce",
+            title: "Quit holzBar",
             action: #selector(NSApp.terminate),
             keyEquivalent: "q"
         )
@@ -636,7 +636,7 @@ final class ControlItem {
         appState?.menuBarManager.searchPanel.show()
     }
 
-    /// Opens the releases page. holzIce is updated with Homebrew, which the
+    /// Opens the releases page. holzBar is updated with Homebrew, which the
     /// page explains.
     @objc private func checkForUpdates() {
         NSWorkspace.shared.open(Constants.releasesURL)

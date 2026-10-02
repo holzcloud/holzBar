@@ -49,7 +49,7 @@ final class MenuBarSpacers: ObservableObject {
         }
         while statusItems.count < count {
             let statusItem = NSStatusBar.system.statusItem(withLength: width)
-            statusItem.autosaveName = "holzIce.Spacer.\(statusItems.count + 1)"
+            statusItem.autosaveName = "holzBar.Spacer.\(statusItems.count + 1)"
             statusItem.button?.title = ""
             statusItem.button?.toolTip = "Spacer"
             statusItems.append(statusItem)

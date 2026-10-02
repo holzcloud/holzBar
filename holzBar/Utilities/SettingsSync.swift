@@ -7,11 +7,11 @@ import AppKit
 import Combine
 import OSLog
 
-/// Keeps holzIce's settings in step across Macs through a file in iCloud Drive
+/// Keeps holzBar's settings in step across Macs through a file in iCloud Drive
 /// (jordanbaird/Ice#95).
 ///
 /// iCloud's key-value store needs an iCloud entitlement, which an ad hoc signed
-/// app cannot have, so the settings travel as `holzIce/Settings.plist` in
+/// app cannot have, so the settings travel as `holzBar/Settings.plist` in
 /// iCloud Drive instead. Each change is written there; newer settings from
 /// another Mac are applied at launch, or after a restart the user agrees to.
 @MainActor
@@ -35,7 +35,7 @@ final class SettingsSync: ObservableObject {
 
     /// The file the settings are synced through.
     static var fileURL: URL? {
-        iCloudDriveURL?.appending(path: "holzIce/Settings.plist")
+        iCloudDriveURL?.appending(path: "holzBar/Settings.plist")
     }
 
     /// A Boolean value that indicates whether syncing is turned on.
@@ -152,7 +152,7 @@ final class SettingsSync: ObservableObject {
         }
         let alert = NSAlert()
         alert.messageText = "Settings changed on another Mac"
-        alert.informativeText = "holzIce can restart now to use the settings from iCloud Drive."
+        alert.informativeText = "holzBar can restart now to use the settings from iCloud Drive."
         alert.addButton(withTitle: "Restart")
         alert.addButton(withTitle: "Later")
         NSApp.activate()

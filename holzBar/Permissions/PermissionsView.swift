@@ -62,7 +62,7 @@ struct PermissionsView: View {
     private var explanationBox: some View {
         HolzBarSection {
             VStack {
-                Text("holzIce needs your permission to manage the menu bar.")
+                Text("holzBar needs your permission to manage the menu bar.")
                     .fontWeight(.medium)
                 Text("Absolutely no personal information is collected or stored.")
                     .bold()
@@ -135,7 +135,7 @@ struct PermissionsView: View {
                     .underline()
 
                 VStack(spacing: 2) {
-                    Text("holzIce needs this to:")
+                    Text("holzBar needs this to:")
                         .font(.title3)
                         .bold()
 
@@ -185,7 +185,7 @@ struct PermissionsView: View {
                 }
 
                 if !permission.isRequired {
-                    CalloutBox("holzIce can work in a limited mode without this permission.") {
+                    CalloutBox("holzBar can work in a limited mode without this permission.") {
                         Image(systemName: "checkmark.shield")
                             .foregroundStyle(.green)
                     }

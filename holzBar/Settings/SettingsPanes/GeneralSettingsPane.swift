@@ -63,7 +63,7 @@ struct GeneralSettingsPane: View {
         LaunchAtLogin.Toggle()
     }
 
-    // MARK: Ice Icon Options
+    // MARK: holzBar Icon Options
 
     @ViewBuilder
     private var holzBarIconOptions: some View {
@@ -75,13 +75,13 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var showHolzBarIcon: some View {
-        Toggle("Show holzIce icon", isOn: $settings.showHolzBarIcon)
-            .annotation("Click to show hidden menu bar items. Right-click to access holzIce's settings.")
+        Toggle("Show holzBar icon", isOn: $settings.showHolzBarIcon)
+            .annotation("Click to show hidden menu bar items. Right-click to access holzBar's settings.")
     }
 
     @ViewBuilder
     private var holzBarIconPicker: some View {
-        let labelKey = LocalizedStringKey("holzIce icon")
+        let labelKey = LocalizedStringKey("holzBar icon")
 
         HolzBarMenu(labelKey) {
             Picker(labelKey, selection: $settings.holzBarIcon) {
@@ -170,7 +170,7 @@ struct GeneralSettingsPane: View {
         }
     }
 
-    // MARK: Ice Bar Options
+    // MARK: holzBar Shelf Options
 
     @ViewBuilder
     private var shelfOptions: some View {
@@ -179,13 +179,13 @@ struct GeneralSettingsPane: View {
             shelfLocationPicker
             shelfDisplaysPicker
             Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInShelf)
-                .annotation("Visible items that the notch hides, for example behind a long application menu, also appear in the holzIce Bar.")
+                .annotation("Visible items that the notch hides, for example behind a long application menu, also appear in the holzBar Shelf.")
         }
     }
 
     @ViewBuilder
     private var useShelf: some View {
-        Toggle("Use holzIce Bar", isOn: $settings.useShelf)
+        Toggle("Use holzBar Shelf", isOn: $settings.useShelf)
             .annotation("Show hidden menu bar items in a separate bar below the menu bar.")
     }
 
@@ -199,11 +199,11 @@ struct GeneralSettingsPane: View {
         .annotation {
             switch settings.shelfLocation {
             case .dynamic:
-                Text("The holzIce Bar's location changes based on context.")
+                Text("The holzBar Shelf's location changes based on context.")
             case .mousePointer:
-                Text("The holzIce Bar is centered below the mouse pointer.")
+                Text("The holzBar Shelf is centered below the mouse pointer.")
             case .holzBarIcon:
-                Text("The holzIce Bar is centered below the holzIce icon.")
+                Text("The holzBar Shelf is centered below the holzBar icon.")
             }
         }
     }

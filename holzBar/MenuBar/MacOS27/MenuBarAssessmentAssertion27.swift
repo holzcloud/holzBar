@@ -5,7 +5,7 @@
 //  Adapted from Barometer's MenuBarAssessmentAssertion.swift
 //  (https://github.com/mackid1993/Barometer), itself adapted from Thaw's
 //  PlatformRuntimeKit (https://github.com/thaw-app/Thaw). Both are licensed
-//  under the GNU GPLv3, like Ice.
+//  under the GNU GPLv3, like holzBar.
 //
 
 import Foundation
@@ -59,13 +59,13 @@ final class MenuBarAssessmentAssertion27: ConcealmentBackend27 {
     private static let activateSelector = NSSelectorFromString("activateWithConfiguration:completionHandler:")
     private static let invalidateSelector = NSSelectorFromString("invalidate")
 
-    /// The system items Ice keeps on the bar.
+    /// The system items holzBar keeps on the bar.
     ///
     /// MenuBarAgent numbers them, and on macOS 27.0 only five numbers draw anything: 0 is the
     /// battery, 2 the clock, 6 Wi-Fi and 8 Control Centre; 1, 3, 4, 5 and 7 draw nothing, and so
     /// does every number above 8. All of them are accepted, though, up to 127 at least, so the
     /// range is wider than what this build of macOS draws: a system item added by a later build
-    /// would otherwise be concealed, and Ice hides applications' items, not the system's. The
+    /// would otherwise be concealed, and holzBar hides applications' items, not the system's. The
     /// range matches the one @carlossantos74 arrived at in jordanbaird/Ice#1001.
     ///
     /// Control Centre's capture indicator — the green camera button, orange for the microphone,

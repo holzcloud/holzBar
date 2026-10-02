@@ -38,7 +38,7 @@ struct MenuBarItem: CustomStringConvertible {
         tag.canBeHidden
     }
 
-    /// A Boolean value that indicates whether this item is one of Ice's
+    /// A Boolean value that indicates whether this item is one of holzBar's
     /// control items.
     var isControlItem: Bool {
         tag.isControlItem
@@ -369,7 +369,7 @@ private extension MenuBarItemTag.Namespace {
         // that don't. We should also be able to handle daemons and helpers,
         // which are more likely not to have a bundle ID.
         if OwnStatusItemWindows.contains(itemWindow.windowID) {
-            // holzIce's own items are recognised without the item service.
+            // holzBar's own items are recognised without the item service.
             self = .holzBar
         } else if let sourcePID, let app = NSRunningApplication(processIdentifier: sourcePID) {
             self = .optional(app.bundleIdentifier ?? app.localizedName)

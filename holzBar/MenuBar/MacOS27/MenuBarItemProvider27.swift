@@ -10,7 +10,7 @@ import OSLog
 /// Reads menu bar items through Accessibility on macOS 27.
 ///
 /// macOS 27 draws status items inside MenuBarAgent instead of giving each one a
-/// WindowServer window, so the window list Ice used is empty. Every process still
+/// WindowServer window, so the window list the original Ice used is empty. Every process still
 /// publishes its items under `AXExtrasMenuBar`, with frames, for the display that
 /// has the active menu bar.
 @available(macOS 27.0, *)
@@ -64,7 +64,7 @@ enum MenuBarItemProvider27 {
     /// Returns the items on the active menu bar, ordered left to right.
     ///
     /// A caller that asks while another read is under way, or in the moment after one
-    /// finished, is answered from that read. Ice ran one Accessibility sweep per caller
+    /// finished, is answered from that read. holzBar ran one Accessibility sweep per caller
     /// before, and they arrive in bursts: revealing the hidden items set six of them going
     /// in little over a second (measured 2026-09-16), each asking every running process,
     /// while MenuBarAgent was animating the bar. The window is short on purpose — the
@@ -104,7 +104,7 @@ enum MenuBarItemProvider27 {
 
     /// Returns the current frame of the item with the given synthetic identifier.
     ///
-    /// Ice's own items are answered from the last read: asking our own process
+    /// holzBar's own items are answered from the last read: asking our own process
     /// from the main thread would wait for the main thread itself.
     static func currentBounds(for windowID: CGWindowID) -> CGRect? {
         guard let entry = lock.withLock({ entries[windowID] }) else {
@@ -249,7 +249,7 @@ enum MenuBarItemProvider27 {
             }
             if bundleID == menuBarAgentBundleID {
                 // MenuBarAgent's window on the display whose bar is not active holds every item
-                // drawn there, not only the system ones, so taking them all made Ice treat any
+                // drawn there, not only the system ones, so taking them all made holzBar treat any
                 // click as a click on a system item and lift concealment for it. The system
                 // items are the rightmost group, and the clock is the widest of them: keep the
                 // items within the span they occupy (measured on macOS 27.0: 237 points from the
@@ -309,14 +309,14 @@ enum MenuBarItemProvider27 {
         }
         // Where the items' own run of the bar begins, for hover hit-testing. Only what is
         // drawn counts: a concealed item keeps a stale frame further left, which would make
-        // Ice treat the freed part of the bar as occupied.
+        // holzBar treat the freed part of the bar as occupied.
         let concealed = lock.withLock { concealedPIDs }
         let leftEdge = items
             .filter { item in
                 guard !concealed.contains(item.ownerPID) else {
                     return false
                 }
-                // Ice's own items are collapsed to nothing on macOS 27 and report a frame at
+                // holzBar's own items are collapsed to nothing on macOS 27 and report a frame at
                 // the origin, which would drag the edge to the left of the whole bar and make
                 // every spot count as occupied, so hovering would never reveal anything again.
                 return item.isOnScreen && item.ownerPID != ownPID && !item.isControlItem && item.bounds.width > 4
@@ -338,7 +338,7 @@ enum MenuBarItemProvider27 {
 
     private static func tag(for raw: RawItem, ownPID: pid_t) -> MenuBarItemTag? {
         if raw.pid == ownPID {
-            // Only Ice's control items, identified by `ControlItem`.
+            // Only holzBar's control items, identified by `ControlItem`.
             return MenuBarItemTag.controlItems.first { $0.title == raw.identifier }
         }
         let title = raw.identifier.isEmpty ? "Item-\(raw.index)" : raw.identifier

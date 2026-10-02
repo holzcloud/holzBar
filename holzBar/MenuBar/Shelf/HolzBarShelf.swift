@@ -13,7 +13,7 @@ final class HolzBarShelfPanel: NSPanel {
     /// The shared app state.
     private weak var appState: AppState?
 
-    /// Manager for the Ice Bar's color.
+    /// Manager for the holzBar Shelf's color.
     private let colorManager = HolzBarShelfColorManager()
 
     /// The currently displayed section.
@@ -22,7 +22,7 @@ final class HolzBarShelfPanel: NSPanel {
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
 
-    /// Creates a new Ice Bar panel.
+    /// Creates a new holzBar Shelf panel.
     init() {
         super.init(
             contentRect: .zero,
@@ -30,7 +30,7 @@ final class HolzBarShelfPanel: NSPanel {
             backing: .buffered,
             defer: false
         )
-        self.title = "holzIce Bar"
+        self.title = "holzBar Shelf"
         self.titlebarAppearsTransparent = true
         self.isMovableByWindowBackground = true
         self.allowsToolTipsWhenApplicationIsInactive = true
@@ -175,7 +175,7 @@ final class HolzBarShelfPanel: NSPanel {
             // and the bar shows the images stored while they were drawn. The wait only held
             // the bar back by a scan of every process and a capture of the display. The
             // refresh runs alongside instead, for the visible items and any still missing.
-            // The `MacOS27IceBarWaitsForRefresh` default brings the wait back, for measuring.
+            // The `Defaults.Key.macOS27ShelfWaitsForRefresh` default brings the wait back, for measuring.
             Task {
                 await appState.itemManager.cacheItemsIfNeeded()
                 await appState.imageCache.updateCache()
@@ -217,7 +217,7 @@ final class HolzBarShelfPanel: NSPanel {
         if #available(macOS 27.0, *) {
             let elapsed = (ContinuousClock.now - requestedAt).components
             let milliseconds = Double(elapsed.seconds) * 1000 + Double(elapsed.attoseconds) / 1e15
-            Logger.default.notice("holzIce Bar shown \(milliseconds, privacy: .public) ms after it was requested")
+            Logger.default.notice("holzBar Shelf shown \(milliseconds, privacy: .public) ms after it was requested")
         }
     }
 
@@ -382,7 +382,7 @@ private struct HolzBarShelfContentView: View {
     private var content: some View {
         if !ScreenCapture.cachedCheckPermissions() {
             HStack {
-                Text("The holzIce Bar requires screen recording permissions.")
+                Text("The holzBar Shelf requires screen recording permissions.")
 
                 Button {
                     menuBarManager.section(withName: section)?.hide()
@@ -390,14 +390,14 @@ private struct HolzBarShelfContentView: View {
                     appState.activate(withPolicy: .regular)
                     appState.openWindow(.settings)
                 } label: {
-                    Text("Open holzIce Settings")
+                    Text("Open holzBar Settings")
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.link)
             }
             .padding(.horizontal, 10)
         } else if menuBarManager.isMenuBarHiddenBySystemUserDefaults {
-            Text("holzIce cannot display menu bar items for automatically hidden menu bars")
+            Text("holzBar cannot display menu bar items for automatically hidden menu bars")
                 .padding(.horizontal, 10)
         } else if itemManager.itemCache.managedItems.isEmpty {
             HStack {

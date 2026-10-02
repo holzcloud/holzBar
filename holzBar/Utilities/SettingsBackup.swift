@@ -7,7 +7,7 @@ import AppKit
 import OSLog
 import UniformTypeIdentifiers
 
-/// Exports holzIce's settings to a file and imports them from one
+/// Exports holzBar's settings to a file and imports them from one
 /// (jordanbaird/Ice#326).
 ///
 /// The file is a property list of the app's defaults domain, so it holds
@@ -47,7 +47,7 @@ enum SettingsBackup {
         for (key, value) in settings where !excludedKeyPrefixes.contains(where: { key.hasPrefix($0) }) {
             defaults.set(value, forKey: key)
         }
-        // Don't import the Ice settings again on the next launch.
+        // Don't import the original Ice's settings again on the next launch.
         defaults.set(true, forKey: Defaults.Key.hasImportedIceSettings.rawValue)
     }
 
@@ -55,8 +55,8 @@ enum SettingsBackup {
     static func exportToFile() {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.propertyList]
-        panel.nameFieldStringValue = "holzIce Settings.plist"
-        panel.title = "Export holzIce Settings"
+        panel.nameFieldStringValue = "holzBar Settings.plist"
+        panel.title = "Export holzBar Settings"
         NSApp.activate()
         guard panel.runModal() == .OK, let url = panel.url else {
             return
@@ -75,7 +75,7 @@ enum SettingsBackup {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.propertyList]
         panel.allowsMultipleSelection = false
-        panel.title = "Import holzIce Settings"
+        panel.title = "Import holzBar Settings"
         NSApp.activate()
         guard panel.runModal() == .OK, let url = panel.url else {
             return
@@ -87,7 +87,7 @@ enum SettingsBackup {
             }
             let alert = NSAlert()
             alert.messageText = "Replace your settings?"
-            alert.informativeText = "holzIce will replace its current settings with the ones from “\(url.lastPathComponent)” and restart."
+            alert.informativeText = "holzBar will replace its current settings with the ones from “\(url.lastPathComponent)” and restart."
             alert.addButton(withTitle: "Import and Restart")
             alert.addButton(withTitle: "Cancel")
             guard alert.runModal() == .alertFirstButtonReturn else {

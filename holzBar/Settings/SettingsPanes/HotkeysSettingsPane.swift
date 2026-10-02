@@ -39,7 +39,7 @@ struct HotkeysSettingsPane: View {
                 case .searchMenuBarItems:
                     Text("Search menu bar items")
                 case .enableShelf:
-                    Text("Enable the holzIce Bar")
+                    Text("Enable the holzBar Shelf")
                 case .toggleApplicationMenus:
                     Text("Toggle application menus")
                 case .showHiddenSectionTemporarily:

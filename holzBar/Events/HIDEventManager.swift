@@ -57,7 +57,7 @@ final class HIDEventManager: ObservableObject {
         guard let self, isEnabled, let appState, let screen = bestScreen(appState: appState) else {
             return event
         }
-        // Ice's own click that makes a display's menu bar active (see `ItemClicker27`).
+        // holzBar's own click that makes a display's menu bar active (see `ItemClicker27`).
         if event.cgEvent?.getIntegerValueField(.eventSourceUserData) == HIDEventManager.menuBarActivationMarker {
             return event
         }
@@ -257,14 +257,14 @@ extension HIDEventManager {
             return
         }
 
-        // Make sure clicking the Ice icon doesn't trigger rehide.
+        // Make sure clicking the holzBar icon doesn't trigger rehide.
         if let holzBarIcon = appState.menuBarManager.controlItem(withName: .visible) {
             guard event.window !== holzBarIcon.window else {
                 return
             }
         }
 
-        // Only continue if the click is not inside the Ice Bar, at
+        // Only continue if the click is not inside the holzBar Shelf, at
         // least one section is visible, and the mouse is not inside
         // the menu bar.
         guard
@@ -367,13 +367,13 @@ extension HIDEventManager {
 
     // MARK: Handle System Item Clicks (macOS 27)
 
-    /// Marks the clicks Ice replays, so the tap lets them through.
+    /// Marks the clicks holzBar replays, so the tap lets them through.
     private static let replayedClickMarker: Int64 = 0x1CE_27_C1C
 
     /// Times the steps of a bridged click, which happen on both opening and closing a panel.
     private static let bridgeLogger = Logger(subsystem: "com.holzcloud.holzBar", category: "ClickBridge27")
 
-    /// Marks Ice's click that makes a display's menu bar active before an item is pressed.
+    /// Marks holzBar's click that makes a display's menu bar active before an item is pressed.
     static let menuBarActivationMarker: Int64 = 0x1CE_27_BA2
 
     /// The last empty menu bar spot hovered on the given display.
@@ -390,7 +390,7 @@ extension HIDEventManager {
         "com.apple.menuextra.wifi",
     ]
 
-    /// The system item whose panel Ice last opened, so a second click on the same item is
+    /// The system item whose panel holzBar last opened, so a second click on the same item is
     /// understood as the click that dismisses it.
     private nonisolated(unsafe) static var itemShowingPanel: String?
 
@@ -400,7 +400,7 @@ extension HIDEventManager {
             return event
         }
         if event.type == .leftMouseUp {
-            // A press Ice holds back has its release held back with it. MenuBarAgent would
+            // A press holzBar holds back has its release held back with it. MenuBarAgent would
             // otherwise be handed a release with no press behind it, moments before the
             // replayed click that carries both.
             guard let until = heldBackReleaseUntil, ContinuousClock.now < until else {
@@ -440,9 +440,9 @@ extension HIDEventManager {
             // size of the display (measured on macOS 27.0) — so the window alone cannot say
             // whether a panel is open, and a click that arrived while a banner happened to be
             // up was answered with Escape, dismissing the banner instead of opening the panel.
-            // A click is treated as dismissing a panel only when Ice opened one itself and its
+            // A click is treated as dismissing a panel only when holzBar opened one itself and its
             // window is still there; a panel opened some other way is closed by the replayed
-            // click, as it would be without Ice.
+            // click, as it would be without holzBar.
             if Self.itemShowingPanel != nil, ItemClick27.openPanelWindow(windows: Self.windowsForPanelCheck()) != nil {
                 Self.postEscape()
                 Self.bridgeLogger.debug("Click bridge: a panel was open, dismissed with Escape")
@@ -463,7 +463,7 @@ extension HIDEventManager {
                     return
                 }
                 // Waiting for a panel that never comes only delays the click, so an item
-                // that ignored the press is not asked again while Ice runs.
+                // that ignored the press is not asked again while holzBar runs.
                 Self.systemItemsIgnoringPress.insert(systemItem.identifier)
             }
             // The click is replayed the moment the assertion is really gone rather than on a
@@ -605,7 +605,7 @@ extension HIDEventManager {
         // `MenuBarSection.hide()`. Checking it here disabled the hide-on-leave
         // branch below as well — and that branch is what calls `hide()`. The flag
         // therefore latched off the only mechanism that could clear it, leaving
-        // the Ice Bar on screen indefinitely: on whatever display it was opened
+        // the holzBar Shelf on screen indefinitely: on whatever display it was opened
         // on, while the user worked on another one. It is checked in the reveal
         // branch instead, where it belongs.
         guard appState.settings.general.showOnHover else {
@@ -747,13 +747,13 @@ extension HIDEventManager {
 
         // With "Displays have separate Spaces" off, only the primary display has
         // a menu bar. The top edge of any other display is ordinary space, and
-        // treating it as a menu bar showed hidden items and holzIce's menu there
+        // treating it as a menu bar showed hidden items and holzBar's menu there
         // (jordanbaird/Ice#383, jordanbaird/Ice#456, jordanbaird/Ice#646).
         if !NSScreen.screensHaveSeparateSpaces, screen != NSScreen.screens.first {
             return false
         }
 
-        // Ice icon must be vertically visible. Otherwise, we can infer
+        // holzBar icon must be vertically visible. Otherwise, we can infer
         // that the menu bar is hidden and the mouse is not inside.
         //
         // On macOS 27 the icon's window is only a placeholder, and its frame says
@@ -875,20 +875,20 @@ extension HIDEventManager {
     }
 
     /// A Boolean value that indicates whether the mouse pointer is within
-    /// the bounds of the Ice Bar panel.
+    /// the bounds of the holzBar Shelf panel.
     func isMouseInsideShelf(appState: AppState) -> Bool {
         guard let mouseLocation = MouseHelpers.locationAppKit else {
             return false
         }
         let panel = appState.menuBarManager.shelfPanel
         // Pad the frame to be more forgiving if the user accidentally
-        // moves their mouse outside of the Ice Bar.
+        // moves their mouse outside of the holzBar Shelf.
         let paddedFrame = panel.frame.insetBy(dx: -15, dy: -15)
         return paddedFrame.contains(mouseLocation)
     }
 
     /// A Boolean value that indicates whether the mouse pointer is within
-    /// the bounds of the Ice icon.
+    /// the bounds of the holzBar icon.
     func isMouseInsideHolzBarIcon(appState: AppState) -> Bool {
         guard
             let visibleSection = appState.menuBarManager.section(withName: .visible),

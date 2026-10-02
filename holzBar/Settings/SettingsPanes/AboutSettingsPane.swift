@@ -62,7 +62,7 @@ struct AboutSettingsPane: View {
                 }
 
                 VStack(alignment: .leading) {
-                    Text("holzIce")
+                    Text("holzBar")
                         .font(.system(size: 64))
                         .foregroundStyle(.primary)
 
@@ -82,7 +82,7 @@ struct AboutSettingsPane: View {
         }
     }
 
-    /// The credit to the original Ice, which holzIce is a fork of.
+    /// The credit to the original Ice, which holzBar is a fork of.
     @ViewBuilder
     private var basedOnIce: some View {
         HStack(spacing: 4) {
@@ -102,7 +102,7 @@ struct AboutSettingsPane: View {
             HStack {
                 Text("Updates are installed with Homebrew:")
                 Spacer()
-                Text("brew update && brew upgrade --cask holzice")
+                Text("brew update && brew upgrade --cask holzbar")
                     .font(.body.monospaced())
                     .textSelection(.enabled)
             }
@@ -120,7 +120,7 @@ struct AboutSettingsPane: View {
     @ViewBuilder
     private func bottomBar(containerShape: some InsettableShape) -> some View {
         HStack {
-            Button("Quit holzIce") {
+            Button("Quit holzBar") {
                 NSApp.terminate(nil)
             }
             Spacer()
