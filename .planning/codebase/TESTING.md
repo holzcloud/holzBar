@@ -1,3 +1,7 @@
+---
+last_mapped_commit: 213805b84bc1e41e6026202b2b4e829dbaca7b03
+last_mapped_at: 2026-10-02
+---
 # Testing Patterns
 
 **Analysis Date:** 2026-10-02
@@ -17,11 +21,13 @@
 - Swift Testing macros: `#expect(...)`, `try await` inside `@Test` functions (also `#require` is available but unused so far).
 
 **Run Commands:**
+
 ```bash
 swift test                          # Run all tests (needs a Swift 6 toolchain; the Core folder only imports Foundation/CoreGraphics/OSLog)
 swift test --filter ConcealmentController27   # Run one suite
 swift test --enable-code-coverage   # Coverage (not wired into any workflow)
 ```
+
 No script or documentation in the repo spells out these commands; they are the standard SwiftPM invocations for `Package.swift`.
 
 ## Test File Organization
@@ -33,6 +39,7 @@ No script or documentation in the repo spells out these commands; they are the s
 - `<Subject>27Tests.swift` mirrors the `<Subject>27.swift` file in `Ice/MenuBar/MacOS27/Core/` (`ConcealmentPlanner27Tests.swift`, `StuckOverflow27Tests.swift`). `Plan2Core27Tests.swift` is a catch-all (700 lines, 55 tests) holding several suites for newer Core files.
 
 **Structure:**
+
 ```
 Tests/IceMacOS27CoreTests/
 ├── ConcealmentController27Tests.swift   # 7 tests, fake backend
@@ -43,11 +50,13 @@ Tests/IceMacOS27CoreTests/
 ├── SectionLayout27Tests.swift           # 12 tests
 └── StuckOverflow27Tests.swift           # 7 tests
 ```
+
 About 114 tests, roughly 1,280 lines.
 
 ## Test Structure
 
 **Suite Organization:**
+
 ```swift
 import Testing
 @testable import IceMacOS27Core
@@ -79,6 +88,7 @@ struct ConcealmentController27Tests {
 **Framework:** Hand-written fakes; no mocking library.
 
 **Patterns:**
+
 ```swift
 @MainActor
 final class FakeConcealmentBackend: ConcealmentBackend27 {
@@ -90,6 +100,7 @@ final class FakeConcealmentBackend: ConcealmentBackend27 {
     func invalidate(_ token: ConcealmentToken27) { ... }
 }
 ```
+
 - The fake simulates the real system semantics (assertions combine as a union of allowlists) and records `history` so tests can assert invariants over time ("never exposes always-hidden apps").
 - Failure injection via flags (`rejectNextActivation`) and a nested `Rejected: Error`.
 
@@ -102,6 +113,7 @@ final class FakeConcealmentBackend: ConcealmentBackend27 {
 ## Fixtures and Factories
 
 **Test Data:**
+
 ```swift
 let layout: [String: MacOS27Section] = [
     "ru.keepcoder.Telegram": .hidden,
@@ -113,6 +125,7 @@ ItemImages27.cropRect(
     scale: 1
 )
 ```
+
 - Inline literals with real bundle identifiers and real-looking menu bar geometry; no factory helpers or fixture files.
 
 **Location:**
@@ -148,6 +161,7 @@ ItemImages27.cropRect(
 ## Common Patterns
 
 **Async Testing:**
+
 ```swift
 @Test("Hiding again never exposes always-hidden apps")
 func hidingAgain() async throws {
@@ -159,6 +173,7 @@ func hidingAgain() async throws {
 ```
 
 **Error Testing:**
+
 ```swift
 backend.rejectNextActivation = true
 // then assert the thrown error / unchanged state, e.g.
@@ -166,6 +181,7 @@ await #expect(throws: FakeConcealmentBackend.Rejected.self) {
     try await controller.apply(target: allHidden, running: running)
 }
 ```
+
 Use `#expect(throws:)` for expected failures; assert on fake state afterward to verify no partial transition.
 
 **Adding tests for new logic:**
