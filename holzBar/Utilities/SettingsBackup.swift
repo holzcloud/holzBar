@@ -47,8 +47,8 @@ enum SettingsBackup {
         for (key, value) in settings where !excludedKeyPrefixes.contains(where: { key.hasPrefix($0) }) {
             defaults.set(value, forKey: key)
         }
-        // Don't import the original Ice's settings again on the next launch.
-        defaults.set(true, forKey: Defaults.Key.hasImportedIceSettings.rawValue)
+        // Don't import a previous app's settings again on the next launch.
+        defaults.set(true, forKey: Defaults.Key.hasImportedPreviousSettings.rawValue)
     }
 
     /// Asks for a location and writes the settings there.

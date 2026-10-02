@@ -6,28 +6,32 @@
 import AppKit
 import OSLog
 
-/// Keeps holzIce from running alongside another menu bar manager.
+/// Keeps holzBar from running alongside another menu bar manager.
 ///
 /// Two managers fight over the same items. The original Ice in particular sees
-/// holzIce's section dividers as items of its own to arrange and keeps moving
+/// holzBar's section dividers as items of its own to arrange and keeps moving
 /// them: every move hides the pointer and posts synthetic mouse events, so in a
 /// loop the pointer disappears and nothing on the screen can be clicked until
-/// the Mac restarts. holzIce therefore asks to quit such an app before it starts.
+/// the Mac restarts. holzBar therefore asks to quit such an app before it starts.
 @MainActor
 enum ConflictingApps {
     private static let logger = Logger(category: "ConflictingApps")
 
-    /// Bundle identifiers of menu bar managers that conflict with holzIce.
+    /// Bundle identifiers of menu bar managers that conflict with holzBar.
+    ///
+    /// holzIce is the app holzBar used to be: the two register the same hotkeys
+    /// and manage the same items.
     private static let bundleIdentifiers: Set<String> = [
+        "com.holzcloud.holzIce",
         "com.jordanbaird.Ice",
         "com.surteesstudios.Bartender",
         "com.dwarvesv.minimalbar",
     ]
 
     /// Names of conflicting menu bar managers whose bundle identifier is not known.
-    private static let names: Set<String> = ["Ice", "Thaw", "Bartender", "Hidden Bar"]
+    private static let names: Set<String> = ["holzIce", "Ice", "Thaw", "Bartender", "Hidden Bar"]
 
-    /// The running menu bar managers other than holzIce.
+    /// The running menu bar managers other than holzBar.
     static var running: [NSRunningApplication] {
         NSWorkspace.shared.runningApplications.filter { app in
             guard app != .current else {
@@ -42,7 +46,7 @@ enum ConflictingApps {
 
     /// Asks to quit any other running menu bar manager, and quits it.
     ///
-    /// - Returns: `false` if the user chose to quit holzIce instead.
+    /// - Returns: `false` if the user chose to quit holzBar instead.
     static func resolve() -> Bool {
         let apps = running
         guard !apps.isEmpty else {
@@ -55,12 +59,12 @@ enum ConflictingApps {
         alert.alertStyle = .warning
         alert.messageText = "Quit \(names) first?"
         alert.informativeText = """
-            holzIce and \(names) would both try to manage the menu bar. They get in \
+            holzBar and \(names) would both try to manage the menu bar. They get in \
             each other's way, and can leave the pointer unable to click anything. \
-            holzIce can quit \(names) for you.
+            holzBar can quit \(names) for you.
             """
         alert.addButton(withTitle: "Quit \(names) and Continue")
-        alert.addButton(withTitle: "Quit holzIce")
+        alert.addButton(withTitle: "Quit holzBar")
         NSApp.activate()
         guard alert.runModal() == .alertFirstButtonReturn else {
             return false
