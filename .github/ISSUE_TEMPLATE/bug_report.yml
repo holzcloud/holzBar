@@ -33,15 +33,26 @@ body:
   - type: input
     id: app_version
     attributes:
-      label: App Version
-      placeholder: e.g. 1.2.3
+      label: holzBar Version
+      description: Shown in Settings, About.
+      placeholder: e.g. 0.0.6-beta1
     validations:
       required: true
   - type: input
     id: macos_version
     attributes:
       label: macOS Version
-      placeholder: e.g. 15.3.2
+      placeholder: e.g. 26.7.1
+    validations:
+      required: true
+  - type: dropdown
+    id: install_method
+    attributes:
+      label: Install Method
+      options:
+        - Homebrew (brew install --cask holzbar)
+        - Zip from the GitHub releases page
+        - Built from source (Scripts/install.sh)
     validations:
       required: true
   - type: textarea

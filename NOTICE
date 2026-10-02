@@ -10,6 +10,15 @@ holzBar is a fork of Ice, a menu bar manager for macOS:
 Ice is licensed under the GNU General Public License, version 3. holzBar is
 distributed under the same license; see LICENSE for the full text.
 
+holzBar's macOS 27 concealment (holzBar/MenuBar/MacOS27/MenuBarAssessmentAssertion27.swift)
+is adapted from Barometer by mackid1993 (https://github.com/mackid1993/Barometer),
+which is itself adapted from the PlatformRuntimeKit of Thaw by thaw-app
+(https://github.com/thaw-app/Thaw). Both are licensed under the GNU General Public
+License, version 3, like holzBar.
+
+The licenses of the open-source packages holzBar links are shown in the app under
+Settings, About, Acknowledgements.
+
 As required by section 5 of the GPL-3.0, this is a modified version of Ice.
 Changes made in holzBar since forking on 2026-10-01 include:
 
