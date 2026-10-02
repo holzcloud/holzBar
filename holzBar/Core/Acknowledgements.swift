@@ -63,28 +63,12 @@ enum Acknowledgements {
     /// The Swift packages holzBar links, sorted by name, with the versions in `Package.resolved`.
     static let packages: [Acknowledgement] = [
         Acknowledgement(
-            name: "AXSwift",
-            repository: "https://github.com/tmandry/AXSwift",
-            version: "0.3.2",
-            use: "Calls the macOS Accessibility API.",
-            license: "MIT License",
-            licenseFile: "License-AXSwift"
-        ),
-        Acknowledgement(
             name: "CompactSlider",
             repository: "https://github.com/buh/CompactSlider",
             version: "2.1.0",
             use: "Draws the sliders in Settings.",
             license: "MIT License",
             licenseFile: "License-CompactSlider"
-        ),
-        Acknowledgement(
-            name: "Ifrit",
-            repository: "https://github.com/ukushu/Ifrit",
-            version: "2.0.6",
-            use: "Powers the fuzzy search of menu bar items.",
-            license: "MIT License and Apache License 2.0",
-            licenseFile: "License-Ifrit"
         ),
         Acknowledgement(
             name: "LaunchAtLogin-Modern",
