@@ -56,7 +56,6 @@
 		71BDFC6C2C978E2A00EF145F /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Resources/Acknowledgements.rtf,
 				Resources/Info.plist,
 			);
 			target = 716683292A767E6A006ABF84 /* holzBar */;
