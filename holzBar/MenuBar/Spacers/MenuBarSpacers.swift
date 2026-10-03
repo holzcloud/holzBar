@@ -36,7 +36,8 @@ final class MenuBarSpacers {
 
     func performSetup() {
         if let stored = Defaults.object(forKey: .spacerWidth) as? Double {
-            width = stored
+            // Kept in the slider's range; the pane shows it as an `Int`.
+            width = Defaults.Key.spacerWidth.clamped(stored, fallback: width)
         }
         if let stored = Defaults.object(forKey: .spacerCount) as? Int {
             count = min(max(stored, 0), Self.maximumCount)

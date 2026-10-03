@@ -645,6 +645,34 @@
         }
       }
     },
+    "Another app asked holzBar to change this setting." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine andere App hat holzBar gebeten, diese Einstellung zu ändern."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une autre app a demandé à holzBar de modifier ce réglage."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un'altra app ha chiesto a holzBar di modificare questa impostazione."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina autra app ha dumandà holzBar da midar quest parameter."
+          }
+        }
+      }
+    },
     "Another app asked holzBar to rearrange your menu bar." : {
       "localizations" : {
         "de" : {
@@ -669,6 +697,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ina autra app ha dumandà holzBar d'ordinar da nov tia trav da menu."
+          }
+        }
+      }
+    },
+    "Another app asked holzBar to turn off Zen mode. Hidden items could then be shown." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine andere App hat holzBar gebeten, den Zen-Modus auszuschalten. Ausgeblendete Elemente könnten danach angezeigt werden."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une autre app a demandé à holzBar de désactiver le mode Zen. Les éléments masqués pourraient alors être affichés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un'altra app ha chiesto a holzBar di disattivare la modalità Zen. Gli elementi nascosti potrebbero poi essere mostrati."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina autra app ha dumandà holzBar da deactivar il modus Zen. Elements zuppads pudessan lura vegnir mussads."
           }
         }
       }
@@ -4845,6 +4901,34 @@
         }
       }
     },
+    "On macOS 27, while holzBar hides menu bar items, Control Centre does not show its indicator for the camera, the microphone or screen recording. It comes back while holzBar hides no item. The small green dot beside the clock still appears while the camera is on." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 zeigt das Kontrollzentrum seine Anzeige für Kamera, Mikrofon und Bildschirmaufnahme nicht, solange holzBar Menüleistenelemente ausblendet. Sie erscheint wieder, sobald holzBar kein Element ausblendet. Der kleine grüne Punkt neben der Uhr erscheint weiterhin, solange die Kamera an ist."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, tant que holzBar masque des éléments de la barre des menus, le Centre de contrôle n'affiche pas son indicateur pour la caméra, le micro ou l'enregistrement de l'écran. Il réapparaît dès que holzBar ne masque plus aucun élément. Le petit point vert à côté de l'horloge apparaît toujours lorsque la caméra est active."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, finché holzBar nasconde elementi della barra dei menu, il Centro di Controllo non mostra il suo indicatore per fotocamera, microfono e registrazione schermo. Riappare quando holzBar non nasconde alcun elemento. Il piccolo punto verde accanto all'orologio appare comunque quando la fotocamera è attiva."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27, uschè ditg che holzBar zuppenta elements da la trav da menu, na mussa il Center da controlla betg ses indicatur per la camera, il microfon u la Bildschirmaufnahme. El cumpara puspè, uschespert che holzBar na zuppenta nagin element. Il pitschen punct verd sper l'ura cumpara vinavant, uschè ditg che la camera è activa."
+          }
+        }
+      }
+    },
     "On other displays, hidden menu bar items are shown in the menu bar itself." : {
       "localizations" : {
         "de" : {
@@ -7561,6 +7645,34 @@
         }
       }
     },
+    "The camera and microphone indicator is hidden" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Kamera- und Mikrofonanzeige ist ausgeblendet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'indicateur de caméra et de micro est masqué"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'indicatore di fotocamera e microfono è nascosto"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'indicatur da camera e microfon è zuppentà"
+          }
+        }
+      }
+    },
     "The color of the group's icon and name" : {
       "localizations" : {
         "de" : {
@@ -8289,6 +8401,34 @@
         }
       }
     },
+    "Turn On" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einschalten"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attiva"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar"
+          }
+        }
+      }
+    },
     "Turn On…" : {
       "localizations" : {
         "de" : {
@@ -8345,6 +8485,90 @@
         }
       }
     },
+    "Turn off Zen mode?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen-Modus ausschalten?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactiver le mode Zen ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivare la modalità Zen?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deactivar il modus Zen?"
+          }
+        }
+      }
+    },
+    "Turn off auto-rehide?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisches Ausblenden ausschalten?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactiver le masquage automatique ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivare l'occultamento automatico?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deactivar il zuppentar automatic?"
+          }
+        }
+      }
+    },
+    "Turn off the holzBar Shelf?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf ausschalten?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactiver le holzBar Shelf ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivare holzBar Shelf?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deactivar il holzBar Shelf?"
+          }
+        }
+      }
+    },
     "Turn on Zen mode while the screen is mirrored or shared" : {
       "localizations" : {
         "de" : {
@@ -8369,6 +8593,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Activar il modus Zen, durant ch'il monitur vegn spievlà u partì"
+          }
+        }
+      }
+    },
+    "Turn on auto-rehide?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisches Ausblenden einschalten?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activer le masquage automatique ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attivare l'occultamento automatico?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar il zuppentar automatic?"
+          }
+        }
+      }
+    },
+    "Turn on the holzBar Shelf?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf einschalten?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activer le holzBar Shelf ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attivare holzBar Shelf?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar il holzBar Shelf?"
           }
         }
       }

@@ -94,6 +94,15 @@ final class HotkeysSettings {
             guard let keyCombination = try decoder.decode(KeyCombination?.self, from: data) else {
                 return nil
             }
+            // The recorder's rule: no hotkey without a modifier, or with Shift alone, which
+            // would take the key from every app (an imported or synced file can store one).
+            let refusesOptionOnly = if #available(macOS 15.0, *) { true } else { false }
+            let modifiers = keyCombination.modifiers.rawValue
+            if let rejection = HotkeyStorage.loadRejection(modifiers: modifiers, refusesOptionOnly: refusesOptionOnly) {
+                let reason = String(describing: rejection)
+                Logger.hotkeys.error("Ignoring stored hotkey of \(target.logDescription, privacy: .public): modifiers refused (\(reason, privacy: .public))")
+                return nil
+            }
             guard !keyCombination.isSystemReserved else {
                 Logger.hotkeys.error("Ignoring stored hotkey of \(target.logDescription, privacy: .public): reserved by the system")
                 return nil

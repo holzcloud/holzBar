@@ -62,7 +62,7 @@ enum SettingsBackup {
     static func apply(_ settings: [String: Any]) -> [String] {
         let defaults = UserDefaults.standard
         let incoming = settings.filter { key, _ in !isExcluded(key) }
-        let (accepted, ignored) = SettingsSchema.validated(incoming, kinds: Defaults.Key.importableKinds)
+        let (accepted, ignored) = Defaults.Key.validatedSettings(incoming)
         for (key, _) in currentSettings() where accepted[key] == nil {
             defaults.removeObject(forKey: key)
         }

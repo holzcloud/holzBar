@@ -87,14 +87,15 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Look on every desktop, follows the icons, steps aside in fullscreen | ❌ | ✅ | ✅ |
 | No screen-recording indicator when showing or hiding (macOS 27) | — | ✅ | ✅ |
 | Hover and click on a second display (macOS 27) | — | ✅ | ✅ |
-| URL commands that rearrange items ask first | — | — | ✅ |
-| Validated hotkeys and colours (no crash loop from bad settings) | ❌ | — | ✅ |
+| URL commands ask before they change anything lasting; no URL ends Zen mode during a screen share | — | — | ✅ |
+| Validated hotkeys, colours and numbers in imported and synced settings (no crash loop from bad settings) | ❌ | — | ✅ |
 | **Privacy and permissions** | | | |
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | — | private, enforced by CI |
 | Asks for Screen Recording only when a feature needs it | ❌ | — | ✅ |
 | Hardened runtime (no injected code or libraries) | ✅ | — | ✅ (checked by CI) |
-| Settings import accepts only known keys of the right type | — (no import) | — | ✅ |
+| Settings import accepts only known keys of the right type, in range | — (no import) | — | ✅ |
+| Settings import and sync can't turn sync on; the sync file carries no computer name | — (no sync) | — | ✅ |
 | Menu bar item service accepts only holzBar's own code | team check only | — | team or exact code hash |
 | Fix for the permissions loop | ❌ | — | ✅ |
 | **Code and resources** | | | |
@@ -107,13 +108,15 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Settings migration | 6 version steps at every launch | — | once, while importing Ice settings |
 | Runtime patching of AppKit (method swizzling) | yes | — | none |
 | Item images in memory | kept | — | released when unused |
-| Unit tests run on every change | none | ✅ | ✅ 338 |
+| Unit tests run on every change | none | ✅ | ✅ 371 |
 | App size | — | — | 16.5 MB |
 | **Distribution and maintenance** | | | |
 | Install and update with Homebrew | ✅ | ✅ | ✅ |
 | Updates | Sparkle (dialog can hang on macOS 26) | Sparkle | Homebrew |
 | Fixes from 282 open bug reports | — | — | [see the list](docs/upstream-bugs.md) |
 | Signed with a Developer ID | ✅ | — | ❌ (ad hoc; the cask handles it) |
+| Stable signature, so Accessibility survives updates | ✅ | — | 🔜 (own certificate, [docs/signing.md](docs/signing.md)) |
+| Build provenance attestation (`gh attestation verify`) | ❌ | — | 🔜 from the next release |
 
 ## 🔒 Principles
 
@@ -139,6 +142,9 @@ Everything holzBar asks macOS for, the feature that needs it and when it is aske
 | **Entitlements** | None. holzBar runs without the App Sandbox, because Accessibility event taps and the menu bar's private WindowServer calls do not work in it, and it has no network entitlement | — |
 | **Info.plist usage strings** | None: macOS does not use them for Accessibility and Screen Recording | — |
 | **Reset and Grant Again** | Runs `tccutil reset` for holzBar's own entry only, when a stale permission keeps the permissions window open | Only when you click it |
+
+> [!WARNING]
+> **macOS 27: the camera, microphone and screen recording indicator.** While holzBar hides menu bar items on macOS 27, Control Centre does not show its privacy indicator — green for the camera, orange for the microphone, indigo for screen sharing or recording. The small green dot beside the clock still appears while the camera is on. The indicator comes back while holzBar hides no item. holzBar needs no permission for this and cannot prevent it: macOS removes the indicator whenever an app hides items the way holzBar must on macOS 27. **Settings → General** says so too.
 
 ## 🚀 Install
 
@@ -167,6 +173,8 @@ xattr -dr com.apple.quarantine /Applications/holzBar.app
 ```
 
 Then open holzBar again. Alternatively: open it once, then go to **System Settings → Privacy & Security** and click **Open Anyway** next to the holzBar message.
+
+Releases after 0.0.5 carry a build provenance attestation, which proves that a zip was built by this repository's release workflow: `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar`. See [docs/signing.md](docs/signing.md).
 
 > [!NOTE]
 > holzBar replaces the original Ice — quit Ice and run `brew uninstall --cask jordanbaird-ice` first if you have it. Two menu bar managers must never run at the same time; holzBar offers to quit Ice, Thaw, Bartender or Hidden Bar when it finds one running.
@@ -206,6 +214,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 - Items can't be reordered on the bar itself — only assigned to sections.
 - Opening a system item (clock, battery, Wi-Fi) while hidden items are concealed adds ~150 ms.
+- **The privacy indicator is hidden while items are hidden.** Control Centre's indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item; the small green dot beside the clock still shows the camera. It comes back while holzBar hides no item. See [Permissions](#permissions).
 - After an update, macOS may ask for Accessibility again. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.
 
 ## 🧰 Features

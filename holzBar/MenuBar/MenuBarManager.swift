@@ -439,10 +439,16 @@ final class MenuBarManager {
 
     // MARK: Zen Mode
 
-    /// Turns Zen mode on or off, as the user asked (its hotkey, holzBar's menu,
-    /// `holzbar://zen/toggle` or the Shortcuts action).
+    /// Turns Zen mode on or off, as the user asked (its hotkey, holzBar's menu or the
+    /// Shortcuts action).
     func toggleZenMode() {
         setZenMode(zenMode.toggled(), cause: "manual")
+    }
+
+    /// Sets Zen mode as a `holzbar://zen` URL from another app asked
+    /// (`ZenMode.requested(byURL:)`, which never ends the automatic part).
+    func setZenModeFromURL(_ newValue: ZenMode) {
+        setZenMode(newValue, cause: "url")
     }
 
     /// Turns the automatic part of Zen mode on or off, while the screen is mirrored or

@@ -49,4 +49,26 @@ struct ZenModeTests {
         #expect(!off.isActive)
         #expect(!off.isAutomatic)
     }
+
+    @Test("A URL turns Zen mode on by hand")
+    func urlTurnsZenModeOn() {
+        let on = ZenMode().requested(byURL: .turnOn)
+        #expect(on == ZenMode(isManual: true, isAutomatic: false))
+        #expect(ZenMode().requested(byURL: .toggle) == on)
+        let presenting = ZenMode(isAutomatic: true).requested(byURL: .turnOn)
+        #expect(presenting == ZenMode(isManual: true, isAutomatic: true))
+    }
+
+    @Test("A URL never ends the automatic part")
+    func urlNeverEndsAutomaticZenMode() {
+        for request in [ZenMode.Request.turnOff, .toggle] {
+            let presenting = ZenMode(isManual: true, isAutomatic: true).requested(byURL: request)
+            #expect(presenting.isAutomatic)
+            #expect(presenting.isActive)
+            #expect(!presenting.isManual)
+            #expect(ZenMode(isAutomatic: true).requested(byURL: request).isActive)
+        }
+        let manualOnly = ZenMode(isManual: true).requested(byURL: .turnOff)
+        #expect(!manualOnly.isActive)
+    }
 }

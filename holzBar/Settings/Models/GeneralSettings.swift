@@ -116,8 +116,15 @@ final class GeneralSettings {
     var itemSpacingOffset: Double = 0 {
         didSet {
             Defaults.set(itemSpacingOffset, forKey: .itemSpacingOffset)
-            appState?.spacingManager.offset = Int(itemSpacingOffset)
+            appState?.spacingManager.offset = spacingOffsetPoints
         }
+    }
+
+    /// ``itemSpacingOffset`` as whole points, kept in the slider's range. `Int(_:)` traps on
+    /// a value out of `Int`'s range or not finite, which an imported or synced file, or any
+    /// process writing holzBar's defaults, could store.
+    private var spacingOffsetPoints: Int {
+        Int(Defaults.Key.itemSpacingOffset.clamped(itemSpacingOffset, fallback: 0).rounded())
     }
 
     /// A Boolean value that indicates whether the hidden section
@@ -158,7 +165,7 @@ final class GeneralSettings {
     func performSetup(with appState: AppState) {
         self.appState = appState
         loadInitialState()
-        appState.spacingManager.offset = Int(itemSpacingOffset)
+        appState.spacingManager.offset = spacingOffsetPoints
     }
 
     /// Loads the model's initial state.
@@ -169,9 +176,13 @@ final class GeneralSettings {
         Defaults.ifPresent(key: .showOnClick, assign: &showOnClick)
         Defaults.ifPresent(key: .showOnHover, assign: &showOnHover)
         Defaults.ifPresent(key: .showOnScroll, assign: &showOnScroll)
-        Defaults.ifPresent(key: .itemSpacingOffset, assign: &itemSpacingOffset)
+        Defaults.ifPresent(key: .itemSpacingOffset) { (value: Double) in
+            itemSpacingOffset = Defaults.Key.itemSpacingOffset.clamped(value, fallback: itemSpacingOffset)
+        }
         Defaults.ifPresent(key: .autoRehide, assign: &autoRehide)
-        Defaults.ifPresent(key: .rehideInterval, assign: &rehideInterval)
+        Defaults.ifPresent(key: .rehideInterval) { (value: Double) in
+            rehideInterval = Defaults.Key.rehideInterval.clamped(value, fallback: rehideInterval)
+        }
 
         Defaults.ifPresent(key: .shelfLocation) { rawValue in
             if let location = HolzBarShelfLocation(rawValue: rawValue) {

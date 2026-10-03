@@ -44,9 +44,13 @@ struct HolzBarWindow<Content: View>: Scene {
             // that point, so we open the window and immediately dismiss it.
             //
             // - Note: Both actions are called during the same run loop cycle,
-            //   so the window isn't actually opened.
-            openWindow(id: id)
-            dismissWindow(id: id)
+            //   so the window isn't actually opened. They run after the
+            //   current scene update: on macOS 14, calling them while SwiftUI
+            //   updates the scene is a fatal exclusive access conflict.
+            Task {
+                openWindow(id: id)
+                dismissWindow(id: id)
+            }
         }
     }
 

@@ -83,14 +83,82 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["KnownItemTags"])
     }
 
-    @Test("Every stored key is importable")
+    @Test("Every stored key but the local ones is importable")
     func everyStoredKeyIsImportable() {
-        let rawValues = Defaults.Key.allCases.map(\.rawValue)
+        let importable = Defaults.Key.allCases.filter { !Defaults.Key.localOnlyKeys.contains($0) }
+        let rawValues = importable.map(\.rawValue)
         #expect(Defaults.Key.importableKinds.count == rawValues.count)
         #expect(Set(Defaults.Key.importableKinds.keys) == Set(rawValues))
-        for key in Defaults.Key.allCases {
+        for key in importable {
             #expect(Defaults.Key.importableKinds[key.rawValue] == key.settingsKind)
         }
+    }
+
+    @Test("A settings file cannot turn settings sync on")
+    func settingsFileCannotTurnSyncOn() {
+        #expect(Defaults.Key.localOnlyKeys.contains(.syncsSettingsWithICloud))
+        #expect(Defaults.Key.importableKinds["SyncsSettingsWithICloud"] == nil)
+        let result = Defaults.Key.validatedSettings(["SyncsSettingsWithICloud": true, "ShowOnHover": true])
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["SyncsSettingsWithICloud"])
+    }
+
+    @Test("Numbers out of range are clamped, and infinity and NaN refused")
+    func numbersAreClamped() {
+        let result = Defaults.Key.validatedSettings([
+            "ItemSpacingOffset": 1e300,
+            "RehideInterval": -5.0,
+            "ShowOnHoverDelay": Double.nan,
+            "TempShowInterval": Double.infinity,
+            "SpacerWidth": 30.0,
+        ])
+        #expect((result.accepted["ItemSpacingOffset"] as? Double) == 16)
+        #expect((result.accepted["RehideInterval"] as? Double) == 0)
+        #expect((result.accepted["SpacerWidth"] as? Double) == 30)
+        #expect(result.ignored == ["ShowOnHoverDelay", "TempShowInterval"])
+    }
+
+    @Test("Whole numbers outside their range or with a fraction are refused")
+    func wholeNumbersAreChecked() {
+        let result = Defaults.Key.validatedSettings([
+            "SpacerCount": 1e300,
+            "IceBarLocation": 1.5,
+            "RehideStrategy": -1,
+            "NewItemsPlacement": 2,
+            "SectionDividerStyle": 1.0,
+        ])
+        #expect(result.accepted.keys.sorted() == ["NewItemsPlacement", "SectionDividerStyle"])
+        #expect(result.ignored == ["IceBarLocation", "RehideStrategy", "SpacerCount"])
+    }
+
+    @Test("A number without a rule must still be finite")
+    func numberWithoutRuleMustBeFinite() {
+        let result = SettingsSchema.validated(
+            ["Finite": 12.5, "Infinite": -Double.infinity],
+            kinds: ["Finite": .number, "Infinite": .number]
+        )
+        #expect(result.accepted.keys.sorted() == ["Finite"])
+        #expect(result.ignored == ["Infinite"])
+    }
+
+    @Test("Every numeric setting has a rule")
+    func everyNumericSettingHasARule() {
+        for key in Defaults.Key.allCases where key.settingsKind == .number {
+            #expect(key.numberRule != nil, "\(key.rawValue) has no range")
+        }
+        for key in Defaults.Key.allCases where key.settingsKind != .number {
+            #expect(key.numberRule == nil)
+        }
+    }
+
+    @Test("Stored numbers are clamped when they are read")
+    func storedNumbersAreClamped() {
+        #expect(Defaults.Key.itemSpacingOffset.clamped(1e300, fallback: 0) == 16)
+        #expect(Defaults.Key.itemSpacingOffset.clamped(-1e300, fallback: 0) == -16)
+        #expect(Defaults.Key.itemSpacingOffset.clamped(.nan, fallback: 4) == 4)
+        #expect(Defaults.Key.tempShowInterval.clamped(60, fallback: 15) == 30)
+        #expect(Defaults.Key.showOnHoverDelay.clamped(.infinity, fallback: 0.2) == 0.2)
+        #expect(Defaults.Key.rehideInterval.clamped(12, fallback: 15) == 12)
     }
 
     @Test("Stored key names never change")

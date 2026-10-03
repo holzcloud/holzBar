@@ -124,11 +124,14 @@ final class AdvancedSettings {
         Defaults.ifPresent(key: .hideApplicationMenus, assign: &hideApplicationMenus)
         Defaults.ifPresent(key: .keepsDockIconHidden, assign: &keepsDockIconHidden)
         Defaults.ifPresent(key: .enableSecondaryContextMenu, assign: &enableSecondaryContextMenu)
-        Defaults.ifPresent(key: .showOnHoverDelay, assign: &showOnHoverDelay)
-        Defaults.ifPresent(key: .tempShowInterval, assign: &tempShowInterval)
-        // Earlier versions allowed up to 60 s; the slider goes to 30.
-        if tempShowInterval > 30 {
-            tempShowInterval = 30
+        // Kept in the sliders' ranges: a value that is not finite or out of range, from an
+        // imported or synced file, trapped where it became a `Duration`. Earlier versions
+        // allowed up to 60 s for the opened items; the slider goes to 30.
+        Defaults.ifPresent(key: .showOnHoverDelay) { (value: Double) in
+            showOnHoverDelay = Defaults.Key.showOnHoverDelay.clamped(value, fallback: showOnHoverDelay)
+        }
+        Defaults.ifPresent(key: .tempShowInterval) { (value: Double) in
+            tempShowInterval = Defaults.Key.tempShowInterval.clamped(value, fallback: tempShowInterval)
         }
         Defaults.ifPresent(key: .openHiddenItemsInMenuBar, assign: &openHiddenItemsInMenuBar)
         Defaults.ifPresent(key: .keepLiveActivitiesVisible, assign: &keepLiveActivitiesVisible)

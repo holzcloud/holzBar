@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 05.1.1.1-03-PLAN.md
-last_updated: "2026-10-03T08:14:39.348Z"
+stopped_at: Completed 05.1.1.1.1-01-PLAN.md
+last_updated: "2026-10-03T09:05:53.141Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: 37ae8076c04bdf4f1db40d027dddd50e84558ec4
+state_head: 8eda469a49280c18de956c2740da53bd945600b1
 progress:
   total_phases: 13
   completed_phases: 0
-  total_plans: 29
-  completed_plans: 29
+  total_plans: 30
+  completed_plans: 30
 ---
 
 # Project State
@@ -84,6 +84,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05.1.1.1 P01 | 180min | 3 tasks | 37 files |
 | Phase 05.1.1.1 P02 | 150min | 3 tasks | 32 files |
 | Phase 05.1.1.1 P03 | 240min | 4 tasks | 50 files |
+| Phase 05.1.1.1.1 P01 | 73min | 5 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,9 @@ Recent decisions affecting current work:
 - [Phase 05.1.1.1]: The rehide delay starts when the item's menu closes, capped at 30 s; change reveal is opt-in per item
 - [Phase 05.1.1.1]: SYNC-01: settings sync through iCloud Drive or any folder the Macs sync, kept as a bookmark; iCloud users migrated without a prompt
 - [Phase 05.1.1.1]: holzBar ships machine-written de, fr, it, rm String Catalogs; a strings CI job proves completeness
+- [Phase 05.1.1.1.1]: CI and releases build with Xcode 27.0 on the xcode-27 runner (public preview) with Swift 6.4.0 from swift.org
+- [Phase 05.1.1.1.1]: swift test compiles Core with the app's isolation settings (main actor default, approachable concurrency, member import visibility)
+- [Phase 05.1.1.1.1]: URL-command question has no default button: Return answers nothing, Escape cancels, Apply needs a click (HIG order)
 
 ### Pending Todos
 
@@ -172,6 +176,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-03T08:14:39.280Z
-Stopped at: Completed 05.1.1.1-03-PLAN.md
+Last session: 2026-10-03T09:05:53.072Z
+Stopped at: Completed 05.1.1.1.1-01-PLAN.md
 Resume file: None

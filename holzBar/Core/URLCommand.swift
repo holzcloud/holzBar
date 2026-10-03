@@ -26,26 +26,49 @@ nonisolated struct URLCommand: Equatable, Sendable {
         case toggleShelf
         case toggleAutoRehide
         case toggleApplicationMenus
-        /// Turn Zen mode on or off.
-        case toggleZenMode
+        /// Turn Zen mode on, off, or the other way round.
+        case zenMode(ZenMode.Request)
         /// Apply the layout profile with the given name.
         case applyProfile(String)
         case unknown
 
-        /// Whether holzBar asks the user before it performs the action.
+        /// What holzBar does with the action, given Zen mode now.
         ///
-        /// Any app can open a `holzbar://` URL without the user knowing. Applying a profile
-        /// rearranges the menu bar, so it asks first; every other action changes nothing
-        /// lasting (show, hide, search, settings) or flips a setting the same command flips
-        /// back (the toggles). Zen mode only hides.
-        var needsConfirmation: Bool {
+        /// Any app can open a `holzbar://` URL without the user knowing, and a web page can
+        /// once the browser has asked. So:
+        ///
+        /// - Showing, hiding and the search change nothing lasting and run at once. Zen mode
+        ///   refuses `show` and `toggle` of a hidden section where they are performed.
+        /// - Applying a profile rearranges the menu bar, and the Shelf and auto-rehide
+        ///   toggles change settings that last and sync to the user's other Macs: holzBar
+        ///   asks first, and refuses them while Zen mode is on.
+        /// - Another app may always turn Zen mode on; it only hides. Turning it off needs
+        ///   the user's answer, and is refused while the screen is shared (the automatic
+        ///   part, ``ZenMode/isAutomatic``), which only the user ends.
+        func decision(zenMode: ZenMode) -> Decision {
             switch self {
-            case .applyProfile:
-                true
-            case .toggle, .show, .hide, .search, .settings, .toggleShelf, .toggleAutoRehide, .toggleApplicationMenus, .toggleZenMode, .unknown:
-                false
+            case .toggle, .show, .hide, .search, .settings, .toggleApplicationMenus, .unknown:
+                return .perform
+            case .toggleShelf, .toggleAutoRehide, .applyProfile:
+                return zenMode.isActive ? .refuse : .ask
+            case .zenMode(let request):
+                guard zenMode.isActive, request != .turnOn else {
+                    // Turns Zen mode on, or leaves it off.
+                    return .perform
+                }
+                return zenMode.isAutomatic ? .refuse : .ask
             }
         }
+    }
+
+    /// What holzBar does with a command from another app.
+    nonisolated enum Decision: Equatable, Sendable {
+        /// Performs it at once.
+        case perform
+        /// Asks the user first, and performs it only when they agree.
+        case ask
+        /// Ignores it.
+        case refuse
     }
 
     /// The command, lower-cased.
@@ -81,7 +104,8 @@ nonisolated struct URLCommand: Equatable, Sendable {
     ///
     /// `show`, `hide` and `toggle` take the section as their argument: `always-hidden` (or
     /// `alwayshidden`) for the always-hidden section, anything else or nothing for the
-    /// hidden one. `ice-bar` is another name for `shelf`. `profile` needs a name.
+    /// hidden one. `ice-bar` is another name for `shelf`. `zen` takes `on`, `off` or
+    /// `toggle` (also nothing). `profile` needs a name.
     var action: Action {
         switch name {
         case "toggle":
@@ -101,11 +125,23 @@ nonisolated struct URLCommand: Equatable, Sendable {
         case "application-menus":
             .toggleApplicationMenus
         case "zen":
-            .toggleZenMode
+            .zenMode(zenRequest)
         case "profile":
             arguments.first.map(Action.applyProfile) ?? .unknown
         default:
             .unknown
+        }
+    }
+
+    /// The Zen mode request named by the first argument.
+    private var zenRequest: ZenMode.Request {
+        switch arguments.first?.lowercased() {
+        case "on":
+            .turnOn
+        case "off":
+            .turnOff
+        default:
+            .toggle
         }
     }
 

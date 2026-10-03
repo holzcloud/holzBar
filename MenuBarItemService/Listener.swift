@@ -68,7 +68,10 @@ final class Listener: Sendable {
     /// hoc build requires the signing identifier and one of the cdhashes of the
     /// app this service is embedded in: exactly that app's code is accepted, and
     /// every other process is rejected, including ad hoc code that claims the
-    /// same identifier. This throws when the requirement cannot be built.
+    /// same identifier. Releases signed with holzBar's own self-signed certificate
+    /// (docs/signing.md) have no team either and take the same path; the cdhashes
+    /// are read from the app at launch, so every release pins its own app. This
+    /// throws when the requirement cannot be built.
     @available(macOS 26.0, *)
     private func peerRequirement() throws -> XPCPeerRequirement {
         if CodeSignature.currentTeamIdentifier != nil {

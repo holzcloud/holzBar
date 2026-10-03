@@ -181,6 +181,77 @@ jobs:
           fi
           echo "==> Five languages and the App Intents metadata in the app"
 
+      - name: Keep the app for the compatibility check
+        uses: actions/upload-artifact@v7
+        with:
+          name: holzBar-app
+          path: build/Build/Products/Release/holzBar.app
+          retention-days: 1
+
+  # holzBar's deployment target is macOS 14. Every macOS version GitHub offers launches
+  # the app built above (a missing symbol or a crash at launch fails here) and runs the
+  # unit tests with that runner's newest Xcode and the pinned Swift toolchain.
+  # macOS 27 is covered by the build and test jobs.
+  compat:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-14, macos-15, macos-26]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: holzBar-app
+          path: holzBar.app
+
+      - name: Launch the app
+        run: |
+          sw_vers
+          APP="$PWD/holzBar.app"
+          chmod +x "$APP/Contents/MacOS/holzBar" "$APP/Contents/XPCServices/MenuBarItemService.xpc/Contents/MacOS/MenuBarItemService"
+          echo "==> Minimum macOS: $(vtool -show-build "$APP/Contents/MacOS/holzBar" | awk '/minos/ {print $2; exit}')"
+          "$APP/Contents/MacOS/holzBar" > launch.log 2>&1 &
+          PID=$!
+          sleep 20
+          if kill -0 "$PID" 2>/dev/null; then
+            echo "==> holzBar is still running after 20 s on macOS $(sw_vers -productVersion)"
+            kill "$PID"
+          else
+            STATUS=0
+            wait "$PID" || STATUS=$?
+            echo "::error::holzBar exited at launch on macOS $(sw_vers -productVersion) (status $STATUS)"
+            echo "==> Output"
+            cat launch.log
+            echo "==> Crash report"
+            sleep 5
+            REPORT=$(ls -t ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i holzbar | head -1 || true)
+            if [ -n "$REPORT" ]; then
+              head -c 20000 ~/Library/Logs/DiagnosticReports/"$REPORT"
+            fi
+            echo "==> Log"
+            log show --last 2m --style compact --predicate 'process == "holzBar"' 2>/dev/null | tail -60 || true
+            exit 1
+          fi
+
+      - name: Find the newest Xcode
+        id: xcode
+        run: |
+          VERSION=$(ls -d /Applications/Xcode_*.app | sed -E 's|.*/Xcode_(.*)\.app|\1|' | grep -E '^[0-9]+(\.[0-9]+)*$' | sort -V | tail -1)
+          echo "==> Xcode $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - uses: ./.github/actions/select-xcode
+        with:
+          version: ${{ steps.xcode.outputs.version }}
+
+      - name: Run the unit tests
+        run: |
+          swift --version
+          swift test
+
   # The app's former name must not appear anywhere in the repository (see CLAUDE.md).
   # .planning/ and .claude/ are GSD's working state; .github/cms-version.py is a copy
   # of a tool maintained in holzcloud-design. The pattern is written so that it does

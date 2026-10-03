@@ -194,9 +194,10 @@ Plans:
 **Goal:** holzBar uses what Apple recommends today — Swift 6.4 (and Xcode 27 as soon as the runners have it), no deprecated API, HIG-conform UI — and says so in README and on the website
 **Requirements**: APPLE-01, APPLE-02, APPLE-03, APPLE-04
 **Depends on:** Phase 05.1.1.1
-**Plans:** 0 plans
+**Plans:** 1/1 plans executed
 
 Plans:
+- [x] 05.1.1.1.1-01-PLAN.md
 - [ ] TBD (run /gsd-plan-phase 05.1.1.1.1 to break down)
 
 ### Phase 6: Security audit

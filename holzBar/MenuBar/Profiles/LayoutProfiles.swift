@@ -146,9 +146,14 @@ final class LayoutProfiles {
         appState?.settings.hotkeys.removeHotkey(for: .applyProfile(name))
     }
 
+    /// The profile with the given name, matched without regard to case.
+    func profile(named name: String) -> LayoutProfile? {
+        profiles.first { $0.name.caseInsensitiveCompare(name) == .orderedSame }
+    }
+
     /// Applies the profile with the given name, matched without regard to case.
     func apply(named name: String) {
-        guard let profile = profiles.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) else {
+        guard let profile = self.profile(named: name) else {
             logger.warning("No layout profile named \(name, privacy: .private)")
             return
         }

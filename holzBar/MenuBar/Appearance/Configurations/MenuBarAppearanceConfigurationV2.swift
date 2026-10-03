@@ -86,7 +86,12 @@ extension MenuBarAppearanceConfigurationV2: Codable {
             isDynamic: container.decodeIfPresent(Bool.self, forKey: .isDynamic) ?? Self.defaultConfiguration.isDynamic,
             blackBackground: container.decodeIfPresent(MenuBarBlackBackground.self, forKey: .blackBackground) ?? Self.defaultConfiguration.blackBackground,
             roundsScreenCorners: container.decodeIfPresent(Bool.self, forKey: .roundsScreenCorners) ?? Self.defaultConfiguration.roundsScreenCorners,
-            screenCornerRadius: container.decodeIfPresent(Double.self, forKey: .screenCornerRadius) ?? Self.defaultConfiguration.screenCornerRadius
+            // Kept in the editor's range: settings can be imported or synced, and a huge
+            // radius trapped where the editor turns it into an `Int`.
+            screenCornerRadius: SettingsSchema.NumberRule.clamped(4...24).clamp(
+                container.decodeIfPresent(Double.self, forKey: .screenCornerRadius) ?? Self.defaultConfiguration.screenCornerRadius,
+                fallback: Self.defaultConfiguration.screenCornerRadius
+            )
         )
     }
 
@@ -158,7 +163,11 @@ extension MenuBarAppearancePartialConfiguration: Codable {
             hasShadow: container.decodeIfPresent(Bool.self, forKey: .hasShadow) ?? Self.defaultConfiguration.hasShadow,
             hasBorder: container.decodeIfPresent(Bool.self, forKey: .hasBorder) ?? Self.defaultConfiguration.hasBorder,
             borderColor: container.decodeIfPresent(HolzBarColor.self, forKey: .borderColor)?.cgColor ?? Self.defaultConfiguration.borderColor,
-            borderWidth: container.decodeIfPresent(Double.self, forKey: .borderWidth) ?? Self.defaultConfiguration.borderWidth,
+            // Kept in the editor's range (1 to 3 points), as settings can be imported or synced.
+            borderWidth: SettingsSchema.NumberRule.clamped(1...3).clamp(
+                container.decodeIfPresent(Double.self, forKey: .borderWidth) ?? Self.defaultConfiguration.borderWidth,
+                fallback: Self.defaultConfiguration.borderWidth
+            ),
             tintKind: container.decodeIfPresent(MenuBarTintKind.self, forKey: .tintKind) ?? Self.defaultConfiguration.tintKind,
             tintColor: container.decodeIfPresent(HolzBarColor.self, forKey: .tintColor)?.cgColor ?? Self.defaultConfiguration.tintColor,
             tintGradient: container.decodeIfPresent(HolzBarGradient.self, forKey: .tintGradient) ?? Self.defaultConfiguration.tintGradient,
