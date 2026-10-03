@@ -64,7 +64,7 @@ final class ObservationLoop {
     ) -> ObservationLoop {
         let last = LastValue(value())
         return ObservationLoop(observing: value) { newValue in
-            guard newValue != last.value else {
+            guard (last.value as? Value) != newValue else {
                 return
             }
             last.value = newValue
@@ -91,11 +91,14 @@ final class ObservationLoop {
 }
 
 /// The last value an observation of an equatable value reported.
+///
+/// Not generic: the Release optimizer of Swift 6.3.3 crashes on the deinitializer of a
+/// generic main-actor class here.
 @MainActor
-private final class LastValue<Value> {
-    var value: Value
+private final class LastValue {
+    var value: Any
 
-    init(_ value: Value) {
+    init(_ value: Any) {
         self.value = value
     }
 }
