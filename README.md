@@ -41,7 +41,7 @@ holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jord
 | 🔒 **Never online** | No update checks, telemetry or analytics. A CI check proves there is no network code in the app. |
 | 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. Hardened runtime, private logs. |
 | 🍃 **Lean** | No polling, no mouse tracking unless you use it, nothing kept in memory that nobody shows. |
-| 🪵 **Works on macOS 14 – 27** | Including the redesigned macOS 27 menu bar drawn by `MenuBarAgent`. |
+| 🪵 **macOS 27 compatible** | A dedicated backend for the redesigned macOS 27 menu bar drawn by `MenuBarAgent`. |
 | ✨ **More features** | Profiles, groups, spacers, a black menu bar, URL commands, settings sync — [see below](#-features). |
 | 🍺 **Homebrew first** | Install and update with one command. |
 
