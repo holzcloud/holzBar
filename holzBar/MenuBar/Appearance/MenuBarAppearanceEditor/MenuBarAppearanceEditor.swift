@@ -75,6 +75,7 @@ struct MenuBarAppearanceEditor: View {
             HolzBarSection("Menu Bar Shape") {
                 shapePicker
                 isInset
+                shapeScreenRecordingHint
             }
             HolzBarSection("Notch and Screen") {
                 blackBackgroundPicker
@@ -152,6 +153,19 @@ struct MenuBarAppearanceEditor: View {
     private var shapePicker: some View {
         MenuBarShapePicker(configuration: $appearanceManager.configuration)
             .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// Asks for Screen Recording when a shape is chosen without it: the shape draws the
+    /// wallpaper beside it.
+    @ViewBuilder
+    private var shapeScreenRecordingHint: some View {
+        if
+            appearanceManager.configuration.shapeKind != .noShape,
+            !ScreenRecordingAccess.isGranted(appState)
+        {
+            ScreenRecordingHint(feature: .menuBarShape, appState: appState)
+                .frame(maxWidth: .infinity)
+        }
     }
 
     @ViewBuilder

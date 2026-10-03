@@ -30,6 +30,13 @@ class Permission: ObservableObject, Identifiable {
     /// A Boolean value that indicates if the app can work without this permission.
     let isRequired: Bool
 
+    /// A Boolean value that indicates whether holzBar asks for this permission at the
+    /// first launch.
+    ///
+    /// A permission that is not asked for at launch is checked once when holzBar starts
+    /// and asked for only by the feature that needs it (see ``ScreenRecordingFeature``).
+    let requestsAtLaunch: Bool
+
     /// The URL of the settings pane to open.
     private let settingsURL: URL?
 
@@ -46,6 +53,11 @@ class Permission: ObservableObject, Identifiable {
     /// have this one.
     private var timerCancellable: AnyCancellable?
 
+    /// How long a permission that is not asked for at launch keeps checking after a
+    /// request. macOS posts no notification for a grant, so the check runs once a
+    /// second, but not forever when the user decides against it.
+    private static let requestCheckDuration = Duration.seconds(300)
+
     /// The pending waits for this permission, each with its own stream.
     private var waiters: [UUID: AsyncStream<Bool>.Continuation] = [:]
 
@@ -55,6 +67,8 @@ class Permission: ObservableObject, Identifiable {
     ///   - title: The title of the permission.
     ///   - details: Descriptive details for the permission.
     ///   - isRequired: A Boolean value that indicates if the app can work without this permission.
+    ///   - requestsAtLaunch: A Boolean value that indicates whether holzBar asks for this
+    ///     permission at the first launch.
     ///   - settingsURL: The URL of the settings pane to open.
     ///   - tccService: The name of the privacy service that `tccutil` uses for this permission.
     ///   - check: A function that checks permissions.
@@ -63,6 +77,7 @@ class Permission: ObservableObject, Identifiable {
         title: String,
         details: [String],
         isRequired: Bool,
+        requestsAtLaunch: Bool,
         settingsURL: URL?,
         tccService: String?,
         check: @escaping () -> Bool,
@@ -71,17 +86,24 @@ class Permission: ObservableObject, Identifiable {
         self.title = title
         self.details = details
         self.isRequired = isRequired
+        self.requestsAtLaunch = requestsAtLaunch
         self.settingsURL = settingsURL
         self.tccService = tccService
         self.check = check
         self.request = request
-        startCheck()
+        if requestsAtLaunch {
+            startCheck()
+        } else {
+            // Checked once; the repeated check starts only with a request.
+            hasPermission = check()
+        }
     }
 
     /// Checks the permission now and, while the app does not have it, once a second.
     ///
     /// The check stops as soon as the permission is granted, so nothing polls once the app
-    /// has every permission.
+    /// has every permission. A permission that is not asked for at launch stops checking
+    /// after ``requestCheckDuration`` without a grant and ends its waits.
     private func startCheck() {
         hasPermission = check()
         guard !hasPermission else {
@@ -91,6 +113,7 @@ class Permission: ObservableObject, Identifiable {
         guard timerCancellable == nil else {
             return
         }
+        let deadline: ContinuousClock.Instant? = requestsAtLaunch ? nil : ContinuousClock.now + Self.requestCheckDuration
         timerCancellable = Timer.publish(every: 1, tolerance: 0.1, on: .main, in: .default)
             .autoconnect()
             .sink { [weak self] _ in
@@ -100,6 +123,8 @@ class Permission: ObservableObject, Identifiable {
                 hasPermission = check()
                 if hasPermission {
                     stopTimer()
+                } else if let deadline, ContinuousClock.now >= deadline {
+                    stopCheck()
                 }
             }
     }
@@ -205,10 +230,12 @@ final class AccessibilityPermission: Permission {
         super.init(
             title: "Accessibility",
             details: [
-                "Get real-time information about the menu bar.",
-                "Arrange menu bar items.",
+                "Read where menu bar items are.",
+                "Move, show and click menu bar items for you.",
+                "Notice clicks, scrolls and hovers in the menu bar for show on click, scroll and hover.",
             ],
             isRequired: true,
+            requestsAtLaunch: true,
             settingsURL: nil,
             tccService: "Accessibility",
             check: {
@@ -227,15 +254,14 @@ final class ScreenRecordingPermission: Permission {
     init() {
         super.init(
             title: "Screen Recording",
-            details: [
-                "Change the menu bar's appearance.",
-                "Display images of individual menu bar items.",
-            ],
+            details: ScreenRecordingFeature.allCases.map(\.reason),
             isRequired: false,
+            requestsAtLaunch: false,
             settingsURL: URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_ScreenCapture"),
             tccService: "ScreenCapture",
             check: {
-                ScreenCapture.checkPermissions()
+                // Refreshes the cached result too, which the capture paths read.
+                ScreenCapture.cachedCheckPermissions(reset: true)
             },
             request: {
                 ScreenCapture.requestPermissions()

@@ -43,6 +43,11 @@ final class MenuBarSearchModel: ObservableObject {
     }
 
     private func updateAverageColorInfo(for screen: NSScreen) {
+        // Nothing captures the screen before Screen Recording is granted.
+        guard ScreenCapture.cachedCheckPermissions() else {
+            return
+        }
+
         let windows = WindowInfo.createWindows(option: .onScreen)
         let displayID = screen.displayID
 

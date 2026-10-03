@@ -301,6 +301,14 @@ final class MenuBarOverlayPanel: NSPanel {
     /// Stores the area of the desktop wallpaper that is under the menu bar
     /// of the given display.
     private func updateDesktopWallpaper(for display: CGDirectDisplayID, with windows: [WindowInfo]) {
+        // Nothing captures the screen before Screen Recording is granted; the shape is
+        // then drawn without the wallpaper beside it.
+        guard ScreenCapture.cachedCheckPermissions() else {
+            if desktopWallpaper != nil {
+                desktopWallpaper = nil
+            }
+            return
+        }
         guard
             let wallpaperWindow = WindowInfo.wallpaperWindow(from: windows, for: display),
             let menuBarWindow = WindowInfo.menuBarWindow(from: windows, for: display)

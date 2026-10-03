@@ -187,6 +187,7 @@ private final class MenuBarSearchHostingView: NSHostingView<AnyView> {
 private struct MenuBarSearchContentView: View {
     private typealias ListItem = SectionedListItem<MenuBarSearchModel.ItemID>
 
+    @EnvironmentObject var appState: AppState
     @EnvironmentObject var itemManager: MenuBarItemManager
     @EnvironmentObject var model: MenuBarSearchModel
     @FocusState private var searchFieldIsFocused: Bool
@@ -204,6 +205,14 @@ private struct MenuBarSearchContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             searchField
+            if !ScreenRecordingAccess.isGranted(appState) {
+                // Names stay searchable without pictures.
+                ScreenRecordingHint(feature: .search, appState: appState, isCompact: true, willRequest: closePanel)
+                    .font(.callout)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 10)
+                Divider()
+            }
             mainContent
             bottomBar
         }

@@ -266,6 +266,12 @@ final class MenuBarManager: ObservableObject {
             return
         }
 
+        // Nothing captures the screen before Screen Recording is granted; the previous
+        // colour stays.
+        guard ScreenCapture.cachedCheckPermissions() else {
+            return
+        }
+
         let windows = WindowInfo.createWindows(option: .onScreen)
         let displayID = screen.displayID
 

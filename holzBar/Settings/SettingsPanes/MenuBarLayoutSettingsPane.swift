@@ -14,7 +14,7 @@ struct MenuBarLayoutSettingsPane: View {
     }
 
     var body: some View {
-        if !ScreenCapture.cachedCheckPermissions() {
+        if !ScreenRecordingAccess.isGranted(appState) {
             missingScreenRecordingPermissions
         } else if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             cannotArrange
@@ -78,17 +78,10 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var missingScreenRecordingPermissions: some View {
-        VStack {
-            Text("Menu bar layout requires screen recording permissions.")
-                .font(.title2)
-
-            Button {
-                appState.navigationState.settingsNavigationIdentifier = .advanced
-            } label: {
-                Text("Go to Advanced Settings")
-            }
-            .buttonStyle(.link)
-        }
+        ScreenRecordingHint(feature: .layoutPane, appState: appState)
+            .font(.title3)
+            .frame(maxWidth: 480)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 
     @ViewBuilder

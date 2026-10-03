@@ -51,7 +51,21 @@ Every change to holzBar follows four rules — without taking a feature away:
 - **Private** — holzBar never connects to the network: no telemetry, no analytics, no crash reports, no update checks, no remote content. The only exception is a link you click, which opens in your browser. Your data stays on your Mac and out of the logs. To show hidden items when the network drops, holzBar only watches whether a network path is available (Apple's NWPathMonitor); it never opens a connection. The `no-network` check fails every pull request that adds networking code or a third-party package, and every build checks the app's binaries and entitlements for network access.
 - **Least privilege** — holzBar asks only for the permissions a feature really needs, when it needs them, and says why.
 
-Where holzBar doesn't meet a rule yet, that is a bug to fix — for example, it still asks for Accessibility and Screen Recording together on the first launch.
+Where holzBar doesn't meet a rule yet, that is a bug to fix.
+
+### Permissions
+
+Everything holzBar asks macOS for, the feature that needs it and when it is asked:
+
+| Permission or entitlement | Needed for | When |
+|---|---|---|
+| **Accessibility** <sub>required</sub> | Reading where menu bar items are; moving, showing and clicking them for you; noticing clicks, scrolls and hovers in the menu bar for show on click, scroll and hover | Asked on the first launch |
+| **Screen Recording** <sub>optional</sub> | Pictures of menu bar items in the holzBar Shelf, the search and the Menu Bar Layout pane (on macOS 27 taken once per item), and the wallpaper beside a menu bar shape | Asked the first time you open the holzBar Shelf, the search or the Menu Bar Layout pane, or choose a menu bar shape — never at launch. Without it, everything else works and nothing captures the screen |
+| **Login item** | Starting holzBar when you log in | Only when you turn on "Launch at login" |
+| **iCloud Drive file** | Settings sync between your Macs (`iCloud Drive/holzBar/Settings.plist`) | Only while settings sync is on |
+| **Entitlements** | None. holzBar runs without the App Sandbox, because Accessibility event taps and the menu bar's private WindowServer calls do not work in it, and it has no network entitlement | — |
+| **Info.plist usage strings** | None: macOS does not use them for Accessibility and Screen Recording | — |
+| **Reset and Grant Again** | Runs `tccutil reset` for holzBar's own entry only, when a stale permission keeps the permissions window open | Only when you click it |
 
 ## 🚀 Install
 
@@ -186,6 +200,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 | Keep Live Activities visible | ❌ | ✅ <sub>experimental</sub> |
 | Show on scroll with a mouse wheel | ❌ | ✅ |
 | Fix for the permissions loop | ❌ | ✅ |
+| Asks for Screen Recording only when a feature needs it | ❌ | ✅ |
 | Fixes from 282 open bug reports | — | [see the list](docs/upstream-bugs.md) |
 | Signed with a Developer ID | ✅ | ❌ (ad hoc; the cask handles it) |
 

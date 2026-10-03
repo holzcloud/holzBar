@@ -380,20 +380,10 @@ private struct HolzBarShelfContentView: View {
 
     @ViewBuilder
     private var content: some View {
-        if !ScreenCapture.cachedCheckPermissions() {
-            HStack {
-                Text("The holzBar Shelf requires screen recording permissions.")
-
-                Button {
-                    menuBarManager.section(withName: section)?.hide()
-                    appState.navigationState.settingsNavigationIdentifier = .advanced
-                    appState.activate(withPolicy: .regular)
-                    appState.openWindow(.settings)
-                } label: {
-                    Text("Open holzBar Settings")
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.link)
+        if !ScreenRecordingAccess.isGranted(appState) {
+            ScreenRecordingHint(feature: .shelf, appState: appState, isCompact: true) {
+                // The Shelf would cover the system prompt.
+                menuBarManager.section(withName: section)?.hide()
             }
             .padding(.horizontal, 10)
         } else if menuBarManager.isMenuBarHiddenBySystemUserDefaults {
