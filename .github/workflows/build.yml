@@ -59,22 +59,6 @@ jobs:
           fi
           exit $STATUS
 
-      # Temporary: which SWIFT_VERSION values Xcode 26.6 and the Swift toolchain accept.
-      - name: Probe SWIFT_VERSION
-        continue-on-error: true
-        run: |
-          echo "==> swiftc -swift-version 99"
-          xcrun swiftc -swift-version 99 -typecheck - < /dev/null 2>&1 || true
-          for V in 6.4 99; do
-            echo "==> xcodebuild SWIFT_VERSION=$V"
-            xcodebuild -project holzBar.xcodeproj -scheme holzBar -configuration Debug \
-              -destination 'platform=macOS' -derivedDataPath probe build SWIFT_VERSION="$V" \
-              CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= > "probe-$V.log" 2>&1
-            echo "status $?"
-            grep -E "SWIFT_VERSION|swift-version|error:|\*\* BUILD" "probe-$V.log" | sed "s|$GITHUB_WORKSPACE/||g" | sort -u | head -20
-            grep -o -E -- "-swift-version [0-9.]+" "probe-$V.log" | sort | uniq -c
-          done
-
       # Every build is hardened (library validation, no DYLD variables, no injected code). The
       # app and its XPC service must both carry the runtime flag in their code directory.
       - name: Check the signature
