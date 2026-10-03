@@ -1,11 +1,6 @@
 name: Build
 on:
   pull_request:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "**/*.swift"
-      - "holzBar.xcodeproj/**"
 
 permissions:
   contents: read
