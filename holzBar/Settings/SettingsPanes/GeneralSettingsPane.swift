@@ -19,16 +19,16 @@ struct GeneralSettingsPane: View {
         case -16: "none"
         case 0: "default"
         case 16: "max"
-        default: LocalizedStringKey(tempItemSpacingOffset.formatted())
+        default: "\(tempItemSpacingOffset.formatted())"
         }
     }
 
     private var rehideIntervalKey: LocalizedStringKey {
         let formatted = settings.rehideInterval.formatted()
         if settings.rehideInterval == 1 {
-            return LocalizedStringKey(formatted + " second")
+            return "\(formatted) second"
         } else {
-            return LocalizedStringKey(formatted + " seconds")
+            return "\(formatted) seconds"
         }
     }
 

@@ -389,6 +389,13 @@ final class MenuBarItemImageCache {
             return
         }
 
+        // Nothing is captured while the screen is locked, the Mac sleeps or the session is
+        // away; the cache is updated once the bar has settled afterwards.
+        guard !appState.systemActivityMonitor.isPaused else {
+            logger.debug("Skipping item image cache while the Mac is not in use")
+            return
+        }
+
         if #available(macOS 27.0, *) {
             // There are no item windows to capture on macOS 27. See `ItemImageStore27`.
             var items = [MenuBarItem]()

@@ -494,6 +494,16 @@ final class ControlItem {
         ControlItemDefaults[.preferredPosition, autosaveName] = cached
     }
 
+    /// Takes the control item out of the menu bar and puts it back, keeping its preferred
+    /// position.
+    ///
+    /// On macOS 27 MenuBarAgent can drop holzBar's own icon while assertions are active
+    /// (jordanbaird/Ice#1001); adding the status item again brings it back.
+    func reinsert() {
+        removeFromMenuBar()
+        addToMenuBar()
+    }
+
     /// Performs the control item's action.
     @objc private func performAction() {
         guard
@@ -547,7 +557,7 @@ final class ControlItem {
         let menu = NSMenu(title: "holzBar")
 
         let settingsItem = NSMenuItem(
-            title: "holzBar Settings…",
+            title: String(localized: "holzBar Settings…"),
             action: #selector(AppDelegate.openSettingsWindow),
             keyEquivalent: ","
         )
@@ -557,7 +567,7 @@ final class ControlItem {
         menu.addItem(.separator())
 
         let searchItem = NSMenuItem(
-            title: "Search Menu Bar Items",
+            title: String(localized: "Search Menu Bar Items"),
             action: #selector(showSearchPanel),
             keyEquivalent: ""
         )
@@ -581,8 +591,14 @@ final class ControlItem {
             else {
                 continue
             }
+            let title = switch (name, section.isHidden) {
+            case (.alwaysHidden, true): String(localized: "Show Always-Hidden Section")
+            case (.alwaysHidden, false): String(localized: "Hide Always-Hidden Section")
+            case (_, true): String(localized: "Show Hidden Section")
+            case (_, false): String(localized: "Hide Hidden Section")
+            }
             let item = NSMenuItem(
-                title: "\(section.isHidden ? "Show" : "Hide") \(name.displayString) Section",
+                title: title,
                 action: #selector(toggleMenuBarSection),
                 keyEquivalent: ""
             )
@@ -598,10 +614,26 @@ final class ControlItem {
             menu.addItem(item)
         }
 
+        let zenModeItem = NSMenuItem(
+            title: String(localized: "Zen Mode"),
+            action: #selector(toggleZenMode),
+            keyEquivalent: ""
+        )
+        if
+            let hotkey = hotkey(withAction: .toggleZenMode),
+            let keyCombination = hotkey.keyCombination
+        {
+            zenModeItem.keyEquivalent = keyCombination.key.keyEquivalent
+            zenModeItem.keyEquivalentModifierMask = keyCombination.modifiers.nsEventFlags
+        }
+        zenModeItem.state = appState.menuBarManager.zenMode.isActive ? .on : .off
+        zenModeItem.target = self
+        menu.addItem(zenModeItem)
+
         menu.addItem(.separator())
 
         let howToUpdateItem = NSMenuItem(
-            title: "How to Update…",
+            title: String(localized: "How to Update…"),
             action: #selector(showHowToUpdate),
             keyEquivalent: ""
         )
@@ -611,7 +643,7 @@ final class ControlItem {
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
-            title: "Quit holzBar",
+            title: String(localized: "Quit holzBar"),
             action: #selector(NSApp.terminate),
             keyEquivalent: "q"
         )
@@ -636,6 +668,11 @@ final class ControlItem {
             return
         }
         section.toggle()
+    }
+
+    /// Turns Zen mode on or off.
+    @objc private func toggleZenMode() {
+        appState?.menuBarManager.toggleZenMode()
     }
 
     /// Opens the menu bar search panel.

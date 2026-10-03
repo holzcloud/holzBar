@@ -68,6 +68,7 @@ final class LayoutBarContainer: NSView {
         self.translatesAutoresizingMaskIntoConstraints = false
         unregisterDraggedTypes()
         configureObservers()
+        LayoutBarRouter.shared.register(self)
     }
 
     @available(*, unavailable)
@@ -94,6 +95,11 @@ final class LayoutBarContainer: NSView {
                 self?.layoutArrangedViews()
             },
         ]
+    }
+
+    /// Lays the views out again after one of them changed its size (a new image).
+    func arrangedViewDidResize() {
+        layoutArrangedViews()
     }
 
     /// Performs layout of the container's arranged views.
@@ -282,5 +288,64 @@ final class LayoutBarContainer: NSView {
             let distance2 = abs(view2.frame.midX - xPosition)
             return distance1 < distance2
         }
+    }
+}
+
+// MARK: - LayoutBarRouter
+
+/// Moves the keyboard focus between the item rows of the Menu Bar Layout pane, one row per
+/// section (THAW-14).
+///
+/// Each section's container registers itself; the arrows move within a row and to the
+/// neighbouring section's row (`LayoutKeys`).
+@MainActor
+final class LayoutBarRouter {
+    /// The router of the Layout pane.
+    static let shared = LayoutBarRouter()
+
+    /// A container, held weakly.
+    private struct Entry {
+        weak var container: LayoutBarContainer?
+    }
+
+    /// The containers by section.
+    private var entries = [MenuBarSection.Name: Entry]()
+
+    /// Registers the container of a section.
+    func register(_ container: LayoutBarContainer) {
+        entries[container.section] = Entry(container: container)
+    }
+
+    /// The rows on screen, top to bottom.
+    private var rows: [LayoutBarContainer] {
+        MenuBarSection.Name.allCases.compactMap { name in
+            guard let container = entries[name]?.container, container.window != nil else {
+                return nil
+            }
+            return container
+        }
+    }
+
+    /// Moves the focus from the given item for a focus command.
+    func moveFocus(from view: LayoutBarItemView, command: LayoutKeys.Command) {
+        let rows = self.rows
+        guard
+            let row = rows.firstIndex(where: { $0.arrangedViews.contains(view) }),
+            let index = rows[row].arrangedViews.firstIndex(of: view)
+        else {
+            return
+        }
+        let target = LayoutKeys.focusTarget(
+            from: LayoutKeys.Position(row: row, index: index),
+            command: command,
+            rowCounts: rows.map(\.arrangedViews.count)
+        )
+        guard target != LayoutKeys.Position(row: row, index: index) else {
+            NSSound.beep()
+            return
+        }
+        let targetView = rows[target.row].arrangedViews[target.index]
+        targetView.window?.makeFirstResponder(targetView)
+        targetView.scrollToVisible(targetView.bounds)
     }
 }

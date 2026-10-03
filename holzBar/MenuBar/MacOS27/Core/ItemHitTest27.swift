@@ -10,8 +10,10 @@ import Darwin
 ///
 /// There are no item windows on macOS 27, so the test uses the Accessibility
 /// frames holzBar cached for the drawn items, plus the system items and the overflow
-/// button. Accessibility reports frames only for the active menu bar, so on the
-/// other display every spot counts as empty, as it did in the original Ice before macOS 27.
+/// button. Accessibility reports the apps' frames only for the active menu bar; on the
+/// other display the frames MenuBarAgent draws there (`drawnFramesOnDisplay`) stand in,
+/// so an item there counts as an item and its menu opens instead of holzBar revealing
+/// hidden items (Thaw #1159, #1138, #1137).
 nonisolated enum ItemHitTest27 {
     nonisolated struct Item: Equatable {
         let frame: CGRect
@@ -34,7 +36,8 @@ nonisolated enum ItemHitTest27 {
         items: [Item],
         concealedPIDs: Set<pid_t>,
         systemFrames: [CGRect],
-        rememberedLeftEdge: CGFloat?
+        rememberedLeftEdge: CGFloat?,
+        drawnFramesOnDisplay: [CGRect] = []
     ) -> Bool {
         guard displayBounds.minX...displayBounds.maxX ~= point.x else {
             return false
@@ -46,6 +49,8 @@ nonisolated enum ItemHitTest27 {
             .filter { $0.isOnScreen && !concealedPIDs.contains($0.ownerPID) && isOnThisDisplay($0.frame) }
             .map(\.frame.minX)
         edges += systemFrames.filter(isOnThisDisplay).map(\.minX)
+        // On the display whose bar is not active, what MenuBarAgent draws there.
+        edges += drawnFramesOnDisplay.filter(isOnThisDisplay).map(\.minX)
         if let remembered = rememberedLeftEdge, displayBounds.minX...displayBounds.maxX ~= remembered {
             edges.append(remembered)
         }
@@ -55,10 +60,20 @@ nonisolated enum ItemHitTest27 {
         return point.x >= leftEdge
     }
 
-    static func isInsideItem(point: CGPoint, items: [Item], concealedPIDs: Set<pid_t>, systemFrames: [CGRect]) -> Bool {
+    /// Whether the pointer rests on an item: a drawn cached item, a system item, or (on
+    /// the display whose bar is not active) a frame MenuBarAgent draws there.
+    static func isInsideItem(
+        point: CGPoint,
+        items: [Item],
+        concealedPIDs: Set<pid_t>,
+        systemFrames: [CGRect],
+        drawnFramesOnDisplay: [CGRect] = []
+    ) -> Bool {
         let isInsideDrawnItem = items.contains { item in
             item.isOnScreen && !concealedPIDs.contains(item.ownerPID) && item.frame.contains(point)
         }
-        return isInsideDrawnItem || systemFrames.contains { $0.contains(point) }
+        return isInsideDrawnItem ||
+            systemFrames.contains { $0.contains(point) } ||
+            drawnFramesOnDisplay.contains { $0.contains(point) }
     }
 }

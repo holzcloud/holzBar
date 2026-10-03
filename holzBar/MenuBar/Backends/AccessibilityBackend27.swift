@@ -69,6 +69,8 @@ final class AccessibilityBackend27: MenuBarBackend {
         // Observe the processes that own items now; observers of quit ones go.
         let ownPID = ProcessInfo.processInfo.processIdentifier
         itemChangeObserver.observe(owners: Set(items.map(\.ownerPID).filter { $0 != ownPID }))
+        // An application that launched while concealed is concealed once its item exists.
+        appState.concealer27.itemsAppeared(bundleIDs: Set(items.map { $0.tag.namespace.description }))
         appState.concealer27.seedLayoutIfNeeded(items: items)
         appState.concealer27.placeNewApplications(items: items)
         return appState.concealer27.cacheFromSavedLayout(items: items, displayID: displayID)
@@ -87,7 +89,8 @@ final class AccessibilityBackend27: MenuBarBackend {
             point: point,
             items: hitTestItems(appState: appState),
             concealedPIDs: appState.concealer27.concealedPIDs,
-            systemFrames: systemFrames()
+            systemFrames: systemFrames(),
+            drawnFramesOnDisplay: drawnFrames(at: point)
         )
     }
 
@@ -98,7 +101,8 @@ final class AccessibilityBackend27: MenuBarBackend {
             items: hitTestItems(appState: appState),
             concealedPIDs: appState.concealer27.concealedPIDs,
             systemFrames: systemFrames(),
-            rememberedLeftEdge: MenuBarItemProvider27.leftEdge(for: screen.displayID)
+            rememberedLeftEdge: MenuBarItemProvider27.leftEdge(for: screen.displayID),
+            drawnFramesOnDisplay: MenuBarItemProvider27.drawnFrames(for: screen.displayID)
         )
     }
 
@@ -111,6 +115,15 @@ final class AccessibilityBackend27: MenuBarBackend {
         appState.itemManager.itemCache.managedItems.map { item in
             ItemHitTest27.Item(frame: item.bounds, ownerPID: item.ownerPID, isOnScreen: item.isOnScreen)
         }
+    }
+
+    /// The frames MenuBarAgent draws on the display under the point, when that display's bar
+    /// is not active (`ItemHitTest27`).
+    private func drawnFrames(at point: CGPoint) -> [CGRect] {
+        var displayID = CGDirectDisplayID(0)
+        var matches: UInt32 = 0
+        CGGetDisplaysWithPoint(point, 1, &displayID, &matches)
+        return matches > 0 ? MenuBarItemProvider27.drawnFrames(for: displayID) : []
     }
 
     /// The frames of the system items and the overflow button, from the last read.

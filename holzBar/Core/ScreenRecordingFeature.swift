@@ -47,7 +47,7 @@ nonisolated enum ScreenRecordingFeature: CaseIterable, Sendable {
         case .layoutPane:
             "The Menu Bar Layout pane shows pictures of your menu bar items, which macOS lets an app take only with Screen Recording."
         case .menuBarShape:
-            "A menu bar shape draws the wallpaper beside the shape, which macOS lets an app read only with Screen Recording."
+            "A menu bar shape draws the wallpaper beside the shape. holzBar reads most wallpapers from their file; a moving wallpaper can be read only with Screen Recording."
         }
     }
 
@@ -55,7 +55,7 @@ nonisolated enum ScreenRecordingFeature: CaseIterable, Sendable {
     static var summary: String {
         """
         Pictures of your menu bar items in the holzBar Shelf, the search and the Menu Bar Layout pane \
-        (on macOS 27 taken once per item), and the wallpaper beside a menu bar shape.
+        (on macOS 27 taken once per item), and a moving wallpaper beside a menu bar shape (before macOS 27).
         """
     }
 }

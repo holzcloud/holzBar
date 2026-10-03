@@ -29,6 +29,10 @@ final class HIDEventManager {
     /// History of the manager's enabled states.
     @ObservationIgnored private var enabledStateStack = [Bool]()
 
+    /// The windows above the menu bar's level from the last read, reused for a moment so
+    /// mouse moves do not read the window list each (see `MenuBarHitTesting.swift`).
+    @ObservationIgnored var windowsAboveMenuBar: (readAt: TimeInterval, windows: [MenuBarOcclusion.Window])?
+
     /// The last empty menu bar spot hovered on each display (see `ItemClicker27`).
     @ObservationIgnored private var lastEmptyMenuBarPoints = [CGDirectDisplayID: CGPoint]()
 
@@ -73,6 +77,8 @@ final class HIDEventManager {
     @ObservationIgnored private(set) lazy var mouseDownMonitor = EventMonitor.universal(
         for: [.leftMouseDown, .rightMouseDown]
     ) { [weak self] event in
+        // When the click arrived, for the latency of show on click.
+        let clickTime = ProcessInfo.processInfo.systemUptime
         guard let self, isEnabled, let appState, let screen = bestScreen(appState: appState) else {
             return event
         }
@@ -82,7 +88,7 @@ final class HIDEventManager {
         }
         switch event.type {
         case .leftMouseDown:
-            handleShowOnClick(appState: appState, screen: screen)
+            handleShowOnClick(appState: appState, screen: screen, clickTime: clickTime)
             handleSmartRehide(with: event, appState: appState, screen: screen)
         case .rightMouseDown:
             handleSecondaryContextMenu(appState: appState, screen: screen)
@@ -101,6 +107,7 @@ final class HIDEventManager {
             return event
         }
         handleMenuBarItemDragStop()
+        handleArrangementEnd(with: event)
         return event
     }
 
@@ -136,6 +143,9 @@ final class HIDEventManager {
         }
         return event
     }
+
+    /// Logger for the event manager.
+    @ObservationIgnored private let logger = Logger(category: "HIDEventManager")
 
     /// The tap that lets clicks reach the system items while items are concealed, where
     /// the backend needs one (`SystemItemClickBridge27`). It runs while the manager is enabled.
@@ -177,6 +187,7 @@ final class HIDEventManager {
             secondaryContextMenu: advanced.enableSecondaryContextMenu,
             usesShelf: usesShelfEverywhere,
             showAllSectionsOnUserDrag: advanced.showAllSectionsOnUserDrag,
+            savesUserArrangement: MenuBarBackends.current.canMoveItems,
             hasCustomAppearance: appState.appearanceManager.needsOverlayPanels(for: appState.appearanceManager.configuration)
         )
     }
@@ -249,6 +260,17 @@ final class HIDEventManager {
             }
         }
 
+        // A tap created before Accessibility was granted has no port; check the monitors
+        // once the permission is there.
+        let accessibility = appState.permissions.accessibility
+        observers.append(
+            ObservationLoop.observe { accessibility.hasPermission } onChange: { [weak self] hasPermission in
+                if hasPermission {
+                    self?.healthCheck()
+                }
+            }
+        )
+
         if let hiddenSection = appState.menuBarManager.section(withName: .hidden) {
             // In fullscreen mode, the menu bar slides down from the top on hover. Observe the
             // frame of the hidden section's control item, which we know will always be in the
@@ -282,6 +304,29 @@ final class HIDEventManager {
         enabledStateStack.append(isEnabled)
         isEnabled = false
     }
+
+    // MARK: Health Check
+
+    /// Repairs the running monitors: taps whose port is missing or invalid are created
+    /// again, AppKit's monitors are installed anew and the system item click tap is
+    /// restarted.
+    ///
+    /// Runs once the bar has settled after the screen was locked, the Mac slept, the
+    /// session was away or the displays changed, and when Accessibility is granted.
+    func healthCheck() {
+        var repaired = [String]()
+        for kind in InputMonitors.Kind.allCases where runningKinds.contains(kind) {
+            if monitor(for: kind).repair() {
+                repaired.append(String(describing: kind))
+            }
+        }
+        if let systemItemClickBridge, isSystemItemClickBridgeRunning {
+            systemItemClickBridge.stop()
+            systemItemClickBridge.start()
+            repaired.append("system item click tap")
+        }
+        logger.info("Health check: restarted \(repaired.joined(separator: ", "), privacy: .public)")
+    }
 }
 
 // MARK: - Handler Methods
@@ -290,7 +335,13 @@ extension HIDEventManager {
 
     // MARK: Handle Show On Click
 
-    private func handleShowOnClick(appState: AppState, screen: NSScreen) {
+    /// Shows or hides a section after a click on empty menu bar space.
+    ///
+    /// Nothing here asks another application: the hit test reads the application menu
+    /// from `ApplicationMenuFrames`, so the reveal follows the click at once.
+    ///
+    /// - Parameter clickTime: The system uptime when the click arrived.
+    private func handleShowOnClick(appState: AppState, screen: NSScreen, clickTime: TimeInterval) {
         guard
             appState.settings.general.showOnClick,
             isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen)
@@ -321,7 +372,16 @@ extension HIDEventManager {
                 return
             }
 
+            // Zen mode refuses to reveal; hiding what the user showed stays possible.
+            guard !targetSection.isHidden || appState.menuBarManager.zenMode.allows(.clickOnEmptyBar) else {
+                logger.debug("Show on click: ignored in Zen mode")
+                return
+            }
+
+            // On macOS 27 this also applies the concealment (`Concealer27.update()`).
             targetSection.toggle()
+            let milliseconds = Int((ProcessInfo.processInfo.systemUptime - clickTime) * 1000)
+            logger.debug("Show on click: revealed \(milliseconds, privacy: .public) ms after the click")
         }
     }
 
@@ -420,7 +480,28 @@ extension HIDEventManager {
     private func handleMenuBarItemDragStop() {
         if isDraggingMenuBarItem {
             isDraggingMenuBarItem = false
+            // The user arranged items on the bar: their sections are saved once the bar
+            // shows the result (see `SectionRestore.swift`).
+            appState?.itemManager.saveSectionsSoon()
         }
+    }
+
+    // MARK: Handle Arrangement End
+
+    /// Notes the end of a Command-drag on the menu bar when the drag monitors do not run
+    /// (they run only for "Show all sections on drag" or a custom appearance), so the
+    /// sections the user arranged are saved before anything restores the old ones.
+    private func handleArrangementEnd(with event: NSEvent) {
+        guard
+            !runningKinds.contains(.mouseDragged),
+            event.modifierFlags.contains(.command),
+            let appState,
+            let screen = bestScreen(appState: appState),
+            isMouseInsideMenuBar(appState: appState, screen: screen)
+        else {
+            return
+        }
+        appState.itemManager.saveSectionsSoon()
     }
 
     // MARK: Handle Menu Bar Item Drag Start
@@ -481,6 +562,7 @@ extension HIDEventManager {
         if hiddenSection.isHidden {
             guard
                 appState.menuBarManager.showOnHoverAllowed,
+                appState.menuBarManager.zenMode.allows(.hover),
                 isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen)
             else {
                 return
@@ -598,6 +680,9 @@ extension HIDEventManager {
         }
 
         if averageDelta > 5 {
+            guard appState.menuBarManager.zenMode.allows(.scroll) else {
+                return
+            }
             hiddenSection.show()
         } else if averageDelta < -5 {
             hiddenSection.hide()
@@ -613,9 +698,17 @@ extension HIDEventManager {
 private protocol EventMonitorProtocol {
     func start()
     func stop()
+
+    /// Repairs the running monitor and returns whether it did anything.
+    func repair() -> Bool
 }
 
-extension EventMonitor: EventMonitorProtocol { }
+extension EventMonitor: EventMonitorProtocol {
+    fileprivate func repair() -> Bool {
+        restart()
+        return true
+    }
+}
 
 extension EventTap: EventMonitorProtocol {
     fileprivate func start() {
@@ -624,5 +717,11 @@ extension EventTap: EventMonitorProtocol {
 
     fileprivate func stop() {
         disable()
+    }
+
+    fileprivate func repair() -> Bool {
+        let wasHealthy = isValid && isEnabled
+        enable()
+        return !wasHealthy
     }
 }

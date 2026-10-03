@@ -85,7 +85,7 @@ enum SettingsBackup {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.propertyList]
         panel.nameFieldStringValue = "holzBar Settings.plist"
-        panel.title = "Export holzBar Settings"
+        panel.title = String(localized: "Export holzBar Settings")
         NSApp.activate()
         guard panel.runModal() == .OK, let url = panel.url else {
             return
@@ -95,7 +95,7 @@ enum SettingsBackup {
             try data.write(to: url, options: .atomic)
             logger.notice("Exported settings to \(url.path(percentEncoded: false), privacy: .private)")
         } catch {
-            show(error, message: "The settings could not be exported.")
+            show(error, message: String(localized: "The settings could not be exported."))
         }
     }
 
@@ -104,7 +104,7 @@ enum SettingsBackup {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.propertyList]
         panel.allowsMultipleSelection = false
-        panel.title = "Import holzBar Settings"
+        panel.title = String(localized: "Import holzBar Settings")
         NSApp.activate()
         guard panel.runModal() == .OK, let url = panel.url else {
             return
@@ -119,10 +119,10 @@ enum SettingsBackup {
                 throw CocoaError(.fileReadCorruptFile)
             }
             let alert = NSAlert()
-            alert.messageText = "Replace your settings?"
-            alert.informativeText = "holzBar will replace its current settings with the ones from “\(url.lastPathComponent)” and restart."
-            alert.addButton(withTitle: "Import and Restart")
-            alert.addButton(withTitle: "Cancel")
+            alert.messageText = String(localized: "Replace your settings?")
+            alert.informativeText = String(localized: "holzBar will replace its current settings with the ones from “\(url.lastPathComponent)” and restart.")
+            alert.addButton(withTitle: String(localized: "Import and Restart"))
+            alert.addButton(withTitle: String(localized: "Cancel"))
             guard alert.runModal() == .alertFirstButtonReturn else {
                 return
             }
@@ -130,7 +130,7 @@ enum SettingsBackup {
             logger.notice("Imported settings from \(url.path(percentEncoded: false), privacy: .private)")
             relaunch()
         } catch {
-            show(error, message: "The settings could not be imported.")
+            show(error, message: String(localized: "The settings could not be imported."))
         }
     }
 
@@ -151,7 +151,7 @@ enum SettingsBackup {
         NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { @Sendable _, error in
             Task { @MainActor in
                 if let error {
-                    Self.show(error, message: "holzBar could not restart itself. Quit holzBar and open it again.")
+                    Self.show(error, message: String(localized: "holzBar could not restart itself. Quit holzBar and open it again."))
                 } else {
                     NSApp.terminate(nil)
                 }
@@ -160,7 +160,7 @@ enum SettingsBackup {
     }
 
     private static func show(_ error: Error, message: String) {
-        logger.error("\(message, privacy: .public) \(error, privacy: .private)")
+        logger.error("\(message, privacy: .private) \(error, privacy: .private)")
         let alert = NSAlert(error: error)
         alert.messageText = message
         alert.runModal()

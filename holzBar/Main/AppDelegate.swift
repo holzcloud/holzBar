@@ -16,7 +16,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // and before the app state, which reads the settings.
         MigrationManager.importPreviousSettingsIfNeeded()
         SettingsSync.pullIfNeeded()
-        self.appState = AppState()
+        let appState = AppState()
+        AppState.current = appState
+        self.appState = appState
         super.init()
     }
 
@@ -35,6 +37,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // menu bar when we are the focused app.
         for item in NSApp.mainMenu?.items ?? [] {
             item.isHidden = true
+            // The Edit menu keeps its key equivalents while hidden, so Undo and Redo (the
+            // Layout pane and the profiles), Cut, Copy and Paste work in holzBar's windows.
+            let isEditMenu = item.submenu?.items.contains { $0.action == Selector(("undo:")) } ?? false
+            if isEditMenu {
+                item.allowsKeyEquivalentWhenHidden = true
+                for subitem in item.submenu?.items ?? [] {
+                    subitem.allowsKeyEquivalentWhenHidden = true
+                }
+            }
         }
 
         // Allow hiding the mouse while the app is in the background
@@ -148,7 +159,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Delay makes this more reliable for some reason.
         Task { [appState] in
             try? await Task.sleep(for: .milliseconds(100))
-            appState.activate(withPolicy: .regular)
+            appState.activate(for: .settings)
             appState.openWindow(.settings)
         }
     }

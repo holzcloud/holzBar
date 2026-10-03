@@ -65,13 +65,13 @@ struct ScreenRecordingHint: View {
 
     /// macOS may need holzBar to reopen before the pictures appear.
     private var reopenNote: String {
-        "If macOS offers to quit and reopen holzBar after you allow it, choose Quit & Reopen."
+        String(localized: "If macOS offers to quit and reopen holzBar after you allow it, choose Quit & Reopen.")
     }
 
     var body: some View {
         if isCompact {
             HStack {
-                Text(feature.reason)
+                Text(feature.reason.localizedFromCatalog)
                     .lineLimit(1)
                 allowButton
                     .buttonStyle(.plain)
@@ -80,7 +80,7 @@ struct ScreenRecordingHint: View {
             .help(reopenNote)
         } else {
             VStack(spacing: 8) {
-                Text(feature.reason)
+                Text(feature.reason.localizedFromCatalog)
                     .multilineTextAlignment(.center)
                 allowButton
                 Text(reopenNote)

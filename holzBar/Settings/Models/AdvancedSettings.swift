@@ -43,6 +43,14 @@ final class AdvancedSettings {
         }
     }
 
+    /// A Boolean value that indicates whether holzBar never shows a Dock icon, so the
+    /// application menus are not hidden (macOS hides them only for an app in the Dock).
+    var keepsDockIconHidden = true {
+        didSet {
+            Defaults.set(keepsDockIconHidden, forKey: .keepsDockIconHidden)
+        }
+    }
+
     /// A Boolean value that indicates whether to show a context menu
     /// when the user right-clicks the menu bar.
     var enableSecondaryContextMenu = true {
@@ -58,7 +66,9 @@ final class AdvancedSettings {
         }
     }
 
-    /// Time interval to temporarily show items for.
+    /// How long an item opened from the holzBar Shelf, the search or elsewhere stays in the
+    /// menu bar after its menu closes ("Hide opened items again after", 0 to 30 s), and how
+    /// long the hidden section shows for a moment. Stored under its earlier name.
     var tempShowInterval: TimeInterval = 15 {
         didSet {
             Defaults.set(tempShowInterval, forKey: .tempShowInterval)
@@ -80,6 +90,22 @@ final class AdvancedSettings {
         }
     }
 
+    /// A Boolean value that indicates whether a hidden item is shown in the menu bar to
+    /// open its menu; off, its menu opens without showing it, where the app allows.
+    var openHiddenItemsInMenuBar = true {
+        didSet {
+            Defaults.set(openHiddenItemsInMenuBar, forKey: .openHiddenItemsInMenuBar)
+        }
+    }
+
+    /// A Boolean value that indicates whether Zen mode turns on while a display is
+    /// mirrored or the screen is shared (`PresentationMonitor`).
+    var autoZenWhileSharingScreen = false {
+        didSet {
+            Defaults.set(autoZenWhileSharingScreen, forKey: .autoZenWhileSharingScreen)
+        }
+    }
+
     /// The shared app state.
     @ObservationIgnored private(set) weak var appState: AppState?
 
@@ -96,10 +122,17 @@ final class AdvancedSettings {
         Defaults.ifPresent(key: .enableAlwaysHiddenSection, assign: &enableAlwaysHiddenSection)
         Defaults.ifPresent(key: .showAllSectionsOnUserDrag, assign: &showAllSectionsOnUserDrag)
         Defaults.ifPresent(key: .hideApplicationMenus, assign: &hideApplicationMenus)
+        Defaults.ifPresent(key: .keepsDockIconHidden, assign: &keepsDockIconHidden)
         Defaults.ifPresent(key: .enableSecondaryContextMenu, assign: &enableSecondaryContextMenu)
         Defaults.ifPresent(key: .showOnHoverDelay, assign: &showOnHoverDelay)
         Defaults.ifPresent(key: .tempShowInterval, assign: &tempShowInterval)
+        // Earlier versions allowed up to 60 s; the slider goes to 30.
+        if tempShowInterval > 30 {
+            tempShowInterval = 30
+        }
+        Defaults.ifPresent(key: .openHiddenItemsInMenuBar, assign: &openHiddenItemsInMenuBar)
         Defaults.ifPresent(key: .keepLiveActivitiesVisible, assign: &keepLiveActivitiesVisible)
+        Defaults.ifPresent(key: .autoZenWhileSharingScreen, assign: &autoZenWhileSharingScreen)
 
         Defaults.ifPresent(key: .sectionDividerStyle) { rawValue in
             if let style = SectionDividerStyle(rawValue: rawValue) {

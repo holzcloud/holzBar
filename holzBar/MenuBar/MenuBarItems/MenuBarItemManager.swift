@@ -30,6 +30,45 @@ final class MenuBarItemManager {
     /// A timer for rehiding temporarily shown menu bar items.
     @ObservationIgnored private var rehideTimer: Timer?
 
+    /// Whether the "Hide opened items again after" delay runs: it starts when no shown
+    /// item's menu is open any more (THAW-13).
+    @ObservationIgnored private var isRehideDelayRunning = false
+
+    /// Pauses automatic moves after repeated failures or a repeatedly moved item.
+    @ObservationIgnored private var moveBackoff = MoveBackoff()
+
+    /// The end of the pause of automatic moves that was last logged, so it is logged once.
+    @ObservationIgnored private var loggedPauseEnd: ContinuousClock.Instant?
+
+    /// Whether temporarily shown items wait to be rehidden until automatic moves may run
+    /// again (on the next settle or user move) instead of retrying every 3 seconds.
+    @ObservationIgnored private var isRehideWaitingForMoves = false
+
+    /// The namespaces whose item titles change beyond their numbers (`ItemIdentity`).
+    @ObservationIgnored private(set) var titleChangingOwners = Set<String>()
+
+    /// The bar as last read, for learning which apps change their item titles.
+    @ObservationIgnored private var previousIdentityItems: [ItemIdentity.Item]?
+
+    /// The identity key of each cached item, by window.
+    @ObservationIgnored private var identityKeysByWindow = [CGWindowID: String]()
+
+    /// Whether the sections are saved after the next item cache, because the user arranged
+    /// items (see `SectionRestore.swift`).
+    @ObservationIgnored var needsSectionSave = false
+
+    /// Whether the sections are being reconciled.
+    @ObservationIgnored var isReconcilingSections = false
+
+    /// A reconciliation asked for while one was running; it runs once that one ends.
+    @ObservationIgnored var pendingReconciliation: (wanted: [String: MenuBarSection.Name]?, trigger: SectionRestoreTrigger)?
+
+    /// The restore after an application launched, with its one re-check.
+    @ObservationIgnored var applicationLaunchRestoreTask: Task<Void, Never>?
+
+    /// The cache that records the sections the user just arranged.
+    @ObservationIgnored var sectionSaveTask: Task<Void, Never>?
+
     /// Tasks that observe the events that may change the item list.
     @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
 
@@ -52,7 +91,9 @@ final class MenuBarItemManager {
     /// Sets up the manager.
     func performSetup(with appState: AppState) async {
         self.appState = appState
+        titleChangingOwners = Set(Defaults.array(forKey: .titleChangingItemOwners) as? [String] ?? [])
         await cacheItemsRegardless()
+        await reconcileSections(trigger: .launch)
         configureObservers(with: appState)
     }
 
@@ -107,6 +148,17 @@ final class MenuBarItemManager {
             }
         }
 
+        if backend.canMoveItems {
+            // An application that launches may put its items anywhere; they go back to their
+            // sections (see `SectionRestore.swift`).
+            observerTasks.append(Task { [weak self] in
+                let center = NSWorkspace.shared.notificationCenter
+                for await _ in center.notifications(named: NSWorkspace.didLaunchApplicationNotification) {
+                    self?.applicationDidLaunch()
+                }
+            })
+        }
+
         if backend.refreshesAfterApplicationActivation {
             // Accessibility reports frames only for the active menu bar, so read the
             // items again soon after it moves to another display.
@@ -128,7 +180,13 @@ final class MenuBarItemManager {
     }
 
     /// Reads the item list again once the events that may have changed it pause for 1 s.
+    ///
+    /// Nothing is read while the screen is locked, the Mac sleeps or the session is away;
+    /// the list is read once the bar has settled afterwards.
     private func itemListMayHaveChanged() {
+        if appState?.systemActivityMonitor.isPaused == true {
+            return
+        }
         itemListDebouncer.schedule { [weak self] in
             guard let self else {
                 return
@@ -275,7 +333,7 @@ extension MenuBarItemManager {
 
     /// A pair of control items, taken from a list of menu bar items
     /// during a menu bar item cache operation.
-    private struct ControlItemPair {
+    struct ControlItemPair {
         let hidden: MenuBarItem
         let alwaysHidden: MenuBarItem?
 
@@ -360,7 +418,7 @@ extension MenuBarItemManager {
                 context.shouldClearCachedItemWindowIDs = true
             }
 
-            if let temp = temporarilyShownItemContexts.first(where: { $0.tag == item.tag }) {
+            if let temp = temporarilyShownItemContexts.first(where: { $0.matches(item) }) {
                 // Cache temporarily shown items as if they were in their original locations.
                 // Keep track of them separately and use their return destinations to insert
                 // them into the cache once all other items have been handled.
@@ -404,6 +462,11 @@ extension MenuBarItemManager {
     func cacheItemsRegardless(_ currentItemWindowIDs: [CGWindowID]? = nil) async {
         await cacheActor.runCacheTask { [weak self] in
             guard let self else {
+                return
+            }
+
+            guard appState?.systemActivityMonitor.isPaused != true else {
+                logger.debug("Skipping menu bar item cache while the Mac is not in use")
                 return
             }
 
@@ -453,13 +516,19 @@ extension MenuBarItemManager {
                 await enforceControlItemOrder(controlItems: controlItems)
                 // Forget the UUIDs of item windows that are gone (on every space).
                 pruneUUIDCache(keeping: Bridging.getMenuBarWindowList(option: .itemsOnly))
+                updateIdentities(with: items)
             }
             await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
 
             if backend.canMoveItems {
+                // The sections the user arranged, or of the first run, are recorded.
+                if needsSectionSave || Defaults.dictionary(forKey: .itemSections) == nil {
+                    needsSectionSave = false
+                    saveSections()
+                }
                 // Moving runs outside the cache task, which it would otherwise hold up.
                 Task {
-                    await self.placeNewItems(items, controlItems: controlItems)
+                    await self.reconcileSections(trigger: .itemListChange, items: items, controlItems: controlItems)
                 }
             }
         }
@@ -475,134 +544,6 @@ extension MenuBarItemManager {
         let signature = await backend.itemListSignature()
         if await cacheActor.cachedItemWindowIDs != signature {
             await cacheItemsRegardless(signature)
-        }
-    }
-}
-
-// MARK: - Moving Items Into Sections
-
-extension MenuBarItemManager {
-    /// Moves items into the sections given by their tags' descriptions, for
-    /// example to apply a layout profile. Items already in their section, and
-    /// items that are not on the bar, are left alone.
-    func move(itemsTo sections: [String: MenuBarSection.Name]) async {
-        var items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
-        guard let controlItems = ControlItemPair(items: &items) else {
-            logger.warning("Missing control item for hidden section, cannot move items into sections")
-            return
-        }
-        for item in items where item.isMovable && !item.isControlItem {
-            guard
-                var section = sections[item.tag.description],
-                itemCache.address(for: item.tag)?.section != section
-            else {
-                continue
-            }
-            if section == .alwaysHidden && controlItems.alwaysHidden == nil {
-                section = .hidden
-            }
-            let destination: MoveDestination = switch section {
-            case .visible: .rightOfItem(controlItems.hidden)
-            case .hidden: .leftOfItem(controlItems.hidden)
-            case .alwaysHidden: .leftOfItem(controlItems.alwaysHidden ?? controlItems.hidden)
-            }
-            do {
-                try await move(item: item, to: destination)
-            } catch {
-                logger.error("Error moving \(item.logString, privacy: .private(mask: .hash)) into \(section.logString, privacy: .public): \(error, privacy: .private)")
-            }
-        }
-        await cacheItemsRegardless()
-    }
-}
-
-// MARK: - Placing New Items
-
-extension MenuBarItemManager {
-    /// Moves menu bar items that holzBar has not seen before into the section
-    /// chosen in the settings (jordanbaird/Ice#6, jordanbaird/Ice#767,
-    /// jordanbaird/Ice#378).
-    ///
-    /// macOS puts a new item at the far left of the bar, which is wherever the
-    /// leftmost section happens to be. holzBar remembers every item it has seen,
-    /// so only items that are new to it are moved, and the first run only records
-    /// what is there. Items whose identity changes on every launch are left alone,
-    /// as they would be new every time.
-    private func placeNewItems(_ items: [MenuBarItem], controlItems: ControlItemPair) async {
-        guard let appState else {
-            return
-        }
-
-        if appState.settings.advanced.keepLiveActivitiesVisible {
-            await keepLiveActivitiesVisible(items, controlItems: controlItems)
-        }
-
-        let candidates = items.filter { item in
-            item.isMovable &&
-            item.canBeHidden &&
-            !item.isControlItem &&
-            !item.isSystemClone &&
-            !item.tag.namespace.isUUID
-        }
-        let stored = Defaults.array(forKey: .knownItemTags) as? [String]
-        var known = Set(stored ?? [])
-        let newItems = candidates.filter { !known.contains($0.tag.description) }
-
-        guard stored == nil || !newItems.isEmpty else {
-            return
-        }
-        known.formUnion(candidates.map(\.tag.description))
-        Defaults.set(known.sorted(), forKey: .knownItemTags)
-
-        guard
-            stored != nil,
-            var section = appState.settings.advanced.newItemsPlacement.section
-        else {
-            return
-        }
-        if section == .alwaysHidden && controlItems.alwaysHidden == nil {
-            section = .hidden
-        }
-
-        for item in newItems where itemCache.address(for: item.tag)?.section != section {
-            let destination: MoveDestination = switch section {
-            case .visible: .rightOfItem(controlItems.hidden)
-            case .hidden: .leftOfItem(controlItems.hidden)
-            case .alwaysHidden: .leftOfItem(controlItems.alwaysHidden ?? controlItems.hidden)
-            }
-            do {
-                logger.info("Placing new item \(item.logString, privacy: .private(mask: .hash)) in \(section.logString, privacy: .public)")
-                try await move(item: item, to: destination)
-            } catch {
-                logger.error("Error placing new item \(item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
-            }
-        }
-    }
-}
-
-extension MenuBarItemManager {
-    /// Moves Live Activities that macOS put in a hidden section to the visible
-    /// one (jordanbaird/Ice#731).
-    ///
-    /// A Live Activity appears as a new item at the far left of the bar, which
-    /// is a hidden section, so without this it is only seen by showing that section.
-    private func keepLiveActivitiesVisible(_ items: [MenuBarItem], controlItems: ControlItemPair) async {
-        for item in items where item.isMovable && !item.isControlItem {
-            let isHidden = item.bounds.maxX <= controlItems.hidden.bounds.minX
-            guard isHidden else {
-                continue
-            }
-            if item.tag.isLiveActivity {
-                do {
-                    logger.info("Keeping Live Activity \(item.logString, privacy: .private(mask: .hash)) visible")
-                    try await move(item: item, to: .rightOfItem(controlItems.hidden))
-                } catch {
-                    logger.error("Error moving Live Activity \(item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
-                }
-            } else if item.tag.namespace.isUUID || item.tag.namespace.description.hasPrefix("com.apple.") {
-                // Helps find the process that draws Live Activities.
-                logger.debug("Hidden system item: \(item.tag.description, privacy: .private(mask: .hash))")
-            }
         }
     }
 }
@@ -628,6 +569,8 @@ extension MenuBarItemManager {
         case itemResponseTimeout(MenuBarItem)
         /// A menu bar item's bounds cannot be found.
         case missingItemBounds(MenuBarItem)
+        /// Automatic moves are paused (see `MoveBackoff` and `SystemActivityMonitor`).
+        case automaticMovesPaused
 
         var description: String {
             switch self {
@@ -647,33 +590,41 @@ extension MenuBarItemManager {
                 "\(Self.self).itemResponseTimeout(item: \(item.tag))"
             case .missingItemBounds(let item):
                 "\(Self.self).missingItemBounds(item: \(item.tag))"
+            case .automaticMovesPaused:
+                "\(Self.self).automaticMovesPaused"
             }
         }
 
         var errorDescription: String? {
             switch self {
             case .cannotComplete:
-                "Operation could not be completed"
+                String(localized: "Operation could not be completed")
             case .invalidEventSource:
-                "Invalid event source"
+                String(localized: "Invalid event source")
             case .missingMouseLocation:
-                "Missing mouse location"
+                String(localized: "Missing mouse location")
             case .eventCreationFailure(let item):
-                "Could not create event for \"\(item.displayName)\""
+                String(localized: "Could not create event for \u{201C}\(item.displayName)\u{201D}")
             case .eventOperationTimeout(let item):
-                "Event operation timed out for \"\(item.displayName)\""
+                String(localized: "Event operation timed out for \u{201C}\(item.displayName)\u{201D}")
             case .itemNotMovable(let item):
-                "\"\(item.displayName)\" is not movable"
+                String(localized: "\u{201C}\(item.displayName)\u{201D} is not movable")
             case .itemResponseTimeout(let item):
-                "\"\(item.displayName)\" took too long to respond"
+                String(localized: "\u{201C}\(item.displayName)\u{201D} took too long to respond")
             case .missingItemBounds(let item):
-                "Missing bounds rectangle for \"\(item.displayName)\""
+                String(localized: "Missing bounds rectangle for \u{201C}\(item.displayName)\u{201D}")
+            case .automaticMovesPaused:
+                String(localized: "Automatic moves are paused")
             }
         }
 
         var recoverySuggestion: String? {
-            if case .itemNotMovable = self { return nil }
-            return "Please try again. If the error persists, please file a bug report."
+            switch self {
+            case .itemNotMovable, .automaticMovesPaused:
+                return nil
+            default:
+                return String(localized: "Please try again. If the error persists, please file a bug report.")
+            }
         }
     }
 }
@@ -704,19 +655,82 @@ extension MenuBarItemManager {
         }
     }
 
+    /// Who asked for a move.
+    nonisolated enum MoveOrigin {
+        /// The user, by dragging an item in the Layout pane or opening one from the Shelf,
+        /// search or a group. Always allowed; it ends a pause of automatic moves.
+        case user
+        /// holzBar itself: placing new items, keeping Live Activities visible, rehiding,
+        /// ordering the dividers or applying a profile. Paused by `MoveBackoff` and while
+        /// the Mac is not in use.
+        case automatic
+    }
+
     /// Moves a menu bar item to the given destination.
+    ///
+    /// An automatic move throws ``EventError/automaticMovesPaused`` while automatic moves
+    /// are paused: after repeated failures or a repeatedly moved item (`MoveBackoff`), and
+    /// while the screen is locked, the Mac sleeps or the session is away.
     ///
     /// - Parameters:
     ///   - item: The menu bar item to move.
     ///   - destination: The destination to move the item to.
-    func move(item: MenuBarItem, to destination: MoveDestination) async throws {
+    ///   - origin: Who asked for the move.
+    func move(item: MenuBarItem, to destination: MoveDestination, origin: MoveOrigin = .automatic) async throws {
         guard item.isMovable else {
             throw EventError.itemNotMovable(item)
         }
         guard let appState else {
             throw EventError.cannotComplete
         }
-        try await backend.move(item: item, to: destination, appState: appState)
+        switch origin {
+        case .user:
+            moveBackoff.recordUserMove()
+            loggedPauseEnd = nil
+        case .automatic:
+            try checkAutomaticMove(of: item, appState: appState)
+        }
+        do {
+            try await backend.move(item: item, to: destination, appState: appState)
+        } catch {
+            if origin == .automatic, moveBackoff.recordFailure(at: .now) {
+                logPausedMoves()
+            }
+            throw error
+        }
+        if origin == .user, isRehideWaitingForMoves {
+            // The user's move ended the pause; the waiting items are rehidden after the
+            // usual interval (not at once: this may be an item the user is opening).
+            isRehideWaitingForMoves = false
+            runRehideTimer()
+        }
+    }
+
+    /// Throws when an automatic move of the given item may not run now, and counts it
+    /// otherwise.
+    private func checkAutomaticMove(of item: MenuBarItem, appState: AppState) throws {
+        guard !appState.systemActivityMonitor.isPaused else {
+            throw EventError.automaticMovesPaused
+        }
+        let now = ContinuousClock.now
+        guard moveBackoff.allowsAutomaticMove(at: now) else {
+            logPausedMoves()
+            throw EventError.automaticMovesPaused
+        }
+        if moveBackoff.recordAutomaticMove(identifier: item.tag.description, at: now) {
+            logPausedMoves()
+            throw EventError.automaticMovesPaused
+        }
+    }
+
+    /// Logs the current pause of automatic moves, once per pause.
+    private func logPausedMoves() {
+        guard let pausedUntil = moveBackoff.pausedUntil, pausedUntil != loggedPauseEnd else {
+            return
+        }
+        loggedPauseEnd = pausedUntil
+        let seconds = Int(ContinuousClock.now.duration(to: pausedUntil).components.seconds)
+        logger.warning("Automatic moves paused until \(seconds, privacy: .public) s from now")
     }
 
     /// Clicks a menu bar item with the given mouse button.
@@ -740,6 +754,12 @@ extension MenuBarItemManager {
         /// The tag associated with the item.
         let tag: MenuBarItemTag
 
+        /// The item's window.
+        let windowID: CGWindowID
+
+        /// The item's identity key (`ItemIdentity`).
+        let identityKey: String
+
         /// The destination to return the item to.
         let returnDestination: MoveDestination
 
@@ -751,6 +771,9 @@ extension MenuBarItemManager {
 
         /// A Boolean value that indicates whether the menu bar item's
         /// interface is showing.
+        ///
+        /// Only a menu counts (`InterfaceWindowRule`): another window of the app, such as a
+        /// small floating one, never kept the item from being hidden again (Thaw #1158).
         var isShowingInterface: Bool {
             guard
                 let window = shownInterfaceWindow,
@@ -759,21 +782,24 @@ extension MenuBarItemManager {
                 // Window no longer exists, so assume closed.
                 return false
             }
-            if
-                current.layer != CGWindowLevelForKey(.popUpMenuWindow),
-                current.layer != CGWindowLevelForKey(.popUpMenuWindow) - 1,
-                current.layer != CGWindowLevelForKey(.statusWindow),
-                current.layer != CGWindowLevelForKey(.mainMenuWindow),
-                let app = current.owningApplication
-            {
-                return app.isActive && current.isOnScreen
-            }
-            return current.isOnScreen
+            // The window was recorded as a new window of the item's app after the click.
+            return current.isOnScreen && InterfaceWindowRule.counts(
+                layer: current.layer,
+                isOwnersWindow: true,
+                appearedAfterClick: true
+            )
         }
 
-        init(tag: MenuBarItemTag, returnDestination: MoveDestination) {
+        init(tag: MenuBarItemTag, windowID: CGWindowID, identityKey: String, returnDestination: MoveDestination) {
             self.tag = tag
+            self.windowID = windowID
+            self.identityKey = identityKey
             self.returnDestination = returnDestination
+        }
+
+        /// Whether the context belongs to the given item: the same window, or the same tag.
+        func matches(_ item: MenuBarItem) -> Bool {
+            item.windowID == windowID || item.tag == tag
         }
     }
 
@@ -831,7 +857,7 @@ extension MenuBarItemManager {
             return
         }
 
-        guard let applicationMenuFrame = screen.getApplicationMenuFrame() else {
+        guard let applicationMenuFrame = appState.applicationMenuFrames.frame(for: screen) else {
             logger.error("No application menu frame, so not showing \(item.logString, privacy: .private(mask: .hash))")
             return
         }
@@ -867,7 +893,7 @@ extension MenuBarItemManager {
         guard let targetItem = items.first else {
             logger.warning("Not enough room to show \(item.logString, privacy: .private(mask: .hash))")
             let alert = NSAlert()
-            alert.messageText = "Not enough room to show \"\(item.displayName)\""
+            alert.messageText = String(localized: "Not enough room to show \u{201C}\(item.displayName)\u{201D}")
             alert.runModal()
             return
         }
@@ -880,18 +906,25 @@ extension MenuBarItemManager {
         logger.debug("Temporarily showing \(item.logString, privacy: .private(mask: .hash))")
 
         do {
-            try await move(item: item, to: .leftOfItem(targetItem))
+            try await move(item: item, to: .leftOfItem(targetItem), origin: .user)
         } catch {
             logger.error("Error showing item: \(error, privacy: .private)")
             return
         }
 
-        let context = TemporarilyShownItemContext(tag: item.tag, returnDestination: destination)
+        let context = TemporarilyShownItemContext(
+            tag: item.tag,
+            windowID: item.windowID,
+            identityKey: identityKey(for: item),
+            returnDestination: destination
+        )
         temporarilyShownItemContexts.append(context)
 
         rehideTimer?.invalidate()
+        isRehideDelayRunning = false
         defer {
-            runRehideTimer()
+            // The first check comes soon; the delay counts from when the menu closes.
+            runRehideTimer(for: 1)
         }
 
         await MenuBarItemEventPoster.eventSleep(for: .milliseconds(100))
@@ -908,7 +941,11 @@ extension MenuBarItemManager {
         let windowsAfterClick = WindowInfo.createWindows(option: .onScreen)
 
         context.shownInterfaceWindow = windowsAfterClick.first { window in
-            window.ownerPID == item.sourcePID && !idsBeforeClick.contains(window.windowID)
+            InterfaceWindowRule.counts(
+                layer: window.layer,
+                isOwnersWindow: window.ownerPID == item.sourcePID,
+                appearedAfterClick: !idsBeforeClick.contains(window.windowID)
+            )
         }
     }
 
@@ -924,16 +961,37 @@ extension MenuBarItemManager {
         guard !temporarilyShownItemContexts.isEmpty else {
             return
         }
+        // While automatic moves are paused, the items wait for the next settle or user
+        // move instead of retrying every few seconds.
+        guard
+            !appState.systemActivityMonitor.isPaused,
+            moveBackoff.allowsAutomaticMove(at: .now)
+        else {
+            waitToRehide(appState: appState)
+            return
+        }
+        isRehideWaitingForMoves = false
         guard !temporarilyShownItemContexts.contains(where: { $0.isShowingInterface }) else {
             logger.debug("Menu bar item interface is shown, so waiting to rehide")
+            isRehideDelayRunning = false
             runRehideTimer(for: 3)
             return
+        }
+        // "Hide opened items again after" counts from when the menu was seen closed.
+        if !isRehideDelayRunning {
+            let delay = min(max(appState.settings.advanced.tempShowInterval, 0), 30)
+            if delay > 0 {
+                isRehideDelayRunning = true
+                runRehideTimer(for: delay)
+                return
+            }
         }
         guard MenuBarItemEventPoster.hasUserPausedInput(for: .milliseconds(250)) else {
             logger.debug("Found recent user input, so waiting to rehide")
             runRehideTimer(for: 1)
             return
         }
+        isRehideDelayRunning = false
 
         var currentContexts = temporarilyShownItemContexts
         temporarilyShownItemContexts.removeAll()
@@ -955,12 +1013,22 @@ extension MenuBarItemManager {
             MouseHelpers.showCursor()
         }
 
+        let keys = identityKeys(for: items)
         while let context = currentContexts.popLast() {
-            guard let item = items.first(matching: context.tag) else {
+            // The window first (it lasts while the app runs), then the identity, which
+            // survives a title that changed while the item was shown.
+            let item = items.first { $0.windowID == context.windowID }
+                ?? items.first { keys[$0.windowID] == context.identityKey }
+            guard let item else {
                 continue
             }
             do {
                 try await move(item: item, to: context.returnDestination)
+            } catch EventError.automaticMovesPaused {
+                // Paused during the rehide: the rest waits for the next settle or user move.
+                failedContexts.append(context)
+                failedContexts.append(contentsOf: currentContexts.reversed())
+                currentContexts.removeAll()
             } catch {
                 context.rehideAttempts += 1
                 logger.warning(
@@ -991,8 +1059,44 @@ extension MenuBarItemManager {
                 """
             )
             temporarilyShownItemContexts.append(contentsOf: failedContexts.reversed())
-            runRehideTimer(for: 3)
+            if appState.systemActivityMonitor.isPaused || !moveBackoff.allowsAutomaticMove(at: .now) {
+                waitToRehide(appState: appState)
+            } else {
+                runRehideTimer(for: 3)
+            }
         }
+    }
+
+    /// Lets the temporarily shown items wait while automatic moves are paused: they are
+    /// rehidden on the next settle or user move, or once when the back-off's pause ends.
+    private func waitToRehide(appState: AppState) {
+        logger.debug("Automatic moves are paused, so waiting to rehide")
+        isRehideWaitingForMoves = true
+        rehideTimer?.invalidate()
+        rehideTimer = nil
+        // While the Mac is not in use the settle brings them back; otherwise one timer
+        // fires as the pause ends.
+        guard !appState.systemActivityMonitor.isPaused, let pausedUntil = moveBackoff.pausedUntil else {
+            return
+        }
+        let remaining = ContinuousClock.now.duration(to: pausedUntil)
+        let seconds = Double(remaining.components.seconds) + Double(remaining.components.attoseconds) / 1e18
+        runRehideTimer(for: max(seconds, 0) + 1)
+    }
+
+    /// Rehides the temporarily shown items once, if they wait for automatic moves to be
+    /// allowed again (after a settle or a user move).
+    func retryPausedRehide() async {
+        guard isRehideWaitingForMoves else {
+            return
+        }
+        isRehideWaitingForMoves = false
+        await rehideTemporarilyShownItems()
+    }
+
+    /// Whether the given item is shown for a moment and waits to be rehidden.
+    func isTemporarilyShown(_ item: MenuBarItem) -> Bool {
+        temporarilyShownItemContexts.contains { $0.matches(item) }
     }
 
     /// Removes a temporarily shown item from the cache, ensuring that
@@ -1032,6 +1136,62 @@ extension MenuBarItemManager {
         } catch {
             logger.error("Error enforcing control item order: \(error, privacy: .private)")
         }
+    }
+}
+
+// MARK: - Item Identity
+
+extension MenuBarItemManager {
+    /// The identity keys of the given items, by window, keyed in the bar's order (left to
+    /// right) (`ItemIdentity`).
+    func identityKeys(for items: [MenuBarItem]) -> [CGWindowID: String] {
+        let ordered = items.sorted { $0.bounds.minX < $1.bounds.minX }
+        let keys = ItemIdentity.keys(
+            for: ordered.map { (namespace: $0.tag.namespace.description, title: $0.tag.title) },
+            titleChangingOwners: titleChangingOwners
+        )
+        return Dictionary(zip(ordered.map(\.windowID), keys)) { first, _ in first }
+    }
+
+    /// The key under which the given item is stored in profiles, groups, the known items and
+    /// the saved sections. It is the only way an item becomes a stored key.
+    func identityKey(for item: MenuBarItem) -> String {
+        if let key = identityKeysByWindow[item.windowID] {
+            return key
+        }
+        let keys = ItemIdentity.keys(
+            for: [(namespace: item.tag.namespace.description, title: item.tag.title)],
+            titleChangingOwners: titleChangingOwners
+        )
+        return keys.first ?? item.tag.description
+    }
+
+    /// The key a stored key (of this or an earlier version) matches today.
+    func storedIdentityKey(_ stored: String) -> String {
+        ItemIdentity.storedKey(stored, titleChangingOwners: titleChangingOwners)
+    }
+
+    /// Learns which apps change their item titles from this and the previous read of the bar,
+    /// and keys the items anew.
+    private func updateIdentities(with items: [MenuBarItem]) {
+        let current = items
+            .sorted { $0.bounds.minX < $1.bounds.minX }
+            .map { (namespace: $0.tag.namespace.description, title: $0.tag.title) }
+        if let previousIdentityItems {
+            let learned = ItemIdentity.learnTitleChangingOwners(
+                previous: previousIdentityItems,
+                current: current,
+                excluding: [Constants.bundleIdentifier]
+            )
+            let newlyLearned = learned.subtracting(titleChangingOwners)
+            if !newlyLearned.isEmpty {
+                titleChangingOwners.formUnion(newlyLearned)
+                Defaults.set(titleChangingOwners.sorted(), forKey: .titleChangingItemOwners)
+                logger.info("Learned \(newlyLearned.count, privacy: .public) apps whose item titles change")
+            }
+        }
+        previousIdentityItems = current
+        identityKeysByWindow = identityKeys(for: items)
     }
 }
 

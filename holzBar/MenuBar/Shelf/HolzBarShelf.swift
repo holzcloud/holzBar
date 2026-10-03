@@ -27,6 +27,12 @@ final class HolzBarShelfPanel: NSPanel {
     /// Follows the control item at most every 0.1 s, with its latest frame.
     private let controlItemThrottle = Debouncer(delay: .milliseconds(100))
 
+    /// Whether the Shelf takes keys: it was opened with a hotkey, so the arrows, Return and
+    /// Escape work in it. Opened with the mouse, it stays non-key as before.
+    var acceptsKeyboard = false
+
+    override var canBecomeKey: Bool { acceptsKeyboard }
+
     /// Creates a new holzBar Shelf panel.
     init() {
         super.init(
@@ -231,6 +237,9 @@ final class HolzBarShelfPanel: NSPanel {
         }
 
         orderFrontRegardless()
+        if acceptsKeyboard {
+            makeKey()
+        }
         if #available(macOS 27.0, *) {
             let elapsed = (ContinuousClock.now - requestedAt).components
             let milliseconds = Double(elapsed.seconds) * 1000 + Double(elapsed.attoseconds) / 1e15
@@ -253,6 +262,7 @@ final class HolzBarShelfPanel: NSPanel {
         super.close()
         contentView = nil
         currentSection = nil
+        acceptsKeyboard = false
         appState?.navigationState.isShelfPresented = false
     }
 }
@@ -305,6 +315,9 @@ private struct HolzBarShelfContentView: View {
     var menuBarManager: MenuBarManager
     @State private var frame = CGRect.zero
     @State private var scrollIndicatorsFlashTrigger = 0
+    /// The item the arrows highlight, while the Shelf takes keys.
+    @State private var highlightedWindowID: CGWindowID?
+    @FocusState private var hasKeyboardFocus: Bool
 
     let screen: NSScreen
     let section: MenuBarSection.Name
@@ -393,17 +406,63 @@ private struct HolzBarShelfContentView: View {
         .frame(maxWidth: screen.frame.width)
         .fixedSize()
         .onFrameChange(update: $frame)
+        .focusable(menuBarManager.shelfPanel.acceptsKeyboard)
+        .focused($hasKeyboardFocus)
+        .focusEffectDisabled()
+        .onKeyPress(.leftArrow) {
+            moveHighlight(by: -1)
+        }
+        .onKeyPress(.rightArrow) {
+            moveHighlight(by: 1)
+        }
+        .onKeyPress(.return) {
+            openHighlightedItem()
+        }
+        .onKeyPress(.space) {
+            openHighlightedItem()
+        }
+        .onKeyPress(.escape) {
+            menuBarManager.section(withName: section)?.hide()
+            return .handled
+        }
+        .onAppear {
+            guard menuBarManager.shelfPanel.acceptsKeyboard else {
+                return
+            }
+            hasKeyboardFocus = true
+            highlightedWindowID = items.last?.windowID
+        }
+    }
+
+    /// Moves the highlight to the item on the left (`-1`) or right (`1`).
+    private func moveHighlight(by step: Int) -> KeyPress.Result {
+        let items = items
+        guard !items.isEmpty else {
+            return .ignored
+        }
+        let current = items.firstIndex { $0.windowID == highlightedWindowID } ?? items.count
+        let index = min(max(current + step, 0), items.count - 1)
+        highlightedWindowID = items[index].windowID
+        return .handled
+    }
+
+    /// Opens the highlighted item through the same path as a click.
+    private func openHighlightedItem() -> KeyPress.Result {
+        guard let item = items.first(where: { $0.windowID == highlightedWindowID }) else {
+            return .ignored
+        }
+        let shelfDisplayID = menuBarManager.shelfPanel.screen?.displayID
+        menuBarManager.section(withName: section)?.hide()
+        Task {
+            try? await Task.sleep(for: .milliseconds(25))
+            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: shelfDisplayID)
+        }
+        return .handled
     }
 
     @ViewBuilder
     private var content: some View {
-        if !ScreenRecordingAccess.isGranted(appState) {
-            ScreenRecordingHint(feature: .shelf, appState: appState, isCompact: true) {
-                // The Shelf would cover the system prompt.
-                menuBarManager.section(withName: section)?.hide()
-            }
-            .padding(.horizontal, 10)
-        } else if menuBarManager.isMenuBarHiddenBySystemUserDefaults {
+        if menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             Text("holzBar cannot display menu bar items for automatically hidden menu bars")
                 .padding(.horizontal, 10)
         } else if itemManager.itemCache.managedItems.isEmpty {
@@ -413,29 +472,46 @@ private struct HolzBarShelfContentView: View {
                     .controlSize(.small)
             }
             .padding(.horizontal, 10)
-        } else if imageCache.cacheFailed(for: section) {
+        } else if ScreenRecordingAccess.isGranted(appState), imageCache.cacheFailed(for: section) {
             Text("Unable to display menu bar items")
                 .padding(.horizontal, 10)
         } else {
-            ScrollView(.horizontal) {
-                HStack(spacing: 0) {
-                    ForEach(items, id: \.windowID) { item in
-                        HolzBarShelfItemView(
-                            imageCache: imageCache,
-                            itemManager: itemManager,
-                            menuBarManager: menuBarManager,
-                            item: item,
-                            section: section
-                        )
+            HStack(spacing: 0) {
+                if !ScreenRecordingAccess.isGranted(appState) {
+                    // Without Screen Recording the items show their apps' icons (or the
+                    // images chosen for them); the hint offers their real pictures.
+                    ScreenRecordingHint(feature: .shelf, appState: appState, isCompact: true) {
+                        // The Shelf would cover the system prompt.
+                        menuBarManager.section(withName: section)?.hide()
                     }
+                    .padding(.horizontal, 10)
+                }
+                itemsScrollView
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var itemsScrollView: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                ForEach(items, id: \.windowID) { item in
+                    HolzBarShelfItemView(
+                        imageCache: imageCache,
+                        itemManager: itemManager,
+                        menuBarManager: menuBarManager,
+                        item: item,
+                        section: section,
+                        isHighlighted: item.windowID == highlightedWindowID
+                    )
                 }
             }
-            .environment(\.isScrollEnabled, frame.width == screen.frame.width)
-            .defaultScrollAnchor(.trailing)
-            .scrollIndicatorsFlash(trigger: scrollIndicatorsFlashTrigger)
-            .task {
-                scrollIndicatorsFlashTrigger += 1
-            }
+        }
+        .environment(\.isScrollEnabled, frame.width == screen.frame.width)
+        .defaultScrollAnchor(.trailing)
+        .scrollIndicatorsFlash(trigger: scrollIndicatorsFlashTrigger)
+        .task {
+            scrollIndicatorsFlashTrigger += 1
         }
     }
 }
@@ -449,6 +525,8 @@ private struct HolzBarShelfItemView: View {
 
     let item: MenuBarItem
     let section: MenuBarSection.Name
+    /// Whether the arrows of the keyboard highlight the item.
+    var isHighlighted = false
 
     private var leftClickAction: () -> Void {
         return { [weak itemManager, weak menuBarManager] in
@@ -459,19 +537,7 @@ private struct HolzBarShelfItemView: View {
             menuBarManager.section(withName: section)?.hide()
             Task {
                 try? await Task.sleep(for: .milliseconds(25))
-                if #available(macOS 27.0, *), let appState = itemManager.appState {
-                    await ItemClicker27.click(item: item, mouseButton: .left, shelfDisplayID: shelfDisplayID, appState: appState)
-                    return
-                }
-                if Bridging.isWindowOnScreen(item.windowID) {
-                    do {
-                        try await itemManager.click(item: item, with: .left)
-                    } catch {
-                        Logger.default.error("Error left-clicking menu bar item from the holzBar Shelf: \(error, privacy: .private)")
-                    }
-                } else {
-                    await itemManager.temporarilyShow(item: item, clickingWith: .left)
-                }
+                await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: shelfDisplayID)
             }
         }
     }
@@ -485,45 +551,50 @@ private struct HolzBarShelfItemView: View {
             menuBarManager.section(withName: section)?.hide()
             Task {
                 try? await Task.sleep(for: .milliseconds(25))
-                if #available(macOS 27.0, *), let appState = itemManager.appState {
-                    await ItemClicker27.click(item: item, mouseButton: .right, shelfDisplayID: shelfDisplayID, appState: appState)
-                    return
-                }
-                if Bridging.isWindowOnScreen(item.windowID) {
-                    do {
-                        try await itemManager.click(item: item, with: .right)
-                    } catch {
-                        Logger.default.error("Error right-clicking menu bar item from the holzBar Shelf: \(error, privacy: .private)")
-                    }
-                } else {
-                    await itemManager.temporarilyShow(item: item, clickingWith: .right)
-                }
+                await itemManager.openItem(item, mouseButton: .right, shelfDisplayID: shelfDisplayID)
             }
         }
     }
 
+    /// The item's chosen image, its picture or its app's icon (`ItemIconStore`).
     private var image: NSImage? {
-        guard let cachedImage = imageCache.images[item.tag] else {
-            return nil
+        let captured = imageCache.images[item.tag]?.nsImage
+        guard let iconStore = itemManager.appState?.itemIconStore else {
+            return captured
         }
-        return cachedImage.nsImage
+        return iconStore.image(for: item, captured: captured)
     }
 
     var body: some View {
-        if let image {
-            Image(nsImage: image)
-                .contentShape(Rectangle())
-                .overlay {
-                    HolzBarShelfItemClickView(
-                        item: item,
-                        leftClickAction: leftClickAction,
-                        rightClickAction: rightClickAction
-                    )
-                }
-                .accessibilityLabel(item.displayName)
-                .accessibilityAction(named: "left click", leftClickAction)
-                .accessibilityAction(named: "right click", rightClickAction)
+        Group {
+            if let image {
+                Image(nsImage: image)
+            } else {
+                Text(item.displayName)
+                    .font(.caption)
+                    .lineLimit(1)
+                    .padding(.horizontal, 4)
+            }
         }
+        .contentShape(Rectangle())
+        .overlay {
+            HolzBarShelfItemClickView(
+                item: item,
+                leftClickAction: leftClickAction,
+                rightClickAction: rightClickAction
+            )
+        }
+        .background {
+            if isHighlighted {
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(Color.primary.opacity(0.2))
+            }
+        }
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(item.displayName)
+        .accessibilityAction(.default, leftClickAction)
+        .accessibilityAction(named: "Open", leftClickAction)
+        .accessibilityAction(named: "Open Menu", rightClickAction)
     }
 }
 

@@ -169,11 +169,18 @@ nonisolated extension Defaults {
         case showAllSectionsOnUserDrag = "ShowAllSectionsOnUserDrag"
         case sectionDividerStyle = "SectionDividerStyle"
         case hideApplicationMenus = "HideApplicationMenus"
+        case keepsDockIconHidden = "KeepsDockIconHidden"
         case enableSecondaryContextMenu = "EnableSecondaryContextMenu"
         case showOnHoverDelay = "ShowOnHoverDelay"
         case tempShowInterval = "TempShowInterval"
         case newItemsPlacement = "NewItemsPlacement"
         case keepLiveActivitiesVisible = "KeepLiveActivitiesVisible"
+        case autoZenWhileSharingScreen = "AutoZenWhileSharingScreen"
+        case openHiddenItemsInMenuBar = "OpenHiddenItemsInMenuBar"
+        /// The identity keys of the items shown for a moment when they change.
+        case revealOnChangeItems = "RevealOnChangeItems"
+        /// The image each item shows, by identity: "app" or "file:<name>.png".
+        case itemIcons = "ItemIcons"
         case layoutProfiles = "LayoutProfiles"
         case currentLayoutProfile = "CurrentLayoutProfile"
         case syncsSettingsWithICloud = "SyncsSettingsWithICloud"
@@ -183,6 +190,11 @@ nonisolated extension Defaults {
         case revealRules = "RevealRules"
         case knownItemTags = "KnownItemTags"
         case knownApplications27 = "KnownApplications27"
+        /// The section of each item before macOS 27, keyed by its identity (`ItemIdentity`):
+        /// 0 visible, 1 hidden, 2 always hidden.
+        case itemSections = "ItemSections"
+        /// The namespaces whose item titles change beyond their numbers (`ItemIdentity`).
+        case titleChangingItemOwners = "TitleChangingItemOwners"
 
         // MARK: Appearance Settings
         case menuBarAppearanceConfigurationV2 = "MenuBarAppearanceConfigurationV2"
@@ -246,8 +258,11 @@ nonisolated extension Defaults.Key {
             .enableAlwaysHiddenSection,
             .showAllSectionsOnUserDrag,
             .hideApplicationMenus,
+            .keepsDockIconHidden,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
+            .autoZenWhileSharingScreen,
+            .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
@@ -294,11 +309,15 @@ nonisolated extension Defaults.Key {
         case .currentLayoutProfile:
             .string
         case .knownItemTags,
-            .knownApplications27:
+            .knownApplications27,
+            .titleChangingItemOwners,
+            .revealOnChangeItems:
             .stringArray
         case .hotkeys,
             .revealRules,
-            .macOS27Layout:
+            .macOS27Layout,
+            .itemSections,
+            .itemIcons:
             // Their readers cast the contents themselves, so the kind is checked
             // only at the top level.
             .dictionary

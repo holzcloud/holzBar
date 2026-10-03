@@ -3,9 +3,36 @@
 //  holzBar
 //
 
-// What each hotkey action does. The actions and their stored names are in
-// `holzBar/Core/HotkeyAction.swift`.
+// What each hotkey does. The actions and their stored names are in
+// `holzBar/Core/HotkeyAction.swift`, the targets in `holzBar/Core/HotkeyTarget.swift`.
+
+extension HotkeyTarget {
+    /// Performs what the hotkey is for.
+    @MainActor
+    func perform(appState: AppState) {
+        switch self {
+        case .action(let action):
+            action.perform(appState: appState)
+        case .applyProfile(let name):
+            // No question, unlike `holzbar://profile/<name>`: the user gave the profile
+            // this hotkey.
+            appState.profiles.apply(named: name)
+        case .openItem(let key):
+            appState.itemManager.openItem(withIdentityKey: key)
+        }
+    }
+}
+
 extension HotkeyAction {
+    /// Lets the holzBar Shelf take keys when a hotkey opens it, so the arrows, Return and
+    /// Escape work in it.
+    @MainActor
+    private func prepareShelfForKeyboard(opening section: MenuBarSection, appState: AppState) {
+        if appState.settings.general.usesShelf, section.isHidden {
+            appState.menuBarManager.shelfPanel.acceptsKeyboard = true
+        }
+    }
+
     /// Performs the action.
     @MainActor
     func perform(appState: AppState) {
@@ -14,6 +41,7 @@ extension HotkeyAction {
             guard let section = appState.menuBarManager.section(withName: .hidden) else {
                 return
             }
+            prepareShelfForKeyboard(opening: section, appState: appState)
             section.toggle()
             // Prevent the section from automatically rehiding after mouse movement.
             if !section.isHidden {
@@ -23,6 +51,7 @@ extension HotkeyAction {
             guard let section = appState.menuBarManager.section(withName: .alwaysHidden) else {
                 return
             }
+            prepareShelfForKeyboard(opening: section, appState: appState)
             section.toggle()
             // Prevent the section from automatically rehiding after mouse movement.
             if !section.isHidden {
@@ -51,6 +80,10 @@ extension HotkeyAction {
             appState.menuBarManager.toggleApplicationMenus()
         case .toggleAutoRehide:
             appState.settings.general.autoRehide.toggle()
+        case .toggleZenMode:
+            appState.menuBarManager.toggleZenMode()
+        case .showItemHints:
+            appState.menuBarManager.itemHintsPanel.toggle()
         }
     }
 }

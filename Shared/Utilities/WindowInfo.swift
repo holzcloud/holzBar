@@ -120,9 +120,11 @@ nonisolated extension WindowInfo {
     /// given list of windows.
     static func wallpaperWindow(from windows: [WindowInfo], for display: CGDirectDisplayID) -> WindowInfo? {
         let displayBounds = CGDisplayBounds(display)
+        // The Dock owns the wallpaper window; on macOS 27 WindowManager does
+        // (jordanbaird/Ice#1001, measured).
+        let owners: Set<String> = ["com.apple.dock", "com.apple.WindowManager"]
         return windows.first { window in
-            // Wallpaper window belongs to the Dock process.
-            window.owningApplication?.bundleIdentifier == "com.apple.dock" &&
+            window.owningApplication?.bundleIdentifier.map(owners.contains) == true &&
             window.title?.hasPrefix("Wallpaper") == true &&
             displayBounds.contains(window.bounds)
         }

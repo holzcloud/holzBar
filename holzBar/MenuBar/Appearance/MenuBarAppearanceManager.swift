@@ -59,6 +59,13 @@ final class MenuBarAppearanceManager {
     /// The rounded screen corners.
     @ObservationIgnored private let screenCorners = ScreenCorners()
 
+    /// The retries after launch for panels that found no menu bar yet.
+    @ObservationIgnored private var launchRetryTask: Task<Void, Never>?
+
+    /// How many times, and how far apart, panels that found no menu bar at launch are
+    /// tried again (at login the menu bar can appear after holzBar).
+    private static let launchRetries = (count: 3, interval: Duration.seconds(3))
+
     /// The amount to inset the menu bar if called for by the configuration.
     let menuBarInsetAmount: CGFloat = if #available(macOS 26.0, *) { 3.5 } else { 5 }
 
@@ -71,6 +78,33 @@ final class MenuBarAppearanceManager {
             configureOverlayPanels(with: configuration)
         }
         screenCorners.performSetup(with: self)
+        scheduleLaunchRetries()
+    }
+
+    /// Tries the panels that found no menu bar again, at most three times 3 s apart, then
+    /// stops; later the next settle or screen change tries them again.
+    private func scheduleLaunchRetries() {
+        launchRetryTask = Task { [weak self] in
+            for _ in 0..<Self.launchRetries.count {
+                do {
+                    try await Task.sleep(for: Self.launchRetries.interval)
+                } catch {
+                    return
+                }
+                guard let self, overlayPanels.contains(where: { $0.needsRetry }) else {
+                    return
+                }
+                retryPanels()
+            }
+        }
+    }
+
+    /// Reads the menu bar again and shows the panels that found none.
+    private func retryPanels() {
+        appState?.applicationMenuFrames.refresh(reason: "appearance retry", settling: false)
+        for panel in overlayPanels where panel.needsRetry {
+            panel.needsShow = true
+        }
     }
 
     /// Loads the initial values for the configuration.
@@ -103,6 +137,27 @@ final class MenuBarAppearanceManager {
         }
         if Set(overlayPanels.map { $0.owningScreen }) != Set(NSScreen.screens) {
             configureOverlayPanels(with: configuration)
+        }
+    }
+
+    /// Restores the appearance once the bar has settled after the screen was locked, the
+    /// Mac slept, the session was away or the displays changed (`SystemActivityMonitor`).
+    ///
+    /// The panels are rebuilt when the screens changed or a panel found no menu bar;
+    /// otherwise they are drawn again with a fresh wallpaper.
+    func systemActivityDidSettle() {
+        guard needsOverlayPanels(for: configuration) else {
+            return
+        }
+        if
+            Set(overlayPanels.map { $0.owningScreen }) != Set(NSScreen.screens) ||
+            overlayPanels.contains(where: { $0.needsRetry })
+        {
+            configureOverlayPanels(with: configuration)
+            return
+        }
+        for panel in overlayPanels {
+            panel.refresh()
         }
     }
 

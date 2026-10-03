@@ -44,6 +44,33 @@ final class Concealer27 {
     /// Process identifiers of the applications meant to be concealed right now.
     private(set) var concealedPIDs = Set<pid_t>()
 
+    /// Visible applications concealed for the moment so holzBar's icon clears the notch
+    /// (`NotchCover27`). Never part of the saved layout; cleared when the active display
+    /// changes or an application launches or quits.
+    @ObservationIgnored private var notchConcealed = Set<String>()
+
+    /// The display whose notch `notchConcealed` was worked out for.
+    @ObservationIgnored private var notchCoverDisplayID: CGDirectDisplayID?
+
+    /// The display whose bar was active at the last settled read, and its width.
+    @ObservationIgnored private var lastActiveDisplay: (id: CGDirectDisplayID, width: CGFloat, hasNotch: Bool)?
+
+    /// Whether the last settled read showed items folded behind the overflow button.
+    @ObservationIgnored private var lastReadHadFoldedItems = false
+
+    /// Applications that launched while their section is concealed, shown until their item
+    /// exists (jordanbaird/Ice#1007).
+    @ObservationIgnored private var launchGrace = LaunchGrace27()
+
+    /// The applications concealed at the last change, to tell a change of concealment.
+    @ObservationIgnored private var lastConcealed = Set<String>()
+
+    /// Settled reads in a row, while concealing, without holzBar's icon among the items.
+    @ObservationIgnored private var readsWithoutIcon = 0
+
+    /// Whether holzBar's icon was put back since concealment last changed.
+    @ObservationIgnored private var didReinsertIcon = false
+
     /// The section of each application. Applications missing from it are visible.
     private var savedLayout: [String: MacOS27Section] {
         let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
@@ -57,13 +84,29 @@ final class Concealer27 {
             return
         }
         let workspaceCenter = NSWorkspace.shared.notificationCenter
-        for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
-            observerTasks.append(Task { [weak self] in
-                for await _ in workspaceCenter.notifications(named: name) {
-                    self?.update()
+        observerTasks.append(Task { [weak self] in
+            for await notification in workspaceCenter.notifications(named: NSWorkspace.didLaunchApplicationNotification) {
+                let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+                self?.applicationDidLaunch(bundleID: application?.bundleIdentifier)
+            }
+        })
+        observerTasks.append(Task { [weak self] in
+            for await _ in workspaceCenter.notifications(named: NSWorkspace.didTerminateApplicationNotification) {
+                // The bar is laid out anew, so the notch is worked out again.
+                self?.notchConcealed.removeAll()
+                self?.update()
+            }
+        })
+        observerTasks.append(Task { [weak self] in
+            let center = NotificationCenter.default
+            for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+                guard let self, !notchConcealed.isEmpty else {
+                    continue
                 }
-            })
-        }
+                notchConcealed.removeAll()
+                update()
+            }
+        })
         // The assertions are released at termination by `releaseAllForTermination()`,
         // which the app delegate calls synchronously.
         // Entering or leaving fullscreen swaps the menu bar the items are drawn in, and nothing
@@ -96,6 +139,50 @@ final class Concealer27 {
         }
     }
 
+    /// Answers an application's launch.
+    ///
+    /// An application whose saved section is hidden or always hidden is shown until its item
+    /// exists, or for at most 10 s, then concealed: concealed before its status item exists,
+    /// it gets an item of 3 points (jordanbaird/Ice#1007).
+    private func applicationDidLaunch(bundleID: String?) {
+        // The bar is laid out anew, so the notch is worked out again.
+        notchConcealed.removeAll()
+        guard
+            let bundleID,
+            let section = savedLayout[bundleID],
+            launchGrace.begin(bundleID, isConcealed: section != .visible, at: .now)
+        else {
+            update()
+            return
+        }
+        logger.debug("An application in a concealed section launched, showing it until its item exists")
+        showTemporarily(bundleID: bundleID)
+        // One bounded wait per grace.
+        Task { [weak self] in
+            try? await Task.sleep(for: LaunchGrace27.timeout)
+            guard let self else {
+                return
+            }
+            endGraces(launchGrace.expired(at: .now))
+        }
+    }
+
+    /// Ends the launch graces of the applications whose items appeared in a read of the bar.
+    func itemsAppeared(bundleIDs: Set<String>) {
+        guard !launchGrace.allowed.isEmpty else {
+            return
+        }
+        endGraces(launchGrace.itemsAppeared(bundleIDs))
+    }
+
+    /// Conceals the applications whose launch grace ended, balancing their allowance.
+    private func endGraces(_ bundleIDs: [String]) {
+        guard !bundleIDs.isEmpty else {
+            return
+        }
+        endTemporaryShow(bundleIDs: bundleIDs)
+    }
+
     /// Releases every assertion as holzBar quits, so no application stays hidden.
     func releaseAllForTermination() {
         controller.releaseAll()
@@ -106,18 +193,32 @@ final class Concealer27 {
         guard let appState, MenuBarAssessmentAssertion27.isAvailable else {
             return
         }
+        // While the screen is locked, the Mac sleeps or the session is away, the assertions
+        // stay as they are; the concealment is applied again once the bar has settled.
+        guard !appState.systemActivityMonitor.isPaused else {
+            return
+        }
         if let suspendedUntil, ContinuousClock.now < suspendedUntil {
             return
         }
         let applications = NSWorkspace.shared.runningApplications
         let running = Set(applications.compactMap(\.bundleIdentifier))
         let layout = SectionLayout27.effectiveLayout(observed: [:], saved: savedLayout, running: running)
-        let target = ConcealmentPlanner27.concealedSets(
-            layout: layout,
-            state: revealState(appState),
-            temporarilyShown: Set(temporarilyShown.keys)
+        // Applications concealed for the notch join whatever the sections conceal.
+        let target = NotchCover27.adding(
+            notchConcealed.subtracting(temporarilyShown.keys),
+            to: ConcealmentPlanner27.concealedSets(
+                layout: layout,
+                state: revealState(appState),
+                temporarilyShown: Set(temporarilyShown.keys)
+            )
         )
         let concealed = ConcealmentPlanner27.effectivelyConcealed(sets: target)
+        if concealed != lastConcealed {
+            lastConcealed = concealed
+            readsWithoutIcon = 0
+            didReinsertIcon = false
+        }
         isConcealing = !target.isEmpty
         defer { MenuBarItemProvider27.setConcealedPIDs(concealedPIDs) }
         concealedPIDs = Set(applications.compactMap { application in
@@ -145,7 +246,116 @@ final class Concealer27 {
             try? await Task.sleep(for: .milliseconds(400))
             await self?.appState?.itemManager.cacheItemsIfNeeded()
             await self?.checkStuckOverflow()
+            await self?.checkNotchCover()
+            await self?.checkOwnIcon()
         }
+    }
+
+    /// Puts holzBar's icon back when MenuBarAgent dropped it while concealing.
+    ///
+    /// A known issue of the macOS 27 backend (jordanbaird/Ice#1001): MenuBarAgent can remove
+    /// holzBar's own item while assertions are active, which leaves nothing to click. After
+    /// two settled reads in a row without it, the icon is added again — once per change of
+    /// concealment, so it never loops.
+    private func checkOwnIcon() async {
+        guard
+            let appState,
+            isConcealing,
+            appState.settings.general.showHolzBarIcon,
+            !didReinsertIcon
+        else {
+            readsWithoutIcon = 0
+            return
+        }
+        let items = await MenuBarItemProvider27.items()
+        guard !items.contains(where: { $0.tag == .visibleControlItem }) else {
+            readsWithoutIcon = 0
+            return
+        }
+        readsWithoutIcon += 1
+        guard readsWithoutIcon >= 2 else {
+            return
+        }
+        logger.notice("holzBar's icon went missing while concealing, putting it back")
+        readsWithoutIcon = 0
+        didReinsertIcon = true
+        appState.menuBarManager.controlItem(withName: .visible)?.reinsert()
+    }
+
+    /// Keeps holzBar's icon out from under the notch, and lets MenuBarAgent lay the bar out
+    /// again when it moves to a wider display with items folded.
+    ///
+    /// Runs after each settled read. While the icon lies under the notch of the active
+    /// display, the nearest visible application right of it is concealed (one per read, until
+    /// the icon is clear; Thaw #1195, #1153). When the active bar moves to a display without a
+    /// notch or a wider one while the last read showed folded items, concealment is released
+    /// and applied again once, so the folded items come back (Thaw #1106).
+    private func checkNotchCover() async {
+        guard let screen = NSScreen.screenWithActiveMenuBar else {
+            return
+        }
+        let displayID = screen.displayID
+        let displayBounds = CGDisplayBounds(displayID)
+        let items = await MenuBarItemProvider27.items()
+        let chevronFrame = MenuBarItemProvider27.overflowButtonFrame()
+
+        let previous = lastActiveDisplay
+        lastActiveDisplay = (displayID, displayBounds.width, screen.hasNotch)
+        let hadFoldedItems = lastReadHadFoldedItems
+        lastReadHadFoldedItems = items.contains { item in
+            displayBounds.intersects(item.bounds) && OverflowDetection27.isInOverflow(itemFrame: item.bounds, chevronFrame: chevronFrame)
+        }
+        if let previous, previous.id != displayID {
+            if !notchConcealed.isEmpty {
+                notchConcealed.removeAll()
+                update()
+                return
+            }
+            let isRoomier = !screen.hasNotch || displayBounds.width > previous.width
+            if hadFoldedItems, isRoomier, isConcealing {
+                logger.notice("The bar moved to a roomier display with items folded, laying it out again")
+                suspend(for: Self.settleAfterChange)
+                return
+            }
+        }
+
+        guard
+            screen.hasNotch,
+            let notchSpan = StuckOverflow27.notchSpan(
+                displayBounds: displayBounds,
+                leftAreaWidth: screen.auxiliaryTopLeftArea?.width,
+                rightAreaWidth: screen.auxiliaryTopRightArea?.width
+            ),
+            let icon = items.first(where: { $0.tag == .visibleControlItem && $0.bounds.width > 4 })
+        else {
+            return
+        }
+        if notchCoverDisplayID != displayID {
+            notchConcealed.removeAll()
+            notchCoverDisplayID = displayID
+        }
+        let concealedBundleIDs = Set(NSWorkspace.shared.runningApplications.compactMap { application -> String? in
+            concealedPIDs.contains(application.processIdentifier) ? application.bundleIdentifier : nil
+        })
+        let visibleApps = items.compactMap { item -> NotchCover27.App? in
+            guard item.isOnScreen, displayBounds.intersects(item.bounds), item.bounds.width > 4 else {
+                return nil
+            }
+            return (bundleID: item.tag.namespace.description, frame: item.bounds)
+        }
+        let answer = NotchCover27.appsToConceal(
+            iconFrame: icon.bounds,
+            visibleApps: visibleApps,
+            notchSpan: notchSpan,
+            concealed: concealedBundleIDs.union(notchConcealed),
+            ownBundleID: Constants.bundleIdentifier
+        )
+        guard let next = answer.first else {
+            return
+        }
+        logger.notice("holzBar's icon is under the notch, concealing one more visible app for now")
+        notchConcealed.insert(next)
+        update()
     }
 
     /// Whether the notched bar looks stuck with items folded away and no way to reach them.

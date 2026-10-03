@@ -67,6 +67,13 @@ enum ItemClicker27 {
             try? await Task.sleep(for: .milliseconds(250))
             waited += 1
         }
+        // "Hide opened items again after" counts from here, when the menu has closed
+        // (THAW-13). One bounded wait; opening the item again meanwhile shows it once more,
+        // and it stays until that show ends too.
+        let delay = min(max(appState.settings.advanced.tempShowInterval, 0), 30)
+        if delay > 0 {
+            try? await Task.sleep(for: .seconds(delay))
+        }
         concealer.endTemporaryShow(bundleID: bundleID)
     }
 
@@ -78,10 +85,14 @@ enum ItemClicker27 {
         }
     }
 
+    /// The menus on screen, with their owners: only menus keep an item shown
+    /// (`InterfaceWindowRule`), never another window of its app (Thaw #1158).
     private static func windowOwners() -> [(number: Int, ownerPID: Int32)] {
-        WindowInfo.createWindows(option: .onScreen).map { window in
-            (number: Int(window.windowID), ownerPID: window.ownerPID)
-        }
+        WindowInfo.createWindows(option: .onScreen)
+            .filter { InterfaceWindowRule.menuLayers.contains($0.layer) }
+            .map { window in
+                (number: Int(window.windowID), ownerPID: window.ownerPID)
+            }
     }
 
     private static func postMenuBarActivationClick(at point: CGPoint) {

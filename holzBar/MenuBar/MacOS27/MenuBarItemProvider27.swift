@@ -50,6 +50,9 @@ nonisolated enum MenuBarItemProvider27 {
         /// System item frames per display. MenuBarAgent describes the bars of both displays in its
         /// windows, unlike other applications, whose items only have frames on the active one.
         var lastSystemFramesByDisplay = [CGDirectDisplayID: [CGRect]]()
+        /// Every frame MenuBarAgent draws on each display whose bar is not active: there it
+        /// draws the apps' items too, which have no Accessibility frames of their own.
+        var lastDrawnFramesByDisplay = [CGDirectDisplayID: [CGRect]]()
         /// The leftmost item drawn on each display, from the last read while that display's
         /// menu bar was active. Hover hit-testing needs it for the display that is not active,
         /// where Accessibility reports no frames at all.
@@ -117,12 +120,17 @@ nonisolated enum MenuBarItemProvider27 {
     /// Returns the current frame of the item with the given synthetic identifier.
     ///
     /// holzBar's own items are answered from the last read: asking our own process
-    /// from the main thread would wait for the main thread itself.
+    /// from the main thread would wait for the main thread itself. So is every item when
+    /// asked on the main thread: holzBar's event monitors and the click tap wait on that
+    /// thread, and an application that hangs would hold up every click on the Mac. Off
+    /// the main thread the frame is read live. No shorter messaging timeout is set on the
+    /// element there: `ItemClicker27` presses the same element, and a press may wait for
+    /// the item's menu to open.
     static func currentBounds(for windowID: CGWindowID) -> CGRect? {
         guard let entry = withState({ $0.entries[windowID] }) else {
             return nil
         }
-        if entry.bundleID == Constants.bundleIdentifier {
+        if entry.bundleID == Constants.bundleIdentifier || Thread.isMainThread {
             return entry.frame
         }
         return frame(of: entry.element) ?? entry.frame
@@ -161,6 +169,12 @@ nonisolated enum MenuBarItemProvider27 {
     /// is why that clock used to need two or three clicks.
     static func systemItemFrames(for displayID: CGDirectDisplayID) -> [CGRect] {
         withState { $0.lastSystemFramesByDisplay[displayID] ?? [] }
+    }
+
+    /// Every frame MenuBarAgent draws on the given display, from the last read, when that
+    /// display's bar is not active (none for the active display).
+    static func drawnFrames(for displayID: CGDirectDisplayID) -> [CGRect] {
+        withState { $0.lastDrawnFramesByDisplay[displayID] ?? [] }
     }
 
     /// Frame of the system overflow button ("<<" / ">>"), from the last read.
@@ -290,7 +304,12 @@ nonisolated enum MenuBarItemProvider27 {
                     }
                     return frames.filter { $0.minX >= clock.minX - systemItemsSpan }
                 }
-                withState { $0.lastSystemFramesByDisplay = perDisplay }
+                // Every frame on the displays whose bar is not active, for hit tests there.
+                let drawnByDisplay = framesByDisplay.filter { $0.key != activeDisplayID }
+                withState { state in
+                    state.lastSystemFramesByDisplay = perDisplay
+                    state.lastDrawnFramesByDisplay = drawnByDisplay
+                }
                 let systemFrames = rawItems
                     .filter { $0.bundleID == menuBarAgentBundleID && (activeDisplayBounds?.intersects($0.frame) ?? true) }
                     .map(\.frame)

@@ -17,6 +17,17 @@ struct SpacingRelaunchTests {
         #expect(SpacingRelaunch.processesToRelaunch(owners: owners, ownPID: 30) == [20, 40])
     }
 
+    @Test("A respawned app counts as relaunched")
+    func respawnedAppCountsAsRelaunched() {
+        #expect(SpacingRelaunch.isRelaunched(oldPID: 10, bundleID: "a", running: [(pid: 11, bundleID: "a", isTerminated: false)]))
+        // Only the old process, still quitting: launch it.
+        #expect(!SpacingRelaunch.isRelaunched(oldPID: 10, bundleID: "a", running: [(pid: 10, bundleID: "a", isTerminated: false)]))
+        // A new instance that has already terminated does not count.
+        #expect(!SpacingRelaunch.isRelaunched(oldPID: 10, bundleID: "a", running: [(pid: 11, bundleID: "a", isTerminated: true)]))
+        // Another app does not count.
+        #expect(!SpacingRelaunch.isRelaunched(oldPID: 10, bundleID: "a", running: [(pid: 12, bundleID: "b", isTerminated: false)]))
+    }
+
     @Test("holzBar itself is never relaunched")
     func ownProcessIsNeverRelaunched() {
         let owners = [

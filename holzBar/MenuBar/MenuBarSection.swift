@@ -14,12 +14,12 @@ final class MenuBarSection {
         case hidden
         case alwaysHidden
 
-        /// A string to show in the interface.
+        /// A string to show in the interface, in the user's language.
         var displayString: String {
             switch self {
-            case .visible: "Visible"
-            case .hidden: "Hidden"
-            case .alwaysHidden: "Always-Hidden"
+            case .visible: String(localized: "Visible")
+            case .hidden: String(localized: "Hidden")
+            case .alwaysHidden: String(localized: "Always-Hidden")
             }
         }
 
@@ -34,7 +34,11 @@ final class MenuBarSection {
 
         /// Localized string key representation.
         var localized: LocalizedStringKey {
-            LocalizedStringKey(displayString)
+            switch self {
+            case .visible: "Visible"
+            case .hidden: "Hidden"
+            case .alwaysHidden: "Always-Hidden"
+            }
         }
     }
 

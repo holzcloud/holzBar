@@ -84,6 +84,11 @@ nonisolated final class SourcePIDCache: Sendable {
     nonisolated private struct State {
         var apps = [CachedApplication]()
         var pids = [CGWindowID: pid_t]()
+        /// Windows whose source process was not found, with when the scan failed. A miss is
+        /// not scanned again for ``SourcePIDCache/failedLookupInterval``: every scan asks every
+        /// running app through Accessibility (jordanbaird/Ice#911). Starts empty whenever
+        /// the running applications change, as a new app may own the window.
+        var failedLookups = [CGWindowID: ContinuousClock.Instant]()
         /// Observer for running applications.
         var observation: NSKeyValueObservation?
 
@@ -164,6 +169,9 @@ nonisolated final class SourcePIDCache: Sendable {
     /// The shared cache.
     static let shared = SourcePIDCache()
 
+    /// How long a window whose source process was not found is not scanned again.
+    static let failedLookupInterval = Duration.seconds(30)
+
     /// The cache's protected state. It holds Accessibility elements and running
     /// applications, which are not marked `Sendable`, so it is only touched
     /// inside the lock.
@@ -233,8 +241,17 @@ nonisolated final class SourcePIDCache: Sendable {
             if let pid = state.pids[window.windowID] {
                 return pid
             }
+            let now = ContinuousClock.now
+            if let failedAt = state.failedLookups[window.windowID], failedAt.duration(to: now) < Self.failedLookupInterval {
+                return nil
+            }
             state.updatePID(for: window)
-            return state.pids[window.windowID]
+            guard let pid = state.pids[window.windowID] else {
+                state.failedLookups[window.windowID] = now
+                return nil
+            }
+            state.failedLookups[window.windowID] = nil
+            return pid
         }
     }
 }

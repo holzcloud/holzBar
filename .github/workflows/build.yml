@@ -1,11 +1,6 @@
 name: Build
 on:
   pull_request:
-  push:
-    branches: [ "main" ]
-    paths:
-      - "**/*.swift"
-      - "holzBar.xcodeproj/**"
 
 permissions:
   contents: read
@@ -161,6 +156,30 @@ jobs:
           fi
           echo "==> Acknowledgements: $COUNT license files in the app"
 
+      # The String Catalogs must reach the app in every language, and the App Intents
+      # metadata must be extracted, or Shortcuts shows none of holzBar's actions.
+      - name: Check the languages and the Shortcuts actions
+        run: |
+          RESOURCES=build/Build/Products/Release/holzBar.app/Contents/Resources
+          FAILED=0
+          echo "Resources: $(ls "$RESOURCES" | tr '\n' ' ')"
+          for LANGUAGE in en de fr it rm; do
+            FILES=$(ls "$RESOURCES/$LANGUAGE.lproj" 2>/dev/null | tr '\n' ' ' || true)
+            echo "$LANGUAGE.lproj: ${FILES:-missing}"
+            if [ "$LANGUAGE" != en ] && [ ! -f "$RESOURCES/$LANGUAGE.lproj/Localizable.strings" ]; then
+              echo "::error::$LANGUAGE.lproj/Localizable.strings is missing from the built holzBar.app"
+              FAILED=1
+            fi
+          done
+          if [ ! -d "$RESOURCES/Metadata.appintents" ]; then
+            echo "::error::Metadata.appintents is missing from the built holzBar.app"
+            FAILED=1
+          fi
+          if [ "$FAILED" -ne 0 ]; then
+            exit 1
+          fi
+          echo "==> Five languages and the App Intents metadata in the app"
+
   # The app's former name must not appear anywhere in the repository (see CLAUDE.md).
   # .planning/ and .claude/ are GSD's working state; .github/cms-version.py is a copy
   # of a tool maintained in holzcloud-design. The pattern is written so that it does
@@ -207,6 +226,18 @@ jobs:
 
       - name: Logs keep personal data private
         run: python3 .github/scripts/privacy-check.py logs
+
+  # holzBar speaks English, German, French, Italian and Romansh. Fails every pull
+  # request that adds a text without its translations, or a translation that is
+  # unfinished or changes the format specifiers of its text.
+  # Runs locally too: python3 .github/scripts/strings-check.py
+  strings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Every text in five languages
+        run: python3 .github/scripts/strings-check.py
 
   test:
     runs-on: macos-26

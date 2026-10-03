@@ -278,6 +278,10 @@ final class RevealRules {
         else {
             return
         }
+        guard appState.menuBarManager.zenMode.allows(.revealRule) else {
+            logger.notice("Not showing hidden items because \(reason, privacy: .public): Zen mode")
+            return
+        }
         logger.notice("Showing hidden items because \(reason, privacy: .public)")
         section.show()
         appState.menuBarManager.showOnHoverAllowed = false

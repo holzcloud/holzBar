@@ -283,7 +283,7 @@ private struct MenuBarSearchContentView: View {
         HStack {
             SettingsButton {
                 closePanel()
-                itemManager.appState?.activate(withPolicy: .regular)
+                itemManager.appState?.activate(for: .settings)
                 itemManager.appState?.openWindow(.settings)
             }
 
@@ -364,15 +364,8 @@ private struct MenuBarSearchContentView: View {
         closePanel()
         Task {
             try? await Task.sleep(for: .milliseconds(25))
-            if Bridging.isWindowOnScreen(item.windowID) {
-                do {
-                    try await itemManager.click(item: item, with: .left)
-                } catch {
-                    Logger.default.error("Error clicking menu bar item from search: \(error, privacy: .private)")
-                }
-            } else {
-                await itemManager.temporarilyShow(item: item, clickingWith: .left)
-            }
+            // The same path as the Shelf, groups, hotkeys and hints (`ItemOpener.swift`).
+            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil)
         }
     }
 }
@@ -406,8 +399,14 @@ private struct ShowItemButton: View {
     var body: some View {
         Button(action: action) {
             HStack {
-                Text("\(Bridging.isWindowOnScreen(item.windowID) ? "Click" : "Show") Item")
-                    .padding(.leading, 5)
+                Group {
+                    if Bridging.isWindowOnScreen(item.windowID) {
+                        Text("Click Item")
+                    } else {
+                        Text("Show Item")
+                    }
+                }
+                .padding(.leading, 5)
 
                 Image(systemName: "return")
                     .resizable()
@@ -475,18 +474,20 @@ private struct MenuBarSearchItemView: View {
 
     let item: MenuBarItem
 
+    /// The item's chosen image, its trimmed picture or its app's icon (`ItemIconStore`).
     private var itemImage: NSImage {
-        guard
+        var captured: NSImage?
+        if
             let cached = imageCache.images[item.tag],
             let trimmed = cached.cgImage.trimmingTransparency(around: [.minXEdge, .maxXEdge])
-        else {
-            return NSImage()
+        {
+            let size = CGSize(
+                width: CGFloat(trimmed.width) / cached.scale,
+                height: CGFloat(trimmed.height) / cached.scale
+            )
+            captured = NSImage(cgImage: trimmed, size: size)
         }
-        let size = CGSize(
-            width: CGFloat(trimmed.width) / cached.scale,
-            height: CGFloat(trimmed.height) / cached.scale
-        )
-        return NSImage(cgImage: trimmed, size: size)
+        return appState.itemIconStore.image(for: item, captured: captured) ?? NSImage()
     }
 
     private var appIcon: NSImage? {

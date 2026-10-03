@@ -106,10 +106,19 @@ final class MenuBarItemSpacingManager {
         return false
     }
 
-    /// Asynchronously launches the app at the given URL.
-    private nonisolated func launchApp(at applicationURL: URL, bundleIdentifier: String) async throws {
-        if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == bundleIdentifier }) {
-            logger.debug("Application \"\(app.logString, privacy: .private(mask: .hash))\" is already open, so skipping launch")
+    /// Asynchronously launches the app at the given URL, unless it respawned on its own.
+    ///
+    /// - Parameters:
+    ///   - applicationURL: The app's location.
+    ///   - bundleIdentifier: The app's bundle identifier.
+    ///   - oldPID: The process that was quit; while it is still listed it does not count as
+    ///     the app running again.
+    private nonisolated func launchApp(at applicationURL: URL, bundleIdentifier: String, oldPID: pid_t) async throws {
+        let running = NSWorkspace.shared.runningApplications.map { app in
+            (pid: app.processIdentifier, bundleID: app.bundleIdentifier, isTerminated: app.isTerminated)
+        }
+        if SpacingRelaunch.isRelaunched(oldPID: oldPID, bundleID: bundleIdentifier, running: running) {
+            logger.debug("Application \"\(bundleIdentifier, privacy: .private(mask: .hash))\" respawned on its own, so skipping launch")
             return
         }
         let configuration = NSWorkspace.OpenConfiguration()
@@ -132,7 +141,7 @@ final class MenuBarItemSpacingManager {
         guard await quit(app) else {
             throw RelaunchError()
         }
-        try await launchApp(at: url, bundleIdentifier: bundleIdentifier)
+        try await launchApp(at: url, bundleIdentifier: bundleIdentifier, oldPID: app.processIdentifier)
     }
 
     /// Relaunches the application with the given process identifier and returns its

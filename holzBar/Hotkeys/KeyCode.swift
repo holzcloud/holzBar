@@ -155,6 +155,7 @@ extension KeyCode {
     /// System representation.
     var keyEquivalent: String {
         guard
+            let virtualKeyCode = UInt16(exactly: rawValue),
             let inputSource = TISCopyCurrentASCIICapableKeyboardLayoutInputSource()?.takeRetainedValue(),
             let layoutData = TISGetInputSourceProperty(inputSource, kTISPropertyUnicodeKeyLayoutData)
         else {
@@ -172,7 +173,7 @@ extension KeyCode {
 
         let status = UCKeyTranslate(
             layoutPtr,
-            UInt16(rawValue),
+            virtualKeyCode,
             UInt16(kUCKeyActionDisplay),
             modifierKeyState,
             UInt32(LMGetKbdType()),
@@ -269,6 +270,9 @@ private let customStringMappings = [
 extension KeyCode {
     /// A custom string representation for the key.
     var stringValue: String {
-        customStringMappings[self, default: keyEquivalent]
+        if self == .space {
+            return String(localized: "Space")
+        }
+        return customStringMappings[self, default: keyEquivalent]
     }
 }

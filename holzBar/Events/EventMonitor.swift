@@ -91,6 +91,18 @@ final class EventMonitor {
         monitors.withLockUnchecked { $0 = installed }
     }
 
+    /// A Boolean value that indicates whether the monitor is installed.
+    var isRunning: Bool {
+        monitors.withLockUnchecked { !$0.isEmpty }
+    }
+
+    /// Installs the monitor anew: AppKit may have dropped it (after the Mac woke or
+    /// Accessibility was granted), and a monitor that could not be installed is tried again.
+    func restart() {
+        stop()
+        start()
+    }
+
     /// Uninstalls the monitor and stops listening for events.
     func stop() {
         let installed = monitors.withLockUnchecked { monitors in

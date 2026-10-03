@@ -170,24 +170,24 @@ Plans:
 **Goal:** The bugs Thaw fixed that holzBar shares are fixed, and revealing is fast and never freezes input
 **Requirements**: THAW-01, THAW-02, THAW-03, THAW-04, THAW-05, THAW-06, THAW-07, THAW-08, ICE-01, ICE-02, ICE-03, ICE-04, ICE-06
 **Depends on:** Phase 05.1
-**Plans:** 3 plans (sequential waves; one PR "Thaw and Ice fixes and features" for Phases 05.1.1 and 05.1.1.1, pushed once per plan)
+**Plans:** 3/3 plans executed (sequential waves; one PR "Thaw and Ice fixes and features" for Phases 05.1.1 and 05.1.1.1, pushed once per plan)
 
 Plans:
-- [ ] 05.1.1-01-PLAN.md — Tracer: no input path waits on another app (cached application menu frame, AX timeouts) and show on click reveals from cached state; taps recover, automatic moves back off, rest while locked/asleep; the look follows the icons and survives sleep and login; validated hotkeys and colours; draft PR opened
-- [ ] 05.1.1-02-PLAN.md — Tracer: item identity survives title changes and one restore path brings items back to their section; only real menus delay rehiding, clock clicks inside the bar, no Dock icon, notch apps left alone; Shelf clicks on 26, spacing relaunch, URL commands that rearrange ask first
-- [ ] 05.1.1-03-PLAN.md — Tracer: macOS 27 hit tests on the second display and the icon out from under the notch; no screenshot under the bar on 27 (desktop picture, clock cover), unsquashed launching apps; rest of jordanbaird/Ice#1001; upstream bug list and README
+- [x] 05.1.1-01-PLAN.md — Tracer: no input path waits on another app (cached application menu frame, AX timeouts) and show on click reveals from cached state; taps recover, automatic moves back off, rest while locked/asleep; the look follows the icons and survives sleep and login; validated hotkeys and colours; draft PR opened
+- [x] 05.1.1-02-PLAN.md — Tracer: item identity survives title changes and one restore path brings items back to their section; only real menus delay rehiding, clock clicks inside the bar, no Dock icon, notch apps left alone; Shelf clicks on 26, spacing relaunch, URL commands that rearrange ask first
+- [x] 05.1.1-03-PLAN.md — Tracer: macOS 27 hit tests on the second display and the icon out from under the notch; no screenshot under the bar on 27 (desktop picture, clock cover), unsquashed launching apps; rest of jordanbaird/Ice#1001; upstream bug list and README
 
 ### Phase 05.1.1.1: Thaw features (INSERTED)
 
 **Goal:** holzBar gains Thaw's best features within its principles (no network, least privilege, lean)
 **Requirements**: THAW-10, THAW-11, THAW-12, THAW-13, THAW-14, THAW-15, THAW-16, THAW-17, ICE-05, SYNC-01
 **Depends on:** Phase 05.1.1
-**Plans:** 3 plans (sequential waves; same PR as Phase 05.1.1, pushed once per plan)
+**Plans:** 3/3 plans executed (sequential waves; same PR as Phase 05.1.1, pushed once per plan)
 
 Plans:
-- [ ] 05.1.1.1-01-PLAN.md — Tracer: Zen mode from a hotkey, the menu, a URL and Shortcuts; Zen while presenting (notifications only); hotkeys per profile and item; App Intents; profiles bound to a display, then a Space
-- [ ] 05.1.1.1-02-PLAN.md — Tracer: open an item by letter through one open path; Layout pane and Shelf from the keyboard, undo, VoiceOver actions; opened items stay 0–30 s or open in place; items show briefly when they change
-- [ ] 05.1.1.1-03-PLAN.md — Tracer: item images of your choice with app-icon fallback, coloured folders; dashed/dotted borders, wallpaper, accent and glass tints; String Catalogs in en, de, fr, it, rm checked by CI; final README and PR body
+- [x] 05.1.1.1-01-PLAN.md — Tracer: Zen mode from a hotkey, the menu, a URL and Shortcuts; Zen while presenting (notifications only); hotkeys per profile and item; App Intents; profiles bound to a display, then a Space
+- [x] 05.1.1.1-02-PLAN.md — Tracer: open an item by letter through one open path; Layout pane and Shelf from the keyboard, undo, VoiceOver actions; opened items stay 0–30 s or open in place; items show briefly when they change
+- [x] 05.1.1.1-03-PLAN.md — Tracer: item images of your choice with app-icon fallback, coloured folders; dashed/dotted borders, wallpaper, accent and glass tints; String Catalogs in en, de, fr, it, rm checked by CI; final README and PR body
 
 ### Phase 05.1.1.1.1: Apple APIs and toolchain (INSERTED)
 

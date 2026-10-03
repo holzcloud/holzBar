@@ -71,8 +71,18 @@ extension KeyCombination: Codable {
             let description = "Expected 2 encoded values, found \(container.count ?? 0)"
             throw DecodingError.dataCorruptedError(in: container, debugDescription: description)
         }
-        self.key = try KeyCode(rawValue: container.decode(Int.self))
-        self.modifiers = try Modifiers(rawValue: container.decode(Int.self))
+        let key = try container.decode(Int.self)
+        let modifiers = try container.decode(Int.self)
+        // Anything can write holzBar's preferences; a key code out of range trapped in the
+        // conversions for the system at every launch (jordanbaird/Ice#985).
+        guard HotkeyStorage.isValid(key: key, modifiers: modifiers) else {
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Key code \(key) or modifiers \(modifiers) cannot be a hotkey"
+            )
+        }
+        self.key = KeyCode(rawValue: key)
+        self.modifiers = Modifiers(rawValue: modifiers)
     }
 
     func encode(to encoder: any Encoder) throws {

@@ -58,10 +58,14 @@ extension HIDEventManager {
 
     /// A Boolean value that indicates whether the mouse pointer is within
     /// the bounds of the current application menu.
+    ///
+    /// The frame comes from `ApplicationMenuFrames`, which reads it off the main thread:
+    /// this runs for every click and mouse move, and asking an application that hangs
+    /// would hold up every click on the Mac.
     func isMouseInsideApplicationMenu(appState: AppState, screen: NSScreen) -> Bool {
         guard
             let mouseLocation = MouseHelpers.locationCoreGraphics,
-            var applicationMenuFrame = screen.getApplicationMenuFrame()
+            var applicationMenuFrame = appState.applicationMenuFrames.frame(for: screen)
         else {
             return false
         }
@@ -107,7 +111,62 @@ extension HIDEventManager {
         }
         // Where the backend draws the items without windows (macOS 27), the gaps between
         // items are part of the items' own run of the bar.
-        return !isMouseInsideItemsArea(appState: appState, screen: screen)
+        guard !isMouseInsideItemsArea(appState: appState, screen: screen) else {
+            return false
+        }
+        // Last, as it reads the window list: a notch app's window above the bar is not
+        // empty space (jordanbaird/Ice#933).
+        return !isMouseInsideWindowAboveMenuBar(screen: screen)
+    }
+
+    /// A Boolean value that indicates whether another app's window stands above the menu
+    /// bar at the mouse pointer, such as the controls of a notch app.
+    ///
+    /// Reads the window server's list (no Accessibility), at most every quarter second.
+    func isMouseInsideWindowAboveMenuBar(screen: NSScreen) -> Bool {
+        guard let mouseLocation = MouseHelpers.locationCoreGraphics else {
+            return false
+        }
+        let now = ProcessInfo.processInfo.systemUptime
+        let windows: [MenuBarOcclusion.Window]
+        if let cached = windowsAboveMenuBar, now - cached.readAt < 0.25 {
+            windows = cached.windows
+        } else {
+            windows = Self.readWindowsAboveMenuBar()
+            windowsAboveMenuBar = (now, windows)
+        }
+        // A window as wide as the display is an overlay (dimming, screen annotation), not a
+        // control standing over the bar.
+        let displayWidth = CGDisplayBounds(screen.displayID).width
+        return MenuBarOcclusion.isCovered(
+            point: mouseLocation,
+            windows: windows.filter { $0.bounds.width < displayWidth },
+            ownPID: ProcessInfo.processInfo.processIdentifier
+        )
+    }
+
+    /// The windows on screen above the status bar's level.
+    private static func readWindowsAboveMenuBar() -> [MenuBarOcclusion.Window] {
+        guard
+            let list = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[CFString: Any]]
+        else {
+            return []
+        }
+        return list.compactMap { info in
+            guard
+                let layer = info[kCGWindowLayer] as? Int,
+                layer > MenuBarOcclusion.statusBarLayer,
+                let boundsDictionary = info[kCGWindowBounds] as? NSDictionary,
+                let bounds = CGRect(dictionaryRepresentation: boundsDictionary),
+                let ownerPID = info[kCGWindowOwnerPID] as? pid_t
+            else {
+                return nil
+            }
+            let alpha = info[kCGWindowAlpha] as? Double ?? 1
+            let bundleID = NSRunningApplication(processIdentifier: ownerPID)?.bundleIdentifier
+                ?? (info[kCGWindowOwnerName] as? String == "Window Server" ? "com.apple.WindowServer" : nil)
+            return (layer: layer, bounds: bounds, ownerPID: ownerPID, ownerBundleID: bundleID, alpha: alpha)
+        }
     }
 
     /// A Boolean value that indicates whether the mouse pointer rests in the part of the

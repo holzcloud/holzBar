@@ -49,13 +49,40 @@ nonisolated enum AXHelpers {
         }
     }
 
-    static func application(for runningApp: NSRunningApplication) -> AXUIElement? {
+    /// How long the reads of the application menu wait for an application to answer.
+    ///
+    /// The default timeout is 6 s. The application menu is read on every change of the
+    /// frontmost application, and an application that hangs must not hold up the next read
+    /// for that long.
+    static let applicationMenuTimeout: Float = 0.25
+
+    /// Returns the element of the given application.
+    ///
+    /// - Parameters:
+    ///   - runningApp: The application.
+    ///   - messagingTimeout: How long calls to the element wait for the application to
+    ///     answer, or `nil` for the default timeout (6 s). The XPC service keeps the
+    ///     default: it runs off the app's main thread and must not lose slow applications.
+    static func application(for runningApp: NSRunningApplication, messagingTimeout: Float? = nil) -> AXUIElement? {
         queue.sync {
             guard !runningApp.isTerminated else {
                 return nil
             }
-            return AXUIElementCreateApplication(runningApp.processIdentifier)
+            let element = AXUIElementCreateApplication(runningApp.processIdentifier)
+            if let messagingTimeout {
+                AXUIElementSetMessagingTimeout(element, messagingTimeout)
+            }
+            return element
         }
+    }
+
+    /// Sets how long calls to the given element wait for its application to answer.
+    ///
+    /// The timeout belongs to this element only, not to other elements of the same
+    /// application. It is never set on the system-wide element: there it would become the
+    /// timeout of every Accessibility call holzBar makes.
+    static func setMessagingTimeout(_ timeout: Float, for element: AXUIElement) {
+        AXUIElementSetMessagingTimeout(element, timeout)
     }
 
     static func extrasMenuBar(for app: AXUIElement) -> AXUIElement? {
@@ -115,28 +142,64 @@ nonisolated enum AXHelpers {
         }
     }
 
-    /// Returns the menu bar that holds the application menus, found at the
-    /// given point before macOS 27.
+    /// Returns the menu bar that holds the application menus, found on the given display
+    /// before macOS 27.
+    ///
+    /// Before macOS 27 the menu bar is the element at a point of the bar. The display's
+    /// top-left pixel alone missed it on notched Macs and with Liquid Glass, so a click in
+    /// the Shelf found no application menu and opened nothing (jordanbaird/Ice#911). After
+    /// that pixel, points 8, 20 and 40 points right of the display's left edge, halfway
+    /// down the bar, are tried in turn; a menu (the Apple menu) found there leads to its
+    /// menu bar.
     ///
     /// On macOS 27 the element at a display's origin is MenuBarAgent's window,
     /// so the menu bar comes from the application that owns it. holzBar's own menus
     /// are skipped there: asking our own process from the main thread would wait
     /// for the main thread itself.
-    static func applicationMenuBar(at point: CGPoint) -> AXUIElement? {
+    ///
+    /// The returned menu bar answers within ``applicationMenuTimeout``. This blocks, so it
+    /// is called off the main thread only (see `ApplicationMenuQuery`).
+    static func applicationMenuBar(in displayBounds: CGRect, menuBarHeight: CGFloat) -> AXUIElement? {
         if #available(macOS 27.0, *) {
             guard
                 let owner = NSWorkspace.shared.menuBarOwningApplication,
                 owner.processIdentifier != ProcessInfo.processInfo.processIdentifier,
-                let app = application(for: owner)
+                let app = application(for: owner, messagingTimeout: applicationMenuTimeout)
             else {
                 return nil
             }
-            return queue.sync { Self.element(from: value(app, kAXMenuBarAttribute)) }
+            guard let menuBar = queue.sync(execute: { Self.element(from: value(app, kAXMenuBarAttribute)) }) else {
+                return nil
+            }
+            setMessagingTimeout(applicationMenuTimeout, for: menuBar)
+            return menuBar
         }
-        guard let element = element(at: point), role(for: element) == kAXMenuBarRole else {
-            return nil
+        let points = [displayBounds.origin] + [8, 20, 40].map { (offset: CGFloat) in
+            CGPoint(x: displayBounds.minX + offset, y: displayBounds.minY + menuBarHeight / 2)
         }
-        return element
+        for point in points {
+            guard let element = element(at: point) else {
+                continue
+            }
+            setMessagingTimeout(applicationMenuTimeout, for: element)
+            switch role(for: element) {
+            case kAXMenuBarRole:
+                return element
+            case kAXMenuBarItemRole:
+                if let menuBar = parent(of: element), role(for: menuBar) == kAXMenuBarRole {
+                    setMessagingTimeout(applicationMenuTimeout, for: menuBar)
+                    return menuBar
+                }
+            default:
+                break
+            }
+        }
+        return nil
+    }
+
+    /// The parent of the given element, or `nil` when it has none.
+    private static func parent(of element: AXUIElement) -> AXUIElement? {
+        queue.sync { Self.element(from: value(element, kAXParentAttribute)) }
     }
 
     // MARK: Private

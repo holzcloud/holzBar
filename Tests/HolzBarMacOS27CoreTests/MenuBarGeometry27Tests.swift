@@ -58,25 +58,46 @@ struct OverflowDetection27Tests {
 @Suite("ClockBridgeZone27")
 struct ClockBridgeZone27Tests {
     let clock = CGRect(x: 1787, y: 0, width: 113, height: 30)
+    let menuBar = CGRect(x: 0, y: 0, width: 1920, height: 30)
 
     @Test("A click on a system item is bridged while concealing")
     func bridged() {
-        #expect(ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], isConcealing: true))
+        #expect(ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], isConcealing: true, menuBarRect: menuBar))
     }
 
     @Test("A click one point outside the frame still counts")
     func edgeTolerance() {
-        #expect(ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1786.5, y: 15), systemItemFrames: [clock], isConcealing: true))
+        #expect(ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1786.5, y: 15), systemItemFrames: [clock], isConcealing: true, menuBarRect: menuBar))
     }
 
     @Test("A click elsewhere is not bridged")
     func elsewhere() {
-        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 900, y: 12), systemItemFrames: [clock], isConcealing: true))
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 900, y: 12), systemItemFrames: [clock], isConcealing: true, menuBarRect: menuBar))
     }
 
     @Test("Nothing is bridged while nothing is concealed")
     func notConcealing() {
-        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], isConcealing: false))
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], isConcealing: false, menuBarRect: menuBar))
+    }
+
+    @Test("A click just below the bar is not bridged")
+    func belowTheBar() {
+        // One point under the bar's bottom edge, still inside the clock's frame grown by a point.
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 30.5), systemItemFrames: [clock], isConcealing: true, menuBarRect: menuBar))
+        let lowerBar = CGRect(x: 0, y: 0, width: 1920, height: 24)
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 25), systemItemFrames: [clock], isConcealing: true, menuBarRect: lowerBar))
+    }
+
+    @Test("A click on the overflow button is bridged while concealing")
+    func overflowButtonBridged() {
+        let overflowButton = CGRect(x: 1700, y: 0, width: 18, height: 30)
+        #expect(ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1708, y: 15), systemItemFrames: [clock, overflowButton], isConcealing: true, menuBarRect: menuBar))
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1708, y: 15), systemItemFrames: [clock], isConcealing: true, menuBarRect: menuBar))
+    }
+
+    @Test("Nothing is bridged while the bar is hidden")
+    func barHidden() {
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], isConcealing: true, menuBarRect: nil))
     }
 }
 
@@ -108,6 +129,34 @@ struct ItemHitTest27Tests {
     func overflow() {
         #expect(!ItemHitTest27.isInsideItem(point: CGPoint(x: -640, y: 114), items: [folded], concealedPIDs: [], systemFrames: []))
         #expect(ItemHitTest27.isInsideItem(point: CGPoint(x: -611, y: 114), items: [folded], concealedPIDs: [], systemFrames: [overflowButton]))
+    }
+
+    @Test("On the inactive display drawn frames count")
+    func drawnFramesOnTheInactiveDisplay() {
+        // The built-in display's bar is not active: no cached item lies on it, but
+        // MenuBarAgent draws an item there.
+        let display = CGRect(x: -1512, y: 0, width: 1512, height: 982)
+        let drawn = CGRect(x: -400, y: 6, width: 30, height: 24)
+        #expect(ItemHitTest27.isInsideItem(point: CGPoint(x: -385, y: 18), items: [stats], concealedPIDs: [], systemFrames: [], drawnFramesOnDisplay: [drawn]))
+        #expect(!ItemHitTest27.isInsideItem(point: CGPoint(x: -700, y: 18), items: [stats], concealedPIDs: [], systemFrames: [], drawnFramesOnDisplay: [drawn]))
+        #expect(ItemHitTest27.isInsideItemsArea(
+            point: CGPoint(x: -390, y: 18),
+            displayBounds: display,
+            items: [stats],
+            concealedPIDs: [],
+            systemFrames: [],
+            rememberedLeftEdge: nil,
+            drawnFramesOnDisplay: [drawn]
+        ))
+        #expect(!ItemHitTest27.isInsideItemsArea(
+            point: CGPoint(x: -700, y: 18),
+            displayBounds: display,
+            items: [stats],
+            concealedPIDs: [],
+            systemFrames: [],
+            rememberedLeftEdge: nil,
+            drawnFramesOnDisplay: [drawn]
+        ))
     }
 
     @Test("System items count on either display")

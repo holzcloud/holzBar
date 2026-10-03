@@ -66,6 +66,18 @@ final class EventTap {
     private var resources: Resources?
     private let callback: (EventTap, CGEvent) -> CGEvent?
 
+    /// The events the tap receives.
+    private let mask: CGEventMask
+
+    /// Where the tap is inserted into the event stream.
+    private let location: Location
+
+    /// The tap's placement, relative to other taps at its location.
+    private let placement: CGEventTapPlacement
+
+    /// Whether the tap filters events or only listens.
+    private let option: CGEventTapOptions
+
     /// A string label that identifies the tap.
     let label: String
 
@@ -117,22 +129,11 @@ final class EventTap {
     ) {
         self.label = label
         self.callback = callback
-
-        guard
-            let machPort = EventTap.createMachPort(
-                mask: types.reduce(0) { $0 | (1 << $1.rawValue) },
-                location: location,
-                place: placement,
-                options: option,
-                userInfo: Unmanaged.passUnretained(self).toOpaque()
-            ),
-            let source = CFMachPortCreateRunLoopSource(nil, machPort, 0)
-        else {
-            EventTap.logger.error(#"Error creating event tap "\#(label, privacy: .public)""#)
-            return
-        }
-
-        self.resources = Resources(machPort: machPort, source: source, runLoop: CFRunLoopGetMain())
+        self.mask = types.reduce(0) { $0 | (1 << $1.rawValue) }
+        self.location = location
+        self.placement = placement
+        self.option = option
+        self.resources = makeResources()
     }
 
     /// Creates a new event tap for the specified event type.
@@ -175,6 +176,47 @@ final class EventTap {
             option: option,
             callback: callback
         )
+    }
+
+    /// Creates the tap's mach port and run loop source, or returns `nil` when macOS refuses
+    /// the tap (before Accessibility is granted, for one).
+    private func makeResources() -> Resources? {
+        guard
+            let machPort = EventTap.createMachPort(
+                mask: mask,
+                location: location,
+                place: placement,
+                options: option,
+                userInfo: Unmanaged.passUnretained(self).toOpaque()
+            ),
+            let source = CFMachPortCreateRunLoopSource(nil, machPort, 0)
+        else {
+            EventTap.logger.error(#"Error creating event tap "\#(self.label, privacy: .public)""#)
+            return nil
+        }
+        return Resources(machPort: machPort, source: source, runLoop: CFRunLoopGetMain())
+    }
+
+    /// Creates the tap's mach port again when it is missing or no longer valid.
+    ///
+    /// A tap created before Accessibility was granted has no port for the rest of the
+    /// session otherwise, and macOS can invalidate a port (after the permission changes,
+    /// for one).
+    ///
+    /// - Returns: `true` when a new port was created.
+    @discardableResult
+    func recreateIfInvalid() -> Bool {
+        if let resources, CFMachPortIsValid(resources.machPort) {
+            return false
+        }
+        // Releasing the old resources takes the old port out of the event stream.
+        resources = nil
+        resources = makeResources()
+        guard resources != nil else {
+            return false
+        }
+        EventTap.logger.info(#"Recreated event tap "\#(self.label, privacy: .public)""#)
+        return true
     }
 
     /// Creates an event tap mach port.
@@ -220,10 +262,15 @@ final class EventTap {
     }
 
     /// Enables the tap.
+    ///
+    /// The port is created again first if it is missing or invalid, and the run loop
+    /// source is added before the tap is enabled, so the first event after enabling is
+    /// delivered.
     func enable() {
+        recreateIfInvalid()
         guard let resources else { return }
-        CGEvent.tapEnable(tap: resources.machPort, enable: true)
         CFRunLoopAddSource(resources.runLoop, resources.source, .commonModes)
+        CGEvent.tapEnable(tap: resources.machPort, enable: true)
     }
 
     /// Disables the tap.

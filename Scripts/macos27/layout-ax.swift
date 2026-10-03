@@ -30,7 +30,8 @@ func walk(_ element: AXUIElement, depth: Int) {
     if sidebar == nil, role == kAXStaticTextRole, text == "Menu Bar Layout", let f = frame(element) {
         sidebar = f
     }
-    if role == kAXImageRole, let label = value(element, kAXDescriptionAttribute) as? String, !label.isEmpty, let f = frame(element), f.width < 80 {
+    // Layout items are buttons since holzBar 0.0.6 (images before).
+    if role == kAXImageRole || role == kAXButtonRole, let label = value(element, kAXDescriptionAttribute) as? String, !label.isEmpty, let f = frame(element), f.width < 80 {
         images.append((f, label))
     }
     for child in value(element, kAXChildrenAttribute) as? [AXUIElement] ?? [] {

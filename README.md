@@ -42,7 +42,8 @@ holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jord
 | 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. Hardened runtime, private logs. |
 | 🍃 **Lean** | No polling, no mouse tracking unless you use it, nothing kept in memory that nobody shows. |
 | 🪵 **macOS 27 compatible** | A dedicated backend for the redesigned macOS 27 menu bar drawn by `MenuBarAgent`. |
-| ✨ **More features** | Profiles, groups, spacers, a black menu bar, URL commands, settings sync — [see below](#-features). |
+| ✨ **More features** | Profiles, folders, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, settings sync through any folder — [see below](#-features). |
+| 🌍 **Five languages** | English, German, French, Italian and Romansh. |
 | 🍺 **Homebrew first** | Install and update with one command. |
 
 ## ⚖️ holzBar vs. Ice and Thaw
@@ -58,16 +59,36 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Hidden and always-hidden sections, Ice Bar / holzBar Shelf, search, appearance | ✅ | ✅ | ✅ |
 | Layout profiles | ❌ | ✅ | ✅ |
 | Groups and spacers | ❌ | ✅ | ✅ |
+| Folders with their own icon and colour; item images of your choice | ❌ | ✅ | ✅ |
 | Choose where new items appear | ❌ | — | ✅ |
 | Bar only on some displays, notch overflow | ❌ | — | ✅ |
 | Black menu bar, rounded screen corners | ❌ | corners only | ✅ |
+| Dashed and dotted borders, wallpaper, accent and glass tints | ❌ | ✅ | ✅ |
 | Show hidden items on low battery or when offline | ❌ | — | ✅ |
 | URL commands and Raycast | ❌ | ✅ | ✅ |
-| Export, import and sync settings | ❌ | no sync | ✅ |
+| Zen mode (also while presenting) | ❌ | ✅ | ✅ |
+| Hotkeys per profile and per item | ❌ | ✅ | ✅ |
+| Shortcuts actions (App Intents) | ❌ | ✅ | ✅ |
+| Profiles bound to a display or a Space | ❌ | ✅ | ✅ |
+| Open an item by letter | ❌ | ✅ | ✅ |
+| Layout editor and Shelf from the keyboard, undo, VoiceOver actions | ❌ | ✅ | ✅ |
+| Opened items stay up to 30 s, or open without showing the item | ❌ | ✅ | ✅ |
+| Show an item briefly when it changes | ❌ | ✅ | ✅ <sub>opt-in per item</sub> |
+| Export and import settings | ❌ | ✅ | ✅ |
+| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | ✅ |
+| Languages | English | many, through Crowdin | English, German, French, Italian, Romansh |
 | Keep Live Activities visible | ❌ | — | ✅ <sub>experimental</sub> |
 | Show on scroll with a mouse wheel | ❌ | — | ✅ |
 | Search tolerates typos and abbreviations | ✅ (library) | ✅ | ✅ (built in) |
 | Refuses hotkeys macOS cannot register, and says why | ❌ | — | ✅ |
+| Input never stalls when an app hangs | ❌ | ✅ | ✅ |
+| Items keep their section when an app changes its title | ❌ | ✅ | ✅ |
+| Pauses while the screen is locked, settles after wake | ❌ | ✅ | ✅ |
+| Look on every desktop, follows the icons, steps aside in fullscreen | ❌ | ✅ | ✅ |
+| No screen-recording indicator when showing or hiding (macOS 27) | — | ✅ | ✅ |
+| Hover and click on a second display (macOS 27) | — | ✅ | ✅ |
+| URL commands that rearrange items ask first | — | — | ✅ |
+| Validated hotkeys and colours (no crash loop from bad settings) | ❌ | — | ✅ |
 | **Privacy and permissions** | | | |
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | — | private, enforced by CI |
@@ -82,12 +103,12 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | State management | Combine | mostly `@Observable` | `@Observable`, no Combine |
 | Mouse event tap when "Show on hover" is off | always running | — | off |
 | Timers and polling while nothing is shown | yes | — | only while needed |
-| Settings sync checks for changes | — (no sync) | — | when iCloud Drive delivers them, no polling |
+| Settings sync checks for changes | — (no sync) | — (no sync) | when the synced folder delivers them, no polling |
 | Settings migration | 6 version steps at every launch | — | once, while importing Ice settings |
 | Runtime patching of AppKit (method swizzling) | yes | — | none |
 | Item images in memory | kept | — | released when unused |
-| Unit tests run on every change | none | ✅ | ✅ 255 |
-| App size | — | — | 13.9 MB |
+| Unit tests run on every change | none | ✅ | ✅ 338 |
+| App size | — | — | 16.5 MB |
 | **Distribution and maintenance** | | | |
 | Install and update with Homebrew | ✅ | ✅ | ✅ |
 | Updates | Sparkle (dialog can hang on macOS 26) | Sparkle | Homebrew |
@@ -112,9 +133,9 @@ Everything holzBar asks macOS for, the feature that needs it and when it is aske
 | Permission or entitlement | Needed for | When |
 |---|---|---|
 | **Accessibility** <sub>required</sub> | Reading where menu bar items are; moving, showing and clicking them for you; noticing clicks, scrolls and hovers in the menu bar for show on click, scroll and hover | Asked on the first launch |
-| **Screen Recording** <sub>optional</sub> | Pictures of menu bar items in the holzBar Shelf, the search and the Menu Bar Layout pane (on macOS 27 taken once per item), and the wallpaper beside a menu bar shape | Asked the first time you open the holzBar Shelf, the search or the Menu Bar Layout pane, or choose a menu bar shape — never at launch. Without it, everything else works and nothing captures the screen |
+| **Screen Recording** <sub>optional</sub> | Pictures of menu bar items in the holzBar Shelf, the search and the Menu Bar Layout pane (on macOS 27 taken once per item), and a moving wallpaper beside a menu bar shape (before macOS 27; other wallpapers are read from their file) | Asked the first time you open the holzBar Shelf, the search or the Menu Bar Layout pane, or choose a menu bar shape with a moving wallpaper — never at launch. Without it, everything else works, the holzBar Shelf and the search show app icons, and nothing captures the screen |
 | **Login item** | Starting holzBar when you log in | Only when you turn on "Launch at login" |
-| **iCloud Drive file** | Settings sync between your Macs (`iCloud Drive/holzBar/Settings.plist`), read and written with file coordination | Only while settings sync is on; with sync off, holzBar neither watches the folder nor writes to it |
+| **A folder you choose** | Settings sync between your Macs (`holzBar/Settings.plist` in iCloud Drive or any folder your Macs sync, such as Nextcloud, Dropbox, OneDrive, Syncthing or a network share), read and written with file coordination; holzBar keeps a bookmark of the folder, the folder's own app does the syncing | Only while settings sync is on; with sync off, holzBar neither watches the folder nor writes to it |
 | **Entitlements** | None. holzBar runs without the App Sandbox, because Accessibility event taps and the menu bar's private WindowServer calls do not work in it, and it has no network entitlement | — |
 | **Info.plist usage strings** | None: macOS does not use them for Accessibility and Screen Recording | — |
 | **Reset and Grant Again** | Runs `tccutil reset` for holzBar's own entry only, when a stale permission keeps the permissions window open | Only when you click it |
@@ -177,6 +198,9 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Item discovery** through Accessibility instead of window lists
 - **holzBar Shelf** with real item images and even spacing
 - **Layout editor** that assigns apps to sections — your old layout is carried over on first launch
+- **A second display** works like the first: hovering and clicking items there opens their menus instead of revealing hidden items
+- **Notched MacBooks**: holzBar's icon is kept out from under the notch, and items folded beside the notch come back on a wider display
+- **No screenshots under the bar**: no screen-recording indicator when items are shown or hidden, and a click on the clock no longer flashes hidden items
 
 **Known limitations on macOS 27**
 
@@ -195,11 +219,18 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - ✅ Show on hover, click or scroll (trackpad **and mouse wheel**)
 - ✅ Automatic rehide
 - ✅ Drag-and-drop layout editor
-- ✅ **Layout profiles** — "Work", "Home", … one click or URL away
-- ✅ **Groups** — several items behind an icon of their own
+- ✅ **Layout profiles** — "Work", "Home", … one click, hotkey or URL away
+- ✅ **Profiles bound to a display or a Space** — applied when you connect the display or switch to the Space
+- ✅ **Groups** (folders) — several items behind an icon of their own, in a colour and with a symbol or image of your choice
+- ✅ **Item images of your choice** — give any item its own picture, or its app's icon; without Screen Recording, the holzBar Shelf and the search show app icons
 - ✅ **Spacers** — empty items of adjustable width
 - ✅ **Choose where new items appear**
+- ✅ **Keeps items in their section after app updates, title changes and display changes**
 - ✅ Search menu bar items — by abbreviation ("cc" for Control Centre) and despite typos
+- ✅ **Open an item by letter** — a hotkey shows a letter under every item; type it to open the item's menu
+- ✅ **Keyboard and VoiceOver** — arrange items in the Layout pane with the arrow keys, undo with ⌘Z, move items with VoiceOver actions
+- ✅ **Opened items stay** up to 30 s after their menu closes — or open without showing the item at all
+- ✅ **Show When It Changes** — a marked item shows for 5 s when its title or value changes
 - ✅ Item spacing <sub>BETA</sub>
 
 </td>
@@ -209,11 +240,14 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - ✅ Hidden items in a bar below the menu bar
 - ✅ **Only on the built-in display or on displays with a notch**
 - ✅ **Shows items the notch covers**
+- ✅ **Works from the keyboard** — open it with its hotkey, then the arrow keys, Return and Escape
 
 #### Appearance
 - ✅ Tint, shadow, border, rounded and split shapes
 - ✅ **Black menu bar that hides the notch**
 - ✅ **Rounded screen corners**
+- ✅ **Dashed and dotted borders**
+- ✅ **Tints from the wallpaper or the accent colour, and the system's glass** <sub>glass on macOS 26 and later</sub>
 
 </td>
 </tr>
@@ -222,17 +256,20 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 #### Automation
 - ✅ **Show hidden items when the battery is low or the network drops**
+- ✅ **Zen mode** — one hotkey, menu item, URL or Shortcuts action keeps hidden items hidden; optionally on while the screen is mirrored or shared, without any permission
+- ✅ **Shortcuts actions** — Zen mode, show or hide a section, apply a profile, open an item by name, search
 - ✅ **`holzbar://` URL commands** and [Raycast script commands](Integrations/Raycast)
-- ✅ Hotkeys for sections, search, the holzBar Shelf, app menus, **auto-rehide** and **a quick peek**
+- ✅ Hotkeys for sections, search, the holzBar Shelf, app menus, **auto-rehide**, **a quick peek**, **Zen mode**, **each layout profile** and **each menu bar item**
 
 </td>
 <td valign="top" width="50%">
 
 #### Settings
 - ✅ **Export and import** all settings
-- ✅ **Sync between Macs** through iCloud Drive — changes from another Mac arrive as soon as iCloud Drive delivers them, with no polling
+- ✅ **Sync between Macs** through iCloud Drive or any folder your Macs sync (Nextcloud, Dropbox, OneDrive, Syncthing, a network share) — changes from another Mac arrive as soon as the folder delivers them, with no polling
 - ✅ **Imports your Ice settings** on first launch
 - ✅ Launch at login
+- ✅ **English, German, French, Italian and Romansh** — holzBar follows your Mac's language; choose another one for holzBar alone in System Settings → General → Language & Region → Applications
 
 </td>
 </tr>

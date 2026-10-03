@@ -11,6 +11,13 @@ import SwiftUI
 @MainActor
 @Observable
 final class AppState {
+    /// The app's state, for code macOS runs outside holzBar's views and delegate, such as
+    /// the Shortcuts actions (`HolzBarIntents.swift`).
+    ///
+    /// SwiftUI's application delegate adaptor puts its own object in `NSApp.delegate`, so
+    /// the app delegate cannot be reached from there.
+    static weak var current: AppState?
+
     /// Information for the active space.
     private(set) var activeSpace = SpaceInfo.activeSpace()
 
@@ -43,8 +50,17 @@ final class AppState {
     /// Global cache for menu bar item images.
     let imageCache = MenuBarItemImageCache()
 
+    /// Images of the user's choice for items, and app icons where there is no picture.
+    let itemIconStore = ItemIconStore()
+
     /// Manager for input events received by the app.
     let hidEventManager = HIDEventManager()
+
+    /// The frame of the application menu on each display, read off the main thread.
+    let applicationMenuFrames = ApplicationMenuFrames()
+
+    /// Whether the Mac is in use (screen lock, sleep, session) and when the bar has settled.
+    let systemActivityMonitor = SystemActivityMonitor()
 
     /// Saved layout profiles.
     let profiles = LayoutProfiles()
@@ -60,6 +76,12 @@ final class AppState {
 
     /// Rules that show hidden items when something happens.
     let revealRules = RevealRules()
+
+    /// Turns Zen mode on while the screen is mirrored or shared.
+    let presentationMonitor = PresentationMonitor()
+
+    /// Shows the items marked "Show When It Changes" for a moment when they change.
+    let itemChangeWatcher = ItemChangeWatcher()
 
     /// The action that opens holzBar's windows, handed over by its scenes.
     @ObservationIgnored private var openWindowAction: OpenWindowAction?
@@ -118,6 +140,8 @@ final class AppState {
         permissions.stopAllChecks()
 
         settings.performSetup(with: self)
+        systemActivityMonitor.performSetup()
+        applicationMenuFrames.performSetup()
         menuBarManager.performSetup(with: self)
 
         // The item service on macOS 26, the synthetic bounds on macOS 27.
@@ -132,13 +156,35 @@ final class AppState {
         }
         await itemManager.performSetup(with: self)
         imageCache.performSetup(with: self)
+        itemIconStore.performSetup(with: self)
         profiles.performSetup(with: self)
         settingsSync.performSetup(with: self)
         itemGroups.performSetup(with: self)
         spacers.performSetup()
         revealRules.performSetup(with: self)
+        presentationMonitor.performSetup(with: self)
+        itemChangeWatcher.performSetup(with: self)
 
         configureObservers()
+    }
+
+    /// Brings holzBar up to date once the bar has settled after the screen was locked, the
+    /// Mac slept, the session was away or the displays changed: the input monitors are
+    /// checked, the items read again, the images refreshed where a view shows them, the
+    /// concealment of macOS 27 applied and the menu bar appearance restored.
+    private func systemActivityDidSettle() {
+        hidEventManager.healthCheck()
+        if #available(macOS 27.0, *) {
+            concealer27.update()
+        }
+        appearanceManager.systemActivityDidSettle()
+        Task {
+            await itemManager.cacheItemsRegardless()
+            // Items that macOS put elsewhere while the displays changed go back.
+            await itemManager.reconcileSections(trigger: .settle)
+            await itemManager.retryPausedRehide()
+            await imageCache.updateCache()
+        }
     }
 
     /// Performs app state setup.
@@ -156,7 +202,7 @@ final class AppState {
             Task {
                 // Delay to prevent conflicts with the app delegate.
                 try? await Task.sleep(for: .milliseconds(100))
-                activate(withPolicy: .regular)
+                activate(for: .permissions)
                 dismissWindow(.settings) // Shouldn't be open anyway.
                 openWindow(.permissions)
             }
@@ -165,6 +211,11 @@ final class AppState {
 
     /// Configures the internal observers for the app state.
     private func configureObservers() {
+        // Brings holzBar up to date once the bar has settled after the Mac was not in use.
+        systemActivityMonitor.onSettled { [weak self] in
+            self?.systemActivityDidSettle()
+        }
+
         // Listen for changes to the active space. We need handle some special
         // cases that NSWorkspace.shared.notificationCenter seems to miss.
         //
@@ -317,8 +368,27 @@ final class AppState {
         }
     }
 
+    /// Activates the app for the given reason, with or without a Dock icon as
+    /// `DockIconPolicy` decides.
+    ///
+    /// - Returns: `false` when the app does not come to the front for this reason (hiding
+    ///   application menus while "Keep the Dock icon hidden" is on).
+    @discardableResult
+    func activate(for reason: DockIconPolicy.ActivationReason) -> Bool {
+        guard let choice = DockIconPolicy.policy(for: reason, keepsDockIconHidden: settings.advanced.keepsDockIconHidden) else {
+            return false
+        }
+        switch choice {
+        case .regular:
+            activate(withPolicy: .regular)
+        case .accessory:
+            activate(withPolicy: .accessory)
+        }
+        return true
+    }
+
     /// Activates the app and sets its activation policy.
-    func activate(withPolicy policy: NSApplication.ActivationPolicy? = nil) {
+    private func activate(withPolicy policy: NSApplication.ActivationPolicy? = nil) {
         if let policy {
             NSApp.setActivationPolicy(policy)
         }

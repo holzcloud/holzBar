@@ -33,6 +33,10 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         "com.apple.menuextra.wifi",
     ]
 
+    /// Covers the concealed part of the bar while a click lifts concealment, so the hidden
+    /// items do not flash into view (Thaw #1181).
+    private let clockCover = ClockCover27()
+
     /// The system item whose panel holzBar last opened, so a second click on the same item is
     /// understood as the click that dismisses it.
     private var itemShowingPanel: String?
@@ -93,10 +97,18 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         // is not active is recognised as well.
         let clickedDisplay = NSScreen.screens.first { CGDisplayBounds($0.displayID).contains(event.location) }?.displayID
         let framesOnDisplay = clickedDisplay.map { MenuBarItemProvider27.systemItemFrames(for: $0) } ?? []
+        // The bar's rectangle is worked out only for a click that may be bridged at all.
+        let menuBarRect = concealer.isConcealing ? clickedDisplay.flatMap { displayID in
+            Self.visibleMenuBarRect(on: displayID, isFullscreenSpace: appState.activeSpace.isFullscreen)
+        } : nil
+        // The overflow button ("»") ignores clicks while concealed like the clock (Thaw #1195).
+        let systemFrames = (framesOnDisplay.isEmpty ? MenuBarItemProvider27.systemItemFrames() : framesOnDisplay)
+            + [MenuBarItemProvider27.overflowButtonFrame()].compactMap { $0 }
         guard ClockBridgeZone27.shouldBridge(
             click: event.location,
-            systemItemFrames: framesOnDisplay.isEmpty ? MenuBarItemProvider27.systemItemFrames() : framesOnDisplay,
-            isConcealing: concealer.isConcealing
+            systemItemFrames: systemFrames,
+            isConcealing: concealer.isConcealing,
+            menuBarRect: menuBarRect
         ) else {
             return event
         }
@@ -151,9 +163,12 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             // the replay, so the click is as quick as the release allows.
             let bridgeStarted = ProcessInfo.processInfo.systemUptime
             Self.bridgeLogger.debug("Click bridge: holding the click, lifting concealment")
+            self.clockCover.show(appState: appState)
             await concealer.suspendReleased(for: Self.clickRestoreDelay)
             let released = (ProcessInfo.processInfo.systemUptime - bridgeStarted) * 1000
             Self.replayClick(at: location)
+            // One bounded wait, past the concealment's return.
+            self.clockCover.hide(after: .milliseconds(300))
             self.itemShowingPanel = systemItem?.identifier
             Self.bridgeLogger.debug("Click bridge: lifted in \(released, privacy: .public) ms, click replayed")
         }
@@ -241,6 +256,30 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
                 continuation.resume()
             }
         }
+    }
+
+    /// The rectangle of the given display's menu bar, or `nil` while the bar is not on
+    /// screen.
+    ///
+    /// On a fullscreen space the bar shows only while the pointer reveals it, so it counts
+    /// only while the window server's menu bar window is on screen (the window list, not
+    /// Accessibility). Elsewhere the bar is the strip above the screen's visible frame, at
+    /// least as tall as the status bar.
+    private static func visibleMenuBarRect(on displayID: CGDirectDisplayID, isFullscreenSpace: Bool) -> CGRect? {
+        let displayBounds = CGDisplayBounds(displayID)
+        let height: CGFloat
+        if isFullscreenSpace {
+            guard let menuBarWindow = WindowInfo.menuBarWindow(for: displayID) else {
+                return nil
+            }
+            height = menuBarWindow.bounds.height
+        } else {
+            guard let screen = NSScreen.screens.first(where: { $0.displayID == displayID }) else {
+                return nil
+            }
+            height = max(screen.frame.maxY - screen.visibleFrame.maxY, NSStatusBar.system.thickness)
+        }
+        return CGRect(x: displayBounds.minX, y: displayBounds.minY, width: displayBounds.width, height: height)
     }
 
     private static func replayClick(at location: CGPoint) {

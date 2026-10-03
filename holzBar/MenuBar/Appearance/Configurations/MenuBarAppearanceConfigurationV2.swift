@@ -26,6 +26,12 @@ struct MenuBarAppearanceConfigurationV2: Hashable {
         }
     }
 
+    /// Whether a tint follows the wallpaper in any of the configurations, so its palette
+    /// is read.
+    var usesWallpaperTint: Bool {
+        [lightModeConfiguration, darkModeConfiguration, staticConfiguration].contains { $0.tintKind == .adaptive }
+    }
+
     var current: MenuBarAppearancePartialConfiguration {
         if isDynamic {
             switch SystemAppearance.current {
@@ -110,6 +116,10 @@ struct MenuBarAppearancePartialConfiguration: Hashable {
     var tintKind: MenuBarTintKind
     var tintColor: CGColor
     var tintGradient: HolzBarGradient
+    /// How the border is drawn: solid, dashed or dotted (THAW-17).
+    var borderStyle: BorderStyle = .solid
+    /// Whether the solid tint uses the system accent color instead of ``tintColor``.
+    var tintFollowsAccentColor = false
 }
 
 // MARK: Default Partial Configuration
@@ -138,6 +148,8 @@ extension MenuBarAppearancePartialConfiguration: Codable {
         case tintKind
         case tintColor
         case tintGradient
+        case borderStyle
+        case tintFollowsAccentColor
     }
 
     init(from decoder: Decoder) throws {
@@ -149,7 +161,10 @@ extension MenuBarAppearancePartialConfiguration: Codable {
             borderWidth: container.decodeIfPresent(Double.self, forKey: .borderWidth) ?? Self.defaultConfiguration.borderWidth,
             tintKind: container.decodeIfPresent(MenuBarTintKind.self, forKey: .tintKind) ?? Self.defaultConfiguration.tintKind,
             tintColor: container.decodeIfPresent(HolzBarColor.self, forKey: .tintColor)?.cgColor ?? Self.defaultConfiguration.tintColor,
-            tintGradient: container.decodeIfPresent(HolzBarGradient.self, forKey: .tintGradient) ?? Self.defaultConfiguration.tintGradient
+            tintGradient: container.decodeIfPresent(HolzBarGradient.self, forKey: .tintGradient) ?? Self.defaultConfiguration.tintGradient,
+            // An unknown style reads as solid, as a missing one does.
+            borderStyle: (try? container.decodeIfPresent(BorderStyle.self, forKey: .borderStyle)) ?? Self.defaultConfiguration.borderStyle,
+            tintFollowsAccentColor: container.decodeIfPresent(Bool.self, forKey: .tintFollowsAccentColor) ?? Self.defaultConfiguration.tintFollowsAccentColor
         )
     }
 
@@ -162,6 +177,8 @@ extension MenuBarAppearancePartialConfiguration: Codable {
         try container.encode(tintKind, forKey: .tintKind)
         try container.encode(HolzBarColor(cgColor: tintColor), forKey: .tintColor)
         try container.encode(tintGradient, forKey: .tintGradient)
+        try container.encode(borderStyle, forKey: .borderStyle)
+        try container.encode(tintFollowsAccentColor, forKey: .tintFollowsAccentColor)
     }
 }
 

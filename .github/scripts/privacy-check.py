@@ -86,6 +86,7 @@ PERSONAL_DATA = [
     ("tag", re.compile(r"\btags?\b")),
     ("excluded items", re.compile(r"\bexcluded\b")),
     ("error", re.compile(r"\berror\b(?!\.code)")),
+    ("window title", re.compile(r"\b(?:title|windowTitle|kCGWindowName)\b")),
 ]
 
 PUBLIC = re.compile(r"privacy:\s*\.public\b")

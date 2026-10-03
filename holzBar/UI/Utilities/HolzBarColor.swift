@@ -30,6 +30,17 @@ extension HolzBarColor: Codable {
                 debugDescription: "Invalid ICC profile data"
             )
         }
+        // `CGColor` reads one component per channel of the color space plus alpha, whatever
+        // the array holds, so a stored array of the wrong length, or with values that are
+        // not numbers, is rejected first.
+        components = ColorComponents.clamped(components)
+        guard ColorComponents.isValid(components, colorSpaceComponents: colorSpace.numberOfComponents) else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .components,
+                in: container,
+                debugDescription: "Expected \(colorSpace.numberOfComponents + 1) color components between 0 and 1"
+            )
+        }
         guard let cgColor = CGColor(colorSpace: colorSpace, components: &components) else {
             throw DecodingError.dataCorrupted(
                 DecodingError.Context(

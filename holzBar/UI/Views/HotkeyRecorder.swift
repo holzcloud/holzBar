@@ -114,7 +114,7 @@ struct HotkeyRecorder<Label: View>: View {
             .resizable()
             .aspectRatio(1, contentMode: .fit)
             .padding(padding)
-            .accessibilityLabel(label)
+            .accessibilityLabel(Text(LocalizedStringKey(label)))
     }
 }
 
@@ -138,9 +138,9 @@ private final class HotkeyRecorderModel {
         var title: String {
             switch self {
             case .systemReserved:
-                "Hotkey is reserved by macOS"
+                String(localized: "Hotkey is reserved by macOS")
             case .optionOnly:
-                "macOS does not allow this hotkey"
+                String(localized: "macOS does not allow this hotkey")
             }
         }
 
@@ -148,9 +148,9 @@ private final class HotkeyRecorderModel {
         var message: String {
             switch self {
             case .systemReserved:
-                "macOS uses this combination for one of its own shortcuts. Choose another one."
+                String(localized: "macOS uses this combination for one of its own shortcuts. Choose another one.")
             case .optionOnly:
-                "Since macOS 15, a hotkey whose only modifiers are Option, or Option and Shift, cannot be registered. Add Command or Control."
+                String(localized: "Since macOS 15, a hotkey whose only modifiers are Option, or Option and Shift, cannot be registered. Add Command or Control.")
             }
         }
     }

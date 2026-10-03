@@ -83,6 +83,26 @@ nonisolated enum SpacingRelaunch {
         return defaultSpacing + offset
     }
 
+    /// A running process, as `NSWorkspace` lists it.
+    typealias RunningProcess = (pid: pid_t, bundleID: String?, isTerminated: Bool)
+
+    /// Whether the app that was quit is running again on its own, so it must not be launched
+    /// a second time.
+    ///
+    /// An app that respawns (a helper relaunched by launchd, an app that restarts itself)
+    /// runs under a new process. The old process can still be listed while it quits; it
+    /// does not count, so the app is launched when nothing else runs (jordanbaird/Ice#923).
+    ///
+    /// - Parameters:
+    ///   - oldPID: The process that was quit.
+    ///   - bundleID: The app's bundle identifier.
+    ///   - running: The running processes.
+    static func isRelaunched(oldPID: pid_t, bundleID: String, running: [RunningProcess]) -> Bool {
+        running.contains { process in
+            process.pid != oldPID && process.bundleID == bundleID && !process.isTerminated
+        }
+    }
+
     /// How long an app gets to quit after being asked.
     ///
     /// Long enough for an app that saves or syncs on quit. An app that is still running

@@ -17,26 +17,38 @@ struct AdvancedSettingsPane: View {
     private func formattedToSeconds(_ interval: TimeInterval) -> LocalizedStringKey {
         let formatted = interval.formatted()
         return if interval == 1 {
-            LocalizedStringKey(formatted + " second")
+            "\(formatted) second"
         } else {
-            LocalizedStringKey(formatted + " seconds")
+            "\(formatted) seconds"
         }
     }
 
     var body: some View {
         HolzBarForm {
+            // Settings that do nothing on macOS 27 are not shown there (jordanbaird/Ice#1001):
+            // there are no dividers to style, no drags on the bar, no item moves and no
+            // hiding of application menus. Their stored values are kept.
             HolzBarSection("Menu Bar Sections") {
                 enableAlwaysHiddenSection
-                showAllSectionsOnUserDrag
-                sectionDividerStyle
+                if !isMacOS27 {
+                    showAllSectionsOnUserDrag
+                    sectionDividerStyle
+                }
                 newItemsPlacement
-                keepLiveActivitiesVisible
+                if !isMacOS27 {
+                    keepLiveActivitiesVisible
+                }
             }
             HolzBarSection("Other") {
-                hideApplicationMenus
+                if !isMacOS27 {
+                    hideApplicationMenus
+                    keepsDockIconHidden
+                }
                 enableSecondaryContextMenu
                 showOnHoverDelay
                 tempShowInterval
+                openHiddenItemsInMenuBar
+                autoZenWhileSharingScreen
             }
             HolzBarSection("Show Hidden Items Automatically") {
                 RevealRulesSettings(rules: appState.revealRules)
@@ -118,6 +130,21 @@ struct AdvancedSettingsPane: View {
         .disabled(isMacOS27)
     }
 
+    @ViewBuilder
+    private var keepsDockIconHidden: some View {
+        Toggle("Keep the Dock icon hidden", isOn: $settings.keepsDockIconHidden)
+            .annotation {
+                Text(
+                    """
+                    macOS hides another app's menus only while holzBar is in the Dock. With \
+                    this on, holzBar never shows a Dock icon, and the menus stay.
+                    """
+                )
+                .padding(.trailing, 75)
+            }
+            .disabled(isMacOS27 || !settings.hideApplicationMenus)
+    }
+
     private var isMacOS27: Bool {
         if #available(macOS 27.0, *) {
             true
@@ -169,17 +196,29 @@ struct AdvancedSettingsPane: View {
             HolzBarSlider(
                 formattedToSeconds(settings.tempShowInterval),
                 value: $settings.tempShowInterval,
-                in: 0...60,
+                in: 0...30,
                 step: 1
             )
         } label: {
-            Text("Temporarily shown item delay")
+            Text("Hide opened items again after")
                 .frame(minWidth: maxSliderLabelWidth, alignment: .leading)
                 .onFrameChange { frame in
                     maxSliderLabelWidth = max(maxSliderLabelWidth, frame.width)
                 }
         }
-        .annotation("The amount of time to wait before hiding temporarily shown menu bar items.")
+        .annotation("Counted from when the item's menu closes. 0 hides it right away.")
+    }
+
+    @ViewBuilder
+    private var openHiddenItemsInMenuBar: some View {
+        Toggle("Open hidden items in the menu bar", isOn: $settings.openHiddenItemsInMenuBar)
+            .annotation("Shows a hidden item in the menu bar and opens its menu under it. Off, the menu opens without showing the item.")
+    }
+
+    @ViewBuilder
+    private var autoZenWhileSharingScreen: some View {
+        Toggle("Turn on Zen mode while the screen is mirrored or shared", isOn: $settings.autoZenWhileSharingScreen)
+            .annotation("Uses no permission: holzBar notices a mirrored display and macOS's screen sharing agent.")
     }
 
     @ViewBuilder
@@ -239,31 +278,55 @@ private struct RevealRulesSettings: View {
         Toggle("When the battery is low", isOn: $rules.revealsOnLowBattery)
         if rules.revealsOnLowBattery {
             Stepper(value: $rules.lowBatteryThreshold, in: 5...50, step: 5) {
-                Text("Below \(rules.lowBatteryThreshold) %")
+                Text("Below \((Double(rules.lowBatteryThreshold) / 100).formatted(.percent))")
             }
         }
         Toggle("When the network connection is lost", isOn: $rules.revealsWhenOffline)
-            .annotation("Hidden items are shown for the temporarily shown item delay, then hidden again.")
+            .annotation("Hidden items are shown for the time set in \u{201C}Hide opened items again after\u{201D}, then hidden again.")
     }
 }
 
 // MARK: - SettingsSyncToggle
 
-/// Turns syncing the settings through iCloud Drive on or off (jordanbaird/Ice#95).
+/// Turns syncing the settings on or off, through iCloud Drive or any folder the Macs keep
+/// in sync (jordanbaird/Ice#95, SYNC-01).
 private struct SettingsSyncToggle: View {
     @Bindable var sync: SettingsSync
 
-    private var annotation: LocalizedStringKey {
-        if SettingsSync.iCloudDriveURL == nil {
-            "Turn on iCloud Drive in System Settings to sync holzBar's settings between your Macs."
-        } else {
-            "Keeps layout, profiles, hotkeys and appearance the same on all your Macs. Changes from another Mac apply after a restart."
-        }
-    }
-
     var body: some View {
-        Toggle("Sync settings with iCloud Drive", isOn: $sync.isEnabled)
-            .disabled(SettingsSync.iCloudDriveURL == nil)
-            .annotation(annotation)
+        LabeledContent {
+            HStack {
+                if sync.isEnabled {
+                    Button("Change…") {
+                        sync.chooseFolder()
+                    }
+                    Button("Turn Off") {
+                        sync.isEnabled = false
+                    }
+                } else {
+                    Button("Turn On…") {
+                        sync.chooseFolder()
+                    }
+                }
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Sync settings between your Macs")
+                if sync.isEnabled {
+                    if let folder = sync.folderDisplayName {
+                        Text("Through \(folder)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("The sync folder cannot be found. Choose it again.")
+                            .font(.subheadline)
+                            .foregroundStyle(.orange)
+                    }
+                }
+            }
+        }
+        .annotation(
+            "Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart."
+        )
     }
 }

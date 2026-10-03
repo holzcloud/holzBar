@@ -26,6 +26,9 @@ final class MenuBarManager {
     /// A Boolean value that indicates whether the "ShowOnHover" feature is allowed.
     var showOnHoverAllowed = true
 
+    /// Zen mode: while it is active, hidden items stay hidden (see ``ZenMode``).
+    private(set) var zenMode = ZenMode()
+
     /// Logger for the menu bar manager.
     @ObservationIgnored private let logger = Logger(category: "MenuBarManager")
 
@@ -58,6 +61,16 @@ final class MenuBarManager {
             panel.performSetup(with: appState)
         } else {
             self.searchPanelNeedsSetup = true
+        }
+        return panel
+    }()
+
+    /// The panel that shows a letter for every item (item hints), created the first time
+    /// it is used.
+    @ObservationIgnored private(set) lazy var itemHintsPanel: ItemHintsPanel = {
+        let panel = ItemHintsPanel()
+        if let appState = self.appState {
+            panel.performSetup(with: appState)
         }
         return panel
     }()
@@ -238,7 +251,7 @@ final class MenuBarManager {
             }
 
             // Get the application menu frame for the display.
-            guard let applicationMenuFrame = screen.getApplicationMenuFrame() else {
+            guard let applicationMenuFrame = appState.applicationMenuFrames.frame(for: screen) else {
                 return
             }
 
@@ -340,14 +353,18 @@ final class MenuBarManager {
 
     /// Returns a Boolean value that indicates whether the given display
     /// has a valid menu bar.
+    ///
+    /// Whether the menu bar window is a menu bar Accessibility can reach comes from
+    /// `ApplicationMenuFrames`, read off the main thread: asking here blocked the main
+    /// thread, and every click on the Mac with it, while the frontmost application hung.
     func hasValidMenuBar(in windows: [WindowInfo], for display: CGDirectDisplayID) -> Bool {
         guard
-            let window = WindowInfo.menuBarWindow(from: windows, for: display),
-            let element = AXHelpers.element(at: window.bounds.origin)
+            let appState,
+            WindowInfo.menuBarWindow(from: windows, for: display) != nil
         else {
             return false
         }
-        return AXHelpers.role(for: element) == kAXMenuBarRole
+        return appState.applicationMenuFrames.hasValidMenuBar(on: display)
     }
 
     /// Shows the secondary context menu.
@@ -355,7 +372,7 @@ final class MenuBarManager {
         let menu = NSMenu(title: "holzBar")
 
         let editAppearanceItem = NSMenuItem(
-            title: "Edit Menu Bar Appearance…",
+            title: String(localized: "Edit Menu Bar Appearance…"),
             action: #selector(showAppearanceEditorPanel),
             keyEquivalent: ""
         )
@@ -365,7 +382,7 @@ final class MenuBarManager {
         menu.addItem(.separator())
 
         let settingsItem = NSMenuItem(
-            title: "holzBar Settings…",
+            title: String(localized: "holzBar Settings…"),
             action: #selector(AppDelegate.openSettingsWindow),
             keyEquivalent: ","
         )
@@ -375,13 +392,20 @@ final class MenuBarManager {
     }
 
     /// Hides the application menus.
-    func hideApplicationMenus() {
+    ///
+    /// - Parameter reason: Why: shown items reach the menus, or the user asked.
+    func hideApplicationMenus(for reason: DockIconPolicy.ActivationReason = .hideApplicationMenus) {
         guard let appState else {
             logger.error("Error hiding application menus: Missing app state")
             return
         }
+        // macOS hides another app's menus only while holzBar is a regular app with a Dock
+        // icon; with "Keep the Dock icon hidden" on, the menus stay unless the user asked.
+        guard appState.activate(for: reason) else {
+            logger.debug("Not hiding application menus: the Dock icon stays hidden")
+            return
+        }
         logger.info("Hiding application menus")
-        appState.activate(withPolicy: .regular)
         isHidingApplicationMenus = true
     }
 
@@ -401,7 +425,7 @@ final class MenuBarManager {
         if isHidingApplicationMenus {
             showApplicationMenus()
         } else {
-            hideApplicationMenus()
+            hideApplicationMenus(for: .toggleApplicationMenus)
         }
     }
 
@@ -411,6 +435,96 @@ final class MenuBarManager {
             return
         }
         appearanceEditorPanel.show(on: screen)
+    }
+
+    // MARK: Zen Mode
+
+    /// Turns Zen mode on or off, as the user asked (its hotkey, holzBar's menu,
+    /// `holzbar://zen/toggle` or the Shortcuts action).
+    func toggleZenMode() {
+        setZenMode(zenMode.toggled(), cause: "manual")
+    }
+
+    /// Turns the automatic part of Zen mode on or off, while the screen is mirrored or
+    /// shared (`PresentationMonitor`). A Zen mode the user turned on stays on.
+    func setAutomaticZenMode(_ isOn: Bool) {
+        guard zenMode.isAutomatic != isOn else {
+            return
+        }
+        var updated = zenMode
+        updated.isAutomatic = isOn
+        setZenMode(updated, cause: "automatic")
+    }
+
+    /// Stores the new Zen mode; becoming active hides every section (on macOS 27 the
+    /// concealment follows the sections).
+    private func setZenMode(_ newValue: ZenMode, cause: String) {
+        let wasActive = zenMode.isActive
+        zenMode = newValue
+        guard newValue.isActive != wasActive else {
+            return
+        }
+        let state = newValue.isActive ? "on" : "off"
+        logger.notice("Zen mode \(state, privacy: .public) (\(cause, privacy: .public))")
+        if newValue.isActive {
+            for section in sections {
+                section.hide()
+            }
+        }
+    }
+
+    // MARK: Reveal on Change
+
+    /// Shows a hidden item for 5 seconds because it changed (THAW-12, `ItemChangeWatcher`).
+    ///
+    /// On macOS 27 its application is shown for the moment; before, its section is shown
+    /// and hidden again unless the pointer is in the menu bar by then. Nothing happens in
+    /// Zen mode.
+    func revealBriefly(itemKey key: String) {
+        guard
+            let appState,
+            zenMode.allows(.changeReveal),
+            let item = appState.itemManager.item(withIdentityKey: key)
+        else {
+            return
+        }
+        logger.info("Showing an item that changed")
+        if #available(macOS 27.0, *) {
+            guard let bundleID = item.sourceApplication?.bundleIdentifier else {
+                return
+            }
+            let concealer = appState.concealer27
+            concealer.showTemporarily(bundleID: bundleID)
+            Task {
+                try? await Task.sleep(for: .seconds(5))
+                concealer.endTemporaryShow(bundleID: bundleID)
+            }
+            return
+        }
+        guard
+            let address = appState.itemManager.itemCache.address(for: item.tag),
+            address.section != .visible,
+            let section = self.section(withName: address.section),
+            section.isHidden
+        else {
+            return
+        }
+        section.show()
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(5))
+            guard let self, let appState = self.appState, !section.isHidden else {
+                return
+            }
+            let hidEventManager = appState.hidEventManager
+            if
+                let screen = hidEventManager.bestScreen(appState: appState),
+                hidEventManager.isMouseInsideMenuBar(appState: appState, screen: screen)
+            {
+                // The user is at the menu bar now.
+                return
+            }
+            section.hide()
+        }
     }
 
     /// Returns the menu bar section with the given name.
