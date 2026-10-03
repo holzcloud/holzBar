@@ -8,19 +8,26 @@ import Observation
 import OSLog
 import SystemConfiguration
 
-/// Keeps holzBar's settings in step across Macs through a file in iCloud Drive
-/// (jordanbaird/Ice#95).
+/// Keeps holzBar's settings in step across Macs through a file in a folder the Macs sync:
+/// iCloud Drive or any folder the user chooses, such as a Nextcloud, Dropbox, OneDrive or
+/// Syncthing folder or a network share (jordanbaird/Ice#95, SYNC-01).
 ///
 /// iCloud's key-value store needs an iCloud entitlement, which an ad hoc signed
-/// app cannot have, so the settings travel as `holzBar/Settings.plist` in
-/// iCloud Drive instead. Each change is written there; newer settings from
-/// another Mac are applied at launch, or after a restart the user agrees to.
+/// app cannot have, so the settings travel as `holzBar/Settings.plist` in the folder
+/// instead. Each change is written there; newer settings from another Mac are applied at
+/// launch, or after a restart the user agrees to. The folder's own app syncs the file;
+/// holzBar never connects to the network.
+///
+/// The folder is stored as a bookmark (`SettingsSyncLocation`). Without one, iCloud Drive
+/// is used, as before folders could be chosen, and stored as the choice.
 ///
 /// Without an iCloud entitlement, `NSMetadataQuery`'s ubiquitous scopes are out of reach
 /// too. File coordination is what iCloud Drive itself uses to update the file, so a file
 /// presenter on the `holzBar` folder hears about every version that arrives from another
-/// Mac, with no polling, and coordinated reads and writes never see half a file. The
-/// presenter and the observer of this Mac's settings exist only while sync is on.
+/// Mac, with no polling, and coordinated reads and writes never see half a file. Other
+/// sync apps replace the file without coordination; a file system event source on the
+/// folder hears about those. The presenter, the event source and the observer of this
+/// Mac's settings exist only while sync is on.
 @MainActor
 @Observable
 final class SettingsSync {
@@ -62,15 +69,77 @@ final class SettingsSync {
         return FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) ? url : nil
     }
 
-    /// The folder in iCloud Drive that holds the sync file.
+    /// The key of the bookmark of the chosen folder. It starts with "SettingsSync", so it
+    /// stays on this Mac (`SettingsBackup.excludedKeyPrefixes`).
+    private static let folderBookmarkKey = "SettingsSyncFolderBookmark"
+
+    /// The folder the Macs sync, chosen by the user or iCloud Drive (see
+    /// `SettingsSyncLocation`). A stale bookmark, or iCloud Drive used without a choice, is
+    /// stored as the choice.
+    static var syncFolderURL: URL? {
+        let resolution: SettingsSyncLocation.Resolution
+        var resolvedURL: URL?
+        if let bookmark = UserDefaults.standard.data(forKey: folderBookmarkKey) {
+            var isStale = false
+            if let url = try? URL(resolvingBookmarkData: bookmark, options: [.withoutUI], relativeTo: nil, bookmarkDataIsStale: &isStale) {
+                resolvedURL = url
+                resolution = .resolved(path: url.path(percentEncoded: false), isStale: isStale)
+            } else {
+                resolution = .failed
+            }
+        } else {
+            resolution = .none
+        }
+        let iCloudDriveURL = iCloudDriveURL
+        let decision = SettingsSyncLocation.decide(
+            resolution: resolution,
+            iCloudDrivePath: iCloudDriveURL?.path(percentEncoded: false)
+        )
+        guard let folderPath = decision.folderPath else {
+            return nil
+        }
+        let url = resolvedURL ?? iCloudDriveURL ?? URL(filePath: folderPath, directoryHint: .isDirectory)
+        if decision.storesBookmark {
+            storeBookmark(of: url)
+        }
+        return url
+    }
+
+    /// Stores the bookmark of the folder the Macs sync.
+    private static func storeBookmark(of folderURL: URL) {
+        do {
+            let bookmark = try folderURL.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil)
+            UserDefaults.standard.set(bookmark, forKey: folderBookmarkKey)
+        } catch {
+            logger.error("Could not store the sync folder: \(error, privacy: .private)")
+        }
+    }
+
+    /// The folder in the synced folder that holds the sync file.
     static var folderURL: URL? {
-        iCloudDriveURL?.appending(path: "holzBar", directoryHint: .isDirectory)
+        syncFolderURL?.appending(path: SettingsSyncLocation.fileComponents[0], directoryHint: .isDirectory)
     }
 
     /// The file the settings are synced through.
     static var fileURL: URL? {
-        folderURL?.appending(path: "Settings.plist")
+        folderURL?.appending(path: SettingsSyncLocation.fileComponents[1])
     }
+
+    /// The name of the synced folder to show, or `nil` when there is none.
+    var folderDisplayName: String? {
+        _ = folderChangeCount
+        guard let url = Self.syncFolderURL else {
+            return nil
+        }
+        return SettingsSyncLocation.displayName(
+            forFolder: url.path(percentEncoded: false),
+            homePath: FileManager.default.homeDirectoryForCurrentUser.path(percentEncoded: false),
+            iCloudDrivePath: Self.iCloudDriveURL?.path(percentEncoded: false)
+        )
+    }
+
+    /// Counts the changes of the folder, so the view showing its name updates.
+    private var folderChangeCount = 0
 
     /// A Boolean value that indicates whether syncing is turned on.
     var isEnabled = false {
@@ -96,6 +165,9 @@ final class SettingsSync {
     /// Hears about new versions of the sync file while sync is on.
     @ObservationIgnored private var presenter: SettingsSyncPresenter?
 
+    /// Hears about files other sync apps replace in the folder while sync is on.
+    @ObservationIgnored private var folderWatcher: SettingsSyncFolderWatcher?
+
     /// The pending check after the sync file changed.
     @ObservationIgnored private var checkTask: Task<Void, Never>?
 
@@ -112,11 +184,7 @@ final class SettingsSync {
             defaultsDebouncer.cancel()
             checkTask?.cancel()
             checkTask = nil
-            if let presenter {
-                NSFileCoordinator.removeFilePresenter(presenter)
-                self.presenter = nil
-                Self.logger.info("Stopped watching the sync file")
-            }
+            stopWatchingFolder()
             return
         }
 
@@ -134,9 +202,9 @@ final class SettingsSync {
             do {
                 try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
             } catch {
-                Self.logger.error("Error creating the sync folder in iCloud Drive: \(error, privacy: .private)")
+                Self.logger.error("Error creating the holzBar folder in the sync folder: \(error, privacy: .private)")
             }
-            let presenter = SettingsSyncPresenter(folderURL: folderURL) { [weak self] in
+            let onChange: @Sendable () -> Void = { [weak self] in
                 guard let self else {
                     return
                 }
@@ -144,10 +212,54 @@ final class SettingsSync {
                     self.syncFileDidChange()
                 }
             }
+            let presenter = SettingsSyncPresenter(folderURL: folderURL, onChange: onChange)
             NSFileCoordinator.addFilePresenter(presenter)
             self.presenter = presenter
+            folderWatcher = SettingsSyncFolderWatcher(folderURL: folderURL, onChange: onChange)
             Self.logger.info("Watching the sync file")
         }
+    }
+
+    /// Stops listening to the sync folder.
+    private func stopWatchingFolder() {
+        folderWatcher?.cancel()
+        folderWatcher = nil
+        if let presenter {
+            NSFileCoordinator.removeFilePresenter(presenter)
+            self.presenter = nil
+            Self.logger.info("Stopped watching the sync file")
+        }
+    }
+
+    // MARK: Folder
+
+    /// Lets the user choose the folder the Macs sync, and turns sync on with it.
+    ///
+    /// - Returns: Whether a folder was chosen.
+    @discardableResult
+    func chooseFolder() -> Bool {
+        let panel = NSOpenPanel()
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.canCreateDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.prompt = String(localized: "Sync Here")
+        panel.message = String(localized: "Choose a folder your Macs keep in sync, such as iCloud Drive or a Nextcloud, Dropbox, OneDrive or Syncthing folder. holzBar keeps its settings in a holzBar folder inside it.")
+        panel.directoryURL = Self.syncFolderURL ?? Self.iCloudDriveURL
+        guard panel.runModal() == .OK, let url = panel.url else {
+            return false
+        }
+        stopWatchingFolder()
+        Self.storeBookmark(of: url)
+        folderChangeCount += 1
+        lastPushedData = nil
+        if isEnabled {
+            updateObservers()
+            push()
+        } else {
+            isEnabled = true
+        }
+        return true
     }
 
     /// Checks the sync file shortly after it changed, once for a burst of changes.
@@ -172,7 +284,7 @@ final class SettingsSync {
 
     private func push() {
         guard let fileURL = Self.fileURL else {
-            Self.logger.warning("iCloud Drive is off, not syncing settings")
+            Self.logger.warning("No sync folder, not syncing settings")
             return
         }
         let settings = SettingsBackup.currentSettings().filter { !Self.localKeys.contains($0.key) }
@@ -193,7 +305,8 @@ final class SettingsSync {
             try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             let data = try PropertyListSerialization.data(fromPropertyList: file, format: .xml, options: 0)
             // Coordinated, so iCloud Drive never uploads half a file; this Mac's presenter
-            // is not told about its own write.
+            // is not told about its own write (its folder watcher is, and finds the file
+            // its own).
             var coordinationError: NSError?
             var writeError: (any Error)?
             NSFileCoordinator(filePresenter: presenter).coordinate(
@@ -215,9 +328,9 @@ final class SettingsSync {
             }
             lastPushedData = settingsData
             UserDefaults.standard.set(modified, forKey: Self.lastSyncedKey)
-            Self.logger.info("Wrote settings to iCloud Drive")
+            Self.logger.info("Wrote settings to the sync folder")
         } catch {
-            Self.logger.error("Error writing settings to iCloud Drive: \(error, privacy: .private)")
+            Self.logger.error("Error writing settings to the sync folder: \(error, privacy: .private)")
         }
     }
 
@@ -270,7 +383,7 @@ final class SettingsSync {
         SettingsBackup.apply(newer.settings)
         Defaults.set(true, forKey: .syncsSettingsWithICloud)
         UserDefaults.standard.set(newer.modified, forKey: lastSyncedKey)
-        logger.notice("Applied settings from iCloud Drive")
+        logger.notice("Applied settings from the sync folder")
     }
 
     /// Offers to restart when another Mac has changed the settings.
@@ -283,15 +396,49 @@ final class SettingsSync {
             isAskingToRestart = false
         }
         let alert = NSAlert()
-        alert.messageText = "Settings changed on another Mac"
-        alert.informativeText = "holzBar can restart now to use the settings from iCloud Drive."
-        alert.addButton(withTitle: "Restart")
-        alert.addButton(withTitle: "Later")
+        alert.messageText = String(localized: "Settings changed on another Mac")
+        alert.informativeText = String(localized: "holzBar can restart now to use the settings from the sync folder.")
+        alert.addButton(withTitle: String(localized: "Restart"))
+        alert.addButton(withTitle: String(localized: "Later"))
         NSApp.activate()
         if alert.runModal() == .alertFirstButtonReturn {
             SettingsSync.pullIfNeeded()
             SettingsBackup.relaunch()
         }
+    }
+}
+
+// MARK: - SettingsSyncFolderWatcher
+
+/// Tells settings sync when a file in the sync folder is added, replaced or removed, as
+/// sync apps other than iCloud Drive do without file coordination.
+///
+/// A file system event source on the folder: an event, never a poll. Its state never
+/// changes after it is created.
+private nonisolated final class SettingsSyncFolderWatcher: @unchecked Sendable {
+    private let source: any DispatchSourceFileSystemObject
+
+    init?(folderURL: URL, onChange: @escaping @Sendable () -> Void) {
+        let descriptor = open(folderURL.path(percentEncoded: false), O_EVTONLY)
+        guard descriptor >= 0 else {
+            return nil
+        }
+        source = DispatchSource.makeFileSystemObjectSource(
+            fileDescriptor: descriptor,
+            eventMask: [.write, .rename, .delete, .link],
+            queue: .global(qos: .utility)
+        )
+        source.setEventHandler {
+            onChange()
+        }
+        source.setCancelHandler {
+            close(descriptor)
+        }
+        source.resume()
+    }
+
+    func cancel() {
+        source.cancel()
     }
 }
 

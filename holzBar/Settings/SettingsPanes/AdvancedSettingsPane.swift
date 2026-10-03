@@ -288,21 +288,45 @@ private struct RevealRulesSettings: View {
 
 // MARK: - SettingsSyncToggle
 
-/// Turns syncing the settings through iCloud Drive on or off (jordanbaird/Ice#95).
+/// Turns syncing the settings on or off, through iCloud Drive or any folder the Macs keep
+/// in sync (jordanbaird/Ice#95, SYNC-01).
 private struct SettingsSyncToggle: View {
     @Bindable var sync: SettingsSync
 
-    private var annotation: LocalizedStringKey {
-        if SettingsSync.iCloudDriveURL == nil {
-            "Turn on iCloud Drive in System Settings to sync holzBar's settings between your Macs."
-        } else {
-            "Keeps layout, profiles, hotkeys and appearance the same on all your Macs. Changes from another Mac apply after a restart."
-        }
-    }
-
     var body: some View {
-        Toggle("Sync settings with iCloud Drive", isOn: $sync.isEnabled)
-            .disabled(SettingsSync.iCloudDriveURL == nil)
-            .annotation(annotation)
+        LabeledContent {
+            HStack {
+                if sync.isEnabled {
+                    Button("Change…") {
+                        sync.chooseFolder()
+                    }
+                    Button("Turn Off") {
+                        sync.isEnabled = false
+                    }
+                } else {
+                    Button("Turn On…") {
+                        sync.chooseFolder()
+                    }
+                }
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Sync settings between your Macs")
+                if sync.isEnabled {
+                    if let folder = sync.folderDisplayName {
+                        Text("Through \(folder)")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("The sync folder cannot be found. Choose it again.")
+                            .font(.subheadline)
+                            .foregroundStyle(.orange)
+                    }
+                }
+            }
+        }
+        .annotation(
+            "Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart."
+        )
     }
 }
