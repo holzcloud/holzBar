@@ -3,7 +3,6 @@
 //  holzBar
 //
 
-import Combine
 import OSLog
 import SwiftUI
 
@@ -13,14 +12,20 @@ final class HolzBarShelfPanel: NSPanel {
     /// The shared app state.
     private weak var appState: AppState?
 
-    /// Manager for the holzBar Shelf's color.
-    private let colorManager = HolzBarShelfColorManager()
+    /// Manager for the holzBar Shelf's color, created when the Shelf is first shown.
+    private var colorManager: HolzBarShelfColorManager?
 
     /// The currently displayed section.
     private(set) var currentSection: MenuBarSection.Name?
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Tasks that hide the panel when the space or the screens change.
+    private var observerTasks = [Task<Void, Never>]()
+
+    /// Observes the hidden section's control item.
+    private var controlItemObserver: ObservationLoop?
+
+    /// Follows the control item at most every 0.1 s, with its latest frame.
+    private let controlItemThrottle = Debouncer(delay: .milliseconds(100))
 
     /// Creates a new holzBar Shelf panel.
     init() {
@@ -45,47 +50,51 @@ final class HolzBarShelfPanel: NSPanel {
     /// Sets up the panel.
     func performSetup(with appState: AppState) {
         self.appState = appState
-        configureCancellables()
+        configureObservers()
+    }
+
+    /// Returns the manager for the Shelf's color, creating and setting it up the first
+    /// time the Shelf is shown.
+    private func colorManagerForShowing() -> HolzBarShelfColorManager {
+        if let colorManager {
+            return colorManager
+        }
+        let colorManager = HolzBarShelfColorManager()
         colorManager.performSetup(with: self)
+        self.colorManager = colorManager
+        return colorManager
     }
 
     /// Configures the internal observers.
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
+    private func configureObservers() {
         // Hide the panel when the active space or screen parameters change.
-        Publishers.Merge(
-            NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.activeSpaceDidChangeNotification),
-            NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
-        )
-        .sink { [weak self] _ in
-            self?.hide()
-        }
-        .store(in: &c)
-
-        // Update the panel's origin whenever its size changes.
-        publisher(for: \.frame).map(\.size)
-            .removeDuplicates()
-            .sink { [weak self] _ in
-                guard let self, let screen else {
-                    return
+        observerTasks = [
+            Task { [weak self] in
+                let center = NSWorkspace.shared.notificationCenter
+                for await _ in center.notifications(named: NSWorkspace.activeSpaceDidChangeNotification) {
+                    self?.hide()
                 }
-                updateOrigin(for: screen)
-            }
-            .store(in: &c)
+            },
+            Task { [weak self] in
+                let center = NotificationCenter.default
+                for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+                    self?.hide()
+                }
+            },
+        ]
 
         if let controlItem = appState?.menuBarManager.controlItem(withName: .hidden) {
             // Use the hidden control item's frame to determine if the menu bar
             // is hidden. Hide the panel if so.
-            controlItem.$frame
-                .combineLatest(controlItem.$screen)
-                .throttle(for: 0.1, scheduler: DispatchQueue.main, latest: true)
-                .sink { [weak self] (frame, screen) in
-                    guard let self else {
+            controlItemObserver = ObservationLoop.observe {
+                (controlItem.frame, controlItem.screen)
+            } onChange: { [weak self, weak controlItem] _ in
+                self?.controlItemThrottle.throttle(latest: true) { [weak self, weak controlItem] in
+                    guard let self, let controlItem else {
                         return
                     }
 
-                    guard let frame, let screen else {
+                    guard let frame = controlItem.frame, let screen = controlItem.screen else {
                         hide()
                         return
                     }
@@ -96,10 +105,17 @@ final class HolzBarShelfPanel: NSPanel {
                         hide()
                     }
                 }
-                .store(in: &c)
+            }
         }
+    }
 
-        cancellables = c
+    /// Updates the panel's origin whenever its size changes.
+    override func setFrame(_ frameRect: NSRect, display flag: Bool) {
+        let oldSize = frame.size
+        super.setFrame(frameRect, display: flag)
+        if frame.size != oldSize, let screen {
+            updateOrigin(for: screen)
+        }
     }
 
     /// Updates the panel's frame origin for display on the given screen.
@@ -189,10 +205,11 @@ final class HolzBarShelfPanel: NSPanel {
             do {
                 try await cacheTask.value
             } catch {
-                Logger.default.error("Cache update failed when showing HolzBarShelfPanel - \(error)")
+                Logger.default.error("Cache update failed when showing HolzBarShelfPanel - \(error, privacy: .private)")
             }
         }
 
+        let colorManager = colorManagerForShowing()
         contentView = HolzBarShelfHostingView(
             appState: appState,
             colorManager: colorManager,
@@ -281,11 +298,11 @@ private final class HolzBarShelfHostingView: NSHostingView<HolzBarShelfContentVi
 // MARK: - HolzBarShelfContentView
 
 private struct HolzBarShelfContentView: View {
-    @ObservedObject var appState: AppState
-    @ObservedObject var colorManager: HolzBarShelfColorManager
-    @ObservedObject var itemManager: MenuBarItemManager
-    @ObservedObject var imageCache: MenuBarItemImageCache
-    @ObservedObject var menuBarManager: MenuBarManager
+    var appState: AppState
+    var colorManager: HolzBarShelfColorManager
+    var itemManager: MenuBarItemManager
+    var imageCache: MenuBarItemImageCache
+    var menuBarManager: MenuBarManager
     @State private var frame = CGRect.zero
     @State private var scrollIndicatorsFlashTrigger = 0
 
@@ -380,20 +397,10 @@ private struct HolzBarShelfContentView: View {
 
     @ViewBuilder
     private var content: some View {
-        if !ScreenCapture.cachedCheckPermissions() {
-            HStack {
-                Text("The holzBar Shelf requires screen recording permissions.")
-
-                Button {
-                    menuBarManager.section(withName: section)?.hide()
-                    appState.navigationState.settingsNavigationIdentifier = .advanced
-                    appState.activate(withPolicy: .regular)
-                    appState.openWindow(.settings)
-                } label: {
-                    Text("Open holzBar Settings")
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.link)
+        if !ScreenRecordingAccess.isGranted(appState) {
+            ScreenRecordingHint(feature: .shelf, appState: appState, isCompact: true) {
+                // The Shelf would cover the system prompt.
+                menuBarManager.section(withName: section)?.hide()
             }
             .padding(.horizontal, 10)
         } else if menuBarManager.isMenuBarHiddenBySystemUserDefaults {
@@ -436,9 +443,9 @@ private struct HolzBarShelfContentView: View {
 // MARK: - HolzBarShelfItemView
 
 private struct HolzBarShelfItemView: View {
-    @ObservedObject var imageCache: MenuBarItemImageCache
-    @ObservedObject var itemManager: MenuBarItemManager
-    @ObservedObject var menuBarManager: MenuBarManager
+    var imageCache: MenuBarItemImageCache
+    var itemManager: MenuBarItemManager
+    var menuBarManager: MenuBarManager
 
     let item: MenuBarItem
     let section: MenuBarSection.Name

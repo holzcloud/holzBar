@@ -11,9 +11,9 @@ import Foundation
 /// quits and reopens every process that owns a menu bar item. This type decides which of
 /// those processes are relaunched; `MenuBarItemSpacingManager` does the quitting and
 /// launching.
-enum SpacingRelaunch {
+nonisolated enum SpacingRelaunch {
     /// A process that owns at least one menu bar item.
-    struct Owner: Hashable {
+    nonisolated struct Owner: Hashable {
         /// The process identifier of the owner.
         let pid: pid_t
         /// The bundle identifier of the owner, if it has one.

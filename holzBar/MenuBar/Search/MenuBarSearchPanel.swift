@@ -3,7 +3,6 @@
 //  holzBar
 //
 
-import Combine
 import OSLog
 import SwiftUI
 
@@ -12,8 +11,11 @@ final class MenuBarSearchPanel: NSPanel {
     /// The shared app state.
     private weak var appState: AppState?
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Observer of the app's appearance.
+    private var appearanceObservation: NSKeyValueObservation?
+
+    /// Tasks that close the panel when the space or the screens change.
+    private var observerTasks = [Task<Void, Never>]()
 
     /// Model for menu bar item search.
     private let model = MenuBarSearchModel()
@@ -73,31 +75,34 @@ final class MenuBarSearchPanel: NSPanel {
     /// Performs the initial setup of the panel.
     func performSetup(with appState: AppState) {
         self.appState = appState
-        configureCancellables()
+        configureObservers()
         model.performSetup(with: self)
     }
 
     /// Configures the internal observers for the panel.
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
-        NSApp.publisher(for: \.effectiveAppearance)
-            .sink { [weak self] effectiveAppearance in
-                self?.appearance = effectiveAppearance
+    private func configureObservers() {
+        appearance = NSApp.effectiveAppearance
+        appearanceObservation = NSApp.observe(\.effectiveAppearance, options: [.new]) { [weak self] _, _ in
+            Task { @MainActor in
+                self?.appearance = NSApp.effectiveAppearance
             }
-            .store(in: &c)
+        }
 
         // Close the panel when the active space changes, or when the screen parameters change.
-        Publishers.Merge(
-            NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.activeSpaceDidChangeNotification),
-            NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
-        )
-        .sink { [weak self] _ in
-            self?.close()
-        }
-        .store(in: &c)
-
-        cancellables = c
+        observerTasks = [
+            Task { [weak self] in
+                let center = NSWorkspace.shared.notificationCenter
+                for await _ in center.notifications(named: NSWorkspace.activeSpaceDidChangeNotification) {
+                    self?.close()
+                }
+            },
+            Task { [weak self] in
+                let center = NotificationCenter.default
+                for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+                    self?.close()
+                }
+            },
+        ]
     }
 
     /// Shows the search panel on the given screen.
@@ -165,10 +170,10 @@ private final class MenuBarSearchHostingView: NSHostingView<AnyView> {
     ) {
         super.init(
             rootView: MenuBarSearchContentView { [weak panel] in panel?.close() }
-                .environmentObject(appState)
-                .environmentObject(appState.itemManager)
-                .environmentObject(appState.imageCache)
-                .environmentObject(model)
+                .environment(appState)
+                .environment(appState.itemManager)
+                .environment(appState.imageCache)
+                .environment(model)
                 .erasedToAnyView()
         )
     }
@@ -187,8 +192,9 @@ private final class MenuBarSearchHostingView: NSHostingView<AnyView> {
 private struct MenuBarSearchContentView: View {
     private typealias ListItem = SectionedListItem<MenuBarSearchModel.ItemID>
 
-    @EnvironmentObject var itemManager: MenuBarItemManager
-    @EnvironmentObject var model: MenuBarSearchModel
+    @Environment(AppState.self) var appState
+    @Environment(MenuBarItemManager.self) var itemManager
+    @Environment(MenuBarSearchModel.self) var model
     @FocusState private var searchFieldIsFocused: Bool
 
     let closePanel: () -> Void
@@ -204,6 +210,14 @@ private struct MenuBarSearchContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             searchField
+            if !ScreenRecordingAccess.isGranted(appState) {
+                // Names stay searchable without pictures.
+                ScreenRecordingHint(feature: .search, appState: appState, isCompact: true, willRequest: closePanel)
+                    .font(.callout)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 10)
+                Divider()
+            }
             mainContent
             bottomBar
         }
@@ -233,7 +247,7 @@ private struct MenuBarSearchContentView: View {
         let promptText = Text("Search menu bar items…")
 
         VStack(spacing: 0) {
-            TextField(text: $model.searchText, prompt: promptText) {
+            TextField(text: Bindable(model).searchText, prompt: promptText) {
                 promptText
             }
             .labelsHidden()
@@ -250,7 +264,7 @@ private struct MenuBarSearchContentView: View {
     @ViewBuilder
     private var mainContent: some View {
         if hasItems {
-            SectionedList(selection: $model.selection, items: $model.displayedItems)
+            SectionedList(selection: Bindable(model).selection, items: Bindable(model).displayedItems)
                 .contentPadding(8)
                 .scrollContentBackground(.hidden)
         } else {
@@ -451,9 +465,9 @@ private let controlCenterIcon: NSImage? = {
 }()
 
 private struct MenuBarSearchItemView: View {
-    @EnvironmentObject var appState: AppState
-    @EnvironmentObject var imageCache: MenuBarItemImageCache
-    @EnvironmentObject var model: MenuBarSearchModel
+    @Environment(AppState.self) var appState
+    @Environment(MenuBarItemImageCache.self) var imageCache
+    @Environment(MenuBarSearchModel.self) var model
 
     let item: MenuBarItem
 

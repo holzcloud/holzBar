@@ -5,7 +5,7 @@
 
 import Foundation
 
-enum MenuBarItemService {
+nonisolated enum MenuBarItemService {
     static let name = "com.holzcloud.holzBar.MenuBarItemService"
 
     /// The signing identifier of holzBar, the only app the service answers.
@@ -15,13 +15,13 @@ enum MenuBarItemService {
     static let appIdentifier = "com.holzcloud.holzBar"
 }
 
-extension MenuBarItemService {
-    enum Request: Codable {
+nonisolated extension MenuBarItemService {
+    nonisolated enum Request: Codable {
         case start
         case sourcePID(WindowInfo)
     }
 
-    enum Response: Codable {
+    nonisolated enum Response: Codable {
         case start
         case sourcePID(pid_t?)
     }

@@ -3,8 +3,8 @@
 //  Shared
 //
 
+@preconcurrency import ApplicationServices
 import Cocoa
-import Combine
 import os
 
 /// A cache for the source process identifiers for menu bar item windows.
@@ -20,11 +20,14 @@ import os
 /// Accessibility are thread blocking, we do most of the heavy lifting
 /// in a dedicated XPC service, which we then call asynchronously from
 /// the main app.
-final class SourcePIDCache {
+///
+/// The cache is used from one queue at a time (the service's, or the app's
+/// fallback queue), and its state is behind a lock.
+nonisolated final class SourcePIDCache: Sendable {
     /// An object that contains a running application and provides an
     /// interface to access relevant information, such as its process
     /// identifier and extras menu bar.
-    private final class CachedApplication {
+    nonisolated private final class CachedApplication {
         private let runningApp: NSRunningApplication
         private var extrasMenuBar: AXUIElement?
 
@@ -78,9 +81,11 @@ final class SourcePIDCache {
     }
 
     /// State for the cache.
-    private struct State {
+    nonisolated private struct State {
         var apps = [CachedApplication]()
         var pids = [CGWindowID: pid_t]()
+        /// Observer for running applications.
+        var observation: NSKeyValueObservation?
 
         /// Returns the latest bounds of the given window after ensuring
         /// that the bounds are stable (a.k.a. not currently changing).
@@ -159,20 +164,36 @@ final class SourcePIDCache {
     /// The shared cache.
     static let shared = SourcePIDCache()
 
-    /// The cache's protected state.
-    private let state = OSAllocatedUnfairLock(initialState: State())
+    /// The cache's protected state. It holds Accessibility elements and running
+    /// applications, which are not marked `Sendable`, so it is only touched
+    /// inside the lock.
+    private let state = OSAllocatedUnfairLock(uncheckedState: State())
 
-    /// Observer for running applications.
-    private lazy var cancellable = NSWorkspace.shared.publisher(for: \.runningApplications).sink { [weak self] runningApps in
-        guard let self else {
+    /// Creates the shared cache.
+    private init() {
+        Bridging.setProcessUnresponsiveTimeout(3)
+    }
+
+    /// Starts the observers for the cache.
+    func start() {
+        Logger.default.debug("Starting observers for source PID cache")
+        let isObserving = state.withLockUnchecked { $0.observation != nil }
+        guard !isObserving else {
             return
         }
+        let observation = NSWorkspace.shared.observe(\.runningApplications, options: [.initial, .new]) { [weak self] workspace, _ in
+            self?.update(runningApps: workspace.runningApplications)
+        }
+        state.withLockUnchecked { $0.observation = observation }
+    }
 
+    /// Brings the cache in line with the running applications.
+    private func update(runningApps: [NSRunningApplication]) {
         Logger.default.debug("Received new running applications")
 
         let windowIDs = Bridging.getMenuBarWindowList(option: .itemsOnly)
 
-        state.withLock { state in
+        state.withLockUnchecked { state in
             // Convert the cached state to dictionaries keyed by pid to
             // allow for efficient repeated access.
             let appMappings = state.apps.reduce(into: [:]) { result, app in
@@ -185,7 +206,8 @@ final class SourcePIDCache {
             }
 
             // Create a new state that matches the current running apps.
-            state = runningApps.reduce(into: State()) { result, app in
+            let observation = state.observation
+            state = runningApps.reduce(into: State(observation: observation)) { result, app in
                 let pid = app.processIdentifier
 
                 if let app = appMappings[pid] {
@@ -204,21 +226,10 @@ final class SourcePIDCache {
         }
     }
 
-    /// Creates the shared cache.
-    private init() {
-        Bridging.setProcessUnresponsiveTimeout(3)
-    }
-
-    /// Starts the observers for the cache.
-    func start() {
-        Logger.default.debug("Starting observers for source PID cache")
-        _ = cancellable
-    }
-
     /// Returns the cached process identifier for the given window,
     /// updating the cache if needed.
     func pid(for window: WindowInfo) -> pid_t? {
-        state.withLock { state in
+        state.withLockUnchecked { state in
             if let pid = state.pids[window.windowID] {
                 return pid
             }

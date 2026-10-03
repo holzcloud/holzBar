@@ -12,7 +12,7 @@ import Foundation
 /// lets only the first move that asks for an action start one; later moves that ask for the
 /// same action start nothing, so the delay still counts from the first move. A move that
 /// asks for another action replaces the pending one.
-struct HoverSchedule<Action: Equatable> {
+nonisolated struct HoverSchedule<Action: Equatable> {
     /// The action waiting for its delay, if any.
     private(set) var pending: Action?
 

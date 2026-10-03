@@ -110,6 +110,10 @@ enum SettingsBackup {
             return
         }
         do {
+            // Data(contentsOf:) would fetch an http(s) URL; holzBar reads only files.
+            guard url.isFileURL else {
+                throw CocoaError(.fileReadUnsupportedScheme)
+            }
             let data = try Data(contentsOf: url)
             guard let settings = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
                 throw CocoaError(.fileReadCorruptFile)
@@ -156,7 +160,7 @@ enum SettingsBackup {
     }
 
     private static func show(_ error: Error, message: String) {
-        logger.error("\(message, privacy: .public) \(error, privacy: .public)")
+        logger.error("\(message, privacy: .public) \(error, privacy: .private)")
         let alert = NSAlert(error: error)
         alert.messageText = message
         alert.runModal()

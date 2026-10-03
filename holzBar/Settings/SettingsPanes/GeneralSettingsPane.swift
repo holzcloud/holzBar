@@ -3,12 +3,11 @@
 //  holzBar
 //
 
-import LaunchAtLogin
 import SwiftUI
 
 struct GeneralSettingsPane: View {
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var settings: GeneralSettings
+    @Environment(AppState.self) var appState
+    @Bindable var settings: GeneralSettings
     @State private var isImportingCustomHolzBarIcon = false
     @State private var isPresentingError = false
     @State private var presentedError: LocalizedErrorWrapper?
@@ -60,7 +59,7 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var appOptions: some View {
-        LaunchAtLogin.Toggle()
+        LaunchAtLoginToggle()
     }
 
     // MARK: holzBar Icon Options
@@ -120,6 +119,10 @@ struct GeneralSettingsPane: View {
         ) { result in
             do {
                 let url = try result.get()
+                // Data(contentsOf:) would fetch an http(s) URL; holzBar reads only files.
+                guard url.isFileURL else {
+                    throw CocoaError(.fileReadUnsupportedScheme)
+                }
                 if url.startAccessingSecurityScopedResource() {
                     defer { url.stopAccessingSecurityScopedResource() }
                     let data = try Data(contentsOf: url)

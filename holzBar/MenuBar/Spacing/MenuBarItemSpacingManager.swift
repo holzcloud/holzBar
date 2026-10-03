@@ -66,7 +66,7 @@ final class MenuBarItemSpacingManager {
     /// - Returns: Whether the app has quit.
     private func quit(_ app: NSRunningApplication) async -> Bool {
         if app.isTerminated {
-            logger.debug("Application \"\(app.logString, privacy: .public)\" is already terminated")
+            logger.debug("Application \"\(app.logString, privacy: .private(mask: .hash))\" is already terminated")
             return true
         }
 
@@ -80,7 +80,7 @@ final class MenuBarItemSpacingManager {
             }
         }
 
-        logger.debug("Signaling application \"\(app.logString, privacy: .public)\" to quit")
+        logger.debug("Signaling application \"\(app.logString, privacy: .private(mask: .hash))\" to quit")
         app.terminate()
 
         let didQuit = await SpacingRelaunch.waitUntil(timeout: SpacingRelaunch.quitTimeout) {
@@ -93,13 +93,13 @@ final class MenuBarItemSpacingManager {
         continuation.finish()
 
         if didQuit || app.isTerminated {
-            logger.debug("Application \"\(app.logString, privacy: .public)\" terminated successfully")
+            logger.debug("Application \"\(app.logString, privacy: .private(mask: .hash))\" terminated successfully")
             return true
         }
         let seconds = SpacingRelaunch.quitTimeout.components.seconds
         logger.debug(
             """
-            Application \"\(app.logString, privacy: .public)\" did not quit within \
+            Application \"\(app.logString, privacy: .private(mask: .hash))\" did not quit within \
             \(seconds, privacy: .public) seconds, so it is left running
             """
         )
@@ -109,7 +109,7 @@ final class MenuBarItemSpacingManager {
     /// Asynchronously launches the app at the given URL.
     private nonisolated func launchApp(at applicationURL: URL, bundleIdentifier: String) async throws {
         if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == bundleIdentifier }) {
-            logger.debug("Application \"\(app.logString, privacy: .public)\" is already open, so skipping launch")
+            logger.debug("Application \"\(app.logString, privacy: .private(mask: .hash))\" is already open, so skipping launch")
             return
         }
         let configuration = NSWorkspace.OpenConfiguration()
@@ -133,6 +133,33 @@ final class MenuBarItemSpacingManager {
             throw RelaunchError()
         }
         try await launchApp(at: url, bundleIdentifier: bundleIdentifier)
+    }
+
+    /// Relaunches the application with the given process identifier and returns its
+    /// name if it did not quit, or `nil`.
+    private func relaunchFailure(pid: pid_t) async -> String? {
+        guard let app = NSRunningApplication(processIdentifier: pid) else {
+            return nil
+        }
+        do {
+            try await relaunchApp(app)
+            return nil
+        } catch {
+            guard let name = app.localizedName else {
+                return nil
+            }
+            if app.bundleIdentifier == "com.apple.Spotlight" {
+                // Spotlight automatically relaunches, so only consider it a failure if it never quit.
+                if
+                    let latestSpotlightInstance = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Spotlight").first,
+                    latestSpotlightInstance.processIdentifier == app.processIdentifier
+                {
+                    return name
+                }
+                return nil
+            }
+            return name
+        }
     }
 
     /// Applies the current ``offset``.
@@ -165,38 +192,21 @@ final class MenuBarItemSpacingManager {
 
         var failedApps = [String]()
 
-        await withTaskGroup(of: String?.self) { group in
-            for pid in pids {
-                guard let app = NSRunningApplication(processIdentifier: pid) else {
-                    // The process is gone, so there is nothing to relaunch.
-                    continue
-                }
-                group.addTask { @MainActor in
-                    do {
-                        try await self.relaunchApp(app)
-                        return nil
-                    } catch {
-                        guard let name = app.localizedName else {
-                            return nil
-                        }
-                        if app.bundleIdentifier == "com.apple.Spotlight" {
-                            // Spotlight automatically relaunches, so only consider it a failure if it never quit.
-                            if
-                                let latestSpotlightInstance = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Spotlight").first,
-                                latestSpotlightInstance.processIdentifier == app.processIdentifier
-                            {
-                                return name
-                            }
-                            return nil
-                        }
-                        return name
-                    }
-                }
+        // The applications relaunch at the same time, each in a task of its own on the
+        // main actor; the tasks look the applications up themselves, so only process
+        // identifiers cross into them.
+        let relaunches = pids.compactMap { pid -> Task<String?, Never>? in
+            guard NSRunningApplication(processIdentifier: pid) != nil else {
+                // The process is gone, so there is nothing to relaunch.
+                return nil
             }
-            for await name in group {
-                if let name {
-                    failedApps.append(name)
-                }
+            return Task {
+                await self.relaunchFailure(pid: pid)
+            }
+        }
+        for relaunch in relaunches {
+            if let name = await relaunch.value {
+                failedApps.append(name)
             }
         }
 
@@ -216,7 +226,7 @@ final class MenuBarItemSpacingManager {
     }
 }
 
-private extension NSRunningApplication {
+nonisolated private extension NSRunningApplication {
     /// A string to use for logging purposes.
     var logString: String {
         localizedName ?? bundleIdentifier ?? "<NIL>"

@@ -6,26 +6,17 @@
 import SwiftUI
 
 struct PermissionsView: View {
-    @EnvironmentObject var appState: AppState
-    @EnvironmentObject var manager: AppPermissions
+    @Environment(AppState.self) var appState
+    @Environment(AppPermissions.self) var manager
 
-    private var continueButtonText: LocalizedStringKey {
-        if case .hasRequired = manager.permissionsState {
-            "Continue in Limited Mode"
-        } else {
-            "Continue"
-        }
+    /// The permissions holzBar asks for at the first launch.
+    private var launchPermissions: [Permission] {
+        manager.allPermissions.filter { $0.requestsAtLaunch }
     }
 
-    private var continueButtonForegroundStyle: some ShapeStyle {
-        switch manager.permissionsState {
-        case .missing:
-            AnyShapeStyle(.secondary)
-        case .hasAll:
-            AnyShapeStyle(.primary)
-        case .hasRequired:
-            AnyShapeStyle(.yellow)
-        }
+    /// The permissions a feature asks for when it is first used.
+    private var laterPermissions: [Permission] {
+        manager.allPermissions.filter { !$0.requestsAtLaunch }
     }
 
     var body: some View {
@@ -67,6 +58,9 @@ struct PermissionsView: View {
                 Text("Absolutely no personal information is collected or stored.")
                     .bold()
                     .foregroundStyle(Color(red: 0.5, green: 0.75, blue: 1))
+                Text("holzBar never connects to the network.")
+                    .bold()
+                    .foregroundStyle(Color(red: 0.5, green: 0.75, blue: 1))
             }
             .padding()
         }
@@ -77,8 +71,11 @@ struct PermissionsView: View {
     private var permissionsStack: some View {
         VStack {
             explanationBox
-            ForEach(manager.allPermissions) { permission in
+            ForEach(launchPermissions) { permission in
                 permissionBox(permission)
+            }
+            ForEach(laterPermissions) { permission in
+                laterPermissionBox(permission)
             }
         }
     }
@@ -119,11 +116,38 @@ struct PermissionsView: View {
                 appState.openWindow(.settings)
             }
         } label: {
-            Text(continueButtonText)
+            Text("Continue")
                 .frame(maxWidth: .infinity)
-                .foregroundStyle(continueButtonForegroundStyle)
         }
         .disabled(manager.permissionsState == .missing)
+    }
+
+    /// A permission that a feature asks for when it is first used: what it is for, and no
+    /// request.
+    @ViewBuilder
+    private func laterPermissionBox(_ permission: Permission) -> some View {
+        HolzBarSection {
+            VStack(spacing: 8) {
+                Text(permission.title)
+                    .font(.title.weight(.medium))
+                    .underline()
+
+                Text(ScreenRecordingFeature.summary)
+                    .multilineTextAlignment(.center)
+                    .fontWeight(.medium)
+
+                Text("holzBar asks for it the first time you use one of these.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+
+                if permission.hasPermission {
+                    Text("Permission Granted")
+                        .foregroundStyle(.green)
+                }
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity)
+        }
     }
 
     @ViewBuilder
@@ -185,13 +209,6 @@ struct PermissionsView: View {
                         }
                         .buttonStyle(.link)
                         .font(.callout)
-                    }
-                }
-
-                if !permission.isRequired {
-                    CalloutBox("holzBar can work in a limited mode without this permission.") {
-                        Image(systemName: "checkmark.shield")
-                            .foregroundStyle(.green)
                     }
                 }
             }

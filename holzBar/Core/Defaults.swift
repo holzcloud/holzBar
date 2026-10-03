@@ -5,7 +5,7 @@
 
 import Foundation
 
-enum Defaults {
+nonisolated enum Defaults {
     /// Returns a dictionary containing the keys and values for
     /// the defaults meant to be seen by all applications.
     static var globalDomain: [String: Any] {
@@ -135,13 +135,13 @@ enum Defaults {
     }
 }
 
-extension Defaults {
+nonisolated extension Defaults {
     /// The keys holzBar stores its settings under.
     ///
     /// Every key declares the kind of value it holds (``settingsKind``), so an imported
     /// or synced settings file can only set holzBar's own keys, with values of the
     /// expected kind (``SettingsSchema``).
-    enum Key: String, CaseIterable {
+    nonisolated enum Key: String, CaseIterable {
         // MARK: General Settings
 
         /// The stored strings keep the names that earlier versions of the app
@@ -228,7 +228,7 @@ extension Defaults {
 
 // MARK: - Value Kinds
 
-extension Defaults.Key {
+nonisolated extension Defaults.Key {
     /// The kind of value stored under this key.
     ///
     /// The switch has no `default`, so a new key must declare its kind before it

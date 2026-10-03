@@ -1,0 +1,7 @@
+# Lines of networking API that privacy-check.py network allows, as `<path>: <token>`.
+# A hit is allowed when its file equals <path> and the line contains <token>.
+#
+# NWPathMonitor only observes whether a network path exists (for the "Reveal when
+# offline" rule); it opens no connection and sends nothing.
+holzBar/MenuBar/RevealRules/RevealRules.swift: import Network
+holzBar/MenuBar/RevealRules/RevealRules.swift: NWPathMonitor

@@ -11,7 +11,7 @@ import Foundation
 /// quits. The new instance waits until the old one has quit, for at most ``waitTimeout``,
 /// before it sets up, so it never registers hotkeys or status items while the old instance
 /// still holds them.
-enum Relaunch {
+nonisolated enum Relaunch {
     /// The environment variable that names the previous instance's process identifier.
     static let previousInstanceKey = "HOLZBAR_PREVIOUS_INSTANCE"
 

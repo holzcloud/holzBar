@@ -3,9 +3,10 @@
 //  holzBar
 //
 
-import ApplicationServices
+@preconcurrency import ApplicationServices
 import Cocoa
 import OSLog
+import os
 
 /// Reads menu bar items through Accessibility on macOS 27.
 ///
@@ -14,7 +15,7 @@ import OSLog
 /// publishes its items under `AXExtrasMenuBar`, with frames, for the display that
 /// has the active menu bar.
 @available(macOS 27.0, *)
-enum MenuBarItemProvider27 {
+nonisolated enum MenuBarItemProvider27 {
     /// The bundle identifier of the process that hosts the system items.
     static let menuBarAgentBundleID = "com.apple.MenuBarAgent"
 
@@ -41,25 +42,38 @@ enum MenuBarItemProvider27 {
     /// concurrency pool (see `MenuBarItemImageCache.captureQueue`).
     private static let queue = DispatchQueue(label: "com.holzcloud.holzBar.MenuBarItemProvider27", qos: .userInitiated)
 
-    private static let lock = NSLock()
-    nonisolated(unsafe) private static var entries = [CGWindowID: Entry]()
-    nonisolated(unsafe) private static var lastOverflowButtonFrame: CGRect?
-    nonisolated(unsafe) private static var lastSystemItemFrames = [CGRect]()
-    /// System item frames per display. MenuBarAgent describes the bars of both displays in its
-    /// windows, unlike other applications, whose items only have frames on the active one.
-    nonisolated(unsafe) private static var lastSystemFramesByDisplay = [CGDirectDisplayID: [CGRect]]()
+    /// The provider's mutable state, read from any thread and written on `queue`.
+    private struct State {
+        var entries = [CGWindowID: Entry]()
+        var lastOverflowButtonFrame: CGRect?
+        var lastSystemItemFrames = [CGRect]()
+        /// System item frames per display. MenuBarAgent describes the bars of both displays in its
+        /// windows, unlike other applications, whose items only have frames on the active one.
+        var lastSystemFramesByDisplay = [CGDirectDisplayID: [CGRect]]()
+        /// The leftmost item drawn on each display, from the last read while that display's
+        /// menu bar was active. Hover hit-testing needs it for the display that is not active,
+        /// where Accessibility reports no frames at all.
+        var lastLeftEdges = [CGDirectDisplayID: CGFloat]()
+        /// Processes whose items are concealed. Accessibility keeps reporting their frames where
+        /// they were last drawn, so without this they would pass for drawn items.
+        var concealedPIDs = Set<pid_t>()
+        /// Only used on `queue`.
+        var scanSchedule = AccessibilityScanSchedule27()
+        var lastItems: [MenuBarItem]?
+        var lastReadAt: TimeInterval = 0
+    }
+
+    // The state holds Accessibility elements, which are immutable references that any
+    // thread may use, so it is guarded by the lock without a Sendable check.
+    private static let state = OSAllocatedUnfairLock(uncheckedState: State())
+
+    private static func withState<R>(_ body: (inout State) -> R) -> R {
+        state.withLockUnchecked(body)
+    }
+
     /// How far left of the clock's own left edge the other system items reach (measured on
     /// macOS 27.0: 122 points on both displays — battery, Wi-Fi and Control Centre).
     private static let systemItemsSpan: CGFloat = 130
-    /// The leftmost item drawn on each display, from the last read while that display's
-    /// menu bar was active. Hover hit-testing needs it for the display that is not active,
-    /// where Accessibility reports no frames at all.
-    nonisolated(unsafe) private static var lastLeftEdges = [CGDirectDisplayID: CGFloat]()
-    /// Processes whose items are concealed. Accessibility keeps reporting their frames where
-    /// they were last drawn, so without this they would pass for drawn items.
-    nonisolated(unsafe) private static var concealedPIDs = Set<pid_t>()
-    /// Only read and written on `queue`.
-    nonisolated(unsafe) private static var scanSchedule = AccessibilityScanSchedule27()
 
     /// Returns the items on the active menu bar, ordered left to right.
     ///
@@ -73,10 +87,10 @@ enum MenuBarItemProvider27 {
     static func items() async -> [MenuBarItem] {
         await withCheckedContinuation { continuation in
             queue.async {
-                let fresh: [MenuBarItem]? = lock.withLock {
+                let fresh: [MenuBarItem]? = withState { state in
                     guard
-                        let items = lastItems,
-                        ProcessInfo.processInfo.systemUptime - lastReadAt < freshInterval
+                        let items = state.lastItems,
+                        ProcessInfo.processInfo.systemUptime - state.lastReadAt < freshInterval
                     else {
                         return nil
                     }
@@ -88,9 +102,9 @@ enum MenuBarItemProvider27 {
                     return
                 }
                 let items = readItems()
-                lock.withLock {
-                    lastItems = items
-                    lastReadAt = ProcessInfo.processInfo.systemUptime
+                withState { state in
+                    state.lastItems = items
+                    state.lastReadAt = ProcessInfo.processInfo.systemUptime
                 }
                 continuation.resume(returning: items)
             }
@@ -99,15 +113,13 @@ enum MenuBarItemProvider27 {
 
     /// How long a finished read stands in for the next one.
     private static let freshInterval: TimeInterval = 0.12
-    nonisolated(unsafe) private static var lastItems: [MenuBarItem]?
-    nonisolated(unsafe) private static var lastReadAt: TimeInterval = 0
 
     /// Returns the current frame of the item with the given synthetic identifier.
     ///
     /// holzBar's own items are answered from the last read: asking our own process
     /// from the main thread would wait for the main thread itself.
     static func currentBounds(for windowID: CGWindowID) -> CGRect? {
-        guard let entry = lock.withLock({ entries[windowID] }) else {
+        guard let entry = withState({ $0.entries[windowID] }) else {
             return nil
         }
         if entry.bundleID == Constants.bundleIdentifier {
@@ -118,14 +130,14 @@ enum MenuBarItemProvider27 {
 
     /// Frames of the system items hosted by MenuBarAgent, from the last read.
     static func systemItemFrames() -> [CGRect] {
-        lock.withLock { lastSystemItemFrames }
+        withState { $0.lastSystemItemFrames }
     }
 
     /// The Accessibility element of the system item drawn at the given point, from the last
     /// read. Control Centre opens from a press on it without lifting concealment.
     static func systemItem(at point: CGPoint) -> (element: AXUIElement, identifier: String)? {
-        lock.withLock {
-            entries.values
+        withState { state in
+            state.entries.values
                 .first { $0.bundleID == menuBarAgentBundleID && $0.frame.insetBy(dx: -1, dy: -1).contains(point) }
                 .map { ($0.element, $0.identifier) }
         }
@@ -133,13 +145,13 @@ enum MenuBarItemProvider27 {
 
     /// Tells the provider which processes are concealed right now.
     static func setConcealedPIDs(_ pids: Set<pid_t>) {
-        lock.withLock { concealedPIDs = pids }
+        withState { $0.concealedPIDs = pids }
     }
 
     /// The leftmost item drawn on the given display, from the last read while its menu bar
     /// was active.
     static func leftEdge(for displayID: CGDirectDisplayID) -> CGFloat? {
-        lock.withLock { lastLeftEdges[displayID] }
+        withState { $0.lastLeftEdges[displayID] }
     }
 
     /// Frames of the system items drawn on the given display, from the last read.
@@ -148,18 +160,18 @@ enum MenuBarItemProvider27 {
     /// too, or it reaches MenuBarAgent while the assertion still stands and is ignored — which
     /// is why that clock used to need two or three clicks.
     static func systemItemFrames(for displayID: CGDirectDisplayID) -> [CGRect] {
-        lock.withLock { lastSystemFramesByDisplay[displayID] ?? [] }
+        withState { $0.lastSystemFramesByDisplay[displayID] ?? [] }
     }
 
     /// Frame of the system overflow button ("<<" / ">>"), from the last read.
     static func overflowButtonFrame() -> CGRect? {
-        lock.withLock { lastOverflowButtonFrame }
+        withState { $0.lastOverflowButtonFrame }
     }
 
     /// The Accessibility element of the item with the given synthetic identifier, from the
     /// last read. Items drawn on another display are included (see `ItemDrawing27`).
     static func element(forWindowID windowID: CGWindowID) -> AXUIElement? {
-        lock.withLock { entries[windowID]?.element }
+        withState { $0.entries[windowID]?.element }
     }
 
     // MARK: Reading
@@ -188,6 +200,8 @@ enum MenuBarItemProvider27 {
         let applications = runningApplications.filter { $0.bundleIdentifier == menuBarAgentBundleID }
             + runningApplications.filter { $0.bundleIdentifier != menuBarAgentBundleID }
         let now = ProcessInfo.processInfo.systemUptime
+        // The schedule is only used on `queue`, so a copy is read here and written back below.
+        var scanSchedule = withState { $0.scanSchedule }
         scanSchedule.retain(running: Set(applications.map(\.processIdentifier)))
 
         for app in applications {
@@ -276,16 +290,18 @@ enum MenuBarItemProvider27 {
                     }
                     return frames.filter { $0.minX >= clock.minX - systemItemsSpan }
                 }
-                lock.withLock { lastSystemFramesByDisplay = perDisplay }
+                withState { $0.lastSystemFramesByDisplay = perDisplay }
                 let systemFrames = rawItems
                     .filter { $0.bundleID == menuBarAgentBundleID && (activeDisplayBounds?.intersects($0.frame) ?? true) }
                     .map(\.frame)
-                lock.withLock {
-                    lastSystemItemFrames = systemFrames
-                    lastOverflowButtonFrame = chevronFrame
+                withState { state in
+                    state.lastSystemItemFrames = systemFrames
+                    state.lastOverflowButtonFrame = chevronFrame
                 }
             }
         }
+
+        withState { $0.scanSchedule = scanSchedule }
 
         if retryIfMenuBarMoves, Bridging.getActiveMenuBarDisplayID() != activeDisplayID {
             return readItems(retryIfMenuBarMoves: false)
@@ -310,7 +326,7 @@ enum MenuBarItemProvider27 {
         // Where the items' own run of the bar begins, for hover hit-testing. Only what is
         // drawn counts: a concealed item keeps a stale frame further left, which would make
         // holzBar treat the freed part of the bar as occupied.
-        let concealed = lock.withLock { concealedPIDs }
+        let concealed = withState { $0.concealedPIDs }
         let leftEdge = items
             .filter { item in
                 guard !concealed.contains(item.ownerPID) else {
@@ -323,14 +339,14 @@ enum MenuBarItemProvider27 {
             }
             .map(\.bounds.minX)
             .min()
-        lock.withLock {
-            entries = newEntries
-            lastOverflowButtonFrame = chevronFrame
-            lastSystemItemFrames = newEntries.values
+        withState { state in
+            state.entries = newEntries
+            state.lastOverflowButtonFrame = chevronFrame
+            state.lastSystemItemFrames = newEntries.values
                 .filter { $0.bundleID == menuBarAgentBundleID && (activeDisplayBounds?.intersects($0.frame) ?? true) }
                 .map(\.frame)
             if let activeDisplayID, let leftEdge {
-                lastLeftEdges[activeDisplayID] = leftEdge
+                state.lastLeftEdges[activeDisplayID] = leftEdge
             }
         }
         return items
@@ -395,7 +411,7 @@ enum MenuBarItemProvider27 {
 }
 
 @available(macOS 27.0, *)
-extension MenuBarItem {
+nonisolated extension MenuBarItem {
     /// Creates an item read through Accessibility on macOS 27.
     init(
         tag: MenuBarItemTag,

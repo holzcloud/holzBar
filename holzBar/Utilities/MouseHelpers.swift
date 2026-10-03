@@ -7,7 +7,7 @@ import CoreGraphics
 import OSLog
 
 /// A namespace for mouse helper operations.
-enum MouseHelpers {
+nonisolated enum MouseHelpers {
     /// Returns the location of the mouse cursor in the coordinate
     /// space used by `AppKit`, with the origin at the bottom left
     /// of the screen.

@@ -35,44 +35,40 @@ enum URLCommands {
             logger.warning("Ignoring a URL that is not a holzBar command")
             return
         }
-        let arguments = command.arguments
         let manager = appState.menuBarManager
         // Only the command is logged, never the URL or its arguments (profile names).
         logger.notice("Performing \(command.name, privacy: .public)")
 
-        func section() -> MenuBarSection? {
-            switch arguments.first?.lowercased() {
-            case "always-hidden", "alwayshidden": manager.section(withName: .alwaysHidden)
-            default: manager.section(withName: .hidden)
+        func section(_ name: URLCommand.Section) -> MenuBarSection? {
+            switch name {
+            case .hidden: manager.section(withName: .hidden)
+            case .alwaysHidden: manager.section(withName: .alwaysHidden)
             }
         }
 
-        switch command.name {
-        case "toggle":
-            section()?.toggle()
-        case "show":
-            section()?.show()
+        switch command.action {
+        case .toggle(let name):
+            section(name)?.toggle()
+        case .show(let name):
+            section(name)?.show()
             manager.showOnHoverAllowed = false
-        case "hide":
-            section()?.hide()
-        case "search":
+        case .hide(let name):
+            section(name)?.hide()
+        case .search:
             manager.searchPanel.toggle()
-        case "settings":
+        case .settings:
             appState.activate(withPolicy: .regular)
             appState.openWindow(.settings)
-        case "shelf", "ice-bar":
+        case .toggleShelf:
             appState.settings.general.useShelf.toggle()
-        case "auto-rehide":
+        case .toggleAutoRehide:
             appState.settings.general.autoRehide.toggle()
-        case "application-menus":
+        case .toggleApplicationMenus:
             manager.toggleApplicationMenus()
-        case "profile":
-            guard let name = arguments.first else {
-                return
-            }
+        case .applyProfile(let name):
             appState.profiles.apply(named: name)
-        default:
-            logger.warning("Unknown command \(command.name, privacy: .public)")
+        case .unknown:
+            logger.warning("Unknown command \(command.name, privacy: .private)")
         }
     }
 }

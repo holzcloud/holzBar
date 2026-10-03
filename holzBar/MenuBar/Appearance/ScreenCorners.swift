@@ -4,7 +4,6 @@
 //
 
 import AppKit
-import Combine
 
 /// Draws rounded corners on every display.
 ///
@@ -17,25 +16,47 @@ final class ScreenCorners {
         case topLeft, topRight, bottomLeft, bottomRight
     }
 
+    /// What the corners look like.
+    private struct Settings: Equatable {
+        let isEnabled: Bool
+        let radius: Double
+    }
+
     private var panels = [NSPanel]()
-    private var cancellables = Set<AnyCancellable>()
+
+    /// Observes the configuration's corner settings.
+    private var observer: ObservationLoop?
+
+    /// The task that follows screen parameter changes.
+    private var screenParametersTask: Task<Void, Never>?
+
+    /// Redraws the corners 0.1 s after the settings or the screens stop changing.
+    private let debouncer = Debouncer(delay: .milliseconds(100))
 
     /// Starts following the given appearance manager's configuration.
     func performSetup(with appearanceManager: MenuBarAppearanceManager) {
-        appearanceManager.$configuration
-            .map { ($0.roundsScreenCorners, $0.screenCornerRadius) }
-            .removeDuplicates { $0 == $1 }
-            .combineLatest(
-                NotificationCenter.default
-                    .publisher(for: NSApplication.didChangeScreenParametersNotification)
-                    .replace(with: ())
-                    .prepend(())
+        let settings: @MainActor @Sendable () -> Settings = {
+            Settings(
+                isEnabled: appearanceManager.configuration.roundsScreenCorners,
+                radius: appearanceManager.configuration.screenCornerRadius
             )
-            .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .sink { [weak self] settings, _ in
-                self?.update(isEnabled: settings.0, radius: settings.1)
+        }
+        let scheduleUpdate: @MainActor @Sendable () -> Void = { [weak self] in
+            self?.debouncer.schedule { [weak self] in
+                let current = settings()
+                self?.update(isEnabled: current.isEnabled, radius: current.radius)
             }
-            .store(in: &cancellables)
+        }
+        observer = ObservationLoop.observe(settings) { _ in
+            scheduleUpdate()
+        }
+        screenParametersTask = Task {
+            let center = NotificationCenter.default
+            for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+                scheduleUpdate()
+            }
+        }
+        scheduleUpdate()
     }
 
     private func update(isEnabled: Bool, radius: Double) {

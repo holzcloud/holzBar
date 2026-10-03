@@ -49,7 +49,7 @@ enum ConflictingApps {
             return true
         }
         let names = apps.compactMap(\.localizedName).joined(separator: ", ")
-        logger.notice("Other menu bar managers are running: \(names, privacy: .public)")
+        logger.notice("Other menu bar managers are running: \(names, privacy: .private(mask: .hash))")
 
         let alert = NSAlert()
         alert.alertStyle = .warning
@@ -74,7 +74,7 @@ enum ConflictingApps {
             RunLoop.current.run(until: .now.addingTimeInterval(0.1))
         }
         for app in apps where !app.isTerminated {
-            logger.warning("\(app.localizedName ?? "An app", privacy: .public) did not quit, forcing it")
+            logger.warning("\(app.localizedName ?? "An app", privacy: .private(mask: .hash)) did not quit, forcing it")
             app.forceTerminate()
         }
         return true

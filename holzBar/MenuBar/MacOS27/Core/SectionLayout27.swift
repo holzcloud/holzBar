@@ -7,7 +7,7 @@ import CoreGraphics
 import Foundation
 
 /// A section as the macOS 27 backend sees it, ordered from most to least visible.
-enum MacOS27Section: Int, Codable, CaseIterable, Comparable {
+nonisolated enum MacOS27Section: Int, Codable, CaseIterable, Comparable {
     case visible = 0
     case hidden = 1
     case alwaysHidden = 2
@@ -21,7 +21,7 @@ enum MacOS27Section: Int, Codable, CaseIterable, Comparable {
 ///
 /// macOS 27 hides whole applications, not single items, so the layout is kept
 /// per bundle identifier.
-enum SectionLayout27 {
+nonisolated enum SectionLayout27 {
     /// Collapses per-item sections into one section per application.
     ///
     /// An application whose items sit in different sections takes its most

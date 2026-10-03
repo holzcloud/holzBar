@@ -18,14 +18,14 @@ jobs:
 
       - uses: ./.github/actions/select-xcode
 
-      # Same settings as the release build (see release.yml), without publishing.
+      # Same settings as the release build (see release.yml), without publishing: signed ad
+      # hoc, with the hardened runtime the project turns on for both targets.
       - name: Build
         run: |
           set +e
           xcodebuild -project holzBar.xcodeproj -scheme holzBar -configuration Release \
             -destination 'platform=macOS' -derivedDataPath build build \
-            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
-            ENABLE_HARDENED_RUNTIME=NO > build.log 2>&1
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= > build.log 2>&1
           STATUS=$?
           # The Release build compiles arm64 and x86_64, so every warning
           # appears twice in build.log; list each one once, relative to the
@@ -37,11 +37,37 @@ jobs:
           echo "==> Resolved source packages"
           sed -n '/^Resolved source packages:/,/^$/p' build.log
           grep -E "error:|\*\* BUILD" build.log || tail -50 build.log
+          if [ "$STATUS" -ne 0 ]; then
+            # A failure without an error line (a compiler crash, a failed
+            # tool) is explained by the failed commands and their output.
+            echo "==> Failed build commands"
+            sed -n '/^The following build commands failed:/,/^$/p' build.log
+            grep -n -E "Assertion failed|Please submit a bug report|failed with a nonzero exit code|: fatal error" build.log | head -40
+            grep -n -A30 "Stack dump" build.log | sed "s|$GITHUB_WORKSPACE/||g" | head -120
+          fi
           APP=build/Build/Products/Release/holzBar.app
           if [ -d "$APP" ]; then
             echo "==> App size: $(du -sk "$APP" | cut -f1) KB"
           fi
           exit $STATUS
+
+      # Every build is hardened (library validation, no DYLD variables, no injected code). The
+      # app and its XPC service must both carry the runtime flag in their code directory.
+      - name: Check the signature
+        run: |
+          APP=build/Build/Products/Release/holzBar.app
+          SERVICE="$APP/Contents/XPCServices/MenuBarItemService.xpc"
+          codesign --verify --deep --strict "$APP"
+          for BUNDLE in "$APP" "$SERVICE"; do
+            codesign --verify --strict "$BUNDLE"
+            FLAGS=$(codesign -dv "$BUNDLE" 2>&1 | grep -E '^CodeDirectory' || true)
+            echo "$(basename "$BUNDLE"): $FLAGS"
+            if ! echo "$FLAGS" | grep -qE 'flags=0x[0-9a-f]+\([^)]*runtime'; then
+              echo "::error::$(basename "$BUNDLE") is not signed with the hardened runtime"
+              exit 1
+            fi
+          done
+          echo "==> Hardened runtime: holzBar.app and MenuBarItemService.xpc"
 
       # The app connects to its embedded XPC service by MenuBarItemService.name; a mismatch
       # silently breaks item discovery on macOS 26, which no CI test would otherwise notice.
@@ -70,9 +96,46 @@ jobs:
             exit 1
           fi
 
+      # holzBar never connects to the network (CLAUDE.md, "Private"). The no-network job checks
+      # the sources; this step checks what was really built: neither executable may reference
+      # URLSession, NSURLConnection, WKWebView, Network connections, listeners or browsers, or
+      # BSD sockets, link WebKit, or carry a network entitlement. NWPathMonitor (the "Reveal
+      # when offline" rule) only observes whether a network path exists, so its symbols pass.
+      - name: Check the binaries for network code
+        run: |
+          APP=build/Build/Products/Release/holzBar.app
+          SERVICE="$APP/Contents/XPCServices/MenuBarItemService.xpc"
+          PATTERN='_OBJC_CLASS_\$_(NSURLSession|NSURLConnection|WKWebView)|Foundation\.URLSession|Network\.NW(Connection|Listener|Browser)|_nw_(connection|listener|browser)_|(^|[^A-Za-z0-9_])_(socket|connect|getaddrinfo)( |$)'
+          FAILED=0
+          for BIN in "$APP/Contents/MacOS/holzBar" "$SERVICE/Contents/MacOS/MenuBarItemService"; do
+            NAME=$(basename "$BIN")
+            HITS=$(nm -um "$BIN" | xcrun swift-demangle | grep -E "$PATTERN" || true)
+            if [ -n "$HITS" ]; then
+              echo "$HITS"
+              echo "::error::$NAME references network APIs (lines above)"
+              FAILED=1
+            fi
+            if otool -L "$BIN" | grep -q 'WebKit.framework'; then
+              echo "::error::$NAME links WebKit"
+              FAILED=1
+            fi
+          done
+          for BUNDLE in "$APP" "$SERVICE"; do
+            if codesign -d --entitlements - --xml "$BUNDLE" 2>/dev/null | grep -q 'com.apple.security.network'; then
+              echo "::error::$(basename "$BUNDLE") carries a network entitlement"
+              FAILED=1
+            fi
+          done
+          if [ "$FAILED" -ne 0 ]; then
+            exit 1
+          fi
+          echo "==> No network code in the binaries"
+
       # Every license text shown under Settings, About, Acknowledgements must be in the app.
+      # holzBar links no package since 05.1, so there may be no license file at all.
       - name: Check the acknowledgements
         run: |
+          shopt -s nullglob
           RESOURCES=build/Build/Products/Release/holzBar.app/Contents/Resources
           COUNT=0
           MISSING=0
@@ -121,6 +184,21 @@ jobs:
             exit 1
           fi
           echo "==> The former name appears nowhere."
+
+  # holzBar never connects to the network and keeps personal data out of public logs
+  # (CLAUDE.md, "Private"). Fails every pull request that adds networking code or a
+  # Swift package, or a log interpolation that does not name its privacy or makes
+  # personal data public. Runs locally too: python3 .github/scripts/privacy-check.py network|logs
+  no-network:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: No network code
+        run: python3 .github/scripts/privacy-check.py network
+
+      - name: Logs keep personal data private
+        run: python3 .github/scripts/privacy-check.py logs
 
   test:
     runs-on: macos-26

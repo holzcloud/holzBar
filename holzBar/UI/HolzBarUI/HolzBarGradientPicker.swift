@@ -3,13 +3,12 @@
 //  holzBar
 //
 
-import Combine
 import SwiftUI
 
 struct HolzBarGradientPicker<Label: View>: View {
     @Binding private var gradient: HolzBarGradient
     @State private var selection: Int?
-    @State private var cancellable: AnyCancellable?
+    @State private var window: NSWindow?
 
     private let supportsOpacity: Bool
     private let label: Label
@@ -56,15 +55,15 @@ struct HolzBarGradientPicker<Label: View>: View {
                 selection: $selection,
                 supportsOpacity: supportsOpacity
             )
-            .onWindowChange { window in
-                cancellable = window?.publisher(for: \.isVisible)
-                    .removeDuplicates()
-                    .receive(on: DispatchQueue.main)
-                    .sink { isVisible in
-                        if !isVisible {
-                            selection = nil
-                        }
-                    }
+            .onWindowChange(update: $window)
+            .task(id: window.map(ObjectIdentifier.init)) {
+                // A window that closes ends the editing of a stop.
+                guard let window else {
+                    return
+                }
+                for await _ in NotificationCenter.default.notifications(named: NSWindow.willCloseNotification, object: window) {
+                    selection = nil
+                }
             }
         } label: {
             label
@@ -78,7 +77,6 @@ private struct HolzBarGradientPickerRoot: View {
     @Binding var gradient: HolzBarGradient
     @Binding var selection: Int?
     @State private var lastUpdated: Int?
-    @State private var cancellables = Set<AnyCancellable>()
 
     let supportsOpacity: Bool
 
@@ -125,6 +123,30 @@ private struct HolzBarGradientPickerRoot: View {
             }
             .onChange(of: selection) { oldValue, newValue in
                 selectionChanged(from: oldValue, to: newValue)
+            }
+            .task(id: selection) {
+                // While a stop is selected, the colour panel edits its colour.
+                guard selection != nil else {
+                    return
+                }
+                let center = NotificationCenter.default
+                for await _ in center.notifications(named: NSColorPanel.colorDidChangeNotification, object: NSColorPanel.shared) {
+                    colorPanelColorDidChange()
+                }
+            }
+            .task(id: selection) {
+                // Closing the colour panel ends the editing of the stop. Selecting another
+                // stop closes and reopens the panel, which must not end the new selection.
+                guard let selected = selection else {
+                    return
+                }
+                let center = NotificationCenter.default
+                for await _ in center.notifications(named: NSWindow.willCloseNotification, object: NSColorPanel.shared) {
+                    guard !Task.isCancelled, selection == selected else {
+                        return
+                    }
+                    selection = nil
+                }
             }
             .compositingGroup()
             .allowsHitTesting(isEnabled)
@@ -181,7 +203,7 @@ private struct HolzBarGradientPickerRoot: View {
             gradient.stops.append(.black(location: location))
         }
         if select, let index = gradient.stops.indices.last {
-            DispatchQueue.main.async {
+            Task {
                 self.selection = index
             }
         }
@@ -201,16 +223,15 @@ private struct HolzBarGradientPickerRoot: View {
             return
         }
 
-        stopColorPanelObservers()
-
         if newValue != nil {
             dismissColorPanel()
             openColorPanel()
-            startColorPanelObservers()
+            prepareColorPanel()
         }
     }
 
-    private func startColorPanelObservers() {
+    /// Shows the selected stop's colour in the colour panel, with opacity if supported.
+    private func prepareColorPanel() {
         if
             let selection,
             gradient.stops.indices.contains(selection),
@@ -219,50 +240,23 @@ private struct HolzBarGradientPickerRoot: View {
         {
             NSColorPanel.shared.color = color
         }
-
-        var c = Set<AnyCancellable>()
-
-        NSColorPanel.shared.publisher(for: \.color)
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { color in
-                guard
-                    let selection,
-                    NSColorPanel.shared.isVisible,
-                    gradient.stops.indices.contains(selection),
-                    gradient.stops[selection].color != color.cgColor
-                else {
-                    return
-                }
-                gradient.stops[selection].color = color.cgColor
-            }
-            .store(in: &c)
-
-        NSColorPanel.shared.publisher(for: \.isVisible)
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { isVisible in
-                guard selection != nil else {
-                    return
-                }
-                guard isVisible else {
-                    selection = nil
-                    return
-                }
-                if NSColorPanel.shared.showsAlpha != supportsOpacity {
-                    NSColorPanel.shared.showsAlpha = supportsOpacity
-                }
-            }
-            .store(in: &c)
-
-        cancellables = c
+        if NSColorPanel.shared.showsAlpha != supportsOpacity {
+            NSColorPanel.shared.showsAlpha = supportsOpacity
+        }
     }
 
-    private func stopColorPanelObservers() {
-        for cancellable in cancellables {
-            cancellable.cancel()
+    /// Gives the selected stop the colour panel's colour.
+    private func colorPanelColorDidChange() {
+        let color = NSColorPanel.shared.color
+        guard
+            let selection,
+            NSColorPanel.shared.isVisible,
+            gradient.stops.indices.contains(selection),
+            gradient.stops[selection].color != color.cgColor
+        else {
+            return
         }
-        cancellables.removeAll()
+        gradient.stops[selection].color = color.cgColor
     }
 
     private func openColorPanel() {

@@ -7,17 +7,19 @@ import Foundation
 import LightweightCodeRequirements
 import OSLog
 import XPC
+import os
 
 /// A wrapper around an XPC listener object.
-final class Listener {
+final class Listener: Sendable {
     /// The shared listener.
     static let shared = Listener()
 
     /// The service name.
     private let name = MenuBarItemService.name
 
-    /// The underlying XPC listener object.
-    private var listener: XPCListener?
+    /// The underlying XPC listener object, behind a lock because the
+    /// listener's handlers run on XPC's queues.
+    private let listener = OSAllocatedUnfairLock<XPCListener?>(uncheckedState: nil)
 
     /// Creates the shared listener.
     private init() { }
@@ -39,7 +41,7 @@ final class Listener {
                 return .sourcePID(pid)
             }
         } catch {
-            Logger.default.error("Listener failed to handle message with error \(error)")
+            Logger.default.error("Listener failed to handle message with error \(error, privacy: .private)")
             return nil
         }
     }
@@ -48,11 +50,13 @@ final class Listener {
     /// with the given requirement that session peers must satisfy.
     @available(macOS 26.0, *)
     private func uncheckedActivate(requirement: XPCPeerRequirement) throws {
-        listener = try XPCListener(service: name, requirement: requirement) { [weak self] request in
+        let listener = try XPCListener(service: name, requirement: requirement) { request in
+            // The listener is shared and lives as long as the service.
             request.accept { message in
-                self?.handleMessage(message)
+                self.handleMessage(message)
             }
         }
+        self.listener.withLockUnchecked { $0 = listener }
     }
 
     /// Returns the requirement that session peers must satisfy: holzBar, and
@@ -85,17 +89,19 @@ final class Listener {
             SigningIdentifier(MenuBarItemService.appIdentifier)
             CodeDirectoryHash.in(hashes)
         }
-        Logger.default.notice("Listener requires the app's exact code (\(hashes.count) code directory hashes)")
+        Logger.default.notice("Listener requires the app's exact code (\(hashes.count, privacy: .public) code directory hashes)")
         return .codeRequirement(requirement)
     }
 
     /// Activates the listener without checking if it is already active.
     private func uncheckedActivate() throws {
-        listener = try XPCListener(service: name) { [weak self] request in
+        let listener = try XPCListener(service: name) { request in
+            // The listener is shared and lives as long as the service.
             request.accept { message in
-                self?.handleMessage(message)
+                self.handleMessage(message)
             }
         }
+        self.listener.withLockUnchecked { $0 = listener }
     }
 
     /// Activates the listener.
@@ -104,7 +110,7 @@ final class Listener {
     /// peer requirement cannot be built (fail closed); the app then looks up
     /// source processes itself.
     func activate() {
-        guard listener == nil else {
+        guard listener.withLockUnchecked({ $0 == nil }) else {
             Logger.default.notice("Listener is already active")
             return
         }
@@ -118,14 +124,14 @@ final class Listener {
                 try uncheckedActivate()
             }
         } catch {
-            Logger.default.error("Failed to activate listener with error \(error)")
+            Logger.default.error("Failed to activate listener with error \(error, privacy: .private)")
         }
     }
 
     /// Cancels the listener.
     func cancel() {
         Logger.default.debug("Canceling listener")
-        listener.take()?.cancel()
+        listener.withLockUnchecked { $0.take() }?.cancel()
     }
 }
 

@@ -8,8 +8,29 @@ import Foundation
 /// A command another app sends to holzBar with a URL such as `holzbar://toggle/hidden`.
 ///
 /// The host names the command and the path holds its arguments. The parse only reads the
-/// URL; `URLCommands` decides what each command does and ignores unknown ones.
-struct URLCommand: Equatable, Sendable {
+/// URL; ``action`` says which action the command asks for, and `URLCommands` performs it.
+nonisolated struct URLCommand: Equatable, Sendable {
+    /// A menu bar section a command can show, hide or toggle.
+    nonisolated enum Section: Equatable, Sendable {
+        case hidden
+        case alwaysHidden
+    }
+
+    /// The action a command asks for.
+    nonisolated enum Action: Equatable, Sendable {
+        case toggle(Section)
+        case show(Section)
+        case hide(Section)
+        case search
+        case settings
+        case toggleShelf
+        case toggleAutoRehide
+        case toggleApplicationMenus
+        /// Apply the layout profile with the given name.
+        case applyProfile(String)
+        case unknown
+    }
+
     /// The command, lower-cased.
     let name: String
 
@@ -37,5 +58,45 @@ struct URLCommand: Equatable, Sendable {
             .map { component in
                 component.removingPercentEncoding ?? String(component)
             }
+    }
+
+    /// The action the command asks for.
+    ///
+    /// `show`, `hide` and `toggle` take the section as their argument: `always-hidden` (or
+    /// `alwayshidden`) for the always-hidden section, anything else or nothing for the
+    /// hidden one. `ice-bar` is another name for `shelf`. `profile` needs a name.
+    var action: Action {
+        switch name {
+        case "toggle":
+            .toggle(section)
+        case "show":
+            .show(section)
+        case "hide":
+            .hide(section)
+        case "search":
+            .search
+        case "settings":
+            .settings
+        case "shelf", "ice-bar":
+            .toggleShelf
+        case "auto-rehide":
+            .toggleAutoRehide
+        case "application-menus":
+            .toggleApplicationMenus
+        case "profile":
+            arguments.first.map(Action.applyProfile) ?? .unknown
+        default:
+            .unknown
+        }
+    }
+
+    /// The section named by the first argument.
+    private var section: Section {
+        switch arguments.first?.lowercased() {
+        case "always-hidden", "alwayshidden":
+            .alwaysHidden
+        default:
+            .hidden
+        }
     }
 }

@@ -4,7 +4,7 @@
 //
 
 import AppKit
-import Combine
+import Observation
 import OSLog
 import SwiftUI
 
@@ -29,9 +29,10 @@ struct MenuBarItemGroup: Codable, Hashable, Identifiable {
 /// in a small panel, where they can be clicked as in the holzBar Shelf. The items
 /// themselves stay wherever they are, usually in a hidden section.
 @MainActor
-final class MenuBarItemGroups: ObservableObject {
+@Observable
+final class MenuBarItemGroups {
     /// The saved groups.
-    @Published var groups = [MenuBarItemGroup]() {
+    var groups = [MenuBarItemGroup]() {
         didSet {
             save()
             updateStatusItems()
@@ -44,11 +45,12 @@ final class MenuBarItemGroups: ObservableObject {
         "music.note", "network", "bolt", "cloud", "wrench.and.screwdriver", "star",
     ]
 
-    private let logger = Logger(category: "MenuBarItemGroups")
-    private weak var appState: AppState?
-    private var statusItems = [UUID: NSStatusItem]()
-    private var targets = [UUID: ClickTarget]()
-    private let popover = NSPopover()
+    @ObservationIgnored private let logger = Logger(category: "MenuBarItemGroups")
+    @ObservationIgnored private weak var appState: AppState?
+    @ObservationIgnored private var statusItems = [UUID: NSStatusItem]()
+    @ObservationIgnored private var targets = [UUID: ClickTarget]()
+    @ObservationIgnored private let popover = NSPopover()
+    @ObservationIgnored private var popoverObservers = [Task<Void, Never>]()
 
     func performSetup(with appState: AppState) {
         self.appState = appState
@@ -61,6 +63,15 @@ final class MenuBarItemGroups: ObservableObject {
             updateStatusItems()
         }
         popover.behavior = .transient
+        // The image cache refreshes item images only while a view shows them.
+        let popover = popover
+        popoverObservers = [(NSPopover.didShowNotification, true), (NSPopover.didCloseNotification, false)].map { name, isShown in
+            Task { [weak appState] in
+                for await _ in NotificationCenter.default.notifications(named: name, object: popover) {
+                    appState?.navigationState.isItemGroupPanelPresented = isShown
+                }
+            }
+        }
     }
 
     private func save() {
@@ -149,6 +160,8 @@ final class MenuBarItemGroups: ObservableObject {
         }
         popover.contentViewController = NSHostingController(rootView: view)
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        // Set at once (the notification may come later), so the update below captures.
+        appState.navigationState.isItemGroupPanelPresented = true
         Task {
             await appState.imageCache.updateCache(sections: MenuBarSection.Name.allCases)
         }
@@ -173,8 +186,8 @@ final class MenuBarItemGroups: ObservableObject {
 /// The items of a group, shown below the group's icon.
 private struct MenuBarItemGroupPanel: View {
     let group: MenuBarItemGroup
-    @ObservedObject var imageCache: MenuBarItemImageCache
-    @ObservedObject var itemManager: MenuBarItemManager
+    var imageCache: MenuBarItemImageCache
+    var itemManager: MenuBarItemManager
     let close: () -> Void
 
     private var items: [MenuBarItem] {

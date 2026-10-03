@@ -3,18 +3,21 @@
 //  holzBar
 //
 
-import Combine
+import Observation
 import OSLog
 import SwiftUI
 
 /// The model for app-wide state.
 @MainActor
-final class AppState: ObservableObject {
+@Observable
+final class AppState {
     /// Information for the active space.
-    @Published private(set) var activeSpace = SpaceInfo.activeSpace()
+    private(set) var activeSpace = SpaceInfo.activeSpace()
 
     /// A Boolean value that indicates whether the user is dragging a menu bar item.
-    @Published private(set) var isDraggingMenuBarItem = false
+    var isDraggingMenuBarItem: Bool {
+        hidEventManager.isDraggingMenuBarItem
+    }
 
     /// Model for the app's settings.
     let settings = AppSettings()
@@ -59,16 +62,16 @@ final class AppState: ObservableObject {
     let revealRules = RevealRules()
 
     /// The action that opens holzBar's windows, handed over by its scenes.
-    private var openWindowAction: OpenWindowAction?
+    @ObservationIgnored private var openWindowAction: OpenWindowAction?
 
     /// The action that dismisses holzBar's windows, handed over by its scenes.
-    private var dismissWindowAction: DismissWindowAction?
+    @ObservationIgnored private var dismissWindowAction: DismissWindowAction?
 
     /// Window requests made before the scenes handed over their actions, in order.
-    private var pendingWindowRequests: [(id: HolzBarWindowIdentifier, opens: Bool)] = []
+    @ObservationIgnored private var pendingWindowRequests: [(id: HolzBarWindowIdentifier, opens: Bool)] = []
 
     /// Storage for ``concealer27``, typed loosely so the property exists on every macOS.
-    private var concealer27Storage: AnyObject?
+    @ObservationIgnored private var concealer27Storage: AnyObject?
 
     /// Hides menu bar items on macOS 27.
     @available(macOS 27.0, *)
@@ -82,7 +85,7 @@ final class AppState: ObservableObject {
     }
 
     /// Storage for ``itemImageStore27``, typed loosely so the property exists on every macOS.
-    private var itemImageStore27Storage: AnyObject?
+    @ObservationIgnored private var itemImageStore27Storage: AnyObject?
 
     /// Images of menu bar items on macOS 27.
     @available(macOS 27.0, *)
@@ -95,26 +98,30 @@ final class AppState: ObservableObject {
         return store
     }
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Observers of other models, kept for the app's lifetime.
+    @ObservationIgnored private var observers = [ObservationLoop]()
+
+    /// Tasks that observe notifications, kept for the app's lifetime.
+    @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
+
+    /// Key-value observers, kept for the app's lifetime.
+    @ObservationIgnored private var keyValueObservations = [NSKeyValueObservation]()
+
+    /// The click monitor for the active space, while it is needed.
+    @ObservationIgnored private var spaceClickMonitor: EventMonitor?
 
     /// Logger for the app state.
-    private let logger = Logger(category: "AppState")
+    @ObservationIgnored private let logger = Logger(category: "AppState")
 
     /// Async setup actions, run once on first access.
-    private lazy var setupTask = Task {
+    @ObservationIgnored private lazy var setupTask = Task { @MainActor in
         permissions.stopAllChecks()
 
         settings.performSetup(with: self)
         menuBarManager.performSetup(with: self)
 
-        if #available(macOS 27.0, *) {
-            // macOS 27 has no item windows: bounds come from Accessibility, and the
-            // owning process is known directly, without the item service.
-            Bridging.syntheticWindowBoundsProvider = MenuBarItemProvider27.currentBounds(for:)
-        } else if #available(macOS 26.0, *) {
-            await MenuBarItemService.Connection.shared.start()
-        }
+        // The item service on macOS 26, the synthetic bounds on macOS 27.
+        await MenuBarBackends.current.performSetup()
 
         appearanceManager.performSetup(with: self)
         hidEventManager.performSetup(with: self)
@@ -131,7 +138,7 @@ final class AppState: ObservableObject {
         spacers.performSetup()
         revealRules.performSetup(with: self)
 
-        configureCancellables()
+        configureObservers()
     }
 
     /// Performs app state setup.
@@ -157,9 +164,7 @@ final class AppState: ObservableObject {
     }
 
     /// Configures the internal observers for the app state.
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
+    private func configureObservers() {
         // Listen for changes to the active space. We need handle some special
         // cases that NSWorkspace.shared.notificationCenter seems to miss.
         //
@@ -168,85 +173,92 @@ final class AppState: ObservableObject {
         // * Changes to the frontmost application -- may indicate that a space
         //   on another display was made active.
         // * Left mouse down -- user may have clicked into a fullscreen space.
-        //   To account for variations in system timing, we publish a value
-        //   immediately upon receipt of the event, then publish another value
-        //   after a delay.
-        NSWorkspace.shared.notificationCenter
-            .publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
-            .discardMerge(NSWorkspace.shared.publisher(for: \.frontmostApplication))
-            .discardMerge(EventMonitor.publish(events: .leftMouseDown, scope: .universal).flatMap { _ in
-                let initial = Just(())
-                let delayed = initial.delay(for: 0.1, scheduler: DispatchQueue.main)
-                return Publishers.Merge(initial, delayed)
-            })
-            .replace { Bridging.getActiveSpaceID() }
-            .removeDuplicates()
-            .sink { [weak self] spaceID in
-                self?.activeSpace = SpaceInfo(spaceID: spaceID)
+        //   To account for variations in system timing, the space is read
+        //   immediately upon receipt of the event, then again after a delay.
+        //
+        // The click monitor wakes holzBar on every click in the system and reads
+        // the active space twice, so it runs only where a click can change the
+        // space without a notification: in a fullscreen space or with more than
+        // one display (`InputMonitors.needsSpaceClickMonitor`). It is re-evaluated
+        // when the active space or the screens change.
+        observerTasks.append(Task { [weak self] in
+            let center = NSWorkspace.shared.notificationCenter
+            for await _ in center.notifications(named: NSWorkspace.activeSpaceDidChangeNotification) {
+                self?.updateActiveSpace()
             }
-            .store(in: &c)
-
-        NSWorkspace.shared.publisher(for: \.frontmostApplication)
-            .receive(on: DispatchQueue.main)
-            .map { $0 == .current }
-            .removeDuplicates()
-            .sink { [weak self] isFrontmost in
-                self?.navigationState.isAppFrontmost = isFrontmost
+        })
+        observerTasks.append(Task { [weak self] in
+            let center = NotificationCenter.default
+            for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+                self?.updateSpaceClickMonitor()
             }
-            .store(in: &c)
-
-        publisherForWindow(.settings)
-            .removeNil()
-            .flatMap { $0.publisher(for: \.isVisible) }
-            .replaceEmpty(with: false)
-            .throttle(for: 0.1, scheduler: DispatchQueue.main, latest: true)
-            .removeDuplicates()
-            .sink { [weak self] isPresented in
-                self?.navigationState.isSettingsPresented = isPresented
+        })
+        keyValueObservations.append(
+            NSWorkspace.shared.observe(\.frontmostApplication, options: [.initial, .new]) { [weak self] _, _ in
+                Task { @MainActor in
+                    self?.frontmostApplicationDidChange()
+                }
             }
-            .store(in: &c)
-
-        hidEventManager.$isDraggingMenuBarItem
-            .removeDuplicates()
-            .sink { [weak self] isDragging in
-                self?.isDraggingMenuBarItem = isDragging
-            }
-            .store(in: &c)
-
-        Publishers.CombineLatest(
-            navigationState.$isAppFrontmost,
-            navigationState.$isSettingsPresented
         )
-        .map { $0 && $1 }
-        .throttle(for: 0.1, scheduler: DispatchQueue.main, latest: true)
-        .merge(with: Just(true).delay(for: 1, scheduler: DispatchQueue.main))
-        .sink { [weak self] shouldUpdate in
-            guard let self, shouldUpdate else {
-                return
+        updateSpaceClickMonitor()
+
+        // No capture of every section at launch: images are taken when a view that
+        // shows them opens (Settings here; the Shelf, search and groups on their own).
+        // Combine throttled this by 0.1 s; the loop already reports a burst of changes
+        // once, with the last value.
+        observers.append(
+            ObservationLoop.observe { [navigationState] in
+                navigationState.isAppFrontmost && navigationState.isSettingsPresented
+            } onChange: { [weak self] shouldUpdate in
+                guard let self, shouldUpdate else {
+                    return
+                }
+                Task {
+                    await self.imageCache.updateCacheWithoutChecks(sections: MenuBarSection.Name.allCases)
+                }
             }
-            Task {
-                await self.imageCache.updateCacheWithoutChecks(sections: MenuBarSection.Name.allCases)
-            }
+        )
+    }
+
+    /// Reads the active space and stores it if it changed.
+    private func updateActiveSpace() {
+        let spaceID = Bridging.getActiveSpaceID()
+        guard spaceID != activeSpace.spaceID else {
+            return
         }
-        .store(in: &c)
+        activeSpace = SpaceInfo(spaceID: spaceID)
+        updateSpaceClickMonitor()
+    }
 
-        menuBarManager.objectWillChange
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &c)
-        permissions.objectWillChange
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &c)
-        settings.objectWillChange
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &c)
+    /// Records whether holzBar is frontmost and reads the active space again.
+    private func frontmostApplicationDidChange() {
+        let isFrontmost = NSWorkspace.shared.frontmostApplication == .current
+        if navigationState.isAppFrontmost != isFrontmost {
+            navigationState.isAppFrontmost = isFrontmost
+        }
+        updateActiveSpace()
+    }
 
-        cancellables = c
+    /// Runs the click monitor for the active space only while it is needed.
+    private func updateSpaceClickMonitor() {
+        let isNeeded = InputMonitors.needsSpaceClickMonitor(
+            isFullscreenSpace: activeSpace.isFullscreen,
+            screenCount: NSScreen.screens.count
+        )
+        if isNeeded, spaceClickMonitor == nil {
+            let monitor = EventMonitor.passive(for: .leftMouseDown, scope: .universal) { [weak self] _ in
+                self?.updateActiveSpace()
+                Task { [weak self] in
+                    try? await Task.sleep(for: .milliseconds(100))
+                    self?.updateActiveSpace()
+                }
+            }
+            monitor.start()
+            spaceClickMonitor = monitor
+        } else if !isNeeded, let monitor = spaceClickMonitor {
+            monitor.stop()
+            spaceClickMonitor = nil
+        }
     }
 
     /// Returns a Boolean value indicating whether the app has been
@@ -257,21 +269,6 @@ final class AppState: ObservableObject {
             permissions.accessibility.hasPermission
         case .screenRecording:
             permissions.screenRecording.hasPermission
-        }
-    }
-
-    /// Returns a publisher for the window with the given identifier.
-    func publisherForWindow(_ id: HolzBarWindowIdentifier) -> some Publisher<NSWindow?, Never> {
-        NSApp.publisher(for: \.windows).mergeMap { window in
-            window.publisher(for: \.identifier)
-                .map { [weak window] identifier in
-                    guard identifier?.rawValue == id.rawValue else {
-                        return nil
-                    }
-                    return window
-                }
-                .first { $0 != nil }
-                .replaceEmpty(with: nil)
         }
     }
 
@@ -297,7 +294,7 @@ final class AppState: ObservableObject {
     /// Opens the window with the given identifier.
     func openWindow(_ id: HolzBarWindowIdentifier) {
         // Async prevents conflicts with SwiftUI.
-        DispatchQueue.main.async {
+        Task {
             guard let action = self.openWindowAction else {
                 self.pendingWindowRequests.append((id: id, opens: true))
                 return
@@ -310,7 +307,7 @@ final class AppState: ObservableObject {
     /// Dismisses the window with the given identifier.
     func dismissWindow(_ id: HolzBarWindowIdentifier) {
         // Async prevents conflicts with SwiftUI.
-        DispatchQueue.main.async {
+        Task {
             guard let action = self.dismissWindowAction else {
                 self.pendingWindowRequests.append((id: id, opens: false))
                 return

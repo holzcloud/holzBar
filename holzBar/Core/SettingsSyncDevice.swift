@@ -10,7 +10,7 @@ import Foundation
 /// Each Mac identifies itself by a UUID that it creates once and keeps in its own defaults;
 /// the id is never exported, imported or synced. The file also carries the computer name,
 /// for display and for older holzBar builds, which wrote only the name.
-enum SettingsSyncDevice {
+nonisolated enum SettingsSyncDevice {
     /// The key of the writing Mac's id in the sync file.
     static let deviceIDKey = "deviceID"
 

@@ -4,7 +4,6 @@
 //
 
 import Cocoa
-import Combine
 import OSLog
 
 /// A Cocoa view that manages the menu bar layout interface.
@@ -64,7 +63,7 @@ final class LayoutBarPaddingView: NSView {
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         defer {
-            DispatchQueue.main.async {
+            Task {
                 self.container.canSetArrangedViews = true
             }
         }
@@ -123,7 +122,7 @@ final class LayoutBarPaddingView: NSView {
                 try await appState.itemManager.move(item: item, to: destination)
                 appState.itemManager.removeTemporarilyShownItemFromCache(with: item.tag)
             } catch {
-                Logger.default.error("Error moving menu bar item: \(error, privacy: .public)")
+                Logger.default.error("Error moving menu bar item: \(error, privacy: .private)")
                 let alert = NSAlert(error: error)
                 alert.runModal()
             }

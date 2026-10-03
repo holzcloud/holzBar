@@ -6,7 +6,7 @@
 import CoreGraphics
 
 /// Information for a desktop space.
-struct SpaceInfo: Hashable {
+nonisolated struct SpaceInfo: Hashable {
     /// The space's identifier.
     let spaceID: CGSSpaceID
 

@@ -3,15 +3,16 @@
 //  holzBar
 //
 
-import Combine
 import Foundation
+import Observation
 import OSLog
 
 /// Model for the app's Hotkeys settings.
 @MainActor
-final class HotkeysSettings: ObservableObject {
+@Observable
+final class HotkeysSettings {
     /// The app's hotkey registry.
-    let registry = HotkeyRegistry()
+    @ObservationIgnored let registry = HotkeyRegistry()
 
     /// The app's hotkeys.
     let hotkeys = HotkeyAction.allCases.map { action in
@@ -19,16 +20,16 @@ final class HotkeysSettings: ObservableObject {
     }
 
     /// Encoder for properties.
-    private let encoder = JSONEncoder()
+    @ObservationIgnored private let encoder = JSONEncoder()
 
     /// Decoder for properties.
-    private let decoder = JSONDecoder()
+    @ObservationIgnored private let decoder = JSONDecoder()
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Observers that save each hotkey when it changes.
+    @ObservationIgnored private var observers = [ObservationLoop]()
 
     /// The shared app state.
-    private(set) weak var appState: AppState?
+    @ObservationIgnored private(set) weak var appState: AppState?
 
     /// Performs the initial setup of the model.
     func performSetup(with appState: AppState) {
@@ -37,7 +38,7 @@ final class HotkeysSettings: ObservableObject {
             hotkey.performSetup(with: appState)
         }
         loadInitialState()
-        configureCancellables()
+        configureObservers()
     }
 
     /// Loads the model's initial state.
@@ -57,33 +58,31 @@ final class HotkeysSettings: ObservableObject {
                     hotkey.keyCombination = keyCombination
                 }
             } catch {
-                Logger.serialization.error("Error decoding hotkey: \(error, privacy: .public)")
+                Logger.serialization.error("Error decoding hotkey: \(error, privacy: .private)")
             }
         }
     }
 
-    /// Configures the internal observers for the model.
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
-        for hotkey in hotkeys {
-            hotkey.$keyCombination
-                .encode(encoder: encoder)
-                .receive(on: DispatchQueue.main)
-                .sink { completion in
-                    if case .failure(let error) = completion {
-                        Logger.serialization.error("Error encoding hotkey: \(error, privacy: .public)")
-                    }
-                } receiveValue: { data in
-                    withMutableCopy(of: Defaults.dictionary(forKey: .hotkeys) ?? [:]) { dictionary in
-                        dictionary[hotkey.action.rawValue] = data
-                        Defaults.set(dictionary, forKey: .hotkeys)
-                    }
-                }
-                .store(in: &c)
+    /// Saves each hotkey whenever its key combination changes.
+    private func configureObservers() {
+        observers = hotkeys.map { hotkey in
+            ObservationLoop.observe { hotkey.keyCombination } onChange: { [weak self] keyCombination in
+                self?.save(keyCombination, for: hotkey.action)
+            }
         }
+    }
 
-        cancellables = c
+    /// Saves the key combination of the hotkey with the given action.
+    private func save(_ keyCombination: KeyCombination?, for action: HotkeyAction) {
+        do {
+            let data = try encoder.encode(keyCombination)
+            withMutableCopy(of: Defaults.dictionary(forKey: .hotkeys) ?? [:]) { dictionary in
+                dictionary[action.rawValue] = data
+                Defaults.set(dictionary, forKey: .hotkeys)
+            }
+        } catch {
+            Logger.serialization.error("Error encoding hotkey: \(error, privacy: .private)")
+        }
     }
 
     /// Returns the hotkey with the given action.

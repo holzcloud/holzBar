@@ -4,7 +4,7 @@
 //
 
 import Cocoa
-import Combine
+import Observation
 import OSLog
 
 /// Hides menu bar items on macOS 27, where holzBar's expanding dividers no longer work.
@@ -16,24 +16,27 @@ import OSLog
 /// state of holzBar's sections.
 @available(macOS 27.0, *)
 @MainActor
-final class Concealer27: ObservableObject {
-    private let controller = ConcealmentController27(backend: MenuBarAssessmentAssertion27())
-    private let logger = Logger(category: "Concealer27")
-    private weak var appState: AppState?
-    private var observers = [NSObjectProtocol]()
-    private var applyTask: Task<Void, Never>?
-    private var suspendedUntil: ContinuousClock.Instant?
+@Observable
+final class Concealer27 {
+    @ObservationIgnored private let controller = ConcealmentController27(backend: MenuBarAssessmentAssertion27())
+    @ObservationIgnored private let logger = Logger(category: "Concealer27")
+    @ObservationIgnored private weak var appState: AppState?
+    /// Tasks that observe application launches and quits; cancelled with the concealer.
+    @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
+    @ObservationIgnored private var applyTask: Task<Void, Never>?
+    @ObservationIgnored private var suspendedUntil: ContinuousClock.Instant?
 
     /// When concealment last changed, which is when the bar last started moving.
-    private var lastChangeAt = ContinuousClock.now
+    @ObservationIgnored private var lastChangeAt = ContinuousClock.now
 
     /// How long MenuBarAgent animates the bar after items are concealed or released
     /// (measured on macOS 27.0: about 250 ms, with a margin here).
     private static let settleAfterChange = Duration.milliseconds(400)
 
     /// Applications shown for a moment, with the number of callers showing each.
-    private var temporarilyShown = [String: Int]()
-    private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private var temporarilyShown = [String: Int]()
+    /// Observers of the active space and the Settings pane.
+    @ObservationIgnored private var observers = [ObservationLoop]()
 
     /// Whether any application is meant to be concealed right now.
     private(set) var isConcealing = false
@@ -55,48 +58,47 @@ final class Concealer27: ObservableObject {
         }
         let workspaceCenter = NSWorkspace.shared.notificationCenter
         for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
-            observers.append(workspaceCenter.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated {
+            observerTasks.append(Task { [weak self] in
+                for await _ in workspaceCenter.notifications(named: name) {
                     self?.update()
                 }
             })
         }
-        observers.append(NotificationCenter.default.addObserver(
-            forName: NSApplication.willTerminateNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.controller.releaseAll()
-            }
-        })
+        // The assertions are released at termination by `releaseAllForTermination()`,
+        // which the app delegate calls synchronously.
         // Entering or leaving fullscreen swaps the menu bar the items are drawn in, and nothing
         // else here notices: the concealment was left exactly as the previous bar had it, so
         // holzBar's own item was missing from the bar that slides down over a fullscreen window and
-        // there was nothing to click. `HIDEventManager` watches the same publisher, for the same
+        // there was nothing to click. `HIDEventManager` watches the same state, for the same
         // reason, on earlier versions of macOS.
-        appState.$activeSpace
-            .map(\.isFullscreen)
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                MainActor.assumeIsolated {
-                    self?.update()
-                }
+        observers.append(
+            ObservationLoop.observe { appState.activeSpace.isFullscreen } onChange: { [weak self] _ in
+                self?.update()
             }
-            .store(in: &cancellables)
+        )
         let navigation = appState.navigationState
-        navigation.$isSettingsPresented
-            .combineLatest(navigation.$settingsNavigationIdentifier)
-            .removeDuplicates { $0.0 == $1.0 && $0.1 == $1.1 }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                MainActor.assumeIsolated {
-                    self?.update()
-                }
+        observers.append(
+            ObservationLoop.observe { navigation.isSettingsPresented } onChange: { [weak self] _ in
+                self?.update()
             }
-            .store(in: &cancellables)
+        )
+        observers.append(
+            ObservationLoop.observe { navigation.settingsNavigationIdentifier } onChange: { [weak self] _ in
+                self?.update()
+            }
+        )
         update()
+    }
+
+    deinit {
+        for task in observerTasks {
+            task.cancel()
+        }
+    }
+
+    /// Releases every assertion as holzBar quits, so no application stays hidden.
+    func releaseAllForTermination() {
+        controller.releaseAll()
     }
 
     /// Derives what to conceal from holzBar's sections and applies it.
@@ -131,7 +133,7 @@ final class Concealer27: ObservableObject {
             do {
                 try await controller.apply(target: target, running: running)
             } catch {
-                logger.error("Could not apply concealment: \(error, privacy: .public)")
+                logger.error("Could not apply concealment: \(error, privacy: .private)")
             }
         }
         applyTask = task
@@ -151,7 +153,7 @@ final class Concealer27: ObservableObject {
     /// Settings shows this; nothing acts on it. The cure measured so far is to relaunch the
     /// application whose item is missing, and which application that is cannot be told apart
     /// from the frames Accessibility keeps for items it no longer draws.
-    @Published private(set) var isOverflowStuck = false
+    private(set) var isOverflowStuck = false
 
     /// Notes whether concealment has left the notched bar's items folded with no overflow button.
     ///
@@ -338,7 +340,7 @@ final class Concealer27: ObservableObject {
         var layout = savedLayout
         for bundleID in newBundleIDs {
             layout = SectionLayout27.settingSection(MacOS27Section(name), for: bundleID, in: layout)
-            logger.notice("Placed new application \(bundleID, privacy: .public) in \(name.logString, privacy: .public)")
+            logger.notice("Placed new application \(bundleID, privacy: .private(mask: .hash)) in \(name.logString, privacy: .public)")
         }
         Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
         update()
@@ -402,7 +404,7 @@ final class Concealer27: ObservableObject {
             .sorted { $0.key < $1.key }
             .map { "\($0.key)=\($0.value.rawValue)" }
             .joined(separator: " ")
-        logger.notice("Took the macOS 27 layout from the order on the bar: \(described, privacy: .public)")
+        logger.notice("Took the macOS 27 layout from the order on the bar: \(described, privacy: .private(mask: .hash))")
         update()
     }
 

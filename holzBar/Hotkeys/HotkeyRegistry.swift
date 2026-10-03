@@ -5,7 +5,6 @@
 
 import Carbon.HIToolbox
 import Cocoa
-import Combine
 import OSLog
 
 /// An object that manages the registration, storage, and unregistration of hotkeys.
@@ -54,13 +53,17 @@ final class HotkeyRegistry {
     }
 
     // The same four-character code as the original Ice's; the two apps never run together.
-    private let signature = OSType(1231250720)
+    private let signature = OSType(HotkeyStorage.signature)
 
     private var eventHandlerRef: EventHandlerRef?
 
+    /// The identifier of the next registration.
+    private var nextID: UInt32 = 0
+
     private var registrations = [UInt32: Registration]()
 
-    private var cancellables = Set<AnyCancellable>()
+    /// Tasks that follow menu tracking, so hotkeys pause while a menu is open.
+    private var menuTrackingTasks = [Task<Void, Never>]()
 
     /// Installs the global event handler reference, if it isn't already installed.
     private func installIfNeeded() -> OSStatus {
@@ -68,19 +71,18 @@ final class HotkeyRegistry {
             return noErr
         }
 
-        NotificationCenter.default
-            .publisher(for: NSMenu.didBeginTrackingNotification)
-            .sink { [weak self] _ in
-                self?.unregisterAndRetainAll()
-            }
-            .store(in: &cancellables)
-
-        NotificationCenter.default
-            .publisher(for: NSMenu.didEndTrackingNotification)
-            .sink { [weak self] _ in
-                self?.registerAllRetained()
-            }
-            .store(in: &cancellables)
+        menuTrackingTasks = [
+            Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(named: NSMenu.didBeginTrackingNotification) {
+                    self?.unregisterAndRetainAll()
+                }
+            },
+            Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(named: NSMenu.didEndTrackingNotification) {
+                    self?.registerAllRetained()
+                }
+            },
+        ]
 
         let handler: EventHandlerUPP = { _, event, userData in
             guard
@@ -123,12 +125,8 @@ final class HotkeyRegistry {
     /// - Returns: The registration's identifier on success, `nil` on failure.
     @MainActor
     func register(hotkey: Hotkey, eventKind: EventKind, handler: @escaping () -> Void) -> UInt32? {
-        enum Context {
-            static var currentID: UInt32 = 0
-        }
-
         defer {
-            Context.currentID += 1
+            nextID += 1
         }
 
         guard let keyCombination = hotkey.keyCombination else {
@@ -148,7 +146,7 @@ final class HotkeyRegistry {
             return nil
         }
 
-        let id = Context.currentID
+        let id = nextID
 
         guard registrations[id] == nil else {
             Logger.hotkeys.error("Hotkey already registered for id \(id, privacy: .public)")

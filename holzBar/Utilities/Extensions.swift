@@ -3,12 +3,11 @@
 //  holzBar
 //
 
-import Combine
 import SwiftUI
 
 // MARK: - Bundle
 
-extension Bundle {
+nonisolated extension Bundle {
     /// The bundle's copyright string.
     ///
     /// This accessor checks the bundle's `Info.plist` for a string value associated
@@ -50,7 +49,7 @@ extension Bundle {
 
 // MARK: - CGColor
 
-extension CGColor {
+nonisolated extension CGColor {
     /// The brightness of the color.
     var brightness: CGFloat? {
         guard
@@ -66,7 +65,7 @@ extension CGColor {
 
 // MARK: - CGImage
 
-extension CGImage {
+nonisolated extension CGImage {
 
     // MARK: Color Averaging
 
@@ -354,7 +353,7 @@ extension CGImage {
 
 // MARK: - Collection where Element == MenuBarItem
 
-extension Collection where Element == MenuBarItem {
+nonisolated extension Collection where Element == MenuBarItem {
     /// Returns the first index where the menu bar item matching the specified
     /// tag appears in the collection.
     func firstIndex(matching tag: MenuBarItemTag) -> Index? {
@@ -364,7 +363,7 @@ extension Collection where Element == MenuBarItem {
 
 // MARK: - Comparable
 
-extension Comparable {
+nonisolated extension Comparable {
     /// Returns a copy of this value, clamped to the given minimum
     /// and maximum limiting values.
     ///
@@ -398,7 +397,7 @@ extension Comparable {
 
 // MARK: - DistributedNotificationCenter
 
-extension DistributedNotificationCenter {
+nonisolated extension DistributedNotificationCenter {
     /// A notification posted whenever the system-wide interface theme changes.
     static let interfaceThemeChangedNotification = Notification.Name("AppleInterfaceThemeChangedNotification")
 }
@@ -601,69 +600,9 @@ extension NSStatusItem {
     }
 }
 
-// MARK: - Publisher
-
-extension Publisher {
-    /// Replaces each upstream element with an element returned from
-    /// the given closure.
-    ///
-    /// - Parameter output: A closure that returns a new element to
-    ///   publish in place of the upstream element.
-    func replace<T>(_ output: @escaping () -> T) -> Publishers.Map<Self, T> {
-        map { _ in output() }
-    }
-
-    /// Replaces each upstream element with the given element.
-    ///
-    /// - Parameter output: A new element to publish in place of the
-    ///   upstream elements.
-    func replace<T>(with output: T) -> Publishers.Map<Self, T> {
-        replace { output }
-    }
-
-    /// Publishes only non-`nil` elements.
-    func removeNil<T>() -> Publishers.CompactMap<Self, T> where Output == T? {
-        compactMap { $0 }
-    }
-
-    /// Publishes only elements that don't match the previous element.
-    func removeDuplicates<each T: Equatable>() -> Publishers.RemoveDuplicates<Self> where Output == (repeat each T) {
-        removeDuplicates { lhs, rhs in
-            for (left, right) in repeat (each lhs, each rhs) {
-                guard left == right else { return false }
-            }
-            return true
-        }
-    }
-
-    /// Merges this publisher with the given publisher, replacing upstream
-    /// elements with `Void` values.
-    ///
-    /// - Parameter other: Another publisher.
-    func discardMerge<P: Publisher>(_ other: P) -> some Publisher<Void, Failure> where P.Failure == Failure {
-        replace(with: ()).merge(with: other.replace(with: ()))
-    }
-
-    /// Transforms the elements of the upstream sequence into a sequence of
-    /// publishers and merges the results.
-    ///
-    /// - Parameter transform: A closure that takes an element of the upstream
-    ///   sequence as a parameter and returns a publisher.
-    ///
-    /// - Returns: A publisher that emits an event when any upstream publisher
-    ///   emits an event.
-    func mergeMap<P: Publisher>(
-        _ transform: @escaping (Output.Element) -> P
-    ) -> some Publisher<P.Output, P.Failure> where Output: Sequence, Failure == Never {
-        flatMap { sequence in
-            Publishers.MergeMany(sequence.map(transform))
-        }
-    }
-}
-
 // MARK: - RangeReplaceableCollection where Element: Hashable
 
-extension RangeReplaceableCollection where Element: Hashable {
+nonisolated extension RangeReplaceableCollection where Element: Hashable {
     /// Returns a copy of the collection with duplicate values removed.
     func removingDuplicates() -> Self {
         var seen = Set<Element>()
@@ -673,7 +612,7 @@ extension RangeReplaceableCollection where Element: Hashable {
 
 // MARK: - RangeReplaceableCollection where Element == MenuBarItem
 
-extension RangeReplaceableCollection where Element == MenuBarItem {
+nonisolated extension RangeReplaceableCollection where Element == MenuBarItem {
     /// Removes and returns the first menu bar item that matches
     /// the specified tag.
     mutating func removeFirst(matching tag: MenuBarItemTag) -> MenuBarItem? {
@@ -686,7 +625,7 @@ extension RangeReplaceableCollection where Element == MenuBarItem {
 
 // MARK: - Sequence where Element == MenuBarItem
 
-extension Sequence where Element == MenuBarItem {
+nonisolated extension Sequence where Element == MenuBarItem {
     /// Returns the first menu bar item that matches the specified tag.
     func first(matching tag: MenuBarItemTag) -> MenuBarItem? {
         first { $0.tag == tag }

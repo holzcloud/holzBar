@@ -6,7 +6,7 @@
 import Foundation
 
 /// How much of holzBar's hidden content is currently revealed.
-enum RevealState27: Equatable {
+nonisolated enum RevealState27: Equatable {
     case allHidden
     case hiddenRevealed
     case allRevealed
@@ -18,7 +18,7 @@ enum RevealState27: Equatable {
 /// allowlists, so an item shows if any assertion allows it. One assertion per
 /// state is therefore enough, and a state that conceals nothing needs none —
 /// which matters, because any live assertion also stops clicks on the clock.
-enum ConcealmentPlanner27 {
+nonisolated enum ConcealmentPlanner27 {
     /// The concealed bundle sets, one per assertion, that produce the given state.
     static func concealedSets(layout: [String: MacOS27Section], state: RevealState27) -> [Set<String>] {
         switch state {

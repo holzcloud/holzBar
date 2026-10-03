@@ -45,16 +45,16 @@ jobs:
 
       - uses: ./.github/actions/select-xcode
 
-      # Signed ad hoc: there is no Developer ID. The hardened runtime would then
-      # refuse any embedded framework with a team of its own (see Scripts/install.sh).
+      # Signed ad hoc: there is no Developer ID. The hardened runtime stays on, as in the
+      # project: holzBar embeds no framework, and the system framework it opens at runtime
+      # is a platform binary, which library validation accepts.
       - name: Build
         run: |
           xcodebuild -project holzBar.xcodeproj -scheme holzBar -configuration Release \
             -destination 'platform=macOS' -derivedDataPath build build \
             MARKETING_VERSION="$VERSION" \
             CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
-            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
-            ENABLE_HARDENED_RUNTIME=NO
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=
           codesign --verify --deep --strict build/Build/Products/Release/holzBar.app
 
       - name: Package

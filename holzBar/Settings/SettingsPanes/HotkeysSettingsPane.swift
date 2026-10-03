@@ -6,8 +6,8 @@
 import SwiftUI
 
 struct HotkeysSettingsPane: View {
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var settings: HotkeysSettings
+    @Environment(AppState.self) var appState
+    var settings: HotkeysSettings
 
     var body: some View {
         HolzBarForm {

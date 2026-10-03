@@ -11,7 +11,7 @@ extension View {
     func onKeyDown(
         key: KeyCode,
         isEnabled: Bool = true,
-        action: @escaping () -> KeyCode.PressResult
+        action: @escaping @MainActor () -> KeyCode.PressResult
     ) -> some View {
         localEventMonitor(mask: .keyDown, isEnabled: isEnabled) { event in
             if event.keyCode == key.rawValue {

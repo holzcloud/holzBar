@@ -19,7 +19,7 @@ import Foundation
 /// edits ranking higher. Queries of 4 to 7 characters may be 1 edit off, longer ones 2;
 /// shorter queries must match in order. Such typo matches always rank below every match
 /// in order.
-enum FuzzyMatch {
+nonisolated enum FuzzyMatch {
     /// The score of every matched character.
     private static let matchScore = 16
     /// The extra score of a match at the very start of the candidate.
@@ -40,7 +40,7 @@ enum FuzzyMatch {
     private static let exactBonus = 32
 
     /// A character of a candidate, folded for comparison, with what it starts.
-    private struct Position {
+    nonisolated private struct Position {
         let character: Character
         let startsWord: Bool
         let isCamelCaseHump: Bool

@@ -14,7 +14,7 @@ import Foundation
 /// is skipped for a while, then asked again with a short timeout. A process that
 /// has shown items is never skipped: a busy MenuBarAgent or item owner would
 /// otherwise lose its items, and the clock its click, for a minute.
-struct AccessibilityScanSchedule27 {
+nonisolated struct AccessibilityScanSchedule27 {
     static let normalTimeout: Float = 0.5
     static let retryTimeout: Float = 0.1
 

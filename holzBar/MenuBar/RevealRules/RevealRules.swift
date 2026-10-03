@@ -3,7 +3,7 @@
 //  holzBar
 //
 
-import Combine
+import Observation
 import Foundation
 import IOKit.ps
 import Network
@@ -14,10 +14,10 @@ import OSLog
 ///
 /// IOKit's callback is a C function that cannot capture the rules, so it posts this
 /// notification instead.
-private let powerSourcesDidChange = Notification.Name("PowerSourcesDidChange")
+nonisolated private let powerSourcesDidChange = Notification.Name("PowerSourcesDidChange")
 
 /// IOKit's power-source callback. It runs on the run loop its source was added to.
-private func postPowerSourcesDidChange(_ context: UnsafeMutableRawPointer?) {
+nonisolated private func postPowerSourcesDidChange(_ context: UnsafeMutableRawPointer?) {
     NotificationCenter.default.post(name: powerSourcesDidChange, object: nil)
 }
 
@@ -27,19 +27,22 @@ private func postPowerSourcesDidChange(_ context: UnsafeMutableRawPointer?) {
 /// The section is shown for the "temporarily shown item" interval, then hidden
 /// again. Each rule fires once when its condition starts, not again while it
 /// lasts (``RevealTrigger``). Both rules react to system events, power-source
-/// notifications and ``NWPathMonitor``, so nothing polls.
+/// notifications and ``NWPathMonitor``, so nothing polls, and each one observes its
+/// events only while it is turned on.
 @MainActor
-final class RevealRules: ObservableObject {
+@Observable
+final class RevealRules {
     /// Shows hidden items when the battery falls below ``lowBatteryThreshold``.
-    @Published var revealsOnLowBattery = false {
+    var revealsOnLowBattery = false {
         didSet {
             save()
+            updatePowerMonitor()
             batteryRuleChanged()
         }
     }
 
     /// The battery level, in percent, below which hidden items are shown.
-    @Published var lowBatteryThreshold = 20 {
+    var lowBatteryThreshold = 20 {
         didSet {
             save()
             batteryRuleChanged()
@@ -47,40 +50,86 @@ final class RevealRules: ObservableObject {
     }
 
     /// Shows hidden items when the network connection is lost.
-    @Published var revealsWhenOffline = false {
-        didSet { save() }
+    var revealsWhenOffline = false {
+        didSet {
+            save()
+            updateNetworkMonitor()
+        }
     }
 
-    private let logger = Logger(category: "RevealRules")
-    private weak var appState: AppState?
-    private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private let logger = Logger(category: "RevealRules")
+    @ObservationIgnored private weak var appState: AppState?
+
+    /// The task that follows power-source notifications.
+    @ObservationIgnored private var powerSourceTask: Task<Void, Never>?
 
     /// Watches whether a network path is available.
     ///
     /// `NWPathMonitor` only observes the status of the Mac's network paths; it never
-    /// opens a connection or sends anything.
-    private let pathMonitor = NWPathMonitor()
+    /// opens a connection or sends anything. It exists only while the offline rule is
+    /// on; a cancelled monitor cannot be restarted, so each start creates a new one.
+    @ObservationIgnored private var pathMonitor: NWPathMonitor?
 
-    /// The run loop source of IOKit's power-source notifications, kept for the
-    /// lifetime of the rules.
-    private var powerSource: CFRunLoopSource?
+    /// Whether the next path update only records the current state: a rule turned on
+    /// while the Mac is already offline does not fire until the next time it goes offline.
+    @ObservationIgnored private var isNetworkBaselinePending = false
 
-    private var batteryTrigger = RevealTrigger()
-    private var networkTrigger = RevealTrigger()
-    private var isLoading = false
-    private var isSetUp = false
+    /// The run loop source of IOKit's power-source notifications, which exists only
+    /// while the low-battery rule is on.
+    @ObservationIgnored private var powerSource: CFRunLoopSource?
+
+    @ObservationIgnored private var batteryTrigger = RevealTrigger()
+    @ObservationIgnored private var networkTrigger = RevealTrigger()
+    @ObservationIgnored private var isLoading = false
+    @ObservationIgnored private var isSetUp = false
 
     func performSetup(with appState: AppState) {
         self.appState = appState
         load()
 
-        NotificationCenter.default.publisher(for: powerSourcesDidChange)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+        powerSourceTask = Task { [weak self] in
+            for await _ in NotificationCenter.default.notifications(named: powerSourcesDidChange) {
                 self?.checkBattery()
             }
-            .store(in: &cancellables)
+        }
 
+        isSetUp = true
+        updatePowerMonitor()
+        checkBattery()
+        // At launch an offline Mac fires the offline rule, as before.
+        updateNetworkMonitor(isLaunch: true)
+    }
+
+    // MARK: Monitors
+
+    /// Starts or stops the power-source notifications for the low-battery rule.
+    private func updatePowerMonitor() {
+        guard isSetUp else {
+            return
+        }
+        if revealsOnLowBattery {
+            startPowerMonitor()
+        } else {
+            stopPowerMonitor()
+        }
+    }
+
+    /// Starts or stops the network path monitor for the offline rule.
+    private func updateNetworkMonitor(isLaunch: Bool = false) {
+        guard isSetUp else {
+            return
+        }
+        if revealsWhenOffline {
+            startNetworkMonitor(recordsBaseline: !isLaunch)
+        } else {
+            stopNetworkMonitor()
+        }
+    }
+
+    private func startPowerMonitor() {
+        guard powerSource == nil else {
+            return
+        }
         // IOKit calls this whenever a power source changes; the source runs on the
         // main run loop, so the notification is posted on the main thread.
         if let source = IOPSNotificationCreateRunLoopSource(postPowerSourcesDidChange, nil)?.takeRetainedValue() {
@@ -89,16 +138,39 @@ final class RevealRules: ObservableObject {
         } else {
             logger.error("Could not observe power source changes")
         }
-        isSetUp = true
-        checkBattery()
+    }
 
-        pathMonitor.pathUpdateHandler = { [weak self] path in
+    private func stopPowerMonitor() {
+        guard let source = powerSource else {
+            return
+        }
+        CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes)
+        powerSource = nil
+    }
+
+    private func startNetworkMonitor(recordsBaseline: Bool) {
+        guard pathMonitor == nil else {
+            return
+        }
+        isNetworkBaselinePending = recordsBaseline
+        networkTrigger = RevealTrigger()
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] path in
             let isOffline = path.status != .satisfied
             Task { @MainActor in
                 self?.networkChanged(isOffline: isOffline)
             }
         }
-        pathMonitor.start(queue: .global(qos: .utility))
+        monitor.start(queue: .global(qos: .utility))
+        pathMonitor = monitor
+    }
+
+    private func stopNetworkMonitor() {
+        guard let monitor = pathMonitor else {
+            return
+        }
+        monitor.cancel()
+        pathMonitor = nil
     }
 
     private func load() {
@@ -181,6 +253,15 @@ final class RevealRules: ObservableObject {
     }
 
     private func networkChanged(isOffline: Bool) {
+        // An update of a monitor that was stopped meanwhile is stale.
+        guard pathMonitor != nil else {
+            return
+        }
+        if isNetworkBaselinePending {
+            isNetworkBaselinePending = false
+            _ = networkTrigger.update(isOffline)
+            return
+        }
         let started = networkTrigger.update(isOffline)
         if started, revealsWhenOffline {
             reveal(because: "the network connection was lost")

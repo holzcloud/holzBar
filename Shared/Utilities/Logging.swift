@@ -5,7 +5,7 @@
 
 import OSLog
 
-extension Logger {
+nonisolated extension Logger {
     private static let subsystem = Bundle.main.bundleIdentifier ?? ""
 
     /// Creates a logger using the specified category.
@@ -16,7 +16,7 @@ extension Logger {
 
 // MARK: - Shared Loggers
 
-extension Logger {
+nonisolated extension Logger {
     /// The default logger.
     static let `default` = Logger(.default)
 

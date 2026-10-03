@@ -6,8 +6,8 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var navigationState: AppNavigationState
+    @Environment(AppState.self) var appState
+    @Bindable var navigationState: AppNavigationState
     @Environment(\.appearsActive) private var appearsActive
     @Environment(\.sidebarRowSize) private var sidebarRowSize
 
@@ -63,7 +63,9 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        NavigationSplitView {
+        // The sidebar is always shown, and its fixed width keeps the divider from
+        // collapsing it.
+        NavigationSplitView(columnVisibility: .constant(.all)) {
             sidebar
         } detail: {
             detailView
@@ -99,7 +101,7 @@ struct SettingsView: View {
         .toolbar {
             sidebarToolbarSpacer
         }
-        .navigationSplitViewColumnWidth(sidebarWidth)
+        .navigationSplitViewColumnWidth(min: sidebarWidth, ideal: sidebarWidth, max: sidebarWidth)
     }
 
     @ViewBuilder

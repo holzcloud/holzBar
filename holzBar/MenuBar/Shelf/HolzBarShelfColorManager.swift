@@ -3,113 +3,145 @@
 //  holzBar
 //
 
-import Combine
+import Observation
 import SwiftUI
 
-final class HolzBarShelfColorManager: ObservableObject {
-    @Published private(set) var colorInfo: MenuBarAverageColorInfo?
+@MainActor
+@Observable
+final class HolzBarShelfColorManager {
+    private(set) var colorInfo: MenuBarAverageColorInfo?
 
-    private weak var shelfPanel: HolzBarShelfPanel?
+    @ObservationIgnored private weak var shelfPanel: HolzBarShelfPanel?
 
-    private var windowImage: CGImage?
+    @ObservationIgnored private var windowImage: CGImage?
 
-    private var cancellables = Set<AnyCancellable>()
+    /// Observers of the Shelf panel's screen, visibility and frame.
+    @ObservationIgnored private var observations = [NSKeyValueObservation]()
+
+    /// Tasks that refresh the colour when the space, the screens or the appearance change.
+    @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
+
+    /// Follows the Shelf's frame at most every 0.1 s, with its latest frame.
+    @ObservationIgnored private let frameThrottle = Debouncer(delay: .milliseconds(100))
+
+    /// Captures the menu bar and wallpaper every 5 seconds, only while the Shelf is visible.
+    @ObservationIgnored private var refreshTask: Task<Void, Never>?
 
     func performSetup(with shelfPanel: HolzBarShelfPanel) {
         self.shelfPanel = shelfPanel
-        configureCancellables()
+        configureObservers()
     }
 
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
+    private func configureObservers() {
+        guard let shelfPanel else {
+            return
+        }
 
-        if let shelfPanel {
-            shelfPanel.publisher(for: \.screen)
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] screen in
-                    guard
-                        let self,
-                        let screen,
-                        screen == .main
-                    else {
+        observations = [
+            shelfPanel.observe(\.screen, options: [.initial, .new]) { [weak self] panel, _ in
+                Task { @MainActor [weak self] in
+                    guard let self, let screen = panel.screen, screen == .main else {
                         return
                     }
                     updateWindowImage(for: screen)
                 }
-                .store(in: &c)
-
-            shelfPanel.publisher(for: \.isVisible)
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self, weak shelfPanel] isVisible in
-                    guard
-                        let self,
-                        let shelfPanel,
-                        let screen = shelfPanel.screen,
-                        isVisible,
-                        screen == .main
-                    else {
+            },
+            shelfPanel.observe(\.isVisible, options: [.initial, .new]) { [weak self] panel, _ in
+                Task { @MainActor [weak self] in
+                    guard let self else {
                         return
                     }
-                    updateColorInfo(with: shelfPanel.frame, screen: screen)
+                    // The capture timer exists only while the Shelf is visible: a hidden
+                    // Shelf shows no colour, so capturing for it only woke holzBar.
+                    if panel.isVisible {
+                        startRefreshTimer()
+                        refresh()
+                    } else {
+                        stopRefreshTimer()
+                    }
                 }
-                .store(in: &c)
+            },
+            shelfPanel.observe(\.frame, options: [.initial, .new]) { [weak self] panel, _ in
+                Task { @MainActor in
+                    self?.frameThrottle.throttle(latest: true) { [weak self, weak panel] in
+                        guard
+                            let self,
+                            let panel,
+                            let screen = panel.screen,
+                            panel.isVisible,
+                            screen == .main
+                        else {
+                            return
+                        }
+                        withAnimation(.interactiveSpring) {
+                            self.updateColorInfo(with: panel.frame, screen: screen)
+                        }
+                    }
+                }
+            },
+        ]
 
-            shelfPanel.publisher(for: \.frame)
-                .throttle(for: 0.1, scheduler: DispatchQueue.main, latest: true)
-                .sink { [weak self, weak shelfPanel] frame in
-                    guard
-                        let self,
-                        let shelfPanel,
-                        let screen = shelfPanel.screen,
-                        shelfPanel.isVisible,
-                        screen == .main
-                    else {
-                        return
-                    }
-                    withAnimation(.interactiveSpring) {
-                        self.updateColorInfo(with: frame, screen: screen)
-                    }
-                }
-                .store(in: &c)
-
-            Publishers.Merge4(
-                NSWorkspace.shared.notificationCenter
-                    .publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
-                    .replace(with: ()),
-                NotificationCenter.default
-                    .publisher(for: NSApplication.didChangeScreenParametersNotification)
-                    .replace(with: ()),
-                DistributedNotificationCenter.default()
-                    .publisher(for: DistributedNotificationCenter.interfaceThemeChangedNotification)
-                    .replace(with: ()),
-                Timer.publish(every: 5, on: .main, in: .default)
-                    .autoconnect()
-                    .replace(with: ())
-            )
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self, weak shelfPanel] in
-                guard
-                    let self,
-                    let shelfPanel,
-                    let screen = shelfPanel.screen,
-                    screen == .main
-                else {
-                    return
-                }
-                updateWindowImage(for: screen)
-                if shelfPanel.isVisible {
-                    withAnimation {
-                        self.updateColorInfo(with: shelfPanel.frame, screen: screen)
-                    }
+        let notifications: [(NotificationCenter, Notification.Name)] = [
+            (NSWorkspace.shared.notificationCenter, NSWorkspace.activeSpaceDidChangeNotification),
+            (NotificationCenter.default, NSApplication.didChangeScreenParametersNotification),
+            (DistributedNotificationCenter.default(), DistributedNotificationCenter.interfaceThemeChangedNotification),
+        ]
+        observerTasks = notifications.map { center, name in
+            Task { [weak self] in
+                for await _ in center.notifications(named: name) {
+                    self?.refresh()
                 }
             }
-            .store(in: &c)
         }
+    }
 
-        cancellables = c
+    /// Starts capturing every 5 seconds (with a tolerance, so macOS can coalesce it).
+    func startRefreshTimer() {
+        guard refreshTask == nil else {
+            return
+        }
+        refreshTask = Task { [weak self] in
+            while true {
+                do {
+                    try await Task.sleep(for: .seconds(5), tolerance: .seconds(1))
+                } catch {
+                    return
+                }
+                self?.refresh()
+            }
+        }
+    }
+
+    /// Stops the periodic capture.
+    func stopRefreshTimer() {
+        refreshTask?.cancel()
+        refreshTask = nil
+    }
+
+    /// Captures the menu bar and wallpaper and, while the Shelf is visible, updates its colour.
+    private func refresh() {
+        guard
+            let shelfPanel,
+            let screen = shelfPanel.screen,
+            screen == .main
+        else {
+            return
+        }
+        updateWindowImage(for: screen)
+        if shelfPanel.isVisible {
+            withAnimation {
+                self.updateColorInfo(with: shelfPanel.frame, screen: screen)
+            }
+        }
     }
 
     private func updateWindowImage(for screen: NSScreen) {
+        // Nothing captures the screen before Screen Recording is granted; the previous
+        // colour stays.
+        guard ScreenCapture.cachedCheckPermissions() else {
+            return
+        }
+
         let windows = WindowInfo.createWindows(option: .onScreen)
         let displayID = screen.displayID
 

@@ -12,35 +12,35 @@ let package = Package(
         .target(
             name: "HolzBarMacOS27Core",
             path: "holzBar/MenuBar/MacOS27/Core",
-            swiftSettings: [.swiftLanguageMode(.v5)]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "HolzBarMacOS27CoreTests",
             dependencies: ["HolzBarMacOS27Core"],
             path: "Tests/HolzBarMacOS27CoreTests",
-            swiftSettings: [.swiftLanguageMode(.v5)]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .target(
             name: "HolzBarCore",
             path: "holzBar/Core",
-            swiftSettings: [.swiftLanguageMode(.v5)]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "HolzBarCoreTests",
             dependencies: ["HolzBarCore"],
             path: "Tests/HolzBarCoreTests",
-            swiftSettings: [.swiftLanguageMode(.v5)]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .target(
             name: "SharedCodeSigning",
             path: "Shared/CodeSigning",
-            swiftSettings: [.swiftLanguageMode(.v5)]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
         .testTarget(
             name: "SharedCodeSigningTests",
             dependencies: ["SharedCodeSigning"],
             path: "Tests/SharedCodeSigningTests",
-            swiftSettings: [.swiftLanguageMode(.v5)]
+            swiftSettings: [.swiftLanguageMode(.v6)]
         ),
     ]
 )

@@ -4,7 +4,6 @@
 //
 
 import Cocoa
-import Combine
 
 /// A container for the items in the menu bar layout interface.
 final class LayoutBarContainer: NSView {
@@ -54,7 +53,8 @@ final class LayoutBarContainer: NSView {
         }
     }
 
-    private var cancellables = Set<AnyCancellable>()
+    /// Observers of the item list and the item images.
+    private var observers = [ObservationLoop]()
 
     /// Creates a container view with the given app state, section, and spacing.
     ///
@@ -67,7 +67,7 @@ final class LayoutBarContainer: NSView {
         super.init(frame: .zero)
         self.translatesAutoresizingMaskIntoConstraints = false
         unregisterDraggedTypes()
-        configureCancellables()
+        configureObservers()
     }
 
     @available(*, unavailable)
@@ -75,32 +75,25 @@ final class LayoutBarContainer: NSView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
-        if let appState {
-            appState.itemManager.$itemCache
-                .removeDuplicates()
-                .sink { [weak self] cache in
-                    guard let self else {
-                        return
-                    }
-                    setArrangedViews(items: cache[section])
-                }
-                .store(in: &c)
-
-            appState.imageCache.$images
-                .removeDuplicates()
-                .sink { [weak self] _ in
-                    guard let self else {
-                        return
-                    }
-                    layoutArrangedViews()
-                }
-                .store(in: &c)
+    private func configureObservers() {
+        guard let appState else {
+            return
         }
-
-        cancellables = c
+        let itemManager = appState.itemManager
+        let imageCache = appState.imageCache
+        setArrangedViews(items: itemManager.itemCache[section])
+        layoutArrangedViews()
+        observers = [
+            ObservationLoop.observe { itemManager.itemCache } onChange: { [weak self] cache in
+                guard let self else {
+                    return
+                }
+                setArrangedViews(items: cache[section])
+            },
+            ObservationLoop.observe { imageCache.images } onChange: { [weak self] _ in
+                self?.layoutArrangedViews()
+            },
+        ]
     }
 
     /// Performs layout of the container's arranged views.

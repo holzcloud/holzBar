@@ -11,8 +11,8 @@ struct MenuBarAppearanceEditor: View {
         case panel
     }
 
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var appearanceManager: MenuBarAppearanceManager
+    @Environment(AppState.self) var appState
+    @Bindable var appearanceManager: MenuBarAppearanceManager
     @Environment(\.dismissWindow) private var dismissWindow
     @State private var isResetPromptPresented = false
 
@@ -75,6 +75,7 @@ struct MenuBarAppearanceEditor: View {
             HolzBarSection("Menu Bar Shape") {
                 shapePicker
                 isInset
+                shapeScreenRecordingHint
             }
             HolzBarSection("Notch and Screen") {
                 blackBackgroundPicker
@@ -152,6 +153,19 @@ struct MenuBarAppearanceEditor: View {
     private var shapePicker: some View {
         MenuBarShapePicker(configuration: $appearanceManager.configuration)
             .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// Asks for Screen Recording when a shape is chosen without it: the shape draws the
+    /// wallpaper beside it.
+    @ViewBuilder
+    private var shapeScreenRecordingHint: some View {
+        if
+            appearanceManager.configuration.shapeKind != .noShape,
+            !ScreenRecordingAccess.isGranted(appState)
+        {
+            ScreenRecordingHint(feature: .menuBarShape, appState: appState)
+                .frame(maxWidth: .infinity)
+        }
     }
 
     @ViewBuilder
@@ -252,6 +266,7 @@ private struct UnlabeledPartialEditor: View {
 
 private struct LabeledPartialEditor: View {
     @Binding var configuration: MenuBarAppearanceConfigurationV2
+    @Environment(\.colorScheme) private var colorScheme
     @State private var currentAppearance = SystemAppearance.current
     @State private var textFrame = CGRect.zero
 
@@ -263,7 +278,8 @@ private struct LabeledPartialEditor: View {
         } content: {
             partialEditor
         }
-        .onReceive(NSApp.publisher(for: \.effectiveAppearance)) { _ in
+        .onChange(of: colorScheme) {
+            // The view's colour scheme follows the app's effective appearance.
             currentAppearance = .current
         }
     }
@@ -302,7 +318,7 @@ private struct StaticPartialEditor: View {
 }
 
 private struct PreviewButton: View {
-    @EnvironmentObject private var appState: AppState
+    @Environment(AppState.self) private var appState
     @State private var isPressed = false
 
     let appearance: SystemAppearance

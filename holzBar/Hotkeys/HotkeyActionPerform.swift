@@ -1,26 +1,12 @@
 //
-//  HotkeyAction.swift
+//  HotkeyActionPerform.swift
 //  holzBar
 //
 
-enum HotkeyAction: String, Codable, CaseIterable {
-    // Menu Bar Sections
-    case toggleHiddenSection = "ToggleHiddenSection"
-    case toggleAlwaysHiddenSection = "ToggleAlwaysHiddenSection"
-
-    case showHiddenSectionTemporarily = "ShowHiddenSectionTemporarily"
-
-    // Menu Bar Items
-    case searchMenuBarItems = "SearchMenuBarItems"
-
-    // Other
-
-    /// The stored string keeps the name that earlier versions of the app
-    /// stored this hotkey under, so imported settings keep working.
-    case enableShelf = "EnableIceBar"
-    case toggleApplicationMenus = "ToggleApplicationMenus"
-    case toggleAutoRehide = "ToggleAutoRehide"
-
+// What each hotkey action does. The actions and their stored names are in
+// `holzBar/Core/HotkeyAction.swift`.
+extension HotkeyAction {
+    /// Performs the action.
     @MainActor
     func perform(appState: AppState) {
         switch self {

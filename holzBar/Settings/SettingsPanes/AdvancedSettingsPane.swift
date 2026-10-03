@@ -6,8 +6,8 @@
 import SwiftUI
 
 struct AdvancedSettingsPane: View {
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var settings: AdvancedSettings
+    @Environment(AppState.self) var appState
+    @Bindable var settings: AdvancedSettings
     @State private var maxSliderLabelWidth: CGFloat = 0
 
     private var menuBarManager: MenuBarManager {
@@ -233,7 +233,7 @@ struct AdvancedSettingsPane: View {
 /// Settings for showing hidden items when something needs attention
 /// (jordanbaird/Ice#62).
 private struct RevealRulesSettings: View {
-    @ObservedObject var rules: RevealRules
+    @Bindable var rules: RevealRules
 
     var body: some View {
         Toggle("When the battery is low", isOn: $rules.revealsOnLowBattery)
@@ -251,7 +251,7 @@ private struct RevealRulesSettings: View {
 
 /// Turns syncing the settings through iCloud Drive on or off (jordanbaird/Ice#95).
 private struct SettingsSyncToggle: View {
-    @ObservedObject var sync: SettingsSync
+    @Bindable var sync: SettingsSync
 
     private var annotation: LocalizedStringKey {
         if SettingsSync.iCloudDriveURL == nil {

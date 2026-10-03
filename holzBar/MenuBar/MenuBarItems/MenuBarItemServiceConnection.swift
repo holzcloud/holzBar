@@ -10,9 +10,9 @@ import os
 // MARK: - MenuBarItemService.Connection
 
 @available(macOS 26.0, *)
-extension MenuBarItemService {
+nonisolated extension MenuBarItemService {
     /// A connection to the `MenuBarItemService` XPC service.
-    final class Connection: Sendable {
+    nonisolated final class Connection: Sendable {
         /// The shared connection.
         static let shared = Connection()
 
@@ -65,7 +65,7 @@ extension MenuBarItemService {
                 if case .start = response {
                     continuation.resume()
                 } else {
-                    logger.error("Start request returned invalid response \(String(describing: response))")
+                    logger.error("Start request returned invalid response \(String(describing: response), privacy: .private)")
                     continuation.resume()
                 }
             }
@@ -87,7 +87,7 @@ extension MenuBarItemService {
             if case .sourcePID(let pid) = response {
                 return pid
             }
-            logger.error("Source PID request returned invalid response \(String(describing: response))")
+            logger.error("Source PID request returned invalid response \(String(describing: response), privacy: .private)")
             return nil
         }
 
@@ -119,11 +119,12 @@ extension MenuBarItemService {
 // MARK: - MenuBarItemService.Session
 
 @available(macOS 26.0, *)
-extension MenuBarItemService {
+nonisolated extension MenuBarItemService {
     /// A wrapper around an XPC session.
-    private final class Session: Sendable {
-        /// A session's underlying storage.
-        private final class Storage: @unchecked Sendable {
+    nonisolated private final class Session: Sendable {
+        /// A session's underlying storage. Unchecked because `XPCSession` is not marked
+        /// Sendable; every access goes through the session's lock.
+        nonisolated private final class Storage: @unchecked Sendable {
             private let name = MenuBarItemService.name
             private var session: XPCSession?
             private let queue: DispatchQueue
@@ -142,7 +143,7 @@ extension MenuBarItemService {
                     guard let self else {
                         return
                     }
-                    logger.warning("Session was cancelled with error \(error.localizedDescription)")
+                    logger.warning("Session was cancelled with error \(error.localizedDescription, privacy: .private)")
                     self.session = nil
                 }
                 // A build signed with a team requires the service to be from the
@@ -174,7 +175,7 @@ extension MenuBarItemService {
                     let reply = try session.sendSync(request)
                     return try reply.decode(as: Response.self)
                 } catch {
-                    logger.error("Session failed with error \(error)")
+                    logger.error("Session failed with error \(error, privacy: .private)")
                     return nil
                 }
             }

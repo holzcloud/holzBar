@@ -4,13 +4,15 @@
 //
 
 import Cocoa
-import Combine
+import Observation
 import OSLog
 
 /// Cache for menu bar item images.
-final class MenuBarItemImageCache: ObservableObject {
+@MainActor
+@Observable
+final class MenuBarItemImageCache {
     /// A representation of a captured menu bar item image.
-    struct CapturedImage: Hashable {
+    nonisolated struct CapturedImage: Hashable {
         /// The base image.
         let cgImage: CGImage
 
@@ -33,9 +35,9 @@ final class MenuBarItemImageCache: ObservableObject {
 
     /// The result of an image capture operation.
     ///
-    /// Marked `@unchecked Sendable` so it can be returned from the capture queue
-    /// below. The images it holds are immutable once captured.
-    private struct CaptureResult: @unchecked Sendable {
+    /// Unchecked so it can be returned from the capture queue below: `CGImage` is
+    /// not marked Sendable, but the images it holds are immutable once captured.
+    nonisolated private struct CaptureResult: @unchecked Sendable {
         /// The successfully captured images.
         var images = [MenuBarItemTag: CapturedImage]()
 
@@ -60,7 +62,7 @@ final class MenuBarItemImageCache: ObservableObject {
     /// The only remedy is to keep these calls off the cooperative pool entirely.
     /// The queue is serial, so a stuck capture costs one thread rather than one
     /// per item.
-    private static let captureQueue = DispatchQueue(
+    private nonisolated static let captureQueue = DispatchQueue(
         label: "com.holzcloud.holzBar.ImageCapture",
         qos: .userInitiated
     )
@@ -77,68 +79,150 @@ final class MenuBarItemImageCache: ObservableObject {
     }
 
     /// The cached item images, keyed by their corresponding tags.
-    @Published private(set) var images = [MenuBarItemTag: CapturedImage]()
+    private(set) var images = [MenuBarItemTag: CapturedImage]()
 
     /// Logger for the menu bar item image cache.
     private let logger = Logger(category: "MenuBarItemImageCache")
-
-    /// Queue to run cache operations.
-    private let queue = DispatchQueue(label: "MenuBarItemImageCache", qos: .background)
 
     /// Image capture options.
     private let captureOption: CGWindowImageOption = [.boundsIgnoreFraming, .bestResolution]
 
     /// The shared app state.
-    private weak var appState: AppState?
+    @ObservationIgnored private weak var appState: AppState?
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Observers of the views that show images and of the item list.
+    @ObservationIgnored private var observers = [ObservationLoop]()
+
+    /// Tasks that observe the space and the screens.
+    @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
+
+    /// Releases the images a minute after the last view showing them closed.
+    @ObservationIgnored private var releaseTask: Task<Void, Never>?
+
+    /// Refreshes the images every 3 seconds while a view in front shows them.
+    @ObservationIgnored private var refreshTask: Task<Void, Never>?
+
+    /// Updates the cache at most every 0.5 s; the first request of a burst runs at once
+    /// (Combine's `throttle(for:latest: false)`).
+    @ObservationIgnored private let updateThrottle = Debouncer(delay: .milliseconds(500))
 
     // MARK: Setup
 
     /// Sets up the cache.
-    @MainActor
     func performSetup(with appState: AppState) {
         self.appState = appState
-        configureCancellables()
+        configureObservers()
     }
 
     /// Configures the internal observers for the cache.
-    @MainActor
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
-        if let appState {
-            Publishers.Merge3(
-                // Update every 3 seconds at minimum.
-                Timer.publish(every: 3, on: .main, in: .default).autoconnect().replace(with: ()),
-
-                // Update when the active space or screen parameters change.
-                Publishers.Merge(
-                    NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.activeSpaceDidChangeNotification),
-                    NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
-                )
-                .replace(with: ()),
-
-                // Update when the average menu bar color or cached items change.
-                Publishers.Merge(
-                    appState.menuBarManager.$averageColorInfo.removeDuplicates().replace(with: ()),
-                    appState.itemManager.$itemCache.removeDuplicates().replace(with: ())
-                )
-            )
-            .throttle(for: 0.5, scheduler: DispatchQueue.main, latest: false)
-            .sink { [weak self] in
-                guard let self else {
-                    return
-                }
-                Task {
-                    await self.updateCache()
-                }
-            }
-            .store(in: &c)
+    private func configureObservers() {
+        guard let appState else {
+            return
+        }
+        let navigationState = appState.navigationState
+        // Whether the Shelf, the search panel or a group panel is shown.
+        let isPanelShown: @MainActor @Sendable () -> Bool = {
+            navigationState.isShelfPresented || navigationState.isSearchPresented || navigationState.isItemGroupPanelPresented
+        }
+        // Whether the Settings window shows the layout pane (frontmost or not).
+        let isLayoutPaneShown: @MainActor @Sendable () -> Bool = {
+            navigationState.isSettingsPresented && navigationState.settingsNavigationIdentifier == .menuBarLayout
         }
 
-        cancellables = c
+        // Releases every image a minute after the last view showing them closed;
+        // opening one again cancels it (and captures the images anew).
+        observers.append(
+            ObservationLoop.observe { isPanelShown() || isLayoutPaneShown() } onChange: { [weak self] isShowing in
+                self?.showingImagesDidChange(isShowing)
+            }
+        )
+        showingImagesDidChange(isPanelShown() || isLayoutPaneShown())
+
+        // The periodic refresh runs only while such a view is in front (the layout
+        // pane only while holzBar is frontmost, as `updateCache()` checks), so it does
+        // not wake holzBar at idle.
+        let isRefreshNeeded: @MainActor @Sendable () -> Bool = {
+            isPanelShown() || (isLayoutPaneShown() && navigationState.isAppFrontmost)
+        }
+        observers.append(
+            ObservationLoop.observe(isRefreshNeeded) { [weak self] isNeeded in
+                self?.refreshNeededDidChange(isNeeded)
+            }
+        )
+        refreshNeededDidChange(isRefreshNeeded())
+
+        // Update when the active space or screen parameters change.
+        let notifications: [(NotificationCenter, Notification.Name)] = [
+            (NSWorkspace.shared.notificationCenter, NSWorkspace.activeSpaceDidChangeNotification),
+            (NotificationCenter.default, NSApplication.didChangeScreenParametersNotification),
+        ]
+        observerTasks = notifications.map { center, name in
+            Task { [weak self] in
+                for await _ in center.notifications(named: name) {
+                    self?.requestUpdate()
+                }
+            }
+        }
+
+        // Update when the average menu bar color or cached items change.
+        let menuBarManager = appState.menuBarManager
+        let itemManager = appState.itemManager
+        observers.append(
+            ObservationLoop.observe { menuBarManager.averageColorInfo } onChange: { [weak self] _ in
+                self?.requestUpdate()
+            }
+        )
+        observers.append(
+            ObservationLoop.observe { itemManager.itemCache } onChange: { [weak self] _ in
+                self?.requestUpdate()
+            }
+        )
+        requestUpdate()
+    }
+
+    /// Schedules or cancels the release of the images as views showing them open and close.
+    private func showingImagesDidChange(_ isShowing: Bool) {
+        releaseTask?.cancel()
+        releaseTask = nil
+        guard !isShowing else {
+            return
+        }
+        releaseTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(60))
+            } catch {
+                return
+            }
+            self?.releaseAllImages()
+        }
+    }
+
+    /// Starts or stops the 3 s refresh.
+    private func refreshNeededDidChange(_ isNeeded: Bool) {
+        refreshTask?.cancel()
+        refreshTask = nil
+        guard isNeeded else {
+            return
+        }
+        refreshTask = Task { [weak self] in
+            while true {
+                do {
+                    try await Task.sleep(for: .seconds(3), tolerance: .milliseconds(500))
+                } catch {
+                    return
+                }
+                self?.requestUpdate()
+            }
+        }
+    }
+
+    /// Updates the cache, at most every 0.5 s.
+    private func requestUpdate() {
+        updateThrottle.throttle { [weak self] in
+            Task {
+                await self?.updateCache()
+            }
+        }
     }
 
     // MARK: Capturing Images
@@ -251,10 +335,10 @@ final class MenuBarItemImageCache: ObservableObject {
     }
 
     /// Captures the images of the given menu bar items and returns the result.
-    private nonisolated func captureImages(of items: [MenuBarItem], scale: CGFloat, appState: AppState) async -> CaptureResult {
+    private func captureImages(of items: [MenuBarItem], scale: CGFloat, appState: AppState) async -> CaptureResult {
         // Use individual capture after a move operation, since composite capture
         // doesn't account for overlapping items.
-        if await appState.itemManager.lastMoveOperationOccurred(within: .seconds(2)) {
+        if appState.itemManager.lastMoveOperationOccurred(within: .seconds(2)) {
             logger.debug("Capturing individually due to recent item movement")
             return await onCaptureQueue { [self] in individualCapture(items, scale: scale) }
         }
@@ -268,7 +352,7 @@ final class MenuBarItemImageCache: ObservableObject {
         logger.notice(
             """
             Some items were excluded from composite capture. Attempting to capture \
-            excluded items individually: \(compositeResult.excluded, privacy: .public)
+            excluded items individually: \(compositeResult.excluded, privacy: .private(mask: .hash))
             """
         )
 
@@ -285,10 +369,10 @@ final class MenuBarItemImageCache: ObservableObject {
     /// Captures the images of the menu bar items in the given section and returns
     /// a dictionary containing the images, keyed by their menu bar item tags.
     private func captureImages(for section: MenuBarSection.Name, scale: CGFloat, appState: AppState) async -> [MenuBarItemTag: CapturedImage] {
-        let items = await appState.itemManager.itemCache[section]
+        let items = appState.itemManager.itemCache[section]
         let captureResult = await captureImages(of: items, scale: scale, appState: appState)
         if !captureResult.excluded.isEmpty {
-            logger.error("Some items failed capture: \(captureResult.excluded, privacy: .public)")
+            logger.error("Some items failed capture: \(captureResult.excluded, privacy: .private(mask: .hash))")
         }
         return captureResult.images
     }
@@ -300,7 +384,7 @@ final class MenuBarItemImageCache: ObservableObject {
     func updateCacheWithoutChecks(sections: [MenuBarSection.Name]) async {
         guard
             let appState,
-            await appState.hasPermission(.screenRecording)
+            appState.hasPermission(.screenRecording)
         else {
             return
         }
@@ -309,25 +393,25 @@ final class MenuBarItemImageCache: ObservableObject {
             // There are no item windows to capture on macOS 27. See `ItemImageStore27`.
             var items = [MenuBarItem]()
             for section in sections {
-                items += await appState.itemManager.itemCache[section]
+                items += appState.itemManager.itemCache[section]
             }
-            let store = await appState.itemImageStore27
+            let store = appState.itemImageStore27
             await store.captureActiveMenuBar(appState: appState)
             await store.photographMissing(items: items, appState: appState)
             var newImages = [MenuBarItemTag: CapturedImage]()
             for item in items {
-                if let image = await store.image(for: item) {
+                if let image = store.image(for: item) {
                     newImages[item.tag] = image
                 }
             }
-            await MainActor.run { [newImages] in
-                images.merge(newImages) { (_, new) in new }
-            }
+            let currentTags = Set(appState.itemManager.itemCache.managedItems.map(\.tag))
+            images.merge(newImages) { (_, new) in new }
+            prune(keeping: currentTags)
             return
         }
 
         guard
-            let displayID = await appState.itemManager.itemCache.displayID,
+            let displayID = appState.itemManager.itemCache.displayID,
             let screen = NSScreen.screens.first(where: { $0.displayID == displayID })
         else {
             return
@@ -337,7 +421,7 @@ final class MenuBarItemImageCache: ObservableObject {
         var newImages = [MenuBarItemTag: CapturedImage]()
 
         for section in sections {
-            guard await !appState.itemManager.itemCache[section].isEmpty else {
+            guard !appState.itemManager.itemCache[section].isEmpty else {
                 continue
             }
 
@@ -351,9 +435,30 @@ final class MenuBarItemImageCache: ObservableObject {
             newImages.merge(sectionImages) { (_, new) in new }
         }
 
-        await MainActor.run { [newImages] in
-            images.merge(newImages) { (_, new) in new }
+        let currentTags = Set(appState.itemManager.itemCache.managedItems.map(\.tag))
+        images.merge(newImages) { (_, new) in new }
+        prune(keeping: currentTags)
+    }
+
+    /// Drops the images of items that are no longer in the item cache.
+    func prune(keeping tags: Set<MenuBarItemTag>) {
+        let stale = images.keys.filter { !tags.contains($0) }
+        guard !stale.isEmpty else {
+            return
         }
+        for tag in stale {
+            images.removeValue(forKey: tag)
+        }
+    }
+
+    /// Releases every cached image. Runs a minute after the last view that shows item
+    /// images closed; the images are captured again when one opens.
+    func releaseAllImages() {
+        guard !images.isEmpty else {
+            return
+        }
+        images.removeAll()
+        logger.debug("Released all item images")
     }
 
     /// Updates the cache for the given sections, if necessary.
@@ -362,20 +467,21 @@ final class MenuBarItemImageCache: ObservableObject {
             return
         }
 
-        let isShelfPresented = await appState.navigationState.isShelfPresented
-        let isSearchPresented = await appState.navigationState.isSearchPresented
+        let isShelfPresented = appState.navigationState.isShelfPresented
+        let isSearchPresented = appState.navigationState.isSearchPresented
+        let isGroupPanelPresented = appState.navigationState.isItemGroupPanelPresented
 
-        if !isShelfPresented && !isSearchPresented {
+        if !isShelfPresented && !isSearchPresented && !isGroupPanelPresented {
             guard
-                await appState.navigationState.isAppFrontmost,
-                await appState.navigationState.isSettingsPresented,
-                await appState.navigationState.settingsNavigationIdentifier == .menuBarLayout
+                appState.navigationState.isAppFrontmost,
+                appState.navigationState.isSettingsPresented,
+                appState.navigationState.settingsNavigationIdentifier == .menuBarLayout
             else {
                 return
             }
         }
 
-        guard await !appState.itemManager.lastMoveOperationOccurred(within: .seconds(1)) else {
+        guard !appState.itemManager.lastMoveOperationOccurred(within: .seconds(1)) else {
             logger.debug("Skipping item image cache due to recent item movement")
             return
         }
@@ -389,9 +495,9 @@ final class MenuBarItemImageCache: ObservableObject {
             return
         }
 
-        let isShelfPresented = await appState.navigationState.isShelfPresented
-        let isSearchPresented = await appState.navigationState.isSearchPresented
-        let isSettingsPresented = await appState.navigationState.isSettingsPresented
+        let isShelfPresented = appState.navigationState.isShelfPresented
+        let isSearchPresented = appState.navigationState.isSearchPresented
+        let isSettingsPresented = appState.navigationState.isSettingsPresented
 
         var sectionsNeedingDisplay = [MenuBarSection.Name]()
 
@@ -399,11 +505,11 @@ final class MenuBarItemImageCache: ObservableObject {
             sectionsNeedingDisplay = MenuBarSection.Name.allCases
         } else if
             isShelfPresented,
-            let section = await appState.menuBarManager.shelfPanel.currentSection
+            let section = appState.menuBarManager.shelfPanel.currentSection
         {
             sectionsNeedingDisplay.append(section)
             // Items covered by the notch are shown along with the hidden section.
-            if section == .hidden, await appState.settings.general.showsNotchOverflowInShelf {
+            if section == .hidden, appState.settings.general.showsNotchOverflowInShelf {
                 sectionsNeedingDisplay.append(.visible)
             }
         }
@@ -415,7 +521,6 @@ final class MenuBarItemImageCache: ObservableObject {
 
     /// Returns a Boolean value that indicates whether caching menu bar items
     /// failed for the given section.
-    @MainActor
     func cacheFailed(for section: MenuBarSection.Name) -> Bool {
         guard ScreenCapture.cachedCheckPermissions() else {
             return true

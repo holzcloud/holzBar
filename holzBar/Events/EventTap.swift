@@ -62,9 +62,8 @@ final class EventTap {
         }
     }
 
-    private var machPort: CFMachPort?
-    private var source: CFRunLoopSource?
-    private let runLoop: CFRunLoop
+    /// The tap's mach port and run loop source, which remove themselves when released.
+    private var resources: Resources?
     private let callback: (EventTap, CGEvent) -> CGEvent?
 
     /// A string label that identifies the tap.
@@ -73,15 +72,15 @@ final class EventTap {
     /// A Boolean value that indicates whether the tap is actively
     /// listening for events.
     var isEnabled: Bool {
-        guard let machPort else { return false }
-        return CGEvent.tapIsEnabled(tap: machPort)
+        guard let resources else { return false }
+        return CGEvent.tapIsEnabled(tap: resources.machPort)
     }
 
     /// A Boolean value that indicates whether the tap is valid and
     /// able to receive events.
     var isValid: Bool {
-        guard let machPort else { return false }
-        return CFMachPortIsValid(machPort)
+        guard let resources else { return false }
+        return CFMachPortIsValid(resources.machPort)
     }
 
     /// Creates a new event tap for the specified event types.
@@ -118,7 +117,6 @@ final class EventTap {
     ) {
         self.label = label
         self.callback = callback
-        self.runLoop = CFRunLoopGetMain()
 
         guard
             let machPort = EventTap.createMachPort(
@@ -134,8 +132,7 @@ final class EventTap {
             return
         }
 
-        self.machPort = machPort
-        self.source = source
+        self.resources = Resources(machPort: machPort, source: source, runLoop: CFRunLoopGetMain())
     }
 
     /// Creates a new event tap for the specified event type.
@@ -178,16 +175,6 @@ final class EventTap {
             option: option,
             callback: callback
         )
-    }
-
-    deinit {
-        if let source {
-            CFRunLoopRemoveSource(runLoop, source, .commonModes)
-        }
-        if let machPort {
-            CGEvent.tapEnable(tap: machPort, enable: false)
-            CFMachPortInvalidate(machPort)
-        }
     }
 
     /// Creates an event tap mach port.
@@ -234,15 +221,41 @@ final class EventTap {
 
     /// Enables the tap.
     func enable() {
-        guard let source, let machPort else { return }
-        CGEvent.tapEnable(tap: machPort, enable: true)
-        CFRunLoopAddSource(runLoop, source, .commonModes)
+        guard let resources else { return }
+        CGEvent.tapEnable(tap: resources.machPort, enable: true)
+        CFRunLoopAddSource(resources.runLoop, resources.source, .commonModes)
     }
 
     /// Disables the tap.
     func disable() {
-        guard let source, let machPort else { return }
-        CFRunLoopRemoveSource(runLoop, source, .commonModes)
-        CGEvent.tapEnable(tap: machPort, enable: false)
+        guard let resources else { return }
+        CFRunLoopRemoveSource(resources.runLoop, resources.source, .commonModes)
+        CGEvent.tapEnable(tap: resources.machPort, enable: false)
+    }
+}
+
+// MARK: - EventTap.Resources
+
+extension EventTap {
+    /// The mach port and run loop source of a tap.
+    ///
+    /// They are released with the tap and take the tap out of the event stream when
+    /// they are, without the tap's main-actor isolated deinitializer touching them.
+    nonisolated private final class Resources {
+        let machPort: CFMachPort
+        let source: CFRunLoopSource
+        let runLoop: CFRunLoop
+
+        init(machPort: CFMachPort, source: CFRunLoopSource, runLoop: CFRunLoop) {
+            self.machPort = machPort
+            self.source = source
+            self.runLoop = runLoop
+        }
+
+        deinit {
+            CFRunLoopRemoveSource(runLoop, source, .commonModes)
+            CGEvent.tapEnable(tap: machPort, enable: false)
+            CFMachPortInvalidate(machPort)
+        }
     }
 }

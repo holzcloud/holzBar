@@ -48,10 +48,24 @@ Every change to holzBar follows four rules — without taking a feature away:
 
 - **Modern** — written the way a macOS app is written in 2026: current Swift, Swift concurrency and current SwiftUI and AppKit APIs. Outdated APIs are replaced as the code is touched.
 - **Lean and fast** — as little CPU, energy, memory and disk as possible; no polling where macOS sends an event; a small app that launches fast.
-- **Private** — holzBar never connects to the network: no telemetry, no analytics, no crash reports, no update checks, no remote content. The only exception is a link you click, which opens in your browser. Your data stays on your Mac and out of the logs. To show hidden items when the network drops, holzBar only watches whether a network path is available (Apple's NWPathMonitor); it never opens a connection.
+- **Private** — holzBar never connects to the network: no telemetry, no analytics, no crash reports, no update checks, no remote content. The only exception is a link you click, which opens in your browser. Your data stays on your Mac and out of the logs. To show hidden items when the network drops, holzBar only watches whether a network path is available (Apple's NWPathMonitor); it never opens a connection. The `no-network` check fails every pull request that adds networking code or a third-party package, and every build checks the app's binaries and entitlements for network access.
 - **Least privilege** — holzBar asks only for the permissions a feature really needs, when it needs them, and says why.
 
-Where holzBar doesn't meet a rule yet, that is a bug to fix — for example, it still asks for Accessibility and Screen Recording together on the first launch.
+Where holzBar doesn't meet a rule yet, that is a bug to fix.
+
+### Permissions
+
+Everything holzBar asks macOS for, the feature that needs it and when it is asked:
+
+| Permission or entitlement | Needed for | When |
+|---|---|---|
+| **Accessibility** <sub>required</sub> | Reading where menu bar items are; moving, showing and clicking them for you; noticing clicks, scrolls and hovers in the menu bar for show on click, scroll and hover | Asked on the first launch |
+| **Screen Recording** <sub>optional</sub> | Pictures of menu bar items in the holzBar Shelf, the search and the Menu Bar Layout pane (on macOS 27 taken once per item), and the wallpaper beside a menu bar shape | Asked the first time you open the holzBar Shelf, the search or the Menu Bar Layout pane, or choose a menu bar shape — never at launch. Without it, everything else works and nothing captures the screen |
+| **Login item** | Starting holzBar when you log in | Only when you turn on "Launch at login" |
+| **iCloud Drive file** | Settings sync between your Macs (`iCloud Drive/holzBar/Settings.plist`), read and written with file coordination | Only while settings sync is on; with sync off, holzBar neither watches the folder nor writes to it |
+| **Entitlements** | None. holzBar runs without the App Sandbox, because Accessibility event taps and the menu bar's private WindowServer calls do not work in it, and it has no network entitlement | — |
+| **Info.plist usage strings** | None: macOS does not use them for Accessibility and Screen Recording | — |
+| **Reset and Grant Again** | Runs `tccutil reset` for holzBar's own entry only, when a stale permission keeps the permissions window open | Only when you click it |
 
 ## 🚀 Install
 
@@ -156,7 +170,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 #### Settings
 - ✅ **Export and import** all settings
-- ✅ **Sync between Macs** through iCloud Drive
+- ✅ **Sync between Macs** through iCloud Drive — changes from another Mac arrive as soon as iCloud Drive delivers them, with no polling
 - ✅ **Imports your Ice settings** on first launch
 - ✅ Launch at login
 
@@ -166,13 +180,14 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ### holzBar vs. Ice
 
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 does, what it doesn't, and what holzBar adds. 🔜 marks work in progress in this beta.
+
 | | Ice 0.11.12 | holzBar |
 |---|:---:|:---:|
+| **Compatibility** | | |
 | macOS 14 – 26 | ✅ | ✅ |
-| **macOS 27** | ❌ | ✅ |
-| Install and update with Homebrew | ✅ | ✅ |
-| Updates | Sparkle (dialog can hang on macOS 26) | Homebrew |
-| No network connections (no update checks, telemetry or analytics) | ❌ | ✅ |
+| **macOS 27** (new menu bar drawn by `MenuBarAgent`) | ❌ | ✅ |
+| **Features** | | |
 | Hidden and always-hidden sections, Ice Bar / holzBar Shelf, search, appearance | ✅ | ✅ |
 | Layout profiles | ❌ | ✅ |
 | Groups and spacers | ❌ | ✅ |
@@ -184,7 +199,31 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 | Export, import and sync settings | ❌ | ✅ |
 | Keep Live Activities visible | ❌ | ✅ <sub>experimental</sub> |
 | Show on scroll with a mouse wheel | ❌ | ✅ |
+| Search tolerates typos and abbreviations | ✅ (library) | ✅ (built in) |
+| Refuses hotkeys macOS cannot register, and says why | ❌ | ✅ |
+| **Privacy and permissions** | | |
+| Network connections (update checks, telemetry, analytics) | Sparkle update checks | **none** — enforced by CI |
+| Personal data (app names, item titles, paths) in logs | partly public | private, enforced by CI |
+| Asks for Screen Recording only when a feature needs it | ❌ | ✅ |
+| Hardened runtime (no injected code or libraries) | ✅ | ✅ (checked by CI) |
+| Settings import accepts only known keys of the right type | — (no import) | ✅ |
+| Menu bar item service accepts only holzBar's own code | team check only | team or exact code hash |
 | Fix for the permissions loop | ❌ | ✅ |
+| **Code and resources** | | |
+| Third-party Swift packages | 5 | **none** |
+| Swift language mode | Swift 5 | Swift 6 (data-race safety checked by the compiler) |
+| State management | Combine | `@Observable`, no Combine |
+| Mouse event tap when "Show on hover" is off | always running | off |
+| Timers and polling while nothing is shown | yes | only while needed |
+| Settings sync checks for changes | — (no sync) | when iCloud Drive delivers them, no polling |
+| Settings migration | 6 version steps at every launch | once, while importing Ice settings |
+| Runtime patching of AppKit (method swizzling) | yes | none |
+| Item images in memory | kept | released when unused |
+| Unit tests run on every change | none | ✅ 200+ |
+| App size | — | 13.5 MB (−9.5 % in this beta) |
+| **Distribution and maintenance** | | |
+| Install and update with Homebrew | ✅ | ✅ |
+| Updates | Sparkle (dialog can hang on macOS 26) | Homebrew |
 | Fixes from 282 open bug reports | — | [see the list](docs/upstream-bugs.md) |
 | Signed with a Developer ID | ✅ | ❌ (ad hoc; the cask handles it) |
 
@@ -198,7 +237,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 <td width="50%" valign="top"><b>holzBar Shelf</b> — hidden items below the menu bar<br><img src="Resources/Screenshots/shelf.png" alt="The menu bar with the holzBar Shelf open below it, showing the hidden items"></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b>Menu</b> — right-click the dot for settings, search and updates<br><img src="Resources/Screenshots/menu.png" alt="holzBar's menu: holzBar Settings…, Search Menu Bar Items, Show Hidden Section, Check for Updates…, Quit holzBar"></td>
+<td width="50%" valign="top"><b>Menu</b> — right-click the dot for settings, search and updates<br><img src="Resources/Screenshots/menu.png" alt="holzBar's menu: holzBar Settings…, Search Menu Bar Items, Show Hidden Section, How to Update…, Quit holzBar"></td>
 <td width="50%" valign="top"><b>Rehide and spacing</b> — automatic rehide and item spacing <sub>BETA</sub><br><img src="Resources/Screenshots/settings-spacing.png" alt="holzBar settings: show on click, hover or scroll, automatically rehide with the Smart strategy, and the menu bar item spacing slider marked BETA"></td>
 </tr>
 </table>

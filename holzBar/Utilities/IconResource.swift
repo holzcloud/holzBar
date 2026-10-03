@@ -6,7 +6,7 @@
 import SwiftUI
 
 /// A type that produces a view representing an icon.
-enum IconResource: Hashable {
+nonisolated enum IconResource: Hashable {
     /// A resource derived from a system symbol.
     case systemSymbol(_ name: String)
 
@@ -14,7 +14,7 @@ enum IconResource: Hashable {
     case assetCatalog(_ resource: ImageResource)
 
     /// The view produced by the resource.
-    @ViewBuilder
+    @MainActor @ViewBuilder
     var view: some View {
         image
             .resizable()
@@ -22,6 +22,7 @@ enum IconResource: Hashable {
     }
 
     /// The image produced by the resource.
+    @MainActor
     private var image: Image {
         switch self {
         case .systemSymbol(let name):

@@ -64,28 +64,58 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Modern, lean and private
 
-- [ ] **LEAN-01**: An analysis of the whole code base (written to `.planning/phases/05.1-modern-lean-and-private/05.1-ANALYSIS.md`) lists everything that can be more modern (2026 Swift/SwiftUI/AppKit idioms), more efficient (CPU, energy, memory, wake-ups, polling), smaller (binary and bundle size, dependencies, assets) and faster (launch time, UI), each with location, gain and risk; the user picks what gets done
+- [x] **LEAN-01**: An analysis of the whole code base (written to `.planning/phases/05.1-modern-lean-and-private/05.1-ANALYSIS.md`) lists everything that can be more modern (2026 Swift/SwiftUI/AppKit idioms), more efficient (CPU, energy, memory, wake-ups, polling), smaller (binary and bundle size, dependencies, assets) and faster (launch time, UI), each with location, gain and risk; the user picks what gets done
 - [ ] **MOD-01**: Swift 6 language mode for all targets (strict concurrency, no `@unchecked Sendable` without a written reason)
 - [ ] **MOD-02**: Models use `@Observable` instead of `ObservableObject` + `@Published` + Combine
-- [ ] **MOD-03**: The old Ice migration chain is collapsed into one import step
+- [x] **MOD-03**: The old Ice migration chain is collapsed into one import step
 - [ ] **MOD-04**: `MenuBarItemManager` and `HIDEventManager` are split per backend (pre-26, 26, 27)
-- [ ] **MOD-05**: Tests for migration, settings import/sync, URL commands and hotkeys
-- [ ] **MOD-06**: Settings sync uses `NSFileCoordinator` / `NSMetadataQuery`
-- [ ] **LEAN-02**: Every third-party dependency that the system frameworks can replace without losing a feature is removed (candidates: LaunchAtLogin-Modern → `SMAppService`, CompactSlider, Semaphore, Ifrit); the app bundle is measurably smaller (size before/after in the PR)
-- [ ] **LEAN-03**: No polling or timer runs while nothing can change (event- and notification-driven instead); idle CPU wake-ups are measured before/after where possible
-- [ ] **PRIV-01**: The app makes no network connection at all: no telemetry, analytics, crash reporting, update checks or remote fetches; a CI check fails if networking APIs (`URLSession`, `NWConnection`, `Network` framework sockets, web views) appear outside an explicit allowlist (opening links in the browser is allowed); entitlements contain no network client/server entitlement; documented in README ("Principles" section and banner, added in Phase 01.1, kept accurate here)
-- [ ] **PRIV-02**: No personal data leaves the Mac or lands in logs: logs use `privacy: .private` for anything user-specific, item images and settings stay local (iCloud sync only when the user turns it on)
-- [ ] **PERM-01**: holzBar asks only for the permissions it really needs, only when a feature needs them, and explains why in the permissions window; every permission, entitlement and Info.plist usage string is listed with the feature that needs it, and anything not needed is removed — without removing a feature
+- [x] **MOD-05**: Tests for migration, settings import/sync, URL commands and hotkeys
+- [x] **MOD-06**: Settings sync uses `NSFileCoordinator` / `NSMetadataQuery`
+- [x] **LEAN-02**: Every third-party dependency that the system frameworks can replace without losing a feature is removed (candidates: LaunchAtLogin-Modern → `SMAppService`, CompactSlider, Semaphore, Ifrit); the app bundle is measurably smaller (size before/after in the PR)
+- [x] **LEAN-03**: No polling or timer runs while nothing can change (event- and notification-driven instead); idle CPU wake-ups are measured before/after where possible
+- [x] **PRIV-01**: The app makes no network connection at all: no telemetry, analytics, crash reporting, update checks or remote fetches; a CI check fails if networking APIs (`URLSession`, `NWConnection`, `Network` framework sockets, web views) appear outside an explicit allowlist (opening links in the browser is allowed); entitlements contain no network client/server entitlement; documented in README ("Principles" section and banner, added in Phase 01.1, kept accurate here)
+- [x] **PRIV-02**: No personal data leaves the Mac or lands in logs: logs use `privacy: .private` for anything user-specific, item images and settings stay local (iCloud sync only when the user turns it on)
+- [x] **PERM-01**: holzBar asks only for the permissions it really needs, only when a feature needs them, and explains why in the permissions window; every permission, entitlement and Info.plist usage string is listed with the feature that needs it, and anything not needed is removed — without removing a feature
+
+### Thaw fixes and speed
+
+- [ ] **THAW-01**: see `.planning/research/THAW.md`
+- [ ] **THAW-02**: see `.planning/research/THAW.md`
+- [ ] **THAW-03**: see `.planning/research/THAW.md`
+- [ ] **THAW-04**: see `.planning/research/THAW.md`
+- [ ] **THAW-05**: see `.planning/research/THAW.md`
+- [ ] **THAW-06**: see `.planning/research/THAW.md`
+- [ ] **THAW-07**: see `.planning/research/THAW.md`
+- [ ] **THAW-08**: see `.planning/research/THAW.md`
+
+- [ ] **ICE-01**: see `.planning/research/THAW.md` (Ice upstream scan)
+- [ ] **ICE-02**: see THAW.md
+- [ ] **ICE-03**: see THAW.md
+- [ ] **ICE-04**: see THAW.md
+- [ ] **ICE-06**: see THAW.md
+
+### Thaw features
+
+- [ ] **THAW-10**: see `.planning/research/THAW.md`
+- [ ] **THAW-11**: see `.planning/research/THAW.md`
+- [ ] **THAW-12**: see `.planning/research/THAW.md`
+- [ ] **THAW-13**: see `.planning/research/THAW.md`
+- [ ] **THAW-14**: see `.planning/research/THAW.md`
+- [ ] **THAW-15**: see `.planning/research/THAW.md`
+- [ ] **THAW-16**: see `.planning/research/THAW.md`
+- [ ] **THAW-17**: see `.planning/research/THAW.md`
+
+- [ ] **ICE-05**: localization (String Catalog: en, de, fr, it, rm) — see THAW.md
 
 ### Security and performance
 
 - [x] **SEC-01**: Settings import and sync only apply known keys with the expected types
 - [x] **SEC-02**: URL commands log only the command, not the full URL as public
 - [x] **SEC-03**: Captured item images are stored in Caches (excluded from backups), not Application Support; old files are moved or deleted
-- [ ] **PERF-01**: Show on hover keeps one cancellable task instead of starting a task per mouse move
-- [ ] **PERF-02**: Permission polling stops once all permissions are granted
-- [ ] **PERF-04**: The menu bar search tolerates 1–2 typos (own code, no dependency) while in-order matches rank first
-- [ ] **PERF-03**: Reveal rules react to power and network notifications instead of polling every 60 s
+- [x] **PERF-01**: Show on hover keeps one cancellable task instead of starting a task per mouse move
+- [x] **PERF-02**: Permission polling stops once all permissions are granted
+- [x] **PERF-04**: The menu bar search tolerates 1–2 typos (own code, no dependency) while in-order matches rank first
+- [x] **PERF-03**: Reveal rules react to power and network notifications instead of polling every 60 s
 
 ### Compatibility
 
@@ -163,22 +193,44 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | SEC-01 | Phase 5 | Complete |
 | SEC-02 | Phase 5 | Complete |
 | SEC-03 | Phase 5 | Complete |
-| PERF-01 | Phase 5 | Pending |
-| PERF-02 | Phase 5 | Pending |
-| PERF-04 | Phase 5 | Pending |
-| PERF-03 | Phase 5 | Pending |
-| LEAN-01 | Phase 05.1 | Pending |
+| PERF-01 | Phase 5 | Complete |
+| PERF-02 | Phase 5 | Complete |
+| PERF-04 | Phase 5 | Complete |
+| PERF-03 | Phase 5 | Complete |
+| LEAN-01 | Phase 05.1 | Complete |
 | MOD-01 | Phase 05.1 | Pending |
 | MOD-02 | Phase 05.1 | Pending |
-| MOD-03 | Phase 05.1 | Pending |
+| MOD-03 | Phase 05.1 | Complete |
 | MOD-04 | Phase 05.1 | Pending |
-| MOD-05 | Phase 05.1 | Pending |
-| MOD-06 | Phase 05.1 | Pending |
-| LEAN-02 | Phase 05.1 | Pending |
-| LEAN-03 | Phase 05.1 | Pending |
-| PRIV-01 | Phase 05.1 | Pending |
-| PRIV-02 | Phase 05.1 | Pending |
-| PERM-01 | Phase 05.1 | Pending |
+| MOD-05 | Phase 05.1 | Complete |
+| MOD-06 | Phase 05.1 | Complete |
+| LEAN-02 | Phase 05.1 | Complete |
+| LEAN-03 | Phase 05.1 | Complete |
+| PRIV-01 | Phase 05.1 | Complete |
+| PRIV-02 | Phase 05.1 | Complete |
+| PERM-01 | Phase 05.1 | Complete |
+| THAW-01 | Phase 05.1.1 | Pending |
+| THAW-02 | Phase 05.1.1 | Pending |
+| THAW-03 | Phase 05.1.1 | Pending |
+| THAW-04 | Phase 05.1.1 | Pending |
+| THAW-05 | Phase 05.1.1 | Pending |
+| THAW-06 | Phase 05.1.1 | Pending |
+| THAW-07 | Phase 05.1.1 | Pending |
+| THAW-08 | Phase 05.1.1 | Pending |
+| THAW-10 | Phase 05.1.1.1 | Pending |
+| THAW-11 | Phase 05.1.1.1 | Pending |
+| THAW-12 | Phase 05.1.1.1 | Pending |
+| THAW-13 | Phase 05.1.1.1 | Pending |
+| THAW-14 | Phase 05.1.1.1 | Pending |
+| THAW-15 | Phase 05.1.1.1 | Pending |
+| THAW-16 | Phase 05.1.1.1 | Pending |
+| THAW-17 | Phase 05.1.1.1 | Pending |
+| ICE-01 | Phase 05.1.1 | Pending |
+| ICE-02 | Phase 05.1.1 | Pending |
+| ICE-03 | Phase 05.1.1 | Pending |
+| ICE-04 | Phase 05.1.1 | Pending |
+| ICE-06 | Phase 05.1.1 | Pending |
+| ICE-05 | Phase 05.1.1.1 | Pending |
 | AUDIT-01 | Phase 6 | Pending |
 | COMPAT-01 | Phase 06.1 | Pending |
 | COMPAT-02 | Phase 06.1 | Pending |

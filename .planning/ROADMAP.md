@@ -15,9 +15,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: CI and build** - Current actions, maintained SwiftLint, unit tests on every PR, visible warnings, pinned Xcode, holzIce project metadata
 - [x] **Phase 01.1: Rename to holzBar** (INSERTED) - Name, logo, identifiers, code and links say holzBar; holzIce settings are imported
 - [x] **Phase 2: Bug fixes** - Spacing relaunch, data race, hotkey recorder, XPC ad hoc check, permission continuation, allowlist
-- [ ] **Phase 3: Ice and Sparkle leftovers** - Acknowledgements, credits, docs, templates, dead code and files removed
-- [ ] **Phase 4: Outdated APIs** - Modern URL, UserDefaults, CFPreferences, URL-open, window and AX APIs; AXSwift removed
-- [ ] **Phase 5: Security and performance** - Validated settings import, private logging, Caches storage, no needless tasks or polling
+- [x] **Phase 3: Ice and Sparkle leftovers** - Acknowledgements, credits, docs, templates, dead code and files removed
+- [x] **Phase 4: Outdated APIs** - Modern URL, UserDefaults, CFPreferences, URL-open, window and AX APIs; AXSwift removed
+- [x] **Phase 5: Security and performance** - Validated settings import, private logging, Caches storage, no needless tasks or polling
 - [ ] **Phase 05.1: Modern, lean and private** (INSERTED) - 2026 code, Swift 6, @Observable, fewer dependencies, no network, least privilege
 - [ ] **Phase 6: Security audit** - Full security analysis of the whole app, findings ranked, fixes chosen by the user done before the release
 - [ ] **Phase 06.1: Compatibility check** (INSERTED) - Which macOS versions really work; 26 and 27 required, older ones optional
@@ -140,11 +140,11 @@ Plans:
   4. Moving the mouse over show-on-hover keeps one cancellable task, and permission polling stops once all permissions are granted
   5. Reveal rules react to power and network notifications instead of polling every 60 s
 
-**Plans**: 1/2 plans executed (sequential waves; same PR, completed by 05-02)
+**Plans**: 2/2 plans executed (sequential waves; same PR, completed by 05-02)
 
 Plans:
 - [x] 05-01-PLAN.md — Tracer: imported, synced and Ice settings validated against Defaults.Key kinds (Defaults moved to Core, tested); URL logs name only the command; item images in Caches with a tested one-time move
-- [ ] 05-02-PLAN.md — One cancellable hover task (tested HoverSchedule); permission checks stop once granted; reveal rules on IOPSNotificationCreateRunLoopSource and NWPathMonitor (tested RevealTrigger); final PR body
+- [x] 05-02-PLAN.md — One cancellable hover task (tested HoverSchedule); permission checks stop once granted; reveal rules on IOPSNotificationCreateRunLoopSource and NWPathMonitor (tested RevealTrigger); final PR body
 
 ### Phase 05.1: Modern, lean and private (INSERTED)
 
@@ -158,10 +158,32 @@ Plans:
   4. A CI check proves there is no network code, and the README states it; logs keep personal data private
   5. Every permission and entitlement is justified by a feature, asked for only when needed, and anything unneeded is gone
 
+**Plans:** 2/3 plans executed (sequential waves; one PR "Modern, lean and private", pushed once per plan; 05.1-03 starts with one strict-concurrency measurement build)
+
+Plans:
+- [x] 05.1-01-PLAN.md — Tracer: no-network CI job and binary check, private logs, "How to Update…"; LaunchAtLogin-Modern, Semaphore and CompactSlider replaced (SMAppService, own AsyncLock and slider), -Osize; taps and timers only while needed; draft PR with size and wake-up figures
+- [x] 05.1-02-PLAN.md — Tracer: Screen Recording asked in context with the why; one-step Ice migration, no swizzling or preview/app-group leftovers, lazy panels, hardened runtime everywhere; settings sync through NSFilePresenter; tests for migration, sync, hotkeys and URL commands
+- [ ] 05.1-03-PLAN.md — Tracer: strict-concurrency measurement build; explicit isolation and no unprotected globals; @Observable without Combine (macOS 14); Swift 6 mode for app and XPC; managers split per backend; macOS 26/27 checklist in the PR
+
+### Phase 05.1.1: Thaw fixes and speed (INSERTED)
+
+**Goal:** The bugs Thaw fixed that holzBar shares are fixed, and revealing is fast and never freezes input
+**Requirements**: THAW-01, THAW-02, THAW-03, THAW-04, THAW-05, THAW-06, THAW-07, THAW-08, ICE-01, ICE-02, ICE-03, ICE-04, ICE-06
+**Depends on:** Phase 05.1
 **Plans:** 0 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 05.1 to break down)
+- [ ] TBD (run /gsd-plan-phase 05.1.1 to break down)
+
+### Phase 05.1.1.1: Thaw features (INSERTED)
+
+**Goal:** holzBar gains Thaw's best features within its principles (no network, least privilege, lean)
+**Requirements**: THAW-10, THAW-11, THAW-12, THAW-13, THAW-14, THAW-15, THAW-16, THAW-17, ICE-05
+**Depends on:** Phase 05.1.1
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 05.1.1.1 to break down)
 
 ### Phase 6: Security audit
 
@@ -214,6 +236,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
 | 2. Bug fixes | 4/4 | In Progress|  |
 | 3. Ice and Sparkle leftovers | 2/2 | In Progress|  |
 | 4. Outdated APIs | 3/3 | In Progress|  |
-| 5. Security and performance | 1/2 | In Progress|  |
+| 5. Security and performance | 2/2 | In Progress|  |
 | 6. Security audit | 0/0 | Not started | - |
 | 7. Release 0.0.6-beta1 | 0/0 | Not started | - |

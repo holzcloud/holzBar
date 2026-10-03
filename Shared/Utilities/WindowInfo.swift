@@ -6,7 +6,7 @@
 import Cocoa
 
 /// Information for a window.
-struct WindowInfo {
+nonisolated struct WindowInfo {
     /// The window's identifier.
     let windowID: CGWindowID
 
@@ -81,7 +81,7 @@ struct WindowInfo {
 
 // MARK: - Window List
 
-extension WindowInfo {
+nonisolated extension WindowInfo {
     /// Creates a list of windows from the given list of window identifiers.
     ///
     /// - Parameter windowIDs: A list of window identifiers.
@@ -115,7 +115,7 @@ extension WindowInfo {
 
 // MARK: - Specific Windows
 
-extension WindowInfo {
+nonisolated extension WindowInfo {
     /// Returns the wallpaper window for the given display from the
     /// given list of windows.
     static func wallpaperWindow(from windows: [WindowInfo], for display: CGDirectDisplayID) -> WindowInfo? {
@@ -156,10 +156,10 @@ extension WindowInfo {
 }
 
 // MARK: WindowInfo: Codable
-extension WindowInfo: Codable { }
+nonisolated extension WindowInfo: Codable { }
 
 // MARK: WindowInfo: Equatable
-extension WindowInfo: Equatable {
+nonisolated extension WindowInfo: Equatable {
     static func == (lhs: WindowInfo, rhs: WindowInfo) -> Bool {
         lhs.windowID == rhs.windowID &&
         lhs.ownerPID == rhs.ownerPID &&
@@ -172,7 +172,7 @@ extension WindowInfo: Equatable {
 }
 
 // MARK: WindowInfo: Hashable
-extension WindowInfo: Hashable {
+nonisolated extension WindowInfo: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(windowID)
         hasher.combine(ownerPID)
