@@ -65,10 +65,10 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 ### Modern, lean and private
 
 - [x] **LEAN-01**: An analysis of the whole code base (written to `.planning/phases/05.1-modern-lean-and-private/05.1-ANALYSIS.md`) lists everything that can be more modern (2026 Swift/SwiftUI/AppKit idioms), more efficient (CPU, energy, memory, wake-ups, polling), smaller (binary and bundle size, dependencies, assets) and faster (launch time, UI), each with location, gain and risk; the user picks what gets done
-- [ ] **MOD-01**: Swift 6 language mode for all targets (strict concurrency, no `@unchecked Sendable` without a written reason)
-- [ ] **MOD-02**: Models use `@Observable` instead of `ObservableObject` + `@Published` + Combine
+- [x] **MOD-01**: Swift 6 language mode for all targets (strict concurrency, no `@unchecked Sendable` without a written reason)
+- [x] **MOD-02**: Models use `@Observable` instead of `ObservableObject` + `@Published` + Combine
 - [x] **MOD-03**: The old Ice migration chain is collapsed into one import step
-- [ ] **MOD-04**: `MenuBarItemManager` and `HIDEventManager` are split per backend (pre-26, 26, 27)
+- [x] **MOD-04**: `MenuBarItemManager` and `HIDEventManager` are split per backend (pre-26, 26, 27)
 - [x] **MOD-05**: Tests for migration, settings import/sync, URL commands and hotkeys
 - [x] **MOD-06**: Settings sync uses `NSFileCoordinator` / `NSMetadataQuery`
 - [x] **LEAN-02**: Every third-party dependency that the system frameworks can replace without losing a feature is removed (candidates: LaunchAtLogin-Modern → `SMAppService`, CompactSlider, Semaphore, Ifrit); the app bundle is measurably smaller (size before/after in the PR)
@@ -198,10 +198,10 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | PERF-04 | Phase 5 | Complete |
 | PERF-03 | Phase 5 | Complete |
 | LEAN-01 | Phase 05.1 | Complete |
-| MOD-01 | Phase 05.1 | Pending |
-| MOD-02 | Phase 05.1 | Pending |
+| MOD-01 | Phase 05.1 | Complete |
+| MOD-02 | Phase 05.1 | Complete |
 | MOD-03 | Phase 05.1 | Complete |
-| MOD-04 | Phase 05.1 | Pending |
+| MOD-04 | Phase 05.1 | Complete |
 | MOD-05 | Phase 05.1 | Complete |
 | MOD-06 | Phase 05.1 | Complete |
 | LEAN-02 | Phase 05.1 | Complete |
