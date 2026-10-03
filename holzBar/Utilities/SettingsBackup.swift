@@ -121,8 +121,12 @@ enum SettingsBackup {
             let alert = NSAlert()
             alert.messageText = String(localized: "Replace your settings?")
             alert.informativeText = String(localized: "holzBar will replace its current settings with the ones from “\(url.lastPathComponent)” and restart.")
-            alert.addButton(withTitle: String(localized: "Import and Restart"))
-            alert.addButton(withTitle: String(localized: "Cancel"))
+            let importButton = alert.addButton(withTitle: String(localized: "Import and Restart"))
+            let cancel = alert.addButton(withTitle: String(localized: "Cancel"))
+            // Replacing the settings cannot be undone: the button says so (HIG).
+            importButton.hasDestructiveAction = true
+            // Escape in every language, not only for the English title "Cancel".
+            cancel.keyEquivalent = "\u{1B}"
             guard alert.runModal() == .alertFirstButtonReturn else {
                 return
             }

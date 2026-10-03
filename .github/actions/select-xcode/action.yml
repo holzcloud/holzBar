@@ -9,8 +9,10 @@ inputs:
   version:
     description: >-
       The Xcode version to select. It must be installed as
-      /Applications/Xcode_VERSION.app.
-    default: "26.6"
+      /Applications/Xcode_VERSION.app. Xcode 27 is on the xcode-27 runner
+      image (a public preview, actions/runner-images#14404); 27.0 is the
+      release that ships Swift 6.4.0, the toolchain pinned below.
+    default: "27.0"
   swift-version:
     description: >-
       The Swift release to install from swift.org, exactly as swift.org names

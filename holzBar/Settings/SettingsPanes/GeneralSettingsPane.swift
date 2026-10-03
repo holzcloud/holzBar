@@ -312,6 +312,7 @@ struct GeneralSettingsPane: View {
                     }
                     .buttonStyle(.borderless)
                     .help("Reset to the default spacing")
+                    .accessibilityLabel("Reset to the default spacing")
                     .disabled(isApplyingItemSpacingOffset || settings.itemSpacingOffset == 0)
                 }
             } label: {

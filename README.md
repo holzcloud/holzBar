@@ -37,7 +37,7 @@ holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jord
 | | |
 |---|---|
 | 📦 **Zero dependencies** | No third-party packages at all — every line that runs is in this repository. |
-| 🦅 **Modern Swift 6** | **Built with Swift 6.4**, the latest stable Swift, in Swift 6 language mode with data-race safety checked by the compiler; `@Observable` instead of Combine, one backend per macOS generation. |
+| 🦅 **Modern Swift 6** | **Built with Swift 6.4 and Xcode 27**, the latest stable Swift and the macOS 27 SDK, in Swift 6 language mode with data-race safety checked by the compiler; main actor by default with `@concurrent` background work, `@Observable` instead of Combine, one backend per macOS generation. |
 | 🔒 **Never online** | No update checks, telemetry or analytics. A CI check proves there is no network code in the app. |
 | 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. Hardened runtime, private logs. |
 | 🍃 **Lean** | No polling, no mouse tracking unless you use it, nothing kept in memory that nobody shows. |
@@ -99,7 +99,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Fix for the permissions loop | ❌ | — | ✅ |
 | **Code and resources** | | | |
 | Third-party Swift packages | 5 | 2 (Sparkle, swift-subprocess) | **none** |
-| Swift language mode | Swift 5 | Swift 6 | Swift 6 (data-race safety checked by the compiler), built with Swift 6.4 |
+| Swift language mode | Swift 5 | Swift 6 | Swift 6 (data-race safety checked by the compiler), built with Swift 6.4 and Xcode 27 |
 | State management | Combine | mostly `@Observable` | `@Observable`, no Combine |
 | Mouse event tap when "Show on hover" is off | always running | — | off |
 | Timers and polling while nothing is shown | yes | — | only while needed |
@@ -174,7 +174,7 @@ Then open holzBar again. Alternatively: open it once, then go to **System Settin
 
 ### Build from source
 
-Requires Xcode 26.6, which runs on macOS Tahoe 26.2 or later; holzBar itself runs on macOS 14 or later. CI builds with Xcode 26.6 for the SDK and the official Swift 6.4 toolchain from [swift.org](https://www.swift.org/install/macos/) as the compiler (both pinned in `.github/actions/select-xcode`).
+Use Xcode 27 (macOS 27 SDK), as CI does; holzBar itself runs on macOS 14 or later. CI builds with Xcode 27.0 for the SDK and the official Swift 6.4 toolchain from [swift.org](https://www.swift.org/install/macos/) as the compiler (both pinned in `.github/actions/select-xcode`).
 
 ```sh
 git clone https://github.com/holzcloud/holzBar

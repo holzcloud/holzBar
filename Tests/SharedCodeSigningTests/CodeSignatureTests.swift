@@ -57,7 +57,7 @@ struct CodeSignatureTests {
         let url = try CodeSignature.currentCodeURL()
         let identifier = try CodeSignature.signingIdentifier(ofCodeAt: url)
         let ownHashes = try CodeSignature.codeDirectoryHashes(ofCodeAt: url)
-        let otherHashes = try CodeSignature.codeDirectoryHashes(ofCodeAt: URL(fileURLWithPath: "/usr/bin/true"))
+        let otherHashes = try CodeSignature.codeDirectoryHashes(ofCodeAt: URL(filePath: "/usr/bin/true"))
         #expect(Set(ownHashes).isDisjoint(with: otherHashes))
         let result = try validateThisProcess(identifier: identifier, hashes: otherHashes)
         #expect(
@@ -68,7 +68,7 @@ struct CodeSignatureTests {
 
     @Test("Code that does not exist has no hashes")
     func missingCodeThrows() {
-        let url = URL(fileURLWithPath: "/nonexistent/CodeSignatureTests/missing")
+        let url = URL(filePath: "/nonexistent/CodeSignatureTests/missing")
         #expect(throws: CodeSignature.Failure.self) {
             try CodeSignature.codeDirectoryHashes(ofCodeAt: url)
         }

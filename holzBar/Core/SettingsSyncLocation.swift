@@ -59,9 +59,9 @@ nonisolated enum SettingsSyncLocation {
 
     /// The path of the sync file in the given folder.
     static func syncFilePath(inFolder folderPath: String) -> String {
-        fileComponents.reduce(URL(fileURLWithPath: folderPath, isDirectory: true)) { url, component in
-            url.appendingPathComponent(component)
-        }.path
+        fileComponents.reduce(URL(filePath: folderPath, directoryHint: .isDirectory)) { url, component in
+            url.appending(path: component)
+        }.path(percentEncoded: false)
     }
 
     /// The name of the folder to show: "iCloud Drive" for iCloud Drive, a path starting

@@ -105,8 +105,10 @@ enum URLCommands {
 
     /// Asks whether another app may apply the layout profile with the given name.
     ///
-    /// holzBar comes to the front without a Dock icon for the question; Cancel is the
-    /// default answer and the answer to Escape.
+    /// holzBar comes to the front without a Dock icon for the question. The buttons sit
+    /// where the Human Interface Guidelines put them, Apply on the right and Cancel to
+    /// its left; as another app asked, Apply takes a click: Return answers nothing, and
+    /// Escape answers Cancel.
     ///
     /// - Returns: Whether the user chose Apply.
     private static func confirmProfile(named name: String, appState: AppState) -> Bool {
@@ -114,21 +116,12 @@ enum URLCommands {
         let alert = NSAlert()
         alert.messageText = String(localized: "Apply the layout profile \u{201C}\(name)\u{201D}?")
         alert.informativeText = String(localized: "Another app asked holzBar to rearrange your menu bar.")
-        // The first button is the default one (Return).
-        alert.addButton(withTitle: String(localized: "Cancel"))
-        alert.addButton(withTitle: String(localized: "Apply"))
-        // Escape answers Cancel as well: it ends the alert without Apply.
-        let escapeMonitor = EventMonitor.local(for: .keyDown) { event in
-            guard event.keyCode == 53 else {
-                return event
-            }
-            NSApp.abortModal()
-            return nil
-        }
-        escapeMonitor.start()
-        defer {
-            escapeMonitor.stop()
-        }
-        return alert.runModal() == .alertSecondButtonReturn
+        let apply = alert.addButton(withTitle: String(localized: "Apply"))
+        let cancel = alert.addButton(withTitle: String(localized: "Cancel"))
+        // NSAlert gives the first button Return; this question has no default answer.
+        apply.keyEquivalent = ""
+        // Escape in every language, not only for the English title "Cancel".
+        cancel.keyEquivalent = "\u{1B}"
+        return alert.runModal() == .alertFirstButtonReturn
     }
 }

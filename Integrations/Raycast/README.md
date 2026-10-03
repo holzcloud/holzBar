@@ -19,7 +19,7 @@ The scripts open `holzbar://` URLs, so the same commands work from Alfred, Short
 | `holzbar://zen/toggle` | Turn Zen mode on or off: hidden items stay hidden until it is off | Nothing persistent |
 | `holzbar://profile/<name>` | Apply a saved layout profile | Rearranges items, asks first |
 
-Any app can open these URLs, so the only command that rearranges the menu bar asks first: holzBar shows "Apply the layout profile …?" with Cancel as the default answer. While Zen mode is on, `show` and `toggle` of a hidden section are ignored.
+Any app can open these URLs, so the only command that rearranges the menu bar asks first: holzBar shows "Apply the layout profile …?", and only a click on Apply applies it (Return answers nothing, Escape cancels). While Zen mode is on, `show` and `toggle` of a hidden section are ignored.
 
 ## Shortcuts
 

@@ -78,8 +78,11 @@ enum ScreenCapture {
             return nil
         }
         let bounds = screenBounds ?? .null
-        // ScreenCaptureKit doesn't support capturing images of offscreen menu bar
-        // items, so we unfortunately have to use the deprecated CGWindowList API.
+        // The one deprecated API holzBar keeps on purpose (APPLE-02). Apple's replacement,
+        // ScreenCaptureKit, captures only what is on a display, and the items holzBar
+        // hides sit off screen, so the Shelf, the search and the Layout pane could not
+        // show their images. CGWindowList capture is deprecated since macOS 14 but still
+        // captures off-screen windows.
         return CGImage(windowListFromArrayScreenBounds: bounds, windowArray: array, imageOption: option)
     }
 

@@ -116,9 +116,8 @@ final class ItemIconStore {
 
     /// Reads, scales and stores the image at the URL, and returns its new file name.
     func storeImage(from url: URL) async -> String? {
-        let data = await Task.detached(priority: .userInitiated) {
-            ItemIconStore.scaledPNG(from: url)
-        }.value
+        // Decoding and scaling run off the main actor.
+        let data = await Self.scaledPNG(from: url)
         guard let data, let folder = Self.folder else {
             logger.error("Could not read the chosen image")
             return nil
@@ -135,7 +134,10 @@ final class ItemIconStore {
     }
 
     /// The image scaled to at most 128 pixels high (64 points at 2x) as PNG data.
-    private nonisolated static func scaledPNG(from url: URL) -> Data? {
+    ///
+    /// `@concurrent` runs it on the concurrent pool, whoever awaits it.
+    @concurrent
+    private nonisolated static func scaledPNG(from url: URL) async -> Data? {
         guard
             let source = CGImageSourceCreateWithURL(url as CFURL, nil),
             let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],

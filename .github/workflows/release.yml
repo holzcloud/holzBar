@@ -13,7 +13,8 @@ permissions:
 
 jobs:
   release:
-    runs-on: macos-26
+    # The same Xcode 27 image as the build workflow.
+    runs-on: xcode-27
     # The version, for the holzcloud-ch job below.
     outputs:
       version: ${{ steps.version.outputs.version }}
