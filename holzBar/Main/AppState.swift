@@ -146,9 +146,6 @@ final class AppState {
         spacers.performSetup()
         revealRules.performSetup(with: self)
 
-        systemActivityMonitor.onSettled { [weak self] in
-            self?.systemActivityDidSettle()
-        }
         configureObservers()
     }
 
@@ -195,6 +192,11 @@ final class AppState {
 
     /// Configures the internal observers for the app state.
     private func configureObservers() {
+        // Brings holzBar up to date once the bar has settled after the Mac was not in use.
+        systemActivityMonitor.onSettled { [weak self] in
+            self?.systemActivityDidSettle()
+        }
+
         // Listen for changes to the active space. We need handle some special
         // cases that NSWorkspace.shared.notificationCenter seems to miss.
         //
