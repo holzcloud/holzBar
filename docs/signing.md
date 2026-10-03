@@ -2,7 +2,7 @@
 
 holzBar has no Apple Developer ID, so it is not notarized and Gatekeeper does not assess it (the Homebrew cask removes the quarantine flag; see the README). Two things still let you trust a release:
 
-1. **A stable signature.** The release workflow signs holzBar with the project's own self-signed code signing certificate. Every release then has the same designated requirement — `identifier "com.holzcloud.holzBar" and certificate root = H"…"`, the self-signed certificate being its own root — instead of an ad hoc signature, whose only identity is the hash of the code.
+1. **A stable signature.** The release workflow signs holzBar with the project's own self-signed code signing certificate. Every release then has the same designated requirement — `identifier "com.holzcloud.holzBar" and certificate leaf = H"…"` — instead of an ad hoc signature, whose only identity is the hash of the code.
    - macOS keeps holzBar's Accessibility permission across updates, so you are no longer asked to grant it again after every update.
    - A `holzBar.app` whose binary was replaced and signed with any other key does not get the permission: macOS asks for it again, which is now unusual and worth a second look.
 2. **Build provenance.** Every release zip carries a [GitHub artifact attestation](https://docs.github.com/actions/security-for-github-actions/using-artifact-attestations): a statement, signed with the release workflow's identity through Sigstore, that the zip was built by `.github/workflows/release.yml` in this repository, from a given commit. You can check it before you install.

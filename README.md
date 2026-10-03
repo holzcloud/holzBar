@@ -116,9 +116,9 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Install and update with Homebrew | ✅ | ✅ | ✅ |
 | Updates | Sparkle (dialog can hang on macOS 26) | Sparkle | Homebrew |
 | Fixes from 282 open bug reports | — | — | [see the list](docs/upstream-bugs.md) |
-| Signed with a Developer ID | ✅ | — | ❌ (ad hoc; the cask handles it) |
-| Stable signature, so Accessibility survives updates | ✅ | — | 🔜 (own certificate, [docs/signing.md](docs/signing.md)) |
-| Build provenance attestation (`gh attestation verify`) | ❌ | — | 🔜 from the next release |
+| Signed with a Developer ID | ✅ | — | ❌ (own certificate instead; the cask handles quarantine) |
+| Stable signature, so Accessibility survives updates | ✅ | — | ✅ from 0.0.6-beta1 (own certificate, [docs/signing.md](docs/signing.md)) |
+| Build provenance attestation (`gh attestation verify`) | ❌ | — | ✅ from 0.0.6-beta1 |
 
 ## 🔒 Principles
 
@@ -168,7 +168,7 @@ brew update && brew upgrade --cask holzbar
 
 ### If macOS says holzBar "can't be opened"
 
-holzBar is signed ad hoc, without an Apple Developer ID. The Homebrew cask removes the quarantine flag for you, but if you downloaded the zip yourself — or macOS still blocks the app — take it out of quarantine:
+holzBar is signed with its own certificate, not an Apple Developer ID, so Gatekeeper does not know it. The Homebrew cask removes the quarantine flag for you, but if you downloaded the zip yourself — or macOS still blocks the app — take it out of quarantine:
 
 ```sh
 xattr -dr com.apple.quarantine /Applications/holzBar.app
@@ -176,7 +176,7 @@ xattr -dr com.apple.quarantine /Applications/holzBar.app
 
 Then open holzBar again. Alternatively: open it once, then go to **System Settings → Privacy & Security** and click **Open Anyway** next to the holzBar message.
 
-From 0.0.6-beta1 on, the release workflow attaches a build provenance attestation to every zip it builds, which proves that the zip was built by this repository's release workflow: `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar`. See [docs/signing.md](docs/signing.md).
+From 0.0.6-beta1 on, the release workflow attaches a build provenance attestation to every zip it builds, which proves that the zip was built by this repository's release workflow: `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar`. The app is signed with holzBar's certificate (SHA-256 `e55f0df15060b8c06c6842ccee85e6bc9f86cbbda3bd408abf991457840b1d95`); `codesign -dv --verbose=4 /Applications/holzBar.app` shows it. See [docs/signing.md](docs/signing.md).
 
 > [!NOTE]
 > holzBar replaces the original Ice — quit Ice and run `brew uninstall --cask jordanbaird-ice` first if you have it. Two menu bar managers must never run at the same time; holzBar offers to quit Ice, Thaw, Bartender or Hidden Bar when it finds one running.
