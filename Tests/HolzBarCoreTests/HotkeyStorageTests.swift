@@ -65,4 +65,28 @@ struct HotkeyStorageTests {
         #expect(String(decoding: data, as: UTF8.self) == "\"EnableIceBar\"")
         #expect(try JSONDecoder().decode(HotkeyAction.self, from: data) == .enableShelf)
     }
+
+    @Test("A stored hotkey without a modifier is not loaded")
+    func storedHotkeyWithoutModifierIsRefused() {
+        // Space (49), Return (36) or a letter alone would be taken from every app.
+        #expect(HotkeyStorage.loadRejection(modifiers: 0, refusesOptionOnly: true) == .missing)
+        #expect(HotkeyStorage.loadRejection(modifiers: 0, refusesOptionOnly: false) == .missing)
+        #expect(HotkeyStorage.loadRejection(modifiers: Modifiers.shift.rawValue, refusesOptionOnly: false) == .shiftOnly)
+    }
+
+    @Test("Option-only hotkeys are loaded only where the system registers them")
+    func optionOnlyHotkeys() {
+        let option = Modifiers.option.rawValue
+        let optionShift = Modifiers([.option, .shift]).rawValue
+        #expect(HotkeyStorage.loadRejection(modifiers: option, refusesOptionOnly: true) == .optionOnly)
+        #expect(HotkeyStorage.loadRejection(modifiers: optionShift, refusesOptionOnly: true) == .optionOnly)
+        #expect(HotkeyStorage.loadRejection(modifiers: option, refusesOptionOnly: false) == nil)
+    }
+
+    @Test("A stored hotkey with a real modifier is loaded")
+    func storedHotkeyWithModifierIsLoaded() {
+        for modifiers: Modifiers in [.command, .control, [.command, .shift], [.control, .option], [.option, .command]] {
+            #expect(HotkeyStorage.loadRejection(modifiers: modifiers.rawValue, refusesOptionOnly: true) == nil)
+        }
+    }
 }

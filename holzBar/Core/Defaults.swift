@@ -324,9 +324,78 @@ nonisolated extension Defaults.Key {
         }
     }
 
+    /// The values a numeric setting may take: the range of its slider, stepper or
+    /// choices. `nil` for the keys that hold no number.
+    ///
+    /// Imported and synced values outside it are clamped or refused
+    /// (``SettingsSchema/NumberRule``), and the models clamp what they read from the
+    /// defaults, which any process of the user can write.
+    var numberRule: SettingsSchema.NumberRule? {
+        switch self {
+        case .itemSpacingOffset:
+            .clamped(-16...16)
+        case .rehideInterval, .tempShowInterval:
+            .clamped(0...30)
+        case .showOnHoverDelay:
+            .clamped(0...1)
+        case .spacerWidth:
+            .clamped(4...60)
+        case .macOS27ClickRestoreDelay:
+            // Milliseconds, read as a whole number and kept in 30...2000 by its reader.
+            .clamped(0...2000)
+        case .menuBarBorderWidth:
+            .clamped(1...3)
+        case .spacerCount:
+            .wholeNumber(0...10)
+        case .shelfLocation,
+            .shelfDisplays,
+            .rehideStrategy,
+            .sectionDividerStyle,
+            .newItemsPlacement,
+            .menuBarTintKind:
+            // The raw value of a choice; its reader also refuses unknown ones.
+            .wholeNumber(0...15)
+        default:
+            nil
+        }
+    }
+
+    /// A number read from the defaults under this key, kept in the range of its setting
+    /// (``numberRule``); `fallback` when it is not finite.
+    ///
+    /// The defaults can hold anything: an imported or synced file, or any process of the
+    /// user, may have written them. A value out of range trapped where the app turns it into
+    /// an `Int` or a `Duration`.
+    func clamped(_ value: Double, fallback: Double) -> Double {
+        guard let numberRule else {
+            return value.isFinite ? value : fallback
+        }
+        return numberRule.clamp(value, fallback: fallback)
+    }
+
+    /// Keys that stay on this Mac: never exported, imported or synced.
+    ///
+    /// Turning settings sync on writes the settings to a folder outside this Mac, so only
+    /// the user turns it on, on each Mac; a settings file cannot.
+    static let localOnlyKeys: Set<Defaults.Key> = [.syncsSettingsWithICloud]
+
     /// The stored key names an imported or synced settings file may set, with the
-    /// kind of value each one takes.
+    /// kind of value each one takes. Every key except the ``localOnlyKeys``.
     static let importableKinds: [String: SettingsSchema.Kind] = Dictionary(
-        uniqueKeysWithValues: allCases.map { ($0.rawValue, $0.settingsKind) }
+        uniqueKeysWithValues: allCases.filter { !localOnlyKeys.contains($0) }.map { ($0.rawValue, $0.settingsKind) }
     )
+
+    /// The values the numeric keys an imported or synced settings file may set can take.
+    static let importableNumberRules: [String: SettingsSchema.NumberRule] = Dictionary(
+        uniqueKeysWithValues: allCases.compactMap { key in
+            key.numberRule.map { (key.rawValue, $0) }
+        }
+    )
+
+    /// Splits settings read from outside the app into the values holzBar applies and the
+    /// keys it ignores: only holzBar's own keys that may be imported, with a value of the
+    /// expected kind, numbers within their range (``SettingsSchema``).
+    static func validatedSettings(_ settings: [String: Any]) -> (accepted: [String: Any], ignored: [String]) {
+        SettingsSchema.validated(settings, kinds: importableKinds, numberRules: importableNumberRules)
+    }
 }

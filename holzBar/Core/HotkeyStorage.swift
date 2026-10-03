@@ -51,4 +51,18 @@ nonisolated enum HotkeyStorage {
         }
         return (values[0], values[1])
     }
+
+    /// Returns why a stored key combination is not loaded, or `nil` when it is.
+    ///
+    /// The same rule as the hotkey recorder (`Modifiers.rejection(refusesOptionOnly:)`):
+    /// a stored combination with no modifier, or Shift alone, would take that key from
+    /// every app, system-wide, on every press. Anything can write holzBar's settings (an
+    /// imported or synced file, or any process of the user), so the rule is applied again
+    /// when the hotkeys are loaded.
+    ///
+    /// - Parameter refusesOptionOnly: Whether the system refuses Option-only hotkeys
+    ///   (macOS 15 and later).
+    static func loadRejection(modifiers: Int, refusesOptionOnly: Bool) -> Modifiers.Rejection? {
+        Modifiers(rawValue: modifiers).rejection(refusesOptionOnly: refusesOptionOnly)
+    }
 }
