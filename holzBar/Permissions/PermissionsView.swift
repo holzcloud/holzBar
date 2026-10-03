@@ -45,6 +45,8 @@ struct PermissionsView: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 85, height: 85)
+                    // Decorative: the title says what the window is.
+                    .accessibilityHidden(true)
             }
         }
     }
@@ -55,12 +57,14 @@ struct PermissionsView: View {
             VStack {
                 Text("holzBar needs your permission to manage the menu bar.")
                     .fontWeight(.medium)
+                // The accent colour adapts to light and dark mode and to the user's
+                // choice; a fixed light blue was hard to read on a light background.
                 Text("Absolutely no personal information is collected or stored.")
                     .bold()
-                    .foregroundStyle(Color(red: 0.5, green: 0.75, blue: 1))
+                    .foregroundStyle(.tint)
                 Text("holzBar never connects to the network.")
                     .bold()
-                    .foregroundStyle(Color(red: 0.5, green: 0.75, blue: 1))
+                    .foregroundStyle(.tint)
             }
             .padding()
         }
@@ -119,6 +123,8 @@ struct PermissionsView: View {
             Text("Continue")
                 .frame(maxWidth: .infinity)
         }
+        // The window's default button: Return continues once the permissions are granted.
+        .keyboardShortcut(.defaultAction)
         .disabled(manager.permissionsState == .missing)
     }
 
@@ -167,6 +173,7 @@ struct PermissionsView: View {
                         ForEach(permission.details, id: \.self) { detail in
                             HStack {
                                 Text("•").bold()
+                                    .accessibilityHidden(true)
                                 Text(detail).fontWeight(.medium)
                             }
                         }
