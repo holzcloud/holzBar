@@ -87,14 +87,15 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Look on every desktop, follows the icons, steps aside in fullscreen | ❌ | ✅ | ✅ |
 | No screen-recording indicator when showing or hiding (macOS 27) | — | ✅ | ✅ |
 | Hover and click on a second display (macOS 27) | — | ✅ | ✅ |
-| URL commands that rearrange items ask first | — | — | ✅ |
-| Validated hotkeys and colours (no crash loop from bad settings) | ❌ | — | ✅ |
+| URL commands ask before they change anything lasting; no URL ends Zen mode during a screen share | — | — | ✅ |
+| Validated hotkeys, colours and numbers in imported and synced settings (no crash loop from bad settings) | ❌ | — | ✅ |
 | **Privacy and permissions** | | | |
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | — | private, enforced by CI |
 | Asks for Screen Recording only when a feature needs it | ❌ | — | ✅ |
 | Hardened runtime (no injected code or libraries) | ✅ | — | ✅ (checked by CI) |
-| Settings import accepts only known keys of the right type | — (no import) | — | ✅ |
+| Settings import accepts only known keys of the right type, in range | — (no import) | — | ✅ |
+| Settings import and sync can't turn sync on; the sync file carries no computer name | — (no sync) | — | ✅ |
 | Menu bar item service accepts only holzBar's own code | team check only | — | team or exact code hash |
 | Fix for the permissions loop | ❌ | — | ✅ |
 | **Code and resources** | | | |
@@ -107,13 +108,15 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Settings migration | 6 version steps at every launch | — | once, while importing Ice settings |
 | Runtime patching of AppKit (method swizzling) | yes | — | none |
 | Item images in memory | kept | — | released when unused |
-| Unit tests run on every change | none | ✅ | ✅ 338 |
+| Unit tests run on every change | none | ✅ | ✅ 371 |
 | App size | — | — | 16.5 MB |
 | **Distribution and maintenance** | | | |
 | Install and update with Homebrew | ✅ | ✅ | ✅ |
 | Updates | Sparkle (dialog can hang on macOS 26) | Sparkle | Homebrew |
 | Fixes from 282 open bug reports | — | — | [see the list](docs/upstream-bugs.md) |
 | Signed with a Developer ID | ✅ | — | ❌ (ad hoc; the cask handles it) |
+| Stable signature, so Accessibility survives updates | ✅ | — | 🔜 (own certificate, [docs/signing.md](docs/signing.md)) |
+| Build provenance attestation (`gh attestation verify`) | ❌ | — | 🔜 from the next release |
 
 ## 🔒 Principles
 

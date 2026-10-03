@@ -5,6 +5,7 @@
 **Scope:** the app (`holzBar/`), the XPC service (`MenuBarItemService/`), `Shared/`, the `holzbar://` URL scheme, App Intents/Shortcuts, settings import, export and sync, permissions and TCC, private API use, event taps, logging, process spawning, hardened runtime and entitlements, ad hoc signing and quarantine removal, the CI and release pipeline (`.github/`), the Homebrew cask, the supply chain.
 **Method:** source read of every entry point and trust boundary, plus the two repository checks (`privacy-check.py network` and `logs`, both pass), plus a read-only look at the GitHub repository settings (`gh api`). No code was changed. Nothing was built or run on a Mac (this environment is Linux), so runtime behaviour is taken from the code and from measurements recorded in code comments; those cases are marked.
 **Config:** ASVS level 1, `block_on: high`.
+**Fix status (2026-10-03, see `06-SUMMARY.md`):** M-1, M-2, L-1 to L-5 and L-8 are fixed; M-3 is disclosed; M-4 is fixed in the release workflow and needs the signing secrets; L-6, L-7 and the Info findings stay open. Each fixed finding below carries a **Status** line.
 
 ---
 
@@ -73,6 +74,7 @@ The CI and release pipeline is above average: the version input is validated, th
   - While Zen is active, refuse `auto-rehide` and `shelf` toggles from URLs.
   - Add tests in `URLCommandTests`/`ZenModeTests`.
 - **Effort:** S
+- **Status: fixed** (phase 06 fixes). `holzbar://zen` takes `on`, `off` and `toggle`; a URL may turn Zen mode on, turning it off asks first, and while the screen is shared it is refused (`URLCommand.Action.decision(zenMode:)`, `ZenMode.requested(byURL:)`, which never clears `isAutomatic`). While Zen mode is on, the Shelf and auto-rehide toggles and profiles from URLs are refused. Tests in `URLCommandTests` and `ZenModeTests`.
 
 #### M-2: Imported or synced settings can crash holzBar at every launch and register bare-key global hotkeys
 
@@ -99,6 +101,7 @@ The CI and release pipeline is above average: the version input is validated, th
   - Ask before applying a pulled file at launch when it changes hotkeys. Better: apply pulled settings only after launch, with the existing "Restart" prompt.
   - Add fuzz cases (NaN, inf, 1e300, negative) to `SettingsSchemaTests` and `HotkeyStorageTests`.
 - **Effort:** M
+- **Status: fixed** (phase 06 fixes). `SettingsSchema.NumberRule` and `Defaults.Key.numberRule`: imported and synced numbers must be finite, slider values are clamped to the slider's range, whole numbers (choices, counts) outside their range are refused; the models clamp what they read from the defaults (`Defaults.Key.clamped(_:fallback:)`), and `itemSpacingOffset` reaches `Int` only clamped. The appearance's border width and screen corner radius are clamped when decoded. Stored hotkeys without a modifier, or with Shift alone (and Option-only on macOS 15 and later), are not loaded (`HotkeyStorage.loadRejection`). Not done: asking before a pulled file changes hotkeys at launch. Tests in `SettingsSchemaTests` and `HotkeyStorageTests`.
 
 #### M-3: On macOS 27, concealment hides Control Centre's camera, microphone and screen-capture indicator
 
@@ -117,6 +120,7 @@ The CI and release pipeline is above average: the version input is validated, th
      - both are public and need no permission, and listeners avoid polling.
   3. Screen capture has no public signal. Offer a setting such as "Keep the privacy indicator visible" (do not conceal on macOS 27), and file Feedback with Apple.
 - **Effort:** M
+- **Status: disclosed** (phase 06 fixes). A note in Settings → General on macOS 27 (`PrivacyIndicatorNote`), the README's Permissions section and its macOS 27 known limitations. The `0.0.6-beta1` release notes still need it. Not done: releasing the assertion while the camera or microphone is in use, and a setting to keep the indicator.
 
 #### M-4: Release trust rests on an ad hoc signature, quarantine removal and an Accessibility re-grant after every update
 
@@ -140,6 +144,7 @@ The CI and release pipeline is above average: the version input is validated, th
   - Publish the certificate's SHA-256 in the README.
   - Add GitHub artifact attestations (`actions/attest-build-provenance`), so `gh attestation verify holzBar-<v>.zip -R holzcloud/holzBar` proves that a zip came from the workflow.
 - **Effort:** M
+- **Status: fixed in the workflow** (phase 06 fixes). `release.yml` signs with a stable self-signed certificate from the `SIGNING_CERTIFICATE_P12` and `SIGNING_CERTIFICATE_PASSWORD` secrets, imported after the build into a temporary keychain that is deleted afterwards; without them it stays ad hoc with a warning. Every release zip gets a build provenance attestation (`actions/attest-build-provenance@v4`; `id-token` and `attestations` write only on the release job). The XPC peer requirement needs no change: a self-signed certificate has no team, so the service keeps pinning the containing app's cdhashes. How to create the certificate and verify a release: `docs/signing.md`. The maintainer still has to create the certificate, add the secrets and publish its fingerprint.
 
 ### Low
 
@@ -159,6 +164,7 @@ The CI and release pipeline is above average: the version input is validated, th
   - Allow at most one pending prompt.
   - Make the `shelf` and `auto-rehide` URL toggles temporary, or ask.
 - **Effort:** S
+- **Status: fixed** (phase 06 fixes). The profile is looked up first, unknown names are ignored, and the prompt shows the stored name cleaned of control and formatting characters and cut to 40 characters (`URLPrompt.displayName`); one prompt at a time and none for 30 s after a declined one (`URLPrompt.Gate`); the Shelf and auto-rehide toggles ask first. Tests in `URLPromptTests`.
 
 #### L-2: Sync-folder file handling follows symlinks, has no size or type limit and reads at launch on the main thread
 
@@ -177,6 +183,7 @@ The CI and release pipeline is above average: the version input is validated, th
   - Read off the main thread with a deadline.
   - Clamp `modified` to `now` plus a small skew.
 - **Effort:** S
+- **Status: fixed** (phase 06 fixes). The file is opened with `O_NOFOLLOW | O_NONBLOCK`, checked with `fstat` to be a regular file of at most 1 MB and read up to that limit (`SettingsSyncFile.readContents`); the `holzBar` folder must be a real folder or not exist yet (`isUsableFolder`, `lstat`) before holzBar watches, creates or writes it; checks after launch read the file off the main actor; files dated more than an hour ahead are ignored. The launch-time pull still reads on the main thread, as it must finish before the settings are read; the size limit bounds it. Tests in `SettingsSyncFileTests`.
 
 #### L-3: An imported settings file can turn settings sync on
 
@@ -188,6 +195,7 @@ The CI and release pipeline is above average: the version input is validated, th
 - **Impact:** Importing a file exported on a Mac with sync on, or a crafted file, turns sync on after the restart. holzBar then writes the settings and the computer name (L-4) to iCloud Drive although the user never turned sync on. This contradicts PRIV-02 ("iCloud sync only when the user turns it on").
 - **Proposed fix:** Never export or import `SyncsSettingsWithICloud`: add it to `excludedKeyPrefixes`, or keep a set of local-only keys that `SettingsBackup` honors.
 - **Effort:** S
+- **Status: fixed** (phase 06 fixes). `Defaults.Key.localOnlyKeys` holds `SyncsSettingsWithICloud`; it is not in `importableKinds`, so it is never exported, imported or synced.
 
 #### L-4: The computer name is written into the sync file
 
@@ -195,6 +203,7 @@ The CI and release pipeline is above average: the version input is validated, th
 - **Impact:** Computer names usually contain the owner's name ("Anna's MacBook Pro"). The name goes to iCloud Drive or a shared folder although the UUID alone decides which Mac wrote the file. This goes against "Personal data stays on the Mac".
 - **Proposed fix:** Stop writing `device`; keep reading it for files from older builds. Or write a salted hash.
 - **Effort:** S
+- **Status: fixed** (phase 06 fixes). The sync file no longer carries `device`; it is still read from files of older builds.
 
 #### L-5: Custom icon data from untrusted settings is decoded with `NSImage(data:)`
 
@@ -202,6 +211,7 @@ The CI and release pipeline is above average: the version input is validated, th
 - **Impact:** `NSImage(data:)` accepts many formats (PDF, TIFF, …). Bytes from a sync folder or an imported file reach these parsers at every launch, in an unsandboxed process that holds Accessibility. No bug is known; this widens the parser attack surface of the most privileged process.
 - **Proposed fix:** Decode with `CGImageSource`, only when `CGImageSourceGetType` is `public.png`, with a byte and pixel cap. Or store custom icons as files the way `ItemIconStore` does (re-encoded PNG, validated name).
 - **Effort:** S
+- **Status: fixed** (phase 06 fixes). Stored icons are decoded with ImageIO only as PNG, JPEG, TIFF, HEIC/HEIF, GIF, BMP or ICNS, up to 8 MB and 4096 pixels (`CustomIconData`, `ControlItemImage.bitmapImage(from:)`); a newly chosen icon is scaled and stored as PNG.
 
 #### L-6: Release job holds a write token during the whole build, runs an unpinned tool and skips the post-build checks
 
@@ -245,6 +255,7 @@ The CI and release pipeline is above average: the version input is validated, th
 - **Impact:** On a Mac with several accounts, another local user can create `/tmp/holzbar-build` first and swap the built app between `xcodebuild` and `ditto`. An ad hoc-signed replacement passes `codesign --verify`, is installed and launched, and the script has just reset TCC, so the victim grants it Accessibility.
 - **Proposed fix:** Use `DERIVED="${DERIVED:-$(mktemp -d "${TMPDIR:-/tmp}/holzbar-build.XXXXXX")}"`. `TMPDIR` is per-user and `0700`. The `Scripts/macos27/verify-*.sh` scripts already use `mktemp`.
 - **Effort:** S
+- **Status: fixed** (phase 06 fixes). `DERIVED` defaults to a new `mktemp -d` folder in `TMPDIR`, removed on exit.
 
 ### Info
 
@@ -341,17 +352,17 @@ Each item was checked in the code at the cited location.
 
 | Threat ID | Category | Component | Severity | Disposition | Status |
 |---|---|---|---|---|---|
-| T-06-M1 | Elevation of privilege (confused deputy) | URL scheme / Zen mode | medium | mitigate | OPEN (non-blocking) |
-| T-06-M2 | Denial of service / tampering | Settings import and sync | medium | mitigate | OPEN (non-blocking) |
-| T-06-M3 | Information disclosure (privacy indicator hidden) | macOS 27 concealment | medium | mitigate | OPEN (non-blocking) |
-| T-06-M4 | Spoofing (publisher identity) | Distribution, signing, TCC | medium | mitigate (or accept per user decision) | OPEN (non-blocking) |
-| T-06-L1 | Spoofing / tampering | URL scheme | low | mitigate | OPEN (non-blocking) |
-| T-06-L2 | Tampering / DoS | Sync-folder file handling | low | mitigate | OPEN (non-blocking) |
-| T-06-L3 | Information disclosure | Settings import enables sync | low | mitigate | OPEN (non-blocking) |
-| T-06-L4 | Information disclosure | Computer name in sync file | low | mitigate | OPEN (non-blocking) |
-| T-06-L5 | Tampering (parser surface) | Custom icon data | low | mitigate | OPEN (non-blocking) |
+| T-06-M1 | Elevation of privilege (confused deputy) | URL scheme / Zen mode | medium | mitigate | mitigated |
+| T-06-M2 | Denial of service / tampering | Settings import and sync | medium | mitigate | mitigated |
+| T-06-M3 | Information disclosure (privacy indicator hidden) | macOS 27 concealment | medium | mitigate | disclosed (residual: macOS behaviour) |
+| T-06-M4 | Spoofing (publisher identity) | Distribution, signing, TCC | medium | mitigate (or accept per user decision) | mitigated in the workflow (needs the signing secrets) |
+| T-06-L1 | Spoofing / tampering | URL scheme | low | mitigate | mitigated |
+| T-06-L2 | Tampering / DoS | Sync-folder file handling | low | mitigate | mitigated |
+| T-06-L3 | Information disclosure | Settings import enables sync | low | mitigate | mitigated |
+| T-06-L4 | Information disclosure | Computer name in sync file | low | mitigate | mitigated |
+| T-06-L5 | Tampering (parser surface) | Custom icon data | low | mitigate | mitigated |
 | T-06-L6 | Elevation of privilege (CI) | Release workflow | low | mitigate | OPEN (non-blocking) |
 | T-06-L7 | Tampering (supply chain) | Repository protections | low | mitigate | OPEN (non-blocking) |
-| T-06-L8 | Tampering (local) | `Scripts/install.sh` | low | mitigate | OPEN (non-blocking) |
+| T-06-L8 | Tampering (local) | `Scripts/install.sh` | low | mitigate | mitigated |
 
-`block_on: high`, so **threats_open: 0**.
+`block_on: high`, so **threats_open: 0**. After the phase 06 fixes, L-6 and L-7 stay open; the register is kept in `SECURITY.md`.
