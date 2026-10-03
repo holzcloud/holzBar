@@ -171,6 +171,8 @@ xattr -dr com.apple.quarantine /Applications/holzBar.app
 
 Then open holzBar again. Alternatively: open it once, then go to **System Settings → Privacy & Security** and click **Open Anyway** next to the holzBar message.
 
+Releases after 0.0.5 carry a build provenance attestation, which proves that a zip was built by this repository's release workflow: `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar`. See [docs/signing.md](docs/signing.md).
+
 > [!NOTE]
 > holzBar replaces the original Ice — quit Ice and run `brew uninstall --cask jordanbaird-ice` first if you have it. Two menu bar managers must never run at the same time; holzBar offers to quit Ice, Thaw, Bartender or Hidden Bar when it finds one running.
 > Your Ice settings (layout, hotkeys, appearance) are imported automatically on the first launch.

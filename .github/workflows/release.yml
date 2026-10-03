@@ -8,13 +8,21 @@ on:
         description: "Version without the leading v, e.g. 0.0.6-beta1"
         required: true
 
+# Read-only unless a job asks for more.
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   release:
     # The same Xcode 27 image as the build workflow.
     runs-on: xcode-27
+    # contents: write publishes the release and updates the cask on main. id-token and
+    # attestations let actions/attest-build-provenance sign the provenance of the zip with
+    # this workflow's identity (Sigstore) and store it with GitHub; only this job has them.
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
     # The version, for the holzcloud-ch job below.
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -46,9 +54,10 @@ jobs:
 
       - uses: ./.github/actions/select-xcode
 
-      # Signed ad hoc: there is no Developer ID. The hardened runtime stays on, as in the
-      # project: holzBar embeds no framework, and the system framework it opens at runtime
-      # is a platform binary, which library validation accepts.
+      # Built and signed ad hoc first: there is no Developer ID. The next step signs it again
+      # with holzBar's own certificate when the secrets are set. The hardened runtime stays
+      # on, as in the project: holzBar embeds no framework, and the system framework it
+      # opens at runtime is a platform binary, which library validation accepts.
       - name: Build
         run: |
           xcodebuild -project holzBar.xcodeproj -scheme holzBar -configuration Release \
@@ -58,12 +67,106 @@ jobs:
             CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=
           codesign --verify --deep --strict build/Build/Products/Release/holzBar.app
 
+      # Signs with holzBar's own self-signed certificate (docs/signing.md), so every release
+      # carries the same signature: its designated requirement names the certificate, not
+      # the code's hash, so macOS keeps Accessibility across updates, and a binary signed
+      # with any other key loses it. The certificate and its key come from two repository
+      # secrets into a temporary keychain only now, after the build, so no build script can
+      # reach the key, and the keychain is deleted right after. Without the secrets the
+      # release stays signed ad hoc, with a warning.
+      #
+      # The XPC service keeps working: a self-signed certificate carries no Apple team, so
+      # the service pins the exact code of the app it is embedded in (signing identifier
+      # and cdhashes, read at launch; MenuBarItemService/Listener.swift), as for ad hoc code.
+      - name: Sign with holzBar's certificate
+        env:
+          SIGNING_CERTIFICATE_P12: ${{ secrets.SIGNING_CERTIFICATE_P12 }}
+          SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
+        run: |
+          APP=build/Build/Products/Release/holzBar.app
+          if [ -z "$SIGNING_CERTIFICATE_P12" ] || [ -z "$SIGNING_CERTIFICATE_PASSWORD" ]; then
+            echo "::warning::SIGNING_CERTIFICATE_P12 or SIGNING_CERTIFICATE_PASSWORD is not set, so this release is signed ad hoc and users must grant Accessibility again after updating. See docs/signing.md."
+            echo "Signature: ad hoc (no signing certificate in the repository secrets)" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          KEYCHAIN="$RUNNER_TEMP/holzbar-signing.keychain-db"
+          CERTIFICATE="$RUNNER_TEMP/holzbar-signing.p12"
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 32)"
+          echo "::add-mask::$KEYCHAIN_PASSWORD"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          # Locks again after 30 minutes and on sleep.
+          security set-keychain-settings -lut 1800 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          (umask 077 && printf '%s' "$SIGNING_CERTIFICATE_P12" | base64 --decode > "$CERTIFICATE")
+          security import "$CERTIFICATE" -k "$KEYCHAIN" -f pkcs12 -P "$SIGNING_CERTIFICATE_PASSWORD" -T /usr/bin/codesign > /dev/null
+          rm -f "$CERTIFICATE"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
+          # The identity's SHA-1. The system does not trust a self-signed certificate, so
+          # find-identity runs without -v, which would list only trusted ones; codesign
+          # signs with it all the same.
+          IDENTITY=$(security find-identity -p codesigning "$KEYCHAIN" | awk '/^ *1\)/ && !found { print $2; found = 1 }')
+          if [ -z "$IDENTITY" ]; then
+            echo "::error::SIGNING_CERTIFICATE_P12 holds no code signing identity (a code signing certificate with its private key)."
+            exit 1
+          fi
+          # Inside out, without --deep (Apple's guidance): the embedded code first, deepest
+          # first, then the app. The identifier, the hardened runtime and the (empty)
+          # entitlements of the ad hoc build are kept; the designated requirement is made
+          # anew from the certificate. No timestamp: that would ask Apple's timestamp
+          # server, which serves Developer ID signatures.
+          sign() {
+            codesign --force --sign "$IDENTITY" --keychain "$KEYCHAIN" \
+              --options runtime --timestamp=none \
+              --preserve-metadata=identifier,entitlements,flags,runtime "$1"
+          }
+          while IFS= read -r -d '' NESTED; do
+            sign "$NESTED"
+          done < <(find "$APP/Contents" -depth \( -name '*.xpc' -o -name '*.appex' -o -name '*.framework' -o -name '*.app' -o -name '*.dylib' \) -print0)
+          sign "$APP"
+
+          codesign --verify --deep --strict "$APP"
+          for BUNDLE in "$APP" "$APP/Contents/XPCServices/MenuBarItemService.xpc"; do
+            DETAILS=$(codesign -dv "$BUNDLE" 2>&1)
+            if ! grep -qE '^CodeDirectory.*flags=0x[0-9a-f]+\([^)]*runtime' <<< "$DETAILS"; then
+              echo "::error::$(basename "$BUNDLE") lost the hardened runtime while signing"
+              exit 1
+            fi
+            if grep -q 'Signature=adhoc' <<< "$DETAILS"; then
+              echo "::error::$(basename "$BUNDLE") is still signed ad hoc"
+              exit 1
+            fi
+          done
+          echo "==> Designated requirement"
+          codesign -d -r- "$APP" 2>&1 | sed -n 's/^designated => /    /p'
+          # The certificate's SHA-256, which users can compare (docs/signing.md).
+          mkdir -p "$RUNNER_TEMP/certificates"
+          codesign -d --extract-certificates="$RUNNER_TEMP/certificates/certificate" "$APP" 2> /dev/null
+          FINGERPRINT=$(shasum -a 256 "$RUNNER_TEMP/certificates/certificate0" | cut -d' ' -f1)
+          echo "==> Signed with the certificate whose SHA-256 is $FINGERPRINT"
+          echo "Signature: holzBar's certificate, SHA-256 $FINGERPRINT" >> "$GITHUB_STEP_SUMMARY"
+
+      # Removes the key from the runner, whether signing worked or not.
+      - name: Remove the signing keychain
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/holzbar-signing.keychain-db" 2> /dev/null || true
+          rm -f "$RUNNER_TEMP/holzbar-signing.p12"
+
       - name: Package
         run: |
           ZIP="holzBar-$VERSION.zip"
           ditto -c -k --keepParent build/Build/Products/Release/holzBar.app "$ZIP"
           echo "ZIP=$ZIP" >> "$GITHUB_ENV"
           echo "SHA256=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+
+      # Build provenance (SLSA): a statement, signed with this workflow's identity and kept
+      # by GitHub, that this zip was built here, from this commit, by this workflow. Anyone
+      # can check a download with
+      # `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar` (docs/signing.md).
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: ${{ env.ZIP }}
 
       - name: Publish the release
         env:
