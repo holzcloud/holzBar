@@ -4,7 +4,6 @@
 //
 
 import Cocoa
-import Combine
 import OSLog
 
 /// A Cocoa view that manages the menu bar layout interface.
@@ -64,7 +63,7 @@ final class LayoutBarPaddingView: NSView {
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         defer {
-            DispatchQueue.main.async {
+            Task {
                 self.container.canSetArrangedViews = true
             }
         }

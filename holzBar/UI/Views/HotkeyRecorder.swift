@@ -3,18 +3,17 @@
 //  holzBar
 //
 
-import Combine
 import SwiftUI
 
 // MARK: - HotkeyRecorder
 
 struct HotkeyRecorder<Label: View>: View {
-    @StateObject private var model: HotkeyRecorderModel
+    @State private var model: HotkeyRecorderModel
 
     private let label: Label
 
     init(hotkey: Hotkey, @ViewBuilder label: () -> Label) {
-        self._model = StateObject(wrappedValue: HotkeyRecorderModel(hotkey: hotkey))
+        self._model = State(wrappedValue: HotkeyRecorderModel(hotkey: hotkey))
         self.label = label()
     }
 
@@ -122,10 +121,10 @@ struct HotkeyRecorder<Label: View>: View {
 // MARK: - HotkeyRecorderModel
 
 @MainActor
-private final class HotkeyRecorderModel: ObservableObject {
-    @EnvironmentObject private var appState: AppState
+@Observable
+private final class HotkeyRecorderModel {
 
-    @Published private(set) var isRecording = false
+    private(set) var isRecording = false
 
     /// A reason why the recorder refused the typed combination.
     enum Problem {
@@ -157,7 +156,7 @@ private final class HotkeyRecorderModel: ObservableObject {
     }
 
     /// The problem the alert presents, if any.
-    @Published var presentedProblem: Problem?
+    var presentedProblem: Problem?
 
     /// A Boolean value that indicates whether the alert for a problem is presented.
     ///
@@ -175,7 +174,7 @@ private final class HotkeyRecorderModel: ObservableObject {
 
     let hotkey: Hotkey
 
-    private lazy var monitor = EventMonitor.local(for: .keyDown) { [weak self] event in
+    @ObservationIgnored private lazy var monitor = EventMonitor.local(for: .keyDown) { [weak self] event in
         guard let self else {
             return event
         }
@@ -183,23 +182,8 @@ private final class HotkeyRecorderModel: ObservableObject {
         return nil
     }
 
-    private var cancellables = Set<AnyCancellable>()
-
     init(hotkey: Hotkey) {
         self.hotkey = hotkey
-        configureCancellables()
-    }
-
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
-        hotkey.objectWillChange
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &c)
-
-        cancellables = c
     }
 
     func startRecording() {

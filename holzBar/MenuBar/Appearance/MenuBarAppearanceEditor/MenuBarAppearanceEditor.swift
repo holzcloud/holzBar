@@ -11,8 +11,8 @@ struct MenuBarAppearanceEditor: View {
         case panel
     }
 
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var appearanceManager: MenuBarAppearanceManager
+    @Environment(AppState.self) var appState
+    @Bindable var appearanceManager: MenuBarAppearanceManager
     @Environment(\.dismissWindow) private var dismissWindow
     @State private var isResetPromptPresented = false
 
@@ -266,6 +266,7 @@ private struct UnlabeledPartialEditor: View {
 
 private struct LabeledPartialEditor: View {
     @Binding var configuration: MenuBarAppearanceConfigurationV2
+    @Environment(\.colorScheme) private var colorScheme
     @State private var currentAppearance = SystemAppearance.current
     @State private var textFrame = CGRect.zero
 
@@ -277,7 +278,8 @@ private struct LabeledPartialEditor: View {
         } content: {
             partialEditor
         }
-        .onReceive(NSApp.publisher(for: \.effectiveAppearance)) { _ in
+        .onChange(of: colorScheme) {
+            // The view's colour scheme follows the app's effective appearance.
             currentAppearance = .current
         }
     }
@@ -316,7 +318,7 @@ private struct StaticPartialEditor: View {
 }
 
 private struct PreviewButton: View {
-    @EnvironmentObject private var appState: AppState
+    @Environment(AppState.self) private var appState
     @State private var isPressed = false
 
     let appearance: SystemAppearance

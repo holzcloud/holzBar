@@ -3,17 +3,18 @@
 //  holzBar
 //
 
-import Combine
 import Cocoa
+import Observation
 
 // MARK: - Permission
 
 /// An object that encapsulates the behavior of checking for and requesting
 /// a specific permission for the app.
 @MainActor
-class Permission: ObservableObject, Identifiable {
+@Observable
+class Permission: Identifiable {
     /// A Boolean value that indicates whether the app has this permission.
-    @Published private(set) var hasPermission = false {
+    private(set) var hasPermission = false {
         didSet {
             if hasPermission, !waiters.isEmpty {
                 endWaits(with: true)
@@ -38,20 +39,20 @@ class Permission: ObservableObject, Identifiable {
     let requestsAtLaunch: Bool
 
     /// The URL of the settings pane to open.
-    private let settingsURL: URL?
+    @ObservationIgnored private let settingsURL: URL?
 
     /// The name of the privacy service that `tccutil` uses for this permission.
-    private let tccService: String?
+    @ObservationIgnored private let tccService: String?
 
     /// The function that checks permissions.
-    private let check: () -> Bool
+    @ObservationIgnored private let check: () -> Bool
 
     /// The function that requests permissions.
-    private let request: () -> Void
+    @ObservationIgnored private let request: () -> Void
 
-    /// Observer that runs on a timer to check permissions while the app does not
-    /// have this one.
-    private var timerCancellable: AnyCancellable?
+    /// The task that checks permissions once a second while the app does not have
+    /// this one.
+    @ObservationIgnored private var checkTask: Task<Void, Never>?
 
     /// How long a permission that is not asked for at launch keeps checking after a
     /// request. macOS posts no notification for a grant, so the check runs once a
@@ -59,7 +60,7 @@ class Permission: ObservableObject, Identifiable {
     private static let requestCheckDuration = Duration.seconds(300)
 
     /// The pending waits for this permission, each with its own stream.
-    private var waiters: [UUID: AsyncStream<Bool>.Continuation] = [:]
+    @ObservationIgnored private var waiters: [UUID: AsyncStream<Bool>.Continuation] = [:]
 
     /// Creates a permission.
     ///
@@ -95,7 +96,7 @@ class Permission: ObservableObject, Identifiable {
             startCheck()
         } else {
             // Checked once; the repeated check starts only with a request.
-            hasPermission = check()
+            updateHasPermission()
         }
     }
 
@@ -105,34 +106,44 @@ class Permission: ObservableObject, Identifiable {
     /// has every permission. A permission that is not asked for at launch stops checking
     /// after ``requestCheckDuration`` without a grant and ends its waits.
     private func startCheck() {
-        hasPermission = check()
+        updateHasPermission()
         guard !hasPermission else {
             stopTimer()
             return
         }
-        guard timerCancellable == nil else {
+        guard checkTask == nil else {
             return
         }
         let deadline: ContinuousClock.Instant? = requestsAtLaunch ? nil : ContinuousClock.now + Self.requestCheckDuration
-        timerCancellable = Timer.publish(every: 1, tolerance: 0.1, on: .main, in: .default)
-            .autoconnect()
-            .sink { [weak self] _ in
-                guard let self else {
+        checkTask = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1), tolerance: .milliseconds(100))
+                guard let self, !Task.isCancelled else {
                     return
                 }
-                hasPermission = check()
+                updateHasPermission()
                 if hasPermission {
                     stopTimer()
                 } else if let deadline, ContinuousClock.now >= deadline {
                     stopCheck()
                 }
             }
+        }
+    }
+
+    /// Checks the permission and stores the result if it changed, so that views
+    /// observing it are not redrawn every second.
+    private func updateHasPermission() {
+        let granted = check()
+        if hasPermission != granted {
+            hasPermission = granted
+        }
     }
 
     /// Stops the timer of the permission check.
     private func stopTimer() {
-        timerCancellable?.cancel()
-        timerCancellable = nil
+        checkTask?.cancel()
+        checkTask = nil
     }
 
     /// Performs the request and opens the System Settings app to the appropriate pane.

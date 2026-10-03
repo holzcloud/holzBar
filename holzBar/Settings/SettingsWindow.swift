@@ -3,47 +3,54 @@
 //  holzBar
 //
 
-import Combine
 import SwiftUI
 
 // MARK: - SettingsWindow
 
 struct SettingsWindow: Scene {
-    @ObservedObject var appState: AppState
-    @StateObject private var model = SettingsWindowModel()
+    let appState: AppState
+    @State private var model = SettingsWindowModel()
 
     var body: some Scene {
         HolzBarWindow(id: .settings, appState: appState) {
             SettingsView(navigationState: appState.navigationState)
                 .onWindowChange { window in
-                    model.observeWindowToolbar(window)
+                    model.observe(window, navigationState: appState.navigationState)
                 }
                 .frame(minWidth: 825, maxWidth: 1150, minHeight: 500, maxHeight: 750)
         }
         .commandsRemoved()
         .windowResizability(.contentSize)
         .defaultSize(width: 900, height: 625)
-        .environmentObject(appState)
+        .environment(appState)
     }
 }
 
 // MARK: - SettingsWindowModel
 
 @MainActor
-private final class SettingsWindowModel: ObservableObject {
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+@Observable
+private final class SettingsWindowModel {
+    /// Observers of the window's visibility and toolbar.
+    @ObservationIgnored private var observations = [NSKeyValueObservation]()
 
-    /// Configures observers for the window's toolbar.
-    func observeWindowToolbar(_ window: NSWindow?) {
-        for cancellable in cancellables {
-            cancellable.cancel()
-        }
-        cancellables.removeAll()
-
+    /// Follows the given window: its visibility becomes the navigation state's
+    /// `isSettingsPresented`, and its toolbar keeps icons only.
+    func observe(_ window: NSWindow?, navigationState: AppNavigationState) {
+        observations.removeAll()
         guard let window else {
             return
         }
+        navigationState.settingsWindow = window
+
+        observations.append(window.observe(\.isVisible, options: [.initial, .new]) { [weak navigationState] window, _ in
+            Task { @MainActor in
+                let isVisible = window.isVisible
+                if let navigationState, navigationState.isSettingsPresented != isVisible {
+                    navigationState.isSettingsPresented = isVisible
+                }
+            }
+        })
 
         if #available(macOS 15.0, *) {
             // TODO: Switch to the SwiftUI equivalent once we're targeting macOS 15.
@@ -55,17 +62,29 @@ private final class SettingsWindowModel: ObservableObject {
             // we're using KVO to make sure the values stay set.
             //
             // - FOR FUTURE REFERENCE: Add `.windowToolbarLabelStyle(fixed: .iconOnly)`
-            //   to the body of `SettingsWindow` and remove this publisher.
-            Publishers.CombineLatest3(
-                window.publisher(for: \.toolbar),
-                window.publisher(for: \.toolbar?.displayMode),
-                window.publisher(for: \.toolbar?.allowsDisplayModeCustomization)
-            )
-            .sink { toolbar, _, _ in
-                toolbar?.displayMode = .iconOnly
-                toolbar?.allowsDisplayModeCustomization = false
+            //   to the body of `SettingsWindow` and remove these observers.
+            let fixToolbar: @Sendable (NSWindow) -> Void = { window in
+                Task { @MainActor in
+                    guard let toolbar = window.toolbar else {
+                        return
+                    }
+                    if toolbar.displayMode != .iconOnly {
+                        toolbar.displayMode = .iconOnly
+                    }
+                    if toolbar.allowsDisplayModeCustomization {
+                        toolbar.allowsDisplayModeCustomization = false
+                    }
+                }
             }
-            .store(in: &cancellables)
+            observations.append(window.observe(\.toolbar, options: [.initial, .new]) { window, _ in
+                fixToolbar(window)
+            })
+            observations.append(window.observe(\.toolbar?.displayMode, options: [.new]) { window, _ in
+                fixToolbar(window)
+            })
+            observations.append(window.observe(\.toolbar?.allowsDisplayModeCustomization, options: [.new]) { window, _ in
+                fixToolbar(window)
+            })
         }
     }
 }

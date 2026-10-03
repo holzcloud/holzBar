@@ -5,7 +5,6 @@
 
 import Carbon.HIToolbox
 import Cocoa
-import Combine
 import OSLog
 
 /// An object that manages the registration, storage, and unregistration of hotkeys.
@@ -63,7 +62,8 @@ final class HotkeyRegistry {
 
     private var registrations = [UInt32: Registration]()
 
-    private var cancellables = Set<AnyCancellable>()
+    /// Tasks that follow menu tracking, so hotkeys pause while a menu is open.
+    private var menuTrackingTasks = [Task<Void, Never>]()
 
     /// Installs the global event handler reference, if it isn't already installed.
     private func installIfNeeded() -> OSStatus {
@@ -71,19 +71,18 @@ final class HotkeyRegistry {
             return noErr
         }
 
-        NotificationCenter.default
-            .publisher(for: NSMenu.didBeginTrackingNotification)
-            .sink { [weak self] _ in
-                self?.unregisterAndRetainAll()
-            }
-            .store(in: &cancellables)
-
-        NotificationCenter.default
-            .publisher(for: NSMenu.didEndTrackingNotification)
-            .sink { [weak self] _ in
-                self?.registerAllRetained()
-            }
-            .store(in: &cancellables)
+        menuTrackingTasks = [
+            Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(named: NSMenu.didBeginTrackingNotification) {
+                    self?.unregisterAndRetainAll()
+                }
+            },
+            Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(named: NSMenu.didEndTrackingNotification) {
+                    self?.registerAllRetained()
+                }
+            },
+        ]
 
         let handler: EventHandlerUPP = { _, event, userData in
             guard

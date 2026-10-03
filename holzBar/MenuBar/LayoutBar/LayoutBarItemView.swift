@@ -4,7 +4,6 @@
 //
 
 import Cocoa
-import Combine
 
 // MARK: - LayoutBarItemView
 
@@ -12,7 +11,8 @@ import Combine
 final class LayoutBarItemView: NSView {
     private weak var appState: AppState?
 
-    private var cancellables = Set<AnyCancellable>()
+    /// Observes the item's image.
+    private var imageObserver: ObservationLoop?
 
     /// The item that the view represents.
     let item: MenuBarItem
@@ -77,7 +77,7 @@ final class LayoutBarItemView: NSView {
         }
         self.isEnabled = item.isMovable
 
-        configureCancellables()
+        configureObservers()
     }
 
     @available(*, unavailable)
@@ -85,21 +85,21 @@ final class LayoutBarItemView: NSView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
-        if let appState {
-            appState.imageCache.$images
-                .sink { [weak self] images in
-                    guard let self, let cachedImage = images[item.tag] else {
-                        return
-                    }
-                    self.cachedImage = cachedImage
-                }
-                .store(in: &c)
+    private func configureObservers() {
+        guard let appState else {
+            return
         }
-
-        cancellables = c
+        let imageCache = appState.imageCache
+        let tag = item.tag
+        if let image = imageCache.images[tag] {
+            cachedImage = image
+        }
+        imageObserver = ObservationLoop.observe { imageCache.images[tag] } onChange: { [weak self] image in
+            guard let self, let image else {
+                return
+            }
+            cachedImage = image
+        }
     }
 
     /// Provides an alert to display when the item view is disabled.
@@ -188,7 +188,7 @@ extension LayoutBarItemView: NSDraggingSource {
         session.animatesToStartingPositionsOnCancelOrFail = false
 
         // async to prevent the view from disappearing before the dragging image appears
-        DispatchQueue.main.async {
+        Task {
             self.isDraggingPlaceholder = true
         }
     }

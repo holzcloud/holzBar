@@ -42,8 +42,10 @@ struct LaunchAtLoginToggle: View {
         .onAppear {
             refresh()
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-            refresh()
+        .task {
+            for await _ in NotificationCenter.default.notifications(named: NSApplication.didBecomeActiveNotification) {
+                refresh()
+            }
         }
     }
 

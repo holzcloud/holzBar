@@ -17,8 +17,8 @@ struct LayoutBar: View {
         func updateNSView(_ nsView: LayoutBarScrollView, context: Context) { }
     }
 
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var imageCache: MenuBarItemImageCache
+    @Environment(AppState.self) var appState
+    var imageCache: MenuBarItemImageCache
 
     let section: MenuBarSection.Name
 

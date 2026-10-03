@@ -3,7 +3,6 @@
 //  holzBar
 //
 
-import Combine
 import SwiftUI
 
 /// A panel that contains a portable version of the menu bar
@@ -17,8 +16,8 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
     /// The shared app state.
     private weak var appState: AppState?
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Observers of the app's appearance and the panel's visibility.
+    private var observations = [NSKeyValueObservation]()
 
     /// Overridden to always be `true`.
     override var canBecomeKey: Bool { true }
@@ -44,7 +43,7 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
     func performSetup(with appState: AppState) {
         self.appState = appState
         configureContentView(with: appState)
-        configureCancellables()
+        configureObservers()
     }
 
     /// Configures the panel's content view.
@@ -55,28 +54,26 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
     }
 
     /// Configures the internal observers for the panel.
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
+    private func configureObservers() {
         // Make sure the panel takes on the app's appearance.
-        NSApp.publisher(for: \.effectiveAppearance)
-            .sink { [weak self] effectiveAppearance in
-                self?.appearance = effectiveAppearance
-            }
-            .store(in: &c)
-
-        publisher(for: \.isVisible)
-            .sink { isVisible in
-                if isVisible {
-                    NSColorPanel.shared.hidesOnDeactivate = false
-                } else {
-                    NSColorPanel.shared.hidesOnDeactivate = true
-                    NSColorPanel.shared.close()
+        appearance = NSApp.effectiveAppearance
+        observations = [
+            NSApp.observe(\.effectiveAppearance, options: [.new]) { [weak self] _, _ in
+                Task { @MainActor in
+                    self?.appearance = NSApp.effectiveAppearance
                 }
-            }
-            .store(in: &c)
-
-        cancellables = c
+            },
+            observe(\.isVisible, options: [.initial, .new]) { panel, _ in
+                Task { @MainActor in
+                    if panel.isVisible {
+                        NSColorPanel.shared.hidesOnDeactivate = false
+                    } else {
+                        NSColorPanel.shared.hidesOnDeactivate = true
+                        NSColorPanel.shared.close()
+                    }
+                }
+            },
+        ]
     }
 
     /// Updates the panel's position for display on the given screen.
@@ -119,13 +116,13 @@ private final class MenuBarAppearanceEditorHostingView: NSHostingView<MenuBarApp
 // MARK: - MenuBarAppearanceEditorContentView
 
 private struct MenuBarAppearanceEditorContentView: View {
-    @ObservedObject var appState: AppState
+    var appState: AppState
 
     var body: some View {
         MenuBarAppearanceEditor(
             appearanceManager: appState.appearanceManager,
             location: .panel
         )
-        .environmentObject(appState)
+        .environment(appState)
     }
 }

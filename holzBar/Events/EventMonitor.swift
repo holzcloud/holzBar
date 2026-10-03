@@ -4,7 +4,6 @@
 //
 
 import Cocoa
-import Combine
 import os.lock
 
 /// Monitors events that AppKit delivers to the app (local), to other apps
@@ -196,67 +195,5 @@ extension EventMonitor {
         let monitor = passive(for: mask, scope: scope, handler: handler)
         monitor.start()
         return monitor
-    }
-}
-
-extension EventMonitor {
-    /// A publisher that emits events received within a defined scope.
-    struct EventPublisher: Publisher {
-        typealias Output = NSEvent
-        typealias Failure = Never
-
-        /// The event type mask that determines the events the publisher receives.
-        let mask: NSEvent.EventTypeMask
-
-        /// The scope where the publisher receives events.
-        let scope: EventMonitor.Scope
-
-        func receive<S: Subscriber>(subscriber: S) where S.Input == Output, S.Failure == Failure {
-            let subscription = EventSubscription(mask: mask, scope: scope, subscriber: subscriber)
-            subscriber.receive(subscription: subscription)
-        }
-    }
-
-    /// Returns a publisher that emits events received within a defined scope.
-    ///
-    /// - Parameters:
-    ///   - events: A mask that determines the events the publisher receives.
-    ///   - scope: A scope that determines where the publisher receives events.
-    static func publish(events: NSEvent.EventTypeMask, scope: Scope) -> EventPublisher {
-        EventPublisher(mask: events, scope: scope)
-    }
-}
-
-extension EventMonitor.EventPublisher {
-    private final class EventSubscription<S: Subscriber>: Subscription where S.Input == Output, S.Failure == Failure {
-        private final class SubscriberBox {
-            private let subscriber: S
-
-            init(subscriber: S) {
-                self.subscriber = subscriber
-            }
-
-            @discardableResult
-            func receive(_ event: NSEvent) -> Subscribers.Demand {
-                subscriber.receive(event)
-            }
-        }
-
-        private var box: SubscriberBox?
-        private let monitor: EventMonitor
-
-        init(mask: NSEvent.EventTypeMask, scope: EventMonitor.Scope, subscriber: S) {
-            self.box = SubscriberBox(subscriber: subscriber)
-            self.monitor = .startPassive(for: mask, scope: scope) { [weak box] event in
-                box?.receive(event)
-            }
-        }
-
-        func request(_ demand: Subscribers.Demand) { }
-
-        func cancel() {
-            box = nil
-            monitor.stop()
-        }
     }
 }

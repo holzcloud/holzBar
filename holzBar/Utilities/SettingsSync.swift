@@ -4,7 +4,7 @@
 //
 
 import AppKit
-import Combine
+import Observation
 import OSLog
 import SystemConfiguration
 
@@ -22,7 +22,8 @@ import SystemConfiguration
 /// Mac, with no polling, and coordinated reads and writes never see half a file. The
 /// presenter and the observer of this Mac's settings exist only while sync is on.
 @MainActor
-final class SettingsSync: ObservableObject {
+@Observable
+final class SettingsSync {
     private static let logger = Logger(category: "SettingsSync")
 
     /// Keys that stay on this Mac.
@@ -72,7 +73,7 @@ final class SettingsSync: ObservableObject {
     }
 
     /// A Boolean value that indicates whether syncing is turned on.
-    @Published var isEnabled = false {
+    var isEnabled = false {
         didSet {
             Defaults.set(isEnabled, forKey: .syncsSettingsWithICloud)
             updateObservers()
@@ -82,18 +83,21 @@ final class SettingsSync: ObservableObject {
         }
     }
 
-    private weak var appState: AppState?
-    private var lastPushedData: Data?
-    private var isAskingToRestart = false
+    @ObservationIgnored private weak var appState: AppState?
+    @ObservationIgnored private var lastPushedData: Data?
+    @ObservationIgnored private var isAskingToRestart = false
 
     /// Observes this Mac's settings while sync is on.
-    private var defaultsObserver: AnyCancellable?
+    @ObservationIgnored private var defaultsObserver: Task<Void, Never>?
+
+    /// Pushes the settings 5 s after they stop changing.
+    @ObservationIgnored private let defaultsDebouncer = Debouncer(delay: .seconds(5))
 
     /// Hears about new versions of the sync file while sync is on.
-    private var presenter: SettingsSyncPresenter?
+    @ObservationIgnored private var presenter: SettingsSyncPresenter?
 
     /// The pending check after the sync file changed.
-    private var checkTask: Task<Void, Never>?
+    @ObservationIgnored private var checkTask: Task<Void, Never>?
 
     func performSetup(with appState: AppState) {
         self.appState = appState
@@ -103,7 +107,9 @@ final class SettingsSync: ObservableObject {
     /// Starts or stops observing the settings and the sync file, as sync is on or off.
     private func updateObservers() {
         guard isEnabled, appState != nil else {
+            defaultsObserver?.cancel()
             defaultsObserver = nil
+            defaultsDebouncer.cancel()
             checkTask?.cancel()
             checkTask = nil
             if let presenter {
@@ -115,11 +121,13 @@ final class SettingsSync: ObservableObject {
         }
 
         if defaultsObserver == nil {
-            defaultsObserver = NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
-                .debounce(for: 5, scheduler: DispatchQueue.main)
-                .sink { [weak self] _ in
-                    self?.settingsDidChange()
+            defaultsObserver = Task { [weak self] in
+                for await _ in NotificationCenter.default.notifications(named: UserDefaults.didChangeNotification) {
+                    self?.defaultsDebouncer.schedule { [weak self] in
+                        self?.settingsDidChange()
+                    }
                 }
+            }
         }
 
         if presenter == nil, let folderURL = Self.folderURL {

@@ -5,39 +5,43 @@
 
 @preconcurrency import ApplicationServices
 import Cocoa
-import Combine
+import Observation
 import OSLog
 
 /// Manager that monitors input events and implements the features
 /// that are triggered by them, such as showing hidden items on
 /// click/hover/scroll.
 @MainActor
-final class HIDEventManager: ObservableObject {
+@Observable
+final class HIDEventManager {
     /// A Boolean value that indicates whether the user is dragging
     /// a menu bar item.
-    @Published private(set) var isDraggingMenuBarItem = false
+    private(set) var isDraggingMenuBarItem = false
 
     /// The shared app state.
-    private weak var appState: AppState?
+    @ObservationIgnored private weak var appState: AppState?
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Observers of the settings and state the monitors depend on.
+    @ObservationIgnored private var observers = [ObservationLoop]()
+
+    /// The task that re-evaluates the monitors when the screens change.
+    @ObservationIgnored private var screenParametersTask: Task<Void, Never>?
 
     /// History of the manager's enabled states.
-    private var enabledStateStack = [Bool]()
+    @ObservationIgnored private var enabledStateStack = [Bool]()
 
     /// The last empty menu bar spot hovered on each display (see `ItemClicker27`).
-    private var lastEmptyMenuBarPoints = [CGDirectDisplayID: CGPoint]()
+    @ObservationIgnored private var lastEmptyMenuBarPoints = [CGDirectDisplayID: CGPoint]()
 
     /// Until when the release of a held-back click is held back as well (see
     /// `handleSystemItemClick27`). The deadline keeps a release that never comes from
     /// swallowing an unrelated one later.
-    private var heldBackReleaseUntil: ContinuousClock.Instant?
+    @ObservationIgnored private var heldBackReleaseUntil: ContinuousClock.Instant?
 
     /// System items that do not open from an Accessibility press, so a click on them has to
     /// go through MenuBarAgent. Seeded with what was measured on macOS 27.0; anything else
     /// that turns out to ignore the press joins them at its first click.
-    private var systemItemsIgnoringPress: Set<String> = [
+    @ObservationIgnored private var systemItemsIgnoringPress: Set<String> = [
         "com.apple.menuextra.clock",
         "com.apple.menuextra.battery",
         "com.apple.menuextra.wifi",
@@ -45,7 +49,7 @@ final class HIDEventManager: ObservableObject {
 
     /// The system item whose panel holzBar last opened, so a second click on the same item is
     /// understood as the click that dismisses it.
-    private var itemShowingPanel: String?
+    @ObservationIgnored private var itemShowingPanel: String?
 
     /// What show on hover does once its delay has passed.
     private enum HoverAction {
@@ -54,13 +58,13 @@ final class HIDEventManager: ObservableObject {
     }
 
     /// The hover action waiting for its delay, so mouse moves start one task, not one each.
-    private var hoverSchedule = HoverSchedule<HoverAction>()
+    @ObservationIgnored private var hoverSchedule = HoverSchedule<HoverAction>()
 
     /// The task that performs the pending hover action after the delay.
-    private var hoverTask: Task<Void, Never>?
+    @ObservationIgnored private var hoverTask: Task<Void, Never>?
 
     /// A Boolean value that indicates whether the manager is enabled.
-    private var isEnabled = false {
+    @ObservationIgnored private var isEnabled = false {
         didSet {
             updateMonitors()
             if !isEnabled {
@@ -70,10 +74,10 @@ final class HIDEventManager: ObservableObject {
     }
 
     /// The input monitors that are running.
-    private var runningKinds = Set<InputMonitors.Kind>()
+    @ObservationIgnored private var runningKinds = Set<InputMonitors.Kind>()
 
     /// Whether the macOS 27 system item click tap is running.
-    private var isSystemItemClickTapRunning = false
+    @ObservationIgnored private var isSystemItemClickTapRunning = false
 
     /// Cancels the pending hover action.
     private func cancelHoverAction() {
@@ -85,7 +89,7 @@ final class HIDEventManager: ObservableObject {
     // MARK: Monitors
 
     /// Monitor for mouse down events.
-    private(set) lazy var mouseDownMonitor = EventMonitor.universal(
+    @ObservationIgnored private(set) lazy var mouseDownMonitor = EventMonitor.universal(
         for: [.leftMouseDown, .rightMouseDown]
     ) { [weak self] event in
         guard let self, isEnabled, let appState, let screen = bestScreen(appState: appState) else {
@@ -109,7 +113,7 @@ final class HIDEventManager: ObservableObject {
     }
 
     /// Monitor for mouse up events.
-    private(set) lazy var mouseUpMonitor = EventMonitor.universal(
+    @ObservationIgnored private(set) lazy var mouseUpMonitor = EventMonitor.universal(
         for: .leftMouseUp
     ) { [weak self] event in
         guard let self, isEnabled else {
@@ -120,7 +124,7 @@ final class HIDEventManager: ObservableObject {
     }
 
     /// Monitor for mouse dragged events.
-    private(set) lazy var mouseDraggedMonitor = EventMonitor.universal(
+    @ObservationIgnored private(set) lazy var mouseDraggedMonitor = EventMonitor.universal(
         for: .leftMouseDragged
     ) { [weak self] event in
         if let self, isEnabled, let appState, let screen = bestScreen(appState: appState) {
@@ -130,7 +134,7 @@ final class HIDEventManager: ObservableObject {
     }
 
     /// Tap for mouse moved events.
-    private(set) lazy var mouseMovedTap = EventTap(
+    @ObservationIgnored private(set) lazy var mouseMovedTap = EventTap(
         type: .mouseMoved,
         location: .hidEventTap,
         placement: .tailAppendEventTap,
@@ -143,7 +147,7 @@ final class HIDEventManager: ObservableObject {
     }
 
     /// Monitor for scroll wheel events.
-    private(set) lazy var scrollWheelMonitor = EventMonitor.universal(
+    @ObservationIgnored private(set) lazy var scrollWheelMonitor = EventMonitor.universal(
         for: .scrollWheel
     ) { [weak self] event in
         if let self, isEnabled, let appState, let screen = bestScreen(appState: appState) {
@@ -157,7 +161,7 @@ final class HIDEventManager: ObservableObject {
     /// While an assessment-mode assertion is live, MenuBarAgent ignores clicks on the
     /// clock (measured on macOS 27.0). The tap holds such a click back, releases the
     /// assertions for a moment, and replays the click.
-    private(set) lazy var systemItemClickTap = EventTap(
+    @ObservationIgnored private(set) lazy var systemItemClickTap = EventTap(
         types: [.leftMouseDown, .leftMouseUp],
         location: .hidEventTap,
         placement: .headInsertEventTap,
@@ -255,64 +259,49 @@ final class HIDEventManager: ObservableObject {
     func performSetup(with appState: AppState) {
         self.appState = appState
         startAll()
-        configureCancellables()
+        configureObservers()
     }
 
     /// Configures the internal observers for the manager.
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
-        if let appState {
-            let general = appState.settings.general
-            let advanced = appState.settings.advanced
-            // Re-evaluate the monitors whenever a setting that decides them changes.
-            // `@Published` emits before the value is stored, so read it on the next turn.
-            let settingsChanged: [AnyPublisher<Void, Never>] = [
-                general.$showOnClick.replace(with: ()).eraseToAnyPublisher(),
-                general.$showOnHover.replace(with: ()).eraseToAnyPublisher(),
-                general.$showOnScroll.replace(with: ()).eraseToAnyPublisher(),
-                general.$autoRehide.replace(with: ()).eraseToAnyPublisher(),
-                general.$rehideStrategy.replace(with: ()).eraseToAnyPublisher(),
-                general.$useShelf.replace(with: ()).eraseToAnyPublisher(),
-                general.$shelfDisplays.replace(with: ()).eraseToAnyPublisher(),
-                advanced.$enableSecondaryContextMenu.replace(with: ()).eraseToAnyPublisher(),
-                advanced.$showAllSectionsOnUserDrag.replace(with: ()).eraseToAnyPublisher(),
-                appState.appearanceManager.$configuration.replace(with: ()).eraseToAnyPublisher(),
-                NotificationCenter.default
-                    .publisher(for: NSApplication.didChangeScreenParametersNotification)
-                    .replace(with: ())
-                    .eraseToAnyPublisher(),
-            ]
-            Publishers.MergeMany(settingsChanged)
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] in
-                    self?.updateMonitors()
-                }
-                .store(in: &c)
+    private func configureObservers() {
+        guard let appState else {
+            return
         }
 
-        if let appState, let hiddenSection = appState.menuBarManager.section(withName: .hidden) {
+        // Re-evaluate the monitors whenever a setting that decides them changes.
+        observers.append(
+            ObservationLoop.observe { [weak self] in
+                self?.inputMonitorSettings(appState: appState)
+            } onChange: { [weak self] _ in
+                self?.updateMonitors()
+            }
+        )
+        screenParametersTask = Task { [weak self] in
+            let center = NotificationCenter.default
+            for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+                self?.updateMonitors()
+            }
+        }
+
+        if let hiddenSection = appState.menuBarManager.section(withName: .hidden) {
             // In fullscreen mode, the menu bar slides down from the top on hover. Observe the
             // frame of the hidden section's control item, which we know will always be in the
             // menu bar, and run the show-on-hover check when it changes.
-            Publishers.CombineLatest3(
-                hiddenSection.controlItem.$frame,
-                appState.$activeSpace.map(\.isFullscreen),
-                appState.menuBarManager.$isMenuBarHiddenBySystem
+            let controlItem = hiddenSection.controlItem
+            observers.append(
+                ObservationLoop.observe {
+                    (controlItem.frame, appState.activeSpace.isFullscreen, appState.menuBarManager.isMenuBarHiddenBySystem)
+                } onChange: { [weak self, weak appState] values in
+                    let (_, isFullscreen, isMenuBarHiddenBySystem) = values
+                    guard let self, isEnabled, let appState, isFullscreen || isMenuBarHiddenBySystem else {
+                        return
+                    }
+                    if let screen = bestScreen(appState: appState) {
+                        handleShowOnHover(appState: appState, screen: screen)
+                    }
+                }
             )
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self, weak appState] _, isFullscreen, isMenuBarHiddenBySystem in
-                guard let self, isEnabled, let appState, isFullscreen || isMenuBarHiddenBySystem else {
-                    return
-                }
-                if let screen = bestScreen(appState: appState) {
-                    handleShowOnHover(appState: appState, screen: screen)
-                }
-            }
-            .store(in: &c)
         }
-
-        cancellables = c
     }
 
     // MARK: Start/Stop

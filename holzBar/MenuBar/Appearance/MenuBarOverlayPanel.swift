@@ -4,7 +4,6 @@
 //
 
 import Cocoa
-import Combine
 import OSLog
 
 // MARK: - Overlay Panel
@@ -37,7 +36,7 @@ final class MenuBarOverlayPanel: NSPanel {
         ///   - flag: The update flag to set the task for.
         ///   - timeout: The timeout of the task.
         ///   - operation: The operation for the task to perform.
-        func setTask(for flag: UpdateFlag, timeout: Duration, operation: @escaping () async throws -> Void) {
+        func setTask(for flag: UpdateFlag, timeout: Duration, operation: @escaping @MainActor @Sendable () async throws -> Void) {
             cancelTask(for: flag)
             tasks[flag] = Task.detached(timeout: timeout) {
                 try await operation()
@@ -56,19 +55,81 @@ final class MenuBarOverlayPanel: NSPanel {
     private static let logger = Logger(category: "MenuBarOverlayPanel")
 
     /// A Boolean value that indicates whether the panel needs to be shown.
-    @Published var needsShow = false
+    ///
+    /// The panel is shown 0.05 s after the last change, if the value is then `true`
+    /// (as Combine's `debounce` delivered the latest value).
+    var needsShow = false {
+        didSet {
+            needsShowDebouncer.schedule { [weak self] in
+                guard let self, needsShow else {
+                    return
+                }
+                defer {
+                    self.needsShow = false
+                }
+                show()
+            }
+        }
+    }
 
     /// Flags representing the components of the panel currently in need of an update.
-    @Published private(set) var updateFlags = Set<UpdateFlag>()
+    ///
+    /// Inserting a flag performs the updates at once; the flags are cleared on the next
+    /// turn of the main actor, so several inserts in one turn update together.
+    private(set) var updateFlags = Set<UpdateFlag>() {
+        didSet {
+            guard !updateFlags.isEmpty else {
+                return
+            }
+            let flags = updateFlags
+            Task {
+                // Must be run async, or this will not remove the flags.
+                self.updateFlags.removeAll()
+            }
+            let windows = WindowInfo.createWindows(option: .onScreen)
+            if validate(for: .updates, with: windows) {
+                performUpdates(for: flags, windows: windows, screen: owningScreen)
+            }
+        }
+    }
 
     /// The frame of the application menu.
-    @Published private(set) var applicationMenuFrame: CGRect?
+    private(set) var applicationMenuFrame: CGRect? {
+        didSet {
+            contentView?.needsDisplay = true
+        }
+    }
 
     /// The current desktop wallpaper, clipped to the bounds of the menu bar.
-    @Published private(set) var desktopWallpaper: CGImage?
+    private(set) var desktopWallpaper: CGImage? {
+        didSet {
+            contentView?.needsDisplay = true
+        }
+    }
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Shows the panel once ``needsShow`` stops changing.
+    private let needsShowDebouncer = Debouncer(delay: .milliseconds(50))
+
+    /// Shows the panel 0.1 s after the active space stops changing.
+    private let spaceDebouncer = Debouncer(delay: .milliseconds(100))
+
+    /// Updates the wallpaper 0.1 s after the appearance stops changing.
+    private let themeDebouncer = Debouncer(delay: .milliseconds(100))
+
+    /// Updates the application menu frame 0.05 s after the space or a click settles.
+    private let applicationMenuDebouncer = Debouncer(delay: .milliseconds(50))
+
+    /// Tasks that observe notifications and the wallpaper fallback.
+    private var observerTasks = [Task<Void, Never>]()
+
+    /// Key-value observers of the workspace and the panel.
+    private var keyValueObservations = [NSKeyValueObservation]()
+
+    /// The mouse-up monitor for clicks into another space.
+    private var mouseUpMonitor: EventMonitor?
+
+    /// Observes whether the system hides the menu bar.
+    private var menuBarHiddenObserver: ObservationLoop?
 
     /// The context that manages panel update tasks.
     private let updateTaskContext = UpdateTaskContext()
@@ -101,159 +162,170 @@ final class MenuBarOverlayPanel: NSPanel {
         self.isExcludedFromWindowsMenu = true
         self.collectionBehavior = [.fullScreenNone, .ignoresCycle, .moveToActiveSpace]
         self.contentView = MenuBarOverlayPanelContentView()
-        configureCancellables()
+        configureObservers()
     }
 
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
+    deinit {
+        for task in observerTasks {
+            task.cancel()
+        }
+    }
 
+    private func configureObservers() {
         // Show the panel on the active space.
-        NSWorkspace.shared.notificationCenter
-            .publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
-            .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.needsShow = true
+        observeNotifications(named: NSWorkspace.activeSpaceDidChangeNotification, in: NSWorkspace.shared.notificationCenter) { panel in
+            panel.spaceDebouncer.schedule { [weak panel] in
+                panel?.needsShow = true
             }
-            .store(in: &c)
+        }
 
         // Update when light/dark mode changes.
-        DistributedNotificationCenter.default()
-            .publisher(for: DistributedNotificationCenter.interfaceThemeChangedNotification)
-            .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self else {
-                    return
-                }
-                updateTaskContext.setTask(for: .desktopWallpaper, timeout: .seconds(5)) {
-                    while true {
-                        try Task.checkCancellation()
-                        self.insertUpdateFlag(.desktopWallpaper)
-                        try await Task.sleep(for: .seconds(1))
-                    }
-                }
+        observeNotifications(
+            named: DistributedNotificationCenter.interfaceThemeChangedNotification,
+            in: DistributedNotificationCenter.default()
+        ) { panel in
+            panel.themeDebouncer.schedule { [weak panel] in
+                panel?.startWallpaperUpdates()
             }
-            .store(in: &c)
+        }
 
         // Update application menu frame when the menu bar owning or frontmost app changes.
-        Publishers.Merge(
-            NSWorkspace.shared.publisher(for: \.menuBarOwningApplication, options: .old)
-                .combineLatest(NSWorkspace.shared.publisher(for: \.menuBarOwningApplication, options: .new))
-                .compactMap { $0 == $1 ? nil : $0 },
-            NSWorkspace.shared.publisher(for: \.frontmostApplication, options: .old)
-                .combineLatest(NSWorkspace.shared.publisher(for: \.frontmostApplication, options: .new))
-                .compactMap { $0 == $1 ? nil : $0 }
-        )
-        .removeDuplicates()
-        .sink { [weak self] _ in
-            guard let self else {
-                return
-            }
-            updateTaskContext.setTask(for: .applicationMenuFrame, timeout: .seconds(10)) {
-                var hasDoneInitialUpdate = false
-                while true {
-                    try Task.checkCancellation()
-                    guard
-                        let latestFrame = self.owningScreen.getApplicationMenuFrame(),
-                        latestFrame != self.applicationMenuFrame
-                    else {
-                        if hasDoneInitialUpdate {
-                            try await Task.sleep(for: .seconds(1))
-                        } else {
-                            try await Task.sleep(for: .milliseconds(1))
-                        }
-                        continue
+        keyValueObservations.append(
+            NSWorkspace.shared.observe(\.menuBarOwningApplication, options: [.old, .new]) { [weak self] _, change in
+                let changed = change.oldValue != change.newValue
+                Task { @MainActor in
+                    if changed {
+                        self?.startApplicationMenuFrameUpdates()
                     }
-                    self.insertUpdateFlag(.applicationMenuFrame)
-                    hasDoneInitialUpdate = true
                 }
             }
-            Task {
-                try? await Task.sleep(for: .milliseconds(100))
-                if self.owningScreen != NSScreen.main {
-                    self.updateTaskContext.cancelTask(for: .applicationMenuFrame)
+        )
+        keyValueObservations.append(
+            NSWorkspace.shared.observe(\.frontmostApplication, options: [.old, .new]) { [weak self] _, change in
+                let changed = change.oldValue != change.newValue
+                Task { @MainActor in
+                    if changed {
+                        self?.startApplicationMenuFrameUpdates()
+                    }
                 }
             }
-        }
-        .store(in: &c)
+        )
 
         // Special cases for when the user drags an app onto or clicks into another space.
-        Publishers.Merge(
-            publisher(for: \.isOnActiveSpace)
-                .receive(on: DispatchQueue.main)
-                .replace(with: ()),
-            EventMonitor.publish(events: .leftMouseUp, scope: .universal)
-                .filter { [weak self] _ in self?.isOnActiveSpace ?? false }
-                .replace(with: ())
+        keyValueObservations.append(
+            observe(\.isOnActiveSpace, options: [.initial, .new]) { [weak self] _, _ in
+                Task { @MainActor in
+                    self?.scheduleApplicationMenuFrameUpdate()
+                }
+            }
         )
-        .debounce(for: 0.05, scheduler: DispatchQueue.main)
-        .sink { [weak self] in
-            self?.insertUpdateFlag(.applicationMenuFrame)
+        let mouseUpMonitor = EventMonitor.passive(for: .leftMouseUp, scope: .universal) { [weak self] _ in
+            guard let self, isOnActiveSpace else {
+                return
+            }
+            scheduleApplicationMenuFrameUpdate()
         }
-        .store(in: &c)
+        mouseUpMonitor.start()
+        self.mouseUpMonitor = mouseUpMonitor
 
         // Update the desktop wallpaper when the space or the screens change, and on the
         // distributed notification "com.apple.desktop" (posted for some wallpaper changes).
         // macOS posts no reliable wallpaper notification, so a slow, tolerant fallback
         // catches the rest; it replaced a 5 s timer per screen. The application menu frame
         // needs no timer: the frontmost-application and mouse-up observers above update it.
-        Publishers.Merge4(
-            NSWorkspace.shared.notificationCenter
-                .publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
-                .replace(with: ()),
-            NotificationCenter.default
-                .publisher(for: NSApplication.didChangeScreenParametersNotification)
-                .replace(with: ()),
-            DistributedNotificationCenter.default()
-                .publisher(for: Notification.Name("com.apple.desktop"))
-                .replace(with: ()),
-            Timer.publish(every: 30, tolerance: 5, on: .main, in: .default)
-                .autoconnect()
-                .replace(with: ())
-        )
-        .receive(on: DispatchQueue.main)
-        .sink { [weak self] in
-            self?.insertUpdateFlag(.desktopWallpaper)
+        observeNotifications(named: NSWorkspace.activeSpaceDidChangeNotification, in: NSWorkspace.shared.notificationCenter) { panel in
+            panel.insertUpdateFlag(.desktopWallpaper)
         }
-        .store(in: &c)
-
-        $needsShow
-            .debounce(for: 0.05, scheduler: DispatchQueue.main)
-            .sink { [weak self] needsShow in
-                guard let self, needsShow else {
+        observeNotifications(named: NSApplication.didChangeScreenParametersNotification, in: NotificationCenter.default) { panel in
+            panel.insertUpdateFlag(.desktopWallpaper)
+        }
+        observeNotifications(named: Notification.Name("com.apple.desktop"), in: DistributedNotificationCenter.default()) { panel in
+            panel.insertUpdateFlag(.desktopWallpaper)
+        }
+        observerTasks.append(Task { [weak self] in
+            while true {
+                do {
+                    try await Task.sleep(for: .seconds(30), tolerance: .seconds(5))
+                } catch {
                     return
                 }
-                defer {
-                    self.needsShow = false
-                }
-                show()
+                self?.insertUpdateFlag(.desktopWallpaper)
             }
-            .store(in: &c)
-
-        $updateFlags
-            .sink { [weak self] flags in
-                guard let self, !flags.isEmpty else {
-                    return
-                }
-                Task {
-                    // Must be run async, or this will not remove the flags.
-                    self.updateFlags.removeAll()
-                }
-                let windows = WindowInfo.createWindows(option: .onScreen)
-                if validate(for: .updates, with: windows) {
-                    performUpdates(for: flags, windows: windows, screen: owningScreen)
-                }
-            }
-            .store(in: &c)
+        })
 
         if let appState {
-            appState.menuBarManager.$isMenuBarHiddenBySystem
-                .sink { [weak self] isHidden in
-                    self?.alphaValue = isHidden ? 0 : 1
-                }
-                .store(in: &c)
+            let menuBarManager = appState.menuBarManager
+            alphaValue = menuBarManager.isMenuBarHiddenBySystem ? 0 : 1
+            menuBarHiddenObserver = ObservationLoop.observe { menuBarManager.isMenuBarHiddenBySystem } onChange: { [weak self] isHidden in
+                self?.alphaValue = isHidden ? 0 : 1
+            }
         }
+    }
 
-        cancellables = c
+    /// Calls the handler for each notification with the given name, while the panel exists.
+    private func observeNotifications(
+        named name: Notification.Name,
+        in center: NotificationCenter,
+        handler: @escaping @MainActor @Sendable (MenuBarOverlayPanel) -> Void
+    ) {
+        observerTasks.append(Task { [weak self] in
+            for await _ in center.notifications(named: name) {
+                guard let self else {
+                    return
+                }
+                handler(self)
+            }
+        })
+    }
+
+    /// Updates the wallpaper every second for five seconds, while the appearance switches.
+    private func startWallpaperUpdates() {
+        updateTaskContext.setTask(for: .desktopWallpaper, timeout: .seconds(5)) { [weak self] in
+            while true {
+                try Task.checkCancellation()
+                self?.insertUpdateFlag(.desktopWallpaper)
+                try await Task.sleep(for: .seconds(1))
+            }
+        }
+    }
+
+    /// Follows the application menu frame for ten seconds after the menu bar's owner changes.
+    private func startApplicationMenuFrameUpdates() {
+        updateTaskContext.setTask(for: .applicationMenuFrame, timeout: .seconds(10)) { [weak self] in
+            var hasDoneInitialUpdate = false
+            while true {
+                try Task.checkCancellation()
+                guard let self else {
+                    return
+                }
+                guard
+                    let latestFrame = owningScreen.getApplicationMenuFrame(),
+                    latestFrame != applicationMenuFrame
+                else {
+                    if hasDoneInitialUpdate {
+                        try await Task.sleep(for: .seconds(1))
+                    } else {
+                        try await Task.sleep(for: .milliseconds(1))
+                    }
+                    continue
+                }
+                insertUpdateFlag(.applicationMenuFrame)
+                hasDoneInitialUpdate = true
+            }
+        }
+        Task {
+            try? await Task.sleep(for: .milliseconds(100))
+            if self.owningScreen != NSScreen.main {
+                self.updateTaskContext.cancelTask(for: .applicationMenuFrame)
+            }
+        }
+    }
+
+    /// Updates the application menu frame once the space or a click settles.
+    private func scheduleApplicationMenuFrameUpdate() {
+        applicationMenuDebouncer.schedule { [weak self] in
+            self?.insertUpdateFlag(.applicationMenuFrame)
+        }
     }
 
     /// Inserts the given update flag into the panel's current list of update flags.
@@ -372,11 +444,20 @@ final class MenuBarOverlayPanel: NSPanel {
 // MARK: - Content View
 
 private final class MenuBarOverlayPanelContentView: NSView {
-    @Published private var fullConfiguration: MenuBarAppearanceConfigurationV2 = .defaultConfiguration
+    private var fullConfiguration: MenuBarAppearanceConfigurationV2 = .defaultConfiguration {
+        didSet {
+            needsDisplay = true
+        }
+    }
 
-    @Published private var previewConfiguration: MenuBarAppearancePartialConfiguration?
+    private var previewConfiguration: MenuBarAppearancePartialConfiguration? {
+        didSet {
+            needsDisplay = true
+        }
+    }
 
-    private var cancellables = Set<AnyCancellable>()
+    /// Observers of the appearance, the drag state and the control items.
+    private var observers = [ObservationLoop]()
 
     /// The overlay panel that contains the content view.
     private var overlayPanel: MenuBarOverlayPanel? {
@@ -390,75 +471,59 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
-        configureCancellables()
+        configureObservers()
     }
 
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
+    private func configureObservers() {
+        observers.removeAll()
 
-        if let overlayPanel {
-            if let appState = overlayPanel.appState {
-                appState.appearanceManager.$configuration
-                    .removeDuplicates()
-                    .assign(to: &$fullConfiguration)
+        guard let appState = overlayPanel?.appState else {
+            return
+        }
+        let appearanceManager = appState.appearanceManager
 
-                appState.appearanceManager.$previewConfiguration
-                    .removeDuplicates()
-                    .assign(to: &$previewConfiguration)
+        fullConfiguration = appearanceManager.configuration
+        previewConfiguration = appearanceManager.previewConfiguration
+        observers.append(
+            ObservationLoop.observe { appearanceManager.configuration } onChange: { [weak self] configuration in
+                self?.fullConfiguration = configuration
+            }
+        )
+        observers.append(
+            ObservationLoop.observe { appearanceManager.previewConfiguration } onChange: { [weak self] configuration in
+                self?.previewConfiguration = configuration
+            }
+        )
 
-                // Fade out whenever a menu bar item is being dragged.
-                appState.$isDraggingMenuBarItem
-                    .removeDuplicates()
-                    .sink { [weak self] isDragging in
-                        if isDragging {
-                            self?.animator().alphaValue = 0
-                        } else {
-                            self?.animator().alphaValue = 1
-                        }
-                    }
-                    .store(in: &c)
-
-                for section in appState.menuBarManager.sections {
-                    // Redraw whenever the window frame of a control item changes.
-                    //
-                    // - NOTE: A previous attempt was made to redraw the view when the
-                    //   section's `isHidden` property was changed. This would be semantically
-                    //   ideal, but the property sometimes changes before the menu bar items
-                    //   are actually updated on-screen. Since the view's drawing process relies
-                    //   on getting an accurate position of each menu bar item, we need to use
-                    //   something that publishes its changes only after the items are updated.
-                    section.controlItem.$onScreenFrame
-                        .receive(on: DispatchQueue.main)
-                        .sink { [weak self] _ in
-                            self?.needsDisplay = true
-                        }
-                        .store(in: &c)
+        // Fade out whenever a menu bar item is being dragged.
+        observers.append(
+            ObservationLoop.observe { appState.isDraggingMenuBarItem } onChange: { [weak self] isDragging in
+                if isDragging {
+                    self?.animator().alphaValue = 0
+                } else {
+                    self?.animator().alphaValue = 1
                 }
             }
+        )
 
-            // Redraw whenever the application menu frame changes.
-            overlayPanel.$applicationMenuFrame
-                .sink { [weak self] _ in
-                    self?.needsDisplay = true
-                }
-                .store(in: &c)
-            // Redraw whenever the desktop wallpaper changes.
-            overlayPanel.$desktopWallpaper
-                .sink { [weak self] _ in
-                    self?.needsDisplay = true
-                }
-                .store(in: &c)
-        }
-
-        // Redraw whenever the configurations change.
-        $fullConfiguration.replace(with: ())
-            .merge(with: $previewConfiguration.replace(with: ()))
-            .sink { [weak self] _ in
+        // Redraw whenever the window frame of a control item changes.
+        //
+        // - NOTE: A previous attempt was made to redraw the view when the
+        //   section's `isHidden` property was changed. This would be semantically
+        //   ideal, but the property sometimes changes before the menu bar items
+        //   are actually updated on-screen. Since the view's drawing process relies
+        //   on getting an accurate position of each menu bar item, we need to use
+        //   something that publishes its changes only after the items are updated.
+        let sections = appState.menuBarManager.sections
+        observers.append(
+            ObservationLoop.observe {
+                sections.map(\.controlItem.onScreenFrame)
+            } onChange: { [weak self] _ in
                 self?.needsDisplay = true
             }
-            .store(in: &c)
+        )
 
-        cancellables = c
+        // The application menu frame and the wallpaper redraw the view from the panel.
     }
 
     /// Returns a path in the given rectangle, with the given end caps,

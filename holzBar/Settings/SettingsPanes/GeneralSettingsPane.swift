@@ -6,8 +6,8 @@
 import SwiftUI
 
 struct GeneralSettingsPane: View {
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var settings: GeneralSettings
+    @Environment(AppState.self) var appState
+    @Bindable var settings: GeneralSettings
     @State private var isImportingCustomHolzBarIcon = false
     @State private var isPresentingError = false
     @State private var presentedError: LocalizedErrorWrapper?

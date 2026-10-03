@@ -6,7 +6,7 @@
 import SwiftUI
 
 struct AboutSettingsPane: View {
-    @EnvironmentObject var appState: AppState
+    @Environment(AppState.self) var appState
     @Environment(\.openURL) private var openURL
     @State private var isShowingAcknowledgements = false
 

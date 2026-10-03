@@ -3,7 +3,6 @@
 //  holzBar
 //
 
-import Combine
 import SwiftUI
 
 // MARK: - Bundle
@@ -598,66 +597,6 @@ extension NSStatusItem {
         }
         self.menu = menu
         button?.performClick(nil)
-    }
-}
-
-// MARK: - Publisher
-
-extension Publisher {
-    /// Replaces each upstream element with an element returned from
-    /// the given closure.
-    ///
-    /// - Parameter output: A closure that returns a new element to
-    ///   publish in place of the upstream element.
-    func replace<T>(_ output: @escaping () -> T) -> Publishers.Map<Self, T> {
-        map { _ in output() }
-    }
-
-    /// Replaces each upstream element with the given element.
-    ///
-    /// - Parameter output: A new element to publish in place of the
-    ///   upstream elements.
-    func replace<T>(with output: T) -> Publishers.Map<Self, T> {
-        replace { output }
-    }
-
-    /// Publishes only non-`nil` elements.
-    func removeNil<T>() -> Publishers.CompactMap<Self, T> where Output == T? {
-        compactMap { $0 }
-    }
-
-    /// Publishes only elements that don't match the previous element.
-    func removeDuplicates<each T: Equatable>() -> Publishers.RemoveDuplicates<Self> where Output == (repeat each T) {
-        removeDuplicates { lhs, rhs in
-            for (left, right) in repeat (each lhs, each rhs) {
-                guard left == right else { return false }
-            }
-            return true
-        }
-    }
-
-    /// Merges this publisher with the given publisher, replacing upstream
-    /// elements with `Void` values.
-    ///
-    /// - Parameter other: Another publisher.
-    func discardMerge<P: Publisher>(_ other: P) -> some Publisher<Void, Failure> where P.Failure == Failure {
-        replace(with: ()).merge(with: other.replace(with: ()))
-    }
-
-    /// Transforms the elements of the upstream sequence into a sequence of
-    /// publishers and merges the results.
-    ///
-    /// - Parameter transform: A closure that takes an element of the upstream
-    ///   sequence as a parameter and returns a publisher.
-    ///
-    /// - Returns: A publisher that emits an event when any upstream publisher
-    ///   emits an event.
-    func mergeMap<P: Publisher>(
-        _ transform: @escaping (Output.Element) -> P
-    ) -> some Publisher<P.Output, P.Failure> where Output: Sequence, Failure == Never {
-        flatMap { sequence in
-            Publishers.MergeMany(sequence.map(transform))
-        }
     }
 }
 

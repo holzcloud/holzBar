@@ -6,8 +6,8 @@
 import SwiftUI
 
 struct PermissionsView: View {
-    @EnvironmentObject var appState: AppState
-    @EnvironmentObject var manager: AppPermissions
+    @Environment(AppState.self) var appState
+    @Environment(AppPermissions.self) var manager
 
     /// The permissions holzBar asks for at the first launch.
     private var launchPermissions: [Permission] {

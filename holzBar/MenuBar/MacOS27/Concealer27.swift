@@ -4,7 +4,7 @@
 //
 
 import Cocoa
-import Combine
+import Observation
 import OSLog
 
 /// Hides menu bar items on macOS 27, where holzBar's expanding dividers no longer work.
@@ -16,25 +16,27 @@ import OSLog
 /// state of holzBar's sections.
 @available(macOS 27.0, *)
 @MainActor
-final class Concealer27: ObservableObject {
-    private let controller = ConcealmentController27(backend: MenuBarAssessmentAssertion27())
-    private let logger = Logger(category: "Concealer27")
-    private weak var appState: AppState?
+@Observable
+final class Concealer27 {
+    @ObservationIgnored private let controller = ConcealmentController27(backend: MenuBarAssessmentAssertion27())
+    @ObservationIgnored private let logger = Logger(category: "Concealer27")
+    @ObservationIgnored private weak var appState: AppState?
     /// Tasks that observe application launches and quits; cancelled with the concealer.
-    private var observerTasks = [Task<Void, Never>]()
-    private var applyTask: Task<Void, Never>?
-    private var suspendedUntil: ContinuousClock.Instant?
+    @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
+    @ObservationIgnored private var applyTask: Task<Void, Never>?
+    @ObservationIgnored private var suspendedUntil: ContinuousClock.Instant?
 
     /// When concealment last changed, which is when the bar last started moving.
-    private var lastChangeAt = ContinuousClock.now
+    @ObservationIgnored private var lastChangeAt = ContinuousClock.now
 
     /// How long MenuBarAgent animates the bar after items are concealed or released
     /// (measured on macOS 27.0: about 250 ms, with a margin here).
     private static let settleAfterChange = Duration.milliseconds(400)
 
     /// Applications shown for a moment, with the number of callers showing each.
-    private var temporarilyShown = [String: Int]()
-    private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private var temporarilyShown = [String: Int]()
+    /// Observers of the active space and the Settings pane.
+    @ObservationIgnored private var observers = [ObservationLoop]()
 
     /// Whether any application is meant to be concealed right now.
     private(set) var isConcealing = false
@@ -67,25 +69,24 @@ final class Concealer27: ObservableObject {
         // Entering or leaving fullscreen swaps the menu bar the items are drawn in, and nothing
         // else here notices: the concealment was left exactly as the previous bar had it, so
         // holzBar's own item was missing from the bar that slides down over a fullscreen window and
-        // there was nothing to click. `HIDEventManager` watches the same publisher, for the same
+        // there was nothing to click. `HIDEventManager` watches the same state, for the same
         // reason, on earlier versions of macOS.
-        appState.$activeSpace
-            .map(\.isFullscreen)
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+        observers.append(
+            ObservationLoop.observe { appState.activeSpace.isFullscreen } onChange: { [weak self] _ in
                 self?.update()
             }
-            .store(in: &cancellables)
+        )
         let navigation = appState.navigationState
-        navigation.$isSettingsPresented
-            .combineLatest(navigation.$settingsNavigationIdentifier)
-            .removeDuplicates { $0.0 == $1.0 && $0.1 == $1.1 }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
+        observers.append(
+            ObservationLoop.observe { navigation.isSettingsPresented } onChange: { [weak self] _ in
                 self?.update()
             }
-            .store(in: &cancellables)
+        )
+        observers.append(
+            ObservationLoop.observe { navigation.settingsNavigationIdentifier } onChange: { [weak self] _ in
+                self?.update()
+            }
+        )
         update()
     }
 
@@ -152,7 +153,7 @@ final class Concealer27: ObservableObject {
     /// Settings shows this; nothing acts on it. The cure measured so far is to relaunch the
     /// application whose item is missing, and which application that is cannot be told apart
     /// from the frames Accessibility keeps for items it no longer draws.
-    @Published private(set) var isOverflowStuck = false
+    private(set) var isOverflowStuck = false
 
     /// Notes whether concealment has left the notched bar's items folded with no overflow button.
     ///

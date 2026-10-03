@@ -3,7 +3,7 @@
 //  holzBar
 //
 
-import Combine
+import Observation
 import OSLog
 import SwiftUI
 
@@ -11,35 +11,72 @@ import SwiftUI
 
 /// Model for the app's General settings.
 @MainActor
-final class GeneralSettings: ObservableObject {
+@Observable
+final class GeneralSettings {
     /// A Boolean value that indicates whether the holzBar icon
     /// should be shown.
-    @Published var showHolzBarIcon = true
+    var showHolzBarIcon = true {
+        didSet {
+            Defaults.set(showHolzBarIcon, forKey: .showHolzBarIcon)
+        }
+    }
 
     /// An icon to show in the menu bar, with a different image
     /// for when items are visible or hidden.
-    @Published var holzBarIcon: ControlItemImageSet = .defaultHolzBarIcon
+    var holzBarIcon: ControlItemImageSet = .defaultHolzBarIcon {
+        didSet {
+            if case .custom = holzBarIcon.name {
+                lastCustomHolzBarIcon = holzBarIcon
+            }
+            do {
+                let data = try encoder.encode(holzBarIcon)
+                Defaults.set(data, forKey: .holzBarIcon)
+            } catch {
+                Logger.serialization.error("Error encoding holzBar icon: \(error, privacy: .private)")
+            }
+        }
+    }
 
     /// The last user-selected custom holzBar icon.
-    @Published var lastCustomHolzBarIcon: ControlItemImageSet?
+    var lastCustomHolzBarIcon: ControlItemImageSet?
 
     /// A Boolean value that indicates whether custom holzBar icons
     /// should be rendered as template images.
-    @Published var customHolzBarIconIsTemplate = false
+    var customHolzBarIconIsTemplate = false {
+        didSet {
+            Defaults.set(customHolzBarIconIsTemplate, forKey: .customHolzBarIconIsTemplate)
+        }
+    }
 
     /// A Boolean value that indicates whether to show hidden items
     /// in a separate bar below the menu bar.
-    @Published var useShelf = false
+    var useShelf = false {
+        didSet {
+            Defaults.set(useShelf, forKey: .useShelf)
+        }
+    }
 
     /// The location where the holzBar Shelf appears.
-    @Published var shelfLocation: HolzBarShelfLocation = .dynamic
+    var shelfLocation: HolzBarShelfLocation = .dynamic {
+        didSet {
+            Defaults.set(shelfLocation.rawValue, forKey: .shelfLocation)
+        }
+    }
 
     /// The displays the holzBar Shelf is used on.
-    @Published var shelfDisplays: HolzBarShelfDisplays = .all
+    var shelfDisplays: HolzBarShelfDisplays = .all {
+        didSet {
+            Defaults.set(shelfDisplays.rawValue, forKey: .shelfDisplays)
+        }
+    }
 
     /// A Boolean value that indicates whether the holzBar Shelf also shows the
     /// visible items that the notch covers.
-    @Published var showsNotchOverflowInShelf = true
+    var showsNotchOverflowInShelf = true {
+        didSet {
+            Defaults.set(showsNotchOverflowInShelf, forKey: .showsNotchOverflowInShelf)
+        }
+    }
 
     /// A Boolean value that indicates whether the holzBar Shelf is used right now:
     /// it is turned on, and the display under the mouse pointer is one it is
@@ -51,49 +88,77 @@ final class GeneralSettings: ObservableObject {
     /// A Boolean value that indicates whether the hidden section
     /// should be shown when the mouse pointer clicks in an empty
     /// area of the menu bar.
-    @Published var showOnClick = true
+    var showOnClick = true {
+        didSet {
+            Defaults.set(showOnClick, forKey: .showOnClick)
+        }
+    }
 
     /// A Boolean value that indicates whether the hidden section
     /// should be shown when the mouse pointer hovers over an
     /// empty area of the menu bar.
-    @Published var showOnHover = false
+    var showOnHover = false {
+        didSet {
+            Defaults.set(showOnHover, forKey: .showOnHover)
+        }
+    }
 
     /// A Boolean value that indicates whether the hidden section
     /// should be shown or hidden when the user scrolls in the
     /// menu bar.
-    @Published var showOnScroll = true
+    var showOnScroll = true {
+        didSet {
+            Defaults.set(showOnScroll, forKey: .showOnScroll)
+        }
+    }
 
     /// The offset to apply to the menu bar item spacing and padding.
-    @Published var itemSpacingOffset: Double = 0
+    var itemSpacingOffset: Double = 0 {
+        didSet {
+            Defaults.set(itemSpacingOffset, forKey: .itemSpacingOffset)
+            appState?.spacingManager.offset = Int(itemSpacingOffset)
+        }
+    }
 
     /// A Boolean value that indicates whether the hidden section
     /// should automatically rehide.
-    @Published var autoRehide = true
+    var autoRehide = true {
+        didSet {
+            Defaults.set(autoRehide, forKey: .autoRehide)
+        }
+    }
 
     /// A strategy that determines how the auto-rehide feature works.
-    @Published var rehideStrategy: RehideStrategy = .smart
+    var rehideStrategy: RehideStrategy = .smart {
+        didSet {
+            Defaults.set(rehideStrategy.rawValue, forKey: .rehideStrategy)
+        }
+    }
 
     /// A time interval for the auto-rehide feature when its rule
     /// is ``RehideStrategy/timed``.
-    @Published var rehideInterval: TimeInterval = 15
+    var rehideInterval: TimeInterval = 15 {
+        didSet {
+            Defaults.set(rehideInterval, forKey: .rehideInterval)
+        }
+    }
 
     /// Encoder for properties.
-    private let encoder = JSONEncoder()
+    @ObservationIgnored private let encoder = JSONEncoder()
 
     /// Decoder for properties.
-    private let decoder = JSONDecoder()
-
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    @ObservationIgnored private let decoder = JSONDecoder()
 
     /// The shared app state.
-    private(set) weak var appState: AppState?
+    @ObservationIgnored private(set) weak var appState: AppState?
 
     /// Performs the initial setup of the model.
+    ///
+    /// Each setting saves itself in its `didSet`; loading assigns the stored values.
     func performSetup(with appState: AppState) {
         self.appState = appState
         loadInitialState()
-        configureCancellables()
+        appState.spacingManager.offset = Int(itemSpacingOffset)
     }
 
     /// Loads the model's initial state.
@@ -135,123 +200,6 @@ final class GeneralSettings: ObservableObject {
                 lastCustomHolzBarIcon = holzBarIcon
             }
         }
-    }
-
-    /// Configures the internal observers for the model.
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
-        $showHolzBarIcon
-            .receive(on: DispatchQueue.main)
-            .sink { showHolzBarIcon in
-                Defaults.set(showHolzBarIcon, forKey: .showHolzBarIcon)
-            }
-            .store(in: &c)
-
-        $holzBarIcon
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] holzBarIcon in
-                guard let self else {
-                    return
-                }
-                if case .custom = holzBarIcon.name {
-                    lastCustomHolzBarIcon = holzBarIcon
-                }
-                do {
-                    let data = try encoder.encode(holzBarIcon)
-                    Defaults.set(data, forKey: .holzBarIcon)
-                } catch {
-                    Logger.serialization.error("Error encoding holzBar icon: \(error, privacy: .private)")
-                }
-            }
-            .store(in: &c)
-
-        $customHolzBarIconIsTemplate
-            .receive(on: DispatchQueue.main)
-            .sink { isTemplate in
-                Defaults.set(isTemplate, forKey: .customHolzBarIconIsTemplate)
-            }
-            .store(in: &c)
-
-        $useShelf
-            .receive(on: DispatchQueue.main)
-            .sink { useShelf in
-                Defaults.set(useShelf, forKey: .useShelf)
-            }
-            .store(in: &c)
-
-        $shelfLocation
-            .receive(on: DispatchQueue.main)
-            .sink { location in
-                Defaults.set(location.rawValue, forKey: .shelfLocation)
-            }
-            .store(in: &c)
-
-        $showsNotchOverflowInShelf
-            .receive(on: DispatchQueue.main)
-            .sink { shows in
-                Defaults.set(shows, forKey: .showsNotchOverflowInShelf)
-            }
-            .store(in: &c)
-
-        $shelfDisplays
-            .receive(on: DispatchQueue.main)
-            .sink { displays in
-                Defaults.set(displays.rawValue, forKey: .shelfDisplays)
-            }
-            .store(in: &c)
-
-        $showOnClick
-            .receive(on: DispatchQueue.main)
-            .sink { showOnClick in
-                Defaults.set(showOnClick, forKey: .showOnClick)
-            }
-            .store(in: &c)
-
-        $showOnHover
-            .receive(on: DispatchQueue.main)
-            .sink { showOnHover in
-                Defaults.set(showOnHover, forKey: .showOnHover)
-            }
-            .store(in: &c)
-
-        $showOnScroll
-            .receive(on: DispatchQueue.main)
-            .sink { showOnScroll in
-                Defaults.set(showOnScroll, forKey: .showOnScroll)
-            }
-            .store(in: &c)
-
-        $itemSpacingOffset
-            .receive(on: DispatchQueue.main)
-            .sink { [weak appState] offset in
-                Defaults.set(offset, forKey: .itemSpacingOffset)
-                appState?.spacingManager.offset = Int(offset)
-            }
-            .store(in: &c)
-
-        $autoRehide
-            .receive(on: DispatchQueue.main)
-            .sink { autoRehide in
-                Defaults.set(autoRehide, forKey: .autoRehide)
-            }
-            .store(in: &c)
-
-        $rehideStrategy
-            .receive(on: DispatchQueue.main)
-            .sink { strategy in
-                Defaults.set(strategy.rawValue, forKey: .rehideStrategy)
-            }
-            .store(in: &c)
-
-        $rehideInterval
-            .receive(on: DispatchQueue.main)
-            .sink { interval in
-                Defaults.set(interval, forKey: .rehideInterval)
-            }
-            .store(in: &c)
-
-        cancellables = c
     }
 }
 

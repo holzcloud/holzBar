@@ -3,47 +3,40 @@
 //  holzBar
 //
 
-import Combine
 import SwiftUI
 
 private struct LocalEventMonitorModifier: ViewModifier {
+    /// Owns the monitor; the monitor removes itself when the model is released.
     @MainActor
-    private final class Model: ObservableObject {
-        @Published var isEnabled = false
+    @Observable
+    private final class Model {
+        @ObservationIgnored private let monitor: EventMonitor
 
-        private let monitor: EventMonitor
-        private var cancellable: AnyCancellable?
-
-        init(mask: NSEvent.EventTypeMask, action: @escaping (NSEvent) -> NSEvent?) {
+        init(mask: NSEvent.EventTypeMask, action: @escaping @MainActor (NSEvent) -> NSEvent?) {
             self.monitor = EventMonitor.local(for: mask, handler: action)
-            self.cancellable = $isEnabled.receive(on: DispatchQueue.main).sink { [weak self] isEnabled in
-                guard let self else {
-                    return
-                }
-                if isEnabled {
-                    monitor.start()
-                } else {
-                    monitor.stop()
-                }
-            }
         }
 
-        deinit {
-            monitor.stop()
+        /// Starts or stops the monitor.
+        func setEnabled(_ isEnabled: Bool) {
+            if isEnabled {
+                monitor.start()
+            } else {
+                monitor.stop()
+            }
         }
     }
 
-    @StateObject private var model: Model
+    @State private var model: Model
     @Binding var isEnabled: Bool
 
-    init(mask: NSEvent.EventTypeMask, isEnabled: Binding<Bool>, action: @escaping (NSEvent) -> NSEvent?) {
-        self._model = StateObject(wrappedValue: Model(mask: mask, action: action))
+    init(mask: NSEvent.EventTypeMask, isEnabled: Binding<Bool>, action: @escaping @MainActor (NSEvent) -> NSEvent?) {
+        self._model = State(wrappedValue: Model(mask: mask, action: action))
         self._isEnabled = isEnabled
     }
 
     func body(content: Content) -> some View {
         content.onChange(of: isEnabled, initial: true) { _, newValue in
-            model.isEnabled = newValue
+            model.setEnabled(newValue)
         }
     }
 }
@@ -58,7 +51,11 @@ extension View {
     ///     is enabled.
     ///   - action: An action to perform when the event monitor receives events
     ///     corresponding to `mask`.
-    func localEventMonitor(mask: NSEvent.EventTypeMask, isEnabled: Bool = true, action: @escaping (NSEvent) -> NSEvent?) -> some View {
+    func localEventMonitor(
+        mask: NSEvent.EventTypeMask,
+        isEnabled: Bool = true,
+        action: @escaping @MainActor (NSEvent) -> NSEvent?
+    ) -> some View {
         modifier(LocalEventMonitorModifier(mask: mask, isEnabled: .constant(isEnabled), action: action))
     }
 }

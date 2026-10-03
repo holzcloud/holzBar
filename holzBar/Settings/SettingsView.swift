@@ -6,8 +6,8 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var navigationState: AppNavigationState
+    @Environment(AppState.self) var appState
+    @Bindable var navigationState: AppNavigationState
     @Environment(\.appearsActive) private var appearsActive
     @Environment(\.sidebarRowSize) private var sidebarRowSize
 

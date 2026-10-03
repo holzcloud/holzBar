@@ -3,13 +3,14 @@
 //  holzBar
 //
 
-import Combine
 import Foundation
+import Observation
 import OSLog
 
 /// A type that manages the permissions of the app.
 @MainActor
-final class AppPermissions: ObservableObject {
+@Observable
+final class AppPermissions {
     /// Keys to access individual permissions.
     enum PermissionKey {
         case accessibility
@@ -24,7 +25,7 @@ final class AppPermissions: ObservableObject {
     }
 
     /// The manager's logger.
-    let logger = Logger(category: "Permissions")
+    @ObservationIgnored let logger = Logger(category: "Permissions")
 
     /// The permission for Accessibility features.
     let accessibility = AccessibilityPermission()
@@ -33,10 +34,10 @@ final class AppPermissions: ObservableObject {
     let screenRecording = ScreenRecordingPermission()
 
     /// The state of the app's granted permissions.
-    @Published private(set) var permissionsState: PermissionsState = .missing
+    private(set) var permissionsState: PermissionsState = .missing
 
-    /// Storage for internal observers.
-    private var cancellable: AnyCancellable?
+    /// Observes the permissions to update ``permissionsState``.
+    @ObservationIgnored private var observer: ObservationLoop?
 
     /// The permissions required for full app functionality.
     var allPermissions: [Permission] {
@@ -51,21 +52,26 @@ final class AppPermissions: ObservableObject {
     /// Creates a new permissions manager.
     init() {
         self.updatePermissionsState()
-        self.cancellable = Publishers.MergeMany(allPermissions.map { $0.$hasPermission })
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.updatePermissionsState()
-            }
+        let permissions = allPermissions
+        self.observer = ObservationLoop.observe {
+            permissions.map(\.hasPermission)
+        } onChange: { [weak self] _ in
+            self?.updatePermissionsState()
+        }
     }
 
     /// Updates the current permissions state.
     private func updatePermissionsState() {
+        let state: PermissionsState
         if allPermissions.allSatisfy({ $0.hasPermission }) {
-            permissionsState = .hasAll
+            state = .hasAll
         } else if requiredPermissions.allSatisfy({ $0.hasPermission }) {
-            permissionsState = .hasRequired
+            state = .hasRequired
         } else {
-            permissionsState = .missing
+            state = .missing
+        }
+        if permissionsState != state {
+            permissionsState = state
         }
     }
 

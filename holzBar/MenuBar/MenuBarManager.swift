@@ -3,52 +3,56 @@
 //  holzBar
 //
 
-import Combine
+import Observation
 import OSLog
 import SwiftUI
 
 /// Manager for the state of the menu bar.
 @MainActor
-final class MenuBarManager: ObservableObject {
+@Observable
+final class MenuBarManager {
     /// Information for the menu bar's average color.
-    @Published private(set) var averageColorInfo: MenuBarAverageColorInfo?
+    private(set) var averageColorInfo: MenuBarAverageColorInfo?
 
     /// A Boolean value that indicates whether the menu bar is either always hidden
     /// by the system, or automatically hidden and shown by the system based on the
     /// location of the mouse.
-    @Published private(set) var isMenuBarHiddenBySystem = false
+    private(set) var isMenuBarHiddenBySystem = false
 
     /// A Boolean value that indicates whether the menu bar is hidden by the system
     /// according to a value stored in UserDefaults.
-    @Published private(set) var isMenuBarHiddenBySystemUserDefaults = false
+    private(set) var isMenuBarHiddenBySystemUserDefaults = false
 
     /// A Boolean value that indicates whether the "ShowOnHover" feature is allowed.
-    @Published var showOnHoverAllowed = true
-
-    /// Reference to the settings window.
-    @Published private var settingsWindow: NSWindow?
+    var showOnHoverAllowed = true
 
     /// Logger for the menu bar manager.
-    private let logger = Logger(category: "MenuBarManager")
+    @ObservationIgnored private let logger = Logger(category: "MenuBarManager")
 
     /// The shared app state.
-    private weak var appState: AppState?
+    @ObservationIgnored private weak var appState: AppState?
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Observers of other models.
+    @ObservationIgnored private var observers = [ObservationLoop]()
+
+    /// Key-value observers of the system.
+    @ObservationIgnored private var keyValueObservations = [NSKeyValueObservation]()
+
+    /// Updates the average colour while the Settings window is visible.
+    @ObservationIgnored private var averageColorTask: Task<Void, Never>?
 
     /// A Boolean value that indicates whether the application menus are hidden.
-    private var isHidingApplicationMenus = false
+    @ObservationIgnored private var isHidingApplicationMenus = false
 
     /// The panel that contains the holzBar Shelf interface.
     let shelfPanel = HolzBarShelfPanel()
 
     /// Whether the search panel was created before the setup, which then sets it up.
-    private var searchPanelNeedsSetup = false
+    @ObservationIgnored private var searchPanelNeedsSetup = false
 
     /// The panel that contains the menu bar search interface, created and set up the
     /// first time it is used.
-    private(set) lazy var searchPanel: MenuBarSearchPanel = {
+    @ObservationIgnored private(set) lazy var searchPanel: MenuBarSearchPanel = {
         let panel = MenuBarSearchPanel()
         if let appState = self.appState {
             panel.performSetup(with: appState)
@@ -78,7 +82,7 @@ final class MenuBarManager: ObservableObject {
     /// Performs the initial setup of the menu bar manager.
     func performSetup(with appState: AppState) {
         self.appState = appState
-        configureCancellables()
+        configureObservers()
         shelfPanel.performSetup(with: appState)
         if searchPanelNeedsSetup {
             searchPanelNeedsSetup = false
@@ -91,182 +95,201 @@ final class MenuBarManager: ObservableObject {
     }
 
     /// Configures the internal observers for the manager.
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
-        NSApp.publisher(for: \.currentSystemPresentationOptions)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] options in
-                guard let self else {
-                    return
+    private func configureObservers() {
+        keyValueObservations.append(
+            NSApp.observe(\.currentSystemPresentationOptions, options: [.initial, .new]) { [weak self] _, _ in
+                Task { @MainActor in
+                    guard let self else {
+                        return
+                    }
+                    let options = NSApp.currentSystemPresentationOptions
+                    let hidden = options.contains(.hideMenuBar) || options.contains(.autoHideMenuBar)
+                    if isMenuBarHiddenBySystem != hidden {
+                        isMenuBarHiddenBySystem = hidden
+                    }
                 }
-                let hidden = options.contains(.hideMenuBar) || options.contains(.autoHideMenuBar)
-                isMenuBarHiddenBySystem = hidden
             }
-            .store(in: &c)
+        )
 
         if
             let hiddenSection = section(withName: .alwaysHidden),
             let window = hiddenSection.controlItem.window
         {
-            window.publisher(for: \.frame)
-                .map { $0.origin.y }
-                .removeDuplicates()
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] _ in
-                    guard
-                        let self,
-                        let isMenuBarHidden = Defaults.globalDomain["_HIHideMenuBar"] as? Bool
-                    else {
-                        return
+            keyValueObservations.append(
+                window.observe(\.frame, options: [.initial, .new]) { [weak self] window, _ in
+                    Task { @MainActor in
+                        self?.menuBarWindowFrameDidChange(originY: window.frame.origin.y)
                     }
-                    isMenuBarHiddenBySystemUserDefaults = isMenuBarHidden
                 }
-                .store(in: &c)
+            )
         }
 
         // Handle the `focusedApp` rehide strategy.
-        NSWorkspace.shared.publisher(for: \.frontmostApplication)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                if
-                    let self,
-                    let appState,
-                    case .focusedApp = appState.settings.general.rehideStrategy,
-                    let hiddenSection = section(withName: .hidden),
-                    let screen = appState.hidEventManager.bestScreen(appState: appState),
-                    !appState.hidEventManager.isMouseInsideMenuBar(appState: appState, screen: screen)
-                {
-                    Task {
-                        try await Task.sleep(for: .seconds(0.1))
-                        hiddenSection.hide()
-                    }
+        keyValueObservations.append(
+            NSWorkspace.shared.observe(\.frontmostApplication, options: [.new]) { [weak self] _, _ in
+                Task { @MainActor in
+                    self?.frontmostApplicationDidChange()
                 }
             }
-            .store(in: &c)
-
-        appState?.publisherForWindow(.settings)
-            .sink { [weak self] window in
-                self?.settingsWindow = window
-            }
-            .store(in: &c)
+        )
 
         // The average colour is shown only in Settings, so it is updated every
         // 5 seconds only while the Settings window is visible (and once when it shows).
-        $settingsWindow
-            .removeNil()
-            .flatMap { $0.publisher(for: \.isVisible) }
-            .removeDuplicates()
-            .map { isVisible -> AnyPublisher<Void, Never> in
-                guard isVisible else {
-                    return Empty().eraseToAnyPublisher()
+        if let navigationState = appState?.navigationState {
+            observers.append(
+                ObservationLoop.observe { navigationState.isSettingsPresented } onChange: { [weak self] isVisible in
+                    self?.updateAverageColorTimer(isSettingsVisible: isVisible)
                 }
-                return Timer.publish(every: 5, tolerance: 1, on: .main, in: .default)
-                    .autoconnect()
-                    .replace(with: ())
-                    .prepend(())
-                    .eraseToAnyPublisher()
-            }
-            .switchToLatest()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
-                self?.updateAverageColorInfo()
-            }
-            .store(in: &c)
+            )
+            updateAverageColorTimer(isSettingsVisible: navigationState.isSettingsPresented)
+        }
 
         // Hide application menus when a section is shown (if applicable).
-        Publishers.MergeMany(sections.map { $0.controlItem.$state })
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self, let appState else {
+        observers.append(
+            ObservationLoop.observe { [sections] in
+                sections.map(\.controlItem.state)
+            } onChange: { [weak self] _ in
+                self?.sectionStatesDidChange()
+            }
+        )
+    }
+
+    /// The last origin of the always-hidden divider's window, so that only a move counts.
+    @ObservationIgnored private var lastMenuBarWindowOriginY: CGFloat?
+
+    /// Reads the system's menu bar hiding default again when the divider's window moves.
+    private func menuBarWindowFrameDidChange(originY: CGFloat) {
+        guard originY != lastMenuBarWindowOriginY else {
+            return
+        }
+        lastMenuBarWindowOriginY = originY
+        guard let isMenuBarHidden = Defaults.globalDomain["_HIHideMenuBar"] as? Bool else {
+            return
+        }
+        if isMenuBarHiddenBySystemUserDefaults != isMenuBarHidden {
+            isMenuBarHiddenBySystemUserDefaults = isMenuBarHidden
+        }
+    }
+
+    /// Rehides the hidden section when the focused application changes, with the
+    /// `focusedApp` rehide strategy.
+    private func frontmostApplicationDidChange() {
+        if
+            let appState,
+            case .focusedApp = appState.settings.general.rehideStrategy,
+            let hiddenSection = section(withName: .hidden),
+            let screen = appState.hidEventManager.bestScreen(appState: appState),
+            !appState.hidEventManager.isMouseInsideMenuBar(appState: appState, screen: screen)
+        {
+            Task {
+                try await Task.sleep(for: .seconds(0.1))
+                hiddenSection.hide()
+            }
+        }
+    }
+
+    /// Starts or stops the 5 s average colour update with the Settings window's visibility.
+    private func updateAverageColorTimer(isSettingsVisible: Bool) {
+        averageColorTask?.cancel()
+        averageColorTask = nil
+        guard isSettingsVisible else {
+            return
+        }
+        averageColorTask = Task { [weak self] in
+            while !Task.isCancelled {
+                self?.updateAverageColorInfo()
+                try? await Task.sleep(for: .seconds(5), tolerance: .seconds(1))
+            }
+        }
+    }
+
+    /// Hides or shows the application menus after a section was shown or hidden.
+    private func sectionStatesDidChange() {
+        guard let appState else {
+            return
+        }
+
+        // macOS 27 folds the items that do not fit behind its own overflow button,
+        // so shown items never cover the application menus. Activating holzBar there only
+        // took keyboard focus from the frontmost application (measured).
+        if #available(macOS 27.0, *) {
+            return
+        }
+
+        // Don't continue if:
+        //   * The "HideApplicationMenus" setting isn't enabled.
+        //   * Using the holzBar Shelf.
+        //   * The menu bar is hidden by the system.
+        //   * The active space is fullscreen.
+        //   * The settings window is visible.
+        guard
+            appState.settings.advanced.hideApplicationMenus,
+            !appState.settings.general.usesShelf,
+            !isMenuBarHiddenBySystem,
+            !appState.activeSpace.isFullscreen,
+            !appState.navigationState.isSettingsPresented
+        else {
+            return
+        }
+
+        if sections.contains(where: { $0.controlItem.state == .showSection }) {
+            guard let screen = NSScreen.main else {
+                return
+            }
+
+            // Get the application menu frame for the display.
+            guard let applicationMenuFrame = screen.getApplicationMenuFrame() else {
+                return
+            }
+
+            Task {
+                // Get all items.
+                var items = await MenuBarItem.getMenuBarItems(on: screen.displayID, option: .activeSpace)
+
+                // Filter the items down according to the currently enabled/shown sections.
+                if
+                    let alwaysHiddenSection = self.section(withName: .alwaysHidden),
+                    alwaysHiddenSection.isEnabled
+                {
+                    if alwaysHiddenSection.controlItem.state == .hideSection {
+                        if let alwaysHiddenControlItem = items.firstIndex(matching: .alwaysHiddenControlItem).map({ items.remove(at: $0) }) {
+                            items.trimPrefix { $0.bounds.maxX <= alwaysHiddenControlItem.bounds.minX }
+                        }
+                    }
+                } else {
+                    if let hiddenControlItem = items.firstIndex(matching: .hiddenControlItem).map({ items.remove(at: $0) }) {
+                        // Only while the hidden section is hidden are its items off
+                        // the screen. Shown, they are the very items that may cover
+                        // the application menus, and dropping them meant the menus
+                        // were only ever hidden with the always-hidden section on
+                        // (jordanbaird/Ice#434).
+                        if self.section(withName: .hidden)?.controlItem.state == .hideSection {
+                            items.trimPrefix { $0.bounds.maxX <= hiddenControlItem.bounds.minX }
+                        }
+                    }
+                }
+
+                // Get the leftmost item on the screen.
+                guard let leftmostItem = items.min(by: { $0.bounds.minX < $1.bounds.minX }) else {
                     return
                 }
 
-                // macOS 27 folds the items that do not fit behind its own overflow button,
-                // so shown items never cover the application menus. Activating holzBar there only
-                // took keyboard focus from the frontmost application (measured).
-                if #available(macOS 27.0, *) {
-                    return
-                }
-
-                // Don't continue if:
-                //   * The "HideApplicationMenus" setting isn't enabled.
-                //   * Using the holzBar Shelf.
-                //   * The menu bar is hidden by the system.
-                //   * The active space is fullscreen.
-                //   * The settings window is visible.
-                guard
-                    appState.settings.advanced.hideApplicationMenus,
-                    !appState.settings.general.usesShelf,
-                    !isMenuBarHiddenBySystem,
-                    !appState.activeSpace.isFullscreen,
-                    !appState.navigationState.isSettingsPresented
-                else {
-                    return
-                }
-
-                if sections.contains(where: { $0.controlItem.state == .showSection }) {
-                    guard let screen = NSScreen.main else {
-                        return
-                    }
-
-                    // Get the application menu frame for the display.
-                    guard let applicationMenuFrame = screen.getApplicationMenuFrame() else {
-                        return
-                    }
-
-                    Task {
-                        // Get all items.
-                        var items = await MenuBarItem.getMenuBarItems(on: screen.displayID, option: .activeSpace)
-
-                        // Filter the items down according to the currently enabled/shown sections.
-                        if
-                            let alwaysHiddenSection = self.section(withName: .alwaysHidden),
-                            alwaysHiddenSection.isEnabled
-                        {
-                            if alwaysHiddenSection.controlItem.state == .hideSection {
-                                if let alwaysHiddenControlItem = items.firstIndex(matching: .alwaysHiddenControlItem).map({ items.remove(at: $0) }) {
-                                    items.trimPrefix { $0.bounds.maxX <= alwaysHiddenControlItem.bounds.minX }
-                                }
-                            }
-                        } else {
-                            if let hiddenControlItem = items.firstIndex(matching: .hiddenControlItem).map({ items.remove(at: $0) }) {
-                                // Only while the hidden section is hidden are its items off
-                                // the screen. Shown, they are the very items that may cover
-                                // the application menus, and dropping them meant the menus
-                                // were only ever hidden with the always-hidden section on
-                                // (jordanbaird/Ice#434).
-                                if self.section(withName: .hidden)?.controlItem.state == .hideSection {
-                                    items.trimPrefix { $0.bounds.maxX <= hiddenControlItem.bounds.minX }
-                                }
-                            }
-                        }
-
-                        // Get the leftmost item on the screen.
-                        guard let leftmostItem = items.min(by: { $0.bounds.minX < $1.bounds.minX }) else {
-                            return
-                        }
-
-                        // If the minX of the item is less than or equal to the maxX of the
-                        // application menu frame, activate the app to hide the menu.
-                        if leftmostItem.bounds.minX <= applicationMenuFrame.maxX {
-                            self.hideApplicationMenus()
-                        }
-                    }
-                } else if isHidingApplicationMenus {
-                    showApplicationMenus()
+                // If the minX of the item is less than or equal to the maxX of the
+                // application menu frame, activate the app to hide the menu.
+                if leftmostItem.bounds.minX <= applicationMenuFrame.maxX {
+                    self.hideApplicationMenus()
                 }
             }
-            .store(in: &c)
-
-        cancellables = c
+        } else if isHidingApplicationMenus {
+            showApplicationMenus()
+        }
     }
 
     /// Updates the ``averageColorInfo`` property with the current average color
     /// of the menu bar.
     func updateAverageColorInfo() {
         guard
-            let settingsWindow,
+            let settingsWindow = appState?.navigationState.settingsWindow,
             settingsWindow.isVisible,
             let screen = settingsWindow.screen
         else {

@@ -6,8 +6,8 @@
 import SwiftUI
 
 struct MenuBarLayoutSettingsPane: View {
-    @EnvironmentObject var appState: AppState
-    @ObservedObject var itemManager: MenuBarItemManager
+    @Environment(AppState.self) var appState
+    var itemManager: MenuBarItemManager
 
     private var hasItems: Bool {
         !itemManager.itemCache.managedItems.isEmpty
@@ -120,7 +120,7 @@ struct MenuBarLayoutSettingsPane: View {
 /// is missing cannot be told from them.
 @available(macOS 27.0, *)
 private struct StuckOverflowWarning: View {
-    @ObservedObject var concealer: Concealer27
+    var concealer: Concealer27
 
     var body: some View {
         if concealer.isOverflowStuck {
@@ -145,7 +145,7 @@ private struct StuckOverflowWarning: View {
 /// Saves the current layout as a profile and applies saved ones
 /// (jordanbaird/Ice#26).
 private struct LayoutProfilesSection: View {
-    @ObservedObject var profiles: LayoutProfiles
+    var profiles: LayoutProfiles
     @State private var isNamingProfile = false
     @State private var newProfileName = ""
 
@@ -196,8 +196,8 @@ private struct LayoutProfilesSection: View {
 
 /// Creates groups of items behind icons of their own (jordanbaird/Ice#46).
 private struct ItemGroupsSection: View {
-    @ObservedObject var groups: MenuBarItemGroups
-    @ObservedObject var itemManager: MenuBarItemManager
+    var groups: MenuBarItemGroups
+    var itemManager: MenuBarItemManager
     @State private var isNamingGroup = false
     @State private var newGroupName = ""
 
@@ -263,7 +263,7 @@ private struct ItemGroupsSection: View {
 
 /// Adds empty items that make space between others (jordanbaird/Ice#91).
 private struct SpacersSection: View {
-    @ObservedObject var spacers: MenuBarSpacers
+    @Bindable var spacers: MenuBarSpacers
 
     var body: some View {
         HolzBarSection("Spacers") {

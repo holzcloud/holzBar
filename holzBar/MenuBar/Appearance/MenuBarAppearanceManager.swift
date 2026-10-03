@@ -4,35 +4,60 @@
 //
 
 import Cocoa
-import Combine
+import Observation
 import OSLog
 
 /// A manager for the appearance of the menu bar.
 @MainActor
-final class MenuBarAppearanceManager: ObservableObject {
+@Observable
+final class MenuBarAppearanceManager {
     /// The current menu bar appearance configuration.
-    @Published var configuration: MenuBarAppearanceConfigurationV2 = .defaultConfiguration
+    var configuration: MenuBarAppearanceConfigurationV2 = .defaultConfiguration {
+        didSet {
+            do {
+                let data = try encoder.encode(configuration)
+                Defaults.set(data, forKey: .menuBarAppearanceConfigurationV2)
+            } catch {
+                Logger.serialization.error("Error encoding menu bar appearance configuration: \(error, privacy: .private)")
+            }
+            // The overlay panels may not have been configured yet. Since some of the
+            // properties on the manager might call for them, try to configure now
+            // (at most every 0.1 s, with the latest configuration).
+            configurationThrottle.throttle(latest: true) { [weak self] in
+                guard let self, overlayPanels.isEmpty else {
+                    return
+                }
+                configureOverlayPanels(with: configuration)
+            }
+        }
+    }
 
     /// The currently previewed partial configuration.
-    @Published var previewConfiguration: MenuBarAppearancePartialConfiguration?
+    var previewConfiguration: MenuBarAppearancePartialConfiguration?
 
     /// The shared app state.
-    private weak var appState: AppState?
+    @ObservationIgnored private weak var appState: AppState?
 
     /// Encoder for UserDefaults values.
-    private let encoder = JSONEncoder()
+    @ObservationIgnored private let encoder = JSONEncoder()
 
     /// Decoder for UserDefaults values.
-    private let decoder = JSONDecoder()
+    @ObservationIgnored private let decoder = JSONDecoder()
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Rebuilds the overlay panels 0.1 s after the screens stop changing.
+    @ObservationIgnored private let screenParametersDebouncer = Debouncer(delay: .milliseconds(100))
+
+    /// Configures the overlay panels at most every 0.1 s when the configuration changes.
+    @ObservationIgnored private let configurationThrottle = Debouncer(delay: .milliseconds(100))
+
+    /// The task that follows screen parameter changes.
+    @ObservationIgnored private var screenParametersTask: Task<Void, Never>?
 
     /// The currently managed menu bar overlay panels.
-    private(set) var overlayPanels = Set<MenuBarOverlayPanel>()
+    @ObservationIgnored private(set) var overlayPanels = Set<MenuBarOverlayPanel>()
 
     /// The rounded screen corners.
-    private let screenCorners = ScreenCorners()
+    @ObservationIgnored private let screenCorners = ScreenCorners()
 
     /// The amount to inset the menu bar if called for by the configuration.
     let menuBarInsetAmount: CGFloat = if #available(macOS 26.0, *) { 3.5 } else { 5 }
@@ -41,7 +66,10 @@ final class MenuBarAppearanceManager: ObservableObject {
     func performSetup(with appState: AppState) {
         self.appState = appState
         loadInitialState()
-        configureCancellables()
+        configureObservers()
+        if overlayPanels.isEmpty {
+            configureOverlayPanels(with: configuration)
+        }
         screenCorners.performSetup(with: self)
     }
 
@@ -57,52 +85,25 @@ final class MenuBarAppearanceManager: ObservableObject {
     }
 
     /// Configures the internal observers for the manager.
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
-        NotificationCenter.default
-            .publisher(for: NSApplication.didChangeScreenParametersNotification)
-            .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .sink { [weak self] _ in
-                guard let self else {
-                    return
-                }
-                while let panel = overlayPanels.popFirst() {
-                    panel.orderOut(self)
-                }
-                if Set(overlayPanels.map { $0.owningScreen }) != Set(NSScreen.screens) {
-                    configureOverlayPanels(with: configuration)
+    private func configureObservers() {
+        screenParametersTask = Task { [weak self] in
+            let center = NotificationCenter.default
+            for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+                self?.screenParametersDebouncer.schedule { [weak self] in
+                    self?.screenParametersDidChange()
                 }
             }
-            .store(in: &c)
+        }
+    }
 
-        $configuration
-            .encode(encoder: encoder)
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    Logger.serialization.error("Error encoding menu bar appearance configuration: \(error, privacy: .private)")
-                }
-            } receiveValue: { data in
-                Defaults.set(data, forKey: .menuBarAppearanceConfigurationV2)
-            }
-            .store(in: &c)
-
-        $configuration
-            .throttle(for: 0.1, scheduler: DispatchQueue.main, latest: true)
-            .sink { [weak self] configuration in
-                guard let self else {
-                    return
-                }
-                // The overlay panels may not have been configured yet. Since some of the
-                // properties on the manager might call for them, try to configure now.
-                if overlayPanels.isEmpty {
-                    configureOverlayPanels(with: configuration)
-                }
-            }
-            .store(in: &c)
-
-        cancellables = c
+    /// Takes the overlay panels down and rebuilds them for the current screens.
+    private func screenParametersDidChange() {
+        while let panel = overlayPanels.popFirst() {
+            panel.orderOut(self)
+        }
+        if Set(overlayPanels.map { $0.owningScreen }) != Set(NSScreen.screens) {
+            configureOverlayPanels(with: configuration)
+        }
     }
 
     /// Returns a Boolean value that indicates whether a set of overlay panels

@@ -3,57 +3,92 @@
 //  holzBar
 //
 
-import Combine
+import Observation
 import SwiftUI
 
 // MARK: - AdvancedSettings
 
 /// Model for the app's Advanced settings.
 @MainActor
-final class AdvancedSettings: ObservableObject {
+@Observable
+final class AdvancedSettings {
     /// A Boolean value that indicates whether the always-hidden section
     /// is enabled.
-    @Published var enableAlwaysHiddenSection = false
+    var enableAlwaysHiddenSection = false {
+        didSet {
+            Defaults.set(enableAlwaysHiddenSection, forKey: .enableAlwaysHiddenSection)
+        }
+    }
 
     /// A Boolean value that indicates whether to show all sections when
     /// the user is dragging items in the menu bar.
-    @Published var showAllSectionsOnUserDrag = true
+    var showAllSectionsOnUserDrag = true {
+        didSet {
+            Defaults.set(showAllSectionsOnUserDrag, forKey: .showAllSectionsOnUserDrag)
+        }
+    }
 
     /// The display style for section divider control items.
-    @Published var sectionDividerStyle: SectionDividerStyle = .noDivider
+    var sectionDividerStyle: SectionDividerStyle = .noDivider {
+        didSet {
+            Defaults.set(sectionDividerStyle.rawValue, forKey: .sectionDividerStyle)
+        }
+    }
 
     /// A Boolean value that indicates whether the application menus
     /// should be hidden if needed to show all menu bar items.
-    @Published var hideApplicationMenus = true
+    var hideApplicationMenus = true {
+        didSet {
+            Defaults.set(hideApplicationMenus, forKey: .hideApplicationMenus)
+        }
+    }
 
     /// A Boolean value that indicates whether to show a context menu
     /// when the user right-clicks the menu bar.
-    @Published var enableSecondaryContextMenu = true
+    var enableSecondaryContextMenu = true {
+        didSet {
+            Defaults.set(enableSecondaryContextMenu, forKey: .enableSecondaryContextMenu)
+        }
+    }
 
     /// The delay before showing on hover.
-    @Published var showOnHoverDelay: TimeInterval = 0.2
+    var showOnHoverDelay: TimeInterval = 0.2 {
+        didSet {
+            Defaults.set(showOnHoverDelay, forKey: .showOnHoverDelay)
+        }
+    }
 
     /// Time interval to temporarily show items for.
-    @Published var tempShowInterval: TimeInterval = 15
+    var tempShowInterval: TimeInterval = 15 {
+        didSet {
+            Defaults.set(tempShowInterval, forKey: .tempShowInterval)
+        }
+    }
 
     /// The section that new menu bar items are placed in.
-    @Published var newItemsPlacement: NewItemsPlacement = .systemDefault
+    var newItemsPlacement: NewItemsPlacement = .systemDefault {
+        didSet {
+            Defaults.set(newItemsPlacement.rawValue, forKey: .newItemsPlacement)
+        }
+    }
 
     /// A Boolean value that indicates whether Live Activities stay in the
     /// visible section.
-    @Published var keepLiveActivitiesVisible = true
-
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    var keepLiveActivitiesVisible = true {
+        didSet {
+            Defaults.set(keepLiveActivitiesVisible, forKey: .keepLiveActivitiesVisible)
+        }
+    }
 
     /// The shared app state.
-    private(set) weak var appState: AppState?
+    @ObservationIgnored private(set) weak var appState: AppState?
 
     /// Performs the initial setup of the model.
+    ///
+    /// Each setting saves itself in its `didSet`; loading assigns the stored values.
     func performSetup(with appState: AppState) {
         self.appState = appState
         loadInitialState()
-        configureCancellables()
     }
 
     /// Loads the model's initial state.
@@ -77,76 +112,6 @@ final class AdvancedSettings: ObservableObject {
                 newItemsPlacement = placement
             }
         }
-    }
-
-    /// Configures the internal observers for the model.
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
-
-        $enableAlwaysHiddenSection
-            .receive(on: DispatchQueue.main)
-            .sink { enable in
-                Defaults.set(enable, forKey: .enableAlwaysHiddenSection)
-            }
-            .store(in: &c)
-
-        $showAllSectionsOnUserDrag
-            .receive(on: DispatchQueue.main)
-            .sink { showAll in
-                Defaults.set(showAll, forKey: .showAllSectionsOnUserDrag)
-            }
-            .store(in: &c)
-
-        $sectionDividerStyle
-            .receive(on: DispatchQueue.main)
-            .sink { style in
-                Defaults.set(style.rawValue, forKey: .sectionDividerStyle)
-            }
-            .store(in: &c)
-
-        $hideApplicationMenus
-            .receive(on: DispatchQueue.main)
-            .sink { shouldHide in
-                Defaults.set(shouldHide, forKey: .hideApplicationMenus)
-            }
-            .store(in: &c)
-
-        $enableSecondaryContextMenu
-            .receive(on: DispatchQueue.main)
-            .sink { enable in
-                Defaults.set(enable, forKey: .enableSecondaryContextMenu)
-            }
-            .store(in: &c)
-
-        $showOnHoverDelay
-            .receive(on: DispatchQueue.main)
-            .sink { delay in
-                Defaults.set(delay, forKey: .showOnHoverDelay)
-            }
-            .store(in: &c)
-
-        $tempShowInterval
-            .receive(on: DispatchQueue.main)
-            .sink { interval in
-                Defaults.set(interval, forKey: .tempShowInterval)
-            }
-            .store(in: &c)
-
-        $keepLiveActivitiesVisible
-            .receive(on: DispatchQueue.main)
-            .sink { keep in
-                Defaults.set(keep, forKey: .keepLiveActivitiesVisible)
-            }
-            .store(in: &c)
-
-        $newItemsPlacement
-            .receive(on: DispatchQueue.main)
-            .sink { placement in
-                Defaults.set(placement.rawValue, forKey: .newItemsPlacement)
-            }
-            .store(in: &c)
-
-        cancellables = c
     }
 }
 

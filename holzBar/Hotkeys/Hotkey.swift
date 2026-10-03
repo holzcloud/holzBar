@@ -3,7 +3,7 @@
 //  holzBar
 //
 
-import Combine
+import Observation
 import OSLog
 
 // MARK: - Hotkey
@@ -11,16 +11,17 @@ import OSLog
 /// A combination of a key and modifiers that can be used to
 /// trigger actions on system-wide key-up or key-down events.
 @MainActor
-final class Hotkey: ObservableObject {
+@Observable
+final class Hotkey {
     /// The hotkey's key combination.
-    @Published var keyCombination: KeyCombination? {
+    var keyCombination: KeyCombination? {
         didSet {
             enable()
         }
     }
 
     /// The shared app state.
-    private weak var appState: AppState?
+    @ObservationIgnored private weak var appState: AppState?
 
     /// Manages the lifetime of the hotkey observation.
     private var listener: Listener?

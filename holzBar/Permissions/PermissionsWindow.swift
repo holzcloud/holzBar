@@ -6,7 +6,7 @@
 import SwiftUI
 
 struct PermissionsWindow: Scene {
-    @ObservedObject var appState: AppState
+    var appState: AppState
 
     var body: some Scene {
         HolzBarWindow(id: .permissions, appState: appState) {
@@ -31,7 +31,7 @@ struct PermissionsWindow: Scene {
         }
         .windowResizability(.contentSize)
         .windowStyle(.hiddenTitleBar)
-        .environmentObject(appState)
-        .environmentObject(appState.permissions)
+        .environment(appState)
+        .environment(appState.permissions)
     }
 }

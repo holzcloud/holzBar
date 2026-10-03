@@ -4,42 +4,42 @@
 //
 
 import Cocoa
-import Combine
+import Observation
 
 @MainActor
-final class MenuBarSearchModel: ObservableObject {
+@Observable
+final class MenuBarSearchModel {
     enum ItemID: Hashable {
         case header(MenuBarSection.Name)
         case item(MenuBarItemTag)
     }
 
-    @Published var searchText = ""
-    @Published var displayedItems = [SectionedListItem<ItemID>]()
-    @Published var selection: ItemID?
-    @Published private(set) var averageColorInfo: MenuBarAverageColorInfo?
+    var searchText = ""
+    var displayedItems = [SectionedListItem<ItemID>]()
+    var selection: ItemID?
+    private(set) var averageColorInfo: MenuBarAverageColorInfo?
 
-    private var cancellables = Set<AnyCancellable>()
+    /// Observers of the panel's screen and visibility.
+    @ObservationIgnored private var observations = [NSKeyValueObservation]()
 
     func performSetup(with panel: MenuBarSearchPanel) {
-        configureCancellables(with: panel)
-    }
-
-    private func configureCancellables(with panel: MenuBarSearchPanel) {
-        var c = Set<AnyCancellable>()
-
-        Publishers.CombineLatest(
-            panel.publisher(for: \.screen),
-            panel.publisher(for: \.isVisible)
-        )
-        .compactMap { screen, isVisible in
-            isVisible ? screen : nil
+        // The colour follows the panel's screen while the panel is visible.
+        let update: @Sendable (MenuBarSearchPanel) -> Void = { [weak self] panel in
+            Task { @MainActor in
+                guard panel.isVisible, let screen = panel.screen else {
+                    return
+                }
+                self?.updateAverageColorInfo(for: screen)
+            }
         }
-        .sink { [weak self] screen in
-            self?.updateAverageColorInfo(for: screen)
-        }
-        .store(in: &c)
-
-        cancellables = c
+        observations = [
+            panel.observe(\.screen, options: [.initial, .new]) { panel, _ in
+                update(panel)
+            },
+            panel.observe(\.isVisible, options: [.new]) { panel, _ in
+                update(panel)
+            },
+        ]
     }
 
     private func updateAverageColorInfo(for screen: NSScreen) {

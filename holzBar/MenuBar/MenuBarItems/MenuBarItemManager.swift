@@ -4,140 +4,156 @@
 //
 
 import Cocoa
-import Combine
+import Observation
 import os
 import OSLog
 
 /// Manager for menu bar items.
 @MainActor
-final class MenuBarItemManager: ObservableObject {
+@Observable
+final class MenuBarItemManager {
     /// The current cache of menu bar items.
-    @Published private(set) var itemCache = ItemCache(displayID: nil)
+    private(set) var itemCache = ItemCache(displayID: nil)
 
     /// Logger for the menu bar item manager.
-    private nonisolated let logger = Logger.menuBarItemManager
+    @ObservationIgnored private nonisolated let logger = Logger.menuBarItemManager
 
     /// Serialises the posting of move and click events, so two never overlap
     /// (holzBar's own FIFO, cancellation-aware lock, see `AsyncLock`).
-    private nonisolated let eventLock = AsyncLock()
+    @ObservationIgnored private nonisolated let eventLock = AsyncLock()
 
     /// Actor for managing menu bar item cache operations.
-    private let cacheActor = CacheActor()
+    @ObservationIgnored private let cacheActor = CacheActor()
 
     /// Contexts for temporarily shown menu bar items.
-    private var temporarilyShownItemContexts = [TemporarilyShownItemContext]()
+    @ObservationIgnored private var temporarilyShownItemContexts = [TemporarilyShownItemContext]()
 
     /// A timer for rehiding temporarily shown menu bar items.
-    private var rehideTimer: Timer?
+    @ObservationIgnored private var rehideTimer: Timer?
 
     /// Timestamp of the most recent menu bar item move operation.
-    private var lastMoveOperationTimestamp: ContinuousClock.Instant?
+    @ObservationIgnored private var lastMoveOperationTimestamp: ContinuousClock.Instant?
 
     /// Cached timeouts for move operations.
-    private var moveOperationTimeouts = [MenuBarItemTag: Duration]()
+    @ObservationIgnored private var moveOperationTimeouts = [MenuBarItemTag: Duration]()
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Tasks that observe the events that may change the item list.
+    @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
+
+    /// Observes the running applications.
+    @ObservationIgnored private var runningApplicationsObservation: NSKeyValueObservation?
+
+    /// Observes the Settings pane that is shown.
+    @ObservationIgnored private var settingsPaneObserver: ObservationLoop?
+
+    /// Reads the item list again 1 s after the last event that may have changed it.
+    @ObservationIgnored private let itemListDebouncer = Debouncer(delay: .seconds(1))
+
+    /// Reads the item list again 1.5 s after the last application activation (macOS 27).
+    @ObservationIgnored private let activationDebouncer = Debouncer(delay: .milliseconds(1500))
 
     /// The shared app state.
-    private(set) weak var appState: AppState?
+    @ObservationIgnored private(set) weak var appState: AppState?
 
     /// Notices item changes of the processes that own items, on macOS 27.
-    private let itemChangeObserver27 = ItemChangeObserver27()
+    @ObservationIgnored private let itemChangeObserver27 = ItemChangeObserver27()
 
     /// Sets up the manager.
     func performSetup(with appState: AppState) async {
         self.appState = appState
         await cacheItemsRegardless()
-        configureCancellables(with: appState)
+        configureObservers(with: appState)
     }
 
     /// Configures the internal observers for the manager.
-    private func configureCancellables(with appState: AppState) {
-        var c = Set<AnyCancellable>()
-
+    private func configureObservers(with appState: AppState) {
         // The item list is read again on events: an application launches or quits, the
         // active space or the screens change, or (on macOS 27) a process that owns items
         // creates or destroys an Accessibility element. A slow, tolerant fallback catches
         // an item that appears without any of these; it replaced a 5 s timer that read
         // the window list (on macOS 27, every process through Accessibility) at idle.
-        var itemListChanges: [AnyPublisher<Void, Never>] = [
-            NSWorkspace.shared.publisher(for: \.runningApplications)
-                .delay(for: 0.25, scheduler: DispatchQueue.main)
-                .replace(with: ())
-                .eraseToAnyPublisher(),
-            NSWorkspace.shared.notificationCenter
-                .publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
-                .replace(with: ())
-                .eraseToAnyPublisher(),
-            NotificationCenter.default
-                .publisher(for: NSApplication.didChangeScreenParametersNotification)
-                .replace(with: ())
-                .eraseToAnyPublisher(),
-            Timer.publish(every: 60, tolerance: 10, on: .main, in: .default)
-                .autoconnect()
-                .replace(with: ())
-                .eraseToAnyPublisher(),
+        // All of them are debounced by 1 s, as the Combine pipeline was.
+        runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.new]) { [weak self] _, _ in
+            Task { @MainActor in
+                // A launched application needs a moment to add its items.
+                try? await Task.sleep(for: .milliseconds(250))
+                self?.itemListMayHaveChanged()
+            }
+        }
+        var notifications: [(NotificationCenter, Notification.Name)] = [
+            (NSWorkspace.shared.notificationCenter, NSWorkspace.activeSpaceDidChangeNotification),
+            (NotificationCenter.default, NSApplication.didChangeScreenParametersNotification),
         ]
         if #available(macOS 27.0, *) {
-            itemListChanges.append(
-                NotificationCenter.default
-                    .publisher(for: .menuBarItemsMayHaveChanged27)
-                    .handleEvents(receiveOutput: { [weak self] notification in
-                        self?.logItemChangeNotification(notification)
-                    })
-                    .replace(with: ())
-                    .eraseToAnyPublisher()
-            )
+            notifications.append((NotificationCenter.default, .menuBarItemsMayHaveChanged27))
         }
-
-        Publishers.MergeMany(itemListChanges)
-            .debounce(for: 1, scheduler: DispatchQueue.main)
-            .sink { [weak self] in
-                guard let self else {
-                    return
-                }
-                Task {
-                    await self.cacheItemsIfNeeded()
-                }
-            }
-            .store(in: &c)
-
-        appState.navigationState.$settingsNavigationIdentifier
-            .sink { [weak self] identifier in
-                guard let self, identifier == .menuBarLayout else {
-                    return
-                }
-                Task {
-                    await self.cacheItemsRegardless()
+        observerTasks = notifications.map { center, name in
+            Task { [weak self] in
+                for await notification in center.notifications(named: name) {
+                    if name == .menuBarItemsMayHaveChanged27 {
+                        let pid = notification.userInfo?["pid"] as? pid_t
+                        self?.logItemChangeNotification(pid: pid)
+                    }
+                    self?.itemListMayHaveChanged()
                 }
             }
-            .store(in: &c)
+        }
+        observerTasks.append(Task { [weak self] in
+            while true {
+                do {
+                    try await Task.sleep(for: .seconds(60), tolerance: .seconds(10))
+                } catch {
+                    return
+                }
+                self?.itemListMayHaveChanged()
+            }
+        })
+
+        let navigationState = appState.navigationState
+        settingsPaneObserver = ObservationLoop.observe { navigationState.settingsNavigationIdentifier } onChange: { [weak self] identifier in
+            guard let self, identifier == .menuBarLayout else {
+                return
+            }
+            Task {
+                await self.cacheItemsRegardless()
+            }
+        }
 
         if #available(macOS 27.0, *) {
             // Accessibility reports frames only for the active menu bar, so read the
             // items again soon after it moves to another display.
-            NSWorkspace.shared.notificationCenter
-                .publisher(for: NSWorkspace.didActivateApplicationNotification)
-                // The menu bar takes about a second to move (measured).
-                .debounce(for: 1.5, scheduler: DispatchQueue.main)
-                .sink { [weak self] _ in
-                    guard let self else {
-                        return
-                    }
-                    Task {
-                        await self.cacheItemsIfNeeded()
+            observerTasks.append(Task { [weak self] in
+                let center = NSWorkspace.shared.notificationCenter
+                for await _ in center.notifications(named: NSWorkspace.didActivateApplicationNotification) {
+                    // The menu bar takes about a second to move (measured).
+                    self?.activationDebouncer.schedule { [weak self] in
+                        guard let self else {
+                            return
+                        }
+                        Task {
+                            await self.cacheItemsIfNeeded()
+                        }
                     }
                 }
-                .store(in: &c)
+            })
         }
+    }
 
-        cancellables = c
+    /// Reads the item list again once the events that may have changed it pause for 1 s.
+    private func itemListMayHaveChanged() {
+        itemListDebouncer.schedule { [weak self] in
+            guard let self else {
+                return
+            }
+            Task {
+                await self.cacheItemsIfNeeded()
+            }
+        }
     }
 
     /// Logs that an Accessibility notification of an item owner asks for a refresh.
-    private func logItemChangeNotification(_ notification: Notification) {
-        guard let pid = notification.userInfo?["pid"] as? pid_t else {
+    private func logItemChangeNotification(pid: pid_t?) {
+        guard let pid else {
             return
         }
         let bundleID = NSRunningApplication(processIdentifier: pid)?.bundleIdentifier ?? "unknown"

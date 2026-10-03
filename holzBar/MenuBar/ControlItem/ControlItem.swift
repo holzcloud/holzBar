@@ -4,12 +4,13 @@
 //
 
 import Cocoa
-import Combine
+import Observation
 
 // MARK: - ControlItem
 
 /// A status item that controls a section in the menu bar.
 @MainActor
+@Observable
 final class ControlItem {
     /// An identifier for a control item.
     nonisolated enum Identifier: String, CaseIterable {
@@ -121,32 +122,45 @@ final class ControlItem {
         }
     }
 
-    /// The control item's hiding state (`@Published`).
-    @Published var state = HidingState.hideSection
+    /// The control item's hiding state.
+    var state = HidingState.hideSection {
+        didSet {
+            updateStatusItem()
+        }
+    }
 
-    /// The control item's window (`@Published`).
-    @Published private(set) var window: NSWindow?
+    /// The control item's window.
+    private(set) var window: NSWindow?
 
-    /// The control item's frame (`@Published`).
-    @Published private(set) var frame: CGRect?
+    /// The control item's frame.
+    private(set) var frame: CGRect?
 
-    /// The control item's screen (`@Published`).
-    @Published private(set) var screen: NSScreen?
+    /// The control item's screen.
+    private(set) var screen: NSScreen?
 
-    /// The control item's frame, if it is onscreen (`@Published`).
-    @Published private(set) var onScreenFrame: CGRect?
+    /// The control item's frame, if it is onscreen.
+    private(set) var onScreenFrame: CGRect?
 
     /// The control item's identifier.
     let identifier: Identifier
 
     /// Lazy storage for the control item's underlying status item.
-    private lazy var storage = StatusItemStorage(controlItem: self)
+    @ObservationIgnored private lazy var storage = StatusItemStorage(controlItem: self)
 
     /// The shared app state.
-    private weak var appState: AppState?
+    @ObservationIgnored private weak var appState: AppState?
 
-    /// Storage for internal observers.
-    private var cancellables = Set<AnyCancellable>()
+    /// Observers of the settings that decide the item's look and presence.
+    @ObservationIgnored private var observers = [ObservationLoop]()
+
+    /// Key-value observers of the status item and its button.
+    @ObservationIgnored private var statusItemObservations = [NSKeyValueObservation]()
+
+    /// Key-value observers of the item's window and screen.
+    @ObservationIgnored private var windowObservations = [NSKeyValueObservation]()
+
+    /// Key-value observer of the screen's frame.
+    @ObservationIgnored private var screenObservation: NSKeyValueObservation?
 
     /// The control item's underlying status item.
     private var statusItem: NSStatusItem {
@@ -187,172 +201,176 @@ final class ControlItem {
     /// Performs the initial setup of the control item.
     func performSetup(with appState: AppState) {
         self.appState = appState
-        configureCancellables()
+        configureObservers()
     }
 
     /// Configures the internal observers for the control item.
-    private func configureCancellables() {
-        var c = Set<AnyCancellable>()
+    private func configureObservers() {
+        updateStatusItem()
 
-        $state
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.updateStatusItem()
-            }
-            .store(in: &c)
-
-        statusItem.publisher(for: \.isVisible)
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] isVisible in
-                guard
-                    let self,
-                    let menuBarManager = appState?.menuBarManager,
-                    let section = menuBarManager.section(withName: sectionName),
-                    let hotkey = section.hotkey
-                else {
-                    return
-                }
-                if isVisible {
-                    hotkey.enable()
-                } else {
-                    hotkey.disable()
+        statusItemObservations.append(
+            statusItem.observe(\.isVisible, options: [.initial, .new]) { [weak self] _, _ in
+                Task { @MainActor in
+                    self?.statusItemVisibilityDidChange()
                 }
             }
-            .store(in: &c)
+        )
 
-        statusItem.publisher(for: \.button).removeNil()
-            .flatMap { $0.publisher(for: \.window) }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] window in
-                guard let self else {
-                    return
-                }
-                self.window = window
-                OwnStatusItemWindows.set(window?.windowNumber, for: self)
-            }
-            .store(in: &c)
-
-        $window.removeNil()
-            .flatMap { $0.publisher(for: \.frame) }
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] frame in
-                self?.frame = frame
-            }
-            .store(in: &c)
-
-        $window.removeNil()
-            .flatMap { $0.publisher(for: \.screen) }
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] screen in
-                self?.screen = screen
-            }
-            .store(in: &c)
-
-        $screen.removeNil()
-            .flatMap { $0.publisher(for: \.frame) }
-            .combineLatest($frame.removeNil())
-            .removeDuplicates()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] screenFrame, frame in
-                guard let self else {
-                    return
-                }
-                if screenFrame.intersects(frame) {
-                    onScreenFrame = frame
-                } else {
-                    onScreenFrame = nil
-                }
-            }
-            .store(in: &c)
-
-        if let appState {
-            appState.$isDraggingMenuBarItem
-                .removeDuplicates()
-                .receive(on: DispatchQueue.main)
-                .sink { [weak self] isDragging in
-                    guard let self else {
-                        return
-                    }
-                    if isDragging {
-                        updateStatusItem()
+        if let button = statusItem.button {
+            statusItemObservations.append(
+                button.observe(\.window, options: [.initial, .new]) { [weak self] button, _ in
+                    Task { @MainActor in
+                        self?.windowDidChange(button.window)
                     }
                 }
-                .store(in: &c)
-
-            if identifier == .visible {
-                appState.settings.general.$showHolzBarIcon
-                    .combineLatest(statusItem.publisher(for: \.isVisible))
-                    .removeDuplicates()
-                    .receive(on: DispatchQueue.main)
-                    .sink { [weak self] shouldShow, _ in
-                        guard let self else {
-                            return
-                        }
-                        if shouldShow {
-                            addToMenuBar()
-                        } else {
-                            removeFromMenuBar()
-                        }
-                    }
-                    .store(in: &c)
-
-                appState.settings.general.$holzBarIcon
-                    .combineLatest(appState.settings.general.$customHolzBarIconIsTemplate)
-                    .removeDuplicates()
-                    .receive(on: DispatchQueue.main)
-                    .sink { [weak self] _ in
-                        self?.updateStatusItem()
-                    }
-                    .store(in: &c)
-            }
-
-            if identifier == .hidden {
-                // The hidden section's divider must always be in the menu bar, but
-                // it can still be dragged out of it with Command held down. Nothing
-                // brought it back, and the hidden section was gone for good
-                // (jordanbaird/Ice#619).
-                statusItem.publisher(for: \.isVisible)
-                    .removeDuplicates()
-                    .receive(on: DispatchQueue.main)
-                    .sink { [weak self] isVisible in
-                        if !isVisible {
-                            self?.addToMenuBar()
-                        }
-                    }
-                    .store(in: &c)
-            }
-
-            if identifier == .alwaysHidden {
-                appState.settings.advanced.$enableAlwaysHiddenSection
-                    .combineLatest(statusItem.publisher(for: \.isVisible))
-                    .removeDuplicates()
-                    .receive(on: DispatchQueue.main)
-                    .sink { [weak self] shouldEnable, _ in
-                        guard let self else {
-                            return
-                        }
-                        if shouldEnable {
-                            addToMenuBar()
-                        } else {
-                            removeFromMenuBar()
-                        }
-                    }
-                    .store(in: &c)
-            }
-
-            if isSectionDivider {
-                appState.settings.advanced.$sectionDividerStyle
-                    .removeDuplicates()
-                    .receive(on: DispatchQueue.main)
-                    .sink { [weak self] _ in
-                        self?.updateStatusItem()
-                    }
-                    .store(in: &c)
-            }
+            )
         }
 
-        cancellables = c
+        guard let appState else {
+            return
+        }
+
+        observers.append(
+            ObservationLoop.observe { appState.isDraggingMenuBarItem } onChange: { [weak self] isDragging in
+                if isDragging {
+                    self?.updateStatusItem()
+                }
+            }
+        )
+
+        let general = appState.settings.general
+        let advanced = appState.settings.advanced
+
+        if identifier == .visible {
+            observers.append(
+                ObservationLoop.observe { general.showHolzBarIcon } onChange: { [weak self] _ in
+                    self?.updateMenuBarPresence()
+                }
+            )
+            observers.append(
+                ObservationLoop.observe {
+                    (general.holzBarIcon, general.customHolzBarIconIsTemplate)
+                } onChange: { [weak self] _ in
+                    self?.updateStatusItem()
+                }
+            )
+        }
+
+        if identifier == .alwaysHidden {
+            observers.append(
+                ObservationLoop.observe { advanced.enableAlwaysHiddenSection } onChange: { [weak self] _ in
+                    self?.updateMenuBarPresence()
+                }
+            )
+        }
+
+        if isSectionDivider {
+            observers.append(
+                ObservationLoop.observe { advanced.sectionDividerStyle } onChange: { [weak self] _ in
+                    self?.updateStatusItem()
+                }
+            )
+        }
+    }
+
+    /// Follows the status item's visibility: the section's hotkey works only while the
+    /// item is in the menu bar, and the item is put back where it has to be.
+    private func statusItemVisibilityDidChange() {
+        let isVisible = statusItem.isVisible
+        if
+            let menuBarManager = appState?.menuBarManager,
+            let section = menuBarManager.section(withName: sectionName),
+            let hotkey = section.hotkey
+        {
+            if isVisible {
+                hotkey.enable()
+            } else {
+                hotkey.disable()
+            }
+        }
+        updateMenuBarPresence()
+    }
+
+    /// Adds the item to the menu bar or removes it, as its settings say.
+    ///
+    /// The hidden section's divider must always be in the menu bar, but it can still
+    /// be dragged out of it with Command held down. Nothing brought it back, and the
+    /// hidden section was gone for good (jordanbaird/Ice#619).
+    private func updateMenuBarPresence() {
+        guard let appState else {
+            return
+        }
+        switch identifier {
+        case .visible:
+            if appState.settings.general.showHolzBarIcon {
+                addToMenuBar()
+            } else {
+                removeFromMenuBar()
+            }
+        case .hidden:
+            if !statusItem.isVisible {
+                addToMenuBar()
+            }
+        case .alwaysHidden:
+            if appState.settings.advanced.enableAlwaysHiddenSection {
+                addToMenuBar()
+            } else {
+                removeFromMenuBar()
+            }
+        }
+    }
+
+    /// Records the item's new window and follows its frame and screen.
+    private func windowDidChange(_ newWindow: NSWindow?) {
+        window = newWindow
+        OwnStatusItemWindows.set(newWindow?.windowNumber, for: self)
+        windowObservations.removeAll()
+        guard let newWindow else {
+            return
+        }
+        windowObservations = [
+            newWindow.observe(\.frame, options: [.initial, .new]) { [weak self] window, _ in
+                Task { @MainActor in
+                    guard let self, self.window === window, frame != window.frame else {
+                        return
+                    }
+                    frame = window.frame
+                    updateOnScreenFrame()
+                }
+            },
+            newWindow.observe(\.screen, options: [.initial, .new]) { [weak self] window, _ in
+                Task { @MainActor in
+                    guard let self, self.window === window else {
+                        return
+                    }
+                    screenDidChange(window.screen)
+                }
+            },
+        ]
+    }
+
+    /// Records the item's new screen and follows its frame.
+    private func screenDidChange(_ newScreen: NSScreen?) {
+        if screen !== newScreen {
+            screen = newScreen
+        }
+        screenObservation = newScreen?.observe(\.frame, options: [.new]) { [weak self] _, _ in
+            Task { @MainActor in
+                self?.updateOnScreenFrame()
+            }
+        }
+        updateOnScreenFrame()
+    }
+
+    /// Updates ``onScreenFrame`` from the item's frame and its screen's frame.
+    private func updateOnScreenFrame() {
+        guard let frame, let screen else {
+            return
+        }
+        let newValue: CGRect? = screen.frame.intersects(frame) ? frame : nil
+        if onScreenFrame != newValue {
+            onScreenFrame = newValue
+        }
     }
 
     /// Updates the appearance of the status item using the current hiding state.

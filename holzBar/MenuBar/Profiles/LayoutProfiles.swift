@@ -3,7 +3,7 @@
 //  holzBar
 //
 
-import Combine
+import Observation
 import Foundation
 import OSLog
 
@@ -28,15 +28,16 @@ struct LayoutProfile: Codable, Hashable, Identifiable {
 /// that are in a different section now; items the profile does not know stay
 /// where they are.
 @MainActor
-final class LayoutProfiles: ObservableObject {
+@Observable
+final class LayoutProfiles {
     /// The saved profiles, sorted by name.
-    @Published private(set) var profiles = [LayoutProfile]()
+    private(set) var profiles = [LayoutProfile]()
 
     /// The name of the profile that was applied last.
-    @Published private(set) var currentProfileName: String?
+    private(set) var currentProfileName: String?
 
-    private let logger = Logger(category: "LayoutProfiles")
-    private weak var appState: AppState?
+    @ObservationIgnored private let logger = Logger(category: "LayoutProfiles")
+    @ObservationIgnored private weak var appState: AppState?
 
     func performSetup(with appState: AppState) {
         self.appState = appState
