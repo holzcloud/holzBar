@@ -37,7 +37,7 @@ holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jord
 | | |
 |---|---|
 | 📦 **Zero dependencies** | No third-party packages at all — every line that runs is in this repository. |
-| 🦅 **Modern Swift 6** | Swift 6 language mode with data-race safety checked by the compiler, `@Observable` instead of Combine, one backend per macOS generation. |
+| 🦅 **Modern Swift 6** | **Built with Swift 6.4**, the latest stable Swift, in Swift 6 language mode with data-race safety checked by the compiler; `@Observable` instead of Combine, one backend per macOS generation. |
 | 🔒 **Never online** | No update checks, telemetry or analytics. A CI check proves there is no network code in the app. |
 | 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. Hardened runtime, private logs. |
 | 🍃 **Lean** | No polling, no mouse tracking unless you use it, nothing kept in memory that nobody shows. |
@@ -78,7 +78,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Fix for the permissions loop | ❌ | — | ✅ |
 | **Code and resources** | | | |
 | Third-party Swift packages | 5 | 2 (Sparkle, swift-subprocess) | **none** |
-| Swift language mode | Swift 5 | Swift 6 | Swift 6 (data-race safety checked by the compiler) |
+| Swift language mode | Swift 5 | Swift 6 | Swift 6 (data-race safety checked by the compiler), built with Swift 6.4 |
 | State management | Combine | mostly `@Observable` | `@Observable`, no Combine |
 | Mouse event tap when "Show on hover" is off | always running | — | off |
 | Timers and polling while nothing is shown | yes | — | only while needed |
@@ -87,7 +87,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Runtime patching of AppKit (method swizzling) | yes | — | none |
 | Item images in memory | kept | — | released when unused |
 | Unit tests run on every change | none | ✅ | ✅ 255 |
-| App size | — | — | 14.0 MB |
+| App size | — | — | 13.9 MB |
 | **Distribution and maintenance** | | | |
 | Install and update with Homebrew | ✅ | ✅ | ✅ |
 | Updates | Sparkle (dialog can hang on macOS 26) | Sparkle | Homebrew |
@@ -153,12 +153,20 @@ Then open holzBar again. Alternatively: open it once, then go to **System Settin
 
 ### Build from source
 
-Requires Xcode 26.6, which runs on macOS Tahoe 26.2 or later. CI builds with the same Xcode (pinned in `.github/actions/select-xcode`); holzBar itself runs on macOS 14 or later.
+Requires Xcode 26.6, which runs on macOS Tahoe 26.2 or later; holzBar itself runs on macOS 14 or later. CI builds with Xcode 26.6 for the SDK and the official Swift 6.4 toolchain from [swift.org](https://www.swift.org/install/macos/) as the compiler (both pinned in `.github/actions/select-xcode`).
 
 ```sh
 git clone https://github.com/holzcloud/holzBar
 cd holzBar
 Scripts/install.sh            # installs to ~/Applications
+```
+
+`Scripts/install.sh` builds with Xcode's own Swift. To build with Swift 6.4 like CI (optional), install `swift-6.4.0-RELEASE-osx.pkg` from swift.org for your user only, then select it with `TOOLCHAINS`:
+
+```sh
+installer -pkg swift-6.4.0-RELEASE-osx.pkg -target CurrentUserHomeDirectory
+TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw -o - \
+  ~/Library/Developer/Toolchains/swift-6.4.0-RELEASE.xctoolchain/Info.plist) Scripts/install.sh
 ```
 
 ## 🪵 macOS 27

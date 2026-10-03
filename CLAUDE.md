@@ -27,6 +27,7 @@ These hold for every change, always, without taking a feature away:
 ## Dependencies
 
 - Always use the latest stable version of every library, package, tool and GitHub Action (Swift packages, SwiftLint, Xcode, actions). No pre-releases. When touching a dependency, update it to the latest stable release.
+- Swift is the latest stable release toolchain from swift.org (currently 6.4.0), pinned with its SHA-256 next to Xcode in `.github/actions/select-xcode/action.yml` (`swift-version`, `swift-sha256`); bump both together. The language mode stays `SWIFT_VERSION = 6.2` (Swift 6 mode): Swift 6.4 offers no newer language mode (`swiftc` accepts 4, 4.2, 5 and 6), and Xcode compiles 6.2 and 6.4 alike as `-swift-version 6`.
 
 ## Naming
 
@@ -62,3 +63,5 @@ These hold for every change, always, without taking a feature away:
 ## Building
 
 macOS only (the Xcode pinned in `.github/actions/select-xcode/action.yml`, currently 26.6): `Scripts/install.sh` builds `holzBar.xcodeproj` (scheme `holzBar`) and installs `holzBar.app` to `~/Applications`. There is no Linux build; CI builds, runs `swift test` and runs SwiftLint (official image pinned in `lint.yml`, `.swiftlint.yml`, `--strict`).
+
+CI compiles with Swift 6.4 from swift.org, not with Xcode's own Swift: the select-xcode action selects Xcode 26.6 (SDK and build system; Xcode 27 is not on the GitHub runners), downloads `swift-6.4.0-RELEASE-osx.pkg`, checks its SHA-256 and Developer ID signature, installs it for the runner user and exports `TOOLCHAINS`, which `xcodebuild`, `swift test` and `xcrun` honor. The build job fails if xcodebuild did not use that toolchain. To do the same on a Mac (optional): `installer -pkg swift-6.4.0-RELEASE-osx.pkg -target CurrentUserHomeDirectory`, then `TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw -o - ~/Library/Developer/Toolchains/swift-6.4.0-RELEASE.xctoolchain/Info.plist) Scripts/install.sh`.
