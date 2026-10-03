@@ -3,7 +3,6 @@
 //  holzBar
 //
 
-import LaunchAtLogin
 import SwiftUI
 
 struct GeneralSettingsPane: View {
@@ -60,7 +59,7 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var appOptions: some View {
-        LaunchAtLogin.Toggle()
+        LaunchAtLoginToggle()
     }
 
     // MARK: holzBar Icon Options

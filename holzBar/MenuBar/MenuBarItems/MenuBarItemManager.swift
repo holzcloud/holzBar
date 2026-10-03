@@ -7,7 +7,6 @@ import Cocoa
 import Combine
 import os
 import OSLog
-import Semaphore
 
 /// Manager for menu bar items.
 @MainActor
@@ -18,8 +17,9 @@ final class MenuBarItemManager: ObservableObject {
     /// Logger for the menu bar item manager.
     private nonisolated let logger = Logger.menuBarItemManager
 
-    /// Semaphore to prevent overlapping event operations.
-    private nonisolated let eventSemaphore = AsyncSemaphore(value: 1)
+    /// Serialises the posting of move and click events, so two never overlap
+    /// (holzBar's own FIFO, cancellation-aware lock, see `AsyncLock`).
+    private nonisolated let eventLock = AsyncLock()
 
     /// Actor for managing menu bar item cache operations.
     private let cacheActor = CacheActor()
@@ -409,6 +409,8 @@ extension MenuBarItemManager {
             // stay where macOS placed them.
             if #unavailable(macOS 27.0) {
                 await enforceControlItemOrder(controlItems: controlItems)
+                // Forget the UUIDs of item windows that are gone (on every space).
+                pruneUUIDCache(keeping: Bridging.getMenuBarWindowList(option: .itemsOnly))
             }
             await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
 
@@ -1194,9 +1196,9 @@ extension MenuBarItemManager {
     ///   - item: The menu bar item to move.
     ///   - destination: The destination to move the menu bar item.
     private func postMoveEvents(item: MenuBarItem, destination: MoveDestination) async throws {
-        try await eventSemaphore.waitUnlessCancelled()
+        try await eventLock.lock()
         defer {
-            eventSemaphore.signal()
+            eventLock.unlock()
         }
 
         var itemOrigin = try await getCurrentBounds(for: item).origin
@@ -1365,9 +1367,9 @@ extension MenuBarItemManager {
     ///   - item: The menu bar item to click.
     ///   - mouseButton: The mouse button to click the item with.
     private func postClickEvents(item: MenuBarItem, mouseButton: CGMouseButton) async throws {
-        try await eventSemaphore.waitUnlessCancelled()
+        try await eventLock.lock()
         defer {
-            eventSemaphore.signal()
+            eventLock.unlock()
         }
 
         let clickPoint = try await getCurrentBounds(for: item).center

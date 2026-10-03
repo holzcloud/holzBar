@@ -44,7 +44,11 @@ struct AcknowledgementsTests {
         return location
     }
 
+    /// The pins of `Package.resolved`; none when the file is missing (no package is linked).
     private static func resolvedPins() throws -> [Resolved.Pin] {
+        guard FileManager.default.fileExists(atPath: packageResolvedURL.path) else {
+            return []
+        }
         let data = try Data(contentsOf: packageResolvedURL)
         return try JSONDecoder().decode(Resolved.self, from: data).pins
     }
@@ -52,7 +56,6 @@ struct AcknowledgementsTests {
     @Test("The acknowledgements list exactly the resolved packages")
     func listsExactlyTheResolvedPackages() throws {
         let pins = try Self.resolvedPins()
-        #expect(!pins.isEmpty)
 
         let pinVersions = Dictionary(
             pins.map { (Self.normalized($0.location), $0.state.version) },
@@ -84,8 +87,14 @@ struct AcknowledgementsTests {
 
     @Test("Every license file belongs to a package")
     func everyLicenseFileBelongsToAPackage() throws {
-        let files = try FileManager.default.contentsOfDirectory(atPath: Self.licenseDirectory.path)
-            .filter { $0.hasSuffix(".txt") }
+        // A missing license folder means there are no license files.
+        let files: [String]
+        if FileManager.default.fileExists(atPath: Self.licenseDirectory.path) {
+            files = try FileManager.default.contentsOfDirectory(atPath: Self.licenseDirectory.path)
+                .filter { $0.hasSuffix(".txt") }
+        } else {
+            files = []
+        }
         let expected = Acknowledgements.packages.compactMap(\.licenseFile).map { "\($0).txt" }
         #expect(Set(files) == Set(expected))
         #expect(files.count == expected.count)

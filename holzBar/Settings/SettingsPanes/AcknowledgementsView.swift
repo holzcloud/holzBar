@@ -27,7 +27,10 @@ struct AcknowledgementsView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     holzBarGroup
                     adaptedCodeGroup
-                    packagesGroup
+                    // holzBar links no package since 05.1; the group returns with the first one.
+                    if !Acknowledgements.packages.isEmpty {
+                        packagesGroup
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(20)

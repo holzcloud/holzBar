@@ -173,6 +173,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 | Install and update with Homebrew | ✅ | ✅ |
 | Updates | Sparkle (dialog can hang on macOS 26) | Homebrew |
 | No network connections (no update checks, telemetry or analytics) | ❌ | ✅ |
+| Third-party Swift packages | 5 | none |
 | Hidden and always-hidden sections, Ice Bar / holzBar Shelf, search, appearance | ✅ | ✅ |
 | Layout profiles | ❌ | ✅ |
 | Groups and spacers | ❌ | ✅ |

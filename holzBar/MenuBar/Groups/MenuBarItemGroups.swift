@@ -49,6 +49,7 @@ final class MenuBarItemGroups: ObservableObject {
     private var statusItems = [UUID: NSStatusItem]()
     private var targets = [UUID: ClickTarget]()
     private let popover = NSPopover()
+    private var popoverObservers = Set<AnyCancellable>()
 
     func performSetup(with appState: AppState) {
         self.appState = appState
@@ -61,6 +62,15 @@ final class MenuBarItemGroups: ObservableObject {
             updateStatusItems()
         }
         popover.behavior = .transient
+        // The image cache refreshes item images only while a view shows them.
+        Publishers.Merge(
+            NotificationCenter.default.publisher(for: NSPopover.didShowNotification, object: popover).map { _ in true },
+            NotificationCenter.default.publisher(for: NSPopover.didCloseNotification, object: popover).map { _ in false }
+        )
+        .sink { [weak appState] isShown in
+            appState?.navigationState.isItemGroupPanelPresented = isShown
+        }
+        .store(in: &popoverObservers)
     }
 
     private func save() {
@@ -149,6 +159,8 @@ final class MenuBarItemGroups: ObservableObject {
         }
         popover.contentViewController = NSHostingController(rootView: view)
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+        // Set at once (the notification may come later), so the update below captures.
+        appState.navigationState.isItemGroupPanelPresented = true
         Task {
             await appState.imageCache.updateCache(sections: MenuBarSection.Name.allCases)
         }

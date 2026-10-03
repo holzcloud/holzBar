@@ -24,7 +24,7 @@ struct Acknowledgement: Identifiable, Hashable, Sendable {
     var id: String { repository }
 }
 
-/// The code holzBar is adapted from and the Swift packages it links.
+/// The code holzBar is adapted from and the Swift packages it links (none since 05.1).
 ///
 /// The lists are pure data so `swift test` can check them against `Package.resolved` and
 /// the license files; the app shows them in `AcknowledgementsView`.
@@ -61,30 +61,9 @@ enum Acknowledgements {
     ]
 
     /// The Swift packages holzBar links, sorted by name, with the versions in `Package.resolved`.
-    static let packages: [Acknowledgement] = [
-        Acknowledgement(
-            name: "CompactSlider",
-            repository: "https://github.com/buh/CompactSlider",
-            version: "2.1.0",
-            use: "Draws the sliders in Settings.",
-            license: "MIT License",
-            licenseFile: "License-CompactSlider"
-        ),
-        Acknowledgement(
-            name: "LaunchAtLogin-Modern",
-            repository: "https://github.com/sindresorhus/LaunchAtLogin-Modern",
-            version: "1.1.0",
-            use: "Provides the launch at login toggle.",
-            license: "MIT License",
-            licenseFile: "License-LaunchAtLogin-Modern"
-        ),
-        Acknowledgement(
-            name: "Semaphore",
-            repository: "https://github.com/groue/Semaphore",
-            version: "0.1.0",
-            use: "Serializes the moves of menu bar items.",
-            license: "MIT License",
-            licenseFile: "License-Semaphore"
-        ),
-    ]
+    ///
+    /// Empty: since 05.1 holzBar links no Swift package (its sliders, launch at login and
+    /// event lock are its own or the system's). The list stays so a package added later
+    /// must be acknowledged here; `swift test` checks it against `Package.resolved`.
+    static let packages: [Acknowledgement] = []
 }

@@ -109,9 +109,68 @@ final class MenuBarItemImageCache: ObservableObject {
         var c = Set<AnyCancellable>()
 
         if let appState {
+            let navigationState = appState.navigationState
+            // Whether the Shelf, the search panel or a group panel is shown.
+            let isPanelShown = Publishers.CombineLatest3(
+                navigationState.$isShelfPresented,
+                navigationState.$isSearchPresented,
+                navigationState.$isItemGroupPanelPresented
+            )
+            .map { $0 || $1 || $2 }
+
+            // Whether the Settings window shows the layout pane (frontmost or not).
+            let isLayoutPaneShown = Publishers.CombineLatest(
+                navigationState.$isSettingsPresented,
+                navigationState.$settingsNavigationIdentifier
+            )
+            .map { $0 && $1 == .menuBarLayout }
+
+            // Whether any view that shows item images is open.
+            let isShowingImages = Publishers.CombineLatest(isPanelShown, isLayoutPaneShown)
+                .map { $0 || $1 }
+                .removeDuplicates()
+
+            // The periodic refresh runs only while such a view is in front (the layout
+            // pane only while holzBar is frontmost, as `updateCache()` checks), so it does
+            // not wake holzBar at idle.
+            let isRefreshNeeded = Publishers.CombineLatest3(
+                isPanelShown,
+                isLayoutPaneShown,
+                navigationState.$isAppFrontmost
+            )
+            .map { isPanelShown, isLayoutPaneShown, isFrontmost in
+                isPanelShown || (isLayoutPaneShown && isFrontmost)
+            }
+            .removeDuplicates()
+
+            // Releases every image a minute after the last view showing them closed;
+            // opening one again cancels it (and captures the images anew).
+            isShowingImages
+                .map { isShowing -> AnyPublisher<Void, Never> in
+                    if isShowing {
+                        return Empty().eraseToAnyPublisher()
+                    }
+                    return Just(()).delay(for: .seconds(60), scheduler: DispatchQueue.main).eraseToAnyPublisher()
+                }
+                .switchToLatest()
+                .sink { [weak self] in
+                    self?.releaseAllImages()
+                }
+                .store(in: &c)
+
             Publishers.Merge3(
-                // Update every 3 seconds at minimum.
-                Timer.publish(every: 3, on: .main, in: .default).autoconnect().replace(with: ()),
+                // Update every 3 seconds while a view shows the images.
+                isRefreshNeeded
+                    .map { isNeeded -> AnyPublisher<Void, Never> in
+                        guard isNeeded else {
+                            return Empty().eraseToAnyPublisher()
+                        }
+                        return Timer.publish(every: 3, tolerance: 0.5, on: .main, in: .default)
+                            .autoconnect()
+                            .replace(with: ())
+                            .eraseToAnyPublisher()
+                    }
+                    .switchToLatest(),
 
                 // Update when the active space or screen parameters change.
                 Publishers.Merge(
@@ -320,8 +379,10 @@ final class MenuBarItemImageCache: ObservableObject {
                     newImages[item.tag] = image
                 }
             }
+            let currentTags = await Set(appState.itemManager.itemCache.managedItems.map(\.tag))
             await MainActor.run { [newImages] in
                 images.merge(newImages) { (_, new) in new }
+                prune(keeping: currentTags)
             }
             return
         }
@@ -351,9 +412,34 @@ final class MenuBarItemImageCache: ObservableObject {
             newImages.merge(sectionImages) { (_, new) in new }
         }
 
+        let currentTags = await Set(appState.itemManager.itemCache.managedItems.map(\.tag))
         await MainActor.run { [newImages] in
             images.merge(newImages) { (_, new) in new }
+            prune(keeping: currentTags)
         }
+    }
+
+    /// Drops the images of items that are no longer in the item cache.
+    @MainActor
+    func prune(keeping tags: Set<MenuBarItemTag>) {
+        let stale = images.keys.filter { !tags.contains($0) }
+        guard !stale.isEmpty else {
+            return
+        }
+        for tag in stale {
+            images.removeValue(forKey: tag)
+        }
+    }
+
+    /// Releases every cached image. Runs a minute after the last view that shows item
+    /// images closed; the images are captured again when one opens.
+    @MainActor
+    func releaseAllImages() {
+        guard !images.isEmpty else {
+            return
+        }
+        images.removeAll()
+        logger.debug("Released all item images")
     }
 
     /// Updates the cache for the given sections, if necessary.
@@ -364,8 +450,9 @@ final class MenuBarItemImageCache: ObservableObject {
 
         let isShelfPresented = await appState.navigationState.isShelfPresented
         let isSearchPresented = await appState.navigationState.isSearchPresented
+        let isGroupPanelPresented = await appState.navigationState.isItemGroupPanelPresented
 
-        if !isShelfPresented && !isSearchPresented {
+        if !isShelfPresented && !isSearchPresented && !isGroupPanelPresented {
             guard
                 await appState.navigationState.isAppFrontmost,
                 await appState.navigationState.isSettingsPresented,

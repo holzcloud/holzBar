@@ -219,7 +219,8 @@ final class AppState: ObservableObject {
         )
         .map { $0 && $1 }
         .throttle(for: 0.1, scheduler: DispatchQueue.main, latest: true)
-        .merge(with: Just(true).delay(for: 1, scheduler: DispatchQueue.main))
+        // No capture of every section at launch: images are taken when a view that
+        // shows them opens (Settings here; the Shelf, search and groups on their own).
         .sink { [weak self] shouldUpdate in
             guard let self, shouldUpdate else {
                 return

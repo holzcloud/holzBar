@@ -1,6 +1,8 @@
 # Swift packages holzBar may resolve, one repository URL per line (lower case,
 # without a trailing slash or .git). privacy-check.py network fails when
 # Package.resolved pins a package that is not listed here.
-https://github.com/buh/compactslider
-https://github.com/sindresorhus/launchatlogin-modern
-https://github.com/groue/semaphore
+#
+# holzBar links no Swift package (since 05.1: its sliders, launch at login and
+# event lock are its own or the system's). A new package must be added here on
+# purpose, acknowledged in holzBar/Core/Acknowledgements.swift and justified in
+# its pull request.

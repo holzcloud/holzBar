@@ -106,8 +106,10 @@ jobs:
           echo "==> No network code in the binaries"
 
       # Every license text shown under Settings, About, Acknowledgements must be in the app.
+      # holzBar links no package since 05.1, so there may be no license file at all.
       - name: Check the acknowledgements
         run: |
+          shopt -s nullglob
           RESOURCES=build/Build/Products/Release/holzBar.app/Contents/Resources
           COUNT=0
           MISSING=0

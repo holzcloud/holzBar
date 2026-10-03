@@ -4,6 +4,7 @@
 //
 
 import Cocoa
+import os
 
 /// A structural representation of a menu bar item.
 struct MenuBarItem: CustomStringConvertible {
@@ -336,8 +337,21 @@ private extension MenuBarItemTag {
 
 // MARK: - MenuBarItemTag.Namespace Helper
 
+/// The UUIDs given to item windows whose application is unknown (macOS 26), by window.
+///
+/// Locked, because namespaces are created wherever item lists are read.
+private let namespaceUUIDCache = OSAllocatedUnfairLock<[CGWindowID: UUID]>(initialState: [:])
+
+/// Drops the UUIDs of item windows that no longer exist, so the cache does not grow with
+/// every window identifier ever seen. The manager calls it with each fresh window list.
+func pruneUUIDCache(keeping windowIDs: some Sequence<CGWindowID>) {
+    let alive = Set(windowIDs)
+    namespaceUUIDCache.withLock { cache in
+        cache = cache.filter { alive.contains($0.key) }
+    }
+}
+
 private extension MenuBarItemTag.Namespace {
-    private static var uuidCache = [CGWindowID: UUID]()
 
     /// Creates a namespace without checks.
     ///
@@ -373,11 +387,16 @@ private extension MenuBarItemTag.Namespace {
             self = .holzBar
         } else if let sourcePID, let app = NSRunningApplication(processIdentifier: sourcePID) {
             self = .optional(app.bundleIdentifier ?? app.localizedName)
-        } else if let uuid = Self.uuidCache[itemWindow.windowID] {
-            self = .uuid(uuid)
         } else {
-            let uuid = UUID()
-            Self.uuidCache[itemWindow.windowID] = uuid
+            let windowID = itemWindow.windowID
+            let uuid = namespaceUUIDCache.withLock { cache in
+                if let uuid = cache[windowID] {
+                    return uuid
+                }
+                let uuid = UUID()
+                cache[windowID] = uuid
+                return uuid
+            }
             self = .uuid(uuid)
         }
     }
