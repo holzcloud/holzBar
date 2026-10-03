@@ -71,3 +71,9 @@ Ice's `main` has had no commits since 2025-09-20. Everything new is in open PRs 
   - Add #1005 to the fixed macOS 27 row, and #1007 as a new open row (or fixed).
   - Add #974 and #968 to the auto-rehide group, #988 and #959 to the wrong-place group, #979 to the lost-section group, and #961 to the Dock group.
   - #976 is not a bug.
+
+## User decisions (2026-10-03)
+
+- Dock icon: never show it ("Keep the Dock icon hidden", on by default), as planned in 05.1.1-02.
+- Zen mode locks the same things as in Thaw, as planned in 05.1.1.1-01.
+- Translations: machine-written; the user checks them before the release.
