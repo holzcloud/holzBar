@@ -86,8 +86,6 @@ nonisolated final class SourcePIDCache: Sendable {
         var pids = [CGWindowID: pid_t]()
         /// Observer for running applications.
         var observation: NSKeyValueObservation?
-        /// Observer for running applications.
-        var observation: NSKeyValueObservation?
 
         /// Returns the latest bounds of the given window after ensuring
         /// that the bounds are stable (a.k.a. not currently changing).

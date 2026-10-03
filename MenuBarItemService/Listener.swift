@@ -50,9 +50,10 @@ final class Listener: Sendable {
     /// with the given requirement that session peers must satisfy.
     @available(macOS 26.0, *)
     private func uncheckedActivate(requirement: XPCPeerRequirement) throws {
-        let listener = try XPCListener(service: name, requirement: requirement) { [weak self] request in
+        let listener = try XPCListener(service: name, requirement: requirement) { request in
+            // The listener is shared and lives as long as the service.
             request.accept { message in
-                self?.handleMessage(message)
+                self.handleMessage(message)
             }
         }
         self.listener.withLockUnchecked { $0 = listener }
@@ -94,9 +95,10 @@ final class Listener: Sendable {
 
     /// Activates the listener without checking if it is already active.
     private func uncheckedActivate() throws {
-        let listener = try XPCListener(service: name) { [weak self] request in
+        let listener = try XPCListener(service: name) { request in
+            // The listener is shared and lives as long as the service.
             request.accept { message in
-                self?.handleMessage(message)
+                self.handleMessage(message)
             }
         }
         self.listener.withLockUnchecked { $0 = listener }
