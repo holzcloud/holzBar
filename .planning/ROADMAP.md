@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Ice and Sparkle leftovers** - Acknowledgements, credits, docs, templates, dead code and files removed
 - [x] **Phase 4: Outdated APIs** - Modern URL, UserDefaults, CFPreferences, URL-open, window and AX APIs; AXSwift removed
 - [x] **Phase 5: Security and performance** - Validated settings import, private logging, Caches storage, no needless tasks or polling
-- [ ] **Phase 05.1: Modern, lean and private** (INSERTED) - 2026 code, Swift 6, @Observable, fewer dependencies, no network, least privilege
+- [x] **Phase 05.1: Modern, lean and private** (INSERTED) - 2026 code, Swift 6, @Observable, fewer dependencies, no network, least privilege
 - [ ] **Phase 6: Security audit** - Full security analysis of the whole app, findings ranked, fixes chosen by the user done before the release
 - [ ] **Phase 06.1: Compatibility check** (INSERTED) - Which macOS versions really work; 26 and 27 required, older ones optional
 - [ ] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated
@@ -158,32 +158,46 @@ Plans:
   4. A CI check proves there is no network code, and the README states it; logs keep personal data private
   5. Every permission and entitlement is justified by a feature, asked for only when needed, and anything unneeded is gone
 
-**Plans:** 2/3 plans executed (sequential waves; one PR "Modern, lean and private", pushed once per plan; 05.1-03 starts with one strict-concurrency measurement build)
+**Plans:** 3/3 plans executed (sequential waves; one PR "Modern, lean and private", pushed once per plan; 05.1-03 starts with one strict-concurrency measurement build)
 
 Plans:
 - [x] 05.1-01-PLAN.md — Tracer: no-network CI job and binary check, private logs, "How to Update…"; LaunchAtLogin-Modern, Semaphore and CompactSlider replaced (SMAppService, own AsyncLock and slider), -Osize; taps and timers only while needed; draft PR with size and wake-up figures
 - [x] 05.1-02-PLAN.md — Tracer: Screen Recording asked in context with the why; one-step Ice migration, no swizzling or preview/app-group leftovers, lazy panels, hardened runtime everywhere; settings sync through NSFilePresenter; tests for migration, sync, hotkeys and URL commands
-- [ ] 05.1-03-PLAN.md — Tracer: strict-concurrency measurement build; explicit isolation and no unprotected globals; @Observable without Combine (macOS 14); Swift 6 mode for app and XPC; managers split per backend; macOS 26/27 checklist in the PR
+- [x] 05.1-03-PLAN.md — Tracer: strict-concurrency measurement build; explicit isolation and no unprotected globals; @Observable without Combine (macOS 14); Swift 6 mode for app and XPC; managers split per backend; macOS 26/27 checklist in the PR
 
 ### Phase 05.1.1: Thaw fixes and speed (INSERTED)
 
 **Goal:** The bugs Thaw fixed that holzBar shares are fixed, and revealing is fast and never freezes input
 **Requirements**: THAW-01, THAW-02, THAW-03, THAW-04, THAW-05, THAW-06, THAW-07, THAW-08, ICE-01, ICE-02, ICE-03, ICE-04, ICE-06
 **Depends on:** Phase 05.1
-**Plans:** 0 plans
+**Plans:** 3 plans (sequential waves; one PR "Thaw and Ice fixes and features" for Phases 05.1.1 and 05.1.1.1, pushed once per plan)
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 05.1.1 to break down)
+- [ ] 05.1.1-01-PLAN.md — Tracer: no input path waits on another app (cached application menu frame, AX timeouts) and show on click reveals from cached state; taps recover, automatic moves back off, rest while locked/asleep; the look follows the icons and survives sleep and login; validated hotkeys and colours; draft PR opened
+- [ ] 05.1.1-02-PLAN.md — Tracer: item identity survives title changes and one restore path brings items back to their section; only real menus delay rehiding, clock clicks inside the bar, no Dock icon, notch apps left alone; Shelf clicks on 26, spacing relaunch, URL commands that rearrange ask first
+- [ ] 05.1.1-03-PLAN.md — Tracer: macOS 27 hit tests on the second display and the icon out from under the notch; no screenshot under the bar on 27 (desktop picture, clock cover), unsquashed launching apps; rest of jordanbaird/Ice#1001; upstream bug list and README
 
 ### Phase 05.1.1.1: Thaw features (INSERTED)
 
 **Goal:** holzBar gains Thaw's best features within its principles (no network, least privilege, lean)
-**Requirements**: THAW-10, THAW-11, THAW-12, THAW-13, THAW-14, THAW-15, THAW-16, THAW-17, ICE-05
+**Requirements**: THAW-10, THAW-11, THAW-12, THAW-13, THAW-14, THAW-15, THAW-16, THAW-17, ICE-05, SYNC-01
 **Depends on:** Phase 05.1.1
+**Plans:** 3 plans (sequential waves; same PR as Phase 05.1.1, pushed once per plan)
+
+Plans:
+- [ ] 05.1.1.1-01-PLAN.md — Tracer: Zen mode from a hotkey, the menu, a URL and Shortcuts; Zen while presenting (notifications only); hotkeys per profile and item; App Intents; profiles bound to a display, then a Space
+- [ ] 05.1.1.1-02-PLAN.md — Tracer: open an item by letter through one open path; Layout pane and Shelf from the keyboard, undo, VoiceOver actions; opened items stay 0–30 s or open in place; items show briefly when they change
+- [ ] 05.1.1.1-03-PLAN.md — Tracer: item images of your choice with app-icon fallback, coloured folders; dashed/dotted borders, wallpaper, accent and glass tints; String Catalogs in en, de, fr, it, rm checked by CI; final README and PR body
+
+### Phase 05.1.1.1.1: Apple APIs and toolchain (INSERTED)
+
+**Goal:** holzBar uses what Apple recommends today — Swift 6.4 (and Xcode 27 as soon as the runners have it), no deprecated API, HIG-conform UI — and says so in README and on the website
+**Requirements**: APPLE-01, APPLE-02, APPLE-03, APPLE-04
+**Depends on:** Phase 05.1.1.1
 **Plans:** 0 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 05.1.1.1 to break down)
+- [ ] TBD (run /gsd-plan-phase 05.1.1.1.1 to break down)
 
 ### Phase 6: Security audit
 
@@ -216,7 +230,7 @@ Plans:
 
 **Goal**: Users can install and update to `0.0.6-beta1` through Homebrew with clear instructions
 **Depends on**: Phase 6
-**Requirements**: REL-01
+**Requirements**: FACT-01, REL-01
 **Success Criteria** (what must be TRUE):
   1. The `v0.0.6-beta1` GitHub pre-release exists with hand-written notes from `docs/release-notes/v0.0.6-beta1.md`
   2. The notes' install section covers `brew tap`, `brew trust`, `brew install`, the `brew update && brew upgrade` path and the quarantine command

@@ -283,7 +283,7 @@ final class RevealRules {
         appState.menuBarManager.showOnHoverAllowed = false
         let interval = appState.settings.advanced.tempShowInterval
         Task {
-            try await Task.sleep(for: .seconds(interval))
+            try? await Task.sleep(for: .seconds(interval))
             if !section.isHidden {
                 section.hide()
             }

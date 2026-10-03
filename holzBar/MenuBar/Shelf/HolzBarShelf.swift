@@ -458,13 +458,17 @@ private struct HolzBarShelfItemView: View {
             let shelfDisplayID = menuBarManager.shelfPanel.screen?.displayID
             menuBarManager.section(withName: section)?.hide()
             Task {
-                try await Task.sleep(for: .milliseconds(25))
+                try? await Task.sleep(for: .milliseconds(25))
                 if #available(macOS 27.0, *), let appState = itemManager.appState {
                     await ItemClicker27.click(item: item, mouseButton: .left, shelfDisplayID: shelfDisplayID, appState: appState)
                     return
                 }
                 if Bridging.isWindowOnScreen(item.windowID) {
-                    try await itemManager.click(item: item, with: .left)
+                    do {
+                        try await itemManager.click(item: item, with: .left)
+                    } catch {
+                        Logger.default.error("Error left-clicking menu bar item from the holzBar Shelf: \(error, privacy: .private)")
+                    }
                 } else {
                     await itemManager.temporarilyShow(item: item, clickingWith: .left)
                 }
@@ -480,13 +484,17 @@ private struct HolzBarShelfItemView: View {
             let shelfDisplayID = menuBarManager.shelfPanel.screen?.displayID
             menuBarManager.section(withName: section)?.hide()
             Task {
-                try await Task.sleep(for: .milliseconds(25))
+                try? await Task.sleep(for: .milliseconds(25))
                 if #available(macOS 27.0, *), let appState = itemManager.appState {
                     await ItemClicker27.click(item: item, mouseButton: .right, shelfDisplayID: shelfDisplayID, appState: appState)
                     return
                 }
                 if Bridging.isWindowOnScreen(item.windowID) {
-                    try await itemManager.click(item: item, with: .right)
+                    do {
+                        try await itemManager.click(item: item, with: .right)
+                    } catch {
+                        Logger.default.error("Error right-clicking menu bar item from the holzBar Shelf: \(error, privacy: .private)")
+                    }
                 } else {
                     await itemManager.temporarilyShow(item: item, clickingWith: .right)
                 }

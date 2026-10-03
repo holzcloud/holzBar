@@ -65,10 +65,10 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 ### Modern, lean and private
 
 - [x] **LEAN-01**: An analysis of the whole code base (written to `.planning/phases/05.1-modern-lean-and-private/05.1-ANALYSIS.md`) lists everything that can be more modern (2026 Swift/SwiftUI/AppKit idioms), more efficient (CPU, energy, memory, wake-ups, polling), smaller (binary and bundle size, dependencies, assets) and faster (launch time, UI), each with location, gain and risk; the user picks what gets done
-- [ ] **MOD-01**: Swift 6 language mode for all targets (strict concurrency, no `@unchecked Sendable` without a written reason)
-- [ ] **MOD-02**: Models use `@Observable` instead of `ObservableObject` + `@Published` + Combine
+- [x] **MOD-01**: Swift 6 language mode for all targets (strict concurrency, no `@unchecked Sendable` without a written reason)
+- [x] **MOD-02**: Models use `@Observable` instead of `ObservableObject` + `@Published` + Combine
 - [x] **MOD-03**: The old Ice migration chain is collapsed into one import step
-- [ ] **MOD-04**: `MenuBarItemManager` and `HIDEventManager` are split per backend (pre-26, 26, 27)
+- [x] **MOD-04**: `MenuBarItemManager` and `HIDEventManager` are split per backend (pre-26, 26, 27)
 - [x] **MOD-05**: Tests for migration, settings import/sync, URL commands and hotkeys
 - [x] **MOD-06**: Settings sync uses `NSFileCoordinator` / `NSMetadataQuery`
 - [x] **LEAN-02**: Every third-party dependency that the system frameworks can replace without losing a feature is removed (candidates: LaunchAtLogin-Modern → `SMAppService`, CompactSlider, Semaphore, Ifrit); the app bundle is measurably smaller (size before/after in the PR)
@@ -105,6 +105,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [ ] **THAW-16**: see `.planning/research/THAW.md`
 - [ ] **THAW-17**: see `.planning/research/THAW.md`
 
+- [ ] **SYNC-01**: Settings sync works with any synced folder, not only iCloud Drive: the user picks the folder (iCloud Drive as default, or Nextcloud, Dropbox, OneDrive, Syncthing, a network share …) in an open panel; holzBar only reads and writes `holzBar/Settings.plist` there with file coordination and file presentation (no polling, no network code — the folder's own client syncs); the choice is stored as a bookmark and survives renames; the Settings pane shows the folder and lets the user change or turn off sync; README, permissions table and comparison tables updated ("Settings sync: iCloud Drive or any synced folder")
 - [ ] **ICE-05**: localization (String Catalog: en, de, fr, it, rm) — see THAW.md
 
 ### Security and performance
@@ -117,6 +118,13 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [x] **PERF-04**: The menu bar search tolerates 1–2 typos (own code, no dependency) while in-order matches rank first
 - [x] **PERF-03**: Reveal rules react to power and network notifications instead of polling every 60 s
 
+### Toolchain and Apple APIs
+
+- [ ] **APPLE-01**: Adopt what Swift 6.4 brings where holzBar does worse today (language features, concurrency, Observation, Testing), and promote "built with Swift 6.4" in the README selling points and on the website
+- [ ] **APPLE-02**: No deprecated or soon-to-be-deprecated API where Apple names a replacement: build with deprecation warnings visible, review every remaining one (CGWindowList capture of off-screen items is the documented exception), replace the rest
+- [ ] **APPLE-03**: As soon as Xcode 27 is available on the CI runners (beta allowed by user decision 2026-10-03): build with it, adopt the macOS 27 SDK improvements where holzBar is worse today, and promote it in README and on the website
+- [ ] **APPLE-04**: UI follows the Human Interface Guidelines (settings layout, menu bar extras, permissions prompts, accessibility)
+
 ### Compatibility
 
 - [ ] **COMPAT-01**: macOS 26 (Tahoe) and macOS 27 are supported without restriction; this is mandatory
@@ -125,6 +133,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Release
 
+- [ ] **FACT-01**: Before the release, every claim in the README, on the website (all languages) and in the comparison tables is checked against the code and sources and corrected
 - [ ] **REL-01**: `0.0.6-beta1` is released with hand-written notes (brew trust, update, quarantine) and the cask points at it
 
 ### Security audit
@@ -198,10 +207,10 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | PERF-04 | Phase 5 | Complete |
 | PERF-03 | Phase 5 | Complete |
 | LEAN-01 | Phase 05.1 | Complete |
-| MOD-01 | Phase 05.1 | Pending |
-| MOD-02 | Phase 05.1 | Pending |
+| MOD-01 | Phase 05.1 | Complete |
+| MOD-02 | Phase 05.1 | Complete |
 | MOD-03 | Phase 05.1 | Complete |
-| MOD-04 | Phase 05.1 | Pending |
+| MOD-04 | Phase 05.1 | Complete |
 | MOD-05 | Phase 05.1 | Complete |
 | MOD-06 | Phase 05.1 | Complete |
 | LEAN-02 | Phase 05.1 | Complete |
@@ -230,11 +239,17 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | ICE-03 | Phase 05.1.1 | Pending |
 | ICE-04 | Phase 05.1.1 | Pending |
 | ICE-06 | Phase 05.1.1 | Pending |
+| SYNC-01 | Phase 05.1.1.1 | Pending |
 | ICE-05 | Phase 05.1.1.1 | Pending |
 | AUDIT-01 | Phase 6 | Pending |
 | COMPAT-01 | Phase 06.1 | Pending |
 | COMPAT-02 | Phase 06.1 | Pending |
 | COMPAT-03 | Phase 06.1 | Pending |
+| APPLE-01 | Phase 05.1.1.1.1 | Pending |
+| APPLE-02 | Phase 05.1.1.1.1 | Pending |
+| APPLE-03 | Phase 05.1.1.1.1 | Pending |
+| APPLE-04 | Phase 05.1.1.1.1 | Pending |
+| FACT-01 | Phase 7 | Pending |
 | REL-01 | Phase 7 | Pending |
 
 **Coverage:**

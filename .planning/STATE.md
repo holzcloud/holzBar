@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 05.1-02-PLAN.md
-last_updated: "2026-10-03T01:28:12.070Z"
+stopped_at: Completed 05.1-03-PLAN.md
+last_updated: "2026-10-03T02:39:34.510Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: 6e84afc27d1945491462fd53b99e46faeb9242bc
+state_head: dd67acf39b15d925a596d85a2a35902070808df4
 progress:
-  total_phases: 10
+  total_phases: 12
   completed_phases: 0
   total_plans: 23
-  completed_plans: 22
+  completed_plans: 23
 ---
 
 # Project State
@@ -77,6 +77,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05 P02 | 16min | 3 tasks | 11 files |
 | Phase 05.1 P01 | 23min | 3 tasks | 56 files |
 | Phase 05.1 P02 | 19min | 3 tasks | 35 files |
+| Phase 05.1 P03 | 85min | 3 tasks | 138 files |
 
 ## Accumulated Context
 
@@ -133,6 +134,9 @@ Recent decisions affecting current work:
 - [Phase 05.1]: Screen Recording is asked only in context (Shelf, search, Layout pane, menu bar shape); a permission not asked at launch polls at most 300 s after a request
 - [Phase 05.1]: Ice settings are migrated once during the import (LegacySettingsMigration); nothing migrates at launch
 - [Phase 05.1]: Every build keeps the hardened runtime; CI fails when the app or XPC service lacks it
+- [Phase 05.1]: 05.1-03: Swift 6 language mode (SWIFT_VERSION 6.2 = -swift-version 6) with MainActor default isolation; Core, macOS 27 core and Shared explicitly nonisolated
+- [Phase 05.1]: 05.1-03: @Observable everywhere; ObservationLoop (dedupes equatable values) and Debouncer replace Combine
+- [Phase 05.1]: 05.1-03: per-macOS behaviour through MenuBarBackends.current (WindowListBackend, ServiceBackend26, AccessibilityBackend27); event posting on the main actor
 
 ### Pending Todos
 
@@ -152,6 +156,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-03T01:28:12.001Z
-Stopped at: Completed 05.1-02-PLAN.md
+Last session: 2026-10-03T02:39:34.408Z
+Stopped at: Completed 05.1-03-PLAN.md
 Resume file: None

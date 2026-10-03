@@ -62,7 +62,7 @@ final class HolzBarShelfColorManager {
                 }
             },
             shelfPanel.observe(\.frame, options: [.initial, .new]) { [weak self] panel, _ in
-                Task { @MainActor in
+                Task { @MainActor [weak panel] in
                     self?.frameThrottle.throttle(latest: true) { [weak self, weak panel] in
                         guard
                             let self,

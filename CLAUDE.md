@@ -21,11 +21,13 @@ These hold for every change, always, without taking a feature away:
 - **Modern**: write code the way a macOS app is written today (current Swift language mode, Swift concurrency, `@Observable`, current SwiftUI/AppKit APIs); replace outdated APIs when touching code.
 - **Lean and fast**: as little CPU, energy, memory and disk as possible; no polling when an event or notification exists; small bundle, fast launch.
 - **Private**: the app never connects to the network — no telemetry, analytics, crash reporting, update checks or remote content. Opening a link in the browser is the only exception. Personal data stays on the Mac and out of logs.
+- **Apple's way**: follow Apple's guidance — Human Interface Guidelines, API documentation and deprecation notices, Swift API Design Guidelines. Use the API Apple recommends for the job; never build on deprecated or soon-to-be-deprecated API when a replacement exists; adopt improvements a new Xcode, Swift or SDK brings.
 - **Least privilege**: request only the permissions and entitlements a feature really needs, only when it needs them, and say why.
 
 ## Dependencies
 
 - Always use the latest stable version of every library, package, tool and GitHub Action (Swift packages, SwiftLint, Xcode, actions). No pre-releases. When touching a dependency, update it to the latest stable release.
+- Swift is the latest stable release toolchain from swift.org (currently 6.4.0), pinned with its SHA-256 next to Xcode in `.github/actions/select-xcode/action.yml` (`swift-version`, `swift-sha256`); bump both together. The language mode stays `SWIFT_VERSION = 6.2` (Swift 6 mode): Swift 6.4 offers no newer language mode (`swiftc` accepts 4, 4.2, 5 and 6), and Xcode compiles 6.2 and 6.4 alike as `-swift-version 6`.
 
 ## Naming
 
@@ -45,7 +47,7 @@ These hold for every change, always, without taking a feature away:
 - Updating is `brew update && brew upgrade --cask holzbar`: without `brew update` Homebrew may not have fetched the tap and reports the old version as the latest.
 - The cask uses Homebrew's structured steps (`postflight_steps`), not Ruby `postflight` blocks, and `depends_on macos: :sonoma` (a symbol, not a comparison string).
 - Every release note's install section includes how to take the app out of quarantine (`xattr -dr com.apple.quarantine /Applications/holzBar.app`).
-- Keep the comparison table "holzBar vs. Ice" (README and the website https://holzcloud.ch/holzbar) up to date with every relevant change: features, compatibility, privacy and permissions, code and resources (Swift version, dependencies, CPU/energy, size), distribution. Add a row when holzBar gains something Ice lacks, update a row when a 🔜 item lands, and never claim what is not true yet. Keep the README's feature list current too.
+- Keep the comparison table "holzBar vs. Ice and Thaw" (right below "Why holzBar?", whose table lists the main selling points) (README and the website https://holzcloud.ch/holzbar) up to date with every relevant change: features, compatibility, privacy and permissions, code and resources (Swift version, dependencies, CPU/energy, size), distribution. Add a row when holzBar gains something Ice lacks, update a row when a 🔜 item lands, and never claim what is not true yet. Keep the README's feature list current too. Promote what makes holzBar modern (current Swift and Xcode, no dependencies, privacy) in the README selling points and on the website. Before every release, re-check every claim in the README, the website and the comparison tables against the code and the sources, and fix anything that is not true.
 
 ## Layout
 
@@ -61,3 +63,5 @@ These hold for every change, always, without taking a feature away:
 ## Building
 
 macOS only (the Xcode pinned in `.github/actions/select-xcode/action.yml`, currently 26.6): `Scripts/install.sh` builds `holzBar.xcodeproj` (scheme `holzBar`) and installs `holzBar.app` to `~/Applications`. There is no Linux build; CI builds, runs `swift test` and runs SwiftLint (official image pinned in `lint.yml`, `.swiftlint.yml`, `--strict`).
+
+CI compiles with Swift 6.4 from swift.org, not with Xcode's own Swift: the select-xcode action selects Xcode 26.6 (SDK and build system; Xcode 27 is not on the GitHub runners), downloads `swift-6.4.0-RELEASE-osx.pkg`, checks its SHA-256 and Developer ID signature, installs it for the runner user and exports `TOOLCHAINS`, which `xcodebuild`, `swift test` and `xcrun` honor. The build job fails if xcodebuild did not use that toolchain. To do the same on a Mac (optional): `installer -pkg swift-6.4.0-RELEASE-osx.pkg -target CurrentUserHomeDirectory`, then `TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw -o - ~/Library/Developer/Toolchains/swift-6.4.0-RELEASE.xctoolchain/Info.plist) Scripts/install.sh`.

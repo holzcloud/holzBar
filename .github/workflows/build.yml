@@ -49,6 +49,14 @@ jobs:
           if [ -d "$APP" ]; then
             echo "==> App size: $(du -sk "$APP" | cut -f1) KB"
           fi
+          # Xcode compiled with the swift.org toolchain the select-xcode action
+          # installed, not with its own Swift.
+          SWIFTC_RUNS=$(grep -c -F "$HOLZBAR_SWIFT_TOOLCHAIN/usr/bin/swiftc" build.log || true)
+          echo "==> $SWIFTC_RUNS compiler invocations from $HOLZBAR_SWIFT_TOOLCHAIN"
+          if [ "$STATUS" -eq 0 ] && [ "$SWIFTC_RUNS" -eq 0 ]; then
+            echo "::error::xcodebuild did not use the Swift toolchain at $HOLZBAR_SWIFT_TOOLCHAIN"
+            exit 1
+          fi
           exit $STATUS
 
       # Every build is hardened (library validation, no DYLD variables, no injected code). The
@@ -207,5 +215,8 @@ jobs:
 
       - uses: ./.github/actions/select-xcode
 
+      # swift honors TOOLCHAINS (set by select-xcode): the tests run with the swift.org toolchain.
       - name: Run the unit tests
-        run: swift test
+        run: |
+          swift --version
+          swift test
