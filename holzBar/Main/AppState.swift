@@ -49,6 +49,9 @@ final class AppState {
     /// The frame of the application menu on each display, read off the main thread.
     let applicationMenuFrames = ApplicationMenuFrames()
 
+    /// Whether the Mac is in use (screen lock, sleep, session) and when the bar has settled.
+    let systemActivityMonitor = SystemActivityMonitor()
+
     /// Saved layout profiles.
     let profiles = LayoutProfiles()
 
@@ -121,6 +124,7 @@ final class AppState {
         permissions.stopAllChecks()
 
         settings.performSetup(with: self)
+        systemActivityMonitor.performSetup()
         applicationMenuFrames.performSetup()
         menuBarManager.performSetup(with: self)
 
@@ -142,7 +146,27 @@ final class AppState {
         spacers.performSetup()
         revealRules.performSetup(with: self)
 
+        systemActivityMonitor.onSettled { [weak self] in
+            self?.systemActivityDidSettle()
+        }
         configureObservers()
+    }
+
+    /// Brings holzBar up to date once the bar has settled after the screen was locked, the
+    /// Mac slept, the session was away or the displays changed: the input monitors are
+    /// checked, the items read again, the images refreshed where a view shows them, the
+    /// concealment of macOS 27 applied and the menu bar appearance restored.
+    private func systemActivityDidSettle() {
+        hidEventManager.healthCheck()
+        if #available(macOS 27.0, *) {
+            concealer27.update()
+        }
+        appearanceManager.systemActivityDidSettle()
+        Task {
+            await itemManager.cacheItemsRegardless()
+            await itemManager.retryPausedRehide()
+            await imageCache.updateCache()
+        }
     }
 
     /// Performs app state setup.

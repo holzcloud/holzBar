@@ -16,6 +16,13 @@ which is itself adapted from the PlatformRuntimeKit of Thaw by thaw-app
 (https://github.com/thaw-app/Thaw). Both are licensed under the GNU General Public
 License, version 3, like holzBar.
 
+Code adapted from Thaw by thaw-app (https://github.com/thaw-app/Thaw, GPL-3.0),
+one line per adapted file:
+
+  - holzBar/Core/MoveBackoff.swift is adapted from Thaw's
+    Thaw/MenuBar/MenuBarItems/MenuBarItemManager/MoveCircuitBreaker.swift
+    (Copyright (C) 2026 Toni Förster).
+
 The licenses of the open-source packages holzBar links are shown in the app under
 Settings, About, Acknowledgements.
 

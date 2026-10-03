@@ -30,6 +30,16 @@ final class MenuBarItemManager {
     /// A timer for rehiding temporarily shown menu bar items.
     @ObservationIgnored private var rehideTimer: Timer?
 
+    /// Pauses automatic moves after repeated failures or a repeatedly moved item.
+    @ObservationIgnored private var moveBackoff = MoveBackoff()
+
+    /// The end of the pause of automatic moves that was last logged, so it is logged once.
+    @ObservationIgnored private var loggedPauseEnd: ContinuousClock.Instant?
+
+    /// Whether temporarily shown items wait to be rehidden until automatic moves may run
+    /// again (on the next settle or user move) instead of retrying every 3 seconds.
+    @ObservationIgnored private var isRehideWaitingForMoves = false
+
     /// Tasks that observe the events that may change the item list.
     @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
 
@@ -128,7 +138,13 @@ final class MenuBarItemManager {
     }
 
     /// Reads the item list again once the events that may have changed it pause for 1 s.
+    ///
+    /// Nothing is read while the screen is locked, the Mac sleeps or the session is away;
+    /// the list is read once the bar has settled afterwards.
     private func itemListMayHaveChanged() {
+        if appState?.systemActivityMonitor.isPaused == true {
+            return
+        }
         itemListDebouncer.schedule { [weak self] in
             guard let self else {
                 return
@@ -407,6 +423,11 @@ extension MenuBarItemManager {
                 return
             }
 
+            guard appState?.systemActivityMonitor.isPaused != true else {
+                logger.debug("Skipping menu bar item cache while the Mac is not in use")
+                return
+            }
+
             guard !lastMoveOperationOccurred(within: .seconds(1)) else {
                 logger.debug("Skipping menu bar item cache due to recent item movement")
                 return
@@ -508,6 +529,9 @@ extension MenuBarItemManager {
             }
             do {
                 try await move(item: item, to: destination)
+            } catch EventError.automaticMovesPaused {
+                logger.warning("Automatic moves are paused, so not moving the remaining items into their sections")
+                break
             } catch {
                 logger.error("Error moving \(item.logString, privacy: .private(mask: .hash)) into \(section.logString, privacy: .public): \(error, privacy: .private)")
             }
@@ -529,7 +553,7 @@ extension MenuBarItemManager {
     /// what is there. Items whose identity changes on every launch are left alone,
     /// as they would be new every time.
     private func placeNewItems(_ items: [MenuBarItem], controlItems: ControlItemPair) async {
-        guard let appState else {
+        guard let appState, !appState.systemActivityMonitor.isPaused else {
             return
         }
 
@@ -573,6 +597,8 @@ extension MenuBarItemManager {
             do {
                 logger.info("Placing new item \(item.logString, privacy: .private(mask: .hash)) in \(section.logString, privacy: .public)")
                 try await move(item: item, to: destination)
+            } catch EventError.automaticMovesPaused {
+                break
             } catch {
                 logger.error("Error placing new item \(item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
             }
@@ -628,6 +654,8 @@ extension MenuBarItemManager {
         case itemResponseTimeout(MenuBarItem)
         /// A menu bar item's bounds cannot be found.
         case missingItemBounds(MenuBarItem)
+        /// Automatic moves are paused (see `MoveBackoff` and `SystemActivityMonitor`).
+        case automaticMovesPaused
 
         var description: String {
             switch self {
@@ -647,6 +675,8 @@ extension MenuBarItemManager {
                 "\(Self.self).itemResponseTimeout(item: \(item.tag))"
             case .missingItemBounds(let item):
                 "\(Self.self).missingItemBounds(item: \(item.tag))"
+            case .automaticMovesPaused:
+                "\(Self.self).automaticMovesPaused"
             }
         }
 
@@ -668,12 +698,18 @@ extension MenuBarItemManager {
                 "\"\(item.displayName)\" took too long to respond"
             case .missingItemBounds(let item):
                 "Missing bounds rectangle for \"\(item.displayName)\""
+            case .automaticMovesPaused:
+                "Automatic moves are paused"
             }
         }
 
         var recoverySuggestion: String? {
-            if case .itemNotMovable = self { return nil }
-            return "Please try again. If the error persists, please file a bug report."
+            switch self {
+            case .itemNotMovable, .automaticMovesPaused:
+                return nil
+            default:
+                return "Please try again. If the error persists, please file a bug report."
+            }
         }
     }
 }
@@ -704,19 +740,82 @@ extension MenuBarItemManager {
         }
     }
 
+    /// Who asked for a move.
+    nonisolated enum MoveOrigin {
+        /// The user, by dragging an item in the Layout pane or opening one from the Shelf,
+        /// search or a group. Always allowed; it ends a pause of automatic moves.
+        case user
+        /// holzBar itself: placing new items, keeping Live Activities visible, rehiding,
+        /// ordering the dividers or applying a profile. Paused by `MoveBackoff` and while
+        /// the Mac is not in use.
+        case automatic
+    }
+
     /// Moves a menu bar item to the given destination.
+    ///
+    /// An automatic move throws ``EventError/automaticMovesPaused`` while automatic moves
+    /// are paused: after repeated failures or a repeatedly moved item (`MoveBackoff`), and
+    /// while the screen is locked, the Mac sleeps or the session is away.
     ///
     /// - Parameters:
     ///   - item: The menu bar item to move.
     ///   - destination: The destination to move the item to.
-    func move(item: MenuBarItem, to destination: MoveDestination) async throws {
+    ///   - origin: Who asked for the move.
+    func move(item: MenuBarItem, to destination: MoveDestination, origin: MoveOrigin = .automatic) async throws {
         guard item.isMovable else {
             throw EventError.itemNotMovable(item)
         }
         guard let appState else {
             throw EventError.cannotComplete
         }
-        try await backend.move(item: item, to: destination, appState: appState)
+        switch origin {
+        case .user:
+            moveBackoff.recordUserMove()
+            loggedPauseEnd = nil
+        case .automatic:
+            try checkAutomaticMove(of: item, appState: appState)
+        }
+        do {
+            try await backend.move(item: item, to: destination, appState: appState)
+        } catch {
+            if origin == .automatic, moveBackoff.recordFailure(at: .now) {
+                logPausedMoves()
+            }
+            throw error
+        }
+        if origin == .user, isRehideWaitingForMoves {
+            // The user's move ended the pause; the waiting items are rehidden after the
+            // usual interval (not at once: this may be an item the user is opening).
+            isRehideWaitingForMoves = false
+            runRehideTimer()
+        }
+    }
+
+    /// Throws when an automatic move of the given item may not run now, and counts it
+    /// otherwise.
+    private func checkAutomaticMove(of item: MenuBarItem, appState: AppState) throws {
+        guard !appState.systemActivityMonitor.isPaused else {
+            throw EventError.automaticMovesPaused
+        }
+        let now = ContinuousClock.now
+        guard moveBackoff.allowsAutomaticMove(at: now) else {
+            logPausedMoves()
+            throw EventError.automaticMovesPaused
+        }
+        if moveBackoff.recordAutomaticMove(identifier: item.tag.description, at: now) {
+            logPausedMoves()
+            throw EventError.automaticMovesPaused
+        }
+    }
+
+    /// Logs the current pause of automatic moves, once per pause.
+    private func logPausedMoves() {
+        guard let pausedUntil = moveBackoff.pausedUntil, pausedUntil != loggedPauseEnd else {
+            return
+        }
+        loggedPauseEnd = pausedUntil
+        let seconds = Int(ContinuousClock.now.duration(to: pausedUntil).components.seconds)
+        logger.warning("Automatic moves paused until \(seconds, privacy: .public) s from now")
     }
 
     /// Clicks a menu bar item with the given mouse button.
@@ -880,7 +979,7 @@ extension MenuBarItemManager {
         logger.debug("Temporarily showing \(item.logString, privacy: .private(mask: .hash))")
 
         do {
-            try await move(item: item, to: .leftOfItem(targetItem))
+            try await move(item: item, to: .leftOfItem(targetItem), origin: .user)
         } catch {
             logger.error("Error showing item: \(error, privacy: .private)")
             return
@@ -924,6 +1023,16 @@ extension MenuBarItemManager {
         guard !temporarilyShownItemContexts.isEmpty else {
             return
         }
+        // While automatic moves are paused, the items wait for the next settle or user
+        // move instead of retrying every few seconds.
+        guard
+            !appState.systemActivityMonitor.isPaused,
+            moveBackoff.allowsAutomaticMove(at: .now)
+        else {
+            waitToRehide(appState: appState)
+            return
+        }
+        isRehideWaitingForMoves = false
         guard !temporarilyShownItemContexts.contains(where: { $0.isShowingInterface }) else {
             logger.debug("Menu bar item interface is shown, so waiting to rehide")
             runRehideTimer(for: 3)
@@ -961,6 +1070,11 @@ extension MenuBarItemManager {
             }
             do {
                 try await move(item: item, to: context.returnDestination)
+            } catch EventError.automaticMovesPaused {
+                // Paused during the rehide: the rest waits for the next settle or user move.
+                failedContexts.append(context)
+                failedContexts.append(contentsOf: currentContexts.reversed())
+                currentContexts.removeAll()
             } catch {
                 context.rehideAttempts += 1
                 logger.warning(
@@ -991,8 +1105,39 @@ extension MenuBarItemManager {
                 """
             )
             temporarilyShownItemContexts.append(contentsOf: failedContexts.reversed())
-            runRehideTimer(for: 3)
+            if appState.systemActivityMonitor.isPaused || !moveBackoff.allowsAutomaticMove(at: .now) {
+                waitToRehide(appState: appState)
+            } else {
+                runRehideTimer(for: 3)
+            }
         }
+    }
+
+    /// Lets the temporarily shown items wait while automatic moves are paused: they are
+    /// rehidden on the next settle or user move, or once when the back-off's pause ends.
+    private func waitToRehide(appState: AppState) {
+        logger.debug("Automatic moves are paused, so waiting to rehide")
+        isRehideWaitingForMoves = true
+        rehideTimer?.invalidate()
+        rehideTimer = nil
+        // While the Mac is not in use the settle brings them back; otherwise one timer
+        // fires as the pause ends.
+        guard !appState.systemActivityMonitor.isPaused, let pausedUntil = moveBackoff.pausedUntil else {
+            return
+        }
+        let remaining = ContinuousClock.now.duration(to: pausedUntil)
+        let seconds = Double(remaining.components.seconds) + Double(remaining.components.attoseconds) / 1e18
+        runRehideTimer(for: max(seconds, 0) + 1)
+    }
+
+    /// Rehides the temporarily shown items once, if they wait for automatic moves to be
+    /// allowed again (after a settle or a user move).
+    func retryPausedRehide() async {
+        guard isRehideWaitingForMoves else {
+            return
+        }
+        isRehideWaitingForMoves = false
+        await rehideTemporarilyShownItems()
     }
 
     /// Removes a temporarily shown item from the cache, ensuring that

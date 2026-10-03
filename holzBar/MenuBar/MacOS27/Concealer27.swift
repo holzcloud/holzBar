@@ -106,6 +106,11 @@ final class Concealer27 {
         guard let appState, MenuBarAssessmentAssertion27.isAvailable else {
             return
         }
+        // While the screen is locked, the Mac sleeps or the session is away, the assertions
+        // stay as they are; the concealment is applied again once the bar has settled.
+        guard !appState.systemActivityMonitor.isPaused else {
+            return
+        }
         if let suspendedUntil, ContinuousClock.now < suspendedUntil {
             return
         }

@@ -119,7 +119,7 @@ final class LayoutBarPaddingView: NSView {
         Task {
             try? await Task.sleep(for: .milliseconds(25))
             do {
-                try await appState.itemManager.move(item: item, to: destination)
+                try await appState.itemManager.move(item: item, to: destination, origin: .user)
                 appState.itemManager.removeTemporarilyShownItemFromCache(with: item.tag)
             } catch {
                 Logger.default.error("Error moving menu bar item: \(error, privacy: .private)")

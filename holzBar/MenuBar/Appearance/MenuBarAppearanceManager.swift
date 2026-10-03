@@ -106,6 +106,21 @@ final class MenuBarAppearanceManager {
         }
     }
 
+    /// Restores the appearance once the bar has settled after the screen was locked, the
+    /// Mac slept, the session was away or the displays changed (`SystemActivityMonitor`).
+    func systemActivityDidSettle() {
+        guard needsOverlayPanels(for: configuration) else {
+            return
+        }
+        if Set(overlayPanels.map(\.owningScreen)) != Set(NSScreen.screens) {
+            configureOverlayPanels(with: configuration)
+            return
+        }
+        for panel in overlayPanels {
+            panel.needsShow = true
+        }
+    }
+
     /// Returns a Boolean value that indicates whether a set of overlay panels
     /// is needed for the given configuration.
     func needsOverlayPanels(for configuration: MenuBarAppearanceConfigurationV2) -> Bool {

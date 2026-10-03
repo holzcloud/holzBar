@@ -254,6 +254,17 @@ final class HIDEventManager {
             }
         }
 
+        // A tap created before Accessibility was granted has no port; check the monitors
+        // once the permission is there.
+        let accessibility = appState.permissions.accessibility
+        observers.append(
+            ObservationLoop.observe { accessibility.hasPermission } onChange: { [weak self] hasPermission in
+                if hasPermission {
+                    self?.healthCheck()
+                }
+            }
+        )
+
         if let hiddenSection = appState.menuBarManager.section(withName: .hidden) {
             // In fullscreen mode, the menu bar slides down from the top on hover. Observe the
             // frame of the hidden section's control item, which we know will always be in the
@@ -286,6 +297,29 @@ final class HIDEventManager {
     func stopAll() {
         enabledStateStack.append(isEnabled)
         isEnabled = false
+    }
+
+    // MARK: Health Check
+
+    /// Repairs the running monitors: taps whose port is missing or invalid are created
+    /// again, AppKit's monitors are installed anew and the system item click tap is
+    /// restarted.
+    ///
+    /// Runs once the bar has settled after the screen was locked, the Mac slept, the
+    /// session was away or the displays changed, and when Accessibility is granted.
+    func healthCheck() {
+        var repaired = [String]()
+        for kind in InputMonitors.Kind.allCases where runningKinds.contains(kind) {
+            if monitor(for: kind).repair() {
+                repaired.append(String(describing: kind))
+            }
+        }
+        if let systemItemClickBridge, isSystemItemClickBridgeRunning {
+            systemItemClickBridge.stop()
+            systemItemClickBridge.start()
+            repaired.append("system item click tap")
+        }
+        logger.info("Health check: restarted \(repaired.joined(separator: ", "), privacy: .public)")
     }
 }
 
@@ -627,9 +661,17 @@ extension HIDEventManager {
 private protocol EventMonitorProtocol {
     func start()
     func stop()
+
+    /// Repairs the running monitor and returns whether it did anything.
+    func repair() -> Bool
 }
 
-extension EventMonitor: EventMonitorProtocol { }
+extension EventMonitor: EventMonitorProtocol {
+    fileprivate func repair() -> Bool {
+        restart()
+        return true
+    }
+}
 
 extension EventTap: EventMonitorProtocol {
     fileprivate func start() {
@@ -638,5 +680,11 @@ extension EventTap: EventMonitorProtocol {
 
     fileprivate func stop() {
         disable()
+    }
+
+    fileprivate func repair() -> Bool {
+        let wasHealthy = isValid && isEnabled
+        enable()
+        return !wasHealthy
     }
 }

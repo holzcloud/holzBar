@@ -135,6 +135,11 @@ final class ItemImageStore27 {
     /// going at once, 260–290 ms each (measured 2026-09-16), all asking the display server
     /// for the same strip while MenuBarAgent was animating the bar.
     func captureActiveMenuBar(appState: AppState, force: Bool = false) async {
+        // Nothing is photographed while the screen is locked, the Mac sleeps or the session
+        // is away.
+        guard !appState.systemActivityMonitor.isPaused else {
+            return
+        }
         if !force {
             // A capture already under way photographs the same bar this caller wants.
             if let captureTask {
@@ -235,6 +240,9 @@ final class ItemImageStore27 {
 
     /// Shows the applications of items that have no image for a moment, and captures them.
     func photographMissing(items: [MenuBarItem], appState: AppState) async {
+        guard !appState.systemActivityMonitor.isPaused else {
+            return
+        }
         let now = ProcessInfo.processInfo.systemUptime
         let bundleIDs = Set(items.compactMap { item -> String? in
             guard !item.isControlItem, image(for: item) == nil else {
