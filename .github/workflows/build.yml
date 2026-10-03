@@ -220,12 +220,19 @@ jobs:
             echo "==> holzBar is still running after 20 s on macOS $(sw_vers -productVersion)"
             kill "$PID"
           else
-            wait "$PID"
-            echo "::error::holzBar exited at launch on macOS $(sw_vers -productVersion) (status $?)"
+            STATUS=0
+            wait "$PID" || STATUS=$?
+            echo "::error::holzBar exited at launch on macOS $(sw_vers -productVersion) (status $STATUS)"
+            echo "==> Output"
             cat launch.log
-            ls -t ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i holzbar | head -1 | while read -r REPORT; do
-              head -80 ~/Library/Logs/DiagnosticReports/"$REPORT"
-            done
+            echo "==> Crash report"
+            sleep 5
+            REPORT=$(ls -t ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i holzbar | head -1 || true)
+            if [ -n "$REPORT" ]; then
+              head -c 20000 ~/Library/Logs/DiagnosticReports/"$REPORT"
+            fi
+            echo "==> Log"
+            log show --last 2m --style compact --predicate 'process == "holzBar"' 2>/dev/null | tail -60 || true
             exit 1
           fi
 
