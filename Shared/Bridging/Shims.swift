@@ -93,6 +93,11 @@ nonisolated func CGSManagedDisplayGetCurrentSpace(
     _ displayUUID: CFString
 ) -> CGSSpaceID
 
+/// Returns one dictionary per display with its spaces ("Display Identifier", "Current
+/// Space", "Spaces"; each space with "ManagedSpaceID" and "uuid"). Needs no permission.
+@_silgen_name("CGSCopyManagedDisplaySpaces")
+nonisolated func CGSCopyManagedDisplaySpaces(_ cid: CGSConnectionID) -> Unmanaged<CFArray>?
+
 @_silgen_name("CGSSpaceGetType")
 nonisolated func CGSSpaceGetType(
     _ cid: CGSConnectionID,

@@ -3,8 +3,8 @@
 //  holzBar
 //
 
+import AppKit
 import Observation
-import Foundation
 import OSLog
 
 /// A saved arrangement of menu bar items into sections.
@@ -18,7 +18,19 @@ struct LayoutProfile: Codable, Hashable, Identifiable {
     /// The section of each application, keyed by bundle identifier (macOS 27).
     var applicationSections: [String: Int]
 
+    /// The UUID of the display whose connection applies the profile. Optional, so
+    /// profiles saved before bindings existed decode unchanged.
+    var displayUUID: String?
+
+    /// The UUID of the Space whose activation applies the profile.
+    var spaceUUID: String?
+
     var id: String { name }
+
+    /// Whether the profile is bound to a display or a Space.
+    var isBound: Bool {
+        displayUUID != nil || spaceUUID != nil
+    }
 }
 
 /// Saves and applies layout profiles, such as "Work" and "Home"
@@ -36,12 +48,34 @@ final class LayoutProfiles {
     /// The name of the profile that was applied last.
     private(set) var currentProfileName: String?
 
+    /// Whether an item is being dragged in the Menu Bar Layout pane; a bound profile waits
+    /// until the drop.
+    @ObservationIgnored var isLayoutDragInProgress = false
+
     @ObservationIgnored private let logger = Logger(category: "LayoutProfiles")
     @ObservationIgnored private weak var appState: AppState?
+
+    /// The UUIDs of the displays connected at the last check.
+    @ObservationIgnored private var connectedDisplays = Set<String>()
+
+    /// Receives the changes of the active Space.
+    @ObservationIgnored private var spaceTask: Task<Void, Never>?
 
     func performSetup(with appState: AppState) {
         self.appState = appState
         load()
+        connectedDisplays = Self.connectedDisplayUUIDs()
+        // A display change is acted on once the bar has settled after it (THAW-11): only
+        // the displays that are new then can apply a profile.
+        appState.systemActivityMonitor.onSettled { [weak self] in
+            self?.systemActivityDidSettle()
+        }
+        spaceTask = Task { [weak self] in
+            let center = NSWorkspace.shared.notificationCenter
+            for await _ in center.notifications(named: NSWorkspace.activeSpaceDidChangeNotification) {
+                self?.activeSpaceDidChange()
+            }
+        }
     }
 
     private func load() {
@@ -84,7 +118,15 @@ final class LayoutProfiles {
             }
         }
         let applicationSections = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
-        let profile = LayoutProfile(name: name, itemSections: itemSections, applicationSections: applicationSections)
+        // A profile saved again under its name keeps its bindings.
+        let previous = profiles.first { $0.name == name }
+        let profile = LayoutProfile(
+            name: name,
+            itemSections: itemSections,
+            applicationSections: applicationSections,
+            displayUUID: previous?.displayUUID,
+            spaceUUID: previous?.spaceUUID
+        )
         profiles.removeAll { $0.name == name }
         profiles.append(profile)
         currentProfileName = name
@@ -144,6 +186,116 @@ final class LayoutProfiles {
     func replaceProfiles(with profiles: [LayoutProfile]) {
         self.profiles = profiles
         save()
+    }
+
+    /// Renames a profile; its hotkey moves with it. A name that another profile has is
+    /// refused.
+    func rename(_ profile: LayoutProfile, to newName: String) {
+        let newName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            !newName.isEmpty,
+            newName != profile.name,
+            !profiles.contains(where: { $0.name == newName }),
+            let index = profiles.firstIndex(where: { $0.name == profile.name })
+        else {
+            return
+        }
+        profiles[index].name = newName
+        if currentProfileName == profile.name {
+            currentProfileName = newName
+        }
+        save()
+        appState?.settings.hotkeys.moveHotkey(from: .applyProfile(profile.name), to: .applyProfile(newName))
+    }
+
+    // MARK: Bindings
+
+    /// Binds a profile to a display, or removes its display binding (`nil`). A display is
+    /// bound to one profile at most.
+    func bind(_ profile: LayoutProfile, toDisplay displayUUID: String?) {
+        for index in profiles.indices {
+            if profiles[index].name == profile.name {
+                profiles[index].displayUUID = displayUUID
+            } else if displayUUID != nil, profiles[index].displayUUID == displayUUID {
+                profiles[index].displayUUID = nil
+            }
+        }
+        save()
+    }
+
+    /// Binds a profile to a Space, or removes its Space binding (`nil`). A Space is bound
+    /// to one profile at most.
+    func bind(_ profile: LayoutProfile, toSpace spaceUUID: String?) {
+        for index in profiles.indices {
+            if profiles[index].name == profile.name {
+                profiles[index].spaceUUID = spaceUUID
+            } else if spaceUUID != nil, profiles[index].spaceUUID == spaceUUID {
+                profiles[index].spaceUUID = nil
+            }
+        }
+        save()
+    }
+
+    /// Removes both bindings of a profile.
+    func unbind(_ profile: LayoutProfile) {
+        guard let index = profiles.firstIndex(where: { $0.name == profile.name }) else {
+            return
+        }
+        profiles[index].displayUUID = nil
+        profiles[index].spaceUUID = nil
+        save()
+    }
+
+    /// The UUIDs of the connected displays.
+    static func connectedDisplayUUIDs() -> Set<String> {
+        Set(NSScreen.screens.compactMap { screen in
+            Bridging.getDisplayUUIDString(for: screen.displayID)
+        })
+    }
+
+    /// Applies the profile bound to a display that was connected meanwhile.
+    private func systemActivityDidSettle() {
+        let current = Self.connectedDisplayUUIDs()
+        let newlyConnected = ProfileBinding.newlyConnected(previous: connectedDisplays, current: current)
+        connectedDisplays = current
+        guard !newlyConnected.isEmpty, profiles.contains(where: { $0.displayUUID != nil }) else {
+            return
+        }
+        applyBoundProfile(for: .displaysConnected(newlyConnected, activeSpace: Bridging.getActiveSpaceUUID()))
+    }
+
+    /// Applies the profile bound to the Space that became active.
+    private func activeSpaceDidChange() {
+        guard
+            profiles.contains(where: { $0.spaceUUID != nil }),
+            let spaceUUID = Bridging.getActiveSpaceUUID()
+        else {
+            return
+        }
+        applyBoundProfile(for: .spaceChanged(spaceUUID))
+    }
+
+    /// Applies the profile `ProfileBinding` chooses for the event, unless Zen mode is on or
+    /// an item is being dragged in the Menu Bar Layout pane.
+    private func applyBoundProfile(for event: ProfileBinding.Event) {
+        guard
+            let appState,
+            !appState.menuBarManager.zenMode.isActive,
+            !isLayoutDragInProgress
+        else {
+            return
+        }
+        let bindings = profiles.map { profile in
+            ProfileBinding.Profile(name: profile.name, displayUUID: profile.displayUUID, spaceUUID: profile.spaceUUID)
+        }
+        guard
+            let name = ProfileBinding.profileToApply(profiles: bindings, event: event, currentProfile: currentProfileName),
+            let profile = profiles.first(where: { $0.name == name })
+        else {
+            return
+        }
+        logger.notice("Applying the bound layout profile \(name, privacy: .private)")
+        apply(profile)
     }
 }
 

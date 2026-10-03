@@ -112,6 +112,18 @@ nonisolated extension Bridging {
 
     // MARK: Public Display API
 
+    /// Returns the UUID of the given display as a string, which stays the same across
+    /// restarts and reconnections (unlike the display identifier).
+    static func getDisplayUUIDString(for displayID: CGDirectDisplayID) -> String? {
+        guard
+            let uuid = getDisplayUUID(for: displayID),
+            let string = CFUUIDCreateString(nil, uuid)
+        else {
+            return nil
+        }
+        return string as String
+    }
+
     /// Returns the identifier of the display with the active menu bar.
     static func getActiveMenuBarDisplayID() -> CGDirectDisplayID? {
         guard let string = CGSCopyActiveMenuBarDisplayIdentifier(getMainConnection()) else {
@@ -162,6 +174,40 @@ nonisolated extension Bridging {
     /// Returns the identifier for the active space.
     static func getActiveSpaceID() -> CGSSpaceID {
         CGSGetActiveSpace(getMainConnection())
+    }
+
+    /// Returns a stable identifier for the active space, which, unlike its number, stays
+    /// the same across restarts: the space's UUID from WindowServer.
+    ///
+    /// The first desktop of a display can have an empty UUID; it is then named after its
+    /// display. Every value is type-checked, so an unexpected shape returns `nil`.
+    static func getActiveSpaceUUID() -> String? {
+        let activeSpaceID = getActiveSpaceID()
+        guard
+            let unmanaged = CGSCopyManagedDisplaySpaces(getMainConnection()),
+            let displays = unmanaged.takeRetainedValue() as? [[String: Any]]
+        else {
+            return nil
+        }
+        for display in displays {
+            guard let spaces = display["Spaces"] as? [[String: Any]] else {
+                continue
+            }
+            for space in spaces {
+                let spaceID = (space["ManagedSpaceID"] as? Int) ?? (space["id64"] as? Int)
+                guard spaceID == activeSpaceID else {
+                    continue
+                }
+                if let uuid = space["uuid"] as? String, !uuid.isEmpty {
+                    return uuid
+                }
+                guard let displayIdentifier = display["Display Identifier"] as? String else {
+                    return nil
+                }
+                return "FirstSpace:" + displayIdentifier
+            }
+        }
+        return nil
     }
 
     /// Returns the identifier for the current space on the given

@@ -148,30 +148,39 @@ private struct LayoutProfilesSection: View {
     var profiles: LayoutProfiles
     @State private var isNamingProfile = false
     @State private var newProfileName = ""
+    @State private var renamedProfile: LayoutProfile?
+    @State private var renamedName = ""
+
+    /// Whether the rename alert is shown.
+    private var isRenaming: Binding<Bool> {
+        Binding {
+            renamedProfile != nil
+        } set: { isPresented in
+            if !isPresented {
+                renamedProfile = nil
+            }
+        }
+    }
 
     var body: some View {
         HolzBarSection("Profiles") {
+            ForEach(profiles.profiles) { profile in
+                LayoutProfileRow(
+                    profiles: profiles,
+                    profile: profile,
+                    isCurrent: profile.name == profiles.currentProfileName
+                ) {
+                    renamedName = profile.name
+                    renamedProfile = profile
+                }
+            }
             HStack {
                 if profiles.profiles.isEmpty {
                     Text("Save the current layout as a profile, for example \u{201C}Work\u{201D} or \u{201C}Home\u{201D}.")
                         .foregroundStyle(.secondary)
                 } else {
-                    Menu(profiles.currentProfileName ?? "Apply a Profile") {
-                        ForEach(profiles.profiles) { profile in
-                            Button(profile.name) {
-                                profiles.apply(profile)
-                            }
-                        }
-                        Divider()
-                        Menu("Delete") {
-                            ForEach(profiles.profiles) { profile in
-                                Button(profile.name, role: .destructive) {
-                                    profiles.delete(named: profile.name)
-                                }
-                            }
-                        }
-                    }
-                    .fixedSize()
+                    Text("Bind a profile to a display or a Space to apply it when you connect the display or switch to the Space.")
+                        .foregroundStyle(.secondary)
                 }
                 Spacer()
                 Button("Save Current Layout…") {
@@ -188,6 +197,109 @@ private struct LayoutProfilesSection: View {
             } message: {
                 Text("A profile with the same name is replaced. Apply it later from here, or with holzbar://profile/<name>.")
             }
+            .alert("Rename Profile", isPresented: isRenaming) {
+                TextField("Name", text: $renamedName)
+                Button("Rename") {
+                    if let renamedProfile {
+                        profiles.rename(renamedProfile, to: renamedName)
+                    }
+                }
+                Button("Cancel", role: .cancel) { }
+            }
+        }
+    }
+}
+
+// MARK: - LayoutProfileRow
+
+/// One saved profile: apply it, bind it to a display or a Space, rename or delete it.
+private struct LayoutProfileRow: View {
+    var profiles: LayoutProfiles
+    let profile: LayoutProfile
+    let isCurrent: Bool
+    let rename: () -> Void
+
+    /// The screen of the Settings window, which "This Display" means.
+    private var currentScreen: NSScreen? {
+        NSScreen.main
+    }
+
+    /// The name of the bound display, or `nil` when it is not connected.
+    private func displayName(for uuid: String) -> String? {
+        NSScreen.screens.first { screen in
+            Bridging.getDisplayUUIDString(for: screen.displayID) == uuid
+        }?.localizedName
+    }
+
+    /// What the profile is bound to, for the line below its name.
+    private var bindingDescription: Text? {
+        let display = profile.displayUUID.map { uuid in
+            displayName(for: uuid) ?? String(localized: "a display that is not connected")
+        }
+        switch (display, profile.spaceUUID) {
+        case (let display?, _?):
+            return Text("Bound to \(display) and a Space")
+        case (let display?, nil):
+            return Text("Bound to \(display)")
+        case (nil, _?):
+            return Text("Bound to a Space")
+        case (nil, nil):
+            return nil
+        }
+    }
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 4) {
+                    Text(profile.name)
+                    if isCurrent {
+                        Image(systemName: "checkmark")
+                            .foregroundStyle(.secondary)
+                            .accessibilityLabel("Applied")
+                    }
+                }
+                if let bindingDescription {
+                    bindingDescription
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            Button("Apply") {
+                profiles.apply(profile)
+            }
+            Menu("Bind") {
+                if let currentScreen, let uuid = Bridging.getDisplayUUIDString(for: currentScreen.displayID) {
+                    Button("To This Display (\(currentScreen.localizedName))") {
+                        profiles.bind(profile, toDisplay: uuid)
+                    }
+                }
+                if let spaceUUID = Bridging.getActiveSpaceUUID() {
+                    Button("To This Space") {
+                        profiles.bind(profile, toSpace: spaceUUID)
+                    }
+                }
+                Divider()
+                Button("Remove Binding") {
+                    profiles.unbind(profile)
+                }
+                .disabled(!profile.isBound)
+            }
+            .fixedSize()
+            Menu {
+                Button("Rename…", action: rename)
+                Button("Delete", role: .destructive) {
+                    profiles.delete(named: profile.name)
+                }
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .accessibilityLabel("More")
+            }
+            .menuStyle(.button)
+            .menuIndicator(.hidden)
+            .buttonStyle(.borderless)
+            .fixedSize()
         }
     }
 }

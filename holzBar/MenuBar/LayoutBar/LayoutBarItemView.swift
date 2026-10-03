@@ -226,6 +226,9 @@ extension LayoutBarItemView: NSDraggingSource {
         // prevent the dragging image from animating back to its original location
         session.animatesToStartingPositionsOnCancelOrFail = false
 
+        // A profile bound to a display or a Space waits until the drop.
+        appState?.profiles.isLayoutDragInProgress = true
+
         // async to prevent the view from disappearing before the dragging image appears
         Task {
             self.isDraggingPlaceholder = true
@@ -236,6 +239,7 @@ extension LayoutBarItemView: NSDraggingSource {
         defer {
             // always remove container info at the end of a session
             oldContainerInfo = nil
+            appState?.profiles.isLayoutDragInProgress = false
         }
 
         // since the session's `animatesToStartingPositionsOnCancelOrFail` property was

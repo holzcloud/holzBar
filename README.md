@@ -42,7 +42,7 @@ holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jord
 | 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. Hardened runtime, private logs. |
 | 🍃 **Lean** | No polling, no mouse tracking unless you use it, nothing kept in memory that nobody shows. |
 | 🪵 **macOS 27 compatible** | A dedicated backend for the redesigned macOS 27 menu bar drawn by `MenuBarAgent`. |
-| ✨ **More features** | Profiles, groups, spacers, a black menu bar, URL commands, settings sync — [see below](#-features). |
+| ✨ **More features** | Profiles, groups, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, settings sync — [see below](#-features). |
 | 🍺 **Homebrew first** | Install and update with one command. |
 
 ## ⚖️ holzBar vs. Ice and Thaw
@@ -63,6 +63,10 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Black menu bar, rounded screen corners | ❌ | corners only | ✅ |
 | Show hidden items on low battery or when offline | ❌ | — | ✅ |
 | URL commands and Raycast | ❌ | ✅ | ✅ |
+| Zen mode (also while presenting) | ❌ | ✅ | ✅ |
+| Hotkeys per profile and per item | ❌ | ✅ | ✅ |
+| Shortcuts actions (App Intents) | ❌ | ✅ | ✅ |
+| Profiles bound to a display or a Space | ❌ | ✅ | ✅ |
 | Export, import and sync settings | ❌ | no sync | ✅ |
 | Keep Live Activities visible | ❌ | — | ✅ <sub>experimental</sub> |
 | Show on scroll with a mouse wheel | ❌ | — | ✅ |
@@ -206,7 +210,8 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - ✅ Show on hover, click or scroll (trackpad **and mouse wheel**)
 - ✅ Automatic rehide
 - ✅ Drag-and-drop layout editor
-- ✅ **Layout profiles** — "Work", "Home", … one click or URL away
+- ✅ **Layout profiles** — "Work", "Home", … one click, hotkey or URL away
+- ✅ **Profiles bound to a display or a Space** — applied when you connect the display or switch to the Space
 - ✅ **Groups** — several items behind an icon of their own
 - ✅ **Spacers** — empty items of adjustable width
 - ✅ **Choose where new items appear**
@@ -234,8 +239,10 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 #### Automation
 - ✅ **Show hidden items when the battery is low or the network drops**
+- ✅ **Zen mode** — one hotkey, menu item, URL or Shortcuts action keeps hidden items hidden; optionally on while the screen is mirrored or shared, without any permission
+- ✅ **Shortcuts actions** — Zen mode, show or hide a section, apply a profile, open an item by name, search
 - ✅ **`holzbar://` URL commands** and [Raycast script commands](Integrations/Raycast)
-- ✅ Hotkeys for sections, search, the holzBar Shelf, app menus, **auto-rehide** and **a quick peek**
+- ✅ Hotkeys for sections, search, the holzBar Shelf, app menus, **auto-rehide**, **a quick peek**, **Zen mode**, **each layout profile** and **each menu bar item**
 
 </td>
 <td valign="top" width="50%">
