@@ -16,8 +16,13 @@ The scripts open `holzbar://` URLs, so the same commands work from Alfred, Short
 | `holzbar://shelf/toggle` | Turn the holzBar Shelf on or off | A setting the same command flips back |
 | `holzbar://auto-rehide/toggle` | Turn auto-rehide on or off | A setting the same command flips back |
 | `holzbar://application-menus/toggle` | Hide or show the application menus | Nothing persistent |
+| `holzbar://zen/toggle` | Turn Zen mode on or off: hidden items stay hidden until it is off | Nothing persistent |
 | `holzbar://profile/<name>` | Apply a saved layout profile | Rearranges items, asks first |
 
-Any app can open these URLs, so the only command that rearranges the menu bar asks first: holzBar shows "Apply the layout profile …?" with Cancel as the default answer. Shortcuts actions (App Intents) will run without the question, because you built them yourself.
+Any app can open these URLs, so the only command that rearranges the menu bar asks first: holzBar shows "Apply the layout profile …?" with Cancel as the default answer. While Zen mode is on, `show` and `toggle` of a hidden section are ignored.
+
+## Shortcuts
+
+The Shortcuts app offers the same actions without a script: **Toggle Zen Mode**, **Change Section** (show, hide or toggle the hidden or always-hidden section), **Apply Layout Profile**, **Open Menu Bar Item** (by name) and **Search Menu Bar Items**. They run inside holzBar without the question, because you built the shortcut yourself, and need no extra permission.
 
 `holzbar://ice-bar/toggle`, the command's name in Ice, still works.

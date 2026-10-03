@@ -26,17 +26,27 @@ final class Hotkey {
     /// Manages the lifetime of the hotkey observation.
     private var listener: Listener?
 
-    /// The hotkey's action.
-    let action: HotkeyAction
+    /// What the hotkey does: an action, applying a profile or opening an item.
+    let target: HotkeyTarget
+
+    /// The hotkey's action, for a hotkey of one of holzBar's actions.
+    var action: HotkeyAction? {
+        switch target {
+        case .action(let action):
+            action
+        case .applyProfile, .openItem:
+            nil
+        }
+    }
 
     /// A Boolean value that indicates whether the hotkey is enabled.
     var isEnabled: Bool {
         listener != nil
     }
 
-    /// Creates a hotkey with the given action and key combination.
-    init(action: HotkeyAction, keyCombination: KeyCombination? = nil) {
-        self.action = action
+    /// Creates a hotkey with the given target and key combination.
+    init(target: HotkeyTarget, keyCombination: KeyCombination? = nil) {
+        self.target = target
         self.keyCombination = keyCombination
     }
 
@@ -80,7 +90,7 @@ extension Hotkey {
                 guard let hotkey, let appState else {
                     return
                 }
-                hotkey.action.perform(appState: appState)
+                hotkey.target.perform(appState: appState)
             }
             guard let id else {
                 return nil
@@ -120,7 +130,7 @@ extension Hotkey {
 extension Hotkey: @MainActor Equatable {
     static func == (lhs: Hotkey, rhs: Hotkey) -> Bool {
         lhs.keyCombination == rhs.keyCombination &&
-        lhs.action == rhs.action
+        lhs.target == rhs.target
     }
 }
 
@@ -128,6 +138,6 @@ extension Hotkey: @MainActor Equatable {
 extension Hotkey: @MainActor Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(keyCombination)
-        hasher.combine(action)
+        hasher.combine(target)
     }
 }

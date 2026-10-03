@@ -26,6 +26,8 @@ one line per adapted file:
     Thaw/MenuBar/MenuBarItems/MenuBarItemTag.swift.
   - holzBar/MenuBar/Appearance/WallpaperChangeMonitor.swift is adapted from Thaw's
     Thaw/MenuBar/Appearance/WallpaperChangeMonitor.swift (Copyright (C) 2026 Toni Förster).
+  - holzBar/MenuBar/PresentationMonitor.swift adapts the mirroring check of Thaw's
+    Thaw/MenuBar/PresentationMonitor.swift (Copyright (C) 2026 Toni Förster).
 
 The licenses of the open-source packages holzBar links are shown in the app under
 Settings, About, Acknowledgements.

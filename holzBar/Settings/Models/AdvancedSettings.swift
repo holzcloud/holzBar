@@ -88,6 +88,14 @@ final class AdvancedSettings {
         }
     }
 
+    /// A Boolean value that indicates whether Zen mode turns on while a display is
+    /// mirrored or the screen is shared (`PresentationMonitor`).
+    var autoZenWhileSharingScreen = false {
+        didSet {
+            Defaults.set(autoZenWhileSharingScreen, forKey: .autoZenWhileSharingScreen)
+        }
+    }
+
     /// The shared app state.
     @ObservationIgnored private(set) weak var appState: AppState?
 
@@ -109,6 +117,7 @@ final class AdvancedSettings {
         Defaults.ifPresent(key: .showOnHoverDelay, assign: &showOnHoverDelay)
         Defaults.ifPresent(key: .tempShowInterval, assign: &tempShowInterval)
         Defaults.ifPresent(key: .keepLiveActivitiesVisible, assign: &keepLiveActivitiesVisible)
+        Defaults.ifPresent(key: .autoZenWhileSharingScreen, assign: &autoZenWhileSharingScreen)
 
         Defaults.ifPresent(key: .sectionDividerStyle) { rawValue in
             if let style = SectionDividerStyle(rawValue: rawValue) {

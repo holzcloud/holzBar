@@ -74,6 +74,9 @@ final class AppState {
     /// Rules that show hidden items when something happens.
     let revealRules = RevealRules()
 
+    /// Turns Zen mode on while the screen is mirrored or shared.
+    let presentationMonitor = PresentationMonitor()
+
     /// The action that opens holzBar's windows, handed over by its scenes.
     @ObservationIgnored private var openWindowAction: OpenWindowAction?
 
@@ -152,6 +155,7 @@ final class AppState {
         itemGroups.performSetup(with: self)
         spacers.performSetup()
         revealRules.performSetup(with: self)
+        presentationMonitor.performSetup(with: self)
 
         configureObservers()
     }

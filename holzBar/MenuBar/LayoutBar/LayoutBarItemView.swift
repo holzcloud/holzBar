@@ -4,6 +4,7 @@
 //
 
 import Cocoa
+import SwiftUI
 
 // MARK: - LayoutBarItemView
 
@@ -154,6 +155,35 @@ final class LayoutBarItemView: NSView {
         }
     }
 
+    // MARK: Context Menu
+
+    override func menu(for event: NSEvent) -> NSMenu? {
+        let menu = NSMenu(title: item.displayName)
+        let hotkeyItem = NSMenuItem(
+            title: "Set Hotkey…",
+            action: #selector(showHotkeyPopover),
+            keyEquivalent: ""
+        )
+        hotkeyItem.target = self
+        menu.addItem(hotkeyItem)
+        return menu
+    }
+
+    /// Shows a recorder for the hotkey that opens the item's menu.
+    @objc private func showHotkeyPopover() {
+        guard let appState else {
+            return
+        }
+        let key = appState.itemManager.identityKey(for: item)
+        let hotkey = appState.settings.hotkeys.hotkey(for: .openItem(key))
+        let popover = NSPopover()
+        popover.behavior = .transient
+        popover.contentViewController = NSHostingController(
+            rootView: ItemHotkeyView(hotkey: hotkey, itemName: item.displayName)
+        )
+        popover.show(relativeTo: bounds, of: self, preferredEdge: .maxY)
+    }
+
     override func mouseDragged(with event: NSEvent) {
         super.mouseDragged(with: event)
 
@@ -228,6 +258,26 @@ extension LayoutBarItemView: NSDraggingSource {
 }
 
 extension LayoutBarItemView: NSAccessibilityLayoutItem { }
+
+// MARK: - ItemHotkeyView
+
+/// The hotkey recorder for opening one item's menu.
+private struct ItemHotkeyView: View {
+    let hotkey: Hotkey
+    let itemName: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Open \u{201C}\(itemName)\u{201D} with a hotkey")
+                .font(.headline)
+            HotkeyRecorder(hotkey: hotkey) {
+                Text("Hotkey")
+            }
+        }
+        .padding()
+        .frame(width: 320)
+    }
+}
 
 // MARK: Layout Bar Item Pasteboard Type
 extension NSPasteboard.PasteboardType {

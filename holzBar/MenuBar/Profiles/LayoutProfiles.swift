@@ -99,6 +99,7 @@ final class LayoutProfiles {
             currentProfileName = nil
         }
         save()
+        appState?.settings.hotkeys.removeHotkey(for: .applyProfile(name))
     }
 
     /// Applies the profile with the given name, matched without regard to case.

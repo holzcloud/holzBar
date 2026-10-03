@@ -47,6 +47,7 @@ struct AdvancedSettingsPane: View {
                 enableSecondaryContextMenu
                 showOnHoverDelay
                 tempShowInterval
+                autoZenWhileSharingScreen
             }
             HolzBarSection("Show Hidden Items Automatically") {
                 RevealRulesSettings(rules: appState.revealRules)
@@ -205,6 +206,12 @@ struct AdvancedSettingsPane: View {
                 }
         }
         .annotation("The amount of time to wait before hiding temporarily shown menu bar items.")
+    }
+
+    @ViewBuilder
+    private var autoZenWhileSharingScreen: some View {
+        Toggle("Turn on Zen mode while the screen is mirrored or shared", isOn: $settings.autoZenWhileSharingScreen)
+            .annotation("Uses no permission: holzBar notices a mirrored display and macOS's screen sharing agent.")
     }
 
     @ViewBuilder

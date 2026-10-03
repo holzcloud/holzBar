@@ -175,6 +175,7 @@ nonisolated extension Defaults {
         case tempShowInterval = "TempShowInterval"
         case newItemsPlacement = "NewItemsPlacement"
         case keepLiveActivitiesVisible = "KeepLiveActivitiesVisible"
+        case autoZenWhileSharingScreen = "AutoZenWhileSharingScreen"
         case layoutProfiles = "LayoutProfiles"
         case currentLayoutProfile = "CurrentLayoutProfile"
         case syncsSettingsWithICloud = "SyncsSettingsWithICloud"
@@ -255,6 +256,7 @@ nonisolated extension Defaults.Key {
             .keepsDockIconHidden,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
+            .autoZenWhileSharingScreen,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,

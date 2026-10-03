@@ -3,8 +3,26 @@
 //  holzBar
 //
 
-// What each hotkey action does. The actions and their stored names are in
-// `holzBar/Core/HotkeyAction.swift`.
+// What each hotkey does. The actions and their stored names are in
+// `holzBar/Core/HotkeyAction.swift`, the targets in `holzBar/Core/HotkeyTarget.swift`.
+
+extension HotkeyTarget {
+    /// Performs what the hotkey is for.
+    @MainActor
+    func perform(appState: AppState) {
+        switch self {
+        case .action(let action):
+            action.perform(appState: appState)
+        case .applyProfile(let name):
+            // No question, unlike `holzbar://profile/<name>`: the user gave the profile
+            // this hotkey.
+            appState.profiles.apply(named: name)
+        case .openItem(let key):
+            appState.itemManager.openItem(withIdentityKey: key)
+        }
+    }
+}
+
 extension HotkeyAction {
     /// Performs the action.
     @MainActor
