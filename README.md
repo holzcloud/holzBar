@@ -180,14 +180,14 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ### holzBar vs. Ice
 
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 does, what it doesn't, and what holzBar adds. 🔜 marks work in progress in this beta.
+
 | | Ice 0.11.12 | holzBar |
 |---|:---:|:---:|
+| **Compatibility** | | |
 | macOS 14 – 26 | ✅ | ✅ |
-| **macOS 27** | ❌ | ✅ |
-| Install and update with Homebrew | ✅ | ✅ |
-| Updates | Sparkle (dialog can hang on macOS 26) | Homebrew |
-| No network connections (no update checks, telemetry or analytics) | ❌ | ✅ |
-| Third-party Swift packages | 5 | none |
+| **macOS 27** (new menu bar drawn by `MenuBarAgent`) | ❌ | ✅ |
+| **Features** | | |
 | Hidden and always-hidden sections, Ice Bar / holzBar Shelf, search, appearance | ✅ | ✅ |
 | Layout profiles | ❌ | ✅ |
 | Groups and spacers | ❌ | ✅ |
@@ -199,8 +199,27 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 | Export, import and sync settings | ❌ | ✅ |
 | Keep Live Activities visible | ❌ | ✅ <sub>experimental</sub> |
 | Show on scroll with a mouse wheel | ❌ | ✅ |
-| Fix for the permissions loop | ❌ | ✅ |
+| Search tolerates typos and abbreviations | ✅ (library) | ✅ (built in) |
+| Refuses hotkeys macOS cannot register, and says why | ❌ | ✅ |
+| **Privacy and permissions** | | |
+| Network connections (update checks, telemetry, analytics) | Sparkle update checks | **none** — enforced by CI |
+| Personal data (app names, item titles, paths) in logs | partly public | private, enforced by CI |
 | Asks for Screen Recording only when a feature needs it | ❌ | ✅ |
+| Settings import accepts only known keys of the right type | — (no import) | ✅ |
+| Menu bar item service accepts only holzBar's own code | team check only | team or exact code hash |
+| Fix for the permissions loop | ❌ | ✅ |
+| **Code and resources** | | |
+| Third-party Swift packages | 5 | **none** |
+| Swift language mode | Swift 5 | Swift 5 · 🔜 Swift 6 |
+| State management | Combine | Combine · 🔜 `@Observable` |
+| Mouse event tap when "Show on hover" is off | always running | off |
+| Timers and polling while nothing is shown | yes | only while needed |
+| Item images in memory | kept | released when unused |
+| Unit tests run on every change | none | ✅ 200+ |
+| App size | — | 13.5 MB (−9.5 % in this beta) |
+| **Distribution and maintenance** | | |
+| Install and update with Homebrew | ✅ | ✅ |
+| Updates | Sparkle (dialog can hang on macOS 26) | Homebrew |
 | Fixes from 282 open bug reports | — | [see the list](docs/upstream-bugs.md) |
 | Signed with a Developer ID | ✅ | ❌ (ad hoc; the cask handles it) |
 

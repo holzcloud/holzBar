@@ -45,7 +45,7 @@ These hold for every change, always, without taking a feature away:
 - Updating is `brew update && brew upgrade --cask holzbar`: without `brew update` Homebrew may not have fetched the tap and reports the old version as the latest.
 - The cask uses Homebrew's structured steps (`postflight_steps`), not Ruby `postflight` blocks, and `depends_on macos: :sonoma` (a symbol, not a comparison string).
 - Every release note's install section includes how to take the app out of quarantine (`xattr -dr com.apple.quarantine /Applications/holzBar.app`).
-- Keep the README's feature list and the comparison with Ice up to date when adding a feature.
+- Keep the comparison table "holzBar vs. Ice" (README and the website https://holzcloud.ch/holzbar) up to date with every relevant change: features, compatibility, privacy and permissions, code and resources (Swift version, dependencies, CPU/energy, size), distribution. Add a row when holzBar gains something Ice lacks, update a row when a 🔜 item lands, and never claim what is not true yet. Keep the README's feature list current too.
 
 ## Layout
 
