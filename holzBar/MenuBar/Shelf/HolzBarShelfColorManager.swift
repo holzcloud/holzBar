@@ -15,6 +15,9 @@ final class HolzBarShelfColorManager: ObservableObject {
 
     private var cancellables = Set<AnyCancellable>()
 
+    /// Captures the menu bar and wallpaper every 5 seconds, only while the Shelf is visible.
+    private var refreshTimer: AnyCancellable?
+
     func performSetup(with shelfPanel: HolzBarShelfPanel) {
         self.shelfPanel = shelfPanel
         configureCancellables()
@@ -40,17 +43,18 @@ final class HolzBarShelfColorManager: ObservableObject {
 
             shelfPanel.publisher(for: \.isVisible)
                 .receive(on: DispatchQueue.main)
-                .sink { [weak self, weak shelfPanel] isVisible in
-                    guard
-                        let self,
-                        let shelfPanel,
-                        let screen = shelfPanel.screen,
-                        isVisible,
-                        screen == .main
-                    else {
+                .sink { [weak self] isVisible in
+                    guard let self else {
                         return
                     }
-                    updateColorInfo(with: shelfPanel.frame, screen: screen)
+                    // The capture timer exists only while the Shelf is visible: a hidden
+                    // Shelf shows no colour, so capturing for it only woke holzBar.
+                    if isVisible {
+                        startRefreshTimer()
+                        refresh()
+                    } else {
+                        stopRefreshTimer()
+                    }
                 }
                 .store(in: &c)
 
@@ -72,7 +76,7 @@ final class HolzBarShelfColorManager: ObservableObject {
                 }
                 .store(in: &c)
 
-            Publishers.Merge4(
+            Publishers.Merge3(
                 NSWorkspace.shared.notificationCenter
                     .publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
                     .replace(with: ()),
@@ -81,32 +85,50 @@ final class HolzBarShelfColorManager: ObservableObject {
                     .replace(with: ()),
                 DistributedNotificationCenter.default()
                     .publisher(for: DistributedNotificationCenter.interfaceThemeChangedNotification)
-                    .replace(with: ()),
-                Timer.publish(every: 5, on: .main, in: .default)
-                    .autoconnect()
                     .replace(with: ())
             )
             .receive(on: DispatchQueue.main)
-            .sink { [weak self, weak shelfPanel] in
-                guard
-                    let self,
-                    let shelfPanel,
-                    let screen = shelfPanel.screen,
-                    screen == .main
-                else {
-                    return
-                }
-                updateWindowImage(for: screen)
-                if shelfPanel.isVisible {
-                    withAnimation {
-                        self.updateColorInfo(with: shelfPanel.frame, screen: screen)
-                    }
-                }
+            .sink { [weak self] in
+                self?.refresh()
             }
             .store(in: &c)
         }
 
         cancellables = c
+    }
+
+    /// Starts capturing every 5 seconds (with a tolerance, so macOS can coalesce it).
+    func startRefreshTimer() {
+        guard refreshTimer == nil else {
+            return
+        }
+        refreshTimer = Timer.publish(every: 5, tolerance: 1, on: .main, in: .default)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.refresh()
+            }
+    }
+
+    /// Stops the periodic capture.
+    func stopRefreshTimer() {
+        refreshTimer = nil
+    }
+
+    /// Captures the menu bar and wallpaper and, while the Shelf is visible, updates its colour.
+    private func refresh() {
+        guard
+            let shelfPanel,
+            let screen = shelfPanel.screen,
+            screen == .main
+        else {
+            return
+        }
+        updateWindowImage(for: screen)
+        if shelfPanel.isVisible {
+            withAnimation {
+                self.updateColorInfo(with: shelfPanel.frame, screen: screen)
+            }
+        }
     }
 
     private func updateWindowImage(for screen: NSScreen) {

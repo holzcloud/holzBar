@@ -91,7 +91,7 @@ class Permission: ObservableObject, Identifiable {
         guard timerCancellable == nil else {
             return
         }
-        timerCancellable = Timer.publish(every: 1, on: .main, in: .default)
+        timerCancellable = Timer.publish(every: 1, tolerance: 0.1, on: .main, in: .default)
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self else {

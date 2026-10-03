@@ -136,10 +136,23 @@ final class MenuBarManager: ObservableObject {
             }
             .store(in: &c)
 
+        // The average colour is shown only in Settings, so it is updated every
+        // 5 seconds only while the Settings window is visible (and once when it shows).
         $settingsWindow
             .removeNil()
             .flatMap { $0.publisher(for: \.isVisible) }
-            .discardMerge(Timer.publish(every: 5, on: .main, in: .default).autoconnect())
+            .removeDuplicates()
+            .map { isVisible -> AnyPublisher<Void, Never> in
+                guard isVisible else {
+                    return Empty().eraseToAnyPublisher()
+                }
+                return Timer.publish(every: 5, tolerance: 1, on: .main, in: .default)
+                    .autoconnect()
+                    .replace(with: ())
+                    .prepend(())
+                    .eraseToAnyPublisher()
+            }
+            .switchToLatest()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
                 self?.updateAverageColorInfo()

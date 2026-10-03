@@ -191,21 +191,30 @@ final class MenuBarOverlayPanel: NSPanel {
         }
         .store(in: &c)
 
-        // Continually update the desktop wallpaper. Ideally, we would set up an observer
-        // for a wallpaper change notification, but macOS doesn't post one anymore.
-        Timer.publish(every: 5, on: .main, in: .default)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.insertUpdateFlag(.desktopWallpaper)
-            }
-            .store(in: &c)
-
-        Timer.publish(every: 10, on: .main, in: .default)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.insertUpdateFlag(.applicationMenuFrame)
-            }
-            .store(in: &c)
+        // Update the desktop wallpaper when the space or the screens change, and on the
+        // distributed notification "com.apple.desktop" (posted for some wallpaper changes).
+        // macOS posts no reliable wallpaper notification, so a slow, tolerant fallback
+        // catches the rest; it replaced a 5 s timer per screen. The application menu frame
+        // needs no timer: the frontmost-application and mouse-up observers above update it.
+        Publishers.Merge4(
+            NSWorkspace.shared.notificationCenter
+                .publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
+                .replace(with: ()),
+            NotificationCenter.default
+                .publisher(for: NSApplication.didChangeScreenParametersNotification)
+                .replace(with: ()),
+            DistributedNotificationCenter.default()
+                .publisher(for: Notification.Name("com.apple.desktop"))
+                .replace(with: ()),
+            Timer.publish(every: 30, tolerance: 5, on: .main, in: .default)
+                .autoconnect()
+                .replace(with: ())
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] in
+            self?.insertUpdateFlag(.desktopWallpaper)
+        }
+        .store(in: &c)
 
         $needsShow
             .debounce(for: 0.05, scheduler: DispatchQueue.main)

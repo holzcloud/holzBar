@@ -171,14 +171,44 @@ final class AppState: ObservableObject {
         //   To account for variations in system timing, we publish a value
         //   immediately upon receipt of the event, then publish another value
         //   after a delay.
+        //
+        // The click monitor wakes holzBar on every click in the system and reads
+        // the active space twice, so it runs only where a click can change the
+        // space without a notification: in a fullscreen space or with more than
+        // one display (`InputMonitors.needsSpaceClickMonitor`). It is re-evaluated
+        // when the active space or the screens change.
+        let isSpaceClickMonitorNeeded = Publishers.CombineLatest(
+            $activeSpace.map(\.isFullscreen),
+            NotificationCenter.default
+                .publisher(for: NSApplication.didChangeScreenParametersNotification)
+                .replace(with: ())
+                .prepend(())
+                .map { _ in NSScreen.screens.count }
+        )
+        .map { isFullscreen, screenCount in
+            InputMonitors.needsSpaceClickMonitor(isFullscreenSpace: isFullscreen, screenCount: screenCount)
+        }
+        .removeDuplicates()
+
+        let spaceClicks = isSpaceClickMonitorNeeded
+            .map { isNeeded -> AnyPublisher<Void, Never> in
+                guard isNeeded else {
+                    return Empty().eraseToAnyPublisher()
+                }
+                return EventMonitor.publish(events: .leftMouseDown, scope: .universal)
+                    .flatMap { _ in
+                        let initial = Just(())
+                        let delayed = initial.delay(for: 0.1, scheduler: DispatchQueue.main)
+                        return Publishers.Merge(initial, delayed)
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .switchToLatest()
+
         NSWorkspace.shared.notificationCenter
             .publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
             .discardMerge(NSWorkspace.shared.publisher(for: \.frontmostApplication))
-            .discardMerge(EventMonitor.publish(events: .leftMouseDown, scope: .universal).flatMap { _ in
-                let initial = Just(())
-                let delayed = initial.delay(for: 0.1, scheduler: DispatchQueue.main)
-                return Publishers.Merge(initial, delayed)
-            })
+            .discardMerge(spaceClicks)
             .replace { Bridging.getActiveSpaceID() }
             .removeDuplicates()
             .sink { [weak self] spaceID in

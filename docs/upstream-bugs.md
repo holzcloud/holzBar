@@ -35,7 +35,7 @@ Issue numbers below refer to [jordanbaird/Ice](https://github.com/jordanbaird/Ic
 | Split shape on ultrawide and external displays | #94, #529, #573, #608 | |
 | Styling lost after sleep or launch at login | #53, #409, #525 | Appearance is not re-applied |
 | Volume and brightness HUD hidden with its item on macOS 26 | #701, #719 | macOS attaches the HUD to the item; may be unfixable |
-| High CPU, energy or memory | #334, #479, #530, #578, #819 | holzBar keeps one hover task instead of one per mouse move, stops permission polling once granted and reacts to power events instead of a 60 s timer; needs profiling on an affected Mac |
+| High CPU, energy or memory | #334, #479, #530, #578, #819 | holzBar keeps one hover task instead of one per mouse move, stops permission polling once granted and reacts to power events instead of a 60 s timer. Input taps (the mouse-moved tap above all) and refresh timers run only while a setting or an open view needs them, item images are released when nothing shows them, and no Swift package is linked; needs profiling on an affected Mac |
 | Dock icon appears while showing items | #397, #590, #768, #808, #906 | Activation policy switching |
 
 Not bugs, or not in the app: #745 (thanks), #752, #774, #935 (website), #939 (project status), #966 (another fork).

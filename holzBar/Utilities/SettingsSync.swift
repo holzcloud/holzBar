@@ -86,7 +86,7 @@ final class SettingsSync: ObservableObject {
             }
             .store(in: &cancellables)
 
-        Timer.publish(every: 300, on: .main, in: .default)
+        Timer.publish(every: 300, tolerance: 30, on: .main, in: .default)
             .autoconnect()
             .sink { [weak self] _ in
                 self?.checkForNewerSettings()

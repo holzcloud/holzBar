@@ -42,6 +42,9 @@ final class MenuBarItemManager: ObservableObject {
     /// The shared app state.
     private(set) weak var appState: AppState?
 
+    /// Notices item changes of the processes that own items, on macOS 27.
+    private let itemChangeObserver27 = ItemChangeObserver27()
+
     /// Sets up the manager.
     func performSetup(with appState: AppState) async {
         self.appState = appState
@@ -53,9 +56,42 @@ final class MenuBarItemManager: ObservableObject {
     private func configureCancellables(with appState: AppState) {
         var c = Set<AnyCancellable>()
 
-        NSWorkspace.shared.publisher(for: \.runningApplications)
-            .delay(for: 0.25, scheduler: DispatchQueue.main)
-            .discardMerge(Timer.publish(every: 5, on: .main, in: .default).autoconnect())
+        // The item list is read again on events: an application launches or quits, the
+        // active space or the screens change, or (on macOS 27) a process that owns items
+        // creates or destroys an Accessibility element. A slow, tolerant fallback catches
+        // an item that appears without any of these; it replaced a 5 s timer that read
+        // the window list (on macOS 27, every process through Accessibility) at idle.
+        var itemListChanges: [AnyPublisher<Void, Never>] = [
+            NSWorkspace.shared.publisher(for: \.runningApplications)
+                .delay(for: 0.25, scheduler: DispatchQueue.main)
+                .replace(with: ())
+                .eraseToAnyPublisher(),
+            NSWorkspace.shared.notificationCenter
+                .publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
+                .replace(with: ())
+                .eraseToAnyPublisher(),
+            NotificationCenter.default
+                .publisher(for: NSApplication.didChangeScreenParametersNotification)
+                .replace(with: ())
+                .eraseToAnyPublisher(),
+            Timer.publish(every: 60, tolerance: 10, on: .main, in: .default)
+                .autoconnect()
+                .replace(with: ())
+                .eraseToAnyPublisher(),
+        ]
+        if #available(macOS 27.0, *) {
+            itemListChanges.append(
+                NotificationCenter.default
+                    .publisher(for: .menuBarItemsMayHaveChanged27)
+                    .handleEvents(receiveOutput: { [weak self] notification in
+                        self?.logItemChangeNotification(notification)
+                    })
+                    .replace(with: ())
+                    .eraseToAnyPublisher()
+            )
+        }
+
+        Publishers.MergeMany(itemListChanges)
             .debounce(for: 1, scheduler: DispatchQueue.main)
             .sink { [weak self] in
                 guard let self else {
@@ -97,6 +133,15 @@ final class MenuBarItemManager: ObservableObject {
         }
 
         cancellables = c
+    }
+
+    /// Logs that an Accessibility notification of an item owner asks for a refresh.
+    private func logItemChangeNotification(_ notification: Notification) {
+        guard let pid = notification.userInfo?["pid"] as? pid_t else {
+            return
+        }
+        let bundleID = NSRunningApplication(processIdentifier: pid)?.bundleIdentifier ?? "unknown"
+        logger.debug("Item owner \(bundleID, privacy: .private(mask: .hash)) changed its elements, refreshing the item list")
     }
 
     /// Returns a Boolean value that indicates whether the most recent
@@ -375,6 +420,9 @@ extension MenuBarItemManager {
                 // holzBar launched on, and requiring them emptied the cache on the other display.
                 // An upgrade from an earlier macOS arrives with its sections in the bar's order and
                 // nowhere else, so the first readable bar is where they come from.
+                // Observe the processes that own items now; observers of quit ones go.
+                let ownPID = ProcessInfo.processInfo.processIdentifier
+                itemChangeObserver27.observe(owners: Set(items.map(\.ownerPID).filter { $0 != ownPID }))
                 appState.concealer27.seedLayoutIfNeeded(items: items)
                 appState.concealer27.placeNewApplications(items: items)
                 let cache = appState.concealer27.cacheFromSavedLayout(items: items, displayID: displayID)

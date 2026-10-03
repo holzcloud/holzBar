@@ -48,18 +48,18 @@ final class HIDEventManager: ObservableObject {
     /// A Boolean value that indicates whether the manager is enabled.
     private var isEnabled = false {
         didSet {
-            if isEnabled {
-                for monitor in allMonitors {
-                    monitor.start()
-                }
-            } else {
-                for monitor in allMonitors {
-                    monitor.stop()
-                }
+            updateMonitors()
+            if !isEnabled {
                 cancelHoverAction()
             }
         }
     }
+
+    /// The input monitors that are running.
+    private var runningKinds = Set<InputMonitors.Kind>()
+
+    /// Whether the macOS 27 system item click tap is running.
+    private var isSystemItemClickTapRunning = false
 
     /// Cancels the pending hover action.
     private func cancelHoverAction() {
@@ -158,22 +158,82 @@ final class HIDEventManager: ObservableObject {
         return event
     }
 
-    // MARK: All Monitors
+    // MARK: Running Monitors
 
-    /// All monitors maintained by the manager.
-    private lazy var allMonitors: [any EventMonitorProtocol] = {
-        var monitors: [any EventMonitorProtocol] = [
-            mouseDownMonitor,
-            mouseUpMonitor,
-            mouseDraggedMonitor,
-            mouseMovedTap,
-            scrollWheelMonitor,
-        ]
-        if #available(macOS 27.0, *) {
-            monitors.append(systemItemClickTap)
+    /// The monitor for the given kind of input event. Monitors are created on first use,
+    /// so one no setting needs (such as the mouse-moved tap) is never created.
+    private func monitor(for kind: InputMonitors.Kind) -> any EventMonitorProtocol {
+        switch kind {
+        case .mouseDown:
+            return mouseDownMonitor
+        case .mouseUp:
+            return mouseUpMonitor
+        case .mouseDragged:
+            return mouseDraggedMonitor
+        case .mouseMoved:
+            return mouseMovedTap
+        case .scrollWheel:
+            return scrollWheelMonitor
         }
-        return monitors
-    }()
+    }
+
+    /// The settings that decide which input monitors run.
+    private func inputMonitorSettings(appState: AppState) -> InputMonitors.Settings {
+        let general = appState.settings.general
+        let advanced = appState.settings.advanced
+        let rehidesSmartly = general.rehideStrategy == .smart
+        // The Shelf counts only when it is used on every display: elsewhere a click
+        // still has to pause show on hover.
+        let usesShelfEverywhere = general.useShelf && NSScreen.screens.allSatisfy { general.shelfDisplays.includes($0) }
+        return InputMonitors.Settings(
+            showOnClick: general.showOnClick,
+            showOnHover: general.showOnHover,
+            showOnScroll: general.showOnScroll,
+            autoRehide: general.autoRehide,
+            rehidesSmartly: rehidesSmartly,
+            secondaryContextMenu: advanced.enableSecondaryContextMenu,
+            usesShelf: usesShelfEverywhere,
+            showAllSectionsOnUserDrag: advanced.showAllSectionsOnUserDrag,
+            hasCustomAppearance: appState.appearanceManager.needsOverlayPanels(for: appState.appearanceManager.configuration)
+        )
+    }
+
+    /// Starts the monitors the current settings need and stops the others.
+    ///
+    /// Each monitor wakes holzBar for every event of its kind in the whole system; the
+    /// HID mouse-moved tap, for one, woke it on every mouse move even with "Show on
+    /// hover" off. So a monitor runs only while the manager is enabled and
+    /// `InputMonitors.needed(for:)` contains its kind. The macOS 27 system item click
+    /// tap is needed whenever the manager is enabled.
+    private func updateMonitors() {
+        var wanted = Set<InputMonitors.Kind>()
+        if isEnabled, let appState {
+            wanted = InputMonitors.needed(for: inputMonitorSettings(appState: appState))
+        }
+        for kind in InputMonitors.Kind.allCases {
+            let isRunning = runningKinds.contains(kind)
+            if wanted.contains(kind), !isRunning {
+                monitor(for: kind).start()
+                runningKinds.insert(kind)
+            } else if !wanted.contains(kind), isRunning {
+                monitor(for: kind).stop()
+                runningKinds.remove(kind)
+            }
+        }
+        // Without the drag monitors a drag can never end, so it is not going on.
+        if !runningKinds.contains(.mouseUp), isDraggingMenuBarItem {
+            isDraggingMenuBarItem = false
+        }
+        if #available(macOS 27.0, *) {
+            if isEnabled, !isSystemItemClickTapRunning {
+                systemItemClickTap.start()
+                isSystemItemClickTapRunning = true
+            } else if !isEnabled, isSystemItemClickTapRunning {
+                systemItemClickTap.stop()
+                isSystemItemClickTapRunning = false
+            }
+        }
+    }
 
     // MARK: Setup
 
@@ -187,6 +247,35 @@ final class HIDEventManager: ObservableObject {
     /// Configures the internal observers for the manager.
     private func configureCancellables() {
         var c = Set<AnyCancellable>()
+
+        if let appState {
+            let general = appState.settings.general
+            let advanced = appState.settings.advanced
+            // Re-evaluate the monitors whenever a setting that decides them changes.
+            // `@Published` emits before the value is stored, so read it on the next turn.
+            let settingsChanged: [AnyPublisher<Void, Never>] = [
+                general.$showOnClick.replace(with: ()).eraseToAnyPublisher(),
+                general.$showOnHover.replace(with: ()).eraseToAnyPublisher(),
+                general.$showOnScroll.replace(with: ()).eraseToAnyPublisher(),
+                general.$autoRehide.replace(with: ()).eraseToAnyPublisher(),
+                general.$rehideStrategy.replace(with: ()).eraseToAnyPublisher(),
+                general.$useShelf.replace(with: ()).eraseToAnyPublisher(),
+                general.$shelfDisplays.replace(with: ()).eraseToAnyPublisher(),
+                advanced.$enableSecondaryContextMenu.replace(with: ()).eraseToAnyPublisher(),
+                advanced.$showAllSectionsOnUserDrag.replace(with: ()).eraseToAnyPublisher(),
+                appState.appearanceManager.$configuration.replace(with: ()).eraseToAnyPublisher(),
+                NotificationCenter.default
+                    .publisher(for: NSApplication.didChangeScreenParametersNotification)
+                    .replace(with: ())
+                    .eraseToAnyPublisher(),
+            ]
+            Publishers.MergeMany(settingsChanged)
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] in
+                    self?.updateMonitors()
+                }
+                .store(in: &c)
+        }
 
         if let appState, let hiddenSection = appState.menuBarManager.section(withName: .hidden) {
             // In fullscreen mode, the menu bar slides down from the top on hover. Observe the
