@@ -105,6 +105,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [ ] **THAW-16**: see `.planning/research/THAW.md`
 - [ ] **THAW-17**: see `.planning/research/THAW.md`
 
+- [ ] **SYNC-01**: Settings sync works with any synced folder, not only iCloud Drive: the user picks the folder (iCloud Drive as default, or Nextcloud, Dropbox, OneDrive, Syncthing, a network share …) in an open panel; holzBar only reads and writes `holzBar/Settings.plist` there with file coordination and file presentation (no polling, no network code — the folder's own client syncs); the choice is stored as a bookmark and survives renames; the Settings pane shows the folder and lets the user change or turn off sync; README, permissions table and comparison tables updated ("Settings sync: iCloud Drive or any synced folder")
 - [ ] **ICE-05**: localization (String Catalog: en, de, fr, it, rm) — see THAW.md
 
 ### Security and performance
@@ -238,6 +239,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | ICE-03 | Phase 05.1.1 | Pending |
 | ICE-04 | Phase 05.1.1 | Pending |
 | ICE-06 | Phase 05.1.1 | Pending |
+| SYNC-01 | Phase 05.1.1.1 | Pending |
 | ICE-05 | Phase 05.1.1.1 | Pending |
 | AUDIT-01 | Phase 6 | Pending |
 | COMPAT-01 | Phase 06.1 | Pending |

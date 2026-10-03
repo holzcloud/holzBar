@@ -180,7 +180,7 @@ Plans:
 ### Phase 05.1.1.1: Thaw features (INSERTED)
 
 **Goal:** holzBar gains Thaw's best features within its principles (no network, least privilege, lean)
-**Requirements**: THAW-10, THAW-11, THAW-12, THAW-13, THAW-14, THAW-15, THAW-16, THAW-17, ICE-05
+**Requirements**: THAW-10, THAW-11, THAW-12, THAW-13, THAW-14, THAW-15, THAW-16, THAW-17, ICE-05, SYNC-01
 **Depends on:** Phase 05.1.1
 **Plans:** 3 plans (sequential waves; same PR as Phase 05.1.1, pushed once per plan)
 
