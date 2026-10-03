@@ -87,14 +87,14 @@ final class MenuBarItemEventPoster {
     }
 
     /// Returns the current bounds for the given item.
+    ///
+    /// `@concurrent` runs the window server query off the main actor.
+    @concurrent
     nonisolated func getCurrentBounds(for item: MenuBarItem) async throws -> CGRect {
-        let task = Task.detached(priority: .userInitiated) {
-            guard let bounds = Bridging.getWindowBounds(for: item.windowID) else {
-                throw EventError.missingItemBounds(item)
-            }
-            return bounds
+        guard let bounds = Bridging.getWindowBounds(for: item.windowID) else {
+            throw EventError.missingItemBounds(item)
         }
-        return try await task.value
+        return bounds
     }
 
     /// Returns the current mouse location.
