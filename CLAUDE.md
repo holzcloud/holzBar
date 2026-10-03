@@ -10,7 +10,7 @@ holzBar is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 ## Workflow
 
 - Work with **GSD** ([OpenGSD gsd-core](https://github.com/open-gsd/gsd-core)) whenever possible. It is installed locally in `.claude/` (commands `/gsd-*`, agents, hooks in `.claude/settings.json`), so every session has it. Planning state lives in `.planning/`. Start with `/gsd-help`; for this existing codebase, `/gsd-map-codebase` maps it and `/gsd-new-project` / `/gsd-plan-phase` / `/gsd-execute-phase` drive the work.
-- Save CI runs and credits: group several phases into one pull request where they fit together, and push once per plan (not after every task); wait for CI only after that push.
+- Save CI runs and credits: run CI as rarely as possible. Group several phases into one pull request, commit locally and push only once at the end of the work (then fix until green); never push after every task or plan.
 - Ask the user every question as a multiple choice (the AskUserQuestion tool), never as free text.
 - Update GSD with `npx -y @opengsd/gsd-core@latest --claude --local` and commit the result.
 
