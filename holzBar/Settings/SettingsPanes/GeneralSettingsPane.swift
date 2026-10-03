@@ -52,6 +52,9 @@ struct GeneralSettingsPane: View {
             HolzBarSection {
                 spacingOptions
             }
+            if #available(macOS 27.0, *) {
+                PrivacyIndicatorNote()
+            }
         }
     }
 
@@ -357,6 +360,35 @@ struct GeneralSettingsPane: View {
                 alert.runModal()
             }
             isApplyingItemSpacingOffset = false
+        }
+    }
+}
+
+// MARK: - PrivacyIndicatorNote
+
+/// Tells the user that macOS 27 hides Control Centre's privacy indicator while holzBar
+/// hides items.
+///
+/// On macOS 27 holzBar hides applications' items with a menu bar assessment assertion
+/// (`MenuBarAssessmentAssertion27`). While one is live, MenuBarAgent no longer draws Control
+/// Centre's capture indicator (green for the camera, orange for the microphone, indigo for
+/// screen sharing or recording), whatever the assertion keeps; only the small green dot
+/// beside the clock stays. Measured on macOS 27.0; holzBar cannot keep the indicator, so it
+/// says so.
+@available(macOS 27.0, *)
+private struct PrivacyIndicatorNote: View {
+    var body: some View {
+        HolzBarSection {
+            VStack(alignment: .leading, spacing: 3) {
+                Label("The camera and microphone indicator is hidden", systemImage: "exclamationmark.triangle")
+                    .font(.headline)
+                Text("On macOS 27, while holzBar hides menu bar items, Control Centre does not show its indicator for the camera, the microphone or screen recording. It comes back while holzBar hides no item. The small green dot beside the clock still appears while the camera is on.")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(15)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

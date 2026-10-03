@@ -140,6 +140,9 @@ Everything holzBar asks macOS for, the feature that needs it and when it is aske
 | **Info.plist usage strings** | None: macOS does not use them for Accessibility and Screen Recording | — |
 | **Reset and Grant Again** | Runs `tccutil reset` for holzBar's own entry only, when a stale permission keeps the permissions window open | Only when you click it |
 
+> [!WARNING]
+> **macOS 27: the camera, microphone and screen recording indicator.** While holzBar hides menu bar items on macOS 27, Control Centre does not show its privacy indicator — green for the camera, orange for the microphone, indigo for screen sharing or recording. The small green dot beside the clock still appears while the camera is on. The indicator comes back while holzBar hides no item. holzBar needs no permission for this and cannot prevent it: macOS removes the indicator whenever an app hides items the way holzBar must on macOS 27. **Settings → General** says so too.
+
 ## 🚀 Install
 
 ### Homebrew <sub>(recommended)</sub>
@@ -206,6 +209,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 - Items can't be reordered on the bar itself — only assigned to sections.
 - Opening a system item (clock, battery, Wi-Fi) while hidden items are concealed adds ~150 ms.
+- **The privacy indicator is hidden while items are hidden.** Control Centre's indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item; the small green dot beside the clock still shows the camera. It comes back while holzBar hides no item. See [Permissions](#permissions).
 - After an update, macOS may ask for Accessibility again. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.
 
 ## 🧰 Features
