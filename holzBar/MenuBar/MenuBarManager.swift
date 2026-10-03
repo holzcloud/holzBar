@@ -43,8 +43,20 @@ final class MenuBarManager: ObservableObject {
     /// The panel that contains the holzBar Shelf interface.
     let shelfPanel = HolzBarShelfPanel()
 
-    /// The panel that contains the menu bar search interface.
-    let searchPanel = MenuBarSearchPanel()
+    /// Whether the search panel was created before the setup, which then sets it up.
+    private var searchPanelNeedsSetup = false
+
+    /// The panel that contains the menu bar search interface, created and set up the
+    /// first time it is used.
+    private(set) lazy var searchPanel: MenuBarSearchPanel = {
+        let panel = MenuBarSearchPanel()
+        if let appState = self.appState {
+            panel.performSetup(with: appState)
+        } else {
+            self.searchPanelNeedsSetup = true
+        }
+        return panel
+    }()
 
     /// The panel that contains a portable version of the menu bar
     /// appearance editor interface
@@ -68,7 +80,10 @@ final class MenuBarManager: ObservableObject {
         self.appState = appState
         configureCancellables()
         shelfPanel.performSetup(with: appState)
-        searchPanel.performSetup(with: appState)
+        if searchPanelNeedsSetup {
+            searchPanelNeedsSetup = false
+            searchPanel.performSetup(with: appState)
+        }
         appearanceEditorPanel.performSetup(with: appState)
         for section in sections {
             section.performSetup(with: appState)

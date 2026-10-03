@@ -21,17 +21,15 @@ echo "==> Building"
 # builds for anyone, without an Apple developer team. The project sets no team, and
 # Automatic signing without one refuses to sign at all.
 #
-# The hardened runtime is turned off on purpose. With an ad hoc signature the hardened
-# runtime refuses to load any embedded framework that carries a team of its own (Sparkle
-# did, until this fork dropped it): "mapping process and mapped file (non-platform) have
-# different Team IDs". `codesign --verify --deep --strict` passes all the same, so the
-# script used to install a bundle that could not launch for anyone without a team
-# (reported on jordanbaird/Ice#1006 by @Theralley). A copy installed from here is run by
-# its builder, not distributed, so it loses nothing by it.
+# The hardened runtime stays on, as in the project and the release. With an ad hoc
+# signature, library validation refuses any embedded framework that carries a team of its
+# own ("mapping process and mapped file (non-platform) have different Team IDs", reported on
+# jordanbaird/Ice#1006 by @Theralley), and `codesign --verify` would not notice. holzBar
+# embeds no framework and links no package, and the system framework it opens at runtime is
+# a platform binary, so everything it needs loads.
 xcodebuild -project "$ROOT/holzBar.xcodeproj" -scheme holzBar -configuration Release \
     -destination 'platform=macOS' -derivedDataPath "$DERIVED" build \
     CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
-    ENABLE_HARDENED_RUNTIME=NO \
     | tail -3
 
 APP="$DERIVED/Build/Products/Release/holzBar.app"
@@ -40,7 +38,7 @@ APP="$DERIVED/Build/Products/Release/holzBar.app"
 echo "==> Verifying the signature before installing"
 # The whole point: never install something that will not launch.
 codesign --verify --deep --strict "$APP"
-codesign -dv "$APP" 2>&1 | grep -E 'Identifier=|TeamIdentifier=' | sed 's/^/    /'
+codesign -dv "$APP" 2>&1 | grep -E 'Identifier=|TeamIdentifier=|^CodeDirectory' | sed 's/^/    /'
 
 echo "==> Installing to $DEST"
 if pgrep -x holzBar >/dev/null 2>&1; then

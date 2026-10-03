@@ -22,12 +22,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: NSApplicationDelegate Methods
 
-    func applicationWillFinishLaunching(_ notification: Notification) {
-        // Initial chore work.
-        NSSplitViewItem.swizzle()
-        MigrationManager(appState: appState).migrateAll()
-    }
-
     func application(_ application: NSApplication, open urls: [URL]) {
         // holzbar:// commands from other apps. The scenes never handle them
         // (`HolzBarWindow` matches no external event).
@@ -46,13 +40,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Allow hiding the mouse while the app is in the background
         // to make menu bar item movement less jarring.
         Bridging.setConnectionProperty(true, forKey: "SetsCursorInBackground")
-
-        #if DEBUG
-        // Don't perform setup if running as a preview.
-        if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
-            return
-        }
-        #endif
 
         // After a relaunch, the previous instance may still hold the hotkeys and status
         // items for a moment, so wait until it has quit.

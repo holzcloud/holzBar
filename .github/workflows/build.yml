@@ -18,14 +18,14 @@ jobs:
 
       - uses: ./.github/actions/select-xcode
 
-      # Same settings as the release build (see release.yml), without publishing.
+      # Same settings as the release build (see release.yml), without publishing: signed ad
+      # hoc, with the hardened runtime the project turns on for both targets.
       - name: Build
         run: |
           set +e
           xcodebuild -project holzBar.xcodeproj -scheme holzBar -configuration Release \
             -destination 'platform=macOS' -derivedDataPath build build \
-            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
-            ENABLE_HARDENED_RUNTIME=NO > build.log 2>&1
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= > build.log 2>&1
           STATUS=$?
           # The Release build compiles arm64 and x86_64, so every warning
           # appears twice in build.log; list each one once, relative to the
@@ -42,6 +42,24 @@ jobs:
             echo "==> App size: $(du -sk "$APP" | cut -f1) KB"
           fi
           exit $STATUS
+
+      # Every build is hardened (library validation, no DYLD variables, no injected code). The
+      # app and its XPC service must both carry the runtime flag in their code directory.
+      - name: Check the signature
+        run: |
+          APP=build/Build/Products/Release/holzBar.app
+          SERVICE="$APP/Contents/XPCServices/MenuBarItemService.xpc"
+          codesign --verify --deep --strict "$APP"
+          for BUNDLE in "$APP" "$SERVICE"; do
+            codesign --verify --strict "$BUNDLE"
+            FLAGS=$(codesign -dv "$BUNDLE" 2>&1 | grep -E '^CodeDirectory' || true)
+            echo "$(basename "$BUNDLE"): $FLAGS"
+            if ! echo "$FLAGS" | grep -qE 'flags=0x[0-9a-f]+\([^)]*runtime'; then
+              echo "::error::$(basename "$BUNDLE") is not signed with the hardened runtime"
+              exit 1
+            fi
+          done
+          echo "==> Hardened runtime: holzBar.app and MenuBarItemService.xpc"
 
       # The app connects to its embedded XPC service by MenuBarItemService.name; a mismatch
       # silently breaks item discovery on macOS 26, which no CI test would otherwise notice.

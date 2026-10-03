@@ -13,8 +13,8 @@ final class HolzBarShelfPanel: NSPanel {
     /// The shared app state.
     private weak var appState: AppState?
 
-    /// Manager for the holzBar Shelf's color.
-    private let colorManager = HolzBarShelfColorManager()
+    /// Manager for the holzBar Shelf's color, created when the Shelf is first shown.
+    private var colorManager: HolzBarShelfColorManager?
 
     /// The currently displayed section.
     private(set) var currentSection: MenuBarSection.Name?
@@ -46,7 +46,18 @@ final class HolzBarShelfPanel: NSPanel {
     func performSetup(with appState: AppState) {
         self.appState = appState
         configureCancellables()
+    }
+
+    /// Returns the manager for the Shelf's color, creating and setting it up the first
+    /// time the Shelf is shown.
+    private func colorManagerForShowing() -> HolzBarShelfColorManager {
+        if let colorManager {
+            return colorManager
+        }
+        let colorManager = HolzBarShelfColorManager()
         colorManager.performSetup(with: self)
+        self.colorManager = colorManager
+        return colorManager
     }
 
     /// Configures the internal observers.
@@ -193,6 +204,7 @@ final class HolzBarShelfPanel: NSPanel {
             }
         }
 
+        let colorManager = colorManagerForShowing()
         contentView = HolzBarShelfHostingView(
             appState: appState,
             colorManager: colorManager,
