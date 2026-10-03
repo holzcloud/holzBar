@@ -71,6 +71,8 @@ extension HotkeyAction {
             appState.settings.general.autoRehide.toggle()
         case .toggleZenMode:
             appState.menuBarManager.toggleZenMode()
+        case .showItemHints:
+            appState.menuBarManager.itemHintsPanel.toggle()
         }
     }
 }

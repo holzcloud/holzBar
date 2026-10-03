@@ -459,19 +459,7 @@ private struct HolzBarShelfItemView: View {
             menuBarManager.section(withName: section)?.hide()
             Task {
                 try? await Task.sleep(for: .milliseconds(25))
-                if #available(macOS 27.0, *), let appState = itemManager.appState {
-                    await ItemClicker27.click(item: item, mouseButton: .left, shelfDisplayID: shelfDisplayID, appState: appState)
-                    return
-                }
-                if Bridging.isWindowOnScreen(item.windowID) {
-                    do {
-                        try await itemManager.click(item: item, with: .left)
-                    } catch {
-                        Logger.default.error("Error left-clicking menu bar item from the holzBar Shelf: \(error, privacy: .private)")
-                    }
-                } else {
-                    await itemManager.temporarilyShow(item: item, clickingWith: .left)
-                }
+                await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: shelfDisplayID)
             }
         }
     }
@@ -485,19 +473,7 @@ private struct HolzBarShelfItemView: View {
             menuBarManager.section(withName: section)?.hide()
             Task {
                 try? await Task.sleep(for: .milliseconds(25))
-                if #available(macOS 27.0, *), let appState = itemManager.appState {
-                    await ItemClicker27.click(item: item, mouseButton: .right, shelfDisplayID: shelfDisplayID, appState: appState)
-                    return
-                }
-                if Bridging.isWindowOnScreen(item.windowID) {
-                    do {
-                        try await itemManager.click(item: item, with: .right)
-                    } catch {
-                        Logger.default.error("Error right-clicking menu bar item from the holzBar Shelf: \(error, privacy: .private)")
-                    }
-                } else {
-                    await itemManager.temporarilyShow(item: item, clickingWith: .right)
-                }
+                await itemManager.openItem(item, mouseButton: .right, shelfDisplayID: shelfDisplayID)
             }
         }
     }

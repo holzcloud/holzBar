@@ -41,6 +41,7 @@ struct HotkeysSettingsPane: View {
             }
             HolzBarSection("Menu Bar Items") {
                 hotkeyRecorder(forAction: .searchMenuBarItems)
+                hotkeyRecorder(forAction: .showItemHints)
                 itemHotkeyRows
             }
             HolzBarSection("Layout Profiles") {
@@ -128,6 +129,8 @@ struct HotkeysSettingsPane: View {
                     Text("Turn auto-rehide on or off")
                 case .toggleZenMode:
                     Text("Zen mode")
+                case .showItemHints:
+                    Text("Open an item by letter")
                 }
             }
         }

@@ -226,7 +226,8 @@ private struct MenuBarItemGroupPanel: View {
                         Button {
                             close()
                             Task {
-                                await MenuBarItemActions.click(item, with: .left, itemManager: itemManager)
+                                try? await Task.sleep(for: .milliseconds(25))
+                                await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil)
                             }
                         } label: {
                             if let image = imageCache.images[item.tag]?.nsImage {
@@ -243,25 +244,5 @@ private struct MenuBarItemGroupPanel: View {
         }
         .padding(12)
         .frame(minWidth: 180)
-    }
-}
-
-// MARK: - MenuBarItemActions
-
-/// Clicks a menu bar item from outside the menu bar, showing it first if it is
-/// hidden, the way the holzBar Shelf does.
-@MainActor
-enum MenuBarItemActions {
-    static func click(_ item: MenuBarItem, with mouseButton: CGMouseButton, itemManager: MenuBarItemManager) async {
-        try? await Task.sleep(for: .milliseconds(25))
-        if #available(macOS 27.0, *), let appState = itemManager.appState {
-            await ItemClicker27.click(item: item, mouseButton: mouseButton, shelfDisplayID: nil, appState: appState)
-            return
-        }
-        if Bridging.isWindowOnScreen(item.windowID) {
-            try? await itemManager.click(item: item, with: mouseButton)
-        } else {
-            await itemManager.temporarilyShow(item: item, clickingWith: mouseButton)
-        }
     }
 }

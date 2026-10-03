@@ -30,4 +30,5 @@ nonisolated enum HotkeyAction: String, Codable, CaseIterable {
 
     // Added by holzBar; new actions go at the end.
     case toggleZenMode = "ToggleZenMode"
+    case showItemHints = "ShowItemHints"
 }

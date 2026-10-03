@@ -20,6 +20,7 @@ struct HotkeyStorageTests {
             "ToggleApplicationMenus",
             "ToggleAutoRehide",
             "ToggleZenMode",
+            "ShowItemHints",
         ])
     }
 

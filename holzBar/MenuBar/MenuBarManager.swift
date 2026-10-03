@@ -65,6 +65,16 @@ final class MenuBarManager {
         return panel
     }()
 
+    /// The panel that shows a letter for every item (item hints), created the first time
+    /// it is used.
+    @ObservationIgnored private(set) lazy var itemHintsPanel: ItemHintsPanel = {
+        let panel = ItemHintsPanel()
+        if let appState = self.appState {
+            panel.performSetup(with: appState)
+        }
+        return panel
+    }()
+
     /// The panel that contains a portable version of the menu bar
     /// appearance editor interface
     let appearanceEditorPanel = MenuBarAppearanceEditorPanel()
