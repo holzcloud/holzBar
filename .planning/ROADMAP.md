@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Ice and Sparkle leftovers** - Acknowledgements, credits, docs, templates, dead code and files removed
 - [x] **Phase 4: Outdated APIs** - Modern URL, UserDefaults, CFPreferences, URL-open, window and AX APIs; AXSwift removed
 - [x] **Phase 5: Security and performance** - Validated settings import, private logging, Caches storage, no needless tasks or polling
-- [ ] **Phase 05.1: Modern, lean and private** (INSERTED) - 2026 code, Swift 6, @Observable, fewer dependencies, no network, least privilege
+- [x] **Phase 05.1: Modern, lean and private** (INSERTED) - 2026 code, Swift 6, @Observable, fewer dependencies, no network, least privilege
 - [ ] **Phase 6: Security audit** - Full security analysis of the whole app, findings ranked, fixes chosen by the user done before the release
 - [ ] **Phase 06.1: Compatibility check** (INSERTED) - Which macOS versions really work; 26 and 27 required, older ones optional
 - [ ] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated
