@@ -63,6 +63,8 @@ final class ControlItem {
     }
 
     /// Storage for a control item's underlying status item.
+    ///
+    /// It lives as long as its control item, which lives as long as holzBar runs.
     private final class StatusItemStorage {
         let statusItem: NSStatusItem
         let constraint: NSLayoutConstraint?
@@ -102,24 +104,6 @@ final class ControlItem {
             } else {
                 self.constraint = nil
             }
-        }
-
-        deinit {
-            // The status bar belongs to the main actor; the storage can be released anywhere.
-            let statusItem = statusItem
-            Task { @MainActor in
-                StatusItemStorage.remove(statusItem)
-            }
-        }
-
-        /// Removes the status item from the status bar.
-        private static func remove(_ statusItem: NSStatusItem) {
-            // Removing the status item has the unwanted side effect of
-            // deleting the preferred position. Cache and restore it.
-            let autosaveName = statusItem.autosaveName as String
-            let cached = ControlItemDefaults[.preferredPosition, autosaveName]
-            NSStatusBar.system.removeStatusItem(statusItem)
-            ControlItemDefaults[.preferredPosition, autosaveName] = cached
         }
     }
 

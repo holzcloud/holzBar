@@ -167,11 +167,16 @@ final class MenuBarItemSpacingManager {
 
         await withTaskGroup(of: String?.self) { group in
             for pid in pids {
-                guard let app = NSRunningApplication(processIdentifier: pid) else {
+                guard NSRunningApplication(processIdentifier: pid) != nil else {
                     // The process is gone, so there is nothing to relaunch.
                     continue
                 }
+                // The task looks the application up itself, so only the process
+                // identifier crosses into it.
                 group.addTask { @MainActor in
+                    guard let app = NSRunningApplication(processIdentifier: pid) else {
+                        return nil
+                    }
                     do {
                         try await self.relaunchApp(app)
                         return nil

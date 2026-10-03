@@ -15,29 +15,34 @@ nonisolated struct TaskTimeoutError: CustomStringConvertible, LocalizedError {
 }
 
 nonisolated extension Task {
-    /// Runs the given throwing operation asynchronously alongside a
-    /// timeout operation in a structured task group.
+    /// Waits for the given task alongside a timeout operation in a structured
+    /// task group.
     ///
-    /// If the operation does not complete within the provided
-    /// duration, the timeout operation cancels the group and throws
-    /// a ``TaskTimeoutError``.
+    /// If the task does not complete within the provided duration, the timeout
+    /// operation cancels the group, which cancels the task, and throws a
+    /// ``TaskTimeoutError``. The task is created by the caller from the operation,
+    /// so the operation is handed over exactly once.
     ///
     /// - Parameters:
-    ///   - timeout: The duration the operation must complete within.
+    ///   - operationTask: The task to wait for.
+    ///   - timeout: The duration the task must complete within.
     ///   - tolerance: The precision threshold of the timeout operation.
     ///   - clock: The clock that manages the timeout operation.
-    ///   - operation: The operation to perform.
     ///
-    /// - Returns: The result of the operation, if successful.
-    private static func withTimeout<C: Clock>(
-        _ timeout: C.Instant.Duration,
+    /// - Returns: The result of the task, if successful.
+    fileprivate static func value<C: Clock>(
+        of operationTask: Task<Success, any Error>,
+        timeout: C.Instant.Duration,
         tolerance: C.Instant.Duration?,
-        clock: C,
-        operation: sending @escaping @isolated(any) () async throws -> Success
+        clock: C
     ) async throws -> Success {
         try await withThrowingTaskGroup(of: Success.self) { group in
             group.addTask {
-                try await operation()
+                try await withTaskCancellationHandler {
+                    try await operationTask.value
+                } onCancel: {
+                    operationTask.cancel()
+                }
             }
             group.addTask {
                 try await _Concurrency.Task.sleep(for: timeout, tolerance: tolerance, clock: clock)
@@ -76,8 +81,9 @@ nonisolated extension Task where Failure == any Error {
         @_inheritActorContext @_implicitSelfCapture
         operation: sending @escaping @isolated(any) () async throws -> Success
     ) {
+        let operationTask = Task<Success, any Error>(name: name, priority: priority, operation: operation)
         self.init(name: name, priority: priority) {
-            try await Task.withTimeout(timeout, tolerance: tolerance, clock: clock, operation: operation)
+            try await Task.value(of: operationTask, timeout: timeout, tolerance: tolerance, clock: clock)
         }
     }
 
@@ -105,8 +111,9 @@ nonisolated extension Task where Failure == any Error {
         priority: TaskPriority? = nil,
         operation: sending @escaping @isolated(any) () async throws -> Success
     ) -> Task<Success, Failure> {
-        detached(name: name, priority: priority) {
-            try await withTimeout(timeout, tolerance: tolerance, clock: clock, operation: operation)
+        let operationTask = Task<Success, any Error>.detached(name: name, priority: priority, operation: operation)
+        return detached(name: name, priority: priority) {
+            try await value(of: operationTask, timeout: timeout, tolerance: tolerance, clock: clock)
         }
     }
 }
