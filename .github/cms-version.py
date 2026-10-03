@@ -27,11 +27,11 @@ expects, nothing is written at all. A changed page layout therefore stops
 the update loudly instead of rewriting the wrong number.
 
 Usage:
-  CMS_TOKEN=… cms-version.py --project holzkube-manager --version v0.2.3
-  cms-version.py --project holzice --version 0.0.6 --dry-run
+  CMS_TOKEN=… cms-version.py --project holzbar --version 0.0.6
+  cms-version.py --project holzbar --version 0.0.6 --dry-run
 
 The token is a holzcloud-CMS AI key of level "content", limited to website
-1 (made in the CMS admin under "KI-Zugang"). Without CMS_TOKEN the script
+1. Without CMS_TOKEN the script
 prints a notice and exits 0, so a release keeps working until the secret
 exists. Exit codes: 0 done or skipped, 1 refused or failed.
 
@@ -79,29 +79,6 @@ def tag_link(repo: str) -> str:
 # text with the new version already in it and returns what is written. The
 # archive rule of holzbar uses it to rename the archive along with the version.
 PROJECTS = {
-    "holzkube-manager": {
-        "slug": "holzkube-manager",
-        "pages": 5,
-        "rules": [
-            ("stand", BARE, 2),
-            ("stand text", tag_link("holzkube-manager"), 2),
-        ],
-    },
-    "holzcloud-cms": {
-        "slug": "holzcloud-cms",
-        "pages": 5,
-        "rules": [
-            ("stand", BARE, 2),
-            ("stand text", tag_link("holzcloud-cms"), 1),
-        ],
-    },
-    "hauscloud": {
-        "slug": "hauscloud",
-        "pages": 5,
-        "rules": [
-            ("stand", BARE, 2),
-        ],
-    },
     # The repository was renamed from holzIce to holzBar on 2026-10-02; the
     # pages may carry either name while they catch up, so both are accepted.
     "holzice": {
@@ -119,7 +96,7 @@ PROJECTS = {
     },
 }
 # The names the release workflows use, so a caller can pass its repository.
-ALIASES = {"hauscloud.ch": "hauscloud", "holzIce": "holzice", "holzBar": "holzice", "holzbar": "holzice"}
+ALIASES = {"holzIce": "holzice", "holzBar": "holzice", "holzbar": "holzice"}
 
 
 class Refused(Exception):
