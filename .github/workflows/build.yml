@@ -189,15 +189,15 @@ jobs:
           retention-days: 1
 
   # holzBar's deployment target is macOS 14. Every macOS version GitHub offers launches
-  # the app built above (a missing symbol or a crash at launch fails here) and runs the
-  # unit tests with that runner's newest Xcode and the pinned Swift toolchain.
-  # macOS 27 is covered by the build and test jobs.
+  # the app built above (a missing symbol or a crash at launch fails here). macOS 14, 15
+  # and 26 also run the unit tests with that runner's newest Xcode and the pinned Swift
+  # toolchain; on macOS 27 (the xcode-27 image) the test job runs them already.
   compat:
     needs: build
     strategy:
       fail-fast: false
       matrix:
-        runner: [macos-14, macos-15, macos-26]
+        runner: [macos-14, macos-15, macos-26, xcode-27]
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v7
@@ -237,6 +237,7 @@ jobs:
           fi
 
       - name: Find the newest Xcode
+        if: matrix.runner != 'xcode-27'
         id: xcode
         run: |
           VERSION=$(ls -d /Applications/Xcode_*.app | sed -E 's|.*/Xcode_(.*)\.app|\1|' | grep -E '^[0-9]+(\.[0-9]+)*$' | sort -V | tail -1)
@@ -244,10 +245,12 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - uses: ./.github/actions/select-xcode
+        if: matrix.runner != 'xcode-27'
         with:
           version: ${{ steps.xcode.outputs.version }}
 
       - name: Run the unit tests
+        if: matrix.runner != 'xcode-27'
         run: |
           swift --version
           swift test
