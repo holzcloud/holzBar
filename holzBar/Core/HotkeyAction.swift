@@ -27,4 +27,7 @@ nonisolated enum HotkeyAction: String, Codable, CaseIterable {
     case enableShelf = "EnableIceBar"
     case toggleApplicationMenus = "ToggleApplicationMenus"
     case toggleAutoRehide = "ToggleAutoRehide"
+
+    // Added by holzBar; new actions go at the end.
+    case toggleZenMode = "ToggleZenMode"
 }

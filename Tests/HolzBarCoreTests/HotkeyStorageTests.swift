@@ -19,6 +19,7 @@ struct HotkeyStorageTests {
             "EnableIceBar",
             "ToggleApplicationMenus",
             "ToggleAutoRehide",
+            "ToggleZenMode",
         ])
     }
 

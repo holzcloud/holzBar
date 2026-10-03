@@ -372,6 +372,12 @@ extension HIDEventManager {
                 return
             }
 
+            // Zen mode refuses to reveal; hiding what the user showed stays possible.
+            guard !targetSection.isHidden || appState.menuBarManager.zenMode.allows(.clickOnEmptyBar) else {
+                logger.debug("Show on click: ignored in Zen mode")
+                return
+            }
+
             // On macOS 27 this also applies the concealment (`Concealer27.update()`).
             targetSection.toggle()
             let milliseconds = Int((ProcessInfo.processInfo.systemUptime - clickTime) * 1000)
@@ -556,6 +562,7 @@ extension HIDEventManager {
         if hiddenSection.isHidden {
             guard
                 appState.menuBarManager.showOnHoverAllowed,
+                appState.menuBarManager.zenMode.allows(.hover),
                 isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen)
             else {
                 return
@@ -673,6 +680,9 @@ extension HIDEventManager {
         }
 
         if averageDelta > 5 {
+            guard appState.menuBarManager.zenMode.allows(.scroll) else {
+                return
+            }
             hiddenSection.show()
         } else if averageDelta < -5 {
             hiddenSection.hide()

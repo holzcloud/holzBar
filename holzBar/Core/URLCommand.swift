@@ -26,6 +26,8 @@ nonisolated struct URLCommand: Equatable, Sendable {
         case toggleShelf
         case toggleAutoRehide
         case toggleApplicationMenus
+        /// Turn Zen mode on or off.
+        case toggleZenMode
         /// Apply the layout profile with the given name.
         case applyProfile(String)
         case unknown
@@ -35,12 +37,12 @@ nonisolated struct URLCommand: Equatable, Sendable {
         /// Any app can open a `holzbar://` URL without the user knowing. Applying a profile
         /// rearranges the menu bar, so it asks first; every other action changes nothing
         /// lasting (show, hide, search, settings) or flips a setting the same command flips
-        /// back (the toggles).
+        /// back (the toggles). Zen mode only hides.
         var needsConfirmation: Bool {
             switch self {
             case .applyProfile:
                 true
-            case .toggle, .show, .hide, .search, .settings, .toggleShelf, .toggleAutoRehide, .toggleApplicationMenus, .unknown:
+            case .toggle, .show, .hide, .search, .settings, .toggleShelf, .toggleAutoRehide, .toggleApplicationMenus, .toggleZenMode, .unknown:
                 false
             }
         }
@@ -98,6 +100,8 @@ nonisolated struct URLCommand: Equatable, Sendable {
             .toggleAutoRehide
         case "application-menus":
             .toggleApplicationMenus
+        case "zen":
+            .toggleZenMode
         case "profile":
             arguments.first.map(Action.applyProfile) ?? .unknown
         default:

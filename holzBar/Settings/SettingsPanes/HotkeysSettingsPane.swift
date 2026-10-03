@@ -23,6 +23,7 @@ struct HotkeysSettingsPane: View {
                 hotkeyRecorder(forAction: .enableShelf)
                 hotkeyRecorder(forAction: .toggleApplicationMenus)
                 hotkeyRecorder(forAction: .toggleAutoRehide)
+                hotkeyRecorder(forAction: .toggleZenMode)
             }
         }
     }
@@ -46,6 +47,8 @@ struct HotkeysSettingsPane: View {
                     Text("Show the hidden section for a moment")
                 case .toggleAutoRehide:
                     Text("Turn auto-rehide on or off")
+                case .toggleZenMode:
+                    Text("Zen mode")
                 }
             }
         }

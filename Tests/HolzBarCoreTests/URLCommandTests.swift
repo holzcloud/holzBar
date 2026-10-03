@@ -91,6 +91,12 @@ struct URLCommandTests {
         #expect(action("holzbar://application-menus/toggle") == .toggleApplicationMenus)
     }
 
+    @Test("Zen mode toggles")
+    func zenModeToggles() {
+        #expect(action("holzbar://zen/toggle") == .toggleZenMode)
+        #expect(!URLCommand.Action.toggleZenMode.needsConfirmation)
+    }
+
     @Test("Applying a profile asks first")
     func applyingAProfileAsksFirst() {
         #expect(URLCommand.Action.applyProfile("Work").needsConfirmation)
@@ -103,6 +109,7 @@ struct URLCommandTests {
             .toggleShelf,
             .toggleAutoRehide,
             .toggleApplicationMenus,
+            .toggleZenMode,
             .unknown,
         ]
         for other in others {

@@ -26,6 +26,9 @@ final class MenuBarManager {
     /// A Boolean value that indicates whether the "ShowOnHover" feature is allowed.
     var showOnHoverAllowed = true
 
+    /// Zen mode: while it is active, hidden items stay hidden (see ``ZenMode``).
+    private(set) var zenMode = ZenMode()
+
     /// Logger for the menu bar manager.
     @ObservationIgnored private let logger = Logger(category: "MenuBarManager")
 
@@ -422,6 +425,42 @@ final class MenuBarManager {
             return
         }
         appearanceEditorPanel.show(on: screen)
+    }
+
+    // MARK: Zen Mode
+
+    /// Turns Zen mode on or off, as the user asked (its hotkey, holzBar's menu,
+    /// `holzbar://zen/toggle` or the Shortcuts action).
+    func toggleZenMode() {
+        setZenMode(zenMode.toggled(), cause: "manual")
+    }
+
+    /// Turns the automatic part of Zen mode on or off, while the screen is mirrored or
+    /// shared (`PresentationMonitor`). A Zen mode the user turned on stays on.
+    func setAutomaticZenMode(_ isOn: Bool) {
+        guard zenMode.isAutomatic != isOn else {
+            return
+        }
+        var updated = zenMode
+        updated.isAutomatic = isOn
+        setZenMode(updated, cause: "automatic")
+    }
+
+    /// Stores the new Zen mode; becoming active hides every section (on macOS 27 the
+    /// concealment follows the sections).
+    private func setZenMode(_ newValue: ZenMode, cause: String) {
+        let wasActive = zenMode.isActive
+        zenMode = newValue
+        guard newValue.isActive != wasActive else {
+            return
+        }
+        let state = newValue.isActive ? "on" : "off"
+        logger.notice("Zen mode \(state, privacy: .public) (\(cause, privacy: .public))")
+        if newValue.isActive {
+            for section in sections {
+                section.hide()
+            }
+        }
     }
 
     /// Returns the menu bar section with the given name.

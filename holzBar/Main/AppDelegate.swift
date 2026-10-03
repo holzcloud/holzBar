@@ -16,7 +16,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // and before the app state, which reads the settings.
         MigrationManager.importPreviousSettingsIfNeeded()
         SettingsSync.pullIfNeeded()
-        self.appState = AppState()
+        let appState = AppState()
+        AppState.current = appState
+        self.appState = appState
         super.init()
     }
 

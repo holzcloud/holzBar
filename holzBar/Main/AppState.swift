@@ -11,6 +11,13 @@ import SwiftUI
 @MainActor
 @Observable
 final class AppState {
+    /// The app's state, for code macOS runs outside holzBar's views and delegate, such as
+    /// the Shortcuts actions (`HolzBarIntents.swift`).
+    ///
+    /// SwiftUI's application delegate adaptor puts its own object in `NSApp.delegate`, so
+    /// the app delegate cannot be reached from there.
+    static weak var current: AppState?
+
     /// Information for the active space.
     private(set) var activeSpace = SpaceInfo.activeSpace()
 

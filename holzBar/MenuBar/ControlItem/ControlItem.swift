@@ -608,6 +608,22 @@ final class ControlItem {
             menu.addItem(item)
         }
 
+        let zenModeItem = NSMenuItem(
+            title: "Zen Mode",
+            action: #selector(toggleZenMode),
+            keyEquivalent: ""
+        )
+        if
+            let hotkey = hotkey(withAction: .toggleZenMode),
+            let keyCombination = hotkey.keyCombination
+        {
+            zenModeItem.keyEquivalent = keyCombination.key.keyEquivalent
+            zenModeItem.keyEquivalentModifierMask = keyCombination.modifiers.nsEventFlags
+        }
+        zenModeItem.state = appState.menuBarManager.zenMode.isActive ? .on : .off
+        zenModeItem.target = self
+        menu.addItem(zenModeItem)
+
         menu.addItem(.separator())
 
         let howToUpdateItem = NSMenuItem(
@@ -646,6 +662,11 @@ final class ControlItem {
             return
         }
         section.toggle()
+    }
+
+    /// Turns Zen mode on or off.
+    @objc private func toggleZenMode() {
+        appState?.menuBarManager.toggleZenMode()
     }
 
     /// Opens the menu bar search panel.

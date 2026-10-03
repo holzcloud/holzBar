@@ -19,6 +19,8 @@ import OSLog
 ///   command flips back
 /// - `holzbar://application-menus/toggle` – hides or shows the application menus;
 ///   nothing persistent
+/// - `holzbar://zen/toggle` – turns Zen mode on or off; it only hides, and while it is
+///   on, `show` and `toggle` of a hidden section are ignored
 /// - `holzbar://profile/<name>` – apply a saved layout profile; rearranges items, so
 ///   holzBar asks first (`URLCommand.Action.needsConfirmation`)
 ///
@@ -54,11 +56,26 @@ enum URLCommands {
             }
         }
 
+        // Zen mode keeps hidden items hidden; another app cannot reveal them.
+        func isRefusedByZenMode(_ target: MenuBarSection) -> Bool {
+            guard target.isHidden, !manager.zenMode.allows(.urlCommand) else {
+                return false
+            }
+            logger.notice("Ignored: Zen mode")
+            return true
+        }
+
         switch command.action {
         case .toggle(let name):
-            section(name)?.toggle()
+            guard let target = section(name), !isRefusedByZenMode(target) else {
+                return
+            }
+            target.toggle()
         case .show(let name):
-            section(name)?.show()
+            guard let target = section(name), !isRefusedByZenMode(target) else {
+                return
+            }
+            target.show()
             manager.showOnHoverAllowed = false
         case .hide(let name):
             section(name)?.hide()
@@ -73,6 +90,8 @@ enum URLCommands {
             appState.settings.general.autoRehide.toggle()
         case .toggleApplicationMenus:
             manager.toggleApplicationMenus()
+        case .toggleZenMode:
+            manager.toggleZenMode()
         case .applyProfile(let name):
             guard !command.action.needsConfirmation || confirmProfile(named: name, appState: appState) else {
                 logger.notice("Applying a layout profile from a URL was cancelled")
