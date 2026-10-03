@@ -205,6 +205,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 does, what i
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | private, enforced by CI |
 | Asks for Screen Recording only when a feature needs it | ❌ | ✅ |
+| Hardened runtime (no injected code or libraries) | ✅ | ✅ (checked by CI) |
 | Settings import accepts only known keys of the right type | — (no import) | ✅ |
 | Menu bar item service accepts only holzBar's own code | team check only | team or exact code hash |
 | Fix for the permissions loop | ❌ | ✅ |
@@ -214,6 +215,9 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 does, what i
 | State management | Combine | Combine · 🔜 `@Observable` |
 | Mouse event tap when "Show on hover" is off | always running | off |
 | Timers and polling while nothing is shown | yes | only while needed |
+| Settings sync checks for changes | — (no sync) | when iCloud Drive delivers them, no polling |
+| Settings migration | 6 version steps at every launch | once, while importing Ice settings |
+| Runtime patching of AppKit (method swizzling) | yes | none |
 | Item images in memory | kept | released when unused |
 | Unit tests run on every change | none | ✅ 200+ |
 | App size | — | 13.5 MB (−9.5 % in this beta) |
