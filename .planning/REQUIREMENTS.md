@@ -127,9 +127,9 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Compatibility
 
-- [ ] **COMPAT-01**: macOS 26 (Tahoe) and macOS 27 are supported without restriction; this is mandatory
-- [ ] **COMPAT-02**: For macOS 14 and 15 it is measured (CI builds and tests on macos-14 and macos-15 runners, `#available` branches reviewed) what works and what it costs to keep; the user decides whether to keep them or raise the deployment target to macOS 26 (which removes the pre-26 backend code)
-- [ ] **COMPAT-03**: README, the cask's `depends_on macos:`, the badge and the release notes state exactly the supported versions
+- [x] **COMPAT-01**: macOS 26 (Tahoe) and macOS 27 are supported without restriction; this is mandatory
+- [x] **COMPAT-02**: For macOS 14 and 15 it is measured (CI builds and tests on macos-14 and macos-15 runners, `#available` branches reviewed) what works and what it costs to keep; the user decides whether to keep them or raise the deployment target to macOS 26 (which removes the pre-26 backend code)
+- [x] **COMPAT-03**: README, the cask's `depends_on macos:`, the badge and the release notes state exactly the supported versions
 
 ### Release
 
@@ -138,7 +138,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Security audit
 
-- [ ] **AUDIT-01**: Before the release, a full security analysis of the whole app (code, XPC service, URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline, cask) is written to `.planning/` with severity-ranked findings, the user decides which to fix, and those fixes ship in `0.0.6-beta1`
+- [x] **AUDIT-01**: Before the release, a full security analysis of the whole app (code, XPC service, URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline, cask) is written to `.planning/` with severity-ranked findings, the user decides which to fix, and those fixes ship in `0.0.6-beta1`
 
 ## v2 Requirements
 
@@ -241,15 +241,15 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | ICE-06 | Phase 05.1.1 | Complete |
 | SYNC-01 | Phase 05.1.1.1 | Complete |
 | ICE-05 | Phase 05.1.1.1 | Complete |
-| AUDIT-01 | Phase 6 | Pending |
-| COMPAT-01 | Phase 06.1 | Pending |
-| COMPAT-02 | Phase 06.1 | Pending |
-| COMPAT-03 | Phase 06.1 | Pending |
+| AUDIT-01 | Phase 6 | Complete |
+| COMPAT-01 | Phase 06.1 | Complete (CI launch on 26 and 27; real-Mac checklist by the user) |
+| COMPAT-02 | Phase 06.1 | Complete (decision: keep macOS 14+) |
+| COMPAT-03 | Phase 06.1 | Complete |
 | APPLE-01 | Phase 05.1.1.1.1 | Complete |
 | APPLE-02 | Phase 05.1.1.1.1 | Complete |
 | APPLE-03 | Phase 05.1.1.1.1 | Complete |
 | APPLE-04 | Phase 05.1.1.1.1 | Complete |
-| FACT-01 | Phase 7 | Pending |
+| FACT-01 | Phase 7 | In progress (README and release notes checked; website rows in research/WEBSITE-UPDATE.md, to be pushed to the CMS) |
 | REL-01 | Phase 7 | Pending |
 
 **Coverage:**
@@ -259,4 +259,4 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ---
 *Requirements defined: 2026-10-02*
-*Last updated: 2026-10-02 after initial definition*
+*Last updated: 2026-10-03 after phases 6 and 06.1 and the FACT-01 README check*

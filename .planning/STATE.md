@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.0.6
-current_phase: 1
-current_phase_name: CI and build
-status: verifying
-stopped_at: Completed 05.1.1.1.1-01-PLAN.md
-last_updated: "2026-10-03T09:05:53.141Z"
-last_activity: 2026-10-02
-last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: 8eda469a49280c18de956c2740da53bd945600b1
+current_phase: 7
+current_phase_name: Release 0.0.6-beta1
+status: executing
+stopped_at: FACT-01 README fact check and v0.0.6-beta1 release notes written; not tagged
+last_updated: "2026-10-03T14:00:00.000Z"
+last_activity: 2026-10-03
+last_activity_desc: Phases 6 and 06.1 complete (#42); README fact check, release notes, website rows
+state_head: e1c8ed8884e1f0f5c5686f87b63ca7ad64189f6f
 progress:
   total_phases: 13
-  completed_phases: 0
-  total_plans: 30
-  completed_plans: 30
+  completed_phases: 12
+  total_plans: 33
+  completed_plans: 32
 ---
 
 # Project State
@@ -23,16 +23,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-02)
 
 **Core value:** The menu bar items a user hides stay hidden and come back when asked, on every supported macOS version, without the app ever locking up the Mac.
-**Current focus:** Phase 1 - CI and build
+**Current focus:** Phase 7 - Release 0.0.6-beta1
 
 ## Current Position
 
-Phase: 1 of 6 (CI and build)
-Plan: 0 of 0 in current phase
-Status: Phase complete — ready for verification
-Last activity: 2026-10-02 — Roadmap created (6 phases, 37 requirements mapped)
+Phase: 7 of 7 (Release 0.0.6-beta1)
+Plan: 1 of 1 in current phase (in progress)
+Status: README fact-checked (FACT-01), `docs/release-notes/v0.0.6-beta1.md` written, website rows in `.planning/research/WEBSITE-UPDATE.md`; CI launches the app on macOS 27 too. Next: push once, CI green, merge, push the website rows to the CMS, tag `v0.0.6-beta1`
+Last activity: 2026-10-03 — Phases 6 and 06.1 merged (#42); Phase 7 preparation
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -157,10 +157,19 @@ Recent decisions affecting current work:
 - [Phase 05.1.1.1.1]: CI and releases build with Xcode 27.0 on the xcode-27 runner (public preview) with Swift 6.4.0 from swift.org
 - [Phase 05.1.1.1.1]: swift test compiles Core with the app's isolation settings (main actor default, approachable concurrency, member import visibility)
 - [Phase 05.1.1.1.1]: URL-command question has no default button: Return answers nothing, Escape cancels, Apply needs a click (HIG order)
+- [Phase 06]: Fixed M-1 to M-4, L-1 to L-5, L-8 (06-SUMMARY.md); L-6 and L-7 open; signing and attestation run in release.yml, the stable signature needs the user's SIGNING_CERTIFICATE_* secrets
+- [Phase 06.1]: User decision 2026-10-03: keep macOS 14 and later (cask depends_on macos: :sonoma, deployment target 14.0)
+- [Phase 06.1]: CI compat job launches the built app on macOS 14, 15, 26 and 27 (xcode-27 added in Phase 7) and runs the unit tests on 14, 15 and 26; the test job runs them on 27
+- [Phase 06.1]: macOS 14 launch crash (openWindow inside the scene update) found by the compat job and fixed before any release
+- [Phase 07]: README and website keep the stable signature and attestation at 🔜 until the first release signed with holzBar's own certificate
+- [Phase 07]: 0.0.5 was a different cask and bundle id; the release notes tell its users to export, uninstall it, install holzbar and import (no automatic migration)
 
 ### Pending Todos
 
-None yet.
+- Push the branch once, get CI green (including the new macOS 27 launch), merge
+- Push `.planning/research/WEBSITE-UPDATE.md` to the CMS (all five languages)
+- Tag `v0.0.6-beta1`; the release workflow publishes the notes and updates the cask
+- Optional before tagging: add the SIGNING_CERTIFICATE_* secrets (docs/signing.md) and enable private vulnerability reporting
 
 ### Blockers/Concerns
 
@@ -176,6 +185,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-03T09:05:53.072Z
-Stopped at: Completed 05.1.1.1.1-01-PLAN.md
+Last session: 2026-10-03T14:00:00.000Z
+Stopped at: Phase 7 preparation (FACT-01, release notes, website rows)
 Resume file: None

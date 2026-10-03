@@ -40,8 +40,9 @@ holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jord
 | 🦅 **Modern Swift 6** | **Built with Swift 6.4 and Xcode 27**, the latest stable Swift and the macOS 27 SDK, in Swift 6 language mode with data-race safety checked by the compiler; main actor by default with `@concurrent` background work, `@Observable` instead of Combine, one backend per macOS generation. |
 | 🔒 **Never online** | No update checks, telemetry or analytics. A CI check proves there is no network code in the app. |
 | 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. Hardened runtime, private logs. |
-| 🍃 **Lean** | No polling, no mouse tracking unless you use it, nothing kept in memory that nobody shows. |
+| 🍃 **Lean** | No polling where macOS sends an event, no mouse tracking unless you use it, nothing kept in memory that nobody shows. |
 | 🪵 **macOS 27 compatible** | A dedicated backend for the redesigned macOS 27 menu bar drawn by `MenuBarAgent`. |
+| ✅ **macOS 14 to 27, checked** | Every pull request launches the app on macOS 14, 15, 26 and 27 and runs the 371 unit tests on each. |
 | ✨ **More features** | Profiles, folders, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, settings sync through any folder — [see below](#-features). |
 | 🌍 **Five languages** | English, German, French, Italian and Romansh. |
 | 🍺 **Homebrew first** | Install and update with one command. |
@@ -55,6 +56,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | **Compatibility** | | | |
 | macOS 14 – 26 | ✅ | macOS 26 only | ✅ |
 | **macOS 27** (new menu bar drawn by `MenuBarAgent`) | ❌ | ✅ | ✅ |
+| Launched and unit tested in CI on every supported macOS | ❌ | — | ✅ 14, 15, 26 and 27 |
 | **Features** | | | |
 | Hidden and always-hidden sections, Ice Bar / holzBar Shelf, search, appearance | ✅ | ✅ | ✅ |
 | Layout profiles | ❌ | ✅ | ✅ |
@@ -93,23 +95,23 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | — | private, enforced by CI |
 | Asks for Screen Recording only when a feature needs it | ❌ | — | ✅ |
-| Hardened runtime (no injected code or libraries) | ✅ | — | ✅ (checked by CI) |
+| Hardened runtime (no injected code or libraries) | ✅ | ✅ | ✅ (checked by CI) |
 | Settings import accepts only known keys of the right type, in range | — (no import) | — | ✅ |
 | Settings import and sync can't turn sync on; the sync file carries no computer name | — (no sync) | — | ✅ |
 | Menu bar item service accepts only holzBar's own code | team check only | — | team or exact code hash |
 | Fix for the permissions loop | ❌ | — | ✅ |
 | **Code and resources** | | | |
-| Third-party Swift packages | 5 | 2 (Sparkle, swift-subprocess) | **none** |
+| Swift packages | 5 | 10 (Sparkle, AXSwift6, CompactSlider, Ifrit, LaunchAtLogin-Modern and 5 from Apple) | **none** |
 | Swift language mode | Swift 5 | Swift 6 | Swift 6 (data-race safety checked by the compiler), built with Swift 6.4 and Xcode 27 |
-| State management | Combine | mostly `@Observable` | `@Observable`, no Combine |
+| State management | Combine | `@Observable` and Combine | `@Observable`, no Combine |
 | Mouse event tap when "Show on hover" is off | always running | — | off |
 | Timers and polling while nothing is shown | yes | — | only while needed |
 | Settings sync checks for changes | — (no sync) | — (no sync) | when the synced folder delivers them, no polling |
 | Settings migration | 6 version steps at every launch | — | once, while importing Ice settings |
-| Runtime patching of AppKit (method swizzling) | yes | — | none |
+| Runtime patching of AppKit (method swizzling) | yes | yes | none |
 | Item images in memory | kept | — | released when unused |
 | Unit tests run on every change | none | ✅ | ✅ 371 |
-| App size | — | — | 16.5 MB |
+| App size | — | — | 16.7 MB |
 | **Distribution and maintenance** | | | |
 | Install and update with Homebrew | ✅ | ✅ | ✅ |
 | Updates | Sparkle (dialog can hang on macOS 26) | Sparkle | Homebrew |
@@ -174,7 +176,7 @@ xattr -dr com.apple.quarantine /Applications/holzBar.app
 
 Then open holzBar again. Alternatively: open it once, then go to **System Settings → Privacy & Security** and click **Open Anyway** next to the holzBar message.
 
-Releases after 0.0.5 carry a build provenance attestation, which proves that a zip was built by this repository's release workflow: `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar`. See [docs/signing.md](docs/signing.md).
+From 0.0.6-beta1 on, the release workflow attaches a build provenance attestation to every zip it builds, which proves that the zip was built by this repository's release workflow: `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar`. See [docs/signing.md](docs/signing.md).
 
 > [!NOTE]
 > holzBar replaces the original Ice — quit Ice and run `brew uninstall --cask jordanbaird-ice` first if you have it. Two menu bar managers must never run at the same time; holzBar offers to quit Ice, Thaw, Bartender or Hidden Bar when it finds one running.
@@ -182,7 +184,7 @@ Releases after 0.0.5 carry a build provenance attestation, which proves that a z
 
 ### Build from source
 
-Use Xcode 27 (macOS 27 SDK), as CI does; holzBar itself runs on macOS 14 or later. CI builds with Xcode 27.0 for the SDK and the official Swift 6.4 toolchain from [swift.org](https://www.swift.org/install/macos/) as the compiler (both pinned in `.github/actions/select-xcode`).
+Use Xcode 27 (macOS 27 SDK), as CI does; holzBar itself runs on macOS 14 or later. Every pull request launches the built app on macOS 14, 15, 26 and 27 and runs the unit tests on each, so a missing symbol or a crash at launch on an older macOS fails the build. CI builds with Xcode 27.0 for the SDK and the official Swift 6.4 toolchain from [swift.org](https://www.swift.org/install/macos/) as the compiler (both pinned in `.github/actions/select-xcode`).
 
 ```sh
 git clone https://github.com/holzcloud/holzBar
@@ -327,7 +329,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - [**Barometer**](https://github.com/mackid1993/Barometer) by [mackid1993](https://github.com/mackid1993) — the macOS 27 assertion code holzBar's hiding on macOS 27 is adapted from.
 - [**Thaw**](https://github.com/thaw-app/Thaw) by [thaw-app](https://github.com/thaw-app) — the PlatformRuntimeKit Barometer's assertion code is adapted from.
 
-The open-source packages holzBar uses and their licenses are listed in the app under **Settings → About → Acknowledgements**.
+holzBar links no third-party package. The projects it adapts code from and their licenses are listed in the app under **Settings → About → Acknowledgements**.
 
 ## 📄 License
 
