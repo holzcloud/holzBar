@@ -82,17 +82,17 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [x] **THAW-01**: see `.planning/research/THAW.md`
 - [x] **THAW-02**: see `.planning/research/THAW.md`
 - [x] **THAW-03**: see `.planning/research/THAW.md`
-- [ ] **THAW-04**: see `.planning/research/THAW.md`
+- [x] **THAW-04**: see `.planning/research/THAW.md`
 - [x] **THAW-05**: see `.planning/research/THAW.md`
-- [ ] **THAW-06**: see `.planning/research/THAW.md`
+- [x] **THAW-06**: see `.planning/research/THAW.md`
 - [x] **THAW-07**: see `.planning/research/THAW.md`
 - [x] **THAW-08**: see `.planning/research/THAW.md`
 
 - [x] **ICE-01**: see `.planning/research/THAW.md` (Ice upstream scan)
 - [x] **ICE-02**: see THAW.md
-- [ ] **ICE-03**: see THAW.md
-- [ ] **ICE-04**: see THAW.md
-- [ ] **ICE-06**: see THAW.md
+- [x] **ICE-03**: see THAW.md
+- [x] **ICE-04**: see THAW.md
+- [x] **ICE-06**: see THAW.md
 
 ### Thaw features
 
@@ -221,9 +221,9 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | THAW-01 | Phase 05.1.1 | Complete |
 | THAW-02 | Phase 05.1.1 | Complete |
 | THAW-03 | Phase 05.1.1 | Complete |
-| THAW-04 | Phase 05.1.1 | Pending |
+| THAW-04 | Phase 05.1.1 | Complete |
 | THAW-05 | Phase 05.1.1 | Complete |
-| THAW-06 | Phase 05.1.1 | Pending |
+| THAW-06 | Phase 05.1.1 | Complete |
 | THAW-07 | Phase 05.1.1 | Complete |
 | THAW-08 | Phase 05.1.1 | Complete |
 | THAW-10 | Phase 05.1.1.1 | Pending |
@@ -236,9 +236,9 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | THAW-17 | Phase 05.1.1.1 | Pending |
 | ICE-01 | Phase 05.1.1 | Complete |
 | ICE-02 | Phase 05.1.1 | Complete |
-| ICE-03 | Phase 05.1.1 | Pending |
-| ICE-04 | Phase 05.1.1 | Pending |
-| ICE-06 | Phase 05.1.1 | Pending |
+| ICE-03 | Phase 05.1.1 | Complete |
+| ICE-04 | Phase 05.1.1 | Complete |
+| ICE-06 | Phase 05.1.1 | Complete |
 | SYNC-01 | Phase 05.1.1.1 | Pending |
 | ICE-05 | Phase 05.1.1.1 | Pending |
 | AUDIT-01 | Phase 6 | Pending |

@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 05.1.1-02-PLAN.md
-last_updated: "2026-10-03T06:42:40.490Z"
+stopped_at: Completed 05.1.1-03-PLAN.md
+last_updated: "2026-10-03T06:55:20.278Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: c194bfcf0c2ca15f33a58d4f5f92d4eaf47d34df
+state_head: 912fd6f4d007807c58ff0b4d3ce310d7577e3a3b
 progress:
   total_phases: 13
   completed_phases: 0
   total_plans: 29
-  completed_plans: 25
+  completed_plans: 26
 ---
 
 # Project State
@@ -80,6 +80,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05.1 P03 | 85min | 3 tasks | 138 files |
 | Phase 05.1.1 P01 | 95min | 3 tasks | 34 files |
 | Phase 05.1.1 P02 | 80min | 3 tasks | 41 files |
+| Phase 05.1.1 P03 | 70min | 3 tasks | 24 files |
 
 ## Accumulated Context
 
@@ -143,6 +144,7 @@ Recent decisions affecting current work:
 - [Phase 05.1.1]: 05.1.1-01: CI runs once for plans 01-03 (single push at the end of 05.1.1-03)
 - [Phase 05.1.1]: 05.1.1-02: Before macOS 27, item sections are saved by identity (ItemSections) and restored only through reconcileSections; item list changes place new items only
 - [Phase 05.1.1]: 05.1.1-02: Keep the Dock icon hidden (default on) stops automatic hiding of application menus; the toggle hotkey still hides them
+- [Phase 05.1.1]: 05.1.1-03: On macOS 27 nothing captures the wallpaper; the strip beside a shape comes from the desktop picture file
 
 ### Pending Todos
 
@@ -162,6 +164,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-03T06:42:40.416Z
-Stopped at: Completed 05.1.1-02-PLAN.md
+Last session: 2026-10-03T06:55:20.183Z
+Stopped at: Completed 05.1.1-03-PLAN.md
 Resume file: None
