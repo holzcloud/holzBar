@@ -120,10 +120,10 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Toolchain and Apple APIs
 
-- [ ] **APPLE-01**: Adopt what Swift 6.4 brings where holzBar does worse today (language features, concurrency, Observation, Testing), and promote "built with Swift 6.4" in the README selling points and on the website
-- [ ] **APPLE-02**: No deprecated or soon-to-be-deprecated API where Apple names a replacement: build with deprecation warnings visible, review every remaining one (CGWindowList capture of off-screen items is the documented exception), replace the rest
-- [ ] **APPLE-03**: As soon as Xcode 27 is available on the CI runners (beta allowed by user decision 2026-10-03): build with it, adopt the macOS 27 SDK improvements where holzBar is worse today, and promote it in README and on the website
-- [ ] **APPLE-04**: UI follows the Human Interface Guidelines (settings layout, menu bar extras, permissions prompts, accessibility)
+- [x] **APPLE-01**: Adopt what Swift 6.4 brings where holzBar does worse today (language features, concurrency, Observation, Testing), and promote "built with Swift 6.4" in the README selling points and on the website
+- [x] **APPLE-02**: No deprecated or soon-to-be-deprecated API where Apple names a replacement: build with deprecation warnings visible, review every remaining one (CGWindowList capture of off-screen items is the documented exception), replace the rest
+- [x] **APPLE-03**: As soon as Xcode 27 is available on the CI runners (beta allowed by user decision 2026-10-03): build with it, adopt the macOS 27 SDK improvements where holzBar is worse today, and promote it in README and on the website
+- [x] **APPLE-04**: UI follows the Human Interface Guidelines (settings layout, menu bar extras, permissions prompts, accessibility)
 
 ### Compatibility
 
@@ -245,10 +245,10 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | COMPAT-01 | Phase 06.1 | Pending |
 | COMPAT-02 | Phase 06.1 | Pending |
 | COMPAT-03 | Phase 06.1 | Pending |
-| APPLE-01 | Phase 05.1.1.1.1 | Pending |
-| APPLE-02 | Phase 05.1.1.1.1 | Pending |
-| APPLE-03 | Phase 05.1.1.1.1 | Pending |
-| APPLE-04 | Phase 05.1.1.1.1 | Pending |
+| APPLE-01 | Phase 05.1.1.1.1 | Complete |
+| APPLE-02 | Phase 05.1.1.1.1 | Complete |
+| APPLE-03 | Phase 05.1.1.1.1 | Complete |
+| APPLE-04 | Phase 05.1.1.1.1 | Complete |
 | FACT-01 | Phase 7 | Pending |
 | REL-01 | Phase 7 | Pending |
 
