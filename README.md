@@ -32,7 +32,7 @@ and make the bar look the way you like — on the notch, on every display, on ma
 
 ## ✨ Why holzBar?
 
-holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird. Ice is a fantastic tool, but its development has slowed down — and macOS 27 broke it for some people. holzBar picks it up from there:
+holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird. Ice is a fantastic tool, but its development has slowed down — and macOS 27 broke it for me. holzBar picks it up from there:
 
 | | |
 |---|---|
