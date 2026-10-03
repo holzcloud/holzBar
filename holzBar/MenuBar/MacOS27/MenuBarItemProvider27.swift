@@ -50,6 +50,9 @@ nonisolated enum MenuBarItemProvider27 {
         /// System item frames per display. MenuBarAgent describes the bars of both displays in its
         /// windows, unlike other applications, whose items only have frames on the active one.
         var lastSystemFramesByDisplay = [CGDirectDisplayID: [CGRect]]()
+        /// Every frame MenuBarAgent draws on each display whose bar is not active: there it
+        /// draws the apps' items too, which have no Accessibility frames of their own.
+        var lastDrawnFramesByDisplay = [CGDirectDisplayID: [CGRect]]()
         /// The leftmost item drawn on each display, from the last read while that display's
         /// menu bar was active. Hover hit-testing needs it for the display that is not active,
         /// where Accessibility reports no frames at all.
@@ -166,6 +169,12 @@ nonisolated enum MenuBarItemProvider27 {
     /// is why that clock used to need two or three clicks.
     static func systemItemFrames(for displayID: CGDirectDisplayID) -> [CGRect] {
         withState { $0.lastSystemFramesByDisplay[displayID] ?? [] }
+    }
+
+    /// Every frame MenuBarAgent draws on the given display, from the last read, when that
+    /// display's bar is not active (none for the active display).
+    static func drawnFrames(for displayID: CGDirectDisplayID) -> [CGRect] {
+        withState { $0.lastDrawnFramesByDisplay[displayID] ?? [] }
     }
 
     /// Frame of the system overflow button ("<<" / ">>"), from the last read.
@@ -295,7 +304,12 @@ nonisolated enum MenuBarItemProvider27 {
                     }
                     return frames.filter { $0.minX >= clock.minX - systemItemsSpan }
                 }
-                withState { $0.lastSystemFramesByDisplay = perDisplay }
+                // Every frame on the displays whose bar is not active, for hit tests there.
+                let drawnByDisplay = framesByDisplay.filter { $0.key != activeDisplayID }
+                withState { state in
+                    state.lastSystemFramesByDisplay = perDisplay
+                    state.lastDrawnFramesByDisplay = drawnByDisplay
+                }
                 let systemFrames = rawItems
                     .filter { $0.bundleID == menuBarAgentBundleID && (activeDisplayBounds?.intersects($0.frame) ?? true) }
                     .map(\.frame)

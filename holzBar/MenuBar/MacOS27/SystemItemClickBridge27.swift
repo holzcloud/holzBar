@@ -97,9 +97,12 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         let menuBarRect = concealer.isConcealing ? clickedDisplay.flatMap { displayID in
             Self.visibleMenuBarRect(on: displayID, isFullscreenSpace: appState.activeSpace.isFullscreen)
         } : nil
+        // The overflow button ("»") ignores clicks while concealed like the clock (Thaw #1195).
+        let systemFrames = (framesOnDisplay.isEmpty ? MenuBarItemProvider27.systemItemFrames() : framesOnDisplay)
+            + [MenuBarItemProvider27.overflowButtonFrame()].compactMap { $0 }
         guard ClockBridgeZone27.shouldBridge(
             click: event.location,
-            systemItemFrames: framesOnDisplay.isEmpty ? MenuBarItemProvider27.systemItemFrames() : framesOnDisplay,
+            systemItemFrames: systemFrames,
             isConcealing: concealer.isConcealing,
             menuBarRect: menuBarRect
         ) else {

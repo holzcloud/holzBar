@@ -87,7 +87,8 @@ final class AccessibilityBackend27: MenuBarBackend {
             point: point,
             items: hitTestItems(appState: appState),
             concealedPIDs: appState.concealer27.concealedPIDs,
-            systemFrames: systemFrames()
+            systemFrames: systemFrames(),
+            drawnFramesOnDisplay: drawnFrames(at: point)
         )
     }
 
@@ -98,7 +99,8 @@ final class AccessibilityBackend27: MenuBarBackend {
             items: hitTestItems(appState: appState),
             concealedPIDs: appState.concealer27.concealedPIDs,
             systemFrames: systemFrames(),
-            rememberedLeftEdge: MenuBarItemProvider27.leftEdge(for: screen.displayID)
+            rememberedLeftEdge: MenuBarItemProvider27.leftEdge(for: screen.displayID),
+            drawnFramesOnDisplay: MenuBarItemProvider27.drawnFrames(for: screen.displayID)
         )
     }
 
@@ -111,6 +113,15 @@ final class AccessibilityBackend27: MenuBarBackend {
         appState.itemManager.itemCache.managedItems.map { item in
             ItemHitTest27.Item(frame: item.bounds, ownerPID: item.ownerPID, isOnScreen: item.isOnScreen)
         }
+    }
+
+    /// The frames MenuBarAgent draws on the display under the point, when that display's bar
+    /// is not active (`ItemHitTest27`).
+    private func drawnFrames(at point: CGPoint) -> [CGRect] {
+        var displayID = CGDirectDisplayID(0)
+        var matches: UInt32 = 0
+        CGGetDisplaysWithPoint(point, 1, &displayID, &matches)
+        return matches > 0 ? MenuBarItemProvider27.drawnFrames(for: displayID) : []
     }
 
     /// The frames of the system items and the overflow button, from the last read.
