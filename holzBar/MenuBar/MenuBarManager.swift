@@ -372,7 +372,7 @@ final class MenuBarManager {
         let menu = NSMenu(title: "holzBar")
 
         let editAppearanceItem = NSMenuItem(
-            title: "Edit Menu Bar Appearance…",
+            title: String(localized: "Edit Menu Bar Appearance…"),
             action: #selector(showAppearanceEditorPanel),
             keyEquivalent: ""
         )
@@ -382,7 +382,7 @@ final class MenuBarManager {
         menu.addItem(.separator())
 
         let settingsItem = NSMenuItem(
-            title: "holzBar Settings…",
+            title: String(localized: "holzBar Settings…"),
             action: #selector(AppDelegate.openSettingsWindow),
             keyEquivalent: ","
         )

@@ -399,8 +399,14 @@ private struct ShowItemButton: View {
     var body: some View {
         Button(action: action) {
             HStack {
-                Text("\(Bridging.isWindowOnScreen(item.windowID) ? "Click" : "Show") Item")
-                    .padding(.leading, 5)
+                Group {
+                    if Bridging.isWindowOnScreen(item.windowID) {
+                        Text("Click Item")
+                    } else {
+                        Text("Show Item")
+                    }
+                }
+                .padding(.leading, 5)
 
                 Image(systemName: "return")
                     .resizable()

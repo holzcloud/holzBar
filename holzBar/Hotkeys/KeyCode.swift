@@ -270,6 +270,9 @@ private let customStringMappings = [
 extension KeyCode {
     /// A custom string representation for the key.
     var stringValue: String {
-        customStringMappings[self, default: keyEquivalent]
+        if self == .space {
+            return String(localized: "Space")
+        }
+        return customStringMappings[self, default: keyEquivalent]
     }
 }

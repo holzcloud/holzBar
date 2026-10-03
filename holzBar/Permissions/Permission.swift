@@ -239,11 +239,11 @@ class Permission: Identifiable {
 final class AccessibilityPermission: Permission {
     init() {
         super.init(
-            title: "Accessibility",
+            title: String(localized: "Accessibility"),
             details: [
-                "Read where menu bar items are.",
-                "Move, show and click menu bar items for you.",
-                "Notice clicks, scrolls and hovers in the menu bar for show on click, scroll and hover.",
+                String(localized: "Read where menu bar items are."),
+                String(localized: "Move, show and click menu bar items for you."),
+                String(localized: "Notice clicks, scrolls and hovers in the menu bar for show on click, scroll and hover."),
             ],
             isRequired: true,
             requestsAtLaunch: true,
@@ -264,8 +264,8 @@ final class AccessibilityPermission: Permission {
 final class ScreenRecordingPermission: Permission {
     init() {
         super.init(
-            title: "Screen Recording",
-            details: ScreenRecordingFeature.allCases.map(\.reason),
+            title: String(localized: "Screen Recording"),
+            details: ScreenRecordingFeature.allCases.map(\.reason.localizedFromCatalog),
             isRequired: false,
             requestsAtLaunch: false,
             settingsURL: URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_ScreenCapture"),

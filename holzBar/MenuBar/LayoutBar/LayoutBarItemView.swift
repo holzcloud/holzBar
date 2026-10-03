@@ -75,10 +75,10 @@ final class LayoutBarItemView: NSView {
         if #available(macOS 27.0, *) {
             // macOS 27 hides whole apps, so an item is placed by its app.
             if !item.isMovable {
-                self.toolTip = "macOS 27 doesn't let apps hide this system item."
+                self.toolTip = String(localized: "macOS 27 doesn't let apps hide this system item.")
             } else if item.sourceApplication?.bundleIdentifier == nil {
                 self.isEnabled = false
-                self.toolTip = "macOS 27 hides whole apps, and holzBar can't tell which app this item belongs to."
+                self.toolTip = String(localized: "macOS 27 hides whole apps, and holzBar can't tell which app this item belongs to.")
             }
         }
 
@@ -110,15 +110,15 @@ final class LayoutBarItemView: NSView {
     /// Provides an alert to display when the item view is disabled.
     func provideAlertForDisabledItem() -> NSAlert {
         let alert = NSAlert()
-        alert.messageText = "Menu bar item is not movable."
-        alert.informativeText = "macOS prohibits \"\(item.displayName)\" from being moved."
+        alert.messageText = String(localized: "Menu bar item is not movable.")
+        alert.informativeText = String(localized: "macOS prohibits \u{201C}\(item.displayName)\u{201D} from being moved.")
         return alert
     }
 
     /// Provides an alert to display when a menu bar item is unresponsive.
     func provideAlertForUnresponsiveItem() -> NSAlert {
         let alert = provideAlertForDisabledItem()
-        alert.informativeText = "\(item.displayName) is unresponsive. Until it is restarted, it cannot be moved. Movement of other menu bar items may also be affected until this is resolved."
+        alert.informativeText = String(localized: "\(item.displayName) is unresponsive. Until it is restarted, it cannot be moved. Movement of other menu bar items may also be affected until this is resolved.")
         return alert
     }
 

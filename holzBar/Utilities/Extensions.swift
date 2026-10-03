@@ -680,3 +680,14 @@ nonisolated extension Sequence where Element == MenuBarItem {
         first { $0.tag == tag }
     }
 }
+
+// MARK: - String
+
+nonisolated extension String {
+    /// The translation of an English text that is a key of holzBar's String Catalog, for
+    /// texts held as plain strings, such as those of `holzBar/Core`, which has no access to
+    /// the app's resources.
+    var localizedFromCatalog: String {
+        Bundle.main.localizedString(forKey: self, value: nil, table: nil)
+    }
+}

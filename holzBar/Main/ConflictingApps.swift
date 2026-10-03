@@ -53,14 +53,10 @@ enum ConflictingApps {
 
         let alert = NSAlert()
         alert.alertStyle = .warning
-        alert.messageText = "Quit \(names) first?"
-        alert.informativeText = """
-            holzBar and \(names) would both try to manage the menu bar. They get in \
-            each other's way, and can leave the pointer unable to click anything. \
-            holzBar can quit \(names) for you.
-            """
-        alert.addButton(withTitle: "Quit \(names) and Continue")
-        alert.addButton(withTitle: "Quit holzBar")
+        alert.messageText = String(localized: "Quit \(names) first?")
+        alert.informativeText = String(localized: "holzBar and \(names) would both try to manage the menu bar. They get in each other's way, and can leave the pointer unable to click anything. holzBar can quit \(names) for you.")
+        alert.addButton(withTitle: String(localized: "Quit \(names) and Continue"))
+        alert.addButton(withTitle: String(localized: "Quit holzBar"))
         NSApp.activate()
         guard alert.runModal() == .alertFirstButtonReturn else {
             return false

@@ -112,11 +112,11 @@ enum URLCommands {
     private static func confirmProfile(named name: String, appState: AppState) -> Bool {
         appState.activate(for: .settings)
         let alert = NSAlert()
-        alert.messageText = "Apply the layout profile \u{201C}\(name)\u{201D}?"
-        alert.informativeText = "Another app asked holzBar to rearrange your menu bar."
+        alert.messageText = String(localized: "Apply the layout profile \u{201C}\(name)\u{201D}?")
+        alert.informativeText = String(localized: "Another app asked holzBar to rearrange your menu bar.")
         // The first button is the default one (Return).
-        alert.addButton(withTitle: "Cancel")
-        alert.addButton(withTitle: "Apply")
+        alert.addButton(withTitle: String(localized: "Cancel"))
+        alert.addButton(withTitle: String(localized: "Apply"))
         // Escape answers Cancel as well: it ends the alert without Apply.
         let escapeMonitor = EventMonitor.local(for: .keyDown) { event in
             guard event.keyCode == 53 else {

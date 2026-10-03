@@ -81,7 +81,7 @@ struct AcknowledgementsView: View {
 
 /// A titled group of the acknowledgements sheet.
 private struct AcknowledgementsGroup<Content: View>: View {
-    let title: String
+    let title: LocalizedStringKey
     @ViewBuilder let content: Content
 
     var body: some View {
@@ -151,7 +151,7 @@ private struct AcknowledgementRow: View {
             let url,
             let text = try? String(contentsOf: url, encoding: .utf8)
         else {
-            return "The license text is missing from this copy of holzBar."
+            return String(localized: "The license text is missing from this copy of holzBar.")
         }
         return text
     }

@@ -557,7 +557,7 @@ final class ControlItem {
         let menu = NSMenu(title: "holzBar")
 
         let settingsItem = NSMenuItem(
-            title: "holzBar Settings…",
+            title: String(localized: "holzBar Settings…"),
             action: #selector(AppDelegate.openSettingsWindow),
             keyEquivalent: ","
         )
@@ -567,7 +567,7 @@ final class ControlItem {
         menu.addItem(.separator())
 
         let searchItem = NSMenuItem(
-            title: "Search Menu Bar Items",
+            title: String(localized: "Search Menu Bar Items"),
             action: #selector(showSearchPanel),
             keyEquivalent: ""
         )
@@ -591,8 +591,14 @@ final class ControlItem {
             else {
                 continue
             }
+            let title = switch (name, section.isHidden) {
+            case (.alwaysHidden, true): String(localized: "Show Always-Hidden Section")
+            case (.alwaysHidden, false): String(localized: "Hide Always-Hidden Section")
+            case (_, true): String(localized: "Show Hidden Section")
+            case (_, false): String(localized: "Hide Hidden Section")
+            }
             let item = NSMenuItem(
-                title: "\(section.isHidden ? "Show" : "Hide") \(name.displayString) Section",
+                title: title,
                 action: #selector(toggleMenuBarSection),
                 keyEquivalent: ""
             )
@@ -609,7 +615,7 @@ final class ControlItem {
         }
 
         let zenModeItem = NSMenuItem(
-            title: "Zen Mode",
+            title: String(localized: "Zen Mode"),
             action: #selector(toggleZenMode),
             keyEquivalent: ""
         )
@@ -627,7 +633,7 @@ final class ControlItem {
         menu.addItem(.separator())
 
         let howToUpdateItem = NSMenuItem(
-            title: "How to Update…",
+            title: String(localized: "How to Update…"),
             action: #selector(showHowToUpdate),
             keyEquivalent: ""
         )
@@ -637,7 +643,7 @@ final class ControlItem {
         menu.addItem(.separator())
 
         let quitItem = NSMenuItem(
-            title: "Quit holzBar",
+            title: String(localized: "Quit holzBar"),
             action: #selector(NSApp.terminate),
             keyEquivalent: "q"
         )

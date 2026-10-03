@@ -598,23 +598,23 @@ extension MenuBarItemManager {
         var errorDescription: String? {
             switch self {
             case .cannotComplete:
-                "Operation could not be completed"
+                String(localized: "Operation could not be completed")
             case .invalidEventSource:
-                "Invalid event source"
+                String(localized: "Invalid event source")
             case .missingMouseLocation:
-                "Missing mouse location"
+                String(localized: "Missing mouse location")
             case .eventCreationFailure(let item):
-                "Could not create event for \"\(item.displayName)\""
+                String(localized: "Could not create event for \u{201C}\(item.displayName)\u{201D}")
             case .eventOperationTimeout(let item):
-                "Event operation timed out for \"\(item.displayName)\""
+                String(localized: "Event operation timed out for \u{201C}\(item.displayName)\u{201D}")
             case .itemNotMovable(let item):
-                "\"\(item.displayName)\" is not movable"
+                String(localized: "\u{201C}\(item.displayName)\u{201D} is not movable")
             case .itemResponseTimeout(let item):
-                "\"\(item.displayName)\" took too long to respond"
+                String(localized: "\u{201C}\(item.displayName)\u{201D} took too long to respond")
             case .missingItemBounds(let item):
-                "Missing bounds rectangle for \"\(item.displayName)\""
+                String(localized: "Missing bounds rectangle for \u{201C}\(item.displayName)\u{201D}")
             case .automaticMovesPaused:
-                "Automatic moves are paused"
+                String(localized: "Automatic moves are paused")
             }
         }
 
@@ -623,7 +623,7 @@ extension MenuBarItemManager {
             case .itemNotMovable, .automaticMovesPaused:
                 return nil
             default:
-                return "Please try again. If the error persists, please file a bug report."
+                return String(localized: "Please try again. If the error persists, please file a bug report.")
             }
         }
     }
@@ -893,7 +893,7 @@ extension MenuBarItemManager {
         guard let targetItem = items.first else {
             logger.warning("Not enough room to show \(item.logString, privacy: .private(mask: .hash))")
             let alert = NSAlert()
-            alert.messageText = "Not enough room to show \"\(item.displayName)\""
+            alert.messageText = String(localized: "Not enough room to show \u{201C}\(item.displayName)\u{201D}")
             alert.runModal()
             return
         }

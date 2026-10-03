@@ -132,7 +132,7 @@ struct PermissionsView: View {
                     .font(.title.weight(.medium))
                     .underline()
 
-                Text(ScreenRecordingFeature.summary)
+                Text(ScreenRecordingFeature.summary.localizedFromCatalog)
                     .multilineTextAlignment(.center)
                     .fontWeight(.medium)
 

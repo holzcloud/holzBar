@@ -203,6 +203,18 @@ jobs:
       - name: Logs keep personal data private
         run: python3 .github/scripts/privacy-check.py logs
 
+  # holzBar speaks English, German, French, Italian and Romansh. Fails every pull
+  # request that adds a text without its translations, or a translation that is
+  # unfinished or changes the format specifiers of its text.
+  # Runs locally too: python3 .github/scripts/strings-check.py
+  strings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Every text in five languages
+        run: python3 .github/scripts/strings-check.py
+
   test:
     runs-on: macos-26
     steps:

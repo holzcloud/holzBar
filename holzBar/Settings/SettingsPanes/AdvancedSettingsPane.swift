@@ -17,9 +17,9 @@ struct AdvancedSettingsPane: View {
     private func formattedToSeconds(_ interval: TimeInterval) -> LocalizedStringKey {
         let formatted = interval.formatted()
         return if interval == 1 {
-            LocalizedStringKey(formatted + " second")
+            "\(formatted) second"
         } else {
-            LocalizedStringKey(formatted + " seconds")
+            "\(formatted) seconds"
         }
     }
 
@@ -278,7 +278,7 @@ private struct RevealRulesSettings: View {
         Toggle("When the battery is low", isOn: $rules.revealsOnLowBattery)
         if rules.revealsOnLowBattery {
             Stepper(value: $rules.lowBatteryThreshold, in: 5...50, step: 5) {
-                Text("Below \(rules.lowBatteryThreshold) %")
+                Text("Below \((Double(rules.lowBatteryThreshold) / 100).formatted(.percent))")
             }
         }
         Toggle("When the network connection is lost", isOn: $rules.revealsWhenOffline)
