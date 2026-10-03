@@ -68,6 +68,14 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Show on scroll with a mouse wheel | ❌ | — | ✅ |
 | Search tolerates typos and abbreviations | ✅ (library) | ✅ | ✅ (built in) |
 | Refuses hotkeys macOS cannot register, and says why | ❌ | — | ✅ |
+| Input never stalls when an app hangs | ❌ | ✅ | ✅ |
+| Items keep their section when an app changes its title | ❌ | ✅ | ✅ |
+| Pauses while the screen is locked, settles after wake | ❌ | ✅ | ✅ |
+| Look on every desktop, follows the icons, steps aside in fullscreen | ❌ | ✅ | ✅ |
+| No screen-recording indicator when showing or hiding (macOS 27) | — | ✅ | ✅ |
+| Hover and click on a second display (macOS 27) | — | ✅ | ✅ |
+| URL commands that rearrange items ask first | — | — | ✅ |
+| Validated hotkeys and colours (no crash loop from bad settings) | ❌ | — | ✅ |
 | **Privacy and permissions** | | | |
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | — | private, enforced by CI |
@@ -86,7 +94,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Settings migration | 6 version steps at every launch | — | once, while importing Ice settings |
 | Runtime patching of AppKit (method swizzling) | yes | — | none |
 | Item images in memory | kept | — | released when unused |
-| Unit tests run on every change | none | ✅ | ✅ 255 |
+| Unit tests run on every change | none | ✅ | ✅ 299 |
 | App size | — | — | 13.9 MB |
 | **Distribution and maintenance** | | | |
 | Install and update with Homebrew | ✅ | ✅ | ✅ |
@@ -112,7 +120,7 @@ Everything holzBar asks macOS for, the feature that needs it and when it is aske
 | Permission or entitlement | Needed for | When |
 |---|---|---|
 | **Accessibility** <sub>required</sub> | Reading where menu bar items are; moving, showing and clicking them for you; noticing clicks, scrolls and hovers in the menu bar for show on click, scroll and hover | Asked on the first launch |
-| **Screen Recording** <sub>optional</sub> | Pictures of menu bar items in the holzBar Shelf, the search and the Menu Bar Layout pane (on macOS 27 taken once per item), and the wallpaper beside a menu bar shape | Asked the first time you open the holzBar Shelf, the search or the Menu Bar Layout pane, or choose a menu bar shape — never at launch. Without it, everything else works and nothing captures the screen |
+| **Screen Recording** <sub>optional</sub> | Pictures of menu bar items in the holzBar Shelf, the search and the Menu Bar Layout pane (on macOS 27 taken once per item), and a moving wallpaper beside a menu bar shape (before macOS 27; other wallpapers are read from their file) | Asked the first time you open the holzBar Shelf, the search or the Menu Bar Layout pane, or choose a menu bar shape with a moving wallpaper — never at launch. Without it, everything else works and nothing captures the screen |
 | **Login item** | Starting holzBar when you log in | Only when you turn on "Launch at login" |
 | **iCloud Drive file** | Settings sync between your Macs (`iCloud Drive/holzBar/Settings.plist`), read and written with file coordination | Only while settings sync is on; with sync off, holzBar neither watches the folder nor writes to it |
 | **Entitlements** | None. holzBar runs without the App Sandbox, because Accessibility event taps and the menu bar's private WindowServer calls do not work in it, and it has no network entitlement | — |
@@ -177,6 +185,9 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Item discovery** through Accessibility instead of window lists
 - **holzBar Shelf** with real item images and even spacing
 - **Layout editor** that assigns apps to sections — your old layout is carried over on first launch
+- **A second display** works like the first: hovering and clicking items there opens their menus instead of revealing hidden items
+- **Notched MacBooks**: holzBar's icon is kept out from under the notch, and items folded beside the notch come back on a wider display
+- **No screenshots under the bar**: no screen-recording indicator when items are shown or hidden, and a click on the clock no longer flashes hidden items
 
 **Known limitations on macOS 27**
 
@@ -199,6 +210,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - ✅ **Groups** — several items behind an icon of their own
 - ✅ **Spacers** — empty items of adjustable width
 - ✅ **Choose where new items appear**
+- ✅ **Keeps items in their section after app updates, title changes and display changes**
 - ✅ Search menu bar items — by abbreviation ("cc" for Control Centre) and despite typos
 - ✅ Item spacing <sub>BETA</sub>
 
