@@ -37,6 +37,14 @@ jobs:
           echo "==> Resolved source packages"
           sed -n '/^Resolved source packages:/,/^$/p' build.log
           grep -E "error:|\*\* BUILD" build.log || tail -50 build.log
+          if [ "$STATUS" -ne 0 ]; then
+            # A failure without an error line (a compiler crash, a failed
+            # tool) is explained by the failed commands and their output.
+            echo "==> Failed build commands"
+            sed -n '/^The following build commands failed:/,/^$/p' build.log
+            grep -n -E "Assertion failed|Please submit a bug report|failed with a nonzero exit code|: fatal error" build.log | head -40
+            grep -n -A30 "Stack dump" build.log | sed "s|$GITHUB_WORKSPACE/||g" | head -120
+          fi
           APP=build/Build/Products/Release/holzBar.app
           if [ -d "$APP" ]; then
             echo "==> App size: $(du -sk "$APP" | cut -f1) KB"
