@@ -93,6 +93,10 @@ final class MenuBarOverlayPanel: NSPanel {
         }
     }
 
+    /// Whether the panel found no menu bar to draw on (at login, before the bar exists), so
+    /// it needs another try (see `MenuBarAppearanceManager`).
+    private(set) var needsRetry = false
+
     /// The frame of the application menu.
     private(set) var applicationMenuFrame: CGRect? {
         didSet {
@@ -109,9 +113,6 @@ final class MenuBarOverlayPanel: NSPanel {
 
     /// Shows the panel once ``needsShow`` stops changing.
     private let needsShowDebouncer = Debouncer(delay: .milliseconds(50))
-
-    /// Shows the panel 0.1 s after the active space stops changing.
-    private let spaceDebouncer = Debouncer(delay: .milliseconds(100))
 
     /// Updates the wallpaper 0.1 s after the appearance stops changing.
     private let themeDebouncer = Debouncer(delay: .milliseconds(100))
@@ -166,7 +167,9 @@ final class MenuBarOverlayPanel: NSPanel {
         self.isMovable = false
         self.ignoresMouseEvents = true
         self.isExcludedFromWindowsMenu = true
-        self.collectionBehavior = [.fullScreenNone, .ignoresCycle, .moveToActiveSpace]
+        // One panel stands on every desktop at once, so the look is there the moment a
+        // desktop slides in instead of following it after the switch (Thaw #1139).
+        self.collectionBehavior = [.fullScreenNone, .ignoresCycle, .canJoinAllSpaces, .stationary]
         self.contentView = MenuBarOverlayPanelContentView()
         configureObservers()
     }
@@ -178,13 +181,6 @@ final class MenuBarOverlayPanel: NSPanel {
     }
 
     private func configureObservers() {
-        // Show the panel on the active space.
-        observeNotifications(named: NSWorkspace.activeSpaceDidChangeNotification, in: NSWorkspace.shared.notificationCenter) { panel in
-            panel.spaceDebouncer.schedule { [weak panel] in
-                panel?.needsShow = true
-            }
-        }
-
         // Update when light/dark mode changes.
         observeNotifications(
             named: DistributedNotificationCenter.interfaceThemeChangedNotification,
@@ -259,13 +255,22 @@ final class MenuBarOverlayPanel: NSPanel {
             }
         })
 
+        // The panel steps aside while the system hides the menu bar and on a fullscreen
+        // space, and comes back when that ends.
         if let appState {
-            let menuBarManager = appState.menuBarManager
-            alphaValue = menuBarManager.isMenuBarHiddenBySystem ? 0 : 1
-            menuBarHiddenObserver = ObservationLoop.observe { menuBarManager.isMenuBarHiddenBySystem } onChange: { [weak self] isHidden in
-                self?.alphaValue = isHidden ? 0 : 1
+            alphaValue = Self.stepsAside(appState) ? 0 : 1
+            menuBarHiddenObserver = ObservationLoop.observe { [weak appState] in
+                appState.map(Self.stepsAside) ?? false
+            } onChange: { [weak self] stepsAside in
+                self?.animator().alphaValue = stepsAside ? 0 : 1
             }
         }
+    }
+
+    /// Whether the panel is invisible: the system hides the menu bar, or the active space is
+    /// fullscreen.
+    private static func stepsAside(_ appState: AppState) -> Bool {
+        appState.menuBarManager.isMenuBarHiddenBySystem || appState.activeSpace.isFullscreen
     }
 
     /// Calls the handler for each notification with the given name, while the panel exists.
@@ -328,9 +333,17 @@ final class MenuBarOverlayPanel: NSPanel {
         }
         guard appState.menuBarManager.hasValidMenuBar(in: windows, for: owningScreen.displayID) else {
             MenuBarOverlayPanel.logger.debug("No valid menu bar found. \(actionMessage, privacy: .public)")
+            needsRetry = true
             return false
         }
+        needsRetry = false
         return true
+    }
+
+    /// Draws the panel again and updates the application menu frame and the wallpaper.
+    func refresh() {
+        updateFlags = [.applicationMenuFrame, .desktopWallpaper]
+        contentView?.needsDisplay = true
     }
 
     /// Stores the frame of the menu bar's application menu.
@@ -389,6 +402,8 @@ final class MenuBarOverlayPanel: NSPanel {
         }
 
         guard let menuBarHeight = owningScreen.getMenuBarHeight() else {
+            MenuBarOverlayPanel.logger.debug("No menu bar window found. Preventing overlay panel from showing.")
+            needsRetry = true
             return
         }
 
@@ -405,7 +420,7 @@ final class MenuBarOverlayPanel: NSPanel {
 
         updateFlags = [.applicationMenuFrame, .desktopWallpaper]
 
-        if !appState.menuBarManager.isMenuBarHiddenBySystem {
+        if !Self.stepsAside(appState) {
             animator().alphaValue = 1
         }
     }
@@ -480,14 +495,9 @@ private final class MenuBarOverlayPanelContentView: NSView {
             }
         )
 
-        // Redraw whenever the window frame of a control item changes.
-        //
-        // - NOTE: A previous attempt was made to redraw the view when the
-        //   section's `isHidden` property was changed. This would be semantically
-        //   ideal, but the property sometimes changes before the menu bar items
-        //   are actually updated on-screen. Since the view's drawing process relies
-        //   on getting an accurate position of each menu bar item, we need to use
-        //   something that publishes its changes only after the items are updated.
+        // Redraw whenever the window frame of a control item changes: it changes only
+        // after the items moved on screen, so the drawing that depends on their positions
+        // is right then.
         let sections = appState.menuBarManager.sections
         observers.append(
             ObservationLoop.observe {
@@ -496,6 +506,36 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 self?.needsDisplay = true
             }
         )
+
+        // Redraw too when a section is shown or hidden, so the shape appears with the
+        // icons during a reveal rather than after the next frame change, and when the
+        // item list changes: an application adding an item moves no control item, and on
+        // macOS 27 the control items' frames never change at all.
+        observers.append(
+            ObservationLoop.observe {
+                sections.map(\.isHidden)
+            } onChange: { [weak self] _ in
+                self?.needsDisplay = true
+            }
+        )
+        let itemManager = appState.itemManager
+        observers.append(
+            ObservationLoop.observe {
+                itemManager.itemCache
+            } onChange: { [weak self] _ in
+                self?.needsDisplay = true
+            }
+        )
+        if #available(macOS 27.0, *) {
+            let concealer = appState.concealer27
+            observers.append(
+                ObservationLoop.observe {
+                    concealer.concealedPIDs
+                } onChange: { [weak self] _ in
+                    self?.needsDisplay = true
+                }
+            )
+        }
 
         // The application menu frame and the wallpaper redraw the view from the panel.
     }

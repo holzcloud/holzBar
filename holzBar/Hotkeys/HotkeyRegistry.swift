@@ -139,6 +139,15 @@ final class HotkeyRegistry {
             return nil
         }
 
+        // A value out of range must not trap (jordanbaird/Ice#985).
+        guard
+            let keyCode = UInt32(exactly: keyCombination.key.rawValue),
+            let modifierFlags = UInt32(exactly: keyCombination.modifiers.carbonFlags)
+        else {
+            Logger.hotkeys.error("Hotkey not registered: key code \(keyCombination.key.rawValue, privacy: .public) cannot be registered")
+            return nil
+        }
+
         var status = installIfNeeded()
 
         guard status == noErr else {
@@ -156,8 +165,8 @@ final class HotkeyRegistry {
         let hotKeyID = EventHotKeyID(signature: signature, id: id)
         var hotKeyRef: EventHotKeyRef?
         status = RegisterEventHotKey(
-            UInt32(keyCombination.key.rawValue),
-            UInt32(keyCombination.modifiers.carbonFlags),
+            keyCode,
+            modifierFlags,
             hotKeyID,
             GetEventDispatcherTarget(),
             0,
@@ -227,10 +236,19 @@ final class HotkeyRegistry {
                 continue
             }
 
+            guard
+                let keyCode = UInt32(exactly: registration.key.rawValue),
+                let modifierFlags = UInt32(exactly: registration.modifiers.carbonFlags)
+            else {
+                registrations.removeValue(forKey: registration.hotKeyID.id)
+                Logger.hotkeys.error("Hotkey not registered: key code \(registration.key.rawValue, privacy: .public) cannot be registered")
+                continue
+            }
+
             var hotKeyRef: EventHotKeyRef?
             let status = RegisterEventHotKey(
-                UInt32(registration.key.rawValue),
-                UInt32(registration.modifiers.carbonFlags),
+                keyCode,
+                modifierFlags,
                 registration.hotKeyID,
                 GetEventDispatcherTarget(),
                 0,

@@ -54,11 +54,17 @@ final class HotkeysSettings {
                 continue
             }
             do {
+                // An invalid stored combination (a key code out of range, unknown modifier
+                // bits) fails to decode and is ignored (jordanbaird/Ice#985).
                 if let keyCombination = try decoder.decode(KeyCombination?.self, from: data) {
+                    guard !keyCombination.isSystemReserved else {
+                        Logger.hotkeys.error("Ignoring stored hotkey \(hotkey.action.rawValue, privacy: .public): reserved by the system")
+                        continue
+                    }
                     hotkey.keyCombination = keyCombination
                 }
             } catch {
-                Logger.serialization.error("Error decoding hotkey: \(error, privacy: .private)")
+                Logger.serialization.error("Ignoring stored hotkey \(hotkey.action.rawValue, privacy: .public): \(error, privacy: .private)")
             }
         }
     }

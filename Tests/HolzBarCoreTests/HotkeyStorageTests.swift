@@ -39,6 +39,24 @@ struct HotkeyStorageTests {
         #expect(HotkeyStorage.decode(Data()) == nil)
     }
 
+    @Test("A key code outside 0 to 127 is ignored")
+    func keyCodeOutOfRangeIgnored() {
+        #expect(HotkeyStorage.decode(Data("[128,8]".utf8)) == nil)
+        #expect(HotkeyStorage.decode(Data("[-1,8]".utf8)) == nil)
+        #expect(HotkeyStorage.decode(Data("[99999,8]".utf8)) == nil)
+        #expect(HotkeyStorage.decode(Data("[0,8]".utf8))?.key == 0)
+        #expect(HotkeyStorage.decode(Data("[127,8]".utf8))?.key == 127)
+    }
+
+    @Test("Unknown modifier bits are ignored")
+    func unknownModifierBitsIgnored() {
+        #expect(HotkeyStorage.decode(Data("[49,256]".utf8)) == nil)
+        #expect(HotkeyStorage.decode(Data("[49,16]".utf8)) == nil)
+        #expect(HotkeyStorage.decode(Data("[49,-1]".utf8)) == nil)
+        #expect(HotkeyStorage.decode(Data("[49,15]".utf8))?.modifiers == 15)
+        #expect(HotkeyStorage.decode(Data("[49,0]".utf8))?.modifiers == 0)
+    }
+
     @Test("An action is stored by its raw value")
     func actionStoredByRawValue() throws {
         let data = try JSONEncoder().encode(HotkeyAction.enableShelf)

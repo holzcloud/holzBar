@@ -139,7 +139,13 @@ struct HolzBarGradient: Codable, Hashable {
         var count: CGFloat = 0
 
         for color in colors {
-            guard let components = color.components else {
+            // Each color is read as red, green, blue and alpha in the RGB color space;
+            // one that does not convert to four components is skipped.
+            guard
+                let rgbColor = color.converted(to: colorSpace, intent: .defaultIntent, options: nil),
+                let components = rgbColor.components,
+                components.count >= 4
+            else {
                 continue
             }
             totals.red += components[0]
@@ -147,6 +153,10 @@ struct HolzBarGradient: Codable, Hashable {
             totals.blue += components[2]
             totals.alpha += components[3]
             count += 1
+        }
+
+        guard count > 0 else {
+            return nil
         }
 
         var components: [CGFloat] = [
