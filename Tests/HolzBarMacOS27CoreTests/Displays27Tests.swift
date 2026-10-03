@@ -41,3 +41,42 @@ struct NotchCover27Tests {
         #expect(NotchCover27.adding(["a"], to: [["x"], ["x", "y"]]) == [["x", "a"], ["x", "y", "a"]])
     }
 }
+
+@Suite("LaunchGrace27")
+struct LaunchGrace27Tests {
+    // The grace is changed outside `#expect`, whose expansion cannot call a mutating method.
+
+    private let start = ContinuousClock.now
+
+    @Test("A launching app is allowed until its item appears")
+    func allowedUntilItsItemAppears() {
+        var grace = LaunchGrace27()
+        grace.begin("a", isConcealed: true, at: start)
+        #expect(grace.allowed == ["a"])
+        let ended = grace.itemsAppeared(["a", "b"])
+        #expect(ended == ["a"])
+        #expect(grace.allowed.isEmpty)
+        // A grace ends once.
+        let endedAgain = grace.itemsAppeared(["a"])
+        #expect(endedAgain.isEmpty)
+    }
+
+    @Test("A grace ends after 10 s without an item")
+    func endsAfterTenSeconds() {
+        var grace = LaunchGrace27()
+        grace.begin("a", isConcealed: true, at: start)
+        let early = grace.expired(at: start + .seconds(9))
+        #expect(early.isEmpty)
+        let late = grace.expired(at: start + .seconds(10))
+        #expect(late == ["a"])
+        #expect(grace.allowed.isEmpty)
+    }
+
+    @Test("Visible apps get no grace")
+    func visibleAppsGetNoGrace() {
+        var grace = LaunchGrace27()
+        let began = grace.begin("v", isConcealed: false, at: start)
+        #expect(!began)
+        #expect(grace.allowed.isEmpty)
+    }
+}

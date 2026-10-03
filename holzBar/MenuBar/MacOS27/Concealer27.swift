@@ -58,6 +58,10 @@ final class Concealer27 {
     /// Whether the last settled read showed items folded behind the overflow button.
     @ObservationIgnored private var lastReadHadFoldedItems = false
 
+    /// Applications that launched while their section is concealed, shown until their item
+    /// exists (jordanbaird/Ice#1007).
+    @ObservationIgnored private var launchGrace = LaunchGrace27()
+
     /// The section of each application. Applications missing from it are visible.
     private var savedLayout: [String: MacOS27Section] {
         let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
@@ -71,15 +75,19 @@ final class Concealer27 {
             return
         }
         let workspaceCenter = NSWorkspace.shared.notificationCenter
-        for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
-            observerTasks.append(Task { [weak self] in
-                for await _ in workspaceCenter.notifications(named: name) {
-                    // The bar is laid out anew, so the notch is worked out again.
-                    self?.notchConcealed.removeAll()
-                    self?.update()
-                }
-            })
-        }
+        observerTasks.append(Task { [weak self] in
+            for await notification in workspaceCenter.notifications(named: NSWorkspace.didLaunchApplicationNotification) {
+                let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+                self?.applicationDidLaunch(bundleID: application?.bundleIdentifier)
+            }
+        })
+        observerTasks.append(Task { [weak self] in
+            for await _ in workspaceCenter.notifications(named: NSWorkspace.didTerminateApplicationNotification) {
+                // The bar is laid out anew, so the notch is worked out again.
+                self?.notchConcealed.removeAll()
+                self?.update()
+            }
+        })
         observerTasks.append(Task { [weak self] in
             let center = NotificationCenter.default
             for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
@@ -120,6 +128,50 @@ final class Concealer27 {
         for task in observerTasks {
             task.cancel()
         }
+    }
+
+    /// Answers an application's launch.
+    ///
+    /// An application whose saved section is hidden or always hidden is shown until its item
+    /// exists, or for at most 10 s, then concealed: concealed before its status item exists,
+    /// it gets an item of 3 points (jordanbaird/Ice#1007).
+    private func applicationDidLaunch(bundleID: String?) {
+        // The bar is laid out anew, so the notch is worked out again.
+        notchConcealed.removeAll()
+        guard
+            let bundleID,
+            let section = savedLayout[bundleID],
+            launchGrace.begin(bundleID, isConcealed: section != .visible, at: .now)
+        else {
+            update()
+            return
+        }
+        logger.debug("An application in a concealed section launched, showing it until its item exists")
+        showTemporarily(bundleID: bundleID)
+        // One bounded wait per grace.
+        Task { [weak self] in
+            try? await Task.sleep(for: LaunchGrace27.timeout)
+            guard let self else {
+                return
+            }
+            endGraces(launchGrace.expired(at: .now))
+        }
+    }
+
+    /// Ends the launch graces of the applications whose items appeared in a read of the bar.
+    func itemsAppeared(bundleIDs: Set<String>) {
+        guard !launchGrace.allowed.isEmpty else {
+            return
+        }
+        endGraces(launchGrace.itemsAppeared(bundleIDs))
+    }
+
+    /// Conceals the applications whose launch grace ended, balancing their allowance.
+    private func endGraces(_ bundleIDs: [String]) {
+        guard !bundleIDs.isEmpty else {
+            return
+        }
+        endTemporaryShow(bundleIDs: bundleIDs)
     }
 
     /// Releases every assertion as holzBar quits, so no application stays hidden.

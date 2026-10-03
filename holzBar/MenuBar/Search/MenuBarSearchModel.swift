@@ -43,6 +43,16 @@ final class MenuBarSearchModel {
     }
 
     private func updateAverageColorInfo(for screen: NSScreen) {
+        // On macOS 27 a capture lights the recording indicator, so the search stands on the
+        // flat colour of the bar, as the Shelf does.
+        if #available(macOS 27.0, *) {
+            let info = MenuBarAverageColorInfo(color: HolzBarShelfColorManager.flatColor27(), source: .menuBarWindow)
+            if averageColorInfo != info {
+                averageColorInfo = info
+            }
+            return
+        }
+
         // Nothing captures the screen before Screen Recording is granted.
         guard ScreenCapture.cachedCheckPermissions() else {
             return

@@ -155,13 +155,25 @@ struct MenuBarAppearanceEditor: View {
             .fixedSize(horizontal: false, vertical: true)
     }
 
-    /// Asks for Screen Recording when a shape is chosen without it: the shape draws the
-    /// wallpaper beside it.
+    /// Whether holzBar runs on macOS 27.
+    private var isMacOS27: Bool {
+        if #available(macOS 27.0, *) {
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Asks for Screen Recording when a shape is chosen without it and the wallpaper
+    /// beside it cannot be read from its file (a moving wallpaper). Before macOS 27 only:
+    /// on macOS 27 holzBar never captures the wallpaper.
     @ViewBuilder
     private var shapeScreenRecordingHint: some View {
         if
+            !isMacOS27,
             appearanceManager.configuration.shapeKind != .noShape,
-            !ScreenRecordingAccess.isGranted(appState)
+            !ScreenRecordingAccess.isGranted(appState),
+            !(NSScreen.main.map(DesktopPicture.isReadable(on:)) ?? false)
         {
             ScreenRecordingHint(feature: .menuBarShape, appState: appState)
                 .frame(maxWidth: .infinity)

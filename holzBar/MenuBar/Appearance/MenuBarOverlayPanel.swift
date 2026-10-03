@@ -138,6 +138,43 @@ final class MenuBarOverlayPanel: NSPanel {
     /// Observes whether the owning screen's menu bar is valid (see `ApplicationMenuFrames`).
     private var menuBarValidityObserver: ObservationLoop?
 
+    /// Observes the shape, which decides whether the wallpaper is needed.
+    private var shapeKindObserver: ObservationLoop?
+
+    /// Notices a new wallpaper without a timer.
+    private let wallpaperChangeMonitor = WallpaperChangeMonitor()
+
+    /// The read of the desktop picture under the bar that is under way.
+    private var wallpaperTask: Task<Void, Never>?
+
+    /// Captures the wallpaper again every 30 s while the capture fallback is in use (a
+    /// moving wallpaper before macOS 27, which changes without an event).
+    private var captureFallbackTask: Task<Void, Never>?
+
+    /// Whether the wallpaper comes from a capture (a moving wallpaper before macOS 27).
+    private var usesCaptureFallback = false {
+        didSet {
+            guard usesCaptureFallback != oldValue else {
+                return
+            }
+            captureFallbackTask?.cancel()
+            captureFallbackTask = nil
+            guard usesCaptureFallback else {
+                return
+            }
+            captureFallbackTask = Task { [weak self] in
+                while true {
+                    do {
+                        try await Task.sleep(for: .seconds(30), tolerance: .seconds(5))
+                    } catch {
+                        return
+                    }
+                    self?.insertUpdateFlag(.desktopWallpaper)
+                }
+            }
+        }
+    }
+
     /// The context that manages panel update tasks.
     private let updateTaskContext = UpdateTaskContext()
 
@@ -178,6 +215,8 @@ final class MenuBarOverlayPanel: NSPanel {
         for task in observerTasks {
             task.cancel()
         }
+        wallpaperTask?.cancel()
+        captureFallbackTask?.cancel()
     }
 
     private func configureObservers() {
@@ -230,11 +269,12 @@ final class MenuBarOverlayPanel: NSPanel {
         mouseUpMonitor.start()
         self.mouseUpMonitor = mouseUpMonitor
 
-        // Update the desktop wallpaper when the space or the screens change, and on the
-        // distributed notification "com.apple.desktop" (posted for some wallpaper changes).
-        // macOS posts no reliable wallpaper notification, so a slow, tolerant fallback
-        // catches the rest; it replaced a 5 s timer per screen. The application menu frame
-        // needs no timer: the frontmost-application and mouse-up observers above update it.
+        // Update the desktop wallpaper when the space or the screens change, on the
+        // distributed notification "com.apple.desktop" (posted for some wallpaper changes)
+        // and when the wallpaper store's index changes (`WallpaperChangeMonitor`). Only the
+        // capture fallback for a moving wallpaper before macOS 27 needs a slow, tolerant
+        // timer (`captureFallbackTask`). The application menu frame needs no timer:
+        // `ApplicationMenuFrames` follows it.
         observeNotifications(named: NSWorkspace.activeSpaceDidChangeNotification, in: NSWorkspace.shared.notificationCenter) { panel in
             panel.insertUpdateFlag(.desktopWallpaper)
         }
@@ -242,18 +282,22 @@ final class MenuBarOverlayPanel: NSPanel {
             panel.insertUpdateFlag(.desktopWallpaper)
         }
         observeNotifications(named: Notification.Name("com.apple.desktop"), in: DistributedNotificationCenter.default()) { panel in
+            DesktopPicture.invalidate()
             panel.insertUpdateFlag(.desktopWallpaper)
         }
-        observerTasks.append(Task { [weak self] in
-            while true {
-                do {
-                    try await Task.sleep(for: .seconds(30), tolerance: .seconds(5))
-                } catch {
-                    return
-                }
+        wallpaperChangeMonitor.onChange = { [weak self] in
+            DesktopPicture.invalidate()
+            self?.insertUpdateFlag(.desktopWallpaper)
+        }
+        wallpaperChangeMonitor.start()
+        if let appearanceManager = appState?.appearanceManager {
+            // Only a shape draws the wallpaper, so it is read when one is chosen.
+            shapeKindObserver = ObservationLoop.observe {
+                appearanceManager.configuration.shapeKind
+            } onChange: { [weak self] _ in
                 self?.insertUpdateFlag(.desktopWallpaper)
             }
-        })
+        }
 
         // The panel steps aside while the system hides the menu bar and on a fullscreen
         // space, and comes back when that ends.
@@ -359,25 +403,79 @@ final class MenuBarOverlayPanel: NSPanel {
 
     /// Stores the area of the desktop wallpaper that is under the menu bar
     /// of the given display.
+    ///
+    /// The picture is read from its file (`DesktopPicture`), with no capture and no Screen
+    /// Recording. Only a moving wallpaper has no file: before macOS 27 it is captured when
+    /// Screen Recording is already granted; on macOS 27 nothing is captured (a capture lights
+    /// the recording indicator) and the shape stands on the flat colour of the bar.
     private func updateDesktopWallpaper(for display: CGDirectDisplayID, with windows: [WindowInfo]) {
-        // Nothing captures the screen before Screen Recording is granted; the shape is
-        // then drawn without the wallpaper beside it.
-        guard ScreenCapture.cachedCheckPermissions() else {
+        guard
+            let appState,
+            appState.appearanceManager.configuration.shapeKind != .noShape,
+            let menuBarWindow = WindowInfo.menuBarWindow(from: windows, for: display)
+        else {
+            usesCaptureFallback = false
             if desktopWallpaper != nil {
                 desktopWallpaper = nil
             }
             return
         }
-        guard
-            let wallpaperWindow = WindowInfo.wallpaperWindow(from: windows, for: display),
-            let menuBarWindow = WindowInfo.menuBarWindow(from: windows, for: display)
-        else {
-            return
+        let menuBarBounds = menuBarWindow.bounds
+        let wallpaperWindow = WindowInfo.wallpaperWindow(from: windows, for: display)
+        wallpaperTask?.cancel()
+        wallpaperTask = Task { [weak self] in
+            guard let self else {
+                return
+            }
+            let strip = await DesktopPicture.strip(for: owningScreen, height: menuBarBounds.height)
+            guard !Task.isCancelled else {
+                return
+            }
+            if let strip {
+                usesCaptureFallback = false
+                if desktopWallpaper !== strip {
+                    desktopWallpaper = strip
+                }
+                return
+            }
+            if #available(macOS 27.0, *) {
+                usesCaptureFallback = false
+                desktopWallpaper = Self.solidImage(color: HolzBarShelfColorManager.flatColor27())
+                return
+            }
+            // Nothing captures the screen before Screen Recording is granted; the shape is
+            // then drawn without the wallpaper beside it.
+            guard ScreenCapture.cachedCheckPermissions(), let wallpaperWindow else {
+                usesCaptureFallback = false
+                if desktopWallpaper != nil {
+                    desktopWallpaper = nil
+                }
+                return
+            }
+            usesCaptureFallback = true
+            let wallpaper = ScreenCapture.captureWindow(with: wallpaperWindow.windowID, screenBounds: menuBarBounds)
+            if desktopWallpaper?.dataProvider?.data != wallpaper?.dataProvider?.data {
+                desktopWallpaper = wallpaper
+            }
         }
-        let wallpaper = ScreenCapture.captureWindow(with: wallpaperWindow.windowID, screenBounds: menuBarWindow.bounds)
-        if desktopWallpaper?.dataProvider?.data != wallpaper?.dataProvider?.data {
-            desktopWallpaper = wallpaper
+    }
+
+    /// A one-pixel image of the given colour, drawn stretched over the bar.
+    private static func solidImage(color: CGColor) -> CGImage? {
+        guard let context = CGContext(
+            data: nil,
+            width: 1,
+            height: 1,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue
+        ) else {
+            return nil
         }
+        context.setFillColor(color)
+        context.fill(CGRect(x: 0, y: 0, width: 1, height: 1))
+        return context.makeImage()
     }
 
     /// Updates the panel to prepare for display.

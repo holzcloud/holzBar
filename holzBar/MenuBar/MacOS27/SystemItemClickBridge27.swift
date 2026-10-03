@@ -33,6 +33,10 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         "com.apple.menuextra.wifi",
     ]
 
+    /// Covers the concealed part of the bar while a click lifts concealment, so the hidden
+    /// items do not flash into view (Thaw #1181).
+    private let clockCover = ClockCover27()
+
     /// The system item whose panel holzBar last opened, so a second click on the same item is
     /// understood as the click that dismisses it.
     private var itemShowingPanel: String?
@@ -159,9 +163,12 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             // the replay, so the click is as quick as the release allows.
             let bridgeStarted = ProcessInfo.processInfo.systemUptime
             Self.bridgeLogger.debug("Click bridge: holding the click, lifting concealment")
+            self.clockCover.show(appState: appState)
             await concealer.suspendReleased(for: Self.clickRestoreDelay)
             let released = (ProcessInfo.processInfo.systemUptime - bridgeStarted) * 1000
             Self.replayClick(at: location)
+            // One bounded wait, past the concealment's return.
+            self.clockCover.hide(after: .milliseconds(300))
             self.itemShowingPanel = systemItem?.identifier
             Self.bridgeLogger.debug("Click bridge: lifted in \(released, privacy: .public) ms, click replayed")
         }

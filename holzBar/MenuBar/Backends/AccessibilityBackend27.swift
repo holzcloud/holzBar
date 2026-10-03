@@ -69,6 +69,8 @@ final class AccessibilityBackend27: MenuBarBackend {
         // Observe the processes that own items now; observers of quit ones go.
         let ownPID = ProcessInfo.processInfo.processIdentifier
         itemChangeObserver.observe(owners: Set(items.map(\.ownerPID).filter { $0 != ownPID }))
+        // An application that launched while concealed is concealed once its item exists.
+        appState.concealer27.itemsAppeared(bundleIDs: Set(items.map { $0.tag.namespace.description }))
         appState.concealer27.seedLayoutIfNeeded(items: items)
         appState.concealer27.placeNewApplications(items: items)
         return appState.concealer27.cacheFromSavedLayout(items: items, displayID: displayID)
