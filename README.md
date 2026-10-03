@@ -116,9 +116,9 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Install and update with Homebrew | ✅ | ✅ | ✅ |
 | Updates | Sparkle (dialog can hang on macOS 26) | Sparkle | Homebrew |
 | Fixes from 282 open bug reports | — | — | [see the list](docs/upstream-bugs.md) |
-| Signed with a Developer ID | ✅ | — | ❌ (ad hoc; the cask handles it) |
-| Stable signature, so Accessibility survives updates | ✅ | — | 🔜 (own certificate, [docs/signing.md](docs/signing.md)) |
-| Build provenance attestation (`gh attestation verify`) | ❌ | — | 🔜 from the next release |
+| Signed with a Developer ID | ✅ | — | ❌ (own certificate instead; the cask handles quarantine) |
+| Stable signature, so Accessibility survives updates | ✅ | — | ✅ from 0.0.6-beta1 (own certificate, [docs/signing.md](docs/signing.md)) |
+| Build provenance attestation (`gh attestation verify`) | ❌ | — | ✅ from 0.0.6-beta1 |
 
 ## 🔒 Principles
 
@@ -145,6 +145,8 @@ Everything holzBar asks macOS for, the feature that needs it and when it is aske
 | **Info.plist usage strings** | None: macOS does not use them for Accessibility and Screen Recording | — |
 | **Reset and Grant Again** | Runs `tccutil reset` for holzBar's own entry only, when a stale permission keeps the permissions window open | Only when you click it |
 
+<p align="center"><img src="Resources/Screenshots/settings-layout-screen-recording.png" alt="holzBar settings, Menu Bar Layout pane without Screen Recording: it explains that the pane shows pictures of the menu bar items, which macOS lets an app take only with Screen Recording, with an Allow Screen Recording… button" width="560"><br><sub>Screen Recording is asked only when a feature needs it, and holzBar says why.</sub></p>
+
 > [!WARNING]
 > **macOS 27: the camera, microphone and screen recording indicator.** While holzBar hides menu bar items on macOS 27, Control Centre does not show its privacy indicator — green for the camera, orange for the microphone, indigo for screen sharing or recording. The small green dot beside the clock still appears while the camera is on. The indicator comes back while holzBar hides no item. holzBar needs no permission for this and cannot prevent it: macOS removes the indicator whenever an app hides items the way holzBar must on macOS 27. **Settings → General** says so too.
 
@@ -168,7 +170,7 @@ brew update && brew upgrade --cask holzbar
 
 ### If macOS says holzBar "can't be opened"
 
-holzBar is signed ad hoc, without an Apple Developer ID. The Homebrew cask removes the quarantine flag for you, but if you downloaded the zip yourself — or macOS still blocks the app — take it out of quarantine:
+holzBar is signed with its own certificate, not an Apple Developer ID, so Gatekeeper does not know it. The Homebrew cask removes the quarantine flag for you, but if you downloaded the zip yourself — or macOS still blocks the app — take it out of quarantine:
 
 ```sh
 xattr -dr com.apple.quarantine /Applications/holzBar.app
@@ -176,7 +178,7 @@ xattr -dr com.apple.quarantine /Applications/holzBar.app
 
 Then open holzBar again. Alternatively: open it once, then go to **System Settings → Privacy & Security** and click **Open Anyway** next to the holzBar message.
 
-From 0.0.6-beta1 on, the release workflow attaches a build provenance attestation to every zip it builds, which proves that the zip was built by this repository's release workflow: `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar`. See [docs/signing.md](docs/signing.md).
+From 0.0.6-beta1 on, the release workflow attaches a build provenance attestation to every zip it builds, which proves that the zip was built by this repository's release workflow: `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar`. The app is signed with holzBar's certificate (SHA-256 `e55f0df15060b8c06c6842ccee85e6bc9f86cbbda3bd408abf991457840b1d95`); `codesign -dv --verbose=4 /Applications/holzBar.app` shows it. See [docs/signing.md](docs/signing.md).
 
 > [!NOTE]
 > holzBar replaces the original Ice — quit Ice and run `brew uninstall --cask jordanbaird-ice` first if you have it. Two menu bar managers must never run at the same time; holzBar offers to quit Ice, Thaw, Bartender or Hidden Bar when it finds one running.
@@ -288,7 +290,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ## 🖼 Gallery
 
-<p align="center"><img src="Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, the holzBar icon, the holzBar Shelf and showing hidden items on click, hover or scroll" width="760"></p>
+<p align="center"><img src="Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, the holzBar icon, the holzBar Shelf with its location, the displays it is used on and items covered by the notch, showing hidden items on click, hover or scroll, and automatic rehide with the Smart strategy" width="760"></p>
 
 <table>
 <tr>
@@ -296,19 +298,23 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 <td width="50%" valign="top"><b>holzBar Shelf</b> — hidden items below the menu bar<br><img src="Resources/Screenshots/shelf.png" alt="The menu bar with the holzBar Shelf open below it, showing the hidden items"></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b>Menu</b> — right-click the dot for settings, search and updates<br><img src="Resources/Screenshots/menu.png" alt="holzBar's menu: holzBar Settings…, Search Menu Bar Items, Show Hidden Section, How to Update…, Quit holzBar"></td>
-<td width="50%" valign="top"><b>Rehide and spacing</b> — automatic rehide and item spacing <sub>BETA</sub><br><img src="Resources/Screenshots/settings-spacing.png" alt="holzBar settings: show on click, hover or scroll, automatically rehide with the Smart strategy, and the menu bar item spacing slider marked BETA"></td>
+<td width="50%" valign="top"><b>Menu</b> — right-click the dot for settings, search, Zen mode and updates<br><img src="Resources/Screenshots/menu.png" alt="holzBar's menu: holzBar Settings…, Search Menu Bar Items, Show Hidden Section, Zen Mode, How to Update…, Quit holzBar"></td>
+<td width="50%" valign="top"><b>Rehide and spacing</b> — automatic rehide and item spacing <sub>BETA</sub><br><img src="Resources/Screenshots/settings-spacing.png" alt="holzBar settings, General pane further down: the holzBar Shelf on all displays and items covered by the notch, show on click, hover or scroll, automatically rehide with the Smart strategy, the menu bar item spacing slider marked BETA, and on macOS 27 the note that the camera and microphone indicator is hidden"></td>
 </tr>
 </table>
 
 <table>
 <tr>
-<td width="50%" valign="top"><b>Layout</b> — drag items into sections, with profiles, groups and spacers<br><img src="Resources/Screenshots/settings-layout.png" alt="holzBar settings, Menu Bar Layout pane: profiles with Save Current Layout…, groups with New Group…, spacers, and the Visible and Hidden sections with the menu bar items"></td>
+<td width="50%" valign="top"><b>Layout</b> — drag items into sections, with profiles, groups and spacers<br><img src="Resources/Screenshots/settings-layout.png" alt="holzBar settings, Menu Bar Layout pane: the profile home with Apply and Bind, Save Current Layout…, groups with New Group…, spacers, and the Visible and Hidden sections with the menu bar items"></td>
 <td width="50%" valign="top"><b>Appearance</b> — tint, shadow, border, shapes, a black bar and rounded screen corners<br><img src="Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Menu Bar Appearance pane: Dynamic appearance, Tint, Shadow, Border, Shape Kind, Black menu bar and Round the screen corners"></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action<br><img src="Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys for the hidden section, the search, the holzBar Shelf, app menus and auto-rehide, each with Record Hotkey"></td>
-<td width="50%" valign="top"><b>Advanced</b> — the always-hidden section, Live Activities and delays<br><img src="Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, section dividers, where new items go, Live Activities, hiding app menus, the secondary context menu and the hover and temporary-show delays"></td>
+<td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action, profile and item<br><img src="Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys for the hidden section, the search, opening an item by letter, the layout profile home, the holzBar Shelf, app menus, auto-rehide and Zen mode, each with Record Hotkey"></td>
+<td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode, automatic reveal and settings backup<br><img src="Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, showing hidden items when the battery is low or the network is lost, and settings Export… and Import…"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Sync and permissions</b> — settings sync through any folder your Macs sync, and the state of every permission<br><img src="Resources/Screenshots/settings-advanced-sync.png" alt="holzBar settings, Advanced pane further down: showing hidden items automatically, Export… and Import…, Sync settings between your Macs with Turn On… through iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share, and Accessibility and Screen Recording both granted"></td>
+<td width="50%" valign="top"></td>
 </tr>
 </table>
 
@@ -322,7 +328,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ## 🙏 Credits
 
-<img src="Resources/Screenshots/settings-about.png" alt="holzBar settings, About pane: the app icon, the version, copyright Jordan Baird and holzcloud, Based on Ice by Jordan Baird, the command brew upgrade --cask holzbar and a Releases button" width="420" align="right">
+<img src="Resources/Screenshots/settings-about.png" alt="holzBar settings, About pane: the app icon, Version 0.0.6-beta1, copyright Jordan Baird and holzcloud, Based on Ice by Jordan Baird, the command brew update &amp;&amp; brew upgrade --cask holzbar, a Releases button, and Acknowledgements, Website, Contribute and Report a Bug" width="420" align="right">
 
 - [**Ice**](https://github.com/jordanbaird/Ice) by [Jordan Baird](https://github.com/jordanbaird) — the app holzBar is built on: its design, its features and almost all of its code. Thank you, Jordan! 💙 If you like it, [sponsor Jordan](https://github.com/sponsors/jordanbaird) or [buy him a coffee](https://www.buymeacoffee.com/jordanbaird).
 - [**RabenkoYevhenii**](https://github.com/RabenkoYevhenii) — the macOS 27 backend ([jordanbaird/Ice#995](https://github.com/jordanbaird/Ice/pull/995)).
