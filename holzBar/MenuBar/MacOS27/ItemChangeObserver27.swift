@@ -56,13 +56,10 @@ final class ItemChangeObserver27 {
         let application = AXUIElementCreateApplication(pid)
         // The process identifier travels as the context pointer (it is never 0 here).
         let context = UnsafeMutableRawPointer(bitPattern: Int(pid))
-        var isObserving = false
-        for notification in [kAXCreatedNotification, kAXUIElementDestroyedNotification] {
-            if AXObserverAddNotification(observer, application, notification as CFString, context) == .success {
-                isObserving = true
-            }
+        let added = [kAXCreatedNotification, kAXUIElementDestroyedNotification].filter { notification in
+            AXObserverAddNotification(observer, application, notification as CFString, context) == .success
         }
-        guard isObserving else {
+        guard !added.isEmpty else {
             return
         }
         CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer), .defaultMode)

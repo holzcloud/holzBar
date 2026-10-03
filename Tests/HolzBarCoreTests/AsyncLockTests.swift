@@ -79,8 +79,8 @@ struct AsyncLockTests {
                 try await lock.lock()
                 recorder.record("got cancelled")
                 lock.unlock()
-            } catch is CancellationError {
-                recorder.record("threw cancelled")
+            } catch {
+                recorder.record(error is CancellationError ? "threw cancelled" : "threw \(error)")
             }
         }
         try await Self.waitUntil { recorder.all.contains("asked cancelled") }
