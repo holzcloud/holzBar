@@ -127,6 +127,7 @@ final class LayoutProfiles {
             displayUUID: previous?.displayUUID,
             spaceUUID: previous?.spaceUUID
         )
+        registerUndo(named: String(localized: "Save Profile"))
         profiles.removeAll { $0.name == name }
         profiles.append(profile)
         currentProfileName = name
@@ -136,6 +137,7 @@ final class LayoutProfiles {
 
     /// Deletes the profile with the given name.
     func delete(named name: String) {
+        registerUndo(named: String(localized: "Delete Profile"))
         profiles.removeAll { $0.name == name }
         if currentProfileName == name {
             currentProfileName = nil
@@ -200,6 +202,7 @@ final class LayoutProfiles {
         else {
             return
         }
+        registerUndo(named: String(localized: "Rename Profile"))
         profiles[index].name = newName
         if currentProfileName == profile.name {
             currentProfileName = newName
@@ -208,11 +211,69 @@ final class LayoutProfiles {
         appState?.settings.hotkeys.moveHotkey(from: .applyProfile(profile.name), to: .applyProfile(newName))
     }
 
+    // MARK: Undo
+
+    /// Registers "restore the profiles as they are now" on the Settings window's undo
+    /// manager, before a change. Undo restores the list, the applied profile's name and
+    /// the profiles' hotkeys; it never touches the menu bar.
+    private func registerUndo(named actionName: String) {
+        guard let undoManager = appState?.navigationState.settingsWindow?.undoManager else {
+            return
+        }
+        let profiles = self.profiles
+        let currentProfileName = self.currentProfileName
+        let hotkeys = profileHotkeys()
+        undoManager.registerUndo(withTarget: self) { target in
+            MainActor.assumeIsolated {
+                target.restore(profiles: profiles, currentProfileName: currentProfileName, hotkeys: hotkeys, actionName: actionName)
+            }
+        }
+        undoManager.setActionName(actionName)
+    }
+
+    /// Puts back the profiles of an undone change, and registers the redo.
+    private func restore(
+        profiles restored: [LayoutProfile],
+        currentProfileName restoredCurrent: String?,
+        hotkeys: [String: KeyCombination],
+        actionName: String
+    ) {
+        registerUndo(named: actionName)
+        let removedNames = Set(profiles.map(\.name)).subtracting(restored.map(\.name))
+        profiles = restored
+        currentProfileName = restoredCurrent
+        save()
+        guard let hotkeySettings = appState?.settings.hotkeys else {
+            return
+        }
+        for name in removedNames where hotkeys[name] == nil {
+            hotkeySettings.removeHotkey(for: .applyProfile(name))
+        }
+        for (name, keyCombination) in hotkeys {
+            hotkeySettings.setKeyCombination(keyCombination, for: .applyProfile(name))
+        }
+    }
+
+    /// The key combinations of the profiles' hotkeys, by profile name.
+    private func profileHotkeys() -> [String: KeyCombination] {
+        guard let hotkeySettings = appState?.settings.hotkeys else {
+            return [:]
+        }
+        var result = [String: KeyCombination]()
+        for profile in profiles {
+            if let keyCombination = hotkeySettings.existingHotkey(for: .applyProfile(profile.name))?.keyCombination {
+                result[profile.name] = keyCombination
+            }
+        }
+        return result
+    }
+
     // MARK: Bindings
 
     /// Binds a profile to a display, or removes its display binding (`nil`). A display is
     /// bound to one profile at most.
     func bind(_ profile: LayoutProfile, toDisplay displayUUID: String?) {
+        registerUndo(named: String(localized: "Bind Profile"))
         for index in profiles.indices {
             if profiles[index].name == profile.name {
                 profiles[index].displayUUID = displayUUID
@@ -226,6 +287,7 @@ final class LayoutProfiles {
     /// Binds a profile to a Space, or removes its Space binding (`nil`). A Space is bound
     /// to one profile at most.
     func bind(_ profile: LayoutProfile, toSpace spaceUUID: String?) {
+        registerUndo(named: String(localized: "Bind Profile"))
         for index in profiles.indices {
             if profiles[index].name == profile.name {
                 profiles[index].spaceUUID = spaceUUID
@@ -241,6 +303,7 @@ final class LayoutProfiles {
         guard let index = profiles.firstIndex(where: { $0.name == profile.name }) else {
             return
         }
+        registerUndo(named: String(localized: "Remove Binding"))
         profiles[index].displayUUID = nil
         profiles[index].spaceUUID = nil
         save()

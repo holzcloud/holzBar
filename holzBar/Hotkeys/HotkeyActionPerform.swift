@@ -24,6 +24,15 @@ extension HotkeyTarget {
 }
 
 extension HotkeyAction {
+    /// Lets the holzBar Shelf take keys when a hotkey opens it, so the arrows, Return and
+    /// Escape work in it.
+    @MainActor
+    private func prepareShelfForKeyboard(opening section: MenuBarSection, appState: AppState) {
+        if appState.settings.general.usesShelf, section.isHidden {
+            appState.menuBarManager.shelfPanel.acceptsKeyboard = true
+        }
+    }
+
     /// Performs the action.
     @MainActor
     func perform(appState: AppState) {
@@ -32,6 +41,7 @@ extension HotkeyAction {
             guard let section = appState.menuBarManager.section(withName: .hidden) else {
                 return
             }
+            prepareShelfForKeyboard(opening: section, appState: appState)
             section.toggle()
             // Prevent the section from automatically rehiding after mouse movement.
             if !section.isHidden {
@@ -41,6 +51,7 @@ extension HotkeyAction {
             guard let section = appState.menuBarManager.section(withName: .alwaysHidden) else {
                 return
             }
+            prepareShelfForKeyboard(opening: section, appState: appState)
             section.toggle()
             // Prevent the section from automatically rehiding after mouse movement.
             if !section.isHidden {

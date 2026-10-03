@@ -27,6 +27,12 @@ final class HolzBarShelfPanel: NSPanel {
     /// Follows the control item at most every 0.1 s, with its latest frame.
     private let controlItemThrottle = Debouncer(delay: .milliseconds(100))
 
+    /// Whether the Shelf takes keys: it was opened with a hotkey, so the arrows, Return and
+    /// Escape work in it. Opened with the mouse, it stays non-key as before.
+    var acceptsKeyboard = false
+
+    override var canBecomeKey: Bool { acceptsKeyboard }
+
     /// Creates a new holzBar Shelf panel.
     init() {
         super.init(
@@ -231,6 +237,9 @@ final class HolzBarShelfPanel: NSPanel {
         }
 
         orderFrontRegardless()
+        if acceptsKeyboard {
+            makeKey()
+        }
         if #available(macOS 27.0, *) {
             let elapsed = (ContinuousClock.now - requestedAt).components
             let milliseconds = Double(elapsed.seconds) * 1000 + Double(elapsed.attoseconds) / 1e15
@@ -253,6 +262,7 @@ final class HolzBarShelfPanel: NSPanel {
         super.close()
         contentView = nil
         currentSection = nil
+        acceptsKeyboard = false
         appState?.navigationState.isShelfPresented = false
     }
 }
@@ -305,6 +315,9 @@ private struct HolzBarShelfContentView: View {
     var menuBarManager: MenuBarManager
     @State private var frame = CGRect.zero
     @State private var scrollIndicatorsFlashTrigger = 0
+    /// The item the arrows highlight, while the Shelf takes keys.
+    @State private var highlightedWindowID: CGWindowID?
+    @FocusState private var hasKeyboardFocus: Bool
 
     let screen: NSScreen
     let section: MenuBarSection.Name
@@ -393,6 +406,58 @@ private struct HolzBarShelfContentView: View {
         .frame(maxWidth: screen.frame.width)
         .fixedSize()
         .onFrameChange(update: $frame)
+        .focusable(menuBarManager.shelfPanel.acceptsKeyboard)
+        .focused($hasKeyboardFocus)
+        .focusEffectDisabled()
+        .onKeyPress(.leftArrow) {
+            moveHighlight(by: -1)
+        }
+        .onKeyPress(.rightArrow) {
+            moveHighlight(by: 1)
+        }
+        .onKeyPress(.return) {
+            openHighlightedItem()
+        }
+        .onKeyPress(.space) {
+            openHighlightedItem()
+        }
+        .onKeyPress(.escape) {
+            menuBarManager.section(withName: section)?.hide()
+            return .handled
+        }
+        .onAppear {
+            guard menuBarManager.shelfPanel.acceptsKeyboard else {
+                return
+            }
+            hasKeyboardFocus = true
+            highlightedWindowID = items.last?.windowID
+        }
+    }
+
+    /// Moves the highlight to the item on the left (`-1`) or right (`1`).
+    private func moveHighlight(by step: Int) -> KeyPress.Result {
+        let items = items
+        guard !items.isEmpty else {
+            return .ignored
+        }
+        let current = items.firstIndex { $0.windowID == highlightedWindowID } ?? items.count
+        let index = min(max(current + step, 0), items.count - 1)
+        highlightedWindowID = items[index].windowID
+        return .handled
+    }
+
+    /// Opens the highlighted item through the same path as a click.
+    private func openHighlightedItem() -> KeyPress.Result {
+        guard let item = items.first(where: { $0.windowID == highlightedWindowID }) else {
+            return .ignored
+        }
+        let shelfDisplayID = menuBarManager.shelfPanel.screen?.displayID
+        menuBarManager.section(withName: section)?.hide()
+        Task {
+            try? await Task.sleep(for: .milliseconds(25))
+            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: shelfDisplayID)
+        }
+        return .handled
     }
 
     @ViewBuilder
@@ -425,7 +490,8 @@ private struct HolzBarShelfContentView: View {
                             itemManager: itemManager,
                             menuBarManager: menuBarManager,
                             item: item,
-                            section: section
+                            section: section,
+                            isHighlighted: item.windowID == highlightedWindowID
                         )
                     }
                 }
@@ -449,6 +515,8 @@ private struct HolzBarShelfItemView: View {
 
     let item: MenuBarItem
     let section: MenuBarSection.Name
+    /// Whether the arrows of the keyboard highlight the item.
+    var isHighlighted = false
 
     private var leftClickAction: () -> Void {
         return { [weak itemManager, weak menuBarManager] in
@@ -496,9 +564,17 @@ private struct HolzBarShelfItemView: View {
                         rightClickAction: rightClickAction
                     )
                 }
+                .background {
+                    if isHighlighted {
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+                            .fill(Color.primary.opacity(0.2))
+                    }
+                }
+                .accessibilityAddTraits(.isButton)
                 .accessibilityLabel(item.displayName)
-                .accessibilityAction(named: "left click", leftClickAction)
-                .accessibilityAction(named: "right click", rightClickAction)
+                .accessibilityAction(.default, leftClickAction)
+                .accessibilityAction(named: "Open", leftClickAction)
+                .accessibilityAction(named: "Open Menu", rightClickAction)
         }
     }
 }

@@ -218,6 +218,7 @@ private struct LayoutProfileRow: View {
     let profile: LayoutProfile
     let isCurrent: Bool
     let rename: () -> Void
+    @State private var isConfirmingDelete = false
 
     /// The screen of the Settings window, which "This Display" means.
     private var currentScreen: NSScreen? {
@@ -289,8 +290,8 @@ private struct LayoutProfileRow: View {
             .fixedSize()
             Menu {
                 Button("Rename…", action: rename)
-                Button("Delete", role: .destructive) {
-                    profiles.delete(named: profile.name)
+                Button("Delete…", role: .destructive) {
+                    isConfirmingDelete = true
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
@@ -300,6 +301,14 @@ private struct LayoutProfileRow: View {
             .menuIndicator(.hidden)
             .buttonStyle(.borderless)
             .fixedSize()
+        }
+        .confirmationDialog("Delete the profile \u{201C}\(profile.name)\u{201D}?", isPresented: $isConfirmingDelete) {
+            Button("Delete", role: .destructive) {
+                profiles.delete(named: profile.name)
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("The menu bar stays as it is. You can undo this with \u{2318}Z.")
         }
     }
 }
