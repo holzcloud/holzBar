@@ -181,7 +181,10 @@ nonisolated struct OpenMenuBarItemIntent: AppIntent {
         else {
             throw HolzBarIntentError.noMatchingItem(name)
         }
-        await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil)
+        // The shortcut goes on while the menu is open; the item is hidden again later.
+        Task {
+            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil)
+        }
         return .result()
     }
 }

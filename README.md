@@ -67,6 +67,10 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Hotkeys per profile and per item | ❌ | ✅ | ✅ |
 | Shortcuts actions (App Intents) | ❌ | ✅ | ✅ |
 | Profiles bound to a display or a Space | ❌ | ✅ | ✅ |
+| Open an item by letter | ❌ | ✅ | ✅ |
+| Layout editor and Shelf from the keyboard, undo, VoiceOver actions | ❌ | ✅ | ✅ |
+| Opened items stay up to 30 s, or open without showing the item | ❌ | ✅ | ✅ |
+| Show an item briefly when it changes | ❌ | ✅ | ✅ <sub>opt-in per item</sub> |
 | Export, import and sync settings | ❌ | no sync | ✅ |
 | Keep Live Activities visible | ❌ | — | ✅ <sub>experimental</sub> |
 | Show on scroll with a mouse wheel | ❌ | — | ✅ |
@@ -217,6 +221,10 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - ✅ **Choose where new items appear**
 - ✅ **Keeps items in their section after app updates, title changes and display changes**
 - ✅ Search menu bar items — by abbreviation ("cc" for Control Centre) and despite typos
+- ✅ **Open an item by letter** — a hotkey shows a letter under every item; type it to open the item's menu
+- ✅ **Keyboard and VoiceOver** — arrange items in the Layout pane with the arrow keys, undo with ⌘Z, move items with VoiceOver actions
+- ✅ **Opened items stay** up to 30 s after their menu closes — or open without showing the item at all
+- ✅ **Show When It Changes** — a marked item shows for 5 s when its title or value changes
 - ✅ Item spacing <sub>BETA</sub>
 
 </td>
@@ -226,6 +234,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - ✅ Hidden items in a bar below the menu bar
 - ✅ **Only on the built-in display or on displays with a notch**
 - ✅ **Shows items the notch covers**
+- ✅ **Works from the keyboard** — open it with its hotkey, then the arrow keys, Return and Escape
 
 #### Appearance
 - ✅ Tint, shadow, border, rounded and split shapes

@@ -67,6 +67,13 @@ enum ItemClicker27 {
             try? await Task.sleep(for: .milliseconds(250))
             waited += 1
         }
+        // "Hide opened items again after" counts from here, when the menu has closed
+        // (THAW-13). One bounded wait; opening the item again meanwhile shows it once more,
+        // and it stays until that show ends too.
+        let delay = min(max(appState.settings.advanced.tempShowInterval, 0), 30)
+        if delay > 0 {
+            try? await Task.sleep(for: .seconds(delay))
+        }
         concealer.endTemporaryShow(bundleID: bundleID)
     }
 

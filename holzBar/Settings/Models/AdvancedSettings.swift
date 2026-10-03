@@ -66,7 +66,9 @@ final class AdvancedSettings {
         }
     }
 
-    /// Time interval to temporarily show items for.
+    /// How long an item opened from the holzBar Shelf, the search or elsewhere stays in the
+    /// menu bar after its menu closes ("Hide opened items again after", 0 to 30 s), and how
+    /// long the hidden section shows for a moment. Stored under its earlier name.
     var tempShowInterval: TimeInterval = 15 {
         didSet {
             Defaults.set(tempShowInterval, forKey: .tempShowInterval)
@@ -85,6 +87,14 @@ final class AdvancedSettings {
     var keepLiveActivitiesVisible = true {
         didSet {
             Defaults.set(keepLiveActivitiesVisible, forKey: .keepLiveActivitiesVisible)
+        }
+    }
+
+    /// A Boolean value that indicates whether a hidden item is shown in the menu bar to
+    /// open its menu; off, its menu opens without showing it, where the app allows.
+    var openHiddenItemsInMenuBar = true {
+        didSet {
+            Defaults.set(openHiddenItemsInMenuBar, forKey: .openHiddenItemsInMenuBar)
         }
     }
 
@@ -116,6 +126,11 @@ final class AdvancedSettings {
         Defaults.ifPresent(key: .enableSecondaryContextMenu, assign: &enableSecondaryContextMenu)
         Defaults.ifPresent(key: .showOnHoverDelay, assign: &showOnHoverDelay)
         Defaults.ifPresent(key: .tempShowInterval, assign: &tempShowInterval)
+        // Earlier versions allowed up to 60 s; the slider goes to 30.
+        if tempShowInterval > 30 {
+            tempShowInterval = 30
+        }
+        Defaults.ifPresent(key: .openHiddenItemsInMenuBar, assign: &openHiddenItemsInMenuBar)
         Defaults.ifPresent(key: .keepLiveActivitiesVisible, assign: &keepLiveActivitiesVisible)
         Defaults.ifPresent(key: .autoZenWhileSharingScreen, assign: &autoZenWhileSharingScreen)
 

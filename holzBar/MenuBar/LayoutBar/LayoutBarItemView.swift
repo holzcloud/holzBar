@@ -168,7 +168,25 @@ final class LayoutBarItemView: NSView {
         )
         hotkeyItem.target = self
         menu.addItem(hotkeyItem)
+        if let watcher = appState?.itemChangeWatcher, !item.isControlItem {
+            let changeItem = NSMenuItem(
+                title: String(localized: "Show When It Changes"),
+                action: #selector(toggleRevealOnChange),
+                keyEquivalent: ""
+            )
+            changeItem.state = watcher.isRevealedOnChange(item) ? .on : .off
+            changeItem.target = self
+            menu.addItem(changeItem)
+        }
         return menu
+    }
+
+    /// Marks or unmarks the item "Show When It Changes".
+    @objc private func toggleRevealOnChange() {
+        guard let watcher = appState?.itemChangeWatcher else {
+            return
+        }
+        watcher.setRevealedOnChange(!watcher.isRevealedOnChange(item), for: item)
     }
 
     /// Opens the item's menu below it, from the keyboard or VoiceOver.

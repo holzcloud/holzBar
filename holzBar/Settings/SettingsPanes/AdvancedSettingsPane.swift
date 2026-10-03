@@ -47,6 +47,7 @@ struct AdvancedSettingsPane: View {
                 enableSecondaryContextMenu
                 showOnHoverDelay
                 tempShowInterval
+                openHiddenItemsInMenuBar
                 autoZenWhileSharingScreen
             }
             HolzBarSection("Show Hidden Items Automatically") {
@@ -195,17 +196,23 @@ struct AdvancedSettingsPane: View {
             HolzBarSlider(
                 formattedToSeconds(settings.tempShowInterval),
                 value: $settings.tempShowInterval,
-                in: 0...60,
+                in: 0...30,
                 step: 1
             )
         } label: {
-            Text("Temporarily shown item delay")
+            Text("Hide opened items again after")
                 .frame(minWidth: maxSliderLabelWidth, alignment: .leading)
                 .onFrameChange { frame in
                     maxSliderLabelWidth = max(maxSliderLabelWidth, frame.width)
                 }
         }
-        .annotation("The amount of time to wait before hiding temporarily shown menu bar items.")
+        .annotation("Counted from when the item's menu closes. 0 hides it right away.")
+    }
+
+    @ViewBuilder
+    private var openHiddenItemsInMenuBar: some View {
+        Toggle("Open hidden items in the menu bar", isOn: $settings.openHiddenItemsInMenuBar)
+            .annotation("Shows a hidden item in the menu bar and opens its menu under it. Off, the menu opens without showing the item.")
     }
 
     @ViewBuilder
@@ -275,7 +282,7 @@ private struct RevealRulesSettings: View {
             }
         }
         Toggle("When the network connection is lost", isOn: $rules.revealsWhenOffline)
-            .annotation("Hidden items are shown for the temporarily shown item delay, then hidden again.")
+            .annotation("Hidden items are shown for the time set in \u{201C}Hide opened items again after\u{201D}, then hidden again.")
     }
 }
 

@@ -176,6 +176,9 @@ nonisolated extension Defaults {
         case newItemsPlacement = "NewItemsPlacement"
         case keepLiveActivitiesVisible = "KeepLiveActivitiesVisible"
         case autoZenWhileSharingScreen = "AutoZenWhileSharingScreen"
+        case openHiddenItemsInMenuBar = "OpenHiddenItemsInMenuBar"
+        /// The identity keys of the items shown for a moment when they change.
+        case revealOnChangeItems = "RevealOnChangeItems"
         case layoutProfiles = "LayoutProfiles"
         case currentLayoutProfile = "CurrentLayoutProfile"
         case syncsSettingsWithICloud = "SyncsSettingsWithICloud"
@@ -257,6 +260,7 @@ nonisolated extension Defaults.Key {
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
             .autoZenWhileSharingScreen,
+            .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
@@ -304,7 +308,8 @@ nonisolated extension Defaults.Key {
             .string
         case .knownItemTags,
             .knownApplications27,
-            .titleChangingItemOwners:
+            .titleChangingItemOwners,
+            .revealOnChangeItems:
             .stringArray
         case .hotkeys,
             .revealRules,

@@ -473,6 +473,60 @@ final class MenuBarManager {
         }
     }
 
+    // MARK: Reveal on Change
+
+    /// Shows a hidden item for 5 seconds because it changed (THAW-12, `ItemChangeWatcher`).
+    ///
+    /// On macOS 27 its application is shown for the moment; before, its section is shown
+    /// and hidden again unless the pointer is in the menu bar by then. Nothing happens in
+    /// Zen mode.
+    func revealBriefly(itemKey key: String) {
+        guard
+            let appState,
+            zenMode.allows(.changeReveal),
+            let item = appState.itemManager.item(withIdentityKey: key)
+        else {
+            return
+        }
+        logger.info("Showing an item that changed")
+        if #available(macOS 27.0, *) {
+            guard let bundleID = item.sourceApplication?.bundleIdentifier else {
+                return
+            }
+            let concealer = appState.concealer27
+            concealer.showTemporarily(bundleID: bundleID)
+            Task {
+                try? await Task.sleep(for: .seconds(5))
+                concealer.endTemporaryShow(bundleID: bundleID)
+            }
+            return
+        }
+        guard
+            let address = appState.itemManager.itemCache.address(for: item.tag),
+            address.section != .visible,
+            let section = self.section(withName: address.section),
+            section.isHidden
+        else {
+            return
+        }
+        section.show()
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(5))
+            guard let self, let appState = self.appState, !section.isHidden else {
+                return
+            }
+            let hidEventManager = appState.hidEventManager
+            if
+                let screen = hidEventManager.bestScreen(appState: appState),
+                hidEventManager.isMouseInsideMenuBar(appState: appState, screen: screen)
+            {
+                // The user is at the menu bar now.
+                return
+            }
+            section.hide()
+        }
+    }
+
     /// Returns the menu bar section with the given name.
     func section(withName name: MenuBarSection.Name) -> MenuBarSection? {
         sections.first { $0.name == name }

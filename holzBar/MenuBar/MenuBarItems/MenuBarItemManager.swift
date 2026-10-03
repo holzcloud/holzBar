@@ -30,6 +30,10 @@ final class MenuBarItemManager {
     /// A timer for rehiding temporarily shown menu bar items.
     @ObservationIgnored private var rehideTimer: Timer?
 
+    /// Whether the "Hide opened items again after" delay runs: it starts when no shown
+    /// item's menu is open any more (THAW-13).
+    @ObservationIgnored private var isRehideDelayRunning = false
+
     /// Pauses automatic moves after repeated failures or a repeatedly moved item.
     @ObservationIgnored private var moveBackoff = MoveBackoff()
 
@@ -917,8 +921,10 @@ extension MenuBarItemManager {
         temporarilyShownItemContexts.append(context)
 
         rehideTimer?.invalidate()
+        isRehideDelayRunning = false
         defer {
-            runRehideTimer()
+            // The first check comes soon; the delay counts from when the menu closes.
+            runRehideTimer(for: 1)
         }
 
         await MenuBarItemEventPoster.eventSleep(for: .milliseconds(100))
@@ -967,14 +973,25 @@ extension MenuBarItemManager {
         isRehideWaitingForMoves = false
         guard !temporarilyShownItemContexts.contains(where: { $0.isShowingInterface }) else {
             logger.debug("Menu bar item interface is shown, so waiting to rehide")
+            isRehideDelayRunning = false
             runRehideTimer(for: 3)
             return
+        }
+        // "Hide opened items again after" counts from when the menu was seen closed.
+        if !isRehideDelayRunning {
+            let delay = min(max(appState.settings.advanced.tempShowInterval, 0), 30)
+            if delay > 0 {
+                isRehideDelayRunning = true
+                runRehideTimer(for: delay)
+                return
+            }
         }
         guard MenuBarItemEventPoster.hasUserPausedInput(for: .milliseconds(250)) else {
             logger.debug("Found recent user input, so waiting to rehide")
             runRehideTimer(for: 1)
             return
         }
+        isRehideDelayRunning = false
 
         var currentContexts = temporarilyShownItemContexts
         temporarilyShownItemContexts.removeAll()

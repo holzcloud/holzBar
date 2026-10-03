@@ -77,6 +77,9 @@ final class AppState {
     /// Turns Zen mode on while the screen is mirrored or shared.
     let presentationMonitor = PresentationMonitor()
 
+    /// Shows the items marked "Show When It Changes" for a moment when they change.
+    let itemChangeWatcher = ItemChangeWatcher()
+
     /// The action that opens holzBar's windows, handed over by its scenes.
     @ObservationIgnored private var openWindowAction: OpenWindowAction?
 
@@ -156,6 +159,7 @@ final class AppState {
         spacers.performSetup()
         revealRules.performSetup(with: self)
         presentationMonitor.performSetup(with: self)
+        itemChangeWatcher.performSetup(with: self)
 
         configureObservers()
     }
