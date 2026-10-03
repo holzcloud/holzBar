@@ -135,6 +135,33 @@ final class MenuBarItemSpacingManager {
         try await launchApp(at: url, bundleIdentifier: bundleIdentifier)
     }
 
+    /// Relaunches the application with the given process identifier and returns its
+    /// name if it did not quit, or `nil`.
+    private func relaunchFailure(pid: pid_t) async -> String? {
+        guard let app = NSRunningApplication(processIdentifier: pid) else {
+            return nil
+        }
+        do {
+            try await relaunchApp(app)
+            return nil
+        } catch {
+            guard let name = app.localizedName else {
+                return nil
+            }
+            if app.bundleIdentifier == "com.apple.Spotlight" {
+                // Spotlight automatically relaunches, so only consider it a failure if it never quit.
+                if
+                    let latestSpotlightInstance = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Spotlight").first,
+                    latestSpotlightInstance.processIdentifier == app.processIdentifier
+                {
+                    return name
+                }
+                return nil
+            }
+            return name
+        }
+    }
+
     /// Applies the current ``offset``.
     ///
     /// - Note: Calling this restarts all apps with a menu bar item.
@@ -165,43 +192,21 @@ final class MenuBarItemSpacingManager {
 
         var failedApps = [String]()
 
-        await withTaskGroup(of: String?.self) { group in
-            for pid in pids {
-                guard NSRunningApplication(processIdentifier: pid) != nil else {
-                    // The process is gone, so there is nothing to relaunch.
-                    continue
-                }
-                // The task looks the application up itself, so only the process
-                // identifier crosses into it.
-                group.addTask { @MainActor in
-                    guard let app = NSRunningApplication(processIdentifier: pid) else {
-                        return nil
-                    }
-                    do {
-                        try await self.relaunchApp(app)
-                        return nil
-                    } catch {
-                        guard let name = app.localizedName else {
-                            return nil
-                        }
-                        if app.bundleIdentifier == "com.apple.Spotlight" {
-                            // Spotlight automatically relaunches, so only consider it a failure if it never quit.
-                            if
-                                let latestSpotlightInstance = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.Spotlight").first,
-                                latestSpotlightInstance.processIdentifier == app.processIdentifier
-                            {
-                                return name
-                            }
-                            return nil
-                        }
-                        return name
-                    }
-                }
+        // The applications relaunch at the same time, each in a task of its own on the
+        // main actor; the tasks look the applications up themselves, so only process
+        // identifiers cross into them.
+        let relaunches = pids.compactMap { pid -> Task<String?, Never>? in
+            guard NSRunningApplication(processIdentifier: pid) != nil else {
+                // The process is gone, so there is nothing to relaunch.
+                return nil
             }
-            for await name in group {
-                if let name {
-                    failedApps.append(name)
-                }
+            return Task {
+                await self.relaunchFailure(pid: pid)
+            }
+        }
+        for relaunch in relaunches {
+            if let name = await relaunch.value {
+                failedApps.append(name)
             }
         }
 
