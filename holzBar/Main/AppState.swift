@@ -402,6 +402,18 @@ final class AppState {
         NSRunningApplication.current.activate(from: frontmost)
     }
 
+    /// Takes the Dock icon away again when nothing needs it: the permissions window, which
+    /// shows one so that a fresh install can be found, can close without "Continue" (its
+    /// close button, or after System Settings came to the front), and holzBar then kept the
+    /// icon until it quit. Hiding the application menus needs the icon, so it stays then.
+    func hideDockIconIfUnneeded() {
+        guard NSApp.activationPolicy() != .accessory, !menuBarManager.isHidingApplicationMenus else {
+            return
+        }
+        logger.debug("Hiding the Dock icon")
+        NSApp.setActivationPolicy(.accessory)
+    }
+
     /// Deactivates the app and sets its activation policy.
     func deactivate(withPolicy policy: NSApplication.ActivationPolicy? = nil) {
         if let policy {
