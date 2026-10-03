@@ -197,12 +197,14 @@ private struct UnlabeledPartialEditor: View {
     var body: some View {
         HolzBarSection {
             tintPicker
+            accentColorToggle
             shadowToggle
         }
         HolzBarSection {
             borderToggle
             borderColor
             borderWidth
+            borderStyle
         }
     }
 
@@ -211,14 +213,15 @@ private struct UnlabeledPartialEditor: View {
         LabeledContent("Tint") {
             HStack {
                 HolzBarPicker("Tint", selection: $configuration.tintKind) {
-                    ForEach(MenuBarTintKind.allCases) { tintKind in
+                    // System Glass needs macOS 26; an older system shows no tint for it.
+                    ForEach(MenuBarTintKind.allCases.filter(\.isAvailable)) { tintKind in
                         Text(tintKind.localized).tag(tintKind)
                     }
                 }
                 .labelsHidden()
 
                 switch configuration.tintKind {
-                case .noTint:
+                case .noTint, .adaptive, .systemGlass:
                     EmptyView()
                 case .solid:
                     ColorPicker(
@@ -227,6 +230,7 @@ private struct UnlabeledPartialEditor: View {
                         supportsOpacity: false
                     )
                     .labelsHidden()
+                    .disabled(configuration.tintFollowsAccentColor)
                 case .gradient:
                     HolzBarGradientPicker(
                         configuration.tintKind.localized,
@@ -237,6 +241,18 @@ private struct UnlabeledPartialEditor: View {
                 }
             }
             .frame(height: 24)
+        }
+    }
+
+    @ViewBuilder
+    private var accentColorToggle: some View {
+        if configuration.tintKind == .solid {
+            Toggle("Use Accent Color", isOn: $configuration.tintFollowsAccentColor)
+                .annotation("Follows the accent color chosen in System Settings, Appearance.")
+        } else if configuration.tintKind == .adaptive {
+            Text("Tints the menu bar with the main colors of your wallpaper, read from its file.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
         }
     }
 
@@ -268,9 +284,20 @@ private struct UnlabeledPartialEditor: View {
                 "Border Width",
                 selection: $configuration.borderWidth
             ) {
-                Text("1").tag(1.0)
-                Text("2").tag(2.0)
-                Text("3").tag(3.0)
+                Text(verbatim: "1").tag(1.0)
+                Text(verbatim: "2").tag(2.0)
+                Text(verbatim: "3").tag(3.0)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var borderStyle: some View {
+        if configuration.hasBorder {
+            HolzBarPicker("Border Style", selection: $configuration.borderStyle) {
+                Text("Solid").tag(BorderStyle.solid)
+                Text("Dashed").tag(BorderStyle.dashed)
+                Text("Dotted").tag(BorderStyle.dotted)
             }
         }
     }

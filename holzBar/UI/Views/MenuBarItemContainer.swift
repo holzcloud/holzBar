@@ -76,7 +76,11 @@ struct MenuBarItemContainer<Content: View>: View {
     private var contentOverlay: some View {
         if !appState.activeSpace.isFullscreen {
             if case .solid = configuration.tintKind {
-                Color(cgColor: configuration.tintColor)
+                if configuration.tintFollowsAccentColor {
+                    Color(nsColor: .controlAccentColor)
+                } else {
+                    Color(cgColor: configuration.tintColor)
+                }
             } else if
                 case .gradient = configuration.tintKind,
                 let color = configuration.tintGradient.averageColor()

@@ -111,6 +111,20 @@ final class MenuBarOverlayPanel: NSPanel {
         }
     }
 
+    /// The dominant colors of the wallpaper under the menu bar, for the "Follow Wallpaper"
+    /// tint; read only while a configuration uses it.
+    private(set) var wallpaperPalette: WallpaperPalette? {
+        didSet {
+            contentView?.needsDisplay = true
+        }
+    }
+
+    /// The read of the wallpaper's palette that is under way.
+    private var paletteTask: Task<Void, Never>?
+
+    /// Observes whether a tint follows the wallpaper.
+    private var wallpaperTintObserver: ObservationLoop?
+
     /// Shows the panel once ``needsShow`` stops changing.
     private let needsShowDebouncer = Debouncer(delay: .milliseconds(50))
 
@@ -216,6 +230,7 @@ final class MenuBarOverlayPanel: NSPanel {
             task.cancel()
         }
         wallpaperTask?.cancel()
+        paletteTask?.cancel()
         captureFallbackTask?.cancel()
     }
 
@@ -297,6 +312,17 @@ final class MenuBarOverlayPanel: NSPanel {
             } onChange: { [weak self] _ in
                 self?.insertUpdateFlag(.desktopWallpaper)
             }
+            // Only the "Follow Wallpaper" tint needs the palette.
+            wallpaperTintObserver = ObservationLoop.observe {
+                appearanceManager.configuration.usesWallpaperTint
+            } onChange: { [weak self] _ in
+                self?.insertUpdateFlag(.desktopWallpaper)
+            }
+        }
+
+        // A tint that follows the accent color changes with it at once.
+        observeNotifications(named: NSColor.systemColorsDidChangeNotification, in: NotificationCenter.default) { panel in
+            panel.contentView?.needsDisplay = true
         }
 
         // The panel steps aside while the system hides the menu bar and on a fullscreen
@@ -460,6 +486,31 @@ final class MenuBarOverlayPanel: NSPanel {
         }
     }
 
+    /// Reads the palette of the wallpaper under the menu bar, while a tint follows it.
+    private func updateWallpaperPalette(for screen: NSScreen) {
+        paletteTask?.cancel()
+        guard
+            let appState,
+            appState.appearanceManager.configuration.usesWallpaperTint,
+            let height = screen.getMenuBarHeight()
+        else {
+            if wallpaperPalette != nil {
+                wallpaperPalette = nil
+            }
+            return
+        }
+        paletteTask = Task { [weak self] in
+            guard let self else {
+                return
+            }
+            let palette = await DesktopPicture.palette(for: owningScreen, height: height)
+            guard !Task.isCancelled, palette != wallpaperPalette else {
+                return
+            }
+            wallpaperPalette = palette
+        }
+    }
+
     /// A one-pixel image of the given colour, drawn stretched over the bar.
     private static func solidImage(color: CGColor) -> CGImage? {
         guard let context = CGContext(
@@ -485,6 +536,7 @@ final class MenuBarOverlayPanel: NSPanel {
         }
         if flags.contains(.desktopWallpaper) {
             updateDesktopWallpaper(for: screen.displayID, with: windows)
+            updateWallpaperPalette(for: screen)
         }
     }
 
@@ -534,12 +586,39 @@ private final class MenuBarOverlayPanelContentView: NSView {
     private var fullConfiguration: MenuBarAppearanceConfigurationV2 = .defaultConfiguration {
         didSet {
             needsDisplay = true
+            updateGlassView()
         }
     }
 
     private var previewConfiguration: MenuBarAppearancePartialConfiguration? {
         didSet {
             needsDisplay = true
+            updateGlassView()
+        }
+    }
+
+    /// The system glass of the "System Glass" tint (macOS 26 and later), masked to the
+    /// shape; the way Thaw masks its glass tint (see NOTICE).
+    private var glassView: NSView?
+
+    /// The shape the glass is masked to, set while drawing.
+    private let glassMask = CAShapeLayer()
+
+    /// Adds or removes the system glass with the tint kind.
+    private func updateGlassView() {
+        if #available(macOS 26.0, *), configuration.tintKind == .systemGlass {
+            guard glassView == nil else {
+                return
+            }
+            let view = NSGlassEffectView(frame: bounds)
+            view.autoresizingMask = [.width, .height]
+            view.wantsLayer = true
+            view.layer?.mask = glassMask
+            addSubview(view)
+            glassView = view
+        } else if let glassView {
+            glassView.removeFromSuperview()
+            self.glassView = nil
         }
     }
 
@@ -809,10 +888,14 @@ private final class MenuBarOverlayPanelContentView: NSView {
     /// Draws the tint defined by the given configuration in the given rectangle.
     private func drawTint(in rect: CGRect) {
         switch configuration.tintKind {
-        case .noTint:
+        case .noTint, .systemGlass:
+            // The system glass is a view of its own (`updateGlassView()`).
             break
         case .solid:
-            if let tintColor = NSColor(cgColor: configuration.tintColor)?.withAlphaComponent(0.2) {
+            let baseColor: NSColor? = configuration.tintFollowsAccentColor
+                ? NSColor.controlAccentColor
+                : NSColor(cgColor: configuration.tintColor)
+            if let tintColor = baseColor?.withAlphaComponent(0.2) {
                 tintColor.setFill()
                 rect.fill()
             }
@@ -820,7 +903,41 @@ private final class MenuBarOverlayPanelContentView: NSView {
             if let tintGradient = configuration.tintGradient.withAlpha(0.2).nsGradient(using: .displayP3) {
                 tintGradient.draw(in: rect, angle: 0)
             }
+        case .adaptive:
+            // A gradient from the wallpaper's two dominant colors; one color is solid.
+            guard
+                let palette = overlayPanel?.wallpaperPalette,
+                let primary = palette.primary,
+                let secondary = palette.secondary
+            else {
+                return
+            }
+            let colors = [primary, secondary].map { swatch in
+                NSColor(srgbRed: swatch.red, green: swatch.green, blue: swatch.blue, alpha: 0.2)
+            }
+            NSGradient(colors: colors)?.draw(in: rect, angle: 0)
         }
+    }
+
+    /// Strokes a border path with the configured style: solid, dashed or dotted.
+    ///
+    /// - Parameter drawnWidth: The width the path is stroked with.
+    private func strokeBorder(_ path: NSBezierPath, color: NSColor, drawnWidth: CGFloat) {
+        path.lineWidth = drawnWidth
+        if let dashes = BorderPattern.dashes(for: configuration.borderStyle, width: drawnWidth) {
+            let pattern = dashes.map { CGFloat($0) }
+            path.setLineDash(pattern, count: pattern.count, phase: 0)
+        }
+        if BorderPattern.usesRoundCaps(configuration.borderStyle) {
+            path.lineCapStyle = .round
+        }
+        color.setStroke()
+        path.stroke()
+    }
+
+    override func layout() {
+        super.layout()
+        glassMask.frame = bounds
     }
 
     override func draw(_ dirtyRect: NSRect) {
@@ -835,6 +952,7 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
         // A black menu bar replaces every other style: the notch disappears into it.
         if fullConfiguration.blackBackground.applies(to: overlayPanel.owningScreen) {
+            glassMask.path = nil
             NSColor.black.setFill()
             drawableBounds.fill()
             return
@@ -859,6 +977,11 @@ private final class MenuBarOverlayPanelContentView: NSView {
             )
         }
 
+        if glassView != nil {
+            glassMask.frame = bounds
+            glassMask.path = shapePath.cgPath
+        }
+
         var hasBorder = false
 
         switch fullConfiguration.shapeKind {
@@ -881,15 +1004,24 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
             drawTint(in: drawableBounds)
 
-            if configuration.hasBorder {
-                let borderBounds = CGRect(
-                    x: bounds.minX,
-                    y: bounds.minY + 5,
-                    width: bounds.width,
-                    height: configuration.borderWidth
-                )
-                NSColor(cgColor: configuration.borderColor)?.setFill()
-                NSBezierPath(rect: borderBounds).fill()
+            if configuration.hasBorder, let borderColor = NSColor(cgColor: configuration.borderColor) {
+                if configuration.borderStyle == .solid {
+                    let borderBounds = CGRect(
+                        x: bounds.minX,
+                        y: bounds.minY + 5,
+                        width: bounds.width,
+                        height: configuration.borderWidth
+                    )
+                    borderColor.setFill()
+                    NSBezierPath(rect: borderBounds).fill()
+                } else {
+                    // A line along the bottom of the bar, dashed or dotted.
+                    let lineY = bounds.minY + 5 + configuration.borderWidth / 2
+                    let line = NSBezierPath()
+                    line.move(to: CGPoint(x: bounds.minX, y: lineY))
+                    line.line(to: CGPoint(x: bounds.maxX, y: lineY))
+                    strokeBorder(line, color: borderColor, drawnWidth: configuration.borderWidth)
+                }
             }
         case .full, .split:
             if let desktopWallpaper = overlayPanel.desktopWallpaper {
@@ -964,11 +1096,8 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 // HACK: Insetting a path to get an "inside" stroke is surprisingly
                 // difficult. We can fake the correct line width by doubling it, as
                 // anything outside the shape path will be clipped.
-                borderPath.lineWidth = configuration.borderWidth * 2
                 borderPath.setClip()
-
-                borderColor.setStroke()
-                borderPath.stroke()
+                strokeBorder(borderPath, color: borderColor, drawnWidth: configuration.borderWidth * 2)
             }
         }
     }

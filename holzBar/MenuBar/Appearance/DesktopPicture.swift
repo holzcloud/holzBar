@@ -80,6 +80,51 @@ enum DesktopPicture {
         return strip
     }
 
+    /// The dominant colors of the desktop picture under the menu bar of the given screen,
+    /// for the "Follow Wallpaper" tint, or `nil` when the picture cannot be read from a
+    /// file. Read from the same strip, with no capture (THAW-17).
+    static func palette(for screen: NSScreen, height: CGFloat) async -> WallpaperPalette? {
+        guard let strip = await strip(for: screen, height: height) else {
+            return nil
+        }
+        let decoded = DecodedStrip(image: strip)
+        return await withCheckedContinuation { (continuation: CheckedContinuation<WallpaperPalette?, Never>) in
+            queue.async {
+                continuation.resume(returning: decoded.image.map(samplePalette))
+            }
+        }
+    }
+
+    /// Samples the strip on a small grid and derives its palette. Runs on ``queue``.
+    private nonisolated static func samplePalette(_ image: CGImage) -> WallpaperPalette {
+        let width = 64
+        let height = 4
+        var pixels = [UInt8](repeating: 0, count: width * height * 4)
+        let samples = pixels.withUnsafeMutableBytes { buffer -> [WallpaperPalette.Sample] in
+            guard let context = CGContext(
+                data: buffer.baseAddress,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width * 4,
+                space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            ) else {
+                return []
+            }
+            context.interpolationQuality = .medium
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return stride(from: 0, to: buffer.count, by: 4).map { index in
+                WallpaperPalette.Sample(
+                    red: Double(buffer[index]) / 255,
+                    green: Double(buffer[index + 1]) / 255,
+                    blue: Double(buffer[index + 2]) / 255
+                )
+            }
+        }
+        return WallpaperPalette.derive(from: samples)
+    }
+
     /// The strip for the given screen from the last read, when the picture has not changed
     /// since; it never decodes, so it can be used where no wait is allowed.
     static func cachedStrip(for screen: NSScreen, height: CGFloat) -> CGImage? {
