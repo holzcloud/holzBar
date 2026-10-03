@@ -1,13 +1,28 @@
-name: Select Xcode
+name: Select Xcode and Swift
 description: >-
-  Selects the pinned Xcode version and fails if the runner does not have it.
-  It never falls back to another Xcode.
+  Selects the pinned Xcode version (its SDK and tools) and installs the pinned
+  Swift release toolchain from swift.org, which then compiles everything:
+  xcodebuild, swift test and xcrun honor the exported TOOLCHAINS. It fails if
+  the runner does not have that Xcode, or if the toolchain cannot be
+  downloaded, verified or run. It never falls back to another Xcode or Swift.
 inputs:
   version:
     description: >-
       The Xcode version to select. It must be installed as
       /Applications/Xcode_VERSION.app.
     default: "26.6"
+  swift-version:
+    description: >-
+      The Swift release to install from swift.org, exactly as swift.org names
+      it (https://www.swift.org/api/v1/install/releases.json, "name"), such as
+      6.4.0. Bumping it means updating swift-sha256 too.
+    default: "6.4.0"
+  swift-sha256:
+    description: >-
+      The SHA-256 of swift-SWIFT_VERSION-RELEASE-osx.pkg. swift.org publishes
+      no checksum for the macOS package, so it is pinned here on top of the
+      Developer ID signature check.
+    default: "8fd03185b98fe27f54a54631c2449decf75d5b466ce8e34abbd414141063c6aa"
 runs:
   using: composite
   steps:
@@ -32,5 +47,70 @@ runs:
           exit 1
         fi
         echo "$VERSION_OUTPUT"
-        # The exact Swift compiler that builds and tests holzBar.
+        echo "==> Xcode's own Swift (not used for the build)"
         xcrun swift --version
+
+    # The swift.org release toolchain, installed for the runner user only
+    # (~/Library/Developer/Toolchains, no sudo). Xcode keeps providing the SDK
+    # and the build system.
+    - name: Install the Swift toolchain
+      shell: bash
+      env:
+        SWIFT_VERSION: ${{ inputs.swift-version }}
+        SWIFT_SHA256: ${{ inputs.swift-sha256 }}
+      run: |
+        set -euo pipefail
+        TAG="swift-${SWIFT_VERSION}-RELEASE"
+        URL="https://download.swift.org/swift-${SWIFT_VERSION}-release/xcode/${TAG}/${TAG}-osx.pkg"
+        PKG="$RUNNER_TEMP/${TAG}-osx.pkg"
+        echo "==> Downloading $URL"
+        if ! curl --fail --silent --show-error --location --retry 3 --output "$PKG" "$URL"; then
+          echo "::error::Could not download the Swift $SWIFT_VERSION toolchain from $URL"
+          exit 1
+        fi
+        ACTUAL_SHA256="$(shasum -a 256 "$PKG" | cut -d' ' -f1)"
+        if [ "$ACTUAL_SHA256" != "$SWIFT_SHA256" ]; then
+          echo "::error::$TAG-osx.pkg has SHA-256 $ACTUAL_SHA256, expected $SWIFT_SHA256"
+          exit 1
+        fi
+        echo "==> SHA-256 $ACTUAL_SHA256"
+        # The package must carry a valid Developer ID Installer signature
+        # issued by Apple; pkgutil exits non-zero for a missing or broken one.
+        if ! SIGNATURE="$(pkgutil --check-signature "$PKG")"; then
+          echo "$SIGNATURE"
+          echo "::error::$TAG-osx.pkg is not validly signed"
+          exit 1
+        fi
+        echo "$SIGNATURE"
+        if ! grep -q "Status: signed by a developer certificate issued by Apple for distribution" <<< "$SIGNATURE" \
+          || ! grep -q "Developer ID Installer: Swift Open Source" <<< "$SIGNATURE"; then
+          echo "::error::$TAG-osx.pkg is not signed with swift.org's Developer ID Installer certificate"
+          exit 1
+        fi
+        installer -pkg "$PKG" -target CurrentUserHomeDirectory
+        rm -f "$PKG"
+        TOOLCHAIN="$HOME/Library/Developer/Toolchains/${TAG}.xctoolchain"
+        if [ ! -f "$TOOLCHAIN/Info.plist" ]; then
+          echo "::error::The installer did not create $TOOLCHAIN"
+          ls -la "$HOME/Library/Developer/Toolchains" || true
+          exit 1
+        fi
+        TOOLCHAIN_ID="$(plutil -extract CFBundleIdentifier raw -o - "$TOOLCHAIN/Info.plist")"
+        echo "==> $TOOLCHAIN ($TOOLCHAIN_ID)"
+        # Every later step of the job (xcodebuild, swift test, xcrun) uses it.
+        echo "TOOLCHAINS=$TOOLCHAIN_ID" >> "$GITHUB_ENV"
+        echo "HOLZBAR_SWIFT_TOOLCHAIN=$TOOLCHAIN" >> "$GITHUB_ENV"
+        SWIFTC="$(TOOLCHAINS="$TOOLCHAIN_ID" xcrun --find swiftc)"
+        if [[ "$SWIFTC" != "$TOOLCHAIN/"* ]]; then
+          echo "::error::xcrun resolves swiftc to $SWIFTC, not to $TOOLCHAIN"
+          exit 1
+        fi
+        # The exact Swift compiler that builds and tests holzBar.
+        echo "==> The Swift compiler that builds and tests holzBar"
+        VERSION_OUTPUT="$(xcrun --toolchain "$TOOLCHAIN_ID" swift --version 2>&1)"
+        echo "$VERSION_OUTPUT"
+        EXPECTED="${SWIFT_VERSION%.0}"
+        if ! grep -qE "Swift version ${EXPECTED//./\\.}([^0-9.]|\.0|$)" <<< "$VERSION_OUTPUT"; then
+          echo "::error::The installed toolchain is not Swift $SWIFT_VERSION"
+          exit 1
+        fi
