@@ -44,7 +44,8 @@ runs:
         # with a broken pipe.
         VERSION_OUTPUT="$(xcodebuild -version)"
         ACTUAL="${VERSION_OUTPUT%%$'\n'*}"
-        if [ "$ACTUAL" != "Xcode $XCODE_VERSION" ]; then
+        # Xcode_26.3.0.app reports itself as "Xcode 26.3".
+        if [ "$ACTUAL" != "Xcode $XCODE_VERSION" ] && [ "$ACTUAL" != "Xcode ${XCODE_VERSION%.0}" ]; then
           echo "::error::Selected $XCODE_APP reports '$ACTUAL', expected 'Xcode $XCODE_VERSION'"
           exit 1
         fi
