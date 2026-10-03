@@ -182,7 +182,7 @@ final class MenuBarManager {
             !appState.hidEventManager.isMouseInsideMenuBar(appState: appState, screen: screen)
         {
             Task {
-                try await Task.sleep(for: .seconds(0.1))
+                try? await Task.sleep(for: .seconds(0.1))
                 hiddenSection.hide()
             }
         }

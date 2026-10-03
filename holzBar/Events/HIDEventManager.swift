@@ -357,7 +357,7 @@ extension HIDEventManager {
 
         Task {
             // Give the window under the mouse a chance to focus.
-            try await Task.sleep(for: .milliseconds(250))
+            try? await Task.sleep(for: .milliseconds(250))
 
             // Don't bother checking the window if the click caused
             // a space change.
@@ -410,7 +410,7 @@ extension HIDEventManager {
                 return
             }
             // Delay prevents the menu from immediately closing.
-            try await Task.sleep(for: .milliseconds(100))
+            try? await Task.sleep(for: .milliseconds(100))
             appState.menuBarManager.showSecondaryContextMenu(at: mouseLocation)
         }
     }

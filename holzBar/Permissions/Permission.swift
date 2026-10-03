@@ -178,7 +178,7 @@ class Permission: Identifiable {
         let process = Process()
         process.executableURL = URL(filePath: "/usr/bin/tccutil")
         process.arguments = ["reset", tccService, bundleIdentifier]
-        process.terminationHandler = { _ in
+        process.terminationHandler = { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.performRequest()
             }
