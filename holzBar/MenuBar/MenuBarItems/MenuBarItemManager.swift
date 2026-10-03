@@ -831,7 +831,7 @@ extension MenuBarItemManager {
             return
         }
 
-        guard let applicationMenuFrame = screen.getApplicationMenuFrame() else {
+        guard let applicationMenuFrame = appState.applicationMenuFrames.frame(for: screen) else {
             logger.error("No application menu frame, so not showing \(item.logString, privacy: .private(mask: .hash))")
             return
         }

@@ -117,12 +117,17 @@ nonisolated enum MenuBarItemProvider27 {
     /// Returns the current frame of the item with the given synthetic identifier.
     ///
     /// holzBar's own items are answered from the last read: asking our own process
-    /// from the main thread would wait for the main thread itself.
+    /// from the main thread would wait for the main thread itself. So is every item when
+    /// asked on the main thread: holzBar's event monitors and the click tap wait on that
+    /// thread, and an application that hangs would hold up every click on the Mac. Off
+    /// the main thread the frame is read live. No shorter messaging timeout is set on the
+    /// element there: `ItemClicker27` presses the same element, and a press may wait for
+    /// the item's menu to open.
     static func currentBounds(for windowID: CGWindowID) -> CGRect? {
         guard let entry = withState({ $0.entries[windowID] }) else {
             return nil
         }
-        if entry.bundleID == Constants.bundleIdentifier {
+        if entry.bundleID == Constants.bundleIdentifier || Thread.isMainThread {
             return entry.frame
         }
         return frame(of: entry.element) ?? entry.frame

@@ -49,13 +49,40 @@ nonisolated enum AXHelpers {
         }
     }
 
-    static func application(for runningApp: NSRunningApplication) -> AXUIElement? {
+    /// How long the reads of the application menu wait for an application to answer.
+    ///
+    /// The default timeout is 6 s. The application menu is read on every change of the
+    /// frontmost application, and an application that hangs must not hold up the next read
+    /// for that long.
+    static let applicationMenuTimeout: Float = 0.25
+
+    /// Returns the element of the given application.
+    ///
+    /// - Parameters:
+    ///   - runningApp: The application.
+    ///   - messagingTimeout: How long calls to the element wait for the application to
+    ///     answer, or `nil` for the default timeout (6 s). The XPC service keeps the
+    ///     default: it runs off the app's main thread and must not lose slow applications.
+    static func application(for runningApp: NSRunningApplication, messagingTimeout: Float? = nil) -> AXUIElement? {
         queue.sync {
             guard !runningApp.isTerminated else {
                 return nil
             }
-            return AXUIElementCreateApplication(runningApp.processIdentifier)
+            let element = AXUIElementCreateApplication(runningApp.processIdentifier)
+            if let messagingTimeout {
+                AXUIElementSetMessagingTimeout(element, messagingTimeout)
+            }
+            return element
         }
+    }
+
+    /// Sets how long calls to the given element wait for its application to answer.
+    ///
+    /// The timeout belongs to this element only, not to other elements of the same
+    /// application. It is never set on the system-wide element: there it would become the
+    /// timeout of every Accessibility call holzBar makes.
+    static func setMessagingTimeout(_ timeout: Float, for element: AXUIElement) {
+        AXUIElementSetMessagingTimeout(element, timeout)
     }
 
     static func extrasMenuBar(for app: AXUIElement) -> AXUIElement? {
@@ -122,20 +149,28 @@ nonisolated enum AXHelpers {
     /// so the menu bar comes from the application that owns it. holzBar's own menus
     /// are skipped there: asking our own process from the main thread would wait
     /// for the main thread itself.
+    ///
+    /// The returned menu bar answers within ``applicationMenuTimeout``. This blocks, so it
+    /// is called off the main thread only (see `ApplicationMenuQuery`).
     static func applicationMenuBar(at point: CGPoint) -> AXUIElement? {
         if #available(macOS 27.0, *) {
             guard
                 let owner = NSWorkspace.shared.menuBarOwningApplication,
                 owner.processIdentifier != ProcessInfo.processInfo.processIdentifier,
-                let app = application(for: owner)
+                let app = application(for: owner, messagingTimeout: applicationMenuTimeout)
             else {
                 return nil
             }
-            return queue.sync { Self.element(from: value(app, kAXMenuBarAttribute)) }
+            guard let menuBar = queue.sync(execute: { Self.element(from: value(app, kAXMenuBarAttribute)) }) else {
+                return nil
+            }
+            setMessagingTimeout(applicationMenuTimeout, for: menuBar)
+            return menuBar
         }
         guard let element = element(at: point), role(for: element) == kAXMenuBarRole else {
             return nil
         }
+        setMessagingTimeout(applicationMenuTimeout, for: element)
         return element
     }
 

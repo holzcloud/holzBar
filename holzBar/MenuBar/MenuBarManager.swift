@@ -238,7 +238,7 @@ final class MenuBarManager {
             }
 
             // Get the application menu frame for the display.
-            guard let applicationMenuFrame = screen.getApplicationMenuFrame() else {
+            guard let applicationMenuFrame = appState.applicationMenuFrames.frame(for: screen) else {
                 return
             }
 
@@ -340,14 +340,18 @@ final class MenuBarManager {
 
     /// Returns a Boolean value that indicates whether the given display
     /// has a valid menu bar.
+    ///
+    /// Whether the menu bar window is a menu bar Accessibility can reach comes from
+    /// `ApplicationMenuFrames`, read off the main thread: asking here blocked the main
+    /// thread, and every click on the Mac with it, while the frontmost application hung.
     func hasValidMenuBar(in windows: [WindowInfo], for display: CGDirectDisplayID) -> Bool {
         guard
-            let window = WindowInfo.menuBarWindow(from: windows, for: display),
-            let element = AXHelpers.element(at: window.bounds.origin)
+            let appState,
+            WindowInfo.menuBarWindow(from: windows, for: display) != nil
         else {
             return false
         }
-        return AXHelpers.role(for: element) == kAXMenuBarRole
+        return appState.applicationMenuFrames.hasValidMenuBar(on: display)
     }
 
     /// Shows the secondary context menu.

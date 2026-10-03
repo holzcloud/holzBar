@@ -58,10 +58,14 @@ extension HIDEventManager {
 
     /// A Boolean value that indicates whether the mouse pointer is within
     /// the bounds of the current application menu.
+    ///
+    /// The frame comes from `ApplicationMenuFrames`, which reads it off the main thread:
+    /// this runs for every click and mouse move, and asking an application that hangs
+    /// would hold up every click on the Mac.
     func isMouseInsideApplicationMenu(appState: AppState, screen: NSScreen) -> Bool {
         guard
             let mouseLocation = MouseHelpers.locationCoreGraphics,
-            var applicationMenuFrame = screen.getApplicationMenuFrame()
+            var applicationMenuFrame = appState.applicationMenuFrames.frame(for: screen)
         else {
             return false
         }

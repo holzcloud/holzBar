@@ -116,7 +116,7 @@ final class MenuBarOverlayPanel: NSPanel {
     /// Updates the wallpaper 0.1 s after the appearance stops changing.
     private let themeDebouncer = Debouncer(delay: .milliseconds(100))
 
-    /// Updates the application menu frame 0.05 s after the space or a click settles.
+    /// Reads the application menu frame again 0.05 s after a click settles.
     private let applicationMenuDebouncer = Debouncer(delay: .milliseconds(50))
 
     /// Tasks that observe notifications and the wallpaper fallback.
@@ -130,6 +130,12 @@ final class MenuBarOverlayPanel: NSPanel {
 
     /// Observes whether the system hides the menu bar.
     private var menuBarHiddenObserver: ObservationLoop?
+
+    /// Observes the application menu frames read by `ApplicationMenuFrames`.
+    private var applicationMenuFrameObserver: ObservationLoop?
+
+    /// Observes whether the owning screen's menu bar is valid (see `ApplicationMenuFrames`).
+    private var menuBarValidityObserver: ObservationLoop?
 
     /// The context that manages panel update tasks.
     private let updateTaskContext = UpdateTaskContext()
@@ -189,33 +195,33 @@ final class MenuBarOverlayPanel: NSPanel {
             }
         }
 
-        // Update application menu frame when the menu bar owning or frontmost app changes.
-        keyValueObservations.append(
-            NSWorkspace.shared.observe(\.menuBarOwningApplication, options: [.old, .new]) { [weak self] _, change in
-                let changed = change.oldValue != change.newValue
-                Task { @MainActor in
-                    if changed {
-                        self?.startApplicationMenuFrameUpdates()
-                    }
+        // Redraw with the application menu frame. `ApplicationMenuFrames` reads it off the
+        // main thread when the frontmost application, the menu bar's owner, the space or
+        // the screens change; the panel used to read it itself, on the main thread, every
+        // millisecond until it changed and then every second for ten seconds.
+        if let applicationMenuFrames = appState?.applicationMenuFrames {
+            applicationMenuFrameObserver = ObservationLoop.observe {
+                applicationMenuFrames.frames
+            } onChange: { [weak self] _ in
+                self?.insertUpdateFlag(.applicationMenuFrame)
+            }
+            // The first read can finish after the panel first tried to update, and a menu bar
+            // can appear later (at login): update the panel once its menu bar is valid.
+            let displayID = owningScreen.displayID
+            menuBarValidityObserver = ObservationLoop.observe {
+                applicationMenuFrames.hasValidMenuBar(on: displayID)
+            } onChange: { [weak self] isValid in
+                if isValid {
+                    self?.updateFlags = [.applicationMenuFrame, .desktopWallpaper]
                 }
             }
-        )
-        keyValueObservations.append(
-            NSWorkspace.shared.observe(\.frontmostApplication, options: [.old, .new]) { [weak self] _, change in
-                let changed = change.oldValue != change.newValue
-                Task { @MainActor in
-                    if changed {
-                        self?.startApplicationMenuFrameUpdates()
-                    }
-                }
-            }
-        )
+        }
 
         // Special cases for when the user drags an app onto or clicks into another space.
         keyValueObservations.append(
             observe(\.isOnActiveSpace, options: [.initial, .new]) { [weak self] _, _ in
                 Task { @MainActor in
-                    self?.scheduleApplicationMenuFrameUpdate()
+                    self?.insertUpdateFlag(.applicationMenuFrame)
                 }
             }
         )
@@ -223,7 +229,7 @@ final class MenuBarOverlayPanel: NSPanel {
             guard let self, isOnActiveSpace else {
                 return
             }
-            scheduleApplicationMenuFrameUpdate()
+            scheduleApplicationMenuFrameRefresh()
         }
         mouseUpMonitor.start()
         self.mouseUpMonitor = mouseUpMonitor
@@ -289,42 +295,10 @@ final class MenuBarOverlayPanel: NSPanel {
         }
     }
 
-    /// Follows the application menu frame for ten seconds after the menu bar's owner changes.
-    private func startApplicationMenuFrameUpdates() {
-        updateTaskContext.setTask(for: .applicationMenuFrame, timeout: .seconds(10)) { [weak self] in
-            var hasDoneInitialUpdate = false
-            while true {
-                try Task.checkCancellation()
-                guard let self else {
-                    return
-                }
-                guard
-                    let latestFrame = owningScreen.getApplicationMenuFrame(),
-                    latestFrame != applicationMenuFrame
-                else {
-                    if hasDoneInitialUpdate {
-                        try await Task.sleep(for: .seconds(1))
-                    } else {
-                        try await Task.sleep(for: .milliseconds(1))
-                    }
-                    continue
-                }
-                insertUpdateFlag(.applicationMenuFrame)
-                hasDoneInitialUpdate = true
-            }
-        }
-        Task {
-            try? await Task.sleep(for: .milliseconds(100))
-            if self.owningScreen != NSScreen.main {
-                self.updateTaskContext.cancelTask(for: .applicationMenuFrame)
-            }
-        }
-    }
-
-    /// Updates the application menu frame once the space or a click settles.
-    private func scheduleApplicationMenuFrameUpdate() {
+    /// Reads the application menu frame again once a click settles, off the main thread.
+    private func scheduleApplicationMenuFrameRefresh() {
         applicationMenuDebouncer.schedule { [weak self] in
-            self?.insertUpdateFlag(.applicationMenuFrame)
+            self?.appState?.applicationMenuFrames.refresh(reason: "click", settling: false)
         }
     }
 
@@ -367,7 +341,7 @@ final class MenuBarOverlayPanel: NSPanel {
         else {
             return
         }
-        applicationMenuFrame = screen.getApplicationMenuFrame()
+        applicationMenuFrame = appState?.applicationMenuFrames.frame(for: screen)
     }
 
     /// Stores the area of the desktop wallpaper that is under the menu bar

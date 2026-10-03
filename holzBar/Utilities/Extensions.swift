@@ -548,7 +548,62 @@ extension NSScreen {
         return menuBarWindow?.bounds.height
     }
 
-    /// Returns the frame of the application menu on this screen.
+    /// What reading the frame of the application menu on this screen needs to know, taken
+    /// on the main actor so the read itself can run on another thread.
+    var applicationMenuQuery: ApplicationMenuQuery {
+        // The Accessibility API always returns the menu bar for the main screen. Long
+        // application menus can reach past a notch, which makes the frame invalid for
+        // every other screen, so on those the frame is dropped when it reaches the notch.
+        var notchLimit: CGFloat?
+        if
+            let mainScreen = NSScreen.main,
+            self != mainScreen,
+            let notchedScreen = NSScreen.screens.first(where: { $0.hasNotch }),
+            let leftArea = notchedScreen.auxiliaryTopLeftArea
+        {
+            notchLimit = leftArea.maxX
+        }
+        return ApplicationMenuQuery(
+            displayID: displayID,
+            menuBarOrigin: WindowInfo.menuBarWindow(for: displayID)?.bounds.origin,
+            notchLimit: notchLimit
+        )
+    }
+}
+
+// MARK: - ApplicationMenuQuery
+
+/// A request for the frame of the application menu on one display.
+nonisolated struct ApplicationMenuQuery: Sendable {
+    /// The display to read the application menu of.
+    let displayID: CGDirectDisplayID
+
+    /// The origin of the display's menu bar window, or `nil` when it has none.
+    let menuBarOrigin: CGPoint?
+
+    /// The width at which the frame reaches the notch of another screen (see
+    /// `NSScreen.applicationMenuQuery`), or `nil` when that does not matter.
+    let notchLimit: CGFloat?
+
+    /// Returns whether the element at the origin of the display's menu bar window is a
+    /// menu bar.
+    ///
+    /// - Important: This asks Accessibility and blocks; like ``getApplicationMenuFrame()``
+    ///   it must stay off the main thread.
+    func hasValidMenuBar() -> Bool {
+        guard let menuBarOrigin, let element = AXHelpers.element(at: menuBarOrigin) else {
+            return false
+        }
+        AXHelpers.setMessagingTimeout(AXHelpers.applicationMenuTimeout, for: element)
+        return AXHelpers.role(for: element) == kAXMenuBarRole
+    }
+
+    /// Returns the frame of the application menu on the display.
+    ///
+    /// - Important: This asks another application through Accessibility and blocks until it
+    ///   answers or its messaging timeout (0.25 s) passes. It must stay off the main thread:
+    ///   only `ApplicationMenuFrames` calls it, on its own queue, and everything else reads
+    ///   that cache.
     func getApplicationMenuFrame() -> CGRect? {
         let displayBounds = CGDisplayBounds(displayID)
 
@@ -557,28 +612,17 @@ extension NSScreen {
         }
 
         let applicationMenuFrame = AXHelpers.children(for: menuBar).reduce(into: CGRect.null) { result, child in
+            AXHelpers.setMessagingTimeout(AXHelpers.applicationMenuTimeout, for: child)
             if AXHelpers.isEnabled(child), let childFrame = AXHelpers.frame(for: child) {
                 result = result.union(childFrame)
             }
         }
 
-        if applicationMenuFrame.width <= 0 || applicationMenuFrame.isNull {
+        if applicationMenuFrame.isNull || applicationMenuFrame.width <= 0 {
             return nil
         }
 
-        // FIXME: The Accessibility API always returns the menu bar for the main screen.
-        // This can cause issues if one of the screens has a notch, since long app menus
-        // can display items the trailing side of the notch. This causes the frame to be
-        // invalid for all other screens. For now, we're working around this by checking
-        // the app menu's frame on inactive screens, and returning `nil` if it overlaps
-        // with the notch.
-        if
-            let mainScreen = NSScreen.main,
-            self != mainScreen,
-            let notchedScreen = NSScreen.screens.first(where: { $0.hasNotch }),
-            let leftArea = notchedScreen.auxiliaryTopLeftArea,
-            applicationMenuFrame.width >= leftArea.maxX
-        {
+        if let notchLimit, applicationMenuFrame.width >= notchLimit {
             return nil
         }
 

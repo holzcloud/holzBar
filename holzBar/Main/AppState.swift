@@ -46,6 +46,9 @@ final class AppState {
     /// Manager for input events received by the app.
     let hidEventManager = HIDEventManager()
 
+    /// The frame of the application menu on each display, read off the main thread.
+    let applicationMenuFrames = ApplicationMenuFrames()
+
     /// Saved layout profiles.
     let profiles = LayoutProfiles()
 
@@ -118,6 +121,7 @@ final class AppState {
         permissions.stopAllChecks()
 
         settings.performSetup(with: self)
+        applicationMenuFrames.performSetup()
         menuBarManager.performSetup(with: self)
 
         // The item service on macOS 26, the synthetic bounds on macOS 27.

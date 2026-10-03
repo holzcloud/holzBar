@@ -73,6 +73,8 @@ final class HIDEventManager {
     @ObservationIgnored private(set) lazy var mouseDownMonitor = EventMonitor.universal(
         for: [.leftMouseDown, .rightMouseDown]
     ) { [weak self] event in
+        // When the click arrived, for the latency of show on click.
+        let clickTime = ProcessInfo.processInfo.systemUptime
         guard let self, isEnabled, let appState, let screen = bestScreen(appState: appState) else {
             return event
         }
@@ -82,7 +84,7 @@ final class HIDEventManager {
         }
         switch event.type {
         case .leftMouseDown:
-            handleShowOnClick(appState: appState, screen: screen)
+            handleShowOnClick(appState: appState, screen: screen, clickTime: clickTime)
             handleSmartRehide(with: event, appState: appState, screen: screen)
         case .rightMouseDown:
             handleSecondaryContextMenu(appState: appState, screen: screen)
@@ -136,6 +138,9 @@ final class HIDEventManager {
         }
         return event
     }
+
+    /// Logger for the event manager.
+    @ObservationIgnored private let logger = Logger(category: "HIDEventManager")
 
     /// The tap that lets clicks reach the system items while items are concealed, where
     /// the backend needs one (`SystemItemClickBridge27`). It runs while the manager is enabled.
@@ -290,7 +295,13 @@ extension HIDEventManager {
 
     // MARK: Handle Show On Click
 
-    private func handleShowOnClick(appState: AppState, screen: NSScreen) {
+    /// Shows or hides a section after a click on empty menu bar space.
+    ///
+    /// Nothing here asks another application: the hit test reads the application menu
+    /// from `ApplicationMenuFrames`, so the reveal follows the click at once.
+    ///
+    /// - Parameter clickTime: The system uptime when the click arrived.
+    private func handleShowOnClick(appState: AppState, screen: NSScreen, clickTime: TimeInterval) {
         guard
             appState.settings.general.showOnClick,
             isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen)
@@ -321,7 +332,10 @@ extension HIDEventManager {
                 return
             }
 
+            // On macOS 27 this also applies the concealment (`Concealer27.update()`).
             targetSection.toggle()
+            let milliseconds = Int((ProcessInfo.processInfo.systemUptime - clickTime) * 1000)
+            logger.debug("Show on click: revealed \(milliseconds, privacy: .public) ms after the click")
         }
     }
 
