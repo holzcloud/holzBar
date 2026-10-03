@@ -38,22 +38,29 @@ struct URLPromptTests {
     func oneQuestionAtATime() {
         var gate = URLPrompt.Gate()
         let now = ContinuousClock.Instant.now
-        #expect(gate.begin(at: now))
+        let began1 = gate.begin(at: now)
+        #expect(began1)
         #expect(gate.isAsking)
-        #expect(!gate.begin(at: now))
+        let began2 = gate.begin(at: now)
+        #expect(!began2)
         gate.end(approved: true, at: now)
         #expect(!gate.isAsking)
-        #expect(gate.begin(at: now))
+        let began3 = gate.begin(at: now)
+        #expect(began3)
     }
 
     @Test("Nothing is asked for a while after a declined question")
     func quietAfterDeclining() {
         var gate = URLPrompt.Gate()
         let start = ContinuousClock.Instant.now
-        #expect(gate.begin(at: start))
+        let began4 = gate.begin(at: start)
+        #expect(began4)
         gate.end(approved: false, at: start)
-        #expect(!gate.begin(at: start.advanced(by: .seconds(1))))
-        #expect(!gate.begin(at: start.advanced(by: URLPrompt.Gate.quietPeriod - .seconds(1))))
-        #expect(gate.begin(at: start.advanced(by: URLPrompt.Gate.quietPeriod)))
+        let began5 = gate.begin(at: start.advanced(by: .seconds(1)))
+        #expect(!began5)
+        let began6 = gate.begin(at: start.advanced(by: URLPrompt.Gate.quietPeriod - .seconds(1)))
+        #expect(!began6)
+        let began7 = gate.begin(at: start.advanced(by: URLPrompt.Gate.quietPeriod))
+        #expect(began7)
     }
 }
