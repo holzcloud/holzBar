@@ -93,10 +93,15 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         // is not active is recognised as well.
         let clickedDisplay = NSScreen.screens.first { CGDisplayBounds($0.displayID).contains(event.location) }?.displayID
         let framesOnDisplay = clickedDisplay.map { MenuBarItemProvider27.systemItemFrames(for: $0) } ?? []
+        // The bar's rectangle is worked out only for a click that may be bridged at all.
+        let menuBarRect = concealer.isConcealing ? clickedDisplay.flatMap { displayID in
+            Self.visibleMenuBarRect(on: displayID, isFullscreenSpace: appState.activeSpace.isFullscreen)
+        } : nil
         guard ClockBridgeZone27.shouldBridge(
             click: event.location,
             systemItemFrames: framesOnDisplay.isEmpty ? MenuBarItemProvider27.systemItemFrames() : framesOnDisplay,
-            isConcealing: concealer.isConcealing
+            isConcealing: concealer.isConcealing,
+            menuBarRect: menuBarRect
         ) else {
             return event
         }
@@ -241,6 +246,30 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
                 continuation.resume()
             }
         }
+    }
+
+    /// The rectangle of the given display's menu bar, or `nil` while the bar is not on
+    /// screen.
+    ///
+    /// On a fullscreen space the bar shows only while the pointer reveals it, so it counts
+    /// only while the window server's menu bar window is on screen (the window list, not
+    /// Accessibility). Elsewhere the bar is the strip above the screen's visible frame, at
+    /// least as tall as the status bar.
+    private static func visibleMenuBarRect(on displayID: CGDirectDisplayID, isFullscreenSpace: Bool) -> CGRect? {
+        let displayBounds = CGDisplayBounds(displayID)
+        let height: CGFloat
+        if isFullscreenSpace {
+            guard let menuBarWindow = WindowInfo.menuBarWindow(for: displayID) else {
+                return nil
+            }
+            height = menuBarWindow.bounds.height
+        } else {
+            guard let screen = NSScreen.screens.first(where: { $0.displayID == displayID }) else {
+                return nil
+            }
+            height = max(screen.frame.maxY - screen.visibleFrame.maxY, NSStatusBar.system.thickness)
+        }
+        return CGRect(x: displayBounds.minX, y: displayBounds.minY, width: displayBounds.width, height: height)
     }
 
     private static func replayClick(at location: CGPoint) {

@@ -57,7 +57,7 @@ enum URLCommands {
         case .search:
             manager.searchPanel.toggle()
         case .settings:
-            appState.activate(withPolicy: .regular)
+            appState.activate(for: .settings)
             appState.openWindow(.settings)
         case .toggleShelf:
             appState.settings.general.useShelf.toggle()

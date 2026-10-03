@@ -58,25 +58,39 @@ struct OverflowDetection27Tests {
 @Suite("ClockBridgeZone27")
 struct ClockBridgeZone27Tests {
     let clock = CGRect(x: 1787, y: 0, width: 113, height: 30)
+    let menuBar = CGRect(x: 0, y: 0, width: 1920, height: 30)
 
     @Test("A click on a system item is bridged while concealing")
     func bridged() {
-        #expect(ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], isConcealing: true))
+        #expect(ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], isConcealing: true, menuBarRect: menuBar))
     }
 
     @Test("A click one point outside the frame still counts")
     func edgeTolerance() {
-        #expect(ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1786.5, y: 15), systemItemFrames: [clock], isConcealing: true))
+        #expect(ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1786.5, y: 15), systemItemFrames: [clock], isConcealing: true, menuBarRect: menuBar))
     }
 
     @Test("A click elsewhere is not bridged")
     func elsewhere() {
-        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 900, y: 12), systemItemFrames: [clock], isConcealing: true))
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 900, y: 12), systemItemFrames: [clock], isConcealing: true, menuBarRect: menuBar))
     }
 
     @Test("Nothing is bridged while nothing is concealed")
     func notConcealing() {
-        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], isConcealing: false))
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], isConcealing: false, menuBarRect: menuBar))
+    }
+
+    @Test("A click just below the bar is not bridged")
+    func belowTheBar() {
+        // One point under the bar's bottom edge, still inside the clock's frame grown by a point.
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 30.5), systemItemFrames: [clock], isConcealing: true, menuBarRect: menuBar))
+        let lowerBar = CGRect(x: 0, y: 0, width: 1920, height: 24)
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 25), systemItemFrames: [clock], isConcealing: true, menuBarRect: lowerBar))
+    }
+
+    @Test("Nothing is bridged while the bar is hidden")
+    func barHidden() {
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], isConcealing: true, menuBarRect: nil))
     }
 }
 

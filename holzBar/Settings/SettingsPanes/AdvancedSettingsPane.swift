@@ -34,6 +34,7 @@ struct AdvancedSettingsPane: View {
             }
             HolzBarSection("Other") {
                 hideApplicationMenus
+                keepsDockIconHidden
                 enableSecondaryContextMenu
                 showOnHoverDelay
                 tempShowInterval
@@ -116,6 +117,21 @@ struct AdvancedSettingsPane: View {
             }
         }
         .disabled(isMacOS27)
+    }
+
+    @ViewBuilder
+    private var keepsDockIconHidden: some View {
+        Toggle("Keep the Dock icon hidden", isOn: $settings.keepsDockIconHidden)
+            .annotation {
+                Text(
+                    """
+                    macOS hides another app's menus only while holzBar is in the Dock. With \
+                    this on, holzBar never shows a Dock icon, and the menus stay.
+                    """
+                )
+                .padding(.trailing, 75)
+            }
+            .disabled(isMacOS27 || !settings.hideApplicationMenus)
     }
 
     private var isMacOS27: Bool {

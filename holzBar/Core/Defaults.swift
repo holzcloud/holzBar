@@ -169,6 +169,7 @@ nonisolated extension Defaults {
         case showAllSectionsOnUserDrag = "ShowAllSectionsOnUserDrag"
         case sectionDividerStyle = "SectionDividerStyle"
         case hideApplicationMenus = "HideApplicationMenus"
+        case keepsDockIconHidden = "KeepsDockIconHidden"
         case enableSecondaryContextMenu = "EnableSecondaryContextMenu"
         case showOnHoverDelay = "ShowOnHoverDelay"
         case tempShowInterval = "TempShowInterval"
@@ -251,6 +252,7 @@ nonisolated extension Defaults.Key {
             .enableAlwaysHiddenSection,
             .showAllSectionsOnUserDrag,
             .hideApplicationMenus,
+            .keepsDockIconHidden,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
             .syncsSettingsWithICloud,

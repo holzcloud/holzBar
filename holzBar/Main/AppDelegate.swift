@@ -148,7 +148,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Delay makes this more reliable for some reason.
         Task { [appState] in
             try? await Task.sleep(for: .milliseconds(100))
-            appState.activate(withPolicy: .regular)
+            appState.activate(for: .settings)
             appState.openWindow(.settings)
         }
     }

@@ -379,13 +379,20 @@ final class MenuBarManager {
     }
 
     /// Hides the application menus.
-    func hideApplicationMenus() {
+    ///
+    /// - Parameter reason: Why: shown items reach the menus, or the user asked.
+    func hideApplicationMenus(for reason: DockIconPolicy.ActivationReason = .hideApplicationMenus) {
         guard let appState else {
             logger.error("Error hiding application menus: Missing app state")
             return
         }
+        // macOS hides another app's menus only while holzBar is a regular app with a Dock
+        // icon; with "Keep the Dock icon hidden" on, the menus stay unless the user asked.
+        guard appState.activate(for: reason) else {
+            logger.debug("Not hiding application menus: the Dock icon stays hidden")
+            return
+        }
         logger.info("Hiding application menus")
-        appState.activate(withPolicy: .regular)
         isHidingApplicationMenus = true
     }
 
@@ -405,7 +412,7 @@ final class MenuBarManager {
         if isHidingApplicationMenus {
             showApplicationMenus()
         } else {
-            hideApplicationMenus()
+            hideApplicationMenus(for: .toggleApplicationMenus)
         }
     }
 

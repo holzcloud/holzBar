@@ -186,7 +186,7 @@ final class AppState {
             Task {
                 // Delay to prevent conflicts with the app delegate.
                 try? await Task.sleep(for: .milliseconds(100))
-                activate(withPolicy: .regular)
+                activate(for: .permissions)
                 dismissWindow(.settings) // Shouldn't be open anyway.
                 openWindow(.permissions)
             }
@@ -347,8 +347,27 @@ final class AppState {
         }
     }
 
+    /// Activates the app for the given reason, with or without a Dock icon as
+    /// `DockIconPolicy` decides.
+    ///
+    /// - Returns: `false` when the app does not come to the front for this reason (hiding
+    ///   application menus while "Keep the Dock icon hidden" is on).
+    @discardableResult
+    func activate(for reason: DockIconPolicy.ActivationReason) -> Bool {
+        guard let choice = DockIconPolicy.policy(for: reason, keepsDockIconHidden: settings.advanced.keepsDockIconHidden) else {
+            return false
+        }
+        switch choice {
+        case .regular:
+            activate(withPolicy: .regular)
+        case .accessory:
+            activate(withPolicy: .accessory)
+        }
+        return true
+    }
+
     /// Activates the app and sets its activation policy.
-    func activate(withPolicy policy: NSApplication.ActivationPolicy? = nil) {
+    private func activate(withPolicy policy: NSApplication.ActivationPolicy? = nil) {
         if let policy {
             NSApp.setActivationPolicy(policy)
         }

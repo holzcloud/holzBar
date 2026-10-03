@@ -29,6 +29,10 @@ final class HIDEventManager {
     /// History of the manager's enabled states.
     @ObservationIgnored private var enabledStateStack = [Bool]()
 
+    /// The windows above the menu bar's level from the last read, reused for a moment so
+    /// mouse moves do not read the window list each (see `MenuBarHitTesting.swift`).
+    @ObservationIgnored var windowsAboveMenuBar: (readAt: TimeInterval, windows: [MenuBarOcclusion.Window])?
+
     /// The last empty menu bar spot hovered on each display (see `ItemClicker27`).
     @ObservationIgnored private var lastEmptyMenuBarPoints = [CGDirectDisplayID: CGPoint]()
 

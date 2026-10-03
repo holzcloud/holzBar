@@ -767,6 +767,9 @@ extension MenuBarItemManager {
 
         /// A Boolean value that indicates whether the menu bar item's
         /// interface is showing.
+        ///
+        /// Only a menu counts (`InterfaceWindowRule`): another window of the app, such as a
+        /// small floating one, never kept the item from being hidden again (Thaw #1158).
         var isShowingInterface: Bool {
             guard
                 let window = shownInterfaceWindow,
@@ -775,16 +778,12 @@ extension MenuBarItemManager {
                 // Window no longer exists, so assume closed.
                 return false
             }
-            if
-                current.layer != CGWindowLevelForKey(.popUpMenuWindow),
-                current.layer != CGWindowLevelForKey(.popUpMenuWindow) - 1,
-                current.layer != CGWindowLevelForKey(.statusWindow),
-                current.layer != CGWindowLevelForKey(.mainMenuWindow),
-                let app = current.owningApplication
-            {
-                return app.isActive && current.isOnScreen
-            }
-            return current.isOnScreen
+            // The window was recorded as a new window of the item's app after the click.
+            return current.isOnScreen && InterfaceWindowRule.counts(
+                layer: current.layer,
+                isOwnersWindow: true,
+                appearedAfterClick: true
+            )
         }
 
         init(tag: MenuBarItemTag, windowID: CGWindowID, identityKey: String, returnDestination: MoveDestination) {
@@ -936,7 +935,11 @@ extension MenuBarItemManager {
         let windowsAfterClick = WindowInfo.createWindows(option: .onScreen)
 
         context.shownInterfaceWindow = windowsAfterClick.first { window in
-            window.ownerPID == item.sourcePID && !idsBeforeClick.contains(window.windowID)
+            InterfaceWindowRule.counts(
+                layer: window.layer,
+                isOwnersWindow: window.ownerPID == item.sourcePID,
+                appearedAfterClick: !idsBeforeClick.contains(window.windowID)
+            )
         }
     }
 

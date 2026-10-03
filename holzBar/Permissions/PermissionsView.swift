@@ -112,7 +112,7 @@ struct PermissionsView: View {
             appState.performSetup(hasPermissions: true)
 
             Task {
-                appState.activate(withPolicy: .regular)
+                appState.activate(for: .settings)
                 appState.openWindow(.settings)
             }
         } label: {
@@ -179,7 +179,7 @@ struct PermissionsView: View {
                         guard await permission.waitForPermission() else {
                             return
                         }
-                        appState.activate(withPolicy: .regular)
+                        appState.activate(for: .permissions)
                         appState.openWindow(.permissions)
                     }
                 } label: {
@@ -203,7 +203,7 @@ struct PermissionsView: View {
                                 guard await permission.waitForPermission() else {
                                     return
                                 }
-                                appState.activate(withPolicy: .regular)
+                                appState.activate(for: .permissions)
                                 appState.openWindow(.permissions)
                             }
                         }

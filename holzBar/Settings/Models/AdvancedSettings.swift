@@ -43,6 +43,14 @@ final class AdvancedSettings {
         }
     }
 
+    /// A Boolean value that indicates whether holzBar never shows a Dock icon, so the
+    /// application menus are not hidden (macOS hides them only for an app in the Dock).
+    var keepsDockIconHidden = true {
+        didSet {
+            Defaults.set(keepsDockIconHidden, forKey: .keepsDockIconHidden)
+        }
+    }
+
     /// A Boolean value that indicates whether to show a context menu
     /// when the user right-clicks the menu bar.
     var enableSecondaryContextMenu = true {
@@ -96,6 +104,7 @@ final class AdvancedSettings {
         Defaults.ifPresent(key: .enableAlwaysHiddenSection, assign: &enableAlwaysHiddenSection)
         Defaults.ifPresent(key: .showAllSectionsOnUserDrag, assign: &showAllSectionsOnUserDrag)
         Defaults.ifPresent(key: .hideApplicationMenus, assign: &hideApplicationMenus)
+        Defaults.ifPresent(key: .keepsDockIconHidden, assign: &keepsDockIconHidden)
         Defaults.ifPresent(key: .enableSecondaryContextMenu, assign: &enableSecondaryContextMenu)
         Defaults.ifPresent(key: .showOnHoverDelay, assign: &showOnHoverDelay)
         Defaults.ifPresent(key: .tempShowInterval, assign: &tempShowInterval)
