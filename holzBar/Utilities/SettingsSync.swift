@@ -495,8 +495,12 @@ private nonisolated final class SettingsSyncFolderWatcher: @unchecked Sendable {
 /// Tells settings sync when a new version of the sync file arrives in iCloud Drive.
 ///
 /// File presenters are called on their own queue; the presenter only hands the change on.
-/// Its state never changes after it is created.
-private final class SettingsSyncPresenter: NSObject, NSFilePresenter, @unchecked Sendable {
+/// Its state never changes after it is created. It must be `nonisolated`: with the
+/// project's main actor default isolation, its `NSFilePresenter` members would be main
+/// actor isolated, and the file coordinator, which reads `presentedItemURL` and calls the
+/// change methods on the presenter's queue, would trip Swift's isolation check and crash
+/// holzBar as soon as sync was turned on.
+private nonisolated final class SettingsSyncPresenter: NSObject, NSFilePresenter, @unchecked Sendable {
     let presentedItemURL: URL?
 
     let presentedItemOperationQueue: OperationQueue = {
