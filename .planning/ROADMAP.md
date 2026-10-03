@@ -182,12 +182,12 @@ Plans:
 **Goal:** holzBar gains Thaw's best features within its principles (no network, least privilege, lean)
 **Requirements**: THAW-10, THAW-11, THAW-12, THAW-13, THAW-14, THAW-15, THAW-16, THAW-17, ICE-05, SYNC-01
 **Depends on:** Phase 05.1.1
-**Plans:** 3 plans (sequential waves; same PR as Phase 05.1.1, pushed once per plan)
+**Plans:** 3/3 plans executed (sequential waves; same PR as Phase 05.1.1, pushed once per plan)
 
 Plans:
-- [ ] 05.1.1.1-01-PLAN.md — Tracer: Zen mode from a hotkey, the menu, a URL and Shortcuts; Zen while presenting (notifications only); hotkeys per profile and item; App Intents; profiles bound to a display, then a Space
-- [ ] 05.1.1.1-02-PLAN.md — Tracer: open an item by letter through one open path; Layout pane and Shelf from the keyboard, undo, VoiceOver actions; opened items stay 0–30 s or open in place; items show briefly when they change
-- [ ] 05.1.1.1-03-PLAN.md — Tracer: item images of your choice with app-icon fallback, coloured folders; dashed/dotted borders, wallpaper, accent and glass tints; String Catalogs in en, de, fr, it, rm checked by CI; final README and PR body
+- [x] 05.1.1.1-01-PLAN.md — Tracer: Zen mode from a hotkey, the menu, a URL and Shortcuts; Zen while presenting (notifications only); hotkeys per profile and item; App Intents; profiles bound to a display, then a Space
+- [x] 05.1.1.1-02-PLAN.md — Tracer: open an item by letter through one open path; Layout pane and Shelf from the keyboard, undo, VoiceOver actions; opened items stay 0–30 s or open in place; items show briefly when they change
+- [x] 05.1.1.1-03-PLAN.md — Tracer: item images of your choice with app-icon fallback, coloured folders; dashed/dotted borders, wallpaper, accent and glass tints; String Catalogs in en, de, fr, it, rm checked by CI; final README and PR body
 
 ### Phase 05.1.1.1.1: Apple APIs and toolchain (INSERTED)
 

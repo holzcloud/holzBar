@@ -96,17 +96,17 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Thaw features
 
-- [ ] **THAW-10**: see `.planning/research/THAW.md`
-- [ ] **THAW-11**: see `.planning/research/THAW.md`
-- [ ] **THAW-12**: see `.planning/research/THAW.md`
-- [ ] **THAW-13**: see `.planning/research/THAW.md`
-- [ ] **THAW-14**: see `.planning/research/THAW.md`
-- [ ] **THAW-15**: see `.planning/research/THAW.md`
-- [ ] **THAW-16**: see `.planning/research/THAW.md`
-- [ ] **THAW-17**: see `.planning/research/THAW.md`
+- [x] **THAW-10**: see `.planning/research/THAW.md`
+- [x] **THAW-11**: see `.planning/research/THAW.md`
+- [x] **THAW-12**: see `.planning/research/THAW.md`
+- [x] **THAW-13**: see `.planning/research/THAW.md`
+- [x] **THAW-14**: see `.planning/research/THAW.md`
+- [x] **THAW-15**: see `.planning/research/THAW.md`
+- [x] **THAW-16**: see `.planning/research/THAW.md`
+- [x] **THAW-17**: see `.planning/research/THAW.md`
 
-- [ ] **SYNC-01**: Settings sync works with any synced folder, not only iCloud Drive: the user picks the folder (iCloud Drive as default, or Nextcloud, Dropbox, OneDrive, Syncthing, a network share …) in an open panel; holzBar only reads and writes `holzBar/Settings.plist` there with file coordination and file presentation (no polling, no network code — the folder's own client syncs); the choice is stored as a bookmark and survives renames; the Settings pane shows the folder and lets the user change or turn off sync; README, permissions table and comparison tables updated ("Settings sync: iCloud Drive or any synced folder")
-- [ ] **ICE-05**: localization (String Catalog: en, de, fr, it, rm) — see THAW.md
+- [x] **SYNC-01**: Settings sync works with any synced folder, not only iCloud Drive: the user picks the folder (iCloud Drive as default, or Nextcloud, Dropbox, OneDrive, Syncthing, a network share …) in an open panel; holzBar only reads and writes `holzBar/Settings.plist` there with file coordination and file presentation (no polling, no network code — the folder's own client syncs); the choice is stored as a bookmark and survives renames; the Settings pane shows the folder and lets the user change or turn off sync; README, permissions table and comparison tables updated ("Settings sync: iCloud Drive or any synced folder")
+- [x] **ICE-05**: localization (String Catalog: en, de, fr, it, rm) — see THAW.md
 
 ### Security and performance
 
@@ -226,21 +226,21 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | THAW-06 | Phase 05.1.1 | Complete |
 | THAW-07 | Phase 05.1.1 | Complete |
 | THAW-08 | Phase 05.1.1 | Complete |
-| THAW-10 | Phase 05.1.1.1 | Pending |
-| THAW-11 | Phase 05.1.1.1 | Pending |
-| THAW-12 | Phase 05.1.1.1 | Pending |
-| THAW-13 | Phase 05.1.1.1 | Pending |
-| THAW-14 | Phase 05.1.1.1 | Pending |
-| THAW-15 | Phase 05.1.1.1 | Pending |
-| THAW-16 | Phase 05.1.1.1 | Pending |
-| THAW-17 | Phase 05.1.1.1 | Pending |
+| THAW-10 | Phase 05.1.1.1 | Complete |
+| THAW-11 | Phase 05.1.1.1 | Complete |
+| THAW-12 | Phase 05.1.1.1 | Complete |
+| THAW-13 | Phase 05.1.1.1 | Complete |
+| THAW-14 | Phase 05.1.1.1 | Complete |
+| THAW-15 | Phase 05.1.1.1 | Complete |
+| THAW-16 | Phase 05.1.1.1 | Complete |
+| THAW-17 | Phase 05.1.1.1 | Complete |
 | ICE-01 | Phase 05.1.1 | Complete |
 | ICE-02 | Phase 05.1.1 | Complete |
 | ICE-03 | Phase 05.1.1 | Complete |
 | ICE-04 | Phase 05.1.1 | Complete |
 | ICE-06 | Phase 05.1.1 | Complete |
-| SYNC-01 | Phase 05.1.1.1 | Pending |
-| ICE-05 | Phase 05.1.1.1 | Pending |
+| SYNC-01 | Phase 05.1.1.1 | Complete |
+| ICE-05 | Phase 05.1.1.1 | Complete |
 | AUDIT-01 | Phase 6 | Pending |
 | COMPAT-01 | Phase 06.1 | Pending |
 | COMPAT-02 | Phase 06.1 | Pending |
