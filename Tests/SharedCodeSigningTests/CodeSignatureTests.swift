@@ -94,9 +94,13 @@ struct CodeSignatureTests {
     private func codeOfThisProcess() throws -> SecCode {
         var token = audit_token_t()
         var count = mach_msg_type_number_t(MemoryLayout<audit_token_t>.size / MemoryLayout<integer_t>.size)
+        // task_self_trap() instead of the global mach_task_self_, which older
+        // SDKs (macOS 15.2) do not mark as concurrency-safe in Swift 6.
+        let task = task_self_trap()
+        defer { mach_port_deallocate(task, task) }
         let result = withUnsafeMutablePointer(to: &token) { pointer in
             pointer.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { info in
-                task_info(mach_task_self_, task_flavor_t(TASK_AUDIT_TOKEN), info, &count)
+                task_info(task, task_flavor_t(TASK_AUDIT_TOKEN), info, &count)
             }
         }
         try #require(result == KERN_SUCCESS, "task_info failed with \(result)")
