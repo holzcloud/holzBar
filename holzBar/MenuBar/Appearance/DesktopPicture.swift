@@ -114,13 +114,15 @@ enum DesktopPicture {
             }
             context.interpolationQuality = .medium
             context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
-            return stride(from: 0, to: buffer.count, by: 4).map { index in
-                WallpaperPalette.Sample(
-                    red: Double(buffer[index]) / 255,
-                    green: Double(buffer[index + 1]) / 255,
-                    blue: Double(buffer[index + 2]) / 255
-                )
+            var result: [WallpaperPalette.Sample] = []
+            result.reserveCapacity(width * height)
+            for index in stride(from: 0, to: buffer.count, by: 4) {
+                let red = Double(buffer[index]) / 255
+                let green = Double(buffer[index + 1]) / 255
+                let blue = Double(buffer[index + 2]) / 255
+                result.append(WallpaperPalette.Sample(red: red, green: green, blue: blue))
             }
+            return result
         }
         return WallpaperPalette.derive(from: samples)
     }

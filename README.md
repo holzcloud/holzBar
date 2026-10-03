@@ -107,7 +107,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Settings migration | 6 version steps at every launch | — | once, while importing Ice settings |
 | Runtime patching of AppKit (method swizzling) | yes | — | none |
 | Item images in memory | kept | — | released when unused |
-| Unit tests run on every change | none | ✅ | ✅ 299 |
+| Unit tests run on every change | none | ✅ | ✅ 338 |
 | App size | — | — | 13.9 MB |
 | **Distribution and maintenance** | | | |
 | Install and update with Homebrew | ✅ | ✅ | ✅ |

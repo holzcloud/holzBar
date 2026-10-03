@@ -86,7 +86,7 @@ nonisolated enum SectionActionAppEnum: String, AppEnum {
 }
 
 /// Shows, hides or toggles a menu bar section.
-nonisolated struct ChangeSectionIntent: AppIntent {
+struct ChangeSectionIntent: AppIntent {
     static let title: LocalizedStringResource = "Change Section"
 
     @Parameter(title: "Action", default: .toggle)
@@ -149,7 +149,7 @@ nonisolated struct LayoutProfileQuery: EntityQuery {
 }
 
 /// Applies a saved layout profile.
-nonisolated struct ApplyLayoutProfileIntent: AppIntent {
+struct ApplyLayoutProfileIntent: AppIntent {
     static let title: LocalizedStringResource = "Apply Layout Profile"
 
     @Parameter(title: "Profile")
@@ -165,7 +165,7 @@ nonisolated struct ApplyLayoutProfileIntent: AppIntent {
 // MARK: - Menu Bar Items
 
 /// Opens the menu of the menu bar item whose name matches best.
-nonisolated struct OpenMenuBarItemIntent: AppIntent {
+struct OpenMenuBarItemIntent: AppIntent {
     static let title: LocalizedStringResource = "Open Menu Bar Item"
 
     @Parameter(title: "Name")
@@ -202,8 +202,9 @@ nonisolated struct SearchMenuBarItemsIntent: AppIntent {
 
 // MARK: - App Shortcuts
 
-/// The actions Shortcuts and Spotlight offer without any setup.
-nonisolated struct HolzBarShortcuts: AppShortcutsProvider {
+/// The actions Shortcuts and Spotlight offer without any setup. Main-actor isolated, like
+/// the actions with parameters (whose parameter wrappers keep them off `nonisolated`).
+struct HolzBarShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: ToggleZenModeIntent(),
