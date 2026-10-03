@@ -290,7 +290,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ## 🖼 Gallery
 
-<p align="center"><img src="Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, the holzBar icon, the holzBar Shelf and showing hidden items on click, hover or scroll" width="760"></p>
+<p align="center"><img src="Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, the holzBar icon, the holzBar Shelf with its location, the displays it is used on and items covered by the notch, showing hidden items on click, hover or scroll, and automatic rehide with the Smart strategy" width="760"></p>
 
 <table>
 <tr>
@@ -312,6 +312,10 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 <td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action, profile and item<br><img src="Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys for the hidden section, the search, opening an item by letter, the layout profile home, the holzBar Shelf, app menus, auto-rehide and Zen mode, each with Record Hotkey"></td>
 <td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode, automatic reveal and settings backup<br><img src="Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, showing hidden items when the battery is low or the network is lost, and settings Export… and Import…"></td>
 </tr>
+<tr>
+<td width="50%" valign="top"><b>Sync and permissions</b> — settings sync through any folder your Macs sync, and the state of every permission<br><img src="Resources/Screenshots/settings-advanced-sync.png" alt="holzBar settings, Advanced pane further down: showing hidden items automatically, Export… and Import…, Sync settings between your Macs with Turn On… through iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share, and Accessibility and Screen Recording both granted"></td>
+<td width="50%" valign="top"></td>
+</tr>
 </table>
 
 ## 🛠 Troubleshooting
@@ -324,7 +328,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ## 🙏 Credits
 
-<img src="Resources/Screenshots/settings-about.png" alt="holzBar settings, About pane: the app icon, the version, copyright Jordan Baird and holzcloud, Based on Ice by Jordan Baird, the command brew upgrade --cask holzbar and a Releases button" width="420" align="right">
+<img src="Resources/Screenshots/settings-about.png" alt="holzBar settings, About pane: the app icon, Version 0.0.6-beta1, copyright Jordan Baird and holzcloud, Based on Ice by Jordan Baird, the command brew update &amp;&amp; brew upgrade --cask holzbar, a Releases button, and Acknowledgements, Website, Contribute and Report a Bug" width="420" align="right">
 
 - [**Ice**](https://github.com/jordanbaird/Ice) by [Jordan Baird](https://github.com/jordanbaird) — the app holzBar is built on: its design, its features and almost all of its code. Thank you, Jordan! 💙 If you like it, [sponsor Jordan](https://github.com/sponsors/jordanbaird) or [buy him a coffee](https://www.buymeacoffee.com/jordanbaird).
 - [**RabenkoYevhenii**](https://github.com/RabenkoYevhenii) — the macOS 27 backend ([jordanbaird/Ice#995](https://github.com/jordanbaird/Ice/pull/995)).
