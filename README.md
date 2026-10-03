@@ -174,7 +174,7 @@ Then open holzBar again. Alternatively: open it once, then go to **System Settin
 
 ### Build from source
 
-Requires Xcode 26.6, which runs on macOS Tahoe 26.2 or later; holzBar itself runs on macOS 14 or later. CI builds with Xcode 26.6 for the SDK and the official Swift 6.4 toolchain from [swift.org](https://www.swift.org/install/macos/) as the compiler (both pinned in `.github/actions/select-xcode`).
+Use Xcode 27 (macOS 27 SDK), as CI does; holzBar itself runs on macOS 14 or later. CI builds with Xcode 27.0 for the SDK and the official Swift 6.4 toolchain from [swift.org](https://www.swift.org/install/macos/) as the compiler (both pinned in `.github/actions/select-xcode`).
 
 ```sh
 git clone https://github.com/holzcloud/holzBar
