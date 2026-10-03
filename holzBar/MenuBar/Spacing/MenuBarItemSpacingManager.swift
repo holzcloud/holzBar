@@ -66,7 +66,7 @@ final class MenuBarItemSpacingManager {
     /// - Returns: Whether the app has quit.
     private func quit(_ app: NSRunningApplication) async -> Bool {
         if app.isTerminated {
-            logger.debug("Application \"\(app.logString, privacy: .public)\" is already terminated")
+            logger.debug("Application \"\(app.logString, privacy: .private(mask: .hash))\" is already terminated")
             return true
         }
 
@@ -80,7 +80,7 @@ final class MenuBarItemSpacingManager {
             }
         }
 
-        logger.debug("Signaling application \"\(app.logString, privacy: .public)\" to quit")
+        logger.debug("Signaling application \"\(app.logString, privacy: .private(mask: .hash))\" to quit")
         app.terminate()
 
         let didQuit = await SpacingRelaunch.waitUntil(timeout: SpacingRelaunch.quitTimeout) {
@@ -93,13 +93,13 @@ final class MenuBarItemSpacingManager {
         continuation.finish()
 
         if didQuit || app.isTerminated {
-            logger.debug("Application \"\(app.logString, privacy: .public)\" terminated successfully")
+            logger.debug("Application \"\(app.logString, privacy: .private(mask: .hash))\" terminated successfully")
             return true
         }
         let seconds = SpacingRelaunch.quitTimeout.components.seconds
         logger.debug(
             """
-            Application \"\(app.logString, privacy: .public)\" did not quit within \
+            Application \"\(app.logString, privacy: .private(mask: .hash))\" did not quit within \
             \(seconds, privacy: .public) seconds, so it is left running
             """
         )
@@ -109,7 +109,7 @@ final class MenuBarItemSpacingManager {
     /// Asynchronously launches the app at the given URL.
     private nonisolated func launchApp(at applicationURL: URL, bundleIdentifier: String) async throws {
         if let app = NSWorkspace.shared.runningApplications.first(where: { $0.bundleIdentifier == bundleIdentifier }) {
-            logger.debug("Application \"\(app.logString, privacy: .public)\" is already open, so skipping launch")
+            logger.debug("Application \"\(app.logString, privacy: .private(mask: .hash))\" is already open, so skipping launch")
             return
         }
         let configuration = NSWorkspace.OpenConfiguration()

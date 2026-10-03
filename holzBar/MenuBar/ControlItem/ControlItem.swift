@@ -593,13 +593,13 @@ final class ControlItem {
 
         menu.addItem(.separator())
 
-        let checkForUpdatesItem = NSMenuItem(
-            title: "Check for Updates…",
-            action: #selector(checkForUpdates),
+        let howToUpdateItem = NSMenuItem(
+            title: "How to Update…",
+            action: #selector(showHowToUpdate),
             keyEquivalent: ""
         )
-        checkForUpdatesItem.target = self
-        menu.addItem(checkForUpdatesItem)
+        howToUpdateItem.target = self
+        menu.addItem(howToUpdateItem)
 
         menu.addItem(.separator())
 
@@ -636,9 +636,10 @@ final class ControlItem {
         appState?.menuBarManager.searchPanel.show()
     }
 
-    /// Opens the releases page. holzBar is updated with Homebrew, which the
-    /// page explains.
-    @objc private func checkForUpdates() {
+    /// Opens the releases page in the browser. Its notes carry the update
+    /// command, `brew update && brew upgrade --cask holzbar`. holzBar itself
+    /// makes no request: it never connects to the network.
+    @objc private func showHowToUpdate() {
         NSWorkspace.shared.open(Constants.releasesURL)
     }
 }

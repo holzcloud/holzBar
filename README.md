@@ -48,7 +48,7 @@ Every change to holzBar follows four rules — without taking a feature away:
 
 - **Modern** — written the way a macOS app is written in 2026: current Swift, Swift concurrency and current SwiftUI and AppKit APIs. Outdated APIs are replaced as the code is touched.
 - **Lean and fast** — as little CPU, energy, memory and disk as possible; no polling where macOS sends an event; a small app that launches fast.
-- **Private** — holzBar never connects to the network: no telemetry, no analytics, no crash reports, no update checks, no remote content. The only exception is a link you click, which opens in your browser. Your data stays on your Mac and out of the logs. To show hidden items when the network drops, holzBar only watches whether a network path is available (Apple's NWPathMonitor); it never opens a connection.
+- **Private** — holzBar never connects to the network: no telemetry, no analytics, no crash reports, no update checks, no remote content. The only exception is a link you click, which opens in your browser. Your data stays on your Mac and out of the logs. To show hidden items when the network drops, holzBar only watches whether a network path is available (Apple's NWPathMonitor); it never opens a connection. The `no-network` check fails every pull request that adds networking code or a third-party package, and every build checks the app's binaries and entitlements for network access.
 - **Least privilege** — holzBar asks only for the permissions a feature really needs, when it needs them, and says why.
 
 Where holzBar doesn't meet a rule yet, that is a bug to fix — for example, it still asks for Accessibility and Screen Recording together on the first launch.
@@ -198,7 +198,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 <td width="50%" valign="top"><b>holzBar Shelf</b> — hidden items below the menu bar<br><img src="Resources/Screenshots/shelf.png" alt="The menu bar with the holzBar Shelf open below it, showing the hidden items"></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b>Menu</b> — right-click the dot for settings, search and updates<br><img src="Resources/Screenshots/menu.png" alt="holzBar's menu: holzBar Settings…, Search Menu Bar Items, Show Hidden Section, Check for Updates…, Quit holzBar"></td>
+<td width="50%" valign="top"><b>Menu</b> — right-click the dot for settings, search and updates<br><img src="Resources/Screenshots/menu.png" alt="holzBar's menu: holzBar Settings…, Search Menu Bar Items, Show Hidden Section, How to Update…, Quit holzBar"></td>
 <td width="50%" valign="top"><b>Rehide and spacing</b> — automatic rehide and item spacing <sub>BETA</sub><br><img src="Resources/Screenshots/settings-spacing.png" alt="holzBar settings: show on click, hover or scroll, automatically rehide with the Smart strategy, and the menu bar item spacing slider marked BETA"></td>
 </tr>
 </table>

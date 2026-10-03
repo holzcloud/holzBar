@@ -52,7 +52,7 @@ final class MenuBarAppearanceManager: ObservableObject {
                 configuration = try decoder.decode(MenuBarAppearanceConfigurationV2.self, from: data)
             }
         } catch {
-            Logger.serialization.error("Error decoding menu bar appearance configuration: \(error)")
+            Logger.serialization.error("Error decoding menu bar appearance configuration: \(error, privacy: .private)")
         }
     }
 
@@ -81,7 +81,7 @@ final class MenuBarAppearanceManager: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { completion in
                 if case .failure(let error) = completion {
-                    Logger.serialization.error("Error encoding menu bar appearance configuration: \(error)")
+                    Logger.serialization.error("Error encoding menu bar appearance configuration: \(error, privacy: .private)")
                 }
             } receiveValue: { data in
                 Defaults.set(data, forKey: .menuBarAppearanceConfigurationV2)

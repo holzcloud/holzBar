@@ -149,7 +149,7 @@
    <rect x="2262" y="441" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
    <text x="2272" y="493" class="item">Show Hidden Section</text>
    <rect x="2262" y="521" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
-   <text x="2272" y="573" class="item">Check for Updates…</text>
+   <text x="2272" y="573" class="item">How to Update…</text>
    <rect x="2262" y="601" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
    <rect x="2273" y="629" width="26" height="26" rx="6" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.85"/>
    <path d="M2281 637 l10 10 M2291 637 l-10 10" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity="0.85"/>

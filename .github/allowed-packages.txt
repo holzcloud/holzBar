@@ -1,0 +1,6 @@
+# Swift packages holzBar may resolve, one repository URL per line (lower case,
+# without a trailing slash or .git). privacy-check.py network fails when
+# Package.resolved pins a package that is not listed here.
+https://github.com/buh/compactslider
+https://github.com/sindresorhus/launchatlogin-modern
+https://github.com/groue/semaphore

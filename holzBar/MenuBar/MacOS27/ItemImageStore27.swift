@@ -296,7 +296,7 @@ final class ItemImageStore27 {
             let image = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: configuration)
             return (image, scale)
         } catch {
-            logger.error("Could not capture the menu bar: \(error, privacy: .public)")
+            logger.error("Could not capture the menu bar: \(error, privacy: .private)")
             return nil
         }
     }

@@ -129,7 +129,7 @@ final class SettingsSync: ObservableObject {
             UserDefaults.standard.set(modified, forKey: Self.lastSyncedKey)
             Self.logger.info("Wrote settings to iCloud Drive")
         } catch {
-            Self.logger.error("Error writing settings to iCloud Drive: \(error, privacy: .public)")
+            Self.logger.error("Error writing settings to iCloud Drive: \(error, privacy: .private)")
         }
     }
 

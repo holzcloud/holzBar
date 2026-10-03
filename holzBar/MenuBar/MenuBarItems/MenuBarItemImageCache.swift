@@ -268,7 +268,7 @@ final class MenuBarItemImageCache: ObservableObject {
         logger.notice(
             """
             Some items were excluded from composite capture. Attempting to capture \
-            excluded items individually: \(compositeResult.excluded, privacy: .public)
+            excluded items individually: \(compositeResult.excluded, privacy: .private(mask: .hash))
             """
         )
 
@@ -288,7 +288,7 @@ final class MenuBarItemImageCache: ObservableObject {
         let items = await appState.itemManager.itemCache[section]
         let captureResult = await captureImages(of: items, scale: scale, appState: appState)
         if !captureResult.excluded.isEmpty {
-            logger.error("Some items failed capture: \(captureResult.excluded, privacy: .public)")
+            logger.error("Some items failed capture: \(captureResult.excluded, privacy: .private(mask: .hash))")
         }
         return captureResult.images
     }

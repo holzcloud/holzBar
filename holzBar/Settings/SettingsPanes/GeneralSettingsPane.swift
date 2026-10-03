@@ -120,6 +120,10 @@ struct GeneralSettingsPane: View {
         ) { result in
             do {
                 let url = try result.get()
+                // Data(contentsOf:) would fetch an http(s) URL; holzBar reads only files.
+                guard url.isFileURL else {
+                    throw CocoaError(.fileReadUnsupportedScheme)
+                }
                 if url.startAccessingSecurityScopedResource() {
                     defer { url.stopAccessingSecurityScopedResource() }
                     let data = try Data(contentsOf: url)

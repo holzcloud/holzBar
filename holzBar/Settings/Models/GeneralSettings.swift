@@ -129,7 +129,7 @@ final class GeneralSettings: ObservableObject {
             do {
                 holzBarIcon = try decoder.decode(ControlItemImageSet.self, from: data)
             } catch {
-                Logger.serialization.error("Error decoding holzBar icon: \(error, privacy: .public)")
+                Logger.serialization.error("Error decoding holzBar icon: \(error, privacy: .private)")
             }
             if case .custom = holzBarIcon.name {
                 lastCustomHolzBarIcon = holzBarIcon
@@ -161,7 +161,7 @@ final class GeneralSettings: ObservableObject {
                     let data = try encoder.encode(holzBarIcon)
                     Defaults.set(data, forKey: .holzBarIcon)
                 } catch {
-                    Logger.serialization.error("Error encoding holzBar icon: \(error, privacy: .public)")
+                    Logger.serialization.error("Error encoding holzBar icon: \(error, privacy: .private)")
                 }
             }
             .store(in: &c)

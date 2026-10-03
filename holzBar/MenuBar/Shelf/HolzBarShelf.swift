@@ -189,7 +189,7 @@ final class HolzBarShelfPanel: NSPanel {
             do {
                 try await cacheTask.value
             } catch {
-                Logger.default.error("Cache update failed when showing HolzBarShelfPanel - \(error)")
+                Logger.default.error("Cache update failed when showing HolzBarShelfPanel - \(error, privacy: .private)")
             }
         }
 

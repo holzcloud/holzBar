@@ -57,7 +57,7 @@ final class HotkeysSettings: ObservableObject {
                     hotkey.keyCombination = keyCombination
                 }
             } catch {
-                Logger.serialization.error("Error decoding hotkey: \(error, privacy: .public)")
+                Logger.serialization.error("Error decoding hotkey: \(error, privacy: .private)")
             }
         }
     }
@@ -72,7 +72,7 @@ final class HotkeysSettings: ObservableObject {
                 .receive(on: DispatchQueue.main)
                 .sink { completion in
                     if case .failure(let error) = completion {
-                        Logger.serialization.error("Error encoding hotkey: \(error, privacy: .public)")
+                        Logger.serialization.error("Error encoding hotkey: \(error, privacy: .private)")
                     }
                 } receiveValue: { data in
                     withMutableCopy(of: Defaults.dictionary(forKey: .hotkeys) ?? [:]) { dictionary in

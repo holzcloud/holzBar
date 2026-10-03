@@ -32,7 +32,7 @@ extension MigrationManager {
         } catch let error as MigrationError {
             results.append(.failureAndLogError(error))
         } catch {
-            logger.error("Migration failed with unknown error \(error)")
+            logger.error("Migration failed with unknown error \(error, privacy: .private)")
         }
 
         results += [
@@ -49,7 +49,7 @@ extension MigrationManager {
             case .successButShowAlert(let alert):
                 alert.runModal()
             case .failureAndLogError(let error):
-                logger.error("Migration failed with error \(error, privacy: .public)")
+                logger.error("Migration failed with error \(error, privacy: .private)")
             }
         }
     }

@@ -65,7 +65,7 @@ extension MenuBarItemService {
                 if case .start = response {
                     continuation.resume()
                 } else {
-                    logger.error("Start request returned invalid response \(String(describing: response))")
+                    logger.error("Start request returned invalid response \(String(describing: response), privacy: .private)")
                     continuation.resume()
                 }
             }
@@ -87,7 +87,7 @@ extension MenuBarItemService {
             if case .sourcePID(let pid) = response {
                 return pid
             }
-            logger.error("Source PID request returned invalid response \(String(describing: response))")
+            logger.error("Source PID request returned invalid response \(String(describing: response), privacy: .private)")
             return nil
         }
 
@@ -142,7 +142,7 @@ extension MenuBarItemService {
                     guard let self else {
                         return
                     }
-                    logger.warning("Session was cancelled with error \(error.localizedDescription)")
+                    logger.warning("Session was cancelled with error \(error.localizedDescription, privacy: .private)")
                     self.session = nil
                 }
                 // A build signed with a team requires the service to be from the
@@ -174,7 +174,7 @@ extension MenuBarItemService {
                     let reply = try session.sendSync(request)
                     return try reply.decode(as: Response.self)
                 } catch {
-                    logger.error("Session failed with error \(error)")
+                    logger.error("Session failed with error \(error, privacy: .private)")
                     return nil
                 }
             }

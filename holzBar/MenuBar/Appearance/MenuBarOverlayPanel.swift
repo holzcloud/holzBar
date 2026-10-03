@@ -321,7 +321,7 @@ final class MenuBarOverlayPanel: NSPanel {
         }
 
         guard appState.appearanceManager.overlayPanels.contains(self) else {
-            MenuBarOverlayPanel.logger.warning("Overlay panel \(self) not retained")
+            MenuBarOverlayPanel.logger.warning("Overlay panel \(self, privacy: .public) not retained")
             return
         }
 

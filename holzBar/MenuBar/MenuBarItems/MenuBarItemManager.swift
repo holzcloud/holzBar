@@ -307,7 +307,7 @@ extension MenuBarItemManager {
 
         for item in items where context.isValidForCaching(item) {
             if item.sourcePID == nil {
-                logger.warning("Missing sourcePID for \(item.logString, privacy: .public)")
+                logger.warning("Missing sourcePID for \(item.logString, privacy: .private(mask: .hash))")
                 context.shouldClearCachedItemWindowIDs = true
             }
 
@@ -324,7 +324,7 @@ extension MenuBarItemManager {
                 continue
             }
 
-            logger.warning("Couldn't find section for caching \(item.logString, privacy: .public)")
+            logger.warning("Couldn't find section for caching \(item.logString, privacy: .private(mask: .hash))")
             context.shouldClearCachedItemWindowIDs = true
         }
 
@@ -383,9 +383,9 @@ extension MenuBarItemManager {
                     logger.info(
                         """
                         macOS 27 cache: \
-                        visible=\(cache[.visible].map(\.tag.namespace.description).joined(separator: ","), privacy: .public) \
-                        hidden=\(cache[.hidden].map(\.tag.namespace.description).joined(separator: ","), privacy: .public) \
-                        alwaysHidden=\(cache[.alwaysHidden].map(\.tag.namespace.description).joined(separator: ","), privacy: .public)
+                        visible=\(cache[.visible].map(\.tag.namespace.description).joined(separator: ","), privacy: .private(mask: .hash)) \
+                        hidden=\(cache[.hidden].map(\.tag.namespace.description).joined(separator: ","), privacy: .private(mask: .hash)) \
+                        alwaysHidden=\(cache[.alwaysHidden].map(\.tag.namespace.description).joined(separator: ","), privacy: .private(mask: .hash))
                         """
                     )
                 }
@@ -398,7 +398,7 @@ extension MenuBarItemManager {
                     """
                     Missing control item for hidden section, clearing menu bar item cache \
                     (\(items.count, privacy: .public) items: \
-                    \(items.prefix(12).map(\.tag.description).joined(separator: ", "), privacy: .public))
+                    \(items.prefix(12).map(\.tag.description).joined(separator: ", "), privacy: .private(mask: .hash)))
                     """
                 )
                 itemCache = ItemCache(displayID: nil)
@@ -475,7 +475,7 @@ extension MenuBarItemManager {
             do {
                 try await move(item: item, to: destination)
             } catch {
-                logger.error("Error moving \(item.logString, privacy: .public) into \(section.logString, privacy: .public): \(error, privacy: .public)")
+                logger.error("Error moving \(item.logString, privacy: .private(mask: .hash)) into \(section.logString, privacy: .public): \(error, privacy: .private)")
             }
         }
         await cacheItemsRegardless()
@@ -537,10 +537,10 @@ extension MenuBarItemManager {
             case .alwaysHidden: .leftOfItem(controlItems.alwaysHidden ?? controlItems.hidden)
             }
             do {
-                logger.info("Placing new item \(item.logString, privacy: .public) in \(section.logString, privacy: .public)")
+                logger.info("Placing new item \(item.logString, privacy: .private(mask: .hash)) in \(section.logString, privacy: .public)")
                 try await move(item: item, to: destination)
             } catch {
-                logger.error("Error placing new item \(item.logString, privacy: .public): \(error, privacy: .public)")
+                logger.error("Error placing new item \(item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
             }
         }
     }
@@ -560,14 +560,14 @@ extension MenuBarItemManager {
             }
             if item.tag.isLiveActivity {
                 do {
-                    logger.info("Keeping Live Activity \(item.logString, privacy: .public) visible")
+                    logger.info("Keeping Live Activity \(item.logString, privacy: .private(mask: .hash)) visible")
                     try await move(item: item, to: .rightOfItem(controlItems.hidden))
                 } catch {
-                    logger.error("Error moving Live Activity \(item.logString, privacy: .public): \(error, privacy: .public)")
+                    logger.error("Error moving Live Activity \(item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
                 }
             } else if item.tag.namespace.isUUID || item.tag.namespace.description.hasPrefix("com.apple.") {
                 // Helps find the process that draws Live Activities.
-                logger.debug("Hidden system item: \(item.tag.description, privacy: .public)")
+                logger.debug("Hidden system item: \(item.tag.description, privacy: .private(mask: .hash))")
             }
         }
     }
@@ -678,7 +678,7 @@ extension MenuBarItemManager {
     private nonisolated func waitForMoveOperationBuffer() async throws {
         if let timestamp = await lastMoveOperationTimestamp {
             let buffer = max(.milliseconds(25) - timestamp.duration(to: .now), .zero)
-            logger.debug("Move operation buffer: \(buffer)")
+            logger.debug("Move operation buffer: \(buffer, privacy: .public)")
             do {
                 try await Task.sleep(for: buffer)
             } catch {
@@ -1224,7 +1224,7 @@ extension MenuBarItemManager {
         }
 
         var timeout = getMoveOperationTimeout(for: item)
-        logger.debug("Move operation timeout: \(timeout)")
+        logger.debug("Move operation timeout: \(timeout, privacy: .public)")
 
         lastMoveOperationTimestamp = .now
         MouseHelpers.hideCursor()
@@ -1270,7 +1270,7 @@ extension MenuBarItemManager {
             } catch {
                 // Catch this for logging purposes only. We want to propagate
                 // the original error.
-                logger.error("Fallback failed with error: \(error, privacy: .public)")
+                logger.error("Fallback failed with error: \(error, privacy: .private)")
             }
             timeout += timeout / 2
             throw error
@@ -1301,8 +1301,8 @@ extension MenuBarItemManager {
 
         logger.log(
             """
-            Moving \(item.logString, privacy: .public) to \
-            \(destination.logString, privacy: .public)
+            Moving \(item.logString, privacy: .private(mask: .hash)) to \
+            \(destination.logString, privacy: .private(mask: .hash))
             """
         )
 
@@ -1330,7 +1330,7 @@ extension MenuBarItemManager {
                 logger.debug("Attempt \(n, privacy: .public) succeeded, finished with move")
                 return
             } catch {
-                logger.debug("Attempt \(n, privacy: .public) failed: \(error, privacy: .public)")
+                logger.debug("Attempt \(n, privacy: .public) failed: \(error, privacy: .private)")
                 if n < maxAttempts {
                     try await waitForMoveOperationBuffer()
                     continue
@@ -1426,7 +1426,7 @@ extension MenuBarItemManager {
             } catch {
                 // Catch this for logging purposes only. We want to propagate
                 // the original error.
-                logger.error("Fallback failed with error: \(error, privacy: .public)")
+                logger.error("Fallback failed with error: \(error, privacy: .private)")
             }
             throw error
         }
@@ -1446,7 +1446,7 @@ extension MenuBarItemManager {
 
         logger.log(
             """
-            Clicking \(item.logString, privacy: .public) with \
+            Clicking \(item.logString, privacy: .private(mask: .hash)) with \
             \(mouseButton.logString, privacy: .public)
             """
         )
@@ -1466,7 +1466,7 @@ extension MenuBarItemManager {
                 logger.debug("Attempt \(n, privacy: .public) succeeded, finished with click")
                 return
             } catch {
-                logger.debug("Attempt \(n, privacy: .public) failed: \(error, privacy: .public)")
+                logger.debug("Attempt \(n, privacy: .public) failed: \(error, privacy: .private)")
                 if n < maxAttempts {
                     await eventSleep()
                     continue
@@ -1571,23 +1571,23 @@ extension MenuBarItemManager {
     ///   - mouseButton: The mouse button to click the item with.
     func temporarilyShow(item: MenuBarItem, clickingWith mouseButton: CGMouseButton) async {
         guard let appState else {
-            logger.error("Missing AppState, so not showing \(item.logString, privacy: .public)")
+            logger.error("Missing AppState, so not showing \(item.logString, privacy: .private(mask: .hash))")
             return
         }
         guard let screen = NSScreen.screenWithActiveMenuBar else {
-            logger.error("No active menu bar screen, so not showing \(item.logString, privacy: .public)")
+            logger.error("No active menu bar screen, so not showing \(item.logString, privacy: .private(mask: .hash))")
             return
         }
 
         guard let applicationMenuFrame = screen.getApplicationMenuFrame() else {
-            logger.error("No application menu frame, so not showing \(item.logString, privacy: .public)")
+            logger.error("No application menu frame, so not showing \(item.logString, privacy: .private(mask: .hash))")
             return
         }
 
         var items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
 
         guard let destination = getReturnDestination(for: item, in: items) else {
-            logger.error("No return destination for \(item.logString, privacy: .public)")
+            logger.error("No return destination for \(item.logString, privacy: .private(mask: .hash))")
             return
         }
 
@@ -1613,7 +1613,7 @@ extension MenuBarItemManager {
         }
 
         guard let targetItem = items.first else {
-            logger.warning("Not enough room to show \(item.logString, privacy: .public)")
+            logger.warning("Not enough room to show \(item.logString, privacy: .private(mask: .hash))")
             let alert = NSAlert()
             alert.messageText = "Not enough room to show \"\(item.displayName)\""
             alert.runModal()
@@ -1625,12 +1625,12 @@ extension MenuBarItemManager {
             appState.hidEventManager.startAll()
         }
 
-        logger.debug("Temporarily showing \(item.logString, privacy: .public)")
+        logger.debug("Temporarily showing \(item.logString, privacy: .private(mask: .hash))")
 
         do {
             try await move(item: item, to: .leftOfItem(targetItem))
         } catch {
-            logger.error("Error showing item: \(error, privacy: .public)")
+            logger.error("Error showing item: \(error, privacy: .private)")
             return
         }
 
@@ -1648,7 +1648,7 @@ extension MenuBarItemManager {
         do {
             try await click(item: item, with: mouseButton)
         } catch {
-            logger.error("Error clicking item: \(error, privacy: .public)")
+            logger.error("Error clicking item: \(error, privacy: .private)")
             return
         }
 
@@ -1714,8 +1714,8 @@ extension MenuBarItemManager {
                 logger.warning(
                     """
                     Attempt \(context.rehideAttempts, privacy: .public) to rehide \
-                    \(item.logString, privacy: .public) failed with error: \
-                    \(error, privacy: .public)
+                    \(item.logString, privacy: .private(mask: .hash)) failed with error: \
+                    \(error, privacy: .private)
                     """
                 )
                 if context.rehideAttempts < 3 {
@@ -1735,7 +1735,7 @@ extension MenuBarItemManager {
             logger.error(
                 """
                 Some items failed to rehide: \
-                \(failedContexts.map { $0.tag }, privacy: .public)
+                \(failedContexts.map { $0.tag }, privacy: .private(mask: .hash))
                 """
             )
             temporarilyShownItemContexts.append(contentsOf: failedContexts.reversed())
@@ -1750,7 +1750,7 @@ extension MenuBarItemManager {
             logger.debug(
                 """
                 Removing temporarily shown item from cache: \
-                \(tag, privacy: .public)
+                \(tag, privacy: .private(mask: .hash))
                 """
             )
             temporarilyShownItemContexts.remove(at: index)
@@ -1778,7 +1778,7 @@ extension MenuBarItemManager {
             logger.debug("Control items have incorrect order")
             try await move(item: alwaysHidden, to: .leftOfItem(hidden))
         } catch {
-            logger.error("Error enforcing control item order: \(error, privacy: .public)")
+            logger.error("Error enforcing control item order: \(error, privacy: .private)")
         }
     }
 }

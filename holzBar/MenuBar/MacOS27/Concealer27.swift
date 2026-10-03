@@ -131,7 +131,7 @@ final class Concealer27: ObservableObject {
             do {
                 try await controller.apply(target: target, running: running)
             } catch {
-                logger.error("Could not apply concealment: \(error, privacy: .public)")
+                logger.error("Could not apply concealment: \(error, privacy: .private)")
             }
         }
         applyTask = task
@@ -338,7 +338,7 @@ final class Concealer27: ObservableObject {
         var layout = savedLayout
         for bundleID in newBundleIDs {
             layout = SectionLayout27.settingSection(MacOS27Section(name), for: bundleID, in: layout)
-            logger.notice("Placed new application \(bundleID, privacy: .public) in \(name.logString, privacy: .public)")
+            logger.notice("Placed new application \(bundleID, privacy: .private(mask: .hash)) in \(name.logString, privacy: .public)")
         }
         Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
         update()
@@ -402,7 +402,7 @@ final class Concealer27: ObservableObject {
             .sorted { $0.key < $1.key }
             .map { "\($0.key)=\($0.value.rawValue)" }
             .joined(separator: " ")
-        logger.notice("Took the macOS 27 layout from the order on the bar: \(described, privacy: .public)")
+        logger.notice("Took the macOS 27 layout from the order on the bar: \(described, privacy: .private(mask: .hash))")
         update()
     }
 

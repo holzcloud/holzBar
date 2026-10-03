@@ -86,7 +86,7 @@ final class LayoutProfiles: ObservableObject {
         profiles.append(profile)
         currentProfileName = name
         save()
-        logger.notice("Saved layout profile \(name, privacy: .public)")
+        logger.notice("Saved layout profile \(name, privacy: .private)")
     }
 
     /// Deletes the profile with the given name.
@@ -101,7 +101,7 @@ final class LayoutProfiles: ObservableObject {
     /// Applies the profile with the given name, matched without regard to case.
     func apply(named name: String) {
         guard let profile = profiles.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) else {
-            logger.warning("No layout profile named \(name, privacy: .public)")
+            logger.warning("No layout profile named \(name, privacy: .private)")
             return
         }
         apply(profile)
@@ -114,7 +114,7 @@ final class LayoutProfiles: ObservableObject {
         }
         currentProfileName = profile.name
         save()
-        logger.notice("Applying layout profile \(profile.name, privacy: .public)")
+        logger.notice("Applying layout profile \(profile.name, privacy: .private)")
         if #available(macOS 27.0, *) {
             Defaults.set(profile.applicationSections, forKey: .macOS27Layout)
             appState.concealer27.update()

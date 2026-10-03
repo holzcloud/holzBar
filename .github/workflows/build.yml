@@ -70,6 +70,41 @@ jobs:
             exit 1
           fi
 
+      # holzBar never connects to the network (CLAUDE.md, "Private"). The no-network job checks
+      # the sources; this step checks what was really built: neither executable may reference
+      # URLSession, NSURLConnection, WKWebView, Network connections, listeners or browsers, or
+      # BSD sockets, link WebKit, or carry a network entitlement. NWPathMonitor (the "Reveal
+      # when offline" rule) only observes whether a network path exists, so its symbols pass.
+      - name: Check the binaries for network code
+        run: |
+          APP=build/Build/Products/Release/holzBar.app
+          SERVICE="$APP/Contents/XPCServices/MenuBarItemService.xpc"
+          PATTERN='_OBJC_CLASS_\$_(NSURLSession|NSURLConnection|WKWebView)|Foundation\.URLSession|Network\.NW(Connection|Listener|Browser)|_nw_(connection|listener|browser)_|(^|[^A-Za-z0-9_])_(socket|connect|getaddrinfo)( |$)'
+          FAILED=0
+          for BIN in "$APP/Contents/MacOS/holzBar" "$SERVICE/Contents/MacOS/MenuBarItemService"; do
+            NAME=$(basename "$BIN")
+            HITS=$(nm -um "$BIN" | xcrun swift-demangle | grep -E "$PATTERN" || true)
+            if [ -n "$HITS" ]; then
+              echo "$HITS"
+              echo "::error::$NAME references network APIs (lines above)"
+              FAILED=1
+            fi
+            if otool -L "$BIN" | grep -q 'WebKit.framework'; then
+              echo "::error::$NAME links WebKit"
+              FAILED=1
+            fi
+          done
+          for BUNDLE in "$APP" "$SERVICE"; do
+            if codesign -d --entitlements - --xml "$BUNDLE" 2>/dev/null | grep -q 'com.apple.security.network'; then
+              echo "::error::$(basename "$BUNDLE") carries a network entitlement"
+              FAILED=1
+            fi
+          done
+          if [ "$FAILED" -ne 0 ]; then
+            exit 1
+          fi
+          echo "==> No network code in the binaries"
+
       # Every license text shown under Settings, About, Acknowledgements must be in the app.
       - name: Check the acknowledgements
         run: |
@@ -121,6 +156,21 @@ jobs:
             exit 1
           fi
           echo "==> The former name appears nowhere."
+
+  # holzBar never connects to the network and keeps personal data out of public logs
+  # (CLAUDE.md, "Private"). Fails every pull request that adds networking code or a
+  # Swift package, or a log interpolation that does not name its privacy or makes
+  # personal data public. Runs locally too: python3 .github/scripts/privacy-check.py network|logs
+  no-network:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: No network code
+        run: python3 .github/scripts/privacy-check.py network
+
+      - name: Logs keep personal data private
+        run: python3 .github/scripts/privacy-check.py logs
 
   test:
     runs-on: macos-26

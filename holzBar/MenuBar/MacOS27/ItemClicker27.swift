@@ -24,7 +24,7 @@ enum ItemClicker27 {
 
     static func click(item: MenuBarItem, mouseButton: CGMouseButton, shelfDisplayID: CGDirectDisplayID?, appState: AppState) async {
         guard let bundleID = item.sourceApplication?.bundleIdentifier else {
-            logger.error("No application for \(item.logString, privacy: .public)")
+            logger.error("No application for \(item.logString, privacy: .private(mask: .hash))")
             return
         }
 
@@ -51,10 +51,10 @@ enum ItemClicker27 {
             let action = mouseButton == .right ? kAXShowMenuAction : kAXPressAction
             let result = await perform(action, on: element)
             if result != .success {
-                logger.notice("\(action, privacy: .public) on \(item.logString, privacy: .public) returned \(result.rawValue, privacy: .public)")
+                logger.notice("\(action, privacy: .public) on \(item.logString, privacy: .private(mask: .hash)) returned \(result.rawValue, privacy: .public)")
             }
         } else {
-            logger.error("\(item.logString, privacy: .public) is neither drawn nor reachable through Accessibility")
+            logger.error("\(item.logString, privacy: .private(mask: .hash)) is neither drawn nor reachable through Accessibility")
             concealer.endTemporaryShow(bundleID: bundleID)
             return
         }

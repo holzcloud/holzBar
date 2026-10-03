@@ -39,7 +39,7 @@ final class Listener {
                 return .sourcePID(pid)
             }
         } catch {
-            Logger.default.error("Listener failed to handle message with error \(error)")
+            Logger.default.error("Listener failed to handle message with error \(error, privacy: .private)")
             return nil
         }
     }
@@ -85,7 +85,7 @@ final class Listener {
             SigningIdentifier(MenuBarItemService.appIdentifier)
             CodeDirectoryHash.in(hashes)
         }
-        Logger.default.notice("Listener requires the app's exact code (\(hashes.count) code directory hashes)")
+        Logger.default.notice("Listener requires the app's exact code (\(hashes.count, privacy: .public) code directory hashes)")
         return .codeRequirement(requirement)
     }
 
@@ -118,7 +118,7 @@ final class Listener {
                 try uncheckedActivate()
             }
         } catch {
-            Logger.default.error("Failed to activate listener with error \(error)")
+            Logger.default.error("Failed to activate listener with error \(error, privacy: .private)")
         }
     }
 

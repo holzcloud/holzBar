@@ -72,7 +72,7 @@ enum URLCommands {
             }
             appState.profiles.apply(named: name)
         default:
-            logger.warning("Unknown command \(command.name, privacy: .public)")
+            logger.warning("Unknown command \(command.name, privacy: .private)")
         }
     }
 }
