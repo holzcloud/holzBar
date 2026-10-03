@@ -165,6 +165,26 @@ Plans:
 - [x] 05.1-02-PLAN.md — Tracer: Screen Recording asked in context with the why; one-step Ice migration, no swizzling or preview/app-group leftovers, lazy panels, hardened runtime everywhere; settings sync through NSFilePresenter; tests for migration, sync, hotkeys and URL commands
 - [ ] 05.1-03-PLAN.md — Tracer: strict-concurrency measurement build; explicit isolation and no unprotected globals; @Observable without Combine (macOS 14); Swift 6 mode for app and XPC; managers split per backend; macOS 26/27 checklist in the PR
 
+### Phase 05.1.1: Thaw fixes and speed (INSERTED)
+
+**Goal:** The bugs Thaw fixed that holzBar shares are fixed, and revealing is fast and never freezes input
+**Requirements**: THAW-01, THAW-02, THAW-03, THAW-04, THAW-05, THAW-06, THAW-07, THAW-08
+**Depends on:** Phase 05.1
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 05.1.1 to break down)
+
+### Phase 05.1.1.1: Thaw features (INSERTED)
+
+**Goal:** holzBar gains Thaw's best features within its principles (no network, least privilege, lean)
+**Requirements**: THAW-10, THAW-11, THAW-12, THAW-13, THAW-14, THAW-15, THAW-16, THAW-17
+**Depends on:** Phase 05.1.1
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 05.1.1.1 to break down)
+
 ### Phase 6: Security audit
 
 **Goal**: The user knows every security risk of the app, ranked, and has decided which to fix

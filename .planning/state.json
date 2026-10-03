@@ -16,22 +16,22 @@
     {
       "number": "2",
       "name": "Bug fixes",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "number": "3",
       "name": "Ice and Sparkle leftovers",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "number": "4",
       "name": "Outdated APIs",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "number": "5",
       "name": "Security and performance",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "number": "6",
@@ -47,7 +47,7 @@
   "next": {
     "command": "/gsd:progress --next",
     "label": "Advance to the next step (verify)",
-    "reason": "Phase 1 of 9 · ready to verify"
+    "reason": "Phase 1 of 10 · ready to verify"
   },
-  "updated_at": "2026-10-02T14:53:41.751Z"
+  "updated_at": "2026-10-03T01:36:33.324Z"
 }

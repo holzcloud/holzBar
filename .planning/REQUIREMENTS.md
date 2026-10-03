@@ -77,6 +77,28 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [x] **PRIV-02**: No personal data leaves the Mac or lands in logs: logs use `privacy: .private` for anything user-specific, item images and settings stay local (iCloud sync only when the user turns it on)
 - [x] **PERM-01**: holzBar asks only for the permissions it really needs, only when a feature needs them, and explains why in the permissions window; every permission, entitlement and Info.plist usage string is listed with the feature that needs it, and anything not needed is removed — without removing a feature
 
+### Thaw fixes and speed
+
+- [ ] **THAW-01**: see `.planning/research/THAW.md`
+- [ ] **THAW-02**: see `.planning/research/THAW.md`
+- [ ] **THAW-03**: see `.planning/research/THAW.md`
+- [ ] **THAW-04**: see `.planning/research/THAW.md`
+- [ ] **THAW-05**: see `.planning/research/THAW.md`
+- [ ] **THAW-06**: see `.planning/research/THAW.md`
+- [ ] **THAW-07**: see `.planning/research/THAW.md`
+- [ ] **THAW-08**: see `.planning/research/THAW.md`
+
+### Thaw features
+
+- [ ] **THAW-10**: see `.planning/research/THAW.md`
+- [ ] **THAW-11**: see `.planning/research/THAW.md`
+- [ ] **THAW-12**: see `.planning/research/THAW.md`
+- [ ] **THAW-13**: see `.planning/research/THAW.md`
+- [ ] **THAW-14**: see `.planning/research/THAW.md`
+- [ ] **THAW-15**: see `.planning/research/THAW.md`
+- [ ] **THAW-16**: see `.planning/research/THAW.md`
+- [ ] **THAW-17**: see `.planning/research/THAW.md`
+
 ### Security and performance
 
 - [x] **SEC-01**: Settings import and sync only apply known keys with the expected types
@@ -179,6 +201,22 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | PRIV-01 | Phase 05.1 | Complete |
 | PRIV-02 | Phase 05.1 | Complete |
 | PERM-01 | Phase 05.1 | Complete |
+| THAW-01 | Phase 05.1.1 | Pending |
+| THAW-02 | Phase 05.1.1 | Pending |
+| THAW-03 | Phase 05.1.1 | Pending |
+| THAW-04 | Phase 05.1.1 | Pending |
+| THAW-05 | Phase 05.1.1 | Pending |
+| THAW-06 | Phase 05.1.1 | Pending |
+| THAW-07 | Phase 05.1.1 | Pending |
+| THAW-08 | Phase 05.1.1 | Pending |
+| THAW-10 | Phase 05.1.1.1 | Pending |
+| THAW-11 | Phase 05.1.1.1 | Pending |
+| THAW-12 | Phase 05.1.1.1 | Pending |
+| THAW-13 | Phase 05.1.1.1 | Pending |
+| THAW-14 | Phase 05.1.1.1 | Pending |
+| THAW-15 | Phase 05.1.1.1 | Pending |
+| THAW-16 | Phase 05.1.1.1 | Pending |
+| THAW-17 | Phase 05.1.1.1 | Pending |
 | AUDIT-01 | Phase 6 | Pending |
 | COMPAT-01 | Phase 06.1 | Pending |
 | COMPAT-02 | Phase 06.1 | Pending |
