@@ -21,6 +21,7 @@ These hold for every change, always, without taking a feature away:
 - **Modern**: write code the way a macOS app is written today (current Swift language mode, Swift concurrency, `@Observable`, current SwiftUI/AppKit APIs); replace outdated APIs when touching code.
 - **Lean and fast**: as little CPU, energy, memory and disk as possible; no polling when an event or notification exists; small bundle, fast launch.
 - **Private**: the app never connects to the network — no telemetry, analytics, crash reporting, update checks or remote content. Opening a link in the browser is the only exception. Personal data stays on the Mac and out of logs.
+- **Apple's way**: follow Apple's guidance — Human Interface Guidelines, API documentation and deprecation notices, Swift API Design Guidelines. Use the API Apple recommends for the job; never build on deprecated or soon-to-be-deprecated API when a replacement exists; adopt improvements a new Xcode, Swift or SDK brings.
 - **Least privilege**: request only the permissions and entitlements a feature really needs, only when it needs them, and say why.
 
 ## Dependencies
@@ -45,7 +46,7 @@ These hold for every change, always, without taking a feature away:
 - Updating is `brew update && brew upgrade --cask holzbar`: without `brew update` Homebrew may not have fetched the tap and reports the old version as the latest.
 - The cask uses Homebrew's structured steps (`postflight_steps`), not Ruby `postflight` blocks, and `depends_on macos: :sonoma` (a symbol, not a comparison string).
 - Every release note's install section includes how to take the app out of quarantine (`xattr -dr com.apple.quarantine /Applications/holzBar.app`).
-- Keep the comparison table "holzBar vs. Ice and Thaw" (right below "Why holzBar?", whose table lists the main selling points) (README and the website https://holzcloud.ch/holzbar) up to date with every relevant change: features, compatibility, privacy and permissions, code and resources (Swift version, dependencies, CPU/energy, size), distribution. Add a row when holzBar gains something Ice lacks, update a row when a 🔜 item lands, and never claim what is not true yet. Keep the README's feature list current too.
+- Keep the comparison table "holzBar vs. Ice and Thaw" (right below "Why holzBar?", whose table lists the main selling points) (README and the website https://holzcloud.ch/holzbar) up to date with every relevant change: features, compatibility, privacy and permissions, code and resources (Swift version, dependencies, CPU/energy, size), distribution. Add a row when holzBar gains something Ice lacks, update a row when a 🔜 item lands, and never claim what is not true yet. Keep the README's feature list current too. Promote what makes holzBar modern (current Swift and Xcode, no dependencies, privacy) in the README selling points and on the website. Before every release, re-check every claim in the README, the website and the comparison tables against the code and the sources, and fix anything that is not true.
 
 ## Layout
 

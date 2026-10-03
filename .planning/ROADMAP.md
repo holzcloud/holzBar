@@ -185,6 +185,16 @@ Plans:
 Plans:
 - [ ] TBD (run /gsd-plan-phase 05.1.1.1 to break down)
 
+### Phase 05.1.1.1.1: Apple APIs and toolchain (INSERTED)
+
+**Goal:** holzBar uses what Apple recommends today — Swift 6.4 (and Xcode 27 as soon as the runners have it), no deprecated API, HIG-conform UI — and says so in README and on the website
+**Requirements**: APPLE-01, APPLE-02, APPLE-03, APPLE-04
+**Depends on:** Phase 05.1.1.1
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 05.1.1.1.1 to break down)
+
 ### Phase 6: Security audit
 
 **Goal**: The user knows every security risk of the app, ranked, and has decided which to fix
@@ -216,7 +226,7 @@ Plans:
 
 **Goal**: Users can install and update to `0.0.6-beta1` through Homebrew with clear instructions
 **Depends on**: Phase 6
-**Requirements**: REL-01
+**Requirements**: FACT-01, REL-01
 **Success Criteria** (what must be TRUE):
   1. The `v0.0.6-beta1` GitHub pre-release exists with hand-written notes from `docs/release-notes/v0.0.6-beta1.md`
   2. The notes' install section covers `brew tap`, `brew trust`, `brew install`, the `brew update && brew upgrade` path and the quarantine command

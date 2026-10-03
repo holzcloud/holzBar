@@ -117,6 +117,13 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [x] **PERF-04**: The menu bar search tolerates 1–2 typos (own code, no dependency) while in-order matches rank first
 - [x] **PERF-03**: Reveal rules react to power and network notifications instead of polling every 60 s
 
+### Toolchain and Apple APIs
+
+- [ ] **APPLE-01**: Adopt what Swift 6.4 brings where holzBar does worse today (language features, concurrency, Observation, Testing), and promote "built with Swift 6.4" in the README selling points and on the website
+- [ ] **APPLE-02**: No deprecated or soon-to-be-deprecated API where Apple names a replacement: build with deprecation warnings visible, review every remaining one (CGWindowList capture of off-screen items is the documented exception), replace the rest
+- [ ] **APPLE-03**: As soon as Xcode 27 is available on the CI runners (beta allowed by user decision 2026-10-03): build with it, adopt the macOS 27 SDK improvements where holzBar is worse today, and promote it in README and on the website
+- [ ] **APPLE-04**: UI follows the Human Interface Guidelines (settings layout, menu bar extras, permissions prompts, accessibility)
+
 ### Compatibility
 
 - [ ] **COMPAT-01**: macOS 26 (Tahoe) and macOS 27 are supported without restriction; this is mandatory
@@ -125,6 +132,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Release
 
+- [ ] **FACT-01**: Before the release, every claim in the README, on the website (all languages) and in the comparison tables is checked against the code and sources and corrected
 - [ ] **REL-01**: `0.0.6-beta1` is released with hand-written notes (brew trust, update, quarantine) and the cask points at it
 
 ### Security audit
@@ -235,6 +243,11 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | COMPAT-01 | Phase 06.1 | Pending |
 | COMPAT-02 | Phase 06.1 | Pending |
 | COMPAT-03 | Phase 06.1 | Pending |
+| APPLE-01 | Phase 05.1.1.1.1 | Pending |
+| APPLE-02 | Phase 05.1.1.1.1 | Pending |
+| APPLE-03 | Phase 05.1.1.1.1 | Pending |
+| APPLE-04 | Phase 05.1.1.1.1 | Pending |
+| FACT-01 | Phase 7 | Pending |
 | REL-01 | Phase 7 | Pending |
 
 **Coverage:**
