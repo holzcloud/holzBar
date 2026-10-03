@@ -8,13 +8,15 @@ import Foundation
 /// Decides which Mac wrote a settings sync file.
 ///
 /// Each Mac identifies itself by a UUID that it creates once and keeps in its own defaults;
-/// the id is never exported, imported or synced. The file also carries the computer name,
-/// for display and for older holzBar builds, which wrote only the name.
+/// the id is never exported, imported or synced. Older holzBar builds wrote only the
+/// computer name, and later ones both; holzBar no longer writes the name, which usually
+/// holds the owner's name, but still reads it from the files of older builds.
 nonisolated enum SettingsSyncDevice {
     /// The key of the writing Mac's id in the sync file.
     static let deviceIDKey = "deviceID"
 
-    /// The key of the writing Mac's computer name in the sync file.
+    /// The key of the writing Mac's computer name in the sync files of older builds; read,
+    /// never written.
     static let deviceNameKey = "device"
 
     /// Whether the sync file was written by this Mac.

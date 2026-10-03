@@ -126,7 +126,16 @@ struct GeneralSettingsPane: View {
                 if url.startAccessingSecurityScopedResource() {
                     defer { url.stopAccessingSecurityScopedResource() }
                     let data = try Data(contentsOf: url)
-                    settings.holzBarIcon = ControlItemImageSet(name: .custom, image: .data(data))
+                    // Stored as a scaled PNG, the only form decoded at launch (bitmaps, never
+                    // PDF or other documents, as the settings can come from another Mac).
+                    Task {
+                        guard let png = await ControlItemImage.customIconPNG(from: data) else {
+                            presentedError = LocalizedErrorWrapper(CocoaError(.fileReadCorruptFile))
+                            isPresentingError = true
+                            return
+                        }
+                        settings.holzBarIcon = ControlItemImageSet(name: .custom, image: .data(png))
+                    }
                 }
             } catch {
                 presentedError = LocalizedErrorWrapper(error)

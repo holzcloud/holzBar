@@ -57,7 +57,8 @@ final class SettingsSync {
     }
 
     /// This Mac's computer name, read from the system configuration without a network
-    /// lookup.
+    /// lookup. It is never written into the sync file (it usually holds the owner's name);
+    /// it is only compared with files of older holzBar builds, which carry no id.
     static var computerName: String? {
         SCDynamicStoreCopyComputerName(nil, nil) as String?
     }
@@ -199,6 +200,12 @@ final class SettingsSync {
         }
 
         if presenter == nil, let folderURL = Self.folderURL {
+            // Anyone who can write the synced folder could make the holzBar folder a link
+            // to another folder of the user's; holzBar then neither watches nor writes it.
+            guard SettingsSyncFile.isUsableFolder(atPath: folderURL.path(percentEncoded: false)) else {
+                Self.logger.error("The holzBar folder in the sync folder is a link or a file, not syncing")
+                return
+            }
             do {
                 try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
             } catch {
@@ -270,7 +277,7 @@ final class SettingsSync {
             guard !Task.isCancelled else {
                 return
             }
-            self?.checkForNewerSettings()
+            await self?.checkForNewerSettings()
         }
     }
 
@@ -294,15 +301,21 @@ final class SettingsSync {
         else {
             return
         }
+        let folderURL = fileURL.deletingLastPathComponent()
+        guard SettingsSyncFile.isUsableFolder(atPath: folderURL.path(percentEncoded: false)) else {
+            Self.logger.error("The holzBar folder in the sync folder is a link or a file, not syncing")
+            return
+        }
         let modified = Date.now
+        // The id alone tells the Macs apart; the computer name, which usually holds the
+        // owner's name, stays on this Mac.
         let file: [String: Any] = [
             SettingsSyncFile.modifiedKey: modified,
             SettingsSyncDevice.deviceIDKey: Self.deviceID,
-            SettingsSyncDevice.deviceNameKey: Self.computerName ?? "",
             SettingsSyncFile.settingsKey: settings,
         ]
         do {
-            try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
             let data = try PropertyListSerialization.data(fromPropertyList: file, format: .xml, options: 0)
             // Coordinated, so iCloud Drive never uploads half a file; this Mac's presenter
             // is not told about its own write (its folder watcher is, and finds the file
@@ -334,11 +347,23 @@ final class SettingsSync {
         }
     }
 
-    /// Reads the synced settings if another Mac wrote them after this Mac last synced.
+    /// The settings in the sync file, if another Mac wrote them after this Mac last synced.
     ///
-    /// - Parameter presenter: The presenter that reads, which is not told about the read.
-    private static func newerSettings(presenter: (any NSFilePresenter)?) -> (settings: [String: Any], modified: Date)? {
-        guard let fileURL, let file = readFile(at: fileURL, presenter: presenter) else {
+    /// - Parameter read: What reading the sync file gave (``readFileContents(at:)``).
+    private static func newerSettings(from read: SettingsSyncFile.ReadResult) -> (settings: [String: Any], modified: Date)? {
+        let data: Data
+        switch read {
+        case .contents(let contents):
+            data = contents
+        case .missing:
+            return nil
+        case .refused(let refusal):
+            let reason = String(describing: refusal)
+            logger.error("Ignoring the sync file: \(reason, privacy: .public)")
+            return nil
+        }
+        guard let file = (try? PropertyListSerialization.propertyList(from: data, format: nil)) as? [String: Any] else {
+            logger.error("Ignoring the sync file: it holds no settings")
             return nil
         }
         return SettingsSyncFile.newerSettings(
@@ -352,31 +377,48 @@ final class SettingsSync {
 
     /// Reads the sync file with a coordinated read, so a version iCloud Drive is still
     /// writing is never read half.
-    private static func readFile(at fileURL: URL, presenter: (any NSFilePresenter)?) -> [String: Any]? {
+    ///
+    /// Anyone who can write the synced folder can write the file, so it is read only from a
+    /// real `holzBar` folder, only when it is a regular file reached without a symbolic link,
+    /// and only up to `SettingsSyncFile.maximumFileSize` bytes. Nonisolated, so the checks
+    /// after launch read it off the main actor (``readFileContentsInBackground(at:)``).
+    /// No presenter is passed: holzBar's presenter does nothing for a read.
+    private nonisolated static func readFileContents(at fileURL: URL) -> SettingsSyncFile.ReadResult {
+        let folderPath = fileURL.deletingLastPathComponent().path(percentEncoded: false)
+        guard SettingsSyncFile.isUsableFolder(atPath: folderPath) else {
+            return .refused(.notRegularFile)
+        }
         var coordinationError: NSError?
-        var file: [String: Any]?
-        NSFileCoordinator(filePresenter: presenter).coordinate(
+        var result = SettingsSyncFile.ReadResult.missing
+        NSFileCoordinator(filePresenter: nil).coordinate(
             readingItemAt: fileURL,
             options: [],
             error: &coordinationError
         ) { url in
-            guard let data = try? Data(contentsOf: url) else {
-                return
-            }
-            file = (try? PropertyListSerialization.propertyList(from: data, format: nil)) as? [String: Any]
+            result = SettingsSyncFile.readContents(atPath: url.path(percentEncoded: false))
         }
-        if let coordinationError {
-            logger.error("Error reading the sync file: \(coordinationError, privacy: .private)")
+        if coordinationError != nil {
+            return .refused(.unreadable)
         }
-        return file
+        return result
+    }
+
+    /// Reads the sync file on the concurrent pool, off the main actor.
+    @concurrent
+    private nonisolated static func readFileContentsInBackground(at fileURL: URL) async -> SettingsSyncFile.ReadResult {
+        readFileContents(at: fileURL)
     }
 
     /// Applies newer settings from another Mac before anything reads the
     /// settings. The app delegate calls this before it creates the app state.
+    ///
+    /// It reads on the main thread, because nothing may read the settings before they are
+    /// applied; the size limit keeps the read short.
     static func pullIfNeeded() {
         guard
             Defaults.bool(forKey: .syncsSettingsWithICloud),
-            let newer = newerSettings(presenter: nil)
+            let fileURL,
+            let newer = newerSettings(from: readFileContents(at: fileURL))
         else {
             return
         }
@@ -387,8 +429,14 @@ final class SettingsSync {
     }
 
     /// Offers to restart when another Mac has changed the settings.
-    private func checkForNewerSettings() {
-        guard isEnabled, !isAskingToRestart, Self.newerSettings(presenter: presenter) != nil else {
+    ///
+    /// The file is read off the main actor; only the small, checked result is decoded here.
+    private func checkForNewerSettings() async {
+        guard isEnabled, !isAskingToRestart, let fileURL = Self.fileURL else {
+            return
+        }
+        let read = await Self.readFileContentsInBackground(at: fileURL)
+        guard isEnabled, !isAskingToRestart, Self.newerSettings(from: read) != nil else {
             return
         }
         isAskingToRestart = true
