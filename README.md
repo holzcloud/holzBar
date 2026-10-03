@@ -32,15 +32,67 @@ and make the bar look the way you like — on the notch, on every display, on ma
 
 ## ✨ Why holzBar?
 
-holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird. Ice is a fantastic tool, but its development has slowed down — and macOS 27 broke it for most people. holzBar picks it up from there:
+holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird. Ice is a fantastic tool, but its development has stopped — and macOS 27 broke it for most people. holzBar picks it up from there:
 
 | | |
 |---|---|
-| 🪵 **Works on macOS 27** | New backend for the redesigned menu bar drawn by `MenuBarAgent`. |
-| 🍺 **Homebrew first** | Install and update with one command. |
-| 🔐 **No more permission loop** | A stale permission can be reset right from the permissions window. |
-| 🌲 **Actively maintained** | Fixes land here instead of waiting upstream. |
+| 📦 **Zero dependencies** | No third-party packages at all — every line that runs is in this repository. |
+| 🦅 **Modern Swift 6** | Swift 6 language mode with data-race safety checked by the compiler, `@Observable` instead of Combine, one backend per macOS generation. |
+| 🔒 **Never online** | No update checks, telemetry or analytics. A CI check proves there is no network code in the app. |
+| 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. Hardened runtime, private logs. |
+| 🍃 **Lean** | No polling, no mouse tracking unless you use it, nothing kept in memory that nobody shows. |
+| 🪵 **Works on macOS 14 – 27** | Including the redesigned macOS 27 menu bar drawn by `MenuBarAgent`. |
 | ✨ **More features** | Profiles, groups, spacers, a black menu bar, URL commands, settings sync — [see below](#-features). |
+| 🍺 **Homebrew first** | Install and update with one command. |
+
+## ⚖️ holzBar vs. Ice and Thaw
+
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds. 🔜 marks work in progress in this beta; — means not available or not documented.
+
+| | Ice 0.11.12 | Thaw 3.0 beta | holzBar |
+|---|:---:|:---:|:---:|
+| **Compatibility** | | | |
+| macOS 14 – 26 | ✅ | macOS 26 only | ✅ |
+| **macOS 27** (new menu bar drawn by `MenuBarAgent`) | ❌ | ✅ | ✅ |
+| **Features** | | | |
+| Hidden and always-hidden sections, Ice Bar / holzBar Shelf, search, appearance | ✅ | ✅ | ✅ |
+| Layout profiles | ❌ | ✅ | ✅ |
+| Groups and spacers | ❌ | ✅ | ✅ |
+| Choose where new items appear | ❌ | — | ✅ |
+| Bar only on some displays, notch overflow | ❌ | — | ✅ |
+| Black menu bar, rounded screen corners | ❌ | corners only | ✅ |
+| Show hidden items on low battery or when offline | ❌ | — | ✅ |
+| URL commands and Raycast | ❌ | ✅ | ✅ |
+| Export, import and sync settings | ❌ | no sync | ✅ |
+| Keep Live Activities visible | ❌ | — | ✅ <sub>experimental</sub> |
+| Show on scroll with a mouse wheel | ❌ | — | ✅ |
+| Search tolerates typos and abbreviations | ✅ (library) | ✅ | ✅ (built in) |
+| Refuses hotkeys macOS cannot register, and says why | ❌ | — | ✅ |
+| **Privacy and permissions** | | | |
+| Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | **none** — enforced by CI |
+| Personal data (app names, item titles, paths) in logs | partly public | — | private, enforced by CI |
+| Asks for Screen Recording only when a feature needs it | ❌ | — | ✅ |
+| Hardened runtime (no injected code or libraries) | ✅ | — | ✅ (checked by CI) |
+| Settings import accepts only known keys of the right type | — (no import) | — | ✅ |
+| Menu bar item service accepts only holzBar's own code | team check only | — | team or exact code hash |
+| Fix for the permissions loop | ❌ | — | ✅ |
+| **Code and resources** | | | |
+| Third-party Swift packages | 5 | 2 (Sparkle, swift-subprocess) | **none** |
+| Swift language mode | Swift 5 | Swift 6 | Swift 6 (data-race safety checked by the compiler) |
+| State management | Combine | mostly `@Observable` | `@Observable`, no Combine |
+| Mouse event tap when "Show on hover" is off | always running | — | off |
+| Timers and polling while nothing is shown | yes | — | only while needed |
+| Settings sync checks for changes | — (no sync) | — | when iCloud Drive delivers them, no polling |
+| Settings migration | 6 version steps at every launch | — | once, while importing Ice settings |
+| Runtime patching of AppKit (method swizzling) | yes | — | none |
+| Item images in memory | kept | — | released when unused |
+| Unit tests run on every change | none | ✅ | ✅ 255 |
+| App size | — | — | 14.0 MB |
+| **Distribution and maintenance** | | | |
+| Install and update with Homebrew | ✅ | ✅ | ✅ |
+| Updates | Sparkle (dialog can hang on macOS 26) | Sparkle | Homebrew |
+| Fixes from 282 open bug reports | — | — | [see the list](docs/upstream-bugs.md) |
+| Signed with a Developer ID | ✅ | — | ❌ (ad hoc; the cask handles it) |
 
 ## 🔒 Principles
 
@@ -177,55 +229,6 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 </td>
 </tr>
 </table>
-
-### holzBar vs. Ice
-
-What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 does, what it doesn't, and what holzBar adds. 🔜 marks work in progress in this beta.
-
-| | Ice 0.11.12 | holzBar |
-|---|:---:|:---:|
-| **Compatibility** | | |
-| macOS 14 – 26 | ✅ | ✅ |
-| **macOS 27** (new menu bar drawn by `MenuBarAgent`) | ❌ | ✅ |
-| **Features** | | |
-| Hidden and always-hidden sections, Ice Bar / holzBar Shelf, search, appearance | ✅ | ✅ |
-| Layout profiles | ❌ | ✅ |
-| Groups and spacers | ❌ | ✅ |
-| Choose where new items appear | ❌ | ✅ |
-| Bar only on some displays, notch overflow | ❌ | ✅ |
-| Black menu bar, rounded screen corners | ❌ | ✅ |
-| Show hidden items on low battery or when offline | ❌ | ✅ |
-| URL commands and Raycast | ❌ | ✅ |
-| Export, import and sync settings | ❌ | ✅ |
-| Keep Live Activities visible | ❌ | ✅ <sub>experimental</sub> |
-| Show on scroll with a mouse wheel | ❌ | ✅ |
-| Search tolerates typos and abbreviations | ✅ (library) | ✅ (built in) |
-| Refuses hotkeys macOS cannot register, and says why | ❌ | ✅ |
-| **Privacy and permissions** | | |
-| Network connections (update checks, telemetry, analytics) | Sparkle update checks | **none** — enforced by CI |
-| Personal data (app names, item titles, paths) in logs | partly public | private, enforced by CI |
-| Asks for Screen Recording only when a feature needs it | ❌ | ✅ |
-| Hardened runtime (no injected code or libraries) | ✅ | ✅ (checked by CI) |
-| Settings import accepts only known keys of the right type | — (no import) | ✅ |
-| Menu bar item service accepts only holzBar's own code | team check only | team or exact code hash |
-| Fix for the permissions loop | ❌ | ✅ |
-| **Code and resources** | | |
-| Third-party Swift packages | 5 | **none** |
-| Swift language mode | Swift 5 | Swift 6 (data-race safety checked by the compiler) |
-| State management | Combine | `@Observable`, no Combine |
-| Mouse event tap when "Show on hover" is off | always running | off |
-| Timers and polling while nothing is shown | yes | only while needed |
-| Settings sync checks for changes | — (no sync) | when iCloud Drive delivers them, no polling |
-| Settings migration | 6 version steps at every launch | once, while importing Ice settings |
-| Runtime patching of AppKit (method swizzling) | yes | none |
-| Item images in memory | kept | released when unused |
-| Unit tests run on every change | none | ✅ 200+ |
-| App size | — | 13.5 MB (−9.5 % in this beta) |
-| **Distribution and maintenance** | | |
-| Install and update with Homebrew | ✅ | ✅ |
-| Updates | Sparkle (dialog can hang on macOS 26) | Homebrew |
-| Fixes from 282 open bug reports | — | [see the list](docs/upstream-bugs.md) |
-| Signed with a Developer ID | ✅ | ❌ (ad hoc; the cask handles it) |
 
 ## 🖼 Gallery
 
