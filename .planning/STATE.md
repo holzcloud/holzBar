@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-10-02T23:31:38.825Z"
+stopped_at: Completed 05.1-01-PLAN.md
+last_updated: "2026-10-03T01:07:10.041Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: af5906b2793e181fccdd03ee82f7992ca3e4ce22
+state_head: b1de5b633851c7c7244adb22f916bbe36ad56ca6
 progress:
   total_phases: 10
   completed_phases: 0
-  total_plans: 20
-  completed_plans: 20
+  total_plans: 23
+  completed_plans: 21
 ---
 
 # Project State
@@ -75,6 +75,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 04 P03 | 20min | 2 tasks | 10 files |
 | Phase 05 P01 | 7min | 2 tasks | 9 files |
 | Phase 05 P02 | 16min | 3 tasks | 11 files |
+| Phase 05.1 P01 | 23min | 3 tasks | 56 files |
 
 ## Accumulated Context
 
@@ -125,6 +126,9 @@ Recent decisions affecting current work:
 - [Phase 05]: SEC-03: item images live in Caches/com.holzcloud.holzBar/ItemImages, moved once from Application Support
 - [Phase 05]: PERF-01..03: one cancellable hover task (HoverSchedule), permission polling only while missing, reveal rules on IOKit power notifications and NWPathMonitor (RevealTrigger)
 - [Phase 05]: PERF-04 (user decision): typo fallback in FuzzyMatch, optimal string alignment distance to word starts, 1 edit for 4-7 chars, 2 for 8+, below every in-order match
+- [Phase 05.1]: 05.1-01: privacy-check.py scans Logger literals (raw strings, nested quotes, logger.log) and keeps the plan regex as a second pass
+- [Phase 05.1]: 05.1-01: HolzBarSlider exposes a system Slider to VoiceOver via accessibilityRepresentation
+- [Phase 05.1]: 05.1-01: the offline rule records a baseline when turned on while offline (does not fire), as before
 
 ### Pending Todos
 
@@ -144,6 +148,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-02T23:31:38.769Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-10-03T01:07:09.980Z
+Stopped at: Completed 05.1-01-PLAN.md
 Resume file: None
