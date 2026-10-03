@@ -19,8 +19,11 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Outdated APIs** - Modern URL, UserDefaults, CFPreferences, URL-open, window and AX APIs; AXSwift removed
 - [x] **Phase 5: Security and performance** - Validated settings import, private logging, Caches storage, no needless tasks or polling
 - [x] **Phase 05.1: Modern, lean and private** (INSERTED) - 2026 code, Swift 6, @Observable, fewer dependencies, no network, least privilege
-- [ ] **Phase 6: Security audit** - Full security analysis of the whole app, findings ranked, fixes chosen by the user done before the release
-- [ ] **Phase 06.1: Compatibility check** (INSERTED) - Which macOS versions really work; 26 and 27 required, older ones optional
+- [x] **Phase 05.1.1: Thaw fixes and speed** (INSERTED) - The bugs Thaw fixed that holzBar shares; revealing never freezes input
+- [x] **Phase 05.1.1.1: Thaw features** (INSERTED) - Zen mode, Shortcuts, profiles per display or Space, open by letter, sync through any folder, five languages
+- [x] **Phase 05.1.1.1.1: Apple APIs and toolchain** (INSERTED) - Swift 6.4, Xcode 27, no deprecated API, HIG pass
+- [x] **Phase 6: Security audit** - Full security analysis of the whole app, findings ranked, fixes chosen by the user done before the release
+- [x] **Phase 06.1: Compatibility check** (INSERTED) - Which macOS versions really work; 26 and 27 required, older ones optional (decision: keep macOS 14+)
 - [ ] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated
 
 Each phase is one pull request and must build green on the macOS CI runner before merge.
@@ -198,7 +201,6 @@ Plans:
 
 Plans:
 - [x] 05.1.1.1.1-01-PLAN.md
-- [ ] TBD (run /gsd-plan-phase 05.1.1.1.1 to break down)
 
 ### Phase 6: Security audit
 
@@ -210,7 +212,10 @@ Plans:
   2. Every finding has a severity, a location and a proposed fix
   3. The user has chosen which findings to fix, and those fixes are merged before the release
 
-**Plans**: TBD
+**Plans:** 1/1 executed (report `06-SECURITY-AUDIT.md`, fixes in `06-SUMMARY.md`; merged in #42)
+
+Plans:
+- [x] Security audit report and the fixes the user chose (M-1 to M-4, L-1 to L-5, L-8; L-6 and L-7 left open)
 
 ### Phase 06.1: Compatibility check (INSERTED)
 
@@ -222,10 +227,12 @@ Plans:
   2. macOS 26 and 27 are verified on real Macs by the user with a short checklist (hiding, Shelf, layout editor, hotkeys, settings import)
   3. README, cask `depends_on macos:` and release notes state the supported versions truthfully; if the user decides to drop 14/15, the old backend code is removed (lean)
 
-**Plans:** 0 plans
+**Plans:** 1/1 executed (merged in #42; summary `06.1-SUMMARY.md`)
+
+**Decision (user, 2026-10-03):** keep macOS 14 and later. The compatibility job costs one CI matrix and found a real launch crash on macOS 14, which was fixed; dropping 14 and 15 would remove no feature users ask for.
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 06.1 to break down)
+- [x] CI `compat` job: the built app is launched on macOS 14, 15, 26 and 27 and the unit tests run on 14, 15 and 26 (27: test job); macOS 14 launch crash fixed; README, cask (`depends_on macos: :sonoma`), badge and release notes say macOS 14 to 27
 
 ### Phase 7: Release 0.0.6-beta1
 
@@ -237,20 +244,25 @@ Plans:
   2. The notes' install section covers `brew tap`, `brew trust`, `brew install`, the `brew update && brew upgrade` path and the quarantine command
   3. The cask on `main` points at `0.0.6-beta1`
 
-**Plans**: TBD
+**Plans:** 1 in progress (FACT-01 fact check and release notes done; tag and website pending)
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7
+Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1 -> 05.1.1.1 -> 05.1.1.1.1 -> 6 -> 06.1 -> 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. CI and build | 3/3 | Complete (human check: install.sh on a Mac) | 2026-10-02 |
-| 01.1. Rename to holzBar | 6/6 | In Progress|  |
-| 2. Bug fixes | 4/4 | In Progress|  |
-| 3. Ice and Sparkle leftovers | 2/2 | In Progress|  |
-| 4. Outdated APIs | 3/3 | In Progress|  |
-| 5. Security and performance | 2/2 | In Progress|  |
-| 6. Security audit | 0/0 | Not started | - |
-| 7. Release 0.0.6-beta1 | 0/0 | Not started | - |
+| 01.1. Rename to holzBar | 6/6 | Complete | 2026-10-02 |
+| 2. Bug fixes | 4/4 | Complete | 2026-10-02 |
+| 3. Ice and Sparkle leftovers | 2/2 | Complete | 2026-10-02 |
+| 4. Outdated APIs | 3/3 | Complete | 2026-10-02 |
+| 5. Security and performance | 2/2 | Complete | 2026-10-02 |
+| 05.1. Modern, lean and private | 3/3 | Complete | 2026-10-02 |
+| 05.1.1. Thaw fixes and speed | 3/3 | Complete | 2026-10-02 |
+| 05.1.1.1. Thaw features | 3/3 | Complete | 2026-10-03 |
+| 05.1.1.1.1. Apple APIs and toolchain | 1/1 | Complete | 2026-10-03 |
+| 6. Security audit | 1/1 | Complete | 2026-10-03 |
+| 06.1. Compatibility check | 1/1 | Complete (decision: keep macOS 14+) | 2026-10-03 |
+| 7. Release 0.0.6-beta1 | 0/1 | In progress (notes written, not tagged) | - |

@@ -6,48 +6,73 @@
     {
       "number": "1",
       "name": "CI and build",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "number": "01.1",
       "name": "Rename to holzBar",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "2",
       "name": "Bug fixes",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "3",
       "name": "Ice and Sparkle leftovers",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "4",
       "name": "Outdated APIs",
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "number": "5",
       "name": "Security and performance",
-      "status": "in_progress"
+      "status": "complete"
+    },
+    {
+      "number": "05.1",
+      "name": "Modern, lean and private",
+      "status": "complete"
+    },
+    {
+      "number": "05.1.1",
+      "name": "Thaw fixes and speed",
+      "status": "complete"
+    },
+    {
+      "number": "05.1.1.1",
+      "name": "Thaw features",
+      "status": "complete"
+    },
+    {
+      "number": "05.1.1.1.1",
+      "name": "Apple APIs and toolchain",
+      "status": "complete"
     },
     {
       "number": "6",
       "name": "Security audit",
-      "status": "pending"
+      "status": "complete"
+    },
+    {
+      "number": "06.1",
+      "name": "Compatibility check",
+      "status": "complete"
     },
     {
       "number": "7",
       "name": "Release 0.0.6-beta1",
-      "status": "pending"
+      "status": "in_progress"
     }
   ],
   "next": {
     "command": "/gsd:progress --next",
-    "label": "Advance to the next step (verify)",
-    "reason": "Phase 1 of 12 · ready to verify"
+    "label": "Finish the release",
+    "reason": "Phase 7 of 13 · release notes written; push, CMS rows and tag pending"
   },
-  "updated_at": "2026-10-03T03:10:57.818Z"
+  "updated_at": "2026-10-03T14:00:00.000Z"
 }
