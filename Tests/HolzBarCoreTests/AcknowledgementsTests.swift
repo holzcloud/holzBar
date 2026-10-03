@@ -18,16 +18,16 @@ struct AcknowledgementsTests {
     }
 
     /// The root of the repository, three levels above this file.
-    private static let repositoryRoot = URL(fileURLWithPath: #filePath)
+    private static let repositoryRoot = URL(filePath: #filePath)
         .deletingLastPathComponent()
         .deletingLastPathComponent()
         .deletingLastPathComponent()
 
     private static let packageResolvedURL = repositoryRoot
-        .appendingPathComponent("holzBar.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved")
+        .appending(path: "holzBar.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved")
 
     private static let licenseDirectory = repositoryRoot
-        .appendingPathComponent("holzBar/Resources/Acknowledgements")
+        .appending(path: "holzBar/Resources/Acknowledgements")
 
     /// A repository URL, lowercased and without a trailing ".git" or "/".
     private static func normalized(_ location: String) -> String {
@@ -46,7 +46,7 @@ struct AcknowledgementsTests {
 
     /// The pins of `Package.resolved`; none when the file is missing (no package is linked).
     private static func resolvedPins() throws -> [Resolved.Pin] {
-        guard FileManager.default.fileExists(atPath: packageResolvedURL.path) else {
+        guard FileManager.default.fileExists(atPath: packageResolvedURL.path(percentEncoded: false)) else {
             return []
         }
         let data = try Data(contentsOf: packageResolvedURL)
@@ -78,7 +78,7 @@ struct AcknowledgementsTests {
     func everyPackageHasItsLicenseText() throws {
         for package in Acknowledgements.packages {
             let file = try #require(package.licenseFile, "\(package.name) has no license file")
-            let url = Self.licenseDirectory.appendingPathComponent(file).appendingPathExtension("txt")
+            let url = Self.licenseDirectory.appending(path: file).appendingPathExtension("txt")
             let text = try String(contentsOf: url, encoding: .utf8)
             #expect(!text.isEmpty, "\(file).txt is empty")
             #expect(text.contains("Copyright"), "\(file).txt has no copyright notice")
@@ -89,8 +89,8 @@ struct AcknowledgementsTests {
     func everyLicenseFileBelongsToAPackage() throws {
         // A missing license folder means there are no license files.
         let files: [String]
-        if FileManager.default.fileExists(atPath: Self.licenseDirectory.path) {
-            files = try FileManager.default.contentsOfDirectory(atPath: Self.licenseDirectory.path)
+        if FileManager.default.fileExists(atPath: Self.licenseDirectory.path(percentEncoded: false)) {
+            files = try FileManager.default.contentsOfDirectory(atPath: Self.licenseDirectory.path(percentEncoded: false))
                 .filter { $0.hasSuffix(".txt") }
         } else {
             files = []

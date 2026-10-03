@@ -16,8 +16,8 @@ import OSLog
 @MainActor
 final class WallpaperChangeMonitor {
     /// The wallpaper store's index.
-    static let indexURL = URL(fileURLWithPath: NSHomeDirectory())
-        .appendingPathComponent("Library/Application Support/com.apple.wallpaper/Store/Index.plist")
+    static let indexURL = URL.homeDirectory
+        .appending(path: "Library/Application Support/com.apple.wallpaper/Store/Index.plist")
 
     /// The watch on the file. The system replaces the file rather than writing into it, so
     /// the watch is opened anew after every event.
@@ -27,7 +27,7 @@ final class WallpaperChangeMonitor {
         /// Starts watching the file, or returns `nil` when it cannot be opened (a fresh
         /// account has no index until a wallpaper is set).
         init?(url: URL, onEvent: @escaping @MainActor @Sendable () -> Void) {
-            let descriptor = open(url.path, O_EVTONLY)
+            let descriptor = open(url.path(percentEncoded: false), O_EVTONLY)
             guard descriptor >= 0 else {
                 return nil
             }
