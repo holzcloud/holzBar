@@ -10,7 +10,7 @@ import OSLog
 /// Cache for menu bar item images.
 final class MenuBarItemImageCache: ObservableObject {
     /// A representation of a captured menu bar item image.
-    struct CapturedImage: Hashable {
+    nonisolated struct CapturedImage: Hashable {
         /// The base image.
         let cgImage: CGImage
 
@@ -33,9 +33,9 @@ final class MenuBarItemImageCache: ObservableObject {
 
     /// The result of an image capture operation.
     ///
-    /// Marked `@unchecked Sendable` so it can be returned from the capture queue
-    /// below. The images it holds are immutable once captured.
-    private struct CaptureResult: @unchecked Sendable {
+    /// Unchecked so it can be returned from the capture queue below: `CGImage` is
+    /// not marked Sendable, but the images it holds are immutable once captured.
+    nonisolated private struct CaptureResult: @unchecked Sendable {
         /// The successfully captured images.
         var images = [MenuBarItemTag: CapturedImage]()
 
@@ -60,7 +60,7 @@ final class MenuBarItemImageCache: ObservableObject {
     /// The only remedy is to keep these calls off the cooperative pool entirely.
     /// The queue is serial, so a stuck capture costs one thread rather than one
     /// per item.
-    private static let captureQueue = DispatchQueue(
+    private nonisolated static let captureQueue = DispatchQueue(
         label: "com.holzcloud.holzBar.ImageCapture",
         qos: .userInitiated
     )

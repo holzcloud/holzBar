@@ -10,7 +10,7 @@ import Foundation
 /// The `Hotkeys` setting maps each hotkey action's raw value to its key combination,
 /// stored as the JSON array `[key, modifiers]` (what `KeyCombination` encodes). Ice stored
 /// them the same way, so imported and synced hotkeys keep working.
-enum HotkeyStorage {
+nonisolated enum HotkeyStorage {
     /// The signature of holzBar's hotkey events.
     ///
     /// Identical to Ice's, so hotkeys registered by either app are told apart from those of

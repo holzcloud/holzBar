@@ -20,7 +20,8 @@ final class Concealer27: ObservableObject {
     private let controller = ConcealmentController27(backend: MenuBarAssessmentAssertion27())
     private let logger = Logger(category: "Concealer27")
     private weak var appState: AppState?
-    private var observers = [NSObjectProtocol]()
+    /// Tasks that observe application launches and quits; cancelled with the concealer.
+    private var observerTasks = [Task<Void, Never>]()
     private var applyTask: Task<Void, Never>?
     private var suspendedUntil: ContinuousClock.Instant?
 
@@ -55,21 +56,14 @@ final class Concealer27: ObservableObject {
         }
         let workspaceCenter = NSWorkspace.shared.notificationCenter
         for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification] {
-            observers.append(workspaceCenter.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                MainActor.assumeIsolated {
+            observerTasks.append(Task { [weak self] in
+                for await _ in workspaceCenter.notifications(named: name) {
                     self?.update()
                 }
             })
         }
-        observers.append(NotificationCenter.default.addObserver(
-            forName: NSApplication.willTerminateNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.controller.releaseAll()
-            }
-        })
+        // The assertions are released at termination by `releaseAllForTermination()`,
+        // which the app delegate calls synchronously.
         // Entering or leaving fullscreen swaps the menu bar the items are drawn in, and nothing
         // else here notices: the concealment was left exactly as the previous bar had it, so
         // holzBar's own item was missing from the bar that slides down over a fullscreen window and
@@ -80,9 +74,7 @@ final class Concealer27: ObservableObject {
             .removeDuplicates()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                MainActor.assumeIsolated {
-                    self?.update()
-                }
+                self?.update()
             }
             .store(in: &cancellables)
         let navigation = appState.navigationState
@@ -91,12 +83,21 @@ final class Concealer27: ObservableObject {
             .removeDuplicates { $0.0 == $1.0 && $0.1 == $1.1 }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                MainActor.assumeIsolated {
-                    self?.update()
-                }
+                self?.update()
             }
             .store(in: &cancellables)
         update()
+    }
+
+    deinit {
+        for task in observerTasks {
+            task.cancel()
+        }
+    }
+
+    /// Releases every assertion as holzBar quits, so no application stays hidden.
+    func releaseAllForTermination() {
+        controller.releaseAll()
     }
 
     /// Derives what to conceal from holzBar's sections and applies it.

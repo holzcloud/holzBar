@@ -5,7 +5,7 @@
 
 import Foundation
 
-enum Constants {
+nonisolated enum Constants {
     // swiftlint:disable force_unwrapping
 
     /// The version string in the app's bundle.

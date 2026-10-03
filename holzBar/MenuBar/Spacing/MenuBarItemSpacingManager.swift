@@ -216,7 +216,7 @@ final class MenuBarItemSpacingManager {
     }
 }
 
-private extension NSRunningApplication {
+nonisolated private extension NSRunningApplication {
     /// A string to use for logging purposes.
     var logString: String {
         localizedName ?? bundleIdentifier ?? "<NIL>"

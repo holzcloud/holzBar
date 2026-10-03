@@ -134,12 +134,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 
+    func applicationWillTerminate(_ notification: Notification) {
+        if #available(macOS 27.0, *) {
+            // Released synchronously, before the process goes, so no application stays hidden.
+            appState.concealer27.releaseAllForTermination()
+        }
+    }
+
     // MARK: Other Methods
 
     /// Opens the settings window and activates the app.
     @objc func openSettingsWindow() {
         // Delay makes this more reliable for some reason.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [appState] in
+        Task { [appState] in
+            try? await Task.sleep(for: .milliseconds(100))
             appState.activate(withPolicy: .regular)
             appState.openWindow(.settings)
         }

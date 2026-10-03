@@ -12,7 +12,7 @@ import Combine
 @MainActor
 final class ControlItem {
     /// An identifier for a control item.
-    enum Identifier: String, CaseIterable {
+    nonisolated enum Identifier: String, CaseIterable {
         /// The identifier for the control item for the visible section.
         case visible = "holzBar.ControlItem.Visible"
         /// The identifier for the control item for the hidden section.
@@ -49,7 +49,7 @@ final class ControlItem {
     }
 
     /// A hiding state for a control item.
-    enum HidingState {
+    nonisolated enum HidingState {
         case showSection
         case hideSection
     }
@@ -103,11 +103,15 @@ final class ControlItem {
         }
 
         deinit {
-            removeStatusItem()
+            // The status bar belongs to the main actor; the storage can be released anywhere.
+            let statusItem = statusItem
+            Task { @MainActor in
+                StatusItemStorage.remove(statusItem)
+            }
         }
 
         /// Removes the status item from the status bar.
-        private func removeStatusItem() {
+        private static func remove(_ statusItem: NSStatusItem) {
             // Removing the status item has the unwanted side effect of
             // deleting the preferred position. Cache and restore it.
             let autosaveName = statusItem.autosaveName as String

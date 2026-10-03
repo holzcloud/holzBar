@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+@preconcurrency import ApplicationServices
 import Cocoa
 import Combine
 import OSLog
@@ -32,6 +33,19 @@ final class HIDEventManager: ObservableObject {
     /// `handleSystemItemClick27`). The deadline keeps a release that never comes from
     /// swallowing an unrelated one later.
     private var heldBackReleaseUntil: ContinuousClock.Instant?
+
+    /// System items that do not open from an Accessibility press, so a click on them has to
+    /// go through MenuBarAgent. Seeded with what was measured on macOS 27.0; anything else
+    /// that turns out to ignore the press joins them at its first click.
+    private var systemItemsIgnoringPress: Set<String> = [
+        "com.apple.menuextra.clock",
+        "com.apple.menuextra.battery",
+        "com.apple.menuextra.wifi",
+    ]
+
+    /// The system item whose panel holzBar last opened, so a second click on the same item is
+    /// understood as the click that dismisses it.
+    private var itemShowingPanel: String?
 
     /// What show on hover does once its delay has passed.
     private enum HoverAction {
@@ -490,19 +504,6 @@ extension HIDEventManager {
         lastEmptyMenuBarPoints[displayID]
     }
 
-    /// System items that do not open from an Accessibility press, so a click on them has to
-    /// go through MenuBarAgent. Seeded with what was measured on macOS 27.0; anything else
-    /// that turns out to ignore the press joins them at its first click.
-    private nonisolated(unsafe) static var systemItemsIgnoringPress: Set<String> = [
-        "com.apple.menuextra.clock",
-        "com.apple.menuextra.battery",
-        "com.apple.menuextra.wifi",
-    ]
-
-    /// The system item whose panel holzBar last opened, so a second click on the same item is
-    /// understood as the click that dismisses it.
-    private nonisolated(unsafe) static var itemShowingPanel: String?
-
     @available(macOS 27.0, *)
     private func handleSystemItemClick27(_ event: CGEvent, appState: AppState) -> CGEvent? {
         guard event.getIntegerValueField(.eventSourceUserData) != Self.replayedClickMarker else {
@@ -538,7 +539,7 @@ extension HIDEventManager {
         // click replayed — and put back the moment their panel is up, rather than after a
         // fixed second and a half, which is what made every hidden item flash into view.
         let systemItem = MenuBarItemProvider27.systemItem(at: location)
-        let mayOpenFromPress = systemItem.map { !Self.systemItemsIgnoringPress.contains($0.identifier) } ?? false
+        let mayOpenFromPress = systemItem.map { !self.systemItemsIgnoringPress.contains($0.identifier) } ?? false
         Task {
             // A click that lands while a panel is up is the click that dismisses it, and
             // Escape dismisses it just as well — with no lift of concealment at all. Lifting
@@ -552,11 +553,11 @@ extension HIDEventManager {
             // A click is treated as dismissing a panel only when holzBar opened one itself and its
             // window is still there; a panel opened some other way is closed by the replayed
             // click, as it would be without holzBar.
-            if Self.itemShowingPanel != nil, ItemClick27.openPanelWindow(windows: Self.windowsForPanelCheck()) != nil {
+            if self.itemShowingPanel != nil, ItemClick27.openPanelWindow(windows: Self.windowsForPanelCheck()) != nil {
                 Self.postEscape()
                 Self.bridgeLogger.debug("Click bridge: a panel was open, dismissed with Escape")
-                guard systemItem?.identifier != Self.itemShowingPanel else {
-                    Self.itemShowingPanel = nil
+                guard systemItem?.identifier != self.itemShowingPanel else {
+                    self.itemShowingPanel = nil
                     return
                 }
                 // A different system item was clicked, so its own panel still has to open.
@@ -568,12 +569,12 @@ extension HIDEventManager {
                 if await Self.waitForPanel(baseline: baseline, pollsOf50ms: 5) {
                     // Remembered here as well, or the next click on this item would dismiss
                     // its panel and open it again in the same breath.
-                    Self.itemShowingPanel = systemItem.identifier
+                    self.itemShowingPanel = systemItem.identifier
                     return
                 }
                 // Waiting for a panel that never comes only delays the click, so an item
                 // that ignored the press is not asked again while holzBar runs.
-                Self.systemItemsIgnoringPress.insert(systemItem.identifier)
+                self.systemItemsIgnoringPress.insert(systemItem.identifier)
             }
             // The click is replayed the moment the assertion is really gone rather than on a
             // timer: releasing it queues behind other concealment work, and MenuBarAgent ignores
@@ -585,7 +586,7 @@ extension HIDEventManager {
             await concealer.suspendReleased(for: Self.clickRestoreDelay)
             let released = (ProcessInfo.processInfo.systemUptime - bridgeStarted) * 1000
             Self.replayClick(at: location)
-            Self.itemShowingPanel = systemItem?.identifier
+            self.itemShowingPanel = systemItem?.identifier
             Self.bridgeLogger.debug("Click bridge: lifted in \(released, privacy: .public) ms, click replayed")
         }
         heldBackReleaseUntil = .now + .seconds(1)

@@ -65,7 +65,8 @@ final class ItemImageStore27 {
     /// How long the images just captured stand before the bar is worth capturing again.
     private static let captureFreshness = Duration.milliseconds(700)
 
-    private var appearanceObserver: NSObjectProtocol?
+    /// Observes switches between light and dark; cancelled with the store.
+    private var appearanceTask: Task<Void, Never>?
 
     init() {
         // A one-time move of the images earlier versions kept in Application Support.
@@ -88,15 +89,16 @@ final class ItemImageStore27 {
         }
         // Glyphs are stored in the colour that suits the current appearance, so a switch
         // between light and dark needs them captured again.
-        appearanceObserver = DistributedNotificationCenter.default().addObserver(
-            forName: DistributedNotificationCenter.interfaceThemeChangedNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            MainActor.assumeIsolated {
+        appearanceTask = Task { [weak self] in
+            let center = DistributedNotificationCenter.default()
+            for await _ in center.notifications(named: DistributedNotificationCenter.interfaceThemeChangedNotification) {
                 self?.discardImages()
             }
         }
+    }
+
+    deinit {
+        appearanceTask?.cancel()
     }
 
     /// Drops every stored image, so they are captured again.

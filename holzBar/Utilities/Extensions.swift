@@ -8,7 +8,7 @@ import SwiftUI
 
 // MARK: - Bundle
 
-extension Bundle {
+nonisolated extension Bundle {
     /// The bundle's copyright string.
     ///
     /// This accessor checks the bundle's `Info.plist` for a string value associated
@@ -50,7 +50,7 @@ extension Bundle {
 
 // MARK: - CGColor
 
-extension CGColor {
+nonisolated extension CGColor {
     /// The brightness of the color.
     var brightness: CGFloat? {
         guard
@@ -66,7 +66,7 @@ extension CGColor {
 
 // MARK: - CGImage
 
-extension CGImage {
+nonisolated extension CGImage {
 
     // MARK: Color Averaging
 
@@ -354,7 +354,7 @@ extension CGImage {
 
 // MARK: - Collection where Element == MenuBarItem
 
-extension Collection where Element == MenuBarItem {
+nonisolated extension Collection where Element == MenuBarItem {
     /// Returns the first index where the menu bar item matching the specified
     /// tag appears in the collection.
     func firstIndex(matching tag: MenuBarItemTag) -> Index? {
@@ -364,7 +364,7 @@ extension Collection where Element == MenuBarItem {
 
 // MARK: - Comparable
 
-extension Comparable {
+nonisolated extension Comparable {
     /// Returns a copy of this value, clamped to the given minimum
     /// and maximum limiting values.
     ///
@@ -398,7 +398,7 @@ extension Comparable {
 
 // MARK: - DistributedNotificationCenter
 
-extension DistributedNotificationCenter {
+nonisolated extension DistributedNotificationCenter {
     /// A notification posted whenever the system-wide interface theme changes.
     static let interfaceThemeChangedNotification = Notification.Name("AppleInterfaceThemeChangedNotification")
 }
@@ -663,7 +663,7 @@ extension Publisher {
 
 // MARK: - RangeReplaceableCollection where Element: Hashable
 
-extension RangeReplaceableCollection where Element: Hashable {
+nonisolated extension RangeReplaceableCollection where Element: Hashable {
     /// Returns a copy of the collection with duplicate values removed.
     func removingDuplicates() -> Self {
         var seen = Set<Element>()
@@ -673,7 +673,7 @@ extension RangeReplaceableCollection where Element: Hashable {
 
 // MARK: - RangeReplaceableCollection where Element == MenuBarItem
 
-extension RangeReplaceableCollection where Element == MenuBarItem {
+nonisolated extension RangeReplaceableCollection where Element == MenuBarItem {
     /// Removes and returns the first menu bar item that matches
     /// the specified tag.
     mutating func removeFirst(matching tag: MenuBarItemTag) -> MenuBarItem? {
@@ -686,7 +686,7 @@ extension RangeReplaceableCollection where Element == MenuBarItem {
 
 // MARK: - Sequence where Element == MenuBarItem
 
-extension Sequence where Element == MenuBarItem {
+nonisolated extension Sequence where Element == MenuBarItem {
     /// Returns the first menu bar item that matches the specified tag.
     func first(matching tag: MenuBarItemTag) -> MenuBarItem? {
         first { $0.tag == tag }

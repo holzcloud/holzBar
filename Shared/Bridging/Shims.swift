@@ -11,13 +11,13 @@ import CoreGraphics
 typealias CGSConnectionID = Int32
 typealias CGSSpaceID = Int
 
-enum CGSSpaceType: UInt32 {
+nonisolated enum CGSSpaceType: UInt32 {
     case user = 0
     case system = 2
     case fullscreen = 4
 }
 
-struct CGSSpaceMask: OptionSet {
+nonisolated struct CGSSpaceMask: OptionSet {
     let rawValue: UInt32
 
     static let includesCurrent = CGSSpaceMask(rawValue: 1 << 0)
@@ -35,13 +35,13 @@ struct CGSSpaceMask: OptionSet {
 // MARK: - CGSConnection
 
 @_silgen_name("CGSMainConnectionID")
-func CGSMainConnectionID() -> CGSConnectionID
+nonisolated func CGSMainConnectionID() -> CGSConnectionID
 
 @_silgen_name("CGSDefaultConnectionForThread")
-func CGSDefaultConnectionForThread() -> CGSConnectionID
+nonisolated func CGSDefaultConnectionForThread() -> CGSConnectionID
 
 @_silgen_name("CGSCopyConnectionProperty")
-func CGSCopyConnectionProperty(
+nonisolated func CGSCopyConnectionProperty(
     _ cid: CGSConnectionID,
     _ targetCID: CGSConnectionID,
     _ key: CFString,
@@ -49,7 +49,7 @@ func CGSCopyConnectionProperty(
 ) -> CGError
 
 @_silgen_name("CGSSetConnectionProperty")
-func CGSSetConnectionProperty(
+nonisolated func CGSSetConnectionProperty(
     _ cid: CGSConnectionID,
     _ targetCID: CGSConnectionID,
     _ key: CFString,
@@ -59,18 +59,18 @@ func CGSSetConnectionProperty(
 // MARK: - CGSDisplay
 
 @_silgen_name("CGSCopyActiveMenuBarDisplayIdentifier")
-func CGSCopyActiveMenuBarDisplayIdentifier(_ cid: CGSConnectionID) -> Unmanaged<CFString>?
+nonisolated func CGSCopyActiveMenuBarDisplayIdentifier(_ cid: CGSConnectionID) -> Unmanaged<CFString>?
 
 // MARK: - CGSEvent
 
 @_silgen_name("CGSEventIsAppUnresponsive")
-func CGSEventIsAppUnresponsive(
+nonisolated func CGSEventIsAppUnresponsive(
     _ cid: CGSConnectionID,
     _ psn: inout ProcessSerialNumber
 ) -> Bool
 
 @_silgen_name("CGSEventSetAppIsUnresponsiveNotificationTimeout")
-func CGSEventSetAppIsUnresponsiveNotificationTimeout(
+nonisolated func CGSEventSetAppIsUnresponsiveNotificationTimeout(
     _ cid: CGSConnectionID,
     _ timeout: Double
 ) -> CGError
@@ -78,23 +78,23 @@ func CGSEventSetAppIsUnresponsiveNotificationTimeout(
 // MARK: - CGSSpace
 
 @_silgen_name("CGSGetActiveSpace")
-func CGSGetActiveSpace(_ cid: CGSConnectionID) -> CGSSpaceID
+nonisolated func CGSGetActiveSpace(_ cid: CGSConnectionID) -> CGSSpaceID
 
 @_silgen_name("CGSCopySpacesForWindows")
-func CGSCopySpacesForWindows(
+nonisolated func CGSCopySpacesForWindows(
     _ cid: CGSConnectionID,
     _ mask: CGSSpaceMask,
     _ windowIDs: CFArray
 ) -> Unmanaged<CFArray>?
 
 @_silgen_name("CGSManagedDisplayGetCurrentSpace")
-func CGSManagedDisplayGetCurrentSpace(
+nonisolated func CGSManagedDisplayGetCurrentSpace(
     _ cid: CGSConnectionID,
     _ displayUUID: CFString
 ) -> CGSSpaceID
 
 @_silgen_name("CGSSpaceGetType")
-func CGSSpaceGetType(
+nonisolated func CGSSpaceGetType(
     _ cid: CGSConnectionID,
     _ sid: CGSSpaceID
 ) -> CGSSpaceType
@@ -102,21 +102,21 @@ func CGSSpaceGetType(
 // MARK: - CGSWindow
 
 @_silgen_name("CGSGetWindowCount")
-func CGSGetWindowCount(
+nonisolated func CGSGetWindowCount(
     _ cid: CGSConnectionID,
     _ targetCID: CGSConnectionID,
     _ outCount: inout Int32
 ) -> CGError
 
 @_silgen_name("CGSGetOnScreenWindowCount")
-func CGSGetOnScreenWindowCount(
+nonisolated func CGSGetOnScreenWindowCount(
     _ cid: CGSConnectionID,
     _ targetCID: CGSConnectionID,
     _ outCount: inout Int32
 ) -> CGError
 
 @_silgen_name("CGSGetWindowList")
-func CGSGetWindowList(
+nonisolated func CGSGetWindowList(
     _ cid: CGSConnectionID,
     _ targetCID: CGSConnectionID,
     _ count: Int32,
@@ -125,7 +125,7 @@ func CGSGetWindowList(
 ) -> CGError
 
 @_silgen_name("CGSGetOnScreenWindowList")
-func CGSGetOnScreenWindowList(
+nonisolated func CGSGetOnScreenWindowList(
     _ cid: CGSConnectionID,
     _ targetCID: CGSConnectionID,
     _ count: Int32,
@@ -134,7 +134,7 @@ func CGSGetOnScreenWindowList(
 ) -> CGError
 
 @_silgen_name("CGSGetProcessMenuBarWindowList")
-func CGSGetProcessMenuBarWindowList(
+nonisolated func CGSGetProcessMenuBarWindowList(
     _ cid: CGSConnectionID,
     _ targetCID: CGSConnectionID,
     _ count: Int32,
@@ -143,14 +143,14 @@ func CGSGetProcessMenuBarWindowList(
 ) -> CGError
 
 @_silgen_name("CGSGetScreenRectForWindow")
-func CGSGetScreenRectForWindow(
+nonisolated func CGSGetScreenRectForWindow(
     _ cid: CGSConnectionID,
     _ wid: CGWindowID,
     _ outRect: inout CGRect
 ) -> CGError
 
 @_silgen_name("CGSGetWindowLevel")
-func CGSGetWindowLevel(
+nonisolated func CGSGetWindowLevel(
     _ cid: CGSConnectionID,
     _ wid: CGWindowID,
     _ outLevel: inout CGWindowLevel
@@ -159,7 +159,7 @@ func CGSGetWindowLevel(
 // MARK: - ProcessSerialNumber
 
 @_silgen_name("GetProcessForPID")
-func GetProcessForPID(
+nonisolated func GetProcessForPID(
     _ pid: pid_t,
     _ psn: inout ProcessSerialNumber
 ) -> OSStatus

@@ -9,15 +9,15 @@ import Foundation
 ///
 /// The host names the command and the path holds its arguments. The parse only reads the
 /// URL; ``action`` says which action the command asks for, and `URLCommands` performs it.
-struct URLCommand: Equatable, Sendable {
+nonisolated struct URLCommand: Equatable, Sendable {
     /// A menu bar section a command can show, hide or toggle.
-    enum Section: Equatable, Sendable {
+    nonisolated enum Section: Equatable, Sendable {
         case hidden
         case alwaysHidden
     }
 
     /// The action a command asks for.
-    enum Action: Equatable, Sendable {
+    nonisolated enum Action: Equatable, Sendable {
         case toggle(Section)
         case show(Section)
         case hide(Section)

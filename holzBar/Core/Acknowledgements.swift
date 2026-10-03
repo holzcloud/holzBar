@@ -6,7 +6,7 @@
 import Foundation
 
 /// A project holzBar is based on or links, shown under Settings, About, Acknowledgements.
-struct Acknowledgement: Identifiable, Hashable, Sendable {
+nonisolated struct Acknowledgement: Identifiable, Hashable, Sendable {
     /// The name of the project.
     let name: String
     /// The project's repository, as an https URL string.
@@ -28,7 +28,7 @@ struct Acknowledgement: Identifiable, Hashable, Sendable {
 ///
 /// The lists are pure data so `swift test` can check them against `Package.resolved` and
 /// the license files; the app shows them in `AcknowledgementsView`.
-enum Acknowledgements {
+nonisolated enum Acknowledgements {
     /// The name of holzBar's own license, which the adapted code shares.
     static let gplLicense = "GNU General Public License v3.0"
 

@@ -7,7 +7,7 @@ import Foundation
 
 /// Decides when a reveal rule fires: once when its condition starts, not again while it
 /// lasts.
-struct RevealTrigger {
+nonisolated struct RevealTrigger {
     /// A Boolean value that indicates whether the condition held at the last update.
     private(set) var isActive = false
 

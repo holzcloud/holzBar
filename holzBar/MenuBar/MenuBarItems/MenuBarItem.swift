@@ -7,7 +7,7 @@ import Cocoa
 import os
 
 /// A structural representation of a menu bar item.
-struct MenuBarItem: CustomStringConvertible {
+nonisolated struct MenuBarItem: CustomStringConvertible {
     /// The tag associated with this item.
     let tag: MenuBarItemTag
 
@@ -193,9 +193,9 @@ struct MenuBarItem: CustomStringConvertible {
 
 // MARK: - MenuBarItem List
 
-extension MenuBarItem {
+nonisolated extension MenuBarItem {
     /// Options that specify the menu bar items in a list.
-    struct ListOption: OptionSet {
+    nonisolated struct ListOption: OptionSet {
         let rawValue: Int
 
         /// Specifies menu bar items that are currently on screen.
@@ -286,7 +286,7 @@ extension MenuBarItem {
 }
 
 // MARK: MenuBarItem: Equatable
-extension MenuBarItem: Equatable {
+nonisolated extension MenuBarItem: Equatable {
     static func == (lhs: MenuBarItem, rhs: MenuBarItem) -> Bool {
         lhs.tag == rhs.tag &&
         lhs.windowID == rhs.windowID &&
@@ -299,7 +299,7 @@ extension MenuBarItem: Equatable {
 }
 
 // MARK: MenuBarItem: Hashable
-extension MenuBarItem: Hashable {
+nonisolated extension MenuBarItem: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(tag)
         hasher.combine(windowID)
@@ -313,7 +313,7 @@ extension MenuBarItem: Hashable {
 
 // MARK: - MenuBarItemTag Helper
 
-private extension MenuBarItemTag {
+nonisolated private extension MenuBarItemTag {
     /// Creates a tag without checks.
     ///
     /// This initializer does not perform validity checks on its parameters.
@@ -340,18 +340,18 @@ private extension MenuBarItemTag {
 /// The UUIDs given to item windows whose application is unknown (macOS 26), by window.
 ///
 /// Locked, because namespaces are created wherever item lists are read.
-private let namespaceUUIDCache = OSAllocatedUnfairLock<[CGWindowID: UUID]>(initialState: [:])
+nonisolated private let namespaceUUIDCache = OSAllocatedUnfairLock<[CGWindowID: UUID]>(initialState: [:])
 
 /// Drops the UUIDs of item windows that no longer exist, so the cache does not grow with
 /// every window identifier ever seen. The manager calls it with each fresh window list.
-func pruneUUIDCache(keeping windowIDs: some Sequence<CGWindowID>) {
+nonisolated func pruneUUIDCache(keeping windowIDs: some Sequence<CGWindowID>) {
     let alive = Set(windowIDs)
     namespaceUUIDCache.withLock { cache in
         cache = cache.filter { alive.contains($0.key) }
     }
 }
 
-private extension MenuBarItemTag.Namespace {
+nonisolated private extension MenuBarItemTag.Namespace {
 
     /// Creates a namespace without checks.
     ///

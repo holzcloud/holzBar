@@ -10,7 +10,7 @@ import Foundation
 /// holzBar asks for Screen Recording only the first time one of these features is used,
 /// and the request names the feature and why it needs the permission. Everything else
 /// works with Accessibility alone.
-enum ScreenRecordingFeature: CaseIterable, Sendable {
+nonisolated enum ScreenRecordingFeature: CaseIterable, Sendable {
     /// The holzBar Shelf, which shows the hidden items below the menu bar.
     case shelf
 

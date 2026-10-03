@@ -10,9 +10,9 @@ import os
 // MARK: - MenuBarItemService.Connection
 
 @available(macOS 26.0, *)
-extension MenuBarItemService {
+nonisolated extension MenuBarItemService {
     /// A connection to the `MenuBarItemService` XPC service.
-    final class Connection: Sendable {
+    nonisolated final class Connection: Sendable {
         /// The shared connection.
         static let shared = Connection()
 
@@ -119,11 +119,12 @@ extension MenuBarItemService {
 // MARK: - MenuBarItemService.Session
 
 @available(macOS 26.0, *)
-extension MenuBarItemService {
+nonisolated extension MenuBarItemService {
     /// A wrapper around an XPC session.
-    private final class Session: Sendable {
-        /// A session's underlying storage.
-        private final class Storage: @unchecked Sendable {
+    nonisolated private final class Session: Sendable {
+        /// A session's underlying storage. Unchecked because `XPCSession` is not marked
+        /// Sendable; every access goes through the session's lock.
+        nonisolated private final class Storage: @unchecked Sendable {
             private let name = MenuBarItemService.name
             private var session: XPCSession?
             private let queue: DispatchQueue

@@ -7,7 +7,7 @@ import Foundation
 import OSLog
 
 /// A live assessment-mode assertion.
-protocol ConcealmentToken27: AnyObject {}
+nonisolated protocol ConcealmentToken27: AnyObject {}
 
 /// Activates and releases assessment-mode assertions.
 ///
@@ -30,12 +30,12 @@ protocol ConcealmentBackend27: AnyObject {
 /// Callers must not overlap calls to `apply(target:running:)`.
 @MainActor
 final class ConcealmentController27 {
-    private struct Spec: Equatable {
+    nonisolated private struct Spec: Equatable {
         let concealed: Set<String>
         let allowlist: [String]
     }
 
-    private struct Live {
+    nonisolated private struct Live {
         let spec: Spec
         let token: ConcealmentToken27
     }

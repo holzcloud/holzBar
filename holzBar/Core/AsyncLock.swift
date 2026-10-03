@@ -19,13 +19,13 @@ import os
 /// A task that is cancelled while it waits leaves the queue and its `lock()`
 /// throws `CancellationError`. A task that was already handed the lock when it
 /// was cancelled keeps it and unlocks as usual, so the lock never leaks.
-final class AsyncLock: Sendable {
-    private struct Waiter {
+nonisolated final class AsyncLock: Sendable {
+    nonisolated private struct Waiter {
         let id: UInt64
         let continuation: CheckedContinuation<Void, Error>
     }
 
-    private struct State {
+    nonisolated private struct State {
         var isLocked = false
         var nextID: UInt64 = 0
         var waiters: [Waiter] = []

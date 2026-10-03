@@ -89,7 +89,14 @@ extension Hotkey {
         }
 
         deinit {
-            invalidate()
+            // A listener is normally invalidated by `Hotkey.disable()`. One that is
+            // released without it unregisters on the main actor, which owns the registry.
+            guard let id, let registry else {
+                return
+            }
+            Task { @MainActor in
+                registry.unregister(id)
+            }
         }
 
         func invalidate() {

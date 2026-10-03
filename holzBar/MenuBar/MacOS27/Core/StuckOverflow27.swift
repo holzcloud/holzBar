@@ -13,7 +13,7 @@ import CoreGraphics
 /// `Scripts/macos27/reflow-probe.swift`). With no overflow button, an item that is laid out
 /// never sits under the notch nor on top of another one, so either is a sign of that state.
 /// Accessibility keeps the frames of items that are no longer drawn, so the sign is not proof.
-enum StuckOverflow27 {
+nonisolated enum StuckOverflow27 {
     /// The horizontal span the notch covers on a display, from the widths of the unobscured
     /// areas beside it, or `nil` for a display without a notch.
     static func notchSpan(displayBounds: CGRect, leftAreaWidth: CGFloat?, rightAreaWidth: CGFloat?) -> ClosedRange<CGFloat>? {

@@ -12,9 +12,9 @@ import Foundation
 /// state) and can be captured again at any time. They now live in the caches, which Time
 /// Machine skips. This is a one-time move of holzBar's own data: the images are moved, not
 /// deleted, so the holzBar Shelf has them at once after the update.
-enum ItemImageFolder {
+nonisolated enum ItemImageFolder {
     /// What ``moveLegacyFolder(from:to:fileManager:)`` did.
-    enum Outcome: Equatable {
+    nonisolated enum Outcome: Equatable {
         /// There was no old folder.
         case nothingToMove
         /// The old folder was moved to the new place.

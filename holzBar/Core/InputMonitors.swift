@@ -10,9 +10,9 @@ import Foundation
 /// Every monitor wakes holzBar for each event of its kind anywhere in the system,
 /// so `HIDEventManager` runs only the ones a setting needs. The mouse-moved tap in
 /// particular woke holzBar on every mouse move, even with "Show on hover" off.
-enum InputMonitors {
+nonisolated enum InputMonitors {
     /// A kind of input event holzBar can monitor.
-    enum Kind: Hashable, CaseIterable {
+    nonisolated enum Kind: Hashable, CaseIterable {
         /// Left and right mouse-down: show on click, smart rehide, the secondary
         /// context menu, and the click that pauses show on hover.
         case mouseDown
@@ -27,7 +27,7 @@ enum InputMonitors {
     }
 
     /// The settings that decide which monitors run.
-    struct Settings: Equatable {
+    nonisolated struct Settings: Equatable {
         var showOnClick = false
         var showOnHover = false
         var showOnScroll = false

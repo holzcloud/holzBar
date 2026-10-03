@@ -9,7 +9,7 @@ import SwiftUI
 @MainActor
 final class MenuBarSection {
     /// The name of a menu bar section.
-    enum Name: CaseIterable {
+    nonisolated enum Name: CaseIterable {
         case visible
         case hidden
         case alwaysHidden
@@ -267,19 +267,18 @@ final class MenuBarSection {
                         withTimeInterval: appState.settings.general.rehideInterval,
                         repeats: false
                     ) { [weak self] _ in
-                        guard
-                            let self,
-                            let screen = NSScreen.screenWithMouse ?? NSScreen.main
-                        else {
+                        guard let self else {
                             return
                         }
-                        if NSEvent.mouseLocation.y < screen.visibleFrame.maxY {
-                            Task {
-                                await self.hide()
+                        // Timers call their block on the main run loop, outside the main actor.
+                        Task { @MainActor in
+                            guard let screen = NSScreen.screenWithMouse ?? NSScreen.main else {
+                                return
                             }
-                        } else {
-                            Task {
-                                await self.startRehideChecks()
+                            if NSEvent.mouseLocation.y < screen.visibleFrame.maxY {
+                                self.hide()
+                            } else {
+                                self.startRehideChecks()
                             }
                         }
                     }

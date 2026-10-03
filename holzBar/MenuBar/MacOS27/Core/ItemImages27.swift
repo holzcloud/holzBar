@@ -7,7 +7,7 @@ import CoreGraphics
 import Foundation
 
 /// Pure rules for menu bar item images on macOS 27.
-enum ItemImages27 {
+nonisolated enum ItemImages27 {
     /// The pixel rectangle of an item inside a capture of its display's menu bar strip,
     /// or `nil` if the item is not on that strip. Frames are in global points with the
     /// origin at the top left, like the capture.
@@ -308,7 +308,7 @@ enum ItemImages27 {
     }
 
     /// Which colour MenuBarAgent drew a bar's glyphs in.
-    enum GlyphTone: Sendable {
+    nonisolated enum GlyphTone: Sendable {
         case light
         case dark
     }
@@ -465,7 +465,7 @@ enum ItemImages27 {
 }
 
 /// Decides when an application may be shown for a moment to photograph its item.
-struct PhotoSchedule27 {
+nonisolated struct PhotoSchedule27 {
     static let minimumInterval: TimeInterval = 600
 
     /// A capture can come back with nothing usable: the item was folded into macOS's own

@@ -7,7 +7,7 @@
 
 /// Invokes the given closure with a mutable copy of the given value.
 @discardableResult
-func withMutableCopy<Value: Copyable, E: Error>(
+nonisolated func withMutableCopy<Value: Copyable, E: Error>(
     of value: Value,
     _ body: (inout Value) throws(E) -> Void
 ) throws(E) -> Value {

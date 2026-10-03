@@ -5,17 +5,18 @@
 
 import Cocoa
 import OSLog
+import os
 
 // MARK: - Bridging
 
 /// A namespace for bridged or wrapped APIs.
-enum Bridging {
+nonisolated enum Bridging {
     private static let logger = Logger(category: "Bridging")
 }
 
 // MARK: - CGSConnection
 
-extension Bridging {
+nonisolated extension Bridging {
 
     // MARK: Private Connection Helpers
 
@@ -74,7 +75,7 @@ extension Bridging {
 
 // MARK: - CGDisplay / CGSDisplay
 
-extension Bridging {
+nonisolated extension Bridging {
 
     // MARK: Private Display Helpers
 
@@ -129,7 +130,7 @@ extension Bridging {
 
 // MARK: - CGSEvent
 
-extension Bridging {
+nonisolated extension Bridging {
     /// Returns a Boolean value indicating whether the given process
     /// is unresponsive.
     ///
@@ -157,7 +158,7 @@ extension Bridging {
 
 // MARK: - CGSSpace
 
-extension Bridging {
+nonisolated extension Bridging {
     /// Returns the identifier for the active space.
     static func getActiveSpaceID() -> CGSSpaceID {
         CGSGetActiveSpace(getMainConnection())
@@ -210,19 +211,26 @@ extension Bridging {
 
 // MARK: - CGSWindow
 
-extension Bridging {
+nonisolated extension Bridging {
     /// Supplies bounds for identifiers that are not WindowServer windows.
     ///
     /// On macOS 27, menu bar items read through Accessibility carry synthetic
-    /// identifiers with the top bit set.
-    nonisolated(unsafe) static var syntheticWindowBoundsProvider: ((CGWindowID) -> CGRect?)?
+    /// identifiers with the top bit set. Set once at setup, read from any thread.
+    private static let syntheticWindowBoundsProvider = OSAllocatedUnfairLock<(@Sendable (CGWindowID) -> CGRect?)?>(
+        initialState: nil
+    )
+
+    /// Sets the function that supplies bounds for synthetic window identifiers.
+    static func setSyntheticWindowBoundsProvider(_ provider: @escaping @Sendable (CGWindowID) -> CGRect?) {
+        syntheticWindowBoundsProvider.withLock { $0 = provider }
+    }
 
     /// Returns the bounds for the given window.
     ///
     /// - Parameter windowID: An identifier for a window.
     static func getWindowBounds(for windowID: CGWindowID) -> CGRect? {
-        if windowID & 0x8000_0000 != 0, let syntheticWindowBoundsProvider {
-            return syntheticWindowBoundsProvider(windowID)
+        if windowID & 0x8000_0000 != 0, let provider = syntheticWindowBoundsProvider.withLock({ $0 }) {
+            return provider(windowID)
         }
         var bounds = CGRect.zero
         let result = CGSGetScreenRectForWindow(getConnectionForThread(), windowID, &bounds)
@@ -368,7 +376,7 @@ extension Bridging {
     // MARK: Public Window List API
 
     /// Options that specify the identifiers in a window list.
-    struct WindowListOption: OptionSet {
+    nonisolated struct WindowListOption: OptionSet {
         let rawValue: Int
 
         /// Specifies windows that are currently on screen.
@@ -379,7 +387,7 @@ extension Bridging {
     }
 
     /// Options that specify the identifiers in a menu bar window list.
-    struct MenuBarWindowListOption: OptionSet {
+    nonisolated struct MenuBarWindowListOption: OptionSet {
         let rawValue: Int
 
         /// Specifies windows that are currently on screen.

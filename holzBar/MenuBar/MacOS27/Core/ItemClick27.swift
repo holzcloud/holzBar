@@ -6,7 +6,7 @@
 import CoreGraphics
 
 /// Pure rules for clicking an item from the holzBar Shelf on macOS 27.
-enum ItemClick27 {
+nonisolated enum ItemClick27 {
     /// Whether the menu bar of the holzBar Shelf's display must be made active first: an
     /// item's menu opens on the display with the active menu bar (measured on macOS 27.0).
     static func needsMenuBarActivation(activeDisplayID: CGDirectDisplayID?, shelfDisplayID: CGDirectDisplayID?) -> Bool {

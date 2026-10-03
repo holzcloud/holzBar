@@ -10,7 +10,7 @@ import Foundation
 /// The raw values are stored in the `Hotkeys` setting (see ``HotkeyStorage``) and were
 /// Ice's, so imported and synced hotkeys keep working. Never change them. What each action
 /// does is in `HotkeyActionPerform.swift`.
-enum HotkeyAction: String, Codable, CaseIterable {
+nonisolated enum HotkeyAction: String, Codable, CaseIterable {
     // Menu Bar Sections
     case toggleHiddenSection = "ToggleHiddenSection"
     case toggleAlwaysHiddenSection = "ToggleAlwaysHiddenSection"

@@ -8,7 +8,7 @@ import Foundation
 /// MenuBarAgent's numbered system items on macOS 27.
 ///
 /// Measured with `Scripts/macos27/system-item-probe.swift` on macOS 27.0 (2026-09-29).
-enum SystemItems27 {
+nonisolated enum SystemItems27 {
     /// The numbers that draw an item on macOS 27.0: 0 is the battery, 2 the clock,
     /// 6 Wi-Fi and 8 Control Centre.
     static let drawn: Set<Int> = [0, 2, 6, 8]

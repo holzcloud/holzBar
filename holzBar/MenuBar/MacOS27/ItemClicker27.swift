@@ -4,7 +4,7 @@
 //
 
 import AppKit
-import ApplicationServices
+@preconcurrency import ApplicationServices
 import OSLog
 
 /// Opens a hidden item's menu from the holzBar Shelf on macOS 27.

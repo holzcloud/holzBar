@@ -9,7 +9,7 @@ import CoreGraphics
 ///
 /// While an assessment-mode assertion is live, MenuBarAgent ignores clicks on
 /// the clock (measured on macOS 27.0), so such clicks lift the assertion first.
-enum ClockBridgeZone27 {
+nonisolated enum ClockBridgeZone27 {
     static func shouldBridge(click: CGPoint, systemItemFrames: [CGRect], isConcealing: Bool) -> Bool {
         guard isConcealing else {
             return false

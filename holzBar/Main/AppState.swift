@@ -102,7 +102,7 @@ final class AppState: ObservableObject {
     private let logger = Logger(category: "AppState")
 
     /// Async setup actions, run once on first access.
-    private lazy var setupTask = Task {
+    private lazy var setupTask = Task { @MainActor in
         permissions.stopAllChecks()
 
         settings.performSetup(with: self)
@@ -111,7 +111,7 @@ final class AppState: ObservableObject {
         if #available(macOS 27.0, *) {
             // macOS 27 has no item windows: bounds come from Accessibility, and the
             // owning process is known directly, without the item service.
-            Bridging.syntheticWindowBoundsProvider = MenuBarItemProvider27.currentBounds(for:)
+            Bridging.setSyntheticWindowBoundsProvider { MenuBarItemProvider27.currentBounds(for: $0) }
         } else if #available(macOS 26.0, *) {
             await MenuBarItemService.Connection.shared.start()
         }

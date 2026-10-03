@@ -6,7 +6,7 @@
 import ApplicationServices
 import Cocoa
 
-extension Notification.Name {
+nonisolated extension Notification.Name {
     /// Posted on the main thread when a process that owns menu bar items created or
     /// destroyed an Accessibility element, so its items may have changed. The user info
     /// holds the process identifier under `"pid"`.
@@ -75,7 +75,7 @@ final class ItemChangeObserver27 {
 }
 
 /// The observers' callback; it runs on the main run loop.
-private func itemChangeObserverCallback(
+nonisolated private func itemChangeObserverCallback(
     _ observer: AXObserver,
     _ element: AXUIElement,
     _ notification: CFString,

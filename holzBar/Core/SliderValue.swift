@@ -8,7 +8,7 @@ import Foundation
 /// The value math of `HolzBarSlider`: fractions, snapping and arrow-key steps.
 ///
 /// Every function works on `Double`; the slider converts its value type to and from it.
-enum SliderValue {
+nonisolated enum SliderValue {
     /// The value at `fraction` (0 is the lower bound, 1 the upper one) of `bounds`,
     /// snapped to `step` when there is one. Fractions outside 0...1 are clamped.
     static func value(atFraction fraction: Double, in bounds: ClosedRange<Double>, step: Double?) -> Double {

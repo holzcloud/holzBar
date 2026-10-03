@@ -9,12 +9,12 @@ import os.lock
 // MARK: - Task Timeout
 
 /// An error that indicates that a task timed out.
-struct TaskTimeoutError: CustomStringConvertible, LocalizedError {
+nonisolated struct TaskTimeoutError: CustomStringConvertible, LocalizedError {
     let description = "Task timed out before completion"
     var errorDescription: String? { description }
 }
 
-extension Task {
+nonisolated extension Task {
     /// Runs the given throwing operation asynchronously alongside a
     /// timeout operation in a structured task group.
     ///
@@ -52,7 +52,7 @@ extension Task {
     }
 }
 
-extension Task where Failure == any Error {
+nonisolated extension Task where Failure == any Error {
     /// Runs the given throwing operation asynchronously as part of a
     /// new _unstructured_ top-level task.
     ///

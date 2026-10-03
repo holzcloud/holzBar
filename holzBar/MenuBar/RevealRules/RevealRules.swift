@@ -14,10 +14,10 @@ import OSLog
 ///
 /// IOKit's callback is a C function that cannot capture the rules, so it posts this
 /// notification instead.
-private let powerSourcesDidChange = Notification.Name("PowerSourcesDidChange")
+nonisolated private let powerSourcesDidChange = Notification.Name("PowerSourcesDidChange")
 
 /// IOKit's power-source callback. It runs on the run loop its source was added to.
-private func postPowerSourcesDidChange(_ context: UnsafeMutableRawPointer?) {
+nonisolated private func postPowerSourcesDidChange(_ context: UnsafeMutableRawPointer?) {
     NotificationCenter.default.post(name: powerSourcesDidChange, object: nil)
 }
 

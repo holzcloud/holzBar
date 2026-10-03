@@ -11,9 +11,9 @@ import Foundation
 /// Only keys holzBar stores (`Defaults.Key`) are applied, and only with a value of the
 /// kind each key holds, so a crafted file cannot set a key that the app or AppKit reads
 /// for something else, nor give a setting a value its reader does not expect.
-enum SettingsSchema {
+nonisolated enum SettingsSchema {
     /// The kind of value a setting holds, as it appears in a property list.
-    enum Kind: Sendable {
+    nonisolated enum Kind: Sendable {
         /// A Boolean (`CFBoolean`).
         case bool
         /// An integer or floating-point number that is not a Boolean.

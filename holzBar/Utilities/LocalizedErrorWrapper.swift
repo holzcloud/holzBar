@@ -10,7 +10,7 @@ import Foundation
 /// If the error used to initialize the box is also a `LocalizedError`, its
 /// information is passed through to the box. Otherwise, a description of the
 /// error is passed to the wrapper.
-struct LocalizedErrorWrapper: LocalizedError {
+nonisolated struct LocalizedErrorWrapper: LocalizedError {
     let errorDescription: String?
     let failureReason: String?
     let helpAnchor: String?

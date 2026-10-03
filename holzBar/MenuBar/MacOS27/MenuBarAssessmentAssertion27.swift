@@ -9,6 +9,7 @@
 //
 
 import Foundation
+import os
 
 /// Hides applications' menu bar items through MenuBarAgent's assessment mode.
 ///
@@ -19,7 +20,7 @@ import Foundation
 @available(macOS 27.0, *)
 @MainActor
 final class MenuBarAssessmentAssertion27: ConcealmentBackend27 {
-    enum Failure: Error, CustomStringConvertible {
+    nonisolated enum Failure: Error, CustomStringConvertible {
         case unavailable
         case rejected(String)
         case timedOut
@@ -41,19 +42,7 @@ final class MenuBarAssessmentAssertion27: ConcealmentBackend27 {
         }
     }
 
-    /// Guards a continuation shared by a completion handler and a timeout.
-    private final class OneShot: @unchecked Sendable {
-        private let lock = NSLock()
-        private var claimed = false
-
-        func claim() -> Bool {
-            lock.withLock {
-                defer { claimed = true }
-                return !claimed
-            }
-        }
-    }
-
+>>>
     private static let frameworkPath = "/System/Library/PrivateFrameworks/MenuBarClientCore.framework/MenuBarClientCore"
     private static let configureSelector = NSSelectorFromString("initWithAllowedSystemItems:allowedBundleIdentifiers:")
     private static let activateSelector = NSSelectorFromString("activateWithConfiguration:completionHandler:")
@@ -109,9 +98,18 @@ final class MenuBarAssessmentAssertion27: ConcealmentBackend27 {
         }
         do {
             try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                let oneShot = OneShot()
-                let completion: @convention(block) (Any?) -> Void = { error in
-                    guard oneShot.claim() else {
+                // The completion handler and the timeout share the continuation; the first
+                // one to claim it resumes it.
+                let isClaimed = OSAllocatedUnfairLock(initialState: false)
+                let claim: @Sendable () -> Bool = {
+                    isClaimed.withLock { isClaimed in
+                        defer { isClaimed = true }
+                        return !isClaimed
+                    }
+                }
+                // MenuBarAgent may call the handler on any queue, so it is not main-actor isolated.
+                let completion: @convention(block) @Sendable (Any?) -> Void = { error in
+                    guard claim() else {
                         return
                     }
                     if let error {
@@ -121,8 +119,9 @@ final class MenuBarAssessmentAssertion27: ConcealmentBackend27 {
                     }
                 }
                 _ = assertion.perform(Self.activateSelector, with: configuration, with: completion)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    guard oneShot.claim() else {
+                Task {
+                    try? await Task.sleep(for: .seconds(3))
+                    guard claim() else {
                         return
                     }
                     continuation.resume(throwing: Failure.timedOut)

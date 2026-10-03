@@ -15,7 +15,7 @@ import Foundation
 /// The steps work on the stored key names (the raw values of `Defaults.Key`). The
 /// appearance of Ice before 0.11.10 needs the app's appearance types, so the app converts
 /// it (see ``needsAppearanceConversion(_:)``).
-enum LegacySettingsMigration {
+nonisolated enum LegacySettingsMigration {
     /// The flags of the old migration steps, one per Ice version, in order.
     static let migrationFlags = [
         "hasMigrated0_8_0",

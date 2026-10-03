@@ -12,8 +12,8 @@ import Darwin
 /// frames holzBar cached for the drawn items, plus the system items and the overflow
 /// button. Accessibility reports frames only for the active menu bar, so on the
 /// other display every spot counts as empty, as it did in the original Ice before macOS 27.
-enum ItemHitTest27 {
-    struct Item: Equatable {
+nonisolated enum ItemHitTest27 {
+    nonisolated struct Item: Equatable {
         let frame: CGRect
         let ownerPID: pid_t
         let isOnScreen: Bool

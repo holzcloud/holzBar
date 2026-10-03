@@ -11,9 +11,9 @@ import Security
 ///
 /// This file uses only Security, so it compiles into the app (which still
 /// launches on macOS 14.0) as well as into the service.
-enum CodeSignature {
+nonisolated enum CodeSignature {
     /// An error that says which code signing call failed, and how.
-    struct Failure: Error, CustomStringConvertible {
+    nonisolated struct Failure: Error, CustomStringConvertible {
         /// The code signing call that failed, or a short reason.
         let operation: String
 

@@ -10,7 +10,7 @@ import Foundation
 /// The raw values are stored with every hotkey (and read from Ice's settings when
 /// they are imported), so they must never change. The conversions to and from the
 /// system's modifier flags live in `holzBar/Hotkeys/ModifierFlags.swift`.
-struct Modifiers: OptionSet, Codable, Hashable {
+nonisolated struct Modifiers: OptionSet, Codable, Hashable {
     let rawValue: Int
 
     static let control = Modifiers(rawValue: 1 << 0)
@@ -19,7 +19,7 @@ struct Modifiers: OptionSet, Codable, Hashable {
     static let command = Modifiers(rawValue: 1 << 3)
 }
 
-extension Modifiers {
+nonisolated extension Modifiers {
     /// All modifiers in the order displayed by the system,
     /// according to Apple's style guide.
     static let canonicalOrder = [control, option, shift, command]
@@ -43,9 +43,9 @@ extension Modifiers {
     }
 }
 
-extension Modifiers {
+nonisolated extension Modifiers {
     /// A reason why a combination with these modifiers cannot be used as a hotkey.
-    enum Rejection: Equatable {
+    nonisolated enum Rejection: Equatable {
         /// No modifier: the key alone would fire the hotkey on every press.
         case missing
         /// Shift alone: the hotkey would fire on every capital letter.

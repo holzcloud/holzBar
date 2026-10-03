@@ -9,7 +9,7 @@ import Foundation
 ///
 /// holzBar's item model is keyed by window identifier. Real identifiers are small
 /// counters, so synthetic ones set the top bit to stay out of their way.
-enum SyntheticWindowID27 {
+nonisolated enum SyntheticWindowID27 {
     static let flag: UInt32 = 0x8000_0000
 
     /// A stable identifier for an item, derived from its owner, identifier and position among the owner's items.

@@ -171,7 +171,7 @@ extension MenuBarItemManager {
         ///
         /// If a task from a previous call to this method is currently
         /// running, that task is cancelled and replaced.
-        func runCacheTask(_ operation: @escaping () async -> Void) async {
+        func runCacheTask(_ operation: @escaping @MainActor @Sendable () async -> Void) async {
             cacheTask.take()?.cancel()
             let task = Task(operation: operation)
             cacheTask = task
@@ -627,7 +627,7 @@ extension MenuBarItemManager {
 
 extension MenuBarItemManager {
     /// An error that can occur during menu bar item event operations.
-    enum EventError: CustomStringConvertible, LocalizedError {
+    nonisolated enum EventError: CustomStringConvertible, LocalizedError {
         /// A generic indication of a failure.
         case cannotComplete
         /// An event source cannot be created or is otherwise invalid.
@@ -698,7 +698,7 @@ extension MenuBarItemManager {
     ///
     /// - Parameter duration: The duration that certain types of input
     ///   events must not have occured within in order to return `true`.
-    private nonisolated func hasUserPausedInput(for duration: Duration) -> Bool {
+    private func hasUserPausedInput(for duration: Duration) -> Bool {
         NSEvent.modifierFlags.isEmpty &&
         !MouseHelpers.lastMovementOccurred(within: duration) &&
         !MouseHelpers.lastScrollWheelOccurred(within: duration) &&
@@ -706,7 +706,7 @@ extension MenuBarItemManager {
     }
 
     /// Waits asynchronously for the user to pause input.
-    private nonisolated func waitForUserToPauseInput() async throws {
+    private func waitForUserToPauseInput() async throws {
         let waitTask = Task {
             while true {
                 try Task.checkCancellation()
@@ -725,7 +725,7 @@ extension MenuBarItemManager {
 
     /// Waits between move operations for a dynamic amount of time,
     /// based on the timestamp of the last move operation.
-    private nonisolated func waitForMoveOperationBuffer() async throws {
+    private func waitForMoveOperationBuffer() async throws {
         if let timestamp = await lastMoveOperationTimestamp {
             let buffer = max(.milliseconds(25) - timestamp.duration(to: .now), .zero)
             logger.debug("Move operation buffer: \(buffer, privacy: .public)")
@@ -741,7 +741,7 @@ extension MenuBarItemManager {
     ///
     /// Since most event operations must perform cleanup or otherwise
     /// run to completion, this method ignores task cancellation.
-    private nonisolated func eventSleep(for duration: Duration = .milliseconds(25)) async {
+    private func eventSleep(for duration: Duration = .milliseconds(25)) async {
         let task = Task {
             try? await Task.sleep(for: duration)
         }
@@ -760,7 +760,7 @@ extension MenuBarItemManager {
     }
 
     /// Returns the current mouse location.
-    private nonisolated func getMouseLocation() throws -> CGPoint {
+    private func getMouseLocation() throws -> CGPoint {
         guard let location = MouseHelpers.locationCoreGraphics else {
             throw EventError.missingMouseLocation
         }
@@ -775,10 +775,9 @@ extension MenuBarItemManager {
 
     /// Returns an event source for a menu bar item event operation.
     ///
-    /// Moves and clicks call this concurrently from nonisolated code, so the cache
-    /// is guarded by a lock. The unchecked lock API is used because `CGEventSource`
-    /// is not Sendable.
-    private nonisolated func getEventSource(
+    /// The cache is guarded by a lock. The unchecked lock API is used because
+    /// `CGEventSource` is not Sendable.
+    private func getEventSource(
         with stateID: CGEventSourceStateID = .hidSystemState
     ) throws -> CGEventSource {
         enum Context {
@@ -797,7 +796,7 @@ extension MenuBarItemManager {
     }
 
     /// Prevents local events from being suppressed.
-    private nonisolated func permitLocalEvents() throws {
+    private func permitLocalEvents() throws {
         let source = try getEventSource(with: .combinedSessionState)
         let states: [CGEventSuppressionState] = [
             .eventSuppressionStateRemoteMouseDrag,
@@ -821,7 +820,7 @@ extension MenuBarItemManager {
     ///   - count: The number of times to repeat the operation. As it
     ///     is considerably more efficient, prefer increasing this value
     ///     over repeatedly calling `postEventWithBarrier`.
-    private nonisolated func postEventWithBarrier(
+    private func postEventWithBarrier(
         _ event: CGEvent,
         to item: MenuBarItem,
         timeout: Duration,
@@ -912,9 +911,12 @@ extension MenuBarItemManager {
                         eventTap2.enable()
                         entryEvent.post(to: firstLocation)
                     } onCancel: {
-                        eventTap1.disable()
-                        eventTap2.disable()
-                        continuation.resume(throwing: CancellationError())
+                        // The taps belong to the main actor, where their callbacks run.
+                        Task { @MainActor in
+                            eventTap1.disable()
+                            eventTap2.disable()
+                            continuation.resume(throwing: CancellationError())
+                        }
                     }
                 }
             }
@@ -940,7 +942,7 @@ extension MenuBarItemManager {
     ///   - count: The number of times to repeat the operation. As it
     ///     is considerably more efficient, prefer increasing this value
     ///     over repeatedly calling `scrombleEvent`.
-    private nonisolated func scrombleEvent(
+    private func scrombleEvent(
         _ event: CGEvent,
         item: MenuBarItem,
         timeout: Duration,
@@ -1054,10 +1056,13 @@ extension MenuBarItemManager {
                         eventTap3.enable()
                         entryEvent.post(to: firstLocation)
                     } onCancel: {
-                        eventTap1.disable()
-                        eventTap2.disable()
-                        eventTap3.disable()
-                        continuation.resume(throwing: CancellationError())
+                        // The taps belong to the main actor, where their callbacks run.
+                        Task { @MainActor in
+                            eventTap1.disable()
+                            eventTap2.disable()
+                            eventTap3.disable()
+                            continuation.resume(throwing: CancellationError())
+                        }
                     }
                 }
             }
@@ -1076,7 +1081,7 @@ extension MenuBarItemManager {
 
 extension MenuBarItemManager {
     /// Destinations for menu bar item move operations.
-    enum MoveDestination {
+    nonisolated enum MoveDestination {
         /// The destination to the left of the given target item.
         case leftOfItem(MenuBarItem)
         /// The destination to the right of the given target item.
@@ -1129,7 +1134,7 @@ extension MenuBarItemManager {
 
     /// Returns the target points for creating the events needed to
     /// move a menu bar item to the given destination.
-    private nonisolated func getTargetPoints(
+    private func getTargetPoints(
         forMoving item: MenuBarItem,
         to destination: MoveDestination
     ) async throws -> (start: CGPoint, end: CGPoint) {
@@ -1170,11 +1175,11 @@ extension MenuBarItemManager {
     /// succeeded look like a failure, sending it around the retry loop again — up
     /// to `maxAttempts` times, each with its own wait. A tolerance well under the
     /// width of the narrowest menu bar item cannot accept a wrong position.
-    private nonisolated static let positionTolerance: CGFloat = 2
+    private static let positionTolerance: CGFloat = 2
 
     /// Returns a Boolean value that indicates whether the given menu bar
     /// item has the correct position, relative to the given destination.
-    private nonisolated func itemHasCorrectPosition(
+    private func itemHasCorrectPosition(
         item: MenuBarItem,
         for destination: MoveDestination
     ) async throws -> Bool {
@@ -1194,7 +1199,7 @@ extension MenuBarItemManager {
     ///   - item: The item to check for a response.
     ///   - initialOrigin: The origin of the item before the events were posted.
     ///   - timeout: The duration to wait before throwing an error.
-    private nonisolated func waitForMoveEventResponse(
+    private func waitForMoveEventResponse(
         from item: MenuBarItem,
         initialOrigin: CGPoint,
         timeout: Duration
@@ -1399,7 +1404,7 @@ extension MenuBarItemManager {
 extension MenuBarItemManager {
     /// Returns the equivalent event subtypes for clicking a menu bar
     /// item with the given mouse button.
-    private nonisolated func getClickSubtypes(
+    private func getClickSubtypes(
         for mouseButton: CGMouseButton
     ) -> (down: MenuBarItemEventType.ClickSubtype, up: MenuBarItemEventType.ClickSubtype) {
         switch mouseButton {
@@ -2092,7 +2097,7 @@ private extension CGEvent {
 
 // MARK: - Logger Helpers
 
-private extension Logger {
+nonisolated private extension Logger {
     /// Logger for the menu bar item manager.
     static let menuBarItemManager = Logger(category: "MenuBarItemManager")
 }

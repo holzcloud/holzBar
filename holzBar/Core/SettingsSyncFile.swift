@@ -9,7 +9,7 @@ import Foundation
 ///
 /// The file holds the date it was written (``modifiedKey``), the writing Mac (see
 /// ``SettingsSyncDevice``) and the settings (``settingsKey``).
-enum SettingsSyncFile {
+nonisolated enum SettingsSyncFile {
     /// The key of the date the file was written.
     static let modifiedKey = "modified"
 

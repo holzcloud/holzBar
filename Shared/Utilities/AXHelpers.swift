@@ -11,7 +11,7 @@ import Cocoa
 ///
 /// Every value read from another process is checked for its type before it is converted,
 /// and every failure gives `nil` (or an empty array, or `false`), never a crash.
-enum AXHelpers {
+nonisolated enum AXHelpers {
     private static let queue = DispatchQueue.targetingGlobal(
         label: "AXHelpers.queue",
         qos: .userInteractive,
@@ -20,7 +20,8 @@ enum AXHelpers {
 
     /// The system-wide element, which finds the element at a point on screen.
     ///
-    /// An `AXUIElement` is an immutable reference that can be used from any thread.
+    /// An `AXUIElement` is an immutable reference that can be used from any thread,
+    /// but the type is not marked `Sendable`, so the constant is declared unsafe.
     private nonisolated(unsafe) static let systemWideElement = AXUIElementCreateSystemWide()
 
     /// The attribute that holds an element's frame, an `AXValue` of type `.cgRect`.
@@ -29,7 +30,9 @@ enum AXHelpers {
     @discardableResult
     static func isProcessTrusted(prompt: Bool = false) -> Bool {
         queue.sync {
-            let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: prompt] as CFDictionary
+            // The value of `kAXTrustedCheckOptionPrompt`, a global variable that Swift 6
+            // treats as shared mutable state.
+            let options = ["AXTrustedCheckOptionPrompt": prompt] as CFDictionary
             return AXIsProcessTrustedWithOptions(options)
         }
     }
