@@ -364,7 +364,11 @@ private struct MenuBarSearchContentView: View {
         closePanel()
         Task {
             try? await Task.sleep(for: .milliseconds(25))
-            if Bridging.isWindowOnScreen(item.windowID) {
+            if #available(macOS 27.0, *), let appState = itemManager.appState {
+                // Items cannot be moved on macOS 27, so a hidden item is not shown by moving
+                // it: its app is shown for the click, as the Shelf does (jordanbaird/Ice#1001).
+                await ItemClicker27.click(item: item, mouseButton: .left, shelfDisplayID: nil, appState: appState)
+            } else if Bridging.isWindowOnScreen(item.windowID) {
                 do {
                     try await itemManager.click(item: item, with: .left)
                 } catch {

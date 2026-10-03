@@ -62,6 +62,15 @@ final class Concealer27 {
     /// exists (jordanbaird/Ice#1007).
     @ObservationIgnored private var launchGrace = LaunchGrace27()
 
+    /// The applications concealed at the last change, to tell a change of concealment.
+    @ObservationIgnored private var lastConcealed = Set<String>()
+
+    /// Settled reads in a row, while concealing, without holzBar's icon among the items.
+    @ObservationIgnored private var readsWithoutIcon = 0
+
+    /// Whether holzBar's icon was put back since concealment last changed.
+    @ObservationIgnored private var didReinsertIcon = false
+
     /// The section of each application. Applications missing from it are visible.
     private var savedLayout: [String: MacOS27Section] {
         let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
@@ -205,6 +214,11 @@ final class Concealer27 {
             )
         )
         let concealed = ConcealmentPlanner27.effectivelyConcealed(sets: target)
+        if concealed != lastConcealed {
+            lastConcealed = concealed
+            readsWithoutIcon = 0
+            didReinsertIcon = false
+        }
         isConcealing = !target.isEmpty
         defer { MenuBarItemProvider27.setConcealedPIDs(concealedPIDs) }
         concealedPIDs = Set(applications.compactMap { application in
@@ -233,7 +247,39 @@ final class Concealer27 {
             await self?.appState?.itemManager.cacheItemsIfNeeded()
             await self?.checkStuckOverflow()
             await self?.checkNotchCover()
+            await self?.checkOwnIcon()
         }
+    }
+
+    /// Puts holzBar's icon back when MenuBarAgent dropped it while concealing.
+    ///
+    /// A known issue of the macOS 27 backend (jordanbaird/Ice#1001): MenuBarAgent can remove
+    /// holzBar's own item while assertions are active, which leaves nothing to click. After
+    /// two settled reads in a row without it, the icon is added again — once per change of
+    /// concealment, so it never loops.
+    private func checkOwnIcon() async {
+        guard
+            let appState,
+            isConcealing,
+            appState.settings.general.showHolzBarIcon,
+            !didReinsertIcon
+        else {
+            readsWithoutIcon = 0
+            return
+        }
+        let items = await MenuBarItemProvider27.items()
+        guard !items.contains(where: { $0.tag == .visibleControlItem }) else {
+            readsWithoutIcon = 0
+            return
+        }
+        readsWithoutIcon += 1
+        guard readsWithoutIcon >= 2 else {
+            return
+        }
+        logger.notice("holzBar's icon went missing while concealing, putting it back")
+        readsWithoutIcon = 0
+        didReinsertIcon = true
+        appState.menuBarManager.controlItem(withName: .visible)?.reinsert()
     }
 
     /// Keeps holzBar's icon out from under the notch, and lets MenuBarAgent lay the bar out

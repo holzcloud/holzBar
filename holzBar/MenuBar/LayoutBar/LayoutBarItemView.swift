@@ -76,6 +76,15 @@ final class LayoutBarItemView: NSView {
             setAccessibilityLabel(item.displayName)
         }
         self.isEnabled = item.isMovable
+        if #available(macOS 27.0, *) {
+            // macOS 27 hides whole apps, so an item is placed by its app.
+            if !item.isMovable {
+                self.toolTip = "macOS 27 doesn't let apps hide this system item."
+            } else if item.sourceApplication?.bundleIdentifier == nil {
+                self.isEnabled = false
+                self.toolTip = "macOS 27 hides whole apps, and holzBar can't tell which app this item belongs to."
+            }
+        }
 
         configureObservers()
     }

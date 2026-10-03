@@ -25,16 +25,25 @@ struct AdvancedSettingsPane: View {
 
     var body: some View {
         HolzBarForm {
+            // Settings that do nothing on macOS 27 are not shown there (jordanbaird/Ice#1001):
+            // there are no dividers to style, no drags on the bar, no item moves and no
+            // hiding of application menus. Their stored values are kept.
             HolzBarSection("Menu Bar Sections") {
                 enableAlwaysHiddenSection
-                showAllSectionsOnUserDrag
-                sectionDividerStyle
+                if !isMacOS27 {
+                    showAllSectionsOnUserDrag
+                    sectionDividerStyle
+                }
                 newItemsPlacement
-                keepLiveActivitiesVisible
+                if !isMacOS27 {
+                    keepLiveActivitiesVisible
+                }
             }
             HolzBarSection("Other") {
-                hideApplicationMenus
-                keepsDockIconHidden
+                if !isMacOS27 {
+                    hideApplicationMenus
+                    keepsDockIconHidden
+                }
                 enableSecondaryContextMenu
                 showOnHoverDelay
                 tempShowInterval

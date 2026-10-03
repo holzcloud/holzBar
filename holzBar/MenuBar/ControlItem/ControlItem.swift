@@ -494,6 +494,16 @@ final class ControlItem {
         ControlItemDefaults[.preferredPosition, autosaveName] = cached
     }
 
+    /// Takes the control item out of the menu bar and puts it back, keeping its preferred
+    /// position.
+    ///
+    /// On macOS 27 MenuBarAgent can drop holzBar's own icon while assertions are active
+    /// (jordanbaird/Ice#1001); adding the status item again brings it back.
+    func reinsert() {
+        removeFromMenuBar()
+        addToMenuBar()
+    }
+
     /// Performs the control item's action.
     @objc private func performAction() {
         guard
