@@ -91,29 +91,75 @@ struct URLCommandTests {
         #expect(action("holzbar://application-menus/toggle") == .toggleApplicationMenus)
     }
 
-    @Test("Zen mode toggles")
-    func zenModeToggles() {
-        #expect(action("holzbar://zen/toggle") == .toggleZenMode)
-        #expect(!URLCommand.Action.toggleZenMode.needsConfirmation)
+    @Test("Zen mode takes on, off and toggle")
+    func zenModeRequests() {
+        #expect(action("holzbar://zen") == .zenMode(.toggle))
+        #expect(action("holzbar://zen/toggle") == .zenMode(.toggle))
+        #expect(action("holzbar://zen/on") == .zenMode(.turnOn))
+        #expect(action("holzbar://zen/OFF") == .zenMode(.turnOff))
+        #expect(action("holzbar://zen/whatever") == .zenMode(.toggle))
     }
 
-    @Test("Applying a profile asks first")
-    func applyingAProfileAsksFirst() {
-        #expect(URLCommand.Action.applyProfile("Work").needsConfirmation)
-        let others: [URLCommand.Action] = [
-            .toggle(.hidden),
-            .show(.alwaysHidden),
-            .hide(.hidden),
-            .search,
-            .settings,
-            .toggleShelf,
-            .toggleAutoRehide,
-            .toggleApplicationMenus,
-            .toggleZenMode,
-            .unknown,
-        ]
-        for other in others {
-            #expect(!other.needsConfirmation)
+    /// Every action, with a sample argument.
+    private let allActions: [URLCommand.Action] = [
+        .toggle(.hidden),
+        .show(.alwaysHidden),
+        .hide(.hidden),
+        .search,
+        .settings,
+        .toggleShelf,
+        .toggleAutoRehide,
+        .toggleApplicationMenus,
+        .zenMode(.turnOn),
+        .zenMode(.turnOff),
+        .zenMode(.toggle),
+        .applyProfile("Work"),
+        .unknown,
+    ]
+
+    @Test("Without Zen mode, only lasting changes ask first")
+    func withoutZenModeLastingChangesAsk() {
+        let off = ZenMode()
+        let asking: [URLCommand.Action] = [.applyProfile("Work"), .toggleShelf, .toggleAutoRehide]
+        for action in allActions {
+            let expected: URLCommand.Decision = asking.contains(action) ? .ask : .perform
+            #expect(action.decision(zenMode: off) == expected)
+        }
+    }
+
+    @Test("Zen mode refuses lasting changes from other apps")
+    func zenModeRefusesLastingChanges() {
+        for zen in [ZenMode(isManual: true), ZenMode(isAutomatic: true)] {
+            #expect(URLCommand.Action.applyProfile("Work").decision(zenMode: zen) == .refuse)
+            #expect(URLCommand.Action.toggleShelf.decision(zenMode: zen) == .refuse)
+            #expect(URLCommand.Action.toggleAutoRehide.decision(zenMode: zen) == .refuse)
+            // Hiding stays possible; showing is refused where the section is known.
+            #expect(URLCommand.Action.hide(.hidden).decision(zenMode: zen) == .perform)
+        }
+    }
+
+    @Test("Another app may turn Zen mode on without asking")
+    func zenModeTurnsOnWithoutAsking() {
+        let states = [ZenMode(), ZenMode(isManual: true), ZenMode(isAutomatic: true), ZenMode(isManual: true, isAutomatic: true)]
+        for zen in states {
+            #expect(URLCommand.Action.zenMode(.turnOn).decision(zenMode: zen) == .perform)
+        }
+        #expect(URLCommand.Action.zenMode(.toggle).decision(zenMode: ZenMode()) == .perform)
+        #expect(URLCommand.Action.zenMode(.turnOff).decision(zenMode: ZenMode()) == .perform)
+    }
+
+    @Test("Turning the user's Zen mode off asks first")
+    func turningManualZenModeOffAsks() {
+        let manual = ZenMode(isManual: true)
+        #expect(URLCommand.Action.zenMode(.turnOff).decision(zenMode: manual) == .ask)
+        #expect(URLCommand.Action.zenMode(.toggle).decision(zenMode: manual) == .ask)
+    }
+
+    @Test("Zen mode during a screen share cannot be turned off by another app")
+    func automaticZenModeCannotBeTurnedOff() {
+        for zen in [ZenMode(isAutomatic: true), ZenMode(isManual: true, isAutomatic: true)] {
+            #expect(URLCommand.Action.zenMode(.turnOff).decision(zenMode: zen) == .refuse)
+            #expect(URLCommand.Action.zenMode(.toggle).decision(zenMode: zen) == .refuse)
         }
     }
 }
