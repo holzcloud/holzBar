@@ -48,6 +48,12 @@ final class ApplicationMenuFrames {
 
     @ObservationIgnored private let logger = Logger(category: "ApplicationMenuFrames")
 
+    /// What one read found on every display.
+    private nonisolated struct ReadResult: Sendable {
+        var frames = [CGDirectDisplayID: CGRect]()
+        var validMenuBars = Set<CGDirectDisplayID>()
+    }
+
     /// When the follow-up reads run after a change, counted from the change: an application
     /// that has just become frontmost may build its menus a moment later.
     private static let settleReads: [Duration] = [.milliseconds(150), .milliseconds(600)]
@@ -192,15 +198,5 @@ final class ApplicationMenuFrames {
         if result.validMenuBars != validMenuBars {
             validMenuBars = result.validMenuBars
         }
-    }
-}
-
-// MARK: - ReadResult
-
-extension ApplicationMenuFrames {
-    /// What one read found on every display.
-    private nonisolated struct ReadResult: Sendable {
-        var frames = [CGDirectDisplayID: CGRect]()
-        var validMenuBars = Set<CGDirectDisplayID>()
     }
 }

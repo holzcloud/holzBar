@@ -191,7 +191,7 @@ final class EventTap {
             ),
             let source = CFMachPortCreateRunLoopSource(nil, machPort, 0)
         else {
-            EventTap.logger.error(#"Error creating event tap "\#(label, privacy: .public)""#)
+            EventTap.logger.error(#"Error creating event tap "\#(self.label, privacy: .public)""#)
             return nil
         }
         return Resources(machPort: machPort, source: source, runLoop: CFRunLoopGetMain())
@@ -215,7 +215,7 @@ final class EventTap {
         guard resources != nil else {
             return false
         }
-        EventTap.logger.info(#"Recreated event tap "\#(label, privacy: .public)""#)
+        EventTap.logger.info(#"Recreated event tap "\#(self.label, privacy: .public)""#)
         return true
     }
 
