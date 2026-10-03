@@ -32,15 +32,13 @@ final class LayoutBarItemView: NSView {
     /// A Boolean value that indicates whether the item view is currently inside a container.
     var hasContainer = false
 
-    /// The image displayed inside the view.
-    private var cachedImage: MenuBarItemImageCache.CapturedImage? {
+    /// The image displayed inside the view: the item's chosen image, its picture or its
+    /// app's icon (`ItemIconStore`).
+    private var displayImage: NSImage? {
         didSet {
-            if let image = cachedImage {
-                setFrameSize(image.scaledSize)
-            } else {
-                setFrameSize(.zero)
-            }
+            setFrameSize(displayImage?.size ?? .zero)
             needsDisplay = true
+            (superview as? LayoutBarContainer)?.arrangedViewDidResize()
         }
     }
 
@@ -96,16 +94,16 @@ final class LayoutBarItemView: NSView {
         guard let appState else {
             return
         }
-        let imageCache = appState.imageCache
-        let tag = item.tag
-        if let image = imageCache.images[tag] {
-            cachedImage = image
+        let iconStore = appState.itemIconStore
+        let item = item
+        if let image = iconStore.image(for: item) {
+            displayImage = image
         }
-        imageObserver = ObservationLoop.observe { imageCache.images[tag] } onChange: { [weak self] image in
+        imageObserver = ObservationLoop.observe { iconStore.image(for: item) } onChange: { [weak self] image in
             guard let self, let image else {
                 return
             }
-            cachedImage = image
+            displayImage = image
         }
     }
 
@@ -126,7 +124,7 @@ final class LayoutBarItemView: NSView {
 
     override func draw(_ dirtyRect: NSRect) {
         if !isDraggingPlaceholder {
-            cachedImage?.nsImage.draw(
+            displayImage?.draw(
                 in: bounds,
                 from: .zero,
                 operation: .sourceOver,
@@ -168,6 +166,34 @@ final class LayoutBarItemView: NSView {
         )
         hotkeyItem.target = self
         menu.addItem(hotkeyItem)
+        if let iconStore = appState?.itemIconStore, !item.isControlItem {
+            menu.addItem(.separator())
+            let choice = iconStore.choice(for: item)
+            let chooseImageItem = NSMenuItem(
+                title: String(localized: "Choose Image…"),
+                action: #selector(chooseImage),
+                keyEquivalent: ""
+            )
+            let useAppIconItem = NSMenuItem(
+                title: String(localized: "Use App Icon"),
+                action: #selector(useAppIcon),
+                keyEquivalent: ""
+            )
+            useAppIconItem.state = choice == .appIcon ? .on : .off
+            useAppIconItem.isEnabled = item.sourceApplication != nil
+            let resetImageItem = NSMenuItem(
+                title: String(localized: "Reset Image"),
+                action: #selector(resetImage),
+                keyEquivalent: ""
+            )
+            resetImageItem.isEnabled = choice != nil
+            for menuItem in [chooseImageItem, useAppIconItem, resetImageItem] {
+                menuItem.target = self
+                menu.addItem(menuItem)
+            }
+            menu.autoenablesItems = false
+            menu.addItem(.separator())
+        }
         if let watcher = appState?.itemChangeWatcher, !item.isControlItem {
             let changeItem = NSMenuItem(
                 title: String(localized: "Show When It Changes"),
@@ -179,6 +205,21 @@ final class LayoutBarItemView: NSView {
             menu.addItem(changeItem)
         }
         return menu
+    }
+
+    /// Lets the user choose an image for the item.
+    @objc private func chooseImage() {
+        appState?.itemIconStore.chooseImage(for: item)
+    }
+
+    /// Shows the app's icon for the item.
+    @objc private func useAppIcon() {
+        appState?.itemIconStore.useAppIcon(for: item)
+    }
+
+    /// Goes back to the item's own picture.
+    @objc private func resetImage() {
+        appState?.itemIconStore.reset(for: item)
     }
 
     /// Marks or unmarks the item "Show When It Changes".
@@ -437,7 +478,7 @@ final class LayoutBarItemView: NSView {
         pasteboardItem.setData(Data(), forType: .layoutBarItem)
 
         let draggingItem = NSDraggingItem(pasteboardWriter: pasteboardItem)
-        draggingItem.setDraggingFrame(bounds, contents: cachedImage?.nsImage)
+        draggingItem.setDraggingFrame(bounds, contents: displayImage)
 
         beginDraggingSession(with: [draggingItem], event: event, source: self)
     }

@@ -97,6 +97,11 @@ final class LayoutBarContainer: NSView {
         ]
     }
 
+    /// Lays the views out again after one of them changed its size (a new image).
+    func arrangedViewDidResize() {
+        layoutArrangedViews()
+    }
+
     /// Performs layout of the container's arranged views.
     ///
     /// The container removes from its subviews the views that are included

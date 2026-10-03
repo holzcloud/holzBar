@@ -50,6 +50,9 @@ final class AppState {
     /// Global cache for menu bar item images.
     let imageCache = MenuBarItemImageCache()
 
+    /// Images of the user's choice for items, and app icons where there is no picture.
+    let itemIconStore = ItemIconStore()
+
     /// Manager for input events received by the app.
     let hidEventManager = HIDEventManager()
 
@@ -153,6 +156,7 @@ final class AppState {
         }
         await itemManager.performSetup(with: self)
         imageCache.performSetup(with: self)
+        itemIconStore.performSetup(with: self)
         profiles.performSetup(with: self)
         settingsSync.performSetup(with: self)
         itemGroups.performSetup(with: self)

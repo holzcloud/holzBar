@@ -179,6 +179,8 @@ nonisolated extension Defaults {
         case openHiddenItemsInMenuBar = "OpenHiddenItemsInMenuBar"
         /// The identity keys of the items shown for a moment when they change.
         case revealOnChangeItems = "RevealOnChangeItems"
+        /// The image each item shows, by identity: "app" or "file:<name>.png".
+        case itemIcons = "ItemIcons"
         case layoutProfiles = "LayoutProfiles"
         case currentLayoutProfile = "CurrentLayoutProfile"
         case syncsSettingsWithICloud = "SyncsSettingsWithICloud"
@@ -314,7 +316,8 @@ nonisolated extension Defaults.Key {
         case .hotkeys,
             .revealRules,
             .macOS27Layout,
-            .itemSections:
+            .itemSections,
+            .itemIcons:
             // Their readers cast the contents themselves, so the kind is checked
             // only at the top level.
             .dictionary

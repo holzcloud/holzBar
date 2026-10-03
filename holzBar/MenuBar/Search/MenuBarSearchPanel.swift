@@ -468,18 +468,20 @@ private struct MenuBarSearchItemView: View {
 
     let item: MenuBarItem
 
+    /// The item's chosen image, its trimmed picture or its app's icon (`ItemIconStore`).
     private var itemImage: NSImage {
-        guard
+        var captured: NSImage?
+        if
             let cached = imageCache.images[item.tag],
             let trimmed = cached.cgImage.trimmingTransparency(around: [.minXEdge, .maxXEdge])
-        else {
-            return NSImage()
+        {
+            let size = CGSize(
+                width: CGFloat(trimmed.width) / cached.scale,
+                height: CGFloat(trimmed.height) / cached.scale
+            )
+            captured = NSImage(cgImage: trimmed, size: size)
         }
-        let size = CGSize(
-            width: CGFloat(trimmed.width) / cached.scale,
-            height: CGFloat(trimmed.height) / cached.scale
-        )
-        return NSImage(cgImage: trimmed, size: size)
+        return appState.itemIconStore.image(for: item, captured: captured) ?? NSImage()
     }
 
     private var appIcon: NSImage? {

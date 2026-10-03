@@ -86,7 +86,7 @@ final class ItemHintsPanel: NSPanel {
         model.maxWidth = screen.visibleFrame.width - 40
 
         let hostingView = NSHostingView(
-            rootView: ItemHintsView(model: model, imageCache: appState.imageCache) { [weak self] entry in
+            rootView: ItemHintsView(model: model, iconStore: appState.itemIconStore) { [weak self] entry in
                 self?.open(entry)
             }
         )
@@ -208,7 +208,7 @@ private final class ItemHintsModel {
 /// The hints, in rows as wide as the display allows.
 private struct ItemHintsView: View {
     var model: ItemHintsModel
-    var imageCache: MenuBarItemImageCache
+    var iconStore: ItemIconStore
     let open: (ItemHintsModel.Entry) -> Void
 
     /// The width of one hint.
@@ -251,7 +251,7 @@ private struct ItemHintsView: View {
         } label: {
             VStack(spacing: 3) {
                 Group {
-                    if let image = imageCache.images[entry.item.tag]?.nsImage {
+                    if let image = iconStore.image(for: entry.item) {
                         Image(nsImage: image)
                     } else {
                         Text(entry.item.displayName)

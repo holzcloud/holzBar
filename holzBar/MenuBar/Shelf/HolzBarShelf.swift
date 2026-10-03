@@ -462,13 +462,7 @@ private struct HolzBarShelfContentView: View {
 
     @ViewBuilder
     private var content: some View {
-        if !ScreenRecordingAccess.isGranted(appState) {
-            ScreenRecordingHint(feature: .shelf, appState: appState, isCompact: true) {
-                // The Shelf would cover the system prompt.
-                menuBarManager.section(withName: section)?.hide()
-            }
-            .padding(.horizontal, 10)
-        } else if menuBarManager.isMenuBarHiddenBySystemUserDefaults {
+        if menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             Text("holzBar cannot display menu bar items for automatically hidden menu bars")
                 .padding(.horizontal, 10)
         } else if itemManager.itemCache.managedItems.isEmpty {
@@ -478,30 +472,46 @@ private struct HolzBarShelfContentView: View {
                     .controlSize(.small)
             }
             .padding(.horizontal, 10)
-        } else if imageCache.cacheFailed(for: section) {
+        } else if ScreenRecordingAccess.isGranted(appState), imageCache.cacheFailed(for: section) {
             Text("Unable to display menu bar items")
                 .padding(.horizontal, 10)
         } else {
-            ScrollView(.horizontal) {
-                HStack(spacing: 0) {
-                    ForEach(items, id: \.windowID) { item in
-                        HolzBarShelfItemView(
-                            imageCache: imageCache,
-                            itemManager: itemManager,
-                            menuBarManager: menuBarManager,
-                            item: item,
-                            section: section,
-                            isHighlighted: item.windowID == highlightedWindowID
-                        )
+            HStack(spacing: 0) {
+                if !ScreenRecordingAccess.isGranted(appState) {
+                    // Without Screen Recording the items show their apps' icons (or the
+                    // images chosen for them); the hint offers their real pictures.
+                    ScreenRecordingHint(feature: .shelf, appState: appState, isCompact: true) {
+                        // The Shelf would cover the system prompt.
+                        menuBarManager.section(withName: section)?.hide()
                     }
+                    .padding(.horizontal, 10)
+                }
+                itemsScrollView
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var itemsScrollView: some View {
+        ScrollView(.horizontal) {
+            HStack(spacing: 0) {
+                ForEach(items, id: \.windowID) { item in
+                    HolzBarShelfItemView(
+                        imageCache: imageCache,
+                        itemManager: itemManager,
+                        menuBarManager: menuBarManager,
+                        item: item,
+                        section: section,
+                        isHighlighted: item.windowID == highlightedWindowID
+                    )
                 }
             }
-            .environment(\.isScrollEnabled, frame.width == screen.frame.width)
-            .defaultScrollAnchor(.trailing)
-            .scrollIndicatorsFlash(trigger: scrollIndicatorsFlashTrigger)
-            .task {
-                scrollIndicatorsFlashTrigger += 1
-            }
+        }
+        .environment(\.isScrollEnabled, frame.width == screen.frame.width)
+        .defaultScrollAnchor(.trailing)
+        .scrollIndicatorsFlash(trigger: scrollIndicatorsFlashTrigger)
+        .task {
+            scrollIndicatorsFlashTrigger += 1
         }
     }
 }
@@ -546,36 +556,45 @@ private struct HolzBarShelfItemView: View {
         }
     }
 
+    /// The item's chosen image, its picture or its app's icon (`ItemIconStore`).
     private var image: NSImage? {
-        guard let cachedImage = imageCache.images[item.tag] else {
-            return nil
+        let captured = imageCache.images[item.tag]?.nsImage
+        guard let iconStore = itemManager.appState?.itemIconStore else {
+            return captured
         }
-        return cachedImage.nsImage
+        return iconStore.image(for: item, captured: captured)
     }
 
     var body: some View {
-        if let image {
-            Image(nsImage: image)
-                .contentShape(Rectangle())
-                .overlay {
-                    HolzBarShelfItemClickView(
-                        item: item,
-                        leftClickAction: leftClickAction,
-                        rightClickAction: rightClickAction
-                    )
-                }
-                .background {
-                    if isHighlighted {
-                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                            .fill(Color.primary.opacity(0.2))
-                    }
-                }
-                .accessibilityAddTraits(.isButton)
-                .accessibilityLabel(item.displayName)
-                .accessibilityAction(.default, leftClickAction)
-                .accessibilityAction(named: "Open", leftClickAction)
-                .accessibilityAction(named: "Open Menu", rightClickAction)
+        Group {
+            if let image {
+                Image(nsImage: image)
+            } else {
+                Text(item.displayName)
+                    .font(.caption)
+                    .lineLimit(1)
+                    .padding(.horizontal, 4)
+            }
         }
+        .contentShape(Rectangle())
+        .overlay {
+            HolzBarShelfItemClickView(
+                item: item,
+                leftClickAction: leftClickAction,
+                rightClickAction: rightClickAction
+            )
+        }
+        .background {
+            if isHighlighted {
+                RoundedRectangle(cornerRadius: 5, style: .continuous)
+                    .fill(Color.primary.opacity(0.2))
+            }
+        }
+        .accessibilityAddTraits(.isButton)
+        .accessibilityLabel(item.displayName)
+        .accessibilityAction(.default, leftClickAction)
+        .accessibilityAction(named: "Open", leftClickAction)
+        .accessibilityAction(named: "Open Menu", rightClickAction)
     }
 }
 

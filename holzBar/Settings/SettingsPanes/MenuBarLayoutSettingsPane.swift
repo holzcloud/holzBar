@@ -326,6 +326,15 @@ private struct ItemGroupsSection: View {
         itemManager.itemCache.managedItems.filter { !$0.isControlItem }
     }
 
+    /// The group's color for the color well; the primary color while it has none.
+    private func colorBinding(for group: MenuBarItemGroup) -> Binding<Color> {
+        Binding {
+            group.color.map { Color(nsColor: $0) } ?? .primary
+        } set: { color in
+            groups.setColor(NSColor(color), for: group)
+        }
+    }
+
     var body: some View {
         HolzBarSection("Groups") {
             ForEach(groups.groups) { group in
@@ -338,10 +347,31 @@ private struct ItemGroupsSection: View {
                                 Image(systemName: symbol)
                             }
                         }
+                        Divider()
+                        Button("Choose Image…") {
+                            groups.chooseImage(for: group)
+                        }
+                        Button("Use Symbol") {
+                            groups.useSymbol(for: group)
+                        }
+                        .disabled(group.imageFile == nil)
                     } label: {
                         Image(systemName: group.symbolName)
                     }
                     .fixedSize()
+                    ColorPicker("Color", selection: colorBinding(for: group), supportsOpacity: false)
+                        .labelsHidden()
+                        .help("The color of the group's icon and name")
+                    if group.colorHex != nil {
+                        Button {
+                            groups.setColor(nil, for: group)
+                        } label: {
+                            Image(systemName: "xmark.circle")
+                        }
+                        .buttonStyle(.borderless)
+                        .help("Remove the color")
+                        .accessibilityLabel("Remove the color")
+                    }
                     Text(group.name)
                     Text("\(group.itemTags.count) items")
                         .foregroundStyle(.secondary)
