@@ -142,8 +142,15 @@ nonisolated enum AXHelpers {
         }
     }
 
-    /// Returns the menu bar that holds the application menus, found at the
-    /// given point before macOS 27.
+    /// Returns the menu bar that holds the application menus, found on the given display
+    /// before macOS 27.
+    ///
+    /// Before macOS 27 the menu bar is the element at a point of the bar. The display's
+    /// top-left pixel alone missed it on notched Macs and with Liquid Glass, so a click in
+    /// the Shelf found no application menu and opened nothing (jordanbaird/Ice#911). After
+    /// that pixel, points 8, 20 and 40 points right of the display's left edge, halfway
+    /// down the bar, are tried in turn; a menu (the Apple menu) found there leads to its
+    /// menu bar.
     ///
     /// On macOS 27 the element at a display's origin is MenuBarAgent's window,
     /// so the menu bar comes from the application that owns it. holzBar's own menus
@@ -152,7 +159,7 @@ nonisolated enum AXHelpers {
     ///
     /// The returned menu bar answers within ``applicationMenuTimeout``. This blocks, so it
     /// is called off the main thread only (see `ApplicationMenuQuery`).
-    static func applicationMenuBar(at point: CGPoint) -> AXUIElement? {
+    static func applicationMenuBar(in displayBounds: CGRect, menuBarHeight: CGFloat) -> AXUIElement? {
         if #available(macOS 27.0, *) {
             guard
                 let owner = NSWorkspace.shared.menuBarOwningApplication,
@@ -167,11 +174,32 @@ nonisolated enum AXHelpers {
             setMessagingTimeout(applicationMenuTimeout, for: menuBar)
             return menuBar
         }
-        guard let element = element(at: point), role(for: element) == kAXMenuBarRole else {
-            return nil
+        let points = [displayBounds.origin] + [8, 20, 40].map { (offset: CGFloat) in
+            CGPoint(x: displayBounds.minX + offset, y: displayBounds.minY + menuBarHeight / 2)
         }
-        setMessagingTimeout(applicationMenuTimeout, for: element)
-        return element
+        for point in points {
+            guard let element = element(at: point) else {
+                continue
+            }
+            setMessagingTimeout(applicationMenuTimeout, for: element)
+            switch role(for: element) {
+            case kAXMenuBarRole:
+                return element
+            case kAXMenuBarItemRole:
+                if let menuBar = parent(of: element), role(for: menuBar) == kAXMenuBarRole {
+                    setMessagingTimeout(applicationMenuTimeout, for: menuBar)
+                    return menuBar
+                }
+            default:
+                break
+            }
+        }
+        return nil
+    }
+
+    /// The parent of the given element, or `nil` when it has none.
+    private static func parent(of element: AXUIElement) -> AXUIElement? {
+        queue.sync { Self.element(from: value(element, kAXParentAttribute)) }
     }
 
     // MARK: Private

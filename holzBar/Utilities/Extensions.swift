@@ -563,9 +563,11 @@ extension NSScreen {
         {
             notchLimit = leftArea.maxX
         }
+        let menuBarWindow = WindowInfo.menuBarWindow(for: displayID)
         return ApplicationMenuQuery(
             displayID: displayID,
-            menuBarOrigin: WindowInfo.menuBarWindow(for: displayID)?.bounds.origin,
+            menuBarOrigin: menuBarWindow?.bounds.origin,
+            menuBarHeight: menuBarWindow?.bounds.height ?? NSStatusBar.system.thickness,
             notchLimit: notchLimit
         )
     }
@@ -580,6 +582,9 @@ nonisolated struct ApplicationMenuQuery: Sendable {
 
     /// The origin of the display's menu bar window, or `nil` when it has none.
     let menuBarOrigin: CGPoint?
+
+    /// The height of the display's menu bar.
+    let menuBarHeight: CGFloat
 
     /// The width at which the frame reaches the notch of another screen (see
     /// `NSScreen.applicationMenuQuery`), or `nil` when that does not matter.
@@ -607,7 +612,7 @@ nonisolated struct ApplicationMenuQuery: Sendable {
     func getApplicationMenuFrame() -> CGRect? {
         let displayBounds = CGDisplayBounds(displayID)
 
-        guard let menuBar = AXHelpers.applicationMenuBar(at: displayBounds.origin) else {
+        guard let menuBar = AXHelpers.applicationMenuBar(in: displayBounds, menuBarHeight: menuBarHeight) else {
             return nil
         }
 

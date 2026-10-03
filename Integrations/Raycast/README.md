@@ -7,15 +7,17 @@
 
 The scripts open `holzbar://` URLs, so the same commands work from Alfred, Shortcuts or a terminal:
 
-| URL | Action |
-|---|---|
-| `holzbar://toggle/hidden` | Show or hide the hidden section (`show/…`, `hide/…` also work) |
-| `holzbar://toggle/always-hidden` | Show or hide the always-hidden section |
-| `holzbar://search` | Open the menu bar item search |
-| `holzbar://settings` | Open the settings |
-| `holzbar://shelf/toggle` | Turn the holzBar Shelf on or off |
-| `holzbar://auto-rehide/toggle` | Turn auto-rehide on or off |
-| `holzbar://application-menus/toggle` | Hide or show the application menus |
-| `holzbar://profile/<name>` | Apply a saved layout profile |
+| URL | Action | Changes |
+|---|---|---|
+| `holzbar://toggle/hidden` | Show or hide the hidden section (`show/…`, `hide/…` also work) | Nothing persistent |
+| `holzbar://toggle/always-hidden` | Show or hide the always-hidden section | Nothing persistent |
+| `holzbar://search` | Open the menu bar item search | Nothing persistent |
+| `holzbar://settings` | Open the settings | Nothing persistent |
+| `holzbar://shelf/toggle` | Turn the holzBar Shelf on or off | A setting the same command flips back |
+| `holzbar://auto-rehide/toggle` | Turn auto-rehide on or off | A setting the same command flips back |
+| `holzbar://application-menus/toggle` | Hide or show the application menus | Nothing persistent |
+| `holzbar://profile/<name>` | Apply a saved layout profile | Rearranges items, asks first |
+
+Any app can open these URLs, so the only command that rearranges the menu bar asks first: holzBar shows "Apply the layout profile …?" with Cancel as the default answer. Shortcuts actions (App Intents) will run without the question, because you built them yourself.
 
 `holzbar://ice-bar/toggle`, the command's name in Ice, still works.

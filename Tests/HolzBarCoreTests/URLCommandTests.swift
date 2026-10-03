@@ -90,4 +90,23 @@ struct URLCommandTests {
         #expect(action("holzbar://auto-rehide/toggle") == .toggleAutoRehide)
         #expect(action("holzbar://application-menus/toggle") == .toggleApplicationMenus)
     }
+
+    @Test("Applying a profile asks first")
+    func applyingAProfileAsksFirst() {
+        #expect(URLCommand.Action.applyProfile("Work").needsConfirmation)
+        let others: [URLCommand.Action] = [
+            .toggle(.hidden),
+            .show(.alwaysHidden),
+            .hide(.hidden),
+            .search,
+            .settings,
+            .toggleShelf,
+            .toggleAutoRehide,
+            .toggleApplicationMenus,
+            .unknown,
+        ]
+        for other in others {
+            #expect(!other.needsConfirmation)
+        }
+    }
 }

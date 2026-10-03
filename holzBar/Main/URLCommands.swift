@@ -10,13 +10,21 @@ import OSLog
 /// example from Raycast, Alfred, Shortcuts or a script (jordanbaird/Ice#501).
 ///
 /// - `holzbar://toggle/hidden`, `holzbar://show/hidden`, `holzbar://hide/hidden`
-///   (also `always-hidden`)
-/// - `holzbar://search` – the menu bar item search
-/// - `holzbar://settings` – the settings window
-/// - `holzbar://shelf/toggle` – turn the holzBar Shelf on or off
-/// - `holzbar://auto-rehide/toggle` – turn auto-rehide on or off
-/// - `holzbar://application-menus/toggle`
-/// - `holzbar://profile/<name>` – apply a saved layout profile
+///   (also `always-hidden`) – changes nothing persistent
+/// - `holzbar://search` – the menu bar item search; changes nothing persistent
+/// - `holzbar://settings` – the settings window; changes nothing persistent
+/// - `holzbar://shelf/toggle` – turn the holzBar Shelf on or off; a setting the same
+///   command flips back
+/// - `holzbar://auto-rehide/toggle` – turn auto-rehide on or off; a setting the same
+///   command flips back
+/// - `holzbar://application-menus/toggle` – hides or shows the application menus;
+///   nothing persistent
+/// - `holzbar://profile/<name>` – apply a saved layout profile; rearranges items, so
+///   holzBar asks first (`URLCommand.Action.needsConfirmation`)
+///
+/// Any app can open these URLs without the user knowing, so the only command that
+/// rearranges the menu bar needs the user's answer. Shortcuts actions (App Intents) run
+/// without the question, because the user built them.
 ///
 /// `ice-bar` still works as another name for `shelf`.
 ///
@@ -66,9 +74,42 @@ enum URLCommands {
         case .toggleApplicationMenus:
             manager.toggleApplicationMenus()
         case .applyProfile(let name):
+            guard !command.action.needsConfirmation || confirmProfile(named: name, appState: appState) else {
+                logger.notice("Applying a layout profile from a URL was cancelled")
+                return
+            }
             appState.profiles.apply(named: name)
         case .unknown:
             logger.warning("Unknown command \(command.name, privacy: .private)")
         }
+    }
+
+    /// Asks whether another app may apply the layout profile with the given name.
+    ///
+    /// holzBar comes to the front without a Dock icon for the question; Cancel is the
+    /// default answer and the answer to Escape.
+    ///
+    /// - Returns: Whether the user chose Apply.
+    private static func confirmProfile(named name: String, appState: AppState) -> Bool {
+        appState.activate(for: .settings)
+        let alert = NSAlert()
+        alert.messageText = "Apply the layout profile \u{201C}\(name)\u{201D}?"
+        alert.informativeText = "Another app asked holzBar to rearrange your menu bar."
+        // The first button is the default one (Return).
+        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: "Apply")
+        // Escape answers Cancel as well: it ends the alert without Apply.
+        let escapeMonitor = EventMonitor.local(for: .keyDown) { event in
+            guard event.keyCode == 53 else {
+                return event
+            }
+            NSApp.abortModal()
+            return nil
+        }
+        escapeMonitor.start()
+        defer {
+            escapeMonitor.stop()
+        }
+        return alert.runModal() == .alertSecondButtonReturn
     }
 }

@@ -29,6 +29,21 @@ nonisolated struct URLCommand: Equatable, Sendable {
         /// Apply the layout profile with the given name.
         case applyProfile(String)
         case unknown
+
+        /// Whether holzBar asks the user before it performs the action.
+        ///
+        /// Any app can open a `holzbar://` URL without the user knowing. Applying a profile
+        /// rearranges the menu bar, so it asks first; every other action changes nothing
+        /// lasting (show, hide, search, settings) or flips a setting the same command flips
+        /// back (the toggles).
+        var needsConfirmation: Bool {
+            switch self {
+            case .applyProfile:
+                true
+            case .toggle, .show, .hide, .search, .settings, .toggleShelf, .toggleAutoRehide, .toggleApplicationMenus, .unknown:
+                false
+            }
+        }
     }
 
     /// The command, lower-cased.
