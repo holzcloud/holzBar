@@ -32,6 +32,9 @@ struct PermissionsView: View {
         .padding(.horizontal)
         .frame(width: 550)
         .fixedSize()
+        .onDisappear {
+            appState.hideDockIconIfUnneeded()
+        }
     }
 
     @ViewBuilder

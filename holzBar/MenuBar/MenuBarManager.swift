@@ -45,7 +45,7 @@ final class MenuBarManager {
     @ObservationIgnored private var averageColorTask: Task<Void, Never>?
 
     /// A Boolean value that indicates whether the application menus are hidden.
-    @ObservationIgnored private var isHidingApplicationMenus = false
+    @ObservationIgnored private(set) var isHidingApplicationMenus = false
 
     /// The panel that contains the holzBar Shelf interface.
     let shelfPanel = HolzBarShelfPanel()
