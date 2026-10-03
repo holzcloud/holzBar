@@ -85,6 +85,17 @@ struct InputMonitorsTests {
         #expect(appearance.isSuperset(of: [.mouseDragged, .mouseUp]))
     }
 
+    @Test("Saving the user's arrangement needs only the mouse-up monitor")
+    func savingTheArrangementNeedsOnlyMouseUp() {
+        var settings = Self.defaults
+        settings.showAllSectionsOnUserDrag = false
+        settings.hasCustomAppearance = false
+        settings.savesUserArrangement = true
+        let kinds = InputMonitors.needed(for: settings)
+        #expect(kinds.contains(.mouseUp))
+        #expect(!kinds.contains(.mouseDragged))
+    }
+
     @Test("The space click monitor runs only where a click can change the space")
     func spaceClickMonitorRunsOnlyWhereNeeded() {
         #expect(!InputMonitors.needsSpaceClickMonitor(isFullscreenSpace: false, screenCount: 1))

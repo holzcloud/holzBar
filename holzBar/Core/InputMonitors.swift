@@ -16,7 +16,8 @@ nonisolated enum InputMonitors {
         /// Left and right mouse-down: show on click, smart rehide, the secondary
         /// context menu, and the click that pauses show on hover.
         case mouseDown
-        /// Left mouse-up: ends a Command-drag of a menu bar item.
+        /// Left mouse-up: ends a Command-drag of a menu bar item, which also records the
+        /// sections the user arranged.
         case mouseUp
         /// Left mouse-dragged: starts a Command-drag of a menu bar item.
         case mouseDragged
@@ -38,6 +39,9 @@ nonisolated enum InputMonitors {
         /// Whether the holzBar Shelf is used, which lets clicks keep show on hover going.
         var usesShelf = false
         var showAllSectionsOnUserDrag = false
+        /// Whether holzBar saves and restores the section of each item (before macOS 27),
+        /// so the end of a Command-drag on the bar must be noticed.
+        var savesUserArrangement = false
         /// Whether a custom menu bar appearance draws overlay panels, which fade while
         /// an item is dragged.
         var hasCustomAppearance = false
@@ -61,6 +65,10 @@ nonisolated enum InputMonitors {
         if settings.showAllSectionsOnUserDrag || settings.hasCustomAppearance {
             kinds.insert(.mouseUp)
             kinds.insert(.mouseDragged)
+        }
+        // Only the mouse-up, one event per click: a Command-drag on the bar ends with it.
+        if settings.savesUserArrangement {
+            kinds.insert(.mouseUp)
         }
         return kinds
     }

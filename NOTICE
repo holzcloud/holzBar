@@ -22,6 +22,8 @@ one line per adapted file:
   - holzBar/Core/MoveBackoff.swift is adapted from Thaw's
     Thaw/MenuBar/MenuBarItems/MenuBarItemManager/MoveCircuitBreaker.swift
     (Copyright (C) 2026 Toni Förster).
+  - holzBar/Core/ItemIdentity.swift adapts canonicalMetricTitle from Thaw's
+    Thaw/MenuBar/MenuBarItems/MenuBarItemTag.swift.
 
 The licenses of the open-source packages holzBar links are shown in the app under
 Settings, About, Acknowledgements.

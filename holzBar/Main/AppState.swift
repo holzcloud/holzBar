@@ -164,6 +164,8 @@ final class AppState {
         appearanceManager.systemActivityDidSettle()
         Task {
             await itemManager.cacheItemsRegardless()
+            // Items that macOS put elsewhere while the displays changed go back.
+            await itemManager.reconcileSections(trigger: .settle)
             await itemManager.retryPausedRehide()
             await imageCache.updateCache()
         }

@@ -95,15 +95,29 @@ final class MenuBarItemGroups {
     }
 
     func toggle(_ item: MenuBarItem, in group: MenuBarItemGroup) {
-        guard let index = groups.firstIndex(where: { $0.id == group.id }) else {
+        guard
+            let itemManager = appState?.itemManager,
+            let index = groups.firstIndex(where: { $0.id == group.id })
+        else {
             return
         }
-        let tag = item.tag.description
-        if let itemIndex = groups[index].itemTags.firstIndex(of: tag) {
+        // Members are stored under their identity, which survives a changing title; keys of
+        // earlier versions (`namespace:title`) match through it too.
+        let identityKey = itemManager.identityKey(for: item)
+        if let itemIndex = groups[index].itemTags.firstIndex(where: { itemManager.storedIdentityKey($0) == identityKey }) {
             groups[index].itemTags.remove(at: itemIndex)
         } else {
-            groups[index].itemTags.append(tag)
+            groups[index].itemTags.append(identityKey)
         }
+    }
+
+    /// Whether the given item belongs to the group.
+    func contains(_ item: MenuBarItem, in group: MenuBarItemGroup) -> Bool {
+        guard let itemManager = appState?.itemManager else {
+            return false
+        }
+        let identityKey = itemManager.identityKey(for: item)
+        return group.itemTags.contains { itemManager.storedIdentityKey($0) == identityKey }
     }
 
     func setSymbol(_ symbolName: String, for group: MenuBarItemGroup) {
@@ -191,11 +205,11 @@ private struct MenuBarItemGroupPanel: View {
     let close: () -> Void
 
     private var items: [MenuBarItem] {
-        let byTag = Dictionary(
-            itemManager.itemCache.managedItems.map { ($0.tag.description, $0) },
+        let byIdentityKey = Dictionary(
+            itemManager.itemCache.managedItems.map { (itemManager.identityKey(for: $0), $0) },
             uniquingKeysWith: { first, _ in first }
         )
-        return group.itemTags.compactMap { byTag[$0] }
+        return group.itemTags.compactMap { byIdentityKey[itemManager.storedIdentityKey($0)] }
     }
 
     var body: some View {

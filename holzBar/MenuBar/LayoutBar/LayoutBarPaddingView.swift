@@ -121,6 +121,8 @@ final class LayoutBarPaddingView: NSView {
             do {
                 try await appState.itemManager.move(item: item, to: destination, origin: .user)
                 appState.itemManager.removeTemporarilyShownItemFromCache(with: item.tag)
+                // The user arranged the item: its section is the one to restore from now on.
+                appState.itemManager.saveSectionsSoon()
             } catch {
                 Logger.default.error("Error moving menu bar item: \(error, privacy: .private)")
                 let alert = NSAlert(error: error)

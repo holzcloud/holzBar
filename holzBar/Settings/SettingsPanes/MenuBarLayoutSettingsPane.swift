@@ -228,7 +228,7 @@ private struct ItemGroupsSection: View {
                     Menu("Items") {
                         ForEach(items, id: \.tag) { item in
                             Toggle(item.displayName, isOn: Binding(
-                                get: { group.itemTags.contains(item.tag.description) },
+                                get: { groups.contains(item, in: group) },
                                 set: { _ in groups.toggle(item, in: group) }
                             ))
                         }

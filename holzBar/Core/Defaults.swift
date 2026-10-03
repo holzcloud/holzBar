@@ -183,6 +183,11 @@ nonisolated extension Defaults {
         case revealRules = "RevealRules"
         case knownItemTags = "KnownItemTags"
         case knownApplications27 = "KnownApplications27"
+        /// The section of each item before macOS 27, keyed by its identity (`ItemIdentity`):
+        /// 0 visible, 1 hidden, 2 always hidden.
+        case itemSections = "ItemSections"
+        /// The namespaces whose item titles change beyond their numbers (`ItemIdentity`).
+        case titleChangingItemOwners = "TitleChangingItemOwners"
 
         // MARK: Appearance Settings
         case menuBarAppearanceConfigurationV2 = "MenuBarAppearanceConfigurationV2"
@@ -294,11 +299,13 @@ nonisolated extension Defaults.Key {
         case .currentLayoutProfile:
             .string
         case .knownItemTags,
-            .knownApplications27:
+            .knownApplications27,
+            .titleChangingItemOwners:
             .stringArray
         case .hotkeys,
             .revealRules,
-            .macOS27Layout:
+            .macOS27Layout,
+            .itemSections:
             // Their readers cast the contents themselves, so the kind is checked
             // only at the top level.
             .dictionary

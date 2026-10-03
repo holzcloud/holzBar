@@ -40,6 +40,31 @@ final class MenuBarItemManager {
     /// again (on the next settle or user move) instead of retrying every 3 seconds.
     @ObservationIgnored private var isRehideWaitingForMoves = false
 
+    /// The namespaces whose item titles change beyond their numbers (`ItemIdentity`).
+    @ObservationIgnored private(set) var titleChangingOwners = Set<String>()
+
+    /// The bar as last read, for learning which apps change their item titles.
+    @ObservationIgnored private var previousIdentityItems: [ItemIdentity.Item]?
+
+    /// The identity key of each cached item, by window.
+    @ObservationIgnored private var identityKeysByWindow = [CGWindowID: String]()
+
+    /// Whether the sections are saved after the next item cache, because the user arranged
+    /// items (see `SectionRestore.swift`).
+    @ObservationIgnored var needsSectionSave = false
+
+    /// Whether the sections are being reconciled.
+    @ObservationIgnored var isReconcilingSections = false
+
+    /// A reconciliation asked for while one was running; it runs once that one ends.
+    @ObservationIgnored var pendingReconciliation: (wanted: [String: MenuBarSection.Name]?, trigger: SectionRestoreTrigger)?
+
+    /// The restore after an application launched, with its one re-check.
+    @ObservationIgnored var applicationLaunchRestoreTask: Task<Void, Never>?
+
+    /// The cache that records the sections the user just arranged.
+    @ObservationIgnored var sectionSaveTask: Task<Void, Never>?
+
     /// Tasks that observe the events that may change the item list.
     @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
 
@@ -62,7 +87,9 @@ final class MenuBarItemManager {
     /// Sets up the manager.
     func performSetup(with appState: AppState) async {
         self.appState = appState
+        titleChangingOwners = Set(Defaults.array(forKey: .titleChangingItemOwners) as? [String] ?? [])
         await cacheItemsRegardless()
+        await reconcileSections(trigger: .launch)
         configureObservers(with: appState)
     }
 
@@ -115,6 +142,17 @@ final class MenuBarItemManager {
             Task {
                 await self.cacheItemsRegardless()
             }
+        }
+
+        if backend.canMoveItems {
+            // An application that launches may put its items anywhere; they go back to their
+            // sections (see `SectionRestore.swift`).
+            observerTasks.append(Task { [weak self] in
+                let center = NSWorkspace.shared.notificationCenter
+                for await _ in center.notifications(named: NSWorkspace.didLaunchApplicationNotification) {
+                    self?.applicationDidLaunch()
+                }
+            })
         }
 
         if backend.refreshesAfterApplicationActivation {
@@ -291,7 +329,7 @@ extension MenuBarItemManager {
 
     /// A pair of control items, taken from a list of menu bar items
     /// during a menu bar item cache operation.
-    private struct ControlItemPair {
+    struct ControlItemPair {
         let hidden: MenuBarItem
         let alwaysHidden: MenuBarItem?
 
@@ -376,7 +414,7 @@ extension MenuBarItemManager {
                 context.shouldClearCachedItemWindowIDs = true
             }
 
-            if let temp = temporarilyShownItemContexts.first(where: { $0.tag == item.tag }) {
+            if let temp = temporarilyShownItemContexts.first(where: { $0.matches(item) }) {
                 // Cache temporarily shown items as if they were in their original locations.
                 // Keep track of them separately and use their return destinations to insert
                 // them into the cache once all other items have been handled.
@@ -474,13 +512,19 @@ extension MenuBarItemManager {
                 await enforceControlItemOrder(controlItems: controlItems)
                 // Forget the UUIDs of item windows that are gone (on every space).
                 pruneUUIDCache(keeping: Bridging.getMenuBarWindowList(option: .itemsOnly))
+                updateIdentities(with: items)
             }
             await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
 
             if backend.canMoveItems {
+                // The sections the user arranged, or of the first run, are recorded.
+                if needsSectionSave || Defaults.dictionary(forKey: .itemSections) == nil {
+                    needsSectionSave = false
+                    saveSections()
+                }
                 // Moving runs outside the cache task, which it would otherwise hold up.
                 Task {
-                    await self.placeNewItems(items, controlItems: controlItems)
+                    await self.reconcileSections(trigger: .itemListChange, items: items, controlItems: controlItems)
                 }
             }
         }
@@ -496,139 +540,6 @@ extension MenuBarItemManager {
         let signature = await backend.itemListSignature()
         if await cacheActor.cachedItemWindowIDs != signature {
             await cacheItemsRegardless(signature)
-        }
-    }
-}
-
-// MARK: - Moving Items Into Sections
-
-extension MenuBarItemManager {
-    /// Moves items into the sections given by their tags' descriptions, for
-    /// example to apply a layout profile. Items already in their section, and
-    /// items that are not on the bar, are left alone.
-    func move(itemsTo sections: [String: MenuBarSection.Name]) async {
-        var items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
-        guard let controlItems = ControlItemPair(items: &items) else {
-            logger.warning("Missing control item for hidden section, cannot move items into sections")
-            return
-        }
-        for item in items where item.isMovable && !item.isControlItem {
-            guard
-                var section = sections[item.tag.description],
-                itemCache.address(for: item.tag)?.section != section
-            else {
-                continue
-            }
-            if section == .alwaysHidden && controlItems.alwaysHidden == nil {
-                section = .hidden
-            }
-            let destination: MoveDestination = switch section {
-            case .visible: .rightOfItem(controlItems.hidden)
-            case .hidden: .leftOfItem(controlItems.hidden)
-            case .alwaysHidden: .leftOfItem(controlItems.alwaysHidden ?? controlItems.hidden)
-            }
-            do {
-                try await move(item: item, to: destination)
-            } catch EventError.automaticMovesPaused {
-                logger.warning("Automatic moves are paused, so not moving the remaining items into their sections")
-                break
-            } catch {
-                logger.error("Error moving \(item.logString, privacy: .private(mask: .hash)) into \(section.logString, privacy: .public): \(error, privacy: .private)")
-            }
-        }
-        await cacheItemsRegardless()
-    }
-}
-
-// MARK: - Placing New Items
-
-extension MenuBarItemManager {
-    /// Moves menu bar items that holzBar has not seen before into the section
-    /// chosen in the settings (jordanbaird/Ice#6, jordanbaird/Ice#767,
-    /// jordanbaird/Ice#378).
-    ///
-    /// macOS puts a new item at the far left of the bar, which is wherever the
-    /// leftmost section happens to be. holzBar remembers every item it has seen,
-    /// so only items that are new to it are moved, and the first run only records
-    /// what is there. Items whose identity changes on every launch are left alone,
-    /// as they would be new every time.
-    private func placeNewItems(_ items: [MenuBarItem], controlItems: ControlItemPair) async {
-        guard let appState, !appState.systemActivityMonitor.isPaused else {
-            return
-        }
-
-        if appState.settings.advanced.keepLiveActivitiesVisible {
-            await keepLiveActivitiesVisible(items, controlItems: controlItems)
-        }
-
-        let candidates = items.filter { item in
-            item.isMovable &&
-            item.canBeHidden &&
-            !item.isControlItem &&
-            !item.isSystemClone &&
-            !item.tag.namespace.isUUID
-        }
-        let stored = Defaults.array(forKey: .knownItemTags) as? [String]
-        var known = Set(stored ?? [])
-        let newItems = candidates.filter { !known.contains($0.tag.description) }
-
-        guard stored == nil || !newItems.isEmpty else {
-            return
-        }
-        known.formUnion(candidates.map(\.tag.description))
-        Defaults.set(known.sorted(), forKey: .knownItemTags)
-
-        guard
-            stored != nil,
-            var section = appState.settings.advanced.newItemsPlacement.section
-        else {
-            return
-        }
-        if section == .alwaysHidden && controlItems.alwaysHidden == nil {
-            section = .hidden
-        }
-
-        for item in newItems where itemCache.address(for: item.tag)?.section != section {
-            let destination: MoveDestination = switch section {
-            case .visible: .rightOfItem(controlItems.hidden)
-            case .hidden: .leftOfItem(controlItems.hidden)
-            case .alwaysHidden: .leftOfItem(controlItems.alwaysHidden ?? controlItems.hidden)
-            }
-            do {
-                logger.info("Placing new item \(item.logString, privacy: .private(mask: .hash)) in \(section.logString, privacy: .public)")
-                try await move(item: item, to: destination)
-            } catch EventError.automaticMovesPaused {
-                break
-            } catch {
-                logger.error("Error placing new item \(item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
-            }
-        }
-    }
-}
-
-extension MenuBarItemManager {
-    /// Moves Live Activities that macOS put in a hidden section to the visible
-    /// one (jordanbaird/Ice#731).
-    ///
-    /// A Live Activity appears as a new item at the far left of the bar, which
-    /// is a hidden section, so without this it is only seen by showing that section.
-    private func keepLiveActivitiesVisible(_ items: [MenuBarItem], controlItems: ControlItemPair) async {
-        for item in items where item.isMovable && !item.isControlItem {
-            let isHidden = item.bounds.maxX <= controlItems.hidden.bounds.minX
-            guard isHidden else {
-                continue
-            }
-            if item.tag.isLiveActivity {
-                do {
-                    logger.info("Keeping Live Activity \(item.logString, privacy: .private(mask: .hash)) visible")
-                    try await move(item: item, to: .rightOfItem(controlItems.hidden))
-                } catch {
-                    logger.error("Error moving Live Activity \(item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
-                }
-            } else if item.tag.namespace.isUUID || item.tag.namespace.description.hasPrefix("com.apple.") {
-                // Helps find the process that draws Live Activities.
-                logger.debug("Hidden system item: \(item.tag.description, privacy: .private(mask: .hash))")
-            }
         }
     }
 }
@@ -839,6 +750,12 @@ extension MenuBarItemManager {
         /// The tag associated with the item.
         let tag: MenuBarItemTag
 
+        /// The item's window.
+        let windowID: CGWindowID
+
+        /// The item's identity key (`ItemIdentity`).
+        let identityKey: String
+
         /// The destination to return the item to.
         let returnDestination: MoveDestination
 
@@ -870,9 +787,16 @@ extension MenuBarItemManager {
             return current.isOnScreen
         }
 
-        init(tag: MenuBarItemTag, returnDestination: MoveDestination) {
+        init(tag: MenuBarItemTag, windowID: CGWindowID, identityKey: String, returnDestination: MoveDestination) {
             self.tag = tag
+            self.windowID = windowID
+            self.identityKey = identityKey
             self.returnDestination = returnDestination
+        }
+
+        /// Whether the context belongs to the given item: the same window, or the same tag.
+        func matches(_ item: MenuBarItem) -> Bool {
+            item.windowID == windowID || item.tag == tag
         }
     }
 
@@ -985,7 +909,12 @@ extension MenuBarItemManager {
             return
         }
 
-        let context = TemporarilyShownItemContext(tag: item.tag, returnDestination: destination)
+        let context = TemporarilyShownItemContext(
+            tag: item.tag,
+            windowID: item.windowID,
+            identityKey: identityKey(for: item),
+            returnDestination: destination
+        )
         temporarilyShownItemContexts.append(context)
 
         rehideTimer?.invalidate()
@@ -1064,8 +993,13 @@ extension MenuBarItemManager {
             MouseHelpers.showCursor()
         }
 
+        let keys = identityKeys(for: items)
         while let context = currentContexts.popLast() {
-            guard let item = items.first(matching: context.tag) else {
+            // The window first (it lasts while the app runs), then the identity, which
+            // survives a title that changed while the item was shown.
+            let item = items.first { $0.windowID == context.windowID }
+                ?? items.first { keys[$0.windowID] == context.identityKey }
+            guard let item else {
                 continue
             }
             do {
@@ -1140,6 +1074,11 @@ extension MenuBarItemManager {
         await rehideTemporarilyShownItems()
     }
 
+    /// Whether the given item is shown for a moment and waits to be rehidden.
+    func isTemporarilyShown(_ item: MenuBarItem) -> Bool {
+        temporarilyShownItemContexts.contains { $0.matches(item) }
+    }
+
     /// Removes a temporarily shown item from the cache, ensuring that
     /// the item is _not_ returned to its original location.
     func removeTemporarilyShownItemFromCache(with tag: MenuBarItemTag) {
@@ -1177,6 +1116,62 @@ extension MenuBarItemManager {
         } catch {
             logger.error("Error enforcing control item order: \(error, privacy: .private)")
         }
+    }
+}
+
+// MARK: - Item Identity
+
+extension MenuBarItemManager {
+    /// The identity keys of the given items, by window, keyed in the bar's order (left to
+    /// right) (`ItemIdentity`).
+    func identityKeys(for items: [MenuBarItem]) -> [CGWindowID: String] {
+        let ordered = items.sorted { $0.bounds.minX < $1.bounds.minX }
+        let keys = ItemIdentity.keys(
+            for: ordered.map { (namespace: $0.tag.namespace.description, title: $0.tag.title) },
+            titleChangingOwners: titleChangingOwners
+        )
+        return Dictionary(zip(ordered.map(\.windowID), keys)) { first, _ in first }
+    }
+
+    /// The key under which the given item is stored in profiles, groups, the known items and
+    /// the saved sections. It is the only way an item becomes a stored key.
+    func identityKey(for item: MenuBarItem) -> String {
+        if let key = identityKeysByWindow[item.windowID] {
+            return key
+        }
+        let keys = ItemIdentity.keys(
+            for: [(namespace: item.tag.namespace.description, title: item.tag.title)],
+            titleChangingOwners: titleChangingOwners
+        )
+        return keys.first ?? item.tag.description
+    }
+
+    /// The key a stored key (of this or an earlier version) matches today.
+    func storedIdentityKey(_ stored: String) -> String {
+        ItemIdentity.storedKey(stored, titleChangingOwners: titleChangingOwners)
+    }
+
+    /// Learns which apps change their item titles from this and the previous read of the bar,
+    /// and keys the items anew.
+    private func updateIdentities(with items: [MenuBarItem]) {
+        let current = items
+            .sorted { $0.bounds.minX < $1.bounds.minX }
+            .map { (namespace: $0.tag.namespace.description, title: $0.tag.title) }
+        if let previousIdentityItems {
+            let learned = ItemIdentity.learnTitleChangingOwners(
+                previous: previousIdentityItems,
+                current: current,
+                excluding: [Constants.bundleIdentifier]
+            )
+            let newlyLearned = learned.subtracting(titleChangingOwners)
+            if !newlyLearned.isEmpty {
+                titleChangingOwners.formUnion(newlyLearned)
+                Defaults.set(titleChangingOwners.sorted(), forKey: .titleChangingItemOwners)
+                logger.info("Learned \(newlyLearned.count, privacy: .public) apps whose item titles change")
+            }
+        }
+        previousIdentityItems = current
+        identityKeysByWindow = identityKeys(for: items)
     }
 }
 

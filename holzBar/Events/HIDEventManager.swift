@@ -103,6 +103,7 @@ final class HIDEventManager {
             return event
         }
         handleMenuBarItemDragStop()
+        handleArrangementEnd(with: event)
         return event
     }
 
@@ -182,6 +183,7 @@ final class HIDEventManager {
             secondaryContextMenu: advanced.enableSecondaryContextMenu,
             usesShelf: usesShelfEverywhere,
             showAllSectionsOnUserDrag: advanced.showAllSectionsOnUserDrag,
+            savesUserArrangement: MenuBarBackends.current.canMoveItems,
             hasCustomAppearance: appState.appearanceManager.needsOverlayPanels(for: appState.appearanceManager.configuration)
         )
     }
@@ -468,7 +470,28 @@ extension HIDEventManager {
     private func handleMenuBarItemDragStop() {
         if isDraggingMenuBarItem {
             isDraggingMenuBarItem = false
+            // The user arranged items on the bar: their sections are saved once the bar
+            // shows the result (see `SectionRestore.swift`).
+            appState?.itemManager.saveSectionsSoon()
         }
+    }
+
+    // MARK: Handle Arrangement End
+
+    /// Notes the end of a Command-drag on the menu bar when the drag monitors do not run
+    /// (they run only for "Show all sections on drag" or a custom appearance), so the
+    /// sections the user arranged are saved before anything restores the old ones.
+    private func handleArrangementEnd(with event: NSEvent) {
+        guard
+            !runningKinds.contains(.mouseDragged),
+            event.modifierFlags.contains(.command),
+            let appState,
+            let screen = bestScreen(appState: appState),
+            isMouseInsideMenuBar(appState: appState, screen: screen)
+        else {
+            return
+        }
+        appState.itemManager.saveSectionsSoon()
     }
 
     // MARK: Handle Menu Bar Item Drag Start

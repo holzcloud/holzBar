@@ -74,11 +74,13 @@ final class LayoutProfiles {
         guard !name.isEmpty else {
             return
         }
-        let cache = appState.itemManager.itemCache
+        let itemManager = appState.itemManager
+        let cache = itemManager.itemCache
         var itemSections = [String: Int]()
         for section in MenuBarSection.Name.allCases {
             for item in cache[section] where !item.isControlItem {
-                itemSections[item.tag.description] = section.profileIndex
+                // Stored under the item's identity, which survives a changing title.
+                itemSections[itemManager.identityKey(for: item)] = section.profileIndex
             }
         }
         let applicationSections = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
@@ -124,9 +126,16 @@ final class LayoutProfiles {
             }
             return
         }
-        let sections = profile.itemSections.compactMapValues(MenuBarSection.Name.init(profileIndex:))
+        // Keys of earlier versions (`namespace:title`) match through the item identity.
+        let itemManager = appState.itemManager
+        var sections = [String: MenuBarSection.Name]()
+        for (key, index) in profile.itemSections {
+            if let section = MenuBarSection.Name(profileIndex: index) {
+                sections[itemManager.storedIdentityKey(key)] = section
+            }
+        }
         Task {
-            await appState.itemManager.move(itemsTo: sections)
+            await itemManager.reconcileSections(wanted: sections, trigger: .profile)
         }
     }
 
