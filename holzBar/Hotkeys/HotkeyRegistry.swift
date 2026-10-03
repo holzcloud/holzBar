@@ -54,7 +54,7 @@ final class HotkeyRegistry {
     }
 
     // The same four-character code as the original Ice's; the two apps never run together.
-    private let signature = OSType(1231250720)
+    private let signature = OSType(HotkeyStorage.signature)
 
     private var eventHandlerRef: EventHandlerRef?
 

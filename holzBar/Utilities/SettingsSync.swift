@@ -15,6 +15,12 @@ import SystemConfiguration
 /// app cannot have, so the settings travel as `holzBar/Settings.plist` in
 /// iCloud Drive instead. Each change is written there; newer settings from
 /// another Mac are applied at launch, or after a restart the user agrees to.
+///
+/// Without an iCloud entitlement, `NSMetadataQuery`'s ubiquitous scopes are out of reach
+/// too. File coordination is what iCloud Drive itself uses to update the file, so a file
+/// presenter on the `holzBar` folder hears about every version that arrives from another
+/// Mac, with no polling, and coordinated reads and writes never see half a file. The
+/// presenter and the observer of this Mac's settings exist only while sync is on.
 @MainActor
 final class SettingsSync: ObservableObject {
     private static let logger = Logger(category: "SettingsSync")
@@ -55,15 +61,21 @@ final class SettingsSync: ObservableObject {
         return FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) ? url : nil
     }
 
+    /// The folder in iCloud Drive that holds the sync file.
+    static var folderURL: URL? {
+        iCloudDriveURL?.appending(path: "holzBar", directoryHint: .isDirectory)
+    }
+
     /// The file the settings are synced through.
     static var fileURL: URL? {
-        iCloudDriveURL?.appending(path: "holzBar/Settings.plist")
+        folderURL?.appending(path: "Settings.plist")
     }
 
     /// A Boolean value that indicates whether syncing is turned on.
     @Published var isEnabled = false {
         didSet {
             Defaults.set(isEnabled, forKey: .syncsSettingsWithICloud)
+            updateObservers()
             if isEnabled, !oldValue {
                 push()
             }
@@ -71,27 +83,75 @@ final class SettingsSync: ObservableObject {
     }
 
     private weak var appState: AppState?
-    private var cancellables = Set<AnyCancellable>()
     private var lastPushedData: Data?
     private var isAskingToRestart = false
+
+    /// Observes this Mac's settings while sync is on.
+    private var defaultsObserver: AnyCancellable?
+
+    /// Hears about new versions of the sync file while sync is on.
+    private var presenter: SettingsSyncPresenter?
+
+    /// The pending check after the sync file changed.
+    private var checkTask: Task<Void, Never>?
 
     func performSetup(with appState: AppState) {
         self.appState = appState
         isEnabled = Defaults.bool(forKey: .syncsSettingsWithICloud)
+    }
 
-        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
-            .debounce(for: 5, scheduler: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.settingsDidChange()
+    /// Starts or stops observing the settings and the sync file, as sync is on or off.
+    private func updateObservers() {
+        guard isEnabled, appState != nil else {
+            defaultsObserver = nil
+            checkTask?.cancel()
+            checkTask = nil
+            if let presenter {
+                NSFileCoordinator.removeFilePresenter(presenter)
+                self.presenter = nil
+                Self.logger.info("Stopped watching the sync file")
             }
-            .store(in: &cancellables)
+            return
+        }
 
-        Timer.publish(every: 300, tolerance: 30, on: .main, in: .default)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.checkForNewerSettings()
+        if defaultsObserver == nil {
+            defaultsObserver = NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+                .debounce(for: 5, scheduler: DispatchQueue.main)
+                .sink { [weak self] _ in
+                    self?.settingsDidChange()
+                }
+        }
+
+        if presenter == nil, let folderURL = Self.folderURL {
+            do {
+                try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+            } catch {
+                Self.logger.error("Error creating the sync folder in iCloud Drive: \(error, privacy: .private)")
             }
-            .store(in: &cancellables)
+            let presenter = SettingsSyncPresenter(folderURL: folderURL) { [weak self] in
+                guard let self else {
+                    return
+                }
+                Task { @MainActor in
+                    self.syncFileDidChange()
+                }
+            }
+            NSFileCoordinator.addFilePresenter(presenter)
+            self.presenter = presenter
+            Self.logger.info("Watching the sync file")
+        }
+    }
+
+    /// Checks the sync file shortly after it changed, once for a burst of changes.
+    private func syncFileDidChange() {
+        checkTask?.cancel()
+        checkTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(2))
+            guard !Task.isCancelled else {
+                return
+            }
+            self?.checkForNewerSettings()
+        }
     }
 
     /// Writes the settings to iCloud Drive, if syncing is on.
@@ -116,15 +176,35 @@ final class SettingsSync: ObservableObject {
         }
         let modified = Date.now
         let file: [String: Any] = [
-            "modified": modified,
+            SettingsSyncFile.modifiedKey: modified,
             SettingsSyncDevice.deviceIDKey: Self.deviceID,
             SettingsSyncDevice.deviceNameKey: Self.computerName ?? "",
-            "settings": settings,
+            SettingsSyncFile.settingsKey: settings,
         ]
         do {
             try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             let data = try PropertyListSerialization.data(fromPropertyList: file, format: .xml, options: 0)
-            try data.write(to: fileURL, options: .atomic)
+            // Coordinated, so iCloud Drive never uploads half a file; this Mac's presenter
+            // is not told about its own write.
+            var coordinationError: NSError?
+            var writeError: (any Error)?
+            NSFileCoordinator(filePresenter: presenter).coordinate(
+                writingItemAt: fileURL,
+                options: .forReplacing,
+                error: &coordinationError
+            ) { url in
+                do {
+                    try data.write(to: url, options: .atomic)
+                } catch {
+                    writeError = error
+                }
+            }
+            if let coordinationError {
+                throw coordinationError
+            }
+            if let writeError {
+                throw writeError
+            }
             lastPushedData = settingsData
             UserDefaults.standard.set(modified, forKey: Self.lastSyncedKey)
             Self.logger.info("Wrote settings to iCloud Drive")
@@ -133,20 +213,41 @@ final class SettingsSync: ObservableObject {
         }
     }
 
-    /// Reads the synced settings if they are newer than the ones this Mac has.
-    private static func newerSettings() -> (settings: [String: Any], modified: Date)? {
-        guard
-            let fileURL,
-            let data = try? Data(contentsOf: fileURL),
-            let file = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any],
-            let modified = file["modified"] as? Date,
-            let settings = file["settings"] as? [String: Any],
-            !SettingsSyncDevice.isFromThisMac(file: file, deviceID: deviceID, computerName: computerName)
-        else {
+    /// Reads the synced settings if another Mac wrote them after this Mac last synced.
+    ///
+    /// - Parameter presenter: The presenter that reads, which is not told about the read.
+    private static func newerSettings(presenter: (any NSFilePresenter)?) -> (settings: [String: Any], modified: Date)? {
+        guard let fileURL, let file = readFile(at: fileURL, presenter: presenter) else {
             return nil
         }
-        let lastSynced = UserDefaults.standard.object(forKey: lastSyncedKey) as? Date ?? .distantPast
-        return modified > lastSynced ? (settings, modified) : nil
+        return SettingsSyncFile.newerSettings(
+            in: file,
+            lastSynced: UserDefaults.standard.object(forKey: lastSyncedKey) as? Date,
+            deviceID: deviceID,
+            computerName: computerName,
+            localKeys: localKeys
+        )
+    }
+
+    /// Reads the sync file with a coordinated read, so a version iCloud Drive is still
+    /// writing is never read half.
+    private static func readFile(at fileURL: URL, presenter: (any NSFilePresenter)?) -> [String: Any]? {
+        var coordinationError: NSError?
+        var file: [String: Any]?
+        NSFileCoordinator(filePresenter: presenter).coordinate(
+            readingItemAt: fileURL,
+            options: [],
+            error: &coordinationError
+        ) { url in
+            guard let data = try? Data(contentsOf: url) else {
+                return
+            }
+            file = (try? PropertyListSerialization.propertyList(from: data, format: nil)) as? [String: Any]
+        }
+        if let coordinationError {
+            logger.error("Error reading the sync file: \(coordinationError, privacy: .private)")
+        }
+        return file
     }
 
     /// Applies newer settings from another Mac before anything reads the
@@ -154,11 +255,11 @@ final class SettingsSync: ObservableObject {
     static func pullIfNeeded() {
         guard
             Defaults.bool(forKey: .syncsSettingsWithICloud),
-            let newer = newerSettings()
+            let newer = newerSettings(presenter: nil)
         else {
             return
         }
-        SettingsBackup.apply(newer.settings.filter { !localKeys.contains($0.key) })
+        SettingsBackup.apply(newer.settings)
         Defaults.set(true, forKey: .syncsSettingsWithICloud)
         UserDefaults.standard.set(newer.modified, forKey: lastSyncedKey)
         logger.notice("Applied settings from iCloud Drive")
@@ -166,7 +267,7 @@ final class SettingsSync: ObservableObject {
 
     /// Offers to restart when another Mac has changed the settings.
     private func checkForNewerSettings() {
-        guard isEnabled, !isAskingToRestart, Self.newerSettings() != nil else {
+        guard isEnabled, !isAskingToRestart, Self.newerSettings(presenter: presenter) != nil else {
             return
         }
         isAskingToRestart = true
@@ -183,5 +284,43 @@ final class SettingsSync: ObservableObject {
             SettingsSync.pullIfNeeded()
             SettingsBackup.relaunch()
         }
+    }
+}
+
+// MARK: - SettingsSyncPresenter
+
+/// Tells settings sync when a new version of the sync file arrives in iCloud Drive.
+///
+/// File presenters are called on their own queue; the presenter only hands the change on.
+/// Its state never changes after it is created.
+private final class SettingsSyncPresenter: NSObject, NSFilePresenter, @unchecked Sendable {
+    let presentedItemURL: URL?
+
+    let presentedItemOperationQueue: OperationQueue = {
+        let queue = OperationQueue()
+        queue.maxConcurrentOperationCount = 1
+        queue.qualityOfService = .utility
+        return queue
+    }()
+
+    /// Called when the folder or a file in it changes.
+    private let onChange: @Sendable () -> Void
+
+    init(folderURL: URL, onChange: @escaping @Sendable () -> Void) {
+        self.presentedItemURL = folderURL
+        self.onChange = onChange
+        super.init()
+    }
+
+    func presentedItemDidChange() {
+        onChange()
+    }
+
+    func presentedSubitemDidChange(at url: URL) {
+        onChange()
+    }
+
+    func presentedSubitemDidAppear(at url: URL) {
+        onChange()
     }
 }

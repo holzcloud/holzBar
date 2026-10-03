@@ -47,8 +47,8 @@ enum LegacySettingsMigration {
     /// The hotkey actions of the hidden and always-hidden sections, by the section names
     /// Ice used before 0.8.0.
     private static let sectionHotkeyActions = [
-        "Hidden": "ToggleHiddenSection",
-        "Always Hidden": "ToggleAlwaysHiddenSection",
+        "Hidden": HotkeyAction.toggleHiddenSection.rawValue,
+        "Always Hidden": HotkeyAction.toggleAlwaysHiddenSection.rawValue,
     ]
 
     /// Returns the settings migrated to the current schema.

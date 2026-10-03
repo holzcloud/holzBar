@@ -62,7 +62,7 @@ Everything holzBar asks macOS for, the feature that needs it and when it is aske
 | **Accessibility** <sub>required</sub> | Reading where menu bar items are; moving, showing and clicking them for you; noticing clicks, scrolls and hovers in the menu bar for show on click, scroll and hover | Asked on the first launch |
 | **Screen Recording** <sub>optional</sub> | Pictures of menu bar items in the holzBar Shelf, the search and the Menu Bar Layout pane (on macOS 27 taken once per item), and the wallpaper beside a menu bar shape | Asked the first time you open the holzBar Shelf, the search or the Menu Bar Layout pane, or choose a menu bar shape — never at launch. Without it, everything else works and nothing captures the screen |
 | **Login item** | Starting holzBar when you log in | Only when you turn on "Launch at login" |
-| **iCloud Drive file** | Settings sync between your Macs (`iCloud Drive/holzBar/Settings.plist`) | Only while settings sync is on |
+| **iCloud Drive file** | Settings sync between your Macs (`iCloud Drive/holzBar/Settings.plist`), read and written with file coordination | Only while settings sync is on; with sync off, holzBar neither watches the folder nor writes to it |
 | **Entitlements** | None. holzBar runs without the App Sandbox, because Accessibility event taps and the menu bar's private WindowServer calls do not work in it, and it has no network entitlement | — |
 | **Info.plist usage strings** | None: macOS does not use them for Accessibility and Screen Recording | — |
 | **Reset and Grant Again** | Runs `tccutil reset` for holzBar's own entry only, when a stale permission keeps the permissions window open | Only when you click it |
@@ -170,7 +170,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 #### Settings
 - ✅ **Export and import** all settings
-- ✅ **Sync between Macs** through iCloud Drive
+- ✅ **Sync between Macs** through iCloud Drive — changes from another Mac arrive as soon as iCloud Drive delivers them, with no polling
 - ✅ **Imports your Ice settings** on first launch
 - ✅ Launch at login
 
