@@ -42,7 +42,6 @@ final class MenuBarAssessmentAssertion27: ConcealmentBackend27 {
         }
     }
 
->>>
     private static let frameworkPath = "/System/Library/PrivateFrameworks/MenuBarClientCore.framework/MenuBarClientCore"
     private static let configureSelector = NSSelectorFromString("initWithAllowedSystemItems:allowedBundleIdentifiers:")
     private static let activateSelector = NSSelectorFromString("activateWithConfiguration:completionHandler:")
