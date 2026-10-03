@@ -145,6 +145,8 @@ Everything holzBar asks macOS for, the feature that needs it and when it is aske
 | **Info.plist usage strings** | None: macOS does not use them for Accessibility and Screen Recording | — |
 | **Reset and Grant Again** | Runs `tccutil reset` for holzBar's own entry only, when a stale permission keeps the permissions window open | Only when you click it |
 
+<p align="center"><img src="Resources/Screenshots/settings-layout-screen-recording.png" alt="holzBar settings, Menu Bar Layout pane without Screen Recording: it explains that the pane shows pictures of the menu bar items, which macOS lets an app take only with Screen Recording, with an Allow Screen Recording… button" width="560"><br><sub>Screen Recording is asked only when a feature needs it, and holzBar says why.</sub></p>
+
 > [!WARNING]
 > **macOS 27: the camera, microphone and screen recording indicator.** While holzBar hides menu bar items on macOS 27, Control Centre does not show its privacy indicator — green for the camera, orange for the microphone, indigo for screen sharing or recording. The small green dot beside the clock still appears while the camera is on. The indicator comes back while holzBar hides no item. holzBar needs no permission for this and cannot prevent it: macOS removes the indicator whenever an app hides items the way holzBar must on macOS 27. **Settings → General** says so too.
 
@@ -303,12 +305,12 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 <table>
 <tr>
-<td width="50%" valign="top"><b>Layout</b> — drag items into sections, with profiles, groups and spacers<br><img src="Resources/Screenshots/settings-layout.png" alt="holzBar settings, Menu Bar Layout pane: profiles with Save Current Layout…, groups with New Group…, spacers, and the Visible and Hidden sections with the menu bar items"></td>
+<td width="50%" valign="top"><b>Layout</b> — drag items into sections, with profiles, groups and spacers<br><img src="Resources/Screenshots/settings-layout.png" alt="holzBar settings, Menu Bar Layout pane: the profile home with Apply and Bind, Save Current Layout…, groups with New Group…, spacers, and the Visible and Hidden sections with the menu bar items"></td>
 <td width="50%" valign="top"><b>Appearance</b> — tint, shadow, border, shapes, a black bar and rounded screen corners<br><img src="Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Menu Bar Appearance pane: Dynamic appearance, Tint, Shadow, Border, Shape Kind, Black menu bar and Round the screen corners"></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action<br><img src="Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys for the hidden section, the search, the holzBar Shelf, app menus and auto-rehide, each with Record Hotkey"></td>
-<td width="50%" valign="top"><b>Advanced</b> — the always-hidden section, Live Activities and delays<br><img src="Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, section dividers, where new items go, Live Activities, hiding app menus, the secondary context menu and the hover and temporary-show delays"></td>
+<td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action, profile and item<br><img src="Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys for the hidden section, the search, opening an item by letter, the layout profile home, the holzBar Shelf, app menus, auto-rehide and Zen mode, each with Record Hotkey"></td>
+<td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode, automatic reveal and settings backup<br><img src="Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, showing hidden items when the battery is low or the network is lost, and settings Export… and Import…"></td>
 </tr>
 </table>
 
