@@ -133,7 +133,7 @@ Everything holzBar asks macOS for, the feature that needs it and when it is aske
 | Permission or entitlement | Needed for | When |
 |---|---|---|
 | **Accessibility** <sub>required</sub> | Reading where menu bar items are; moving, showing and clicking them for you; noticing clicks, scrolls and hovers in the menu bar for show on click, scroll and hover | Asked on the first launch |
-| **Screen Recording** <sub>optional</sub> | Pictures of menu bar items in the holzBar Shelf, the search and the Menu Bar Layout pane (on macOS 27 taken once per item), and a moving wallpaper beside a menu bar shape (before macOS 27; other wallpapers are read from their file) | Asked the first time you open the holzBar Shelf, the search or the Menu Bar Layout pane, or choose a menu bar shape with a moving wallpaper — never at launch. Without it, everything else works, the holzBar Shelf, the search and the Layout pane show app icons, and nothing captures the screen |
+| **Screen Recording** <sub>optional</sub> | Pictures of menu bar items in the holzBar Shelf, the search and the Menu Bar Layout pane (on macOS 27 taken once per item), and a moving wallpaper beside a menu bar shape (before macOS 27; other wallpapers are read from their file) | Asked the first time you open the holzBar Shelf, the search or the Menu Bar Layout pane, or choose a menu bar shape with a moving wallpaper — never at launch. Without it, everything else works, the holzBar Shelf and the search show app icons, and nothing captures the screen |
 | **Login item** | Starting holzBar when you log in | Only when you turn on "Launch at login" |
 | **A folder you choose** | Settings sync between your Macs (`holzBar/Settings.plist` in iCloud Drive or any folder your Macs sync, such as Nextcloud, Dropbox, OneDrive, Syncthing or a network share), read and written with file coordination; holzBar keeps a bookmark of the folder, the folder's own app does the syncing | Only while settings sync is on; with sync off, holzBar neither watches the folder nor writes to it |
 | **Entitlements** | None. holzBar runs without the App Sandbox, because Accessibility event taps and the menu bar's private WindowServer calls do not work in it, and it has no network entitlement | — |
@@ -222,7 +222,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - ✅ **Layout profiles** — "Work", "Home", … one click, hotkey or URL away
 - ✅ **Profiles bound to a display or a Space** — applied when you connect the display or switch to the Space
 - ✅ **Groups** (folders) — several items behind an icon of their own, in a colour and with a symbol or image of your choice
-- ✅ **Item images of your choice** — give any item its own picture, or its app's icon; without Screen Recording, app icons stand in for item pictures
+- ✅ **Item images of your choice** — give any item its own picture, or its app's icon; without Screen Recording, the holzBar Shelf and the search show app icons
 - ✅ **Spacers** — empty items of adjustable width
 - ✅ **Choose where new items appear**
 - ✅ **Keeps items in their section after app updates, title changes and display changes**

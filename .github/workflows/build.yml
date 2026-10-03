@@ -162,8 +162,9 @@ jobs:
         run: |
           RESOURCES=build/Build/Products/Release/holzBar.app/Contents/Resources
           FAILED=0
+          echo "Resources: $(ls "$RESOURCES" | tr '\n' ' ')"
           for LANGUAGE in en de fr it rm; do
-            FILES=$(cd "$RESOURCES/$LANGUAGE.lproj" 2>/dev/null && ls | tr '\n' ' ')
+            FILES=$(ls "$RESOURCES/$LANGUAGE.lproj" 2>/dev/null | tr '\n' ' ' || true)
             echo "$LANGUAGE.lproj: ${FILES:-missing}"
             if [ "$LANGUAGE" != en ] && [ ! -f "$RESOURCES/$LANGUAGE.lproj/Localizable.strings" ]; then
               echo "::error::$LANGUAGE.lproj/Localizable.strings is missing from the built holzBar.app"
