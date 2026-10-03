@@ -67,15 +67,15 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [x] **LEAN-01**: An analysis of the whole code base (written to `.planning/phases/05.1-modern-lean-and-private/05.1-ANALYSIS.md`) lists everything that can be more modern (2026 Swift/SwiftUI/AppKit idioms), more efficient (CPU, energy, memory, wake-ups, polling), smaller (binary and bundle size, dependencies, assets) and faster (launch time, UI), each with location, gain and risk; the user picks what gets done
 - [ ] **MOD-01**: Swift 6 language mode for all targets (strict concurrency, no `@unchecked Sendable` without a written reason)
 - [ ] **MOD-02**: Models use `@Observable` instead of `ObservableObject` + `@Published` + Combine
-- [ ] **MOD-03**: The old Ice migration chain is collapsed into one import step
+- [x] **MOD-03**: The old Ice migration chain is collapsed into one import step
 - [ ] **MOD-04**: `MenuBarItemManager` and `HIDEventManager` are split per backend (pre-26, 26, 27)
-- [ ] **MOD-05**: Tests for migration, settings import/sync, URL commands and hotkeys
-- [ ] **MOD-06**: Settings sync uses `NSFileCoordinator` / `NSMetadataQuery`
+- [x] **MOD-05**: Tests for migration, settings import/sync, URL commands and hotkeys
+- [x] **MOD-06**: Settings sync uses `NSFileCoordinator` / `NSMetadataQuery`
 - [x] **LEAN-02**: Every third-party dependency that the system frameworks can replace without losing a feature is removed (candidates: LaunchAtLogin-Modern → `SMAppService`, CompactSlider, Semaphore, Ifrit); the app bundle is measurably smaller (size before/after in the PR)
 - [x] **LEAN-03**: No polling or timer runs while nothing can change (event- and notification-driven instead); idle CPU wake-ups are measured before/after where possible
 - [x] **PRIV-01**: The app makes no network connection at all: no telemetry, analytics, crash reporting, update checks or remote fetches; a CI check fails if networking APIs (`URLSession`, `NWConnection`, `Network` framework sockets, web views) appear outside an explicit allowlist (opening links in the browser is allowed); entitlements contain no network client/server entitlement; documented in README ("Principles" section and banner, added in Phase 01.1, kept accurate here)
 - [x] **PRIV-02**: No personal data leaves the Mac or lands in logs: logs use `privacy: .private` for anything user-specific, item images and settings stay local (iCloud sync only when the user turns it on)
-- [ ] **PERM-01**: holzBar asks only for the permissions it really needs, only when a feature needs them, and explains why in the permissions window; every permission, entitlement and Info.plist usage string is listed with the feature that needs it, and anything not needed is removed — without removing a feature
+- [x] **PERM-01**: holzBar asks only for the permissions it really needs, only when a feature needs them, and explains why in the permissions window; every permission, entitlement and Info.plist usage string is listed with the feature that needs it, and anything not needed is removed — without removing a feature
 
 ### Security and performance
 
@@ -170,15 +170,15 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | LEAN-01 | Phase 05.1 | Complete |
 | MOD-01 | Phase 05.1 | Pending |
 | MOD-02 | Phase 05.1 | Pending |
-| MOD-03 | Phase 05.1 | Pending |
+| MOD-03 | Phase 05.1 | Complete |
 | MOD-04 | Phase 05.1 | Pending |
-| MOD-05 | Phase 05.1 | Pending |
-| MOD-06 | Phase 05.1 | Pending |
+| MOD-05 | Phase 05.1 | Complete |
+| MOD-06 | Phase 05.1 | Complete |
 | LEAN-02 | Phase 05.1 | Complete |
 | LEAN-03 | Phase 05.1 | Complete |
 | PRIV-01 | Phase 05.1 | Complete |
 | PRIV-02 | Phase 05.1 | Complete |
-| PERM-01 | Phase 05.1 | Pending |
+| PERM-01 | Phase 05.1 | Complete |
 | AUDIT-01 | Phase 6 | Pending |
 | COMPAT-01 | Phase 06.1 | Pending |
 | COMPAT-02 | Phase 06.1 | Pending |

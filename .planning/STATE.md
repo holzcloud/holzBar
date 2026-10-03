@@ -4,16 +4,16 @@ milestone: v0.0.6
 current_phase: 1
 current_phase_name: CI and build
 status: verifying
-stopped_at: Completed 05.1-01-PLAN.md
-last_updated: "2026-10-03T01:07:10.041Z"
+stopped_at: Completed 05.1-02-PLAN.md
+last_updated: "2026-10-03T01:28:12.070Z"
 last_activity: 2026-10-02
 last_activity_desc: Roadmap created (6 phases, 37 requirements mapped)
-state_head: b1de5b633851c7c7244adb22f916bbe36ad56ca6
+state_head: 6e84afc27d1945491462fd53b99e46faeb9242bc
 progress:
   total_phases: 10
   completed_phases: 0
   total_plans: 23
-  completed_plans: 21
+  completed_plans: 22
 ---
 
 # Project State
@@ -76,6 +76,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05 P01 | 7min | 2 tasks | 9 files |
 | Phase 05 P02 | 16min | 3 tasks | 11 files |
 | Phase 05.1 P01 | 23min | 3 tasks | 56 files |
+| Phase 05.1 P02 | 19min | 3 tasks | 35 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,9 @@ Recent decisions affecting current work:
 - [Phase 05.1]: 05.1-01: privacy-check.py scans Logger literals (raw strings, nested quotes, logger.log) and keeps the plan regex as a second pass
 - [Phase 05.1]: 05.1-01: HolzBarSlider exposes a system Slider to VoiceOver via accessibilityRepresentation
 - [Phase 05.1]: 05.1-01: the offline rule records a baseline when turned on while offline (does not fire), as before
+- [Phase 05.1]: Screen Recording is asked only in context (Shelf, search, Layout pane, menu bar shape); a permission not asked at launch polls at most 300 s after a request
+- [Phase 05.1]: Ice settings are migrated once during the import (LegacySettingsMigration); nothing migrates at launch
+- [Phase 05.1]: Every build keeps the hardened runtime; CI fails when the app or XPC service lacks it
 
 ### Pending Todos
 
@@ -148,6 +152,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-03T01:07:09.980Z
-Stopped at: Completed 05.1-01-PLAN.md
+Last session: 2026-10-03T01:28:12.001Z
+Stopped at: Completed 05.1-02-PLAN.md
 Resume file: None
