@@ -12,7 +12,7 @@ nonisolated enum SettingsNavigationIdentifier: String, NavigationIdentifier {
     case advanced = "Advanced"
     case about = "About"
 
-    var iconResource: IconResource {
+    @MainActor var iconResource: IconResource {
         switch self {
         case .general: .systemSymbol("gearshape")
         case .menuBarLayout: .systemSymbol("rectangle.topthird.inset.filled")

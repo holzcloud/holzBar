@@ -8,9 +8,8 @@ import SwiftUI
 private struct LocalEventMonitorModifier: ViewModifier {
     /// Owns the monitor; the monitor removes itself when the model is released.
     @MainActor
-    @Observable
     private final class Model {
-        @ObservationIgnored private let monitor: EventMonitor
+        private let monitor: EventMonitor
 
         init(mask: NSEvent.EventTypeMask, action: @escaping @MainActor (NSEvent) -> NSEvent?) {
             self.monitor = EventMonitor.local(for: mask, handler: action)

@@ -8,7 +8,7 @@ import SwiftUI
 /// A type that represents an identifier for a navigation destination.
 nonisolated protocol NavigationIdentifier: CaseIterable, Hashable, Identifiable, RawRepresentable {
     /// An icon for the identifier's navigation destination.
-    var iconResource: IconResource { get }
+    @MainActor var iconResource: IconResource { get }
 
     /// A localized description for the identifier's navigation destination.
     var localized: LocalizedStringKey { get }

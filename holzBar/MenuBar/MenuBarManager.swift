@@ -98,7 +98,7 @@ final class MenuBarManager {
     private func configureObservers() {
         keyValueObservations.append(
             NSApp.observe(\.currentSystemPresentationOptions, options: [.initial, .new]) { [weak self] _, _ in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     guard let self else {
                         return
                     }

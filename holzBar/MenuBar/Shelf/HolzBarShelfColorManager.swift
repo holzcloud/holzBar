@@ -39,7 +39,7 @@ final class HolzBarShelfColorManager {
 
         observations = [
             shelfPanel.observe(\.screen, options: [.initial, .new]) { [weak self] panel, _ in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     guard let self, let screen = panel.screen, screen == .main else {
                         return
                     }
@@ -47,7 +47,7 @@ final class HolzBarShelfColorManager {
                 }
             },
             shelfPanel.observe(\.isVisible, options: [.initial, .new]) { [weak self] panel, _ in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     guard let self else {
                         return
                     }

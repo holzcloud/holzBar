@@ -411,7 +411,7 @@ nonisolated enum MenuBarItemProvider27 {
 }
 
 @available(macOS 27.0, *)
-extension MenuBarItem {
+nonisolated extension MenuBarItem {
     /// Creates an item read through Accessibility on macOS 27.
     init(
         tag: MenuBarItemTag,

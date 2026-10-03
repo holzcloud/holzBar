@@ -32,6 +32,7 @@ final class ControlItem {
 
         /// Returns the length associated with this identifier and
         /// the given hiding state.
+        @MainActor
         func length(for state: HidingState) -> CGFloat {
             switch self {
             case .visible:
@@ -330,7 +331,7 @@ final class ControlItem {
         }
         windowObservations = [
             newWindow.observe(\.frame, options: [.initial, .new]) { [weak self] window, _ in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     guard let self, self.window === window, frame != window.frame else {
                         return
                     }
@@ -339,7 +340,7 @@ final class ControlItem {
                 }
             },
             newWindow.observe(\.screen, options: [.initial, .new]) { [weak self] window, _ in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     guard let self, self.window === window else {
                         return
                     }
