@@ -43,3 +43,31 @@ Thaw (https://github.com/thaw-app/Thaw, GPL-3.0) is another Ice fork. This compa
 - Sparkle update channel, Crowdin, Discord links.
 - AppleScript or shell hooks and a CLI (privilege and attack surface).
 - Location triggers, script triggers and anything that polls.
+
+# Ice upstream scan (2026-10-03)
+
+Ice's `main` has had no commits since 2025-09-20. Everything new is in open PRs and new issues, which `gh api` cannot reach (403); a shallow clone is in the scratchpad.
+
+## Chosen by the user
+- ICE-01 (05.1.1) Hardening from jordanbaird/Ice#985:
+  - Hotkey decoding rejects out-of-range key codes, so a hostile defaults write cannot cause a crash loop.
+  - Colour arrays are validated.
+  - Window titles are kept out of the logs.
+- ICE-02 (05.1.1) Small fixes:
+  - #900: no crash when every show mode is off.
+  - #933: show on click is skipped while an overlay covers the menu bar.
+  - #911: clicks in the Shelf are reliable on macOS 26.
+  - #923: spacing restarts every app on Apply (reconcile with THAW-04).
+- ICE-03 (05.1.1) #1007 (macOS 27): an app that launches while items are concealed gets a squashed 3 pt item. On `didLaunchApplicationNotification`, release the app from the assertion until its status item exists, then conceal again.
+- ICE-04 (05.1.1) The rest of #1001 (macOS 27):
+  - Hidden items opened from search or the layout go through `ItemClicker27`.
+  - System and bundleless items are disabled, with tooltips.
+  - Settings that do nothing on 27 are hidden.
+  - Wallpaper window ownership.
+  - Hover and click frames on several displays.
+  - Its known issue to check: MenuBarAgent removes the control item while assertions are active.
+- ICE-05 (05.1.1.1) Localization (#1000, #1002) through a String Catalog: English, German, French, Italian and Romansh, matching the website; no language switcher download.
+- ICE-06 (05.1.1) Bring docs/upstream-bugs.md up to date:
+  - Add #1005 to the fixed macOS 27 row, and #1007 as a new open row (or fixed).
+  - Add #974 and #968 to the auto-rehide group, #988 and #959 to the wrong-place group, #979 to the lost-section group, and #961 to the Dock group.
+  - #976 is not a bug.

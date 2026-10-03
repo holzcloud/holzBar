@@ -168,7 +168,7 @@ Plans:
 ### Phase 05.1.1: Thaw fixes and speed (INSERTED)
 
 **Goal:** The bugs Thaw fixed that holzBar shares are fixed, and revealing is fast and never freezes input
-**Requirements**: THAW-01, THAW-02, THAW-03, THAW-04, THAW-05, THAW-06, THAW-07, THAW-08
+**Requirements**: THAW-01, THAW-02, THAW-03, THAW-04, THAW-05, THAW-06, THAW-07, THAW-08, ICE-01, ICE-02, ICE-03, ICE-04, ICE-06
 **Depends on:** Phase 05.1
 **Plans:** 0 plans
 
@@ -178,7 +178,7 @@ Plans:
 ### Phase 05.1.1.1: Thaw features (INSERTED)
 
 **Goal:** holzBar gains Thaw's best features within its principles (no network, least privilege, lean)
-**Requirements**: THAW-10, THAW-11, THAW-12, THAW-13, THAW-14, THAW-15, THAW-16, THAW-17
+**Requirements**: THAW-10, THAW-11, THAW-12, THAW-13, THAW-14, THAW-15, THAW-16, THAW-17, ICE-05
 **Depends on:** Phase 05.1.1
 **Plans:** 0 plans
 

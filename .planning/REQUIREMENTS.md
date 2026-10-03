@@ -88,6 +88,12 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [ ] **THAW-07**: see `.planning/research/THAW.md`
 - [ ] **THAW-08**: see `.planning/research/THAW.md`
 
+- [ ] **ICE-01**: see `.planning/research/THAW.md` (Ice upstream scan)
+- [ ] **ICE-02**: see THAW.md
+- [ ] **ICE-03**: see THAW.md
+- [ ] **ICE-04**: see THAW.md
+- [ ] **ICE-06**: see THAW.md
+
 ### Thaw features
 
 - [ ] **THAW-10**: see `.planning/research/THAW.md`
@@ -98,6 +104,8 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 - [ ] **THAW-15**: see `.planning/research/THAW.md`
 - [ ] **THAW-16**: see `.planning/research/THAW.md`
 - [ ] **THAW-17**: see `.planning/research/THAW.md`
+
+- [ ] **ICE-05**: localization (String Catalog: en, de, fr, it, rm) — see THAW.md
 
 ### Security and performance
 
@@ -217,6 +225,12 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | THAW-15 | Phase 05.1.1.1 | Pending |
 | THAW-16 | Phase 05.1.1.1 | Pending |
 | THAW-17 | Phase 05.1.1.1 | Pending |
+| ICE-01 | Phase 05.1.1 | Pending |
+| ICE-02 | Phase 05.1.1 | Pending |
+| ICE-03 | Phase 05.1.1 | Pending |
+| ICE-04 | Phase 05.1.1 | Pending |
+| ICE-06 | Phase 05.1.1 | Pending |
+| ICE-05 | Phase 05.1.1.1 | Pending |
 | AUDIT-01 | Phase 6 | Pending |
 | COMPAT-01 | Phase 06.1 | Pending |
 | COMPAT-02 | Phase 06.1 | Pending |
