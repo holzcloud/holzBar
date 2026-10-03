@@ -79,15 +79,8 @@ enum ItemClicker27 {
     }
 
     private static func windowOwners() -> [(number: Int, ownerPID: Int32)] {
-        let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] ?? []
-        return windows.compactMap { window in
-            guard
-                let number = window[kCGWindowNumber as String] as? Int,
-                let pid = window[kCGWindowOwnerPID as String] as? Int32
-            else {
-                return nil
-            }
-            return (number: number, ownerPID: pid)
+        WindowInfo.createWindows(option: .onScreen).map { window in
+            (number: Int(window.windowID), ownerPID: window.ownerPID)
         }
     }
 

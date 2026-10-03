@@ -164,7 +164,7 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
     ///
     /// This initializer does not perform validity checks on its parameters.
     /// Only call it if you are certain the window is a valid menu bar item.
-    private init(uncheckedItemWindow itemWindow: WindowInfo) {
+    init(uncheckedItemWindow itemWindow: WindowInfo) {
         self.tag = MenuBarItemTag(uncheckedItemWindow: itemWindow)
         self.windowID = itemWindow.windowID
         self.ownerPID = itemWindow.ownerPID
@@ -180,7 +180,7 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
     /// Only call it if you are certain the window is a valid menu bar item
     /// and the source pid belongs to the application that created it.
     @available(macOS 26.0, *)
-    private init(uncheckedItemWindow itemWindow: WindowInfo, sourcePID: pid_t?) {
+    init(uncheckedItemWindow itemWindow: WindowInfo, sourcePID: pid_t?) {
         self.tag = MenuBarItemTag(uncheckedItemWindow: itemWindow, sourcePID: sourcePID)
         self.windowID = itemWindow.windowID
         self.ownerPID = itemWindow.ownerPID
@@ -241,47 +241,18 @@ nonisolated extension MenuBarItem {
             }
     }
 
-    /// Creates and returns a list of menu bar items using experimental
-    /// source pid retrieval for macOS 26.
-    @available(macOS 26.0, *)
-    private static func getMenuBarItemsExperimental(on display: CGDirectDisplayID?, option: ListOption) async -> [MenuBarItem] {
-        var items = [MenuBarItem]()
-        for window in getMenuBarItemWindows(on: display, option: option) {
-            let sourcePID = await MenuBarItemService.Connection.shared.sourcePID(for: window)
-            let item = MenuBarItem(uncheckedItemWindow: window, sourcePID: sourcePID)
-            items.append(item)
-        }
-        return items
-    }
-
-    /// Creates and returns a list of menu bar items, defaulting to the
-    /// legacy source pid behavior, prior to macOS 26.
-    private static func getMenuBarItemsLegacyMethod(on display: CGDirectDisplayID?, option: ListOption) -> [MenuBarItem] {
-        getMenuBarItemWindows(on: display, option: option).map { window in
-            MenuBarItem(uncheckedItemWindow: window)
-        }
-    }
-
     /// Creates and returns a list of menu bar items for the given display.
+    ///
+    /// The items come from the backend of the running macOS (`MenuBarBackend`).
     ///
     /// - Parameters:
     ///   - display: An identifier for a display. Pass `nil` to return the menu bar
     ///     items across all available displays.
     ///   - option: Options that filter the returned list. Pass an empty option set
     ///     to return all available menu bar items.
+    @MainActor
     static func getMenuBarItems(on display: CGDirectDisplayID? = nil, option: ListOption) async -> [MenuBarItem] {
-        if #available(macOS 27.0, *) {
-            // Accessibility only describes the display with the active menu bar.
-            if let display, display != Bridging.getActiveMenuBarDisplayID() {
-                return []
-            }
-            let items = await MenuBarItemProvider27.items()
-            return option.contains(.onScreen) ? items.filter(\.isOnScreen) : items
-        } else if #available(macOS 26.0, *) {
-            return await getMenuBarItemsExperimental(on: display, option: option)
-        } else {
-            return getMenuBarItemsLegacyMethod(on: display, option: option)
-        }
+        await MenuBarBackends.current.items(on: display, option: option)
     }
 }
 

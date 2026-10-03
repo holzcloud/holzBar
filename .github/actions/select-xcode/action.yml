@@ -32,3 +32,5 @@ runs:
           exit 1
         fi
         echo "$VERSION_OUTPUT"
+        # The exact Swift compiler that builds and tests holzBar.
+        xcrun swift --version

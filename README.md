@@ -211,8 +211,8 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 does, what i
 | Fix for the permissions loop | ❌ | ✅ |
 | **Code and resources** | | |
 | Third-party Swift packages | 5 | **none** |
-| Swift language mode | Swift 5 | Swift 5 · 🔜 Swift 6 |
-| State management | Combine | Combine · 🔜 `@Observable` |
+| Swift language mode | Swift 5 | Swift 6 (data-race safety checked by the compiler) |
+| State management | Combine | `@Observable`, no Combine |
 | Mouse event tap when "Show on hover" is off | always running | off |
 | Timers and polling while nothing is shown | yes | only while needed |
 | Settings sync checks for changes | — (no sync) | when iCloud Drive delivers them, no polling |

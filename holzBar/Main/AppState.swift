@@ -120,13 +120,8 @@ final class AppState {
         settings.performSetup(with: self)
         menuBarManager.performSetup(with: self)
 
-        if #available(macOS 27.0, *) {
-            // macOS 27 has no item windows: bounds come from Accessibility, and the
-            // owning process is known directly, without the item service.
-            Bridging.setSyntheticWindowBoundsProvider { MenuBarItemProvider27.currentBounds(for: $0) }
-        } else if #available(macOS 26.0, *) {
-            await MenuBarItemService.Connection.shared.start()
-        }
+        // The item service on macOS 26, the synthetic bounds on macOS 27.
+        await MenuBarBackends.current.performSetup()
 
         appearanceManager.performSetup(with: self)
         hidEventManager.performSetup(with: self)

@@ -3,7 +3,6 @@
 //  holzBar
 //
 
-@preconcurrency import ApplicationServices
 import Cocoa
 import Observation
 import OSLog
@@ -33,24 +32,6 @@ final class HIDEventManager {
     /// The last empty menu bar spot hovered on each display (see `ItemClicker27`).
     @ObservationIgnored private var lastEmptyMenuBarPoints = [CGDirectDisplayID: CGPoint]()
 
-    /// Until when the release of a held-back click is held back as well (see
-    /// `handleSystemItemClick27`). The deadline keeps a release that never comes from
-    /// swallowing an unrelated one later.
-    @ObservationIgnored private var heldBackReleaseUntil: ContinuousClock.Instant?
-
-    /// System items that do not open from an Accessibility press, so a click on them has to
-    /// go through MenuBarAgent. Seeded with what was measured on macOS 27.0; anything else
-    /// that turns out to ignore the press joins them at its first click.
-    @ObservationIgnored private var systemItemsIgnoringPress: Set<String> = [
-        "com.apple.menuextra.clock",
-        "com.apple.menuextra.battery",
-        "com.apple.menuextra.wifi",
-    ]
-
-    /// The system item whose panel holzBar last opened, so a second click on the same item is
-    /// understood as the click that dismisses it.
-    @ObservationIgnored private var itemShowingPanel: String?
-
     /// What show on hover does once its delay has passed.
     private enum HoverAction {
         case show
@@ -76,8 +57,8 @@ final class HIDEventManager {
     /// The input monitors that are running.
     @ObservationIgnored private var runningKinds = Set<InputMonitors.Kind>()
 
-    /// Whether the macOS 27 system item click tap is running.
-    @ObservationIgnored private var isSystemItemClickTapRunning = false
+    /// Whether the system item click bridge is running.
+    @ObservationIgnored private var isSystemItemClickBridgeRunning = false
 
     /// Cancels the pending hover action.
     private func cancelHoverAction() {
@@ -156,25 +137,9 @@ final class HIDEventManager {
         return event
     }
 
-    /// Tap that lets clicks reach the system items while items are concealed on macOS 27.
-    ///
-    /// While an assessment-mode assertion is live, MenuBarAgent ignores clicks on the
-    /// clock (measured on macOS 27.0). The tap holds such a click back, releases the
-    /// assertions for a moment, and replays the click.
-    @ObservationIgnored private(set) lazy var systemItemClickTap = EventTap(
-        types: [.leftMouseDown, .leftMouseUp],
-        location: .hidEventTap,
-        placement: .headInsertEventTap,
-        option: .defaultTap
-    ) { [weak self] _, event in
-        guard let self, isEnabled, let appState else {
-            return event
-        }
-        if #available(macOS 27.0, *) {
-            return handleSystemItemClick27(event, appState: appState)
-        }
-        return event
-    }
+    /// The tap that lets clicks reach the system items while items are concealed, where
+    /// the backend needs one (`SystemItemClickBridge27`). It runs while the manager is enabled.
+    @ObservationIgnored private var systemItemClickBridge: (any SystemItemClickBridge)?
 
     // MARK: Running Monitors
 
@@ -242,13 +207,13 @@ final class HIDEventManager {
         if !runningKinds.contains(.mouseUp), isDraggingMenuBarItem {
             isDraggingMenuBarItem = false
         }
-        if #available(macOS 27.0, *) {
-            if isEnabled, !isSystemItemClickTapRunning {
-                systemItemClickTap.start()
-                isSystemItemClickTapRunning = true
-            } else if !isEnabled, isSystemItemClickTapRunning {
-                systemItemClickTap.stop()
-                isSystemItemClickTapRunning = false
+        if let systemItemClickBridge {
+            if isEnabled, !isSystemItemClickBridgeRunning {
+                systemItemClickBridge.start()
+                isSystemItemClickBridgeRunning = true
+            } else if !isEnabled, isSystemItemClickBridgeRunning {
+                systemItemClickBridge.stop()
+                isSystemItemClickBridgeRunning = false
             }
         }
     }
@@ -258,6 +223,7 @@ final class HIDEventManager {
     /// Sets up the manager.
     func performSetup(with appState: AppState) {
         self.appState = appState
+        systemItemClickBridge = MenuBarBackends.current.makeSystemItemClickBridge(appState: appState)
         startAll()
         configureObservers()
     }
@@ -477,13 +443,7 @@ extension HIDEventManager {
         }
     }
 
-    // MARK: Handle System Item Clicks (macOS 27)
-
-    /// Marks the clicks holzBar replays, so the tap lets them through.
-    private static let replayedClickMarker: Int64 = 0x1CE_27_C1C
-
-    /// Times the steps of a bridged click, which happen on both opening and closing a panel.
-    private static let bridgeLogger = Logger(category: "ClickBridge27")
+    // MARK: Menu Bar Activation
 
     /// Marks holzBar's click that makes a display's menu bar active before an item is pressed.
     static let menuBarActivationMarker: Int64 = 0x1CE_27_BA2
@@ -491,206 +451,6 @@ extension HIDEventManager {
     /// The last empty menu bar spot hovered on the given display.
     func lastEmptyMenuBarPoint(for displayID: CGDirectDisplayID) -> CGPoint? {
         lastEmptyMenuBarPoints[displayID]
-    }
-
-    @available(macOS 27.0, *)
-    private func handleSystemItemClick27(_ event: CGEvent, appState: AppState) -> CGEvent? {
-        guard event.getIntegerValueField(.eventSourceUserData) != Self.replayedClickMarker else {
-            return event
-        }
-        if event.type == .leftMouseUp {
-            // A press holzBar holds back has its release held back with it. MenuBarAgent would
-            // otherwise be handed a release with no press behind it, moments before the
-            // replayed click that carries both.
-            guard let until = heldBackReleaseUntil, ContinuousClock.now < until else {
-                heldBackReleaseUntil = nil
-                return event
-            }
-            heldBackReleaseUntil = nil
-            return nil
-        }
-        let concealer = appState.concealer27
-        // The frames of the display the click landed on, so the clock of the display whose bar
-        // is not active is recognised as well.
-        let clickedDisplay = NSScreen.screens.first { CGDisplayBounds($0.displayID).contains(event.location) }?.displayID
-        let framesOnDisplay = clickedDisplay.map { MenuBarItemProvider27.systemItemFrames(for: $0) } ?? []
-        guard ClockBridgeZone27.shouldBridge(
-            click: event.location,
-            systemItemFrames: framesOnDisplay.isEmpty ? MenuBarItemProvider27.systemItemFrames() : framesOnDisplay,
-            isConcealing: concealer.isConcealing
-        ) else {
-            return event
-        }
-        let location = event.location
-        // Control Centre opens from an Accessibility press even while items are concealed
-        // (measured on macOS 27.0: its panel appears after about 177 ms). The clock, the
-        // battery and Wi-Fi ignore the press, so for those the concealment is lifted and the
-        // click replayed — and put back the moment their panel is up, rather than after a
-        // fixed second and a half, which is what made every hidden item flash into view.
-        let systemItem = MenuBarItemProvider27.systemItem(at: location)
-        let mayOpenFromPress = systemItem.map { !self.systemItemsIgnoringPress.contains($0.identifier) } ?? false
-        Task {
-            // A click that lands while a panel is up is the click that dismisses it, and
-            // Escape dismisses it just as well — with no lift of concealment at all. Lifting
-            // for such a click brought every hidden item back on screen first, and the panel
-            // only answered once MenuBarAgent had finished moving the bar: the icons appeared,
-            // and the panel closed late behind them.
-            // A banner shows in the same window as the panel — same process, same level, the
-            // size of the display (measured on macOS 27.0) — so the window alone cannot say
-            // whether a panel is open, and a click that arrived while a banner happened to be
-            // up was answered with Escape, dismissing the banner instead of opening the panel.
-            // A click is treated as dismissing a panel only when holzBar opened one itself and its
-            // window is still there; a panel opened some other way is closed by the replayed
-            // click, as it would be without holzBar.
-            if self.itemShowingPanel != nil, ItemClick27.openPanelWindow(windows: Self.windowsForPanelCheck()) != nil {
-                Self.postEscape()
-                Self.bridgeLogger.debug("Click bridge: a panel was open, dismissed with Escape")
-                guard systemItem?.identifier != self.itemShowingPanel else {
-                    self.itemShowingPanel = nil
-                    return
-                }
-                // A different system item was clicked, so its own panel still has to open.
-                try? await Task.sleep(for: Self.panelDismissWait)
-            }
-            if mayOpenFromPress, let systemItem {
-                let baseline = Self.windowNumbers()
-                await Self.press(systemItem.element)
-                if await Self.waitForPanel(baseline: baseline, pollsOf50ms: 5) {
-                    // Remembered here as well, or the next click on this item would dismiss
-                    // its panel and open it again in the same breath.
-                    self.itemShowingPanel = systemItem.identifier
-                    return
-                }
-                // Waiting for a panel that never comes only delays the click, so an item
-                // that ignored the press is not asked again while holzBar runs.
-                self.systemItemsIgnoringPress.insert(systemItem.identifier)
-            }
-            // The click is replayed the moment the assertion is really gone rather than on a
-            // timer: releasing it queues behind other concealment work, and MenuBarAgent ignores
-            // a click that arrives while the assertion still stands, which is why the clock
-            // sometimes did nothing and opened on the second try. Nothing else is done before
-            // the replay, so the click is as quick as the release allows.
-            let bridgeStarted = ProcessInfo.processInfo.systemUptime
-            Self.bridgeLogger.debug("Click bridge: holding the click, lifting concealment")
-            await concealer.suspendReleased(for: Self.clickRestoreDelay)
-            let released = (ProcessInfo.processInfo.systemUptime - bridgeStarted) * 1000
-            Self.replayClick(at: location)
-            self.itemShowingPanel = systemItem?.identifier
-            Self.bridgeLogger.debug("Click bridge: lifted in \(released, privacy: .public) ms, click replayed")
-        }
-        heldBackReleaseUntil = .now + .seconds(1)
-        return nil
-    }
-
-    /// How long concealment stays lifted around a replayed click.
-    ///
-    /// MenuBarAgent needs the lift to act on the click at all, and every millisecond of it is
-    /// a millisecond of the bar moving: the items slide back in, then out again. The panel's
-    /// own window appears about 166 ms after the click (measured on macOS 27.0), so a lift
-    /// that ends around then has the bar settling while the panel animates, which is what made
-    /// the animation stutter.
-    ///
-    /// Measured on macOS 27.0 with `Scripts/macos27/clock-restore.swift`, on both displays: a
-    /// lift of 40 ms loses the click 6 times in 16, 60 ms once in 16, and 80, 100 and 120 ms
-    /// each opened the panel 16 times in 16. So the floor is around 60 ms, and 120 ms keeps
-    /// double that margin while still ending before the panel appears. The
-    /// `MacOS27ClickRestoreDelay` default overrides it, in milliseconds, for measuring.
-    private static var clickRestoreDelay: Duration {
-        let stored = Defaults.integer(forKey: .macOS27ClickRestoreDelay)
-        return .milliseconds(stored > 0 ? min(max(stored, 30), 2000) : 120)
-    }
-
-    /// The window numbers currently on screen.
-    private static func windowNumbers() -> Set<Int> {
-        let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] ?? []
-        return Set(windows.compactMap { $0[kCGWindowNumber as String] as? Int })
-    }
-
-    /// The processes that draw the system items' panels.
-    ///
-    /// Without this, the Dock passes for an open panel: its window stands at layer 20 and the
-    /// full size of the display, and it is always there, so every click looked like a click
-    /// that closes a panel and every wait for that panel to go ran into its timeout (measured
-    /// on macOS 27.0: 12 clicks in a row judged "panel already open").
-    private static let panelOwnerBundleIDs: Set<String> = [
-        "com.apple.notificationcenterui",
-        "com.apple.controlcenter",
-    ]
-
-    /// The windows on screen that could be a system item's panel, as `ItemClick27` wants them.
-    private static func windowsForPanelCheck() -> [(number: Int, layer: Int, height: CGFloat)] {
-        let owners = Set(
-            NSWorkspace.shared.runningApplications
-                .filter { panelOwnerBundleIDs.contains($0.bundleIdentifier ?? "") }
-                .map(\.processIdentifier)
-        )
-        let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] ?? []
-        return windows.compactMap { window in
-            guard
-                let number = window[kCGWindowNumber as String] as? Int,
-                let layer = window[kCGWindowLayer as String] as? Int,
-                let ownerPID = window[kCGWindowOwnerPID as String] as? pid_t,
-                owners.contains(ownerPID),
-                let bounds = window[kCGWindowBounds as String] as? [String: CGFloat],
-                let height = bounds["Height"]
-            else {
-                return nil
-            }
-            return (number: number, layer: layer, height: height)
-        }
-    }
-
-    /// How long the panel that was open takes to go after Escape, before the item that was
-    /// clicked is given its own turn.
-    private static let panelDismissWait = Duration.milliseconds(120)
-
-    /// Presses Escape, which dismisses an open system panel.
-    ///
-    /// Notification Center and Control Centre both answer it while items stay concealed, so a
-    /// click that dismisses a panel needs no lift of concealment at all.
-    private static func postEscape() {
-        let source = CGEventSource(stateID: .hidSystemState)
-        for down in [true, false] {
-            CGEvent(keyboardEventSource: source, virtualKey: 53, keyDown: down)?.post(tap: .cghidEventTap)
-        }
-    }
-
-    /// Waits for a system item's panel to appear.
-    @available(macOS 27.0, *)
-    private static func waitForPanel(baseline: Set<Int>, pollsOf50ms: Int) async -> Bool {
-        for _ in 0..<pollsOf50ms {
-            try? await Task.sleep(for: .milliseconds(50))
-            if ItemClick27.panelOpened(before: baseline, windows: windowsForPanelCheck()) {
-                return true
-            }
-        }
-        return false
-    }
-
-    /// Presses an Accessibility element off the main thread, which the call can block.
-    private static func press(_ element: AXUIElement) async {
-        await withCheckedContinuation { continuation in
-            DispatchQueue.global(qos: .userInitiated).async {
-                _ = AXUIElementPerformAction(element, kAXPressAction as CFString)
-                continuation.resume()
-            }
-        }
-    }
-
-    private static func replayClick(at location: CGPoint) {
-        let source = CGEventSource(stateID: .hidSystemState)
-        for type in [CGEventType.leftMouseDown, .leftMouseUp] {
-            guard let event = CGEvent(
-                mouseEventSource: source,
-                mouseType: type,
-                mouseCursorPosition: location,
-                mouseButton: .left
-            ) else {
-                continue
-            }
-            event.setIntegerValueField(.eventSourceUserData, value: replayedClickMarker)
-            event.post(tap: .cghidEventTap)
-        }
     }
 
     // MARK: Handle Show On Hover
@@ -842,179 +602,6 @@ extension HIDEventManager {
         } else if averageDelta < -5 {
             hiddenSection.hide()
         }
-    }
-}
-
-// MARK: - Helper Methods
-
-extension HIDEventManager {
-    /// Returns the best screen to use for event manager calculations.
-    /// Uses the screen under the mouse so menu bar hover/click work correctly
-    /// with multiple displays (e.g. external monitor).
-    func bestScreen(appState: AppState) -> NSScreen? {
-        NSScreen.screenWithMouse ?? NSScreen.main
-    }
-
-    /// A Boolean value that indicates whether the mouse pointer is within
-    /// the bounds of the menu bar.
-    func isMouseInsideMenuBar(appState: AppState, screen: NSScreen) -> Bool {
-        guard let mouseLocation = MouseHelpers.locationAppKit else {
-            return false
-        }
-
-        // With "Displays have separate Spaces" off, only the primary display has
-        // a menu bar. The top edge of any other display is ordinary space, and
-        // treating it as a menu bar showed hidden items and holzBar's menu there
-        // (jordanbaird/Ice#383, jordanbaird/Ice#456, jordanbaird/Ice#646).
-        if !NSScreen.screensHaveSeparateSpaces, screen != NSScreen.screens.first {
-            return false
-        }
-
-        // holzBar icon must be vertically visible. Otherwise, we can infer
-        // that the menu bar is hidden and the mouse is not inside.
-        //
-        // On macOS 27 the icon's window is only a placeholder, and its frame says
-        // nothing about the menu bar (measured past a display's left edge, below its
-        // bottom, and with no height). The visible frame check below remains.
-        if #unavailable(macOS 27.0) {
-            guard
-                let holzBarIcon = appState.menuBarManager.controlItem(withName: .visible),
-                let holzBarIconFrame = holzBarIcon.frame,
-                holzBarIconFrame.maxY <= screen.frame.maxY
-            else {
-                return false
-            }
-        }
-
-        // Infer the menu bar frame from the screen frame.
-        return mouseLocation.x >= screen.frame.minX &&
-        mouseLocation.x <= screen.frame.maxX &&
-        mouseLocation.y <= screen.frame.maxY &&
-        mouseLocation.y >= screen.visibleFrame.maxY
-    }
-
-    /// A Boolean value that indicates whether the mouse pointer is within
-    /// the bounds of the current application menu.
-    func isMouseInsideApplicationMenu(appState: AppState, screen: NSScreen) -> Bool {
-        guard
-            let mouseLocation = MouseHelpers.locationCoreGraphics,
-            var applicationMenuFrame = screen.getApplicationMenuFrame()
-        else {
-            return false
-        }
-        applicationMenuFrame.size.width += applicationMenuFrame.origin.x - screen.frame.origin.x
-        applicationMenuFrame.origin.x = screen.frame.origin.x
-        return applicationMenuFrame.contains(mouseLocation)
-    }
-
-    /// A Boolean value that indicates whether the mouse pointer is within
-    /// the bounds of a menu bar item.
-    func isMouseInsideMenuBarItem(appState: AppState, screen: NSScreen) -> Bool {
-        guard let mouseLocation = MouseHelpers.locationCoreGraphics else {
-            return false
-        }
-        if #available(macOS 27.0, *) {
-            // There are no item windows on macOS 27. See `ItemHitTest27`.
-            let items = appState.itemManager.itemCache.managedItems.map { item in
-                ItemHitTest27.Item(frame: item.bounds, ownerPID: item.ownerPID, isOnScreen: item.isOnScreen)
-            }
-            let systemFrames = MenuBarItemProvider27.systemItemFrames()
-                + [MenuBarItemProvider27.overflowButtonFrame()].compactMap { $0 }
-            return ItemHitTest27.isInsideItem(
-                point: mouseLocation,
-                items: items,
-                concealedPIDs: appState.concealer27.concealedPIDs,
-                systemFrames: systemFrames
-            )
-        }
-        let windowIDs = Bridging.getMenuBarWindowList(option: [.onScreen, .activeSpace, .itemsOnly])
-        return windowIDs.contains { windowID in
-            guard let bounds = Bridging.getWindowBounds(for: windowID) else {
-                return false
-            }
-            return bounds.contains(mouseLocation)
-        }
-    }
-
-    /// A Boolean value that indicates whether the mouse pointer is within
-    /// the bounds of the screen's notch, if it has one.
-    ///
-    /// If the screen does not have a notch, this property returns `false`.
-    func isMouseInsideNotch(appState: AppState, screen: NSScreen) -> Bool {
-        guard
-            let mouseLocation = MouseHelpers.locationAppKit,
-            var frameOfNotch = screen.frameOfNotch
-        else {
-            return false
-        }
-        frameOfNotch.size.height += 1
-        return frameOfNotch.contains(mouseLocation)
-    }
-
-    /// A Boolean value that indicates whether the mouse pointer is within
-    /// the bounds of an empty space in the menu bar.
-    func isMouseInsideEmptyMenuBarSpace(appState: AppState, screen: NSScreen) -> Bool {
-        guard
-            isMouseInsideMenuBar(appState: appState, screen: screen),
-            !isMouseInsideApplicationMenu(appState: appState, screen: screen),
-            !isMouseInsideMenuBarItem(appState: appState, screen: screen),
-            !isMouseInsideNotch(appState: appState, screen: screen)
-        else {
-            return false
-        }
-        if #available(macOS 27.0, *) {
-            // The gaps between items are part of the items' own run of the bar.
-            return !isMouseInsideItemsArea(appState: appState, screen: screen)
-        }
-        return true
-    }
-
-    /// A Boolean value that indicates whether the mouse pointer rests in the part of the
-    /// menu bar that holds items, including the gaps between them.
-    @available(macOS 27.0, *)
-    func isMouseInsideItemsArea(appState: AppState, screen: NSScreen) -> Bool {
-        guard let mouseLocation = MouseHelpers.locationCoreGraphics else {
-            return false
-        }
-        let items = appState.itemManager.itemCache.managedItems.map { item in
-            ItemHitTest27.Item(frame: item.bounds, ownerPID: item.ownerPID, isOnScreen: item.isOnScreen)
-        }
-        let systemFrames = MenuBarItemProvider27.systemItemFrames()
-            + [MenuBarItemProvider27.overflowButtonFrame()].compactMap { $0 }
-        return ItemHitTest27.isInsideItemsArea(
-            point: mouseLocation,
-            displayBounds: CGDisplayBounds(screen.displayID),
-            items: items,
-            concealedPIDs: appState.concealer27.concealedPIDs,
-            systemFrames: systemFrames,
-            rememberedLeftEdge: MenuBarItemProvider27.leftEdge(for: screen.displayID)
-        )
-    }
-
-    /// A Boolean value that indicates whether the mouse pointer is within
-    /// the bounds of the holzBar Shelf panel.
-    func isMouseInsideShelf(appState: AppState) -> Bool {
-        guard let mouseLocation = MouseHelpers.locationAppKit else {
-            return false
-        }
-        let panel = appState.menuBarManager.shelfPanel
-        // Pad the frame to be more forgiving if the user accidentally
-        // moves their mouse outside of the holzBar Shelf.
-        let paddedFrame = panel.frame.insetBy(dx: -15, dy: -15)
-        return paddedFrame.contains(mouseLocation)
-    }
-
-    /// A Boolean value that indicates whether the mouse pointer is within
-    /// the bounds of the holzBar icon.
-    func isMouseInsideHolzBarIcon(appState: AppState) -> Bool {
-        guard
-            let visibleSection = appState.menuBarManager.section(withName: .visible),
-            let holzBarIconFrame = visibleSection.controlItem.frame,
-            let mouseLocation = MouseHelpers.locationAppKit
-        else {
-            return false
-        }
-        return holzBarIconFrame.contains(mouseLocation)
     }
 }
 
