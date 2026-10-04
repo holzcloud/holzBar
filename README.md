@@ -87,15 +87,16 @@ Then open it again. The release is signed with holzBar's own certificate and car
 
 ## 🔜 Planned for 0.0.7 "Automation"
 
-**Not available yet.** Plans can change; items marked *spike* are only built if a short test shows they work well.
+**Not available yet.** Plans can change; *spike* = only built if a short test shows it works well.
 
-- **Rules** that apply a profile or reveal items for a Wi-Fi network, an app, the time, the power source, a display or a Focus (*spike first: Focus*)
-- **Per-item conditions**, **scripts** (only from a folder you choose, after you confirm), **widgets** and an **AppleScript dictionary**
-- **Layout snapshots** with a one-click restore, **shareable profiles**, a **command palette**
-- A **first-launch assistant**, opt-in **usage suggestions**, **Touch ID** to show hidden items, **smooth show and hide**, **copy diagnostics**
-- macOS 27: cooperation with the native overflow button, Reduce Transparency, a Control Center control (*spikes*)
+| | |
+|---|---|
+| ⚙️ **Automation** | **Rules** (Wi-Fi, app, time, power, display, Focus; *spike first: Focus*) · **per-item conditions** · **scripts** (only from a folder you choose, after you confirm) · **widgets** · **AppleScript dictionary** · **command palette** |
+| 🛟 **Safety** | **Layout snapshots** with a one-click restore · **shareable profiles** · **Touch ID** to show hidden items · **copy diagnostics** (redacted, nothing is sent) |
+| 🪄 **Convenience** | **First-launch assistant** · opt-in **usage suggestions** (counters stay on your Mac) · **smooth show and hide** |
+| 🪵 **macOS 27 and polish** | Native overflow button support · Reduce Transparency · SwiftUI reordering (*spike*) · Control Center control (*spike*) · keyboard and VoiceOver audit · Swift 6.4 clean-up |
 
-The [full list](docs/features.md#planned-for-007-automation) has the details.
+Details: [docs/features.md](docs/features.md#planned-for-007-automation).
 
 ## 📚 More
 
