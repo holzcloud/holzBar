@@ -27,10 +27,10 @@ The menu bar items a user hides stay hidden and come back when asked, on every s
 Milestone "Automation" (0.0.7, planned and decided 2026-10-04; one beta `0.0.7-beta1` when the whole milestone is done): the user gets rules that react to the Mac's state, and a few things competitors have. Research: `.planning/research/COMPETITORS.md`; decisions (all 11 answered): `.planning/research/AUTOMATION-QUESTIONS.md`.
 
 - [ ] Triggers: rules (conditions all/any -> apply profile, show items, Zen mode) fed by system events, a permission only when the user adds the condition that needs it (Phase 8; the Focus-filter spike on macOS 26 and 27 comes first and the milestone is held if it fails)
-- [ ] Scripts: a user script or AppleScript as a condition or action, under a security design for an unsandboxed app with Accessibility (Phase 9)
-- [ ] Widgets: custom text items without code, built-in sources first (Phase 10, riskiest)
-- [ ] Competitor gaps: an AppleScript dictionary for holzBar (Phase 11), lock hidden items (Phase 12), smooth show and hide (Phase 13); desktop icons are only a backlog note
-- [ ] `0.0.7-beta1` released once, with hand-written notes, when the whole milestone is done (Phase 14)
+- [ ] Scripts: a user script or AppleScript as a condition or action, under a security design for an unsandboxed app with Accessibility (Phase 11)
+- [ ] Widgets: custom text items without code, built-in sources first (Phase 12, riskiest)
+- [ ] Competitor gaps: an AppleScript dictionary for holzBar (Phase 13), lock hidden items (Phase 18), smooth show and hide (Phase 19); desktop icons are only a backlog note
+- [ ] `0.0.7-beta1` released once, with hand-written notes, when the whole milestone is done (Phase 22)
 
 ### Out of Scope
 
@@ -64,8 +64,8 @@ Milestone "Automation" (0.0.7, planned and decided 2026-10-04; one beta `0.0.7-b
 | One pull request per phase, merged after a green build | No local compiler | — Pending |
 | No per-phase research; the codebase audit is the research | Findings already have file:line and replacements | ✓ Good |
 | Automation: permission-free triggers first; Wi-Fi name (Location) opt-in; no GPS location trigger; Focus only through a Focus filter; no Full Disk Access | Least privilege; INFocusStatusCenter needs a capability a self-signed app cannot have (see COMPETITORS.md section 4) | ✓ Decided 2026-10-04: Wi-Fi name optional (opt-in, spike first); Focus filter required, milestone held without it |
-| Scripts only from a folder the user chose, hash-pinned and confirmed, local-only, never from import, sync, URL or Shortcuts | holzBar is unsandboxed and holds Accessibility, so a script runner is a privilege-escalation surface | ✓ Decided 2026-10-04: hash plus confirmation sheet is the minimum; conditions re-evaluated on events and "Check now", no polling; Phase 9 security design still first |
-| Widgets: text from built-in sources (clock, battery, CPU, memory, uptime) plus a Shortcut button, timers only while visible, never online | Lean and private | ✓ Decided 2026-10-04 (Phase 10 spike first) |
+| Scripts only from a folder the user chose, hash-pinned and confirmed, local-only, never from import, sync, URL or Shortcuts | holzBar is unsandboxed and holds Accessibility, so a script runner is a privilege-escalation surface | ✓ Decided 2026-10-04: hash plus confirmation sheet is the minimum; conditions re-evaluated on events and "Check now", no polling; Phase 11 security design still first |
+| Widgets: text from built-in sources (clock, battery, CPU, memory, uptime) plus a Shortcut button, timers only while visible, never online | Lean and private | ✓ Decided 2026-10-04 (Phase 12 spike first) |
 | One beta `0.0.7-beta1` at the end of the milestone, no beta per phase; one push | User's choice; saves CI runs | ✓ Decided 2026-10-04 |
 | Rules screen is a new "Automation" pane; rules restore the previous profile by default; rules carry Wi-Fi names and chosen apps in export and sync (logs private) | User's choices | ✓ Decided 2026-10-04 |
 | AppleScript dictionary for holzBar is a phase; hide desktop icons is not | User's choice | ✓ Decided 2026-10-04 |

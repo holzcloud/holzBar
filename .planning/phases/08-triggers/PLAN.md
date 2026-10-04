@@ -36,7 +36,7 @@ Facts marked (V) were read in Apple documentation or an Apple DTS answer on 2026
 | Thermal state / Energy Mode | `ProcessInfo.thermalState` + notification (K); Energy Mode: no public API known | none | yes | Thermal after v1; Energy Mode not offered |
 | Bluetooth device | `IOBluetooth` / CoreBluetooth | Bluetooth permission | yes | Not offered in this milestone (permission) |
 | Camera / microphone in use | CoreMediaIO property listener (K) | probably none | yes | Not offered in this milestone (unverified; the macOS 27 privacy indicator is already affected by holzBar, see T-06-M3) |
-| Script exit status | Phase 9 | see Phase 9 | on events only | Phase 9 |
+| Script exit status | Phase 11 | see Phase 11 | on events only | Phase 11 |
 
 Least-privilege decisions in one sentence each: nothing is asked at install or launch; Location is asked once, when and only when the user picks a Wi-Fi network name; every monitor is created when an enabled rule needs that condition kind and cancelled when the last such rule is disabled; the Focus filter and the other conditions need no permission at all.
 
@@ -94,4 +94,4 @@ New sidebar pane **Automation** (decided), between Menu Bar Layout and Hotkeys: 
 
 ## Out of scope
 
-Location (GPS) condition, Bluetooth, camera/microphone, Energy Mode; scripts (Phase 9); widgets (Phase 10).
+Location (GPS) condition, Bluetooth, camera/microphone, Energy Mode; scripts (Phase 11); widgets (Phase 12).

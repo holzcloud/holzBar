@@ -5,7 +5,7 @@ requirements: [LOCK-01]
 depends_on: Phase 7
 ---
 
-# Phase 12: Lock hidden items
+# Phase 18: Lock hidden items
 
 ## Goal
 
@@ -22,13 +22,13 @@ It keeps a bystander at an unlocked Mac from seeing what the hidden items show (
 ## Design sketch
 
 - Setting `lockHiddenItems` (Defaults, exported and synced as a plain Boolean, never imported on): `SyncsSettingsWithICloud` precedent: an imported file must not turn the lock off or on silently; keep it out of import and sync (like T-06-L3).
-- Every path that reveals goes through one gate: click, hover, scroll, hotkeys, Shelf, search, URL `show`, Shortcuts, trigger rule action, AppleScript command (Phase 11). A rule or URL that would reveal while locked asks for authentication or does nothing; automatic reveals (battery low, offline) stay allowed because they are the user's own safety rules (my default; confirm when planning).
+- Every path that reveals goes through one gate: click, hover, scroll, hotkeys, Shelf, search, URL `show`, Shortcuts, trigger rule action, AppleScript command (Phase 13). A rule or URL that would reveal while locked asks for authentication or does nothing; automatic reveals (battery low, offline) stay allowed because they are the user's own safety rules (my default; confirm when planning).
 - A successful authentication opens a grace period (default 1 minute, choose 0 to 15) so the user is not asked for every hover; Zen mode and screen lock end it.
 - Pure part in Core: `RevealGate` (locked, grace deadline, source of the request) with Swift Testing.
 
 ## Plans
 
-1. **12-01 Gate and setting**: `RevealGate` in Core with tests; wiring of every reveal path; the setting and pane row; strings in five languages; docs.
+1. **18-01 Gate and setting**: `RevealGate` in Core with tests; wiring of every reveal path; the setting and pane row; strings in five languages; docs.
 
 ## Success criteria
 

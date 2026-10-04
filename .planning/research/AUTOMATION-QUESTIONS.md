@@ -3,7 +3,7 @@
 **All 11 questions DECIDED by the user on 2026-10-04.** The answer is in the **DECIDED** line under each question; the options stay for the record. Where the user chose differently from the recommendation, the line says so.
 
 1. **How should 0.0.7 ship?**
-   - A. One milestone, numbered betas as phases land: `0.0.7-beta1` after Phase 8, `-beta2` after Phase 9, `-beta3` with widgets stage 1 and the gap phases (**Recommended**: each beta stays reviewable; CLAUDE.md allows it)
+   - A. One milestone, numbered betas as phases land: `0.0.7-beta1` after Phase 8, `-beta2` after Phase 11, `-beta3` with widgets stage 1 and the gap phases (**Recommended**: each beta stays reviewable; CLAUDE.md allows it)
    - B. One beta with everything at the end
    - C. Triggers and scripts as 0.0.7, widgets and gaps as 0.0.8
    - **DECIDED: B.** One beta at the end: `0.0.7-beta1` when the whole milestone is done, no beta per phase (differs from the recommendation).
@@ -32,10 +32,10 @@
    - C. Rules never leave the Mac
    - **DECIDED: A.** Wi-Fi names and chosen apps are included in export and sync; logs stay private; the README says so.
 
-6. **How strong is the script approval (Phase 9)?**
+6. **How strong is the script approval (Phase 11)?**
    - A. Local file with the file's SHA-256 and a confirmation sheet; residual same-user-malware risk documented (**Recommended** as the minimum)
    - B. A, plus the approval list sealed in a Keychain item bound to holzBar's code signature (spike first; stronger against malware that writes files as the user)
-   - C. Do not build script support (end Phase 9 after the security design)
+   - C. Do not build script support (end Phase 11 after the security design)
    - **DECIDED: A** as the minimum: file hash plus a confirmation sheet; scripts only from a folder the user picked; never created or changed through sync, import or URL. The Keychain seal (B) is not required.
 
 7. **How are script conditions evaluated?**
@@ -54,7 +54,7 @@
    - A. Lock hidden items (Touch ID) and smooth animation, desktop icons as a spike only (**Recommended**, the plan as written)
    - B. Lock only
    - C. Lock, animation and a holzBar AppleScript dictionary (adds an input path; URL and Shortcuts already cover most uses)
-   - **DECIDED (different):** lock for hidden items and smooth show/hide as phases, **plus an AppleScript dictionary for holzBar as its own phase after widgets** (Phase 11). The desktop-icons spike is **not** selected; it stays a backlog note.
+   - **DECIDED (different):** lock for hidden items and smooth show/hide as phases, **plus an AppleScript dictionary for holzBar as its own phase after widgets** (Phase 13). The desktop-icons spike is **not** selected; it stays a backlog note.
 
 10. **If the Focus-filter spike shows `SetFocusFilterIntent` is broken on the user's macOS (a May 2026 forum report says `perform` is never called on 26.5)?**
     - A. Ship without Focus and record it; retry on the next macOS point release (**Recommended**)

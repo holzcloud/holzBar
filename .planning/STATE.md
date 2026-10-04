@@ -168,8 +168,8 @@ Recent decisions affecting current work:
 
 - Phase 8, first: the Focus-filter spike on macOS 26.x and 27 (release blocker; hold the milestone if it fails)
 - Phase 8 spikes that need a Mac: Wi-Fi name with Location (accessory app, self-signed), `ssidDidChange` without the entitlement, `SetFocusFilterIntent` on macOS 26 and 27
-- Phase 9 spikes: TCC identity of a child process, `NSUserUnixTask` against `Process`, Keychain seal
-- Phase 10 spike: holzBar's own extra status items on macOS 14, 26 and 27
+- Phase 11 spikes: TCC identity of a child process, `NSUserUnixTask` against `Process`, Keychain seal
+- Phase 12 spike: holzBar's own extra status items on macOS 14, 26 and 27
 - Earlier todos from 0.0.6 (CMS rows, signing secrets, private vulnerability reporting) are in `docs/signing.md` and `research/WEBSITE-UPDATE.md`
 
 ### Blockers/Concerns

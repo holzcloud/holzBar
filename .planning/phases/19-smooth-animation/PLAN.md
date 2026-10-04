@@ -5,7 +5,7 @@ requirements: [ANIM-01]
 depends_on: Phase 7
 ---
 
-# Phase 13: Smooth show and hide
+# Phase 19: Smooth show and hide
 
 ## Goal
 
@@ -25,7 +25,7 @@ Vanilla is praised for "fluid animations" (MacStories roundup). Ice and holzBar 
 
 ## Plans
 
-1. **13-01 Spike and implementation**: spike on three macOS versions with a checklist for the user; schedule in Core; Reduce Motion; setting; strings; docs; energy measurement (no wakeups when idle).
+1. **19-01 Spike and implementation**: spike on three macOS versions with a checklist for the user; schedule in Core; Reduce Motion; setting; strings; docs; energy measurement (no wakeups when idle).
 
 ## Risks
 

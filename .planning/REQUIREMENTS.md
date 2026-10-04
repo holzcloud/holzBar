@@ -156,27 +156,27 @@ Source: `.planning/research/COMPETITORS.md` (gaps, API and permission facts). Ev
 - [ ] **TRIG-08**: Rules are exported, imported and synced like other settings, **Wi-Fi names and chosen apps included** (decided), validated (known condition kinds, ranges, at most 50 rules, profile names looked up, unknown ones disable the rule); logs never contain SSIDs or app names in public, and the README says rules carry them
 - [ ] **TRIG-09**: URL commands and Shortcuts can list, enable and disable rules and tell which are active; they cannot create or edit a rule; lasting changes ask first like the other URL commands
 
-### Scripts (Phase 9)
+### Scripts (Phase 11)
 
-- [ ] **SCRIPT-01**: A security design and threat-register entries (`SECURITY.md`) exist before any code: privilege escalation through a script runner, same-user malware, settings import/sync/URL as injection paths, quarantine, TCC inheritance (see `.planning/phases/09-scripts/PLAN.md`)
+- [ ] **SCRIPT-01**: A security design and threat-register entries (`SECURITY.md`) exist before any code: privilege escalation through a script runner, same-user malware, settings import/sync/URL as injection paths, quarantine, TCC inheritance (see `.planning/phases/11-scripts/PLAN.md`)
 - [ ] **SCRIPT-02**: Scripts run only from a folder the user chose, only regular files owned by the user and not writable by group or others, never through a symbolic link out of the folder, never with a quarantine attribute; run by `Process` (or `NSUserScriptTask` if the spike proves it safer) with a fixed executable, no shell, no arguments, a minimal environment, stdin closed, a timeout, an output size limit and a rate limit
 - [ ] **SCRIPT-03**: The first run of a script, and the first run after its content changes (SHA-256), needs the user's confirmation naming the file, its folder and what it will be able to do; approvals are local
 - [ ] **SCRIPT-04**: Script bindings, folder, approvals and hashes never leave the Mac: not exported, not imported, not synced, not settable by URL or Shortcuts; an imported or synced rule that names a script is dropped and reported
 - [ ] **SCRIPT-05**: A script can be a condition (exit status 0 means true; evaluated on the engine's events and a manual "Check now" button; **no polling interval**, decided) and an action of a rule (run once when the rule becomes true or ends); output is data: shown as plain text, length-limited, never run or opened
 - [ ] **SCRIPT-06**: AppleScript files (`.scpt`, `.applescript`) run through the same gate; the pane tells that scripts run with holzBar's permissions and that macOS asks separately before a script controls another app
 
-### Widgets (Phase 10, staged)
+### Widgets (Phase 12, staged)
 
 - [ ] **WIDG-01**: The user can add a widget: an extra menu bar item (status item) with a text label from a built-in source, placed in a section like any other item and kept there by the holzBar hiding model on macOS 14 to 27; at most 6
 - [ ] **WIDG-02**: Built-in sources need no permission: date and time, battery percent and state, CPU load, memory use, uptime; each refreshes on a timer only while the item is visible and the screen is awake (no timer while hidden, asleep or locked), and from notifications where they exist (battery)
 - [ ] **WIDG-03**: A widget can be a button that runs a Shortcut chosen by name, with no permission request of its own
 - [ ] **WIDG-04**: Widgets are in the layout editor, search and profiles like other items, can be exported, imported and synced (kind, source, format only), and are accessible (VoiceOver label, value)
-- [ ] **WIDG-05** (stage 2, after Phase 9): a widget can show the first line of a script's output under the SCRIPT rules
+- [ ] **WIDG-05** (stage 2, after Phase 11): a widget can show the first line of a script's output under the SCRIPT rules
 
 ### Competitor gaps (Phases 11 to 13)
 
 - [ ] **ASDICT-01**: holzBar ships a scripting dictionary (`holzBar.sdef`, `OSAScriptingDefinition` and `NSAppleScriptEnabled` in Info.plist) with commands to show, hide and toggle a section, apply a named profile, turn Zen mode on or off, enable or disable a named rule, and read properties (profile names, rule names and whether each is active, current profile, Zen mode, whether each section is hidden); it works from Script Editor, `osascript` and JXA
-- [ ] **ASDICT-02**: Nothing in the dictionary can create, change or delete a script binding, a rule, a profile, a hotkey or a setting, or approve or run a script; Zen-off and other lasting changes ask first and are refused while the screen is shared (the `URLPrompt` rules); reveals go through Phase 12's gate; replies contain no personal data beyond names the user chose; holzBar needs no new entitlement and sends no Apple events
+- [ ] **ASDICT-02**: Nothing in the dictionary can create, change or delete a script binding, a rule, a profile, a hotkey or a setting, or approve or run a script; Zen-off and other lasting changes ask first and are refused while the screen is shared (the `URLPrompt` rules); reveals go through Phase 18's gate; replies contain no personal data beyond names the user chose; holzBar needs no new entitlement and sends no Apple events
 - [ ] **ASDICT-03**: The command handling is thin; the decisions (refuse, ask, allow) are the same pure logic the URL commands use, with Swift Testing; README, Permissions table (macOS asks the caller for Automation permission) and SECURITY.md entry updated
 - [ ] **LOCK-01**: Showing hidden items can require the Mac's owner (Touch ID or password through `LocalAuthentication`), no permission and no network; Settings says what it protects; every reveal path (click, hover, scroll, hotkeys, Shelf, search, URL, Shortcuts, rules, AppleScript) goes through the gate
 - [ ] **ANIM-01**: Showing and hiding can animate, only for the duration of the change, with no timer while idle, and off when Reduce Motion is on
@@ -308,24 +308,24 @@ Backlog, not planned: hide desktop icons (DESK-01 was dropped by the user's deci
 | TRIG-07 | Phase 8 | Planned |
 | TRIG-08 | Phase 8 | Planned |
 | TRIG-09 | Phase 8 | Planned |
-| SCRIPT-01 | Phase 9 | Planned |
-| SCRIPT-02 | Phase 9 | Planned |
-| SCRIPT-03 | Phase 9 | Planned |
-| SCRIPT-04 | Phase 9 | Planned |
-| SCRIPT-05 | Phase 9 | Planned |
-| SCRIPT-06 | Phase 9 | Planned |
-| WIDG-01 | Phase 10 | Planned (WIDG-05 stage 2) |
-| WIDG-02 | Phase 10 | Planned (WIDG-05 stage 2) |
-| WIDG-03 | Phase 10 | Planned (WIDG-05 stage 2) |
-| WIDG-04 | Phase 10 | Planned (WIDG-05 stage 2) |
-| WIDG-05 | Phase 10 | Planned (WIDG-05 stage 2) |
-| ASDICT-01 | Phase 11 | Planned |
-| ASDICT-02 | Phase 11 | Planned |
-| ASDICT-03 | Phase 11 | Planned |
-| LOCK-01 | Phase 12 | Planned |
-| ANIM-01 | Phase 13 | Planned |
-| FACT-02 | Phase 14 | Planned |
-| REL-02 | Phase 14 | Planned |
+| SCRIPT-01 | Phase 11 | Planned |
+| SCRIPT-02 | Phase 11 | Planned |
+| SCRIPT-03 | Phase 11 | Planned |
+| SCRIPT-04 | Phase 11 | Planned |
+| SCRIPT-05 | Phase 11 | Planned |
+| SCRIPT-06 | Phase 11 | Planned |
+| WIDG-01 | Phase 12 | Planned (WIDG-05 stage 2) |
+| WIDG-02 | Phase 12 | Planned (WIDG-05 stage 2) |
+| WIDG-03 | Phase 12 | Planned (WIDG-05 stage 2) |
+| WIDG-04 | Phase 12 | Planned (WIDG-05 stage 2) |
+| WIDG-05 | Phase 12 | Planned (WIDG-05 stage 2) |
+| ASDICT-01 | Phase 13 | Planned |
+| ASDICT-02 | Phase 13 | Planned |
+| ASDICT-03 | Phase 13 | Planned |
+| LOCK-01 | Phase 18 | Planned |
+| ANIM-01 | Phase 19 | Planned |
+| FACT-02 | Phase 22 | Planned |
+| REL-02 | Phase 22 | Planned |
 
 **Coverage:**
 - v1 requirements: 63 total, all mapped

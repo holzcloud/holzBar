@@ -1,6 +1,6 @@
 # Website rows for the comparison table, milestone 0.0.7 (planned, not released)
 
-For https://holzcloud.ch/holzbar (holzcloud CMS, page 59 `holzbar`, German is the site language; English is the master). Matches `README.md` ("holzBar vs. Ice and Thaw") as of the planning of 0.0.7. **Do not push to the CMS before the release exists** (CLAUDE.md: never claim what is not true yet); until then 🔜 only means planned. When a phase ships, change its 🔜 to ✅ here and in the README (Phase 14 fact check). If a feature is dropped, delete its row.
+For https://holzcloud.ch/holzbar (holzcloud CMS, page 59 `holzbar`, German is the site language; English is the master). Matches `README.md` ("holzBar vs. Ice and Thaw") as of the planning of 0.0.7. **Do not push to the CMS before the release exists** (CLAUDE.md: never claim what is not true yet); until then 🔜 only means planned. When a phase ships, change its 🔜 to ✅ here and in the README (Phase 22 fact check). If a feature is dropped, delete its row.
 
 ## English
 
