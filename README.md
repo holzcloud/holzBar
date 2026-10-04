@@ -222,6 +222,37 @@ TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw -o - \
   ~/Library/Developer/Toolchains/swift-6.4.0-RELEASE.xctoolchain/Info.plist) Scripts/install.sh
 ```
 
+## 🔜 Planned for 0.0.7 "Automation"
+
+**None of this is available yet.** It is the plan for the next release, which is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
+
+**Automation**
+- **Rules** that apply a profile, reveal items or switch Zen mode when a Wi-Fi network, an app, the time of day, the power source, a display or a Focus matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Spike first: the Focus filter.*
+- **Per-item conditions**: show a single item only while a condition holds, for example while a VPN is connected.
+- **Scripts** as a rule condition or action: only from a folder you choose, pinned by hash, run only after you confirm.
+- **Widgets**: menu bar items of your own (text from permission-free sources, a Shortcut button); script widgets come last.
+- **AppleScript dictionary** to show, hide, switch profiles and turn rules on or off.
+- **Command palette**: one hotkey opens a panel to run any holzBar action.
+
+**Safety and convenience**
+- **Layout snapshots** taken automatically, with a one-click restore.
+- **Share a profile** as a small validated file; it never contains personal data or code.
+- **First-launch assistant** that proposes an arrangement from static facts, skippable and re-runnable.
+- **Usage suggestions** (opt-in): suggests hiding items you never click; counters stay on your Mac and can be erased with one click.
+- **Touch ID or password** to show hidden items.
+- **Smooth show and hide**, respecting Reduce Motion.
+- **Copy diagnostics**: a redacted report you read before you copy it; nothing is sent.
+
+**macOS 27 and polish**
+- Cooperation with macOS 27's own overflow button, so items are not shown twice.
+- Glass tint and Shelf follow Reduce Transparency (and the macOS 27 slider, if a public signal exists). *Spike.*
+- Reordering in the Layout pane with SwiftUI's new reordering API, only if clearly better. *Spike.*
+- A Control Center control to toggle Zen mode or apply a profile. *Spike.*
+- A keyboard and VoiceOver audit of every pane.
+- Swift 6.4 clean-up without behaviour changes.
+
+The "holzBar vs. Ice and Thaw" table above marks these with 🔜.
+
 ## 🪵 macOS 27
 
 macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` draws them all into one bar. holzBar ships a dedicated backend for it (from [jordanbaird/Ice#995](https://github.com/jordanbaird/Ice/pull/995)):
