@@ -2,7 +2,7 @@
 
 ## Overview
 
-The "Modernize" milestone removes everything outdated that the codebase audit (`.planning/codebase/CONCERNS.md`) found, then publishes `0.0.6-beta1`. CI and build come first so every later change is compiled, linted and tested on the macOS runner (there is no local compiler). Then the real bugs, the Ice and Sparkle leftovers, the outdated APIs, and the security and performance findings follow, each as one pull request that must build green. The last phase is the small beta release.
+The "Modernize" milestone removes everything outdated that the codebase audit (`.planning/codebase/CONCERNS.md`) found, then publishes `0.0.6-beta1`. CI and build come first so every later change is compiled, linted and tested on the macOS runner (there is no local compiler). Then the real bugs, the Ice and Sparkle leftovers, the outdated APIs, and the security and performance findings follow, each as one pull request that must build green. The last phase is the small beta release. The milestone "Automation" (0.0.7, phases 8 to 14) follows: triggers, scripts, widgets and three competitor gaps.
 
 ## Phases
 
@@ -24,7 +24,30 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 05.1.1.1.1: Apple APIs and toolchain** (INSERTED) - Swift 6.4, Xcode 27, no deprecated API, HIG pass
 - [x] **Phase 6: Security audit** - Full security analysis of the whole app, findings ranked, fixes chosen by the user done before the release
 - [x] **Phase 06.1: Compatibility check** (INSERTED) - Which macOS versions really work; 26 and 27 required, older ones optional (decision: keep macOS 14+)
-- [ ] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated
+- [x] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated (published as 0.0.6, stable)
+
+**Milestone 0.0.7 "Automation"** (planned 2026-10-04, decisions recorded 2026-10-04; research in `research/COMPETITORS.md`, decisions in `research/AUTOMATION-QUESTIONS.md`). One pull request, one push at the end, **one beta `0.0.7-beta1` when the whole milestone is done** (no beta per phase). The milestone is held if the Focus filter does not work.
+
+- [ ] **Phase 8: Triggers** - Rules (conditions all/any -> apply profile, reveal items, Zen mode) fed by system events: power, app, time, display, network, Wi-Fi name (Location, opt-in), Focus filter. **The Focus-filter spike on macOS 26 and 27 comes first; the milestone waits for its result**
+- [ ] **Phase 9: Layout snapshots** - Automatic, versioned snapshots of the arrangement with a one-click restore, so a layout never gets lost and every later phase is undoable
+- [ ] **Phase 10: Item conditional visibility** - A rule per menu bar item ("show only while a VPN is connected"), reusing the Phase 8 engine and conditions
+- [ ] **Phase 11: Scripts** - Security design first, then scripts from a folder the user chose as a rule condition and action; local only, hash-pinned, confirmed
+- [ ] **Phase 12: Widgets** - Extra menu bar items without code: v1 text widgets from permission-free sources and a Shortcut button; script widgets in stage 2 (riskiest phase)
+- [ ] **Phase 13: AppleScript dictionary** - holzBar itself becomes scriptable (sdef): show/hide, profiles, Zen mode, rules on or off; no script or rule creation through it
+- [ ] **Phase 14: Command palette** - A hotkey opens a Spotlight-like panel to run any holzBar action; one shared action catalog
+- [ ] **Phase 15: Share profiles** - Export one layout profile as a small validated file and import it after a confirmation; never carries personal data or code
+- [ ] **Phase 16: First-launch clean-up assistant** - Groups the menu bar items by static facts (system identifiers, app category), proposes an arrangement, skippable and re-runnable
+- [ ] **Phase 17: Local usage suggestions** - Opt-in counters per item and day, local only, suggest hiding items never clicked; forget everything with one click
+- [ ] **Phase 18: Lock hidden items** - Touch ID or password to reveal (competitor gap: SaneBar)
+- [ ] **Phase 19: Smooth show and hide** - Short animation, no idle timers, respects Reduce Motion (competitor gap: Vanilla)
+- [ ] **Phase 20: Copy diagnostics** - A redacted bug report the user reads, copies and pastes; nothing is sent
+- [ ] **Phase 21: Accessibility showcase** - Audit and extend keyboard and VoiceOver coverage of every pane, system accessibility settings, a checklist; name it only once verified
+- [ ] **Phase 22: macOS 27 native overflow button** - Know whether macOS 27's own overflow control is expanded, and do not show the same items twice in the Shelf (macOS 27 only, fail safe)
+- [ ] **Phase 23: Liquid Glass follows transparency** - Glass tint and Shelf follow Reduce Transparency and, only if a public signal exists, the macOS 27 slider; spike first
+- [ ] **Phase 24: SwiftUI reorder spike** - Replace the Layout pane's AppKit drag and drop with the new SwiftUI reordering API only if clearly better; otherwise drop
+- [ ] **Phase 25: Control Center control** - A Control Widget to toggle Zen mode or apply a profile; optional and risky, go/no-go spike first
+- [ ] **Phase 26: Swift 6.4 adoption** - Use what Swift 6.4.0 really offers where it simplifies, re-test the 6.3.3 optimizer workaround, no behaviour change
+- [ ] **Phase 27: Release 0.0.7-beta1** - Fact check of README, website and tables; one beta when the whole milestone is done
 
 Each phase is one pull request and must build green on the macOS CI runner before merge.
 
@@ -244,12 +267,267 @@ Plans:
   2. The notes' install section covers `brew tap`, `brew trust`, `brew install`, the `brew update && brew upgrade` path and the quarantine command
   3. The cask on `main` points at `0.0.6-beta1`
 
-**Plans:** 1 in progress (FACT-01 fact check and release notes done; tag and website pending)
+**Plans:** 1/1 executed (FACT-01 and notes done; the release went out as 0.0.6, stable)
+
+
+## Milestone 0.0.7 "Automation" - phase details
+
+Principles for every phase below (`CLAUDE.md`): never online, no polling where an event exists, least privilege (ask only when the user adds the feature, say why), pure logic in `holzBar/Core` with Swift Testing tests, five languages, private logs, nothing claimed in the README before it is true. One pull request for the whole milestone, pushed once at the end; one beta (`0.0.7-beta1`) when every phase is done. Outlines: `.planning/phases/NN-name/PLAN.md`; `/gsd-plan-phase` turns each into numbered plans.
+
+### Phase 8: Triggers
+
+**Goal**: The user can say "when this is true, apply this profile, show these items or turn Zen mode on" and holzBar does it from system events alone
+**Depends on**: Phase 7
+**Requirements**: TRIG-01 to TRIG-09
+**Success Criteria** (what must be TRUE):
+  1. A rule with several conditions combined by all or any applies its action once when it becomes true and, if chosen, restores the previous profile when it ends; applying the already active profile does nothing
+  2. Power, app, time, display and network-kind conditions work without any permission and with no polling: with no enabled rule no monitor exists, and a time rule uses one timer armed for the next boundary
+  3. The Wi-Fi-name condition asks for Location Services only when the user adds it, says why, and is never true without the permission; no other condition prompts for anything
+  4. Existing low-battery and offline settings behave as before
+  5. Rules are in the pane in five languages, exported, imported and synced with validation (Wi-Fi names and chosen apps included, logs private), and listed, enabled and disabled (not created or edited) by URL and Shortcuts
+  6. A layout profile can be applied by a Focus filter on macOS 26 and 27; the spike that proves it runs first, and **the milestone waits for it** (if the system does not call the intent on the user's macOS, nothing is released)
+**Plans**: 6 planned (see `phases/08-triggers/PLAN.md`; the Focus-filter spike is plan 1)
+
+### Phase 9: Layout snapshots
+
+**Goal**: holzBar keeps automatic, versioned snapshots of the arrangement on the Mac and the user can restore one with a click, including after macOS or an app scrambled the bar
+**Depends on**: Phase 7 (Phase 8's hooks for the "before a rule applies" trigger)
+**Requirements**: SNAP-01 to SNAP-04
+**Success Criteria** (what must be TRUE):
+  1. A snapshot is taken after the arrangement settles, once a day if changed, and before a profile apply, rule apply, restore or assistant run; an unchanged layout never makes a new file
+  2. At most 30 snapshots (plus starred and "before macOS" ones) and 2 MB are kept; they are local files, never exported, synced, imported or logged
+  3. The Layout History sheet lists snapshots with a preview of what would move, restores with one click and offers Undo (a snapshot is taken first)
+  4. When the layout looks reset, a banner asks before restoring; nothing is restored silently
+
+**Plans**: 4 planned (see `phases/09-layout-snapshots/PLAN.md`)
+
+### Phase 10: Item conditional visibility
+
+**Goal**: A menu bar item can have its own rule "show this item only while <condition>", using the Phase 8 engine
+**Depends on**: Phase 8 (engine, conditions), Phase 9 (snapshots)
+**Requirements**: VIS-01 to VIS-04
+**Success Criteria** (what must be TRUE):
+  1. A controlled item moves between its visible section and a hidden one when its condition changes, and does not move when a fact is unknown
+  2. When the item's app is not running nothing is moved; when it launches it appears directly in the section the rule's state says
+  3. An item rule wins over a layout profile for that item, and the Profiles UI says how many items are controlled by rules
+  4. The per-item menu in the Layout pane sets, shows and removes the rule; item rules are exported, imported and synced with validation
+
+**Plans**: 3 planned (see `phases/10-item-conditional-visibility/PLAN.md`)
+
+### Phase 11: Scripts
+
+**Goal**: A user script or AppleScript can be a rule's condition or action without turning holzBar into a way to run code as the Accessibility holder
+**Depends on**: Phase 8
+**Requirements**: SCRIPT-01 to SCRIPT-06
+**Success Criteria** (what must be TRUE):
+  1. The threat register in `SECURITY.md` has the new entries and the design is reviewed before any runner code is written
+  2. Only a file in the folder the user chose, owned by the user, not writable by others and not quarantined can run, with no arguments, no shell, a timeout and an output limit
+  3. A script that was never confirmed, or whose content changed, does not run until the user confirms it
+  4. No export, import, sync, URL command or Shortcut can create, change, approve or run a script binding
+  5. Script output is only ever displayed as bounded plain text
+**Plans**: 4 planned (see `phases/11-scripts/PLAN.md`)
+
+### Phase 12: Widgets (riskiest and largest)
+
+**Goal**: The user can put a small text item of their own in the menu bar, from a built-in source, and holzBar hides and reveals it like any other item
+**Depends on**: Phase 8 for the engine's events (stage 1 needs only the existing item model); stage 2 (script widgets) depends on Phase 11
+**Requirements**: WIDG-01 to WIDG-05
+**Success Criteria** (what must be TRUE):
+  1. A widget made from a built-in source needs no permission and keeps its section across relaunch on macOS 14, 26 and 27
+  2. A widget refreshes on a timer only while it is visible and the screen is awake; hidden, asleep or locked it costs nothing
+  3. A widget can run a named Shortcut when clicked
+  4. Widgets appear in the layout editor, search, profiles and settings export, and have VoiceOver labels
+**Plans**: 4 planned (stage 1: 3 plans, stage 2: 1 plan after Phase 11; see `phases/12-widgets/PLAN.md`)
+
+### Phase 13: AppleScript dictionary
+
+**Goal**: holzBar can be driven from AppleScript, JXA and Script Editor with a small, read-mostly command set, without becoming a way to create scripts, rules or settings
+**Depends on**: Phase 8 (rules to list, enable and disable) and Phase 12 (so the dictionary is designed once for the final feature set)
+**Requirements**: ASDICT-01, ASDICT-02, ASDICT-03
+**Success Criteria** (what must be TRUE):
+  1. Script Editor shows a holzBar dictionary (`sdef`) with the commands show, hide and toggle a section, apply a profile, turn Zen mode on or off, list profiles and rules, enable or disable a rule, and read the state
+  2. No command can create, change or delete a script binding, a rule, a profile or a setting, or approve a script
+  3. Lasting changes and Zen-off ask first, and are refused while the screen is shared, exactly like URL commands; the lock of Phase 18 applies to reveals
+  4. holzBar needs no new entitlement and sends no Apple events of its own
+**Plans**: 2 planned (see `phases/13-applescript-dictionary/PLAN.md`)
+
+### Phase 14: Command palette
+
+**Goal**: A hotkey opens a Spotlight-like panel that runs any holzBar action
+**Depends on**: Phase 8 (rules), Phase 13 (the shared action catalog)
+**Requirements**: PALETTE-01 to PALETTE-03
+**Success Criteria** (what must be TRUE):
+  1. One action catalog lists every action; the palette, the AppleScript dictionary and the App Intents read it
+  2. Typing filters actions and menu bar items with the fuzzy search (abbreviations and typos); Return runs, Escape closes; works with VoiceOver and the keyboard
+  3. No history is kept and no permission is asked; actions behave like their hotkeys (Zen mode, the Phase 18 lock)
+
+**Plans**: 3 planned (see `phases/14-command-palette/PLAN.md`)
+
+### Phase 15: Share profiles
+
+**Goal**: One layout profile can be exported as a small file and imported by someone else after a confirmation
+**Depends on**: Phase 9
+**Requirements**: SHARE-01 to SHARE-04
+**Success Criteria** (what must be TRUE):
+  1. The file holds only a format version, a cleaned name and bundle identifier to section entries; no display or Space UUIDs, Wi-Fi names, rules, scripts or paths
+  2. The exporter shows the list of apps with checkboxes before saving
+  3. Import validates strictly (size, count, identifiers, ranges), shows a confirmation with counts and never replaces a profile silently
+  4. Importing never executes anything
+
+**Plans**: 3 planned (see `phases/15-share-profiles/PLAN.md`)
+
+### Phase 16: First-launch clean-up assistant
+
+**Goal**: A skippable, re-runnable assistant proposes an arrangement of the menu bar items without any tracking
+**Depends on**: Phase 9
+**Requirements**: ASSIST-01 to ASSIST-03
+**Success Criteria** (what must be TRUE):
+  1. Items are grouped only by static facts (system identifiers, the app's category, a small local table); live-value items are never proposed for hiding
+  2. Nothing is applied until the user accepts, a snapshot is taken first and Undo is one click
+  3. It appears once at first launch only without an imported layout, and Menu Bar Layout has Tidy Up… to run it again
+  4. It asks for no permission (app icons, no Screen Recording request)
+
+**Plans**: 3 planned (see `phases/16-cleanup-assistant/PLAN.md`)
+
+### Phase 17: Local usage suggestions
+
+**Goal**: holzBar can suggest hiding items the user never clicks, from opt-in counters that stay on the Mac
+**Depends on**: Phase 16 (informational items), Phase 9
+**Requirements**: USAGE-01 to USAGE-04
+**Success Criteria** (what must be TRUE):
+  1. The feature is off until the user turns it on; turning it off deletes its data
+  2. Only a count per item and calendar day for the last 30 days is stored, in a local file excluded from backups, never exported, synced, logged, snapshotted or put in diagnostics
+  3. Clicks are seen through the existing mouse-down monitor and hit testing; no new tap and no permission; with the feature off nothing runs
+  4. Settings shows exactly what is stored and has a one-click Forget Everything
+
+**Plans**: 3 planned (see `phases/17-usage-suggestions/PLAN.md`)
+
+### Phase 18: Lock hidden items
+
+**Goal**: Revealing hidden items can require Touch ID or the Mac's password
+**Depends on**: Phase 7 (and every reveal path of Phases 8 and 11, which must go through the gate)
+**Requirements**: LOCK-01
+**Success Criteria** (what must be TRUE):
+  1. With the lock on, a click, hover, scroll, hotkey, rule or AppleScript command that would reveal hidden items asks the Mac's owner first and reveals nothing on failure
+  2. No permission is requested and nothing leaves the Mac
+  3. Settings states what the lock does and does not protect
+**Plans**: 1 planned (see `phases/18-lock-hidden-items/PLAN.md`)
+
+### Phase 19: Smooth show and hide
+
+**Goal**: Showing and hiding looks smooth where it can, and costs nothing when idle
+**Depends on**: Phase 7
+**Requirements**: ANIM-01
+**Success Criteria** (what must be TRUE):
+  1. The animation runs only during the change and ends in the same state as before
+  2. With Reduce Motion on, nothing animates
+  3. No timer or display link exists while nothing changes
+**Plans**: 1 planned (see `phases/19-smooth-animation/PLAN.md`)
+
+### Phase 20: Copy diagnostics
+
+**Goal**: A button builds a redacted report the user reads, copies and pastes into an issue; holzBar sends nothing
+**Depends on**: Phase 7 (counts from other phases as they exist)
+**Requirements**: DIAG-01 to DIAG-03
+**Success Criteria** (what must be TRUE):
+  1. The report contains only allowlisted facts (versions, display count, backend, permission states, counts, non-personal settings, typed recent events)
+  2. A test with sentinel strings proves no item title, bundle id, name, path or Wi-Fi name can appear
+  3. The sheet shows the exact text first; the pasteboard is written only on the user's click; the issue tracker opens in the browser
+
+**Plans**: 3 planned (see `phases/20-copy-diagnostics/PLAN.md`)
+
+### Phase 21: Accessibility showcase
+
+**Goal**: Every screen works with the keyboard and VoiceOver and respects the system accessibility settings, and only what is verified is claimed
+**Depends on**: every phase that adds UI (8 to 20, 22 to 25)
+**Requirements**: A11Y-01 to A11Y-03
+**Success Criteria** (what must be TRUE):
+  1. Every pane, panel and sheet has labels, roles and actions for VoiceOver and full keyboard use
+  2. Reduce Motion, Increase Contrast, Reduce Transparency, long German and Romansh strings and Voice Control names are checked
+  3. `docs/accessibility-checklist.md` exists and the user ran it on macOS 26 and 27 before the README or website mention it
+
+**Plans**: 3 planned (see `phases/21-accessibility-showcase/PLAN.md`)
+
+### Phase 22: macOS 27 native overflow button
+
+**Goal**: holzBar knows whether macOS 27's own overflow control is collapsed or expanded and does not show the same items twice
+**Depends on**: Phase 7 (macOS 27 backend)
+**Requirements**: M27-01, M27-02
+**Success Criteria** (what must be TRUE):
+  1. The state (none, collapsed, expanded, unknown) is derived from two agreeing facts and recomputed in the existing observer passes, with no new timer
+  2. While expanded the Shelf omits the items macOS shows; in every other state, including unknown, it lists them as today
+  3. Nothing changes on macOS 14 to 26
+
+**Plans**: 3 planned (spike first; see `phases/22-native-overflow-button/PLAN.md`)
+
+### Phase 23: Liquid Glass follows transparency
+
+**Goal**: holzBar's glass tint and the Shelf follow the system's transparency choices, using only public API
+**Depends on**: Phase 7
+**Requirements**: M27-03, M27-04
+**Success Criteria** (what must be TRUE):
+  1. With Reduce Transparency or Increase Contrast on, the glass tint and the Shelf are opaque with a visible border, and change live
+  2. The Liquid Glass slider is followed only if the spike finds a public signal; otherwise the phase records that it cannot be and the README says so
+  3. No private API and no preference-file reading
+
+**Plans**: 3 planned (spike first; see `phases/23-liquid-glass-transparency/PLAN.md`)
+
+### Phase 24: SwiftUI reorder spike
+
+**Goal**: It is decided with evidence whether the Layout pane's drag and drop moves to the new SwiftUI reordering API
+**Depends on**: Phase 9
+**Requirements**: M27-05
+**Success Criteria** (what must be TRUE):
+  1. A spike note checks five criteria (less code, accessibility parity, behaviour parity, cost, appearance)
+  2. Either the replacement keeps VoiceOver move actions and keyboard arrangement and clearly reduces code, behind `#available`, or the phase ends with the finding and no code change
+
+**Plans**: 3 planned (spike, decision, replace only on adopt; see `phases/24-swiftui-reorder-spike/PLAN.md`)
+
+### Phase 25: Control Center control
+
+**Goal**: A Control Widget can toggle Zen mode or apply a profile, if a spike shows it is possible within the principles
+**Depends on**: Phase 8, Phase 13, Phase 18
+**Requirements**: M27-06, M27-07
+**Success Criteria** (what must be TRUE):
+  1. The go/no-go spike shows a CI-built, self-signed holzBar's control appears and runs its action on macOS 26 and 27, with no App Group, no network and no extra entitlement besides the sandbox if required
+  2. The app grows by at most 1 MB and the XPC peer set is unchanged
+  3. Otherwise the phase ends with the finding and the milestone does not wait for it
+
+**Plans**: 3 planned (optional; see `phases/25-control-center-control/PLAN.md`)
+
+### Phase 26: Swift 6.4 adoption
+
+**Goal**: The code uses what Swift 6.4.0 really offers where it simplifies, and no workaround that 6.4 made unnecessary remains, with no behaviour change
+**Depends on**: Phases 8 to 25
+**Requirements**: SWIFT-01 to SWIFT-03
+**Success Criteria** (what must be TRUE):
+  1. What Swift 6.4.0 contains is verified from swift.org and the Evolution proposals; unverified claims (anyAppleOS, faster URL parsing) are not adopted until checked
+  2. The Swift 6.3.3 optimizer workaround in `ObservationLoop` is re-tested by a CI Release build and removed only if green
+  3. CI (build, tests, SwiftLint, compat launch on 14, 15, 26, 27) passes with no behaviour change
+
+**Plans**: 3 planned (see `phases/26-swift-6.4-adoption/PLAN.md`)
+
+### Phase 27: Release 0.0.7-beta1
+
+**Goal**: Users can install `0.0.7-beta1` with accurate notes and docs, once the whole milestone is done
+**Depends on**: Phases 8 to 26 (all of them that the user keeps; the Focus filter of Phase 8 is a blocker; Phases 24 and 25 may end as a recorded decision instead of code)
+**Requirements**: FACT-02, REL-02
+**Success Criteria** (what must be TRUE):
+  1. Every README, website and comparison-table claim was re-checked against code and sources, and every 🔜 row that shipped is now a ✅ row
+  2. `docs/release-notes/v0.0.7-beta1.md` has brew trust, update and quarantine steps; the release is a pre-release
+**Plans**: 2 planned (see `phases/27-release-0.0.7/PLAN.md`)
+
+**Backlog (not in this milestone)**, ideas the user did not select, kept so they are not lost:
+- Hide desktop icons (Vanilla has it). The only known mechanism, a Finder preference plus a Finder restart, is unverified and against least privilege.
+- "Verify this build" button (check the running app's signature and attestation against the release).
+- Panic / reset hotkey (restore a safe layout and turn all rules off).
+- CI launch-time and app-size budget job.
+- The new JSON Xcode project format (`.xcproj`, Xcode 27.2).
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1 -> 05.1.1.1 -> 05.1.1.1.1 -> 6 -> 06.1 -> 7
+Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1 -> 05.1.1.1 -> 05.1.1.1.1 -> 6 -> 06.1 -> 7 -> 8 -> 9 -> ... -> 27. Order notes: 8 first, its Focus-filter spike before everything else in it; 9 early because it protects later changes; 10 needs 8 and 9; stage 2 of 12 needs 11; 14 needs 8 and 13; 17 needs 16; 21 audits the final UI; 22 to 25 are independent of the Automation phases and 25 is optional; 26 is the last cleanup; every reveal path goes through 18's gate.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -265,4 +543,24 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
 | 05.1.1.1.1. Apple APIs and toolchain | 1/1 | Complete | 2026-10-03 |
 | 6. Security audit | 1/1 | Complete | 2026-10-03 |
 | 06.1. Compatibility check | 1/1 | Complete (decision: keep macOS 14+) | 2026-10-03 |
-| 7. Release 0.0.6-beta1 | 0/1 | In progress (notes written, not tagged) | - |
+| 7. Release 0.0.6-beta1 | 1/1 | Complete (released as 0.0.6, stable) | 2026-10-03 |
+| 8. Triggers | 0/6 | Planned | - |
+| 9. Layout snapshots | 0/4 | Planned | - |
+| 10. Item conditional visibility | 0/3 | Planned | - |
+| 11. Scripts | 0/4 | Planned | - |
+| 12. Widgets | 0/4 | Planned (stage 1 first; stage 2 after 11) | - |
+| 13. AppleScript dictionary | 0/2 | Planned | - |
+| 14. Command palette | 0/3 | Planned | - |
+| 15. Share profiles | 0/3 | Planned | - |
+| 16. First-launch clean-up assistant | 0/3 | Planned | - |
+| 17. Local usage suggestions | 0/3 | Planned | - |
+| 18. Lock hidden items | 0/1 | Planned | - |
+| 19. Smooth show and hide | 0/1 | Planned | - |
+| 20. Copy diagnostics | 0/3 | Planned | - |
+| 21. Accessibility showcase | 0/3 | Planned | - |
+| 22. macOS 27 native overflow button | 0/3 | Planned (spike first) | - |
+| 23. Liquid Glass follows transparency | 0/3 | Planned (spike first) | - |
+| 24. SwiftUI reorder spike | 0/3 | Planned (spike; drop if not clearly better) | - |
+| 25. Control Center control | 0/3 | Planned (optional; go/no-go spike) | - |
+| 26. Swift 6.4 adoption | 0/3 | Planned | - |
+| 27. Release 0.0.7-beta1 | 0/2 | Planned | - |

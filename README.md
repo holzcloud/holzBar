@@ -49,7 +49,7 @@ holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jord
 
 ## ⚖️ holzBar vs. Ice and Thaw
 
-What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds. — means not available or not documented.
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds. — means not available or not documented. 🔜 means planned for the next release (0.0.7): it is **not available yet**.
 
 | | Ice 0.11.12 | Thaw 3.0 beta | holzBar |
 |---|:---:|:---:|:---:|
@@ -67,6 +67,20 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Black menu bar, rounded screen corners | ❌ | corners only | ✅ |
 | Dashed and dotted borders, wallpaper, accent and glass tints | ❌ | ✅ | ✅ |
 | Show hidden items on low battery or when offline | ❌ | — | ✅ |
+| Rules that apply a profile or show items when a Wi-Fi network, an app, the time of day, the power source or a display matches (all or any) | ❌ | ✅ | 🔜 |
+| Profile applied by a Focus filter | ❌ | ✅ | 🔜 |
+| Scripts as a rule condition or action | ❌ | ✅ | 🔜 <sub>only from a folder you choose, after you confirm</sub> |
+| Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | 🔜 |
+| AppleScript dictionary | — | — | 🔜 |
+| Touch ID or password to show hidden items | — | — | 🔜 |
+| Smooth show and hide | — | — | 🔜 |
+| Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | 🔜 |
+| Automatic layout snapshots with a one-click restore | — | — | 🔜 |
+| Command palette for holzBar's own actions | — | — | 🔜 |
+| Share one profile as a file | ❌ | ✅ | 🔜 |
+| First-launch assistant that proposes an arrangement | — | — | 🔜 |
+| Suggests hiding items you never click (opt-in, counters stay on your Mac) | — | — | 🔜 |
+| Redacted diagnostics report you read before you copy it | — | — | 🔜 |
 | URL commands and Raycast | ❌ | ✅ | ✅ |
 | Zen mode (also while presenting) | ❌ | ✅ | ✅ |
 | Hotkeys per profile and per item | ❌ | ✅ | ✅ |
@@ -119,6 +133,8 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Signed with a Developer ID | ✅ | — | ❌ (own certificate instead; the cask handles quarantine) |
 | Stable signature, so Accessibility survives updates | ✅ | — | ✅ (own certificate, [docs/signing.md](docs/signing.md)) |
 | Build provenance attestation (`gh attestation verify`) | ❌ | — | ✅ |
+
+The AppleScript, Touch ID and smooth show and hide rows are about features other menu bar apps have (AppleScript: Bartender 7 and SaneBar; Touch ID lock: SaneBar; smooth show and hide: Vanilla), not Ice or Thaw as far as their documentation says.
 
 ## 🔒 Principles
 
