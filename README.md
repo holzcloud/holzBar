@@ -74,6 +74,13 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | AppleScript dictionary | — | — | 🔜 |
 | Touch ID or password to show hidden items | — | — | 🔜 |
 | Smooth show and hide | — | — | 🔜 |
+| Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | 🔜 |
+| Automatic layout snapshots with a one-click restore | — | — | 🔜 |
+| Command palette for holzBar's own actions | — | — | 🔜 |
+| Share one profile as a file | ❌ | ✅ | 🔜 |
+| First-launch assistant that proposes an arrangement | — | — | 🔜 |
+| Suggests hiding items you never click (opt-in, counters stay on your Mac) | — | — | 🔜 |
+| Redacted diagnostics report you read before you copy it | — | — | 🔜 |
 | URL commands and Raycast | ❌ | ✅ | ✅ |
 | Zen mode (also while presenting) | ❌ | ✅ | ✅ |
 | Hotkeys per profile and per item | ❌ | ✅ | ✅ |
@@ -127,7 +134,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Stable signature, so Accessibility survives updates | ✅ | — | ✅ (own certificate, [docs/signing.md](docs/signing.md)) |
 | Build provenance attestation (`gh attestation verify`) | ❌ | — | ✅ |
 
-The last three 🔜 rows are about features other menu bar apps have (AppleScript: Bartender 7 and SaneBar; Touch ID lock: SaneBar; smooth show and hide: Vanilla), not Ice or Thaw as far as their documentation says.
+The AppleScript, Touch ID and smooth show and hide rows are about features other menu bar apps have (AppleScript: Bartender 7 and SaneBar; Touch ID lock: SaneBar; smooth show and hide: Vanilla), not Ice or Thaw as far as their documentation says.
 
 ## 🔒 Principles
 
