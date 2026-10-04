@@ -75,31 +75,96 @@
     },
     {
       "number": "9",
-      "name": "Scripts",
+      "name": "Layout snapshots",
       "status": "planned"
     },
     {
       "number": "10",
-      "name": "Widgets",
+      "name": "Item conditional visibility",
       "status": "planned"
     },
     {
       "number": "11",
-      "name": "AppleScript dictionary",
+      "name": "Scripts",
       "status": "planned"
     },
     {
       "number": "12",
-      "name": "Lock hidden items",
+      "name": "Widgets",
       "status": "planned"
     },
     {
       "number": "13",
-      "name": "Smooth show and hide",
+      "name": "AppleScript dictionary",
       "status": "planned"
     },
     {
       "number": "14",
+      "name": "Command palette",
+      "status": "planned"
+    },
+    {
+      "number": "15",
+      "name": "Share profiles",
+      "status": "planned"
+    },
+    {
+      "number": "16",
+      "name": "First-launch clean-up assistant",
+      "status": "planned"
+    },
+    {
+      "number": "17",
+      "name": "Local usage suggestions",
+      "status": "planned"
+    },
+    {
+      "number": "18",
+      "name": "Lock hidden items",
+      "status": "planned"
+    },
+    {
+      "number": "19",
+      "name": "Smooth show and hide",
+      "status": "planned"
+    },
+    {
+      "number": "20",
+      "name": "Copy diagnostics",
+      "status": "planned"
+    },
+    {
+      "number": "21",
+      "name": "Accessibility showcase",
+      "status": "planned"
+    },
+    {
+      "number": "22",
+      "name": "macOS 27 native overflow button",
+      "status": "planned"
+    },
+    {
+      "number": "23",
+      "name": "Liquid Glass follows transparency",
+      "status": "planned"
+    },
+    {
+      "number": "24",
+      "name": "SwiftUI reorder spike",
+      "status": "planned"
+    },
+    {
+      "number": "25",
+      "name": "Control Center control",
+      "status": "planned"
+    },
+    {
+      "number": "26",
+      "name": "Swift 6.4 adoption",
+      "status": "planned"
+    },
+    {
+      "number": "27",
       "name": "Release 0.0.7-beta1",
       "status": "planned"
     }

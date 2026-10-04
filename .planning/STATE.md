@@ -10,9 +10,9 @@ last_activity: 2026-10-04
 last_activity_desc: Milestone 0.0.7 Automation planned (phases 8 to 14); 0.0.6 is released
 state_head: e1c8ed8884e1f0f5c5686f87b63ca7ad64189f6f
 progress:
-  total_phases: 20
+  total_phases: 33
   completed_phases: 13
-  total_plans: 52
+  total_plans: 99
   completed_plans: 33
 ---
 
@@ -29,10 +29,10 @@ See: .planning/PROJECT.md (updated 2026-10-02)
 
 Milestone: 0.0.7 "Automation" (planned, not started); 0.0.6 is released (stable)
 Phase: 8 of 14 (Triggers), next to plan
-Status: Competitor research (`research/COMPETITORS.md`), requirements (TRIG, SCRIPT, WIDG, ASDICT, LOCK, ANIM), roadmap phases 8 to 14, phase outlines and the user's answers to all 11 questions (`research/AUTOMATION-QUESTIONS.md`, all DECIDED) are written. Phase list: 8 Triggers (Focus-filter spike first; the milestone is held if it fails), 9 Scripts, 10 Widgets, 11 AppleScript dictionary, 12 Lock hidden items, 13 Smooth show and hide, 14 Release 0.0.7-beta1 (one beta at the end). Next: `/gsd-plan-phase 8`, starting with the Focus-filter spike on the user's macOS 26 and 27.
+Status: Competitor research (`research/COMPETITORS.md`), 65 requirements, roadmap phases 8 to 27, phase outlines and the user's first 11 decisions are written. Phase list: 8 Triggers (Focus-filter spike first; the milestone is held if it fails), 9 Layout snapshots, 10 Item conditional visibility, 11 Scripts, 12 Widgets, 13 AppleScript dictionary, 14 Command palette, 15 Share profiles, 16 First-launch clean-up assistant, 17 Local usage suggestions, 18 Lock hidden items, 19 Smooth show and hide, 20 Copy diagnostics, 21 Accessibility showcase, 22 macOS 27 native overflow button, 23 Liquid Glass follows transparency, 24 SwiftUI reorder spike, 25 Control Center control (optional), 26 Swift 6.4 adoption, 27 Release 0.0.7-beta1 (one beta at the end). Open design questions 12 to 35 are indexed in `research/AUTOMATION-QUESTIONS.md`. Next: `/gsd-plan-phase 8`, starting with the Focus-filter spike on the user's macOS 26 and 27.
 Last activity: 2026-10-04 — Automation milestone planned
 
-Progress: [█████████████░░░░░░░] 13 of 20 phases (milestone 0.0.7: 0 of 7)
+Progress: [█████████████░░░░░░░░░░░░░░░] 13 of 33 phases (milestone 0.0.7: 0 of 20)
 
 ## Performance Metrics
 

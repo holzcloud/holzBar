@@ -67,3 +67,40 @@
     - B. Add rows only when each feature ships (**Recommended**: the safest reading of "never claim what is not true yet")
     - C. Add 🔜 rows on the website only
    - **DECIDED: A.** Add the rows now as 🔜 (README, plus `research/WEBSITE-ROWS-0.0.7.md` in English and German); 🔜 only means planned, so every claim stays true.
+
+## Questions added with the second and third feature batches (2026-10-04, OPEN)
+
+The user selected eight more feature phases (9, 10, 14 to 17, 20, 21) and five macOS 27 / Xcode 27 / Swift 6.4 phases (22 to 26). Each phase outline in `.planning/phases/` states its question in full; this is the index. **All OPEN** unless marked DECIDED.
+
+| # | Phase | Question | Options | Recommended |
+|---|---|---|---|---|
+| 12 | 9 Snapshots | When are snapshots taken? | A after settle, daily if changed and before applies; B daily only; C before applies only | A |
+| 13 | 9 | How many are kept? | A newest 10 + one a day for 20 days (max 30, plus starred); B newest 10; C as many as fit in 2 MB | A |
+| 14 | 9 | Backups? | A not excluded; B excluded | A |
+| 15 | 9 | When the layout looks reset? | A banner with Restore; B restore automatically; C do nothing | A |
+| 16 | 10 Item rules | Item rule against a layout profile? | A item rule wins; B profile wins until the condition changes; C ask | A |
+| 17 | 10 | Where does a hidden-by-rule item go? | A Hidden by default, per-item choice; B always Always-hidden; C always Hidden | A |
+| 18 | 16 Assistant | How bold are the proposals? | A conservative; B hide all non-essential; C ask per category | A |
+| 19 | 16 | When does it appear? | A once at first launch, only without an imported layout; B only from Settings; C at every first launch | A |
+| 20 | 17 Usage | How is it offered? | A off by default, offered in the assistant and Settings; B Settings only; C ask after two weeks | A |
+| 21 | 17 | Observation window? | A 14 days observed, no click in 14, keep 30; B 30 days; C 7 days | A |
+| 22 | 17 | Backups for the counters? | A excluded; B included | A |
+| 23 | 14 Palette | Palette and item search? | A separate hotkey, shared panel code; B merge into one panel; C palette replaces search | A |
+| 24 | 14 | Ranking? | A fuzzy score and fixed order, no history; B recent actions first | A |
+| 25 | 15 Share | Formats? | A file only; B file and `holzbar://` link; C link only | A |
+| 26 | 15 | Which apps go in the file? | A checkboxes before saving; B always all; C only non-Apple | A |
+| 27 | 20 Diagnostics | Recent lines? | A typed in-memory event trail; B own unified log lines (spike); C none | A |
+| 28 | 20 | Where is the button? | A About with a link from Advanced; B Advanced; C About | A |
+| 29 | 21 Accessibility | Verification? | A checklist by the user plus code audit; B A plus an XCUITest audit in CI if stable | A |
+| 30 | 21 | When may README and website mention it? | A after the user ran the checklist; B after the code audit | A |
+| 31 | 22 Overflow | Shelf and the native overflow? | A keep the one switch and de-duplicate automatically; B three-way picker; C do nothing | A |
+| 32 | 23 Glass | If no public slider signal exists? | A follow Reduce Transparency and Increase Contrast only; B read the system preference file (not public, rejected by the principles); C leave glass as is | A |
+| 33 | 24 Reorder | Plan the SwiftUI reorder phase? | A spike with criteria, decide after; B drop now; C adopt without a spike | A |
+| 34 | 25 Control | Control Center control? | A late go/no-go spike, build only on a clean go; B drop now; C build without a spike | A |
+| 35 | 26 Swift 6.4 | When does the cleanup run? | A after all features, before the release; B at the start; C split: syntax sweep now, workaround re-test at the end | A |
+
+Premises of the selected items that the research did **not** confirm (recorded so nothing false enters the README):
+- **Liquid Glass slider**: it exists (System Settings > Appearance, three notches, per several news sources) but Gigazine's text does not mention it and no public API or notification for its value was found; Phase 23 follows Reduce Transparency for certain and the slider only if the spike finds a public signal.
+- **`reorderable()` and the reorder container**: the WWDC26 session 271 transcript (as summarised) puts them on macOS 26 and newer, not only 27; to be confirmed in the SDK documentation.
+- **Swift 6.4**: `await` in `defer` (SE-0493) is confirmed on swift.org; `anyAppleOS` is reported by secondary sources but not listed in the swift.org release summary I fetched; "faster Foundation URL parsing" was not found in any source, and the Xcode 27.2 beta 2 release notes list no Swift features (they do list the `.xcproj` format).
+- **Control Widgets on a self-signed, non-sandboxed app**: unknown; Phase 25 is a go/no-go spike.

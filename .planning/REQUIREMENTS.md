@@ -140,7 +140,7 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 - [x] **AUDIT-01**: Before the release, a full security analysis of the whole app (code, XPC service, URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline, cask) is written to `.planning/` with severity-ranked findings, the user decides which to fix, and those fixes ship in `0.0.6-beta1`
 
-## Milestone 0.0.7 "Automation" (planned and decided 2026-10-04, not started)
+## Milestone 0.0.7 "Automation" (planned and decided 2026-10-04, extended 2026-10-04 with eight feature phases and five macOS 27 / Swift 6.4 phases; not started)
 
 Source: `.planning/research/COMPETITORS.md` (gaps, API and permission facts). Every requirement below must keep to the principles in `CLAUDE.md`: no network, no polling where an event exists, least privilege (a permission is asked only when the user adds the feature that needs it, with the reason), pure logic in `holzBar/Core` with Swift Testing tests, five languages (`.github/scripts/strings-check.py`), private logs.
 
@@ -173,7 +173,7 @@ Source: `.planning/research/COMPETITORS.md` (gaps, API and permission facts). Ev
 - [ ] **WIDG-04**: Widgets are in the layout editor, search and profiles like other items, can be exported, imported and synced (kind, source, format only), and are accessible (VoiceOver label, value)
 - [ ] **WIDG-05** (stage 2, after Phase 11): a widget can show the first line of a script's output under the SCRIPT rules
 
-### Competitor gaps (Phases 11 to 13)
+### AppleScript, lock and animation (Phases 13, 18, 19)
 
 - [ ] **ASDICT-01**: holzBar ships a scripting dictionary (`holzBar.sdef`, `OSAScriptingDefinition` and `NSAppleScriptEnabled` in Info.plist) with commands to show, hide and toggle a section, apply a named profile, turn Zen mode on or off, enable or disable a named rule, and read properties (profile names, rule names and whether each is active, current profile, Zen mode, whether each section is hidden); it works from Script Editor, `osascript` and JXA
 - [ ] **ASDICT-02**: Nothing in the dictionary can create, change or delete a script binding, a rule, a profile, a hotkey or a setting, or approve or run a script; Zen-off and other lasting changes ask first and are refused while the screen is shared (the `URLPrompt` rules); reveals go through Phase 18's gate; replies contain no personal data beyond names the user chose; holzBar needs no new entitlement and sends no Apple events
@@ -181,7 +181,75 @@ Source: `.planning/research/COMPETITORS.md` (gaps, API and permission facts). Ev
 - [ ] **LOCK-01**: Showing hidden items can require the Mac's owner (Touch ID or password through `LocalAuthentication`), no permission and no network; Settings says what it protects; every reveal path (click, hover, scroll, hotkeys, Shelf, search, URL, Shortcuts, rules, AppleScript) goes through the gate
 - [ ] **ANIM-01**: Showing and hiding can animate, only for the duration of the change, with no timer while idle, and off when Reduce Motion is on
 
-Backlog, not planned: hide desktop icons (DESK-01 was dropped by the user's decision 9).
+Backlog, not planned (listed in `ROADMAP.md`): hide desktop icons (DESK-01 was dropped by the user's decision 9), a "Verify this build" button, a panic/reset hotkey, a CI launch-time and app-size budget job, the JSON project format `.xcproj`.
+
+### Layout snapshots (Phase 9)
+
+- [ ] **SNAP-01**: Pure logic in `holzBar/Core` with Swift Testing: a versioned `LayoutSnapshot` (sections per item identity and per application, order where the backend knows it, profiles, groups, spacers, versions, backend), a policy (debounce, dedupe by content hash, reasons), retention, a diff to the current layout, and a detector for "the layout looks reset"; unknown formats are skipped, never crash
+- [ ] **SNAP-02**: Snapshots are taken after the arrangement settles, once a day if changed, and before a profile apply, an automation rule's profile action, a restore and the clean-up assistant; kept as at most 30 (newest 10, then one per day for 20 days, plus starred and "before macOS update" ones) within 2 MB, as atomic mode-0600 files in Application Support; never exported, imported, synced or logged with names
+- [ ] **SNAP-03**: "Layout History" in the Menu Bar Layout pane lists snapshots (date, reason, counts), previews what would move, restores with one click (a snapshot is taken first so Undo restores the previous layout), and can star, delete and delete all; off switch; five languages
+- [ ] **SNAP-04**: When the layout looks reset (many items outside the sections the latest snapshot had), a non-modal banner asks to restore; nothing is restored silently
+
+### Item conditional visibility (Phase 10)
+
+- [ ] **VIS-01**: An item rule (item identity, all/any conditions, hidden section) is a pure model evaluated by the Phase 8 engine; two conditions are added: VPN connected and the item's own app running; an unknown fact never hides an item
+- [ ] **VIS-02**: A rule moves its item between its visible section and a hidden section with the existing move machinery (per application on macOS 27); when the item's app is not running nothing moves and on launch the rule's state decides the section; moves are debounced (3 s hold) and never run during a drag
+- [ ] **VIS-03**: Item rules win over layout profiles for the items they control (profiles skip them and say how many); the Layout pane's item menu "Show Only When…" edits the rule with the Phase 8 condition editor, controlled items carry a badge, and the Automation pane lists all item rules
+- [ ] **VIS-04**: Item rules are exported, imported and synced with the Phase 8 validation (known conditions, at most 100 rules, bounded identities), and take a snapshot before a burst of moves
+
+### First-launch clean-up assistant (Phase 16)
+
+- [ ] **ASSIST-01**: Pure `ItemClassifier` and `CleanUpProposal` in Core with Swift Testing group items only by static facts (known system identifiers, the owning app's `LSApplicationCategoryType`, a small local table); live-value items are never proposed for hiding; an existing arrangement is left alone
+- [ ] **ASSIST-02**: A skippable assistant shows the grouped proposal with an editable section per item and a reason, applies only on the user's accept after a snapshot, and offers Undo; it uses app icons and asks for no permission
+- [ ] **ASSIST-03**: It appears once at first launch only when no layout was imported and at least 6 items exist; "Not now" and "Don't show again" exist, and Menu Bar Layout has "Tidy Up…" to run it again
+
+### Local usage suggestions (Phase 17)
+
+- [ ] **USAGE-01**: Opt-in, off by default (offered on the assistant's last page and in Settings, never as a pop-up); only a count per item identity and calendar day for the last 30 days plus a dismissed flag are stored, in a mode-0600 file in Application Support excluded from backups; turning it off deletes the data
+- [ ] **USAGE-02**: Clicks are counted through the existing mouse-down monitor and menu bar hit testing, and through holzBar's own open paths; no new event tap, no permission, nothing running when the feature is off; ambiguous hits are not counted
+- [ ] **USAGE-03**: A pure `UsageSuggester` suggests hiding a visible item after at least 14 observed days with no click in the last 14, never for informational or essential items, items with an item rule or dismissed ones; suggestions appear quietly in the Menu Bar Layout pane, accepting takes a snapshot first
+- [ ] **USAGE-04**: The data is never exported, imported, synced, put in snapshots, shared profiles or diagnostics, or logged; Settings shows exactly what is stored with a View Data list and a one-click Forget Everything; `privacy-check.py` proves no usage data reaches logs
+
+### Command palette (Phase 14)
+
+- [ ] **PALETTE-01**: One pure `ActionCatalog` in Core lists every action (stable id, localized title, keywords, parameter kind, availability) and is read by the palette, the Phase 13 dictionary and the App Intents; ranking by `FuzzyMatch` then a fixed order, no history, with Swift Testing
+- [ ] **PALETTE-02**: A new hotkey action `OpenCommandPalette` (existing raw values unchanged), a menu item and an App Intent open a Spotlight-like panel that mixes actions and menu bar items; Return runs, Escape closes, arrows and Tab work; VoiceOver reads rows and the result count; Reduce Motion respected
+- [ ] **PALETTE-03**: Actions behave like their hotkeys (Zen mode, the Phase 18 lock); no new permission; the palette cannot create or edit rules, scripts or settings beyond what the matching hotkey does
+
+### Share profiles (Phase 15)
+
+- [ ] **SHARE-01**: A pure `SharedProfile` format (version, cleaned name of at most 80 characters, bundle identifier to section entries, at most 500 entries and 64 KB) with strict validation reusing `SettingsSchema` rules and tested with hostile input; it carries no display or Space UUIDs, Wi-Fi names, rules, scripts, paths, hotkeys or personal names
+- [ ] **SHARE-02**: "Share…" on a profile shows the list of apps with checkboxes before the save panel writes a `.holzbarprofile` file (own exported type)
+- [ ] **SHARE-03**: Opening the file (or Import Profile…) shows a confirmation with name, counts and how many apps are installed, never replaces a same-named profile silently (rename or replace), never executes anything, and a link route (`holzbar://import-profile`) exists only if the user chose it
+- [ ] **SHARE-04**: Items are matched on another Mac by bundle identifier (per app on every backend); README, SECURITY.md (file and link as untrusted input) updated
+
+### Bug report by click (Phase 20)
+
+- [ ] **DIAG-01**: A pure `DiagnosticsReport` builds the report from redacted primitives only (versions, Mac model identifier, architecture, display count and notch, backend, permission states, counts, allowlisted non-personal settings); a Swift Testing sentinel test fails if any item title, bundle id, name, path or Wi-Fi name appears
+- [ ] **DIAG-02**: "Copy Diagnostics…" in About (and a link from Advanced) shows the exact text in a sheet, writes the pasteboard only on the user's click, and can open the issue tracker in the browser; nothing is sent
+- [ ] **DIAG-03**: Recent events come from a typed in-memory ring buffer (at most 100 entries, no free text, never written to disk)
+
+### Accessibility showcase (Phase 21)
+
+- [ ] **A11Y-01**: Every pane, panel, sheet and custom view (Layout, Shelf, search, palette, Automation, snapshots, assistant, share and diagnostics sheets, widgets) has VoiceOver labels, roles, values and move or open actions, logical keyboard order and full keyboard use, with the issues found fixed
+- [ ] **A11Y-02**: Reduce Motion, Increase Contrast, Reduce Transparency, Voice Control names and long German and Romansh strings are checked; labels, hints and announcements exist in five languages
+- [ ] **A11Y-03**: `docs/accessibility-checklist.md` exists and the user ran it on macOS 26 and 27; the README and website name accessibility only for what it verified (no comparison row)
+
+### macOS 27 and Xcode 27 items (Phases 22 to 26)
+
+- [ ] **M27-01**: On macOS 27 a pure `NativeOverflowState` (none, collapsed, expanded, unknown) is derived from two agreeing facts about the system overflow button and the folded items, recomputed in the existing observer passes with no new timer; macOS 14 to 26 code is untouched
+- [ ] **M27-02**: While the state is expanded the Shelf omits the items macOS shows; in every other state, including unknown, it lists covered items as today (fail safe); the existing switch "Show items covered by the notch" keeps working
+- [ ] **M27-03**: With Reduce Transparency or Increase Contrast on, the glass tint and the Shelf become opaque with a visible border and change live (observed through `NSWorkspace.accessibilityDisplayOptionsDidChangeNotification` only while used), with no private API
+- [ ] **M27-04**: The Liquid Glass slider is followed only if the spike finds a public signal for it; otherwise the spike note records that it cannot be and the README says only Reduce Transparency is followed
+- [ ] **M27-05**: The SwiftUI reordering spike checks less code, accessibility parity, behaviour parity, cost and appearance; the Layout pane changes only if the result is clearly better, behind `#available`, otherwise the phase is dropped and recorded
+- [ ] **M27-06**: A go/no-go spike decides whether a Control Widget extension works for the self-signed, non-sandboxed app with no App Group, no network, no extra entitlement besides the sandbox if macOS demands it, an unchanged XPC peer set and at most 1 MB more size; otherwise the phase is dropped and recorded
+- [ ] **M27-07**: On go: Toggle Zen Mode and Apply Profile controls (stateless buttons whose intents run in the app), gated like the hotkeys, signed inside-out in the release workflow, with the control's menu bar item classified by holzBar
+
+### Swift 6.4 adoption (Phase 26)
+
+- [ ] **SWIFT-01**: What Swift 6.4.0 contains is verified from swift.org and the Evolution proposals (anyAppleOS and "faster URL parsing" are unverified until checked); `#available` branches are simplified only where that is simpler (including checks the macOS 14 target makes always true) and `defer { Task { await … } }` becomes `defer { await … }` where it exists
+- [ ] **SWIFT-02**: The Swift 6.3.3 optimizer workaround in `ObservationLoop` (non-generic `LastValue`) is re-tested with a CI Release build under 6.4.0 and removed only if green; other workaround comments and optimization overrides are checked the same way
+- [ ] **SWIFT-03**: No behaviour, setting, string or UI change; build, `swift test`, SwiftLint `--strict` and the compat launch on macOS 14, 15, 26 and 27 pass; Subprocess is not adopted
 
 ### Release 0.0.7
 
@@ -324,12 +392,50 @@ Backlog, not planned: hide desktop icons (DESK-01 was dropped by the user's deci
 | ASDICT-03 | Phase 13 | Planned |
 | LOCK-01 | Phase 18 | Planned |
 | ANIM-01 | Phase 19 | Planned |
-| FACT-02 | Phase 22 | Planned |
-| REL-02 | Phase 22 | Planned |
+| SNAP-01 | Phase 9 | Planned |
+| SNAP-02 | Phase 9 | Planned |
+| SNAP-03 | Phase 9 | Planned |
+| SNAP-04 | Phase 9 | Planned |
+| VIS-01 | Phase 10 | Planned |
+| VIS-02 | Phase 10 | Planned |
+| VIS-03 | Phase 10 | Planned |
+| VIS-04 | Phase 10 | Planned |
+| ASSIST-01 | Phase 16 | Planned |
+| ASSIST-02 | Phase 16 | Planned |
+| ASSIST-03 | Phase 16 | Planned |
+| USAGE-01 | Phase 17 | Planned |
+| USAGE-02 | Phase 17 | Planned |
+| USAGE-03 | Phase 17 | Planned |
+| USAGE-04 | Phase 17 | Planned |
+| PALETTE-01 | Phase 14 | Planned |
+| PALETTE-02 | Phase 14 | Planned |
+| PALETTE-03 | Phase 14 | Planned |
+| SHARE-01 | Phase 15 | Planned |
+| SHARE-02 | Phase 15 | Planned |
+| SHARE-03 | Phase 15 | Planned |
+| SHARE-04 | Phase 15 | Planned |
+| DIAG-01 | Phase 20 | Planned |
+| DIAG-02 | Phase 20 | Planned |
+| DIAG-03 | Phase 20 | Planned |
+| A11Y-01 | Phase 21 | Planned |
+| A11Y-02 | Phase 21 | Planned |
+| A11Y-03 | Phase 21 | Planned |
+| M27-01 | Phase 22 | Planned (spike first) |
+| M27-02 | Phase 22 | Planned |
+| M27-03 | Phase 23 | Planned |
+| M27-04 | Phase 23 | Planned (only if a public signal exists) |
+| M27-05 | Phase 24 | Planned (spike; drop if not clearly better) |
+| M27-06 | Phase 25 | Planned (go/no-go spike) |
+| M27-07 | Phase 25 | Planned (only on go) |
+| SWIFT-01 | Phase 26 | Planned |
+| SWIFT-02 | Phase 26 | Planned |
+| SWIFT-03 | Phase 26 | Planned |
+| FACT-02 | Phase 27 | Planned |
+| REL-02 | Phase 27 | Planned |
 
 **Coverage:**
 - v1 requirements: 63 total, all mapped
-- Milestone 0.0.7 "Automation": 27 requirements (TRIG 9, SCRIPT 6, WIDG 5, ASDICT 3, LOCK 1, ANIM 1, FACT-02, REL-02), all mapped to phases 8 to 14
+- Milestone 0.0.7 "Automation": 65 requirements (TRIG 9, SCRIPT 6, WIDG 5, ASDICT 3, LOCK 1, ANIM 1, SNAP 4, VIS 4, ASSIST 3, USAGE 4, PALETTE 3, SHARE 4, DIAG 3, A11Y 3, M27 7, SWIFT 3, FACT-02, REL-02), all mapped to phases 8 to 27
 - Unmapped: 0 ✓
 
 ---
