@@ -6,7 +6,7 @@ holzBar is a menu bar manager that holds the Accessibility permission, so its se
 
 Please report vulnerabilities privately through GitHub: on [holzcloud/holzBar](https://github.com/holzcloud/holzBar), open **Security → Report a vulnerability**. Do not open a public issue for a vulnerability.
 
-Only the latest release, and `main`, receive security fixes. holzBar is in beta until 1.0.
+Only the latest release, and `main`, receive security fixes. holzBar is pre-1.0 (every 0.x release is published as a GitHub pre-release).
 
 ## What holzBar promises
 
@@ -14,7 +14,7 @@ Only the latest release, and `main`, receive security fixes. holzBar is in beta 
 - **Least privilege.** Accessibility at first launch; Screen Recording only when a feature that needs it is used. No entitlements, the hardened runtime on the app and its XPC service.
 - **Private logs.** Personal data (item names, bundle identifiers, profile names, paths) is logged as private or hashed.
 - **Settings are input, not code.** Imported and synced settings are decoded only as property lists and JSON, limited to holzBar's own keys with the expected type and range.
-- **Releases you can check.** Releases are signed with holzBar's own certificate once it is set up, and carry a build provenance attestation ([docs/signing.md](docs/signing.md)). holzBar has no Apple Developer ID and is not notarized.
+- **Releases you can check.** Releases are signed with holzBar's own certificate and carry a build provenance attestation ([docs/signing.md](docs/signing.md)). holzBar has no Apple Developer ID and is not notarized.
 
 ## Threat register
 
@@ -25,7 +25,7 @@ From the security audit of 2026-10-03 (`.planning/phases/06-security-audit/06-SE
 | T-06-M1 | Another app or a web page turns Zen mode off with `holzbar://zen` and reveals hidden items during a screen share (confused deputy) | URL scheme, Zen mode | Medium | Mitigate | **Mitigated**: a URL may turn Zen mode on; turning it off asks first and is refused while the screen is shared; while Zen mode is on, no URL reveals items or changes a setting |
 | T-06-M2 | A crafted settings file or sync file crashes holzBar at every launch (`ItemSpacingOffset = 1e300`) or registers a hotkey without modifiers system-wide | Settings import and sync | Medium | Mitigate | **Mitigated**: numbers are range-checked and clamped on import, sync and load; stored hotkeys without a modifier, or with Shift alone, are not loaded |
 | T-06-M3 | On macOS 27, Control Centre's camera, microphone and screen-capture indicator is gone while holzBar conceals items | macOS 27 concealment | Medium | Mitigate (disclose) | **Disclosed** in Settings → General (macOS 27) and the README. The indicator itself cannot be kept: macOS removes it while any concealment assertion is live |
-| T-06-M4 | A trojanized `holzBar.app` gets Accessibility because users re-grant it after every ad hoc update | Distribution, signing, TCC | Medium | Mitigate | **Mitigated** from 0.0.6-beta1: releases are signed with a stable self-signed certificate from repository secrets (ad hoc, with a warning, until they are set) and carry build provenance attestations |
+| T-06-M4 | A trojanized `holzBar.app` gets Accessibility because users re-grant it after every ad hoc update | Distribution, signing, TCC | Medium | Mitigate | **Mitigated** from 0.0.6-beta1: releases are signed with a stable self-signed certificate from repository secrets and carry build provenance attestations |
 | T-06-L1 | URL commands show a spoofable prompt, repeat it, or change lasting settings without asking | URL scheme | Low | Mitigate | **Mitigated**: prompts name only stored profiles, cleaned up and shortened; one prompt at a time and none for 30 s after a declined one; the Shelf and auto-rehide toggles ask first |
 | T-06-L2 | The sync folder's file is followed through symbolic links, read whole at any size, read on the main thread, or dated far in the future | Sync-folder file handling | Low | Mitigate | **Mitigated**: no symbolic links (`O_NOFOLLOW`, `lstat`), regular files of at most 1 MB, checks after launch read off the main actor, files dated more than an hour ahead are ignored |
 | T-06-L3 | An imported settings file turns settings sync on | Settings import | Low | Mitigate | **Mitigated**: `SyncsSettingsWithICloud` is never exported, imported or synced |

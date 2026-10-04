@@ -20,7 +20,7 @@ cask "holzbar" do
 
   app "holzBar.app"
 
-  # The app is signed ad hoc, not with a Developer ID, so Gatekeeper would
+  # The app is signed with its own certificate, not a Developer ID, so Gatekeeper would
   # refuse to open it while it carries the quarantine attribute.
   postflight_steps do
     run "/usr/bin/xattr",

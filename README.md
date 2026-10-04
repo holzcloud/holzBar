@@ -49,7 +49,7 @@ holzBar is a community fork of [Ice](https://github.com/jordanbaird/Ice) by Jord
 
 ## ⚖️ holzBar vs. Ice and Thaw
 
-What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds. 🔜 marks work in progress in this beta; — means not available or not documented.
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds. — means not available or not documented.
 
 | | Ice 0.11.12 | Thaw 3.0 beta | holzBar |
 |---|:---:|:---:|:---:|
@@ -115,10 +115,10 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | **Distribution and maintenance** | | | |
 | Install and update with Homebrew | ✅ | ✅ | ✅ |
 | Updates | Sparkle (dialog can hang on macOS 26) | Sparkle | Homebrew |
-| Fixes from 282 open bug reports | — | — | [see the list](docs/upstream-bugs.md) |
+| Every bug group of Ice's 282 open reports solved | — | — | ✅ confirmed on a Mac in 0.0.6, [see the list](docs/upstream-bugs.md) |
 | Signed with a Developer ID | ✅ | — | ❌ (own certificate instead; the cask handles quarantine) |
-| Stable signature, so Accessibility survives updates | ✅ | — | ✅ from 0.0.6-beta1 (own certificate, [docs/signing.md](docs/signing.md)) |
-| Build provenance attestation (`gh attestation verify`) | ❌ | — | ✅ from 0.0.6-beta1 |
+| Stable signature, so Accessibility survives updates | ✅ | — | ✅ (own certificate, [docs/signing.md](docs/signing.md)) |
+| Build provenance attestation (`gh attestation verify`) | ❌ | — | ✅ |
 
 ## 🔒 Principles
 
@@ -162,11 +162,15 @@ brew install --cask holzbar
 
 `brew trust` is needed once: Homebrew only installs casks from third-party taps that you have trusted.
 
-Update with:
+### Updating
 
 ```sh
 brew update && brew upgrade --cask holzbar
 ```
+
+Run `brew update` first: without it Homebrew may not have fetched the tap and reports the old version as the latest. From 0.0.6 on, every release is signed with the same certificate, so macOS keeps the Accessibility permission across updates.
+
+**Coming from 0.0.5?** It was a different app and cask, so `brew upgrade` does not replace it: export its settings (**Settings → Advanced → Export…**), uninstall its cask, install holzBar, grant Accessibility, import the file (**Import…**) and turn **Launch at login** on again. The [0.0.6 release notes](docs/release-notes/v0.0.6.md) list every step.
 
 ### If macOS says holzBar "can't be opened"
 
@@ -178,7 +182,7 @@ xattr -dr com.apple.quarantine /Applications/holzBar.app
 
 Then open holzBar again. Alternatively: open it once, then go to **System Settings → Privacy & Security** and click **Open Anyway** next to the holzBar message.
 
-From 0.0.6-beta1 on, the release workflow attaches a build provenance attestation to every zip it builds, which proves that the zip was built by this repository's release workflow: `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar`. The app is signed with holzBar's certificate (SHA-256 `e55f0df15060b8c06c6842ccee85e6bc9f86cbbda3bd408abf991457840b1d95`); `codesign -dv --verbose=4 /Applications/holzBar.app` shows it. See [docs/signing.md](docs/signing.md).
+Since 0.0.6, the release workflow attaches a build provenance attestation to every zip it builds, which proves that the zip was built by this repository's release workflow: `gh attestation verify holzBar-0.0.6.zip -R holzcloud/holzBar`. The app is signed with holzBar's certificate (SHA-256 `e55f0df15060b8c06c6842ccee85e6bc9f86cbbda3bd408abf991457840b1d95`); `codesign -dv --verbose=4 /Applications/holzBar.app` shows it. See [docs/signing.md](docs/signing.md).
 
 > [!NOTE]
 > holzBar replaces the original Ice — quit Ice and run `brew uninstall --cask jordanbaird-ice` first if you have it. Two menu bar managers must never run at the same time; holzBar offers to quit Ice, Thaw, Bartender or Hidden Bar when it finds one running.
@@ -219,7 +223,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - Items can't be reordered on the bar itself — only assigned to sections.
 - Opening a system item (clock, battery, Wi-Fi) while hidden items are concealed adds ~150 ms.
 - **The privacy indicator is hidden while items are hidden.** Control Centre's indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item; the small green dot beside the clock still shows the camera. It comes back while holzBar hides no item. See [Permissions](#permissions).
-- After an update, macOS may ask for Accessibility again. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.
+- Coming from 0.0.5 or earlier, macOS asks for Accessibility once more. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.
 
 ## 🧰 Features
 
@@ -324,7 +328,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 **New items end up in the always-hidden section.** macOS puts new menu bar items at the far left of the bar, which is where the always-hidden section is. Choose where they go in **Settings → Advanced → Place new menu bar items in**.
 
-**holzBar is stuck on the permissions window.** After an update macOS may no longer accept the old permission. Click **Reset and Grant Again** in the permissions window and grant the permission once more.
+**holzBar is stuck on the permissions window.** After an update from 0.0.5 or earlier, or after replacing the app with a build signed by another key, macOS may no longer accept the old permission. Click **Reset and Grant Again** in the permissions window and grant the permission once more.
 
 ## 🙏 Credits
 
