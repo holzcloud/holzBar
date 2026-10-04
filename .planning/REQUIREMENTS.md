@@ -133,12 +133,56 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 ### Release
 
-- [ ] **FACT-01**: Before the release, every claim in the README, on the website (all languages) and in the comparison tables is checked against the code and sources and corrected
-- [ ] **REL-01**: `0.0.6-beta1` is released with hand-written notes (brew trust, update, quarantine) and the cask points at it
+- [x] **FACT-01**: Before the release, every claim in the README, on the website (all languages) and in the comparison tables is checked against the code and sources and corrected
+- [x] **REL-01**: `0.0.6-beta1` (published as 0.0.6) is released with hand-written notes (brew trust, update, quarantine) and the cask points at it
 
 ### Security audit
 
 - [x] **AUDIT-01**: Before the release, a full security analysis of the whole app (code, XPC service, URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline, cask) is written to `.planning/` with severity-ranked findings, the user decides which to fix, and those fixes ship in `0.0.6-beta1`
+
+## Milestone 0.0.7 "Automation" (planned 2026-10-04, not started)
+
+Source: `.planning/research/COMPETITORS.md` (gaps, API and permission facts). Every requirement below must keep to the principles in `CLAUDE.md`: no network, no polling where an event exists, least privilege (a permission is asked only when the user adds the feature that needs it, with the reason), pure logic in `holzBar/Core` with Swift Testing tests, five languages (`.github/scripts/strings-check.py`), private logs.
+
+### Triggers (Phase 8)
+
+- [ ] **TRIG-01**: An automation rule is `conditions` (match all or any) plus one `action`; the evaluation is a pure function in `holzBar/Core` (facts in, effects out) with Swift Testing tests for all/any, edge detection (acts once when a rule becomes true), what happens when it ends (restore the previous profile, or nothing), conflicts between rules (first rule in the list wins) and no loop when the effect changes a fact
+- [ ] **TRIG-02**: Permission-free conditions: power source and battery level, Low Power Mode, an app running or frontmost, time window and weekdays, a display connected (by UUID), network kind (Wi-Fi, Ethernet, offline, expensive connection). Each is fed by a system notification, never by polling; a monitor exists only while an enabled rule needs its kind (measured: no wakeups with no rules)
+- [ ] **TRIG-03**: Condition "connected to the Wi-Fi network named X" asks for Location Services only when the user adds that condition, with the reason shown first (macOS 14+ returns no SSID without it); without the permission the condition shows "needs Location Services" and is never true; the Info.plist usage text and README Permissions table are updated
+- [ ] **TRIG-04**: A layout profile can be applied by a Focus filter (`SetFocusFilterIntent`) with no permission; shipped only if a spike on macOS 26 and 27 shows the system calls the intent, otherwise recorded as not possible
+- [ ] **TRIG-05**: Actions: apply a layout profile, show a section for the usual interval, turn Zen mode on or off; applying a profile never re-applies the one already active
+- [ ] **TRIG-06**: The existing "show on low battery" and "show when offline" rules become rules of the engine; existing users' settings carry over unchanged
+- [ ] **TRIG-07**: A settings pane lists, adds, edits, reorders, enables and deletes rules (HIG: list with add and remove, forms, plain wording), reachable with VoiceOver and keyboard; all strings exist in English, German, French, Italian and Romansh
+- [ ] **TRIG-08**: Rules are exported, imported and synced like other settings, validated (known condition kinds, ranges, at most 50 rules, profile names looked up, unknown ones disable the rule); logs never contain SSIDs or app names in public
+- [ ] **TRIG-09**: URL commands and Shortcuts can list, enable and disable rules and tell which are active; they cannot create or edit a rule; lasting changes ask first like the other URL commands
+
+### Scripts (Phase 9)
+
+- [ ] **SCRIPT-01**: A security design and threat-register entries (`SECURITY.md`) exist before any code: privilege escalation through a script runner, same-user malware, settings import/sync/URL as injection paths, quarantine, TCC inheritance (see `.planning/phases/09-scripts/PLAN.md`)
+- [ ] **SCRIPT-02**: Scripts run only from a folder the user chose, only regular files owned by the user and not writable by group or others, never through a symbolic link out of the folder, never with a quarantine attribute; run by `Process` (or `NSUserScriptTask` if the spike proves it safer) with a fixed executable, no shell, no arguments, a minimal environment, stdin closed, a timeout, an output size limit and a rate limit
+- [ ] **SCRIPT-03**: The first run of a script, and the first run after its content changes (SHA-256), needs the user's confirmation naming the file, its folder and what it will be able to do; approvals are local
+- [ ] **SCRIPT-04**: Script bindings, folder, approvals and hashes never leave the Mac: not exported, not imported, not synced, not settable by URL or Shortcuts; an imported or synced rule that names a script is dropped and reported
+- [ ] **SCRIPT-05**: A script can be a condition (exit status 0 means true; evaluated on the engine's events and a manual re-check, plus an optional interval of at least 5 minutes that the pane labels as polling) and an action of a rule (run once when the rule becomes true or ends); output is data: shown as plain text, length-limited, never run or opened
+- [ ] **SCRIPT-06**: AppleScript files (`.scpt`, `.applescript`) run through the same gate; the pane tells that scripts run with holzBar's permissions and that macOS asks separately before a script controls another app
+
+### Widgets (Phase 10, staged)
+
+- [ ] **WIDG-01**: The user can add a widget: an extra menu bar item (status item) with a text label from a built-in source, placed in a section like any other item and kept there by the holzBar hiding model on macOS 14 to 27; at most 6
+- [ ] **WIDG-02**: Built-in sources need no permission: date and time, battery percent and state, CPU load, memory use, uptime; each refreshes on a timer only while the item is visible and the screen is awake (no timer while hidden, asleep or locked), and from notifications where they exist (battery)
+- [ ] **WIDG-03**: A widget can be a button that runs a Shortcut chosen by name, with no permission request of its own
+- [ ] **WIDG-04**: Widgets are in the layout editor, search and profiles like other items, can be exported, imported and synced (kind, source, format only), and are accessible (VoiceOver label, value)
+- [ ] **WIDG-05** (stage 2, after Phase 9): a widget can show the first line of a script's output under the SCRIPT rules
+
+### Competitor gaps (Phases 11 to 13)
+
+- [ ] **LOCK-01**: Showing hidden items can require the Mac's owner (Touch ID or password through `LocalAuthentication`), no permission and no network; Settings says what it protects
+- [ ] **ANIM-01**: Showing and hiding can animate, only for the duration of the change, with no timer while idle, and off when Reduce Motion is on
+- [ ] **DESK-01**: A spike decides whether desktop icons can be hidden without a private API or a Finder restart; shipped only if yes, otherwise dropped and recorded
+
+### Release 0.0.7
+
+- [ ] **FACT-02**: README, website, comparison tables and Permissions table are re-checked and updated for what shipped (🔜 rows only for what is planned and says so)
+- [ ] **REL-02**: `0.0.7-beta1` (and further numbered betas) released with hand-written notes (brew trust, update, quarantine)
 
 ## v2 Requirements
 
@@ -249,14 +293,39 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 | APPLE-02 | Phase 05.1.1.1.1 | Complete |
 | APPLE-03 | Phase 05.1.1.1.1 | Complete |
 | APPLE-04 | Phase 05.1.1.1.1 | Complete |
-| FACT-01 | Phase 7 | In progress (README and release notes checked; website rows in research/WEBSITE-UPDATE.md, to be pushed to the CMS) |
-| REL-01 | Phase 7 | Pending |
+| FACT-01 | Phase 7 | Complete (0.0.6) |
+| REL-01 | Phase 7 | Complete (released as 0.0.6, stable) |
+| TRIG-01 | Phase 8 | Planned |
+| TRIG-02 | Phase 8 | Planned |
+| TRIG-03 | Phase 8 | Planned |
+| TRIG-04 | Phase 8 | Planned |
+| TRIG-05 | Phase 8 | Planned |
+| TRIG-06 | Phase 8 | Planned |
+| TRIG-07 | Phase 8 | Planned |
+| TRIG-08 | Phase 8 | Planned |
+| TRIG-09 | Phase 8 | Planned |
+| SCRIPT-01 | Phase 9 | Planned |
+| SCRIPT-02 | Phase 9 | Planned |
+| SCRIPT-03 | Phase 9 | Planned |
+| SCRIPT-04 | Phase 9 | Planned |
+| SCRIPT-05 | Phase 9 | Planned |
+| SCRIPT-06 | Phase 9 | Planned |
+| WIDG-01 | Phase 10 | Planned (WIDG-05 stage 2) |
+| WIDG-02 | Phase 10 | Planned (WIDG-05 stage 2) |
+| WIDG-03 | Phase 10 | Planned (WIDG-05 stage 2) |
+| WIDG-04 | Phase 10 | Planned (WIDG-05 stage 2) |
+| WIDG-05 | Phase 10 | Planned (WIDG-05 stage 2) |
+| LOCK-01 | Phase 11 | Planned |
+| ANIM-01 | Phase 12 | Planned |
+| DESK-01 | Phase 13 | Planned (spike) |
+| FACT-02 | Phase 14 | Planned |
+| REL-02 | Phase 14 | Planned |
 
 **Coverage:**
-- v1 requirements: 63 total
-- Mapped to phases: 63
+- v1 requirements: 63 total, all mapped
+- Milestone 0.0.7 "Automation": 25 requirements, all mapped to phases 8 to 14
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-10-02*
-*Last updated: 2026-10-03 after phases 6 and 06.1 and the FACT-01 README check*
+*Last updated: 2026-10-04 after planning milestone 0.0.7 "Automation"*

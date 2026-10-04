@@ -2,7 +2,7 @@
 
 ## Overview
 
-The "Modernize" milestone removes everything outdated that the codebase audit (`.planning/codebase/CONCERNS.md`) found, then publishes `0.0.6-beta1`. CI and build come first so every later change is compiled, linted and tested on the macOS runner (there is no local compiler). Then the real bugs, the Ice and Sparkle leftovers, the outdated APIs, and the security and performance findings follow, each as one pull request that must build green. The last phase is the small beta release.
+The "Modernize" milestone removes everything outdated that the codebase audit (`.planning/codebase/CONCERNS.md`) found, then publishes `0.0.6-beta1`. CI and build come first so every later change is compiled, linted and tested on the macOS runner (there is no local compiler). Then the real bugs, the Ice and Sparkle leftovers, the outdated APIs, and the security and performance findings follow, each as one pull request that must build green. The last phase is the small beta release. The milestone "Automation" (0.0.7, phases 8 to 14) follows: triggers, scripts, widgets and three competitor gaps.
 
 ## Phases
 
@@ -24,7 +24,17 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 05.1.1.1.1: Apple APIs and toolchain** (INSERTED) - Swift 6.4, Xcode 27, no deprecated API, HIG pass
 - [x] **Phase 6: Security audit** - Full security analysis of the whole app, findings ranked, fixes chosen by the user done before the release
 - [x] **Phase 06.1: Compatibility check** (INSERTED) - Which macOS versions really work; 26 and 27 required, older ones optional (decision: keep macOS 14+)
-- [ ] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated
+- [x] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated (published as 0.0.6, stable)
+
+**Milestone 0.0.7 "Automation"** (planned 2026-10-04; research in `research/COMPETITORS.md`)
+
+- [ ] **Phase 8: Triggers** - Rules (conditions all/any -> apply profile, reveal items, Zen mode) fed by system events: power, app, time, display, network, Wi-Fi name (Location, opt-in), Focus filter (spike)
+- [ ] **Phase 9: Scripts** - Security design first, then scripts from a folder the user chose as a rule condition and action; local only, hash-pinned, confirmed
+- [ ] **Phase 10: Widgets** - Extra menu bar items without code: v1 text widgets from permission-free sources and a Shortcut button; script widgets in stage 2 (riskiest phase)
+- [ ] **Phase 11: Lock hidden items** - Touch ID or password to reveal (competitor gap: SaneBar)
+- [ ] **Phase 12: Smooth show and hide** - Short animation, no idle timers, respects Reduce Motion (competitor gap: Vanilla)
+- [ ] **Phase 13: Hide desktop icons (spike)** - Ship only with a clean public mechanism (competitor gap: Vanilla)
+- [ ] **Phase 14: Release 0.0.7** - Fact check of README, website and tables; numbered betas `0.0.7-beta1`, ...
 
 Each phase is one pull request and must build green on the macOS CI runner before merge.
 
@@ -244,12 +254,97 @@ Plans:
   2. The notes' install section covers `brew tap`, `brew trust`, `brew install`, the `brew update && brew upgrade` path and the quarantine command
   3. The cask on `main` points at `0.0.6-beta1`
 
-**Plans:** 1 in progress (FACT-01 fact check and release notes done; tag and website pending)
+**Plans:** 1/1 executed (FACT-01 and notes done; the release went out as 0.0.6, stable)
+
+
+## Milestone 0.0.7 "Automation" - phase details
+
+Principles for every phase below (`CLAUDE.md`): never online, no polling where an event exists, least privilege (ask only when the user adds the feature, say why), pure logic in `holzBar/Core` with Swift Testing tests, five languages, private logs, nothing claimed in the README before it is true. One pull request for the whole milestone or per beta (user decides), pushed once at the end. Outlines: `.planning/phases/NN-name/PLAN.md`; `/gsd-plan-phase` turns each into numbered plans.
+
+### Phase 8: Triggers
+
+**Goal**: The user can say "when this is true, apply this profile, show these items or turn Zen mode on" and holzBar does it from system events alone
+**Depends on**: Phase 7
+**Requirements**: TRIG-01 to TRIG-09
+**Success Criteria** (what must be TRUE):
+  1. A rule with several conditions combined by all or any applies its action once when it becomes true and, if chosen, restores the previous profile when it ends; applying the already active profile does nothing
+  2. Power, app, time, display and network-kind conditions work without any permission and with no polling: with no enabled rule no monitor exists, and a time rule uses one timer armed for the next boundary
+  3. The Wi-Fi-name condition asks for Location Services only when the user adds it, says why, and is never true without the permission; no other condition prompts for anything
+  4. Existing low-battery and offline settings behave as before
+  5. Rules are in the pane in five languages, exported, imported and synced with validation, and listed, enabled and disabled (not created or edited) by URL and Shortcuts
+**Plans**: 5 planned (see `phases/08-triggers/PLAN.md`)
+
+### Phase 9: Scripts
+
+**Goal**: A user script or AppleScript can be a rule's condition or action without turning holzBar into a way to run code as the Accessibility holder
+**Depends on**: Phase 8
+**Requirements**: SCRIPT-01 to SCRIPT-06
+**Success Criteria** (what must be TRUE):
+  1. The threat register in `SECURITY.md` has the new entries and the design is reviewed before any runner code is written
+  2. Only a file in the folder the user chose, owned by the user, not writable by others and not quarantined can run, with no arguments, no shell, a timeout and an output limit
+  3. A script that was never confirmed, or whose content changed, does not run until the user confirms it
+  4. No export, import, sync, URL command or Shortcut can create, change, approve or run a script binding
+  5. Script output is only ever displayed as bounded plain text
+**Plans**: 4 planned (see `phases/09-scripts/PLAN.md`)
+
+### Phase 10: Widgets (riskiest and largest)
+
+**Goal**: The user can put a small text item of their own in the menu bar, from a built-in source, and holzBar hides and reveals it like any other item
+**Depends on**: Phase 8 for the engine's events (stage 1 needs only the existing item model); stage 2 (script widgets) depends on Phase 9
+**Requirements**: WIDG-01 to WIDG-05
+**Success Criteria** (what must be TRUE):
+  1. A widget made from a built-in source needs no permission and keeps its section across relaunch on macOS 14, 26 and 27
+  2. A widget refreshes on a timer only while it is visible and the screen is awake; hidden, asleep or locked it costs nothing
+  3. A widget can run a named Shortcut when clicked
+  4. Widgets appear in the layout editor, search, profiles and settings export, and have VoiceOver labels
+**Plans**: 4 planned (stage 1: 3 plans, stage 2: 1 plan after Phase 9; see `phases/10-widgets/PLAN.md`)
+
+### Phase 11: Lock hidden items
+
+**Goal**: Revealing hidden items can require Touch ID or the Mac's password
+**Depends on**: Phase 7
+**Requirements**: LOCK-01
+**Success Criteria** (what must be TRUE):
+  1. With the lock on, a click, hover, scroll or hotkey that would reveal hidden items asks the Mac's owner first and reveals nothing on failure
+  2. No permission is requested and nothing leaves the Mac
+  3. Settings states what the lock does and does not protect
+**Plans**: 1 planned (see `phases/11-lock-hidden-items/PLAN.md`)
+
+### Phase 12: Smooth show and hide
+
+**Goal**: Showing and hiding looks smooth where it can, and costs nothing when idle
+**Depends on**: Phase 7
+**Requirements**: ANIM-01
+**Success Criteria** (what must be TRUE):
+  1. The animation runs only during the change and ends in the same state as before
+  2. With Reduce Motion on, nothing animates
+  3. No timer or display link exists while nothing changes
+**Plans**: 1 planned (see `phases/12-smooth-animation/PLAN.md`)
+
+### Phase 13: Hide desktop icons (spike)
+
+**Goal**: It is known whether desktop icons can be hidden cleanly; if yes, they can
+**Depends on**: Phase 7
+**Requirements**: DESK-01
+**Success Criteria** (what must be TRUE):
+  1. A written finding names the mechanism, its permission and its side effects
+  2. Either the feature ships with no private API and no Finder restart, or the phase ends with the finding and nothing shipped
+**Plans**: 1 planned (see `phases/13-hide-desktop-icons/PLAN.md`)
+
+### Phase 14: Release 0.0.7
+
+**Goal**: Users can install `0.0.7-beta1` (and later betas) with accurate notes and docs
+**Depends on**: the phases the user chose to include
+**Requirements**: FACT-02, REL-02
+**Success Criteria** (what must be TRUE):
+  1. Every README, website and comparison-table claim was re-checked against code and sources
+  2. `docs/release-notes/v0.0.7-beta1.md` has brew trust, update and quarantine steps; the release is a pre-release
+**Plans**: 2 planned (see `phases/14-release-0.0.7/PLAN.md`)
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1 -> 05.1.1.1 -> 05.1.1.1.1 -> 6 -> 06.1 -> 7
+Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1 -> 05.1.1.1 -> 05.1.1.1.1 -> 6 -> 06.1 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 (9 needs 8; stage 2 of 10 needs 9; 11 to 13 are independent)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -265,4 +360,11 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
 | 05.1.1.1.1. Apple APIs and toolchain | 1/1 | Complete | 2026-10-03 |
 | 6. Security audit | 1/1 | Complete | 2026-10-03 |
 | 06.1. Compatibility check | 1/1 | Complete (decision: keep macOS 14+) | 2026-10-03 |
-| 7. Release 0.0.6-beta1 | 0/1 | In progress (notes written, not tagged) | - |
+| 7. Release 0.0.6-beta1 | 1/1 | Complete (released as 0.0.6, stable) | 2026-10-03 |
+| 8. Triggers | 0/5 | Planned | - |
+| 9. Scripts | 0/4 | Planned | - |
+| 10. Widgets | 0/4 | Planned (stage 1 only; stage 2 after 9) | - |
+| 11. Lock hidden items | 0/1 | Planned | - |
+| 12. Smooth show and hide | 0/1 | Planned | - |
+| 13. Hide desktop icons | 0/1 | Planned (spike) | - |
+| 14. Release 0.0.7 | 0/2 | Planned | - |

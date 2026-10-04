@@ -1,7 +1,7 @@
 {
   "contract": "1.0.0",
   "flavor": "core",
-  "milestone": "v0.0.6",
+  "milestone": "v0.0.7",
   "phases": [
     {
       "number": "1",
@@ -66,13 +66,48 @@
     {
       "number": "7",
       "name": "Release 0.0.6-beta1",
-      "status": "in_progress"
+      "status": "complete"
+    },
+    {
+      "number": "8",
+      "name": "Triggers",
+      "status": "planned"
+    },
+    {
+      "number": "9",
+      "name": "Scripts",
+      "status": "planned"
+    },
+    {
+      "number": "10",
+      "name": "Widgets",
+      "status": "planned"
+    },
+    {
+      "number": "11",
+      "name": "Lock hidden items",
+      "status": "planned"
+    },
+    {
+      "number": "12",
+      "name": "Smooth show and hide",
+      "status": "planned"
+    },
+    {
+      "number": "13",
+      "name": "Hide desktop icons",
+      "status": "planned"
+    },
+    {
+      "number": "14",
+      "name": "Release 0.0.7",
+      "status": "planned"
     }
   ],
   "next": {
-    "command": "/gsd:progress --next",
-    "label": "Finish the release",
-    "reason": "Phase 7 of 13 · release notes written; push, CMS rows and tag pending"
+    "command": "/gsd-plan-phase 8",
+    "label": "Decide, then plan Triggers",
+    "reason": "Milestone 0.0.7 Automation is planned; decisions in research/AUTOMATION-QUESTIONS.md"
   },
-  "updated_at": "2026-10-03T14:00:00.000Z"
+  "updated_at": "2026-10-04T12:00:00.000Z"
 }

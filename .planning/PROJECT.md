@@ -20,17 +20,17 @@ The menu bar items a user hides stay hidden and come back when asked, on every s
 - ✓ Layout profiles, groups, spacers, new-item placement, reveal rules, URL commands, Raycast, settings export/import/iCloud sync, black menu bar, rounded corners, notch overflow — 0.0.2
 - ✓ Ice settings import, conflicting-app detection — 0.0.4
 - ✓ Own control items recognised and in-app source PID fallback on macOS 26 — 0.0.5
+- ✓ Modernize: current CI, bug fixes, Swift 6.4 and Xcode 27, no dependencies, security audit, macOS 14 to 27 checked in CI, signed with a stable certificate — 0.0.6
 
 ### Active
 
-Milestone "Modernize": remove everything outdated found by the codebase audit (`.planning/codebase/CONCERNS.md`, phases 1–5), then publish `0.0.6-beta1`.
+Milestone "Automation" (0.0.7, planned 2026-10-04): the user gets rules that react to the Mac's state, and a few things competitors have. Research: `.planning/research/COMPETITORS.md`; decisions pending: `.planning/research/AUTOMATION-QUESTIONS.md`.
 
-- [ ] CI and build are current and run the unit tests
-- [ ] The real bugs from the audit are fixed
-- [ ] Leftovers of Ice and Sparkle are gone or credited correctly
-- [ ] Outdated APIs are replaced where a macOS 14 replacement exists
-- [ ] Security and performance findings are fixed
-- [ ] `0.0.6-beta1` is released with hand-written notes
+- [ ] Triggers: rules (conditions all/any -> apply profile, show items, Zen mode) fed by system events, a permission only when the user adds the condition that needs it (Phase 8)
+- [ ] Scripts: a user script or AppleScript as a condition or action, under a security design for an unsandboxed app with Accessibility (Phase 9)
+- [ ] Widgets: custom text items without code, built-in sources first (Phase 10, riskiest)
+- [ ] Competitor gaps: lock hidden items, smooth show and hide, desktop icons spike (Phases 11 to 13)
+- [ ] `0.0.7-beta1` and later betas released with hand-written notes (Phase 14)
 
 ### Out of Scope
 
@@ -60,9 +60,12 @@ Milestone "Modernize": remove everything outdated found by the codebase audit (`
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Keep the hotkey signature identical to Ice | Both apps never run in parallel | — Pending |
-| Release only at the end of the milestone as `0.0.6-beta1` | User's choice | — Pending |
+| Release only at the end of the milestone as `0.0.6-beta1` | User's choice | ✓ Released as 0.0.6 |
 | One pull request per phase, merged after a green build | No local compiler | — Pending |
-| No per-phase research; the codebase audit is the research | Findings already have file:line and replacements | — Pending |
+| No per-phase research; the codebase audit is the research | Findings already have file:line and replacements | ✓ Good |
+| Automation: permission-free triggers first; Wi-Fi name (Location) opt-in; no GPS location trigger; Focus only through a Focus filter; no Full Disk Access | Least privilege; INFocusStatusCenter needs a capability a self-signed app cannot have (see COMPETITORS.md section 4) | — Pending the user's answers |
+| Scripts only from a folder the user chose, hash-pinned and confirmed, local-only, never from import, sync, URL or Shortcuts | holzBar is unsandboxed and holds Accessibility, so a script runner is a privilege-escalation surface | — Pending (Phase 9 security design) |
+| Widgets: text from built-in sources, timers only while visible, never online | Lean and private | — Pending (Phase 10 spike) |
 
 ## Evolution
 
@@ -82,4 +85,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-02 after initialization*
+*Last updated: 2026-10-04 after planning milestone 0.0.7 Automation*

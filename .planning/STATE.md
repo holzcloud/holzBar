@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
-milestone: v0.0.6
-current_phase: 7
-current_phase_name: Release 0.0.6-beta1
-status: executing
-stopped_at: FACT-01 README fact check and v0.0.6-beta1 release notes written; not tagged
-last_updated: "2026-10-03T14:00:00.000Z"
-last_activity: 2026-10-03
-last_activity_desc: Phases 6 and 06.1 complete (#42); README fact check, release notes, website rows
+milestone: v0.0.7
+current_phase: 8
+current_phase_name: Triggers
+status: planned
+stopped_at: Milestone 0.0.7 "Automation" planned (competitor research, requirements, roadmap, phase outlines); waiting for the user's decisions in research/AUTOMATION-QUESTIONS.md
+last_updated: "2026-10-04T12:00:00.000Z"
+last_activity: 2026-10-04
+last_activity_desc: Milestone 0.0.7 Automation planned (phases 8 to 14); 0.0.6 is released
 state_head: e1c8ed8884e1f0f5c5686f87b63ca7ad64189f6f
 progress:
-  total_phases: 13
-  completed_phases: 12
-  total_plans: 33
-  completed_plans: 32
+  total_phases: 20
+  completed_phases: 13
+  total_plans: 52
+  completed_plans: 33
 ---
 
 # Project State
@@ -27,12 +27,12 @@ See: .planning/PROJECT.md (updated 2026-10-02)
 
 ## Current Position
 
-Phase: 7 of 7 (Release 0.0.6-beta1)
-Plan: 1 of 1 in current phase (in progress)
-Status: README fact-checked (FACT-01), `docs/release-notes/v0.0.6-beta1.md` written, website rows in `.planning/research/WEBSITE-UPDATE.md`; CI launches the app on macOS 27 too. Next: push once, CI green, merge, push the website rows to the CMS, tag `v0.0.6-beta1`
-Last activity: 2026-10-03 — Phases 6 and 06.1 merged (#42); Phase 7 preparation
+Milestone: 0.0.7 "Automation" (planned, not started); 0.0.6 is released (stable)
+Phase: 8 of 14 (Triggers), next to discuss and plan
+Status: Competitor research (`research/COMPETITORS.md`), requirements TRIG/SCRIPT/WIDG/LOCK/ANIM/DESK, roadmap phases 8 to 14 and phase outlines (`phases/08-*` to `phases/14-*/PLAN.md`) are written. Open decisions for the user: `research/AUTOMATION-QUESTIONS.md` (11 multiple-choice questions). Next: the user answers, then `/gsd-plan-phase 8`.
+Last activity: 2026-10-04 — Automation milestone planned
 
-Progress: [█████████░] 92%
+Progress: [█████████████░░░░░░░] 13 of 20 phases (milestone 0.0.7: 0 of 7)
 
 ## Performance Metrics
 
@@ -166,10 +166,11 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- Push the branch once, get CI green (including the new macOS 27 launch), merge
-- Push `.planning/research/WEBSITE-UPDATE.md` to the CMS (all five languages)
-- Tag `v0.0.6-beta1`; the release workflow publishes the notes and updates the cask
-- Optional before tagging: add the SIGNING_CERTIFICATE_* secrets (docs/signing.md) and enable private vulnerability reporting
+- Answer the open decisions in `.planning/research/AUTOMATION-QUESTIONS.md`
+- Phase 8 spikes that need a Mac: Wi-Fi name with Location (accessory app, self-signed), `ssidDidChange` without the entitlement, `SetFocusFilterIntent` on macOS 26 and 27
+- Phase 9 spikes: TCC identity of a child process, `NSUserUnixTask` against `Process`, Keychain seal
+- Phase 10 spike: holzBar's own extra status items on macOS 14, 26 and 27
+- Earlier todos from 0.0.6 (CMS rows, signing secrets, private vulnerability reporting) are in `docs/signing.md` and `research/WEBSITE-UPDATE.md`
 
 ### Blockers/Concerns
 
@@ -185,6 +186,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-03T14:00:00.000Z
-Stopped at: Phase 7 preparation (FACT-01, release notes, website rows)
+Last session: 2026-10-04T12:00:00.000Z
+Stopped at: Automation milestone planned; waiting for decisions
 Resume file: None
