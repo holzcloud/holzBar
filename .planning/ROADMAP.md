@@ -26,15 +26,15 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 06.1: Compatibility check** (INSERTED) - Which macOS versions really work; 26 and 27 required, older ones optional (decision: keep macOS 14+)
 - [x] **Phase 7: Release 0.0.6-beta1** - Tag, hand-written release notes, cask updated (published as 0.0.6, stable)
 
-**Milestone 0.0.7 "Automation"** (planned 2026-10-04; research in `research/COMPETITORS.md`)
+**Milestone 0.0.7 "Automation"** (planned 2026-10-04, decisions recorded 2026-10-04; research in `research/COMPETITORS.md`, decisions in `research/AUTOMATION-QUESTIONS.md`). One pull request, one push at the end, **one beta `0.0.7-beta1` when the whole milestone is done** (no beta per phase). The milestone is held if the Focus filter does not work.
 
-- [ ] **Phase 8: Triggers** - Rules (conditions all/any -> apply profile, reveal items, Zen mode) fed by system events: power, app, time, display, network, Wi-Fi name (Location, opt-in), Focus filter (spike)
+- [ ] **Phase 8: Triggers** - Rules (conditions all/any -> apply profile, reveal items, Zen mode) fed by system events: power, app, time, display, network, Wi-Fi name (Location, opt-in), Focus filter. **The Focus-filter spike on macOS 26 and 27 comes first; the milestone waits for its result**
 - [ ] **Phase 9: Scripts** - Security design first, then scripts from a folder the user chose as a rule condition and action; local only, hash-pinned, confirmed
 - [ ] **Phase 10: Widgets** - Extra menu bar items without code: v1 text widgets from permission-free sources and a Shortcut button; script widgets in stage 2 (riskiest phase)
-- [ ] **Phase 11: Lock hidden items** - Touch ID or password to reveal (competitor gap: SaneBar)
-- [ ] **Phase 12: Smooth show and hide** - Short animation, no idle timers, respects Reduce Motion (competitor gap: Vanilla)
-- [ ] **Phase 13: Hide desktop icons (spike)** - Ship only with a clean public mechanism (competitor gap: Vanilla)
-- [ ] **Phase 14: Release 0.0.7** - Fact check of README, website and tables; numbered betas `0.0.7-beta1`, ...
+- [ ] **Phase 11: AppleScript dictionary** - holzBar itself becomes scriptable (sdef): show/hide, profiles, Zen mode, rules on or off; no script or rule creation through it (competitor gap: Bartender 7, SaneBar)
+- [ ] **Phase 12: Lock hidden items** - Touch ID or password to reveal (competitor gap: SaneBar)
+- [ ] **Phase 13: Smooth show and hide** - Short animation, no idle timers, respects Reduce Motion (competitor gap: Vanilla)
+- [ ] **Phase 14: Release 0.0.7-beta1** - Fact check of README, website and tables; one beta when the whole milestone is done
 
 Each phase is one pull request and must build green on the macOS CI runner before merge.
 
@@ -259,7 +259,7 @@ Plans:
 
 ## Milestone 0.0.7 "Automation" - phase details
 
-Principles for every phase below (`CLAUDE.md`): never online, no polling where an event exists, least privilege (ask only when the user adds the feature, say why), pure logic in `holzBar/Core` with Swift Testing tests, five languages, private logs, nothing claimed in the README before it is true. One pull request for the whole milestone or per beta (user decides), pushed once at the end. Outlines: `.planning/phases/NN-name/PLAN.md`; `/gsd-plan-phase` turns each into numbered plans.
+Principles for every phase below (`CLAUDE.md`): never online, no polling where an event exists, least privilege (ask only when the user adds the feature, say why), pure logic in `holzBar/Core` with Swift Testing tests, five languages, private logs, nothing claimed in the README before it is true. One pull request for the whole milestone, pushed once at the end; one beta (`0.0.7-beta1`) when every phase is done. Outlines: `.planning/phases/NN-name/PLAN.md`; `/gsd-plan-phase` turns each into numbered plans.
 
 ### Phase 8: Triggers
 
@@ -271,8 +271,9 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
   2. Power, app, time, display and network-kind conditions work without any permission and with no polling: with no enabled rule no monitor exists, and a time rule uses one timer armed for the next boundary
   3. The Wi-Fi-name condition asks for Location Services only when the user adds it, says why, and is never true without the permission; no other condition prompts for anything
   4. Existing low-battery and offline settings behave as before
-  5. Rules are in the pane in five languages, exported, imported and synced with validation, and listed, enabled and disabled (not created or edited) by URL and Shortcuts
-**Plans**: 5 planned (see `phases/08-triggers/PLAN.md`)
+  5. Rules are in the pane in five languages, exported, imported and synced with validation (Wi-Fi names and chosen apps included, logs private), and listed, enabled and disabled (not created or edited) by URL and Shortcuts
+  6. A layout profile can be applied by a Focus filter on macOS 26 and 27; the spike that proves it runs first, and **the milestone waits for it** (if the system does not call the intent on the user's macOS, nothing is released)
+**Plans**: 6 planned (see `phases/08-triggers/PLAN.md`; the Focus-filter spike is plan 1)
 
 ### Phase 9: Scripts
 
@@ -299,18 +300,30 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
   4. Widgets appear in the layout editor, search, profiles and settings export, and have VoiceOver labels
 **Plans**: 4 planned (stage 1: 3 plans, stage 2: 1 plan after Phase 9; see `phases/10-widgets/PLAN.md`)
 
-### Phase 11: Lock hidden items
+### Phase 11: AppleScript dictionary
+
+**Goal**: holzBar can be driven from AppleScript, JXA and Script Editor with a small, read-mostly command set, without becoming a way to create scripts, rules or settings
+**Depends on**: Phase 8 (rules to list, enable and disable) and Phase 10 (so the dictionary is designed once for the final feature set)
+**Requirements**: ASDICT-01, ASDICT-02, ASDICT-03
+**Success Criteria** (what must be TRUE):
+  1. Script Editor shows a holzBar dictionary (`sdef`) with the commands show, hide and toggle a section, apply a profile, turn Zen mode on or off, list profiles and rules, enable or disable a rule, and read the state
+  2. No command can create, change or delete a script binding, a rule, a profile or a setting, or approve a script
+  3. Lasting changes and Zen-off ask first, and are refused while the screen is shared, exactly like URL commands; the lock of Phase 12 applies to reveals
+  4. holzBar needs no new entitlement and sends no Apple events of its own
+**Plans**: 2 planned (see `phases/11-applescript-dictionary/PLAN.md`)
+
+### Phase 12: Lock hidden items
 
 **Goal**: Revealing hidden items can require Touch ID or the Mac's password
-**Depends on**: Phase 7
+**Depends on**: Phase 7 (and every reveal path of Phases 8 and 11, which must go through the gate)
 **Requirements**: LOCK-01
 **Success Criteria** (what must be TRUE):
-  1. With the lock on, a click, hover, scroll or hotkey that would reveal hidden items asks the Mac's owner first and reveals nothing on failure
+  1. With the lock on, a click, hover, scroll, hotkey, rule or AppleScript command that would reveal hidden items asks the Mac's owner first and reveals nothing on failure
   2. No permission is requested and nothing leaves the Mac
   3. Settings states what the lock does and does not protect
-**Plans**: 1 planned (see `phases/11-lock-hidden-items/PLAN.md`)
+**Plans**: 1 planned (see `phases/12-lock-hidden-items/PLAN.md`)
 
-### Phase 12: Smooth show and hide
+### Phase 13: Smooth show and hide
 
 **Goal**: Showing and hiding looks smooth where it can, and costs nothing when idle
 **Depends on**: Phase 7
@@ -319,32 +332,24 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
   1. The animation runs only during the change and ends in the same state as before
   2. With Reduce Motion on, nothing animates
   3. No timer or display link exists while nothing changes
-**Plans**: 1 planned (see `phases/12-smooth-animation/PLAN.md`)
+**Plans**: 1 planned (see `phases/13-smooth-animation/PLAN.md`)
 
-### Phase 13: Hide desktop icons (spike)
+### Phase 14: Release 0.0.7-beta1
 
-**Goal**: It is known whether desktop icons can be hidden cleanly; if yes, they can
-**Depends on**: Phase 7
-**Requirements**: DESK-01
-**Success Criteria** (what must be TRUE):
-  1. A written finding names the mechanism, its permission and its side effects
-  2. Either the feature ships with no private API and no Finder restart, or the phase ends with the finding and nothing shipped
-**Plans**: 1 planned (see `phases/13-hide-desktop-icons/PLAN.md`)
-
-### Phase 14: Release 0.0.7
-
-**Goal**: Users can install `0.0.7-beta1` (and later betas) with accurate notes and docs
-**Depends on**: the phases the user chose to include
+**Goal**: Users can install `0.0.7-beta1` with accurate notes and docs, once the whole milestone is done
+**Depends on**: Phases 8 to 13 (all of them; the Focus filter of Phase 8 is a blocker)
 **Requirements**: FACT-02, REL-02
 **Success Criteria** (what must be TRUE):
-  1. Every README, website and comparison-table claim was re-checked against code and sources
+  1. Every README, website and comparison-table claim was re-checked against code and sources, and every 🔜 row that shipped is now a ✅ row
   2. `docs/release-notes/v0.0.7-beta1.md` has brew trust, update and quarantine steps; the release is a pre-release
 **Plans**: 2 planned (see `phases/14-release-0.0.7/PLAN.md`)
+
+**Backlog (not in this milestone)**: hide desktop icons (Vanilla has it). Not selected by the user; the only known mechanism (a Finder preference plus a Finder restart) is unverified and against least privilege. Revisit only on request.
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1 -> 05.1.1.1 -> 05.1.1.1.1 -> 6 -> 06.1 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 (9 needs 8; stage 2 of 10 needs 9; 11 to 13 are independent)
+Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1 -> 05.1.1.1 -> 05.1.1.1.1 -> 6 -> 06.1 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 (9 needs 8; stage 2 of 10 needs 9; 11 needs 8 and 10; 12 and 13 are independent but every reveal path of 8 and 11 goes through 12's gate)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -361,10 +366,10 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
 | 6. Security audit | 1/1 | Complete | 2026-10-03 |
 | 06.1. Compatibility check | 1/1 | Complete (decision: keep macOS 14+) | 2026-10-03 |
 | 7. Release 0.0.6-beta1 | 1/1 | Complete (released as 0.0.6, stable) | 2026-10-03 |
-| 8. Triggers | 0/5 | Planned | - |
+| 8. Triggers | 0/6 | Planned | - |
 | 9. Scripts | 0/4 | Planned | - |
 | 10. Widgets | 0/4 | Planned (stage 1 only; stage 2 after 9) | - |
-| 11. Lock hidden items | 0/1 | Planned | - |
-| 12. Smooth show and hide | 0/1 | Planned | - |
-| 13. Hide desktop icons | 0/1 | Planned (spike) | - |
-| 14. Release 0.0.7 | 0/2 | Planned | - |
+| 11. AppleScript dictionary | 0/2 | Planned | - |
+| 12. Lock hidden items | 0/1 | Planned | - |
+| 13. Smooth show and hide | 0/1 | Planned | - |
+| 14. Release 0.0.7-beta1 | 0/2 | Planned | - |

@@ -4,7 +4,7 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: Milestone 0.0.7 "Automation" planned (competitor research, requirements, roadmap, phase outlines); waiting for the user's decisions in research/AUTOMATION-QUESTIONS.md
+stopped_at: Milestone 0.0.7 "Automation" planned and the user's 11 decisions recorded; next is /gsd-plan-phase 8 (Focus-filter spike first)
 last_updated: "2026-10-04T12:00:00.000Z"
 last_activity: 2026-10-04
 last_activity_desc: Milestone 0.0.7 Automation planned (phases 8 to 14); 0.0.6 is released
@@ -28,8 +28,8 @@ See: .planning/PROJECT.md (updated 2026-10-02)
 ## Current Position
 
 Milestone: 0.0.7 "Automation" (planned, not started); 0.0.6 is released (stable)
-Phase: 8 of 14 (Triggers), next to discuss and plan
-Status: Competitor research (`research/COMPETITORS.md`), requirements TRIG/SCRIPT/WIDG/LOCK/ANIM/DESK, roadmap phases 8 to 14 and phase outlines (`phases/08-*` to `phases/14-*/PLAN.md`) are written. Open decisions for the user: `research/AUTOMATION-QUESTIONS.md` (11 multiple-choice questions). Next: the user answers, then `/gsd-plan-phase 8`.
+Phase: 8 of 14 (Triggers), next to plan
+Status: Competitor research (`research/COMPETITORS.md`), requirements (TRIG, SCRIPT, WIDG, ASDICT, LOCK, ANIM), roadmap phases 8 to 14, phase outlines and the user's answers to all 11 questions (`research/AUTOMATION-QUESTIONS.md`, all DECIDED) are written. Phase list: 8 Triggers (Focus-filter spike first; the milestone is held if it fails), 9 Scripts, 10 Widgets, 11 AppleScript dictionary, 12 Lock hidden items, 13 Smooth show and hide, 14 Release 0.0.7-beta1 (one beta at the end). Next: `/gsd-plan-phase 8`, starting with the Focus-filter spike on the user's macOS 26 and 27.
 Last activity: 2026-10-04 — Automation milestone planned
 
 Progress: [█████████████░░░░░░░] 13 of 20 phases (milestone 0.0.7: 0 of 7)
@@ -166,7 +166,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-- Answer the open decisions in `.planning/research/AUTOMATION-QUESTIONS.md`
+- Phase 8, first: the Focus-filter spike on macOS 26.x and 27 (release blocker; hold the milestone if it fails)
 - Phase 8 spikes that need a Mac: Wi-Fi name with Location (accessory app, self-signed), `ssidDidChange` without the entitlement, `SetFocusFilterIntent` on macOS 26 and 27
 - Phase 9 spikes: TCC identity of a child process, `NSUserUnixTask` against `Process`, Keychain seal
 - Phase 10 spike: holzBar's own extra status items on macOS 14, 26 and 27
@@ -187,5 +187,5 @@ Items acknowledged and deferred at milestone close, most recent first:
 ## Session Continuity
 
 Last session: 2026-10-04T12:00:00.000Z
-Stopped at: Automation milestone planned; waiting for decisions
+Stopped at: Automation milestone planned, decisions recorded
 Resume file: None

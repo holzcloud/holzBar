@@ -1,11 +1,11 @@
 ---
 phase: 12-smooth-animation
-status: planned (outline)
+status: planned, selected by the user 2026-10-04 (outline)
 requirements: [ANIM-01]
 depends_on: Phase 7
 ---
 
-# Phase 12: Smooth show and hide
+# Phase 13: Smooth show and hide
 
 ## Goal
 
@@ -25,7 +25,7 @@ Vanilla is praised for "fluid animations" (MacStories roundup). Ice and holzBar 
 
 ## Plans
 
-1. **12-01 Spike and implementation**: spike on three macOS versions with a checklist for the user; schedule in Core; Reduce Motion; setting; strings; docs; energy measurement (no wakeups when idle).
+1. **13-01 Spike and implementation**: spike on three macOS versions with a checklist for the user; schedule in Core; Reduce Motion; setting; strings; docs; energy measurement (no wakeups when idle).
 
 ## Risks
 

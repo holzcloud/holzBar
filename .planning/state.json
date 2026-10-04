@@ -85,29 +85,29 @@
     },
     {
       "number": "11",
-      "name": "Lock hidden items",
+      "name": "AppleScript dictionary",
       "status": "planned"
     },
     {
       "number": "12",
-      "name": "Smooth show and hide",
+      "name": "Lock hidden items",
       "status": "planned"
     },
     {
       "number": "13",
-      "name": "Hide desktop icons",
+      "name": "Smooth show and hide",
       "status": "planned"
     },
     {
       "number": "14",
-      "name": "Release 0.0.7",
+      "name": "Release 0.0.7-beta1",
       "status": "planned"
     }
   ],
   "next": {
     "command": "/gsd-plan-phase 8",
     "label": "Decide, then plan Triggers",
-    "reason": "Milestone 0.0.7 Automation is planned; decisions in research/AUTOMATION-QUESTIONS.md"
+    "reason": "Milestone 0.0.7 Automation is planned and decided; Focus-filter spike first (release blocker)"
   },
   "updated_at": "2026-10-04T12:00:00.000Z"
 }

@@ -1,6 +1,6 @@
 ---
 phase: 10-widgets
-status: planned (outline; riskiest and largest phase; run /gsd-plan-phase 10)
+status: planned, decisions recorded 2026-10-04 (stage 1 = text widgets clock, battery, CPU, memory, uptime plus a Shortcut button) (outline; riskiest and largest phase; run /gsd-plan-phase 10)
 requirements: [WIDG-01, WIDG-02, WIDG-03, WIDG-04, WIDG-05]
 depends_on: Phase 7 (stage 1); Phase 9 (stage 2, script widgets)
 research: .planning/research/COMPETITORS.md (section 2, widget apps)
@@ -37,15 +37,15 @@ Bartender 6 (Widgets, beta since 6.0.0, "no code required") and 7 ("built-in dat
 | Network throughput | `getifaddrs` counters | none | timer | Deferred: polling by nature |
 | Calendar (Itsycal-like) | EventKit | Calendar | event | Not offered: permission and scope |
 | Weather, public IP | network | n/a | n/a | **Never**: holzBar is never online |
-| Script output | Phase 9 runner | see Phase 9 | on events or interval >= 5 min | Stage 2 |
+| Script output | Phase 9 runner | see Phase 9 | on events and a click to refresh; no interval | Stage 2 |
 | Shortcut button | `shortcuts://run-shortcut?name=` opened through `NSWorkspace` (K) or the App Intents/Shortcuts route | none of its own (the Shortcut may ask) | click | Name only; no data back |
 
 Energy rule: **a widget timer exists only while the widget is visible** (its section is shown, the display is awake, the screen is not locked). The existing `SystemActivity` (lock, wake) and the section state decide; when hidden, the timer is cancelled and the item's text is not updated; on reveal it refreshes once and restarts. A `Timer` with a tolerance (10 percent of the interval) lets the system coalesce wakeups. Count widgets: at most 6.
 
 ## Staged scope
 
-- **Stage 1 (v1, in 0.0.7)**: text widgets from built-in permission-free sources (date/time, battery, CPU, memory, uptime) and the Shortcut button. Format: a small set of presets plus a text template with tokens (`{time}`, `{battery}`, `{cpu}`), no scripting language. Placement and hiding as for spacers; a pane "Widgets" (or a section of Menu Bar Layout; open question 2) to add, edit, remove; export/import/sync of kind and format; VoiceOver label and value.
-- **Stage 2 (after Phase 9)**: script widget: first line of a script's output, under the SCRIPT gate (bounded plain text, run on an interval of at least 30 s only while visible, or on events).
+- **Stage 1 (v1, in 0.0.7)**: text widgets from built-in permission-free sources (date/time, battery, CPU, memory, uptime) and the Shortcut button. Format: a small set of presets plus a text template with tokens (`{time}`, `{battery}`, `{cpu}`), no scripting language. Placement and hiding as for spacers; a "Widgets" section in the new Automation pane (my choice after decision 2; change if the user prefers Menu Bar Layout) to add, edit, remove; export/import/sync of kind and format; VoiceOver label and value.
+- **Stage 2 (after Phase 9)**: script widget: first line of a script's output, under the SCRIPT gate (bounded plain text, refreshed on engine events and by a click, no interval timer, matching the no-polling decision for scripts).
 - **Later**: more sources (thermal, VPN state, audio device), icons from SF Symbols, click actions.
 
 ## Plans (outline)

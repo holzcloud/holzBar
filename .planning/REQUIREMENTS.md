@@ -140,20 +140,20 @@ Source: `.planning/codebase/CONCERNS.md` (file:line references there).
 
 - [x] **AUDIT-01**: Before the release, a full security analysis of the whole app (code, XPC service, URL scheme, settings import/sync, permissions, private APIs, CI/release pipeline, cask) is written to `.planning/` with severity-ranked findings, the user decides which to fix, and those fixes ship in `0.0.6-beta1`
 
-## Milestone 0.0.7 "Automation" (planned 2026-10-04, not started)
+## Milestone 0.0.7 "Automation" (planned and decided 2026-10-04, not started)
 
 Source: `.planning/research/COMPETITORS.md` (gaps, API and permission facts). Every requirement below must keep to the principles in `CLAUDE.md`: no network, no polling where an event exists, least privilege (a permission is asked only when the user adds the feature that needs it, with the reason), pure logic in `holzBar/Core` with Swift Testing tests, five languages (`.github/scripts/strings-check.py`), private logs.
 
 ### Triggers (Phase 8)
 
-- [ ] **TRIG-01**: An automation rule is `conditions` (match all or any) plus one `action`; the evaluation is a pure function in `holzBar/Core` (facts in, effects out) with Swift Testing tests for all/any, edge detection (acts once when a rule becomes true), what happens when it ends (restore the previous profile, or nothing), conflicts between rules (first rule in the list wins) and no loop when the effect changes a fact
+- [ ] **TRIG-01**: An automation rule is `conditions` (match all or any) plus one `action`; the evaluation is a pure function in `holzBar/Core` (facts in, effects out) with Swift Testing tests for all/any, edge detection (acts once when a rule becomes true), what happens when it ends (restore the previous profile by default, with a per-rule switch to leave it, decided), conflicts between rules (first rule in the list wins) and no loop when the effect changes a fact
 - [ ] **TRIG-02**: Permission-free conditions: power source and battery level, Low Power Mode, an app running or frontmost, time window and weekdays, a display connected (by UUID), network kind (Wi-Fi, Ethernet, offline, expensive connection). Each is fed by a system notification, never by polling; a monitor exists only while an enabled rule needs its kind (measured: no wakeups with no rules)
-- [ ] **TRIG-03**: Condition "connected to the Wi-Fi network named X" asks for Location Services only when the user adds that condition, with the reason shown first (macOS 14+ returns no SSID without it); without the permission the condition shows "needs Location Services" and is never true; the Info.plist usage text and README Permissions table are updated
-- [ ] **TRIG-04**: A layout profile can be applied by a Focus filter (`SetFocusFilterIntent`) with no permission; shipped only if a spike on macOS 26 and 27 shows the system calls the intent, otherwise recorded as not possible
+- [ ] **TRIG-03** (decided: optional Location, opt-in, spike on a Mac first): Condition "connected to the Wi-Fi network named X" asks for Location Services only when the user adds that condition, with the reason shown first (macOS 14+ returns no SSID without it); without the permission the condition shows "needs Location Services" and is never true; the Info.plist usage text and README Permissions table are updated
+- [ ] **TRIG-04**: A layout profile can be applied by a Focus filter (`SetFocusFilterIntent`) with no permission. The spike on macOS 26 and 27 runs first, early in Phase 8; it is a **release blocker**: if the system does not call the intent on the user's macOS, the milestone is held (decision 10), not shipped without it
 - [ ] **TRIG-05**: Actions: apply a layout profile, show a section for the usual interval, turn Zen mode on or off; applying a profile never re-applies the one already active
 - [ ] **TRIG-06**: The existing "show on low battery" and "show when offline" rules become rules of the engine; existing users' settings carry over unchanged
-- [ ] **TRIG-07**: A settings pane lists, adds, edits, reorders, enables and deletes rules (HIG: list with add and remove, forms, plain wording), reachable with VoiceOver and keyboard; all strings exist in English, German, French, Italian and Romansh
-- [ ] **TRIG-08**: Rules are exported, imported and synced like other settings, validated (known condition kinds, ranges, at most 50 rules, profile names looked up, unknown ones disable the rule); logs never contain SSIDs or app names in public
+- [ ] **TRIG-07**: A new settings pane "Automation" (decided) lists, adds, edits, reorders, enables and deletes rules (HIG: list with add and remove, forms, plain wording), reachable with VoiceOver and keyboard; all strings exist in English, German, French, Italian and Romansh
+- [ ] **TRIG-08**: Rules are exported, imported and synced like other settings, **Wi-Fi names and chosen apps included** (decided), validated (known condition kinds, ranges, at most 50 rules, profile names looked up, unknown ones disable the rule); logs never contain SSIDs or app names in public, and the README says rules carry them
 - [ ] **TRIG-09**: URL commands and Shortcuts can list, enable and disable rules and tell which are active; they cannot create or edit a rule; lasting changes ask first like the other URL commands
 
 ### Scripts (Phase 9)
@@ -162,7 +162,7 @@ Source: `.planning/research/COMPETITORS.md` (gaps, API and permission facts). Ev
 - [ ] **SCRIPT-02**: Scripts run only from a folder the user chose, only regular files owned by the user and not writable by group or others, never through a symbolic link out of the folder, never with a quarantine attribute; run by `Process` (or `NSUserScriptTask` if the spike proves it safer) with a fixed executable, no shell, no arguments, a minimal environment, stdin closed, a timeout, an output size limit and a rate limit
 - [ ] **SCRIPT-03**: The first run of a script, and the first run after its content changes (SHA-256), needs the user's confirmation naming the file, its folder and what it will be able to do; approvals are local
 - [ ] **SCRIPT-04**: Script bindings, folder, approvals and hashes never leave the Mac: not exported, not imported, not synced, not settable by URL or Shortcuts; an imported or synced rule that names a script is dropped and reported
-- [ ] **SCRIPT-05**: A script can be a condition (exit status 0 means true; evaluated on the engine's events and a manual re-check, plus an optional interval of at least 5 minutes that the pane labels as polling) and an action of a rule (run once when the rule becomes true or ends); output is data: shown as plain text, length-limited, never run or opened
+- [ ] **SCRIPT-05**: A script can be a condition (exit status 0 means true; evaluated on the engine's events and a manual "Check now" button; **no polling interval**, decided) and an action of a rule (run once when the rule becomes true or ends); output is data: shown as plain text, length-limited, never run or opened
 - [ ] **SCRIPT-06**: AppleScript files (`.scpt`, `.applescript`) run through the same gate; the pane tells that scripts run with holzBar's permissions and that macOS asks separately before a script controls another app
 
 ### Widgets (Phase 10, staged)
@@ -175,14 +175,18 @@ Source: `.planning/research/COMPETITORS.md` (gaps, API and permission facts). Ev
 
 ### Competitor gaps (Phases 11 to 13)
 
-- [ ] **LOCK-01**: Showing hidden items can require the Mac's owner (Touch ID or password through `LocalAuthentication`), no permission and no network; Settings says what it protects
+- [ ] **ASDICT-01**: holzBar ships a scripting dictionary (`holzBar.sdef`, `OSAScriptingDefinition` and `NSAppleScriptEnabled` in Info.plist) with commands to show, hide and toggle a section, apply a named profile, turn Zen mode on or off, enable or disable a named rule, and read properties (profile names, rule names and whether each is active, current profile, Zen mode, whether each section is hidden); it works from Script Editor, `osascript` and JXA
+- [ ] **ASDICT-02**: Nothing in the dictionary can create, change or delete a script binding, a rule, a profile, a hotkey or a setting, or approve or run a script; Zen-off and other lasting changes ask first and are refused while the screen is shared (the `URLPrompt` rules); reveals go through Phase 12's gate; replies contain no personal data beyond names the user chose; holzBar needs no new entitlement and sends no Apple events
+- [ ] **ASDICT-03**: The command handling is thin; the decisions (refuse, ask, allow) are the same pure logic the URL commands use, with Swift Testing; README, Permissions table (macOS asks the caller for Automation permission) and SECURITY.md entry updated
+- [ ] **LOCK-01**: Showing hidden items can require the Mac's owner (Touch ID or password through `LocalAuthentication`), no permission and no network; Settings says what it protects; every reveal path (click, hover, scroll, hotkeys, Shelf, search, URL, Shortcuts, rules, AppleScript) goes through the gate
 - [ ] **ANIM-01**: Showing and hiding can animate, only for the duration of the change, with no timer while idle, and off when Reduce Motion is on
-- [ ] **DESK-01**: A spike decides whether desktop icons can be hidden without a private API or a Finder restart; shipped only if yes, otherwise dropped and recorded
+
+Backlog, not planned: hide desktop icons (DESK-01 was dropped by the user's decision 9).
 
 ### Release 0.0.7
 
 - [ ] **FACT-02**: README, website, comparison tables and Permissions table are re-checked and updated for what shipped (🔜 rows only for what is planned and says so)
-- [ ] **REL-02**: `0.0.7-beta1` (and further numbered betas) released with hand-written notes (brew trust, update, quarantine)
+- [ ] **REL-02**: `0.0.7-beta1` is released **once, when the whole milestone is done** (no beta per phase), with hand-written notes (brew trust, update, quarantine); the release waits for the Focus filter (TRIG-04)
 
 ## v2 Requirements
 
@@ -315,15 +319,17 @@ Source: `.planning/research/COMPETITORS.md` (gaps, API and permission facts). Ev
 | WIDG-03 | Phase 10 | Planned (WIDG-05 stage 2) |
 | WIDG-04 | Phase 10 | Planned (WIDG-05 stage 2) |
 | WIDG-05 | Phase 10 | Planned (WIDG-05 stage 2) |
-| LOCK-01 | Phase 11 | Planned |
-| ANIM-01 | Phase 12 | Planned |
-| DESK-01 | Phase 13 | Planned (spike) |
+| ASDICT-01 | Phase 11 | Planned |
+| ASDICT-02 | Phase 11 | Planned |
+| ASDICT-03 | Phase 11 | Planned |
+| LOCK-01 | Phase 12 | Planned |
+| ANIM-01 | Phase 13 | Planned |
 | FACT-02 | Phase 14 | Planned |
 | REL-02 | Phase 14 | Planned |
 
 **Coverage:**
 - v1 requirements: 63 total, all mapped
-- Milestone 0.0.7 "Automation": 25 requirements, all mapped to phases 8 to 14
+- Milestone 0.0.7 "Automation": 27 requirements (TRIG 9, SCRIPT 6, WIDG 5, ASDICT 3, LOCK 1, ANIM 1, FACT-02, REL-02), all mapped to phases 8 to 14
 - Unmapped: 0 ✓
 
 ---
