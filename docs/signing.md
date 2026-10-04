@@ -115,7 +115,7 @@ The authority is `holzBar Release Signing`, and the SHA-256 is the one in the RE
 With the [GitHub CLI](https://cli.github.com) (`brew install gh`, then `gh auth login`):
 
 ```sh
-gh attestation verify holzBar-0.0.6-beta1.zip -R holzcloud/holzBar
+gh attestation verify holzBar-0.0.6.zip -R holzcloud/holzBar
 ```
 
 For the zip Homebrew downloaded:

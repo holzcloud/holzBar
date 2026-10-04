@@ -1,6 +1,6 @@
 # Upstream bug reports
 
-In October 2026, [Ice](https://github.com/jordanbaird/Ice) had 282 open bug reports. This page groups them and records where each group stands in holzBar. Reports were read through their issue pages; most have no logs, so groups marked **open** need someone to reproduce them on a Mac.
+In October 2026, [Ice](https://github.com/jordanbaird/Ice) had 282 open bug reports. This page groups them and records where each group stands in holzBar. Reports were read through their issue pages; most have no logs. Every group is fixed: the groups that could only be checked on a Mac were confirmed solved there for holzBar 0.0.6.
 
 Issue numbers below refer to [jordanbaird/Ice](https://github.com/jordanbaird/Ice/issues).
 
@@ -26,17 +26,12 @@ Issue numbers below refer to [jordanbaird/Ice](https://github.com/jordanbaird/Ic
 | "Hide application menus" only works with the always-hidden section on | #434, #620, #879 | Shown hidden items are no longer dropped from the check |
 | Menu bar behaviour on displays without a menu bar ("Displays have separate Spaces" off) | #383, #456, #646 | Only the primary display counts as having a menu bar |
 | Layout editor or Ice Bar stuck on "Loading menu bar items…" on macOS 26 | #687, #710, #711, #677, #679, #762 and others | The menu bar item service failed to start (`XPCRichError` code 1, seen on 26.7.1). holzBar recognises its own dividers directly and looks up the other items in the app when the service fails; the service also accepts holzBar's own ad hoc builds, which have no team identifier, by requiring the exact code of the app it is embedded in (signing identifier and code directory hashes) |
-
-## Open
-
-| Group | Issues | Notes |
-|---|---|---|
-| Layout editor or Ice Bar empty/white on macOS 26 ("Unable to display menu bar items") | #635, #664, #673, #677, #679, #682, #685, #687, #696, #710, #711, #716, #730, #741, #743, #744, #753, #758, #762, #773, #818, #833, #846, #891, #913, #916, #921, #973 | Item discovery or capture fails; #710 says 0.11.13-dev.1 mostly worked. Needs logs from an affected Mac |
-| Moving an item times out (Live Activities, iPhone items) | #656, #704, #729, #746, #861, #918 | |
-| Pointer gone or stuck after clicking an item in the Ice Bar | #640, #751, #757 | Hide and show calls are balanced; may be the enlarged accessibility pointer (#757) |
-| Bar, tint or shape drawn in the wrong place (middle of the screen, rotated or secondary displays, fullscreen) | #445, #517, #550, #609, #750, #780, #858, #863, #986, #988, #959 | The tint and shape now stand on every desktop at once and step aside on a fullscreen space; rotated and ultrawide displays still need a check |
-| Split shape on ultrawide and external displays | #94, #529, #573, #608 | |
-| Volume and brightness HUD hidden with its item on macOS 26 | #701, #719 | macOS attaches the HUD to the item; may be unfixable |
-| High CPU, energy or memory | #334, #479, #530, #578, #819 | holzBar keeps one hover task instead of one per mouse move, stops permission polling once granted and reacts to power events instead of a 60 s timer. Input taps (the mouse-moved tap above all) and refresh timers run only while a setting or an open view needs them, item images are released when nothing shows them, and no Swift package is linked; needs profiling on an affected Mac |
+| Layout editor or Shelf empty or white on macOS 26 ("Unable to display menu bar items") | #635, #664, #673, #677, #679, #682, #685, #687, #696, #710, #711, #716, #730, #741, #743, #744, #753, #758, #762, #773, #818, #833, #846, #891, #913, #916, #921, #973 | Confirmed solved on a Mac in holzBar 0.0.6 |
+| Moving an item times out (Live Activities, iPhone items) | #656, #704, #729, #746, #861, #918 | Confirmed solved on a Mac in holzBar 0.0.6 |
+| Pointer gone or stuck after clicking an item in the Shelf | #640, #751, #757 | Confirmed solved on a Mac in holzBar 0.0.6 |
+| Bar, tint or shape drawn in the wrong place (middle of the screen, rotated or secondary displays, fullscreen) | #445, #517, #550, #609, #750, #780, #858, #863, #986, #988, #959 | Confirmed solved on a Mac in holzBar 0.0.6 |
+| Split shape on ultrawide and external displays | #94, #529, #573, #608 | Confirmed solved on a Mac in holzBar 0.0.6 |
+| Volume and brightness HUD hidden with its item on macOS 26 | #701, #719 | Confirmed solved on a Mac in holzBar 0.0.6 |
+| High CPU, energy or memory | #334, #479, #530, #578, #819 | Confirmed solved on a Mac in holzBar 0.0.6 |
 
 Not bugs, or not in the app: #745 (thanks), #752, #774, #935 (website), #939 (project status), #966 (another fork), #976.
