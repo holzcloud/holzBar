@@ -45,14 +45,15 @@ final class MenuBarItemEventPoster {
 
     /// Waits asynchronously for the user to pause input.
     ///
-    /// Gives up with ``EventError/cannotComplete`` after five seconds, or when
-    /// the calling task is cancelled, so a move or click never waits for good.
+    /// Gives up with ``EventError/userInputNotPaused`` after five seconds, and with
+    /// ``EventError/cannotComplete`` when the calling task is cancelled, so a move or
+    /// click never waits for good.
     private func waitForUserToPauseInput() async throws {
         let deadline = ContinuousClock.now + .seconds(5)
         while !Self.hasUserPausedInput(for: .milliseconds(50)) {
             guard ContinuousClock.now < deadline else {
                 logger.debug("Timed out waiting for the user to pause input")
-                throw EventError.cannotComplete
+                throw EventError.userInputNotPaused
             }
             do {
                 try await Task.sleep(for: .milliseconds(250))
