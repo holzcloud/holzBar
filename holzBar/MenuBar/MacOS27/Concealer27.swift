@@ -36,6 +36,10 @@ final class Concealer27 {
     /// Failed applies in a row, each answered by one more try a moment later.
     @ObservationIgnored private var failedApplies = 0
 
+    /// Counts the changes of `isConcealing` and `concealedPIDs`, so an apply that fails for
+    /// good corrects them only while they still describe its own target.
+    @ObservationIgnored private var stateGeneration = 0
+
     /// How many times in a row a failed apply is tried again.
     private static let maximumApplyRetries = 3
 
@@ -243,12 +247,9 @@ final class Concealer27 {
         }
         isConcealing = !target.isEmpty
         defer { MenuBarItemProvider27.setConcealedPIDs(concealedPIDs) }
-        concealedPIDs = Set(applications.compactMap { application in
-            guard let bundleID = application.bundleIdentifier, concealed.contains(bundleID) else {
-                return nil
-            }
-            return application.processIdentifier
-        })
+        concealedPIDs = Self.processIdentifiers(of: concealed, among: applications)
+        stateGeneration += 1
+        let generation = stateGeneration
         lastChangeAt = .now
         let previous = applyTask
         let task = Task { [weak self, controller, logger] in
@@ -258,7 +259,7 @@ final class Concealer27 {
                 self?.failedApplies = 0
             } catch {
                 logger.error("Could not apply concealment: \(error, privacy: .private)")
-                self?.retryAfterFailedApply()
+                self?.applyDidFail(generation: generation)
             }
         }
         applyTask = task
@@ -275,13 +276,25 @@ final class Concealer27 {
         }
     }
 
-    /// Tries a failed apply again a moment later, a few times in a row.
+    /// Tries a failed apply again a moment later, a few times in a row, then follows the
+    /// assertions that are actually live.
     ///
     /// `isConcealing` and `concealedPIDs` already describe the concealment that failed, and
     /// hit-testing, captures and the click bridge rely on them; MenuBarAgent can reject an
     /// assertion or time out while it is busy, after login or wake.
-    private func retryAfterFailedApply() {
+    private func applyDidFail(generation: Int) {
         guard failedApplies < Self.maximumApplyRetries else {
+            // The next failure, from whatever change comes next, gets its own tries.
+            failedApplies = 0
+            guard generation == stateGeneration else {
+                return
+            }
+            logger.notice("Concealment could not be applied, keeping to the assertions still live")
+            let concealed = controller.liveConcealed
+            lastConcealed = concealed
+            isConcealing = controller.isActive
+            concealedPIDs = Self.processIdentifiers(of: concealed, among: NSWorkspace.shared.runningApplications)
+            MenuBarItemProvider27.setConcealedPIDs(concealedPIDs)
             return
         }
         failedApplies += 1
@@ -289,6 +302,16 @@ final class Concealer27 {
             try? await Task.sleep(for: .seconds(1))
             self?.update()
         }
+    }
+
+    /// The process identifiers of the given applications that are running.
+    private static func processIdentifiers(of bundleIDs: Set<String>, among applications: [NSRunningApplication]) -> Set<pid_t> {
+        Set(applications.compactMap { application in
+            guard let bundleID = application.bundleIdentifier, bundleIDs.contains(bundleID) else {
+                return nil
+            }
+            return application.processIdentifier
+        })
     }
 
     /// Puts holzBar's icon back when MenuBarAgent dropped it while concealing.
@@ -451,6 +474,7 @@ final class Concealer27 {
         suspendedUntil = deadline
         isConcealing = false
         concealedPIDs.removeAll()
+        stateGeneration += 1
         let previous = applyTask
         applyTask = Task { [controller] in
             await previous?.value
@@ -479,6 +503,7 @@ final class Concealer27 {
         suspendedUntil = deadline
         isConcealing = false
         concealedPIDs.removeAll()
+        stateGeneration += 1
         let previous = applyTask
         let release = Task { [controller] in
             await previous?.value

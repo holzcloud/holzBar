@@ -50,6 +50,11 @@ final class ConcealmentController27 {
         !live.isEmpty
     }
 
+    /// The applications the live assertions conceal, whatever target was last asked for.
+    var liveConcealed: Set<String> {
+        ConcealmentPlanner27.effectivelyConcealed(sets: live.map(\.spec.concealed))
+    }
+
     init(backend: ConcealmentBackend27) {
         self.backend = backend
     }
