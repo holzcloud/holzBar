@@ -383,6 +383,8 @@ final class AppState {
             activate(withPolicy: .regular)
         case .accessory:
             activate(withPolicy: .accessory)
+            // Without the regular policy, macOS shows the other app's menus again.
+            menuBarManager.applicationMenusDidReappear()
         }
         return true
     }

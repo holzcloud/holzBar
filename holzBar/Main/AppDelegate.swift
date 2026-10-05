@@ -136,7 +136,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             appState.navigationState.isAppFrontmost
         {
             Logger.default.debug("All windows closed - deactivating with accessory activation policy")
-            appState.deactivate(withPolicy: .accessory)
+            if appState.menuBarManager.isHidingApplicationMenus {
+                // Deactivates the same way, and records that the menus are shown again.
+                appState.menuBarManager.showApplicationMenus()
+            } else {
+                appState.deactivate(withPolicy: .accessory)
+            }
         }
         return false
     }

@@ -420,6 +420,12 @@ final class MenuBarManager {
         isHidingApplicationMenus = false
     }
 
+    /// Records that the application menus are shown again because holzBar switched to the
+    /// accessory activation policy without ``showApplicationMenus()`` (Settings, the search).
+    func applicationMenusDidReappear() {
+        isHidingApplicationMenus = false
+    }
+
     /// Toggles the visibility of the application menus.
     func toggleApplicationMenus() {
         if isHidingApplicationMenus {
