@@ -8,6 +8,13 @@ import Cocoa
 import OSLog
 import os
 
+nonisolated extension Notification.Name {
+    /// Posted on the main thread when a read changed where the run of items on a display
+    /// starts (`MenuBarItemProvider27.leftEdge(for:)` and the frames behind it), so what is
+    /// drawn from that edge follows even when the item cache compares equal.
+    static let menuBarItemsAreaDidChange27 = Notification.Name("com.holzcloud.holzBar.MenuBarItemsAreaDidChange27")
+}
+
 /// Reads menu bar items through Accessibility on macOS 27.
 ///
 /// macOS 27 draws status items inside MenuBarAgent instead of giving each one a
@@ -64,6 +71,16 @@ nonisolated enum MenuBarItemProvider27 {
         var scanSchedule = AccessibilityScanSchedule27()
         var lastItems: [MenuBarItem]?
         var lastReadAt: TimeInterval = 0
+
+        /// Everything the edge of the items area is built from, besides the item cache.
+        var itemsAreaInputs: ItemsAreaInputs27 {
+            ItemsAreaInputs27(
+                leftEdges: lastLeftEdges,
+                drawnFramesByDisplay: lastDrawnFramesByDisplay,
+                systemItemFrames: lastSystemItemFrames,
+                overflowButtonFrame: lastOverflowButtonFrame
+            )
+        }
     }
 
     // The state holds Accessibility elements, which are immutable references that any
@@ -104,10 +121,19 @@ nonisolated enum MenuBarItemProvider27 {
                     continuation.resume(returning: fresh)
                     return
                 }
+                let inputsBefore = withState { $0.itemsAreaInputs }
                 let items = readItems()
-                withState { state in
+                let areaChanged = withState { state in
                     state.lastItems = items
                     state.lastReadAt = ProcessInfo.processInfo.systemUptime
+                    return state.itemsAreaInputs != inputsBefore
+                }
+                // A concealed item keeps reporting its old frame and the items right of it do
+                // not move, so the item cache can compare equal while the edge moved.
+                if areaChanged {
+                    Task { @MainActor in
+                        NotificationCenter.default.post(name: .menuBarItemsAreaDidChange27, object: nil)
+                    }
                 }
                 continuation.resume(returning: items)
             }

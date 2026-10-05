@@ -325,6 +325,17 @@ final class MenuBarOverlayPanel: NSPanel {
             panel.contentView?.needsDisplay = true
         }
 
+        // On macOS 27 the split shape starts its trailing half where the run of items starts,
+        // and a read can move that edge without changing the item cache: a concealed item
+        // keeps its old frame, and the items right of it stay where they are. No other shape
+        // depends on that edge.
+        observeNotifications(named: .menuBarItemsAreaDidChange27, in: NotificationCenter.default) { panel in
+            guard panel.appState?.appearanceManager.configuration.shapeKind == .split else {
+                return
+            }
+            panel.contentView?.needsDisplay = true
+        }
+
         // The panel steps aside while the system hides the menu bar and on a fullscreen
         // space, and comes back when that ends.
         if let appState {
@@ -722,7 +733,8 @@ private final class MenuBarOverlayPanelContentView: NSView {
             )
         }
 
-        // The application menu frame and the wallpaper redraw the view from the panel.
+        // The application menu frame, the wallpaper and, on macOS 27, the edge of the items
+        // area redraw the view from the panel.
     }
 
     /// Returns a path in the given rectangle, with the given end caps,
@@ -804,9 +816,10 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
     /// Returns a path for the ``MenuBarShapeKind/split`` shape kind.
     private func pathForSplitShape(in rect: CGRect, info: MenuBarSplitShapeInfo, isInset: Bool, screen: NSScreen) -> NSBezierPath {
-        guard let appearanceManager = overlayPanel?.appState?.appearanceManager else {
+        guard let appState = overlayPanel?.appState else {
             return NSBezierPath()
         }
+        let appearanceManager = appState.appearanceManager
         var rect = rect
         let shouldInset = isInset && screen.hasNotch
         if shouldInset {
@@ -837,6 +850,17 @@ private final class MenuBarOverlayPanelContentView: NSView {
             return CGRect(x: rect.minX, y: rect.minY, width: maxX, height: rect.height)
         }()
         let trailingPathBounds: CGRect = {
+            // On macOS 27 there are no item windows: the backend knows where the run of
+            // items starts, from values it already read.
+            if let leftEdge = appState.itemManager.backend.itemsAreaLeftEdge(on: screen, appState: appState) {
+                // x is the same in CoreGraphics and Cocoa coordinates.
+                return SplitShape27.trailingBounds(
+                    edge: leftEdge - screen.frame.minX,
+                    in: rect,
+                    isInset: shouldInset,
+                    insetAmount: appearanceManager.menuBarInsetAmount
+                )
+            }
             let itemWindows = MenuBarItem.getMenuBarItemWindows(on: screen.displayID, option: .onScreen)
             guard !itemWindows.isEmpty else {
                 return .zero

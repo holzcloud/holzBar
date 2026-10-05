@@ -64,6 +64,10 @@ protocol MenuBarBackend: AnyObject {
     /// that holds items, including the gaps between them.
     func isInsideItemsArea(point: CGPoint, screen: NSScreen, appState: AppState) -> Bool
 
+    /// Where the run of items on the given screen starts, in CoreGraphics x, from values
+    /// already read, or `nil` where the backend does not know it.
+    func itemsAreaLeftEdge(on screen: NSScreen, appState: AppState) -> CGFloat?
+
     /// Creates the tap that lets clicks reach the system items while items are
     /// concealed, where the backend needs one.
     func makeSystemItemClickBridge(appState: AppState) -> (any SystemItemClickBridge)?
