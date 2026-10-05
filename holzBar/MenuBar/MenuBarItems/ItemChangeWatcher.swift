@@ -16,7 +16,8 @@ import OSLog
 /// item list (they are set up again when it changes) and nothing runs while no item is
 /// marked. Each notification passes ``ChangeReveal``'s debounce and rate limit; a due item
 /// is shown for 5 seconds (`MenuBarManager.revealBriefly(itemKey:)`). No timer and no
-/// polling: one bounded wait per batch of changes.
+/// polling: one bounded wait per batch of changes, and a few bounded retries for a marked
+/// item whose app did not answer yet.
 ///
 /// An item whose app only swaps its picture may post nothing, and is then never shown.
 @MainActor
@@ -39,10 +40,20 @@ final class ItemChangeWatcher {
     /// The observed elements with their items' keys, by process identifier.
     private var watched = [pid_t: [(element: AXUIElement, key: String)]]()
 
-    /// The observed items and their windows, so an unchanged list sets nothing up again.
-    /// An item whose element was not found or not observed is missing here, so the next
-    /// item list tries it again.
+    /// The marked items and their windows the observers were set up for, so an unchanged
+    /// list sets nothing up again.
+    private var setUpWindows = [String: CGWindowID]()
+
+    /// The observed items and their windows. An item whose element was not found or not
+    /// observed is missing here, and is tried again a few times (`retryTask`).
     private var watchedWindows = [String: CGWindowID]()
+
+    /// The one wait before the items that were not observed are tried again; a changed
+    /// list cancels it.
+    private var retryTask: Task<Void, Never>?
+
+    /// The retries made for the current list.
+    private var retryCount = 0
 
     /// The debounce and rate limit.
     private var changeReveal = ChangeReveal()
@@ -93,7 +104,10 @@ final class ItemChangeWatcher {
     // MARK: Observers
 
     /// Observes exactly the marked items that are in the menu bar now.
-    private func updateObservers() {
+    ///
+    /// - Parameter retrying: Whether only the items not observed yet are tried again, for
+    ///   an unchanged list.
+    private func updateObservers(retrying: Bool = false) {
         guard let appState else {
             return
         }
@@ -106,22 +120,50 @@ final class ItemChangeWatcher {
             items.map { (itemManager.identityKey(for: $0), $0.windowID) },
             uniquingKeysWith: { first, _ in first }
         )
-        guard windows != watchedWindows else {
+        if windows != setUpWindows {
+            removeAll()
+            watchedWindows.removeAll()
+            setUpWindows = windows
+            retryCount = 0
+        } else if !retrying {
+            // A pending retry stays.
             return
         }
-        removeAll()
-        var observed = [String: CGWindowID]()
+        retryTask?.cancel()
+        retryTask = nil
+        // Each lookup asks the app and waits 0.25 s at most, so observed items are not
+        // looked up again.
         for item in items {
             let pid = item.sourcePID ?? item.ownerPID
             let key = itemManager.identityKey(for: item)
-            guard let element = element(for: item, pid: pid), observe(element, key: key, pid: pid) else {
+            guard
+                watchedWindows[key] == nil,
+                let element = element(for: item, pid: pid),
+                observe(element, key: key, pid: pid)
+            else {
                 continue
             }
-            if observed[key] == nil {
-                observed[key] = item.windowID
-            }
+            watchedWindows[key] = item.windowID
         }
-        watchedWindows = observed
+        scheduleRetryIfNeeded()
+    }
+
+    /// Tries the marked items that were not observed again once 2 s later, at most three
+    /// times for one list: their app may not answer Accessibility yet, and the list may not
+    /// change again.
+    private func scheduleRetryIfNeeded() {
+        guard watchedWindows.count < setUpWindows.count, retryCount < 3 else {
+            return
+        }
+        retryCount += 1
+        retryTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(2))
+            } catch {
+                return
+            }
+            self?.updateObservers(retrying: true)
+        }
     }
 
     /// The Accessibility element of the item: on macOS 27 the one the item list was read
