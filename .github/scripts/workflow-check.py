@@ -24,7 +24,7 @@
 #
 #   python3 .github/scripts/workflow-check.py [--root DIR]
 #
-# It reads the files line by line instead of parsing YAML (Python's standard
+# It reads the files as text instead of parsing YAML (Python's standard
 # library has no YAML parser) and relies on the two-space indentation every
 # workflow here uses: jobs at two spaces, job keys at four. actionlint, in the
 # same job, validates the YAML itself. Every violation is printed as a GitHub
@@ -67,13 +67,14 @@ TOP_LEVEL_KEY = re.compile(r"^([\"']?[A-Za-z_][A-Za-z0-9_-]*[\"']?):(.*)$")
 JOB = re.compile(r"^  ([A-Za-z0-9_-]+):\s*(#.*)?$")
 JOB_PERMISSIONS = re.compile(r"^    permissions:\s*(.*)$")
 SCOPE = re.compile(r"^\s+([a-z-]+):\s*([a-z-]+)\s*(#.*)?$")
-EXPRESSION = re.compile(r"\$\{\{(.*?)\}\}")
-SECRET = re.compile(r"\bsecrets\.([A-Za-z_][A-Za-z0-9_]*)")
+# DOTALL: an expression may span lines; a folded scalar joins them into one.
+EXPRESSION = re.compile(r"\$\{\{(.*?)\}\}", re.DOTALL)
+SECRET = re.compile(r"\bsecrets\s*\.\s*([A-Za-z_][A-Za-z0-9_]*)")
 DYNAMIC_SECRET = re.compile(r"\bsecrets\s*\[|\(\s*secrets\s*\)")
 INHERIT = re.compile(r"^\s*secrets:\s*inherit\b")
 UNSAFE_TRIGGER = re.compile(r"\b(pull_request_target|workflow_run)\b")
 STEP = re.compile(r"^(\s*)-\s")
-PERSIST_FALSE = re.compile(r"^\s*persist-credentials:\s*false\s*(#.*)?$")
+PERSIST_FALSE = re.compile(r"^\s*persist-credentials:\s*(false|\"false\"|'false')\s*(#.*)?$")
 
 errors = 0
 
@@ -227,18 +228,24 @@ def check_secrets(path, lines, jobs, keys, is_action):
             annotate(path, number, "secrets: inherit hands every secret to another workflow")
         if keys[index] == "on" and not line.lstrip().startswith("#") and UNSAFE_TRIGGER.search(line):
             annotate(path, number, "pull_request_target and workflow_run run with secrets on code from others")
-        # Expressions count even in comments of a run script: Actions expands them anyway.
-        for expression in EXPRESSION.findall(line):
-            if DYNAMIC_SECRET.search(expression):
-                annotate(path, number, "Secrets may only be named one by one (secrets.NAME)")
-            for secret in SECRET.findall(expression):
-                if secret == "GITHUB_TOKEN":
-                    continue
-                if is_action:
-                    annotate(path, number, f"A composite action may not use secrets.{secret}")
-                elif secret not in SECRETS_ALLOWED.get((name, jobs[index]), set()):
-                    where = f"job {jobs[index]}" if jobs[index] else "this place"
-                    annotate(path, number, f"secrets.{secret} is not allowed in {where} of {name}")
+    # Expressions count even in comments of a run script: Actions expands them anyway. The
+    # whole file is scanned, so an expression split across lines is found too; it belongs
+    # to the line and job where it starts.
+    text = "\n".join(lines)
+    for match in EXPRESSION.finditer(text):
+        index = text.count("\n", 0, match.start())
+        number = index + 1
+        expression = match.group(1)
+        if DYNAMIC_SECRET.search(expression):
+            annotate(path, number, "Secrets may only be named one by one (secrets.NAME)")
+        for secret in SECRET.findall(expression):
+            if secret == "GITHUB_TOKEN":
+                continue
+            if is_action:
+                annotate(path, number, f"A composite action may not use secrets.{secret}")
+            elif secret not in SECRETS_ALLOWED.get((name, jobs[index]), set()):
+                where = f"job {jobs[index]}" if jobs[index] else "this place"
+                annotate(path, number, f"secrets.{secret} is not allowed in {where} of {name}")
 
 
 def check_credentials(path, lines, jobs):
