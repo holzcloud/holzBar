@@ -279,6 +279,11 @@ final class MenuBarManager {
                 // Get all items.
                 var items = await MenuBarItem.getMenuBarItems(on: screen.displayID, option: .activeSpace)
 
+                // The sections may have been hidden again during the lookup.
+                guard self.sections.contains(where: { $0.controlItem.state == .showSection }) else {
+                    return
+                }
+
                 // Filter the items down according to the currently enabled/shown sections.
                 if
                     let alwaysHiddenSection = self.section(withName: .alwaysHidden),
