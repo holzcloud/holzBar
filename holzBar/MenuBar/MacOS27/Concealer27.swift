@@ -475,9 +475,10 @@ final class Concealer27 {
     /// holzBar's icon carries the capture dot while concealing. ``checkOwnIcon()`` looks for the
     /// icon only after a concealment change, and a capture can start long after one
     /// (jordanbaird/Ice#1001). Two reads of the settled bar without the icon, 400 ms apart, put
-    /// it back once; the check never loops.
+    /// it back. Like ``checkOwnIcon()``, it puts the icon back at most once per change of
+    /// concealment, so captures that start and stop again never make it loop.
     func checkOwnIconForCapture() async {
-        guard let appState, isConcealing else {
+        guard let appState, isConcealing, !didReinsertIcon else {
             return
         }
         await waitForPendingApplies()
@@ -488,7 +489,12 @@ final class Concealer27 {
             return
         }
         try? await Task.sleep(for: Self.settleAfterChange)
-        guard !Task.isCancelled, isConcealing, !(await MenuBarItemProvider27.items()).contains(where: { $0.tag == .visibleControlItem }) else {
+        guard
+            !Task.isCancelled,
+            isConcealing,
+            !didReinsertIcon,
+            !(await MenuBarItemProvider27.items()).contains(where: { $0.tag == .visibleControlItem })
+        else {
             return
         }
         logger.notice("holzBar's icon was missing when a capture started, putting it back")
