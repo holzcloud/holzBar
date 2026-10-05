@@ -10,7 +10,9 @@ jobs:
     # Xcode 27 (macOS 27 SDK) is only on the xcode-27 image (macOS 27).
     runs-on: xcode-27
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/select-xcode
 
@@ -190,7 +192,7 @@ jobs:
           echo "==> Five languages and the App Intents metadata in the app"
 
       - name: Keep the app for the compatibility check
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: holzBar-app
           path: build/Build/Products/Release/holzBar.app
@@ -208,9 +210,11 @@ jobs:
         runner: [macos-14, macos-15, macos-26, xcode-27]
     runs-on: ${{ matrix.runner }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: holzBar-app
           path: holzBar.app
@@ -275,7 +279,9 @@ jobs:
   former-name:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Check for the former name
         run: |
@@ -307,7 +313,9 @@ jobs:
   no-network:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: No network code
         run: python3 .github/scripts/privacy-check.py network
@@ -322,15 +330,41 @@ jobs:
   strings:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Every text in five languages
         run: python3 .github/scripts/strings-check.py
 
+  # The release workflow runs only for a v* tag, so a broken expression or script in it would
+  # surface only then. actionlint (with shellcheck) checks every workflow on every pull
+  # request; workflow-check.py enforces pinned actions, read-only tokens and where secrets
+  # and write permissions may be used. Runs locally too: python3 .github/scripts/workflow-check.py
+  workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The official image, with shellcheck, pinned by digest like the SwiftLint image in
+      # lint.yml. Bumping actionlint means updating both the tag and the digest; Dependabot
+      # does not update docker:// references.
+      - name: Lint the workflows
+        uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+        with:
+          args: -color
+
+      - name: Pinned actions, read-only tokens, secrets only where they are needed
+        run: python3 .github/scripts/workflow-check.py
+
   test:
     runs-on: xcode-27
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/select-xcode
 
