@@ -114,14 +114,19 @@ jobs:
   # Signs with holzBar's own self-signed certificate (docs/signing.md), so every release
   # carries the same signature: its designated requirement names the certificate, not the
   # code's hash, so macOS keeps Accessibility across updates, and a binary signed with any
-  # other key loses it. The certificate and its key come from two repository secrets into a
-  # temporary keychain, which is deleted right after.
+  # other key loses it. The certificate and its key come from two secrets into a temporary
+  # keychain, which is deleted right after.
   sign:
     name: Sign with holzBar's certificate
     needs: build
     if: github.repository == 'holzcloud/holzBar' && startsWith(github.ref, 'refs/tags/v')
     runs-on: xcode-27
     timeout-minutes: 20
+    # The environment that only v* tag runs may use. A secret set in it takes precedence over
+    # the repository secret of the same name, so the signing secrets move there by settings
+    # alone (docs/signing.md); until then, the repository secrets are used. The sign job
+    # never names CASK_DEPLOY_KEY, so it never receives it.
+    environment: release
     # It holds the certificate, so it gets no token permission and runs no code from the
     # repository: no checkout, only the commands written here.
     permissions: {}
