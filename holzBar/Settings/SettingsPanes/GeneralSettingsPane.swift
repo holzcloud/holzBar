@@ -53,7 +53,7 @@ struct GeneralSettingsPane: View {
                 spacingOptions
             }
             if #available(macOS 27.0, *) {
-                PrivacyIndicatorNote()
+                PrivacyIndicatorNote(settings: settings)
             }
         }
     }
@@ -374,21 +374,26 @@ struct GeneralSettingsPane: View {
 /// Centre's capture indicator (green for the camera, orange for the microphone, indigo for
 /// screen sharing or recording), whatever the assertion keeps; only the small green dot
 /// beside the clock stays. Measured on macOS 27.0; holzBar cannot keep the indicator, so it
-/// says so.
+/// says so and offers a dot on its own icon instead, for the microphone and the camera
+/// (there is no public signal for screen recording).
 @available(macOS 27.0, *)
 private struct PrivacyIndicatorNote: View {
+    @Bindable var settings: GeneralSettings
+
     var body: some View {
         HolzBarSection {
             VStack(alignment: .leading, spacing: 3) {
                 Label("The camera and microphone indicator is hidden", systemImage: "exclamationmark.triangle")
                     .font(.headline)
-                Text("On macOS 27, while holzBar hides menu bar items, Control Centre does not show its indicator for the camera, the microphone or screen recording. It comes back while holzBar hides no item. The small green dot beside the clock still appears while the camera is on.")
+                Text("On macOS 27, while holzBar hides menu bar items, Control Centre does not show its indicator for the camera, the microphone or screen recording. It comes back while holzBar hides no item. holzBar can mark its own icon instead, for the microphone and the camera but not for screen recording. The small green dot beside the clock still appears while the camera is on.")
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(15)
             .frame(maxWidth: .infinity, alignment: .leading)
+            Toggle("Show a dot on the holzBar icon while the microphone or camera is in use", isOn: $settings.holzBarIconShowsCaptureDot)
+                .annotation("Orange for the microphone, green for the camera. Uses no permission; holzBar cannot tell when an app records the screen.")
         }
     }
 }

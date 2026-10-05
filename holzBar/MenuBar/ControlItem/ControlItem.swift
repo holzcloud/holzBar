@@ -154,8 +154,23 @@ final class ControlItem {
     /// custom icon to the default icon has been logged.
     @ObservationIgnored private var didLogCustomIconFallback = false
 
+    /// The dot over holzBar's icon while another app uses the microphone or a camera.
+    ///
+    /// On macOS 27 Control Centre's capture indicator is not drawn while holzBar conceals
+    /// items, so holzBar marks its own icon instead; never while nothing is concealed.
+    @ObservationIgnored private var captureDot: CaptureDotView?
+
     /// Logger for the control item.
     private static let logger = Logger(category: "ControlItem")
+
+    /// What holzBar's icon shows while another app records; `nil` for the dividers and before
+    /// macOS 27.
+    private var captureBadge: CaptureBadge? {
+        guard identifier == .visible, #available(macOS 27.0, *) else {
+            return nil
+        }
+        return appState?.captureBadge27
+    }
 
     /// The control item's underlying status item.
     private var statusItem: NSStatusItem {
@@ -248,6 +263,14 @@ final class ControlItem {
                     self?.updateStatusItem()
                 }
             )
+            if #available(macOS 27.0, *) {
+                observers.append(
+                    ObservationLoop.observe { appState.captureBadge27 } onChange: { [weak self] _ in
+                        self?.updateMenuBarPresence()
+                        self?.updateStatusItem()
+                    }
+                )
+            }
         }
 
         if identifier == .alwaysHidden {
@@ -296,7 +319,8 @@ final class ControlItem {
         }
         switch identifier {
         case .visible:
-            if appState.settings.general.showHolzBarIcon {
+            // The icon also shows while it carries the capture dot.
+            if CaptureIndicator.showsHolzBarIcon(isIconEnabled: appState.settings.general.showHolzBarIcon, badge: captureBadge) {
                 addToMenuBar()
             } else {
                 removeFromMenuBar()
@@ -329,6 +353,8 @@ final class ControlItem {
                     }
                     frame = window.frame
                     updateOnScreenFrame()
+                    // A change of the bar's height moves the icon, and the dot with it.
+                    positionCaptureDot()
                 }
             },
             newWindow.observe(\.screen, options: [.initial, .new]) { [weak self] window, _ in
@@ -417,6 +443,7 @@ final class ControlItem {
             }
 
             button.image = image
+            updateCaptureDot(on: button)
         case .hidden, .alwaysHidden:
             if #available(macOS 27.0, *) {
                 // holzBar is signed locally, so MenuBarAgent drops its items whenever anything is
@@ -459,6 +486,53 @@ final class ControlItem {
                 button.isHighlighted = false
             }
         }
+    }
+
+    /// Shows or hides the dot over holzBar's icon, with a tooltip and an accessibility label
+    /// that say what is in use.
+    ///
+    /// The status item's length never changes for the dot, so the bar does not reflow on
+    /// macOS 27.
+    private func updateCaptureDot(on button: NSStatusBarButton) {
+        guard let badge = captureBadge else {
+            if captureDot != nil {
+                captureDot?.removeFromSuperview()
+                captureDot = nil
+                button.toolTip = nil
+                button.setAccessibilityLabel(nil)
+            }
+            return
+        }
+        let dot = captureDot ?? CaptureDotView()
+        if dot.superview !== button {
+            button.addSubview(dot)
+        }
+        captureDot = dot
+        dot.color = badge.showsCamera ? .systemGreen : .systemOrange
+        positionCaptureDot()
+        let description = switch badge {
+        case .microphone: String(localized: "Microphone in use")
+        case .camera: String(localized: "Camera in use")
+        case .cameraAndMicrophone: String(localized: "Camera and microphone in use")
+        }
+        button.toolTip = description
+        button.setAccessibilityLabel(description)
+    }
+
+    /// Places the capture dot at the top trailing corner of the drawn icon, overlapping it.
+    private func positionCaptureDot() {
+        guard let captureDot, let button = statusItem.button else {
+            return
+        }
+        let imageRect = button.cell?.imageRect(forBounds: button.bounds) ?? button.bounds
+        let diameter = CaptureDotView.diameter
+        let x = min(imageRect.maxX - diameter + 1, button.bounds.maxX - diameter)
+        let y = if button.isFlipped {
+            max(imageRect.minY - 1, button.bounds.minY)
+        } else {
+            min(imageRect.maxY - diameter + 1, button.bounds.maxY - diameter)
+        }
+        captureDot.frame = CGRect(x: x, y: y, width: diameter, height: diameter)
     }
 
     /// Updates the visibility of the status item.

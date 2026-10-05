@@ -171,12 +171,14 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.macOS27ShelfWaitsForRefresh.rawValue == "MacOS27IceBarWaitsForRefresh")
         #expect(Defaults.Key.hotkeys.rawValue == "Hotkeys")
         #expect(Defaults.Key.menuBarAppearanceConfigurationV2.rawValue == "MenuBarAppearanceConfigurationV2")
+        #expect(Defaults.Key.holzBarIconShowsCaptureDot.rawValue == "HolzBarIconShowsCaptureDot")
     }
 
     @Test("Settings keep their kinds")
     func settingsKeepTheirKinds() {
         #expect(Defaults.Key.hotkeys.settingsKind == .dictionary)
         #expect(Defaults.Key.showOnHover.settingsKind == .bool)
+        #expect(Defaults.Key.holzBarIconShowsCaptureDot.settingsKind == .bool)
         #expect(Defaults.Key.showOnHoverDelay.settingsKind == .number)
         #expect(Defaults.Key.layoutProfiles.settingsKind == .data)
         #expect(Defaults.Key.knownItemTags.settingsKind == .stringArray)

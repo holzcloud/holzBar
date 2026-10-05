@@ -436,7 +436,7 @@ final class Concealer27 {
         guard
             let appState,
             isConcealing,
-            appState.settings.general.showHolzBarIcon,
+            CaptureIndicator.showsHolzBarIcon(isIconEnabled: appState.settings.general.showHolzBarIcon, badge: appState.captureBadge27),
             !didReinsertIcon
         else {
             readsWithoutIcon = 0
@@ -453,6 +453,32 @@ final class Concealer27 {
         }
         logger.notice("holzBar's icon went missing while concealing, putting it back")
         readsWithoutIcon = 0
+        didReinsertIcon = true
+        appState.menuBarManager.controlItem(withName: .visible)?.reinsert()
+    }
+
+    /// Puts holzBar's icon back when a capture starts and MenuBarAgent dropped the icon.
+    ///
+    /// holzBar's icon carries the capture dot while concealing. ``checkOwnIcon()`` looks for the
+    /// icon only after a concealment change, and a capture can start long after one
+    /// (jordanbaird/Ice#1001). Two reads of the settled bar without the icon, 400 ms apart, put
+    /// it back once; the check never loops.
+    func checkOwnIconForCapture() async {
+        guard let appState, isConcealing else {
+            return
+        }
+        await waitForPendingApplies()
+        if let remaining = timeUntilSettled() {
+            try? await Task.sleep(for: remaining)
+        }
+        guard !Task.isCancelled, !(await MenuBarItemProvider27.items()).contains(where: { $0.tag == .visibleControlItem }) else {
+            return
+        }
+        try? await Task.sleep(for: Self.settleAfterChange)
+        guard !Task.isCancelled, isConcealing, !(await MenuBarItemProvider27.items()).contains(where: { $0.tag == .visibleControlItem }) else {
+            return
+        }
+        logger.notice("holzBar's icon was missing when a capture started, putting it back")
         didReinsertIcon = true
         appState.menuBarManager.controlItem(withName: .visible)?.reinsert()
     }
