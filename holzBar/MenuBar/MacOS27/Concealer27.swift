@@ -21,8 +21,15 @@ final class Concealer27 {
     @ObservationIgnored private let controller = ConcealmentController27(backend: MenuBarAssessmentAssertion27())
     @ObservationIgnored private let logger = Logger(category: "Concealer27")
     @ObservationIgnored private weak var appState: AppState?
-    /// Tasks that observe application launches and quits; cancelled with the concealer.
+    /// Tasks that observe display changes; cancelled with the concealer.
     @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
+
+    /// Observes the running applications, so a menu bar agent that launches or quits is
+    /// noticed: NSWorkspace's launch and quit notifications reach regular apps only.
+    @ObservationIgnored private var runningApplicationsObservation: NSKeyValueObservation?
+
+    /// The bundle identifiers running at the last change of the running applications.
+    @ObservationIgnored private var runningBundleIDs = Set<String>()
     @ObservationIgnored private var applyTask: Task<Void, Never>?
     @ObservationIgnored private var suspendedUntil: ContinuousClock.Instant?
 
@@ -69,7 +76,8 @@ final class Concealer27 {
 
     /// Visible applications concealed for the moment so holzBar's icon clears the notch
     /// (`NotchCover27`). Never part of the saved layout; cleared when the active display
-    /// changes, an application launches or quits, or what the sections conceal changes.
+    /// changes, an application that may own items launches or quits, or what the sections
+    /// conceal changes.
     @ObservationIgnored private var notchConcealed = Set<String>()
 
     /// The applications the sections concealed when `update()` last ran, to tell when
@@ -110,20 +118,18 @@ final class Concealer27 {
             logger.error("MenuBarClientCore assertions are unavailable, so items will not be hidden")
             return
         }
-        let workspaceCenter = NSWorkspace.shared.notificationCenter
-        observerTasks.append(Task { [weak self] in
-            for await notification in workspaceCenter.notifications(named: NSWorkspace.didLaunchApplicationNotification) {
-                let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
-                self?.applicationDidLaunch(bundleID: application?.bundleIdentifier)
+        runningBundleIDs = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
+        // Reads only the bundle identifiers of the changed applications, keeps no reference to
+        // them, takes no lock and never waits: the handler runs on the main thread.
+        runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.old, .new]) { [weak self] _, change in
+            let changed = (change.newValue ?? []) + (change.oldValue ?? [])
+            guard changed.contains(where: { $0.bundleIdentifier != nil }) else {
+                return
             }
-        })
-        observerTasks.append(Task { [weak self] in
-            for await _ in workspaceCenter.notifications(named: NSWorkspace.didTerminateApplicationNotification) {
-                // The bar is laid out anew, so the notch is worked out again.
-                self?.notchConcealed.removeAll()
-                self?.update()
+            Task { @MainActor in
+                self?.runningApplicationsDidChange()
             }
-        })
+        }
         observerTasks.append(Task { [weak self] in
             let center = NotificationCenter.default
             for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
@@ -166,25 +172,67 @@ final class Concealer27 {
         }
     }
 
-    /// Answers an application's launch.
+    /// Answers a change of the running applications.
+    ///
+    /// Most changes leave the set of bundle identifiers as it was (a helper restarts, a second
+    /// instance starts) and do nothing. Otherwise concealment is worked out again only when an
+    /// application that may own items launched or quit (``AgentLaunches27``), at once: the
+    /// allowlist has to land before a launching agent creates its status item.
+    private func runningApplicationsDidChange() {
+        let applications = NSWorkspace.shared.runningApplications
+        let running = Set(applications.compactMap(\.bundleIdentifier))
+        guard running != runningBundleIDs else {
+            return
+        }
+        let instances = applications.compactMap { application -> AgentLaunches27.Instance? in
+            guard let bundleID = application.bundleIdentifier else {
+                return nil
+            }
+            let policy: AgentLaunches27.Policy = switch application.activationPolicy {
+            case .regular: .regular
+            case .accessory: .accessory
+            case .prohibited: .prohibited
+            @unknown default: .accessory
+            }
+            return (bundleID, application.bundleURL?.path(percentEncoded: false), policy)
+        }
+        let layout = savedLayout
+        let stored = Defaults.array(forKey: .knownApplications27) as? [String] ?? []
+        let known = Set(layout.keys).union(stored)
+        let concealedInLayout = Set(layout.filter { $0.value != .visible }.keys)
+        let reaction = AgentLaunches27.reaction(
+            previous: runningBundleIDs,
+            instances: instances,
+            known: known,
+            concealedInLayout: concealedInLayout
+        )
+        runningBundleIDs = reaction.running
+        guard reaction.updatesConcealment else {
+            return
+        }
+        logger.debug("Applications that may own items launched or quit (\(reaction.graces.count, privacy: .public) in concealed sections)")
+        applicationsDidChange(graces: reaction.graces)
+    }
+
+    /// Answers applications that may own items launching or quitting, with exactly one update.
     ///
     /// An application whose saved section is hidden or always hidden is shown until its item
     /// exists, or for at most 10 s, then concealed: concealed before its status item exists,
     /// it gets an item of 3 points (jordanbaird/Ice#1007).
-    private func applicationDidLaunch(bundleID: String?) {
+    ///
+    /// - Parameter candidates: The launched applications whose saved section is concealed.
+    private func applicationsDidChange(graces candidates: [String]) {
         // The bar is laid out anew, so the notch is worked out again.
         notchConcealed.removeAll()
-        guard
-            let bundleID,
-            let section = savedLayout[bundleID],
-            launchGrace.begin(bundleID, isConcealed: section != .visible, at: .now)
-        else {
+        let now = ContinuousClock.now
+        let begun = candidates.filter { launchGrace.begin($0, isConcealed: true, at: now) }
+        guard !begun.isEmpty else {
             update()
             return
         }
-        logger.debug("An application in a concealed section launched, showing it until its item exists")
-        showTemporarily(bundleID: bundleID)
-        // One bounded wait per grace.
+        logger.debug("\(begun.count, privacy: .public) applications in concealed sections launched, showing them until their items exist")
+        showTemporarily(bundleIDs: begun)
+        // One bounded wait per change.
         Task { [weak self] in
             try? await Task.sleep(for: LaunchGrace27.timeout)
             guard let self else {
