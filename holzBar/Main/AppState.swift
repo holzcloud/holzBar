@@ -135,6 +135,13 @@ final class AppState {
     /// Logger for the app state.
     @ObservationIgnored private let logger = Logger(category: "AppState")
 
+    /// Whether the setup finished: before, the settings and items are not loaded yet.
+    @ObservationIgnored private(set) var isSetUp = false
+
+    /// Whether the setup was started: before, also after the permissions were granted
+    /// until the user continues, the stored settings are not loaded.
+    @ObservationIgnored private var hasStartedSetup = false
+
     /// Async setup actions, run once on first access.
     @ObservationIgnored private lazy var setupTask = Task { @MainActor in
         permissions.stopAllChecks()
@@ -166,6 +173,7 @@ final class AppState {
         itemChangeWatcher.performSetup(with: self)
 
         configureObservers()
+        isSetUp = true
     }
 
     /// Brings holzBar up to date once the bar has settled after the screen was locked, the
@@ -193,6 +201,7 @@ final class AppState {
     ///   If `false`, prompts the user to grant permissions.
     func performSetup(hasPermissions: Bool) {
         if hasPermissions {
+            hasStartedSetup = true
             Task {
                 logger.debug("Setting up app state")
                 await setupTask.value
@@ -207,6 +216,21 @@ final class AppState {
                 openWindow(.permissions)
             }
         }
+    }
+
+    /// Opens the permissions window instead of Settings until the setup starts, while
+    /// permissions are missing or granted but the user has not continued yet: the setup,
+    /// which loads the stored settings and registers the hotkeys, has not run then, so
+    /// Settings would show the defaults and write them.
+    ///
+    /// - Returns: Whether the permissions window opens instead.
+    func openPermissionsWindowIfNeeded() -> Bool {
+        guard !hasStartedSetup else {
+            return false
+        }
+        activate(for: .permissions)
+        openWindow(.permissions)
+        return true
     }
 
     /// Configures the internal observers for the app state.
@@ -383,6 +407,8 @@ final class AppState {
             activate(withPolicy: .regular)
         case .accessory:
             activate(withPolicy: .accessory)
+            // Without the regular policy, macOS shows the other app's menus again.
+            menuBarManager.applicationMenusDidReappear()
         }
         return true
     }

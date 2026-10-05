@@ -47,6 +47,10 @@ final class MenuBarManager {
     /// A Boolean value that indicates whether the application menus are hidden.
     @ObservationIgnored private(set) var isHidingApplicationMenus = false
 
+    /// Hides the hidden section again after "Show the hidden section for a moment"; a new
+    /// press, or the section shown or hidden another way, cancels it.
+    @ObservationIgnored var temporaryShowTask: Task<Void, Never>?
+
     /// The panel that contains the holzBar Shelf interface.
     let shelfPanel = HolzBarShelfPanel()
 
@@ -417,6 +421,12 @@ final class MenuBarManager {
         }
         logger.info("Showing application menus")
         appState.deactivate(withPolicy: .accessory)
+        isHidingApplicationMenus = false
+    }
+
+    /// Records that the application menus are shown again because holzBar switched to the
+    /// accessory activation policy without ``showApplicationMenus()`` (Settings, the search).
+    func applicationMenusDidReappear() {
         isHidingApplicationMenus = false
     }
 
