@@ -189,6 +189,7 @@ final class MenuBarManager {
     private func frontmostApplicationDidChange() {
         if
             let appState,
+            appState.settings.general.autoRehide,
             case .focusedApp = appState.settings.general.rehideStrategy,
             let hiddenSection = section(withName: .hidden),
             let screen = appState.hidEventManager.bestScreen(appState: appState),
