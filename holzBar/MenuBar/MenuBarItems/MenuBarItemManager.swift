@@ -1036,7 +1036,7 @@ extension MenuBarItemManager {
             logger.warning("Not enough room to show \(item.logString, privacy: .private(mask: .hash))")
             let alert = NSAlert()
             alert.messageText = String(localized: "Not enough room to show \u{201C}\(item.displayName)\u{201D}")
-            alert.runModal()
+            await alert.present()
             return
         }
 

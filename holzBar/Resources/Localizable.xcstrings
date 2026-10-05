@@ -1597,6 +1597,34 @@
         }
       }
     },
+    "Choose Settings…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen auswählen …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir les réglages…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli le impostazioni…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tscherner ils parameters …"
+          }
+        }
+      }
+    },
     "Choose a custom icon to show in the menu bar." : {
       "localizations" : {
         "de" : {
@@ -9523,34 +9551,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar dumonda per quai l'emprima giada che ti duvras ina da questas funcziuns."
-          }
-        }
-      }
-    },
-    "holzBar can restart now to use the settings from the sync folder." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar kann jetzt neu starten, um die Einstellungen aus dem Abgleichordner zu verwenden."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar peut redémarrer maintenant pour utiliser les réglages du dossier de synchronisation."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar può riavviarsi ora per usare le impostazioni della cartella di sincronizzazione."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar po reaviar ussa per duvrar ils parameters da l'ordinatur da sincronisaziun."
           }
         }
       }

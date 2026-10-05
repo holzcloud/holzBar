@@ -168,6 +168,34 @@ struct SettingsSyncPolicyTests {
         #expect(SettingsSyncPolicy.needsExchange(.launch, local: local(base, base: base)))
     }
 
+    // MARK: Hints
+
+    @Test("A waiting version offers a restart, or a choice when this Mac changed or joins")
+    func hints() {
+        #expect(SettingsSyncPolicy.hint(for: local(base, base: base)) == .restart)
+        #expect(SettingsSyncPolicy.hint(for: local(changed, base: base)) == .choice(isJoining: false))
+        #expect(SettingsSyncPolicy.hint(for: local(changed, base: nil)) == .choice(isJoining: true))
+        #expect(SettingsSyncPolicy.hint(for: local(base, base: nil)) == .choice(isJoining: true))
+    }
+
+    @Test("The hint offers a restart exactly where a newer version is applied, and a choice where it asks")
+    func hintMatchesDecision() {
+        let candidates = [local(base, base: base), local(changed, base: base), local(changed, base: nil), local(base, base: nil)]
+        for candidate in candidates {
+            let action = SettingsSyncPolicy.decide(.check, local: candidate, file: version("other"))
+            let hint = SettingsSyncPolicy.hint(for: candidate)
+            #expect((action == .apply) == (hint == .restart))
+            #expect((action == .ask) == (hint != .restart))
+        }
+    }
+
+    @Test("A change on this Mac turns a waiting restart into a choice")
+    func localChangeTurnsRestartIntoChoice() {
+        let pending = lastSynced.addingTimeInterval(60)
+        #expect(SettingsSyncPolicy.hint(for: local(base, base: base, pending: pending)) == .restart)
+        #expect(SettingsSyncPolicy.hint(for: local(changed, base: base, pending: pending)) == .choice(isJoining: false))
+    }
+
     // MARK: Learned keys
 
     @Test("Learned keys never make settings differ")

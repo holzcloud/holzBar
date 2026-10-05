@@ -576,6 +576,29 @@ final class ControlItem {
 
         let menu = NSMenu(title: "holzBar")
 
+        // Settings from another Mac wait quietly here and in the sync settings; holzBar
+        // never opens a dialog for them by itself.
+        if let hint = appState.settingsSync.hint {
+            menu.addItem(.sectionHeader(title: String(localized: "Settings changed on another Mac")))
+            let hintItem = switch hint {
+            case .restart:
+                NSMenuItem(
+                    title: String(localized: "Restart"),
+                    action: #selector(restartWithWaitingSettings),
+                    keyEquivalent: ""
+                )
+            case .choice:
+                NSMenuItem(
+                    title: String(localized: "Choose Settings…"),
+                    action: #selector(chooseSyncedSettings),
+                    keyEquivalent: ""
+                )
+            }
+            hintItem.target = self
+            menu.addItem(hintItem)
+            menu.addItem(.separator())
+        }
+
         let settingsItem = NSMenuItem(
             title: String(localized: "holzBar Settings…"),
             action: #selector(AppDelegate.openSettingsWindow),
@@ -693,6 +716,16 @@ final class ControlItem {
     /// Turns Zen mode on or off.
     @objc private func toggleZenMode() {
         appState?.menuBarManager.toggleZenMode()
+    }
+
+    /// Restarts with the settings from another Mac that wait in the sync folder.
+    @objc private func restartWithWaitingSettings() {
+        appState?.settingsSync.restartWithWaitingSettings()
+    }
+
+    /// Asks which settings to use, as settings from another Mac wait in the sync folder.
+    @objc private func chooseSyncedSettings() {
+        appState?.settingsSync.chooseSettings()
     }
 
     /// Opens the menu bar search panel.

@@ -90,7 +90,9 @@ enum SettingsBackup {
     }
 
     /// Asks for a location and writes the settings there.
-    static func exportToFile() {
+    ///
+    /// - Parameter window: The window that shows an error as a sheet.
+    static func exportToFile(attachedTo window: NSWindow?) {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.propertyList]
         panel.nameFieldStringValue = "holzBar Settings.plist"
@@ -104,12 +106,19 @@ enum SettingsBackup {
             try data.write(to: url, options: .atomic)
             logger.notice("Exported settings to \(url.path(percentEncoded: false), privacy: .private)")
         } catch {
-            show(error, message: String(localized: "The settings could not be exported."))
+            Task {
+                await show(error, message: String(localized: "The settings could not be exported."), attachedTo: window)
+            }
         }
     }
 
     /// Asks for a settings file, applies it and relaunches the app.
-    static func importFromFile() {
+    ///
+    /// The open panel runs in the button's action; the question and errors that follow are
+    /// sheets on the given window, so they pause nothing else in holzBar.
+    ///
+    /// - Parameter window: The window that shows the question and errors as sheets.
+    static func importFromFile(attachedTo window: NSWindow?) {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.propertyList]
         panel.allowsMultipleSelection = false
@@ -118,32 +127,34 @@ enum SettingsBackup {
         guard panel.runModal() == .OK, let url = panel.url else {
             return
         }
-        do {
-            // Data(contentsOf:) would fetch an http(s) URL; holzBar reads only files.
-            guard url.isFileURL else {
-                throw CocoaError(.fileReadUnsupportedScheme)
+        Task {
+            do {
+                // Data(contentsOf:) would fetch an http(s) URL; holzBar reads only files.
+                guard url.isFileURL else {
+                    throw CocoaError(.fileReadUnsupportedScheme)
+                }
+                let data = try Data(contentsOf: url)
+                guard let settings = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+                    throw CocoaError(.fileReadCorruptFile)
+                }
+                let alert = NSAlert()
+                alert.messageText = String(localized: "Replace your settings?")
+                alert.informativeText = String(localized: "holzBar will replace its current settings with the ones from “\(url.lastPathComponent)” and restart.")
+                let importButton = alert.addButton(withTitle: String(localized: "Import and Restart"))
+                let cancel = alert.addButton(withTitle: String(localized: "Cancel"))
+                // Replacing the settings cannot be undone: the button says so (HIG).
+                importButton.hasDestructiveAction = true
+                // Escape in every language, not only for the English title "Cancel".
+                cancel.keyEquivalent = "\u{1B}"
+                guard await alert.present(attachedTo: window) == .alertFirstButtonReturn else {
+                    return
+                }
+                apply(settings, removesMissingKeys: true)
+                logger.notice("Imported settings from \(url.path(percentEncoded: false), privacy: .private)")
+                relaunch()
+            } catch {
+                await show(error, message: String(localized: "The settings could not be imported."), attachedTo: window)
             }
-            let data = try Data(contentsOf: url)
-            guard let settings = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
-                throw CocoaError(.fileReadCorruptFile)
-            }
-            let alert = NSAlert()
-            alert.messageText = String(localized: "Replace your settings?")
-            alert.informativeText = String(localized: "holzBar will replace its current settings with the ones from “\(url.lastPathComponent)” and restart.")
-            let importButton = alert.addButton(withTitle: String(localized: "Import and Restart"))
-            let cancel = alert.addButton(withTitle: String(localized: "Cancel"))
-            // Replacing the settings cannot be undone: the button says so (HIG).
-            importButton.hasDestructiveAction = true
-            // Escape in every language, not only for the English title "Cancel".
-            cancel.keyEquivalent = "\u{1B}"
-            guard alert.runModal() == .alertFirstButtonReturn else {
-                return
-            }
-            apply(settings, removesMissingKeys: true)
-            logger.notice("Imported settings from \(url.path(percentEncoded: false), privacy: .private)")
-            relaunch()
-        } catch {
-            show(error, message: String(localized: "The settings could not be imported."))
         }
     }
 
@@ -164,7 +175,11 @@ enum SettingsBackup {
         NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { @Sendable _, error in
             Task { @MainActor in
                 if let error {
-                    Self.show(error, message: String(localized: "holzBar could not restart itself. Quit holzBar and open it again."))
+                    await Self.show(
+                        error,
+                        message: String(localized: "holzBar could not restart itself. Quit holzBar and open it again."),
+                        attachedTo: nil
+                    )
                 } else {
                     NSApp.terminate(nil)
                 }
@@ -172,10 +187,11 @@ enum SettingsBackup {
         }
     }
 
-    private static func show(_ error: Error, message: String) {
+    /// Logs the error and shows it as a sheet on the given window, or as a dialog without one.
+    private static func show(_ error: Error, message: String, attachedTo window: NSWindow?) async {
         logger.error("\(message, privacy: .private) \(error, privacy: .private)")
         let alert = NSAlert(error: error)
         alert.messageText = message
-        alert.runModal()
+        await alert.present(attachedTo: window)
     }
 }

@@ -229,10 +229,10 @@ struct AdvancedSettingsPane: View {
         LabeledContent {
             HStack {
                 Button("Export…") {
-                    SettingsBackup.exportToFile()
+                    SettingsBackup.exportToFile(attachedTo: appState.navigationState.settingsWindow)
                 }
                 Button("Import…") {
-                    SettingsBackup.importFromFile()
+                    SettingsBackup.importFromFile(attachedTo: appState.navigationState.settingsWindow)
                 }
             }
         } label: {
@@ -300,6 +300,18 @@ private struct SettingsSyncToggle: View {
         LabeledContent {
             HStack {
                 if sync.isEnabled {
+                    switch sync.hint {
+                    case .restart:
+                        Button("Restart") {
+                            sync.restartWithWaitingSettings()
+                        }
+                    case .choice:
+                        Button("Choose Settings…") {
+                            sync.chooseSettings()
+                        }
+                    case nil:
+                        EmptyView()
+                    }
                     Button("Change…") {
                         sync.chooseFolder()
                     }
@@ -324,6 +336,11 @@ private struct SettingsSyncToggle: View {
                         Text("The sync folder cannot be found. Choose it again.")
                             .font(.subheadline)
                             .foregroundStyle(.orange)
+                    }
+                    if sync.hint != nil {
+                        Text("Settings changed on another Mac")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }

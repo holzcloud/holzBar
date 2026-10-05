@@ -423,6 +423,30 @@ extension EdgeInsets {
     }
 }
 
+// MARK: - NSAlert
+
+extension NSAlert {
+    /// Shows the alert as a sheet on the given window, or as a dialog when there is no
+    /// window to attach it to, and returns the button the user chose.
+    ///
+    /// Called from a task, `runModal()` would pause all other main-actor work until the
+    /// alert closes, on macOS 27 even clicks on the clock, battery, Wi-Fi and Control
+    /// Centre. A sheet starts no nested run loop, and the dialog starts from the main run
+    /// loop through ``MainRunLoop``, where it lets main-actor work go on.
+    ///
+    /// - Parameter window: The window to attach the alert to. The alert is a sheet only
+    ///   when the window is on screen and shows no other sheet.
+    @discardableResult
+    func present(attachedTo window: NSWindow? = nil) async -> NSApplication.ModalResponse {
+        if let window, window.isVisible, !window.isMiniaturized, window.attachedSheet == nil {
+            return await beginSheetModal(for: window)
+        }
+        return await MainRunLoop.run {
+            self.runModal()
+        }
+    }
+}
+
 // MARK: - NSApplication
 
 extension NSApplication {

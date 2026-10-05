@@ -17,11 +17,13 @@ import SystemConfiguration
 /// iCloud's key-value store needs an iCloud entitlement, which an ad hoc signed
 /// app cannot have, so the settings travel as `holzBar/Settings.plist` in the folder
 /// instead. Each change of the user's settings is written there; newer settings from
-/// another Mac are applied at launch, or after a restart the user agrees to. When both
-/// Macs changed their settings, or a Mac joins a folder that holds another Mac's different
-/// settings, holzBar asks which settings to use and overwrites neither unasked
-/// (``SettingsSyncPolicy``, F-02). The folder's own app syncs the file; holzBar never
-/// connects to the network.
+/// another Mac are applied at launch, or when the user chooses Restart in a quiet hint in
+/// the sync settings and the holzBar menu. When both Macs changed their settings, or a Mac
+/// joins a folder that holds another Mac's different settings, holzBar asks which settings
+/// to use, in a sheet on the Settings window, and overwrites neither unasked
+/// (``SettingsSyncPolicy``, F-02). holzBar never opens a dialog by itself for sync: a modal
+/// dialog would pause holzBar until it closed, and another Mac could open one at any time
+/// (F-14). The folder's own app syncs the file; holzBar never connects to the network.
 ///
 /// The folder is stored as a bookmark (`SettingsSyncLocation`). Without one, iCloud Drive
 /// is used, as before folders could be chosen, and stored as the choice.
@@ -302,6 +304,17 @@ final class SettingsSync {
     /// Whether the folder chosen by the user is being joined.
     @ObservationIgnored private var isChoosingFolder = false
 
+    /// What holzBar offers for a newer version from another Mac that waits for the user,
+    /// shown in the sync settings and the holzBar menu; `nil` when none waits.
+    private(set) var hint: SettingsSyncPolicy.Hint?
+
+    /// The version from another Mac the hint is about.
+    @ObservationIgnored private var waitingVersion: RemoteVersion?
+
+    /// A question that waits for the Settings window to be on screen, to show as a sheet
+    /// on it.
+    @ObservationIgnored private var settingsWindowWait: SettingsWindowWait?
+
     func performSetup(with appState: AppState) {
         self.appState = appState
         isEnabled = Defaults.bool(forKey: .syncsSettingsWithICloud)
@@ -478,6 +491,7 @@ final class SettingsSync {
         exchangeTask?.cancel()
         exchangeTask = nil
         queuedExchanges = []
+        withdrawHint()
     }
 
     // MARK: Folder
@@ -486,17 +500,16 @@ final class SettingsSync {
     private struct JoinRequest {
         /// The chosen folder.
         let folderURL: URL
-        /// The window that showed the button, for the question.
-        let window: NSWindow?
     }
 
     /// Lets the user choose the folder the Macs sync, and turns sync on with it.
     ///
     /// Nothing is stored before the sync file in the folder has been read off the main
     /// thread. When it holds another Mac's different settings, holzBar asks which settings
-    /// to use, as a sheet on the window that showed the button; until the answer, sync stays
-    /// off or keeps the previous folder. Otherwise the folder is stored and this Mac's
-    /// settings are written there, unless the file already holds them.
+    /// to use, as a sheet on the Settings window, which opens again if it was closed
+    /// meanwhile; until the answer, sync stays off or keeps the previous folder. Otherwise
+    /// the folder is stored and this Mac's settings are written there, unless the file
+    /// already holds them.
     ///
     /// - Returns: Whether a folder was chosen; joining it goes on afterwards.
     @discardableResult
@@ -504,7 +517,6 @@ final class SettingsSync {
         guard !isChoosingFolder else {
             return false
         }
-        let window = NSApp.keyWindow
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -517,7 +529,7 @@ final class SettingsSync {
             return false
         }
         Self.verifyDeviceIdentity()
-        let join = JoinRequest(folderURL: url, window: window)
+        let join = JoinRequest(folderURL: url)
         // A join ignores the previous folder's state: this Mac has not synced with the
         // chosen folder yet.
         guard
@@ -536,13 +548,13 @@ final class SettingsSync {
         isChoosingFolder = true
         Task { [weak self] in
             let result = await Self.exchange(request)
-            await self?.finishJoin(join, request: request, result: result)
+            self?.finishJoin(join, request: request, result: result)
         }
         return true
     }
 
     /// Stores the chosen folder, or asks which settings to use first.
-    private func finishJoin(_ join: JoinRequest, request: ExchangeRequest, result: ExchangeResult) async {
+    private func finishJoin(_ join: JoinRequest, request: ExchangeRequest, result: ExchangeResult) {
         Self.log(result.problem)
         guard result.action == .ask, let remote = result.remote else {
             commitJoin(join)
@@ -559,14 +571,24 @@ final class SettingsSync {
             isChoosingFolder = false
             return
         }
-        let prompt = SyncPrompt.conflict(remote, isJoining: true)
-        guard let window = join.window, window.isVisible, !isAsking else {
-            scheduleWindowlessPrompt(prompt, join: join)
+        guard !isAsking else {
+            // Another question is open; the folder is not joined.
+            isChoosingFolder = false
             return
         }
-        isAsking = true
-        let response = await makeAlert(for: prompt).beginSheetModal(for: window)
-        answer(prompt, response: response, join: join)
+        showSettings(
+            forHint: false,
+            onCancel: { [weak self] in
+                self?.isChoosingFolder = false
+            },
+            then: { [weak self] window in
+                guard let self, !isAsking else {
+                    self?.isChoosingFolder = false
+                    return
+                }
+                ask(about: remote, isJoining: true, on: window, join: join)
+            }
+        )
     }
 
     /// Stores the chosen folder and turns sync on with it, as a join: without the
@@ -579,6 +601,7 @@ final class SettingsSync {
         defaults.removeObject(forKey: Self.baseKey)
         defaults.removeObject(forKey: Self.pendingKey)
         postponed = nil
+        withdrawHint()
         if isEnabled {
             updateObservers()
         } else {
@@ -623,6 +646,9 @@ final class SettingsSync {
         guard isEnabled else {
             return
         }
+        // While a version from another Mac waits, nothing is pushed, so Restart would
+        // overwrite this change: the hint becomes the question instead.
+        refreshHint()
         // A pending check may find newer settings from another Mac; push once the check
         // is done.
         guard checkTask == nil else {
@@ -838,32 +864,31 @@ final class SettingsSync {
         switch result.action {
         case .none:
             Self.setPending(nil)
+            withdrawHint()
         case .wait, .retry:
             break
         case .adopt:
             Self.markSynced(base: request.local.userDigest, modified: result.remote?.modified)
+            withdrawHint()
         case .write:
             if request.kind == .check {
                 // A check never writes; this Mac's changes are pushed with a read of their
                 // own.
                 Self.setPending(nil)
+                withdrawHint()
                 requestExchange(.push)
             } else {
                 Self.markSynced(base: request.local.userDigest, modified: result.written)
+                withdrawHint()
                 Self.logger.info("Wrote settings to the sync folder")
             }
-        case .apply:
+        case .apply, .ask:
             guard let remote = result.remote else {
                 return
             }
+            // Pending first, so no push overwrites the version while the hint is shown.
             Self.setPending(remote.modified)
-            scheduleWindowlessPrompt(.restart(remote))
-        case .ask:
-            guard let remote = result.remote else {
-                return
-            }
-            Self.setPending(remote.modified)
-            scheduleWindowlessPrompt(.conflict(remote, isJoining: request.local.isJoining))
+            offer(remote, local: request.local)
         }
     }
 
@@ -1145,98 +1170,188 @@ final class SettingsSync {
         }
     }
 
-    // MARK: Questions
+    // MARK: Hints and Questions
 
-    /// A question about the sync file.
-    private nonisolated enum SyncPrompt: Sendable {
-        /// Another Mac changed the settings; this Mac did not.
-        case restart(RemoteVersion)
-        /// The settings of this Mac and of the file differ, and both changed, or this Mac
-        /// joins the folder.
-        case conflict(RemoteVersion, isJoining: Bool)
+    /// A question that waits for the Settings window to be on screen.
+    private struct SettingsWindowWait {
+        /// Observes whether the Settings window is on screen.
+        let loop: ObservationLoop
+        /// Whether the question is about the waiting version, rather than a chosen folder.
+        let isForHint: Bool
+        /// Called when a newer question or the end of the hint replaces this one.
+        let onCancel: @MainActor () -> Void
     }
 
-    /// Asks the question without a window, from the main run loop rather than from a task,
-    /// so the main actor goes on running while the question is open.
-    ///
-    /// The version asked about is remembered as pending before, so no push overwrites it
-    /// while the question is open.
-    private func scheduleWindowlessPrompt(_ prompt: SyncPrompt, join: JoinRequest? = nil) {
-        guard !isAsking else {
-            if join != nil {
-                isChoosingFolder = false
-            }
+    /// Offers a newer version from another Mac through the hint. holzBar never asks about
+    /// it by itself.
+    private func offer(_ remote: RemoteVersion, local: SettingsSyncPolicy.Local) {
+        waitingVersion = remote
+        let offered = SettingsSyncPolicy.hint(for: local)
+        if hint != offered {
+            hint = offered
+            Self.logger.info("Settings from another Mac wait for the user")
+        }
+    }
+
+    /// Takes the hint away: no version from another Mac waits any more.
+    private func withdrawHint() {
+        waitingVersion = nil
+        if hint != nil {
+            hint = nil
+        }
+        if settingsWindowWait?.isForHint == true {
+            cancelSettingsWindowWait()
+        }
+    }
+
+    /// Decides the hint again from this Mac's current settings, as a change made since the
+    /// version arrived turns a restart into a question.
+    private func refreshHint() {
+        guard waitingVersion != nil else {
             return
         }
-        isAsking = true
-        RunLoop.main.perform(inModes: [.default]) { [weak self] in
-            guard let self else {
-                return
-            }
-            MainActor.assumeIsolated {
-                guard self.isEnabled || join != nil else {
-                    self.promptDidClose()
-                    return
-                }
-                NSApp.activate()
-                let response = self.makeAlert(for: prompt).runModal()
-                self.answer(prompt, response: response, join: join)
-            }
+        let defaults = UserDefaults.standard
+        let local = SettingsSyncPolicy.Local(
+            userDigest: SettingsSyncPolicy.userDigest(of: Self.syncedSettings()),
+            base: defaults.string(forKey: Self.baseKey),
+            pending: defaults.object(forKey: Self.pendingKey) as? Date,
+            postponed: postponed,
+            forcesWrite: false
+        )
+        let refreshed = SettingsSyncPolicy.hint(for: local)
+        if hint != refreshed {
+            hint = refreshed
         }
     }
 
-    /// The alert of a question.
-    private func makeAlert(for prompt: SyncPrompt) -> NSAlert {
-        let alert = NSAlert()
-        switch prompt {
-        case .restart:
-            alert.messageText = String(localized: "Settings changed on another Mac")
-            alert.informativeText = String(localized: "holzBar can restart now to use the settings from the sync folder.")
-            alert.addButton(withTitle: String(localized: "Restart"))
-            alert.addButton(withTitle: String(localized: "Later"))
-        case .conflict(_, let isJoining):
-            alert.messageText = String(localized: "Which settings should holzBar use?")
-            alert.informativeText = String(localized: "The sync folder holds settings from another Mac that differ from this Mac's. Using them restarts holzBar; keeping this Mac's settings replaces them in the sync folder.")
-            alert.addButton(withTitle: String(localized: "Use Settings from Sync Folder"))
-            alert.addButton(withTitle: String(localized: "Keep This Mac's Settings"))
-            let third = alert.addButton(withTitle: isJoining ? String(localized: "Cancel") : String(localized: "Later"))
-            // Escape in every language, not only for the English title.
-            third.keyEquivalent = "\u{1B}"
+    /// Applies the waiting version from another Mac and restarts, as the hint's Restart
+    /// offers; asks instead when this Mac's settings changed since the version arrived.
+    func restartWithWaitingSettings() {
+        guard let remote = waitingVersion, !isAsking else {
+            return
         }
+        refreshHint()
+        guard hint == .restart else {
+            chooseSettings()
+            return
+        }
+        use(remote, join: nil)
+    }
+
+    /// Asks which settings to use for the waiting version from another Mac, in a sheet on
+    /// the Settings window, which opens for it.
+    func chooseSettings() {
+        guard waitingVersion != nil else {
+            return
+        }
+        showSettings(forHint: true) { [weak self] window in
+            self?.askAboutWaitingVersion(on: window)
+        }
+    }
+
+    /// Asks about the waiting version from another Mac in a sheet on the given window.
+    private func askAboutWaitingVersion(on window: NSWindow) {
+        guard isEnabled, !isAsking, let remote = waitingVersion else {
+            return
+        }
+        refreshHint()
+        let isJoining = if case .choice(let isJoining) = hint { isJoining } else { false }
+        ask(about: remote, isJoining: isJoining, on: window, join: nil)
+    }
+
+    /// Shows the Settings window on the Advanced pane, and then calls `present` with it
+    /// once it is on screen, without polling. A newer request replaces one that still waits.
+    private func showSettings(
+        forHint isForHint: Bool,
+        onCancel: @escaping @MainActor () -> Void = {},
+        then present: @escaping @MainActor (NSWindow) -> Void
+    ) {
+        cancelSettingsWindowWait()
+        guard let appState else {
+            onCancel()
+            return
+        }
+        let navigationState = appState.navigationState
+        navigationState.settingsNavigationIdentifier = .advanced
+        if navigationState.isSettingsPresented, let window = navigationState.settingsWindow {
+            appState.activate(for: .settings)
+            window.makeKeyAndOrderFront(nil)
+            present(window)
+            return
+        }
+        let loop = ObservationLoop.observe { navigationState.isSettingsPresented } onChange: { [weak self] isPresented in
+            guard isPresented, let self, let window = navigationState.settingsWindow else {
+                return
+            }
+            settingsWindowWait?.loop.cancel()
+            settingsWindowWait = nil
+            present(window)
+        }
+        settingsWindowWait = SettingsWindowWait(loop: loop, isForHint: isForHint, onCancel: onCancel)
+        // While permissions are missing, their window opens instead; the question waits.
+        guard !appState.openPermissionsWindowIfNeeded() else {
+            return
+        }
+        appState.activate(for: .settings)
+        appState.openWindow(.settings)
+    }
+
+    /// Drops the question that waits for the Settings window.
+    private func cancelSettingsWindowWait() {
+        guard let wait = settingsWindowWait else {
+            return
+        }
+        settingsWindowWait = nil
+        wait.loop.cancel()
+        wait.onCancel()
+    }
+
+    /// Asks which settings to use, in a sheet on the given window. A sheet starts no nested
+    /// run loop, so holzBar goes on running while it is open (F-14).
+    private func ask(about remote: RemoteVersion, isJoining: Bool, on window: NSWindow, join: JoinRequest?) {
+        isAsking = true
+        let alert = makeAlert(isJoining: isJoining)
+        Task {
+            let response = await alert.beginSheetModal(for: window)
+            answer(remote, isJoining: isJoining, response: response, join: join)
+        }
+    }
+
+    /// The alert that asks which settings to use.
+    private func makeAlert(isJoining: Bool) -> NSAlert {
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Which settings should holzBar use?")
+        alert.informativeText = String(localized: "The sync folder holds settings from another Mac that differ from this Mac's. Using them restarts holzBar; keeping this Mac's settings replaces them in the sync folder.")
+        alert.addButton(withTitle: String(localized: "Use Settings from Sync Folder"))
+        alert.addButton(withTitle: String(localized: "Keep This Mac's Settings"))
+        let third = alert.addButton(withTitle: isJoining ? String(localized: "Cancel") : String(localized: "Later"))
+        // Escape in every language, not only for the English title.
+        third.keyEquivalent = "\u{1B}"
         return alert
     }
 
-    /// Acts on the answer to a question.
-    private func answer(_ prompt: SyncPrompt, response: NSApplication.ModalResponse, join: JoinRequest?) {
+    /// Acts on the answer to the question.
+    private func answer(_ remote: RemoteVersion, isJoining: Bool, response: NSApplication.ModalResponse, join: JoinRequest?) {
         if join != nil {
             isChoosingFolder = false
         }
-        switch prompt {
-        case .restart(let remote):
-            guard response != .alertFirstButtonReturn else {
-                isAsking = false
-                use(remote, join: nil)
-                return
-            }
-            postponed = remote.modified
-        case .conflict(let remote, let isJoining):
-            switch response {
-            case .alertFirstButtonReturn:
-                isAsking = false
-                use(remote, join: join)
-                return
-            case .alertSecondButtonReturn:
-                keepThisMac(join: join)
-            default:
-                if join != nil {
-                    // Sync stays off, or keeps the previous folder.
-                    break
-                } else if isJoining {
-                    isEnabled = false
-                } else {
-                    // Asked again after the next launch; until then, pushes stay paused.
-                    postponed = remote.modified
-                }
+        switch response {
+        case .alertFirstButtonReturn:
+            isAsking = false
+            use(remote, join: join)
+            return
+        case .alertSecondButtonReturn:
+            keepThisMac(join: join)
+        default:
+            if join != nil {
+                // Sync stays off, or keeps the previous folder.
+                break
+            } else if isJoining {
+                isEnabled = false
+            } else {
+                // The hint stays; asked again after the next launch. Until then, pushes
+                // stay paused.
+                postponed = remote.modified
             }
         }
         promptDidClose()
@@ -1263,6 +1378,7 @@ final class SettingsSync {
         SettingsBackup.apply(SettingsSyncPolicy.settingsToApply(remoteSettings, over: Self.syncedSettings()), removesMissingKeys: false)
         Self.markSynced(base: SettingsSyncPolicy.userDigest(of: Self.syncedSettings()), modified: remote.modified)
         postponed = nil
+        withdrawHint()
         Defaults.set(true, forKey: .syncsSettingsWithICloud)
         Self.logger.notice("Applied settings from the sync folder")
         SettingsBackup.relaunch()

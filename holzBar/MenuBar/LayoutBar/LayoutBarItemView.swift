@@ -132,6 +132,16 @@ final class LayoutBarItemView: NSView {
         return alert
     }
 
+    /// Shows the alert as a sheet on the view's window, unless a sheet is already there.
+    ///
+    /// A drag reports many events, so this shows one sheet per drag, not a stack of them.
+    private func showSheet(_ alert: NSAlert) {
+        guard let window, window.attachedSheet == nil else {
+            return
+        }
+        alert.beginSheetModal(for: window, completionHandler: nil)
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         if !isDraggingPlaceholder {
             displayImage?.draw(
@@ -472,14 +482,12 @@ final class LayoutBarItemView: NSView {
         super.mouseDragged(with: event)
 
         guard isEnabled else {
-            let alert = provideAlertForDisabledItem()
-            alert.runModal()
+            showSheet(provideAlertForDisabledItem())
             return
         }
 
         guard !Bridging.isProcessUnresponsive(responsivenessPID) else {
-            let alert = provideAlertForUnresponsiveItem()
-            alert.runModal()
+            showSheet(provideAlertForUnresponsiveItem())
             return
         }
 

@@ -307,3 +307,31 @@ nonisolated enum SettingsSyncPolicy {
         }
     }
 }
+
+// MARK: - Hints
+
+nonisolated extension SettingsSyncPolicy {
+    /// What holzBar offers for a newer version from another Mac that waits for the user.
+    ///
+    /// holzBar never opens a dialog by itself for it: the hint sits quietly in the sync
+    /// settings and the holzBar menu until the user acts on it.
+    enum Hint: Equatable, Sendable {
+        /// Restart with the other Mac's settings; this Mac changed nothing since it last
+        /// synced.
+        case restart
+        /// Ask in a sheet in Settings which settings to use: this Mac changed its settings
+        /// too, or it joins the folder.
+        case choice(isJoining: Bool)
+    }
+
+    /// The hint for a waiting version, given this Mac's side.
+    ///
+    /// It offers a restart exactly where ``decide(_:local:file:)`` applies a newer version
+    /// from another Mac, and a choice where it asks.
+    static func hint(for local: Local) -> Hint {
+        if local.isJoining {
+            return .choice(isJoining: true)
+        }
+        return local.hasChanges ? .choice(isJoining: false) : .restart
+    }
+}
