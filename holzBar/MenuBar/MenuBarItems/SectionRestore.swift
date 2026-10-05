@@ -249,12 +249,6 @@ extension MenuBarItemManager {
             }
         }
 
-        let candidateKeys = Set(candidates.compactMap { keys[$0.windowID] })
-        if storedKnown == nil || !candidateKeys.isSubset(of: known) {
-            known.formUnion(candidateKeys)
-            Defaults.set(known.sorted(), forKey: .knownItemTags)
-        }
-
         var placedSections = [String: MenuBarSection.Name]()
         for move in moves {
             let destination: MoveDestination = switch move.section {
@@ -279,6 +273,14 @@ extension MenuBarItemManager {
             } catch {
                 Self.restoreLogger.error("Error moving \(move.item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
             }
+        }
+
+        // A new item that was not placed stays unknown, so a later pass places it.
+        let unplacedKeys = Set(moves.filter { $0.isNew && placedSections[$0.key] == nil }.map(\.key))
+        let candidateKeys = Set(candidates.compactMap { keys[$0.windowID] }).subtracting(unplacedKeys)
+        if storedKnown == nil || !candidateKeys.isSubset(of: known) {
+            known.formUnion(candidateKeys)
+            Defaults.set(known.sorted(), forKey: .knownItemTags)
         }
 
         // A profile's sections, and where new items were placed, are the sections to restore.
