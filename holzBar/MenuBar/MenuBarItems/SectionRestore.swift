@@ -325,7 +325,7 @@ extension MenuBarItemManager {
     }
 
     /// The section an item is in, from its position relative to the control items.
-    private func section(of item: MenuBarItem, controlItems: ControlItemPair) -> MenuBarSection.Name {
+    func section(of item: MenuBarItem, controlItems: ControlItemPair) -> MenuBarSection.Name {
         let bounds = Bridging.getWindowBounds(for: item.windowID) ?? item.bounds
         let hiddenBounds = Bridging.getWindowBounds(for: controlItems.hidden.windowID) ?? controlItems.hidden.bounds
         if bounds.minX >= hiddenBounds.maxX {

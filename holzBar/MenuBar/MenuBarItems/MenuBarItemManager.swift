@@ -891,22 +891,36 @@ extension MenuBarItemManager {
         return nil
     }
 
-    /// Resolves the destination to return the item of the given context to from the
+    /// Resolves the destination to return the given item, of the given context, to from the
     /// current items.
     ///
     /// The target item is found again by its window, its tag or its identity key, as it
-    /// may have been re-created while the item was shown. When it is gone, the item returns
+    /// may have been re-created while the item was shown. A tag or a key can name the item
+    /// itself or a same-app item elsewhere (untitled items of one app share them), so only
+    /// another item in the item's section counts. When the target is gone, the item returns
     /// to the edge of its section next to holzBar's divider; the stored target's window no
     /// longer has bounds, so moving to it failed on every attempt.
     private func resolveReturnDestination(
-        for context: TemporarilyShownItemContext,
+        for item: MenuBarItem,
+        context: TemporarilyShownItemContext,
         in items: [MenuBarItem],
         keys: [CGWindowID: String]
     ) -> MoveDestination? {
+        var others = items
+        guard let controlItems = ControlItemPair(items: &others) else {
+            return nil
+        }
+        func isReturnTarget(_ candidate: MenuBarItem) -> Bool {
+            guard candidate.windowID != item.windowID else {
+                return false
+            }
+            // A divider marks the edge of the section itself.
+            return candidate.isControlItem || section(of: candidate, controlItems: controlItems) == context.returnSection
+        }
         let target = context.returnDestination.targetItem
-        let resolved = items.first { $0.windowID == target.windowID }
-            ?? items.first { $0.tag == target.tag }
-            ?? items.first { keys[$0.windowID] == context.returnTargetIdentityKey }
+        let resolved = items.first { $0.windowID == target.windowID && isReturnTarget($0) }
+            ?? items.first { $0.tag == target.tag && isReturnTarget($0) }
+            ?? items.first { keys[$0.windowID] == context.returnTargetIdentityKey && isReturnTarget($0) }
         if let resolved {
             switch context.returnDestination {
             case .leftOfItem:
@@ -915,16 +929,13 @@ extension MenuBarItemManager {
                 return .rightOfItem(resolved)
             }
         }
-        guard let hiddenControlItem = items.first(matching: .hiddenControlItem) else {
-            return nil
-        }
         switch context.returnSection {
         case .visible:
-            return .rightOfItem(hiddenControlItem)
+            return .rightOfItem(controlItems.hidden)
         case .hidden:
-            return .leftOfItem(hiddenControlItem)
+            return .leftOfItem(controlItems.hidden)
         case .alwaysHidden:
-            return .leftOfItem(items.first(matching: .alwaysHiddenControlItem) ?? hiddenControlItem)
+            return .leftOfItem(controlItems.alwaysHidden ?? controlItems.hidden)
         }
     }
 
@@ -1134,7 +1145,7 @@ extension MenuBarItemManager {
             guard let item else {
                 continue
             }
-            guard let destination = resolveReturnDestination(for: context, in: items, keys: keys) else {
+            guard let destination = resolveReturnDestination(for: item, context: context, in: items, keys: keys) else {
                 // The dividers were not read; the next attempt reads the items again.
                 logger.warning("No return destination for \(item.logString, privacy: .private(mask: .hash))")
                 failedContexts.append(context)
