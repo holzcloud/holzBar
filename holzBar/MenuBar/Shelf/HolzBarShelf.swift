@@ -213,13 +213,20 @@ final class HolzBarShelfPanel: NSPanel {
                 await appState.imageCache.updateCache()
             }
         } else {
-            let cacheTask = Task(timeout: .seconds(1)) {
+            // The refresh is its own task, so a timeout ends only the wait: the refresh still
+            // lands in the observable caches. Awaiting `.value` does not pass the cancellation on.
+            let refresh = Task {
                 await appState.itemManager.cacheItemsIfNeeded()
                 await appState.imageCache.updateCache()
+            }
+            let cacheTask = Task(timeout: .seconds(1)) {
+                await refresh.value
             }
 
             do {
                 try await cacheTask.value
+            } catch is TaskTimeoutError {
+                Logger.default.notice("holzBar Shelf shown with the cached images: the refresh took longer than 1 s")
             } catch {
                 Logger.default.error("Cache update failed when showing HolzBarShelfPanel - \(error, privacy: .private)")
             }
