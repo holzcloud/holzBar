@@ -35,24 +35,24 @@ final class ServiceBackend26: MenuBarBackend {
     /// The item windows, each with the source process that Accessibility names for it.
     ///
     /// holzBar's own control items are recognised by their frames instead
-    /// (``OwnStatusItemWindows``), all of them before the first lookup suspends, so
-    /// holzBar's frames cannot change while the windows are matched. Control Center may
-    /// lag behind them, updating its windows only a moment after an item changes its
-    /// length or moves to another display, so a list read in between may not match until
-    /// the next read.
+    /// (``OwnStatusItemWindows``), all of them before the one lookup for the other
+    /// windows suspends, so holzBar's frames cannot change while the windows are
+    /// matched. Control Center may lag behind them, updating its windows only a moment
+    /// after an item changes its length or moves to another display, so a list read in
+    /// between may not match until the next read.
     func items(on display: CGDirectDisplayID?, option: MenuBarItem.ListOption) async -> [MenuBarItem] {
         let windows = MenuBarItem.getMenuBarItemWindows(on: display, option: option)
         let controlItems = OwnStatusItemWindows.controlItems(forWindowBounds: windows.map(\.bounds))
-        var items = [MenuBarItem]()
-        for (window, controlItem) in zip(windows, controlItems) {
-            if let controlItem {
-                items.append(MenuBarItem(uncheckedItemWindow: window, controlItem: controlItem))
-                continue
-            }
-            let sourcePID = await SourcePIDCache.shared.pid(for: window)
-            items.append(MenuBarItem(uncheckedItemWindow: window, sourcePID: sourcePID))
+        let lookups = zip(windows, controlItems).compactMap { window, controlItem in
+            controlItem == nil ? window : nil
         }
-        return items
+        let sourcePIDs = lookups.isEmpty ? [:] : await SourcePIDCache.shared.pids(for: lookups)
+        return zip(windows, controlItems).map { window, controlItem in
+            if let controlItem {
+                return MenuBarItem(uncheckedItemWindow: window, controlItem: controlItem)
+            }
+            return MenuBarItem(uncheckedItemWindow: window, sourcePID: sourcePIDs[window.windowID])
+        }
     }
 
     func itemListSignature() async -> [CGWindowID] {
