@@ -54,8 +54,9 @@ final class AccessibilityBackend27: MenuBarBackend {
     func itemListSignature() async -> [CGWindowID] {
         let items = await MenuBarItemProvider27.items()
         return items.map { item in
-            // A conversion that cannot trap, whatever position the item's process reports.
-            let minX = Int32(exactly: item.bounds.minX.rounded(.down)) ?? 0
+            // A conversion that cannot trap, whatever position the item's process reports,
+            // and that truncates like the `Int(_:)` before it, so signatures stay as they were.
+            let minX = Int32(exactly: item.bounds.minX.rounded(.towardZero)) ?? 0
             return item.windowID &+ UInt32(bitPattern: minX)
         }
     }
