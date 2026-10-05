@@ -11,8 +11,8 @@ import Foundation
 /// extras menu bar which of its items sits where the window is. One app that answers
 /// slowly must not hold up every item read: every call waits ``messagingTimeout`` at most,
 /// one lookup stops asking after ``lookupBudget``, at most ``maximumChildren`` items are
-/// read from one app, and an app that ran into the timeout is not asked again for a pause
-/// that doubles from ``firstPause`` up to ``longestPause``.
+/// read from one app, and an app that ran into the timeout or used up ``appBudget`` is not
+/// asked again for a pause that doubles from ``firstPause`` up to ``longestPause``.
 ///
 /// holzBar's own process is never paused: it answers on the main thread, which a lookup
 /// never blocks, and pausing it would leave its group and spacer items without their app.
@@ -31,6 +31,16 @@ nonisolated struct SourcePIDLookupSchedule {
 
     /// The most time one lookup spends asking apps, checked between calls.
     static let lookupBudget = Duration.seconds(2)
+
+    /// The most time one scan spends asking one app, checked between calls.
+    ///
+    /// An app that answers every call just under the timeout is paused too. Less than
+    /// ``lookupBudget``, so the first app a scan asks is always answered or paused before
+    /// the scan stops, and a scan that is continued always gets further.
+    static let appBudget = Duration.seconds(1)
+
+    /// How long a scan that stopped early may be continued by later reads.
+    static let scanLifetime = Duration.seconds(30)
 
     /// The most extras menu bar children read from one app.
     ///
@@ -72,12 +82,18 @@ nonisolated struct SourcePIDLookupSchedule {
         return now >= pause.until
     }
 
+    /// Whether the app with the given process is paused after a timeout. holzBar's own
+    /// process is not.
+    func mayPause(_ pid: pid_t) -> Bool {
+        pid != ownPID
+    }
+
     /// Records whether the app with the given process ran into the timeout.
     ///
     /// An answer in time ends the app's pause, and the next timeout pauses it for
     /// ``firstPause`` again.
     mutating func record(_ pid: pid_t, timedOut: Bool, at now: ContinuousClock.Instant) {
-        guard timedOut, pid != ownPID else {
+        guard timedOut, mayPause(pid) else {
             pauses[pid] = nil
             return
         }
@@ -98,6 +114,11 @@ nonisolated struct SourcePIDLookupSchedule {
     /// Whether a lookup that started at the given time has used up its budget.
     static func isOverBudget(startedAt start: ContinuousClock.Instant, now: ContinuousClock.Instant) -> Bool {
         start.duration(to: now) >= lookupBudget
+    }
+
+    /// Whether a scan that asked one app since the given time has used up the app's budget.
+    static func isOverAppBudget(startedAt start: ContinuousClock.Instant, now: ContinuousClock.Instant) -> Bool {
+        start.duration(to: now) >= appBudget
     }
 
     /// Whether a window that a finished scan did not find is scanned again: after

@@ -84,6 +84,19 @@ struct SourcePIDLookupScheduleTests {
         #expect(SourcePIDLookupSchedule.isOverBudget(startedAt: start, now: start + .seconds(2)))
     }
 
+    @Test("One app is asked for 1 s at most in a scan")
+    func appBudget() {
+        #expect(!SourcePIDLookupSchedule.isOverAppBudget(startedAt: start, now: start + .milliseconds(999)))
+        #expect(SourcePIDLookupSchedule.isOverAppBudget(startedAt: start, now: start + .seconds(1)))
+    }
+
+    @Test("Every app but holzBar's own process may be paused")
+    func mayPause() {
+        let schedule = SourcePIDLookupSchedule(ownPID: ownPID)
+        #expect(schedule.mayPause(app))
+        #expect(!schedule.mayPause(ownPID))
+    }
+
     @Test("A window not found is scanned again after 30 s, or once a skipped app can be asked")
     func rescan() {
         #expect(!SourcePIDLookupSchedule.shouldRescan(failedAt: start, now: start + .seconds(29), skippedAppIsReady: false))
@@ -97,5 +110,8 @@ struct SourcePIDLookupScheduleTests {
         #expect(SourcePIDLookupSchedule.timeoutThreshold < .milliseconds(500))
         #expect(SourcePIDLookupSchedule.maximumChildren > 0)
         #expect(SourcePIDLookupSchedule.lookupBudget <= .seconds(2))
+        // The first app a continued scan asks is done with before the scan stops, even
+        // after one more call that runs into the timeout.
+        #expect(SourcePIDLookupSchedule.appBudget + .milliseconds(600) < SourcePIDLookupSchedule.lookupBudget)
     }
 }

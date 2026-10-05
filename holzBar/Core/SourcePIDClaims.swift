@@ -13,8 +13,8 @@ import Foundation
 /// about itself, so any app could report an item where another app's item is, such as
 /// Control Center's camera and microphone indicator. Apps signed by Apple are asked first
 /// and win: the first of them to claim a window gets it. Any other app gets a window only
-/// when a scan that asked every app found no other app claiming it. A window that two such
-/// apps claim belongs to none of them.
+/// when a scan that asked every app, every app signed by Apple included, found no other app
+/// claiming it. A window that two such apps claim belongs to none of them.
 ///
 /// The type knows nothing about Accessibility or windows, so it can be tested on its own.
 nonisolated struct SourcePIDClaims {
@@ -34,7 +34,8 @@ nonisolated struct SourcePIDClaims {
         /// to none of them.
         case contested
         /// No app claims the window, or the only claim comes from an app that is not
-        /// signed by Apple and the scan stopped before it asked every app.
+        /// signed by Apple and the scan stopped before it asked every app, or could not
+        /// ask an app signed by Apple.
         case unresolved
     }
 
@@ -57,9 +58,13 @@ nonisolated struct SourcePIDClaims {
 
     /// Which app the window belongs to.
     ///
-    /// - Parameter scanFinished: Whether the scan asked every app it could ask, rather
-    ///   than running out of time or being cancelled.
-    func decision(scanFinished: Bool) -> Decision {
+    /// - Parameters:
+    ///   - scanFinished: Whether the scan asked every app it could ask, rather than
+    ///     running out of time or being cancelled.
+    ///   - appleAppsComplete: Whether the scan asked every app signed by Apple, rather
+    ///     than skipping one that was launching, unresponsive or paused, or that ran into
+    ///     the timeout. Such an app's item could be at the window's centre.
+    func decision(scanFinished: Bool, appleAppsComplete: Bool) -> Decision {
         if let claim = claims.first(where: \.isSignedByApple) {
             return .owner(claim.pid)
         }
@@ -67,7 +72,7 @@ nonisolated struct SourcePIDClaims {
         guard pids.count < 2 else {
             return .contested
         }
-        guard scanFinished, let pid = pids.first else {
+        guard scanFinished, appleAppsComplete, let pid = pids.first else {
             return .unresolved
         }
         return .owner(pid)

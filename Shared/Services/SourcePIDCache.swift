@@ -34,14 +34,15 @@ import OSLog
 ///   bounded in time (``SourcePIDLookupSchedule``): every element waits 0.5 s
 ///   at most, a lookup stops asking after 2 s or when its task is cancelled, at
 ///   most 64 items are read from one app, and an app that ran into the timeout
-///   is paused for 10 s, doubling up to 60 s. An item whose app could not be
-///   asked in time stays without its app until a later read, and SectionRestore
-///   never places such an item.
+///   or was asked for 1 s is paused for 10 s, doubling up to 60 s. A scan that
+///   stopped early is continued by the next read (``SourcePIDScan``). An item
+///   whose app could not be asked yet stays without its app until a later read,
+///   and SectionRestore never places such an item.
 /// - The frames come from each app itself, so any app could report an item where
 ///   another app's item is, such as Control Center's camera and microphone indicator.
 ///   Apps signed by Apple are asked first, and the first of them to claim a window gets
-///   it. Any other app gets a window only when a finished scan found no other app
-///   claiming it (``SourcePIDClaims``).
+///   it. Any other app gets a window only when a finished scan that skipped no app
+///   signed by Apple found no other app claiming it (``SourcePIDClaims``).
 actor SourcePIDCache {
     /// An object that contains a running application and provides an
     /// interface to access relevant information, such as its process
@@ -124,24 +125,49 @@ actor SourcePIDCache {
         /// When the scan failed.
         let failedAt: ContinuousClock.Instant
         /// The apps the scan skipped because they were launching, unresponsive or
-        /// paused. One of them may own the window once it can be asked, which does
-        /// not change the running applications.
+        /// paused, or ran into the timeout. One of them may own the window once it
+        /// can be asked, which does not change the running applications. holzBar's
+        /// own process is never one of them: it can always be asked.
         let skippedApps: [CachedApplication]
     }
 
-    /// The outcome of one scan over the running apps.
-    nonisolated private struct Scan {
-        /// The apps that report an item at each window's centre.
-        var claims = [CGWindowID: SourcePIDClaims]()
-        /// Whether every app was asked or skipped, rather than the scan running out
-        /// of time or being cancelled.
-        var isFinished = true
-        /// The apps the scan could not ask.
-        var skippedApps = [CachedApplication]()
+    /// Asks the cached apps through Accessibility, for a scan.
+    nonisolated private struct ScanSource: SourcePIDScanSource {
+        var now: ContinuousClock.Instant {
+            .now
+        }
 
-        /// Which app the window with the given identifier belongs to.
-        func decision(for windowID: CGWindowID) -> SourcePIDClaims.Decision {
-            claims[windowID, default: SourcePIDClaims()].decision(scanFinished: isFinished)
+        var isCancelled: Bool {
+            Task.isCancelled
+        }
+
+        func pid(of app: CachedApplication) -> pid_t {
+            app.processIdentifier
+        }
+
+        func isSignedByApple(_ app: CachedApplication) -> Bool {
+            app.isSignedByApple
+        }
+
+        func isValidForAccessibility(_ app: CachedApplication) -> Bool {
+            app.isValidForAccessibility
+        }
+
+        func extrasMenuBar(of app: CachedApplication) -> AXUIElement? {
+            app.getOrCreateExtrasMenuBar()
+        }
+
+        func children(of element: AXUIElement) -> [AXUIElement] {
+            AXHelpers.children(for: element)
+        }
+
+        func frame(of element: AXUIElement) -> CGRect? {
+            AXHelpers.setMessagingTimeout(SourcePIDLookupSchedule.messagingTimeout, for: element)
+            return AXHelpers.frame(for: element)
+        }
+
+        func isEnabled(_ element: AXUIElement) -> Bool {
+            AXHelpers.isEnabled(element)
         }
     }
 
@@ -171,6 +197,11 @@ actor SourcePIDCache {
 
     /// Which apps ran into the timeout, and until when they are not asked.
     private var schedule = SourcePIDLookupSchedule()
+
+    /// The last scan, while it stopped early: the next read continues it rather than
+    /// asking the same apps again (``SourcePIDScan/continued(for:at:)``). Starts over
+    /// whenever the running applications change.
+    private var unfinishedScan: SourcePIDScan<CachedApplication>?
 
     /// Observer for running applications.
     private var observation: NSKeyValueObservation?
@@ -219,6 +250,7 @@ actor SourcePIDCache {
             }
         }
         failedLookups.removeAll()
+        unfinishedScan = nil
         schedule.retain(running: runningPIDs)
     }
 
@@ -269,102 +301,25 @@ actor SourcePIDCache {
         }
     }
 
-    /// Makes the given Accessibility call and tells whether it ran into the
-    /// messaging timeout (``SourcePIDLookupSchedule/didTimeOut(after:)``).
-    private func timed<Value>(_ call: () -> Value) -> (value: Value, timedOut: Bool) {
-        let start = ContinuousClock.now
-        let value = call()
-        return (value, SourcePIDLookupSchedule.didTimeOut(after: start.duration(to: .now)))
-    }
-
-    /// Records that the app with the given process ran into the timeout.
-    private func recordTimeout(of app: CachedApplication, in scan: inout Scan) {
-        schedule.record(app.processIdentifier, timedOut: true, at: .now)
-        scan.skippedApps.append(app)
-        logger.debug("Pausing source PID lookups of process \(app.processIdentifier, privacy: .private) after a timeout")
-    }
-
-    /// Asks the running apps which of their items sit at the given window centres.
+    /// Asks the running apps which of their items sit at the given window centres,
+    /// continuing the last scan if it stopped early.
     ///
     /// The scan stops early, as not finished, once ``SourcePIDLookupSchedule/lookupBudget``
-    /// is used up or the calling task is cancelled.
-    private func scan(for centers: [CGWindowID: CGPoint]) -> Scan {
+    /// is used up or the calling task is cancelled. The apps' code signatures are read
+    /// before, outside the budget.
+    private func scan(for centers: [CGWindowID: CGPoint]) -> SourcePIDScan<CachedApplication> {
         let start = ContinuousClock.now
-        var scan = Scan()
-        var remaining = centers
-
         partitionApps()
-
-        appLoop: for app in apps where !remaining.isEmpty {
-            let now = ContinuousClock.now
-            if Task.isCancelled || SourcePIDLookupSchedule.isOverBudget(startedAt: start, now: now) {
-                scan.isFinished = false
-                break
-            }
-            guard !app.isTerminated, !app.isProhibited else {
-                continue
-            }
-            let pid = app.processIdentifier
-            guard schedule.mayAsk(pid, at: now), app.isValidForAccessibility else {
-                scan.skippedApps.append(app)
-                continue
-            }
-            let bar = timed { app.getOrCreateExtrasMenuBar() }
-            if bar.timedOut {
-                recordTimeout(of: app, in: &scan)
-                continue
-            }
-            guard let extrasMenuBar = bar.value else {
-                schedule.record(pid, timedOut: false, at: .now)
-                continue
-            }
-            let children = timed { AXHelpers.children(for: extrasMenuBar) }
-            if children.timedOut {
-                recordTimeout(of: app, in: &scan)
-                continue
-            }
-            var timedOut = false
-            for child in children.value.prefix(SourcePIDLookupSchedule.maximumChildren) {
-                if Task.isCancelled || SourcePIDLookupSchedule.isOverBudget(startedAt: start, now: .now) {
-                    scan.isFinished = false
-                    break appLoop
-                }
-                AXHelpers.setMessagingTimeout(SourcePIDLookupSchedule.messagingTimeout, for: child)
-                // The frame first: `isEnabled` is only read for an item at a window's
-                // centre, which gives the same result with about half the calls.
-                let frame = timed { AXHelpers.frame(for: child) }
-                if frame.timedOut {
-                    timedOut = true
-                    break
-                }
-                guard let childFrame = frame.value else {
-                    continue
-                }
-                let matches = remaining.filter { childFrame.center.distance(to: $0.value) <= 1 }.keys
-                guard !matches.isEmpty else {
-                    continue
-                }
-                let enabled = timed { AXHelpers.isEnabled(child) }
-                if enabled.timedOut {
-                    timedOut = true
-                    break
-                }
-                guard enabled.value else {
-                    continue
-                }
-                let claim = SourcePIDClaims.Claim(pid: pid, isSignedByApple: app.isSignedByApple)
-                for windowID in matches {
-                    scan.claims[windowID, default: SourcePIDClaims()].add(claim)
-                    if scan.claims[windowID]?.isSettled == true {
-                        remaining[windowID] = nil
-                    }
-                }
-            }
-            if timedOut {
-                recordTimeout(of: app, in: &scan)
-            } else {
-                schedule.record(pid, timedOut: false, at: .now)
-            }
+        let continued = unfinishedScan?.continued(for: centers, at: start)
+        var scan = continued ?? SourcePIDScan(centers: centers, startedAt: start)
+        let paused = scan.run(
+            over: apps.filter { !$0.isTerminated && !$0.isProhibited },
+            with: ScanSource(),
+            schedule: &schedule
+        )
+        unfinishedScan = scan.isFinished ? nil : scan
+        for pid in paused {
+            logger.debug("Pausing source PID lookups of process \(pid, privacy: .private) after a timeout")
         }
 
         var found = 0
@@ -376,7 +331,7 @@ actor SourcePIDCache {
             case .unresolved: break
             }
         }
-        logger.debug("Source PID scan found \(found, privacy: .public) of \(centers.count, privacy: .public) windows, \(contested, privacy: .public) contested, finished: \(scan.isFinished, privacy: .public), in \(start.duration(to: .now), privacy: .public)")
+        logger.debug("Source PID scan found \(found, privacy: .public) of \(centers.count, privacy: .public) windows, \(contested, privacy: .public) contested, continued: \(continued != nil, privacy: .public), finished: \(scan.isFinished, privacy: .public), in \(start.duration(to: .now), privacy: .public)")
         return scan
     }
 
@@ -386,7 +341,7 @@ actor SourcePIDCache {
     /// All windows that are not cached are looked up in one scan. A window that a
     /// finished scan did not find is recorded as a miss; a scan that could not run
     /// (no permission, bounds still changing) or that ran out of time or was
-    /// cancelled records none, so the next read tries again.
+    /// cancelled records none, so the next read tries again, and continues the scan.
     ///
     /// Starts the cache if nothing has yet, so an item read before the backend's
     /// setup still works.
