@@ -138,6 +138,16 @@ struct URLCommandTests {
         }
     }
 
+    @Test("Zen mode refuses the search and Settings, which show hidden items")
+    func zenModeRefusesSearchAndSettings() {
+        for zen in [ZenMode(isManual: true), ZenMode(isAutomatic: true), ZenMode(isManual: true, isAutomatic: true)] {
+            #expect(URLCommand.Action.search.decision(zenMode: zen) == .refuse)
+            #expect(URLCommand.Action.settings.decision(zenMode: zen) == .refuse)
+        }
+        #expect(URLCommand.Action.search.decision(zenMode: ZenMode()) == .perform)
+        #expect(URLCommand.Action.settings.decision(zenMode: ZenMode()) == .perform)
+    }
+
     @Test("Another app may turn Zen mode on without asking")
     func zenModeTurnsOnWithoutAsking() {
         let states = [ZenMode(), ZenMode(isManual: true), ZenMode(isAutomatic: true), ZenMode(isManual: true, isAutomatic: true)]

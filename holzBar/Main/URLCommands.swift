@@ -11,8 +11,10 @@ import OSLog
 ///
 /// - `holzbar://toggle/hidden`, `holzbar://show/hidden`, `holzbar://hide/hidden`
 ///   (also `always-hidden`) – changes nothing persistent
-/// - `holzbar://search` – the menu bar item search; changes nothing persistent
-/// - `holzbar://settings` – the settings window; changes nothing persistent
+/// - `holzbar://search` – the menu bar item search; changes nothing persistent, refused
+///   while Zen mode is on
+/// - `holzbar://settings` – the settings window; changes nothing persistent, refused
+///   while Zen mode is on
 /// - `holzbar://shelf/toggle` – turn the holzBar Shelf on or off; a setting that lasts
 ///   and syncs, so holzBar asks first
 /// - `holzbar://auto-rehide/toggle` – turn auto-rehide on or off; a setting that lasts
