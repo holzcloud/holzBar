@@ -78,8 +78,15 @@ final class LayoutBarPaddingView: NSView {
         if #available(macOS 27.0, *) {
             // On macOS 27 the saved layout decides sections and macOS orders the items within
             // one, so a drop only moves the item's application to this section.
-            if !draggingSource.item.isControlItem {
-                LayoutBarMoves.setSection(of: draggingSource.item, to: container.section, appState: appState)
+            let item = draggingSource.item
+            let itemCache = appState.itemManager.itemCache
+            if !item.isControlItem, itemCache.address(for: item.tag)?.section != container.section {
+                LayoutBarMoves.setSection(of: item, to: container.section, appState: appState)
+            } else {
+                // A drop that changes no section changes nothing on the bar, so the row
+                // goes back to the order macOS keeps.
+                container.canSetArrangedViews = true
+                container.setArrangedViews(items: itemCache[container.section])
             }
             return true
         }
