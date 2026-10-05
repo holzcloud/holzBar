@@ -38,6 +38,11 @@ layout_xml() {
 LAYOUT_BEFORE="$WORK/layout-before.plist"
 HAD_LAYOUT=false
 if layout_xml "$LAYOUT_BEFORE"; then HAD_LAYOUT=true; fi
+# The seeded flag goes back with it. holzBar seeds a missing layout once and then sets the
+# flag, so a run that began without a layout and left the flag set left holzBar with no
+# layout that it would never seed again, concealing nothing.
+seeded() { defaults read com.holzcloud.holzBar MacOS27LayoutSeeded 2>/dev/null || echo absent; }
+SEEDED_BEFORE=$(seeded)
 
 quit_holzbar() {
     osascript -e 'tell application id "com.holzcloud.holzBar" to quit' >/dev/null 2>&1 || true
@@ -63,6 +68,11 @@ restore() {
     else
         defaults delete com.holzcloud.holzBar MacOS27Layout 2>/dev/null || true
     fi
+    if [ "$SEEDED_BEFORE" = absent ]; then
+        defaults delete com.holzcloud.holzBar MacOS27LayoutSeeded 2>/dev/null || true
+    else
+        defaults write com.holzcloud.holzBar MacOS27LayoutSeeded -bool "$(as_bool "$SEEDED_BEFORE")"
+    fi
     defaults write com.holzcloud.holzBar UseIceBar -bool "$ORIGINAL_SHELF"
     local restored=false
     if layout_xml "$WORK/layout-after.plist"; then
@@ -79,6 +89,11 @@ restore() {
         cat "$LAYOUT_BEFORE"
     else
         echo "FAIL  the saved layout was left changed; there was none"
+    fi
+    local seeded_after
+    seeded_after=$(seeded)
+    if [ "$seeded_after" != "$SEEDED_BEFORE" ]; then
+        echo "FAIL  MacOS27LayoutSeeded was left changed; it was $SEEDED_BEFORE, it is $seeded_after"
     fi
     start_holzbar
 }
