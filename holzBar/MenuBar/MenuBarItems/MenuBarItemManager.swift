@@ -521,7 +521,11 @@ extension MenuBarItemManager {
             let itemWindowIDs = currentItemWindowIDs ?? items.reversed().map { $0.windowID }
             await cacheActor.updateCachedItemWindowIDs(itemWindowIDs)
 
+            // From here a replaced cache clears the window list it recorded: the newer one
+            // may have stopped before caching (a recent move, the Mac not in use), and the
+            // next check must not skip the list this one never cached.
             guard !Task.isCancelled else {
+                await cacheActor.clearCachedItemWindowIDs()
                 return
             }
 
@@ -565,6 +569,7 @@ extension MenuBarItemManager {
             if backend.canMoveItems {
                 await enforceControlItemOrder(controlItems: controlItems)
                 guard !Task.isCancelled else {
+                    await cacheActor.clearCachedItemWindowIDs()
                     return
                 }
                 // Forget the UUIDs of item windows that are gone (on every space).
@@ -574,6 +579,7 @@ extension MenuBarItemManager {
             await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
 
             guard !Task.isCancelled else {
+                await cacheActor.clearCachedItemWindowIDs()
                 return
             }
 
