@@ -169,7 +169,15 @@ final class LayoutProfiles {
         save()
         logger.notice("Applying layout profile \(profile.name, privacy: .private)")
         if #available(macOS 27.0, *) {
-            Defaults.set(profile.applicationSections, forKey: .macOS27Layout)
+            // Merged into the saved layout, so applications the profile does not know keep
+            // their section. A profile saved before macOS 27 knows none and changes nothing.
+            if profile.applicationSections.isEmpty {
+                logger.notice("Layout profile \(profile.name, privacy: .private) has no macOS 27 layout, so the current one stays")
+            } else {
+                var layout = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
+                layout.merge(profile.applicationSections) { _, new in new }
+                Defaults.set(layout, forKey: .macOS27Layout)
+            }
             appState.concealer27.update()
             Task {
                 await appState.itemManager.cacheItemsRegardless()
