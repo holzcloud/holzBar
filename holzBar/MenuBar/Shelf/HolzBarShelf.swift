@@ -231,9 +231,10 @@ final class HolzBarShelfPanel: NSPanel {
         // Color manager handles frame changes automatically, but does so on
         // the main queue, so we need to update manually once before showing
         // the panel to prevent the color from flashing.
-        colorManager.updateAllProperties(with: frame, screen: screen)
         if #available(macOS 27.0, *) {
             colorManager.setColor27()
+        } else {
+            colorManager.updateAllProperties(with: frame, screen: screen)
         }
 
         orderFrontRegardless()
