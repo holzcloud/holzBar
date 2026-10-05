@@ -55,6 +55,12 @@ final class LayoutBarItemView: NSView {
         }
     }
 
+    /// The process whose responsiveness decides whether the item can be moved: the app
+    /// the item belongs to, not Control Center, which owns every item window on macOS 26.
+    private var responsivenessPID: pid_t {
+        item.sourcePID ?? item.ownerPID
+    }
+
     /// A Boolean value that indicates whether the view is enabled.
     var isEnabled = true {
         didSet {
@@ -134,7 +140,7 @@ final class LayoutBarItemView: NSView {
                 operation: .sourceOver,
                 fraction: isEnabled ? 1.0 : 0.67
             )
-            if Bridging.isProcessUnresponsive(item.ownerPID) {
+            if Bridging.isProcessUnresponsive(responsivenessPID) {
                 let warningImage = NSImage.warning
                 let width: CGFloat = 15
                 let scale = width / warningImage.size.width
@@ -318,7 +324,7 @@ final class LayoutBarItemView: NSView {
 
     /// Whether the item can be moved; otherwise beeps and says why.
     private func checkMovable() -> Bool {
-        guard isEnabled, !Bridging.isProcessUnresponsive(item.ownerPID) else {
+        guard isEnabled, !Bridging.isProcessUnresponsive(responsivenessPID) else {
             NSSound.beep()
             Self.announce(toolTip ?? String(localized: "Menu bar item is not movable."))
             return false
@@ -471,7 +477,7 @@ final class LayoutBarItemView: NSView {
             return
         }
 
-        guard !Bridging.isProcessUnresponsive(item.ownerPID) else {
+        guard !Bridging.isProcessUnresponsive(responsivenessPID) else {
             let alert = provideAlertForUnresponsiveItem()
             alert.runModal()
             return
