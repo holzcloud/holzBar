@@ -135,6 +135,9 @@ final class AppState {
     /// Logger for the app state.
     @ObservationIgnored private let logger = Logger(category: "AppState")
 
+    /// Whether the setup finished: before, the settings and items are not loaded yet.
+    @ObservationIgnored private(set) var isSetUp = false
+
     /// Async setup actions, run once on first access.
     @ObservationIgnored private lazy var setupTask = Task { @MainActor in
         permissions.stopAllChecks()
@@ -166,6 +169,7 @@ final class AppState {
         itemChangeWatcher.performSetup(with: self)
 
         configureObservers()
+        isSetUp = true
     }
 
     /// Brings holzBar up to date once the bar has settled after the screen was locked, the

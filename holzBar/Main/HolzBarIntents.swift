@@ -36,7 +36,7 @@ nonisolated enum HolzBarIntentError: Error, CustomLocalizedStringResourceConvert
 /// The app's state for an action, or an error when holzBar is not ready.
 @MainActor
 private func intentAppState() throws -> AppState {
-    guard let appState = AppState.current else {
+    guard let appState = AppState.current, appState.isSetUp else {
         throw HolzBarIntentError.notReady
     }
     return appState
