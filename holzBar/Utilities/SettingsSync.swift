@@ -375,6 +375,9 @@ final class SettingsSync {
     /// Whether the folder chosen by the user is being joined.
     @ObservationIgnored private var isChoosingFolder = false
 
+    /// A chosen folder whose question waits for the open question to be answered.
+    @ObservationIgnored private var queuedJoin: (join: JoinRequest, remote: RemoteVersion)?
+
     /// What holzBar offers for a newer version from another Mac that waits for the user,
     /// shown in the sync settings and the holzBar menu; `nil` when none waits.
     private(set) var hint: SettingsSyncPolicy.Hint?
@@ -649,9 +652,15 @@ final class SettingsSync {
             isChoosingFolder = false
             return
         }
+        askAboutJoin(join, remote: remote)
+    }
+
+    /// Asks which settings to use for the chosen folder, in a sheet on the Settings window,
+    /// which opens for it. While another question is open, it follows once that one is
+    /// answered, so the chosen folder is never dropped unasked.
+    private func askAboutJoin(_ join: JoinRequest, remote: RemoteVersion) {
         guard !isAsking else {
-            // Another question is open; the folder is not joined.
-            isChoosingFolder = false
+            queuedJoin = (join, remote)
             return
         }
         showSettings(
@@ -660,8 +669,11 @@ final class SettingsSync {
                 self?.isChoosingFolder = false
             },
             then: { [weak self] window in
-                guard let self, !isAsking else {
-                    self?.isChoosingFolder = false
+                guard let self else {
+                    return
+                }
+                guard !isAsking else {
+                    queuedJoin = (join, remote)
                     return
                 }
                 ask(about: remote, isJoining: true, on: window, join: join)
@@ -1363,16 +1375,24 @@ final class SettingsSync {
 
     /// Shows the Settings window on the Advanced pane, and then calls `present` with it
     /// once it is on screen, without polling. A newer request replaces one that still waits.
+    ///
+    /// A request for the hint never replaces a chosen folder's question that still waits:
+    /// that one goes first, and the hint stays in the sync settings and the holzBar menu.
     private func showSettings(
         forHint isForHint: Bool,
         onCancel: @escaping @MainActor () -> Void = {},
         then present: @escaping @MainActor (NSWindow) -> Void
     ) {
-        cancelSettingsWindowWait()
         guard let appState else {
+            cancelSettingsWindowWait()
             onCancel()
             return
         }
+        if isForHint, settingsWindowWait?.isForHint == false {
+            openSettingsWindow(appState)
+            return
+        }
+        cancelSettingsWindowWait()
         let navigationState = appState.navigationState
         navigationState.settingsNavigationIdentifier = .advanced
         if navigationState.isSettingsPresented, let window = navigationState.settingsWindow {
@@ -1390,6 +1410,11 @@ final class SettingsSync {
             present(window)
         }
         settingsWindowWait = SettingsWindowWait(loop: loop, isForHint: isForHint, onCancel: onCancel)
+        openSettingsWindow(appState)
+    }
+
+    /// Opens the Settings window for a question that waits for it.
+    private func openSettingsWindow(_ appState: AppState) {
         // While permissions are missing, their window opens instead; the question waits.
         guard !appState.openPermissionsWindowIfNeeded() else {
             return
@@ -1465,9 +1490,14 @@ final class SettingsSync {
         promptDidClose()
     }
 
-    /// Makes the check that waited for the question.
+    /// Asks about a chosen folder that waited for the question, and makes the check that
+    /// waited for it.
     private func promptDidClose() {
         isAsking = false
+        if let queued = queuedJoin {
+            queuedJoin = nil
+            askAboutJoin(queued.join, remote: queued.remote)
+        }
         if checksAfterPrompt {
             checksAfterPrompt = false
             checkNow()
