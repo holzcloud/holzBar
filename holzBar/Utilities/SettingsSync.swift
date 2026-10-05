@@ -37,13 +37,14 @@ import SystemConfiguration
 /// Mac's settings exist only while sync is on.
 ///
 /// The file may be online-only, on a stalled network volume or held by a file provider
-/// that hangs, so every access to it runs on one serial background queue (``fileQueue``),
-/// never on the main thread; only the read at launch waits for it, at most a second, and
-/// skips a file that is not on this Mac (F-15).
+/// that hangs, so every access to it and its folder, resolving the folder's bookmark
+/// included, runs on one serial background queue (``fileQueue``), never on the main
+/// thread; the main actor uses the folder last resolved there. Only the launch waits for
+/// the queue, at most a second, and skips a file that is not on this Mac (F-15).
 @MainActor
 @Observable
 final class SettingsSync {
-    private static let logger = Logger(category: "SettingsSync")
+    private nonisolated static let logger = Logger(category: "SettingsSync")
 
     /// Keys that stay on this Mac.
     private nonisolated static let localKeys: Set<String> = [
@@ -145,8 +146,8 @@ final class SettingsSync {
         SCDynamicStoreCopyComputerName(nil, nil) as String?
     }
 
-    /// iCloud Drive's folder, if iCloud Drive is turned on.
-    static var iCloudDriveURL: URL? {
+    /// iCloud Drive's folder, if iCloud Drive is turned on. Looked up on the file queue.
+    private nonisolated static var iCloudDriveURL: URL? {
         let url = FileManager.default.homeDirectoryForCurrentUser
             .appending(path: "Library/Mobile Documents/com~apple~CloudDocs", directoryHint: .isDirectory)
         return FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) ? url : nil
@@ -154,16 +155,35 @@ final class SettingsSync {
 
     /// The key of the bookmark of the chosen folder. It starts with "SettingsSync", so it
     /// stays on this Mac (`SettingsBackup.excludedKeyPrefixes`).
-    private static let folderBookmarkKey = "SettingsSyncFolderBookmark"
+    private nonisolated static let folderBookmarkKey = "SettingsSyncFolderBookmark"
 
-    /// The folder the Macs sync, chosen by the user or iCloud Drive (see
+    /// Where the Macs sync, as resolved on the file queue (``resolveLocation()``).
+    private nonisolated struct FolderLocation: Sendable {
+        /// The folder the Macs sync, or `nil` when there is none now.
+        var syncFolderURL: URL?
+        /// iCloud Drive's folder, if iCloud Drive is turned on.
+        var iCloudDriveURL: URL?
+
+        /// The folder in the synced folder that holds the sync file.
+        var folderURL: URL? {
+            syncFolderURL?.appending(path: SettingsSyncLocation.fileComponents[0], directoryHint: .isDirectory)
+        }
+
+        /// The file the settings are synced through.
+        var fileURL: URL? {
+            syncFolderURL.map(SettingsSync.fileURL(inFolder:))
+        }
+    }
+
+    /// Resolves the folder the Macs sync, chosen by the user or iCloud Drive (see
     /// `SettingsSyncLocation`). A stale bookmark, or iCloud Drive used without a choice, is
     /// stored as the choice.
     ///
-    /// The bookmark is resolved without mounting: holzBar never mounts a network share
-    /// itself (and never waits for one on the main thread). A folder on a volume that is
-    /// not mounted is not available until the user mounts it.
-    static var syncFolderURL: URL? {
+    /// Resolving the bookmark reaches the folder's volume, which may be a network share that
+    /// hangs, so it runs on the file queue only, never on the main thread (F-15). The
+    /// bookmark is resolved without mounting: holzBar never mounts a network share itself.
+    /// A folder on a volume that is not mounted is not available until the user mounts it.
+    private nonisolated static func resolveLocation() -> FolderLocation {
         let resolution: SettingsSyncLocation.Resolution
         var resolvedURL: URL?
         if let bookmark = UserDefaults.standard.data(forKey: folderBookmarkKey) {
@@ -183,41 +203,58 @@ final class SettingsSync {
             iCloudDrivePath: iCloudDriveURL?.path(percentEncoded: false)
         )
         guard let folderPath = decision.folderPath else {
-            return nil
+            return FolderLocation(iCloudDriveURL: iCloudDriveURL)
         }
         let url = resolvedURL ?? iCloudDriveURL ?? URL(filePath: folderPath, directoryHint: .isDirectory)
-        if decision.storesBookmark {
-            storeBookmark(of: url)
+        if decision.storesBookmark, let bookmark = makeBookmark(of: url) {
+            UserDefaults.standard.set(bookmark, forKey: folderBookmarkKey)
         }
-        return url
+        return FolderLocation(syncFolderURL: url, iCloudDriveURL: iCloudDriveURL)
     }
 
-    /// Stores the bookmark of the folder the Macs sync.
-    private static func storeBookmark(of folderURL: URL) {
+    /// Resolves the folder the Macs sync on the file queue, off the main thread.
+    @concurrent
+    private nonisolated static func resolvedLocation() async -> FolderLocation {
+        await BlockingWork.run(on: fileQueue) {
+            resolveLocation()
+        }
+    }
+
+    /// The bookmark of the given folder the Macs sync, or `nil` when it cannot be made.
+    /// Runs on the file queue.
+    private nonisolated static func makeBookmark(of folderURL: URL) -> Data? {
         do {
-            let bookmark = try folderURL.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil)
-            UserDefaults.standard.set(bookmark, forKey: folderBookmarkKey)
+            return try folderURL.bookmarkData(options: [], includingResourceValuesForKeys: nil, relativeTo: nil)
         } catch {
             logger.error("Could not store the sync folder: \(error, privacy: .private)")
+            return nil
         }
-    }
-
-    /// The folder in the synced folder that holds the sync file.
-    static var folderURL: URL? {
-        syncFolderURL?.appending(path: SettingsSyncLocation.fileComponents[0], directoryHint: .isDirectory)
-    }
-
-    /// The file the settings are synced through.
-    static var fileURL: URL? {
-        folderURL?.appending(path: SettingsSyncLocation.fileComponents[1])
     }
 
     /// The sync file in the given synced folder.
-    private static func fileURL(inFolder syncFolderURL: URL) -> URL {
+    private nonisolated static func fileURL(inFolder syncFolderURL: URL) -> URL {
         syncFolderURL
             .appending(path: SettingsSyncLocation.fileComponents[0], directoryHint: .isDirectory)
             .appending(path: SettingsSyncLocation.fileComponents[1])
     }
+
+    /// Whether the two URLs name the same file, compared without touching the file system.
+    private nonisolated static func isSameFile(_ lhs: URL?, _ rhs: URL?) -> Bool {
+        lhs?.standardizedFileURL.path(percentEncoded: false) == rhs?.standardizedFileURL.path(percentEncoded: false)
+    }
+
+    /// Where the Macs sync, as last resolved off the main thread
+    /// (``resolveFolder(checksNewFolder:)``), or the folder just joined. The main actor uses
+    /// only this and never resolves the bookmark itself, as the folder may be on a network
+    /// share that hangs (F-15, F-18).
+    @ObservationIgnored private var location = FolderLocation()
+
+    /// Counts the resolutions of the folder; a resolution whose number is no longer current
+    /// was replaced by a newer one or by a join, and is dropped.
+    @ObservationIgnored private var locationGeneration = 0
+
+    /// Whether to check the sync file once the folder that is being resolved is watched.
+    @ObservationIgnored private var checksResolvedFolder = false
 
     /// The name of the synced folder to show, or `nil` when there is none. Updated while
     /// sync is on, when the folder is chosen, when a volume is mounted or unmounted, when the
@@ -226,22 +263,56 @@ final class SettingsSync {
     private(set) var folderDisplayName: String?
 
     /// Updates the name of the synced folder to show while sync is on, as the folder may
-    /// have been moved, renamed or deleted since.
+    /// have been moved, renamed or deleted since. While sync is off, looks up iCloud Drive,
+    /// where the folder panel starts.
     func refreshFolder() {
-        guard isEnabled else {
-            return
+        if isEnabled {
+            resolveFolder(checksNewFolder: false)
+        } else if location.syncFolderURL == nil, location.iCloudDriveURL == nil {
+            Task { [weak self] in
+                let iCloudDriveURL = await BlockingWork.run(on: Self.fileQueue) { Self.iCloudDriveURL }
+                self?.location.iCloudDriveURL = iCloudDriveURL
+            }
         }
-        updateFolderDisplayName()
     }
 
-    /// Updates the name of the synced folder to show.
+    /// Updates the name of the synced folder to show, from the resolved folder.
     private func updateFolderDisplayName() {
-        folderDisplayName = Self.syncFolderURL.map { url in
+        let iCloudDrivePath = location.iCloudDriveURL?.path(percentEncoded: false)
+        folderDisplayName = location.syncFolderURL.map { url in
             SettingsSyncLocation.displayName(
                 forFolder: url.path(percentEncoded: false),
                 homePath: FileManager.default.homeDirectoryForCurrentUser.path(percentEncoded: false),
-                iCloudDrivePath: Self.iCloudDriveURL?.path(percentEncoded: false)
+                iCloudDrivePath: iCloudDrivePath
             )
+        }
+    }
+
+    /// Resolves the synced folder on the file queue, then shows its name and watches it if
+    /// sync is still on. A newer resolution, or a join, replaces one that still runs.
+    ///
+    /// - Parameter checksNewFolder: Whether to check the sync file once a folder is
+    ///   watched that was not before.
+    private func resolveFolder(checksNewFolder: Bool) {
+        checksResolvedFolder = checksResolvedFolder || checksNewFolder
+        locationGeneration += 1
+        let generation = locationGeneration
+        Task { [weak self] in
+            let location = await Self.resolvedLocation()
+            guard let self, generation == locationGeneration, isEnabled else {
+                return
+            }
+            let checksNewFolder = checksResolvedFolder
+            checksResolvedFolder = false
+            self.location = location
+            updateFolderDisplayName()
+            if let presenter, !Self.isSameFile(presenter.presentedItemURL, location.folderURL) {
+                // The folder moved, or its volume was mounted or unmounted.
+                stopWatchingFolder()
+            }
+            if presenter == nil, !isPreparingFolder, let folderURL = location.folderURL {
+                prepareFolder(folderURL, checksAfterwards: checksNewFolder)
+            }
         }
     }
 
@@ -320,8 +391,8 @@ final class SettingsSync {
         isEnabled = Defaults.bool(forKey: .syncsSettingsWithICloud)
         if isEnabled {
             // The launch skipped a file that was not on this Mac and never asks; check
-            // the file once now.
-            syncFileDidChange()
+            // the file once the folder is watched.
+            updateObservers(checksNewFolder: true)
         }
     }
 
@@ -339,6 +410,7 @@ final class SettingsSync {
             checkTask?.cancel()
             checkTask = nil
             pushesAfterCheck = false
+            checksResolvedFolder = false
             stopWatchingFolder()
             return
         }
@@ -364,11 +436,7 @@ final class SettingsSync {
             }
         }
 
-        updateFolderDisplayName()
-
-        if presenter == nil, !isPreparingFolder, let folderURL = Self.folderURL {
-            prepareFolder(folderURL, checksAfterwards: checksNewFolder)
-        }
+        resolveFolder(checksNewFolder: checksNewFolder)
     }
 
     /// The closure the presenter and the folder watcher call when the folder changes.
@@ -395,11 +463,11 @@ final class SettingsSync {
                 return
             }
             isPreparingFolder = false
-            guard isEnabled, presenter == nil, Self.folderURL == folderURL else {
+            guard isEnabled, presenter == nil, Self.isSameFile(location.folderURL, folderURL) else {
                 preparation.watcher?.cancel()
-                if isEnabled, presenter == nil, Self.folderURL != folderURL {
+                if isEnabled, presenter == nil, let currentURL = location.folderURL {
                     // The folder changed meanwhile.
-                    updateObservers(checksNewFolder: checksAfterwards)
+                    prepareFolder(currentURL, checksAfterwards: checksAfterwards)
                 }
                 return
             }
@@ -458,16 +526,13 @@ final class SettingsSync {
         }
     }
 
-    /// Watches the sync folder again when a volume was mounted or unmounted and the folder
-    /// became available, moved or gone.
+    /// Resolves the sync folder again and watches it when a volume was mounted or unmounted
+    /// and the folder became available, moved or gone.
     ///
     /// A folder that has just become available, such as a network share mounted after
     /// launch, may hold newer settings from another Mac, so it is checked once it is
     /// watched.
     private func volumesDidChange() {
-        if presenter?.presentedItemURL != Self.folderURL {
-            stopWatchingFolder()
-        }
         updateObservers(checksNewFolder: true)
     }
 
@@ -500,6 +565,8 @@ final class SettingsSync {
     private struct JoinRequest {
         /// The chosen folder.
         let folderURL: URL
+        /// Its bookmark, made on the file queue.
+        let bookmark: Data
     }
 
     /// Lets the user choose the folder the Macs sync, and turns sync on with it.
@@ -524,12 +591,11 @@ final class SettingsSync {
         panel.allowsMultipleSelection = false
         panel.prompt = String(localized: "Sync Here")
         panel.message = String(localized: "Choose a folder your Macs keep in sync, such as iCloud Drive or a Nextcloud, Dropbox, OneDrive or Syncthing folder. holzBar keeps its settings in a holzBar folder inside it.")
-        panel.directoryURL = Self.syncFolderURL ?? Self.iCloudDriveURL
+        panel.directoryURL = location.syncFolderURL ?? location.iCloudDriveURL
         guard panel.runModal() == .OK, let url = panel.url else {
             return false
         }
         Self.verifyDeviceIdentity()
-        let join = JoinRequest(folderURL: url)
         // A join ignores the previous folder's state: this Mac has not synced with the
         // chosen folder yet.
         guard
@@ -547,10 +613,22 @@ final class SettingsSync {
         }
         isChoosingFolder = true
         Task { [weak self] in
+            guard let bookmark = await Self.bookmark(of: url) else {
+                self?.isChoosingFolder = false
+                return
+            }
             let result = await Self.exchange(request)
-            self?.finishJoin(join, request: request, result: result)
+            self?.finishJoin(JoinRequest(folderURL: url, bookmark: bookmark), request: request, result: result)
         }
         return true
+    }
+
+    /// Makes the bookmark of the chosen folder on the file queue, off the main thread.
+    @concurrent
+    private nonisolated static func bookmark(of folderURL: URL) async -> Data? {
+        await BlockingWork.run(on: fileQueue) {
+            makeBookmark(of: folderURL)
+        }
     }
 
     /// Stores the chosen folder, or asks which settings to use first.
@@ -595,8 +673,12 @@ final class SettingsSync {
     /// previous folder's state.
     private func commitJoin(_ join: JoinRequest) {
         stopWatchingFolder()
-        Self.storeBookmark(of: join.folderURL)
         let defaults = UserDefaults.standard
+        defaults.set(join.bookmark, forKey: Self.folderBookmarkKey)
+        // Used at once; the resolution that follows replaces one that still runs for the
+        // previous folder.
+        location.syncFolderURL = join.folderURL
+        updateFolderDisplayName()
         defaults.removeObject(forKey: Self.lastSyncedKey)
         defaults.removeObject(forKey: Self.baseKey)
         defaults.removeObject(forKey: Self.pendingKey)
@@ -613,7 +695,8 @@ final class SettingsSync {
 
     /// Checks the sync file shortly after it changed, once for a burst of changes.
     private func syncFileDidChange() {
-        updateFolderDisplayName()
+        // The folder may have been moved or renamed.
+        resolveFolder(checksNewFolder: false)
         checkTask?.cancel()
         checkTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(2))
@@ -813,9 +896,10 @@ final class SettingsSync {
             queuedExchanges.insert(kind)
             return
         }
-        guard let fileURL = Self.fileURL else {
+        guard let fileURL = location.fileURL else {
             Self.logger.warning("No sync folder, not syncing settings")
-            updateFolderDisplayName()
+            // Check once the folder is found again; the check pushes what was missed.
+            resolveFolder(checksNewFolder: true)
             return
         }
         let defaults = UserDefaults.standard
@@ -857,7 +941,7 @@ final class SettingsSync {
     /// Acts on the result of an exchange while holzBar runs.
     private func handle(_ result: ExchangeResult, of request: ExchangeRequest) {
         // Sync was turned off or the folder changed while the exchange ran.
-        guard isEnabled, request.fileURL == Self.fileURL else {
+        guard isEnabled, Self.isSameFile(request.fileURL, location.fileURL) else {
             return
         }
         Self.log(result.problem)
@@ -1059,31 +1143,43 @@ final class SettingsSync {
 
     // MARK: Launch
 
-    /// Reads the sync file for the launch, waiting at most ``launchReadTimeout``.
+    /// What reading the sync file for the launch gave.
+    private nonisolated enum LaunchRead: Sendable {
+        /// There is no sync folder now.
+        case noFolder
+        /// The file was not read in time, or is not on this Mac.
+        case notRead
+        /// The file was read.
+        case read(SettingsSyncFile.ReadResult)
+    }
+
+    /// Finds and reads the sync file for the launch, waiting at most ``launchReadTimeout``.
     ///
-    /// The read runs on the file queue. A file whose contents are not on this Mac (an
-    /// online-only file) is not read at all, so the launch never waits for a download;
-    /// a read that takes longer, as on a stalled network volume or with a file provider
-    /// that hangs, is cancelled.
-    ///
-    /// - Returns: What reading gave, or `nil` when the file was not read.
-    private nonisolated static func readForLaunch(at fileURL: URL) -> SettingsSyncFile.ReadResult? {
+    /// Everything runs on the file queue, resolving the folder's bookmark included, so the
+    /// bound covers a stalled network volume too. A file whose contents are not on this Mac
+    /// (an online-only file) is not read at all, so the launch never waits for a download;
+    /// a read that takes longer, as with a file provider that hangs, is cancelled.
+    private nonisolated static func readForLaunch() -> LaunchRead {
         let coordinator = LaunchCoordinator()
-        let result = OSAllocatedUnfairLock<SettingsSyncFile.ReadResult?>(initialState: nil)
+        let result = OSAllocatedUnfairLock(initialState: LaunchRead.notRead)
         let done = DispatchSemaphore(value: 0)
         fileQueue.async {
             defer {
                 done.signal()
             }
+            guard let fileURL = resolveLocation().fileURL else {
+                result.withLock { $0 = .noFolder }
+                return
+            }
             guard isLocal(fileURL) else {
                 return
             }
             let read = readFileContents(at: fileURL, coordinator: coordinator.coordinator)
-            result.withLock { $0 = read }
+            result.withLock { $0 = .read(read) }
         }
         guard done.wait(timeout: .now() + launchReadTimeout) == .success else {
             coordinator.coordinator.cancel()
-            return nil
+            return .notRead
         }
         return result.withLock { $0 }
     }
@@ -1110,7 +1206,7 @@ final class SettingsSync {
     ///
     /// It waits for the file on the main thread, because nothing may read the settings
     /// before they are applied, but at most a second, and not at all for a file that is
-    /// not on this Mac; the check after setup reads it then (``readForLaunch(at:)``). It
+    /// not on this Mac; the check after setup reads it then (``readForLaunch()``). It
     /// never writes the file and never asks: when both Macs changed their settings, the
     /// version is remembered and the check after setup asks.
     static func pullIfNeeded() {
@@ -1118,12 +1214,15 @@ final class SettingsSync {
             return
         }
         verifyDeviceIdentity()
-        guard let fileURL else {
+        let read: SettingsSyncFile.ReadResult
+        switch readForLaunch() {
+        case .noFolder:
             return
-        }
-        guard let read = readForLaunch(at: fileURL) else {
+        case .notRead:
             logger.info("The sync file is not on this Mac yet; checking it after launch")
             return
+        case .read(let result):
+            read = result
         }
         let defaults = UserDefaults.standard
         let settings = syncedSettings()
