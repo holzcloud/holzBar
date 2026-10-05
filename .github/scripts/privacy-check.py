@@ -5,9 +5,9 @@
 # Proves two of holzBar's privacy promises (see CLAUDE.md, "Private") on the
 # source tree:
 #
-#   network  No networking API appears in holzBar/, Shared/, MenuBarItemService/
-#            or Package.swift (except the lines .github/network-allowlist.txt
-#            allows), no Package.swift depends on a package, and every Swift
+#   network  No networking API appears in holzBar/, Shared/ or Package.swift
+#            (except the lines .github/network-allowlist.txt allows), no
+#            Package.swift depends on a package, and every Swift
 #            package the Xcode project references or Package.resolved pins is
 #            listed in .github/allowed-packages.txt.
 #   logs     Every interpolation in a Logger call names its privacy, and no
@@ -31,7 +31,7 @@ import re
 import string
 import sys
 
-SOURCE_DIRS = ("holzBar", "Shared", "MenuBarItemService")
+SOURCE_DIRS = ("holzBar", "Shared")
 NETWORK_ALLOWLIST = ".github/network-allowlist.txt"
 ALLOWED_PACKAGES = ".github/allowed-packages.txt"
 PACKAGE_RESOLVED = "holzBar.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"

@@ -74,10 +74,6 @@ jobs:
       # secrets into a temporary keychain only now, after the build, so no build script can
       # reach the key, and the keychain is deleted right after. Without the secrets the
       # release stays signed ad hoc, with a warning.
-      #
-      # The XPC service keeps working: a self-signed certificate carries no Apple team, so
-      # the service pins the exact code of the app it is embedded in (signing identifier
-      # and cdhashes, read at launch; MenuBarItemService/Listener.swift), as for ad hoc code.
       - name: Sign with holzBar's certificate
         env:
           SIGNING_CERTIFICATE_P12: ${{ secrets.SIGNING_CERTIFICATE_P12 }}
@@ -109,33 +105,26 @@ jobs:
             echo "::error::SIGNING_CERTIFICATE_P12 holds no code signing identity (a code signing certificate with its private key)."
             exit 1
           fi
-          # Inside out, without --deep (Apple's guidance): the embedded code first, deepest
-          # first, then the app. The identifier, the hardened runtime and the (empty)
-          # entitlements of the ad hoc build are kept; the designated requirement is made
-          # anew from the certificate. No timestamp: that would ask Apple's timestamp
-          # server, which serves Developer ID signatures.
-          sign() {
-            codesign --force --sign "$IDENTITY" --keychain "$KEYCHAIN" \
-              --options runtime --timestamp=none \
-              --preserve-metadata=identifier,entitlements,flags,runtime "$1"
-          }
-          while IFS= read -r -d '' NESTED; do
-            sign "$NESTED"
-          done < <(find "$APP/Contents" -depth \( -name '*.xpc' -o -name '*.appex' -o -name '*.framework' -o -name '*.app' -o -name '*.dylib' \) -print0)
-          sign "$APP"
+          # Without --deep (Apple's guidance): holzBar ships no nested code, so the app is
+          # the only code to sign (the build workflow checks the bundle). The identifier and
+          # the hardened runtime of the ad hoc build are kept; no entitlements are carried
+          # over, and the designated requirement is made anew from the certificate. No
+          # timestamp: that would ask Apple's timestamp server, which serves Developer ID
+          # signatures.
+          codesign --force --sign "$IDENTITY" --keychain "$KEYCHAIN" \
+            --options runtime --timestamp=none \
+            --preserve-metadata=identifier,flags,runtime "$APP"
 
           codesign --verify --deep --strict "$APP"
-          for BUNDLE in "$APP" "$APP/Contents/XPCServices/MenuBarItemService.xpc"; do
-            DETAILS=$(codesign -dv "$BUNDLE" 2>&1)
-            if ! grep -qE '^CodeDirectory.*flags=0x[0-9a-f]+\([^)]*runtime' <<< "$DETAILS"; then
-              echo "::error::$(basename "$BUNDLE") lost the hardened runtime while signing"
-              exit 1
-            fi
-            if grep -q 'Signature=adhoc' <<< "$DETAILS"; then
-              echo "::error::$(basename "$BUNDLE") is still signed ad hoc"
-              exit 1
-            fi
-          done
+          DETAILS=$(codesign -dv "$APP" 2>&1)
+          if ! grep -qE '^CodeDirectory.*flags=0x[0-9a-f]+\([^)]*runtime' <<< "$DETAILS"; then
+            echo "::error::holzBar.app lost the hardened runtime while signing"
+            exit 1
+          fi
+          if grep -q 'Signature=adhoc' <<< "$DETAILS"; then
+            echo "::error::holzBar.app is still signed ad hoc"
+            exit 1
+          fi
           echo "==> Designated requirement"
           codesign -d -r- "$APP" 2>&1 | sed -n 's/^designated => /    /p'
           # The certificate's SHA-256, which users can compare (docs/signing.md).
