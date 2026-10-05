@@ -150,8 +150,10 @@ extension MenuBarItemManager {
             return
         }
         guard !isReconcilingSections else {
-            // A profile or a restore outranks placing new items.
-            if wanted != nil || trigger.restoresSavedSections || pendingReconciliation == nil {
+            // A profile outranks a restore, and a restore outranks placing new items. Only a
+            // later profile replaces a pending one, which is otherwise never applied.
+            let pendingProfile = pendingReconciliation?.wanted != nil
+            if wanted != nil || (!pendingProfile && (trigger.restoresSavedSections || pendingReconciliation == nil)) {
                 pendingReconciliation = (wanted, trigger)
             }
             return
