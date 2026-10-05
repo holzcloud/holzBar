@@ -153,7 +153,18 @@ final class MenuBarSection {
 
     /// Shows the section.
     func show() {
-        guard let menuBarManager, isHidden else {
+        guard let menuBarManager else {
+            return
+        }
+
+        // Shown another way, the hidden section no longer hides after a moment, also
+        // when it is already shown. Showing the always-hidden section, which an item
+        // change does briefly, leaves the hidden section's timer running.
+        if name != .alwaysHidden {
+            menuBarManager.temporaryShowTask?.cancel()
+        }
+
+        guard isHidden else {
             return
         }
 
@@ -162,9 +173,6 @@ final class MenuBarSection {
             // TODO: Can we use isEnabled for this check?
             return
         }
-
-        // Shown another way, the section no longer hides after a moment.
-        menuBarManager.temporaryShowTask?.cancel()
 
         if useShelf {
             // Make sure hidden and always-hidden control items are collapsed.
@@ -220,7 +228,11 @@ final class MenuBarSection {
             return
         }
 
-        menuBarManager.temporaryShowTask?.cancel()
+        // Hiding the always-hidden section alone can leave the hidden section shown, so
+        // its timer keeps running.
+        if name != .alwaysHidden {
+            menuBarManager.temporaryShowTask?.cancel()
+        }
         menuBarManager.shelfPanel.close() // Make sure the holzBar Shelf is always closed.
         menuBarManager.showOnHoverAllowed = true
 
