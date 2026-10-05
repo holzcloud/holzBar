@@ -483,7 +483,9 @@ extension MenuBarItemManager {
 
             if let appState, let cache = backend.cacheFromLayout(items: items, displayID: displayID, appState: appState) {
                 // On macOS 27 the saved layout, not the order on the bar, places items in sections
-                // (see `AccessibilityBackend27`).
+                // (see `AccessibilityBackend27`). The items are keyed together, so several
+                // items of one app keep apart (`ItemIdentity`); titles are not learned here.
+                identityKeysByWindow = identityKeys(for: items)
                 if itemCache != cache {
                     itemCache = cache
                     logger.info(
