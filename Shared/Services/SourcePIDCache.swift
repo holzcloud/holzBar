@@ -42,6 +42,11 @@ nonisolated final class SourcePIDCache: Sendable {
             extrasMenuBar != nil
         }
 
+        /// A Boolean value indicating whether the app has finished launching.
+        var isFinishedLaunching: Bool {
+            runningApp.isFinishedLaunching
+        }
+
         /// A Boolean value indicating whether the app is in a valid
         /// state for making accessibility calls.
         var isValidForAccessibility: Bool {
@@ -80,15 +85,26 @@ nonisolated final class SourcePIDCache: Sendable {
         }
     }
 
+    /// A scan that did not find a window's source process.
+    nonisolated private struct FailedLookup {
+        /// When the scan failed.
+        let failedAt: ContinuousClock.Instant
+        /// The apps the scan skipped because they had not finished launching. One of
+        /// them may own the window once it has, which does not change the running
+        /// applications.
+        let launchingApps: [CachedApplication]
+    }
+
     /// State for the cache.
     nonisolated private struct State {
         var apps = [CachedApplication]()
         var pids = [CGWindowID: pid_t]()
-        /// Windows whose source process was not found, with when the scan failed. A miss is
-        /// not scanned again for ``SourcePIDCache/failedLookupInterval``: every scan asks every
-        /// running app through Accessibility (jordanbaird/Ice#911). Starts empty whenever
-        /// the running applications change, as a new app may own the window.
-        var failedLookups = [CGWindowID: ContinuousClock.Instant]()
+        /// Windows whose source process was not found by a scan. A miss is not scanned
+        /// again for ``SourcePIDCache/failedLookupInterval``, or until an app the scan
+        /// skipped has finished launching: every scan asks every running app through
+        /// Accessibility (jordanbaird/Ice#911). Starts empty whenever the running
+        /// applications change, as a new app may own the window.
+        var failedLookups = [CGWindowID: FailedLookup]()
         /// Observer for running applications.
         var observation: NSKeyValueObservation?
 
@@ -135,18 +151,26 @@ nonisolated final class SourcePIDCache: Sendable {
         }
 
         /// Updates the cached process identifier for the given window.
-        mutating func updatePID(for window: WindowInfo) {
+        ///
+        /// - Returns: The apps the scan skipped because they had not finished
+        ///   launching, or `nil` if no scan ran.
+        mutating func updatePID(for window: WindowInfo) -> [CachedApplication]? {
             guard
                 AXHelpers.isProcessTrusted(),
                 let windowBounds = stableBounds(for: window)
             else {
-                return
+                return nil
             }
 
             partitionApps()
 
+            var launchingApps = [CachedApplication]()
+
             for app in apps {
                 guard let bar = app.getOrCreateExtrasMenuBar() else {
+                    if !app.isFinishedLaunching {
+                        launchingApps.append(app)
+                    }
                     continue
                 }
                 for child in AXHelpers.children(for: bar) {
@@ -160,9 +184,11 @@ nonisolated final class SourcePIDCache: Sendable {
                         continue
                     }
                     pids[window.windowID] = app.processIdentifier
-                    return
+                    return launchingApps
                 }
             }
+
+            return launchingApps
         }
     }
 
@@ -242,12 +268,20 @@ nonisolated final class SourcePIDCache: Sendable {
                 return pid
             }
             let now = ContinuousClock.now
-            if let failedAt = state.failedLookups[window.windowID], failedAt.duration(to: now) < Self.failedLookupInterval {
+            if
+                let failure = state.failedLookups[window.windowID],
+                failure.failedAt.duration(to: now) < Self.failedLookupInterval,
+                !failure.launchingApps.contains(where: \.isFinishedLaunching)
+            {
                 return nil
             }
-            state.updatePID(for: window)
+            // Only a scan that ran records a miss; one that could not run (no
+            // permission, bounds still changing) is retried on the next lookup.
+            guard let launchingApps = state.updatePID(for: window) else {
+                return nil
+            }
             guard let pid = state.pids[window.windowID] else {
-                state.failedLookups[window.windowID] = now
+                state.failedLookups[window.windowID] = FailedLookup(failedAt: now, launchingApps: launchingApps)
                 return nil
             }
             state.failedLookups[window.windowID] = nil
