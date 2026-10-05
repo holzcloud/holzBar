@@ -37,6 +37,12 @@ final class ItemImageStore27 {
     /// could store a tile cut while the bar was re-laying out.
     private static let storeVersion = "9"
 
+    /// What `version.txt` holds: the version, and the appearance the glyphs are tinted for,
+    /// so glyphs kept from a session in the other appearance are not loaded.
+    private static func versionStamp(dark: Bool) -> String {
+        "\(storeVersion)-\(dark ? "dark" : "light")"
+    }
+
     /// The margin left on each side of a glyph, in points, so items are spaced evenly and
     /// with the menu bar's own rhythm: its glyphs sit 18 to 29 points apart, median 22
     /// (measured on macOS 27.0), which is twice this margin.
@@ -96,8 +102,10 @@ final class ItemImageStore27 {
                 self?.appearanceDidChange()
             }
         }
+        // Glyphs stored in another version, or tinted in a session in the other appearance,
+        // are dropped: a concealed item is not photographed again while it has an image.
         let versionFile = directory.appending(path: "version.txt")
-        guard (try? String(contentsOf: versionFile, encoding: .utf8)) == Self.storeVersion else {
+        guard (try? String(contentsOf: versionFile, encoding: .utf8)) == Self.versionStamp(dark: glyphsAreDark) else {
             try? FileManager.default.removeItem(at: directory)
             return
         }
@@ -502,7 +510,7 @@ final class ItemImageStore27 {
             return
         }
         let directory = directory
-        let version = Self.storeVersion
+        let version = Self.versionStamp(dark: glyphsAreDark)
         performFileOperation {
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             try? data.write(to: directory.appending(path: "index.json"), options: .atomic)
