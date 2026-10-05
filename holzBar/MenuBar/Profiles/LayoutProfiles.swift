@@ -18,6 +18,12 @@ struct LayoutProfile: Codable, Hashable, Identifiable {
     /// The section of each application, keyed by bundle identifier (macOS 27).
     var applicationSections: [String: Int]
 
+    /// The applications holzBar knew when the profile was saved on macOS 27, keyed by bundle
+    /// identifier. Visible applications are missing from `applicationSections`, so a known
+    /// one missing there is visible. Optional, so profiles saved before macOS 27, or before
+    /// this was recorded, decode unchanged.
+    var knownApplications: [String]?
+
     /// The UUID of the display whose connection applies the profile. Optional, so
     /// profiles saved before bindings existed decode unchanged.
     var displayUUID: String?
@@ -111,19 +117,31 @@ final class LayoutProfiles {
         let itemManager = appState.itemManager
         let cache = itemManager.itemCache
         var itemSections = [String: Int]()
+        var itemApplications = Set<String>()
         for section in MenuBarSection.Name.allCases {
             for item in cache[section] where !item.isControlItem {
                 // Stored under the item's identity, which survives a changing title.
                 itemSections[itemManager.identityKey(for: item)] = section.profileIndex
+                if let bundleID = item.sourceApplication?.bundleIdentifier {
+                    itemApplications.insert(bundleID)
+                }
             }
         }
         let applicationSections = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
+        // The layout leaves visible applications out, so the profile records which ones it
+        // knew; applying it makes those visible unless it has them in another section.
+        var knownApplications: [String]?
+        if #available(macOS 27.0, *) {
+            let known = Defaults.array(forKey: .knownApplications27) as? [String] ?? []
+            knownApplications = itemApplications.union(known).union(applicationSections.keys).sorted()
+        }
         // A profile saved again under its name keeps its bindings.
         let previous = profiles.first { $0.name == name }
         let profile = LayoutProfile(
             name: name,
             itemSections: itemSections,
             applicationSections: applicationSections,
+            knownApplications: knownApplications,
             displayUUID: previous?.displayUUID,
             spaceUUID: previous?.spaceUUID
         )
@@ -146,12 +164,14 @@ final class LayoutProfiles {
         appState?.settings.hotkeys.removeHotkey(for: .applyProfile(name))
     }
 
-    /// The profile with the given name, matched without regard to case.
+    /// The profile with the given name. An exact match wins, since names may differ only in
+    /// case; without one, the name is matched without regard to case.
     func profile(named name: String) -> LayoutProfile? {
-        profiles.first { $0.name.caseInsensitiveCompare(name) == .orderedSame }
+        profiles.first { $0.name == name }
+            ?? profiles.first { $0.name.caseInsensitiveCompare(name) == .orderedSame }
     }
 
-    /// Applies the profile with the given name, matched without regard to case.
+    /// Applies the profile with the given name, matched as in ``profile(named:)``.
     func apply(named name: String) {
         guard let profile = self.profile(named: name) else {
             logger.warning("No layout profile named \(name, privacy: .private)")
@@ -169,7 +189,19 @@ final class LayoutProfiles {
         save()
         logger.notice("Applying layout profile \(profile.name, privacy: .private)")
         if #available(macOS 27.0, *) {
-            Defaults.set(profile.applicationSections, forKey: .macOS27Layout)
+            // Merged into the saved layout, so applications the profile does not know keep
+            // their section. A profile saved before macOS 27 knows none and changes nothing.
+            if profile.knownApplications == nil, profile.applicationSections.isEmpty {
+                logger.notice("Layout profile \(profile.name, privacy: .private) has no macOS 27 layout, so the current one stays")
+            } else {
+                let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
+                let layout = SectionLayout27.applyingProfile(
+                    profile.applicationSections.compactMapValues(MacOS27Section.init(rawValue:)),
+                    knownApplications: profile.knownApplications.map(Set.init),
+                    to: stored.compactMapValues(MacOS27Section.init(rawValue:))
+                )
+                Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
+            }
             appState.concealer27.update()
             Task {
                 await appState.itemManager.cacheItemsRegardless()
