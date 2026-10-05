@@ -217,6 +217,9 @@ final class ItemImageStore27 {
         let displayBounds = CGDisplayBounds(displayID)
         let reservedHeight = screen.frame.maxY - screen.visibleFrame.maxY
         let barHeight: CGFloat
+        // The frame of the window server's menu bar window, where only that window tells that
+        // the bar is on screen.
+        var menuBarWindowFrame: CGRect?
         if appState.activeSpace.isFullscreen || appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults || reservedHeight <= 0 {
             // On a fullscreen space or with the bar hidden automatically, the strip shows the
             // window underneath unless the bar is revealed, which only the window server's menu
@@ -226,6 +229,7 @@ final class ItemImageStore27 {
                 return
             }
             barHeight = menuBarWindow.bounds.height
+            menuBarWindowFrame = menuBarWindow.bounds
         } else {
             barHeight = max(reservedHeight, 22)
         }
@@ -244,6 +248,12 @@ final class ItemImageStore27 {
         // The images were discarded while this capture was under way, for an appearance switch:
         // its glyphs would be stored in the colour of the appearance before it.
         guard generation == imageGeneration else {
+            return
+        }
+        // A revealed bar can slide away while the capture is taken, which lasts a quarter of
+        // a second, and the item frames stay put meanwhile: only the bar's window tells.
+        if let menuBarWindowFrame, WindowInfo.menuBarWindow(for: displayID)?.bounds != menuBarWindowFrame {
+            logger.debug("Menu bar capture: the bar left the screen during the capture")
             return
         }
         var skipped = 0
