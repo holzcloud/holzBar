@@ -32,6 +32,10 @@ final class LayoutBarItemView: NSView {
     /// A Boolean value that indicates whether the item view is currently inside a container.
     var hasContainer = false
 
+    /// The container the view is dragged from, which stops setting its arranged views
+    /// until the dragging session ends.
+    private weak var dragSourceContainer: LayoutBarContainer?
+
     /// The image displayed inside the view: the item's chosen image, its picture or its
     /// app's icon (`ItemIconStore`).
     private var displayImage: NSImage? {
@@ -495,6 +499,7 @@ extension LayoutBarItemView: NSDraggingSource {
         // aren't arranged during a dragging session
         if let container = superview as? LayoutBarContainer {
             container.canSetArrangedViews = false
+            dragSourceContainer = container
         }
 
         // prevent the dragging image from animating back to its original location
@@ -510,10 +515,20 @@ extension LayoutBarItemView: NSDraggingSource {
     }
 
     func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
+        let sourceContainer = dragSourceContainer
+        let isDroppedOutside = !hasContainer
         defer {
             // always remove container info at the end of a session
             oldContainerInfo = nil
             appState?.profiles.isLayoutDragInProgress = false
+            // The source row follows the item cache again: after a drop the move's cache
+            // change updates it, and after a drop outside every row it catches up now with
+            // what changed during the drag.
+            dragSourceContainer = nil
+            sourceContainer?.canSetArrangedViews = true
+            if isDroppedOutside, let appState, let sourceContainer {
+                sourceContainer.setArrangedViews(items: appState.itemManager.itemCache[sourceContainer.section])
+            }
         }
 
         // since the session's `animatesToStartingPositionsOnCancelOrFail` property was
