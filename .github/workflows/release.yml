@@ -104,11 +104,14 @@ jobs:
           ditto -c -k --keepParent build/Build/Products/Release/holzBar.app build/holzBar-adhoc.zip
           echo "adhoc-sha256=$(shasum -a 256 build/holzBar-adhoc.zip | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
 
+      # Kept as long as the signed zip, so "Re-run failed jobs" can re-run the sign job for
+      # a week. "Re-run all jobs" cannot help once publish ran: a rebuild makes a new zip,
+      # and publish never replaces a published one.
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: holzBar-adhoc
           path: build/holzBar-adhoc.zip
-          retention-days: 1
+          retention-days: 7
           if-no-files-found: error
 
   # Signs with holzBar's own self-signed certificate (docs/signing.md), so every release
@@ -416,7 +419,7 @@ jobs:
             DIGEST=$(gh release view "$TAG" --json assets --jq '.assets[] | select(.name == env.ZIP) | .digest')
             if [ -n "$DIGEST" ]; then
               if [ "$DIGEST" != "sha256:$SHA256" ]; then
-                echo "::error::Release $TAG already carries a different $ZIP ($DIGEST). A published zip is never replaced."
+                echo "::error::Release $TAG already carries a different $ZIP ($DIGEST). A published zip is never replaced: use \"Re-run failed jobs\", never \"Re-run all jobs\", or release a new tag."
                 exit 1
               fi
             else
