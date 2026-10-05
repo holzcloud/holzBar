@@ -128,7 +128,8 @@ extension MenuBarItemManager {
     /// path that restores sections.
     ///
     /// Nothing happens while the user drags an item, while the Mac is not in use, while a
-    /// save of the user's arrangement is pending, or while the items wait to be rehidden;
+    /// save of the user's arrangement is pending, or while the items wait to be rehidden,
+    /// and a running restore stops once the user drags an item or such a save is pending;
     /// a call during another reconciliation runs once that one ends. The moves are
     /// automatic, so `MoveBackoff` can pause them.
     ///
@@ -207,7 +208,7 @@ extension MenuBarItemManager {
 
         let keepsLiveActivitiesVisible = appState.settings.advanced.keepLiveActivitiesVisible
         if keepsLiveActivitiesVisible {
-            await keepLiveActivitiesVisible(items, controlItems: controlItems)
+            await keepLiveActivitiesVisible(items, controlItems: controlItems, wanted: wanted, appState: appState)
         }
 
         let keys = identityKeys(for: items)
@@ -254,6 +255,10 @@ extension MenuBarItemManager {
 
         var placedSections = [String: MenuBarSection.Name]()
         for move in moves {
+            if yieldsToUser(wanted: wanted, appState: appState) {
+                Self.restoreLogger.debug("The user arranges the items, so not moving the remaining items into their sections")
+                break
+            }
             let destination: MoveDestination = switch move.section {
             case .visible: .rightOfItem(controlItems.hidden)
             case .hidden: .leftOfItem(controlItems.hidden)
@@ -293,6 +298,12 @@ extension MenuBarItemManager {
         storeSections(placedSections)
     }
 
+    /// Whether a restore stops moving items because the user arranges them: an item is being
+    /// dragged, or a save of the user's arrangement is pending. A profile is applied regardless.
+    private func yieldsToUser(wanted: [String: MenuBarSection.Name]?, appState: AppState) -> Bool {
+        wanted == nil && (appState.isDraggingMenuBarItem || needsSectionSave)
+    }
+
     /// The section an item is in, from its position relative to the control items.
     private func section(of item: MenuBarItem, controlItems: ControlItemPair) -> MenuBarSection.Name {
         let bounds = Bridging.getWindowBounds(for: item.windowID) ?? item.bounds
@@ -314,8 +325,16 @@ extension MenuBarItemManager {
     ///
     /// A Live Activity appears as a new item at the far left of the bar, which
     /// is a hidden section, so without this it is only seen by showing that section.
-    private func keepLiveActivitiesVisible(_ items: [MenuBarItem], controlItems: ControlItemPair) async {
+    private func keepLiveActivitiesVisible(
+        _ items: [MenuBarItem],
+        controlItems: ControlItemPair,
+        wanted: [String: MenuBarSection.Name]?,
+        appState: AppState
+    ) async {
         for item in items where item.isMovable && !item.isControlItem {
+            if yieldsToUser(wanted: wanted, appState: appState) {
+                return
+            }
             let isHidden = item.bounds.maxX <= controlItems.hidden.bounds.minX
             guard isHidden else {
                 continue
