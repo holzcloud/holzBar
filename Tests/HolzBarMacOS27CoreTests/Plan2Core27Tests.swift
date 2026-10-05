@@ -733,6 +733,37 @@ struct SplitShape27Tests {
             drawnFramesOnDisplay: []
         ) == 1400)
     }
+
+    @Test("Without the inset the trailing half starts 7 points left of the edge")
+    func trailingBoundsWithoutInset() {
+        let rect = CGRect(x: 0, y: 0, width: 1920, height: 24)
+        #expect(SplitShape27.trailingBounds(edge: 1400, in: rect, isInset: false, insetAmount: 5)
+            == CGRect(x: 1393, y: 0, width: 527, height: 24))
+    }
+
+    @Test("With the inset the amount comes off for a round and a square trailing end cap")
+    func trailingBoundsWithInset() {
+        // A round trailing end cap narrows the rectangle by the inset; a square one does not.
+        let round = CGRect(x: 0, y: 5, width: 1915, height: 14)
+        let square = CGRect(x: 0, y: 5, width: 1920, height: 14)
+        #expect(SplitShape27.trailingBounds(edge: 1400, in: round, isInset: true, insetAmount: 5)
+            == CGRect(x: 1399, y: 5, width: 516, height: 14))
+        #expect(SplitShape27.trailingBounds(edge: 1400, in: square, isInset: true, insetAmount: 5)
+            == CGRect(x: 1399, y: 5, width: 521, height: 14))
+    }
+
+    @Test("A trailing half that does not fit falls back to the full shape")
+    func trailingBoundsThatDoNotFit() {
+        let rect = CGRect(x: 0, y: 0, width: 1920, height: 24)
+        let round = CGRect(x: 0, y: 5, width: 1915, height: 14)
+        // At the display's right edge, with and without the inset.
+        #expect(SplitShape27.trailingBounds(edge: 1920, in: round, isInset: true, insetAmount: 5) == .zero)
+        #expect(SplitShape27.trailingBounds(edge: 1920, in: rect, isInset: false, insetAmount: 5) == .zero)
+        // Narrower than it is high.
+        #expect(SplitShape27.trailingBounds(edge: 1905, in: rect, isInset: false, insetAmount: 5) == .zero)
+        // Left of the shape's rectangle.
+        #expect(SplitShape27.trailingBounds(edge: 3, in: rect, isInset: false, insetAmount: 5) == .zero)
+    }
 }
 
 @Suite("Settled item frames")

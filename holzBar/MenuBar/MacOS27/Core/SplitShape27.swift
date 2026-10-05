@@ -36,4 +36,22 @@ nonisolated enum SplitShape27 {
             drawnFramesOnDisplay: drawnFramesOnDisplay
         )
     }
+
+    /// The bounds of the trailing half in the shape's rectangle, or `.zero`, which draws the
+    /// full shape, when the half does not fit between the edge and the rectangle's right end.
+    ///
+    /// `edge` is `leftEdge` in the rectangle's x (minus the screen's minX), and `rect` is the
+    /// shape's rectangle after the inset. A round trailing end cap moves `rect.maxX` with the
+    /// inset but not the edge, so with the inset it comes off for either cap; without it the
+    /// half starts 7 points left of the edge. The window-width path before macOS 27 lands on
+    /// the same positions.
+    static func trailingBounds(edge: CGFloat, in rect: CGRect, isInset: Bool, insetAmount: CGFloat) -> CGRect {
+        let minX = isInset ? edge + 4 - insetAmount : edge - 7
+        // A half narrower than it is high cannot hold its end caps, and one that starts left of
+        // the rectangle would leave it.
+        guard minX >= rect.minX, minX < rect.maxX - rect.height else {
+            return .zero
+        }
+        return CGRect(x: minX, y: rect.minY, width: rect.maxX - minX, height: rect.height)
+    }
 }
