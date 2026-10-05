@@ -131,9 +131,19 @@ final class SettingsSync {
     }
 
     /// The name of the synced folder to show, or `nil` when there is none. Updated while
-    /// sync is on, when the folder is chosen and when a volume is mounted or unmounted, never
-    /// in a view body.
+    /// sync is on, when the folder is chosen, when a volume is mounted or unmounted, when the
+    /// folder changes and when the settings show it (``refreshFolder()``), never in a view
+    /// body.
     private(set) var folderDisplayName: String?
+
+    /// Updates the name of the synced folder to show while sync is on, as the folder may
+    /// have been moved, renamed or deleted since.
+    func refreshFolder() {
+        guard isEnabled else {
+            return
+        }
+        updateFolderDisplayName()
+    }
 
     /// Updates the name of the synced folder to show.
     private func updateFolderDisplayName() {
@@ -314,6 +324,7 @@ final class SettingsSync {
 
     /// Checks the sync file shortly after it changed, once for a burst of changes.
     private func syncFileDidChange() {
+        updateFolderDisplayName()
         checkTask?.cancel()
         checkTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(2))
@@ -357,6 +368,7 @@ final class SettingsSync {
         }
         guard let fileURL = Self.fileURL else {
             Self.logger.warning("No sync folder, not syncing settings")
+            updateFolderDisplayName()
             return
         }
         let settings = SettingsBackup.currentSettings().filter { !Self.localKeys.contains($0.key) }
