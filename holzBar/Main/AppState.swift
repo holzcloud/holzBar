@@ -213,6 +213,20 @@ final class AppState {
         }
     }
 
+    /// Opens the permissions window instead of Settings while permissions are missing: the
+    /// setup, which loads the stored settings and registers the hotkeys, has not run then,
+    /// so Settings would show the defaults and write them.
+    ///
+    /// - Returns: Whether the permissions window opens instead.
+    func openPermissionsWindowIfNeeded() -> Bool {
+        guard permissions.permissionsState == .missing else {
+            return false
+        }
+        activate(for: .permissions)
+        openWindow(.permissions)
+        return true
+    }
+
     /// Configures the internal observers for the app state.
     private func configureObservers() {
         // Brings holzBar up to date once the bar has settled after the Mac was not in use.

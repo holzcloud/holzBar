@@ -124,6 +124,9 @@ enum URLCommands {
         case .search:
             manager.searchPanel.toggle()
         case .settings:
+            guard !appState.openPermissionsWindowIfNeeded() else {
+                return
+            }
             appState.activate(for: .settings)
             appState.openWindow(.settings)
         case .toggleApplicationMenus:

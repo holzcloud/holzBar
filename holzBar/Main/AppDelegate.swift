@@ -159,11 +159,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: Other Methods
 
-    /// Opens the settings window and activates the app.
+    /// Opens the settings window and activates the app, or the permissions window while
+    /// permissions are missing.
     @objc func openSettingsWindow() {
         // Delay makes this more reliable for some reason.
         Task { [appState] in
             try? await Task.sleep(for: .milliseconds(100))
+            guard !appState.openPermissionsWindowIfNeeded() else {
+                return
+            }
             appState.activate(for: .settings)
             appState.openWindow(.settings)
         }
