@@ -55,8 +55,9 @@ final class Concealer27 {
     /// changes, an application launches or quits, or what the sections conceal changes.
     @ObservationIgnored private var notchConcealed = Set<String>()
 
-    /// The reveal state and the sections' concealed sets `notchConcealed` was worked out for.
-    @ObservationIgnored private var notchCoverBasis: (state: RevealState27, sets: [Set<String>])?
+    /// The applications the sections concealed when `update()` last ran, to tell when
+    /// `notchConcealed` is worth working out again.
+    @ObservationIgnored private var notchCoverBasis: Set<String>?
 
     /// The display whose notch `notchConcealed` was worked out for.
     @ObservationIgnored private var notchCoverDisplayID: CGDirectDisplayID?
@@ -214,13 +215,17 @@ final class Concealer27 {
         let running = Set(applications.compactMap(\.bundleIdentifier))
         let layout = SectionLayout27.effectiveLayout(observed: [:], saved: savedLayout, running: running)
         let state = revealState(appState)
-        // What the sections conceal sets how crowded the bar is: once that changes (a reveal
-        // that ends, a layout edit), the notch is worked out again from the next settled read.
-        let sectionSets = ConcealmentPlanner27.concealedSets(layout: layout, state: state)
-        if let notchCoverBasis, notchCoverBasis.state != state || notchCoverBasis.sets != sectionSets {
+        // What the sections conceal sets how crowded the bar is: once they conceal more (a
+        // reveal that ends, a layout edit), the notch is worked out again from the next settled
+        // read. When they conceal less, the bar is no roomier and the apps stay concealed; the
+        // next settled read adds more if the icon is under the notch again.
+        let sectionConcealed = ConcealmentPlanner27.effectivelyConcealed(
+            sets: ConcealmentPlanner27.concealedSets(layout: layout, state: state)
+        )
+        if let notchCoverBasis, NotchCover27.sectionsMayFreeRoom(before: notchCoverBasis, after: sectionConcealed) {
             notchConcealed.removeAll()
         }
-        notchCoverBasis = (state, sectionSets)
+        notchCoverBasis = sectionConcealed
         // Applications concealed for the notch join whatever the sections conceal.
         let target = NotchCover27.adding(
             notchConcealed.subtracting(temporarilyShown.keys),
