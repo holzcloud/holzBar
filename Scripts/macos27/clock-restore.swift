@@ -96,13 +96,46 @@ func clocksByDisplay() -> [CGDirectDisplayID: CGRect] {
     }
 }
 
+/// Keeps an interruption from removing the delay while it is being written.
+enum DelayWrite {
+    static let lock = NSLock()
+}
+
 func setDelay(_ milliseconds: Int) {
     let process = Process()
     process.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
     process.arguments = ["write", "com.holzcloud.holzBar", "MacOS27ClickRestoreDelay", "-int", "\(milliseconds)"]
+    DelayWrite.lock.withLock {
+        try? process.run()
+        process.waitUntilExit()
+    }
+    usleep(1_500_000)
+}
+
+/// Removes the delay, so holzBar's own measured value decides again.
+func clearDelay() {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
+    process.arguments = ["delete", "com.holzcloud.holzBar", "MacOS27ClickRestoreDelay"]
     try? process.run()
     process.waitUntilExit()
-    usleep(1_500_000)
+}
+
+/// Removes the delay when the run is interrupted too: holzBar honours a stored delay until it
+/// is removed, so a run stopped at 400 ms left every later click lifting concealment that long.
+/// The main thread is busy measuring, so the signals are handled on another queue.
+func clearDelayOnInterruption() -> [any DispatchSourceSignal] {
+    [SIGINT, SIGTERM, SIGHUP].map { number in
+        signal(number, SIG_IGN)
+        let source = DispatchSource.makeSignalSource(signal: number, queue: .global())
+        source.setEventHandler {
+            DelayWrite.lock.lock()
+            clearDelay()
+            exit(128 + number)
+        }
+        source.resume()
+        return source
+    }
 }
 
 let repetitions = CommandLine.arguments.count > 1 ? Int(CommandLine.arguments[1]) ?? 4 : 4
@@ -116,6 +149,7 @@ guard !clocks.isEmpty else {
 print("clocks: " + clocks.map { "\($0.key) at \(Int($0.value.midX)),\(Int($0.value.midY))" }.joined(separator: "; "))
 
 var failures = 0
+let interruptions = clearDelayOnInterruption()
 for delay in delays {
     setDelay(delay)
     for (display, clockFrame) in clocks.sorted(by: { $0.key < $1.key }) {
@@ -153,11 +187,7 @@ for delay in delays {
 }
 
 // Leave the default unset, so holzBar's own measured value decides again.
-let clear = Process()
-clear.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
-clear.arguments = ["delete", "com.holzcloud.holzBar", "MacOS27ClickRestoreDelay"]
-try? clear.run()
-clear.waitUntilExit()
+clearDelay()
 print(failures == 0 ? "every delay opened the panel every time" : "\(failures) display/delay combinations lost a click")
 usleep(250_000)
 exit(failures == 0 ? 0 : 1)

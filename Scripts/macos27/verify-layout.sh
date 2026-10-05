@@ -25,9 +25,24 @@ done
 # Only the layout key is saved and put back. Exporting the whole domain and importing it
 # again carried any earlier damage forward: a second run saved the already-changed layout
 # as its "before" and restored that, which is how a real layout was lost once.
+#
+# The key is saved and compared as an XML plist, which keeps its value types. Saved as
+# `defaults read` text and written back, every rank came back as a string; holzBar reads
+# the layout as [String: Int], so it then saw none, while the text still compared equal.
 as_bool() { case "$1" in 1|true|YES|yes) echo true ;; *) echo false ;; esac; }
 ORIGINAL_SHELF=$(as_bool "$(defaults read com.holzcloud.holzBar UseIceBar 2>/dev/null || echo 1)")
-LAYOUT_BEFORE=$(defaults read com.holzcloud.holzBar MacOS27Layout 2>/dev/null || echo "{}")
+layout_xml() {
+    defaults export com.holzcloud.holzBar - 2>/dev/null \
+        | plutil -extract MacOS27Layout xml1 -o "$1" - >/dev/null 2>&1
+}
+LAYOUT_BEFORE="$WORK/layout-before.plist"
+HAD_LAYOUT=false
+if layout_xml "$LAYOUT_BEFORE"; then HAD_LAYOUT=true; fi
+# The seeded flag goes back with it. holzBar seeds a missing layout once and then sets the
+# flag, so a run that began without a layout and left the flag set left holzBar with no
+# layout that it would never seed again, concealing nothing.
+seeded() { defaults read com.holzcloud.holzBar MacOS27LayoutSeeded 2>/dev/null || echo absent; }
+SEEDED_BEFORE=$(seeded)
 
 quit_holzbar() {
     osascript -e 'tell application id "com.holzcloud.holzBar" to quit' >/dev/null 2>&1 || true
@@ -46,15 +61,39 @@ start_holzbar() {
 # machine concealing nothing, and whatever was looked at next showed nothing worth seeing.
 restore() {
     quit_holzbar
-    defaults write com.holzcloud.holzBar MacOS27Layout "$LAYOUT_BEFORE"
-    defaults write com.holzcloud.holzBar UseIceBar -bool "$ORIGINAL_SHELF"
-    local after
-    after=$(defaults read com.holzcloud.holzBar MacOS27Layout 2>/dev/null || echo "{}")
-    if [ "$after" = "$LAYOUT_BEFORE" ]; then
-        echo "PASS  the saved layout is back as it was"
+    if [ "$HAD_LAYOUT" = true ]; then
+        defaults export com.holzcloud.holzBar "$WORK/domain.plist"
+        plutil -replace MacOS27Layout -xml "$(cat "$LAYOUT_BEFORE")" "$WORK/domain.plist"
+        defaults import com.holzcloud.holzBar "$WORK/domain.plist"
     else
+        defaults delete com.holzcloud.holzBar MacOS27Layout 2>/dev/null || true
+    fi
+    if [ "$SEEDED_BEFORE" = absent ]; then
+        defaults delete com.holzcloud.holzBar MacOS27LayoutSeeded 2>/dev/null || true
+    else
+        defaults write com.holzcloud.holzBar MacOS27LayoutSeeded -bool "$(as_bool "$SEEDED_BEFORE")"
+    fi
+    defaults write com.holzcloud.holzBar UseIceBar -bool "$ORIGINAL_SHELF"
+    local restored=false
+    if layout_xml "$WORK/layout-after.plist"; then
+        if [ "$HAD_LAYOUT" = true ] && cmp -s "$LAYOUT_BEFORE" "$WORK/layout-after.plist"; then
+            restored=true
+        fi
+    elif [ "$HAD_LAYOUT" = false ]; then
+        restored=true
+    fi
+    if [ "$restored" = true ]; then
+        echo "PASS  the saved layout is back as it was"
+    elif [ "$HAD_LAYOUT" = true ]; then
         echo "FAIL  the saved layout was left changed; it was:"
-        printf '%s\n' "$LAYOUT_BEFORE"
+        cat "$LAYOUT_BEFORE"
+    else
+        echo "FAIL  the saved layout was left changed; there was none"
+    fi
+    local seeded_after
+    seeded_after=$(seeded)
+    if [ "$seeded_after" != "$SEEDED_BEFORE" ]; then
+        echo "FAIL  MacOS27LayoutSeeded was left changed; it was $SEEDED_BEFORE, it is $seeded_after"
     fi
     start_holzbar
 }

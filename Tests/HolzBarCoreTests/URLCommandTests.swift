@@ -31,6 +31,13 @@ struct URLCommandTests {
         #expect(command.arguments == ["My Work"])
     }
 
+    @Test("An encoded slash stays in the profile name")
+    func encodedSlashStaysInProfileName() {
+        // Integrations/Raycast/holzbar-profile.sh encodes "/" for this.
+        #expect(action("holzbar://profile/Home%2FOffice") == .applyProfile("Home/Office"))
+        #expect(action("holzbar://profile/Home/Office") == .applyProfile("Home"))
+    }
+
     @Test("The command is case-insensitive")
     func commandIsCaseInsensitive() throws {
         let command = try #require(parse("HOLZBAR://Toggle/Hidden"))
