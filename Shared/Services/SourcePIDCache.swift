@@ -257,7 +257,7 @@ actor SourcePIDCache {
     /// Returns the centres of the given windows once their bounds are stable
     /// (a.k.a. not currently changing), by window.
     ///
-    /// Reads all windows in up to five rounds and blocks for at most 150 ms in
+    /// Reads all windows in up to five rounds, with at most 100 ms of sleep in
     /// total. A window whose bounds cannot be read (it probably doesn't exist
     /// anymore) or never settle is left out.
     private func stableCenters(of windows: [WindowInfo]) -> [CGWindowID: CGPoint] {
