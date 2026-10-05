@@ -124,6 +124,9 @@ final class ItemChangeWatcher {
         }
         let windows = Dictionary(targets.map { ($0.key, $0.windowID) }, uniquingKeysWith: { first, _ in first })
         let update = watchList.update(windows: windows, retrying: retrying)
+        // A batch under way for an older list stops at its next item.
+        let generation = watchList.generation
+        Self.latestGeneration.withLock { $0 = generation }
         if update.removesObservers {
             removeAll()
         } else if !retrying {
@@ -137,7 +140,7 @@ final class ItemChangeWatcher {
         // Observed items are not looked up again.
         let pending = targets.filter { registration.keys.contains($0.key) }
         Task { [weak self] in
-            let batch = await Self.register(pending)
+            let batch = await Self.register(pending, generation: registration.generation)
             self?.apply(batch, of: registration)
         }
     }
@@ -192,6 +195,11 @@ final class ItemChangeWatcher {
         qos: .utility
     )
 
+    /// The generation of the latest registration (`ItemChangeWatchList`), set on the main
+    /// actor. The queue runs one batch after the other, and a batch for an older list stops
+    /// at its next item instead of asking the remaining apps for a result that is dropped.
+    private nonisolated static let latestGeneration = OSAllocatedUnfairLock(initialState: 0)
+
     /// A marked item to observe.
     private nonisolated struct Target: Sendable {
         let key: String
@@ -208,20 +216,24 @@ final class ItemChangeWatcher {
         var watched = [(pid: pid_t, element: AXUIElement, key: String)]()
     }
 
-    private nonisolated static func register(_ targets: [Target]) async -> Batch {
+    private nonisolated static func register(_ targets: [Target], generation: Int) async -> Batch {
         await withCheckedContinuation { continuation in
             registrationQueue.async {
-                continuation.resume(returning: batch(for: targets))
+                continuation.resume(returning: batch(for: targets, generation: generation))
             }
         }
     }
 
     /// Looks up the items' elements and observes them, one new observer per process; runs
-    /// on the registration queue.
-    private nonisolated static func batch(for targets: [Target]) -> Batch {
+    /// on the registration queue. Stops early, with a result that is dropped, once a newer
+    /// registration started.
+    private nonisolated static func batch(for targets: [Target], generation: Int) -> Batch {
         var batch = Batch()
         var observers = [pid_t: AXObserver]()
         for target in targets {
+            guard latestGeneration.withLock({ $0 }) == generation else {
+                return Batch()
+            }
             guard let element = element(for: target) else {
                 continue
             }
@@ -238,8 +250,16 @@ final class ItemChangeWatcher {
             }
             // The process identifier travels as the context pointer (it is never 0 here).
             let context = UnsafeMutableRawPointer(bitPattern: Int(target.pid))
-            let added = [kAXTitleChangedNotification, kAXValueChangedNotification].filter { notification in
-                AXObserverAddNotification(observer, element, notification as CFString, context) == .success
+            var added = [String]()
+            for notification in [kAXTitleChangedNotification, kAXValueChangedNotification] {
+                let result = AXObserverAddNotification(observer, element, notification as CFString, context)
+                if result == .success {
+                    added.append(notification)
+                }
+                // An app that did not answer once would cost the second wait too.
+                if result == .cannotComplete {
+                    break
+                }
             }
             guard !added.isEmpty else {
                 logger.debug("A marked item posts no change notifications")
