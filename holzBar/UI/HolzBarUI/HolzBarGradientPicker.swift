@@ -81,6 +81,9 @@ private struct HolzBarGradientPickerRoot: View {
     /// render, when the window is not known yet, and must read the current window.
     @Binding var window: NSWindow?
     @State private var lastUpdated: Int?
+    /// Set while the selection moves to the same stop's new index, which must
+    /// not close and reopen the colour panel.
+    @State private var isRemappingSelection = false
 
     let supportsOpacity: Bool
 
@@ -249,6 +252,10 @@ private struct HolzBarGradientPickerRoot: View {
         guard oldValue != newValue else {
             return
         }
+        guard !isRemappingSelection else {
+            isRemappingSelection = false
+            return
+        }
 
         if newValue != nil {
             dismissColorPanel()
@@ -325,7 +332,11 @@ private struct HolzBarGradientPickerRoot: View {
                 }
             gradient.stops = newStops
             // The selection is an index, so it follows the selected stop to its new place.
-            selection = selection.flatMap { sortedIndices.firstIndex(of: $0) }
+            let newSelection = selection.flatMap { sortedIndices.firstIndex(of: $0) }
+            if newSelection != selection {
+                isRemappingSelection = true
+                selection = newSelection
+            }
         }
     }
 }
