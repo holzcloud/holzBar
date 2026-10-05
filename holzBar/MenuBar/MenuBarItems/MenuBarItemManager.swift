@@ -81,6 +81,9 @@ final class MenuBarItemManager {
     /// Reads the item list again 1 s after the last event that may have changed it.
     @ObservationIgnored private let itemListDebouncer = Debouncer(delay: .seconds(1))
 
+    /// When the first event that still waits for ``itemListDebouncer`` came.
+    @ObservationIgnored private var itemListChangePendingSince: ContinuousClock.Instant?
+
     /// Reads the item list again 1.5 s after the last application activation, where the
     /// backend asks for it.
     @ObservationIgnored private let activationDebouncer = Debouncer(delay: .milliseconds(1500))
@@ -104,7 +107,8 @@ final class MenuBarItemManager {
         // creates or destroys an Accessibility element. A slow, tolerant fallback catches
         // an item that appears without any of these; it replaced a 5 s timer that read
         // the window list (on macOS 27, every process through Accessibility) at idle.
-        // All of them are debounced by 1 s, as the Combine pipeline was.
+        // The events are debounced by 1 s, as the Combine pipeline was, but wait 5 s at
+        // most; the fallback reads at once, so events that never pause cannot hold it up.
         runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.new]) { [weak self] _, _ in
             Task { @MainActor in
                 // A launched application needs a moment to add its items.
@@ -134,7 +138,12 @@ final class MenuBarItemManager {
                 } catch {
                     return
                 }
-                self?.itemListMayHaveChanged()
+                guard let self else {
+                    return
+                }
+                if self.appState?.systemActivityMonitor.isPaused != true {
+                    await cacheItemsIfNeeded()
+                }
             }
         })
 
@@ -179,7 +188,9 @@ final class MenuBarItemManager {
         }
     }
 
-    /// Reads the item list again once the events that may have changed it pause for 1 s.
+    /// Reads the item list again once the events that may have changed it pause for 1 s,
+    /// or 5 s after the first of them while they keep coming (on macOS 27, an item owner
+    /// whose elements change every moment).
     ///
     /// Nothing is read while the screen is locked, the Mac sleeps or the session is away;
     /// the list is read once the bar has settled afterwards.
@@ -187,10 +198,22 @@ final class MenuBarItemManager {
         if appState?.systemActivityMonitor.isPaused == true {
             return
         }
+        let now = ContinuousClock.now
+        let pendingSince = itemListChangePendingSince ?? now
+        if pendingSince.duration(to: now) >= .seconds(5) {
+            itemListChangePendingSince = nil
+            itemListDebouncer.cancel()
+            Task {
+                await cacheItemsIfNeeded()
+            }
+            return
+        }
+        itemListChangePendingSince = pendingSince
         itemListDebouncer.schedule { [weak self] in
             guard let self else {
                 return
             }
+            itemListChangePendingSince = nil
             Task {
                 await self.cacheItemsIfNeeded()
             }
