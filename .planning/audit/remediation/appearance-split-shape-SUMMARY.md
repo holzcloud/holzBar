@@ -23,13 +23,15 @@ Branch `audit-manual/appearance-split`, based on `audit/remediation-2026-10-05`.
 - **F39-R2 (inactive display):** `SplitShape27.leftEdge` (HolzBarMacOS27Core) leaves out the remembered edge once MenuBarAgent's drawn frames for the display are known, so a section concealed again since no longer widens the trailing half there. Hover hit-testing (`isInsideItemsArea`) keeps its behaviour, as the decision requires.
 - **F39-R4 (geometry):** `SplitShape27.trailingBounds` computes the macOS 27 position and padding and returns `.zero`, the full-shape fallback, when the half would be narrower than it is high or start left of the shape. Tests cover both trailing end caps with and without the inset.
 - **Doc comment placement:** the `Notification.Name` extension added for F39-R1 sat between `MenuBarItemProvider27`'s doc comment and the type, so the comment documented the extension. The extension now comes before the comment. No change in behaviour.
-- **F39-R3 (release notes):** the Fixed line below is still open. This chain may not edit `docs/`; it must go into `docs/release-notes/v0.0.7-beta2.md` when that file is written, before the beta is tagged.
+- **F39-RV1 (redraw after every read):** the before-and-after comparison from F39-R1 compared the system item frames as an ordered array, but they come from a fresh dictionary on each read, so identical bars compared unequal and almost every read redrew every overlay. The inputs are now the pure `ItemsAreaInputs27` (HolzBarMacOS27Core), which keeps all frames sorted by position, so only a real move posts `menuBarItemsAreaDidChange27`. The overlay panel redraws on it only while the Split shape is chosen. Tests cover the same frames in another order and a moved frame.
+- **F39-RV2 (stacked displays):** `itemsAreaLeftEdge` tells displays apart by x alone, so with a display above or below the active one, the active bar's cached items and system frames fell inside the other display's x range and pulled the trailing half there about 600 points too far left. `SplitShape27.leftEdge` now keeps the items and system frames to the display's own rows (vertical midpoint inside its bounds) before asking for the edge. Hover hit-testing has the same weakness but keeps its behaviour, as the decision requires; the same filter could go into `itemsAreaLeftEdge` in a follow-up. A test covers a monitor stacked above the active built-in display.
+- **F39-R3 / F39-RV3 (release notes):** the Fixed line below is still open. This chain may not edit `docs/`; it must go into `docs/release-notes/v0.0.7-beta2.md` when that file is written, before the beta is tagged.
 
 ## Gates run (all passed)
 
-- appcheck.sh (labels f39, f39-doc): ERRORS: 0
+- appcheck.sh (labels f39, f39-doc, rv1, rv2): ERRORS: 0
 - servicecheck.sh: SERVICE EXIT: 0
-- `swift test`: full run, 266 tests in 45 suites passed (one earlier run stopped with a transient "Build failed / fatalError" in the build system and no compiler error; the next two full runs built and passed)
+- `swift test`: full run passed (after the RV fix-ups: 266 tests in 45 suites, 150 in 30 and 6 in 1) (one earlier run stopped with a transient "Build failed / fatalError" in the build system and no compiler error; the next two full runs built and passed)
 - `swiftlint lint --strict --quiet`: no output, exit 0
 - privacy-check.py network and logs, strings-check.py: passed (no new strings)
 - Former-name check: no matches
@@ -40,8 +42,9 @@ Branch `audit-manual/appearance-split`, based on `audit/remediation-2026-10-05`.
 2. Repeat with "Inset" on and off on a display with a notch, and with round and square trailing end caps.
 3. Reveal and hide the hidden section (click and Show on hover). After a short catch-up (about 0.4 s) the right shape should follow the icons, after a hide as well as after a reveal, without switching apps.
 4. With a second display whose menu bar is not active, check the right shape there too. Reveal the hidden section while that display is active, hide it again from the other display, and check that the right shape on the inactive display shrinks back.
-5. With enough items that some fold behind the system chevron, check that the chevron is inside the right shape.
-6. On macOS 26, check that Split looks exactly as before (regression check).
+5. With an external display stacked above (or below) the built-in one, make the built-in bar active and check that the right shape on the external display starts at its own leftmost item, not further left.
+6. With enough items that some fold behind the system chevron, check that the chevron is inside the right shape.
+7. On macOS 26, check that Split looks exactly as before (regression check).
 
 ## Documentation updates needed
 
