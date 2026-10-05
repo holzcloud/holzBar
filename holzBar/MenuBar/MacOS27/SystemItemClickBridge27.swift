@@ -42,9 +42,11 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     /// unseen.
     private var panelMemory = ItemClick27.PanelMemory()
 
-    /// The tap, created on first use.
+    /// The tap, created on first use. It sees right and other clicks only to forget the panel
+    /// they may close (a right click on the desktop closes Notification Center) and lets them
+    /// through unchanged.
     private lazy var tap = EventTap(
-        types: [.leftMouseDown, .leftMouseUp],
+        types: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .otherMouseDown],
         location: .hidEventTap,
         placement: .headInsertEventTap,
         option: .defaultTap
@@ -82,6 +84,11 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             return event
         }
         guard event.getIntegerValueField(.eventSourceUserData) != Self.replayedClickMarker else {
+            return event
+        }
+        if event.type == .rightMouseDown || event.type == .otherMouseDown {
+            // Never bridged, but it may close the panel holzBar saw open, and nothing would tell.
+            panelMemory.forget()
             return event
         }
         if event.type == .leftMouseUp {
