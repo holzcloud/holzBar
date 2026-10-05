@@ -81,6 +81,9 @@ final class MenuBarItemManager {
     /// Reads the item list again 1 s after the last event that may have changed it.
     @ObservationIgnored private let itemListDebouncer = Debouncer(delay: .seconds(1))
 
+    /// When the first event that still waits for ``itemListDebouncer`` came.
+    @ObservationIgnored private var itemListChangePendingSince: ContinuousClock.Instant?
+
     /// Reads the item list again 1.5 s after the last application activation, where the
     /// backend asks for it.
     @ObservationIgnored private let activationDebouncer = Debouncer(delay: .milliseconds(1500))
@@ -104,7 +107,8 @@ final class MenuBarItemManager {
         // creates or destroys an Accessibility element. A slow, tolerant fallback catches
         // an item that appears without any of these; it replaced a 5 s timer that read
         // the window list (on macOS 27, every process through Accessibility) at idle.
-        // All of them are debounced by 1 s, as the Combine pipeline was.
+        // The events are debounced by 1 s, as the Combine pipeline was, but wait 5 s at
+        // most; the fallback reads at once, so events that never pause cannot hold it up.
         runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.new]) { [weak self] _, _ in
             Task { @MainActor in
                 // A launched application needs a moment to add its items.
@@ -134,7 +138,12 @@ final class MenuBarItemManager {
                 } catch {
                     return
                 }
-                self?.itemListMayHaveChanged()
+                guard let self else {
+                    return
+                }
+                if self.appState?.systemActivityMonitor.isPaused != true {
+                    await cacheItemsIfNeeded()
+                }
             }
         })
 
@@ -179,7 +188,9 @@ final class MenuBarItemManager {
         }
     }
 
-    /// Reads the item list again once the events that may have changed it pause for 1 s.
+    /// Reads the item list again once the events that may have changed it pause for 1 s,
+    /// or 5 s after the first of them while they keep coming (on macOS 27, an item owner
+    /// whose elements change every moment).
     ///
     /// Nothing is read while the screen is locked, the Mac sleeps or the session is away;
     /// the list is read once the bar has settled afterwards.
@@ -187,10 +198,22 @@ final class MenuBarItemManager {
         if appState?.systemActivityMonitor.isPaused == true {
             return
         }
+        let now = ContinuousClock.now
+        let pendingSince = itemListChangePendingSince ?? now
+        if pendingSince.duration(to: now) >= .seconds(5) {
+            itemListChangePendingSince = nil
+            itemListDebouncer.cancel()
+            Task {
+                await cacheItemsIfNeeded()
+            }
+            return
+        }
+        itemListChangePendingSince = pendingSince
         itemListDebouncer.schedule { [weak self] in
             guard let self else {
                 return
             }
+            itemListChangePendingSince = nil
             Task {
                 await self.cacheItemsIfNeeded()
             }
@@ -288,8 +311,9 @@ extension MenuBarItemManager {
         }
 
         /// Inserts the given menu bar item into the cache at the specified
-        /// destination.
-        mutating func insert(_ item: MenuBarItem, at destination: MoveDestination) {
+        /// destination, or at the edge of `fallbackSection` next to holzBar's divider when
+        /// the destination's target item is gone.
+        mutating func insert(_ item: MenuBarItem, at destination: MoveDestination, orIn fallbackSection: MenuBarSection.Name) {
             let targetTag = destination.targetItem.tag
 
             if targetTag == .hiddenControlItem {
@@ -313,6 +337,11 @@ extension MenuBarItemManager {
             }
 
             guard case (let section, var index)? = address(for: targetTag) else {
+                if fallbackSection == .visible {
+                    self[.visible].insert(item, at: 0)
+                } else {
+                    self[fallbackSection].append(item)
+                }
                 return
             }
 
@@ -351,7 +380,7 @@ extension MenuBarItemManager {
         let controlItems: ControlItemPair
 
         var cache: ItemCache
-        var temporarilyShownItems = [(MenuBarItem, MoveDestination)]()
+        var temporarilyShownItems = [(MenuBarItem, MoveDestination, MenuBarSection.Name)]()
         var shouldClearCachedItemWindowIDs = false
 
         private(set) lazy var hiddenControlItemBounds = bestBounds(for: controlItems.hidden)
@@ -422,7 +451,7 @@ extension MenuBarItemManager {
                 // Cache temporarily shown items as if they were in their original locations.
                 // Keep track of them separately and use their return destinations to insert
                 // them into the cache once all other items have been handled.
-                context.temporarilyShownItems.append((item, temp.returnDestination))
+                context.temporarilyShownItems.append((item, temp.returnDestination, temp.returnSection))
                 continue
             }
 
@@ -435,13 +464,18 @@ extension MenuBarItemManager {
             context.shouldClearCachedItemWindowIDs = true
         }
 
-        for (item, destination) in context.temporarilyShownItems {
-            context.cache.insert(item, at: destination)
+        for (item, destination, section) in context.temporarilyShownItems {
+            context.cache.insert(item, at: destination, orIn: section)
         }
 
         if context.shouldClearCachedItemWindowIDs {
             logger.info("Clearing cached menu bar item windowIDs")
             await cacheActor.clearCachedItemWindowIDs() // Ensure next cache isn't skipped.
+        }
+
+        // A newer cache replaced this one; its items are the current ones.
+        guard !Task.isCancelled else {
+            return
         }
 
         guard itemCache != context.cache else {
@@ -478,12 +512,28 @@ extension MenuBarItemManager {
             let displayID = Bridging.getActiveMenuBarDisplayID()
             var items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
 
+            // A newer cache replaced this one while it waited (`runCacheTask`); a stale
+            // read must not overwrite its result, so every wait is followed by a check.
+            guard !Task.isCancelled else {
+                return
+            }
+
             let itemWindowIDs = currentItemWindowIDs ?? items.reversed().map { $0.windowID }
             await cacheActor.updateCachedItemWindowIDs(itemWindowIDs)
 
+            // From here a replaced cache clears the window list it recorded: the newer one
+            // may have stopped before caching (a recent move, the Mac not in use), and the
+            // next check must not skip the list this one never cached.
+            guard !Task.isCancelled else {
+                await cacheActor.clearCachedItemWindowIDs()
+                return
+            }
+
             if let appState, let cache = backend.cacheFromLayout(items: items, displayID: displayID, appState: appState) {
                 // On macOS 27 the saved layout, not the order on the bar, places items in sections
-                // (see `AccessibilityBackend27`).
+                // (see `AccessibilityBackend27`). The items are keyed together, so several
+                // items of one app keep apart (`ItemIdentity`); titles are not learned here.
+                identityKeysByWindow = identityKeys(for: items)
                 if itemCache != cache {
                     itemCache = cache
                     logger.info(
@@ -518,11 +568,20 @@ extension MenuBarItemManager {
             // Where items cannot be moved, the dividers stay where macOS placed them.
             if backend.canMoveItems {
                 await enforceControlItemOrder(controlItems: controlItems)
+                guard !Task.isCancelled else {
+                    await cacheActor.clearCachedItemWindowIDs()
+                    return
+                }
                 // Forget the UUIDs of item windows that are gone (on every space).
                 pruneUUIDCache(keeping: Bridging.getMenuBarWindowList(option: .itemsOnly))
                 updateIdentities(with: items)
             }
             await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
+
+            guard !Task.isCancelled else {
+                await cacheActor.clearCachedItemWindowIDs()
+                return
+            }
 
             if backend.canMoveItems {
                 // The sections the user arranged, or of the first run, are recorded.
@@ -773,8 +832,15 @@ extension MenuBarItemManager {
         /// The item's identity key (`ItemIdentity`).
         let identityKey: String
 
-        /// The destination to return the item to.
+        /// The destination to return the item to, as it was when the item was shown.
         let returnDestination: MoveDestination
+
+        /// The identity key of the destination's target item (`ItemIdentity`).
+        let returnTargetIdentityKey: String
+
+        /// The section the item was shown from, which it returns to when the destination's
+        /// target item is gone.
+        let returnSection: MenuBarSection.Name
 
         /// The window of the item's shown interface.
         var shownInterfaceWindow: WindowInfo?
@@ -803,11 +869,20 @@ extension MenuBarItemManager {
             )
         }
 
-        init(tag: MenuBarItemTag, windowID: CGWindowID, identityKey: String, returnDestination: MoveDestination) {
+        init(
+            tag: MenuBarItemTag,
+            windowID: CGWindowID,
+            identityKey: String,
+            returnDestination: MoveDestination,
+            returnTargetIdentityKey: String,
+            returnSection: MenuBarSection.Name
+        ) {
             self.tag = tag
             self.windowID = windowID
             self.identityKey = identityKey
             self.returnDestination = returnDestination
+            self.returnTargetIdentityKey = returnTargetIdentityKey
+            self.returnSection = returnSection
         }
 
         /// Whether the context belongs to the given item: the same window, or the same tag.
@@ -819,7 +894,8 @@ extension MenuBarItemManager {
     /// Gets the destination to return the given item to after it is
     /// temporarily shown.
     private func getReturnDestination(for item: MenuBarItem, in items: [MenuBarItem]) -> MoveDestination? {
-        guard let index = items.firstIndex(matching: item.tag) else {
+        // By window first: untitled items of one app share a tag.
+        guard let index = items.firstIndex(where: { $0.windowID == item.windowID }) ?? items.firstIndex(matching: item.tag) else {
             return nil
         }
         if items.indices.contains(index + 1) {
@@ -829,6 +905,54 @@ extension MenuBarItemManager {
             return .rightOfItem(items[index - 1])
         }
         return nil
+    }
+
+    /// Resolves the destination to return the given item, of the given context, to from the
+    /// current items.
+    ///
+    /// The target item is found again by its window, its tag or its identity key, as it
+    /// may have been re-created while the item was shown. A tag or a key can name the item
+    /// itself or a same-app item elsewhere (untitled items of one app share them), so only
+    /// another item in the item's section counts. When the target is gone, the item returns
+    /// to the edge of its section next to holzBar's divider; the stored target's window no
+    /// longer has bounds, so moving to it failed on every attempt.
+    private func resolveReturnDestination(
+        for item: MenuBarItem,
+        context: TemporarilyShownItemContext,
+        in items: [MenuBarItem],
+        keys: [CGWindowID: String]
+    ) -> MoveDestination? {
+        var others = items
+        guard let controlItems = ControlItemPair(items: &others) else {
+            return nil
+        }
+        func isReturnTarget(_ candidate: MenuBarItem) -> Bool {
+            guard candidate.windowID != item.windowID else {
+                return false
+            }
+            // A divider marks the edge of the section itself.
+            return candidate.isControlItem || section(of: candidate, controlItems: controlItems) == context.returnSection
+        }
+        let target = context.returnDestination.targetItem
+        let resolved = items.first { $0.windowID == target.windowID && isReturnTarget($0) }
+            ?? items.first { $0.tag == target.tag && isReturnTarget($0) }
+            ?? items.first { keys[$0.windowID] == context.returnTargetIdentityKey && isReturnTarget($0) }
+        if let resolved {
+            switch context.returnDestination {
+            case .leftOfItem:
+                return .leftOfItem(resolved)
+            case .rightOfItem:
+                return .rightOfItem(resolved)
+            }
+        }
+        switch context.returnSection {
+        case .visible:
+            return .rightOfItem(controlItems.hidden)
+        case .hidden:
+            return .leftOfItem(controlItems.hidden)
+        case .alwaysHidden:
+            return .leftOfItem(controlItems.alwaysHidden ?? controlItems.hidden)
+        }
     }
 
     /// Schedules a timer for the given interval that rehides the
@@ -881,6 +1005,11 @@ extension MenuBarItemManager {
             logger.error("No return destination for \(item.logString, privacy: .private(mask: .hash))")
             return
         }
+        // The section is read before the show move, from the item's own window: the cache
+        // can already have it in the visible section, and untitled items of one app share
+        // a tag.
+        var dividers = items
+        let returnSection = ControlItemPair(items: &dividers).map { section(of: item, controlItems: $0) } ?? .hidden
 
         // Remove all items up to and including the hidden control item.
         if let index = items.firstIndex(matching: .hiddenControlItem) {
@@ -929,7 +1058,9 @@ extension MenuBarItemManager {
             tag: item.tag,
             windowID: item.windowID,
             identityKey: identityKey(for: item),
-            returnDestination: destination
+            returnDestination: destination,
+            returnTargetIdentityKey: identityKey(for: destination.targetItem),
+            returnSection: returnSection
         )
         temporarilyShownItemContexts.append(context)
 
@@ -1035,8 +1166,14 @@ extension MenuBarItemManager {
             guard let item else {
                 continue
             }
+            guard let destination = resolveReturnDestination(for: item, context: context, in: items, keys: keys) else {
+                // The dividers were not read; the next attempt reads the items again.
+                logger.warning("No return destination for \(item.logString, privacy: .private(mask: .hash))")
+                failedContexts.append(context)
+                continue
+            }
             do {
-                try await move(item: item, to: context.returnDestination)
+                try await move(item: item, to: destination)
             } catch EventError.automaticMovesPaused, EventError.userInputNotPaused {
                 // Paused during the rehide: the rest waits for the next settle or user move.
                 // The user did not pause input: the rest is tried again with the next rehide

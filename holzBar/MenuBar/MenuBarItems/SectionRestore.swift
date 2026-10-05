@@ -46,7 +46,7 @@ extension MenuBarItemManager {
         guard backend.canMoveItems else {
             return
         }
-        var stored = Defaults.dictionary(forKey: .itemSections) as? [String: Int] ?? [:]
+        var stored = storedSectionIndexes()
         for section in MenuBarSection.Name.allCases {
             for item in itemCache[section] where !item.isControlItem && !item.tag.namespace.isUUID {
                 stored[identityKey(for: item)] = section.profileIndex
@@ -61,7 +61,7 @@ extension MenuBarItemManager {
         guard !sections.isEmpty else {
             return
         }
-        var stored = Defaults.dictionary(forKey: .itemSections) as? [String: Int] ?? [:]
+        var stored = storedSectionIndexes()
         for (key, section) in sections {
             stored[key] = section.profileIndex
         }
@@ -90,14 +90,15 @@ extension MenuBarItemManager {
 
     /// The saved section of each identity key.
     private func savedSections() -> [String: MenuBarSection.Name] {
+        storedSectionIndexes().compactMapValues(MenuBarSection.Name.init(profileIndex:))
+    }
+
+    /// The saved section indexes under the keys they match today. A key of an earlier read
+    /// or version never outranks the current key it matches, and saving writes only these
+    /// keys, so a stale section cannot come back.
+    private func storedSectionIndexes() -> [String: Int] {
         let stored = Defaults.dictionary(forKey: .itemSections) as? [String: Int] ?? [:]
-        var sections = [String: MenuBarSection.Name]()
-        for (key, index) in stored {
-            if let section = MenuBarSection.Name(profileIndex: index) {
-                sections[storedIdentityKey(key)] = section
-            }
-        }
-        return sections
+        return ItemIdentity.storedValues(stored, titleChangingOwners: titleChangingOwners)
     }
 
     // MARK: Restoring
@@ -127,7 +128,8 @@ extension MenuBarItemManager {
     /// path that restores sections.
     ///
     /// Nothing happens while the user drags an item, while the Mac is not in use, while a
-    /// save of the user's arrangement is pending, or while the items wait to be rehidden;
+    /// save of the user's arrangement is pending, or while the items wait to be rehidden,
+    /// and a running restore stops once the user drags an item or such a save is pending;
     /// a call during another reconciliation runs once that one ends. The moves are
     /// automatic, so `MoveBackoff` can pause them.
     ///
@@ -149,8 +151,10 @@ extension MenuBarItemManager {
             return
         }
         guard !isReconcilingSections else {
-            // A profile or a restore outranks placing new items.
-            if wanted != nil || trigger.restoresSavedSections || pendingReconciliation == nil {
+            // A profile outranks a restore, and a restore outranks placing new items. Only a
+            // later profile replaces a pending one, which is otherwise never applied.
+            let pendingProfile = pendingReconciliation?.wanted != nil
+            if wanted != nil || (!pendingProfile && (trigger.restoresSavedSections || pendingReconciliation == nil)) {
                 pendingReconciliation = (wanted, trigger)
             }
             return
@@ -202,17 +206,20 @@ extension MenuBarItemManager {
             controlItems = pair
         }
 
-        if appState.settings.advanced.keepLiveActivitiesVisible {
-            await keepLiveActivitiesVisible(items, controlItems: controlItems)
+        let keepsLiveActivitiesVisible = appState.settings.advanced.keepLiveActivitiesVisible
+        if keepsLiveActivitiesVisible {
+            await keepLiveActivitiesVisible(items, controlItems: controlItems, wanted: wanted, appState: appState)
         }
 
         let keys = identityKeys(for: items)
+        // Live Activities kept visible are never moved back by a saved or new-items section.
         let candidates = items.filter { item in
             item.isMovable &&
             item.canBeHidden &&
             !item.isControlItem &&
             !item.isSystemClone &&
             !item.tag.namespace.isUUID &&
+            !(keepsLiveActivitiesVisible && item.tag.isLiveActivity) &&
             !isTemporarilyShown(item)
         }
 
@@ -246,14 +253,15 @@ extension MenuBarItemManager {
             }
         }
 
-        let candidateKeys = Set(candidates.compactMap { keys[$0.windowID] })
-        if storedKnown == nil || !candidateKeys.isSubset(of: known) {
-            known.formUnion(candidateKeys)
-            Defaults.set(known.sorted(), forKey: .knownItemTags)
-        }
-
         var placedSections = [String: MenuBarSection.Name]()
+        // New items whose move was not tried: the loop stopped before them, or automatic
+        // moves were paused. A move that failed otherwise is not retried on every read.
+        var untriedNewKeys = Set(moves.filter(\.isNew).map(\.key))
         for move in moves {
+            if await yieldsToUserAfterInputPause(wanted: wanted, appState: appState) {
+                Self.restoreLogger.debug("The user arranges the items, so not moving the remaining items into their sections")
+                break
+            }
             let destination: MoveDestination = switch move.section {
             case .visible: .rightOfItem(controlItems.hidden)
             case .hidden: .leftOfItem(controlItems.hidden)
@@ -267,6 +275,7 @@ extension MenuBarItemManager {
                     """
                 )
                 try await self.move(item: move.item, to: destination)
+                untriedNewKeys.remove(move.key)
                 if move.isNew {
                     placedSections[move.key] = move.section
                 }
@@ -277,8 +286,16 @@ extension MenuBarItemManager {
                 Self.restoreLogger.notice("The user did not pause input, so not moving the remaining items into their sections")
                 break
             } catch {
+                untriedNewKeys.remove(move.key)
                 Self.restoreLogger.error("Error moving \(move.item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
             }
+        }
+
+        // A new item whose move was not tried stays unknown, so a later pass places it.
+        let candidateKeys = Set(candidates.compactMap { keys[$0.windowID] }).subtracting(untriedNewKeys)
+        if storedKnown == nil || !candidateKeys.isSubset(of: known) {
+            known.formUnion(candidateKeys)
+            Defaults.set(known.sorted(), forKey: .knownItemTags)
         }
 
         // A profile's sections, and where new items were placed, are the sections to restore.
@@ -288,8 +305,30 @@ extension MenuBarItemManager {
         storeSections(placedSections)
     }
 
+    /// Whether a restore stops moving items because the user arranges them: an item is being
+    /// dragged, or a save of the user's arrangement is pending. A profile is applied regardless.
+    private func yieldsToUser(wanted: [String: MenuBarSection.Name]?, appState: AppState) -> Bool {
+        wanted == nil && (appState.isDraggingMenuBarItem || needsSectionSave)
+    }
+
+    /// Waits for the user to pause input, then returns whether a restore stops moving items
+    /// because the user arranges them. A move waits for that pause itself, and a Command-drag
+    /// of the item about to be moved lasts through it, so the check comes after the wait; the
+    /// move's own wait then returns at once.
+    private func yieldsToUserAfterInputPause(wanted: [String: MenuBarSection.Name]?, appState: AppState) async -> Bool {
+        guard wanted == nil else {
+            return false
+        }
+        do {
+            try await MenuBarItemEventPoster.waitForUserToPauseInput()
+        } catch {
+            return true
+        }
+        return yieldsToUser(wanted: wanted, appState: appState)
+    }
+
     /// The section an item is in, from its position relative to the control items.
-    private func section(of item: MenuBarItem, controlItems: ControlItemPair) -> MenuBarSection.Name {
+    func section(of item: MenuBarItem, controlItems: ControlItemPair) -> MenuBarSection.Name {
         let bounds = Bridging.getWindowBounds(for: item.windowID) ?? item.bounds
         let hiddenBounds = Bridging.getWindowBounds(for: controlItems.hidden.windowID) ?? controlItems.hidden.bounds
         if bounds.minX >= hiddenBounds.maxX {
@@ -309,13 +348,24 @@ extension MenuBarItemManager {
     ///
     /// A Live Activity appears as a new item at the far left of the bar, which
     /// is a hidden section, so without this it is only seen by showing that section.
-    private func keepLiveActivitiesVisible(_ items: [MenuBarItem], controlItems: ControlItemPair) async {
+    private func keepLiveActivitiesVisible(
+        _ items: [MenuBarItem],
+        controlItems: ControlItemPair,
+        wanted: [String: MenuBarSection.Name]?,
+        appState: AppState
+    ) async {
         for item in items where item.isMovable && !item.isControlItem {
+            if yieldsToUser(wanted: wanted, appState: appState) {
+                return
+            }
             let isHidden = item.bounds.maxX <= controlItems.hidden.bounds.minX
             guard isHidden else {
                 continue
             }
             if item.tag.isLiveActivity {
+                if await yieldsToUserAfterInputPause(wanted: wanted, appState: appState) {
+                    return
+                }
                 do {
                     Self.restoreLogger.info("Keeping Live Activity \(item.logString, privacy: .private(mask: .hash)) visible")
                     try await move(item: item, to: .rightOfItem(controlItems.hidden))

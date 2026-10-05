@@ -48,11 +48,11 @@ final class MenuBarItemEventPoster {
     /// Gives up with ``EventError/userInputNotPaused`` after five seconds, and with
     /// ``EventError/cannotComplete`` when the calling task is cancelled, so a move or
     /// click never waits for good.
-    private func waitForUserToPauseInput() async throws {
+    static func waitForUserToPauseInput() async throws {
         let deadline = ContinuousClock.now + .seconds(5)
         while !Self.hasUserPausedInput(for: .milliseconds(50)) {
             guard ContinuousClock.now < deadline else {
-                logger.notice("Timed out waiting for the user to pause input")
+                Logger.eventPoster.notice("Timed out waiting for the user to pause input")
                 throw EventError.userInputNotPaused
             }
             do {
@@ -655,7 +655,7 @@ final class MenuBarItemEventPoster {
             throw EventError.itemNotMovable(item)
         }
 
-        try await waitForUserToPauseInput()
+        try await Self.waitForUserToPauseInput()
 
         appState.hidEventManager.stopAll()
         defer {
@@ -802,7 +802,7 @@ final class MenuBarItemEventPoster {
     ///   - mouseButton: The mouse button to click the item with.
     func click(item: MenuBarItem, with mouseButton: CGMouseButton, appState: AppState) async throws {
 
-        try await waitForUserToPauseInput()
+        try await Self.waitForUserToPauseInput()
 
         logger.log(
             """
