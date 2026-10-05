@@ -1424,9 +1424,15 @@ final class SettingsSync {
         let alert = NSAlert()
         alert.messageText = String(localized: "Which settings should holzBar use?")
         alert.informativeText = String(localized: "The sync folder holds settings from another Mac that differ from this Mac's. Using them restarts holzBar; keeping this Mac's settings replaces them in the sync folder.")
-        alert.addButton(withTitle: String(localized: "Use Settings from Sync Folder"))
-        alert.addButton(withTitle: String(localized: "Keep This Mac's Settings"))
+        let useFolder = alert.addButton(withTitle: String(localized: "Use Settings from Sync Folder"))
+        let keepThisMac = alert.addButton(withTitle: String(localized: "Keep This Mac's Settings"))
         let third = alert.addButton(withTitle: isJoining ? String(localized: "Cancel") : String(localized: "Later"))
+        // Either choice replaces one Mac's settings and cannot be undone: the buttons say
+        // so (HIG), and neither is the default, so a Return meant for the folder panel
+        // before it never answers. NSAlert gives the first button Return.
+        useFolder.hasDestructiveAction = true
+        keepThisMac.hasDestructiveAction = true
+        useFolder.keyEquivalent = ""
         // Escape in every language, not only for the English title.
         third.keyEquivalent = "\u{1B}"
         return alert
