@@ -1,45 +1,51 @@
 name: Release
+# A release starts with a pushed v* tag on main (docs/signing.md). Each job gets only what
+# it needs: the build runs without write token, OIDC or secrets; only the sign job sees the
+# signing certificate, and it runs no code from the repository; only the cask job holds the
+# deploy key that may push to main.
 on:
   push:
     tags: [ "v*" ]
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Version without the leading v, e.g. 0.0.6-beta1"
-        required: true
 
 # Read-only unless a job asks for more.
 permissions:
   contents: read
 
+# One run per tag at a time; a second push of the same tag waits instead of racing.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  release:
+  build:
+    name: Build
+    # Forks never release: they would need their own certificate and its pin.
+    if: github.repository == 'holzcloud/holzBar' && startsWith(github.ref, 'refs/tags/v')
     # The same Xcode 27 image as the build workflow.
     runs-on: xcode-27
-    # contents: write publishes the release and updates the cask on main. id-token and
-    # attestations let actions/attest-build-provenance sign the provenance of the zip with
-    # this workflow's identity (Sigstore) and store it with GitHub; only this job has them.
+    timeout-minutes: 60
     permissions:
-      contents: write
-      id-token: write
-      attestations: write
-    # The version, for the holzcloud-ch job below.
+      contents: read
     outputs:
       version: ${{ steps.version.outputs.version }}
+      adhoc-sha256: ${{ steps.package.outputs.adhoc-sha256 }}
     steps:
-      - uses: actions/checkout@v7
+      # The full history, so the next steps can check that the tag is on main.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      # The version comes from the dispatch input or the tag name. Both are
-      # untrusted, so they reach the shell only through the environment and
-      # are validated before anything else uses them.
+      # The version comes from the tag name. It is untrusted, so it reaches the shell only
+      # through the environment and is validated before anything else uses it.
       - name: Determine version
         id: version
-        env:
-          DISPATCH_VERSION: ${{ github.event.inputs.version }}
         run: |
-          VERSION="${DISPATCH_VERSION:-${GITHUB_REF_NAME#v}}"
+          if [ "$GITHUB_REF_TYPE" != tag ]; then
+            echo "::error::A release is built only from a v* tag."
+            exit 1
+          fi
+          VERSION="${GITHUB_REF_NAME#v}"
           if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta[0-9]+)?$ ]]; then
             # Do not echo the rejected value: it could carry workflow commands.
             echo "::error::The version must look like 0.0.6 or 0.0.6-beta1."
@@ -48,46 +54,118 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
+      # Only reviewed code is released: main takes only pull requests with green checks, so
+      # the tagged commit must be on main (origin/main comes from the full fetch above).
+      - name: Check that the tag is on main
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::The tagged commit $GITHUB_SHA is not on main. Tag a commit on main."
+            exit 1
+          fi
+
       - name: Check the release notes
         run: |
           test -f "docs/release-notes/v$VERSION.md" || { echo "::error::Missing docs/release-notes/v$VERSION.md"; exit 1; }
 
       - uses: ./.github/actions/select-xcode
 
-      # Built and signed ad hoc first: there is no Developer ID. The next step signs it again
-      # with holzBar's own certificate when the secrets are set. The hardened runtime stays
-      # on, as in the project: holzBar embeds no framework, and the system framework it
-      # opens at runtime is a platform binary, which library validation accepts.
+      # Built and signed ad hoc first, in a job without write token, OIDC token or secrets, so
+      # no build script or tool can reach them. The sign job signs it again with holzBar's
+      # certificate. The hardened runtime stays on, as in the project: holzBar embeds no
+      # framework, and the system framework it opens at runtime is a platform binary, which
+      # library validation accepts. CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO keeps Xcode from
+      # adding get-task-allow, which would let a debugger attach to holzBar.
       - name: Build
         run: |
+          set -euo pipefail
+          # The project's SwiftLint build phase runs no tool from the runner only while CI is
+          # set; nothing in this workflow may unset it.
+          if [ "${CI:-}" != true ]; then
+            echo "::error::CI is not set to true, so the project's SwiftLint build phase would run."
+            exit 1
+          fi
           xcodebuild -project holzBar.xcodeproj -scheme holzBar -configuration Release \
             -destination 'platform=macOS' -derivedDataPath build build \
             MARKETING_VERSION="$VERSION" \
             CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
-            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM=
-          codesign --verify --deep --strict build/Build/Products/Release/holzBar.app
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
+            CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
 
-      # Signs with holzBar's own self-signed certificate (docs/signing.md), so every release
-      # carries the same signature: its designated requirement names the certificate, not
-      # the code's hash, so macOS keeps Accessibility across updates, and a binary signed
-      # with any other key loses it. The certificate and its key come from two repository
-      # secrets into a temporary keychain only now, after the build, so no build script can
-      # reach the key, and the keychain is deleted right after. Without the secrets the
-      # release stays signed ad hoc, with a warning.
-      #
-      # The XPC service keeps working: a self-signed certificate carries no Apple team, so
-      # the service pins the exact code of the app it is embedded in (signing identifier
-      # and cdhashes, read at launch; MenuBarItemService/Listener.swift), as for ad hoc code.
-      - name: Sign with holzBar's certificate
+      # The hardened runtime on every bundle and no entitlement on any code, as in every
+      # pull request's build.
+      - name: Check the build
+        run: Scripts/check-signature.sh build/Build/Products/Release/holzBar.app
+
+      # The sign job compares this checksum, so it signs exactly what was built here.
+      - name: Package the build
+        id: package
+        run: |
+          set -euo pipefail
+          ditto -c -k --keepParent build/Build/Products/Release/holzBar.app build/holzBar-adhoc.zip
+          echo "adhoc-sha256=$(shasum -a 256 build/holzBar-adhoc.zip | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: holzBar-adhoc
+          path: build/holzBar-adhoc.zip
+          retention-days: 1
+          if-no-files-found: error
+
+  # Signs with holzBar's own self-signed certificate (docs/signing.md), so every release
+  # carries the same signature: its designated requirement names the certificate, not the
+  # code's hash, so macOS keeps Accessibility across updates, and a binary signed with any
+  # other key loses it. The certificate and its key come from two repository secrets into a
+  # temporary keychain, which is deleted right after.
+  sign:
+    name: Sign with holzBar's certificate
+    needs: build
+    if: github.repository == 'holzcloud/holzBar' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: xcode-27
+    timeout-minutes: 20
+    # It holds the certificate, so it gets no token permission and runs no code from the
+    # repository: no checkout, only the commands written here.
+    permissions: {}
+    env:
+      # holzBar's certificate, as published in the README. Signing with any other one would
+      # change holzBar's identity for macOS and drop every user's Accessibility grant.
+      EXPECTED_CERT_SHA256: e55f0df15060b8c06c6842ccee85e6bc9f86cbbda3bd408abf991457840b1d95
+      VERSION: ${{ needs.build.outputs.version }}
+    outputs:
+      zip: ${{ steps.package.outputs.zip }}
+      sha256: ${{ steps.package.outputs.sha256 }}
+      hashes: ${{ steps.package.outputs.hashes }}
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: holzBar-adhoc
+          path: ${{ runner.temp }}/adhoc
+
+      # Exactly the zip the build job made, or nothing.
+      - name: Unpack the build
+        env:
+          ADHOC_SHA256: ${{ needs.build.outputs.adhoc-sha256 }}
+        run: |
+          set -euo pipefail
+          ZIP="$RUNNER_TEMP/adhoc/holzBar-adhoc.zip"
+          ACTUAL=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)
+          if [ "$ACTUAL" != "$ADHOC_SHA256" ]; then
+            echo "::error::The downloaded build has SHA-256 $ACTUAL, but the build job made $ADHOC_SHA256."
+            exit 1
+          fi
+          ditto -x -k "$ZIP" "$RUNNER_TEMP/release"
+
+      # Fails without the secrets or with any certificate but holzBar's: an ad hoc release
+      # would make every user grant Accessibility and Screen Recording again.
+      - name: Sign
         env:
           SIGNING_CERTIFICATE_P12: ${{ secrets.SIGNING_CERTIFICATE_P12 }}
           SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}
         run: |
-          APP=build/Build/Products/Release/holzBar.app
+          set -euo pipefail
+          APP="$RUNNER_TEMP/release/holzBar.app"
           if [ -z "$SIGNING_CERTIFICATE_P12" ] || [ -z "$SIGNING_CERTIFICATE_PASSWORD" ]; then
-            echo "::warning::SIGNING_CERTIFICATE_P12 or SIGNING_CERTIFICATE_PASSWORD is not set, so this release is signed ad hoc and users must grant Accessibility again after updating. See docs/signing.md."
-            echo "Signature: ad hoc (no signing certificate in the repository secrets)" >> "$GITHUB_STEP_SUMMARY"
-            exit 0
+            echo "::error::SIGNING_CERTIFICATE_P12 or SIGNING_CERTIFICATE_PASSWORD is not set. holzBar is never released signed ad hoc: users would lose Accessibility and Screen Recording. See docs/signing.md."
+            exit 1
           fi
           KEYCHAIN="$RUNNER_TEMP/holzbar-signing.keychain-db"
           CERTIFICATE="$RUNNER_TEMP/holzbar-signing.p12"
@@ -101,49 +179,41 @@ jobs:
           security import "$CERTIFICATE" -k "$KEYCHAIN" -f pkcs12 -P "$SIGNING_CERTIFICATE_PASSWORD" -T /usr/bin/codesign > /dev/null
           rm -f "$CERTIFICATE"
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" > /dev/null
-          # The identity's SHA-1. The system does not trust a self-signed certificate, so
-          # find-identity runs without -v, which would list only trusted ones; codesign
-          # signs with it all the same.
-          IDENTITY=$(security find-identity -p codesigning "$KEYCHAIN" | awk '/^ *1\)/ && !found { print $2; found = 1 }')
+          # The SHA-1 of the certificate whose SHA-256 is holzBar's: find-certificate prints
+          # "SHA-256 hash: <hex>" and then "SHA-1 hash: <hex>" for each certificate.
+          EXPECTED=$(tr 'a-f' 'A-F' <<< "$EXPECTED_CERT_SHA256")
+          CERTIFICATES=$(security find-certificate -a -Z "$KEYCHAIN")
+          IDENTITY=$(awk -v want="$EXPECTED" '$1 == "SHA-256" && $3 == want { getline; if ($1 == "SHA-1") print $3; exit }' <<< "$CERTIFICATES")
           if [ -z "$IDENTITY" ]; then
-            echo "::error::SIGNING_CERTIFICATE_P12 holds no code signing identity (a code signing certificate with its private key)."
+            echo "::error::SIGNING_CERTIFICATE_P12 does not hold holzBar's certificate (SHA-256 $EXPECTED_CERT_SHA256)."
             exit 1
           fi
+          # The system does not trust a self-signed certificate, so find-identity runs
+          # without -v, which would list only trusted ones; codesign signs with it all the same.
+          IDENTITIES=$(security find-identity -p codesigning "$KEYCHAIN")
+          if ! grep -qE "^ *[0-9]+\) $IDENTITY " <<< "$IDENTITIES"; then
+            echo "::error::SIGNING_CERTIFICATE_P12 holds holzBar's certificate without its private key."
+            exit 1
+          fi
+          # Every piece of code is signed with explicitly empty entitlements: the build job
+          # proved the build had none, so nothing real can be dropped silently, and nothing
+          # the build carried (such as get-task-allow) can survive.
+          ENTITLEMENTS="$RUNNER_TEMP/empty.entitlements"
+          plutil -create xml1 "$ENTITLEMENTS"
           # Inside out, without --deep (Apple's guidance): the embedded code first, deepest
-          # first, then the app. The identifier, the hardened runtime and the (empty)
-          # entitlements of the ad hoc build are kept; the designated requirement is made
-          # anew from the certificate. No timestamp: that would ask Apple's timestamp
-          # server, which serves Developer ID signatures.
+          # first, then the app. The identifier and the hardened runtime of the ad hoc build
+          # are kept, never its entitlements; the designated requirement is made anew from the
+          # certificate. No timestamp: that would ask Apple's timestamp server, which serves
+          # Developer ID signatures.
           sign() {
             codesign --force --sign "$IDENTITY" --keychain "$KEYCHAIN" \
-              --options runtime --timestamp=none \
-              --preserve-metadata=identifier,entitlements,flags,runtime "$1"
+              --options runtime --timestamp=none --entitlements "$ENTITLEMENTS" \
+              --preserve-metadata=identifier,flags,runtime "$1"
           }
           while IFS= read -r -d '' NESTED; do
             sign "$NESTED"
           done < <(find "$APP/Contents" -depth \( -name '*.xpc' -o -name '*.appex' -o -name '*.framework' -o -name '*.app' -o -name '*.dylib' \) -print0)
           sign "$APP"
-
-          codesign --verify --deep --strict "$APP"
-          for BUNDLE in "$APP" "$APP/Contents/XPCServices/MenuBarItemService.xpc"; do
-            DETAILS=$(codesign -dv "$BUNDLE" 2>&1)
-            if ! grep -qE '^CodeDirectory.*flags=0x[0-9a-f]+\([^)]*runtime' <<< "$DETAILS"; then
-              echo "::error::$(basename "$BUNDLE") lost the hardened runtime while signing"
-              exit 1
-            fi
-            if grep -q 'Signature=adhoc' <<< "$DETAILS"; then
-              echo "::error::$(basename "$BUNDLE") is still signed ad hoc"
-              exit 1
-            fi
-          done
-          echo "==> Designated requirement"
-          codesign -d -r- "$APP" 2>&1 | sed -n 's/^designated => /    /p'
-          # The certificate's SHA-256, which users can compare (docs/signing.md).
-          mkdir -p "$RUNNER_TEMP/certificates"
-          codesign -d --extract-certificates="$RUNNER_TEMP/certificates/certificate" "$APP" 2> /dev/null
-          FINGERPRINT=$(shasum -a 256 "$RUNNER_TEMP/certificates/certificate0" | cut -d' ' -f1)
-          echo "==> Signed with the certificate whose SHA-256 is $FINGERPRINT"
-          echo "Signature: holzBar's certificate, SHA-256 $FINGERPRINT" >> "$GITHUB_STEP_SUMMARY"
 
       # Removes the key from the runner, whether signing worked or not.
       - name: Remove the signing keychain
@@ -152,49 +222,288 @@ jobs:
           security delete-keychain "$RUNNER_TEMP/holzbar-signing.keychain-db" 2> /dev/null || true
           rm -f "$RUNNER_TEMP/holzbar-signing.p12"
 
-      - name: Package
+      # What users and macOS rely on, checked before anything is published: every piece of
+      # code is signed with holzBar's certificate, never ad hoc, with the hardened runtime on
+      # every bundle and no entitlement at all; the app's designated requirement is exactly
+      # its identifier and that certificate, which keeps Accessibility across updates.
+      - name: Check the signature
+        env:
+          APP: ${{ runner.temp }}/release/holzBar.app
         run: |
+          set -euo pipefail
+          FAILED=0
+          fail() {
+            echo "::error::$1"
+            FAILED=1
+          }
+          EXPECTED=$(tr 'A-F' 'a-f' <<< "$EXPECTED_CERT_SHA256")
+          if ! codesign --verify --deep --strict "$APP"; then
+            fail "holzBar.app does not pass codesign --verify --deep --strict"
+          fi
+          CERTS="$RUNNER_TEMP/certificates"
+          rm -rf "$CERTS"
+          mkdir -p "$CERTS"
+          ITEMS=()
+          while IFS= read -r -d '' ITEM; do
+            ITEMS+=("$ITEM")
+          done < <(find "$APP/Contents" -depth \( -name '*.xpc' -o -name '*.appex' -o -name '*.framework' -o -name '*.app' -o -name '*.dylib' \) -print0)
+          ITEMS+=("$APP")
+          N=0
+          for ITEM in "${ITEMS[@]}"; do
+            N=$((N + 1))
+            NAME="holzBar.app${ITEM#"$APP"}"
+            if ! DETAILS=$(codesign -dv "$ITEM" 2>&1); then
+              fail "$NAME is not signed"
+              continue
+            fi
+            if grep -q 'Signature=adhoc' <<< "$DETAILS"; then
+              fail "$NAME is still signed ad hoc"
+            fi
+            case "$ITEM" in
+              *.app | *.xpc | *.appex)
+                if ! grep -qE '^CodeDirectory.*flags=0x[0-9a-f]+\([^)]*runtime' <<< "$DETAILS"; then
+                  fail "$NAME is not signed with the hardened runtime"
+                fi
+                ;;
+            esac
+            ENTITLEMENTS=$(codesign -d --entitlements - --xml "$ITEM" 2> /dev/null || true)
+            if grep -q 'com.apple.security.get-task-allow' <<< "$ENTITLEMENTS"; then
+              fail "$NAME carries com.apple.security.get-task-allow, which lets a debugger attach to it"
+            elif grep -q '<key>' <<< "$ENTITLEMENTS"; then
+              fail "$NAME carries entitlements; holzBar has none"
+            fi
+            codesign -d --extract-certificates="$CERTS/$N-" "$ITEM" 2> /dev/null || true
+            if [ ! -f "$CERTS/$N-0" ]; then
+              fail "$NAME carries no certificate"
+              continue
+            fi
+            LEAF=$(shasum -a 256 "$CERTS/$N-0" | cut -d' ' -f1)
+            if [ "$LEAF" != "$EXPECTED" ]; then
+              fail "$NAME is signed with the certificate $LEAF, not holzBar's ($EXPECTED)"
+            fi
+          done
+          # The app comes last in ITEMS, so its leaf certificate is $CERTS/$N-0.
+          REQUIREMENT=$(codesign -d -r- "$APP" 2>&1 | sed -n 's/^designated => //p')
+          if [ -f "$CERTS/$N-0" ]; then
+            LEAF_SHA1=$(shasum -a 1 "$CERTS/$N-0" | cut -d' ' -f1)
+            EXPECTED_REQUIREMENT="identifier \"com.holzcloud.holzBar\" and certificate leaf = H\"$LEAF_SHA1\""
+            if [ "$REQUIREMENT" != "$EXPECTED_REQUIREMENT" ]; then
+              fail "The designated requirement is '$REQUIREMENT', expected '$EXPECTED_REQUIREMENT'"
+            fi
+          fi
+          if [ "$FAILED" -ne 0 ]; then
+            exit 1
+          fi
+          echo "==> Signed with the certificate whose SHA-256 is $EXPECTED"
+          echo "==> Designated requirement: $REQUIREMENT"
+          {
+            echo "Signature: holzBar's certificate, SHA-256 $EXPECTED"
+            echo
+            echo "Designated requirement: \`$REQUIREMENT\`"
+            echo
+            echo "Entitlements: none, on all $N pieces of code"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # The zip users download. hashes is the zip's sha256sum line, base64-encoded, the
+      # subject format of the SLSA provenance generator.
+      - name: Package
+        id: package
+        run: |
+          set -euo pipefail
           ZIP="holzBar-$VERSION.zip"
-          ditto -c -k --keepParent build/Build/Products/Release/holzBar.app "$ZIP"
-          echo "ZIP=$ZIP" >> "$GITHUB_ENV"
-          echo "SHA256=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)" >> "$GITHUB_ENV"
+          cd "$RUNNER_TEMP"
+          ditto -c -k --keepParent release/holzBar.app "$ZIP"
+          SHA256=$(shasum -a 256 "$ZIP" | cut -d' ' -f1)
+          {
+            echo "zip=$ZIP"
+            echo "sha256=$SHA256"
+            echo "hashes=$(shasum -a 256 "$ZIP" | base64 | tr -d '\n')"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: holzBar-release
+          path: ${{ runner.temp }}/${{ steps.package.outputs.zip }}
+          retention-days: 7
+          if-no-files-found: error
+
+  publish:
+    name: Publish the release
+    needs: [build, sign]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      # Creates the release and uploads the zip.
+      contents: write
+      # Signs the provenance with this workflow's identity (Sigstore).
+      id-token: write
+      # Stores the attestation with GitHub.
+      attestations: write
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+      ZIP: ${{ needs.sign.outputs.zip }}
+      SHA256: ${{ needs.sign.outputs.sha256 }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      # Only the release notes, as data; no code from the repository runs here.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: docs/release-notes
+          persist-credentials: false
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: holzBar-release
+          path: dist
+
+      - name: Check the signed zip
+        run: |
+          set -euo pipefail
+          ACTUAL=$(sha256sum "dist/$ZIP" | cut -d' ' -f1)
+          if [ "$ACTUAL" != "$SHA256" ]; then
+            echo "::error::dist/$ZIP has SHA-256 $ACTUAL, but the sign job made $SHA256."
+            exit 1
+          fi
 
       # Build provenance (SLSA): a statement, signed with this workflow's identity and kept
-      # by GitHub, that this zip was built here, from this commit, by this workflow. Anyone
-      # can check a download with
-      # `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar` (docs/signing.md).
+      # by GitHub, that this zip was built here, from this tag, by this workflow. Anyone can
+      # check a download with
+      # `gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar
+      # --signer-workflow holzcloud/holzBar/.github/workflows/release.yml
+      # --source-ref refs/tags/v<version>` (docs/signing.md).
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v4
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
-          subject-path: ${{ env.ZIP }}
+          subject-path: dist/${{ needs.sign.outputs.zip }}
 
+      # Creates the release for the pushed tag. A release that already exists (a re-run, or
+      # one created by hand) is completed, but a zip it already carries is never replaced.
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           TAG="v$VERSION"
+          NOTES="docs/release-notes/$TAG.md"
           # holzBar is in beta until 1.0: every 0.x release, and every tag with a
           # suffix such as -beta1, is published as a pre-release.
-          PRERELEASE=()
+          IS_PRERELEASE=false
           if [[ "$TAG" == v0.* || "$TAG" == *-* ]]; then
-            PRERELEASE=(--prerelease)
+            IS_PRERELEASE=true
           fi
-          NOTES="docs/release-notes/$TAG.md"
-          gh release create "$TAG" "$ZIP" \
-            --target "$GITHUB_SHA" --title "holzBar $TAG" --notes-file "$NOTES" "${PRERELEASE[@]}"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            DIGEST=$(gh release view "$TAG" --json assets --jq '.assets[] | select(.name == env.ZIP) | .digest')
+            if [ -n "$DIGEST" ]; then
+              if [ "$DIGEST" != "sha256:$SHA256" ]; then
+                echo "::error::Release $TAG already carries a different $ZIP ($DIGEST). A published zip is never replaced."
+                exit 1
+              fi
+            else
+              gh release upload "$TAG" "dist/$ZIP"
+            fi
+            gh release edit "$TAG" --title "holzBar $TAG" --notes-file "$NOTES" \
+              --prerelease="$IS_PRERELEASE" --draft=false
+          else
+            # --verify-tag: the tag must exist already; this workflow never creates tags.
+            gh release create "$TAG" "dist/$ZIP" --verify-tag --title "holzBar $TAG" \
+              --notes-file "$NOTES" --prerelease="$IS_PRERELEASE"
+          fi
 
-      - name: Update the Homebrew cask
+  # The Homebrew cask that every user installs from. main takes only pull requests with
+  # green checks; this job alone may push to it, with a deploy key.
+  cask:
+    name: Update the Homebrew cask
+    needs: [build, sign, publish]
+    runs-on: macos-26
+    timeout-minutes: 20
+    # The environment, which only v* tag runs may use, holds CASK_DEPLOY_KEY: the write
+    # deploy key that the main ruleset lets push. GITHUB_TOKEN cannot.
+    environment: release
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.build.outputs.version }}
+      ZIP: ${{ needs.sign.outputs.zip }}
+      SHA256: ${{ needs.sign.outputs.sha256 }}
+      GH_REPO: ${{ github.repository }}
+      HOMEBREW_NO_AUTO_UPDATE: "1"
+      HOMEBREW_NO_ENV_HINTS: "1"
+    steps:
+      # main, not the tag; the key stays configured because the last step pushes with it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          ssh-key: ${{ secrets.CASK_DEPLOY_KEY }}
+
+      # The cask moves only to the newest release, and only to the zip that was signed above.
+      - name: Check the published zip
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git fetch origin main
-          git checkout -B main origin/main
-          sed -i '' -E \
-            -e "s/^  version \".*\"/  version \"$VERSION\"/" \
-            -e "s/^  sha256 .*/  sha256 \"$SHA256\"/" \
-            Casks/holzbar.rb
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "holzbar $VERSION"
-          git push origin main
+          set -euo pipefail
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta[0-9]+)?$ ]] || [[ ! "$SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error::The version or the checksum from the sign job is malformed."
+            exit 1
+          fi
+          # A re-run of an older release must never move the cask back.
+          NEWEST=$(gh release list --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName')
+          if [ "$NEWEST" != "v$VERSION" ]; then
+            echo "::error::The newest release is $NEWEST, not v$VERSION; the cask stays as it is."
+            exit 1
+          fi
+          DIGEST=$(gh release view "v$VERSION" --json assets --jq '.assets[] | select(.name == env.ZIP) | .digest')
+          if [ "$DIGEST" != "sha256:$SHA256" ]; then
+            echo "::error::The published $ZIP has digest '$DIGEST', not sha256:$SHA256."
+            exit 1
+          fi
+
+      # Changes exactly the version and sha256 lines on the newest main, style-checks the
+      # cask the way cask.yml does, and pushes. If main moved in between, the edit is made
+      # again on the new main, so no merge conflict can occur.
+      - name: Update the cask on main
+        run: |
+          set -euo pipefail
+          # Users run a current Homebrew; the runner image may be older.
+          brew update --quiet
+          SRC="$RUNNER_TEMP/tap-src"
+          EXPECTED_NUMSTAT=$(printf '2\t2\tCasks/holzbar.rb')
+          for ATTEMPT in 1 2 3; do
+            git fetch --quiet origin main
+            git checkout --quiet -B main origin/main
+            if grep -qxF "  version \"$VERSION\"" Casks/holzbar.rb && grep -qxF "  sha256 \"$SHA256\"" Casks/holzbar.rb; then
+              echo "::notice::Casks/holzbar.rb is already at $VERSION."
+              exit 0
+            fi
+            sed -i '' -E \
+              -e "s/^  version \".*\"/  version \"$VERSION\"/" \
+              -e "s/^  sha256 .*/  sha256 \"$SHA256\"/" \
+              Casks/holzbar.rb
+            NUMSTAT=$(git diff --numstat)
+            # git diff lists every changed tracked file: exactly two lines of the cask, nothing else.
+            if [ "$NUMSTAT" != "$EXPECTED_NUMSTAT" ]; then
+              git diff
+              echo "::error::The cask update must change exactly the version and the sha256 line of Casks/holzbar.rb."
+              exit 1
+            fi
+            git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -qam "holzbar $VERSION"
+            # The committed cask, loaded from a local copy as the tap.
+            rm -rf "$SRC"
+            git clone --quiet "$GITHUB_WORKSPACE" "$SRC"
+            git -C "$SRC" checkout --quiet -B main "$(git rev-parse HEAD)"
+            brew untap holzcloud/holzbar > /dev/null 2>&1 || true
+            brew tap holzcloud/holzbar "$SRC"
+            brew trust --cask holzcloud/holzbar/holzbar
+            brew style --cask holzcloud/holzbar/holzbar
+            if git push origin HEAD:main; then
+              echo "==> Casks/holzbar.rb is at $VERSION on main."
+              exit 0
+            fi
+            sleep $((15 * ATTEMPT))
+          done
+          echo "::error::Could not push the cask update to main after three attempts."
+          exit 1
 
   # holzcloud.ch shows the released version on the holzBar page in five
   # languages. This writes it there through the holzcloud-CMS once the
@@ -205,17 +514,19 @@ jobs:
   # from here). Without the CMS_TOKEN secret it prints a notice and succeeds.
   holzcloud-ch:
     name: Show the version on holzcloud.ch
-    needs: release
+    needs: [build, cask]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           sparse-checkout: .github/cms-version.py
           sparse-checkout-cone-mode: false
+          persist-credentials: false
       - name: Write the version into the project pages and read it back
         env:
           CMS_TOKEN: ${{ secrets.CMS_TOKEN }}
-          VERSION: ${{ needs.release.outputs.version }}
+          VERSION: ${{ needs.build.outputs.version }}
         run: python3 .github/cms-version.py --project holzbar --version "$VERSION"

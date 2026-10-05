@@ -19,6 +19,12 @@ jobs:
       # Xcode otherwise adds to code signed to run locally.
       - name: Build
         run: |
+          # The project's SwiftLint build phase runs no tool from the runner only while CI is
+          # set; nothing in this workflow may unset it.
+          if [ "${CI:-}" != true ]; then
+            echo "::error::CI is not set to true, so the project's SwiftLint build phase would run."
+            exit 1
+          fi
           set +e
           xcodebuild -project holzBar.xcodeproj -scheme holzBar -configuration Release \
             -destination 'platform=macOS' -derivedDataPath build build \
