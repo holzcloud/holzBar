@@ -409,11 +409,34 @@ jobs:
               --notes-file "$NOTES" --prerelease="$IS_PRERELEASE"
           fi
 
+  # SLSA Build Level 3 provenance next to GitHub's attestation, attached to the release as
+  # holzBar-<version>.intoto.jsonl and verifiable with slsa-verifier --source-uri
+  # github.com/holzcloud/holzBar --source-tag v<version>. The generator must be referenced by
+  # its version tag, not a SHA: it checks its own ref. Its project announced in August 2026
+  # that it is no longer actively maintained; the attestation in publish is the maintained
+  # provenance. It runs after publish, so it uploads into the release with the notes.
+  provenance:
+    name: SLSA provenance
+    needs: [build, sign, publish]
+    permissions:
+      # Reads the workflow run.
+      actions: read
+      # Signs the provenance through Sigstore.
+      id-token: write
+      # Uploads the provenance to the release.
+      contents: write
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.1.0
+    with:
+      base64-subjects: ${{ needs.sign.outputs.hashes }}
+      provenance-name: holzBar-${{ needs.build.outputs.version }}.intoto.jsonl
+      upload-assets: true
+
   # The Homebrew cask that every user installs from. main takes only pull requests with
   # green checks; this job alone may push to it, with a deploy key.
   cask:
     name: Update the Homebrew cask
-    needs: [build, sign, publish]
+    # The cask moves only when the release carries both provenances.
+    needs: [build, sign, publish, provenance]
     runs-on: macos-26
     timeout-minutes: 20
     # The environment, which only v* tag runs may use, holds CASK_DEPLOY_KEY: the write

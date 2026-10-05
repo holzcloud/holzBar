@@ -157,6 +157,9 @@ def check_pins(path, lines):
             continue
         if SLSA_GENERATOR.match(value):
             continue
+        if value.startswith("slsa-framework/slsa-github-generator/.github/workflows/"):
+            annotate(path, number, f"{value} must be referenced by its version tag (@vX.Y.Z): the generator checks its own ref")
+            continue
         if not SHA_PINNED.match(value):
             annotate(path, number, f"{value} is not pinned by a full commit SHA")
         elif not VERSION_COMMENT.match(comment):
