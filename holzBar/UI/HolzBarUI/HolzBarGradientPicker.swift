@@ -53,6 +53,7 @@ struct HolzBarGradientPicker<Label: View>: View {
             HolzBarGradientPickerRoot(
                 gradient: $gradient,
                 selection: $selection,
+                window: $window,
                 supportsOpacity: supportsOpacity
             )
             .onWindowChange(update: $window)
@@ -76,7 +77,13 @@ private struct HolzBarGradientPickerRoot: View {
 
     @Binding var gradient: HolzBarGradient
     @Binding var selection: Int?
+    /// A binding, not a value: the key monitor keeps the closure from the first
+    /// render, when the window is not known yet, and must read the current window.
+    @Binding var window: NSWindow?
     @State private var lastUpdated: Int?
+    /// Set while the selection moves to the same stop's new index, which must
+    /// not close and reopen the colour panel.
+    @State private var isRemappingSelection = false
 
     let supportsOpacity: Bool
 
@@ -109,11 +116,17 @@ private struct HolzBarGradientPickerRoot: View {
             .onTapGesture(count: 2) {
                 distributeStops()
             }
-            .onKeyDown(key: .delete, isEnabled: selection != nil) {
+            .onKeyDown(key: .delete, isEnabled: selection != nil) { event in
+                guard isKeyDownForPicker(event) else {
+                    return .ignored
+                }
                 deleteSelectedStop()
                 return .handled
             }
-            .onKeyDown(key: .escape, isEnabled: selection != nil) {
+            .onKeyDown(key: .escape, isEnabled: selection != nil) { event in
+                guard isKeyDownForPicker(event) else {
+                    return .ignored
+                }
                 selection = nil
                 dismissColorPanel()
                 return .handled
@@ -192,6 +205,23 @@ private struct HolzBarGradientPickerRoot: View {
         }
     }
 
+    /// Returns a Boolean value that indicates whether a key press is meant for
+    /// the picker: it goes to the picker's window, no text is being edited there,
+    /// and no modifier is held.
+    ///
+    /// The key monitor sees every key press in the app, including those for the
+    /// colour panel's fields and for other windows.
+    private func isKeyDownForPicker(_ event: NSEvent) -> Bool {
+        guard
+            let window,
+            event.window === window,
+            !(window.firstResponder is NSText)
+        else {
+            return false
+        }
+        return event.modifierFlags.intersection([.command, .option, .control, .shift]).isEmpty
+    }
+
     private func insertStop(at location: CGFloat, select: Bool) {
         var location = location.clamped(to: 0...1)
         if abs(location - 0.5) <= 0.025 {
@@ -220,6 +250,10 @@ private struct HolzBarGradientPickerRoot: View {
 
     private func selectionChanged(from oldValue: Int?, to newValue: Int?) {
         guard oldValue != newValue else {
+            return
+        }
+        guard !isRemappingSelection else {
+            isRemappingSelection = false
             return
         }
 
@@ -289,13 +323,20 @@ private struct HolzBarGradientPickerRoot: View {
             gradient.stops[0].location = 0.5
         } else {
             let last = CGFloat(gradient.stops.count - 1)
-            let newStops = gradient.stops.lazy
-                .sorted { $0.location < $1.location }
+            let stops = gradient.stops
+            let sortedIndices = stops.indices.sorted { stops[$0].location < stops[$1].location }
+            let newStops = sortedIndices
                 .enumerated()
-                .map { n, stop in
-                    stop.withLocation(CGFloat(n) / last)
+                .map { n, index in
+                    stops[index].withLocation(CGFloat(n) / last)
                 }
             gradient.stops = newStops
+            // The selection is an index, so it follows the selected stop to its new place.
+            let newSelection = selection.flatMap { sortedIndices.firstIndex(of: $0) }
+            if newSelection != selection {
+                isRemappingSelection = true
+                selection = newSelection
+            }
         }
     }
 }

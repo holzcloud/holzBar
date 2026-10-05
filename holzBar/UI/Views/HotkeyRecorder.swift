@@ -34,6 +34,11 @@ struct HotkeyRecorder<Label: View>: View {
         } message: { problem in
             Text(problem.message)
         }
+        .onDisappear {
+            // Recording disables the hotkey, so register it again when the
+            // recorder goes away (another Settings pane, a closed popover).
+            model.stopRecording()
+        }
     }
 
     @ViewBuilder
@@ -174,8 +179,19 @@ private final class HotkeyRecorderModel {
 
     let hotkey: Hotkey
 
+    /// The recorder that is recording, if any.
+    ///
+    /// Only one recorder records at a time, because each one's monitor
+    /// swallows every key press in the app.
+    private static weak var current: HotkeyRecorderModel?
+
     @ObservationIgnored private lazy var monitor = EventMonitor.local(for: .keyDown) { [weak self] event in
         guard let self else {
+            return event
+        }
+        // While the alert for a problem is shown, it gets the key presses
+        // (Return, Escape), and recording resumes once it is dismissed.
+        guard presentedProblem == nil else {
             return event
         }
         handleKeyDown(event: event)
@@ -186,10 +202,19 @@ private final class HotkeyRecorderModel {
         self.hotkey = hotkey
     }
 
+    isolated deinit {
+        // A backstop for a recorder that goes away without disappearing first.
+        if isRecording {
+            hotkey.enable()
+        }
+    }
+
     func startRecording() {
         guard !isRecording else {
             return
         }
+        Self.current?.stopRecording()
+        Self.current = self
         hotkey.disable()
         monitor.start()
         isRecording = true
