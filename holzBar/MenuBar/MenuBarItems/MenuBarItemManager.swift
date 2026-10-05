@@ -508,6 +508,10 @@ extension MenuBarItemManager {
                     """
                 )
                 itemCache = ItemCache(displayID: nil)
+                // The window list may have been read while Control Center was still updating
+                // the dividers' windows (macOS 26), so the next read of an unchanged list must
+                // not be skipped. It comes with the next event, timer or Shelf, not from here.
+                await cacheActor.clearCachedItemWindowIDs()
                 return
             }
 

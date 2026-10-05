@@ -21,10 +21,10 @@ nonisolated enum BlockingWork {
     /// The caller is suspended, not blocked: the main actor goes on serving events while
     /// the work runs. The work runs off the Swift concurrency pool as well, which must not
     /// be blocked either.
-    static func run<Result: Sendable>(
+    static func run<Value: Sendable>(
         on queue: DispatchQueue,
-        _ work: @escaping @Sendable () -> Result
-    ) async -> Result {
+        _ work: @escaping @Sendable () -> Value
+    ) async -> Value {
         await withCheckedContinuation { continuation in
             queue.async {
                 continuation.resume(returning: work())

@@ -33,22 +33,30 @@ enum OwnStatusItemWindows {
         entries[identifier] = Entry(statusItem: statusItem)
     }
 
-    /// Returns the identifier of the control item whose window has the given bounds, as
-    /// the window list describes them, or `nil` when the window is none of holzBar's
-    /// control items.
-    static func controlItem(forWindowBounds bounds: CGRect) -> ControlItem.Identifier? {
+    /// Returns, for each of the given window bounds as the window list describes them, the
+    /// identifier of the control item whose window it is, or `nil` for a window that is
+    /// none of holzBar's control items.
+    ///
+    /// The primary screen's height and the control items' frames are read once, so every
+    /// window of one item list is compared against the same values.
+    static func controlItems(forWindowBounds windowBounds: [CGRect]) -> [ControlItem.Identifier?] {
         guard let primaryScreenHeight = NSScreen.screens.first?.frame.height else {
-            return nil
+            return windowBounds.map { _ in nil }
         }
-        return entries.first { _, entry in
+        let frames = entries.compactMap { identifier, entry -> (identifier: ControlItem.Identifier, frame: CGRect)? in
             guard
                 let statusItem = entry.statusItem,
                 statusItem.isVisible,
                 let frame = statusItem.button?.window?.frame
             else {
-                return false
+                return nil
             }
-            return StatusItemWindowFrame.matches(bounds, appKitFrame: frame, primaryScreenHeight: primaryScreenHeight)
-        }?.key
+            return (identifier, frame)
+        }
+        return windowBounds.map { bounds in
+            frames.first { candidate in
+                StatusItemWindowFrame.matches(bounds, appKitFrame: candidate.frame, primaryScreenHeight: primaryScreenHeight)
+            }?.identifier
+        }
     }
 }
