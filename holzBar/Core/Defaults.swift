@@ -206,8 +206,10 @@ nonisolated extension Defaults {
         case macOS27ShelfWaitsForRefresh = "MacOS27IceBarWaitsForRefresh"
 
         // MARK: Debugging
-        /// Drops the exit event of every move and click event barrier before macOS 27, so
-        /// each barrier times out; shows that holzBar recovers from a lost event. Hidden:
+        /// Loses the round trip of every move and click event barrier before macOS 27: the
+        /// entry event is dropped, so the real event never reaches the item, the exit event
+        /// never comes back and each barrier times out; shows that holzBar recovers from a
+        /// lost event. Hidden:
         /// `defaults write com.holzcloud.holzBar DebugDropsBarrierExitEvent -bool true`.
         /// Never exported, imported or synced.
         case debugDropsBarrierExitEvent = "DebugDropsBarrierExitEvent"

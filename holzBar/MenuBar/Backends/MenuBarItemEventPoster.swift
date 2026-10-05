@@ -189,7 +189,7 @@ final class MenuBarItemEventPoster {
         let secondLocation = EventTap.Location.sessionEventTap
 
         let wait = bound.wait(timeout: timeout, count: count)
-        let dropsExitEvent = Defaults.bool(forKey: .debugDropsBarrierExitEvent)
+        let losesRoundTrip = Defaults.bool(forKey: .debugDropsBarrierExitEvent)
         let startedAt = ContinuousClock.now
         var count = count
 
@@ -215,15 +215,16 @@ final class MenuBarItemEventPoster {
                 option: .defaultTap
             ) { tap, rEvent in
                 if rEvent.matches(entryEvent, byIntegerFields: [.eventSourceUserData]) {
+                    // The debug default loses the round trip: the real event never reaches
+                    // the item, no exit event comes back, and the barrier times out.
+                    guard !losesRoundTrip else {
+                        return nil
+                    }
                     count -= 1
                     event.post(to: secondLocation)
                     return nil
                 }
                 if rEvent.matches(exitEvent, byIntegerFields: [.eventSourceUserData]) {
-                    // The debug default drops it, so the barrier times out.
-                    guard !dropsExitEvent else {
-                        return nil
-                    }
                     tap.disable()
                     barrier.resume(with: .success(()))
                     return nil
@@ -370,7 +371,7 @@ final class MenuBarItemEventPoster {
         let secondLocation = EventTap.Location.sessionEventTap
 
         let wait = bound.wait(timeout: timeout, count: count)
-        let dropsExitEvent = Defaults.bool(forKey: .debugDropsBarrierExitEvent)
+        let losesRoundTrip = Defaults.bool(forKey: .debugDropsBarrierExitEvent)
         let startedAt = ContinuousClock.now
         var count = count
 
@@ -396,15 +397,16 @@ final class MenuBarItemEventPoster {
                 option: .defaultTap
             ) { tap, rEvent in
                 if rEvent.matches(entryEvent, byIntegerFields: [.eventSourceUserData]) {
+                    // The debug default loses the round trip: the real event never reaches
+                    // the item, no exit event comes back, and the barrier times out.
+                    guard !losesRoundTrip else {
+                        return nil
+                    }
                     count -= 1
                     event.post(to: secondLocation)
                     return nil
                 }
                 if rEvent.matches(exitEvent, byIntegerFields: [.eventSourceUserData]) {
-                    // The debug default drops it, so the barrier times out.
-                    guard !dropsExitEvent else {
-                        return nil
-                    }
                     tap.disable()
                     barrier.resume(with: .success(()))
                     return nil
