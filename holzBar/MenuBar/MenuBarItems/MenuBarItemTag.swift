@@ -67,9 +67,17 @@ nonisolated struct MenuBarItemTag: Hashable, CustomStringConvertible {
 
     /// A Boolean value that indicates whether the item identified by this tag
     /// shows a Live Activity.
+    ///
+    /// The title is a hint only for system items (a UUID or an Apple namespace): any
+    /// other app could otherwise keep its item visible by naming it so.
     var isLiveActivity: Bool {
-        Self.liveActivityNamespaces.contains(namespace.description) ||
-        title.localizedCaseInsensitiveContains("LiveActivit")
+        if Self.liveActivityNamespaces.contains(namespace.description) {
+            return true
+        }
+        guard namespace.isUUID || namespace.description.hasPrefix("com.apple.") else {
+            return false
+        }
+        return title.localizedCaseInsensitiveContains("LiveActivit")
     }
 
     /// A textual representation of the tag.
