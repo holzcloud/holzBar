@@ -207,6 +207,10 @@ final class LayoutBarContainer: NSView {
             router.forgetLostFocus()
             if successor !== focusedView {
                 window?.makeFirstResponder(successor)
+                // A move puts the item at one end of a row, which may be scrolled away;
+                // the row first takes its new width.
+                enclosingScrollView?.layoutSubtreeIfNeeded()
+                successor.scrollToVisible(successor.bounds)
             }
         } else if let focusedView, oldViews.contains(focusedView) {
             // The item left this row; the row that shows it in the same cache takes the focus.
