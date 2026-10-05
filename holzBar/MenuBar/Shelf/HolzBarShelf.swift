@@ -183,10 +183,14 @@ final class HolzBarShelfPanel: NSPanel {
 
     /// Shows the panel on the given screen, displaying the given
     /// menu bar section.
-    func show(section: MenuBarSection.Name, on screen: NSScreen) async {
+    ///
+    /// - Returns: Whether the panel was shown, which it is not when it was closed
+    ///   or shown again while the caches updated.
+    @discardableResult
+    func show(section: MenuBarSection.Name, on screen: NSScreen) async -> Bool {
         let requestedAt = ContinuousClock.now
         guard let appState else {
-            return
+            return false
         }
 
         showGeneration += 1
@@ -224,7 +228,7 @@ final class HolzBarShelfPanel: NSPanel {
         // A close (or another show) while the caches updated wins: ordering the panel
         // front now would leave it on screen with no section, which nothing can dismiss.
         guard generation == showGeneration, currentSection == section else {
-            return
+            return false
         }
 
         let colorManager = colorManagerForShowing()
@@ -259,6 +263,7 @@ final class HolzBarShelfPanel: NSPanel {
             let milliseconds = Double(elapsed.seconds) * 1000 + Double(elapsed.attoseconds) / 1e15
             Logger.default.notice("holzBar Shelf shown \(milliseconds, privacy: .public) ms after it was requested")
         }
+        return true
     }
 
     /// Hides the panel.
