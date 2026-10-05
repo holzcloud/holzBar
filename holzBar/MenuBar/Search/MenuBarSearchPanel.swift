@@ -20,6 +20,9 @@ final class MenuBarSearchPanel: NSPanel {
     /// Model for menu bar item search.
     private let model = MenuBarSearchModel()
 
+    /// The pending show, which waits for the image cache before ordering the panel front.
+    private var showTask: Task<Void, Never>?
+
     /// Monitor for mouse down events.
     private lazy var mouseDownMonitor = EventMonitor.universal(
         for: [.leftMouseDown, .rightMouseDown, .otherMouseDown]
@@ -119,8 +122,15 @@ final class MenuBarSearchPanel: NSPanel {
         // Important that we set the navigation state before updating the cache.
         appState.navigationState.isSearchPresented = true
 
-        Task {
+        showTask?.cancel()
+        showTask = Task {
             await appState.imageCache.updateCache()
+
+            // The panel was closed (or shown again) while the cache updated.
+            guard !Task.isCancelled else {
+                return
+            }
+            showTask = nil
 
             let hostingView = MenuBarSearchHostingView(appState: appState, model: model, displayID: screen.displayID, panel: self)
             hostingView.setFrameSize(hostingView.intrinsicContentSize)
@@ -144,12 +154,14 @@ final class MenuBarSearchPanel: NSPanel {
 
     /// Toggles the panel's visibility.
     func toggle() {
-        if isVisible { close() } else { show() }
+        if isVisible || showTask != nil { close() } else { show() }
     }
 
     /// Dismisses the search panel.
     override func close() {
         super.close()
+        showTask?.cancel()
+        showTask = nil
         contentView = nil
         mouseDownMonitor.stop()
         keyDownMonitor.stop()
