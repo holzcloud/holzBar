@@ -51,19 +51,28 @@ enum SettingsBackup {
         }
     }
 
-    /// Replaces the current settings with the given ones.
+    /// Applies the given settings; a file import also removes the settings the file lacks.
     ///
     /// Only holzBar's own keys with a value of the expected kind are applied; every other
     /// key is ignored, counted in the log and returned.
     ///
-    /// - Parameter settings: The settings from a file or from iCloud Drive.
+    /// - Parameters:
+    ///   - settings: The settings from a file or from the sync folder.
+    ///   - removesMissingKeys: Whether current settings that `settings` lacks are removed.
+    ///     A file import replaces every setting; sync keeps the settings the other Mac
+    ///     never had (``Defaults/Key/keysRemoved(applying:over:removesMissingKeys:)``).
     /// - Returns: The keys that were ignored, sorted.
     @discardableResult
-    static func apply(_ settings: [String: Any]) -> [String] {
+    static func apply(_ settings: [String: Any], removesMissingKeys: Bool) -> [String] {
         let defaults = UserDefaults.standard
         let incoming = settings.filter { key, _ in !isExcluded(key) }
         let (accepted, ignored) = Defaults.Key.validatedSettings(incoming)
-        for (key, _) in currentSettings() where accepted[key] == nil {
+        let removed = Defaults.Key.keysRemoved(
+            applying: accepted,
+            over: currentSettings(),
+            removesMissingKeys: removesMissingKeys
+        )
+        for key in removed {
             defaults.removeObject(forKey: key)
         }
         for (key, value) in accepted {
@@ -130,7 +139,7 @@ enum SettingsBackup {
             guard alert.runModal() == .alertFirstButtonReturn else {
                 return
             }
-            apply(settings)
+            apply(settings, removesMissingKeys: true)
             logger.notice("Imported settings from \(url.path(percentEncoded: false), privacy: .private)")
             relaunch()
         } catch {

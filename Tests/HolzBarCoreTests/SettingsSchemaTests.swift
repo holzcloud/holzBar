@@ -173,6 +173,34 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.menuBarAppearanceConfigurationV2.rawValue == "MenuBarAppearanceConfigurationV2")
     }
 
+    @Test("Sync keeps the settings the other Mac lacks")
+    func syncKeepsMissingKeys() {
+        let removed = Defaults.Key.keysRemoved(
+            applying: ["A": 1],
+            over: ["A": 0, "B": 1],
+            removesMissingKeys: false
+        )
+        #expect(removed.isEmpty)
+    }
+
+    @Test("A file import removes the settings the file lacks")
+    func importRemovesMissingKeys() {
+        let removed = Defaults.Key.keysRemoved(
+            applying: ["A": 1],
+            over: ["C": 2, "A": 0, "B": 1],
+            removesMissingKeys: true
+        )
+        #expect(removed == ["B", "C"])
+    }
+
+    @Test("A setting in both is never removed")
+    func keyInBothIsKept() {
+        let current: [String: Any] = ["A": 0, "B": 1]
+        let accepted: [String: Any] = ["A": 1, "B": 2]
+        #expect(Defaults.Key.keysRemoved(applying: accepted, over: current, removesMissingKeys: true).isEmpty)
+        #expect(Defaults.Key.keysRemoved(applying: accepted, over: current, removesMissingKeys: false).isEmpty)
+    }
+
     @Test("Settings keep their kinds")
     func settingsKeepTheirKinds() {
         #expect(Defaults.Key.hotkeys.settingsKind == .dictionary)

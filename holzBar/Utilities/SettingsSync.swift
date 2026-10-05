@@ -499,7 +499,7 @@ final class SettingsSync {
         else {
             return
         }
-        SettingsBackup.apply(newer.settings)
+        SettingsBackup.apply(newer.settings, removesMissingKeys: false)
         Defaults.set(true, forKey: .syncsSettingsWithICloud)
         UserDefaults.standard.set(newer.modified, forKey: lastSyncedKey)
         logger.notice("Applied settings from the sync folder")
