@@ -222,10 +222,11 @@ jobs:
           security delete-keychain "$RUNNER_TEMP/holzbar-signing.keychain-db" 2> /dev/null || true
           rm -f "$RUNNER_TEMP/holzbar-signing.p12"
 
-      # What users and macOS rely on, checked before anything is published: every piece of
-      # code is signed with holzBar's certificate, never ad hoc, with the hardened runtime on
-      # every bundle and no entitlement at all; the app's designated requirement is exactly
-      # its identifier and that certificate, which keeps Accessibility across updates.
+      # What users and macOS rely on, checked before anything is published: holzBar ships no
+      # nested code, so nothing the sign loop skipped can stay ad hoc; every piece of code is
+      # signed with holzBar's certificate, never ad hoc, with the hardened runtime on every
+      # bundle and no entitlement at all; the app's designated requirement is exactly its
+      # identifier and that certificate, which keeps Accessibility across updates.
       - name: Check the signature
         env:
           APP: ${{ runner.temp }}/release/holzBar.app
@@ -240,6 +241,21 @@ jobs:
           if ! codesign --verify --deep --strict "$APP"; then
             fail "holzBar.app does not pass codesign --verify --deep --strict"
           fi
+          # As in Scripts/check-signature.sh: Contents/MacOS/holzBar is the only Mach-O file.
+          for FOLDER in XPCServices PlugIns Helpers Frameworks; do
+            if [ -e "$APP/Contents/$FOLDER" ]; then
+              fail "holzBar.app/Contents/$FOLDER exists; holzBar ships no nested code"
+            fi
+          done
+          while IFS= read -r -d '' FILE; do
+            if [ "$FILE" = "$APP/Contents/MacOS/holzBar" ]; then
+              continue
+            fi
+            KIND=$(file -b "$FILE")
+            if [[ "$KIND" == Mach-O* ]]; then
+              fail "holzBar.app${FILE#"$APP"} is code outside holzBar's main executable; holzBar ships no nested code"
+            fi
+          done < <(find "$APP" -type f -print0)
           CERTS="$RUNNER_TEMP/certificates"
           rm -rf "$CERTS"
           mkdir -p "$CERTS"

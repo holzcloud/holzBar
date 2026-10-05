@@ -2,6 +2,11 @@
 #
 # Checks the signature of a built holzBar.app and of every piece of code inside it.
 #
+# holzBar ships no nested code: Contents/MacOS/holzBar is its only Mach-O file, and there
+# is no XPCServices, PlugIns, Helpers or Frameworks folder. Any other code would run with
+# holzBar's Accessibility and Screen Recording permissions, and the release workflow's
+# sign job would not sign it with holzBar's certificate.
+#
 # Every item must be validly signed, every bundle (app, XPC service, app extension) must
 # carry the hardened runtime, and no item may carry an entitlement. holzBar needs none.
 # Xcode adds com.apple.security.get-task-allow to code it signs to run locally; with it,
@@ -36,6 +41,22 @@ report() {
 if ! codesign --verify --deep --strict "$APP"; then
     report "$(basename "$APP") does not pass codesign --verify --deep --strict"
 fi
+
+for FOLDER in XPCServices PlugIns Helpers Frameworks; do
+    if [ -e "$APP/Contents/$FOLDER" ]; then
+        report "$(basename "$APP")/Contents/$FOLDER exists; holzBar ships no nested code"
+    fi
+done
+while IFS= read -r -d '' FILE; do
+    if [ "$FILE" = "$APP/Contents/MacOS/holzBar" ]; then
+        continue
+    fi
+    # Captured first, like codesign below, so SIGPIPE cannot hide a match under pipefail.
+    KIND=$(file -b "$FILE")
+    if [[ "$KIND" == Mach-O* ]]; then
+        report "$(basename "$APP")/${FILE#"$APP"/} is code outside holzBar's main executable; holzBar ships no nested code"
+    fi
+done < <(find "$APP" -type f -print0)
 
 # The nested code, deepest first, then the app itself.
 ITEMS=()
