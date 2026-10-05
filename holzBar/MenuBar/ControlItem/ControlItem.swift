@@ -226,10 +226,9 @@ final class ControlItem {
         }
 
         observers.append(
-            ObservationLoop.observe { appState.isDraggingMenuBarItem } onChange: { [weak self] isDragging in
-                if isDragging {
-                    self?.updateStatusItem()
-                }
+            ObservationLoop.observe { appState.isDraggingMenuBarItem } onChange: { [weak self] _ in
+                // Redraw when a drag ends too, so the dividers drop the drag marker and width.
+                self?.updateStatusItem()
             }
         )
 
