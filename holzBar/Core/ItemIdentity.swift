@@ -109,8 +109,10 @@ nonisolated enum ItemIdentity {
             }
             return "\(namespace):#1"
         }
-        // A key of this version for a later item without a title: `namespace:<occurrence>`.
-        if title.wholeMatch(of: /\d+/) != nil {
+        // A key of this version for a later item without a title: `namespace:<occurrence>`,
+        // which starts at 2 and has no leading zero. A raw title such as `0` or `01` is a
+        // key of an earlier version and is canonicalised below.
+        if title.wholeMatch(of: /[2-9]|[1-9]\d+/) != nil {
             return stored
         }
         // A key of this version: a canonical title (no digits, or an identifier) with an

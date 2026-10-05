@@ -91,6 +91,11 @@ struct ItemIdentityTests {
         for key in keys {
             #expect(ItemIdentity.storedKey(key, titleChangingOwners: []) == key)
         }
+        #expect(ItemIdentity.storedKey("d:10", titleChangingOwners: []) == "d:10")
+        // Occurrences start at 2 without a leading zero; other digits are earlier raw titles.
+        #expect(ItemIdentity.storedKey("d:0", titleChangingOwners: []) == "d:#")
+        #expect(ItemIdentity.storedKey("d:1", titleChangingOwners: []) == "d:#")
+        #expect(ItemIdentity.storedKey("d:01", titleChangingOwners: []) == "d:#")
     }
 
     @Test("Stored values of stale keys never outrank the current key")
