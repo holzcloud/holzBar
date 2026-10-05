@@ -428,12 +428,17 @@ extension HIDEventManager {
                 return
             }
 
-            // Get the window that was clicked.
+            // Get the window that was clicked: the topmost app window (layer 0) or Dock
+            // window under the mouse. Not by title: macOS withholds other apps' window
+            // titles without Screen Recording, which smart rehide does not need.
             guard
                 let mouseLocation = MouseHelpers.locationCoreGraphics,
                 let windowUnderMouse = WindowInfo.createWindows(option: .onScreen)
                     .filter({ $0.layer < CGWindowLevelForKey(.cursorWindow) })
-                    .first(where: { $0.bounds.contains(mouseLocation) && $0.title?.isEmpty == false }),
+                    .first(where: { window in
+                        window.bounds.contains(mouseLocation) &&
+                        (window.layer == 0 || window.owningApplication?.bundleIdentifier == "com.apple.dock")
+                    }),
                 let owningApplication = windowUnderMouse.owningApplication
             else {
                 return
