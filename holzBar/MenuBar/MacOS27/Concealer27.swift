@@ -30,8 +30,17 @@ final class Concealer27 {
     /// puts concealment back.
     @ObservationIgnored private var suspensionOwner = 0
 
-    /// When concealment last changed, which is when the bar last started moving.
+    /// When the last concealment change landed on the bar, which is when the bar last started
+    /// moving.
     @ObservationIgnored private var lastChangeAt = ContinuousClock.now
+
+    /// The applies queued, and whoever waits for one to land.
+    @ObservationIgnored private var applyLedger = ApplyLedger27<CheckedContinuation<Bool, Never>>()
+
+    /// How long a show is waited for. MenuBarAgent answers an activation within 3 s or the
+    /// activation times out (`MenuBarAssessmentAssertion27`), so a show that has not landed by
+    /// then is not waited for.
+    private static let applyWaitLimit = Duration.seconds(3)
 
     /// How long MenuBarAgent animates the bar after items are concealed or released
     /// (measured on macOS 27.0: about 250 ms, with a margin here).
@@ -208,16 +217,25 @@ final class Concealer27 {
 
     /// Derives what to conceal from holzBar's sections and applies it.
     func update() {
+        applyChanges()
+    }
+
+    /// Derives what to conceal from holzBar's sections and queues the apply.
+    ///
+    /// - Returns: Whether the change is on its way: queued now, or at the end of the suspension
+    ///   under way. `false` while concealment is paused or unavailable.
+    @discardableResult
+    private func applyChanges() -> Bool {
         guard let appState, MenuBarAssessmentAssertion27.isAvailable else {
-            return
+            return false
         }
         // While the screen is locked, the Mac sleeps or the session is away, the assertions
         // stay as they are; the concealment is applied again once the bar has settled.
         guard !appState.systemActivityMonitor.isPaused else {
-            return
+            return false
         }
         if let suspendedUntil, ContinuousClock.now < suspendedUntil {
-            return
+            return true
         }
         let applications = NSWorkspace.shared.runningApplications
         let running = Set(applications.compactMap(\.bundleIdentifier))
@@ -254,16 +272,18 @@ final class Concealer27 {
         concealedPIDs = Self.processIdentifiers(of: concealed, among: applications)
         stateGeneration += 1
         let generation = stateGeneration
-        lastChangeAt = .now
         let previous = applyTask
+        let sequence = applyLedger.queue()
         let task = Task { [weak self, controller, logger] in
             await previous?.value
             do {
                 try await controller.apply(target: target, running: running)
                 self?.failedApplies = 0
+                self?.applyFinished(sequence, succeeded: true)
             } catch {
                 logger.error("Could not apply concealment: \(error, privacy: .private)")
                 self?.applyDidFail(generation: generation)
+                self?.applyFinished(sequence, succeeded: false)
             }
         }
         applyTask = task
@@ -278,6 +298,46 @@ final class Concealer27 {
             await self?.checkNotchCover()
             await self?.checkOwnIcon()
         }
+        return true
+    }
+
+    /// Records that an apply landed and answers whoever waited for it.
+    private func applyFinished(_ sequence: Int, succeeded: Bool) {
+        // The bar starts moving when the change lands, not when it was queued.
+        lastChangeAt = .now
+        for waiter in applyLedger.finish(sequence, succeeded: succeeded) {
+            waiter.resume(returning: succeeded)
+        }
+    }
+
+    /// Waits for the given apply to land, for at most ``applyWaitLimit``.
+    ///
+    /// The apply and the time limit share the continuation, and the ledger hands it to only
+    /// one of them. The shared timeout helpers do not fit: they wait for the operation to
+    /// return, and nothing cancels an apply.
+    ///
+    /// - Returns: Whether the apply succeeded in time.
+    private func waitForApply(_ apply: Int) async -> Bool {
+        await withCheckedContinuation { continuation in
+            guard let id = applyLedger.wait(for: apply, waiter: continuation) else {
+                continuation.resume(returning: applyLedger.lastSucceeded)
+                return
+            }
+            // Holds the concealer for at most the limit, so the continuation is always resumed.
+            Task {
+                try? await Task.sleep(for: Self.applyWaitLimit)
+                self.applyLedger.abandon(id)?.resume(returning: false)
+            }
+        }
+    }
+
+    /// Waits until the concealment changes queued so far have landed, so a capture never
+    /// photographs a bar whose change is still on its way.
+    func waitForPendingApplies() async {
+        guard applyLedger.hasPending else {
+            return
+        }
+        _ = await waitForApply(applyLedger.lastQueued)
     }
 
     /// Tries a failed apply again a moment later, a few times in a row, then follows the
@@ -473,16 +533,16 @@ final class Concealer27 {
 
     /// Releases every assertion for a moment, so a click can reach a system item.
     func suspend(for duration: Duration) {
-        lastChangeAt = .now
         let deadline = suspensionDeadline(for: duration)
         let owner = beginSuspension(until: deadline)
         isConcealing = false
         concealedPIDs.removeAll()
         stateGeneration += 1
         let previous = applyTask
-        applyTask = Task { [controller] in
+        applyTask = Task { [weak self, controller] in
             await previous?.value
             controller.releaseAll()
+            self?.lastChangeAt = .now
         }
         scheduleEndOfSuspension(at: deadline, owner: owner)
     }
@@ -494,7 +554,6 @@ final class Concealer27 {
     /// still live, and MenuBarAgent ignores those — which is why a click on the clock sometimes
     /// did nothing and worked on the second try.
     func suspendReleased(for duration: Duration) async {
-        lastChangeAt = .now
         let owner = beginSuspension(until: suspensionDeadline(for: duration))
         isConcealing = false
         concealedPIDs.removeAll()
@@ -506,6 +565,7 @@ final class Concealer27 {
         }
         applyTask = release
         await release.value
+        lastChangeAt = .now
         // The duration counts from the release, which can queue behind a change before it. A
         // suspension begun meanwhile, or an early end, owns the deadline now.
         guard suspensionOwner == owner else {
@@ -555,7 +615,8 @@ final class Concealer27 {
         update()
     }
 
-    /// How much of the bar's movement is still to come after the last concealment change.
+    /// How much of the bar's movement is still to come after the last concealment change
+    /// landed. A change still on its way is waited for with ``waitForPendingApplies()`` first.
     ///
     /// Work that runs while MenuBarAgent animates the bar lands on top of that animation:
     /// revealing the hidden items set off four overlapping display captures of 260–290 ms
@@ -604,6 +665,24 @@ final class Concealer27 {
     /// Every call must be balanced by ``endTemporaryShow(bundleID:)``.
     func showTemporarily(bundleID: String) {
         showTemporarily(bundleIDs: CollectionOfOne(bundleID))
+    }
+
+    /// Shows an application for a moment and returns once MenuBarAgent applied the change that
+    /// shows it, to click or photograph its item where it is drawn.
+    /// Every call must be balanced by ``endTemporaryShow(bundleID:)``, whatever it returns.
+    ///
+    /// The item's frame is where it was last drawn until the change lands, and another item or
+    /// the clock may stand there by then.
+    ///
+    /// - Returns: Whether the change landed: `false` when concealment is paused or unavailable,
+    ///   the apply failed, or it took longer than 3 s.
+    func showTemporarily(bundleID: String) async -> Bool {
+        temporarilyShown[bundleID, default: 0] += 1
+        let carrying = applyLedger.nextApply
+        guard applyChanges() else {
+            return false
+        }
+        return await waitForApply(carrying)
     }
 
     /// Ends one ``showTemporarily(bundleID:)``.
