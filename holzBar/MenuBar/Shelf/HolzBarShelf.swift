@@ -22,6 +22,10 @@ final class HolzBarShelfPanel: NSPanel {
     /// while it is open does not move it to the mouse pointer or the holzBar icon.
     private var anchorX: CGFloat?
 
+    /// Counts the calls to `show(section:on:)` and `close()`, so a show that waited for the
+    /// caches knows whether the panel was closed or shown again meanwhile.
+    private var showGeneration = 0
+
     /// Tasks that hide the panel when the space or the screens change.
     private var observerTasks = [Task<Void, Never>]()
 
@@ -185,6 +189,9 @@ final class HolzBarShelfPanel: NSPanel {
             return
         }
 
+        showGeneration += 1
+        let generation = showGeneration
+
         // IMPORTANT: We must set the navigation state and current section
         // before updating the caches.
         appState.navigationState.isShelfPresented = true
@@ -212,6 +219,12 @@ final class HolzBarShelfPanel: NSPanel {
             } catch {
                 Logger.default.error("Cache update failed when showing HolzBarShelfPanel - \(error, privacy: .private)")
             }
+        }
+
+        // A close (or another show) while the caches updated wins: ordering the panel
+        // front now would leave it on screen with no section, which nothing can dismiss.
+        guard generation == showGeneration, currentSection == section else {
+            return
         }
 
         let colorManager = colorManagerForShowing()
@@ -261,6 +274,7 @@ final class HolzBarShelfPanel: NSPanel {
 
     override func close() {
         super.close()
+        showGeneration += 1
         contentView = nil
         currentSection = nil
         anchorX = nil
