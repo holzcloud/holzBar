@@ -19,6 +19,10 @@ nonisolated enum SplitShape27 {
     /// it can still point at a hidden section that has been concealed again since. Hover
     /// hit-testing keeps the remembered edge and corrects itself on the next read; the shape
     /// would show the stale width the whole time.
+    ///
+    /// The cached items and system frames all lie on the active display, and the items area
+    /// tells displays apart by x alone. Where a display sits above or below the active one,
+    /// their x ranges overlap, so the frames are first kept to this display's rows too.
     static func leftEdge(
         displayBounds: CGRect,
         items: [ItemHitTest27.Item],
@@ -27,11 +31,14 @@ nonisolated enum SplitShape27 {
         rememberedLeftEdge: CGFloat?,
         drawnFramesOnDisplay: [CGRect]
     ) -> CGFloat? {
-        ItemHitTest27.itemsAreaLeftEdge(
+        func isInThisDisplaysRows(_ frame: CGRect) -> Bool {
+            displayBounds.minY...displayBounds.maxY ~= frame.midY
+        }
+        return ItemHitTest27.itemsAreaLeftEdge(
             displayBounds: displayBounds,
-            items: items,
+            items: items.filter { isInThisDisplaysRows($0.frame) },
             concealedPIDs: concealedPIDs,
-            systemFrames: systemFrames,
+            systemFrames: systemFrames.filter(isInThisDisplaysRows),
             rememberedLeftEdge: drawnFramesOnDisplay.isEmpty ? rememberedLeftEdge : nil,
             drawnFramesOnDisplay: drawnFramesOnDisplay
         )

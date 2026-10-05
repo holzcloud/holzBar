@@ -734,6 +734,24 @@ struct SplitShape27Tests {
         ) == 1400)
     }
 
+    @Test("On a display stacked above the active one, the active display's frames do not count")
+    func stackedDisplay() {
+        // The built-in display is active at 0...1512 with items from 900; the external one
+        // sits above it at -524...2036, where MenuBarAgent draws the run from 1500.
+        let monitor = CGRect(x: -524, y: -1440, width: 2560, height: 1440)
+        let items = [ItemHitTest27.Item(frame: CGRect(x: 900, y: 2, width: 30, height: 24), ownerPID: 12, isOnScreen: true)]
+        let activeClock = CGRect(x: 1380, y: 0, width: 113, height: 30)
+        let drawn = [CGRect(x: 1500, y: -1438, width: 30, height: 24), CGRect(x: 1900, y: -1440, width: 113, height: 30)]
+        #expect(SplitShape27.leftEdge(
+            displayBounds: monitor,
+            items: items,
+            concealedPIDs: [],
+            systemFrames: [activeClock],
+            rememberedLeftEdge: nil,
+            drawnFramesOnDisplay: drawn
+        ) == 1500)
+    }
+
     @Test("Without the inset the trailing half starts 7 points left of the edge")
     func trailingBoundsWithoutInset() {
         let rect = CGRect(x: 0, y: 0, width: 1920, height: 24)
