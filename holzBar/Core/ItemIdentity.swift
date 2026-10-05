@@ -94,7 +94,8 @@ nonisolated enum ItemIdentity {
     ///
     /// Earlier versions stored `namespace:raw title`; such a key is canonicalised, and for a
     /// namespace in `titleChangingOwners` it matches the app's first item. Keys this version
-    /// stored are returned unchanged.
+    /// stored are returned unchanged, including `namespace:2`, `namespace:3`, … of the later
+    /// items of an app whose items have no title.
     static func storedKey(_ stored: String, titleChangingOwners: Set<String>) -> String {
         guard let separator = stored.firstIndex(of: ":") else {
             // A namespace without a title.
@@ -107,6 +108,10 @@ nonisolated enum ItemIdentity {
                 return stored
             }
             return "\(namespace):#1"
+        }
+        // A key of this version for a later item without a title: `namespace:<occurrence>`.
+        if title.wholeMatch(of: /\d+/) != nil {
+            return stored
         }
         // A key of this version: a canonical title (no digits, or an identifier) with an
         // optional `:<occurrence>`.

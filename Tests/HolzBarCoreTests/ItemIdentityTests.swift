@@ -77,4 +77,19 @@ struct ItemIdentityTests {
         let clock = ItemIdentity.keys(for: [(namespace: "c", title: "10:45")], titleChangingOwners: [])
         #expect(ItemIdentity.storedKey("c:10:42", titleChangingOwners: []) == clock[0])
     }
+
+    @Test("Stored keys of untitled items match their current keys")
+    func storedKeysOfUntitledItemsMatch() {
+        let items: [ItemIdentity.Item] = [
+            (namespace: "d", title: ""),
+            (namespace: "d", title: ""),
+            (namespace: "d", title: ""),
+            (namespace: "e", title: ""),
+        ]
+        let keys = ItemIdentity.keys(for: items, titleChangingOwners: [])
+        #expect(keys == ["d", "d:2", "d:3", "e"])
+        for key in keys {
+            #expect(ItemIdentity.storedKey(key, titleChangingOwners: []) == key)
+        }
+    }
 }
