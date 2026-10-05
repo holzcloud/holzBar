@@ -325,6 +325,13 @@ final class MenuBarOverlayPanel: NSPanel {
             panel.contentView?.needsDisplay = true
         }
 
+        // On macOS 27 the split shape starts its trailing half where the run of items starts,
+        // and a read can move that edge without changing the item cache: a concealed item
+        // keeps its old frame, and the items right of it stay where they are.
+        observeNotifications(named: .menuBarItemsAreaDidChange27, in: NotificationCenter.default) { panel in
+            panel.contentView?.needsDisplay = true
+        }
+
         // The panel steps aside while the system hides the menu bar and on a fullscreen
         // space, and comes back when that ends.
         if let appState {
@@ -722,7 +729,8 @@ private final class MenuBarOverlayPanelContentView: NSView {
             )
         }
 
-        // The application menu frame and the wallpaper redraw the view from the panel.
+        // The application menu frame, the wallpaper and, on macOS 27, the edge of the items
+        // area redraw the view from the panel.
     }
 
     /// Returns a path in the given rectangle, with the given end caps,

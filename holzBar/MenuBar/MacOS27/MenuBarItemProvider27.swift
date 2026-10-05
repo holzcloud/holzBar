@@ -14,6 +14,13 @@ import os
 /// WindowServer window, so the window list the original Ice used is empty. Every process still
 /// publishes its items under `AXExtrasMenuBar`, with frames, for the display that
 /// has the active menu bar.
+nonisolated extension Notification.Name {
+    /// Posted on the main thread when a read changed where the run of items on a display
+    /// starts (`MenuBarItemProvider27.leftEdge(for:)` and the frames behind it), so what is
+    /// drawn from that edge follows even when the item cache compares equal.
+    static let menuBarItemsAreaDidChange27 = Notification.Name("com.holzcloud.holzBar.MenuBarItemsAreaDidChange27")
+}
+
 @available(macOS 27.0, *)
 nonisolated enum MenuBarItemProvider27 {
     /// The bundle identifier of the process that hosts the system items.
@@ -64,6 +71,23 @@ nonisolated enum MenuBarItemProvider27 {
         var scanSchedule = AccessibilityScanSchedule27()
         var lastItems: [MenuBarItem]?
         var lastReadAt: TimeInterval = 0
+
+        /// Everything the edge of the items area is built from, besides the item cache.
+        var itemsAreaInputs: ItemsAreaInputs {
+            ItemsAreaInputs(
+                leftEdges: lastLeftEdges,
+                drawnFramesByDisplay: lastDrawnFramesByDisplay,
+                systemItemFrames: lastSystemItemFrames,
+                overflowButtonFrame: lastOverflowButtonFrame
+            )
+        }
+    }
+
+    private struct ItemsAreaInputs: Equatable {
+        let leftEdges: [CGDirectDisplayID: CGFloat]
+        let drawnFramesByDisplay: [CGDirectDisplayID: [CGRect]]
+        let systemItemFrames: [CGRect]
+        let overflowButtonFrame: CGRect?
     }
 
     // The state holds Accessibility elements, which are immutable references that any
@@ -104,10 +128,19 @@ nonisolated enum MenuBarItemProvider27 {
                     continuation.resume(returning: fresh)
                     return
                 }
+                let inputsBefore = withState { $0.itemsAreaInputs }
                 let items = readItems()
-                withState { state in
+                let areaChanged = withState { state in
                     state.lastItems = items
                     state.lastReadAt = ProcessInfo.processInfo.systemUptime
+                    return state.itemsAreaInputs != inputsBefore
+                }
+                // A concealed item keeps reporting its old frame and the items right of it do
+                // not move, so the item cache can compare equal while the edge moved.
+                if areaChanged {
+                    Task { @MainActor in
+                        NotificationCenter.default.post(name: .menuBarItemsAreaDidChange27, object: nil)
+                    }
                 }
                 continuation.resume(returning: items)
             }
