@@ -486,9 +486,10 @@ extension NSEvent {
     /// The modifier keys the user currently holds down.
     ///
     /// Unlike ``modifierFlags``, this leaves out flags that are set without
-    /// a key being held, such as Caps Lock, Function and the numeric pad.
+    /// a key being held, such as Caps Lock, Function and the numeric pad: it
+    /// keeps only the four modifiers a hotkey can use (``Modifiers``).
     static var heldModifierFlags: ModifierFlags {
-        modifierFlags.intersection([.shift, .control, .option, .command])
+        Modifiers(nsEventFlags: modifierFlags).nsEventFlags
     }
 }
 
