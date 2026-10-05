@@ -1,4 +1,5 @@
 import Foundation
+import Security
 import Testing
 @testable import SharedCodeSigning
 
@@ -59,8 +60,20 @@ struct CodeSignatureTests {
             process.terminate()
             process.waitUntilExit()
         }
-        // The program must really run, or a "not signed by Apple" result would prove nothing.
-        try #require(kill(process.processIdentifier, 0) == 0)
+        // The program must really run with valid code, or a "not signed by Apple" result
+        // would prove nothing: a process killed at launch still answers kill(pid, 0) until
+        // it is reaped, but has no code to check.
+        try #require(hasValidCode(processIdentifier: process.processIdentifier))
         try body(process.processIdentifier)
+    }
+
+    /// Whether the running process has code whose signature is valid, by any signer.
+    private func hasValidCode(processIdentifier: pid_t) -> Bool {
+        var code: SecCode?
+        let attributes = [kSecGuestAttributePid as String: processIdentifier] as CFDictionary
+        guard SecCodeCopyGuestWithAttributes(nil, attributes, [], &code) == errSecSuccess, let code else {
+            return false
+        }
+        return SecCodeCheckValidity(code, [], nil) == errSecSuccess
     }
 }
