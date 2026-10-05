@@ -46,7 +46,13 @@ click on the Mac waited for these calls.
     pid relaunches.
   - Success clears the entry, and `retain(running:)` forgets pids that quit. It runs only
     while an entry exists, against `NSWorkspace.runningApplications`.
-  - Retries ride on the existing refreshes. No timer was added.
+  - Retries ride on the existing refreshes, every one of them. No timer was added. A
+    refresh that finds the item list unchanged skips `cacheItemsRegardless`, and with it
+    `observe(owners:)`, so `cacheItemsIfNeeded` now calls the new backend hook
+    `MenuBarBackend.itemListRefreshSkipped()` (a no-op before macOS 27). On macOS 27 it
+    calls `ItemChangeObserver27.retryDueRegistrations()`, which registers the wanted owners
+    whose pause is over. Without it, an owner that timed out while it finished launching
+    stayed unobserved until the item list changed (review AXO-R2).
 - `holzBar/MenuBar/MenuBarItems/ItemChangeWatcher.swift`:
   - The main actor builds the wanted `(key, windowID, pid, bounds)` targets.
   - A serial queue, `com.holzcloud.holzBar.ItemChangeWatcher`, does the element lookup and

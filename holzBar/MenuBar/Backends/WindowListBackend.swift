@@ -39,6 +39,8 @@ final class WindowListBackend: MenuBarBackend {
         Bridging.getMenuBarWindowList(option: [.itemsOnly, .activeSpace])
     }
 
+    func itemListRefreshSkipped() { }
+
     func cacheFromLayout(
         items: [MenuBarItem],
         displayID: CGDirectDisplayID?,

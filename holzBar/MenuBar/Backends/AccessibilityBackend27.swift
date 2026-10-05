@@ -61,6 +61,12 @@ final class AccessibilityBackend27: MenuBarBackend {
         }
     }
 
+    /// Owners whose observer registration failed are tried again once their pause is over,
+    /// also while the item list stays the same.
+    func itemListRefreshSkipped() {
+        itemChangeObserver.retryDueRegistrations()
+    }
+
     /// The saved layout, not the order on the bar, places items in sections, so holzBar's
     /// dividers are not needed. Accessibility reports them only on the display holzBar
     /// launched on, and requiring them emptied the cache on the other display. An upgrade

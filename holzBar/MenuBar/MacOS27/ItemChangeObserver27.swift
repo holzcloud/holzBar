@@ -25,7 +25,8 @@ nonisolated extension Notification.Name {
 /// the main thread, and with it SystemItemClickBridge27's click tap and every click on the
 /// Mac, so it runs on ``registrationQueue`` and waits ``messagingTimeout`` per call. A
 /// registration that failed is tried again on a later refresh, as
-/// `ObserverRegistrationSchedule27` decides.
+/// `ObserverRegistrationSchedule27` decides, also on refreshes that find the item list
+/// unchanged (``retryDueRegistrations()``).
 ///
 /// Trade-off: an item that appears without an application launch (a running app adding
 /// a second item) is found within seconds when its process posts one of these
@@ -69,8 +70,16 @@ final class ItemChangeObserver27 {
         if !schedule.isEmpty {
             schedule.retain(running: Set(NSWorkspace.shared.runningApplications.map(\.processIdentifier)))
         }
+        retryDueRegistrations()
+    }
+
+    /// Registers the wanted processes that have no observer and none under way, unless a
+    /// failed registration's pause is not over. Called for every refresh, also one that
+    /// finds the item list unchanged: an owner whose registration timed out while it
+    /// finished launching is tried again then, not only when the list changes.
+    func retryDueRegistrations() {
         let now = ProcessInfo.processInfo.systemUptime
-        for pid in pids where observers[pid] == nil && !pending.contains(pid) {
+        for pid in wanted where observers[pid] == nil && !pending.contains(pid) {
             guard schedule.allowsRegistration(of: pid, now: now) else {
                 continue
             }
