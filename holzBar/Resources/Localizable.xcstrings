@@ -2521,34 +2521,6 @@
         }
       }
     },
-    "ERROR" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FEHLER"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ERREUR"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ERRORE"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SBAGL"
-          }
-        }
-      }
-    },
     "Edit Menu Bar Appearance…" : {
       "localizations" : {
         "de" : {
@@ -3301,6 +3273,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cumbinaziun da tastas"
+          }
+        }
+      }
+    },
+    "Hotkey already in use" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tastenkürzel schon belegt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raccourci déjà utilisé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbreviazione già in uso"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cumbinaziun da tastas gia en diever"
+          }
+        }
+      }
+    },
+    "Hotkey could not be registered" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tastenkürzel konnte nicht registriert werden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le raccourci n'a pas pu être enregistré"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile registrare l'abbreviazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg pussaivel da registrar la cumbinaziun da tastas"
           }
         }
       }
@@ -5961,6 +5989,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Renumnar …"
+          }
+        }
+      }
+    },
+    "Replace" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersetzen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplacer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituisci"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplazzar"
           }
         }
       }
@@ -9919,6 +9975,34 @@
         }
       }
     },
+    "macOS did not accept this combination. Choose another one." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS hat diese Kombination nicht angenommen. Wähle eine andere."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS n'a pas accepté cette combinaison. Choisissez-en une autre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS non ha accettato questa combinazione. Scegline un'altra."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS n'ha betg acceptà questa cumbinaziun. Tscherna in'autra."
+          }
+        }
+      }
+    },
     "macOS does not allow this hotkey" : {
       "localizations" : {
         "de" : {
@@ -10139,6 +10223,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "nagin"
+          }
+        }
+      }
+    },
+    "“%@” already uses this combination. Use it here instead?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» verwendet diese Kombination schon. Stattdessen hier verwenden?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » utilise déjà cette combinaison. L'utiliser ici à la place ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» usa già questa combinazione. Usarla qui al suo posto?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» dovra gia questa cumbinaziun. La duvrar qua empè?"
           }
         }
       }

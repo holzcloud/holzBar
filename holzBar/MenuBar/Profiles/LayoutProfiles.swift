@@ -287,6 +287,12 @@ final class LayoutProfiles {
             hotkeySettings.removeHotkey(for: .applyProfile(name))
         }
         for (name, keyCombination) in hotkeys {
+            // Another hotkey may have taken the combination since, and the system
+            // registers a combination only once per app.
+            guard hotkeySettings.hotkey(using: keyCombination, except: .applyProfile(name)) == nil else {
+                logger.info("Not restoring a profile's hotkey: another hotkey uses its combination")
+                continue
+            }
             hotkeySettings.setKeyCombination(keyCombination, for: .applyProfile(name))
         }
     }
