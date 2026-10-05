@@ -138,6 +138,9 @@ final class MenuBarManager {
         }
 
         // Handle the `focusedApp` rehide strategy.
+        if let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier, pid != NSRunningApplication.current.processIdentifier {
+            lastFrontmostApplicationPID = pid
+        }
         keyValueObservations.append(
             NSWorkspace.shared.observe(\.frontmostApplication, options: [.new]) { [weak self] _, _ in
                 Task { @MainActor in
@@ -184,9 +187,25 @@ final class MenuBarManager {
         }
     }
 
+    /// The process identifier of the last frontmost application other than holzBar.
+    @ObservationIgnored private var lastFrontmostApplicationPID: pid_t?
+
     /// Rehides the hidden section when the focused application changes, with the
     /// `focusedApp` rehide strategy.
+    ///
+    /// holzBar's own activation (to hide the application menus, or for Settings) and the
+    /// return to the application it came from are no focus change: counting them hid the
+    /// section right after it was shown.
     private func frontmostApplicationDidChange() {
+        guard
+            let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier,
+            pid != NSRunningApplication.current.processIdentifier,
+            pid != lastFrontmostApplicationPID
+        else {
+            return
+        }
+        lastFrontmostApplicationPID = pid
+
         if
             let appState,
             appState.settings.general.autoRehide,
