@@ -180,6 +180,9 @@ final class SettingsSync {
     /// The pending check after the sync file changed.
     @ObservationIgnored private var checkTask: Task<Void, Never>?
 
+    /// A push waited for the pending check, and is made once the check is done.
+    @ObservationIgnored private var pushesAfterCheck = false
+
     func performSetup(with appState: AppState) {
         self.appState = appState
         isEnabled = Defaults.bool(forKey: .syncsSettingsWithICloud)
@@ -195,6 +198,7 @@ final class SettingsSync {
             defaultsDebouncer.cancel()
             checkTask?.cancel()
             checkTask = nil
+            pushesAfterCheck = false
             stopWatchingFolder()
             return
         }
@@ -252,11 +256,19 @@ final class SettingsSync {
 
     /// Watches the sync folder again when a volume was mounted or unmounted and the folder
     /// became available, moved or gone.
+    ///
+    /// A folder that has just become available, such as a network share mounted after
+    /// launch, may hold newer settings from another Mac, so it is checked before this Mac's
+    /// settings are written there (``push()`` waits for the check).
     private func volumesDidChange() {
-        if presenter?.presentedItemURL != Self.folderURL {
+        let watchedURL = presenter?.presentedItemURL
+        if watchedURL != Self.folderURL {
             stopWatchingFolder()
         }
         updateObservers()
+        if let presenter, presenter.presentedItemURL != watchedURL {
+            syncFileDidChange()
+        }
     }
 
     /// Stops listening to the sync folder.
@@ -308,8 +320,24 @@ final class SettingsSync {
             guard !Task.isCancelled else {
                 return
             }
-            await self?.checkForNewerSettings()
+            let restarts = await self?.checkForNewerSettings() ?? false
+            // A cancelled check was replaced by a newer one, or sync was turned off.
+            if !Task.isCancelled {
+                self?.checkTask = nil
+            }
+            if !restarts {
+                self?.pushAfterCheck()
+            }
         }
+    }
+
+    /// Makes the push that waited for a check of the sync file, once no check is pending.
+    private func pushAfterCheck() {
+        guard pushesAfterCheck, checkTask == nil, !isAskingToRestart else {
+            return
+        }
+        pushesAfterCheck = false
+        settingsDidChange()
     }
 
     /// Writes the settings to iCloud Drive, if syncing is on.
@@ -321,6 +349,12 @@ final class SettingsSync {
     }
 
     private func push() {
+        // A pending check may find newer settings from another Mac, which this push would
+        // overwrite; push once the check is done (``pushAfterCheck()``).
+        guard checkTask == nil, !isAskingToRestart else {
+            pushesAfterCheck = true
+            return
+        }
         guard let fileURL = Self.fileURL else {
             Self.logger.warning("No sync folder, not syncing settings")
             return
@@ -462,13 +496,15 @@ final class SettingsSync {
     /// Offers to restart when another Mac has changed the settings.
     ///
     /// The file is read off the main actor; only the small, checked result is decoded here.
-    private func checkForNewerSettings() async {
+    ///
+    /// - Returns: Whether holzBar restarts with the newer settings.
+    private func checkForNewerSettings() async -> Bool {
         guard isEnabled, !isAskingToRestart, let fileURL = Self.fileURL else {
-            return
+            return false
         }
         let read = await Self.readFileContentsInBackground(at: fileURL)
         guard isEnabled, !isAskingToRestart, Self.newerSettings(from: read) != nil else {
-            return
+            return false
         }
         isAskingToRestart = true
         defer {
@@ -480,10 +516,12 @@ final class SettingsSync {
         alert.addButton(withTitle: String(localized: "Restart"))
         alert.addButton(withTitle: String(localized: "Later"))
         NSApp.activate()
-        if alert.runModal() == .alertFirstButtonReturn {
-            SettingsSync.pullIfNeeded()
-            SettingsBackup.relaunch()
+        guard alert.runModal() == .alertFirstButtonReturn else {
+            return false
         }
+        SettingsSync.pullIfNeeded()
+        SettingsBackup.relaunch()
+        return true
     }
 }
 
