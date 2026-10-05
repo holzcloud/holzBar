@@ -22,13 +22,14 @@ Branch `audit-manual/appearance-split`, based on `audit/remediation-2026-10-05`.
 - **F39-R1 (redraw after a hide):** concealed items keep their old frames and the visible ones do not move, so the read 400 ms after an apply left the item cache equal and nothing redrew the shape. `MenuBarItemProvider27.items()` now compares the edge's inputs (remembered left edges, drawn frames per display, system and overflow frames) before and after each read and posts `menuBarItemsAreaDidChange27` on the main thread when they changed. The overlay panel redraws its content view on it.
 - **F39-R2 (inactive display):** `SplitShape27.leftEdge` (HolzBarMacOS27Core) leaves out the remembered edge once MenuBarAgent's drawn frames for the display are known, so a section concealed again since no longer widens the trailing half there. Hover hit-testing (`isInsideItemsArea`) keeps its behaviour, as the decision requires.
 - **F39-R4 (geometry):** `SplitShape27.trailingBounds` computes the macOS 27 position and padding and returns `.zero`, the full-shape fallback, when the half would be narrower than it is high or start left of the shape. Tests cover both trailing end caps with and without the inset.
+- **Doc comment placement:** the `Notification.Name` extension added for F39-R1 sat between `MenuBarItemProvider27`'s doc comment and the type, so the comment documented the extension. The extension now comes before the comment. No change in behaviour.
 - **F39-R3 (release notes):** the Fixed line below is still open. This chain may not edit `docs/`; it must go into `docs/release-notes/v0.0.7-beta2.md` when that file is written, before the beta is tagged.
 
 ## Gates run (all passed)
 
-- appcheck.sh (label f39): ERRORS: 0
+- appcheck.sh (labels f39, f39-doc): ERRORS: 0
 - servicecheck.sh: SERVICE EXIT: 0
-- `swift test`: full run, 266 tests in 45 suites passed
+- `swift test`: full run, 266 tests in 45 suites passed (one earlier run stopped with a transient "Build failed / fatalError" in the build system and no compiler error; the next two full runs built and passed)
 - `swiftlint lint --strict --quiet`: no output, exit 0
 - privacy-check.py network and logs, strings-check.py: passed (no new strings)
 - Former-name check: no matches

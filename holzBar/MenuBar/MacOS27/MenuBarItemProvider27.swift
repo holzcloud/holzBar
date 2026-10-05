@@ -8,12 +8,6 @@ import Cocoa
 import OSLog
 import os
 
-/// Reads menu bar items through Accessibility on macOS 27.
-///
-/// macOS 27 draws status items inside MenuBarAgent instead of giving each one a
-/// WindowServer window, so the window list the original Ice used is empty. Every process still
-/// publishes its items under `AXExtrasMenuBar`, with frames, for the display that
-/// has the active menu bar.
 nonisolated extension Notification.Name {
     /// Posted on the main thread when a read changed where the run of items on a display
     /// starts (`MenuBarItemProvider27.leftEdge(for:)` and the frames behind it), so what is
@@ -21,6 +15,12 @@ nonisolated extension Notification.Name {
     static let menuBarItemsAreaDidChange27 = Notification.Name("com.holzcloud.holzBar.MenuBarItemsAreaDidChange27")
 }
 
+/// Reads menu bar items through Accessibility on macOS 27.
+///
+/// macOS 27 draws status items inside MenuBarAgent instead of giving each one a
+/// WindowServer window, so the window list the original Ice used is empty. Every process still
+/// publishes its items under `AXExtrasMenuBar`, with frames, for the display that
+/// has the active menu bar.
 @available(macOS 27.0, *)
 nonisolated enum MenuBarItemProvider27 {
     /// The bundle identifier of the process that hosts the system items.
