@@ -1,0 +1,87 @@
+# CodeQL code scanning of the Swift sources and of the workflows themselves. Weekly and on
+# demand from the Actions tab, never on pull requests: the Swift analysis needs a full macOS
+# build. It is not a required check.
+name: CodeQL
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  swift:
+    name: Analyze (swift)
+    # The same image and Xcode as build.yml.
+    runs-on: xcode-27
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      # Uploads the results to code scanning.
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ./.github/actions/select-xcode
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          languages: swift
+          build-mode: manual
+
+      # The toolchain: CodeQL 2.27.1 (the bundle of codeql-action v4.38.2) analyzes Swift 5.4
+      # to 6.3.3. holzBar needs Swift 6.4 and the macOS 27 SDK (Xcode 27.0, as in build.yml),
+      # and no toolchain CodeQL supports can build it. So this job keeps the runner, Xcode and
+      # Swift version of build.yml, but compiles with Xcode 27.0's own Swift 6.4 instead of
+      # the swift.org build that select-xcode installs: CodeQL traces the compiler by
+      # injecting a library, which Xcode's compiler allows, while the notarized swift.org
+      # compiler runs with the hardened runtime. Until a CodeQL bundle supports Swift 6.4
+      # (Dependabot brings it with codeql-action), the analysis may report extraction errors.
+      # One architecture, unsigned: CodeQL needs the compilation, not a product.
+      - name: Build
+        run: |
+          # With its CI and Release skip (audit F-52, which ships together with this check),
+          # the project's SwiftLint build phase runs no tool from the runner while CI is set;
+          # nothing in this workflow may unset it.
+          if [ "${CI:-}" != true ]; then
+            echo "::error::CI is not set to true, so the project's SwiftLint build phase would run."
+            exit 1
+          fi
+          unset TOOLCHAINS
+          xcodebuild -project holzBar.xcodeproj -scheme holzBar -configuration Debug \
+            -destination 'platform=macOS,arch=arm64' -derivedDataPath build build \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          category: /language:swift
+
+  # Reviews the workflows (for example script injection and untrusted checkouts).
+  actions:
+    name: Analyze (actions)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      # Uploads the results to code scanning.
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          languages: actions
+          build-mode: none
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        with:
+          category: /language:actions
