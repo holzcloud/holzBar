@@ -79,6 +79,15 @@ final class ItemImageStore27 {
         } catch {
             logger.error("Error moving the item images to the caches: \(error, privacy: .private)")
         }
+        // Glyphs are stored in the colour that suits the current appearance, so a switch
+        // between light and dark needs them captured again. The app's own appearance is
+        // observed rather than the theme notification, which any process can post.
+        // Installed before the version check, so a fresh store observes it too.
+        appearanceObservation = NSApp.observe(\.effectiveAppearance, options: [.new]) { [weak self] _, _ in
+            Task { @MainActor in
+                self?.appearanceDidChange()
+            }
+        }
         let versionFile = directory.appending(path: "version.txt")
         guard (try? String(contentsOf: versionFile, encoding: .utf8)) == Self.storeVersion else {
             try? FileManager.default.removeItem(at: directory)
@@ -89,14 +98,6 @@ final class ItemImageStore27 {
             let stored = try? JSONDecoder().decode([String: IndexEntry].self, from: data)
         {
             index = stored
-        }
-        // Glyphs are stored in the colour that suits the current appearance, so a switch
-        // between light and dark needs them captured again. The app's own appearance is
-        // observed rather than the theme notification, which any process can post.
-        appearanceObservation = NSApp.observe(\.effectiveAppearance, options: [.new]) { [weak self] _, _ in
-            Task { @MainActor in
-                self?.appearanceDidChange()
-            }
         }
     }
 
