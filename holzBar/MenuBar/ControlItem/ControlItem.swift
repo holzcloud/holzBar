@@ -5,6 +5,7 @@
 
 import Cocoa
 import Observation
+import OSLog
 
 // MARK: - ControlItem
 
@@ -149,6 +150,13 @@ final class ControlItem {
     /// Key-value observer of the screen's frame.
     @ObservationIgnored private var screenObservation: NSKeyValueObservation?
 
+    /// A Boolean value that indicates whether the fallback from an undecodable
+    /// custom icon to the default icon has been logged.
+    @ObservationIgnored private var didLogCustomIconFallback = false
+
+    /// Logger for the control item.
+    private static let logger = Logger(category: "ControlItem")
+
     /// The control item's underlying status item.
     private var statusItem: NSStatusItem {
         storage.statusItem
@@ -218,10 +226,9 @@ final class ControlItem {
         }
 
         observers.append(
-            ObservationLoop.observe { appState.isDraggingMenuBarItem } onChange: { [weak self] isDragging in
-                if isDragging {
-                    self?.updateStatusItem()
-                }
+            ObservationLoop.observe { appState.isDraggingMenuBarItem } onChange: { [weak self] _ in
+                // Redraw when a drag ends too, so the dividers drop the drag marker and width.
+                self?.updateStatusItem()
             }
         )
 
@@ -385,16 +392,28 @@ final class ControlItem {
             case .hideSection: icon.hidden.nsImage(for: appState)
             }
 
-            if
-                case .custom = icon.name,
-                let originalImage = image
-            {
-                // Custom icons need to be resized to fit inside the button.
-                let originalWidth = originalImage.size.width
-                let originalHeight = originalImage.size.height
-                let ratio = max(originalWidth / 25, originalHeight / 17)
-                let newSize = CGSize(width: originalWidth / ratio, height: originalHeight / ratio)
-                image = originalImage.resized(to: newSize)
+            if case .custom = icon.name {
+                if let originalImage = image {
+                    // Custom icons need to be resized to fit inside the button.
+                    let originalWidth = originalImage.size.width
+                    let originalHeight = originalImage.size.height
+                    let ratio = max(originalWidth / 25, originalHeight / 17)
+                    let newSize = CGSize(width: originalWidth / ratio, height: originalHeight / ratio)
+                    image = originalImage.resized(to: newSize)
+                } else {
+                    // A stored custom icon the bitmap decoder refuses, such as an SVG or PDF
+                    // icon imported from Ice, falls back to the default icon instead of
+                    // leaving the holzBar icon an empty slot.
+                    if !didLogCustomIconFallback {
+                        didLogCustomIconFallback = true
+                        Self.logger.notice("Custom icon could not be decoded, so using the default icon")
+                    }
+                    let defaultIcon = ControlItemImageSet.defaultHolzBarIcon
+                    image = switch state {
+                    case .showSection: defaultIcon.visible.nsImage(for: appState)
+                    case .hideSection: defaultIcon.hidden.nsImage(for: appState)
+                    }
+                }
             }
 
             button.image = image
@@ -516,7 +535,7 @@ final class ControlItem {
 
         switch event.type {
         case .leftMouseDown:
-            let modifierFlags = NSEvent.modifierFlags
+            let modifierFlags = NSEvent.heldModifierFlags
 
             // Running this from a Task seems to improve the visual
             // responsiveness of the status item's button.

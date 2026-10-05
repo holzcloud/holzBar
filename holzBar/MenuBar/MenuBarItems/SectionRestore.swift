@@ -273,6 +273,9 @@ extension MenuBarItemManager {
             } catch EventError.automaticMovesPaused {
                 Self.restoreLogger.warning("Automatic moves are paused, so not moving the remaining items into their sections")
                 break
+            } catch EventError.userInputNotPaused {
+                Self.restoreLogger.notice("The user did not pause input, so not moving the remaining items into their sections")
+                break
             } catch {
                 Self.restoreLogger.error("Error moving \(move.item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
             }
@@ -316,7 +319,7 @@ extension MenuBarItemManager {
                 do {
                     Self.restoreLogger.info("Keeping Live Activity \(item.logString, privacy: .private(mask: .hash)) visible")
                     try await move(item: item, to: .rightOfItem(controlItems.hidden))
-                } catch EventError.automaticMovesPaused {
+                } catch EventError.automaticMovesPaused, EventError.userInputNotPaused {
                     return
                 } catch {
                     Self.restoreLogger.error("Error moving Live Activity \(item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")

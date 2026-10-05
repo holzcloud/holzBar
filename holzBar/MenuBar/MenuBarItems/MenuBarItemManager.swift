@@ -575,6 +575,9 @@ extension MenuBarItemManager {
         case missingItemBounds(MenuBarItem)
         /// Automatic moves are paused (see `MoveBackoff` and `SystemActivityMonitor`).
         case automaticMovesPaused
+        /// The user kept holding a modifier key or a mouse button, or moving or scrolling,
+        /// so the event operation gave up waiting for a pause in input.
+        case userInputNotPaused
 
         var description: String {
             switch self {
@@ -596,12 +599,14 @@ extension MenuBarItemManager {
                 "\(Self.self).missingItemBounds(item: \(item.tag))"
             case .automaticMovesPaused:
                 "\(Self.self).automaticMovesPaused"
+            case .userInputNotPaused:
+                "\(Self.self).userInputNotPaused"
             }
         }
 
         var errorDescription: String? {
             switch self {
-            case .cannotComplete:
+            case .cannotComplete, .userInputNotPaused:
                 String(localized: "Operation could not be completed")
             case .invalidEventSource:
                 String(localized: "Invalid event source")
@@ -624,7 +629,7 @@ extension MenuBarItemManager {
 
         var recoverySuggestion: String? {
             switch self {
-            case .itemNotMovable, .automaticMovesPaused:
+            case .itemNotMovable, .automaticMovesPaused, .userInputNotPaused:
                 return nil
             default:
                 return String(localized: "Please try again. If the error persists, please file a bug report.")
@@ -696,6 +701,10 @@ extension MenuBarItemManager {
         }
         do {
             try await backend.move(item: item, to: destination, appState: appState)
+        } catch EventError.userInputNotPaused {
+            // The user was busy, the bar did not refuse the move: not a failure for the
+            // back-off.
+            throw EventError.userInputNotPaused
         } catch {
             if origin == .automatic, moveBackoff.recordFailure(at: .now) {
                 logPausedMoves()
@@ -1028,8 +1037,10 @@ extension MenuBarItemManager {
             }
             do {
                 try await move(item: item, to: context.returnDestination)
-            } catch EventError.automaticMovesPaused {
+            } catch EventError.automaticMovesPaused, EventError.userInputNotPaused {
                 // Paused during the rehide: the rest waits for the next settle or user move.
+                // The user did not pause input: the rest is tried again with the next rehide
+                // timer, without waiting on each item or counting an attempt.
                 failedContexts.append(context)
                 failedContexts.append(contentsOf: currentContexts.reversed())
                 currentContexts.removeAll()

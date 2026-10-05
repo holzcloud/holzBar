@@ -350,7 +350,7 @@ extension HIDEventManager {
         }
 
         Task {
-            if NSEvent.modifierFlags == .control {
+            if NSEvent.heldModifierFlags == .control {
                 handleSecondaryContextMenu(appState: appState, screen: screen)
                 return
             }
@@ -358,7 +358,7 @@ extension HIDEventManager {
             let targetSection: MenuBarSection
 
             if
-                NSEvent.modifierFlags == .option,
+                NSEvent.heldModifierFlags == .option,
                 let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden),
                 alwaysHiddenSection.isEnabled
             {
