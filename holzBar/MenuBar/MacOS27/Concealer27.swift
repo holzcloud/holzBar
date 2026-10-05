@@ -442,7 +442,8 @@ final class Concealer27 {
     /// Releases every assertion for a moment, so a click can reach a system item.
     func suspend(for duration: Duration) {
         lastChangeAt = .now
-        suspendedUntil = .now + duration
+        let deadline = ContinuousClock.now + duration
+        suspendedUntil = deadline
         isConcealing = false
         concealedPIDs.removeAll()
         let previous = applyTask
@@ -452,8 +453,12 @@ final class Concealer27 {
         }
         Task { [weak self] in
             try? await Task.sleep(for: duration)
-            self?.suspendedUntil = nil
-            self?.update()
+            // A later suspension, or an early end, owns the deadline now.
+            guard let self, suspendedUntil == deadline else {
+                return
+            }
+            suspendedUntil = nil
+            update()
         }
     }
 
@@ -465,7 +470,8 @@ final class Concealer27 {
     /// did nothing and worked on the second try.
     func suspendReleased(for duration: Duration) async {
         lastChangeAt = .now
-        suspendedUntil = .now + duration
+        let deadline = ContinuousClock.now + duration
+        suspendedUntil = deadline
         isConcealing = false
         concealedPIDs.removeAll()
         let previous = applyTask
@@ -477,8 +483,12 @@ final class Concealer27 {
         await release.value
         Task { [weak self] in
             try? await Task.sleep(for: duration)
-            self?.suspendedUntil = nil
-            self?.update()
+            // A later suspension, or an early end, owns the deadline now.
+            guard let self, suspendedUntil == deadline else {
+                return
+            }
+            suspendedUntil = nil
+            update()
         }
     }
 
