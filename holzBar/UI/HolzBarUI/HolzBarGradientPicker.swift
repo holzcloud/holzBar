@@ -314,13 +314,16 @@ private struct HolzBarGradientPickerRoot: View {
             gradient.stops[0].location = 0.5
         } else {
             let last = CGFloat(gradient.stops.count - 1)
-            let newStops = gradient.stops.lazy
-                .sorted { $0.location < $1.location }
+            let stops = gradient.stops
+            let sortedIndices = stops.indices.sorted { stops[$0].location < stops[$1].location }
+            let newStops = sortedIndices
                 .enumerated()
-                .map { n, stop in
-                    stop.withLocation(CGFloat(n) / last)
+                .map { n, index in
+                    stops[index].withLocation(CGFloat(n) / last)
                 }
             gradient.stops = newStops
+            // The selection is an index, so it follows the selected stop to its new place.
+            selection = selection.flatMap { sortedIndices.firstIndex(of: $0) }
         }
     }
 }
