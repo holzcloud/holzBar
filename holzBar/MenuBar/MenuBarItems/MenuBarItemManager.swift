@@ -879,7 +879,8 @@ extension MenuBarItemManager {
     /// Gets the destination to return the given item to after it is
     /// temporarily shown.
     private func getReturnDestination(for item: MenuBarItem, in items: [MenuBarItem]) -> MoveDestination? {
-        guard let index = items.firstIndex(matching: item.tag) else {
+        // By window first: untitled items of one app share a tag.
+        guard let index = items.firstIndex(where: { $0.windowID == item.windowID }) ?? items.firstIndex(matching: item.tag) else {
             return nil
         }
         if items.indices.contains(index + 1) {
@@ -989,6 +990,11 @@ extension MenuBarItemManager {
             logger.error("No return destination for \(item.logString, privacy: .private(mask: .hash))")
             return
         }
+        // The section is read before the show move, from the item's own window: the cache
+        // can already have it in the visible section, and untitled items of one app share
+        // a tag.
+        var dividers = items
+        let returnSection = ControlItemPair(items: &dividers).map { section(of: item, controlItems: $0) } ?? .hidden
 
         // Remove all items up to and including the hidden control item.
         if let index = items.firstIndex(matching: .hiddenControlItem) {
@@ -1039,7 +1045,7 @@ extension MenuBarItemManager {
             identityKey: identityKey(for: item),
             returnDestination: destination,
             returnTargetIdentityKey: identityKey(for: destination.targetItem),
-            returnSection: itemCache.address(for: item.tag)?.section ?? .hidden
+            returnSection: returnSection
         )
         temporarilyShownItemContexts.append(context)
 
