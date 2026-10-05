@@ -3613,6 +3613,34 @@
         }
       }
     },
+    "Keep This Mac's Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen dieses Macs behalten"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garder les réglages de ce Mac"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantieni le impostazioni di questo Mac"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tegnair ils parameters da quest Mac"
+          }
+        }
+      }
+    },
     "Keep the Dock icon hidden" : {
       "localizations" : {
         "de" : {
@@ -7981,6 +8009,34 @@
         }
       }
     },
+    "The sync folder holds settings from another Mac that differ from this Mac's. Using them restarts holzBar; keeping this Mac's settings replaces them in the sync folder." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Abgleichordner enthält Einstellungen eines anderen Macs, die von denen dieses Macs abweichen. Verwendest du sie, startet holzBar neu; behältst du die Einstellungen dieses Macs, ersetzen sie jene im Abgleichordner."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le dossier de synchronisation contient des réglages d'un autre Mac qui diffèrent de ceux de ce Mac. Les utiliser redémarre holzBar ; garder les réglages de ce Mac les remplace dans le dossier de synchronisation."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La cartella di sincronizzazione contiene impostazioni di un altro Mac diverse da quelle di questo Mac. Usarle riavvia holzBar; mantenere le impostazioni di questo Mac le sostituisce nella cartella di sincronizzazione."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'ordinatur da sincronisaziun cuntegna parameters d'in auter Mac che sa distinguan da quels da quest Mac. Sche ti als duvras, reavia holzBar; sche ti tegnas ils parameters da quest Mac, remplazzan quels ils parameters en l'ordinatur da sincronisaziun."
+          }
+        }
+      }
+    },
     "This action cannot be undone." : {
       "localizations" : {
         "de" : {
@@ -8793,6 +8849,34 @@
         }
       }
     },
+    "Use Settings from Sync Folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen aus dem Abgleichordner verwenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser les réglages du dossier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa le impostazioni della cartella"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duvrar ils parameters da l'ordinatur"
+          }
+        }
+      }
+    },
     "Use Symbol" : {
       "localizations" : {
         "de" : {
@@ -9153,6 +9237,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nua che macOS als metta"
+          }
+        }
+      }
+    },
+    "Which settings should holzBar use?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welche Einstellungen soll holzBar verwenden?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quels réglages holzBar doit-il utiliser ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quali impostazioni deve usare holzBar?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tge parameters duai holzBar duvrar?"
           }
         }
       }

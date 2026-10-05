@@ -103,6 +103,62 @@ struct SettingsSyncFileTests {
         #expect(newer(modified: .distantFuture) == nil)
     }
 
+    private func contents(in file: [String: Any], now: Date = .now) -> SettingsSyncFile.Contents? {
+        SettingsSyncFile.contents(
+            of: file,
+            lastSynced: lastSynced,
+            deviceID: thisMac,
+            computerName: nil,
+            localKeys: localKeys,
+            now: now
+        )
+    }
+
+    @Test("The contents tell this Mac's, older and newer files apart")
+    func contentsOfFile() throws {
+        let modified = lastSynced.addingTimeInterval(60)
+        let now = lastSynced.addingTimeInterval(120)
+        let own = try #require(contents(in: file(deviceID: thisMac, modified: modified, settings: ["UseIceBar": true]), now: now))
+        #expect(own.isFromThisMac)
+        #expect(!own.isNewer)
+        let other = try #require(contents(in: file(deviceID: otherMac, modified: modified, settings: ["UseIceBar": true]), now: now))
+        #expect(!other.isFromThisMac)
+        #expect(other.isNewer)
+        #expect(other.modified == modified)
+        let older = try #require(contents(in: file(deviceID: otherMac, modified: lastSynced, settings: [:]), now: now))
+        #expect(!older.isNewer)
+        let future = now.addingTimeInterval(SettingsSyncFile.allowedClockSkew + 1)
+        let farAhead = try #require(contents(in: file(deviceID: otherMac, modified: future, settings: [:]), now: now))
+        #expect(!farAhead.isFromThisMac)
+        #expect(!farAhead.isNewer)
+    }
+
+    @Test("The contents leave out the local keys")
+    func contentsWithoutLocalKeys() throws {
+        let settings: [String: Any] = ["SyncsSettingsWithICloud": true, "UseIceBar": true]
+        let result = try #require(contents(in: file(deviceID: otherMac, modified: lastSynced, settings: settings)))
+        #expect(Set(result.settings.keys) == ["UseIceBar"])
+    }
+
+    @Test("A file without date or settings has no contents")
+    func contentsWithoutDateOrSettings() {
+        #expect(contents(in: file(deviceID: otherMac, modified: lastSynced, settings: nil)) == nil)
+        #expect(contents(in: file(deviceID: otherMac, modified: nil, settings: [:])) == nil)
+    }
+
+    @Test("Online-only files are not read at launch")
+    func localFiles() {
+        let dataless = UInt32(SF_DATALESS)
+        #expect(!SettingsSyncFile.isLocal(flags: dataless, isUbiquitous: nil, downloadingStatus: nil))
+        #expect(!SettingsSyncFile.isLocal(flags: dataless, isUbiquitous: false, downloadingStatus: nil))
+        #expect(!SettingsSyncFile.isLocal(flags: 0, isUbiquitous: true, downloadingStatus: .notDownloaded))
+        #expect(!SettingsSyncFile.isLocal(flags: 0, isUbiquitous: true, downloadingStatus: .downloaded))
+        #expect(!SettingsSyncFile.isLocal(flags: 0, isUbiquitous: true, downloadingStatus: nil))
+        #expect(SettingsSyncFile.isLocal(flags: 0, isUbiquitous: true, downloadingStatus: .current))
+        #expect(SettingsSyncFile.isLocal(flags: 0, isUbiquitous: false, downloadingStatus: nil))
+        #expect(SettingsSyncFile.isLocal(flags: 0, isUbiquitous: nil, downloadingStatus: nil))
+    }
+
     // MARK: Reading
 
     /// A new, empty folder for one test.

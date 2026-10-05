@@ -5,6 +5,7 @@
 
 import AppKit
 import Observation
+import os
 import OSLog
 import SystemConfiguration
 
@@ -14,9 +15,12 @@ import SystemConfiguration
 ///
 /// iCloud's key-value store needs an iCloud entitlement, which an ad hoc signed
 /// app cannot have, so the settings travel as `holzBar/Settings.plist` in the folder
-/// instead. Each change is written there; newer settings from another Mac are applied at
-/// launch, or after a restart the user agrees to. The folder's own app syncs the file;
-/// holzBar never connects to the network.
+/// instead. Each change of the user's settings is written there; newer settings from
+/// another Mac are applied at launch, or after a restart the user agrees to. When both
+/// Macs changed their settings, or a Mac joins a folder that holds another Mac's different
+/// settings, holzBar asks which settings to use and overwrites neither unasked
+/// (``SettingsSyncPolicy``, F-02). The folder's own app syncs the file; holzBar never
+/// connects to the network.
 ///
 /// The folder is stored as a bookmark (`SettingsSyncLocation`). Without one, iCloud Drive
 /// is used, as before folders could be chosen, and stored as the choice.
@@ -28,22 +32,41 @@ import SystemConfiguration
 /// sync apps replace the file without coordination; a file system event source on the
 /// folder hears about those. The presenter, the event source and the observer of this
 /// Mac's settings exist only while sync is on.
+///
+/// The file may be online-only, on a stalled network volume or held by a file provider
+/// that hangs, so every access to it runs on one serial background queue (``fileQueue``),
+/// never on the main thread; only the read at launch waits for it, at most a second, and
+/// skips a file that is not on this Mac (F-15).
 @MainActor
 @Observable
 final class SettingsSync {
     private static let logger = Logger(category: "SettingsSync")
 
     /// Keys that stay on this Mac.
-    private static let localKeys: Set<String> = [
+    private nonisolated static let localKeys: Set<String> = [
         Defaults.Key.syncsSettingsWithICloud.rawValue,
         lastSyncedKey,
     ]
 
-    private static let lastSyncedKey = "SettingsSyncLastSynced"
+    private nonisolated static let lastSyncedKey = "SettingsSyncLastSynced"
+
+    /// The key of the digest of the user settings this Mac last wrote or applied
+    /// (``SettingsSyncPolicy/Local/base``). Without one, this Mac joins the folder.
+    private static let baseKey = "SettingsSyncBaseDigest"
+
+    /// The key of the date of a newer version from another Mac that waits for the user;
+    /// while it waits, this Mac's changes are not written.
+    private static let pendingKey = "SettingsSyncPendingModified"
 
     /// The key of this Mac's sync id. Keys starting with "SettingsSync" are never exported,
     /// imported or synced (`SettingsBackup.excludedKeyPrefixes`).
     private static let deviceIDKey = "SettingsSyncDeviceID"
+
+    /// The queue of every access to the sync file and its folder, one at a time.
+    private nonisolated static let fileQueue = DispatchQueue(label: "com.holzcloud.holzBar.SettingsSync", qos: .utility)
+
+    /// How long the launch waits for the sync file.
+    private nonisolated static let launchReadTimeout = DispatchTimeInterval.seconds(1)
 
     /// The id this Mac writes into the sync file, created once and kept in this Mac's
     /// defaults.
@@ -130,6 +153,13 @@ final class SettingsSync {
         folderURL?.appending(path: SettingsSyncLocation.fileComponents[1])
     }
 
+    /// The sync file in the given synced folder.
+    private static func fileURL(inFolder syncFolderURL: URL) -> URL {
+        syncFolderURL
+            .appending(path: SettingsSyncLocation.fileComponents[0], directoryHint: .isDirectory)
+            .appending(path: SettingsSyncLocation.fileComponents[1])
+    }
+
     /// The name of the synced folder to show, or `nil` when there is none. Updated while
     /// sync is on, when the folder is chosen, when a volume is mounted or unmounted, when the
     /// folder changes and when the settings show it (``refreshFolder()``), never in a view
@@ -157,19 +187,20 @@ final class SettingsSync {
     }
 
     /// A Boolean value that indicates whether syncing is turned on.
+    ///
+    /// Turning it on writes nothing: this Mac's settings are written when the user changes
+    /// them, or when the folder is chosen (``chooseFolder()``).
     var isEnabled = false {
         didSet {
             Defaults.set(isEnabled, forKey: .syncsSettingsWithICloud)
             updateObservers()
-            if isEnabled, !oldValue {
-                push()
+            if oldValue, !isEnabled {
+                forgetSyncState()
             }
         }
     }
 
     @ObservationIgnored private weak var appState: AppState?
-    @ObservationIgnored private var lastPushedData: Data?
-    @ObservationIgnored private var isAskingToRestart = false
 
     /// Observes this Mac's settings while sync is on.
     @ObservationIgnored private var defaultsObserver: Task<Void, Never>?
@@ -187,19 +218,48 @@ final class SettingsSync {
     /// Hears about files other sync apps replace in the folder while sync is on.
     @ObservationIgnored private var folderWatcher: SettingsSyncFolderWatcher?
 
+    /// Whether the folder is being prepared on the file queue for the presenter.
+    @ObservationIgnored private var isPreparingFolder = false
+
     /// The pending check after the sync file changed.
     @ObservationIgnored private var checkTask: Task<Void, Never>?
 
     /// A push waited for the pending check, and is made once the check is done.
     @ObservationIgnored private var pushesAfterCheck = false
 
+    /// The exchange with the sync file that runs now; one at a time.
+    @ObservationIgnored private var exchangeTask: Task<Void, Never>?
+
+    /// The exchanges requested while another one ran, each made once afterwards.
+    @ObservationIgnored private var queuedExchanges: Set<ExchangeKind> = []
+
+    /// The date of the version the user answered "Later" for in this session.
+    @ObservationIgnored private var postponed: Date?
+
+    /// Whether a sync question is open.
+    @ObservationIgnored private var isAsking = false
+
+    /// A check waited for the open question, and is made once it is answered.
+    @ObservationIgnored private var checksAfterPrompt = false
+
+    /// Whether the folder chosen by the user is being joined.
+    @ObservationIgnored private var isChoosingFolder = false
+
     func performSetup(with appState: AppState) {
         self.appState = appState
         isEnabled = Defaults.bool(forKey: .syncsSettingsWithICloud)
+        if isEnabled {
+            // The launch skipped a file that was not on this Mac and never asks; check
+            // the file once now.
+            syncFileDidChange()
+        }
     }
 
     /// Starts or stops observing the settings and the sync file, as sync is on or off.
-    private func updateObservers() {
+    ///
+    /// - Parameter checksNewFolder: Whether to check the sync file once a folder is
+    ///   watched that was not before.
+    private func updateObservers(checksNewFolder: Bool = false) {
         guard isEnabled, appState != nil else {
             defaultsObserver?.cancel()
             defaultsObserver = nil
@@ -236,31 +296,95 @@ final class SettingsSync {
 
         updateFolderDisplayName()
 
-        if presenter == nil, let folderURL = Self.folderURL {
-            // Anyone who can write the synced folder could make the holzBar folder a link
-            // to another folder of the user's; holzBar then neither watches nor writes it.
-            guard SettingsSyncFile.isUsableFolder(atPath: folderURL.path(percentEncoded: false)) else {
-                Self.logger.error("The holzBar folder in the sync folder is a link or a file, not syncing")
+        if presenter == nil, !isPreparingFolder, let folderURL = Self.folderURL {
+            prepareFolder(folderURL, checksAfterwards: checksNewFolder)
+        }
+    }
+
+    /// The closure the presenter and the folder watcher call when the folder changes.
+    private func makeChangeHandler() -> @Sendable () -> Void {
+        { [weak self] in
+            guard let self else {
                 return
             }
+            Task { @MainActor in
+                self.syncFileDidChange()
+            }
+        }
+    }
+
+    /// Creates the holzBar folder and its watcher on the file queue, then watches it with a
+    /// presenter if sync is still on with the same folder.
+    private func prepareFolder(_ folderURL: URL, checksAfterwards: Bool) {
+        isPreparingFolder = true
+        let onChange = makeChangeHandler()
+        Task { [weak self] in
+            let preparation = await Self.prepare(folderURL, onChange: onChange)
+            guard let self else {
+                preparation.watcher?.cancel()
+                return
+            }
+            isPreparingFolder = false
+            guard isEnabled, presenter == nil, Self.folderURL == folderURL else {
+                preparation.watcher?.cancel()
+                if isEnabled, presenter == nil, Self.folderURL != folderURL {
+                    // The folder changed meanwhile.
+                    updateObservers(checksNewFolder: checksAfterwards)
+                }
+                return
+            }
+            switch preparation {
+            case .unusable:
+                // Anyone who can write the synced folder could make the holzBar folder a
+                // link to another folder of the user's; holzBar then neither watches nor
+                // writes it.
+                Self.logger.error("The holzBar folder in the sync folder is a link or a file, not syncing")
+            case .ready(let watcher, let creationError):
+                if let creationError {
+                    Self.logger.error("Error creating the holzBar folder in the sync folder: \(creationError, privacy: .private)")
+                }
+                let presenter = SettingsSyncPresenter(folderURL: folderURL, onChange: onChange)
+                NSFileCoordinator.addFilePresenter(presenter)
+                self.presenter = presenter
+                folderWatcher = watcher
+                Self.logger.info("Watching the sync file")
+                if checksAfterwards {
+                    syncFileDidChange()
+                }
+            }
+        }
+    }
+
+    /// What preparing the holzBar folder gave.
+    private nonisolated enum FolderPreparation: Sendable {
+        /// The holzBar folder is a link or a file.
+        case unusable
+        /// The folder exists, or creating it failed with the given error; the watcher is
+        /// `nil` when the folder could not be opened.
+        case ready(SettingsSyncFolderWatcher?, creationError: String?)
+
+        var watcher: SettingsSyncFolderWatcher? {
+            if case .ready(let watcher, _) = self {
+                return watcher
+            }
+            return nil
+        }
+    }
+
+    /// Checks and creates the holzBar folder and opens its watcher, on the file queue.
+    @concurrent
+    private nonisolated static func prepare(_ folderURL: URL, onChange: @escaping @Sendable () -> Void) async -> FolderPreparation {
+        await BlockingWork.run(on: fileQueue) {
+            guard SettingsSyncFile.isUsableFolder(atPath: folderURL.path(percentEncoded: false)) else {
+                return .unusable
+            }
+            var creationError: String?
             do {
                 try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
             } catch {
-                Self.logger.error("Error creating the holzBar folder in the sync folder: \(error, privacy: .private)")
+                creationError = String(describing: error)
             }
-            let onChange: @Sendable () -> Void = { [weak self] in
-                guard let self else {
-                    return
-                }
-                Task { @MainActor in
-                    self.syncFileDidChange()
-                }
-            }
-            let presenter = SettingsSyncPresenter(folderURL: folderURL, onChange: onChange)
-            NSFileCoordinator.addFilePresenter(presenter)
-            self.presenter = presenter
-            folderWatcher = SettingsSyncFolderWatcher(folderURL: folderURL, onChange: onChange)
-            Self.logger.info("Watching the sync file")
+            return .ready(SettingsSyncFolderWatcher(folderURL: folderURL, onChange: onChange), creationError: creationError)
         }
     }
 
@@ -268,17 +392,13 @@ final class SettingsSync {
     /// became available, moved or gone.
     ///
     /// A folder that has just become available, such as a network share mounted after
-    /// launch, may hold newer settings from another Mac, so it is checked before this Mac's
-    /// settings are written there (``push()`` waits for the check).
+    /// launch, may hold newer settings from another Mac, so it is checked once it is
+    /// watched.
     private func volumesDidChange() {
-        let watchedURL = presenter?.presentedItemURL
-        if watchedURL != Self.folderURL {
+        if presenter?.presentedItemURL != Self.folderURL {
             stopWatchingFolder()
         }
-        updateObservers()
-        if let presenter, presenter.presentedItemURL != watchedURL {
-            syncFileDidChange()
-        }
+        updateObservers(checksNewFolder: true)
     }
 
     /// Stops listening to the sync folder.
@@ -292,13 +412,42 @@ final class SettingsSync {
         }
     }
 
+    /// Forgets the state of the folder when sync is turned off, so turning it on joins
+    /// the folder again.
+    private func forgetSyncState() {
+        UserDefaults.standard.removeObject(forKey: Self.baseKey)
+        UserDefaults.standard.removeObject(forKey: Self.pendingKey)
+        postponed = nil
+        exchangeTask?.cancel()
+        exchangeTask = nil
+        queuedExchanges = []
+    }
+
     // MARK: Folder
+
+    /// A folder the user chose, until it is joined.
+    private struct JoinRequest {
+        /// The chosen folder.
+        let folderURL: URL
+        /// The window that showed the button, for the question.
+        let window: NSWindow?
+    }
 
     /// Lets the user choose the folder the Macs sync, and turns sync on with it.
     ///
-    /// - Returns: Whether a folder was chosen.
+    /// Nothing is stored before the sync file in the folder has been read off the main
+    /// thread. When it holds another Mac's different settings, holzBar asks which settings
+    /// to use, as a sheet on the window that showed the button; until the answer, sync stays
+    /// off or keeps the previous folder. Otherwise the folder is stored and this Mac's
+    /// settings are written there, unless the file already holds them.
+    ///
+    /// - Returns: Whether a folder was chosen; joining it goes on afterwards.
     @discardableResult
     func chooseFolder() -> Bool {
+        guard !isChoosingFolder else {
+            return false
+        }
+        let window = NSApp.keyWindow
         let panel = NSOpenPanel()
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -310,17 +459,76 @@ final class SettingsSync {
         guard panel.runModal() == .OK, let url = panel.url else {
             return false
         }
-        stopWatchingFolder()
-        Self.storeBookmark(of: url)
-        lastPushedData = nil
-        if isEnabled {
-            updateObservers()
-            push()
-        } else {
-            isEnabled = true
+        let join = JoinRequest(folderURL: url, window: window)
+        // A join ignores the previous folder's state: this Mac has not synced with the
+        // chosen folder yet.
+        guard
+            let request = makeRequest(
+                .push,
+                fileURL: Self.fileURL(inFolder: url),
+                base: nil,
+                pending: nil,
+                lastSynced: nil,
+                postponed: nil,
+                presenter: nil
+            )
+        else {
+            return false
+        }
+        isChoosingFolder = true
+        Task { [weak self] in
+            let result = await Self.exchange(request)
+            await self?.finishJoin(join, request: request, result: result)
         }
         return true
     }
+
+    /// Stores the chosen folder, or asks which settings to use first.
+    private func finishJoin(_ join: JoinRequest, request: ExchangeRequest, result: ExchangeResult) async {
+        Self.log(result.problem)
+        guard result.action == .ask, let remote = result.remote else {
+            commitJoin(join)
+            switch result.action {
+            case .write:
+                Self.markSynced(base: request.local.userDigest, modified: result.written)
+                Self.logger.info("Wrote settings to the sync folder")
+            case .adopt:
+                Self.markSynced(base: request.local.userDigest, modified: result.remote?.modified)
+            default:
+                // The file could not be read; the folder is joined once it can.
+                break
+            }
+            isChoosingFolder = false
+            return
+        }
+        let prompt = SyncPrompt.conflict(remote, isJoining: true)
+        guard let window = join.window, window.isVisible, !isAsking else {
+            scheduleWindowlessPrompt(prompt, join: join)
+            return
+        }
+        isAsking = true
+        let response = await makeAlert(for: prompt).beginSheetModal(for: window)
+        answer(prompt, response: response, join: join)
+    }
+
+    /// Stores the chosen folder and turns sync on with it, as a join: without the
+    /// previous folder's state.
+    private func commitJoin(_ join: JoinRequest) {
+        stopWatchingFolder()
+        Self.storeBookmark(of: join.folderURL)
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: Self.lastSyncedKey)
+        defaults.removeObject(forKey: Self.baseKey)
+        defaults.removeObject(forKey: Self.pendingKey)
+        postponed = nil
+        if isEnabled {
+            updateObservers()
+        } else {
+            isEnabled = true
+        }
+    }
+
+    // MARK: Checks and Pushes
 
     /// Checks the sync file shortly after it changed, once for a burst of changes.
     private func syncFileDidChange() {
@@ -328,42 +536,197 @@ final class SettingsSync {
         checkTask?.cancel()
         checkTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(2))
-            guard !Task.isCancelled else {
+            // A cancelled check was replaced by a newer one, or sync was turned off.
+            guard !Task.isCancelled, let self else {
                 return
             }
-            let restarts = await self?.checkForNewerSettings() ?? false
-            // A cancelled check was replaced by a newer one, or sync was turned off.
-            if !Task.isCancelled {
-                self?.checkTask = nil
-            }
-            if !restarts {
-                self?.pushAfterCheck()
-            }
+            checkTask = nil
+            checkNow()
         }
     }
 
-    /// Makes the push that waited for a check of the sync file, once no check is pending.
-    private func pushAfterCheck() {
-        guard pushesAfterCheck, checkTask == nil, !isAskingToRestart else {
+    /// Checks the sync file, and then makes the push that waited for the check.
+    private func checkNow() {
+        // An open question is about a version of the file; check once it is answered.
+        guard !isAsking else {
+            checksAfterPrompt = true
             return
         }
-        pushesAfterCheck = false
-        settingsDidChange()
+        requestExchange(.check)
+        if pushesAfterCheck {
+            pushesAfterCheck = false
+            requestExchange(.push)
+        }
     }
 
-    /// Writes the settings to iCloud Drive, if syncing is on.
+    /// Writes the settings to the sync folder, if syncing is on and the user's settings
+    /// changed since this Mac last synced.
     func settingsDidChange() {
         guard isEnabled else {
             return
         }
-        push()
+        // A pending check may find newer settings from another Mac; push once the check
+        // is done.
+        guard checkTask == nil else {
+            pushesAfterCheck = true
+            return
+        }
+        requestExchange(.push)
     }
 
-    private func push() {
-        // A pending check may find newer settings from another Mac, which this push would
-        // overwrite; push once the check is done (``pushAfterCheck()``).
-        guard checkTask == nil, !isAskingToRestart else {
-            pushesAfterCheck = true
+    /// The settings that are synced: holzBar's own, without the keys that stay on this Mac.
+    private static func syncedSettings() -> [String: Any] {
+        SettingsBackup.currentSettings().filter { !localKeys.contains($0.key) }
+    }
+
+    /// Remembers that this Mac has synced the given user settings with the file of the
+    /// given date, and that no version waits for the user.
+    private static func markSynced(base: String, modified: Date?) {
+        let defaults = UserDefaults.standard
+        defaults.set(base, forKey: baseKey)
+        if let modified {
+            let lastSynced = defaults.object(forKey: lastSyncedKey) as? Date ?? .distantPast
+            defaults.set(max(lastSynced, modified), forKey: lastSyncedKey)
+        }
+        defaults.removeObject(forKey: pendingKey)
+    }
+
+    /// Remembers the date of the version that waits for the user, or that none waits.
+    private static func setPending(_ modified: Date?) {
+        if let modified {
+            UserDefaults.standard.set(modified, forKey: pendingKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: pendingKey)
+        }
+    }
+
+    // MARK: Exchanges
+
+    /// What an exchange with the sync file is for.
+    private nonisolated enum ExchangeKind: Int, Comparable, Sendable {
+        /// This Mac's settings changed.
+        case push
+        /// The file changed.
+        case check
+        /// The user chose to keep this Mac's settings.
+        case keepThisMac
+
+        /// The trigger of the decision.
+        var trigger: SettingsSyncPolicy.Trigger {
+            self == .check ? .check : .localChange
+        }
+
+        static func < (lhs: Self, rhs: Self) -> Bool {
+            lhs.rawValue < rhs.rawValue
+        }
+    }
+
+    /// A version of the sync file from another Mac, kept until the user decides.
+    private nonisolated struct RemoteVersion: Sendable {
+        /// When the version was written.
+        let modified: Date
+        /// Its settings, as a binary property list.
+        let settingsData: Data
+
+        /// Its settings.
+        var settings: [String: Any]? {
+            (try? PropertyListSerialization.propertyList(from: settingsData, format: nil)) as? [String: Any]
+        }
+    }
+
+    /// Everything an exchange needs, gathered on the main actor.
+    private nonisolated struct ExchangeRequest: Sendable {
+        let kind: ExchangeKind
+        let local: SettingsSyncPolicy.Local
+        let fileURL: URL
+        /// This Mac's synced settings, as a binary property list.
+        let settingsData: Data
+        let lastSynced: Date?
+        let deviceID: String
+        let computerName: String?
+        /// This Mac's presenter, so it is not told about its own write.
+        let presenter: SettingsSyncPresenter?
+    }
+
+    /// Why an exchange did not go as planned, for the log.
+    private nonisolated enum ExchangeProblem: Sendable {
+        /// The holzBar folder is a link or a file.
+        case unusableFolder
+        /// The file was not used, for the given reason.
+        case ignoredFile(String)
+        /// Reading or writing failed with the given error.
+        case failed(String)
+    }
+
+    /// What an exchange did.
+    private nonisolated struct ExchangeResult: Sendable {
+        /// The decision; `.write` only when the settings were written.
+        var action: SettingsSyncPolicy.Action
+        /// The version in the file, if it holds one.
+        var remote: RemoteVersion?
+        /// The date written into the file.
+        var written: Date?
+        var problem: ExchangeProblem?
+    }
+
+    /// What reading the sync file gave, as the decision sees it.
+    private nonisolated struct Inspection {
+        var file: SettingsSyncPolicy.File
+        /// The file's settings, without the keys that stay on each Mac.
+        var settings: [String: Any]?
+        var remote: RemoteVersion?
+        var problem: ExchangeProblem?
+    }
+
+    /// Gathers what an exchange needs.
+    ///
+    /// - Returns: The request, or `nil` when the exchange is not needed: a push of
+    ///   settings that did not change since the last sync, or while a version from another
+    ///   Mac waits for the user (``SettingsSyncPolicy/needsExchange(_:local:)``).
+    private func makeRequest(
+        _ kind: ExchangeKind,
+        fileURL: URL,
+        base: String?,
+        pending: Date?,
+        lastSynced: Date?,
+        postponed: Date?,
+        presenter: SettingsSyncPresenter?
+    ) -> ExchangeRequest? {
+        let settings = Self.syncedSettings()
+        let local = SettingsSyncPolicy.Local(
+            userDigest: SettingsSyncPolicy.userDigest(of: settings),
+            base: base,
+            pending: pending,
+            postponed: postponed,
+            forcesWrite: kind == .keepThisMac
+        )
+        guard SettingsSyncPolicy.needsExchange(kind.trigger, local: local) else {
+            return nil
+        }
+        guard let settingsData = try? PropertyListSerialization.data(fromPropertyList: settings, format: .binary, options: 0) else {
+            Self.logger.error("Could not encode the settings for the sync folder")
+            return nil
+        }
+        return ExchangeRequest(
+            kind: kind,
+            local: local,
+            fileURL: fileURL,
+            settingsData: settingsData,
+            lastSynced: lastSynced,
+            deviceID: Self.deviceID,
+            computerName: Self.computerName,
+            presenter: presenter
+        )
+    }
+
+    /// Makes an exchange with the sync file of the current folder, or makes it after the
+    /// one that runs now.
+    private func requestExchange(_ kind: ExchangeKind) {
+        guard isEnabled else {
+            return
+        }
+        guard exchangeTask == nil else {
+            queuedExchanges.insert(kind)
             return
         }
         guard let fileURL = Self.fileURL else {
@@ -371,84 +734,216 @@ final class SettingsSync {
             updateFolderDisplayName()
             return
         }
-        let settings = SettingsBackup.currentSettings().filter { !Self.localKeys.contains($0.key) }
+        let defaults = UserDefaults.standard
         guard
-            let settingsData = try? PropertyListSerialization.data(fromPropertyList: settings, format: .binary, options: 0),
-            settingsData != lastPushedData
+            let request = makeRequest(
+                kind,
+                fileURL: fileURL,
+                base: defaults.string(forKey: Self.baseKey),
+                pending: defaults.object(forKey: Self.pendingKey) as? Date,
+                lastSynced: defaults.object(forKey: Self.lastSyncedKey) as? Date,
+                postponed: postponed,
+                presenter: presenter
+            )
         else {
+            runQueuedExchange()
             return
         }
-        let folderURL = fileURL.deletingLastPathComponent()
-        guard SettingsSyncFile.isUsableFolder(atPath: folderURL.path(percentEncoded: false)) else {
-            Self.logger.error("The holzBar folder in the sync folder is a link or a file, not syncing")
+        exchangeTask = Task { [weak self] in
+            let result = await Self.exchange(request)
+            // A cancelled exchange belongs to sync that was turned off.
+            guard !Task.isCancelled, let self else {
+                return
+            }
+            exchangeTask = nil
+            handle(result, of: request)
+            runQueuedExchange()
+        }
+    }
+
+    /// Makes the most important exchange that waited, if no exchange runs.
+    private func runQueuedExchange() {
+        guard exchangeTask == nil, let next = queuedExchanges.max() else {
             return
+        }
+        queuedExchanges.remove(next)
+        requestExchange(next)
+    }
+
+    /// Acts on the result of an exchange while holzBar runs.
+    private func handle(_ result: ExchangeResult, of request: ExchangeRequest) {
+        // Sync was turned off or the folder changed while the exchange ran.
+        guard isEnabled, request.fileURL == Self.fileURL else {
+            return
+        }
+        Self.log(result.problem)
+        switch result.action {
+        case .none:
+            Self.setPending(nil)
+        case .wait, .retry:
+            break
+        case .adopt:
+            Self.markSynced(base: request.local.userDigest, modified: result.remote?.modified)
+        case .write:
+            if request.kind == .check {
+                // A check never writes; this Mac's changes are pushed with a read of their
+                // own.
+                Self.setPending(nil)
+                requestExchange(.push)
+            } else {
+                Self.markSynced(base: request.local.userDigest, modified: result.written)
+                Self.logger.info("Wrote settings to the sync folder")
+            }
+        case .apply:
+            guard let remote = result.remote else {
+                return
+            }
+            Self.setPending(remote.modified)
+            scheduleWindowlessPrompt(.restart(remote))
+        case .ask:
+            guard let remote = result.remote else {
+                return
+            }
+            Self.setPending(remote.modified)
+            scheduleWindowlessPrompt(.conflict(remote, isJoining: request.local.isJoining))
+        }
+    }
+
+    /// Logs why an exchange did not go as planned.
+    private static func log(_ problem: ExchangeProblem?) {
+        switch problem {
+        case .unusableFolder:
+            logger.error("The holzBar folder in the sync folder is a link or a file, not syncing")
+        case .ignoredFile(let reason):
+            logger.error("Ignoring the sync file: \(reason, privacy: .public)")
+        case .failed(let error):
+            logger.error("Error syncing settings with the sync folder: \(error, privacy: .private)")
+        case nil:
+            break
+        }
+    }
+
+    /// Makes an exchange with the sync file on the file queue, off the main thread.
+    @concurrent
+    private nonisolated static func exchange(_ request: ExchangeRequest) async -> ExchangeResult {
+        await BlockingWork.run(on: fileQueue) {
+            performExchange(request)
+        }
+    }
+
+    /// Reads the sync file, decides, and writes this Mac's settings when the decision
+    /// says so.
+    ///
+    /// A push reads and writes in one coordinated access, so no other coordinated writer,
+    /// such as iCloud Drive, can replace the file between the read and the write. A check
+    /// only reads.
+    private nonisolated static func performExchange(_ request: ExchangeRequest) -> ExchangeResult {
+        // Anyone who can write the synced folder could make the holzBar folder a link to
+        // another folder of the user's; holzBar then neither reads nor writes it.
+        let folderPath = request.fileURL.deletingLastPathComponent().path(percentEncoded: false)
+        guard SettingsSyncFile.isUsableFolder(atPath: folderPath) else {
+            return ExchangeResult(action: .retry, problem: .unusableFolder)
+        }
+        let trigger = request.kind.trigger
+        guard request.kind != .check else {
+            let read = readFileContents(at: request.fileURL, coordinator: NSFileCoordinator(filePresenter: nil))
+            let inspection = inspect(read, lastSynced: request.lastSynced, deviceID: request.deviceID, computerName: request.computerName)
+            return ExchangeResult(
+                action: SettingsSyncPolicy.decide(trigger, local: request.local, file: inspection.file),
+                remote: inspection.remote,
+                problem: inspection.problem
+            )
+        }
+        var result = ExchangeResult(action: .retry)
+        var coordinationError: NSError?
+        // This Mac's presenter is not told about its own write (its folder watcher is, and
+        // finds the file its own).
+        NSFileCoordinator(filePresenter: request.presenter).coordinate(
+            readingItemAt: request.fileURL,
+            options: [],
+            writingItemAt: request.fileURL,
+            options: .forReplacing,
+            error: &coordinationError
+        ) { readingURL, writingURL in
+            let read = SettingsSyncFile.readContents(atPath: readingURL.path(percentEncoded: false))
+            let inspection = inspect(read, lastSynced: request.lastSynced, deviceID: request.deviceID, computerName: request.computerName)
+            let action = SettingsSyncPolicy.decide(trigger, local: request.local, file: inspection.file)
+            guard action == .write else {
+                result = ExchangeResult(action: action, remote: inspection.remote, problem: inspection.problem)
+                return
+            }
+            result = write(request, fileSettings: inspection.settings, to: writingURL)
+        }
+        if let coordinationError {
+            return ExchangeResult(action: .retry, problem: .failed(String(describing: coordinationError)))
+        }
+        return result
+    }
+
+    /// Writes this Mac's settings into the sync file, with the learned settings merged
+    /// with the file's.
+    private nonisolated static func write(_ request: ExchangeRequest, fileSettings: [String: Any]?, to fileURL: URL) -> ExchangeResult {
+        guard let settings = (try? PropertyListSerialization.propertyList(from: request.settingsData, format: nil)) as? [String: Any] else {
+            return ExchangeResult(action: .retry, problem: .failed("The settings could not be decoded"))
         }
         let modified = Date.now
         // The id alone tells the Macs apart; the computer name, which usually holds the
         // owner's name, stays on this Mac.
         let file: [String: Any] = [
             SettingsSyncFile.modifiedKey: modified,
-            SettingsSyncDevice.deviceIDKey: Self.deviceID,
-            SettingsSyncFile.settingsKey: settings,
+            SettingsSyncDevice.deviceIDKey: request.deviceID,
+            SettingsSyncFile.settingsKey: SettingsSyncPolicy.settingsToWrite(settings, file: fileSettings),
         ]
         do {
-            try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             let data = try PropertyListSerialization.data(fromPropertyList: file, format: .xml, options: 0)
-            // Coordinated, so iCloud Drive never uploads half a file; this Mac's presenter
-            // is not told about its own write (its folder watcher is, and finds the file
-            // its own).
-            var coordinationError: NSError?
-            var writeError: (any Error)?
-            NSFileCoordinator(filePresenter: presenter).coordinate(
-                writingItemAt: fileURL,
-                options: .forReplacing,
-                error: &coordinationError
-            ) { url in
-                do {
-                    try data.write(to: url, options: .atomic)
-                } catch {
-                    writeError = error
-                }
-            }
-            if let coordinationError {
-                throw coordinationError
-            }
-            if let writeError {
-                throw writeError
-            }
-            lastPushedData = settingsData
-            UserDefaults.standard.set(modified, forKey: Self.lastSyncedKey)
-            Self.logger.info("Wrote settings to the sync folder")
+            try data.write(to: fileURL, options: .atomic)
+            return ExchangeResult(action: .write, written: modified)
         } catch {
-            Self.logger.error("Error writing settings to the sync folder: \(error, privacy: .private)")
+            return ExchangeResult(action: .retry, problem: .failed(String(describing: error)))
         }
     }
 
-    /// The settings in the sync file, if another Mac wrote them after this Mac last synced.
-    ///
-    /// - Parameter read: What reading the sync file gave (``readFileContents(at:)``).
-    private static func newerSettings(from read: SettingsSyncFile.ReadResult) -> (settings: [String: Any], modified: Date)? {
+    /// Turns what reading the sync file gave into what the decision needs.
+    private nonisolated static func inspect(
+        _ read: SettingsSyncFile.ReadResult,
+        lastSynced: Date?,
+        deviceID: String,
+        computerName: String?
+    ) -> Inspection {
         let data: Data
         switch read {
         case .contents(let contents):
             data = contents
         case .missing:
-            return nil
+            return Inspection(file: .missing)
         case .refused(let refusal):
             let reason = String(describing: refusal)
-            logger.error("Ignoring the sync file: \(reason, privacy: .public)")
-            return nil
+            return Inspection(file: refusal == .unreadable ? .unreadable : .unusable, problem: .ignoredFile(reason))
         }
-        guard let file = (try? PropertyListSerialization.propertyList(from: data, format: nil)) as? [String: Any] else {
-            logger.error("Ignoring the sync file: it holds no settings")
-            return nil
+        guard
+            let file = (try? PropertyListSerialization.propertyList(from: data, format: nil)) as? [String: Any],
+            let contents = SettingsSyncFile.contents(
+                of: file,
+                lastSynced: lastSynced,
+                deviceID: deviceID,
+                computerName: computerName,
+                localKeys: localKeys
+            ),
+            let settingsData = try? PropertyListSerialization.data(fromPropertyList: contents.settings, format: .binary, options: 0)
+        else {
+            return Inspection(file: .unusable, problem: .ignoredFile("it holds no settings"))
         }
-        return SettingsSyncFile.newerSettings(
-            in: file,
-            lastSynced: UserDefaults.standard.object(forKey: lastSyncedKey) as? Date,
-            deviceID: deviceID,
-            computerName: computerName,
-            localKeys: localKeys
+        let version = SettingsSyncPolicy.Version(
+            isFromThisMac: contents.isFromThisMac,
+            modified: contents.modified,
+            isNewer: contents.isNewer,
+            userDigest: SettingsSyncPolicy.userDigest(of: contents.settings)
+        )
+        return Inspection(
+            file: .version(version),
+            settings: contents.settings,
+            remote: RemoteVersion(modified: contents.modified, settingsData: settingsData)
         )
     }
 
@@ -457,17 +952,16 @@ final class SettingsSync {
     ///
     /// Anyone who can write the synced folder can write the file, so it is read only from a
     /// real `holzBar` folder, only when it is a regular file reached without a symbolic link,
-    /// and only up to `SettingsSyncFile.maximumFileSize` bytes. Nonisolated, so the checks
-    /// after launch read it off the main actor (``readFileContentsInBackground(at:)``).
+    /// and only up to `SettingsSyncFile.maximumFileSize` bytes. Runs on the file queue.
     /// No presenter is passed: holzBar's presenter does nothing for a read.
-    private nonisolated static func readFileContents(at fileURL: URL) -> SettingsSyncFile.ReadResult {
+    private nonisolated static func readFileContents(at fileURL: URL, coordinator: NSFileCoordinator) -> SettingsSyncFile.ReadResult {
         let folderPath = fileURL.deletingLastPathComponent().path(percentEncoded: false)
         guard SettingsSyncFile.isUsableFolder(atPath: folderPath) else {
             return .refused(.notRegularFile)
         }
         var coordinationError: NSError?
         var result = SettingsSyncFile.ReadResult.missing
-        NSFileCoordinator(filePresenter: nil).coordinate(
+        coordinator.coordinate(
             readingItemAt: fileURL,
             options: [],
             error: &coordinationError
@@ -480,61 +974,254 @@ final class SettingsSync {
         return result
     }
 
-    /// Reads the sync file on the concurrent pool, off the main actor.
-    @concurrent
-    private nonisolated static func readFileContentsInBackground(at fileURL: URL) async -> SettingsSyncFile.ReadResult {
-        readFileContents(at: fileURL)
+    // MARK: Launch
+
+    /// Reads the sync file for the launch, waiting at most ``launchReadTimeout``.
+    ///
+    /// The read runs on the file queue. A file whose contents are not on this Mac (an
+    /// online-only file) is not read at all, so the launch never waits for a download;
+    /// a read that takes longer, as on a stalled network volume or with a file provider
+    /// that hangs, is cancelled.
+    ///
+    /// - Returns: What reading gave, or `nil` when the file was not read.
+    private nonisolated static func readForLaunch(at fileURL: URL) -> SettingsSyncFile.ReadResult? {
+        let coordinator = LaunchCoordinator()
+        let result = OSAllocatedUnfairLock<SettingsSyncFile.ReadResult?>(initialState: nil)
+        let done = DispatchSemaphore(value: 0)
+        fileQueue.async {
+            defer {
+                done.signal()
+            }
+            guard isLocal(fileURL) else {
+                return
+            }
+            let read = readFileContents(at: fileURL, coordinator: coordinator.coordinator)
+            result.withLock { $0 = read }
+        }
+        guard done.wait(timeout: .now() + launchReadTimeout) == .success else {
+            coordinator.coordinator.cancel()
+            return nil
+        }
+        return result.withLock { $0 }
     }
 
-    /// Applies newer settings from another Mac before anything reads the
-    /// settings. The app delegate calls this before it creates the app state.
+    /// Whether the contents of the file are on this Mac, or there is no file
+    /// (`SettingsSyncFile.isLocal(flags:isUbiquitous:downloadingStatus:)`).
+    private nonisolated static func isLocal(_ fileURL: URL) -> Bool {
+        var status = stat()
+        guard lstat(fileURL.path(percentEncoded: false), &status) == 0 else {
+            // A missing file, or one the read reports as unreadable.
+            return true
+        }
+        let values = try? fileURL.resourceValues(forKeys: [.isUbiquitousItemKey, .ubiquitousItemDownloadingStatusKey])
+        return SettingsSyncFile.isLocal(
+            flags: status.st_flags,
+            isUbiquitous: values?.isUbiquitousItem,
+            downloadingStatus: values?.ubiquitousItemDownloadingStatus
+        )
+    }
+
+    /// Applies newer settings from another Mac before anything reads the settings, when
+    /// this Mac's settings did not change since it last synced. The app delegate calls
+    /// this before it creates the app state.
     ///
-    /// It reads on the main thread, because nothing may read the settings before they are
-    /// applied; the size limit keeps the read short.
+    /// It waits for the file on the main thread, because nothing may read the settings
+    /// before they are applied, but at most a second, and not at all for a file that is
+    /// not on this Mac; the check after setup reads it then (``readForLaunch(at:)``). It
+    /// never writes the file and never asks: when both Macs changed their settings, the
+    /// version is remembered and the check after setup asks.
     static func pullIfNeeded() {
-        guard
-            Defaults.bool(forKey: .syncsSettingsWithICloud),
-            let fileURL,
-            let newer = newerSettings(from: readFileContents(at: fileURL))
-        else {
+        guard Defaults.bool(forKey: .syncsSettingsWithICloud), let fileURL else {
             return
         }
-        SettingsBackup.apply(newer.settings, removesMissingKeys: false)
-        Defaults.set(true, forKey: .syncsSettingsWithICloud)
-        UserDefaults.standard.set(newer.modified, forKey: lastSyncedKey)
-        logger.notice("Applied settings from the sync folder")
+        guard let read = readForLaunch(at: fileURL) else {
+            logger.info("The sync file is not on this Mac yet; checking it after launch")
+            return
+        }
+        let defaults = UserDefaults.standard
+        let settings = syncedSettings()
+        let inspection = inspect(
+            read,
+            lastSynced: defaults.object(forKey: lastSyncedKey) as? Date,
+            deviceID: deviceID,
+            computerName: computerName
+        )
+        log(inspection.problem)
+        let local = SettingsSyncPolicy.Local(
+            userDigest: SettingsSyncPolicy.userDigest(of: settings),
+            base: defaults.string(forKey: baseKey),
+            pending: defaults.object(forKey: pendingKey) as? Date,
+            postponed: nil,
+            forcesWrite: false
+        )
+        switch SettingsSyncPolicy.decide(.launch, local: local, file: inspection.file) {
+        case .apply:
+            guard let remote = inspection.settings, let modified = inspection.remote?.modified else {
+                return
+            }
+            SettingsBackup.apply(SettingsSyncPolicy.settingsToApply(remote, over: settings), removesMissingKeys: false)
+            Defaults.set(true, forKey: .syncsSettingsWithICloud)
+            markSynced(base: SettingsSyncPolicy.userDigest(of: syncedSettings()), modified: modified)
+            logger.notice("Applied settings from the sync folder")
+            return
+        case .adopt:
+            markSynced(base: local.userDigest, modified: inspection.remote?.modified)
+        case .ask:
+            setPending(inspection.remote?.modified)
+        case .none:
+            setPending(nil)
+        case .write, .wait, .retry:
+            break
+        }
+        // What the other Macs have learned (``SettingsSyncPolicy/learnedKeys``) never asks;
+        // a Mac that has synced takes it in silently.
+        if defaults.string(forKey: baseKey) != nil, let remote = inspection.settings {
+            let learned = SettingsSyncPolicy.learnedSettings(merging: remote, into: settings)
+            if !learned.isEmpty {
+                SettingsBackup.apply(learned, removesMissingKeys: false)
+            }
+        }
     }
 
-    /// Offers to restart when another Mac has changed the settings.
-    ///
-    /// The file is read off the main actor; only the small, checked result is decoded here.
-    ///
-    /// - Returns: Whether holzBar restarts with the newer settings.
-    private func checkForNewerSettings() async -> Bool {
-        guard isEnabled, !isAskingToRestart, let fileURL = Self.fileURL else {
-            return false
-        }
-        let read = await Self.readFileContentsInBackground(at: fileURL)
-        guard isEnabled, !isAskingToRestart, Self.newerSettings(from: read) != nil else {
-            return false
-        }
-        isAskingToRestart = true
-        defer {
-            isAskingToRestart = false
-        }
-        let alert = NSAlert()
-        alert.messageText = String(localized: "Settings changed on another Mac")
-        alert.informativeText = String(localized: "holzBar can restart now to use the settings from the sync folder.")
-        alert.addButton(withTitle: String(localized: "Restart"))
-        alert.addButton(withTitle: String(localized: "Later"))
-        NSApp.activate()
-        guard alert.runModal() == .alertFirstButtonReturn else {
-            return false
-        }
-        SettingsSync.pullIfNeeded()
-        SettingsBackup.relaunch()
-        return true
+    // MARK: Questions
+
+    /// A question about the sync file.
+    private nonisolated enum SyncPrompt: Sendable {
+        /// Another Mac changed the settings; this Mac did not.
+        case restart(RemoteVersion)
+        /// The settings of this Mac and of the file differ, and both changed, or this Mac
+        /// joins the folder.
+        case conflict(RemoteVersion, isJoining: Bool)
     }
+
+    /// Asks the question without a window, from the main run loop rather than from a task,
+    /// so the main actor goes on running while the question is open.
+    ///
+    /// The version asked about is remembered as pending before, so no push overwrites it
+    /// while the question is open.
+    private func scheduleWindowlessPrompt(_ prompt: SyncPrompt, join: JoinRequest? = nil) {
+        guard !isAsking else {
+            if join != nil {
+                isChoosingFolder = false
+            }
+            return
+        }
+        isAsking = true
+        RunLoop.main.perform(inModes: [.default]) { [weak self] in
+            guard let self else {
+                return
+            }
+            MainActor.assumeIsolated {
+                guard self.isEnabled || join != nil else {
+                    self.promptDidClose()
+                    return
+                }
+                NSApp.activate()
+                let response = self.makeAlert(for: prompt).runModal()
+                self.answer(prompt, response: response, join: join)
+            }
+        }
+    }
+
+    /// The alert of a question.
+    private func makeAlert(for prompt: SyncPrompt) -> NSAlert {
+        let alert = NSAlert()
+        switch prompt {
+        case .restart:
+            alert.messageText = String(localized: "Settings changed on another Mac")
+            alert.informativeText = String(localized: "holzBar can restart now to use the settings from the sync folder.")
+            alert.addButton(withTitle: String(localized: "Restart"))
+            alert.addButton(withTitle: String(localized: "Later"))
+        case .conflict(_, let isJoining):
+            alert.messageText = String(localized: "Which settings should holzBar use?")
+            alert.informativeText = String(localized: "The sync folder holds settings from another Mac that differ from this Mac's. Using them restarts holzBar; keeping this Mac's settings replaces them in the sync folder.")
+            alert.addButton(withTitle: String(localized: "Use Settings from Sync Folder"))
+            alert.addButton(withTitle: String(localized: "Keep This Mac's Settings"))
+            let third = alert.addButton(withTitle: isJoining ? String(localized: "Cancel") : String(localized: "Later"))
+            // Escape in every language, not only for the English title.
+            third.keyEquivalent = "\u{1B}"
+        }
+        return alert
+    }
+
+    /// Acts on the answer to a question.
+    private func answer(_ prompt: SyncPrompt, response: NSApplication.ModalResponse, join: JoinRequest?) {
+        if join != nil {
+            isChoosingFolder = false
+        }
+        switch prompt {
+        case .restart(let remote):
+            guard response != .alertFirstButtonReturn else {
+                isAsking = false
+                use(remote, join: nil)
+                return
+            }
+            postponed = remote.modified
+        case .conflict(let remote, let isJoining):
+            switch response {
+            case .alertFirstButtonReturn:
+                isAsking = false
+                use(remote, join: join)
+                return
+            case .alertSecondButtonReturn:
+                keepThisMac(join: join)
+            default:
+                if join != nil {
+                    // Sync stays off, or keeps the previous folder.
+                    break
+                } else if isJoining {
+                    isEnabled = false
+                } else {
+                    // Asked again after the next launch; until then, pushes stay paused.
+                    postponed = remote.modified
+                }
+            }
+        }
+        promptDidClose()
+    }
+
+    /// Makes the check that waited for the question.
+    private func promptDidClose() {
+        isAsking = false
+        if checksAfterPrompt {
+            checksAfterPrompt = false
+            checkNow()
+        }
+    }
+
+    /// Applies the version from another Mac, without removing the settings it lacks, and
+    /// restarts, as every model reads its settings once at launch.
+    private func use(_ remote: RemoteVersion, join: JoinRequest?) {
+        guard let remoteSettings = remote.settings else {
+            return
+        }
+        if let join {
+            commitJoin(join)
+        }
+        SettingsBackup.apply(SettingsSyncPolicy.settingsToApply(remoteSettings, over: Self.syncedSettings()), removesMissingKeys: false)
+        Self.markSynced(base: SettingsSyncPolicy.userDigest(of: Self.syncedSettings()), modified: remote.modified)
+        postponed = nil
+        Defaults.set(true, forKey: .syncsSettingsWithICloud)
+        Self.logger.notice("Applied settings from the sync folder")
+        SettingsBackup.relaunch()
+    }
+
+    /// Writes this Mac's settings over the version from another Mac.
+    private func keepThisMac(join: JoinRequest?) {
+        if let join {
+            commitJoin(join)
+        }
+        postponed = nil
+        requestExchange(.keepThisMac)
+    }
+}
+
+// MARK: - LaunchCoordinator
+
+/// The file coordinator of the read at launch, which the launch cancels when the read
+/// takes too long. `NSFileCoordinator.cancel()` may be called from any thread.
+private nonisolated final class LaunchCoordinator: @unchecked Sendable {
+    let coordinator = NSFileCoordinator(filePresenter: nil)
 }
 
 // MARK: - SettingsSyncFolderWatcher
