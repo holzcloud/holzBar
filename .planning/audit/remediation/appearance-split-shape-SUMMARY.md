@@ -17,6 +17,13 @@ Branch `audit-manual/appearance-split`, based on `audit/remediation-2026-10-05`.
 
 **Tests:** a new suite, "Items area left edge" in `Tests/HolzBarMacOS27CoreTests/Plan2Core27Tests.swift`, covers the active display, the inactive display through drawn frames, concealed PIDs being excluded, the overflow button being included, and `nil` when nothing is known (including a remembered edge from another display). The existing ItemHitTest27 and Items zone tests still pass.
 
+## Review fix-ups
+
+- **F39-R1 (redraw after a hide):** concealed items keep their old frames and the visible ones do not move, so the read 400 ms after an apply left the item cache equal and nothing redrew the shape. `MenuBarItemProvider27.items()` now compares the edge's inputs (remembered left edges, drawn frames per display, system and overflow frames) before and after each read and posts `menuBarItemsAreaDidChange27` on the main thread when they changed. The overlay panel redraws its content view on it.
+- **F39-R2 (inactive display):** `SplitShape27.leftEdge` (HolzBarMacOS27Core) leaves out the remembered edge once MenuBarAgent's drawn frames for the display are known, so a section concealed again since no longer widens the trailing half there. Hover hit-testing (`isInsideItemsArea`) keeps its behaviour, as the decision requires.
+- **F39-R4 (geometry):** `SplitShape27.trailingBounds` computes the macOS 27 position and padding and returns `.zero`, the full-shape fallback, when the half would be narrower than it is high or start left of the shape. Tests cover both trailing end caps with and without the inset.
+- **F39-R3 (release notes):** the Fixed line below is still open. This chain may not edit `docs/`; it must go into `docs/release-notes/v0.0.7-beta2.md` when that file is written, before the beta is tagged.
+
 ## Gates run (all passed)
 
 - appcheck.sh (label f39): ERRORS: 0
@@ -30,11 +37,11 @@ Branch `audit-manual/appearance-split`, based on `audit/remediation-2026-10-05`.
 
 1. Settings > Menu Bar Appearance > Shape Kind "Split". Check that the right shape sits cleanly around the icons, from the leftmost visible item to the right edge.
 2. Repeat with "Inset" on and off on a display with a notch, and with round and square trailing end caps.
-3. Reveal and hide the hidden section (click and Show on hover). After a short catch-up the right shape should follow the icons.
-4. With a second display whose menu bar is not active, check the right shape there too.
+3. Reveal and hide the hidden section (click and Show on hover). After a short catch-up (about 0.4 s) the right shape should follow the icons, after a hide as well as after a reveal, without switching apps.
+4. With a second display whose menu bar is not active, check the right shape there too. Reveal the hidden section while that display is active, hide it again from the other display, and check that the right shape on the inactive display shrinks back.
 5. With enough items that some fold behind the system chevron, check that the chevron is inside the right shape.
 6. On macOS 26, check that Split looks exactly as before (regression check).
 
 ## Documentation updates needed
 
-- Next beta's release notes: add a Fixed line, for example "The Split menu bar shape now works on macOS 27 instead of falling back to the full shape."
+- **Open, required before the next beta is tagged:** `docs/release-notes/v0.0.7-beta2.md` does not exist yet. Add a Fixed line, for example "The Split menu bar shape now works on macOS 27 instead of falling back to the full shape."
