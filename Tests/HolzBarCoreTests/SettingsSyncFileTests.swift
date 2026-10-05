@@ -20,14 +20,21 @@ struct SettingsSyncFileTests {
         return file
     }
 
-    private func newer(in file: [String: Any]) -> (settings: [String: Any], modified: Date)? {
-        SettingsSyncFile.newerSettings(
-            in: file,
-            lastSynced: lastSynced,
+    /// The file's contents, if another Mac wrote them after this Mac last synced.
+    private func newer(
+        in file: [String: Any],
+        lastSynced: Date?? = nil,
+        computerName: String? = "Mac",
+        now: Date = .now
+    ) -> SettingsSyncFile.Contents? {
+        SettingsSyncFile.contents(
+            of: file,
+            lastSynced: lastSynced ?? self.lastSynced,
             deviceID: thisMac,
-            computerName: "Mac",
-            localKeys: localKeys
-        )
+            computerName: computerName,
+            localKeys: localKeys,
+            now: now
+        ).flatMap { $0.isNewer ? $0 : nil }
     }
 
     @Test("A newer file from another Mac is applied")
@@ -72,12 +79,10 @@ struct SettingsSyncFileTests {
 
     @Test("A Mac that never synced applies any file from another Mac")
     func neverSynced() {
-        let result = SettingsSyncFile.newerSettings(
+        let result = newer(
             in: file(deviceID: otherMac, modified: .distantPast.addingTimeInterval(1), settings: [:]),
-            lastSynced: nil,
-            deviceID: thisMac,
-            computerName: nil,
-            localKeys: localKeys
+            lastSynced: .some(nil),
+            computerName: nil
         )
         #expect(result != nil)
     }
@@ -85,13 +90,10 @@ struct SettingsSyncFileTests {
     @Test("A file dated far in the future is ignored")
     func farFutureFileIgnored() {
         let now = lastSynced.addingTimeInterval(3600)
-        func newer(modified: Date) -> (settings: [String: Any], modified: Date)? {
-            SettingsSyncFile.newerSettings(
+        func newer(modified: Date) -> SettingsSyncFile.Contents? {
+            self.newer(
                 in: file(deviceID: otherMac, modified: modified, settings: ["UseIceBar": true]),
-                lastSynced: lastSynced,
-                deviceID: thisMac,
                 computerName: nil,
-                localKeys: localKeys,
                 now: now
             )
         }

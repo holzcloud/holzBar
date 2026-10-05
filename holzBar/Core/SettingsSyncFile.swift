@@ -78,44 +78,6 @@ nonisolated enum SettingsSyncFile {
         )
     }
 
-    /// Returns the settings to apply from the sync file, if another Mac wrote them after
-    /// this Mac last synced.
-    ///
-    /// - Parameters:
-    ///   - file: The contents of the sync file.
-    ///   - lastSynced: When this Mac last wrote or applied the file, if ever.
-    ///   - deviceID: This Mac's sync id.
-    ///   - computerName: This Mac's computer name, if it has one; only compared with files
-    ///     of older holzBar builds, which carry no id.
-    ///   - localKeys: The keys that stay on this Mac; they are removed from the settings.
-    ///   - now: The current date.
-    /// - Returns: The settings and the date the file was written, or `nil` when the file
-    ///   is this Mac's own, is not newer, is dated more than ``allowedClockSkew`` in the
-    ///   future, or lacks its date or settings.
-    static func newerSettings(
-        in file: [String: Any],
-        lastSynced: Date?,
-        deviceID: String,
-        computerName: String?,
-        localKeys: Set<String>,
-        now: Date = .now
-    ) -> (settings: [String: Any], modified: Date)? {
-        guard
-            let contents = contents(
-                of: file,
-                lastSynced: lastSynced,
-                deviceID: deviceID,
-                computerName: computerName,
-                localKeys: localKeys,
-                now: now
-            ),
-            contents.isNewer
-        else {
-            return nil
-        }
-        return (contents.settings, contents.modified)
-    }
-
     /// Whether the sync file's contents are on this Mac, so reading it does not wait for a
     /// download.
     ///
