@@ -254,6 +254,9 @@ extension MenuBarItemManager {
         }
 
         var placedSections = [String: MenuBarSection.Name]()
+        // New items whose move was not tried: the loop stopped before them, or automatic
+        // moves were paused. A move that failed otherwise is not retried on every read.
+        var untriedNewKeys = Set(moves.filter(\.isNew).map(\.key))
         for move in moves {
             if await yieldsToUserAfterInputPause(wanted: wanted, appState: appState) {
                 Self.restoreLogger.debug("The user arranges the items, so not moving the remaining items into their sections")
@@ -272,6 +275,7 @@ extension MenuBarItemManager {
                     """
                 )
                 try await self.move(item: move.item, to: destination)
+                untriedNewKeys.remove(move.key)
                 if move.isNew {
                     placedSections[move.key] = move.section
                 }
@@ -279,13 +283,13 @@ extension MenuBarItemManager {
                 Self.restoreLogger.warning("Automatic moves are paused, so not moving the remaining items into their sections")
                 break
             } catch {
+                untriedNewKeys.remove(move.key)
                 Self.restoreLogger.error("Error moving \(move.item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
             }
         }
 
-        // A new item that was not placed stays unknown, so a later pass places it.
-        let unplacedKeys = Set(moves.filter { $0.isNew && placedSections[$0.key] == nil }.map(\.key))
-        let candidateKeys = Set(candidates.compactMap { keys[$0.windowID] }).subtracting(unplacedKeys)
+        // A new item whose move was not tried stays unknown, so a later pass places it.
+        let candidateKeys = Set(candidates.compactMap { keys[$0.windowID] }).subtracting(untriedNewKeys)
         if storedKnown == nil || !candidateKeys.isSubset(of: known) {
             known.formUnion(candidateKeys)
             Defaults.set(known.sorted(), forKey: .knownItemTags)
