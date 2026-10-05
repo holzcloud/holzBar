@@ -146,7 +146,7 @@ struct SectionedList<ItemID: Hashable>: View {
         {
             return false
         }
-        return event.modifierFlags.intersection([.command, .option, .control, .shift]).isEmpty
+        return event.modifierFlags.isDisjoint(with: [.command, .option, .control, .shift])
     }
 
     private func scrollDirection(for selection: ItemID, geometry: GeometryProxy) -> ScrollDirection? {

@@ -219,7 +219,7 @@ private struct HolzBarGradientPickerRoot: View {
         else {
             return false
         }
-        return event.modifierFlags.intersection([.command, .option, .control, .shift]).isEmpty
+        return event.modifierFlags.isDisjoint(with: [.command, .option, .control, .shift])
     }
 
     private func insertStop(at location: CGFloat, select: Bool) {
