@@ -167,8 +167,7 @@ enum LayoutBarMoves {
                 // The item stays where it was, so no cache change brings back the rows a
                 // drag rearranged; the cache the rows missed during the drag is shown now.
                 LayoutBarRouter.shared.showItemCache()
-                let alert = NSAlert(error: error)
-                alert.runModal()
+                await NSAlert(error: error).present(attachedTo: appState.navigationState.settingsWindow)
             }
         }
     }

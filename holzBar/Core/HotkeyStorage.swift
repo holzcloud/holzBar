@@ -65,4 +65,21 @@ nonisolated enum HotkeyStorage {
     static func loadRejection(modifiers: Int, refusesOptionOnly: Bool) -> Modifiers.Rejection? {
         Modifiers(rawValue: modifiers).rejection(refusesOptionOnly: refusesOptionOnly)
     }
+
+    /// Returns the storage keys of the stored hotkeys that are not loaded because a hotkey
+    /// loaded before them has the same key combination.
+    ///
+    /// The system registers a combination only once per app, so the later hotkey never
+    /// worked; the first one in load order keeps the combination.
+    ///
+    /// - Parameter loadOrder: The stored hotkeys in the order they are loaded: the actions,
+    ///   then the profiles and items by storage key.
+    static func duplicateStorageKeys(inLoadOrder loadOrder: [(storageKey: String, key: Int, modifiers: Int)]) -> Set<String> {
+        var used = Set<[Int]>()
+        var duplicates = Set<String>()
+        for entry in loadOrder where !used.insert([entry.key, entry.modifiers]).inserted {
+            duplicates.insert(entry.storageKey)
+        }
+        return duplicates
+    }
 }

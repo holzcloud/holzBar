@@ -132,6 +132,16 @@ final class LayoutBarItemView: NSView {
         return alert
     }
 
+    /// Shows the alert as a sheet on the view's window, unless a sheet is already there.
+    ///
+    /// A drag reports many events, so this shows one sheet per drag, not a stack of them.
+    private func showSheet(_ alert: NSAlert) {
+        guard let window, window.attachedSheet == nil else {
+            return
+        }
+        alert.beginSheetModal(for: window, completionHandler: nil)
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         if !isDraggingPlaceholder {
             displayImage?.draw(
@@ -463,7 +473,7 @@ final class LayoutBarItemView: NSView {
         let popover = NSPopover()
         popover.behavior = .transient
         popover.contentViewController = NSHostingController(
-            rootView: ItemHotkeyView(hotkey: hotkey, itemName: item.displayName)
+            rootView: ItemHotkeyView(hotkey: hotkey, settings: appState.settings.hotkeys, itemName: item.displayName)
         )
         popover.show(relativeTo: bounds, of: self, preferredEdge: .maxY)
     }
@@ -472,14 +482,12 @@ final class LayoutBarItemView: NSView {
         super.mouseDragged(with: event)
 
         guard isEnabled else {
-            let alert = provideAlertForDisabledItem()
-            alert.runModal()
+            showSheet(provideAlertForDisabledItem())
             return
         }
 
         guard !Bridging.isProcessUnresponsive(responsivenessPID) else {
-            let alert = provideAlertForUnresponsiveItem()
-            alert.runModal()
+            showSheet(provideAlertForUnresponsiveItem())
             return
         }
 
@@ -567,13 +575,14 @@ extension LayoutBarItemView: NSAccessibilityLayoutItem { }
 /// The hotkey recorder for opening one item's menu.
 private struct ItemHotkeyView: View {
     let hotkey: Hotkey
+    let settings: HotkeysSettings
     let itemName: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Open \u{201C}\(itemName)\u{201D} with a hotkey")
                 .font(.headline)
-            HotkeyRecorder(hotkey: hotkey) {
+            HotkeyRecorder(hotkey: hotkey, settings: settings) {
                 Text("Hotkey")
             }
         }

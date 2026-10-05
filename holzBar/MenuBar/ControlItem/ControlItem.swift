@@ -616,14 +616,25 @@ final class ControlItem {
         case .leftMouseDown:
             let modifierFlags = NSEvent.heldModifierFlags
 
+            if modifierFlags == .control {
+                // Shown from a run loop block, not from a task: the menu's tracking loop
+                // inside a main-actor job would hold back every other main-actor job while
+                // the menu is open, on macOS 27 clicks on the clock, battery, Wi-Fi and
+                // Control Centre among them (F-14). The common modes include the button's
+                // own mouse tracking, so the menu opens on the click as before.
+                RunLoop.main.perform(inModes: [.common]) { [weak self] in
+                    MainActor.assumeIsolated {
+                        self?.showMenu()
+                    }
+                }
+                // A block added to a run loop does not wake it up by itself.
+                CFRunLoopWakeUp(CFRunLoopGetMain())
+                return
+            }
+
             // Running this from a Task seems to improve the visual
             // responsiveness of the status item's button.
             Task {
-                if modifierFlags == .control {
-                    showMenu()
-                    return
-                }
-
                 if
                     modifierFlags == .option,
                     let section = menuBarManager.section(withName: .alwaysHidden),
@@ -654,6 +665,29 @@ final class ControlItem {
         }
 
         let menu = NSMenu(title: "holzBar")
+
+        // Settings from another Mac wait quietly here and in the sync settings; holzBar
+        // never opens a dialog for them by itself.
+        if let hint = appState.settingsSync.hint {
+            menu.addItem(.sectionHeader(title: String(localized: "Settings changed on another Mac")))
+            let hintItem = switch hint {
+            case .restart:
+                NSMenuItem(
+                    title: String(localized: "Restart"),
+                    action: #selector(restartWithWaitingSettings),
+                    keyEquivalent: ""
+                )
+            case .choice:
+                NSMenuItem(
+                    title: String(localized: "Choose Settings…"),
+                    action: #selector(chooseSyncedSettings),
+                    keyEquivalent: ""
+                )
+            }
+            hintItem.target = self
+            menu.addItem(hintItem)
+            menu.addItem(.separator())
+        }
 
         let settingsItem = NSMenuItem(
             title: String(localized: "holzBar Settings…"),
@@ -772,6 +806,16 @@ final class ControlItem {
     /// Turns Zen mode on or off.
     @objc private func toggleZenMode() {
         appState?.menuBarManager.toggleZenMode()
+    }
+
+    /// Restarts with the settings from another Mac that wait in the sync folder.
+    @objc private func restartWithWaitingSettings() {
+        appState?.settingsSync.restartWithWaitingSettings()
+    }
+
+    /// Asks which settings to use, as settings from another Mac wait in the sync folder.
+    @objc private func chooseSyncedSettings() {
+        appState?.settingsSync.chooseSettings()
     }
 
     /// Opens the menu bar search panel.

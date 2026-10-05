@@ -356,8 +356,7 @@ struct GeneralSettingsPane: View {
             do {
                 try await appState.spacingManager.applyOffset()
             } catch {
-                let alert = NSAlert(error: error)
-                alert.runModal()
+                await NSAlert(error: error).present(attachedTo: appState.navigationState.settingsWindow)
             }
             isApplyingItemSpacingOffset = false
         }

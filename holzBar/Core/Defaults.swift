@@ -422,4 +422,22 @@ nonisolated extension Defaults.Key {
     static func validatedSettings(_ settings: [String: Any]) -> (accepted: [String: Any], ignored: [String]) {
         SettingsSchema.validated(settings, kinds: importableKinds, numberRules: importableNumberRules)
     }
+
+    /// The keys of the current settings that applying `accepted` removes, sorted.
+    ///
+    /// A settings file replaces every setting, so it removes the keys it lacks. Sync keeps
+    /// them: the sending Mac may never have had them, such as the per-OS keys
+    /// `MacOS27Layout`, `MacOS27LayoutSeeded` and `KnownApplications27` of a macOS 27 Mac or
+    /// `ItemSections` of a macOS 26 Mac (F-60).
+    ///
+    /// - Parameters:
+    ///   - accepted: The validated settings that are applied.
+    ///   - current: The current settings.
+    ///   - removesMissingKeys: Whether keys that `accepted` lacks are removed.
+    static func keysRemoved(applying accepted: [String: Any], over current: [String: Any], removesMissingKeys: Bool) -> [String] {
+        guard removesMissingKeys else {
+            return []
+        }
+        return current.keys.filter { accepted[$0] == nil }.sorted()
+    }
 }
