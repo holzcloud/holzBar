@@ -49,4 +49,4 @@ A hidden item's Accessibility press that runs into the 0.25 s messaging timeout 
 
 ## Doc updates needed
 
-- `docs/release-notes/v0.0.7-beta1.md`: add a Fixed line. Suggested text: "With "Open hidden items in the menu bar" off, a hidden item's menu now stays open, and the item no longer appears in the menu bar and gets clicked again."
+- `docs/release-notes/v0.0.7-beta2.md` (to be written, with the F-01 and F-13 lines), under Fixed: add a line. v0.0.7-beta1 is tagged and released, so its notes stay as they are. Suggested text: "With "Open hidden items in the menu bar" off, a hidden item's menu now stays open, and the item no longer appears in the menu bar and gets clicked again."
