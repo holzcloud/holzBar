@@ -1163,7 +1163,10 @@ final class SettingsSync {
         let coordinator = LaunchCoordinator()
         let result = OSAllocatedUnfairLock(initialState: LaunchRead.notRead)
         let done = DispatchSemaphore(value: 0)
-        fileQueue.async {
+        // A semaphore lends the waiting main thread's priority to no one, so the block asks
+        // for it itself; at the queue's utility QoS, a busy login could delay it past the
+        // bound and turn a local file into a restart hint.
+        fileQueue.async(qos: .userInitiated, flags: .enforceQoS) {
             defer {
                 done.signal()
             }
