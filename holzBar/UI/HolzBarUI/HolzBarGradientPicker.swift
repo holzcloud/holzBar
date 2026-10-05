@@ -53,6 +53,7 @@ struct HolzBarGradientPicker<Label: View>: View {
             HolzBarGradientPickerRoot(
                 gradient: $gradient,
                 selection: $selection,
+                window: window,
                 supportsOpacity: supportsOpacity
             )
             .onWindowChange(update: $window)
@@ -78,6 +79,7 @@ private struct HolzBarGradientPickerRoot: View {
     @Binding var selection: Int?
     @State private var lastUpdated: Int?
 
+    let window: NSWindow?
     let supportsOpacity: Bool
 
     private let handleWidth: CGFloat = 10
@@ -109,11 +111,17 @@ private struct HolzBarGradientPickerRoot: View {
             .onTapGesture(count: 2) {
                 distributeStops()
             }
-            .onKeyDown(key: .delete, isEnabled: selection != nil) {
+            .onKeyDown(key: .delete, isEnabled: selection != nil) { event in
+                guard isKeyDownForPicker(event) else {
+                    return .ignored
+                }
                 deleteSelectedStop()
                 return .handled
             }
-            .onKeyDown(key: .escape, isEnabled: selection != nil) {
+            .onKeyDown(key: .escape, isEnabled: selection != nil) { event in
+                guard isKeyDownForPicker(event) else {
+                    return .ignored
+                }
                 selection = nil
                 dismissColorPanel()
                 return .handled
@@ -190,6 +198,23 @@ private struct HolzBarGradientPickerRoot: View {
                 width: handleWidth
             )
         }
+    }
+
+    /// Returns a Boolean value that indicates whether a key press is meant for
+    /// the picker: it goes to the picker's window, no text is being edited there,
+    /// and no modifier is held.
+    ///
+    /// The key monitor sees every key press in the app, including those for the
+    /// colour panel's fields and for other windows.
+    private func isKeyDownForPicker(_ event: NSEvent) -> Bool {
+        guard
+            let window,
+            event.window === window,
+            !(window.firstResponder is NSText)
+        else {
+            return false
+        }
+        return event.modifierFlags.intersection([.command, .option, .control, .shift]).isEmpty
     }
 
     private func insertStop(at location: CGFloat, select: Bool) {
