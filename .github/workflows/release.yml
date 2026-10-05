@@ -479,7 +479,7 @@ jobs:
           ref: main
           ssh-key: ${{ secrets.CASK_DEPLOY_KEY }}
 
-      # The cask moves only to the newest release, and only to the zip that was signed above.
+      # The cask moves only to the zip that was signed above, and only forward (next step).
       - name: Check the published zip
         env:
           GH_TOKEN: ${{ github.token }}
@@ -487,12 +487,6 @@ jobs:
           set -euo pipefail
           if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta[0-9]+)?$ ]] || [[ ! "$SHA256" =~ ^[0-9a-f]{64}$ ]]; then
             echo "::error::The version or the checksum from the sign job is malformed."
-            exit 1
-          fi
-          # A re-run of an older release must never move the cask back.
-          NEWEST=$(gh release list --exclude-drafts --limit 1 --json tagName --jq '.[0].tagName')
-          if [ "$NEWEST" != "v$VERSION" ]; then
-            echo "::error::The newest release is $NEWEST, not v$VERSION; the cask stays as it is."
             exit 1
           fi
           DIGEST=$(gh release view "v$VERSION" --json assets --jq '.assets[] | select(.name == env.ZIP) | .digest')
@@ -511,12 +505,31 @@ jobs:
           brew update --quiet
           SRC="$RUNNER_TEMP/tap-src"
           EXPECTED_NUMSTAT=$(printf '2\t2\tCasks/holzbar.rb')
+          # A key that sorts like the version: 0.0.7-beta1 before 0.0.7, before 0.0.8. The
+          # release list cannot tell which release is newest: GitHub orders it by the date
+          # of the tagged commit, not by when a release was published.
+          version_key() {
+            [[ "$1" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-beta([0-9]+))?$ ]] || return 1
+            printf '%06d.%06d.%06d.%06d' "$((10#${BASH_REMATCH[1]}))" "$((10#${BASH_REMATCH[2]}))" \
+              "$((10#${BASH_REMATCH[3]}))" "$((10#${BASH_REMATCH[5]:-999999}))"
+          }
+          NEW_KEY=$(version_key "$VERSION")
           for ATTEMPT in 1 2 3; do
             git fetch --quiet origin main
             git checkout --quiet -B main origin/main
             if grep -qxF "  version \"$VERSION\"" Casks/holzbar.rb && grep -qxF "  sha256 \"$SHA256\"" Casks/holzbar.rb; then
               echo "::notice::Casks/holzbar.rb is already at $VERSION."
               exit 0
+            fi
+            # A re-run of an older release must never move the cask back.
+            CURRENT=$(sed -n -E 's/^  version "(.*)"$/\1/p' Casks/holzbar.rb)
+            if ! CURRENT_KEY=$(version_key "$CURRENT"); then
+              echo "::error::Casks/holzbar.rb on main has no version line this job can read."
+              exit 1
+            fi
+            if [[ ! "$CURRENT_KEY" < "$NEW_KEY" ]]; then
+              echo "::error::Casks/holzbar.rb is at $CURRENT, which is not older than $VERSION; the cask stays as it is."
+              exit 1
             fi
             sed -i '' -E \
               -e "s/^  version \".*\"/  version \"$VERSION\"/" \
