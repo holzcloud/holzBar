@@ -77,10 +77,11 @@ final class LayoutBarPaddingView: NSView {
 
         if #available(macOS 27.0, *) {
             // On macOS 27 the saved layout decides sections and macOS orders the items within
-            // one, so a drop only moves the item's application to this section.
+            // one, so a drop from another row only moves the item's application to this
+            // section. The row the drag began in decides, not the item cache, which may no
+            // longer list the item (a new title, or its app quit).
             let item = draggingSource.item
-            let itemCache = appState.itemManager.itemCache
-            if !item.isControlItem, itemCache.address(for: item.tag)?.section != container.section {
+            if !item.isControlItem, draggingSource.dragSourceContainer !== container {
                 LayoutBarMoves.setSection(of: item, to: container.section, appState: appState)
                 return true
             }

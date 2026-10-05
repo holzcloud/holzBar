@@ -34,7 +34,7 @@ final class LayoutBarItemView: NSView {
 
     /// The container the view is dragged from, which stops setting its arranged views
     /// until the dragging session ends.
-    private weak var dragSourceContainer: LayoutBarContainer?
+    private(set) weak var dragSourceContainer: LayoutBarContainer?
 
     /// The image displayed inside the view: the item's chosen image, its picture or its
     /// app's icon (`ItemIconStore`).
