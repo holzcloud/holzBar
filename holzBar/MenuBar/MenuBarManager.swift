@@ -138,9 +138,10 @@ final class MenuBarManager {
         }
 
         // Handle the `focusedApp` rehide strategy.
-        if let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier, pid != NSRunningApplication.current.processIdentifier {
-            lastFrontmostApplicationPID = pid
-        }
+        focusChangeRehide = FocusChangeRehide(
+            frontmostPID: NSWorkspace.shared.frontmostApplication?.processIdentifier,
+            ownPID: NSRunningApplication.current.processIdentifier
+        )
         keyValueObservations.append(
             NSWorkspace.shared.observe(\.frontmostApplication, options: [.new]) { [weak self] _, _ in
                 Task { @MainActor in
@@ -187,29 +188,25 @@ final class MenuBarManager {
         }
     }
 
-    /// The process identifier of the last frontmost application other than holzBar.
-    @ObservationIgnored private var lastFrontmostApplicationPID: pid_t?
+    /// The last frontmost application other than holzBar, for the `focusedApp` rehide strategy.
+    @ObservationIgnored private var focusChangeRehide = FocusChangeRehide()
 
     /// Rehides the hidden section when the focused application changes, with the
     /// `focusedApp` rehide strategy.
-    ///
-    /// holzBar's own activation (to hide the application menus, or for Settings) and the
-    /// return to the application it came from are no focus change: counting them hid the
-    /// section right after it was shown.
     private func frontmostApplicationDidChange() {
         guard
             let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier,
-            pid != NSRunningApplication.current.processIdentifier,
-            pid != lastFrontmostApplicationPID
+            focusChangeRehide.isFocusChange(to: pid, ownPID: NSRunningApplication.current.processIdentifier)
         else {
             return
         }
-        lastFrontmostApplicationPID = pid
 
         if
             let appState,
-            appState.settings.general.autoRehide,
-            case .focusedApp = appState.settings.general.rehideStrategy,
+            FocusChangeRehide.applies(
+                autoRehide: appState.settings.general.autoRehide,
+                rehidesOnFocusChange: appState.settings.general.rehideStrategy == .focusedApp
+            ),
             let hiddenSection = section(withName: .hidden),
             let screen = appState.hidEventManager.bestScreen(appState: appState),
             !appState.hidEventManager.isMouseInsideMenuBar(appState: appState, screen: screen)
