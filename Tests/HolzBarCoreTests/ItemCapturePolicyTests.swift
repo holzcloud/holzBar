@@ -50,6 +50,33 @@ struct ItemCapturePolicyTests {
         #expect(watchdog.abandonedQueues == 2)
     }
 
+    @Test("A call that returns late gives its queue back")
+    func lateReturnGivesTheQueueBack() {
+        var watchdog = ItemCapturePolicy.Watchdog()
+        _ = watchdog.recordTimeout(windowID: 42)
+        _ = watchdog.recordTimeout(windowID: nil)
+        watchdog.recordLateReturn()
+        #expect(watchdog.abandonedQueues == 1)
+        // The slow window stays skipped.
+        #expect(watchdog.skips(42))
+        // Three slow calls that all came back do not stop capture.
+        #expect(watchdog.recordTimeout(windowID: nil) == .replaceQueue)
+        #expect(!watchdog.isStopped)
+    }
+
+    @Test("A late return neither undoes a stop nor counts below zero")
+    func lateReturnAfterStop() {
+        var watchdog = ItemCapturePolicy.Watchdog()
+        watchdog.recordLateReturn()
+        #expect(watchdog.abandonedQueues == 0)
+        for _ in 0 ..< ItemCapturePolicy.maxAbandonedQueues {
+            _ = watchdog.recordTimeout(windowID: nil)
+        }
+        watchdog.recordLateReturn()
+        #expect(watchdog.isStopped)
+        #expect(watchdog.abandonedQueues == ItemCapturePolicy.maxAbandonedQueues)
+    }
+
     // MARK: On Screen
 
     /// A built-in display and an external one to its right, in the window list's global

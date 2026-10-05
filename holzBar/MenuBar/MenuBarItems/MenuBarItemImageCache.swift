@@ -69,8 +69,8 @@ final class MenuBarItemImageCache {
     /// A stuck capture used to block every later one behind it until relaunch (F-13).
     /// Each call is now given up after ``ItemCapturePolicy/timeout``: the queue whose
     /// call did not return is abandoned with its thread, and later calls go to a fresh
-    /// queue. After ``ItemCapturePolicy/maxAbandonedQueues``, capture stops for the
-    /// session.
+    /// queue. After ``ItemCapturePolicy/maxAbandonedQueues`` calls that are still stuck,
+    /// capture stops for the session; a call that returns late gives its queue back.
     @ObservationIgnored private var captureQueue = makeCaptureQueue()
 
     /// Tracks the capture calls that did not return in time.
@@ -121,13 +121,17 @@ final class MenuBarItemImageCache {
     /// Abandons the given queue after one of its capture calls did not return in time.
     private func captureDidTimeOut(on queue: DispatchQueue, windowID: CGWindowID?) {
         // The queue is serial, so this runs only after the stuck call, if it ever returns:
-        // it shows whether a call that was given up was stuck for good or only slow.
+        // it shows whether a call that was given up was stuck for good or only slow. A
+        // slow call blocks no thread any more, so its queue no longer counts toward the stop.
         let logger = logger
         let abandonedAt = ContinuousClock.now
-        queue.async {
+        queue.async { [weak self] in
             let late = abandonedAt.duration(to: .now) + ItemCapturePolicy.timeout
             let seconds = Double(late.components.seconds) + Double(late.components.attoseconds) / 1e18
             logger.notice("An abandoned item image capture returned after \(seconds, format: .fixed(precision: 1), privacy: .public) s")
+            Task { @MainActor in
+                self?.watchdog.recordLateReturn()
+            }
         }
 
         guard !isCaptureStopped else {

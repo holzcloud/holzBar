@@ -55,11 +55,11 @@ Both commits are local only. Nothing was pushed.
 - **Watchdog (D-02, P-01, P-02, P-05, P-06).** `ItemCapturePolicy` provides:
   - `timeout` (2 s), `maxAbandonedQueues` (3) and `displayTolerance` (1 pt);
   - `isOnScreen(_:displays:)`;
-  - `Watchdog`, which tracks the abandoned count and the hung window IDs, returns `replaceQueue` or `stop`, and forgets windows that are gone.
+  - `Watchdog`, which tracks the abandoned count and the hung window IDs, returns `replaceQueue` or `stop`, gives a queue back when its call returns late (`recordLateReturn()`, review EV-04: only calls still stuck count toward the stop; a stop stays, and the slow window stays skipped), and forgets windows that are gone.
 
   In `MenuBarItemImageCache`:
   - The capture queue is now an instance property, and `onCaptureQueue(windowID:_:)` is the only `BlockingWork` caller.
-  - A timeout runs `captureDidTimeOut(on:windowID:)`. It enqueues a `.notice` marker on the abandoned queue, then either:
+  - A timeout runs `captureDidTimeOut(on:windowID:)`. It enqueues a `.notice` marker on the abandoned queue, which also hands the late return to the watchdog on the main actor, then either:
     - replaces the queue and logs a `.warning` with the "n of 3" count; or
     - on the third timeout, stops capture, cancels the 3 s refresh and logs one `.error`.
   - Hung windows are filtered out per section, and `forgetWindows(notIn:)` runs before each pass.

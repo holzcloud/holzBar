@@ -53,7 +53,7 @@ nonisolated enum ItemCapturePolicy {
             case stop
         }
 
-        /// The number of queues abandoned with a call that did not return.
+        /// The number of queues abandoned with a call that has not returned yet.
         private(set) var abandonedQueues = 0
 
         /// The windows whose single capture did not return.
@@ -79,6 +79,19 @@ nonisolated enum ItemCapturePolicy {
                 hungWindowIDs.insert(windowID)
             }
             return isStopped ? .stop : .replaceQueue
+        }
+
+        /// Records that a capture call given up earlier returned after all.
+        ///
+        /// The call was slow, not stuck, and its thread is free again, so its queue no
+        /// longer counts toward the stop. A stop stays for the session. The window, if
+        /// any, stays skipped: its capture takes longer than ``ItemCapturePolicy/timeout``,
+        /// and each new try would hold up a capture pass for that long.
+        mutating func recordLateReturn() {
+            guard !isStopped, abandonedQueues > 0 else {
+                return
+            }
+            abandonedQueues -= 1
         }
 
         /// Forgets the hung windows that no longer exist.
