@@ -115,6 +115,51 @@ struct TaskTimeoutTests {
         #expect(value == 1)
     }
 
+    @Test("An operation that ends with the cancellation's error still times out")
+    func timeoutWinsOverTheCancellationError() async {
+        // Like the event barriers: cancelling resumes the operation with CancellationError
+        // at once, which races the timeout's own resume.
+        for _ in 0 ..< 50 {
+            let once = ResumeOnce<Void>()
+            await #expect(throws: TaskTimeoutError.self) {
+                try await Task(timeout: .milliseconds(5)) {
+                    try await withTaskCancellationHandler {
+                        try await withCheckedThrowingContinuation { continuation in
+                            once.store(continuation)
+                        }
+                    } onCancel: {
+                        once.resume(throwing: CancellationError())
+                    }
+                }.value
+            }
+        }
+    }
+
+    @Test("A claim decides the result before it is delivered")
+    func claimDecidesTheResult() async throws {
+        let once = ResumeOnce<Int>()
+        let value = try await withCheckedThrowingContinuation { continuation in
+            #expect(once.store(continuation))
+            let claim = once.claim(.success(1))
+            #expect(claim != nil)
+            #expect(once.claim(.success(2)) == nil)
+            #expect(!once.resume(throwing: Failure()))
+            claim?.resume()
+        }
+        #expect(value == 1)
+    }
+
+    @Test("A claim before the continuation is stored is kept")
+    func keepsAnEarlyClaim() async throws {
+        let once = ResumeOnce<Int>()
+        once.claim(.success(1))?.resume()
+        #expect(!once.resume(with: .success(2)))
+        let value = try await withCheckedThrowingContinuation { continuation in
+            #expect(!once.store(continuation))
+        }
+        #expect(value == 1)
+    }
+
     @Test("A resume before the continuation is stored is kept")
     func keepsAnEarlyResume() async {
         let once = ResumeOnce<Int>()

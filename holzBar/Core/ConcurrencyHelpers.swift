@@ -90,6 +90,39 @@ nonisolated final class ResumeOnce<Success: Sendable>: Sendable {
     func resume(throwing error: any Error) -> Bool {
         resume(with: .failure(error))
     }
+
+    /// A result that won the race but has not been delivered yet.
+    struct Claim: Sendable {
+        fileprivate let continuation: CheckedContinuation<Success, any Error>?
+        fileprivate let result: Result<Success, any Error>
+
+        /// Delivers the claimed result to the continuation.
+        func resume() {
+            continuation?.resume(with: result)
+        }
+    }
+
+    /// Decides the result now and delivers it later, through ``Claim/resume()``.
+    ///
+    /// Every later racer does nothing, so work done between the claim and its delivery
+    /// cannot change the result. Without a stored continuation the result is kept for
+    /// ``store(_:)``, which delivers it.
+    ///
+    /// - Returns: The claim, or `nil` if a racer came first.
+    func claim(_ result: Result<Success, any Error>) -> Claim? {
+        state.withLock { state in
+            switch state {
+            case .waiting(let continuation?):
+                state = .resumed
+                return Claim(continuation: continuation, result: result)
+            case .waiting(nil):
+                state = .early(result)
+                return Claim(continuation: nil, result: result)
+            case .early, .resumed:
+                return nil
+            }
+        }
+    }
 }
 
 nonisolated extension Task {
@@ -115,19 +148,38 @@ nonisolated extension Task {
         clock: C
     ) async throws -> Success {
         let outcome = ResumeOnce<Success>()
+        // The timeout's sleeper, and whether the wait was cancelled before it was stored.
+        let sleeperState = OSAllocatedUnfairLock<(sleeper: _Concurrency.Task<Void, Never>?, isCancelled: Bool)>(
+            initialState: (nil, false)
+        )
         return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in
-                outcome.store(continuation)
+                guard outcome.store(continuation) else {
+                    // Cancelled before the wait began; the operation is cancelled already.
+                    return
+                }
                 let sleeper = _Concurrency.Task<Void, Never> {
                     do {
                         try await _Concurrency.Task<Never, Never>.sleep(for: timeout, tolerance: tolerance, clock: clock)
                     } catch {
                         return
                     }
+                    // Claim the timeout before cancelling: the operation may end with the
+                    // cancellation's error in the meantime, which must not replace it.
+                    guard let claim = outcome.claim(.failure(TaskTimeoutError())) else {
+                        return
+                    }
                     // Cancel before resuming: the operation's cancellation handlers then run
                     // (and its clean-up is enqueued on its actor) before the caller goes on.
                     operationTask.cancel()
-                    outcome.resume(throwing: TaskTimeoutError())
+                    claim.resume()
+                }
+                let isCancelled = sleeperState.withLock { state in
+                    state.sleeper = sleeper
+                    return state.isCancelled
+                }
+                if isCancelled {
+                    sleeper.cancel()
                 }
                 _Concurrency.Task<Void, Never> {
                     let result = await operationTask.result
@@ -138,6 +190,11 @@ nonisolated extension Task {
         } onCancel: {
             operationTask.cancel()
             outcome.resume(throwing: _Concurrency.CancellationError())
+            let sleeper = sleeperState.withLock { state in
+                state.isCancelled = true
+                return state.sleeper
+            }
+            sleeper?.cancel()
         }
     }
 }
