@@ -40,6 +40,8 @@ final class ItemChangeWatcher {
     private var watched = [pid_t: [(element: AXUIElement, key: String)]]()
 
     /// The observed items and their windows, so an unchanged list sets nothing up again.
+    /// An item whose element was not found or not observed is missing here, so the next
+    /// item list tries it again.
     private var watchedWindows = [String: CGWindowID]()
 
     /// The debounce and rate limit.
@@ -107,15 +109,19 @@ final class ItemChangeWatcher {
         guard windows != watchedWindows else {
             return
         }
-        watchedWindows = windows
         removeAll()
+        var observed = [String: CGWindowID]()
         for item in items {
             let pid = item.sourcePID ?? item.ownerPID
-            guard let element = element(for: item, pid: pid) else {
+            let key = itemManager.identityKey(for: item)
+            guard let element = element(for: item, pid: pid), observe(element, key: key, pid: pid) else {
                 continue
             }
-            observe(element, key: itemManager.identityKey(for: item), pid: pid)
+            if observed[key] == nil {
+                observed[key] = item.windowID
+            }
         }
+        watchedWindows = observed
     }
 
     /// The Accessibility element of the item: on macOS 27 the one the item list was read
@@ -140,14 +146,15 @@ final class ItemChangeWatcher {
         }
     }
 
-    private func observe(_ element: AXUIElement, key: String, pid: pid_t) {
+    /// Observes the element's changes; returns whether any notification was added.
+    private func observe(_ element: AXUIElement, key: String, pid: pid_t) -> Bool {
         let observer: AXObserver
         if let existing = observers[pid] {
             observer = existing
         } else {
             var created: AXObserver?
             guard AXObserverCreate(pid, itemChangeWatcherCallback, &created) == .success, let created else {
-                return
+                return false
             }
             CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(created), .defaultMode)
             observers[pid] = created
@@ -160,9 +167,10 @@ final class ItemChangeWatcher {
         }
         guard !added.isEmpty else {
             logger.debug("A marked item posts no change notifications")
-            return
+            return false
         }
         watched[pid, default: []].append((element: element, key: key))
+        return true
     }
 
     private func removeAll() {
