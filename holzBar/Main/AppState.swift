@@ -138,6 +138,10 @@ final class AppState {
     /// Whether the setup finished: before, the settings and items are not loaded yet.
     @ObservationIgnored private(set) var isSetUp = false
 
+    /// Whether the setup was started: before, also after the permissions were granted
+    /// until the user continues, the stored settings are not loaded.
+    @ObservationIgnored private var hasStartedSetup = false
+
     /// Async setup actions, run once on first access.
     @ObservationIgnored private lazy var setupTask = Task { @MainActor in
         permissions.stopAllChecks()
@@ -197,6 +201,7 @@ final class AppState {
     ///   If `false`, prompts the user to grant permissions.
     func performSetup(hasPermissions: Bool) {
         if hasPermissions {
+            hasStartedSetup = true
             Task {
                 logger.debug("Setting up app state")
                 await setupTask.value
@@ -213,13 +218,14 @@ final class AppState {
         }
     }
 
-    /// Opens the permissions window instead of Settings while permissions are missing: the
-    /// setup, which loads the stored settings and registers the hotkeys, has not run then,
-    /// so Settings would show the defaults and write them.
+    /// Opens the permissions window instead of Settings until the setup starts, while
+    /// permissions are missing or granted but the user has not continued yet: the setup,
+    /// which loads the stored settings and registers the hotkeys, has not run then, so
+    /// Settings would show the defaults and write them.
     ///
     /// - Returns: Whether the permissions window opens instead.
     func openPermissionsWindowIfNeeded() -> Bool {
-        guard permissions.permissionsState == .missing else {
+        guard !hasStartedSetup else {
             return false
         }
         activate(for: .permissions)
