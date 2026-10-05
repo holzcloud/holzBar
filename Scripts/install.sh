@@ -70,7 +70,12 @@ codesign --verify --deep --strict "$DEST/holzBar.app"
 # granted to the previous one: System Settings shows them as on while holzBar is denied,
 # and holzBar never gets past its permissions window (jordanbaird/Ice#1004). Clear them
 # so that the new build is asked for them afresh.
-if codesign -dv "$DEST/holzBar.app" 2>&1 | grep -q 'Signature=adhoc'; then
+#
+# The details are captured first and grepped from a here-string: piped straight into
+# `grep -q`, codesign usually got SIGPIPE once grep had matched, and under pipefail the
+# reset was then skipped without a word.
+SIGNATURE_DETAILS="$(codesign -dv "$DEST/holzBar.app" 2>&1)"
+if grep -q 'Signature=adhoc' <<< "$SIGNATURE_DETAILS"; then
     BUNDLE_ID="$(defaults read "$DEST/holzBar.app/Contents/Info" CFBundleIdentifier)"
     echo "==> Ad hoc signature: resetting the permissions of the previous build"
     tccutil reset Accessibility "$BUNDLE_ID" >/dev/null 2>&1 || true
