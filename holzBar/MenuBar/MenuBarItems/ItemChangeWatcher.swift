@@ -14,8 +14,9 @@ import OSLog
 /// `kAXTitleChangedNotification` and `kAXValueChangedNotification` on those items'
 /// elements only; they are registered off the main thread and their run-loop sources run
 /// on the main run loop. The observers follow the item list (they are set up again when it
-/// changes) and nothing runs while no item is marked. Each notification passes ``ChangeReveal``'s debounce and rate limit; a due item
-/// is shown for 5 seconds (`MenuBarManager.revealBriefly(itemKey:)`). No timer and no
+/// changes, or an item's app relaunched) and nothing runs while no item is marked. Each
+/// notification passes ``ChangeReveal``'s debounce and rate limit; a due item is shown for
+/// 5 seconds (`MenuBarManager.revealBriefly(itemKey:)`). No timer and no
 /// polling: one bounded wait per batch of changes, and a few bounded retries for a marked
 /// item whose app did not answer yet.
 ///
@@ -122,7 +123,11 @@ final class ItemChangeWatcher {
                 bounds: item.bounds
             )
         }
-        let windows = Dictionary(targets.map { ($0.key, $0.windowID) }, uniquingKeysWith: { first, _ in first })
+        // The process counts too: a relaunched app's item may keep its window identifier.
+        let windows = Dictionary(
+            targets.map { ($0.key, ItemChangeWatchList.Location(windowID: $0.windowID, pid: $0.pid)) },
+            uniquingKeysWith: { first, _ in first }
+        )
         let update = watchList.update(windows: windows, retrying: retrying)
         // A batch under way for an older list stops at its next item.
         let generation = watchList.generation

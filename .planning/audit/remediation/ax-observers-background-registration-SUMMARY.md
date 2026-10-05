@@ -69,6 +69,11 @@ bd9471da had already added a bounded retry. Their bookkeeping now lives in the n
   list.
 - A changed list removes the observers, resets the retries and invalidates any registration
   still in flight.
+- The compared list maps each item key to its window and its process
+  (`ItemChangeWatchList.Location`). On macOS 27 `SyntheticWindowID27` does not depend on
+  the process, so a relaunched app's item keeps its window identifier. Without the process
+  in the comparison, a quick relaunch (or one while reads pause, screen locked or asleep)
+  left the observers on the process that quit (review AXO-R1).
 
 ## Deviation
 
@@ -83,9 +88,10 @@ bar items, for up to 12 s. Neither queue is `MenuBarItemProvider27.queue`.
 - `Tests/HolzBarMacOS27CoreTests/ObserverRegistrationSchedule27Tests.swift` (6 tests): the
   backoff steps 5/10/20/40/60/60 s, pauses that refreshes do not extend, success clearing
   the pause, unsupported until relaunch, and quit pids forgotten.
-- `Tests/HolzBarCoreTests/ItemChangeWatchListTests.swift` (6 tests): a new list,
+- `Tests/HolzBarCoreTests/ItemChangeWatchListTests.swift` (7 tests): a new list,
   an unchanged list, only observed items counting (F-71), discarding an outdated generation,
-  the retry limit and its reset, and an empty list.
+  the retry limit and its reset, an empty list, and a relaunch that keeps the window
+  identifier but changes the process (AXO-R1).
 
 ## Gates (all passed before the commit)
 
@@ -109,7 +115,8 @@ bar items, for up to 12 s. Neither queue is `MenuBarItemProvider27.queue`.
    apps while it is still busy finishing its launch. Clicks, hover and the Shelf should stay
    responsive.
 4. Quit and relaunch an app whose item is marked "Show When It Changes". Its changes should
-   reveal it again after the relaunch (F-71).
+   reveal it again after the relaunch (F-71). Try a quick relaunch too (for example
+   `killall` of an app that a launch agent restarts at once).
 
 ## Docs
 

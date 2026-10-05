@@ -13,9 +13,19 @@ import Foundation
 /// a result from an older one is dropped. Only items whose observer was added count as
 /// watched, so an item whose element was not found or not observed is tried again
 /// (``maximumRetries`` times for one list).
+///
+/// An item counts as changed when its window or its process changes: on macOS 27 a
+/// relaunched app's item keeps its window identifier, and its observers would otherwise stay
+/// on the process that quit.
 nonisolated struct ItemChangeWatchList: Equatable, Sendable {
     /// The retries for one list.
     static let maximumRetries = 3
+
+    /// Where a marked item is: its window and the process that owns it.
+    struct Location: Equatable, Sendable {
+        let windowID: UInt32
+        let pid: pid_t
+    }
 
     /// A registration to run: the generation it belongs to and the keys of the items to
     /// observe.
@@ -24,11 +34,11 @@ nonisolated struct ItemChangeWatchList: Equatable, Sendable {
         let keys: Set<String>
     }
 
-    /// The marked items in the menu bar and their windows, from the last change of the list.
-    private(set) var windows = [String: UInt32]()
+    /// The marked items in the menu bar and their locations, from the last change of the list.
+    private(set) var windows = [String: Location]()
 
-    /// The observed items and their windows.
-    private(set) var watchedWindows = [String: UInt32]()
+    /// The observed items and their locations.
+    private(set) var watchedWindows = [String: Location]()
 
     /// The generation of the latest registration.
     private(set) var generation = 0
@@ -39,12 +49,12 @@ nonisolated struct ItemChangeWatchList: Equatable, Sendable {
     /// Takes the marked items in the menu bar now.
     ///
     /// - Parameters:
-    ///   - windows: The marked items' windows, by item key.
+    ///   - windows: The marked items' locations, by item key.
     ///   - retrying: Whether this is a retry for an unchanged list.
     /// - Returns: Whether the observers must be removed (the list changed), and the
     ///   registration to run, if any.
     mutating func update(
-        windows: [String: UInt32],
+        windows: [String: Location],
         retrying: Bool
     ) -> (removesObservers: Bool, registration: Registration?) {
         let changed = windows != self.windows
