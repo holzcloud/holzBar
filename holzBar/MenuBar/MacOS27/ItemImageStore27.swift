@@ -215,7 +215,20 @@ final class ItemImageStore27 {
             return
         }
         let displayBounds = CGDisplayBounds(displayID)
-        let barHeight = max(screen.frame.maxY - screen.visibleFrame.maxY, 22)
+        let reservedHeight = screen.frame.maxY - screen.visibleFrame.maxY
+        let barHeight: CGFloat
+        if appState.activeSpace.isFullscreen || appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults || reservedHeight <= 0 {
+            // On a fullscreen space or with the bar hidden automatically, the strip shows the
+            // window underneath unless the bar is revealed, which only the window server's menu
+            // bar window on screen tells (as `SystemItemClickBridge27` checks for a click).
+            guard let menuBarWindow = WindowInfo.menuBarWindow(for: displayID) else {
+                logger.debug("Menu bar capture: the bar is not on screen")
+                return
+            }
+            barHeight = menuBarWindow.bounds.height
+        } else {
+            barHeight = max(reservedHeight, 22)
+        }
         let stripFrame = CGRect(x: displayBounds.minX, y: displayBounds.minY, width: displayBounds.width, height: barHeight)
         let items = await MenuBarItemProvider27.items()
         let concealedPIDs = appState.concealer27.concealedPIDs
