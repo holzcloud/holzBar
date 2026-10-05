@@ -102,6 +102,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **First-launch assistant** that proposes an arrangement from static facts, skippable and re-runnable.
 - **Usage suggestions** (opt-in): suggests hiding items you never click; counters stay on your Mac and can be erased with one click.
 - **Touch ID or password** to show hidden items.
+- **Revoke permissions in Settings**: a button per permission that withdraws it again (for holzBar's own entry only) or opens the right System Settings pane, so you never have to hunt for it.
 - **Smooth show and hide**, respecting Reduce Motion.
 - **Copy diagnostics**: a redacted report you read before you copy it; nothing is sent.
 

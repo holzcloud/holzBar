@@ -92,7 +92,7 @@ Then open it again. The release is signed with holzBar's own certificate and car
 | | |
 |---|---|
 | ⚙️ **Automation** | **Rules** (Wi-Fi, app, time, power, display, Focus; *spike first: Focus*) · **per-item conditions** · **scripts** (only from a folder you choose, after you confirm) · **widgets** · **AppleScript dictionary** · **command palette** |
-| 🛟 **Safety** | **Layout snapshots** with a one-click restore · **shareable profiles** · **Touch ID** to show hidden items · **copy diagnostics** (redacted, nothing is sent) |
+| 🛟 **Safety** | **Layout snapshots** with a one-click restore · **shareable profiles** · **Touch ID** to show hidden items · **revoke permissions in Settings** (Accessibility, Screen Recording, with a guide) · **copy diagnostics** (redacted, nothing is sent) |
 | 🪄 **Convenience** | **First-launch assistant** · opt-in **usage suggestions** (counters stay on your Mac) · **smooth show and hide** |
 | 🪵 **macOS 27 and polish** | Native overflow button support · Reduce Transparency · SwiftUI reordering (*spike*) · Control Center control (*spike*) · keyboard and VoiceOver audit · Swift 6.4 clean-up |
 
