@@ -77,12 +77,16 @@ final class SettingsSync {
     /// The folder the Macs sync, chosen by the user or iCloud Drive (see
     /// `SettingsSyncLocation`). A stale bookmark, or iCloud Drive used without a choice, is
     /// stored as the choice.
+    ///
+    /// The bookmark is resolved without mounting: holzBar never mounts a network share
+    /// itself (and never waits for one on the main thread). A folder on a volume that is
+    /// not mounted is not available until the user mounts it.
     static var syncFolderURL: URL? {
         let resolution: SettingsSyncLocation.Resolution
         var resolvedURL: URL?
         if let bookmark = UserDefaults.standard.data(forKey: folderBookmarkKey) {
             var isStale = false
-            if let url = try? URL(resolvingBookmarkData: bookmark, options: [.withoutUI], relativeTo: nil, bookmarkDataIsStale: &isStale) {
+            if let url = try? URL(resolvingBookmarkData: bookmark, options: [.withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &isStale) {
                 resolvedURL = url
                 resolution = .resolved(path: url.path(percentEncoded: false), isStale: isStale)
             } else {
@@ -126,21 +130,31 @@ final class SettingsSync {
         folderURL?.appending(path: SettingsSyncLocation.fileComponents[1])
     }
 
-    /// The name of the synced folder to show, or `nil` when there is none.
-    var folderDisplayName: String? {
-        _ = folderChangeCount
-        guard let url = Self.syncFolderURL else {
-            return nil
+    /// The name of the synced folder to show, or `nil` when there is none. Updated while
+    /// sync is on, when the folder is chosen, when a volume is mounted or unmounted, when the
+    /// folder changes and when the settings show it (``refreshFolder()``), never in a view
+    /// body.
+    private(set) var folderDisplayName: String?
+
+    /// Updates the name of the synced folder to show while sync is on, as the folder may
+    /// have been moved, renamed or deleted since.
+    func refreshFolder() {
+        guard isEnabled else {
+            return
         }
-        return SettingsSyncLocation.displayName(
-            forFolder: url.path(percentEncoded: false),
-            homePath: FileManager.default.homeDirectoryForCurrentUser.path(percentEncoded: false),
-            iCloudDrivePath: Self.iCloudDriveURL?.path(percentEncoded: false)
-        )
+        updateFolderDisplayName()
     }
 
-    /// Counts the changes of the folder, so the view showing its name updates.
-    private var folderChangeCount = 0
+    /// Updates the name of the synced folder to show.
+    private func updateFolderDisplayName() {
+        folderDisplayName = Self.syncFolderURL.map { url in
+            SettingsSyncLocation.displayName(
+                forFolder: url.path(percentEncoded: false),
+                homePath: FileManager.default.homeDirectoryForCurrentUser.path(percentEncoded: false),
+                iCloudDrivePath: Self.iCloudDriveURL?.path(percentEncoded: false)
+            )
+        }
+    }
 
     /// A Boolean value that indicates whether syncing is turned on.
     var isEnabled = false {
@@ -160,6 +174,10 @@ final class SettingsSync {
     /// Observes this Mac's settings while sync is on.
     @ObservationIgnored private var defaultsObserver: Task<Void, Never>?
 
+    /// Observes volumes being mounted and unmounted while sync is on, as the folder may be
+    /// on one.
+    @ObservationIgnored private var volumeObservers: [Task<Void, Never>] = []
+
     /// Pushes the settings 5 s after they stop changing.
     @ObservationIgnored private let defaultsDebouncer = Debouncer(delay: .seconds(5))
 
@@ -172,6 +190,9 @@ final class SettingsSync {
     /// The pending check after the sync file changed.
     @ObservationIgnored private var checkTask: Task<Void, Never>?
 
+    /// A push waited for the pending check, and is made once the check is done.
+    @ObservationIgnored private var pushesAfterCheck = false
+
     func performSetup(with appState: AppState) {
         self.appState = appState
         isEnabled = Defaults.bool(forKey: .syncsSettingsWithICloud)
@@ -182,9 +203,12 @@ final class SettingsSync {
         guard isEnabled, appState != nil else {
             defaultsObserver?.cancel()
             defaultsObserver = nil
+            volumeObservers.forEach { $0.cancel() }
+            volumeObservers = []
             defaultsDebouncer.cancel()
             checkTask?.cancel()
             checkTask = nil
+            pushesAfterCheck = false
             stopWatchingFolder()
             return
         }
@@ -198,6 +222,19 @@ final class SettingsSync {
                 }
             }
         }
+
+        if volumeObservers.isEmpty {
+            let center = NSWorkspace.shared.notificationCenter
+            volumeObservers = [NSWorkspace.didMountNotification, NSWorkspace.didUnmountNotification].map { name in
+                Task { [weak self] in
+                    for await _ in center.notifications(named: name) {
+                        self?.volumesDidChange()
+                    }
+                }
+            }
+        }
+
+        updateFolderDisplayName()
 
         if presenter == nil, let folderURL = Self.folderURL {
             // Anyone who can write the synced folder could make the holzBar folder a link
@@ -224,6 +261,23 @@ final class SettingsSync {
             self.presenter = presenter
             folderWatcher = SettingsSyncFolderWatcher(folderURL: folderURL, onChange: onChange)
             Self.logger.info("Watching the sync file")
+        }
+    }
+
+    /// Watches the sync folder again when a volume was mounted or unmounted and the folder
+    /// became available, moved or gone.
+    ///
+    /// A folder that has just become available, such as a network share mounted after
+    /// launch, may hold newer settings from another Mac, so it is checked before this Mac's
+    /// settings are written there (``push()`` waits for the check).
+    private func volumesDidChange() {
+        let watchedURL = presenter?.presentedItemURL
+        if watchedURL != Self.folderURL {
+            stopWatchingFolder()
+        }
+        updateObservers()
+        if let presenter, presenter.presentedItemURL != watchedURL {
+            syncFileDidChange()
         }
     }
 
@@ -258,7 +312,6 @@ final class SettingsSync {
         }
         stopWatchingFolder()
         Self.storeBookmark(of: url)
-        folderChangeCount += 1
         lastPushedData = nil
         if isEnabled {
             updateObservers()
@@ -271,14 +324,31 @@ final class SettingsSync {
 
     /// Checks the sync file shortly after it changed, once for a burst of changes.
     private func syncFileDidChange() {
+        updateFolderDisplayName()
         checkTask?.cancel()
         checkTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(2))
             guard !Task.isCancelled else {
                 return
             }
-            await self?.checkForNewerSettings()
+            let restarts = await self?.checkForNewerSettings() ?? false
+            // A cancelled check was replaced by a newer one, or sync was turned off.
+            if !Task.isCancelled {
+                self?.checkTask = nil
+            }
+            if !restarts {
+                self?.pushAfterCheck()
+            }
         }
+    }
+
+    /// Makes the push that waited for a check of the sync file, once no check is pending.
+    private func pushAfterCheck() {
+        guard pushesAfterCheck, checkTask == nil, !isAskingToRestart else {
+            return
+        }
+        pushesAfterCheck = false
+        settingsDidChange()
     }
 
     /// Writes the settings to iCloud Drive, if syncing is on.
@@ -290,8 +360,15 @@ final class SettingsSync {
     }
 
     private func push() {
+        // A pending check may find newer settings from another Mac, which this push would
+        // overwrite; push once the check is done (``pushAfterCheck()``).
+        guard checkTask == nil, !isAskingToRestart else {
+            pushesAfterCheck = true
+            return
+        }
         guard let fileURL = Self.fileURL else {
             Self.logger.warning("No sync folder, not syncing settings")
+            updateFolderDisplayName()
             return
         }
         let settings = SettingsBackup.currentSettings().filter { !Self.localKeys.contains($0.key) }
@@ -431,13 +508,15 @@ final class SettingsSync {
     /// Offers to restart when another Mac has changed the settings.
     ///
     /// The file is read off the main actor; only the small, checked result is decoded here.
-    private func checkForNewerSettings() async {
+    ///
+    /// - Returns: Whether holzBar restarts with the newer settings.
+    private func checkForNewerSettings() async -> Bool {
         guard isEnabled, !isAskingToRestart, let fileURL = Self.fileURL else {
-            return
+            return false
         }
         let read = await Self.readFileContentsInBackground(at: fileURL)
         guard isEnabled, !isAskingToRestart, Self.newerSettings(from: read) != nil else {
-            return
+            return false
         }
         isAskingToRestart = true
         defer {
@@ -449,10 +528,12 @@ final class SettingsSync {
         alert.addButton(withTitle: String(localized: "Restart"))
         alert.addButton(withTitle: String(localized: "Later"))
         NSApp.activate()
-        if alert.runModal() == .alertFirstButtonReturn {
-            SettingsSync.pullIfNeeded()
-            SettingsBackup.relaunch()
+        guard alert.runModal() == .alertFirstButtonReturn else {
+            return false
         }
+        SettingsSync.pullIfNeeded()
+        SettingsBackup.relaunch()
+        return true
     }
 }
 

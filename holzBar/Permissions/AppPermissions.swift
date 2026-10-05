@@ -3,7 +3,7 @@
 //  holzBar
 //
 
-import Foundation
+import AppKit
 import Observation
 import OSLog
 
@@ -39,6 +39,9 @@ final class AppPermissions {
     /// Observes the permissions to update ``permissionsState``.
     @ObservationIgnored private var observer: ObservationLoop?
 
+    /// Checks the permissions again whenever holzBar becomes active.
+    @ObservationIgnored private var activationObserver: Task<Void, Never>?
+
     /// The permissions required for full app functionality.
     var allPermissions: [Permission] {
         [accessibility, screenRecording]
@@ -57,6 +60,18 @@ final class AppPermissions {
             permissions.map(\.hasPermission)
         } onChange: { [weak self] _ in
             self?.updatePermissionsState()
+        }
+        self.activationObserver = Task { [weak self] in
+            for await _ in NotificationCenter.default.notifications(named: NSApplication.didBecomeActiveNotification) {
+                self?.refresh()
+            }
+        }
+    }
+
+    /// Checks every permission again (see ``Permission/refresh()``).
+    func refresh() {
+        for permission in allPermissions {
+            permission.refresh()
         }
     }
 

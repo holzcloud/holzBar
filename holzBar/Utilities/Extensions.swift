@@ -502,8 +502,12 @@ extension NSImage {
 
 extension NSScreen {
     /// The screen containing the mouse pointer.
+    ///
+    /// `NSMouseInRect`, not `CGRect.contains`: the pointer's location can be the top edge
+    /// of the screen (`frame.maxY`), which `contains` excludes.
     static var screenWithMouse: NSScreen? {
-        screens.first { $0.frame.contains(NSEvent.mouseLocation) }
+        let mouseLocation = NSEvent.mouseLocation
+        return screens.first { NSMouseInRect(mouseLocation, $0.frame, false) }
     }
 
     /// The screen with the active menu bar.
