@@ -44,7 +44,7 @@ final class MenuBarItemEventPoster {
     }
 
     /// Waits asynchronously for the user to pause input.
-    private func waitForUserToPauseInput() async throws {
+    static func waitForUserToPauseInput() async throws {
         let waitTask = Task {
             while true {
                 try Task.checkCancellation()
@@ -653,7 +653,7 @@ final class MenuBarItemEventPoster {
             throw EventError.itemNotMovable(item)
         }
 
-        try await waitForUserToPauseInput()
+        try await Self.waitForUserToPauseInput()
 
         appState.hidEventManager.stopAll()
         defer {
@@ -800,7 +800,7 @@ final class MenuBarItemEventPoster {
     ///   - mouseButton: The mouse button to click the item with.
     func click(item: MenuBarItem, with mouseButton: CGMouseButton, appState: AppState) async throws {
 
-        try await waitForUserToPauseInput()
+        try await Self.waitForUserToPauseInput()
 
         logger.log(
             """

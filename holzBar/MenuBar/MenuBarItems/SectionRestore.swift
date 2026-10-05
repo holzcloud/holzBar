@@ -255,7 +255,7 @@ extension MenuBarItemManager {
 
         var placedSections = [String: MenuBarSection.Name]()
         for move in moves {
-            if yieldsToUser(wanted: wanted, appState: appState) {
+            if await yieldsToUserAfterInputPause(wanted: wanted, appState: appState) {
                 Self.restoreLogger.debug("The user arranges the items, so not moving the remaining items into their sections")
                 break
             }
@@ -304,6 +304,22 @@ extension MenuBarItemManager {
         wanted == nil && (appState.isDraggingMenuBarItem || needsSectionSave)
     }
 
+    /// Waits for the user to pause input, then returns whether a restore stops moving items
+    /// because the user arranges them. A move waits for that pause itself, and a Command-drag
+    /// of the item about to be moved lasts through it, so the check comes after the wait; the
+    /// move's own wait then returns at once.
+    private func yieldsToUserAfterInputPause(wanted: [String: MenuBarSection.Name]?, appState: AppState) async -> Bool {
+        guard wanted == nil else {
+            return false
+        }
+        do {
+            try await MenuBarItemEventPoster.waitForUserToPauseInput()
+        } catch {
+            return true
+        }
+        return yieldsToUser(wanted: wanted, appState: appState)
+    }
+
     /// The section an item is in, from its position relative to the control items.
     private func section(of item: MenuBarItem, controlItems: ControlItemPair) -> MenuBarSection.Name {
         let bounds = Bridging.getWindowBounds(for: item.windowID) ?? item.bounds
@@ -340,6 +356,9 @@ extension MenuBarItemManager {
                 continue
             }
             if item.tag.isLiveActivity {
+                if await yieldsToUserAfterInputPause(wanted: wanted, appState: appState) {
+                    return
+                }
                 do {
                     Self.restoreLogger.info("Keeping Live Activity \(item.logString, privacy: .private(mask: .hash)) visible")
                     try await move(item: item, to: .rightOfItem(controlItems.hidden))
