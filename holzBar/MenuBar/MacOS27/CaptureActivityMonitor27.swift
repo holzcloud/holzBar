@@ -23,7 +23,8 @@ import OSLog
 /// entitlement is needed (measured on macOS 26.7.1 on 2026-10-05: coreaudiod only preflights
 /// the Microphone, Screen Recording and audio capture status of a new client, with no prompt,
 /// and CoreMediaIO reads cause no TCC query). holzBar's own process appears among the process
-/// objects as soon as it reads them and is ignored. Nothing runs while the setting is off.
+/// objects as soon as it reads them and is ignored. Nothing runs while the setting is off, and
+/// nothing of it runs on the main thread (``CaptureWatcher27``).
 @available(macOS 27.0, *)
 @MainActor
 @Observable
@@ -46,23 +47,11 @@ final class CaptureActivityMonitor27 {
     /// The check for holzBar's icon after a capture started.
     @ObservationIgnored private var iconCheckTask: Task<Void, Never>?
 
-    /// Whether the listeners are registered.
-    @ObservationIgnored private var isRunning = false
+    /// Reads CoreAudio and CoreMediaIO off the main thread while the setting is on.
+    @ObservationIgnored private var watcher: CaptureWatcher27?
 
-    /// The listeners on CoreAudio's system object, with their addresses.
-    @ObservationIgnored private var systemListeners = [(address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)]()
-
-    /// The listener on CoreMediaIO's device list.
-    @ObservationIgnored private var deviceListListener: CMIOObjectPropertyListenerBlock?
-
-    /// The process objects of other processes, with their process identifiers and listeners.
-    @ObservationIgnored private var processes = [AudioObjectID: (pid: pid_t, listener: AudioObjectPropertyListenerBlock)]()
-
-    /// The process objects of holzBar itself, which get no listener.
-    @ObservationIgnored private var ownProcesses = Set<AudioObjectID>()
-
-    /// The camera devices, with their listeners.
-    @ObservationIgnored private var cameras = [CMIOObjectID: CMIOObjectPropertyListenerBlock]()
+    /// Takes the activities the watcher reports to the main actor.
+    @ObservationIgnored private var watchTask: Task<Void, Never>?
 
     @ObservationIgnored private let logger = Logger(category: "CaptureActivityMonitor27")
 
@@ -105,38 +94,141 @@ final class CaptureActivityMonitor27 {
         }
     }
 
+    /// Starts the watcher. Bringing up CoreAudio's and CoreMediaIO's clients and reading every
+    /// process and camera are calls into other processes that can stall while coreaudiod or a
+    /// camera is busy, so none of it runs on the main thread, at launch or later.
     private func start() {
-        guard !isRunning else {
+        guard watcher == nil else {
+            return
+        }
+        let (stream, continuation) = AsyncStream.makeStream(of: CaptureActivity.self, bufferingPolicy: .bufferingNewest(1))
+        let watcher = CaptureWatcher27(ownPID: Self.ownPID, report: continuation)
+        self.watcher = watcher
+        watchTask = Task { [weak self] in
+            for await activity in stream {
+                // A report already on its way when the watcher stopped is dropped.
+                guard !Task.isCancelled else {
+                    return
+                }
+                self?.setActivity(activity)
+            }
+        }
+        Task {
+            await watcher.start()
+        }
+        logger.notice("Watching microphone and camera use")
+    }
+
+    private func stop() {
+        iconCheckTask?.cancel()
+        iconCheckTask = nil
+        guard let watcher else {
+            return
+        }
+        self.watcher = nil
+        watchTask?.cancel()
+        watchTask = nil
+        Task {
+            await watcher.stop()
+        }
+        setActivity(CaptureActivity(ownPID: Self.ownPID))
+        logger.notice("Stopped watching microphone and camera use")
+    }
+
+    /// Stores a changed activity; an unchanged one is not assigned, so nothing observes it.
+    private func setActivity(_ updated: CaptureActivity) {
+        guard updated != activity else {
+            return
+        }
+        activity = updated
+        logger.debug(
+            "Microphone in use: \(updated.isMicrophoneInUse, privacy: .public), camera in use: \(updated.isCameraInUse, privacy: .public)"
+        )
+    }
+}
+
+/// Follows the microphone and the cameras for ``CaptureActivityMonitor27`` on a private serial
+/// queue, the actor's executor, which also runs every listener.
+///
+/// The listeners are added on that queue, so each runs isolated to the actor. Every change of
+/// the activity is reported to the main actor through the stream it was created with.
+@available(macOS 27.0, *)
+private actor CaptureWatcher27 {
+    /// The queue the listeners run on and the actor executes on.
+    private nonisolated let queue = DispatchSerialQueue(label: "com.holzcloud.holzBar.CaptureActivityMonitor27", qos: .utility)
+
+    nonisolated var unownedExecutor: UnownedSerialExecutor {
+        queue.asUnownedSerialExecutor()
+    }
+
+    /// holzBar's own process identifier.
+    private let ownPID: pid_t
+
+    /// Takes every changed activity to the main actor.
+    private let report: AsyncStream<CaptureActivity>.Continuation
+
+    /// What other processes use now.
+    private var activity: CaptureActivity
+
+    /// Whether the listeners are registered.
+    private var isRunning = false
+
+    /// Whether the watcher was stopped for good, so a start that reaches it later adds nothing.
+    private var isStopped = false
+
+    /// The listeners on CoreAudio's system object, with their addresses.
+    private var systemListeners = [(address: AudioObjectPropertyAddress, block: AudioObjectPropertyListenerBlock)]()
+
+    /// The listener on CoreMediaIO's device list.
+    private var deviceListListener: CMIOObjectPropertyListenerBlock?
+
+    /// The process objects of other processes, with their process identifiers and listeners.
+    private var processes = [AudioObjectID: (pid: pid_t, listener: AudioObjectPropertyListenerBlock)]()
+
+    /// The process objects of holzBar itself, which get no listener.
+    private var ownProcesses = Set<AudioObjectID>()
+
+    /// The camera devices, with their listeners.
+    private var cameras = [CMIOObjectID: CMIOObjectPropertyListenerBlock]()
+
+    private let logger = Logger(category: "CaptureActivityMonitor27")
+
+    init(ownPID: pid_t, report: AsyncStream<CaptureActivity>.Continuation) {
+        self.ownPID = ownPID
+        self.report = report
+        self.activity = CaptureActivity(ownPID: ownPID)
+    }
+
+    func start() {
+        guard !isRunning, !isStopped else {
             return
         }
         isRunning = true
         let system = AudioObjectID(kAudioObjectSystemObject)
-        let processList = Self.listener { [weak self] in
-            self?.processesChanged()
+        let processList = listener { watcher in
+            watcher.processesChanged()
         }
         // The header asks for every listener to be added again after coreaudiod restarts.
-        let restarted = Self.listener { [weak self] in
-            Task {
-                self?.restart()
-            }
+        let restarted = listener { watcher in
+            watcher.scheduleRestart()
         }
         for (selector, block) in [
             (kAudioHardwarePropertyProcessObjectList, processList),
             (kAudioHardwarePropertyServiceRestarted, restarted),
         ] {
             var address = Self.address(selector)
-            let status = AudioObjectAddPropertyListenerBlock(system, &address, .main, block)
+            let status = AudioObjectAddPropertyListenerBlock(system, &address, queue, block)
             if status == noErr {
                 systemListeners.append((address, block))
             } else {
                 logger.debug("Could not listen to CoreAudio: \(status, privacy: .public)")
             }
         }
-        let deviceList = Self.cameraListener { [weak self] in
-            self?.camerasChanged()
+        let deviceList = cameraListener { watcher in
+            watcher.camerasChanged()
         }
         var deviceListAddress = Self.cameraAddress(CMIOObjectPropertySelector(kCMIOHardwarePropertyDevices))
-        let status = CMIOObjectAddPropertyListenerBlock(CMIOObjectID(kCMIOObjectSystemObject), &deviceListAddress, .main, deviceList)
+        let status = CMIOObjectAddPropertyListenerBlock(CMIOObjectID(kCMIOObjectSystemObject), &deviceListAddress, queue, deviceList)
         if status == noErr {
             deviceListListener = deviceList
         } else {
@@ -144,12 +236,16 @@ final class CaptureActivityMonitor27 {
         }
         processesChanged()
         camerasChanged()
-        logger.notice("Watching microphone and camera use")
     }
 
-    private func stop() {
-        iconCheckTask?.cancel()
-        iconCheckTask = nil
+    /// Removes every listener and ends the reports.
+    func stop() {
+        isStopped = true
+        removeListeners()
+        report.finish()
+    }
+
+    private func removeListeners() {
         guard isRunning else {
             return
         }
@@ -157,12 +253,12 @@ final class CaptureActivityMonitor27 {
         let system = AudioObjectID(kAudioObjectSystemObject)
         for listener in systemListeners {
             var address = listener.address
-            AudioObjectRemovePropertyListenerBlock(system, &address, .main, listener.block)
+            AudioObjectRemovePropertyListenerBlock(system, &address, queue, listener.block)
         }
         systemListeners.removeAll()
         if let deviceListListener {
             var address = Self.cameraAddress(CMIOObjectPropertySelector(kCMIOHardwarePropertyDevices))
-            CMIOObjectRemovePropertyListenerBlock(CMIOObjectID(kCMIOObjectSystemObject), &address, .main, deviceListListener)
+            CMIOObjectRemovePropertyListenerBlock(CMIOObjectID(kCMIOObjectSystemObject), &address, queue, deviceListListener)
             self.deviceListListener = nil
         }
         for process in Array(processes.keys) {
@@ -172,17 +268,19 @@ final class CaptureActivityMonitor27 {
         for camera in Array(cameras.keys) {
             forgetCamera(camera)
         }
-        activity = CaptureActivity(ownPID: Self.ownPID)
-        logger.notice("Stopped watching microphone and camera use")
+        setActivity(CaptureActivity(ownPID: ownPID))
     }
 
-    /// Registers every listener again after coreaudiod restarted.
-    private func restart() {
-        guard isRunning else {
-            return
+    /// Registers every listener again after coreaudiod restarted, once the listener that
+    /// reported it has returned.
+    private func scheduleRestart() {
+        Task {
+            guard isRunning else {
+                return
+            }
+            removeListeners()
+            start()
         }
-        stop()
-        start()
     }
 
     // MARK: Microphone
@@ -210,15 +308,15 @@ final class CaptureActivityMonitor27 {
             guard case let .success(pid) = Self.readUInt32(of: process, selector: kAudioProcessPropertyPID).map({ pid_t(bitPattern: $0) }) else {
                 continue
             }
-            guard pid != Self.ownPID else {
+            guard pid != ownPID else {
                 ownProcesses.insert(process)
                 continue
             }
-            let listener = Self.listener { [weak self] in
-                self?.inputChanged(of: process)
+            let listener = listener { watcher in
+                watcher.inputChanged(of: process)
             }
             var address = Self.address(kAudioProcessPropertyIsRunningInput)
-            guard AudioObjectAddPropertyListenerBlock(process, &address, .main, listener) == noErr else {
+            guard AudioObjectAddPropertyListenerBlock(process, &address, queue, listener) == noErr else {
                 continue
             }
             processes[process] = (pid, listener)
@@ -250,7 +348,7 @@ final class CaptureActivityMonitor27 {
         }
         var address = Self.address(kAudioProcessPropertyIsRunningInput)
         // The object may be gone already, so the status is not checked.
-        AudioObjectRemovePropertyListenerBlock(process, &address, .main, entry.listener)
+        AudioObjectRemovePropertyListenerBlock(process, &address, queue, entry.listener)
     }
 
     // MARK: Cameras
@@ -274,11 +372,11 @@ final class CaptureActivityMonitor27 {
         }
         var updated = activity
         for camera in listed where cameras[camera] == nil {
-            let listener = Self.cameraListener { [weak self] in
-                self?.cameraChanged(camera)
+            let listener = cameraListener { watcher in
+                watcher.cameraChanged(camera)
             }
             var address = Self.cameraAddress(CMIOObjectPropertySelector(kCMIODevicePropertyDeviceIsRunningSomewhere))
-            guard CMIOObjectAddPropertyListenerBlock(camera, &address, .main, listener) == noErr else {
+            guard CMIOObjectAddPropertyListenerBlock(camera, &address, queue, listener) == noErr else {
                 continue
             }
             cameras[camera] = listener
@@ -307,46 +405,46 @@ final class CaptureActivityMonitor27 {
         }
         var address = Self.cameraAddress(CMIOObjectPropertySelector(kCMIODevicePropertyDeviceIsRunningSomewhere))
         // The device may be gone already, so the status is not checked.
-        CMIOObjectRemovePropertyListenerBlock(camera, &address, .main, listener)
+        CMIOObjectRemovePropertyListenerBlock(camera, &address, queue, listener)
     }
 
-    /// Stores a changed activity; an unchanged one is not assigned, so nothing observes it.
+    /// Reports a changed activity; an unchanged one is not reported.
     private func setActivity(_ updated: CaptureActivity) {
         guard updated != activity else {
             return
         }
         activity = updated
-        logger.debug(
-            "Microphone in use: \(updated.isMicrophoneInUse, privacy: .public), camera in use: \(updated.isCameraInUse, privacy: .public)"
-        )
+        report.yield(updated)
     }
 
     // MARK: Reading
 
     /// A failed read, with its status code.
-    private struct ReadError: Error {
+    private nonisolated struct ReadError: Error {
         let status: OSStatus
     }
 
-    /// A CoreAudio listener that runs on the main actor; the listeners are added on the main queue.
-    private nonisolated static func listener(_ action: @escaping @MainActor @Sendable () -> Void) -> AudioObjectPropertyListenerBlock {
-        { _, _ in
-            MainActor.assumeIsolated {
-                action()
+    /// A CoreAudio listener that runs isolated to the watcher; the listeners are added on its
+    /// queue.
+    private func listener(_ action: @escaping @Sendable (isolated CaptureWatcher27) -> Void) -> AudioObjectPropertyListenerBlock {
+        { [weak self] _, _ in
+            self?.assumeIsolated { watcher in
+                action(watcher)
             }
         }
     }
 
-    /// A CoreMediaIO listener that runs on the main actor; the listeners are added on the main queue.
-    private nonisolated static func cameraListener(_ action: @escaping @MainActor @Sendable () -> Void) -> CMIOObjectPropertyListenerBlock {
-        { _, _ in
-            MainActor.assumeIsolated {
-                action()
+    /// A CoreMediaIO listener that runs isolated to the watcher; the listeners are added on its
+    /// queue.
+    private func cameraListener(_ action: @escaping @Sendable (isolated CaptureWatcher27) -> Void) -> CMIOObjectPropertyListenerBlock {
+        { [weak self] _, _ in
+            self?.assumeIsolated { watcher in
+                action(watcher)
             }
         }
     }
 
-    private static func address(_ selector: AudioObjectPropertySelector) -> AudioObjectPropertyAddress {
+    private nonisolated static func address(_ selector: AudioObjectPropertySelector) -> AudioObjectPropertyAddress {
         AudioObjectPropertyAddress(
             mSelector: selector,
             mScope: AudioObjectPropertyScope(kAudioObjectPropertyScopeGlobal),
@@ -354,7 +452,7 @@ final class CaptureActivityMonitor27 {
         )
     }
 
-    private static func cameraAddress(_ selector: CMIOObjectPropertySelector) -> CMIOObjectPropertyAddress {
+    private nonisolated static func cameraAddress(_ selector: CMIOObjectPropertySelector) -> CMIOObjectPropertyAddress {
         CMIOObjectPropertyAddress(
             mSelector: selector,
             mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeGlobal),
@@ -363,7 +461,7 @@ final class CaptureActivityMonitor27 {
     }
 
     /// Reads a list of CoreAudio object identifiers.
-    private static func readObjectIDs(of object: AudioObjectID, selector: AudioObjectPropertySelector) -> Result<[AudioObjectID], ReadError> {
+    private nonisolated static func readObjectIDs(of object: AudioObjectID, selector: AudioObjectPropertySelector) -> Result<[AudioObjectID], ReadError> {
         var address = address(selector)
         var size: UInt32 = 0
         let sizeStatus = AudioObjectGetPropertyDataSize(object, &address, 0, nil, &size)
@@ -387,7 +485,7 @@ final class CaptureActivityMonitor27 {
     }
 
     /// Reads a 32-bit CoreAudio property.
-    private static func readUInt32(of object: AudioObjectID, selector: AudioObjectPropertySelector) -> Result<UInt32, ReadError> {
+    private nonisolated static func readUInt32(of object: AudioObjectID, selector: AudioObjectPropertySelector) -> Result<UInt32, ReadError> {
         var address = address(selector)
         var value: UInt32 = 0
         var size = UInt32(MemoryLayout<UInt32>.size)
@@ -396,7 +494,7 @@ final class CaptureActivityMonitor27 {
     }
 
     /// Reads the CoreMediaIO devices.
-    private static func readCameraIDs() -> Result<[CMIOObjectID], ReadError> {
+    private nonisolated static func readCameraIDs() -> Result<[CMIOObjectID], ReadError> {
         let system = CMIOObjectID(kCMIOObjectSystemObject)
         var address = cameraAddress(CMIOObjectPropertySelector(kCMIOHardwarePropertyDevices))
         var size: UInt32 = 0
@@ -422,7 +520,7 @@ final class CaptureActivityMonitor27 {
     }
 
     /// Reads whether a CoreMediaIO device runs in any process.
-    private static func readCameraIsRunning(_ camera: CMIOObjectID) -> Result<Bool, ReadError> {
+    private nonisolated static func readCameraIsRunning(_ camera: CMIOObjectID) -> Result<Bool, ReadError> {
         var address = cameraAddress(CMIOObjectPropertySelector(kCMIODevicePropertyDeviceIsRunningSomewhere))
         var value: UInt32 = 0
         var used: UInt32 = 0
