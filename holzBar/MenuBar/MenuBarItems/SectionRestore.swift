@@ -46,7 +46,7 @@ extension MenuBarItemManager {
         guard backend.canMoveItems else {
             return
         }
-        var stored = Defaults.dictionary(forKey: .itemSections) as? [String: Int] ?? [:]
+        var stored = storedSectionIndexes()
         for section in MenuBarSection.Name.allCases {
             for item in itemCache[section] where !item.isControlItem && !item.tag.namespace.isUUID {
                 stored[identityKey(for: item)] = section.profileIndex
@@ -61,7 +61,7 @@ extension MenuBarItemManager {
         guard !sections.isEmpty else {
             return
         }
-        var stored = Defaults.dictionary(forKey: .itemSections) as? [String: Int] ?? [:]
+        var stored = storedSectionIndexes()
         for (key, section) in sections {
             stored[key] = section.profileIndex
         }
@@ -90,14 +90,15 @@ extension MenuBarItemManager {
 
     /// The saved section of each identity key.
     private func savedSections() -> [String: MenuBarSection.Name] {
+        storedSectionIndexes().compactMapValues(MenuBarSection.Name.init(profileIndex:))
+    }
+
+    /// The saved section indexes under the keys they match today. A key of an earlier read
+    /// or version never outranks the current key it matches, and saving writes only these
+    /// keys, so a stale section cannot come back.
+    private func storedSectionIndexes() -> [String: Int] {
         let stored = Defaults.dictionary(forKey: .itemSections) as? [String: Int] ?? [:]
-        var sections = [String: MenuBarSection.Name]()
-        for (key, index) in stored {
-            if let section = MenuBarSection.Name(profileIndex: index) {
-                sections[storedIdentityKey(key)] = section
-            }
-        }
-        return sections
+        return ItemIdentity.storedValues(stored, titleChangingOwners: titleChangingOwners)
     }
 
     // MARK: Restoring

@@ -92,4 +92,15 @@ struct ItemIdentityTests {
             #expect(ItemIdentity.storedKey(key, titleChangingOwners: []) == key)
         }
     }
+
+    @Test("Stored values of stale keys never outrank the current key")
+    func storedValuesPreferCurrentKey() {
+        // The first run stored a canonical title; the app was later learned as title-changing.
+        let stored = ["a:Mon # Oct": 1, "a:#1": 0, "a:Mail 3": 2, "b:Sync 3": 1, "b:Sync 5": 2]
+        let values = ItemIdentity.storedValues(stored, titleChangingOwners: ["a"])
+        #expect(values == ["a:#1": 0, "b:Sync #": 1])
+        // Without the current key, the stale key that sorts first wins.
+        let stale = ItemIdentity.storedValues(["a:Mon # Oct": 1, "a:Mail 3": 2], titleChangingOwners: ["a"])
+        #expect(stale == ["a:#1": 2])
+    }
 }

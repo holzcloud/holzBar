@@ -124,6 +124,23 @@ nonisolated enum ItemIdentity {
         return baseKey(namespace: namespace, canonicalTitle: canonicalTitle(title))
     }
 
+    /// Returns the stored values keyed by the keys their stored keys match today
+    /// (``storedKey(_:titleChangingOwners:)``).
+    ///
+    /// When several stored keys match one key (a key of an earlier read or version next to
+    /// the current one), the value stored under exactly that key wins, else the one whose
+    /// stored key sorts first, so the choice is the same on every launch.
+    static func storedValues<Value>(_ stored: [String: Value], titleChangingOwners: Set<String>) -> [String: Value] {
+        var values = [String: Value]()
+        for (storedKey, value) in stored.sorted(by: { $0.key < $1.key }) {
+            let key = Self.storedKey(storedKey, titleChangingOwners: titleChangingOwners)
+            if storedKey == key || values[key] == nil {
+                values[key] = value
+            }
+        }
+        return values
+    }
+
     // MARK: Private
 
     /// Whether the title is an identifier rather than text: a letter followed by letters,
