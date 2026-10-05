@@ -186,8 +186,9 @@ final class LayoutBarContainer: NSView {
         // A move gives the item new bounds, so its view is replaced. The replacement, in this
         // row or the one the item moved to, takes over the keyboard focus.
         let router = LayoutBarRouter.shared
+        let cache = appState.itemManager.itemCache
         let focusedView = window?.firstResponder as? LayoutBarItemView
-        let focusedTag = focusedView?.item.tag ?? (window?.firstResponder === window ? router.lostFocusTag : nil)
+        let focusedTag = focusedView?.item.tag ?? (window?.firstResponder === window ? router.lostFocusTag(in: cache) : nil)
         let oldViews = arrangedViews
         var newViews = [LayoutBarItemView]()
         for item in items {
@@ -203,13 +204,13 @@ final class LayoutBarContainer: NSView {
             return
         }
         if let successor = newViews.first(where: { $0.item.tag == focusedTag }) {
-            router.lostFocusTag = nil
+            router.forgetLostFocus()
             if successor !== focusedView {
                 window?.makeFirstResponder(successor)
             }
         } else if let focusedView, oldViews.contains(focusedView) {
-            // The item left this row; the row that shows it next takes the focus.
-            router.lostFocusTag = focusedTag
+            // The item left this row; the row that shows it in the same cache takes the focus.
+            router.loseFocus(of: focusedTag, in: cache)
         }
     }
 
@@ -329,13 +330,36 @@ final class LayoutBarRouter {
     /// The containers by section.
     private var entries = [MenuBarSection.Name: Entry]()
 
-    /// The item whose view had the keyboard focus when a move took it out of its row,
-    /// until the row that shows it next gives the focus to its new view.
-    var lostFocusTag: MenuBarItemTag?
+    /// The item whose view had the keyboard focus when a cache change took it out of its
+    /// row, and that cache: the row that shows the item in the same cache gives the focus
+    /// to its new view. In a later cache the item has left the bar, so it is dropped.
+    private var lostFocus: (tag: MenuBarItemTag, cache: MenuBarItemManager.ItemCache)?
 
     /// Registers the container of a section.
     func register(_ container: LayoutBarContainer) {
         entries[container.section] = Entry(container: container)
+        // A new pane has no focus to hand over.
+        lostFocus = nil
+    }
+
+    /// Records that the focused view of an item left its row with the given cache.
+    func loseFocus(of tag: MenuBarItemTag, in cache: MenuBarItemManager.ItemCache) {
+        lostFocus = (tag, cache)
+    }
+
+    /// The item whose view lost the focus with the given cache; one of another cache is
+    /// forgotten.
+    func lostFocusTag(in cache: MenuBarItemManager.ItemCache) -> MenuBarItemTag? {
+        guard let lostFocus, lostFocus.cache == cache else {
+            lostFocus = nil
+            return nil
+        }
+        return lostFocus.tag
+    }
+
+    /// Forgets the item whose view lost the focus, once a new view has it.
+    func forgetLostFocus() {
+        lostFocus = nil
     }
 
     /// Puts every row back to the item cache, after a drag or a move that changed nothing:
