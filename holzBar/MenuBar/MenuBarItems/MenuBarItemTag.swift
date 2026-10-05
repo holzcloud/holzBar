@@ -29,8 +29,10 @@ nonisolated struct MenuBarItemTag: Hashable, CustomStringConvertible {
             // holzBar's assessment-mode assertion always keeps the numbered system items.
             return false
         }
+        // On macOS 26 an item's app is found from frames that apps report about themselves,
+        // so the capture indicators stay visible whichever app they are attributed to.
         return !MenuBarItemTag.nonHideableItems.contains(self) &&
-        !(namespace.isUUID && title == "AudioVideoModule")
+        !CaptureIndicatorItems.isIndicator(title: title)
     }
 
     /// A Boolean value that indicates whether the item identified
