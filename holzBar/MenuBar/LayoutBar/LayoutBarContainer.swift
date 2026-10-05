@@ -338,6 +338,17 @@ final class LayoutBarRouter {
         entries[container.section] = Entry(container: container)
     }
 
+    /// Puts every row back to the item cache, after a drag or a move that changed nothing:
+    /// a row may show the order of the drag, and frozen rows missed the cache's changes.
+    func showItemCache() {
+        for entry in entries.values {
+            guard let container = entry.container, let appState = container.appState else {
+                continue
+            }
+            container.setArrangedViews(items: appState.itemManager.itemCache[container.section])
+        }
+    }
+
     /// The rows on screen, top to bottom.
     private var rows: [LayoutBarContainer] {
         MenuBarSection.Name.allCases.compactMap { name in

@@ -82,13 +82,12 @@ final class LayoutBarPaddingView: NSView {
             let itemCache = appState.itemManager.itemCache
             if !item.isControlItem, itemCache.address(for: item.tag)?.section != container.section {
                 LayoutBarMoves.setSection(of: item, to: container.section, appState: appState)
-            } else {
-                // A drop that changes no section changes nothing on the bar, so the row
-                // goes back to the order macOS keeps.
-                container.canSetArrangedViews = true
-                container.setArrangedViews(items: itemCache[container.section])
+                return true
             }
-            return true
+            // A drop that changes no section changes nothing on the bar. It fails, and the
+            // end of the drag puts the rows back to the item cache, after the dragged view
+            // is back in a row (`draggingSession(_:endedAt:operation:)`).
+            return false
         }
 
         let item = draggingSource.item

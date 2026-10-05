@@ -522,18 +522,18 @@ extension LayoutBarItemView: NSDraggingSource {
 
     func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
         let sourceContainer = dragSourceContainer
-        let isDroppedOutside = !hasContainer
         defer {
             // always remove container info at the end of a session
             oldContainerInfo = nil
             appState?.profiles.isLayoutDragInProgress = false
-            // The source row follows the item cache again: after a drop the move's cache
-            // change updates it, and after a drop outside every row it catches up now with
-            // what changed during the drag.
+            // The source row follows the item cache again: after a drop that moves the item
+            // the move's cache change updates the rows. A drag that moved nothing (dropped
+            // outside every row, cancelled, or refused by the row) puts them back to the
+            // cache now, which may also have changed during the drag.
             dragSourceContainer = nil
             sourceContainer?.canSetArrangedViews = true
-            if isDroppedOutside, let appState, let sourceContainer {
-                sourceContainer.setArrangedViews(items: appState.itemManager.itemCache[sourceContainer.section])
+            if operation.isEmpty {
+                LayoutBarRouter.shared.showItemCache()
             }
         }
 
@@ -547,11 +547,15 @@ extension LayoutBarItemView: NSDraggingSource {
         // if the drop occurs outside of a container, reinsert the view into its original
         // container at its original index
         if !hasContainer {
-            guard let (container, index) = oldContainerInfo else {
+            // The row stays as it was during the drag, unless it was rebuilt meanwhile.
+            guard
+                let (container, index) = oldContainerInfo,
+                !container.arrangedViews.contains(where: { $0.item.tag == item.tag })
+            else {
                 return
             }
             container.shouldAnimateNextLayoutPass = false
-            container.arrangedViews.insert(self, at: index)
+            container.arrangedViews.insert(self, at: min(index, container.arrangedViews.count))
         }
     }
 }
