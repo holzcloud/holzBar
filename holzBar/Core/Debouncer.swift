@@ -51,6 +51,10 @@ final class Debouncer {
             } catch {
                 return
             }
+            // A sleep that had already finished does not throw when the task is cancelled.
+            guard !Task.isCancelled else {
+                return
+            }
             action()
         }
     }
@@ -83,7 +87,9 @@ final class Debouncer {
             } catch {
                 return
             }
-            guard let self else {
+            // A cancelled task is stale: `cancel()` cancels it before a newer task can
+            // start, and its sleep may have finished without throwing.
+            guard !Task.isCancelled, let self else {
                 return
             }
             let action = pendingAction
