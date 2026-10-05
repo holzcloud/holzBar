@@ -63,48 +63,57 @@ jobs:
       - name: Check the signature
         run: Scripts/check-signature.sh build/Build/Products/Release/holzBar.app
 
-      # The app connects to its embedded XPC service by MenuBarItemService.name; a mismatch
-      # silently breaks item discovery on macOS 26, which no CI test would otherwise notice.
+      # The app's identity (CLAUDE.md, "Naming"): a changed bundle identifier would lose every
+      # user's settings and permissions, and the URL scheme is how Shortcuts, Raycast and
+      # scripts reach holzBar. Each value is printed and must be exactly what users rely on.
       - name: Check the identifiers
         run: |
-          APP=build/Build/Products/Release/holzBar.app
-          SERVICE="$APP/Contents/XPCServices/MenuBarItemService.xpc"
-          APP_ID=$(plutil -extract CFBundleIdentifier raw -o - "$APP/Contents/Info.plist")
-          APP_NAME=$(plutil -extract CFBundleName raw -o - "$APP/Contents/Info.plist")
-          DISPLAY_NAME=$(plutil -extract CFBundleDisplayName raw -o - "$APP/Contents/Info.plist")
-          SERVICE_ID=$(plutil -extract CFBundleIdentifier raw -o - "$SERVICE/Contents/Info.plist")
-          URL_SCHEMES=$(plutil -extract CFBundleURLTypes.0.CFBundleURLSchemes json -o - "$APP/Contents/Info.plist")
-          SERVICE_NAME=$(sed -nE 's/^[[:space:]]*static let name = "([^"]+)".*/\1/p' Shared/Services/MenuBarItemService.swift)
+          PLIST=build/Build/Products/Release/holzBar.app/Contents/Info.plist
+          APP_ID=$(plutil -extract CFBundleIdentifier raw -o - "$PLIST")
+          APP_NAME=$(plutil -extract CFBundleName raw -o - "$PLIST")
+          DISPLAY_NAME=$(plutil -extract CFBundleDisplayName raw -o - "$PLIST")
+          URL_TYPES=$(plutil -extract CFBundleURLTypes json -o - "$PLIST" 2> /dev/null || true)
           echo "==> Identifiers"
           echo "app: $APP_ID"
           echo "name: $APP_NAME"
           echo "display name: $DISPLAY_NAME"
-          echo "service: $SERVICE_ID"
-          echo "URL schemes: $URL_SCHEMES"
-          if [ "$SERVICE_ID" != "$SERVICE_NAME" ]; then
-            echo "::error::The XPC service's bundle identifier ($SERVICE_ID) differs from MenuBarItemService.name ($SERVICE_NAME)"
-            exit 1
+          echo "URL types: ${URL_TYPES:-none}"
+          FAILED=0
+          if [ "$APP_ID" != com.holzcloud.holzBar ]; then
+            echo "::error::The bundle identifier is $APP_ID, not com.holzcloud.holzBar"
+            FAILED=1
           fi
-          if [ "$SERVICE_ID" != "$APP_ID.MenuBarItemService" ]; then
-            echo "::error::The XPC service's bundle identifier ($SERVICE_ID) is not the app's ($APP_ID) plus .MenuBarItemService"
-            exit 1
+          if [ "$APP_NAME" != holzBar ]; then
+            echo "::error::CFBundleName is $APP_NAME, not holzBar"
+            FAILED=1
           fi
+          if [ "$DISPLAY_NAME" != holzBar ]; then
+            echo "::error::CFBundleDisplayName is $DISPLAY_NAME, not holzBar"
+            FAILED=1
+          fi
+          if ! grep -q '"holzbar"' <<< "$URL_TYPES"; then
+            echo "::error::The app does not declare the URL scheme holzbar"
+            FAILED=1
+          fi
+          exit "$FAILED"
 
       # holzBar never connects to the network (CLAUDE.md, "Private"). The no-network job checks
-      # the sources; this step checks what was really built: neither executable may reference
-      # URLSession, NSURLConnection, WKWebView, Network connections, listeners or browsers, or
-      # BSD sockets, link WebKit, or carry a network entitlement. NWPathMonitor (the "Reveal
-      # when offline" rule) only observes whether a network path exists, so its symbols pass.
+      # the sources; this step checks what was really built: no executable in the app may
+      # reference URLSession, NSURLConnection, WKWebView, Network connections, listeners or
+      # browsers, or BSD sockets, or link WebKit. "Check the signature" already rejects every
+      # entitlement, network ones included. NWPathMonitor (the "Reveal when offline" rule)
+      # only observes whether a network path exists, so its symbols pass.
       - name: Check the binaries for network code
         run: |
           APP=build/Build/Products/Release/holzBar.app
-          SERVICE="$APP/Contents/XPCServices/MenuBarItemService.xpc"
           # A regular expression: the $ signs are meant literally, not as shell expansions.
           # shellcheck disable=SC2016
           PATTERN='_OBJC_CLASS_\$_(NSURLSession|NSURLConnection|WKWebView)|Foundation\.URLSession|Network\.NW(Connection|Listener|Browser)|_nw_(connection|listener|browser)_|(^|[^A-Za-z0-9_])_(socket|connect|getaddrinfo)( |$)'
           FAILED=0
-          for BIN in "$APP/Contents/MacOS/holzBar" "$SERVICE/Contents/MacOS/MenuBarItemService"; do
-            NAME=$(basename "$BIN")
+          COUNT=0
+          while IFS= read -r -d '' BIN; do
+            NAME="${BIN#"$APP"/}"
+            COUNT=$((COUNT + 1))
             HITS=$(nm -um "$BIN" | xcrun swift-demangle | grep -E "$PATTERN" || true)
             if [ -n "$HITS" ]; then
               echo "$HITS"
@@ -115,17 +124,15 @@ jobs:
               echo "::error::$NAME links WebKit"
               FAILED=1
             fi
-          done
-          for BUNDLE in "$APP" "$SERVICE"; do
-            if codesign -d --entitlements - --xml "$BUNDLE" 2>/dev/null | grep -q 'com.apple.security.network'; then
-              echo "::error::$(basename "$BUNDLE") carries a network entitlement"
-              FAILED=1
-            fi
-          done
+          done < <(find "$APP" -type f \( -path '*/Contents/MacOS/*' -o -name '*.dylib' \) -print0)
+          if [ "$COUNT" -eq 0 ]; then
+            echo "::error::No executable found in $APP"
+            FAILED=1
+          fi
           if [ "$FAILED" -ne 0 ]; then
             exit 1
           fi
-          echo "==> No network code in the binaries"
+          echo "==> No network code in the $COUNT executables of the app"
 
       # Every license text shown under Settings, About, Acknowledgements must be in the app.
       # holzBar links no package since 05.1, so there may be no license file at all.
@@ -206,7 +213,8 @@ jobs:
         run: |
           sw_vers
           APP="$PWD/holzBar.app"
-          chmod +x "$APP/Contents/MacOS/holzBar" "$APP/Contents/XPCServices/MenuBarItemService.xpc/Contents/MacOS/MenuBarItemService"
+          # upload-artifact keeps no file modes: make every executable in the app executable again.
+          find "$APP" -type f -path '*/Contents/MacOS/*' -exec chmod +x {} +
           echo "==> Minimum macOS: $(vtool -show-build "$APP/Contents/MacOS/holzBar" | awk '/minos/ {print $2; exit}')"
           "$APP/Contents/MacOS/holzBar" > launch.log 2>&1 &
           PID=$!
