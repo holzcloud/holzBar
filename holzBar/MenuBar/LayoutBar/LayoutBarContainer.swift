@@ -183,6 +183,12 @@ final class LayoutBarContainer: NSView {
             arrangedViews.removeAll()
             return
         }
+        // A move gives the item new bounds, so its view is replaced. The replacement, in this
+        // row or the one the item moved to, takes over the keyboard focus.
+        let router = LayoutBarRouter.shared
+        let focusedView = window?.firstResponder as? LayoutBarItemView
+        let focusedTag = focusedView?.item.tag ?? (window?.firstResponder === window ? router.lostFocusTag : nil)
+        let oldViews = arrangedViews
         var newViews = [LayoutBarItemView]()
         for item in items {
             if let existingView = arrangedViews.first(where: { $0.item == item }) {
@@ -193,6 +199,18 @@ final class LayoutBarContainer: NSView {
             }
         }
         arrangedViews = newViews
+        guard let focusedTag else {
+            return
+        }
+        if let successor = newViews.first(where: { $0.item.tag == focusedTag }) {
+            router.lostFocusTag = nil
+            if successor !== focusedView {
+                window?.makeFirstResponder(successor)
+            }
+        } else if let focusedView, oldViews.contains(focusedView) {
+            // The item left this row; the row that shows it next takes the focus.
+            router.lostFocusTag = focusedTag
+        }
     }
 
     /// Updates the positions of the container's arranged views using the
@@ -310,6 +328,10 @@ final class LayoutBarRouter {
 
     /// The containers by section.
     private var entries = [MenuBarSection.Name: Entry]()
+
+    /// The item whose view had the keyboard focus when a move took it out of its row,
+    /// until the row that shows it next gives the focus to its new view.
+    var lostFocusTag: MenuBarItemTag?
 
     /// Registers the container of a section.
     func register(_ container: LayoutBarContainer) {
