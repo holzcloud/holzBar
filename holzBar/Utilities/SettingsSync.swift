@@ -4,6 +4,7 @@
 //
 
 import AppKit
+import IOKit
 import Observation
 import os
 import OSLog
@@ -68,6 +69,14 @@ final class SettingsSync {
     /// How long the launch waits for the sync file.
     private nonisolated static let launchReadTimeout = DispatchTimeInterval.seconds(1)
 
+    /// The key of the salt of the hardware hash (``deviceHashKey``).
+    private static let deviceSaltKey = "SettingsSyncDeviceSalt"
+
+    /// The key of the salted hash of the hardware UUID of the Mac the sync id belongs to
+    /// (`SettingsSyncDevice.hardwareHash(of:salt:)`). Like the id, it is never exported,
+    /// imported, synced or logged.
+    private static let deviceHashKey = "SettingsSyncDeviceHash"
+
     /// The id this Mac writes into the sync file, created once and kept in this Mac's
     /// defaults.
     static var deviceID: String {
@@ -77,6 +86,54 @@ final class SettingsSync {
         let deviceID = UUID().uuidString
         UserDefaults.standard.set(deviceID, forKey: deviceIDKey)
         return deviceID
+    }
+
+    /// Gives this Mac a new sync id when its defaults were copied from another Mac, by
+    /// Migration Assistant, a restore or a clone (F-38).
+    ///
+    /// Two Macs with the same id take each other's files for their own and ignore each
+    /// other's changes. A Mac with another Mac's defaults also forgets when it last synced,
+    /// and joins the sync folder again. The first time, the id is replaced once as well, as
+    /// it may already be shared, but the date of the last sync is kept.
+    static func verifyDeviceIdentity() {
+        let defaults = UserDefaults.standard
+        let hardwareID = hardwareUUID()
+        let identity = SettingsSyncDevice.identity(
+            storedHash: defaults.string(forKey: deviceHashKey),
+            salt: defaults.data(forKey: deviceSaltKey),
+            hardwareID: hardwareID
+        )
+        switch identity {
+        case .same, .unknown:
+            return
+        case .firstSeen:
+            logger.notice("Gave this Mac a new sync id")
+        case .otherMac:
+            defaults.removeObject(forKey: lastSyncedKey)
+            defaults.removeObject(forKey: baseKey)
+            defaults.removeObject(forKey: pendingKey)
+            logger.notice("This Mac's settings come from another Mac; it joins the sync folder again")
+        }
+        if let hardwareID {
+            let salt = SettingsSyncDevice.makeSalt()
+            defaults.set(salt, forKey: deviceSaltKey)
+            defaults.set(SettingsSyncDevice.hardwareHash(of: hardwareID, salt: salt), forKey: deviceHashKey)
+        }
+        defaults.set(UUID().uuidString, forKey: deviceIDKey)
+    }
+
+    /// This Mac's hardware UUID, read from the I/O Registry. It never leaves this Mac and
+    /// is never stored; only its salted hash is.
+    private static func hardwareUUID() -> String? {
+        let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOPlatformExpertDevice"))
+        guard service != IO_OBJECT_NULL else {
+            return nil
+        }
+        defer {
+            IOObjectRelease(service)
+        }
+        return IORegistryEntryCreateCFProperty(service, kIOPlatformUUIDKey as CFString, kCFAllocatorDefault, 0)?
+            .takeRetainedValue() as? String
     }
 
     /// This Mac's computer name, read from the system configuration without a network
@@ -459,6 +516,7 @@ final class SettingsSync {
         guard panel.runModal() == .OK, let url = panel.url else {
             return false
         }
+        Self.verifyDeviceIdentity()
         let join = JoinRequest(folderURL: url, window: window)
         // A join ignores the previous folder's state: this Mac has not synced with the
         // chosen folder yet.
@@ -1031,7 +1089,11 @@ final class SettingsSync {
     /// never writes the file and never asks: when both Macs changed their settings, the
     /// version is remembered and the check after setup asks.
     static func pullIfNeeded() {
-        guard Defaults.bool(forKey: .syncsSettingsWithICloud), let fileURL else {
+        guard Defaults.bool(forKey: .syncsSettingsWithICloud) else {
+            return
+        }
+        verifyDeviceIdentity()
+        guard let fileURL else {
             return
         }
         guard let read = readForLaunch(at: fileURL) else {

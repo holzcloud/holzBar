@@ -35,4 +35,52 @@ struct SettingsSyncDeviceTests {
         #expect(!SettingsSyncDevice.isFromThisMac(file: unnamed, deviceID: thisMac, computerName: nil))
         #expect(!SettingsSyncDevice.isFromThisMac(file: unnamed, deviceID: thisMac, computerName: ""))
     }
+
+    @Test("The same Mac keeps its identity")
+    func sameMac() {
+        let salt = SettingsSyncDevice.makeSalt()
+        let hash = SettingsSyncDevice.hardwareHash(of: "A", salt: salt)
+        #expect(SettingsSyncDevice.identity(storedHash: hash, salt: salt, hardwareID: "A") == .same)
+    }
+
+    @Test("Defaults copied from another Mac are recognised")
+    func copiedDefaults() {
+        let salt = SettingsSyncDevice.makeSalt()
+        let hash = SettingsSyncDevice.hardwareHash(of: "A", salt: salt)
+        #expect(SettingsSyncDevice.identity(storedHash: hash, salt: salt, hardwareID: "B") == .otherMac)
+    }
+
+    @Test("Without a stored hash the Mac is seen for the first time")
+    func firstSeen() {
+        let salt = SettingsSyncDevice.makeSalt()
+        #expect(SettingsSyncDevice.identity(storedHash: nil, salt: nil, hardwareID: "A") == .firstSeen)
+        #expect(SettingsSyncDevice.identity(storedHash: nil, salt: salt, hardwareID: "A") == .firstSeen)
+        #expect(SettingsSyncDevice.identity(storedHash: "hash", salt: nil, hardwareID: "A") == .firstSeen)
+    }
+
+    @Test("Without a hardware id nothing is decided")
+    func unknownHardware() {
+        let salt = SettingsSyncDevice.makeSalt()
+        #expect(SettingsSyncDevice.identity(storedHash: "hash", salt: salt, hardwareID: nil) == .unknown)
+        #expect(SettingsSyncDevice.identity(storedHash: nil, salt: nil, hardwareID: nil) == .unknown)
+    }
+
+    @Test("The hardware hash is salted hexadecimal")
+    func hardwareHashFormat() {
+        let salt = Data(repeating: 1, count: 32)
+        let hash = SettingsSyncDevice.hardwareHash(of: thisMac, salt: salt)
+        #expect(hash.count == 64)
+        #expect(hash.allSatisfy { "0123456789abcdef".contains($0) })
+        #expect(hash == SettingsSyncDevice.hardwareHash(of: thisMac, salt: salt))
+        #expect(hash != SettingsSyncDevice.hardwareHash(of: thisMac, salt: Data(repeating: 2, count: 32)))
+        #expect(hash != SettingsSyncDevice.hardwareHash(of: otherMac, salt: salt))
+    }
+
+    @Test("Salts are 32 random bytes")
+    func salts() {
+        let first = SettingsSyncDevice.makeSalt()
+        let second = SettingsSyncDevice.makeSalt()
+        #expect(first.count == 32)
+        #expect(first != second)
+    }
 }
