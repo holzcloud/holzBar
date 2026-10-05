@@ -59,6 +59,10 @@ final class ServiceBackend26: MenuBarBackend {
         await windowList.itemListSignature()
     }
 
+    func itemListRefreshSkipped() {
+        windowList.itemListRefreshSkipped()
+    }
+
     func cacheFromLayout(
         items: [MenuBarItem],
         displayID: CGDirectDisplayID?,

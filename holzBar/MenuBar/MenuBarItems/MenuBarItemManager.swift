@@ -607,6 +607,8 @@ extension MenuBarItemManager {
         let signature = await backend.itemListSignature()
         if await cacheActor.cachedItemWindowIDs != signature {
             await cacheItemsRegardless(signature)
+        } else {
+            backend.itemListRefreshSkipped()
         }
     }
 }

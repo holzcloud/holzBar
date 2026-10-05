@@ -43,6 +43,10 @@ protocol MenuBarBackend: AnyObject {
     /// A value that changes whenever the items on the active space change.
     func itemListSignature() async -> [CGWindowID]
 
+    /// Called when a refresh found the item list unchanged and did not rebuild the cache,
+    /// so work that rides on the refreshes can run anyway.
+    func itemListRefreshSkipped()
+
     /// Builds the item cache from the saved layout, or returns `nil` where the order
     /// of the items on the bar decides their sections.
     func cacheFromLayout(
