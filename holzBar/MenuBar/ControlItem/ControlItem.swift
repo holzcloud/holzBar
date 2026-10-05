@@ -76,6 +76,8 @@ final class ControlItem {
 
             self.statusItem = NSStatusBar.system.statusItem(withLength: 0)
             self.statusItem.autosaveName = controlItem.identifier.rawValue
+            // On macOS 26, holzBar recognises its own items' windows by their frames.
+            OwnStatusItemWindows.register(statusItem, for: controlItem.identifier)
 
             if let button = statusItem.button {
                 // This could break in a new macOS release, but we need this constraint in order to
@@ -308,7 +310,6 @@ final class ControlItem {
     /// Records the item's new window and follows its frame and screen.
     private func windowDidChange(_ newWindow: NSWindow?) {
         window = newWindow
-        OwnStatusItemWindows.set(newWindow?.windowNumber, for: self)
         windowObservations.removeAll()
         guard let newWindow else {
             return

@@ -33,9 +33,22 @@ final class ServiceBackend26: MenuBarBackend {
     }
 
     /// The item windows, each with the process the item service names as its source.
+    ///
+    /// holzBar's own control items are recognised by their frames instead
+    /// (``OwnStatusItemWindows``), all of them before the first lookup suspends, so
+    /// holzBar's frames cannot change while the windows are matched. Control Center may
+    /// lag behind them, updating its windows only a moment after an item changes its
+    /// length or moves to another display, so a list read in between may not match until
+    /// the next read.
     func items(on display: CGDirectDisplayID?, option: MenuBarItem.ListOption) async -> [MenuBarItem] {
+        let windows = MenuBarItem.getMenuBarItemWindows(on: display, option: option)
+        let controlItems = OwnStatusItemWindows.controlItems(forWindowBounds: windows.map(\.bounds))
         var items = [MenuBarItem]()
-        for window in MenuBarItem.getMenuBarItemWindows(on: display, option: option) {
+        for (window, controlItem) in zip(windows, controlItems) {
+            if let controlItem {
+                items.append(MenuBarItem(uncheckedItemWindow: window, controlItem: controlItem))
+                continue
+            }
             let sourcePID = await MenuBarItemService.Connection.shared.sourcePID(for: window)
             items.append(MenuBarItem(uncheckedItemWindow: window, sourcePID: sourcePID))
         }
