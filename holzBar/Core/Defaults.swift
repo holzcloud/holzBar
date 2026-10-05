@@ -211,6 +211,11 @@ nonisolated extension Defaults {
         /// `defaults write com.holzcloud.holzBar DebugDropsBarrierExitEvent -bool true`.
         /// Never exported, imported or synced.
         case debugDropsBarrierExitEvent = "DebugDropsBarrierExitEvent"
+        /// Blocks every item image capture before macOS 27 forever, so each one times out;
+        /// shows that holzBar recovers from a stuck capture and stops capturing after three.
+        /// Hidden: `defaults write com.holzcloud.holzBar DebugHangsItemImageCapture -bool true`.
+        /// Never exported, imported or synced.
+        case debugHangsItemImageCapture = "DebugHangsItemImageCapture"
 
         // MARK: Migration
         case hasMigrated0_8_0 = "hasMigrated0_8_0"
@@ -274,6 +279,7 @@ nonisolated extension Defaults.Key {
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
             .debugDropsBarrierExitEvent,
+            .debugHangsItemImageCapture,
             .hasMigrated0_8_0,
             .hasMigrated0_10_0,
             .hasMigrated0_10_1,
@@ -386,7 +392,11 @@ nonisolated extension Defaults.Key {
     /// Turning settings sync on writes the settings to a folder outside this Mac, so only
     /// the user turns it on, on each Mac; a settings file cannot. Debug defaults stay on
     /// this Mac too.
-    static let localOnlyKeys: Set<Defaults.Key> = [.syncsSettingsWithICloud, .debugDropsBarrierExitEvent]
+    static let localOnlyKeys: Set<Defaults.Key> = [
+        .syncsSettingsWithICloud,
+        .debugDropsBarrierExitEvent,
+        .debugHangsItemImageCapture,
+    ]
 
     /// The stored key names an imported or synced settings file may set, with the
     /// kind of value each one takes. Every key except the ``localOnlyKeys``.
