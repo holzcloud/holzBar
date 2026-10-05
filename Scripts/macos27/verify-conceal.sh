@@ -48,7 +48,15 @@ start_holzbar() {
 }
 # Leave holzBar running, the way the run found it. A run that ended with holzBar down left the
 # machine concealing nothing, and whatever was looked at next showed nothing worth seeing.
+#
+# The capture loop is stopped first: run in the background, it ignores the Ctrl-C that ends
+# the script, and kept saving pictures of the menu bar until it was killed.
 restore() {
+    touch "$WORK/stop" 2>/dev/null || true
+    if [ -n "${CAPTURE:-}" ]; then
+        kill "$CAPTURE" 2>/dev/null || true
+        wait "$CAPTURE" 2>/dev/null || true
+    fi
     quit_holzbar
     defaults write com.holzcloud.holzBar UseIceBar -bool "$ORIGINAL_SHELF"
     defaults write com.holzcloud.holzBar ShowOnHover -bool "$ORIGINAL_HOVER"
@@ -102,5 +110,10 @@ check "always-hidden items stay hidden while revealed" "[ $REVEALED -gt $((ALL_V
 # always-hidden item that flashes moves the edge by a whole item, at least 24 pt.
 check "always-hidden items never flash in $CYCLES cycles" "[ $LOWEST -ge $((REVEALED - 10)) ]"
 check "every item returns when holzBar quits" "[ $AFTER_QUIT -ge $((ALL_VISIBLE - 3)) ] && [ $AFTER_QUIT -le $((ALL_VISIBLE + 3)) ]"
-echo "frames: $WORK"
+# The frames show the menu bar, so they are kept only to look into a failure.
+if [ "$FAILED" -eq 0 ]; then
+    rm -rf "${WORK:?}"
+else
+    echo "frames: $WORK"
+fi
 exit $FAILED
