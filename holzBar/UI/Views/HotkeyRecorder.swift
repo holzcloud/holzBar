@@ -189,6 +189,11 @@ private final class HotkeyRecorderModel {
         guard let self else {
             return event
         }
+        // While the alert for a problem is shown, it gets the key presses
+        // (Return, Escape), and recording resumes once it is dismissed.
+        guard presentedProblem == nil else {
+            return event
+        }
         handleKeyDown(event: event)
         return nil
     }
