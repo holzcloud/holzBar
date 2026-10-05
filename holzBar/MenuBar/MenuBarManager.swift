@@ -236,6 +236,22 @@ final class MenuBarManager {
         }
     }
 
+    /// Whether the application menus may be hidden for shown items.
+    ///
+    /// Not if:
+    ///   * The "HideApplicationMenus" setting isn't enabled.
+    ///   * Using the holzBar Shelf.
+    ///   * The menu bar is hidden by the system.
+    ///   * The active space is fullscreen.
+    ///   * The settings window is visible.
+    private func canHideApplicationMenus(appState: AppState) -> Bool {
+        appState.settings.advanced.hideApplicationMenus &&
+        !appState.settings.general.usesShelf &&
+        !isMenuBarHiddenBySystem &&
+        !appState.activeSpace.isFullscreen &&
+        !appState.navigationState.isSettingsPresented
+    }
+
     /// Hides or shows the application menus after a section was shown or hidden.
     private func sectionStatesDidChange() {
         guard let appState else {
@@ -249,19 +265,7 @@ final class MenuBarManager {
             return
         }
 
-        // Don't continue if:
-        //   * The "HideApplicationMenus" setting isn't enabled.
-        //   * Using the holzBar Shelf.
-        //   * The menu bar is hidden by the system.
-        //   * The active space is fullscreen.
-        //   * The settings window is visible.
-        guard
-            appState.settings.advanced.hideApplicationMenus,
-            !appState.settings.general.usesShelf,
-            !isMenuBarHiddenBySystem,
-            !appState.activeSpace.isFullscreen,
-            !appState.navigationState.isSettingsPresented
-        else {
+        guard canHideApplicationMenus(appState: appState) else {
             return
         }
 
@@ -279,8 +283,12 @@ final class MenuBarManager {
                 // Get all items.
                 var items = await MenuBarItem.getMenuBarItems(on: screen.displayID, option: .activeSpace)
 
-                // The sections may have been hidden again during the lookup.
-                guard self.sections.contains(where: { $0.controlItem.state == .showSection }) else {
+                // The sections may have been hidden again, or Settings opened or the
+                // setting turned off, during the lookup.
+                guard
+                    self.canHideApplicationMenus(appState: appState),
+                    self.sections.contains(where: { $0.controlItem.state == .showSection })
+                else {
                     return
                 }
 
