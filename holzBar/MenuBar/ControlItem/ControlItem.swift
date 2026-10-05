@@ -488,8 +488,11 @@ final class ControlItem {
         }
     }
 
-    /// Shows or hides the dot over holzBar's icon, with a tooltip and an accessibility label
+    /// Shows or hides the dot over holzBar's icon, with a tooltip and an accessibility value
     /// that say what is in use.
+    ///
+    /// The accessibility label stays holzBar's name, so VoiceOver still names the control that
+    /// shows and hides items and reads what is in use as its value.
     ///
     /// The status item's length never changes for the dot, so the bar does not reflow on
     /// macOS 27.
@@ -500,6 +503,7 @@ final class ControlItem {
                 captureDot = nil
                 button.toolTip = nil
                 button.setAccessibilityLabel(nil)
+                button.setAccessibilityValue(nil)
             }
             return
         }
@@ -516,7 +520,8 @@ final class ControlItem {
         case .cameraAndMicrophone: String(localized: "Camera and microphone in use")
         }
         button.toolTip = description
-        button.setAccessibilityLabel(description)
+        button.setAccessibilityLabel(Constants.displayName)
+        button.setAccessibilityValue(description)
     }
 
     /// Places the capture dot at the top trailing corner of the drawn icon, overlapping it.
