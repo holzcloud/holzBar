@@ -7,8 +7,8 @@
 #
 #   network  No networking API appears in holzBar/, Shared/, MenuBarItemService/
 #            or Package.swift (except the lines .github/network-allowlist.txt
-#            allows), and every resolved Swift package is listed in
-#            .github/allowed-packages.txt.
+#            allows), and every Swift package the Xcode project references or
+#            Package.resolved pins is listed in .github/allowed-packages.txt.
 #   logs     Every interpolation in a Logger call names its privacy, and no
 #            interpolation makes personal data (item tags, bundle identifiers,
 #            app and profile names, errors) public.
@@ -32,6 +32,14 @@ SOURCE_DIRS = ("holzBar", "Shared", "MenuBarItemService")
 NETWORK_ALLOWLIST = ".github/network-allowlist.txt"
 ALLOWED_PACKAGES = ".github/allowed-packages.txt"
 PACKAGE_RESOLVED = "holzBar.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+PROJECT = "holzBar.xcodeproj/project.pbxproj"
+
+# A Swift package reference in the Xcode project, and the URL or path it names. The
+# project is an old-style property list: keys and values may be quoted, in any order.
+PACKAGE_REFERENCE = re.compile(
+    r'"?\bisa"?\s*=\s*"?(?:XCRemoteSwiftPackageReference|XCLocalSwiftPackageReference)"?\s*;'
+)
+PACKAGE_LOCATION = re.compile(r'"?\b(?:repositoryURL|relativePath)"?\s*=\s*("[^"]*"|[^;\s]+)\s*;')
 
 # Networking APIs, each with a short name for the message.
 NETWORK_PATTERNS = [
@@ -127,6 +135,31 @@ def line_of(text, offset):
     return text.count("\n", 0, offset) + 1
 
 
+def enclosing_object(text, offset):
+    """Returns the innermost { ... } of the property list `text` around `offset`."""
+    depth = 0
+    start = offset
+    while start > 0:
+        start -= 1
+        if text[start] == "}":
+            depth += 1
+        elif text[start] == "{":
+            if depth == 0:
+                break
+            depth -= 1
+    depth = 0
+    end = offset
+    while end < len(text):
+        if text[end] == "{":
+            depth += 1
+        elif text[end] == "}":
+            if depth == 0:
+                break
+            depth -= 1
+        end += 1
+    return text[start:end + 1]
+
+
 def normalized_location(location):
     location = location.strip().lower().rstrip("/")
     if location.endswith(".git"):
@@ -163,9 +196,28 @@ def check_network(root):
             annotate("Package.swift", line_of(text, offset), "Package.swift must not depend on a package")
             violations += 1
 
+    allowed = {normalized_location(entry) for entry in read_list(root, ALLOWED_PACKAGES)}
     resolved = os.path.join(root, PACKAGE_RESOLVED)
+
+    # xcodebuild resolves a project's packages by itself when Package.resolved is missing,
+    # so the project's own references are checked too, and need the pins to be committed.
+    if os.path.exists(os.path.join(root, PROJECT)):
+        text = read_text(root, PROJECT)
+        for match in PACKAGE_REFERENCE.finditer(text):
+            number = line_of(text, match.start())
+            locations = [
+                normalized_location(value.strip('"'))
+                for value in PACKAGE_LOCATION.findall(enclosing_object(text, match.start()))
+            ]
+            for location in locations or ["(no URL or path)"]:
+                if location not in allowed:
+                    annotate(PROJECT, number, f"Package {location} is not in {ALLOWED_PACKAGES}")
+                    violations += 1
+            if not os.path.exists(resolved):
+                annotate(PROJECT, number, f"A package is referenced without a committed {PACKAGE_RESOLVED}")
+                violations += 1
+
     if os.path.exists(resolved):
-        allowed = {normalized_location(entry) for entry in read_list(root, ALLOWED_PACKAGES)}
         with open(resolved, encoding="utf-8") as file:
             pins = json.load(file).get("pins", [])
         for pin in pins:
