@@ -34,8 +34,10 @@ click on the Mac waited for these calls.
     `kAXUIElementDestroyedNotification` too unless the first call returned `.cannotComplete`.
   - Back on the main actor, the run-loop source is added to `CFRunLoopGetMain()` only if
     the pid is still wanted and has no observer yet. Otherwise the observer is dropped.
-  - A pending set prevents duplicate registrations. A generation counter makes
-    `removeAll()` discard registrations still in flight.
+  - A pending set prevents duplicate registrations. A result for a process that is no
+    longer wanted, or already observed, is dropped before its source is added. The
+    backend is never torn down, so the unused `removeAll()` and its generation counter
+    were removed (review AXO-R3).
   - Now `@preconcurrency import ApplicationServices`.
 - New `holzBar/MenuBar/MacOS27/Core/ObserverRegistrationSchedule27.swift`: a pure value
   type modelled on `AccessibilityScanSchedule27`. It takes a plain outcome enum
@@ -103,7 +105,7 @@ bar items, for up to 12 s. Neither queue is `MenuBarItemProvider27.queue`.
 
 - `appcheck.sh` (whole app module, Swift 6, macOS 26.5 SDK): ERRORS: 0.
 - `servicecheck.sh`: SERVICE EXIT: 0.
-- `swift test`: 272 + 142 + 6 tests passed. SwiftPM's Swift Build sometimes reports
+- `swift test`: 273 + 142 + 6 tests passed (after the review fix-ups). SwiftPM's Swift Build sometimes reports
   "plugin for module 'TestingMacros' not found" for `SharedCodeSigningTests`. That happens
   on an untouched HEAD copy too, and the run passes when repeated.
 - `swiftlint lint --strict --quiet`: no output, exit 0.

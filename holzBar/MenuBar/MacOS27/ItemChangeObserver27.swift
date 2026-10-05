@@ -57,9 +57,6 @@ final class ItemChangeObserver27 {
     /// When failed registrations are tried again.
     private var schedule = ObserverRegistrationSchedule27()
 
-    /// Counts ``removeAll()`` calls, so registrations under way before one are discarded.
-    private var generation = 0
-
     /// Observes exactly the given processes: adds observers for new owners and removes
     /// those of processes that own no items any more or have quit.
     func observe(owners pids: Set<pid_t>) {
@@ -87,32 +84,19 @@ final class ItemChangeObserver27 {
         }
     }
 
-    /// Removes every observer and discards the registrations under way.
-    func removeAll() {
-        generation += 1
-        pending.removeAll()
-        wanted.removeAll()
-        for pid in observers.keys {
-            removeObserver(for: pid)
-        }
-    }
-
     /// Registers an observer for the process off the main thread and adds it when it is
     /// still wanted.
     private func register(_ pid: pid_t) {
         pending.insert(pid)
-        let generation = generation
         Task { [weak self] in
             let registration = await Self.makeObserver(for: pid)
-            self?.finish(registration, for: pid, generation: generation)
+            self?.finish(registration, for: pid)
         }
     }
 
-    private func finish(_ registration: Registration, for pid: pid_t, generation: Int) {
-        // After `removeAll()` the result is dropped, and the observer with it.
-        guard generation == self.generation else {
-            return
-        }
+    /// Adds the observer, unless the process is no longer wanted or already observed; then
+    /// the observer is dropped, and its source was never added.
+    private func finish(_ registration: Registration, for pid: pid_t) {
         pending.remove(pid)
         schedule.record(registration.outcome, for: pid, now: ProcessInfo.processInfo.systemUptime)
         guard let observer = registration.observer, wanted.contains(pid), observers[pid] == nil else {
