@@ -33,6 +33,12 @@ final class Concealer27 {
     /// (measured on macOS 27.0: about 250 ms, with a margin here).
     private static let settleAfterChange = Duration.milliseconds(400)
 
+    /// Failed applies in a row, each answered by one more try a moment later.
+    @ObservationIgnored private var failedApplies = 0
+
+    /// How many times in a row a failed apply is tried again.
+    private static let maximumApplyRetries = 3
+
     /// Applications shown for a moment, with the number of callers showing each.
     @ObservationIgnored private var temporarilyShown = [String: Int]()
     /// Observers of the active space and the Settings pane.
@@ -240,12 +246,14 @@ final class Concealer27 {
         })
         lastChangeAt = .now
         let previous = applyTask
-        let task = Task { [controller, logger] in
+        let task = Task { [weak self, controller, logger] in
             await previous?.value
             do {
                 try await controller.apply(target: target, running: running)
+                self?.failedApplies = 0
             } catch {
                 logger.error("Could not apply concealment: \(error, privacy: .private)")
+                self?.retryAfterFailedApply()
             }
         }
         applyTask = task
@@ -259,6 +267,22 @@ final class Concealer27 {
             await self?.checkStuckOverflow()
             await self?.checkNotchCover()
             await self?.checkOwnIcon()
+        }
+    }
+
+    /// Tries a failed apply again a moment later, a few times in a row.
+    ///
+    /// `isConcealing` and `concealedPIDs` already describe the concealment that failed, and
+    /// hit-testing, captures and the click bridge rely on them; MenuBarAgent can reject an
+    /// assertion or time out while it is busy, after login or wake.
+    private func retryAfterFailedApply() {
+        guard failedApplies < Self.maximumApplyRetries else {
+            return
+        }
+        failedApplies += 1
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            self?.update()
         }
     }
 
