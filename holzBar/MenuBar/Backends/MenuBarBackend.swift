@@ -13,8 +13,8 @@ import Cocoa
 /// branching on the macOS version themselves:
 ///
 /// - ``WindowListBackend``: macOS 14 and 15, the window list and posted events.
-/// - ``ServiceBackend26``: macOS 26, the window list with source processes from the
-///   menu bar item service.
+/// - ``ServiceBackend26``: macOS 26, the window list with source processes looked up
+///   through Accessibility (``SourcePIDCache``).
 /// - ``AccessibilityBackend27``: macOS 27, Accessibility; items cannot be moved.
 @MainActor
 protocol MenuBarBackend: AnyObject {

@@ -35,7 +35,7 @@ final class AccessibilityBackend27: MenuBarBackend {
     var lastMoveOperationTimestamp: ContinuousClock.Instant? { nil }
 
     /// There are no item windows: bounds come from Accessibility, and the owning
-    /// process is known directly, without the item service.
+    /// process is known directly, without a source-PID lookup.
     func performSetup() async {
         Bridging.setSyntheticWindowBoundsProvider { MenuBarItemProvider27.currentBounds(for: $0) }
     }

@@ -8,9 +8,9 @@ import Cocoa
 /// The menu bar backend of macOS 26.
 ///
 /// The items are still windows, but Control Center owns every one of them. The
-/// process that created an item comes from the menu bar item service, which asks
-/// Accessibility in the XPC service. Everything else works as on macOS 14 and 15,
-/// so the window-list backend does it.
+/// process that created an item is looked up in holzBar through Accessibility, on
+/// the cache's own queue (``SourcePIDCache``). Everything else works as on macOS 14
+/// and 15, so the window-list backend does it.
 @available(macOS 26.0, *)
 @MainActor
 final class ServiceBackend26: MenuBarBackend {
@@ -27,12 +27,12 @@ final class ServiceBackend26: MenuBarBackend {
 
     var lastMoveOperationTimestamp: ContinuousClock.Instant? { windowList.lastMoveOperationTimestamp }
 
-    /// Starts the menu bar item service.
+    /// Starts the source-PID cache.
     func performSetup() async {
-        await MenuBarItemService.Connection.shared.start()
+        await SourcePIDCache.shared.start()
     }
 
-    /// The item windows, each with the process the item service names as its source.
+    /// The item windows, each with the source process that Accessibility names for it.
     ///
     /// holzBar's own control items are recognised by their frames instead
     /// (``OwnStatusItemWindows``), all of them before the first lookup suspends, so
@@ -49,7 +49,7 @@ final class ServiceBackend26: MenuBarBackend {
                 items.append(MenuBarItem(uncheckedItemWindow: window, controlItem: controlItem))
                 continue
             }
-            let sourcePID = await MenuBarItemService.Connection.shared.sourcePID(for: window)
+            let sourcePID = await SourcePIDCache.shared.pid(for: window)
             items.append(MenuBarItem(uncheckedItemWindow: window, sourcePID: sourcePID))
         }
         return items

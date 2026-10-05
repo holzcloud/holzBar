@@ -11,13 +11,13 @@ import Foundation
 /// - Before macOS 26, every item is a WindowServer window, owned by the process
 ///   that created it: the window list says everything.
 /// - On macOS 26, Control Center owns every item window, so the process behind an
-///   item comes from the menu bar item service (Accessibility, in the XPC service).
+///   item is looked up through Accessibility, in the app.
 /// - From macOS 27, MenuBarAgent draws the items without windows; they are read,
 ///   hit tested and clicked through Accessibility, and they cannot be moved.
 nonisolated enum MenuBarBackendKind: Equatable, Sendable {
     /// macOS 14 and 15: the window list.
     case windowList
-    /// macOS 26: the window list, with source processes from the item service.
+    /// macOS 26: the window list, with source processes looked up through Accessibility.
     case service26
     /// macOS 27 and later: Accessibility.
     case accessibility27

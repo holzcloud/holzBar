@@ -5,7 +5,7 @@
 
 @preconcurrency import ApplicationServices
 import Cocoa
-import os
+import OSLog
 
 /// A cache for the source process identifiers for menu bar item windows.
 ///
@@ -16,14 +16,21 @@ import os
 /// the Control Center.
 ///
 /// We can find what we need using the Accessibility API, but doing it
-/// efficiently ends up being a fairly complex process. Since calls to
-/// Accessibility are thread blocking, we do most of the heavy lifting
-/// in a dedicated XPC service, which we then call asynchronously from
-/// the main app.
+/// efficiently ends up being a fairly complex process:
 ///
-/// The cache is used from one queue at a time (the service's, or the app's
-/// fallback queue), and its state is behind a lock.
-nonisolated final class SourcePIDCache: Sendable {
+/// - Accessibility calls block their thread, so the cache is an actor whose
+///   executor is its own serial dispatch queue. Scans never run on the main
+///   thread or on the Swift concurrency pool.
+/// - A scan asks holzBar's own process too (its group and spacer items), and
+///   AppKit answers that on the main thread. Callers on the main actor must
+///   therefore be suspended, not blocked: holzBar 0.0.6 waited synchronously
+///   for such a lookup, both sides waited until Accessibility gave up, and the
+///   layout settings and the Shelf stayed on "Loading menu bar items…".
+/// - Earlier versions ran this lookup in a helper process nested in the app
+///   bundle. Code nested in the bundle runs with holzBar's Accessibility and
+///   Screen Recording permission and could be swapped in a copy of the app,
+///   so holzBar ships none.
+actor SourcePIDCache {
     /// An object that contains a running application and provides an
     /// interface to access relevant information, such as its process
     /// identifier and extras menu bar.
@@ -95,197 +102,184 @@ nonisolated final class SourcePIDCache: Sendable {
         let launchingApps: [CachedApplication]
     }
 
-    /// State for the cache.
-    nonisolated private struct State {
-        var apps = [CachedApplication]()
-        var pids = [CGWindowID: pid_t]()
-        /// Windows whose source process was not found by a scan. A miss is not scanned
-        /// again for ``SourcePIDCache/failedLookupInterval``, or until an app the scan
-        /// skipped has finished launching: every scan asks every running app through
-        /// Accessibility (jordanbaird/Ice#911). Starts empty whenever the running
-        /// applications change, as a new app may own the window.
-        var failedLookups = [CGWindowID: FailedLookup]()
-        /// Observer for running applications.
-        var observation: NSKeyValueObservation?
-
-        /// Returns the latest bounds of the given window after ensuring
-        /// that the bounds are stable (a.k.a. not currently changing).
-        ///
-        /// This method blocks until stable bounds can be determined, or
-        /// until retrieving the bounds for the window fails.
-        private func stableBounds(for window: WindowInfo) -> CGRect? {
-            var cachedBounds = window.bounds
-
-            for n in 1...5 {
-                guard let currentBounds = window.currentBounds() else {
-                    // Failure here means the window probably doesn't
-                    // exist anymore.
-                    return nil
-                }
-                if currentBounds == cachedBounds {
-                    return currentBounds
-                }
-                cachedBounds = currentBounds
-                // Compute the sleep interval from the current attempt.
-                Thread.sleep(forTimeInterval: TimeInterval(n) / 100)
-            }
-
-            return nil
-        }
-
-        /// Reorders the cached apps so that those that are confirmed
-        /// to have an extras menu bar are first in the array.
-        private mutating func partitionApps() {
-            var lhs = [CachedApplication]()
-            var rhs = [CachedApplication]()
-
-            for app in apps {
-                if app.hasExtrasMenuBar {
-                    lhs.append(app)
-                } else {
-                    rhs.append(app)
-                }
-            }
-
-            apps = lhs + rhs
-        }
-
-        /// Updates the cached process identifier for the given window.
-        ///
-        /// - Returns: The apps the scan skipped because they had not finished
-        ///   launching, or `nil` if no scan ran.
-        mutating func updatePID(for window: WindowInfo) -> [CachedApplication]? {
-            guard
-                AXHelpers.isProcessTrusted(),
-                let windowBounds = stableBounds(for: window)
-            else {
-                return nil
-            }
-
-            partitionApps()
-
-            var launchingApps = [CachedApplication]()
-
-            for app in apps {
-                guard let bar = app.getOrCreateExtrasMenuBar() else {
-                    if !app.isFinishedLaunching {
-                        launchingApps.append(app)
-                    }
-                    continue
-                }
-                for child in AXHelpers.children(for: bar) {
-                    guard AXHelpers.isEnabled(child) else {
-                        continue
-                    }
-                    guard
-                        let childFrame = AXHelpers.frame(for: child),
-                        childFrame.center.distance(to: windowBounds.center) <= 1
-                    else {
-                        continue
-                    }
-                    pids[window.windowID] = app.processIdentifier
-                    return launchingApps
-                }
-            }
-
-            return launchingApps
-        }
-    }
-
     /// The shared cache.
-    static let shared = SourcePIDCache()
+    nonisolated static let shared = SourcePIDCache()
 
     /// How long a window whose source process was not found is not scanned again.
     static let failedLookupInterval = Duration.seconds(30)
 
-    /// The cache's protected state. It holds Accessibility elements and running
-    /// applications, which are not marked `Sendable`, so it is only touched
-    /// inside the lock.
-    private let state = OSAllocatedUnfairLock(uncheckedState: State())
+    /// The queue that runs the cache, and with it every blocking Accessibility call
+    /// of a scan.
+    private let queue: DispatchSerialQueue
+
+    nonisolated var unownedExecutor: UnownedSerialExecutor {
+        queue.asUnownedSerialExecutor()
+    }
+
+    private let logger = Logger(category: "SourcePIDCache")
+
+    private var apps = [CachedApplication]()
+
+    private var pids = [CGWindowID: pid_t]()
+
+    /// Windows whose source process was not found by a scan. A miss is not scanned
+    /// again for ``failedLookupInterval``, or until an app the scan skipped has
+    /// finished launching: every scan asks every running app through Accessibility
+    /// (jordanbaird/Ice#911). Starts empty whenever the running applications change,
+    /// as a new app may own the window.
+    private var failedLookups = [CGWindowID: FailedLookup]()
+
+    /// Observer for running applications.
+    private var observation: NSKeyValueObservation?
 
     /// Creates the shared cache.
     private init() {
+        queue = DispatchSerialQueue(label: "com.holzcloud.holzBar.SourcePIDCache", qos: .userInitiated)
         Bridging.setProcessUnresponsiveTimeout(3)
     }
 
     /// Starts the observers for the cache.
     func start() {
-        Logger.default.debug("Starting observers for source PID cache")
-        let isObserving = state.withLockUnchecked { $0.observation != nil }
-        guard !isObserving else {
+        guard observation == nil else {
             return
         }
-        let observation = NSWorkspace.shared.observe(\.runningApplications, options: [.initial, .new]) { [weak self] workspace, _ in
-            self?.update(runningApps: workspace.runningApplications)
+        logger.debug("Starting observers for source PID cache")
+        // AppKit delivers the change on the main thread. The handler only hands it to
+        // the cache's queue: it must never wait there while a scan asks holzBar itself.
+        observation = NSWorkspace.shared.observe(\.runningApplications, options: [.new]) { @Sendable [weak self] _, _ in
+            Task {
+                await self?.runningApplicationsDidChange()
+            }
         }
-        state.withLockUnchecked { $0.observation = observation }
+        runningApplicationsDidChange()
     }
 
     /// Brings the cache in line with the running applications.
-    private func update(runningApps: [NSRunningApplication]) {
-        Logger.default.debug("Received new running applications")
+    ///
+    /// Reads the running applications itself, which AppKit allows from any thread, so
+    /// the order in which the observer's tasks arrive does not matter.
+    private func runningApplicationsDidChange() {
+        logger.debug("Received new running applications")
 
+        let runningApps = NSWorkspace.shared.runningApplications
         let windowIDs = Bridging.getMenuBarWindowList(option: .itemsOnly)
+        let runningPIDs = Set(runningApps.map(\.processIdentifier))
 
-        state.withLockUnchecked { state in
-            // Convert the cached state to dictionaries keyed by pid to
-            // allow for efficient repeated access.
-            let appMappings = state.apps.reduce(into: [:]) { result, app in
-                result[app.processIdentifier] = app
-            }
-            let pidMappings: [pid_t: [CGWindowID: pid_t]] = windowIDs.reduce(into: [:]) { result, windowID in
-                if let pid = state.pids[windowID] {
-                    result[pid, default: [:]][windowID] = pid
-                }
-            }
-
-            // Create a new state that matches the current running apps.
-            let observation = state.observation
-            state = runningApps.reduce(into: State(observation: observation)) { result, app in
-                let pid = app.processIdentifier
-
-                if let app = appMappings[pid] {
-                    // Prefer the cached app, as it may have already done
-                    // the work to initialize its extras menu bar.
-                    result.apps.append(app)
-                } else {
-                    // App wasn't in the cache, so it must be new.
-                    result.apps.append(CachedApplication(app))
-                }
-
-                if let pids = pidMappings[pid] {
-                    result.pids.merge(pids) { (_, new) in new }
-                }
+        // Prefer the cached apps, as they may have already done the work to
+        // initialize their extras menu bars.
+        let cachedApps = Dictionary(apps.map { ($0.processIdentifier, $0) }) { first, _ in first }
+        apps = runningApps.map { cachedApps[$0.processIdentifier] ?? CachedApplication($0) }
+        pids = windowIDs.reduce(into: [:]) { result, windowID in
+            if let pid = pids[windowID], runningPIDs.contains(pid) {
+                result[windowID] = pid
             }
         }
+        failedLookups.removeAll()
+    }
+
+    /// Returns the latest bounds of the given window after ensuring
+    /// that the bounds are stable (a.k.a. not currently changing).
+    ///
+    /// This method blocks until stable bounds can be determined, or
+    /// until retrieving the bounds for the window fails.
+    private func stableBounds(for window: WindowInfo) -> CGRect? {
+        var cachedBounds = window.bounds
+
+        for n in 1...5 {
+            guard let currentBounds = window.currentBounds() else {
+                // Failure here means the window probably doesn't
+                // exist anymore.
+                return nil
+            }
+            if currentBounds == cachedBounds {
+                return currentBounds
+            }
+            cachedBounds = currentBounds
+            // Compute the sleep interval from the current attempt.
+            Thread.sleep(forTimeInterval: TimeInterval(n) / 100)
+        }
+
+        return nil
+    }
+
+    /// Reorders the cached apps so that those that are confirmed
+    /// to have an extras menu bar are first in the array.
+    private func partitionApps() {
+        apps = apps.filter(\.hasExtrasMenuBar) + apps.filter { !$0.hasExtrasMenuBar }
+    }
+
+    /// Updates the cached process identifier for the given window.
+    ///
+    /// - Returns: The apps the scan skipped because they had not finished
+    ///   launching, or `nil` if no scan ran.
+    private func updatePID(for window: WindowInfo) -> [CachedApplication]? {
+        guard
+            AXHelpers.isProcessTrusted(),
+            let windowBounds = stableBounds(for: window)
+        else {
+            return nil
+        }
+
+        partitionApps()
+
+        var launchingApps = [CachedApplication]()
+
+        for app in apps {
+            guard let bar = app.getOrCreateExtrasMenuBar() else {
+                if !app.isFinishedLaunching {
+                    launchingApps.append(app)
+                }
+                continue
+            }
+            for child in AXHelpers.children(for: bar) {
+                guard AXHelpers.isEnabled(child) else {
+                    continue
+                }
+                guard
+                    let childFrame = AXHelpers.frame(for: child),
+                    childFrame.center.distance(to: windowBounds.center) <= 1
+                else {
+                    continue
+                }
+                pids[window.windowID] = app.processIdentifier
+                return launchingApps
+            }
+        }
+
+        return launchingApps
     }
 
     /// Returns the cached process identifier for the given window,
     /// updating the cache if needed.
+    ///
+    /// Starts the cache if nothing has yet, so an item read before the backend's
+    /// setup still works.
     func pid(for window: WindowInfo) -> pid_t? {
-        state.withLockUnchecked { state in
-            if let pid = state.pids[window.windowID] {
-                return pid
-            }
-            let now = ContinuousClock.now
-            if
-                let failure = state.failedLookups[window.windowID],
-                failure.failedAt.duration(to: now) < Self.failedLookupInterval,
-                !failure.launchingApps.contains(where: \.isFinishedLaunching)
-            {
-                return nil
-            }
-            // Only a scan that ran records a miss; one that could not run (no
-            // permission, bounds still changing) is retried on the next lookup.
-            guard let launchingApps = state.updatePID(for: window) else {
-                return nil
-            }
-            guard let pid = state.pids[window.windowID] else {
-                state.failedLookups[window.windowID] = FailedLookup(failedAt: now, launchingApps: launchingApps)
-                return nil
-            }
-            state.failedLookups[window.windowID] = nil
+        if observation == nil {
+            start()
+        }
+        dispatchPrecondition(condition: .onQueue(queue))
+        if let pid = pids[window.windowID] {
             return pid
         }
+        let now = ContinuousClock.now
+        if
+            let failure = failedLookups[window.windowID],
+            failure.failedAt.duration(to: now) < Self.failedLookupInterval,
+            !failure.launchingApps.contains(where: \.isFinishedLaunching)
+        {
+            return nil
+        }
+        // Only a scan that ran records a miss; one that could not run (no
+        // permission, bounds still changing) is retried on the next lookup.
+        guard let launchingApps = updatePID(for: window) else {
+            return nil
+        }
+        guard let pid = pids[window.windowID] else {
+            failedLookups[window.windowID] = FailedLookup(failedAt: now, launchingApps: launchingApps)
+            return nil
+        }
+        failedLookups[window.windowID] = nil
+        return pid
     }
 }

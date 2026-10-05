@@ -9,7 +9,7 @@ struct MenuBarBackendKindTests {
         #expect(MenuBarBackendKind(majorVersion: 15) == .windowList)
     }
 
-    @Test("macOS 26 uses the item service")
+    @Test("macOS 26 uses the window list with source processes from Accessibility")
     func service26() {
         #expect(MenuBarBackendKind(majorVersion: 26) == .service26)
     }

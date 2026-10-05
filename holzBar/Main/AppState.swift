@@ -151,7 +151,7 @@ final class AppState {
         applicationMenuFrames.performSetup()
         menuBarManager.performSetup(with: self)
 
-        // The item service on macOS 26, the synthetic bounds on macOS 27.
+        // The source-PID cache on macOS 26, the synthetic bounds on macOS 27.
         await MenuBarBackends.current.performSetup()
 
         appearanceManager.performSetup(with: self)
