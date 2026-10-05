@@ -65,8 +65,11 @@ final class ItemImageStore27 {
     /// How long the images just captured stand before the bar is worth capturing again.
     private static let captureFreshness = Duration.milliseconds(700)
 
-    /// Observes switches between light and dark; cancelled with the store.
-    private var appearanceTask: Task<Void, Never>?
+    /// Observes switches between light and dark; invalidated with the store.
+    private var appearanceObservation: NSKeyValueObservation?
+
+    /// Whether the glyphs are drawn for a dark appearance, so only a real switch discards them.
+    private var glyphsAreDark = ItemImageStore27.isDarkAppearance()
 
     init() {
         // A one-time move of the images earlier versions kept in Application Support.
@@ -88,17 +91,23 @@ final class ItemImageStore27 {
             index = stored
         }
         // Glyphs are stored in the colour that suits the current appearance, so a switch
-        // between light and dark needs them captured again.
-        appearanceTask = Task { [weak self] in
-            let center = DistributedNotificationCenter.default()
-            for await _ in center.notifications(named: DistributedNotificationCenter.interfaceThemeChangedNotification) {
-                self?.discardImages()
+        // between light and dark needs them captured again. The app's own appearance is
+        // observed rather than the theme notification, which any process can post.
+        appearanceObservation = NSApp.observe(\.effectiveAppearance, options: [.new]) { [weak self] _, _ in
+            Task { @MainActor in
+                self?.appearanceDidChange()
             }
         }
     }
 
-    deinit {
-        appearanceTask?.cancel()
+    /// Discards the images when the appearance switched between light and dark.
+    private func appearanceDidChange() {
+        let isDark = Self.isDarkAppearance()
+        guard isDark != glyphsAreDark else {
+            return
+        }
+        glyphsAreDark = isDark
+        discardImages()
     }
 
     /// Drops every stored image, so they are captured again.
@@ -314,8 +323,12 @@ final class ItemImageStore27 {
     /// The colour glyphs are drawn in, which is the readable one on the flat background
     /// the holzBar Shelf and the layout window use.
     private static func glyphColor() -> (r: UInt8, g: UInt8, b: UInt8) {
-        let isDark = NSApp.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
-        return isDark ? (255, 255, 255) : (0, 0, 0)
+        isDarkAppearance() ? (255, 255, 255) : (0, 0, 0)
+    }
+
+    /// Whether the app is drawn in a dark appearance.
+    private static func isDarkAppearance() -> Bool {
+        NSApp.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
     }
 
     /// The image's pixels, four bytes each, as the image rules expect them.
