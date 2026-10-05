@@ -52,7 +52,7 @@ final class MenuBarItemEventPoster {
         let deadline = ContinuousClock.now + .seconds(5)
         while !Self.hasUserPausedInput(for: .milliseconds(50)) {
             guard ContinuousClock.now < deadline else {
-                logger.debug("Timed out waiting for the user to pause input")
+                logger.notice("Timed out waiting for the user to pause input")
                 throw EventError.userInputNotPaused
             }
             do {
