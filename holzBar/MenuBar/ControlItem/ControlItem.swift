@@ -537,14 +537,25 @@ final class ControlItem {
         case .leftMouseDown:
             let modifierFlags = NSEvent.heldModifierFlags
 
+            if modifierFlags == .control {
+                // Shown from a run loop block, not from a task: the menu's tracking loop
+                // inside a main-actor job would hold back every other main-actor job while
+                // the menu is open, on macOS 27 clicks on the clock, battery, Wi-Fi and
+                // Control Centre among them (F-14). The common modes include the button's
+                // own mouse tracking, so the menu opens on the click as before.
+                RunLoop.main.perform(inModes: [.common]) { [weak self] in
+                    MainActor.assumeIsolated {
+                        self?.showMenu()
+                    }
+                }
+                // A block added to a run loop does not wake it up by itself.
+                CFRunLoopWakeUp(CFRunLoopGetMain())
+                return
+            }
+
             // Running this from a Task seems to improve the visual
             // responsiveness of the status item's button.
             Task {
-                if modifierFlags == .control {
-                    showMenu()
-                    return
-                }
-
                 if
                     modifierFlags == .option,
                     let section = menuBarManager.section(withName: .alwaysHidden),
