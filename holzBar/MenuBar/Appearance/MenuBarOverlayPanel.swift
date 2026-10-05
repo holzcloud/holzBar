@@ -640,6 +640,14 @@ private final class MenuBarOverlayPanelContentView: NSView {
         configureObservers()
     }
 
+    /// A dynamic appearance switches its configuration with light/dark mode, which
+    /// changes neither stored configuration: add or remove the glass and redraw here.
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        needsDisplay = true
+        updateGlassView()
+    }
+
     private func configureObservers() {
         observers.removeAll()
 

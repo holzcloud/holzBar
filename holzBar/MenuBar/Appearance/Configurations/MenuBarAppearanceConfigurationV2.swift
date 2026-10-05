@@ -202,6 +202,13 @@ enum MenuBarBlackBackground: Int, Codable, CaseIterable, Identifiable {
 
     var id: Int { rawValue }
 
+    /// Decodes a black background setting; one this version does not know (from a newer
+    /// version or a damaged file) reads as off instead of failing the whole appearance.
+    init(from decoder: any Decoder) throws {
+        let rawValue = try decoder.singleValueContainer().decode(Int.self)
+        self = MenuBarBlackBackground(rawValue: rawValue) ?? .off
+    }
+
     /// Localized string key representation.
     var localized: LocalizedStringKey {
         switch self {
