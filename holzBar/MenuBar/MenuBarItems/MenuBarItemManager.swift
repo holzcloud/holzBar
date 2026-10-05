@@ -288,8 +288,9 @@ extension MenuBarItemManager {
         }
 
         /// Inserts the given menu bar item into the cache at the specified
-        /// destination.
-        mutating func insert(_ item: MenuBarItem, at destination: MoveDestination) {
+        /// destination, or at the edge of `fallbackSection` next to holzBar's divider when
+        /// the destination's target item is gone.
+        mutating func insert(_ item: MenuBarItem, at destination: MoveDestination, orIn fallbackSection: MenuBarSection.Name) {
             let targetTag = destination.targetItem.tag
 
             if targetTag == .hiddenControlItem {
@@ -313,6 +314,11 @@ extension MenuBarItemManager {
             }
 
             guard case (let section, var index)? = address(for: targetTag) else {
+                if fallbackSection == .visible {
+                    self[.visible].insert(item, at: 0)
+                } else {
+                    self[fallbackSection].append(item)
+                }
                 return
             }
 
@@ -351,7 +357,7 @@ extension MenuBarItemManager {
         let controlItems: ControlItemPair
 
         var cache: ItemCache
-        var temporarilyShownItems = [(MenuBarItem, MoveDestination)]()
+        var temporarilyShownItems = [(MenuBarItem, MoveDestination, MenuBarSection.Name)]()
         var shouldClearCachedItemWindowIDs = false
 
         private(set) lazy var hiddenControlItemBounds = bestBounds(for: controlItems.hidden)
@@ -422,7 +428,7 @@ extension MenuBarItemManager {
                 // Cache temporarily shown items as if they were in their original locations.
                 // Keep track of them separately and use their return destinations to insert
                 // them into the cache once all other items have been handled.
-                context.temporarilyShownItems.append((item, temp.returnDestination))
+                context.temporarilyShownItems.append((item, temp.returnDestination, temp.returnSection))
                 continue
             }
 
@@ -435,8 +441,8 @@ extension MenuBarItemManager {
             context.shouldClearCachedItemWindowIDs = true
         }
 
-        for (item, destination) in context.temporarilyShownItems {
-            context.cache.insert(item, at: destination)
+        for (item, destination, section) in context.temporarilyShownItems {
+            context.cache.insert(item, at: destination, orIn: section)
         }
 
         if context.shouldClearCachedItemWindowIDs {
@@ -766,8 +772,15 @@ extension MenuBarItemManager {
         /// The item's identity key (`ItemIdentity`).
         let identityKey: String
 
-        /// The destination to return the item to.
+        /// The destination to return the item to, as it was when the item was shown.
         let returnDestination: MoveDestination
+
+        /// The identity key of the destination's target item (`ItemIdentity`).
+        let returnTargetIdentityKey: String
+
+        /// The section the item was shown from, which it returns to when the destination's
+        /// target item is gone.
+        let returnSection: MenuBarSection.Name
 
         /// The window of the item's shown interface.
         var shownInterfaceWindow: WindowInfo?
@@ -796,11 +809,20 @@ extension MenuBarItemManager {
             )
         }
 
-        init(tag: MenuBarItemTag, windowID: CGWindowID, identityKey: String, returnDestination: MoveDestination) {
+        init(
+            tag: MenuBarItemTag,
+            windowID: CGWindowID,
+            identityKey: String,
+            returnDestination: MoveDestination,
+            returnTargetIdentityKey: String,
+            returnSection: MenuBarSection.Name
+        ) {
             self.tag = tag
             self.windowID = windowID
             self.identityKey = identityKey
             self.returnDestination = returnDestination
+            self.returnTargetIdentityKey = returnTargetIdentityKey
+            self.returnSection = returnSection
         }
 
         /// Whether the context belongs to the given item: the same window, or the same tag.
@@ -822,6 +844,43 @@ extension MenuBarItemManager {
             return .rightOfItem(items[index - 1])
         }
         return nil
+    }
+
+    /// Resolves the destination to return the item of the given context to from the
+    /// current items.
+    ///
+    /// The target item is found again by its window, its tag or its identity key, as it
+    /// may have been re-created while the item was shown. When it is gone, the item returns
+    /// to the edge of its section next to holzBar's divider; the stored target's window no
+    /// longer has bounds, so moving to it failed on every attempt.
+    private func resolveReturnDestination(
+        for context: TemporarilyShownItemContext,
+        in items: [MenuBarItem],
+        keys: [CGWindowID: String]
+    ) -> MoveDestination? {
+        let target = context.returnDestination.targetItem
+        let resolved = items.first { $0.windowID == target.windowID }
+            ?? items.first { $0.tag == target.tag }
+            ?? items.first { keys[$0.windowID] == context.returnTargetIdentityKey }
+        if let resolved {
+            switch context.returnDestination {
+            case .leftOfItem:
+                return .leftOfItem(resolved)
+            case .rightOfItem:
+                return .rightOfItem(resolved)
+            }
+        }
+        guard let hiddenControlItem = items.first(matching: .hiddenControlItem) else {
+            return nil
+        }
+        switch context.returnSection {
+        case .visible:
+            return .rightOfItem(hiddenControlItem)
+        case .hidden:
+            return .leftOfItem(hiddenControlItem)
+        case .alwaysHidden:
+            return .leftOfItem(items.first(matching: .alwaysHiddenControlItem) ?? hiddenControlItem)
+        }
     }
 
     /// Schedules a timer for the given interval that rehides the
@@ -922,7 +981,9 @@ extension MenuBarItemManager {
             tag: item.tag,
             windowID: item.windowID,
             identityKey: identityKey(for: item),
-            returnDestination: destination
+            returnDestination: destination,
+            returnTargetIdentityKey: identityKey(for: destination.targetItem),
+            returnSection: itemCache.address(for: item.tag)?.section ?? .hidden
         )
         temporarilyShownItemContexts.append(context)
 
@@ -1028,8 +1089,14 @@ extension MenuBarItemManager {
             guard let item else {
                 continue
             }
+            guard let destination = resolveReturnDestination(for: context, in: items, keys: keys) else {
+                // The dividers were not read; the next attempt reads the items again.
+                logger.warning("No return destination for \(item.logString, privacy: .private(mask: .hash))")
+                failedContexts.append(context)
+                continue
+            }
             do {
-                try await move(item: item, to: context.returnDestination)
+                try await move(item: item, to: destination)
             } catch EventError.automaticMovesPaused {
                 // Paused during the rehide: the rest waits for the next settle or user move.
                 failedContexts.append(context)
