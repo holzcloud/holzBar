@@ -160,6 +160,8 @@ nonisolated extension Defaults {
         case rehideStrategy = "RehideStrategy"
         case rehideInterval = "RehideInterval"
         case itemSpacingOffset = "ItemSpacingOffset"
+        /// macOS 27: a dot on holzBar's icon while another app uses the microphone or a camera.
+        case holzBarIconShowsCaptureDot = "HolzBarIconShowsCaptureDot"
 
         // MARK: Hotkeys Settings
         case hotkeys = "Hotkeys"
@@ -269,6 +271,7 @@ nonisolated extension Defaults.Key {
             .showOnHover,
             .showOnScroll,
             .autoRehide,
+            .holzBarIconShowsCaptureDot,
             .enableAlwaysHiddenSection,
             .showAllSectionsOnUserDrag,
             .hideApplicationMenus,

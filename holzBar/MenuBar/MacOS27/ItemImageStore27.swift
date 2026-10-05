@@ -34,8 +34,10 @@ final class ItemImageStore27 {
     /// of the bar over the tile, which showed as a pale box behind the glyph; version 6
     /// spaced the glyphs more tightly than the menu bar does; version 7 could not give a
     /// glyph its full margin when the capture ended right at the glyph's edge; version 8
-    /// could store a tile cut while the bar was re-laying out.
-    private static let storeVersion = "9"
+    /// could store a tile cut while the bar was re-laying out; version 9 could hold another
+    /// item's glyph for an application photographed while the change that showed it was still
+    /// on its way.
+    private static let storeVersion = "10"
 
     /// What `version.txt` holds: the version, and the appearance the glyphs are tinted for,
     /// so glyphs kept from a session in the other appearance are not loaded.
@@ -205,7 +207,9 @@ final class ItemImageStore27 {
         let generation = imageGeneration
         // The bar animates for about 250 ms after concealment changes. A capture taken then
         // photographs items in mid-slide, which are thrown away as unsettled anyway, and adds
-        // its own load at the moment the animation can least afford it.
+        // its own load at the moment the animation can least afford it. A change still on its
+        // way to MenuBarAgent has not even begun to move the bar, so it is waited for first.
+        await appState.concealer27.waitForPendingApplies()
         if let remaining = appState.concealer27.timeUntilSettled() {
             try? await Task.sleep(for: remaining)
         }
@@ -324,14 +328,20 @@ final class ItemImageStore27 {
         // built-in bar and macOS folded nine of them into its own overflow, where they cannot
         // be photographed at all. Revealed in a burst without waiting, they were caught
         // mid-fade instead: the concealment applies behind them were still landing a second
-        // and a half later, long after the capture judged the bar settled.
+        // and a half later, long after the capture judged the bar settled. So each application
+        // is captured once its show has landed, not on a timer; until then its item's frame is
+        // where it was last drawn, and another item may stand there.
         for bundleID in bundleIDs.sorted().prefix(Self.photographsPerPass) {
-            appState.concealer27.showTemporarily(bundleID: bundleID)
-            // A shown item is drawn 0.4–0.6 s after its application is allowed (measured).
-            try? await Task.sleep(for: .milliseconds(600))
-            // Forced: this capture is the point of having shown the application at all, so it
-            // must not be answered by one taken before the item appeared.
-            await captureActiveMenuBar(appState: appState, force: true)
+            let shown = await appState.concealer27.showTemporarily(bundleID: bundleID)
+            if shown {
+                // A shown item is drawn 0.4–0.6 s after the change that allows it lands (measured).
+                try? await Task.sleep(for: .milliseconds(600))
+                // Forced: this capture is the point of having shown the application at all, so
+                // it must not be answered by one taken before the item appeared.
+                await captureActiveMenuBar(appState: appState, force: true)
+            } else {
+                logger.debug("Photographing an item skipped, its application was not shown in time")
+            }
             appState.concealer27.endTemporaryShow(bundleID: bundleID)
             // Only an application that came away with an image counts as photographed. One
             // whose tile was refused, or whose item macOS folded away, would otherwise wait
@@ -339,7 +349,7 @@ final class ItemImageStore27 {
             photoSchedule.recordAttempt(
                 bundleID: bundleID,
                 now: ProcessInfo.processInfo.systemUptime,
-                stored: hasImage(forBundleID: bundleID)
+                stored: shown && hasImage(forBundleID: bundleID)
             )
         }
     }

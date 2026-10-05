@@ -106,6 +106,37 @@ final class AppState {
         return concealer
     }
 
+    /// Storage for ``captureActivityMonitor27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var captureActivityMonitor27Storage: AnyObject?
+
+    /// Follows whether another app uses the microphone or a camera on macOS 27.
+    @available(macOS 27.0, *)
+    var captureActivityMonitor27: CaptureActivityMonitor27 {
+        if let monitor = captureActivityMonitor27Storage as? CaptureActivityMonitor27 {
+            return monitor
+        }
+        let monitor = CaptureActivityMonitor27()
+        captureActivityMonitor27Storage = monitor
+        return monitor
+    }
+
+    /// What holzBar's icon shows while another app records on macOS 27, where Control Centre's
+    /// indicator is not drawn while holzBar hides items.
+    ///
+    /// Reads only observed state and has no early return, so an observation started before the
+    /// monitor's setup still follows every input. Follows concealment through the suspensions
+    /// of a bridged click, so the badge and the icon carrying it stay while a system item opens.
+    @available(macOS 27.0, *)
+    var captureBadge27: CaptureBadge? {
+        let activity = captureActivityMonitor27.activity
+        return CaptureIndicator.badge(
+            isEnabled: settings.general.holzBarIconShowsCaptureDot,
+            isConcealing: concealer27.concealsThroughSuspensions,
+            isMicrophoneInUse: activity.isMicrophoneInUse,
+            isCameraInUse: activity.isCameraInUse
+        )
+    }
+
     /// Storage for ``itemImageStore27``, typed loosely so the property exists on every macOS.
     @ObservationIgnored private var itemImageStore27Storage: AnyObject?
 
@@ -170,6 +201,10 @@ final class AppState {
         spacers.performSetup()
         revealRules.performSetup(with: self)
         presentationMonitor.performSetup(with: self)
+        if #available(macOS 27.0, *) {
+            // The dot on holzBar's icon while another app records.
+            captureActivityMonitor27.performSetup(with: self)
+        }
         itemChangeWatcher.performSetup(with: self)
 
         configureObservers()

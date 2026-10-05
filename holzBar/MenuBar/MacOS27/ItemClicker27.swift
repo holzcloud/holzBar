@@ -10,8 +10,10 @@ import OSLog
 /// Opens a hidden item's menu from the holzBar Shelf on macOS 27.
 ///
 /// holzBar can no longer move an item into view. Its application is allowed for a moment, and
-/// the drawn item is clicked where it appears, the way holzBar clicks items on earlier macOS,
-/// with the pointer put back afterwards. An item that is not drawn, such as one folded
+/// once the change that shows it has landed, the drawn item is clicked where it appears, the
+/// way holzBar clicks items on earlier macOS, with the pointer put back afterwards. Until then
+/// the item's frame is where it was last drawn, and another item or the clock may stand there.
+/// An item whose show does not land within 3 s, or that is not drawn, such as one folded
 /// behind the overflow button, is pressed through Accessibility. Menus open on the display
 /// with the active menu bar, so if that is not the holzBar Shelf's display, holzBar first clicks the
 /// empty spot of that display's menu bar where the holzBar Shelf was opened (measured on
@@ -38,13 +40,20 @@ enum ItemClicker27 {
         }
 
         let concealer = appState.concealer27
-        concealer.showTemporarily(bundleID: bundleID)
-        // A shown item is drawn 0.4–0.6 s after its application is allowed (measured).
-        try? await Task.sleep(for: .milliseconds(600))
+        let shown = await concealer.showTemporarily(bundleID: bundleID)
+        if shown {
+            // A shown item is drawn 0.4–0.6 s after the change that allows it lands (measured).
+            try? await Task.sleep(for: .milliseconds(600))
+        } else {
+            logger.notice("\(item.logString, privacy: .private(mask: .hash)) was not shown in time, pressing it through Accessibility")
+        }
 
         let ownerPID = item.ownerPID
         let baseline = Set(windowOwners().map { $0.number })
-        let drawn = await MenuBarItemProvider27.items().first { $0.windowID == item.windowID && $0.isOnScreen }
+        var drawn: MenuBarItem?
+        if shown {
+            drawn = await MenuBarItemProvider27.items().first { $0.windowID == item.windowID && $0.isOnScreen }
+        }
         if let drawn {
             postClick(at: CGPoint(x: drawn.bounds.midX, y: drawn.bounds.midY), mouseButton: mouseButton)
         } else if let element = MenuBarItemProvider27.element(forWindowID: item.windowID) {
