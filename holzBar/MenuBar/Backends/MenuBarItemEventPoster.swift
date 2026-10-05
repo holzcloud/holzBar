@@ -37,27 +37,28 @@ final class MenuBarItemEventPoster {
     /// - Parameter duration: The duration that certain types of input
     ///   events must not have occured within in order to return `true`.
     static func hasUserPausedInput(for duration: Duration) -> Bool {
-        NSEvent.modifierFlags.isEmpty &&
+        NSEvent.heldModifierFlags.isEmpty &&
         !MouseHelpers.lastMovementOccurred(within: duration) &&
         !MouseHelpers.lastScrollWheelOccurred(within: duration) &&
         !MouseHelpers.isButtonPressed()
     }
 
     /// Waits asynchronously for the user to pause input.
+    ///
+    /// Gives up with ``EventError/cannotComplete`` after five seconds, or when
+    /// the calling task is cancelled, so a move or click never waits for good.
     private func waitForUserToPauseInput() async throws {
-        let waitTask = Task {
-            while true {
-                try Task.checkCancellation()
-                if Self.hasUserPausedInput(for: .milliseconds(50)) {
-                    break
-                }
-                try await Task.sleep(for: .milliseconds(250))
+        let deadline = ContinuousClock.now + .seconds(5)
+        while !Self.hasUserPausedInput(for: .milliseconds(50)) {
+            guard ContinuousClock.now < deadline else {
+                logger.debug("Timed out waiting for the user to pause input")
+                throw EventError.cannotComplete
             }
-        }
-        do {
-            try await waitTask.value
-        } catch {
-            throw EventError.cannotComplete
+            do {
+                try await Task.sleep(for: .milliseconds(250))
+            } catch {
+                throw EventError.cannotComplete
+            }
         }
     }
 
