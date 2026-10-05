@@ -34,6 +34,11 @@ struct HotkeyRecorder<Label: View>: View {
         } message: { problem in
             Text(problem.message)
         }
+        .onDisappear {
+            // Recording disables the hotkey, so register it again when the
+            // recorder goes away (another Settings pane, a closed popover).
+            model.stopRecording()
+        }
     }
 
     @ViewBuilder
@@ -184,6 +189,13 @@ private final class HotkeyRecorderModel {
 
     init(hotkey: Hotkey) {
         self.hotkey = hotkey
+    }
+
+    isolated deinit {
+        // A backstop for a recorder that goes away without disappearing first.
+        if isRecording {
+            hotkey.enable()
+        }
     }
 
     func startRecording() {
