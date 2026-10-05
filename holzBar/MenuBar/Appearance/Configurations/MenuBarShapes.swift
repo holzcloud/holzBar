@@ -11,6 +11,13 @@ enum MenuBarEndCap: Int, CaseIterable, Codable, Hashable {
     case square = 0
     /// An end cap with a rounded shape.
     case round = 1
+
+    /// Decodes an end cap; one this version does not know (from a newer version or a
+    /// damaged file) reads as round, the default, instead of failing the whole appearance.
+    init(from decoder: any Decoder) throws {
+        let rawValue = try decoder.singleValueContainer().decode(Int.self)
+        self = MenuBarEndCap(rawValue: rawValue) ?? .round
+    }
 }
 
 /// A type that specifies a custom shape kind for the menu bar.
@@ -24,6 +31,13 @@ enum MenuBarShapeKind: Int, CaseIterable, Codable, Identifiable {
     case split = 2
 
     var id: Int { rawValue }
+
+    /// Decodes a shape kind; one this version does not know (from a newer version or a
+    /// damaged file) reads as no shape instead of failing the whole appearance.
+    init(from decoder: any Decoder) throws {
+        let rawValue = try decoder.singleValueContainer().decode(Int.self)
+        self = MenuBarShapeKind(rawValue: rawValue) ?? .noShape
+    }
 
     /// Localized string key representation.
     var localized: LocalizedStringKey {
