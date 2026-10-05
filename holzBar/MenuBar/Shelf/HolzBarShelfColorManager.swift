@@ -40,7 +40,7 @@ final class HolzBarShelfColorManager {
         observations = [
             shelfPanel.observe(\.screen, options: [.initial, .new]) { [weak self] panel, _ in
                 Task { @MainActor [weak self] in
-                    guard let self, let screen = panel.screen, screen == .main else {
+                    guard let self, panel.isVisible, let screen = panel.screen, screen == .main else {
                         return
                     }
                     updateWindowImage(for: screen)
@@ -97,6 +97,10 @@ final class HolzBarShelfColorManager {
 
     /// Starts capturing every 5 seconds (with a tolerance, so macOS can coalesce it).
     func startRefreshTimer() {
+        // macOS 27 uses the flat colour and never captures, so there is nothing to refresh.
+        if #available(macOS 27.0, *) {
+            return
+        }
         guard refreshTask == nil else {
             return
         }
@@ -118,24 +122,31 @@ final class HolzBarShelfColorManager {
         refreshTask = nil
     }
 
-    /// Captures the menu bar and wallpaper and, while the Shelf is visible, updates its colour.
+    /// Captures the menu bar and wallpaper and updates the colour, only while the Shelf is
+    /// visible. On macOS 27 it only follows the appearance with the flat colour.
     private func refresh() {
-        guard
-            let shelfPanel,
-            let screen = shelfPanel.screen,
-            screen == .main
-        else {
+        guard let shelfPanel, shelfPanel.isVisible else {
+            return
+        }
+        if #available(macOS 27.0, *) {
+            setColor27()
+            return
+        }
+        guard let screen = shelfPanel.screen, screen == .main else {
             return
         }
         updateWindowImage(for: screen)
-        if shelfPanel.isVisible {
-            withAnimation {
-                self.updateColorInfo(with: shelfPanel.frame, screen: screen)
-            }
+        withAnimation {
+            self.updateColorInfo(with: shelfPanel.frame, screen: screen)
         }
     }
 
     private func updateWindowImage(for screen: NSScreen) {
+        // On macOS 27 a capture lights the recording indicator, and its colour would replace
+        // the flat one the glyphs were cut for.
+        if #available(macOS 27.0, *) {
+            return
+        }
         // Nothing captures the screen before Screen Recording is granted; the previous
         // colour stays.
         guard ScreenCapture.cachedCheckPermissions() else {
@@ -190,6 +201,9 @@ final class HolzBarShelfColorManager {
     }
 
     func updateAllProperties(with frame: CGRect, screen: NSScreen) {
+        if #available(macOS 27.0, *) {
+            return
+        }
         updateWindowImage(for: screen)
         updateColorInfo(with: frame, screen: screen)
     }

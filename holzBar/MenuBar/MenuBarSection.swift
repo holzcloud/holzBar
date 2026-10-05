@@ -189,13 +189,17 @@ final class MenuBarSection {
 
             if let screen = screenForShelf {
                 Task {
-                    switch name {
+                    let shown = switch name {
                     case .visible, .hidden:
                         await menuBarManager.shelfPanel.show(section: .hidden, on: screen)
                     case .alwaysHidden:
                         await menuBarManager.shelfPanel.show(section: .alwaysHidden, on: screen)
                     }
-                    startRehideChecks()
+                    // A show cut short by a close leaves the section hidden, and its
+                    // rehide checks would keep running with nothing left to hide.
+                    if shown {
+                        startRehideChecks()
+                    }
                 }
             }
 

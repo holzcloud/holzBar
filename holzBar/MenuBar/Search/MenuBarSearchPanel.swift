@@ -20,6 +20,13 @@ final class MenuBarSearchPanel: NSPanel {
     /// Model for menu bar item search.
     private let model = MenuBarSearchModel()
 
+    /// Counts the calls to `show(on:)` and `close()`, so a show that waited for the image
+    /// cache knows whether the panel was closed or shown again meanwhile.
+    private var showGeneration = 0
+
+    /// Whether a show is waiting for the image cache before ordering the panel front.
+    private var isShowPending = false
+
     /// Monitor for mouse down events.
     private lazy var mouseDownMonitor = EventMonitor.universal(
         for: [.leftMouseDown, .rightMouseDown, .otherMouseDown]
@@ -119,8 +126,21 @@ final class MenuBarSearchPanel: NSPanel {
         // Important that we set the navigation state before updating the cache.
         appState.navigationState.isSearchPresented = true
 
+        showGeneration += 1
+        let generation = showGeneration
+        isShowPending = true
+
+        // The task is not cancelled when the panel closes: the cache update it runs is
+        // shared, and on macOS 27 cancelling it would cut short the waits that let the
+        // hidden items draw before they are photographed.
         Task {
             await appState.imageCache.updateCache()
+
+            // The panel was closed (or shown again) while the cache updated.
+            guard generation == showGeneration else {
+                return
+            }
+            isShowPending = false
 
             let hostingView = MenuBarSearchHostingView(appState: appState, model: model, displayID: screen.displayID, panel: self)
             hostingView.setFrameSize(hostingView.intrinsicContentSize)
@@ -144,12 +164,14 @@ final class MenuBarSearchPanel: NSPanel {
 
     /// Toggles the panel's visibility.
     func toggle() {
-        if isVisible { close() } else { show() }
+        if isVisible || isShowPending { close() } else { show() }
     }
 
     /// Dismisses the search panel.
     override func close() {
         super.close()
+        showGeneration += 1
+        isShowPending = false
         contentView = nil
         mouseDownMonitor.stop()
         keyDownMonitor.stop()
