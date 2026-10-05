@@ -273,7 +273,8 @@ final class LayoutBarContainer: NSView {
             // view to trigger a swap
             let midX = destinationView.frame.midX
             let offset = destinationView.frame.width / 2
-            if !((midX - offset)...(midX + offset)).contains(draggingLocation.x) {
+            // A comparison rather than a range, which would trap on a NaN frame.
+            if !(abs(draggingLocation.x - midX) <= offset) {
                 if sourceView.oldContainerInfo?.container === self {
                     return .move
                 }

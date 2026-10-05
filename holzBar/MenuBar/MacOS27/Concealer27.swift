@@ -26,12 +26,26 @@ final class Concealer27 {
     @ObservationIgnored private var applyTask: Task<Void, Never>?
     @ObservationIgnored private var suspendedUntil: ContinuousClock.Instant?
 
+    /// Counts the suspensions begun, so only the timer of the one that owns ``suspendedUntil``
+    /// puts concealment back.
+    @ObservationIgnored private var suspensionOwner = 0
+
     /// When concealment last changed, which is when the bar last started moving.
     @ObservationIgnored private var lastChangeAt = ContinuousClock.now
 
     /// How long MenuBarAgent animates the bar after items are concealed or released
     /// (measured on macOS 27.0: about 250 ms, with a margin here).
     private static let settleAfterChange = Duration.milliseconds(400)
+
+    /// Failed applies in a row, each answered by one more try a moment later.
+    @ObservationIgnored private var failedApplies = 0
+
+    /// Counts the changes of `isConcealing` and `concealedPIDs`, so an apply that fails for
+    /// good corrects them only while they still describe its own target.
+    @ObservationIgnored private var stateGeneration = 0
+
+    /// How many times in a row a failed apply is tried again.
+    private static let maximumApplyRetries = 3
 
     /// Applications shown for a moment, with the number of callers showing each.
     @ObservationIgnored private var temporarilyShown = [String: Int]()
@@ -46,8 +60,12 @@ final class Concealer27 {
 
     /// Visible applications concealed for the moment so holzBar's icon clears the notch
     /// (`NotchCover27`). Never part of the saved layout; cleared when the active display
-    /// changes or an application launches or quits.
+    /// changes, an application launches or quits, or what the sections conceal changes.
     @ObservationIgnored private var notchConcealed = Set<String>()
+
+    /// The applications the sections concealed when `update()` last ran, to tell when
+    /// `notchConcealed` is worth working out again.
+    @ObservationIgnored private var notchCoverBasis: Set<String>?
 
     /// The display whose notch `notchConcealed` was worked out for.
     @ObservationIgnored private var notchCoverDisplayID: CGDirectDisplayID?
@@ -204,12 +222,24 @@ final class Concealer27 {
         let applications = NSWorkspace.shared.runningApplications
         let running = Set(applications.compactMap(\.bundleIdentifier))
         let layout = SectionLayout27.effectiveLayout(observed: [:], saved: savedLayout, running: running)
+        let state = revealState(appState)
+        // What the sections conceal sets how crowded the bar is: once they conceal more (a
+        // reveal that ends, a layout edit), the notch is worked out again from the next settled
+        // read. When they conceal less, the bar is no roomier and the apps stay concealed; the
+        // next settled read adds more if the icon is under the notch again.
+        let sectionConcealed = ConcealmentPlanner27.effectivelyConcealed(
+            sets: ConcealmentPlanner27.concealedSets(layout: layout, state: state)
+        )
+        if let notchCoverBasis, NotchCover27.sectionsMayFreeRoom(before: notchCoverBasis, after: sectionConcealed) {
+            notchConcealed.removeAll()
+        }
+        notchCoverBasis = sectionConcealed
         // Applications concealed for the notch join whatever the sections conceal.
         let target = NotchCover27.adding(
             notchConcealed.subtracting(temporarilyShown.keys),
             to: ConcealmentPlanner27.concealedSets(
                 layout: layout,
-                state: revealState(appState),
+                state: state,
                 temporarilyShown: Set(temporarilyShown.keys)
             )
         )
@@ -221,20 +251,19 @@ final class Concealer27 {
         }
         isConcealing = !target.isEmpty
         defer { MenuBarItemProvider27.setConcealedPIDs(concealedPIDs) }
-        concealedPIDs = Set(applications.compactMap { application in
-            guard let bundleID = application.bundleIdentifier, concealed.contains(bundleID) else {
-                return nil
-            }
-            return application.processIdentifier
-        })
+        concealedPIDs = Self.processIdentifiers(of: concealed, among: applications)
+        stateGeneration += 1
+        let generation = stateGeneration
         lastChangeAt = .now
         let previous = applyTask
-        let task = Task { [controller, logger] in
+        let task = Task { [weak self, controller, logger] in
             await previous?.value
             do {
                 try await controller.apply(target: target, running: running)
+                self?.failedApplies = 0
             } catch {
                 logger.error("Could not apply concealment: \(error, privacy: .private)")
+                self?.applyDidFail(generation: generation)
             }
         }
         applyTask = task
@@ -249,6 +278,44 @@ final class Concealer27 {
             await self?.checkNotchCover()
             await self?.checkOwnIcon()
         }
+    }
+
+    /// Tries a failed apply again a moment later, a few times in a row, then follows the
+    /// assertions that are actually live.
+    ///
+    /// `isConcealing` and `concealedPIDs` already describe the concealment that failed, and
+    /// hit-testing, captures and the click bridge rely on them; MenuBarAgent can reject an
+    /// assertion or time out while it is busy, after login or wake.
+    private func applyDidFail(generation: Int) {
+        guard failedApplies < Self.maximumApplyRetries else {
+            // The next failure, from whatever change comes next, gets its own tries.
+            failedApplies = 0
+            guard generation == stateGeneration else {
+                return
+            }
+            logger.notice("Concealment could not be applied, keeping to the assertions still live")
+            let concealed = controller.liveConcealed
+            lastConcealed = concealed
+            isConcealing = controller.isActive
+            concealedPIDs = Self.processIdentifiers(of: concealed, among: NSWorkspace.shared.runningApplications)
+            MenuBarItemProvider27.setConcealedPIDs(concealedPIDs)
+            return
+        }
+        failedApplies += 1
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            self?.update()
+        }
+    }
+
+    /// The process identifiers of the given applications that are running.
+    private static func processIdentifiers(of bundleIDs: Set<String>, among applications: [NSRunningApplication]) -> Set<pid_t> {
+        Set(applications.compactMap { application in
+            guard let bundleID = application.bundleIdentifier, bundleIDs.contains(bundleID) else {
+                return nil
+            }
+            return application.processIdentifier
+        })
     }
 
     /// Puts holzBar's icon back when MenuBarAgent dropped it while concealing.
@@ -407,19 +474,17 @@ final class Concealer27 {
     /// Releases every assertion for a moment, so a click can reach a system item.
     func suspend(for duration: Duration) {
         lastChangeAt = .now
-        suspendedUntil = .now + duration
+        let deadline = suspensionDeadline(for: duration)
+        let owner = beginSuspension(until: deadline)
         isConcealing = false
         concealedPIDs.removeAll()
+        stateGeneration += 1
         let previous = applyTask
         applyTask = Task { [controller] in
             await previous?.value
             controller.releaseAll()
         }
-        Task { [weak self] in
-            try? await Task.sleep(for: duration)
-            self?.suspendedUntil = nil
-            self?.update()
-        }
+        scheduleEndOfSuspension(at: deadline, owner: owner)
     }
 
     /// Releases every assertion and returns once that has actually happened.
@@ -430,9 +495,10 @@ final class Concealer27 {
     /// did nothing and worked on the second try.
     func suspendReleased(for duration: Duration) async {
         lastChangeAt = .now
-        suspendedUntil = .now + duration
+        let owner = beginSuspension(until: suspensionDeadline(for: duration))
         isConcealing = false
         concealedPIDs.removeAll()
+        stateGeneration += 1
         let previous = applyTask
         let release = Task { [controller] in
             await previous?.value
@@ -440,10 +506,42 @@ final class Concealer27 {
         }
         applyTask = release
         await release.value
+        // The duration counts from the release, which can queue behind a change before it. A
+        // suspension begun meanwhile, or an early end, owns the deadline now.
+        guard suspensionOwner == owner else {
+            return
+        }
+        let deadline = suspensionDeadline(for: duration)
+        suspendedUntil = deadline
+        scheduleEndOfSuspension(at: deadline, owner: owner)
+    }
+
+    /// When a suspension for the given duration ends: never before the one under way, so a
+    /// short suspension (a bridged click's) cannot cut a longer one (a relayout's) short.
+    private func suspensionDeadline(for duration: Duration) -> ContinuousClock.Instant {
+        let deadline = ContinuousClock.now + duration
+        guard let suspendedUntil else {
+            return deadline
+        }
+        return max(suspendedUntil, deadline)
+    }
+
+    /// Makes a new suspension the owner of the deadline, which it never brings forward.
+    private func beginSuspension(until deadline: ContinuousClock.Instant) -> Int {
+        suspensionOwner += 1
+        suspendedUntil = deadline
+        return suspensionOwner
+    }
+
+    /// Puts concealment back at the deadline, unless a later suspension or an early end owns it.
+    private func scheduleEndOfSuspension(at deadline: ContinuousClock.Instant, owner: Int) {
         Task { [weak self] in
-            try? await Task.sleep(for: duration)
-            self?.suspendedUntil = nil
-            self?.update()
+            try? await Task.sleep(until: deadline, clock: .continuous)
+            guard let self, suspensionOwner == owner else {
+                return
+            }
+            suspendedUntil = nil
+            update()
         }
     }
 
@@ -452,6 +550,7 @@ final class Concealer27 {
         guard suspendedUntil != nil else {
             return
         }
+        suspensionOwner += 1
         suspendedUntil = nil
         update()
     }

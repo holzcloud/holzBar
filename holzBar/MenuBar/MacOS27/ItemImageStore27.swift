@@ -37,6 +37,12 @@ final class ItemImageStore27 {
     /// could store a tile cut while the bar was re-laying out.
     private static let storeVersion = "9"
 
+    /// What `version.txt` holds: the version, and the appearance the glyphs are tinted for,
+    /// so glyphs kept from a session in the other appearance are not loaded.
+    private static func versionStamp(dark: Bool) -> String {
+        "\(storeVersion)-\(dark ? "dark" : "light")"
+    }
+
     /// The margin left on each side of a glyph, in points, so items are spaced evenly and
     /// with the menu bar's own rhythm: its glyphs sit 18 to 29 points apart, median 22
     /// (measured on macOS 27.0), which is twice this margin.
@@ -65,8 +71,19 @@ final class ItemImageStore27 {
     /// How long the images just captured stand before the bar is worth capturing again.
     private static let captureFreshness = Duration.milliseconds(700)
 
-    /// Observes switches between light and dark; cancelled with the store.
-    private var appearanceTask: Task<Void, Never>?
+    /// Observes switches between light and dark; invalidated with the store.
+    private var appearanceObservation: NSKeyValueObservation?
+
+    /// Whether the glyphs are drawn for a dark appearance, so only a real switch discards them.
+    private var glyphsAreDark = ItemImageStore27.isDarkAppearance()
+
+    /// Counts the discards, so a capture that spans one does not store glyphs cut for the
+    /// appearance before it.
+    private var imageGeneration = 0
+
+    /// The last of the store's file operations, which run one after another in the order
+    /// they were asked for, so a write never races the removal of the folder.
+    private var fileTask: Task<Void, Never>?
 
     init() {
         // A one-time move of the images earlier versions kept in Application Support.
@@ -76,8 +93,19 @@ final class ItemImageStore27 {
         } catch {
             logger.error("Error moving the item images to the caches: \(error, privacy: .private)")
         }
+        // Glyphs are stored in the colour that suits the current appearance, so a switch
+        // between light and dark needs them captured again. The app's own appearance is
+        // observed rather than the theme notification, which any process can post.
+        // Installed before the version check, so a fresh store observes it too.
+        appearanceObservation = NSApp.observe(\.effectiveAppearance, options: [.new]) { [weak self] _, _ in
+            Task { @MainActor in
+                self?.appearanceDidChange()
+            }
+        }
+        // Glyphs stored in another version, or tinted in a session in the other appearance,
+        // are dropped: a concealed item is not photographed again while it has an image.
         let versionFile = directory.appending(path: "version.txt")
-        guard (try? String(contentsOf: versionFile, encoding: .utf8)) == Self.storeVersion else {
+        guard (try? String(contentsOf: versionFile, encoding: .utf8)) == Self.versionStamp(dark: glyphsAreDark) else {
             try? FileManager.default.removeItem(at: directory)
             return
         }
@@ -87,18 +115,16 @@ final class ItemImageStore27 {
         {
             index = stored
         }
-        // Glyphs are stored in the colour that suits the current appearance, so a switch
-        // between light and dark needs them captured again.
-        appearanceTask = Task { [weak self] in
-            let center = DistributedNotificationCenter.default()
-            for await _ in center.notifications(named: DistributedNotificationCenter.interfaceThemeChangedNotification) {
-                self?.discardImages()
-            }
-        }
     }
 
-    deinit {
-        appearanceTask?.cancel()
+    /// Discards the images when the appearance switched between light and dark.
+    private func appearanceDidChange() {
+        let isDark = Self.isDarkAppearance()
+        guard isDark != glyphsAreDark else {
+            return
+        }
+        glyphsAreDark = isDark
+        discardImages()
     }
 
     /// Drops every stored image, so they are captured again.
@@ -106,9 +132,19 @@ final class ItemImageStore27 {
         loaded.removeAll()
         index.removeAll()
         photoSchedule = PhotoSchedule27()
+        imageGeneration += 1
         let directory = directory
-        Task.detached(priority: .utility) {
+        performFileOperation {
             try? FileManager.default.removeItem(at: directory)
+        }
+    }
+
+    /// Runs a file operation off the main actor, after every one asked for before it.
+    private func performFileOperation(_ operation: @escaping @Sendable () -> Void) {
+        let previous = fileTask
+        fileTask = Task.detached(priority: .utility) {
+            await previous?.value
+            operation()
         }
     }
 
@@ -166,6 +202,7 @@ final class ItemImageStore27 {
     }
 
     private func performCapture(appState: AppState) async {
+        let generation = imageGeneration
         // The bar animates for about 250 ms after concealment changes. A capture taken then
         // photographs items in mid-slide, which are thrown away as unsettled anyway, and adds
         // its own load at the moment the animation can least afford it.
@@ -186,7 +223,24 @@ final class ItemImageStore27 {
             return
         }
         let displayBounds = CGDisplayBounds(displayID)
-        let barHeight = max(screen.frame.maxY - screen.visibleFrame.maxY, 22)
+        let reservedHeight = screen.frame.maxY - screen.visibleFrame.maxY
+        let barHeight: CGFloat
+        // The frame of the window server's menu bar window, where only that window tells that
+        // the bar is on screen.
+        var menuBarWindowFrame: CGRect?
+        if appState.activeSpace.isFullscreen || appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults || reservedHeight <= 0 {
+            // On a fullscreen space or with the bar hidden automatically, the strip shows the
+            // window underneath unless the bar is revealed, which only the window server's menu
+            // bar window on screen tells (as `SystemItemClickBridge27` checks for a click).
+            guard let menuBarWindow = WindowInfo.menuBarWindow(for: displayID) else {
+                logger.debug("Menu bar capture: the bar is not on screen")
+                return
+            }
+            barHeight = menuBarWindow.bounds.height
+            menuBarWindowFrame = menuBarWindow.bounds
+        } else {
+            barHeight = max(reservedHeight, 22)
+        }
         let stripFrame = CGRect(x: displayBounds.minX, y: displayBounds.minY, width: displayBounds.width, height: barHeight)
         let items = await MenuBarItemProvider27.items()
         let concealedPIDs = appState.concealer27.concealedPIDs
@@ -199,6 +253,17 @@ final class ItemImageStore27 {
             Dictionary(items.map { ($0.tag.description, $0.bounds) }, uniquingKeysWith: { first, _ in first })
         }
         let settled = ItemImages27.settledTags(before: frames(items), after: frames(await MenuBarItemProvider27.items()))
+        // The images were discarded while this capture was under way, for an appearance switch:
+        // its glyphs would be stored in the colour of the appearance before it.
+        guard generation == imageGeneration else {
+            return
+        }
+        // A revealed bar can slide away while the capture is taken, which lasts a quarter of
+        // a second, and the item frames stay put meanwhile: only the bar's window tells.
+        if let menuBarWindowFrame, WindowInfo.menuBarWindow(for: displayID)?.bounds != menuBarWindowFrame {
+            logger.debug("Menu bar capture: the bar left the screen during the capture")
+            return
+        }
         var skipped = 0
         var stored = 0
         // MenuBarAgent draws every glyph on a bar in one colour, white or black. Deciding which
@@ -314,8 +379,12 @@ final class ItemImageStore27 {
     /// The colour glyphs are drawn in, which is the readable one on the flat background
     /// the holzBar Shelf and the layout window use.
     private static func glyphColor() -> (r: UInt8, g: UInt8, b: UInt8) {
-        let isDark = NSApp.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
-        return isDark ? (255, 255, 255) : (0, 0, 0)
+        isDarkAppearance() ? (255, 255, 255) : (0, 0, 0)
+    }
+
+    /// Whether the app is drawn in a dark appearance.
+    private static func isDarkAppearance() -> Bool {
+        NSApp.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
     }
 
     /// The image's pixels, four bytes each, as the image rules expect them.
@@ -430,7 +499,7 @@ final class ItemImageStore27 {
             return
         }
         let directory = directory
-        Task.detached(priority: .utility) {
+        performFileOperation {
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             try? data.write(to: directory.appending(path: fileName), options: .atomic)
         }
@@ -441,8 +510,8 @@ final class ItemImageStore27 {
             return
         }
         let directory = directory
-        let version = Self.storeVersion
-        Task.detached(priority: .utility) {
+        let version = Self.versionStamp(dark: glyphsAreDark)
+        performFileOperation {
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             try? data.write(to: directory.appending(path: "index.json"), options: .atomic)
             try? version.write(to: directory.appending(path: "version.txt"), atomically: true, encoding: .utf8)

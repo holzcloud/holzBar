@@ -425,7 +425,8 @@ nonisolated enum MenuBarItemProvider27 {
         else {
             return nil
         }
-        return CGRect(origin: position, size: size)
+        // The owning process reports these values, so a NaN or a huge one is turned away here.
+        return ItemFrame27.validated(origin: position, size: size)
     }
 }
 

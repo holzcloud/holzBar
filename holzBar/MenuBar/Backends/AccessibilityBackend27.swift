@@ -53,7 +53,12 @@ final class AccessibilityBackend27: MenuBarBackend {
     /// signature also carries each item's position.
     func itemListSignature() async -> [CGWindowID] {
         let items = await MenuBarItemProvider27.items()
-        return items.map { $0.windowID &+ UInt32(truncatingIfNeeded: Int($0.bounds.minX)) }
+        return items.map { item in
+            // A conversion that cannot trap, whatever position the item's process reports,
+            // and that truncates like the `Int(_:)` before it, so signatures stay as they were.
+            let minX = Int32(exactly: item.bounds.minX.rounded(.towardZero)) ?? 0
+            return item.windowID &+ UInt32(bitPattern: minX)
+        }
     }
 
     /// The saved layout, not the order on the bar, places items in sections, so holzBar's
