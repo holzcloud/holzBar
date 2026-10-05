@@ -26,6 +26,10 @@ final class Concealer27 {
     @ObservationIgnored private var applyTask: Task<Void, Never>?
     @ObservationIgnored private var suspendedUntil: ContinuousClock.Instant?
 
+    /// Counts the suspensions begun, so only the timer of the one that owns ``suspendedUntil``
+    /// puts concealment back.
+    @ObservationIgnored private var suspensionOwner = 0
+
     /// When concealment last changed, which is when the bar last started moving.
     @ObservationIgnored private var lastChangeAt = ContinuousClock.now
 
@@ -470,8 +474,8 @@ final class Concealer27 {
     /// Releases every assertion for a moment, so a click can reach a system item.
     func suspend(for duration: Duration) {
         lastChangeAt = .now
-        let deadline = ContinuousClock.now + duration
-        suspendedUntil = deadline
+        let deadline = suspensionDeadline(for: duration)
+        let owner = beginSuspension(until: deadline)
         isConcealing = false
         concealedPIDs.removeAll()
         stateGeneration += 1
@@ -480,15 +484,7 @@ final class Concealer27 {
             await previous?.value
             controller.releaseAll()
         }
-        Task { [weak self] in
-            try? await Task.sleep(for: duration)
-            // A later suspension, or an early end, owns the deadline now.
-            guard let self, suspendedUntil == deadline else {
-                return
-            }
-            suspendedUntil = nil
-            update()
-        }
+        scheduleEndOfSuspension(at: deadline, owner: owner)
     }
 
     /// Releases every assertion and returns once that has actually happened.
@@ -499,8 +495,7 @@ final class Concealer27 {
     /// did nothing and worked on the second try.
     func suspendReleased(for duration: Duration) async {
         lastChangeAt = .now
-        let deadline = ContinuousClock.now + duration
-        suspendedUntil = deadline
+        let owner = beginSuspension(until: suspensionDeadline(for: duration))
         isConcealing = false
         concealedPIDs.removeAll()
         stateGeneration += 1
@@ -511,10 +506,38 @@ final class Concealer27 {
         }
         applyTask = release
         await release.value
+        // The duration counts from the release, which can queue behind a change before it. A
+        // suspension begun meanwhile, or an early end, owns the deadline now.
+        guard suspensionOwner == owner else {
+            return
+        }
+        let deadline = suspensionDeadline(for: duration)
+        suspendedUntil = deadline
+        scheduleEndOfSuspension(at: deadline, owner: owner)
+    }
+
+    /// When a suspension for the given duration ends: never before the one under way, so a
+    /// short suspension (a bridged click's) cannot cut a longer one (a relayout's) short.
+    private func suspensionDeadline(for duration: Duration) -> ContinuousClock.Instant {
+        let deadline = ContinuousClock.now + duration
+        guard let suspendedUntil else {
+            return deadline
+        }
+        return max(suspendedUntil, deadline)
+    }
+
+    /// Makes a new suspension the owner of the deadline, which it never brings forward.
+    private func beginSuspension(until deadline: ContinuousClock.Instant) -> Int {
+        suspensionOwner += 1
+        suspendedUntil = deadline
+        return suspensionOwner
+    }
+
+    /// Puts concealment back at the deadline, unless a later suspension or an early end owns it.
+    private func scheduleEndOfSuspension(at deadline: ContinuousClock.Instant, owner: Int) {
         Task { [weak self] in
-            try? await Task.sleep(for: duration)
-            // A later suspension, or an early end, owns the deadline now.
-            guard let self, suspendedUntil == deadline else {
+            try? await Task.sleep(until: deadline, clock: .continuous)
+            guard let self, suspensionOwner == owner else {
                 return
             }
             suspendedUntil = nil
@@ -527,6 +550,7 @@ final class Concealer27 {
         guard suspendedUntil != nil else {
             return
         }
+        suspensionOwner += 1
         suspendedUntil = nil
         update()
     }
