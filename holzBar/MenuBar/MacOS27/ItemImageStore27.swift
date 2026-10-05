@@ -71,6 +71,14 @@ final class ItemImageStore27 {
     /// Whether the glyphs are drawn for a dark appearance, so only a real switch discards them.
     private var glyphsAreDark = ItemImageStore27.isDarkAppearance()
 
+    /// Counts the discards, so a capture that spans one does not store glyphs cut for the
+    /// appearance before it.
+    private var imageGeneration = 0
+
+    /// The last of the store's file operations, which run one after another in the order
+    /// they were asked for, so a write never races the removal of the folder.
+    private var fileTask: Task<Void, Never>?
+
     init() {
         // A one-time move of the images earlier versions kept in Application Support.
         do {
@@ -116,9 +124,19 @@ final class ItemImageStore27 {
         loaded.removeAll()
         index.removeAll()
         photoSchedule = PhotoSchedule27()
+        imageGeneration += 1
         let directory = directory
-        Task.detached(priority: .utility) {
+        performFileOperation {
             try? FileManager.default.removeItem(at: directory)
+        }
+    }
+
+    /// Runs a file operation off the main actor, after every one asked for before it.
+    private func performFileOperation(_ operation: @escaping @Sendable () -> Void) {
+        let previous = fileTask
+        fileTask = Task.detached(priority: .utility) {
+            await previous?.value
+            operation()
         }
     }
 
@@ -176,6 +194,7 @@ final class ItemImageStore27 {
     }
 
     private func performCapture(appState: AppState) async {
+        let generation = imageGeneration
         // The bar animates for about 250 ms after concealment changes. A capture taken then
         // photographs items in mid-slide, which are thrown away as unsettled anyway, and adds
         // its own load at the moment the animation can least afford it.
@@ -209,6 +228,11 @@ final class ItemImageStore27 {
             Dictionary(items.map { ($0.tag.description, $0.bounds) }, uniquingKeysWith: { first, _ in first })
         }
         let settled = ItemImages27.settledTags(before: frames(items), after: frames(await MenuBarItemProvider27.items()))
+        // The images were discarded while this capture was under way, for an appearance switch:
+        // its glyphs would be stored in the colour of the appearance before it.
+        guard generation == imageGeneration else {
+            return
+        }
         var skipped = 0
         var stored = 0
         // MenuBarAgent draws every glyph on a bar in one colour, white or black. Deciding which
@@ -444,7 +468,7 @@ final class ItemImageStore27 {
             return
         }
         let directory = directory
-        Task.detached(priority: .utility) {
+        performFileOperation {
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             try? data.write(to: directory.appending(path: fileName), options: .atomic)
         }
@@ -456,7 +480,7 @@ final class ItemImageStore27 {
         }
         let directory = directory
         let version = Self.storeVersion
-        Task.detached(priority: .utility) {
+        performFileOperation {
             try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             try? data.write(to: directory.appending(path: "index.json"), options: .atomic)
             try? version.write(to: directory.appending(path: "version.txt"), atomically: true, encoding: .utf8)
