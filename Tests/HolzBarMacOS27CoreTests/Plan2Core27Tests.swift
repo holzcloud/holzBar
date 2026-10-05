@@ -688,6 +688,53 @@ struct ItemsAreaLeftEdge27Tests {
     }
 }
 
+@Suite("Split shape")
+struct SplitShape27Tests {
+    let display = CGRect(x: -1512, y: 0, width: 1512, height: 982)
+    let clock = CGRect(x: 1700, y: 4, width: 26, height: 22)
+
+    @Test("On the inactive display a stale remembered edge does not widen the trailing half")
+    func staleRememberedEdgeIgnored() {
+        // The hidden section was revealed while this display was active (edge at -600) and
+        // has been concealed again since; MenuBarAgent now draws the run from -300.
+        let drawn = [CGRect(x: -300, y: 6, width: 30, height: 24), CGRect(x: -200, y: 6, width: 30, height: 24)]
+        #expect(SplitShape27.leftEdge(
+            displayBounds: display,
+            items: [],
+            concealedPIDs: [],
+            systemFrames: [clock],
+            rememberedLeftEdge: -600,
+            drawnFramesOnDisplay: drawn
+        ) == -300)
+    }
+
+    @Test("Without drawn frames the remembered edge still counts")
+    func rememberedEdgeWithoutDrawnFrames() {
+        #expect(SplitShape27.leftEdge(
+            displayBounds: display,
+            items: [],
+            concealedPIDs: [],
+            systemFrames: [clock],
+            rememberedLeftEdge: -600,
+            drawnFramesOnDisplay: []
+        ) == -600)
+    }
+
+    @Test("On the active display the shape uses the same edge as the items area")
+    func activeDisplayMatchesItemsArea() {
+        let bounds = CGRect(x: 0, y: 0, width: 1920, height: 1080)
+        let items = [ItemHitTest27.Item(frame: CGRect(x: 1500, y: 2, width: 30, height: 24), ownerPID: 12, isOnScreen: true)]
+        #expect(SplitShape27.leftEdge(
+            displayBounds: bounds,
+            items: items,
+            concealedPIDs: [],
+            systemFrames: [clock],
+            rememberedLeftEdge: 1400,
+            drawnFramesOnDisplay: []
+        ) == 1400)
+    }
+}
+
 @Suite("Settled item frames")
 struct SettledFrames27Tests {
     let a = CGRect(x: 100, y: 0, width: 30, height: 24)

@@ -111,10 +111,10 @@ final class AccessibilityBackend27: MenuBarBackend {
         )
     }
 
-    /// The same edge as the items area, from the cache and the last read: no
-    /// Accessibility call, so the overlay can ask while it draws.
+    /// The edge of the items area as the split shape draws it (`SplitShape27`), from the
+    /// cache and the last read: no Accessibility call, so the overlay can ask while it draws.
     func itemsAreaLeftEdge(on screen: NSScreen, appState: AppState) -> CGFloat? {
-        ItemHitTest27.itemsAreaLeftEdge(
+        SplitShape27.leftEdge(
             displayBounds: CGDisplayBounds(screen.displayID),
             items: hitTestItems(appState: appState),
             concealedPIDs: appState.concealer27.concealedPIDs,
