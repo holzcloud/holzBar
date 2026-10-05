@@ -396,25 +396,25 @@ struct SystemPanel27Tests {
 
     @Test("A new tall window above the menu bar means the panel opened")
     func opened() {
-        let after: [(number: Int, layer: Int, height: CGFloat)] = [(number: 10, layer: 20, height: 1080.0), (number: 42, layer: 101, height: 964.0)]
+        let after: [ItemClick27.PanelWindow] = [(number: 10, layer: 20, height: 1080.0, ownerPID: 300), (number: 42, layer: 101, height: 964.0, ownerPID: 300)]
         #expect(ItemClick27.panelOpened(before: before, windows: after))
     }
 
     @Test("The windows that were already there do not count")
     func nothingNew() {
-        let after: [(number: Int, layer: Int, height: CGFloat)] = [(number: 10, layer: 20, height: 1080.0), (number: 11, layer: 101, height: 964.0)]
+        let after: [ItemClick27.PanelWindow] = [(number: 10, layer: 20, height: 1080.0, ownerPID: 300), (number: 11, layer: 101, height: 964.0, ownerPID: 300)]
         #expect(!ItemClick27.panelOpened(before: before, windows: after))
     }
 
     @Test("A small new window is not a panel")
     func tooSmall() {
-        let after: [(number: Int, layer: Int, height: CGFloat)] = [(number: 43, layer: 101, height: 28.0)]
+        let after: [ItemClick27.PanelWindow] = [(number: 43, layer: 101, height: 28.0, ownerPID: 300)]
         #expect(!ItemClick27.panelOpened(before: before, windows: after))
     }
 
     @Test("An ordinary window opening at the same moment is not a panel")
     func ordinaryWindow() {
-        let after: [(number: Int, layer: Int, height: CGFloat)] = [(number: 44, layer: 0, height: 700.0)]
+        let after: [ItemClick27.PanelWindow] = [(number: 44, layer: 0, height: 700.0, ownerPID: 300)]
         #expect(!ItemClick27.panelOpened(before: before, windows: after))
     }
 
@@ -422,19 +422,19 @@ struct SystemPanel27Tests {
     // the display, about 166 ms after the click. It stands far below Control Centre's level.
     @Test("Notification Center counts, low as its window stands")
     func notificationCenter() {
-        let after: [(number: Int, layer: Int, height: CGFloat)] = [(number: 45, layer: 21, height: 1080.0)]
+        let after: [ItemClick27.PanelWindow] = [(number: 45, layer: 21, height: 1080.0, ownerPID: 300)]
         #expect(ItemClick27.panelWindow(before: before, windows: after) == 45)
     }
 
     @Test("A panel already on screen is the one a click would close")
     func alreadyOpen() {
-        let withPanel: [(number: Int, layer: Int, height: CGFloat)] = [
-            (number: 10, layer: 0, height: 900.0),
-            (number: 45, layer: 21, height: 1080.0),
+        let withPanel: [ItemClick27.PanelWindow] = [
+            (number: 10, layer: 0, height: 900.0, ownerPID: 300),
+            (number: 45, layer: 21, height: 1080.0, ownerPID: 300),
         ]
-        let withoutPanel: [(number: Int, layer: Int, height: CGFloat)] = [
-            (number: 10, layer: 0, height: 900.0),
-            (number: 11, layer: 25, height: 38.0),
+        let withoutPanel: [ItemClick27.PanelWindow] = [
+            (number: 10, layer: 0, height: 900.0, ownerPID: 300),
+            (number: 11, layer: 25, height: 38.0, ownerPID: 300),
         ]
         #expect(ItemClick27.openPanelWindow(windows: withPanel) == 45)
         #expect(ItemClick27.openPanelWindow(windows: withoutPanel) == nil)
@@ -442,8 +442,8 @@ struct SystemPanel27Tests {
 
     @Test("A panel is open while its window is on screen, and closed once it goes")
     func staysOnScreen() {
-        let open: [(number: Int, layer: Int, height: CGFloat)] = [(number: 45, layer: 21, height: 1080.0)]
-        let closed: [(number: Int, layer: Int, height: CGFloat)] = [(number: 10, layer: 20, height: 1080.0)]
+        let open: [ItemClick27.PanelWindow] = [(number: 45, layer: 21, height: 1080.0, ownerPID: 300)]
+        let closed: [ItemClick27.PanelWindow] = [(number: 10, layer: 20, height: 1080.0, ownerPID: 300)]
         #expect(ItemClick27.panelIsOnScreen(window: 45, windows: open))
         #expect(!ItemClick27.panelIsOnScreen(window: 45, windows: closed))
     }
