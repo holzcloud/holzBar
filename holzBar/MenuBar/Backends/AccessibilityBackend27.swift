@@ -111,6 +111,19 @@ final class AccessibilityBackend27: MenuBarBackend {
         )
     }
 
+    /// The same edge as the items area, from the cache and the last read: no
+    /// Accessibility call, so the overlay can ask while it draws.
+    func itemsAreaLeftEdge(on screen: NSScreen, appState: AppState) -> CGFloat? {
+        ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: CGDisplayBounds(screen.displayID),
+            items: hitTestItems(appState: appState),
+            concealedPIDs: appState.concealer27.concealedPIDs,
+            systemFrames: systemFrames(),
+            rememberedLeftEdge: MenuBarItemProvider27.leftEdge(for: screen.displayID),
+            drawnFramesOnDisplay: MenuBarItemProvider27.drawnFrames(for: screen.displayID)
+        )
+    }
+
     func makeSystemItemClickBridge(appState: AppState) -> (any SystemItemClickBridge)? {
         SystemItemClickBridge27(appState: appState)
     }

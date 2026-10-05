@@ -609,6 +609,85 @@ struct ItemsZone27Tests {
     }
 }
 
+@Suite("Items area left edge")
+struct ItemsAreaLeftEdge27Tests {
+    let bounds = CGRect(x: 0, y: 0, width: 1920, height: 1080)
+    let items = [
+        ItemHitTest27.Item(frame: CGRect(x: 1400, y: 2, width: 30, height: 24), ownerPID: 11, isOnScreen: true),
+        ItemHitTest27.Item(frame: CGRect(x: 1500, y: 2, width: 30, height: 24), ownerPID: 12, isOnScreen: true),
+    ]
+    let clock = CGRect(x: 1700, y: 4, width: 26, height: 22)
+
+    @Test("On the active display the leftmost drawn item starts the run")
+    func activeDisplay() {
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: bounds,
+            items: items,
+            concealedPIDs: [],
+            systemFrames: [clock],
+            rememberedLeftEdge: nil
+        ) == 1400)
+    }
+
+    @Test("On the inactive display the frames MenuBarAgent draws there start the run")
+    func inactiveDisplay() {
+        // The built-in display's bar is not active: the cached items lie on the other display.
+        let display = CGRect(x: -1512, y: 0, width: 1512, height: 982)
+        let drawn = [CGRect(x: -400, y: 6, width: 30, height: 24), CGRect(x: -300, y: 6, width: 30, height: 24)]
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: display,
+            items: items,
+            concealedPIDs: [],
+            systemFrames: [clock],
+            rememberedLeftEdge: nil,
+            drawnFramesOnDisplay: drawn
+        ) == -400)
+    }
+
+    @Test("Concealed items do not widen the run")
+    func concealedExcluded() {
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: bounds,
+            items: items,
+            concealedPIDs: [11],
+            systemFrames: [clock],
+            rememberedLeftEdge: nil
+        ) == 1500)
+    }
+
+    @Test("The overflow button belongs to the run")
+    func overflowButtonIncluded() {
+        let folded = ItemHitTest27.Item(frame: CGRect(x: 1300, y: 2, width: 30, height: 24), ownerPID: 13, isOnScreen: false)
+        let overflowButton = CGRect(x: 1360, y: 4, width: 28, height: 22)
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: bounds,
+            items: items + [folded],
+            concealedPIDs: [],
+            systemFrames: [clock, overflowButton],
+            rememberedLeftEdge: nil
+        ) == 1360)
+    }
+
+    @Test("With nothing known there is no edge")
+    func nothingKnown() {
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: bounds,
+            items: [],
+            concealedPIDs: [],
+            systemFrames: [],
+            rememberedLeftEdge: nil
+        ) == nil)
+        // A remembered edge from another display does not count either.
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: bounds,
+            items: [],
+            concealedPIDs: [],
+            systemFrames: [],
+            rememberedLeftEdge: -400
+        ) == nil)
+    }
+}
+
 @Suite("Settled item frames")
 struct SettledFrames27Tests {
     let a = CGRect(x: 100, y: 0, width: 30, height: 24)

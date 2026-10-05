@@ -804,9 +804,10 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
     /// Returns a path for the ``MenuBarShapeKind/split`` shape kind.
     private func pathForSplitShape(in rect: CGRect, info: MenuBarSplitShapeInfo, isInset: Bool, screen: NSScreen) -> NSBezierPath {
-        guard let appearanceManager = overlayPanel?.appState?.appearanceManager else {
+        guard let appState = overlayPanel?.appState else {
             return NSBezierPath()
         }
+        let appearanceManager = appState.appearanceManager
         var rect = rect
         let shouldInset = isInset && screen.hasNotch
         if shouldInset {
@@ -837,21 +838,36 @@ private final class MenuBarOverlayPanelContentView: NSView {
             return CGRect(x: rect.minX, y: rect.minY, width: maxX, height: rect.height)
         }()
         let trailingPathBounds: CGRect = {
-            let itemWindows = MenuBarItem.getMenuBarItemWindows(on: screen.displayID, option: .onScreen)
-            guard !itemWindows.isEmpty else {
-                return .zero
-            }
-            let totalWidth = itemWindows.reduce(into: 0) { width, item in
-                width += item.bounds.width
-            }
-            var position = rect.maxX - totalWidth
-            if shouldInset {
-                position += 4
-                if info.trailing.trailingEndCap == .square {
-                    position -= appearanceManager.menuBarInsetAmount
+            var position: CGFloat
+            // On macOS 27 there are no item windows: the backend knows where the run of
+            // items starts, from values it already read.
+            if let leftEdge = appState.itemManager.backend.itemsAreaLeftEdge(on: screen, appState: appState) {
+                // x is the same in CoreGraphics and Cocoa coordinates.
+                position = leftEdge - screen.frame.minX
+                if shouldInset {
+                    // The edge does not move with the inset of a round trailing end cap
+                    // as the width below does, so the inset comes off for either cap.
+                    position += 4 - appearanceManager.menuBarInsetAmount
+                } else {
+                    position -= 7
                 }
             } else {
-                position -= 7
+                let itemWindows = MenuBarItem.getMenuBarItemWindows(on: screen.displayID, option: .onScreen)
+                guard !itemWindows.isEmpty else {
+                    return .zero
+                }
+                let totalWidth = itemWindows.reduce(into: 0) { width, item in
+                    width += item.bounds.width
+                }
+                position = rect.maxX - totalWidth
+                if shouldInset {
+                    position += 4
+                    if info.trailing.trailingEndCap == .square {
+                        position -= appearanceManager.menuBarInsetAmount
+                    }
+                } else {
+                    position -= 7
+                }
             }
             return CGRect(x: position, y: rect.minY, width: rect.maxX - position, height: rect.height)
         }()

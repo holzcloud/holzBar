@@ -83,6 +83,10 @@ final class ServiceBackend26: MenuBarBackend {
         windowList.isInsideItemsArea(point: point, screen: screen, appState: appState)
     }
 
+    func itemsAreaLeftEdge(on screen: NSScreen, appState: AppState) -> CGFloat? {
+        windowList.itemsAreaLeftEdge(on: screen, appState: appState)
+    }
+
     func makeSystemItemClickBridge(appState: AppState) -> (any SystemItemClickBridge)? {
         windowList.makeSystemItemClickBridge(appState: appState)
     }

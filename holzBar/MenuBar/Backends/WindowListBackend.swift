@@ -70,6 +70,11 @@ final class WindowListBackend: MenuBarBackend {
         false
     }
 
+    /// The split shape measures the item windows themselves.
+    func itemsAreaLeftEdge(on screen: NSScreen, appState: AppState) -> CGFloat? {
+        nil
+    }
+
     func makeSystemItemClickBridge(appState: AppState) -> (any SystemItemClickBridge)? {
         nil
     }
