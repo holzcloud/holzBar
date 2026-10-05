@@ -53,7 +53,7 @@ struct HolzBarGradientPicker<Label: View>: View {
             HolzBarGradientPickerRoot(
                 gradient: $gradient,
                 selection: $selection,
-                window: window,
+                window: $window,
                 supportsOpacity: supportsOpacity
             )
             .onWindowChange(update: $window)
@@ -77,9 +77,11 @@ private struct HolzBarGradientPickerRoot: View {
 
     @Binding var gradient: HolzBarGradient
     @Binding var selection: Int?
+    /// A binding, not a value: the key monitor keeps the closure from the first
+    /// render, when the window is not known yet, and must read the current window.
+    @Binding var window: NSWindow?
     @State private var lastUpdated: Int?
 
-    let window: NSWindow?
     let supportsOpacity: Bool
 
     private let handleWidth: CGFloat = 10
