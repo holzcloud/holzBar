@@ -103,6 +103,24 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["SyncsSettingsWithICloud"])
     }
 
+    @Test("A settings file cannot drop event barrier exits")
+    func settingsFileCannotDropBarrierExits() {
+        #expect(Defaults.Key.localOnlyKeys.contains(.debugDropsBarrierExitEvent))
+        #expect(Defaults.Key.importableKinds["DebugDropsBarrierExitEvent"] == nil)
+        let result = Defaults.Key.validatedSettings(["DebugDropsBarrierExitEvent": true, "ShowOnHover": true])
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["DebugDropsBarrierExitEvent"])
+    }
+
+    @Test("A settings file cannot hang item captures")
+    func settingsFileCannotHangItemCaptures() {
+        #expect(Defaults.Key.localOnlyKeys.contains(.debugHangsItemImageCapture))
+        #expect(Defaults.Key.importableKinds["DebugHangsItemImageCapture"] == nil)
+        let result = Defaults.Key.validatedSettings(["DebugHangsItemImageCapture": true, "ShowOnHover": true])
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["DebugHangsItemImageCapture"])
+    }
+
     @Test("Numbers out of range are clamped, and infinity and NaN refused")
     func numbersAreClamped() {
         let result = Defaults.Key.validatedSettings([
@@ -169,6 +187,8 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.useShelf.rawValue == "UseIceBar")
         #expect(Defaults.Key.hasImportedPreviousSettings.rawValue == "HasImportedIceSettings")
         #expect(Defaults.Key.macOS27ShelfWaitsForRefresh.rawValue == "MacOS27IceBarWaitsForRefresh")
+        #expect(Defaults.Key.debugDropsBarrierExitEvent.rawValue == "DebugDropsBarrierExitEvent")
+        #expect(Defaults.Key.debugHangsItemImageCapture.rawValue == "DebugHangsItemImageCapture")
         #expect(Defaults.Key.hotkeys.rawValue == "Hotkeys")
         #expect(Defaults.Key.menuBarAppearanceConfigurationV2.rawValue == "MenuBarAppearanceConfigurationV2")
     }

@@ -156,15 +156,19 @@ final class MenuBarItemEventPoster {
     ///   - item: The menu bar item that the event targets.
     ///   - timeout: The base duration to wait before throwing an error.
     ///     The value of this parameter is multiplied by `count` to
-    ///     produce the actual timeout duration.
+    ///     produce the actual timeout duration, which `bound` may raise.
     ///   - count: The number of times to repeat the operation. As it
     ///     is considerably more efficient, prefer increasing this value
     ///     over repeatedly calling `postEventWithBarrier`.
+    ///   - bound: How long the barrier waits when an event is lost
+    ///     (``EventBarrierPolicy/Bound``); a successful round trip
+    ///     returns as soon as its exit event arrives.
     private func postEventWithBarrier(
         _ event: CGEvent,
         to item: MenuBarItem,
         timeout: Duration,
-        repeating count: Int = 1
+        repeating count: Int = 1,
+        bound: EventBarrierPolicy.Bound = .main
     ) async throws {
         MouseHelpers.hideCursor()
         defer {
@@ -184,90 +188,146 @@ final class MenuBarItemEventPoster {
         let firstLocation = EventTap.Location.pid(pid)
         let secondLocation = EventTap.Location.sessionEventTap
 
+        let wait = bound.wait(timeout: timeout, count: count)
+        let losesRoundTrip = Defaults.bool(forKey: .debugDropsBarrierExitEvent)
+        let startedAt = ContinuousClock.now
         var count = count
-        var eventTaps = [EventTap]()
 
-        let timeoutTask = Task(timeout: timeout * count) {
-            try await withCheckedThrowingContinuation { continuation in
-                // Listen for the following events at the first location
-                // and perform the following actions:
-                //
-                // - Entry event: Decrement the count and post the real
-                //   event to the second location (handled in EventTap 2).
-                // - Exit event: Resume the continuation.
-                //
-                // These events serve as start (or continue) and stop
-                // signals, and are discarded.
-                let eventTap1 = EventTap(
-                    label: "EventTap 1",
-                    type: .null,
-                    location: firstLocation,
-                    placement: .headInsertEventTap,
-                    option: .defaultTap
-                ) { tap, rEvent in
-                    if rEvent.matches(entryEvent, byIntegerFields: [.eventSourceUserData]) {
-                        count -= 1
-                        event.post(to: secondLocation)
+        let timeoutTask = Task(timeout: wait) {
+            // Resumed once: by the exit event, by cancellation (which is how the timeout
+            // ends the barrier) or by a check that the barrier cannot complete.
+            let barrier = ResumeOnce<Void>()
+
+            // Listen for the following events at the first location
+            // and perform the following actions:
+            //
+            // - Entry event: Decrement the count and post the real
+            //   event to the second location (handled in EventTap 2).
+            // - Exit event: Resume the barrier.
+            //
+            // These events serve as start (or continue) and stop
+            // signals, and are discarded.
+            let eventTap1 = EventTap(
+                label: "EventTap 1",
+                type: .null,
+                location: firstLocation,
+                placement: .headInsertEventTap,
+                option: .defaultTap
+            ) { tap, rEvent in
+                if rEvent.matches(entryEvent, byIntegerFields: [.eventSourceUserData]) {
+                    // The debug default loses the round trip: the real event never reaches
+                    // the item, no exit event comes back, and the barrier times out.
+                    guard !losesRoundTrip else {
                         return nil
                     }
-                    if rEvent.matches(exitEvent, byIntegerFields: [.eventSourceUserData]) {
-                        tap.disable()
-                        continuation.resume()
-                        return nil
-                    }
+                    count -= 1
+                    event.post(to: secondLocation)
+                    return nil
+                }
+                if rEvent.matches(exitEvent, byIntegerFields: [.eventSourceUserData]) {
+                    tap.disable()
+                    barrier.resume(with: .success(()))
+                    return nil
+                }
+                return rEvent
+            }
+
+            // Listen for the real event at the second location and,
+            // depending on the count, post either the entry or exit
+            // event to the first location (handled in EventTap 1).
+            let eventTap2 = EventTap(
+                label: "EventTap 2",
+                type: event.type,
+                location: secondLocation,
+                placement: .tailAppendEventTap,
+                option: .listenOnly
+            ) { tap, rEvent in
+                guard rEvent.matches(event, byIntegerFields: CGEventField.menuBarItemEventFields) else {
                     return rEvent
                 }
-
-                // Listen for the real event at the second location and,
-                // depending on the count, post either the entry or exit
-                // event to the first location (handled in EventTap 1).
-                let eventTap2 = EventTap(
-                    label: "EventTap 2",
-                    type: event.type,
-                    location: secondLocation,
-                    placement: .tailAppendEventTap,
-                    option: .listenOnly
-                ) { tap, rEvent in
-                    guard rEvent.matches(event, byIntegerFields: CGEventField.menuBarItemEventFields) else {
-                        return rEvent
-                    }
-                    if count <= 0 {
-                        tap.disable()
-                        exitEvent.post(to: firstLocation)
-                    } else {
-                        entryEvent.post(to: firstLocation)
-                    }
-                    rEvent.setTargetPID(pid)
-                    return rEvent
+                if count <= 0 {
+                    tap.disable()
+                    exitEvent.post(to: firstLocation)
+                } else {
+                    entryEvent.post(to: firstLocation)
                 }
+                rEvent.setTargetPID(pid)
+                return rEvent
+            }
 
-                // Keep the taps alive.
-                eventTaps.append(eventTap1)
-                eventTaps.append(eventTap2)
-
-                Task {
-                    await withTaskCancellationHandler {
-                        eventTap1.enable()
-                        eventTap2.enable()
-                        entryEvent.post(to: firstLocation)
-                    } onCancel: {
-                        // The taps belong to the main actor, where their callbacks run.
-                        Task { @MainActor in
-                            eventTap1.disable()
-                            eventTap2.disable()
-                            continuation.resume(throwing: CancellationError())
-                        }
-                    }
+            // The array keeps the taps alive until the barrier ends; on every way out
+            // (exit event, timeout, cancellation, failure) they stop listening here, on
+            // the main actor.
+            let eventTaps = [eventTap1, eventTap2]
+            defer {
+                for eventTap in eventTaps {
+                    eventTap.disable()
                 }
+            }
+
+            try await withTaskCancellationHandler {
+                try await withCheckedThrowingContinuation { continuation in
+                    // A barrier cancelled before it started enables and posts nothing.
+                    guard barrier.store(continuation) else {
+                        return
+                    }
+                    if let error = self.enableBarrierTaps(eventTaps, pid: pid, item: item) {
+                        barrier.resume(throwing: error)
+                        return
+                    }
+                    entryEvent.post(to: firstLocation)
+                }
+            } onCancel: {
+                barrier.resume(throwing: CancellationError())
             }
         }
         do {
-            try await timeoutTask.value
+            try await withTaskCancellationHandler {
+                try await timeoutTask.value
+            } onCancel: {
+                timeoutTask.cancel()
+            }
+            logger.debug(
+                "Event barrier round trip took \(startedAt.duration(to: .now), privacy: .public) of \(wait, privacy: .public)"
+            )
         } catch is TaskTimeoutError {
+            logger.notice("Event barrier timed out after \(wait, privacy: .public)")
             throw EventError.eventOperationTimeout(item)
+        } catch let error as EventError {
+            throw error
         } catch {
             throw EventError.cannotComplete
         }
+    }
+
+    /// Enables the taps of an event barrier, or returns the error to fail it with at once
+    /// when it cannot complete, instead of waiting for its timeout.
+    ///
+    /// The target process may have quit since the item was read, and a tap whose port
+    /// could not be created stays silent when enabled.
+    private func enableBarrierTaps(_ eventTaps: [EventTap], pid: pid_t, item: MenuBarItem) -> EventError? {
+        // `EPERM` means the process exists but is not ours; only `ESRCH` means it is gone.
+        if kill(pid, 0) == -1, errno == ESRCH {
+            logger.notice("The target process of the event barrier is gone")
+            return .cannotComplete
+        }
+        for eventTap in eventTaps {
+            eventTap.enable()
+        }
+        if let invalidTap = eventTaps.first(where: { !$0.isValid }) {
+            logger.error("\(invalidTap.label, privacy: .public) is not valid")
+            return .eventCreationFailure(item)
+        }
+        return nil
+    }
+
+    /// Returns whether the given error is an event barrier that timed out, which means
+    /// an event was lost.
+    private static func isBarrierTimeout(_ error: any Error) -> Bool {
+        if case .eventOperationTimeout = error as? EventError {
+            return true
+        }
+        return false
     }
 
     /// Casts forbidden magic to make a menu bar item receive and
@@ -278,15 +338,19 @@ final class MenuBarItemEventPoster {
     ///   - item: The menu bar item that the event targets.
     ///   - timeout: The base duration to wait before throwing an error.
     ///     The value of this parameter is multiplied by `count` to
-    ///     produce the actual timeout duration.
+    ///     produce the actual timeout duration, which `bound` may raise.
     ///   - count: The number of times to repeat the operation. As it
     ///     is considerably more efficient, prefer increasing this value
     ///     over repeatedly calling `scrombleEvent`.
+    ///   - bound: How long the barrier waits when an event is lost
+    ///     (``EventBarrierPolicy/Bound``); a successful round trip
+    ///     returns as soon as its exit event arrives.
     private func scrombleEvent(
         _ event: CGEvent,
         item: MenuBarItem,
         timeout: Duration,
-        repeating count: Int = 1
+        repeating count: Int = 1,
+        bound: EventBarrierPolicy.Bound = .main
     ) async throws {
         MouseHelpers.hideCursor()
         defer {
@@ -306,111 +370,134 @@ final class MenuBarItemEventPoster {
         let firstLocation = EventTap.Location.pid(pid)
         let secondLocation = EventTap.Location.sessionEventTap
 
+        let wait = bound.wait(timeout: timeout, count: count)
+        let losesRoundTrip = Defaults.bool(forKey: .debugDropsBarrierExitEvent)
+        let startedAt = ContinuousClock.now
         var count = count
-        var eventTaps = [EventTap]()
 
-        let timeoutTask = Task(timeout: timeout * count) {
-            try await withCheckedThrowingContinuation { continuation in
-                // Listen for the following events at the first location
-                // and perform the following actions:
-                //
-                // - Entry event: Decrement the count and post the real
-                //   event to the second location (handled in EventTap 2).
-                // - Exit event: Resume the continuation.
-                //
-                // These events serve as start (or continue) and stop
-                // signals, and are discarded.
-                let eventTap1 = EventTap(
-                    label: "EventTap 1",
-                    type: .null,
-                    location: firstLocation,
-                    placement: .headInsertEventTap,
-                    option: .defaultTap
-                ) { tap, rEvent in
-                    if rEvent.matches(entryEvent, byIntegerFields: [.eventSourceUserData]) {
-                        count -= 1
-                        event.post(to: secondLocation)
+        let timeoutTask = Task(timeout: wait) {
+            // Resumed once: by the exit event, by cancellation (which is how the timeout
+            // ends the barrier) or by a check that the barrier cannot complete.
+            let barrier = ResumeOnce<Void>()
+
+            // Listen for the following events at the first location
+            // and perform the following actions:
+            //
+            // - Entry event: Decrement the count and post the real
+            //   event to the second location (handled in EventTap 2).
+            // - Exit event: Resume the barrier.
+            //
+            // These events serve as start (or continue) and stop
+            // signals, and are discarded.
+            let eventTap1 = EventTap(
+                label: "EventTap 1",
+                type: .null,
+                location: firstLocation,
+                placement: .headInsertEventTap,
+                option: .defaultTap
+            ) { tap, rEvent in
+                if rEvent.matches(entryEvent, byIntegerFields: [.eventSourceUserData]) {
+                    // The debug default loses the round trip: the real event never reaches
+                    // the item, no exit event comes back, and the barrier times out.
+                    guard !losesRoundTrip else {
                         return nil
                     }
-                    if rEvent.matches(exitEvent, byIntegerFields: [.eventSourceUserData]) {
-                        tap.disable()
-                        continuation.resume()
-                        return nil
-                    }
+                    count -= 1
+                    event.post(to: secondLocation)
+                    return nil
+                }
+                if rEvent.matches(exitEvent, byIntegerFields: [.eventSourceUserData]) {
+                    tap.disable()
+                    barrier.resume(with: .success(()))
+                    return nil
+                }
+                return rEvent
+            }
+
+            // Listen for the real event at the second location and
+            // post the real event to the first location (handled in
+            // EventTap 3).
+            let eventTap2 = EventTap(
+                label: "EventTap 2",
+                type: event.type,
+                location: secondLocation,
+                placement: .tailAppendEventTap,
+                option: .listenOnly
+            ) { tap, rEvent in
+                guard rEvent.matches(event, byIntegerFields: CGEventField.menuBarItemEventFields) else {
                     return rEvent
                 }
+                if count <= 0 {
+                    tap.disable()
+                }
+                event.post(to: firstLocation)
+                rEvent.setTargetPID(pid)
+                return rEvent
+            }
 
-                // Listen for the real event at the second location and
-                // post the real event to the first location (handled in
-                // EventTap 3).
-                let eventTap2 = EventTap(
-                    label: "EventTap 2",
-                    type: event.type,
-                    location: secondLocation,
-                    placement: .tailAppendEventTap,
-                    option: .listenOnly
-                ) { tap, rEvent in
-                    guard rEvent.matches(event, byIntegerFields: CGEventField.menuBarItemEventFields) else {
-                        return rEvent
-                    }
-                    if count <= 0 {
-                        tap.disable()
-                    }
-                    event.post(to: firstLocation)
-                    rEvent.setTargetPID(pid)
+            // Listen for the real event at the first location and,
+            // depending on the count, post either the entry or exit
+            // event to the first location (handled in EventTap 1).
+            let eventTap3 = EventTap(
+                label: "EventTap 3",
+                type: event.type,
+                location: firstLocation,
+                placement: .headInsertEventTap,
+                option: .listenOnly
+            ) { tap, rEvent in
+                guard rEvent.matches(event, byIntegerFields: CGEventField.menuBarItemEventFields) else {
                     return rEvent
                 }
-
-                // Listen for the real event at the first location and,
-                // depending on the count, post either the entry or exit
-                // event to the first location (handled in EventTap 1).
-                let eventTap3 = EventTap(
-                    label: "EventTap 3",
-                    type: event.type,
-                    location: firstLocation,
-                    placement: .headInsertEventTap,
-                    option: .listenOnly
-                ) { tap, rEvent in
-                    guard rEvent.matches(event, byIntegerFields: CGEventField.menuBarItemEventFields) else {
-                        return rEvent
-                    }
-                    if count <= 0 {
-                        tap.disable()
-                        exitEvent.post(to: firstLocation)
-                    } else {
-                        entryEvent.post(to: firstLocation)
-                    }
-                    rEvent.setTargetPID(pid)
-                    return rEvent
+                if count <= 0 {
+                    tap.disable()
+                    exitEvent.post(to: firstLocation)
+                } else {
+                    entryEvent.post(to: firstLocation)
                 }
+                rEvent.setTargetPID(pid)
+                return rEvent
+            }
 
-                // Keep the taps alive.
-                eventTaps.append(eventTap1)
-                eventTaps.append(eventTap2)
-                eventTaps.append(eventTap3)
-
-                Task {
-                    await withTaskCancellationHandler {
-                        eventTap1.enable()
-                        eventTap2.enable()
-                        eventTap3.enable()
-                        entryEvent.post(to: firstLocation)
-                    } onCancel: {
-                        // The taps belong to the main actor, where their callbacks run.
-                        Task { @MainActor in
-                            eventTap1.disable()
-                            eventTap2.disable()
-                            eventTap3.disable()
-                            continuation.resume(throwing: CancellationError())
-                        }
-                    }
+            // The array keeps the taps alive until the barrier ends; on every way out
+            // (exit event, timeout, cancellation, failure) they stop listening here, on
+            // the main actor.
+            let eventTaps = [eventTap1, eventTap2, eventTap3]
+            defer {
+                for eventTap in eventTaps {
+                    eventTap.disable()
                 }
+            }
+
+            try await withTaskCancellationHandler {
+                try await withCheckedThrowingContinuation { continuation in
+                    // A barrier cancelled before it started enables and posts nothing.
+                    guard barrier.store(continuation) else {
+                        return
+                    }
+                    if let error = self.enableBarrierTaps(eventTaps, pid: pid, item: item) {
+                        barrier.resume(throwing: error)
+                        return
+                    }
+                    entryEvent.post(to: firstLocation)
+                }
+            } onCancel: {
+                barrier.resume(throwing: CancellationError())
             }
         }
         do {
-            try await timeoutTask.value
+            try await withTaskCancellationHandler {
+                try await timeoutTask.value
+            } onCancel: {
+                timeoutTask.cancel()
+            }
+            logger.debug(
+                "Event barrier round trip took \(startedAt.duration(to: .now), privacy: .public) of \(wait, privacy: .public)"
+            )
         } catch is TaskTimeoutError {
+            logger.notice("Event barrier timed out after \(wait, privacy: .public)")
             throw EventError.eventOperationTimeout(item)
+        } catch let error as EventError {
+            throw error
         } catch {
             throw EventError.cannotComplete
         }
@@ -633,14 +720,18 @@ final class MenuBarItemEventPoster {
                     mouseUp,
                     item: item,
                     timeout: .milliseconds(100), // Fixed timeout for fallback.
-                    repeating: 2 // Double mouse up prevents invalid item state.
+                    repeating: 2, // Double mouse up prevents invalid item state.
+                    bound: .fallback // Keeps its designed bound of 200 ms.
                 )
             } catch {
                 // Catch this for logging purposes only. We want to propagate
                 // the original error.
                 logger.error("Fallback failed with error: \(error, privacy: .private)")
             }
-            timeout += timeout / 2
+            timeout = EventBarrierPolicy.moveTimeout(
+                afterFailure: timeout,
+                barrierTimedOut: Self.isBarrierTimeout(error)
+            )
             throw error
         }
     }
@@ -682,6 +773,8 @@ final class MenuBarItemEventPoster {
         }
 
         let maxAttempts = 8
+        // A lost event allows one more attempt, not all of them.
+        var budget = EventBarrierPolicy.AttemptBudget(maxAttempts: maxAttempts)
         for n in 1...maxAttempts {
             guard !Task.isCancelled else {
                 throw EventError.cannotComplete
@@ -696,7 +789,7 @@ final class MenuBarItemEventPoster {
                 return
             } catch {
                 logger.debug("Attempt \(n, privacy: .public) failed: \(error, privacy: .private)")
-                if n < maxAttempts {
+                if budget.allowsRetry(afterFailedAttempt: n, barrierTimedOut: Self.isBarrierTimeout(error)) {
                     try await waitForMoveOperationBuffer()
                     continue
                 }
@@ -784,7 +877,8 @@ final class MenuBarItemEventPoster {
                     mouseUp,
                     to: item,
                     timeout: timeout,
-                    repeating: 2 // Double mouse up prevents invalid item state.
+                    repeating: 2, // Double mouse up prevents invalid item state.
+                    bound: .fallback // Keeps its designed bound of 500 ms.
                 )
             } catch {
                 // Catch this for logging purposes only. We want to propagate
@@ -817,6 +911,8 @@ final class MenuBarItemEventPoster {
         }
 
         let maxAttempts = 4
+        // A lost event allows one more attempt, not all of them.
+        var budget = EventBarrierPolicy.AttemptBudget(maxAttempts: maxAttempts)
         for n in 1...maxAttempts {
             guard !Task.isCancelled else {
                 throw EventError.cannotComplete
@@ -827,7 +923,7 @@ final class MenuBarItemEventPoster {
                 return
             } catch {
                 logger.debug("Attempt \(n, privacy: .public) failed: \(error, privacy: .private)")
-                if n < maxAttempts {
+                if budget.allowsRetry(afterFailedAttempt: n, barrierTimedOut: Self.isBarrierTimeout(error)) {
                     await Self.eventSleep()
                     continue
                 }

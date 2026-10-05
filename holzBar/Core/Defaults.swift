@@ -205,6 +205,20 @@ nonisolated extension Defaults {
         case macOS27ClickRestoreDelay = "MacOS27ClickRestoreDelay"
         case macOS27ShelfWaitsForRefresh = "MacOS27IceBarWaitsForRefresh"
 
+        // MARK: Debugging
+        /// Loses the round trip of every move and click event barrier before macOS 27: the
+        /// entry event is dropped, so the real event never reaches the item, the exit event
+        /// never comes back and each barrier times out; shows that holzBar recovers from a
+        /// lost event. Hidden:
+        /// `defaults write com.holzcloud.holzBar DebugDropsBarrierExitEvent -bool true`.
+        /// Never exported, imported or synced.
+        case debugDropsBarrierExitEvent = "DebugDropsBarrierExitEvent"
+        /// Blocks every item image capture before macOS 27 forever, so each one times out;
+        /// shows that holzBar recovers from a stuck capture and stops capturing after three.
+        /// Hidden: `defaults write com.holzcloud.holzBar DebugHangsItemImageCapture -bool true`.
+        /// Never exported, imported or synced.
+        case debugHangsItemImageCapture = "DebugHangsItemImageCapture"
+
         // MARK: Migration
         case hasMigrated0_8_0 = "hasMigrated0_8_0"
         case hasMigrated0_10_0 = "hasMigrated0_10_0"
@@ -266,6 +280,8 @@ nonisolated extension Defaults.Key {
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
+            .debugDropsBarrierExitEvent,
+            .debugHangsItemImageCapture,
             .hasMigrated0_8_0,
             .hasMigrated0_10_0,
             .hasMigrated0_10_1,
@@ -376,8 +392,13 @@ nonisolated extension Defaults.Key {
     /// Keys that stay on this Mac: never exported, imported or synced.
     ///
     /// Turning settings sync on writes the settings to a folder outside this Mac, so only
-    /// the user turns it on, on each Mac; a settings file cannot.
-    static let localOnlyKeys: Set<Defaults.Key> = [.syncsSettingsWithICloud]
+    /// the user turns it on, on each Mac; a settings file cannot. Debug defaults stay on
+    /// this Mac too.
+    static let localOnlyKeys: Set<Defaults.Key> = [
+        .syncsSettingsWithICloud,
+        .debugDropsBarrierExitEvent,
+        .debugHangsItemImageCapture,
+    ]
 
     /// The stored key names an imported or synced settings file may set, with the
     /// kind of value each one takes. Every key except the ``localOnlyKeys``.

@@ -43,6 +43,9 @@ final class MenuBarItemImageCache {
 
         /// The menu bar items excluded from the capture.
         var excluded = [MenuBarItem]()
+
+        /// The items a single capture skipped because they are not entirely on one display.
+        var offScreen = [MenuBarItem]()
     }
 
     /// The queue the blocking window-server capture calls run on.
@@ -62,19 +65,97 @@ final class MenuBarItemImageCache {
     /// The only remedy is to keep these calls off the cooperative pool entirely.
     /// The queue is serial, so a stuck capture costs one thread rather than one
     /// per item.
-    private nonisolated static let captureQueue = DispatchQueue(
-        label: "com.holzcloud.holzBar.ImageCapture",
-        qos: .userInitiated
-    )
+    ///
+    /// A stuck capture used to block every later one behind it until relaunch (F-13).
+    /// Each call is now given up after ``ItemCapturePolicy/timeout``: the queue whose
+    /// call did not return is abandoned with its thread, and later calls go to a fresh
+    /// queue. After ``ItemCapturePolicy/maxAbandonedQueues`` calls that are still stuck,
+    /// capture stops for the session; a call that returns late gives its queue back.
+    @ObservationIgnored private var captureQueue = makeCaptureQueue()
 
-    /// Runs a blocking capture off the Swift concurrency pool.
-    private nonisolated func onCaptureQueue(
+    /// Tracks the capture calls that did not return in time.
+    @ObservationIgnored private var watchdog = ItemCapturePolicy.Watchdog()
+
+    /// Runs one capture pass at a time.
+    @ObservationIgnored private let captureRun = CoalescedRun<MenuBarSection.Name>()
+
+    /// Whether item image capture has stopped until holzBar is relaunched.
+    private var isCaptureStopped: Bool {
+        watchdog.isStopped
+    }
+
+    /// Returns a new queue for the blocking capture calls.
+    private nonisolated static func makeCaptureQueue() -> DispatchQueue {
+        DispatchQueue(label: "com.holzcloud.holzBar.ImageCapture", qos: .userInitiated)
+    }
+
+    /// Runs a blocking capture off the Swift concurrency pool, and gives it up after
+    /// ``ItemCapturePolicy/timeout``.
+    ///
+    /// - Parameter windowID: The window of a single capture, or `nil` for a composite one.
+    /// - Returns: The result, or `nil` when the capture was given up or capture has
+    ///   stopped; then there are no new images, and the cached ones stay.
+    private func onCaptureQueue(
+        windowID: CGWindowID? = nil,
         _ work: @escaping @Sendable () -> CaptureResult
-    ) async -> CaptureResult {
-        await withCheckedContinuation { continuation in
-            Self.captureQueue.async {
-                continuation.resume(returning: work())
+    ) async -> CaptureResult? {
+        guard !isCaptureStopped else {
+            return nil
+        }
+        let queue = captureQueue
+        let hangs = Defaults.bool(forKey: .debugHangsItemImageCapture)
+        let result = await BlockingWork.run(on: queue, timeout: ItemCapturePolicy.timeout, fallback: CaptureResult?.none) {
+            if hangs {
+                // Debug only: simulates a capture that never returns.
+                DispatchSemaphore(value: 0).wait()
             }
+            return work()
+        }
+        guard !result.timedOut else {
+            captureDidTimeOut(on: queue, windowID: windowID)
+            return nil
+        }
+        return result.value
+    }
+
+    /// Abandons the given queue after one of its capture calls did not return in time.
+    private func captureDidTimeOut(on queue: DispatchQueue, windowID: CGWindowID?) {
+        // The queue is serial, so this runs only after the stuck call, if it ever returns:
+        // it shows whether a call that was given up was stuck for good or only slow. A
+        // slow call blocks no thread any more, so its queue no longer counts toward the stop.
+        let logger = logger
+        let abandonedAt = ContinuousClock.now
+        queue.async { [weak self] in
+            let late = abandonedAt.duration(to: .now) + ItemCapturePolicy.timeout
+            let seconds = Double(late.components.seconds) + Double(late.components.attoseconds) / 1e18
+            logger.notice("An abandoned item image capture returned after \(seconds, format: .fixed(precision: 1), privacy: .public) s")
+            Task { @MainActor in
+                self?.watchdog.recordLateReturn()
+            }
+        }
+
+        guard !isCaptureStopped else {
+            return
+        }
+        switch watchdog.recordTimeout(windowID: windowID) {
+        case .replaceQueue:
+            captureQueue = Self.makeCaptureQueue()
+            logger.warning(
+                """
+                Item image capture did not return within 2 s; later captures use a new queue \
+                (\(self.watchdog.abandonedQueues, privacy: .public) of \(ItemCapturePolicy.maxAbandonedQueues, privacy: .public) abandoned)
+                """
+            )
+        case .stop:
+            // Nothing could refresh any more.
+            refreshTask?.cancel()
+            refreshTask = nil
+            logger.error(
+                """
+                Item image capture stopped until holzBar is relaunched: \
+                \(ItemCapturePolicy.maxAbandonedQueues, privacy: .public) captures did not return; the last images stay
+                """
+            )
         }
     }
 
@@ -201,7 +282,8 @@ final class MenuBarItemImageCache {
     private func refreshNeededDidChange(_ isNeeded: Bool) {
         refreshTask?.cancel()
         refreshTask = nil
-        guard isNeeded else {
+        // Once capture has stopped, a refresh could do nothing.
+        guard isNeeded, !isCaptureStopped else {
             return
         }
         refreshTask = Task { [weak self] in
@@ -306,31 +388,94 @@ final class MenuBarItemImageCache {
         return result
     }
 
-    /// Captures an image of each of the given items individually, then
-    /// returns the result.
-    private nonisolated func individualCapture(_ items: [MenuBarItem], scale: CGFloat) -> CaptureResult {
+    /// Captures an image of the given item on its own and returns the result.
+    ///
+    /// A single capture of an item that is not entirely on one display can block forever
+    /// on macOS 26 (see ``captureQueue``), so such an item is skipped and returned in
+    /// ``CaptureResult/offScreen``. Hidden items sit off screen, left of the menu bar,
+    /// while their section is hidden.
+    private nonisolated func individualCapture(_ item: MenuBarItem, displays: [CGRect], scale: CGFloat) -> CaptureResult {
+        var result = CaptureResult()
+
+        // Live bounds, not `item.bounds`: the cached ones can name the display
+        // the item was on a moment ago.
+        guard
+            let bounds = Bridging.getWindowBounds(for: item.windowID),
+            bounds.width > 0
+        else {
+            result.excluded.append(item)
+            return result
+        }
+        guard ItemCapturePolicy.isOnScreen(bounds, displays: displays) else {
+            result.offScreen.append(item)
+            return result
+        }
+        guard
+            let image = ScreenCapture.captureWindow(with: item.windowID, option: captureOption),
+            !image.isTransparent()
+        else {
+            result.excluded.append(item)
+            return result
+        }
+        // Derived, for the same reason as in the composite path above.
+        let actualScale = CGFloat(image.width) / bounds.width
+        result.images[item.tag] = CapturedImage(
+            cgImage: image,
+            scale: (actualScale >= 0.5 && actualScale <= 4) ? actualScale : scale
+        )
+        return result
+    }
+
+    /// Captures an image of each of the given items individually, each call bounded on its
+    /// own, then returns the result.
+    private func captureIndividually(_ items: [MenuBarItem], scale: CGFloat) async -> CaptureResult {
+        let displays = Bridging.getActiveDisplayList().map(CGDisplayBounds)
         var result = CaptureResult()
 
         for item in items {
-            // Live bounds, not `item.bounds`: the cached ones can name the display
-            // the item was on a moment ago.
-            guard
-                let bounds = Bridging.getWindowBounds(for: item.windowID),
-                bounds.width > 0,
-                let image = ScreenCapture.captureWindow(with: item.windowID, option: captureOption),
-                !image.isTransparent()
-            else {
+            let itemResult = await onCaptureQueue(windowID: item.windowID) { [self] in
+                individualCapture(item, displays: displays, scale: scale)
+            }
+            guard let itemResult else {
                 result.excluded.append(item)
+                if isCaptureStopped {
+                    break
+                }
                 continue
             }
-            // Derived, for the same reason as in the composite path above.
-            let actualScale = CGFloat(image.width) / bounds.width
-            result.images[item.tag] = CapturedImage(
-                cgImage: image,
-                scale: (actualScale >= 0.5 && actualScale <= 4) ? actualScale : scale
-            )
+            result.images.merge(itemResult.images) { (_, new) in new }
+            result.excluded += itemResult.excluded
+            result.offScreen += itemResult.offScreen
         }
 
+        let keptCount = result.offScreen.filter { images[$0.tag] != nil }.count
+        if keptCount > 0 {
+            logger.debug("Kept the cached images of \(keptCount, privacy: .public) items off screen")
+        }
+        return result
+    }
+
+    /// Takes the images of the off-screen items in the given result that have no cached
+    /// image from one composite capture; the others keep their cached images.
+    private func captureMissingOffScreen(in result: CaptureResult, scale: CGFloat) async -> CaptureResult {
+        let missing = result.offScreen.filter { images[$0.tag] == nil }
+        guard !missing.isEmpty else {
+            return result
+        }
+
+        // All off-screen items of the batch, shaped like the regular composite capture,
+        // which captures the hidden items whenever the Shelf opens.
+        let offScreen = result.offScreen
+        let compositeResult = await onCaptureQueue { [self] in compositeCapture(offScreen, scale: scale) }
+
+        var result = result
+        for item in missing {
+            if let image = compositeResult?.images[item.tag] {
+                result.images[item.tag] = image
+            } else {
+                result.excluded.append(item)
+            }
+        }
         return result
     }
 
@@ -340,10 +485,13 @@ final class MenuBarItemImageCache {
         // doesn't account for overlapping items.
         if appState.itemManager.lastMoveOperationOccurred(within: .seconds(2)) {
             logger.debug("Capturing individually due to recent item movement")
-            return await onCaptureQueue { [self] in individualCapture(items, scale: scale) }
+            let individualResult = await captureIndividually(items, scale: scale)
+            return await captureMissingOffScreen(in: individualResult, scale: scale)
         }
 
-        let compositeResult = await onCaptureQueue { [self] in compositeCapture(items, scale: scale) }
+        guard let compositeResult = await onCaptureQueue({ [self] in compositeCapture(items, scale: scale) }) else {
+            return CaptureResult() // No new images; the cached ones stay.
+        }
 
         if compositeResult.excluded.isEmpty {
             return compositeResult // All items captured successfully.
@@ -356,8 +504,11 @@ final class MenuBarItemImageCache {
             """
         )
 
-        let excluded = compositeResult.excluded
-        var individualResult = await onCaptureQueue { [self] in individualCapture(excluded, scale: scale) }
+        var individualResult = await captureIndividually(compositeResult.excluded, scale: scale)
+
+        // The composite capture just failed for the items off screen, so they are not
+        // captured again. Those without a cached image count as failed, so they are logged.
+        individualResult.excluded += individualResult.offScreen.filter { images[$0.tag] == nil }
 
         // Merge the successfully captured images from each result. Keep excluded
         // items as part of the result, so they can be logged elsewhere.
@@ -369,7 +520,8 @@ final class MenuBarItemImageCache {
     /// Captures the images of the menu bar items in the given section and returns
     /// a dictionary containing the images, keyed by their menu bar item tags.
     private func captureImages(for section: MenuBarSection.Name, scale: CGFloat, appState: AppState) async -> [MenuBarItemTag: CapturedImage] {
-        let items = appState.itemManager.itemCache[section]
+        // A window whose capture did not return is not captured again.
+        let items = appState.itemManager.itemCache[section].filter { !watchdog.skips($0.windowID) }
         let captureResult = await captureImages(of: items, scale: scale, appState: appState)
         if !captureResult.excluded.isEmpty {
             logger.error("Some items failed capture: \(captureResult.excluded, privacy: .private(mask: .hash))")
@@ -417,6 +569,30 @@ final class MenuBarItemImageCache {
             return
         }
 
+        guard !isCaptureStopped else {
+            return
+        }
+
+        // One pass at a time: a request meanwhile joins it and adds its sections to one
+        // re-run, so the capture queue never holds more than one call and no request waits
+        // on a stuck one for longer than the watchdog allows (F-13).
+        await captureRun.run(sections) { [weak self] batch in
+            await self?.captureAndStoreImages(for: batch)
+        }
+    }
+
+    /// Captures the images of the items in the given sections and stores them.
+    private func captureAndStoreImages(for sections: Set<MenuBarSection.Name>) async {
+        // A re-run can start after any of these changed.
+        guard
+            let appState,
+            appState.hasPermission(.screenRecording),
+            !appState.systemActivityMonitor.isPaused,
+            !isCaptureStopped
+        else {
+            return
+        }
+
         guard
             let displayID = appState.itemManager.itemCache.displayID,
             let screen = NSScreen.screens.first(where: { $0.displayID == displayID })
@@ -424,10 +600,15 @@ final class MenuBarItemImageCache {
             return
         }
 
+        watchdog.forgetWindows(notIn: Set(appState.itemManager.itemCache.managedItems.map(\.windowID)))
+
         let scale = screen.backingScaleFactor
         var newImages = [MenuBarItemTag: CapturedImage]()
 
-        for section in sections {
+        for section in MenuBarSection.Name.allCases where sections.contains(section) {
+            guard !isCaptureStopped else {
+                break
+            }
             guard !appState.itemManager.itemCache[section].isEmpty else {
                 continue
             }
@@ -435,7 +616,10 @@ final class MenuBarItemImageCache {
             let sectionImages = await captureImages(for: section, scale: scale, appState: appState)
 
             guard !sectionImages.isEmpty else {
-                logger.warning("Failed item image cache for \(section.logString, privacy: .public)")
+                // Items off screen just after a move keep their cached images; that is no failure.
+                if appState.itemManager.itemCache[section].contains(where: { images[$0.tag] == nil }) {
+                    logger.warning("Failed item image cache for \(section.logString, privacy: .public)")
+                }
                 continue
             }
 
@@ -461,7 +645,8 @@ final class MenuBarItemImageCache {
     /// Releases every cached image. Runs a minute after the last view that shows item
     /// images closed; the images are captured again when one opens.
     func releaseAllImages() {
-        guard !images.isEmpty else {
+        // Once capture has stopped, these images are all there is until relaunch.
+        guard !images.isEmpty, !isCaptureStopped else {
             return
         }
         images.removeAll()
