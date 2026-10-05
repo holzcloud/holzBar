@@ -450,6 +450,11 @@ extension MenuBarItemManager {
             await cacheActor.clearCachedItemWindowIDs() // Ensure next cache isn't skipped.
         }
 
+        // A newer cache replaced this one; its items are the current ones.
+        guard !Task.isCancelled else {
+            return
+        }
+
         guard itemCache != context.cache else {
             logger.debug("Not updating menu bar item cache, as items haven't changed")
             return
@@ -484,8 +489,18 @@ extension MenuBarItemManager {
             let displayID = Bridging.getActiveMenuBarDisplayID()
             var items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
 
+            // A newer cache replaced this one while it waited (`runCacheTask`); a stale
+            // read must not overwrite its result, so every wait is followed by a check.
+            guard !Task.isCancelled else {
+                return
+            }
+
             let itemWindowIDs = currentItemWindowIDs ?? items.reversed().map { $0.windowID }
             await cacheActor.updateCachedItemWindowIDs(itemWindowIDs)
+
+            guard !Task.isCancelled else {
+                return
+            }
 
             if let appState, let cache = backend.cacheFromLayout(items: items, displayID: displayID, appState: appState) {
                 // On macOS 27 the saved layout, not the order on the bar, places items in sections
@@ -526,11 +541,18 @@ extension MenuBarItemManager {
             // Where items cannot be moved, the dividers stay where macOS placed them.
             if backend.canMoveItems {
                 await enforceControlItemOrder(controlItems: controlItems)
+                guard !Task.isCancelled else {
+                    return
+                }
                 // Forget the UUIDs of item windows that are gone (on every space).
                 pruneUUIDCache(keeping: Bridging.getMenuBarWindowList(option: .itemsOnly))
                 updateIdentities(with: items)
             }
             await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
+
+            guard !Task.isCancelled else {
+                return
+            }
 
             if backend.canMoveItems {
                 // The sections the user arranged, or of the first run, are recorded.
