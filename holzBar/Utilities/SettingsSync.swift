@@ -77,12 +77,16 @@ final class SettingsSync {
     /// The folder the Macs sync, chosen by the user or iCloud Drive (see
     /// `SettingsSyncLocation`). A stale bookmark, or iCloud Drive used without a choice, is
     /// stored as the choice.
+    ///
+    /// The bookmark is resolved without mounting: holzBar never mounts a network share
+    /// itself (and never waits for one on the main thread). A folder on a volume that is
+    /// not mounted is not available until the user mounts it.
     static var syncFolderURL: URL? {
         let resolution: SettingsSyncLocation.Resolution
         var resolvedURL: URL?
         if let bookmark = UserDefaults.standard.data(forKey: folderBookmarkKey) {
             var isStale = false
-            if let url = try? URL(resolvingBookmarkData: bookmark, options: [.withoutUI], relativeTo: nil, bookmarkDataIsStale: &isStale) {
+            if let url = try? URL(resolvingBookmarkData: bookmark, options: [.withoutUI, .withoutMounting], relativeTo: nil, bookmarkDataIsStale: &isStale) {
                 resolvedURL = url
                 resolution = .resolved(path: url.path(percentEncoded: false), isStale: isStale)
             } else {
@@ -126,21 +130,21 @@ final class SettingsSync {
         folderURL?.appending(path: SettingsSyncLocation.fileComponents[1])
     }
 
-    /// The name of the synced folder to show, or `nil` when there is none.
-    var folderDisplayName: String? {
-        _ = folderChangeCount
-        guard let url = Self.syncFolderURL else {
-            return nil
-        }
-        return SettingsSyncLocation.displayName(
-            forFolder: url.path(percentEncoded: false),
-            homePath: FileManager.default.homeDirectoryForCurrentUser.path(percentEncoded: false),
-            iCloudDrivePath: Self.iCloudDriveURL?.path(percentEncoded: false)
-        )
-    }
+    /// The name of the synced folder to show, or `nil` when there is none. Updated while
+    /// sync is on, when the folder is chosen and when a volume is mounted or unmounted, never
+    /// in a view body.
+    private(set) var folderDisplayName: String?
 
-    /// Counts the changes of the folder, so the view showing its name updates.
-    private var folderChangeCount = 0
+    /// Updates the name of the synced folder to show.
+    private func updateFolderDisplayName() {
+        folderDisplayName = Self.syncFolderURL.map { url in
+            SettingsSyncLocation.displayName(
+                forFolder: url.path(percentEncoded: false),
+                homePath: FileManager.default.homeDirectoryForCurrentUser.path(percentEncoded: false),
+                iCloudDrivePath: Self.iCloudDriveURL?.path(percentEncoded: false)
+            )
+        }
+    }
 
     /// A Boolean value that indicates whether syncing is turned on.
     var isEnabled = false {
@@ -159,6 +163,10 @@ final class SettingsSync {
 
     /// Observes this Mac's settings while sync is on.
     @ObservationIgnored private var defaultsObserver: Task<Void, Never>?
+
+    /// Observes volumes being mounted and unmounted while sync is on, as the folder may be
+    /// on one.
+    @ObservationIgnored private var volumeObservers: [Task<Void, Never>] = []
 
     /// Pushes the settings 5 s after they stop changing.
     @ObservationIgnored private let defaultsDebouncer = Debouncer(delay: .seconds(5))
@@ -182,6 +190,8 @@ final class SettingsSync {
         guard isEnabled, appState != nil else {
             defaultsObserver?.cancel()
             defaultsObserver = nil
+            volumeObservers.forEach { $0.cancel() }
+            volumeObservers = []
             defaultsDebouncer.cancel()
             checkTask?.cancel()
             checkTask = nil
@@ -198,6 +208,19 @@ final class SettingsSync {
                 }
             }
         }
+
+        if volumeObservers.isEmpty {
+            let center = NSWorkspace.shared.notificationCenter
+            volumeObservers = [NSWorkspace.didMountNotification, NSWorkspace.didUnmountNotification].map { name in
+                Task { [weak self] in
+                    for await _ in center.notifications(named: name) {
+                        self?.volumesDidChange()
+                    }
+                }
+            }
+        }
+
+        updateFolderDisplayName()
 
         if presenter == nil, let folderURL = Self.folderURL {
             // Anyone who can write the synced folder could make the holzBar folder a link
@@ -225,6 +248,15 @@ final class SettingsSync {
             folderWatcher = SettingsSyncFolderWatcher(folderURL: folderURL, onChange: onChange)
             Self.logger.info("Watching the sync file")
         }
+    }
+
+    /// Watches the sync folder again when a volume was mounted or unmounted and the folder
+    /// became available, moved or gone.
+    private func volumesDidChange() {
+        if presenter?.presentedItemURL != Self.folderURL {
+            stopWatchingFolder()
+        }
+        updateObservers()
     }
 
     /// Stops listening to the sync folder.
@@ -258,7 +290,6 @@ final class SettingsSync {
         }
         stopWatchingFolder()
         Self.storeBookmark(of: url)
-        folderChangeCount += 1
         lastPushedData = nil
         if isEnabled {
             updateObservers()
