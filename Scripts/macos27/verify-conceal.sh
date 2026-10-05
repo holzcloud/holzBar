@@ -92,6 +92,8 @@ for _ in $(seq 1 "$CYCLES"); do
 done
 touch "$WORK/stop"
 wait "$CAPTURE"
+# Reaped, so its PID may belong to another process by the time restore() runs.
+unset CAPTURE
 LOWEST=$("$WORK/bin/analyze-frames" "$WORK/cycles" "$REGION_X" "$REGION_W" | awk '$2 >= 0 { print $2 }' | sort -n | head -1)
 FRAMES=$(ls "$WORK/cycles" | wc -l | tr -d ' ')
 
