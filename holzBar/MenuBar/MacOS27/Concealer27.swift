@@ -71,6 +71,19 @@ final class Concealer27 {
     /// Whether any application is meant to be concealed right now.
     private(set) var isConcealing = false
 
+    /// Whether a suspension under way lifted concealment; see ``concealsThroughSuspensions``.
+    private(set) var suspendedConcealment = SuspendedConcealment()
+
+    /// Whether any application is meant to be concealed, counting the ones a suspension
+    /// releases for a moment (a bridged click, a relayout for the notch).
+    ///
+    /// `isConcealing` turns `false` for every suspension. What follows concealment as a state,
+    /// such as the capture badge on holzBar's icon, reads this instead, so it does not flicker
+    /// with every click on a system item.
+    var concealsThroughSuspensions: Bool {
+        suspendedConcealment.conceals(isConcealing: isConcealing)
+    }
+
     /// Process identifiers of the applications meant to be concealed right now.
     private(set) var concealedPIDs = Set<pid_t>()
 
@@ -664,7 +677,18 @@ final class Concealer27 {
     private func beginSuspension(until deadline: ContinuousClock.Instant) -> Int {
         suspensionOwner += 1
         suspendedUntil = deadline
+        updateSuspendedConcealment { $0.begin(isConcealing: isConcealing) }
         return suspensionOwner
+    }
+
+    /// Changes ``suspendedConcealment``; an unchanged value is not assigned, so nothing
+    /// observes it.
+    private func updateSuspendedConcealment(_ change: (inout SuspendedConcealment) -> Void) {
+        var updated = suspendedConcealment
+        change(&updated)
+        if updated != suspendedConcealment {
+            suspendedConcealment = updated
+        }
     }
 
     /// Puts concealment back at the deadline, unless a later suspension or an early end owns it.
@@ -675,6 +699,9 @@ final class Concealer27 {
                 return
             }
             suspendedUntil = nil
+            // Within the same turn as the update, so observers see concealment go on again
+            // without a gap.
+            updateSuspendedConcealment { $0.end() }
             update()
         }
     }
@@ -686,6 +713,7 @@ final class Concealer27 {
         }
         suspensionOwner += 1
         suspendedUntil = nil
+        updateSuspendedConcealment { $0.end() }
         update()
     }
 

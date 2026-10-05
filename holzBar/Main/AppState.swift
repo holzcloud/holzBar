@@ -124,13 +124,14 @@ final class AppState {
     /// indicator is not drawn while holzBar hides items.
     ///
     /// Reads only observed state and has no early return, so an observation started before the
-    /// monitor's setup still follows every input.
+    /// monitor's setup still follows every input. Follows concealment through the suspensions
+    /// of a bridged click, so the badge and the icon carrying it stay while a system item opens.
     @available(macOS 27.0, *)
     var captureBadge27: CaptureBadge? {
         let activity = captureActivityMonitor27.activity
         return CaptureIndicator.badge(
             isEnabled: settings.general.holzBarIconShowsCaptureDot,
-            isConcealing: concealer27.isConcealing,
+            isConcealing: concealer27.concealsThroughSuspensions,
             isMicrophoneInUse: activity.isMicrophoneInUse,
             isCameraInUse: activity.isCameraInUse
         )

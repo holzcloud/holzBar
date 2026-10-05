@@ -34,6 +34,40 @@ struct CaptureIndicatorTests {
         #expect(both?.showsCamera == true)
     }
 
+    @Test("Suspended while concealing keeps the badge")
+    func suspensionKeepsBadge() {
+        // A bridged click on the clock releases every assertion for a moment.
+        var suspension = SuspendedConcealment()
+        suspension.begin(isConcealing: true)
+        let isConcealing = false
+        let during = CaptureIndicator.badge(
+            isEnabled: true,
+            isConcealing: suspension.conceals(isConcealing: isConcealing),
+            isMicrophoneInUse: true,
+            isCameraInUse: false
+        )
+        #expect(during == .microphone)
+        // A second suspension begun meanwhile, while nothing is live, keeps what the first lifted.
+        suspension.begin(isConcealing: isConcealing)
+        #expect(suspension.conceals(isConcealing: false))
+        suspension.end()
+        #expect(!suspension.conceals(isConcealing: false))
+        #expect(suspension.conceals(isConcealing: true))
+    }
+
+    @Test("A suspension while nothing is concealed adds no badge")
+    func suspensionWithoutConcealmentAddsNoBadge() {
+        var suspension = SuspendedConcealment()
+        suspension.begin(isConcealing: false)
+        let badge = CaptureIndicator.badge(
+            isEnabled: true,
+            isConcealing: suspension.conceals(isConcealing: false),
+            isMicrophoneInUse: true,
+            isCameraInUse: true
+        )
+        #expect(badge == nil)
+    }
+
     @Test("The icon shows while it carries a badge")
     func iconShowsWithBadge() {
         #expect(CaptureIndicator.showsHolzBarIcon(isIconEnabled: true, badge: nil))
