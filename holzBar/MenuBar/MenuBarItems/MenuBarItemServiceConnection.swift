@@ -38,6 +38,14 @@ nonisolated extension MenuBarItemService {
         /// The queue for lookups that run in the app.
         private let localQueue = DispatchQueue(label: "MenuBarItemService.Connection.local", qos: .userInitiated)
 
+        /// The queue on which requests wait for the service's replies.
+        ///
+        /// A request blocks until the service answers, and to answer, the service may ask
+        /// holzBar itself through Accessibility, which AppKit answers on the main thread.
+        /// The callers run on the main actor, so the requests wait here instead (see
+        /// ``BlockingWork``).
+        private let requestQueue = DispatchQueue(label: "MenuBarItemService.Connection.requests", qos: .userInitiated)
+
         /// Creates a new connection.
         private init() {
             let queue = DispatchQueue.targetingGlobal(
@@ -55,20 +63,15 @@ nonisolated extension MenuBarItemService {
         func start() async {
             logger.debug("Starting MenuBarItemService connection")
 
-            await withCheckedContinuation { continuation in
-                guard let response = session.send(request: .start) else {
-                    logger.error("Start request returned nil, looking up source processes in the app instead")
-                    switchToLocalCache()
-                    continuation.resume()
-                    return
-                }
-                if case .start = response {
-                    continuation.resume()
-                } else {
-                    logger.error("Start request returned invalid response \(String(describing: response), privacy: .private)")
-                    continuation.resume()
-                }
+            guard let response = await send(.start) else {
+                logger.error("Start request returned nil, looking up source processes in the app instead")
+                switchToLocalCache()
+                return
             }
+            if case .start = response {
+                return
+            }
+            logger.error("Start request returned invalid response \(String(describing: response), privacy: .private)")
         }
 
         /// Returns the source process identifier for the given window.
@@ -76,9 +79,7 @@ nonisolated extension MenuBarItemService {
             if usesLocalCache.withLock({ $0 }) {
                 return await localSourcePID(for: window)
             }
-            let response: MenuBarItemService.Response? = await withCheckedContinuation { continuation in
-                continuation.resume(returning: session.send(request: .sourcePID(window)))
-            }
+            let response = await send(.sourcePID(window))
             guard let response else {
                 logger.error("Source PID request returned nil, looking up source processes in the app instead")
                 switchToLocalCache()
@@ -89,6 +90,15 @@ nonisolated extension MenuBarItemService {
             }
             logger.error("Source PID request returned invalid response \(String(describing: response), privacy: .private)")
             return nil
+        }
+
+        /// Sends the given request to the service and returns its response, waiting on
+        /// ``requestQueue``, never on the caller's thread.
+        private func send(_ request: Request) async -> Response? {
+            let session = session
+            return await BlockingWork.run(on: requestQueue) {
+                session.send(request: request)
+            }
         }
 
         /// Stops using the service and looks up source processes in the app.
@@ -107,10 +117,8 @@ nonisolated extension MenuBarItemService {
 
         /// Looks up the source process of the given window in the app.
         private func localSourcePID(for window: WindowInfo) async -> pid_t? {
-            await withCheckedContinuation { continuation in
-                localQueue.async {
-                    continuation.resume(returning: SourcePIDCache.shared.pid(for: window))
-                }
+            await BlockingWork.run(on: localQueue) {
+                SourcePIDCache.shared.pid(for: window)
             }
         }
     }

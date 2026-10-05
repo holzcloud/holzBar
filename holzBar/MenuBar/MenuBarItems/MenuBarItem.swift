@@ -189,6 +189,24 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
         self.title = itemWindow.title
         self.isOnScreen = itemWindow.isOnScreen
     }
+
+    /// Creates the menu bar item of one of holzBar's control items, drawn in the given
+    /// window (macOS 26).
+    ///
+    /// This initializer does not perform validity checks on its parameters.
+    /// Only call it if you are certain the window draws the control item
+    /// (see `OwnStatusItemWindows`). The tag comes from the control item, not
+    /// from the window's title.
+    @available(macOS 26.0, *)
+    init(uncheckedItemWindow itemWindow: WindowInfo, controlItem identifier: ControlItem.Identifier) {
+        self.tag = identifier.tag
+        self.windowID = itemWindow.windowID
+        self.ownerPID = itemWindow.ownerPID
+        self.sourcePID = ProcessInfo.processInfo.processIdentifier
+        self.bounds = itemWindow.bounds
+        self.title = itemWindow.title
+        self.isOnScreen = itemWindow.isOnScreen
+    }
 }
 
 // MARK: - MenuBarItem List
@@ -353,10 +371,7 @@ nonisolated private extension MenuBarItemTag.Namespace {
         // Most apps have a bundle ID, but we should be able to handle apps
         // that don't. We should also be able to handle daemons and helpers,
         // which are more likely not to have a bundle ID.
-        if OwnStatusItemWindows.contains(itemWindow.windowID) {
-            // holzBar's own items are recognised without the item service.
-            self = .holzBar
-        } else if let sourcePID, let app = NSRunningApplication(processIdentifier: sourcePID) {
+        if let sourcePID, let app = NSRunningApplication(processIdentifier: sourcePID) {
             self = .optional(app.bundleIdentifier ?? app.localizedName)
         } else {
             let windowID = itemWindow.windowID
