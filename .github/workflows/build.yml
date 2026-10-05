@@ -109,6 +109,8 @@ jobs:
         run: |
           APP=build/Build/Products/Release/holzBar.app
           SERVICE="$APP/Contents/XPCServices/MenuBarItemService.xpc"
+          # A regular expression: the $ signs are meant literally, not as shell expansions.
+          # shellcheck disable=SC2016
           PATTERN='_OBJC_CLASS_\$_(NSURLSession|NSURLConnection|WKWebView)|Foundation\.URLSession|Network\.NW(Connection|Listener|Browser)|_nw_(connection|listener|browser)_|(^|[^A-Za-z0-9_])_(socket|connect|getaddrinfo)( |$)'
           FAILED=0
           for BIN in "$APP/Contents/MacOS/holzBar" "$SERVICE/Contents/MacOS/MenuBarItemService"; do
@@ -163,8 +165,11 @@ jobs:
         run: |
           RESOURCES=build/Build/Products/Release/holzBar.app/Contents/Resources
           FAILED=0
+          # The listings only show the folders' contents in the log.
+          # shellcheck disable=SC2012
           echo "Resources: $(ls "$RESOURCES" | tr '\n' ' ')"
           for LANGUAGE in en de fr it rm; do
+            # shellcheck disable=SC2012
             FILES=$(ls "$RESOURCES/$LANGUAGE.lproj" 2>/dev/null | tr '\n' ' ' || true)
             echo "$LANGUAGE.lproj: ${FILES:-missing}"
             if [ "$LANGUAGE" != en ] && [ ! -f "$RESOURCES/$LANGUAGE.lproj/Localizable.strings" ]; then
@@ -227,6 +232,8 @@ jobs:
             cat launch.log
             echo "==> Crash report"
             sleep 5
+            # Newest first; report names contain no newlines.
+            # shellcheck disable=SC2010
             REPORT=$(ls -t ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i holzbar | head -1 || true)
             if [ -n "$REPORT" ]; then
               head -c 20000 ~/Library/Logs/DiagnosticReports/"$REPORT"
@@ -240,6 +247,8 @@ jobs:
         if: matrix.runner != 'xcode-27'
         id: xcode
         run: |
+          # Xcode bundle names contain no newlines.
+          # shellcheck disable=SC2012
           VERSION=$(ls -d /Applications/Xcode_*.app | sed -E 's|.*/Xcode_(.*)\.app|\1|' | grep -E '^[0-9]+(\.[0-9]+)*$' | sort -V | tail -1)
           echo "==> Xcode $VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
