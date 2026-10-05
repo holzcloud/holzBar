@@ -163,6 +163,9 @@ final class MenuBarSection {
             return
         }
 
+        // Shown another way, the section no longer hides after a moment.
+        menuBarManager.temporaryShowTask?.cancel()
+
         if useShelf {
             // Make sure hidden and always-hidden control items are collapsed.
             // Still update the visible control item (holzBar icon) state to show
@@ -217,6 +220,7 @@ final class MenuBarSection {
             return
         }
 
+        menuBarManager.temporaryShowTask?.cancel()
         menuBarManager.shelfPanel.close() // Make sure the holzBar Shelf is always closed.
         menuBarManager.showOnHoverAllowed = true
 

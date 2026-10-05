@@ -59,16 +59,19 @@ extension HotkeyAction {
             }
         case .showHiddenSectionTemporarily:
             // Shows the hidden section for the "Temporarily shown item delay", then
-            // hides it again, whether or not auto-rehide is on.
-            guard let section = appState.menuBarManager.section(withName: .hidden) else {
+            // hides it again, whether or not auto-rehide is on. Another press starts the
+            // delay again.
+            let menuBarManager = appState.menuBarManager
+            guard let section = menuBarManager.section(withName: .hidden) else {
                 return
             }
+            menuBarManager.temporaryShowTask?.cancel()
             section.show()
-            appState.menuBarManager.showOnHoverAllowed = false
+            menuBarManager.showOnHoverAllowed = false
             let interval = appState.settings.advanced.tempShowInterval
-            Task {
+            menuBarManager.temporaryShowTask = Task {
                 try? await Task.sleep(for: .seconds(interval))
-                if !section.isHidden {
+                if !Task.isCancelled, !section.isHidden {
                     section.hide()
                 }
             }
