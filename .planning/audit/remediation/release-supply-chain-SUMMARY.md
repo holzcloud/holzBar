@@ -23,10 +23,12 @@ key-files:
 decisions:
   - "PR-only main with a write deploy key (CASK_DEPLOY_KEY in environment release) for the cask push"
   - "Signing secrets stay repository secrets (maintainer, 2026-10-05): F-10 stays partly open, residual risk goes into SECURITY.md"
+  - "The sign job already runs in environment release (review R-02): moving the signing secrets later needs only settings, no workflow PR"
+  - "Hard merge dependency: this chain and audit-manual/xpc-attribution land in one PR, never apart (review R-05)"
   - "release.yml runs only on v* tag pushes; the manual trigger is removed, not turned into a dry run (build.yml already builds every PR identically)"
   - "SLSA generic generator v2.1.0 referenced by tag; cask moves only after provenance succeeded"
   - "CodeQL Swift compiles with Xcode 27.0's own Swift 6.4 (CodeQL 2.27.1 supports up to 6.3.3)"
-commits: 6
+commits: 12
 ---
 
 # Release supply chain: F-05, F-10, F-11, F-52, F-53 Summary
@@ -37,6 +39,14 @@ holzBar's CI, release and local install pipeline: no build carries get-task-allo
 
 - Maintainer's choice (decision release-1): **PR-Pflicht plus Deploy Key**.
 - The maintainer then asked to solve signing differently ("Können wir das mit dem signieren nicht doch anders lösen?") and decided that `SIGNING_CERTIFICATE_P12` and `SIGNING_CERTIFICATE_PASSWORD` **stay repository secrets**. They are not moved into an environment, and nobody has to re-enter anything. Environment `release` (tags `v*` only) already exists and holds only `CASK_DEPLOY_KEY`. Only the cask job uses it.
+- Review fix-up R-02 (answering the same question): the sign job now also runs in environment `release`. An environment secret takes precedence over the repository secret of the same name, so today it signs with the repository secrets exactly as before. Closing F-10 later needs only settings: set both secrets in the environment, run one beta tag, delete the repository copies.
+
+## Hard merge dependency
+
+This chain and `audit-manual/xpc-attribution` land in **one PR, never apart** (review R-05). Alone, this branch is wrong in three places:
+- The `CI=true` guards in build.yml, release.yml and codeql.yml rely on the SwiftLint phase's CI and Release skip, which only xpc-attribution commit 1694b9d6 (F-52) adds to project.pbxproj.
+- privacy-check.py no longer scans MenuBarItemService/, and build.yml no longer checks the XPC service identifier, because xpc-attribution removes the service.
+- Since review fix-up R-01, check-signature.sh fails on `Contents/XPCServices`, so build.yml and the release build fail until the XPC service is gone. CI enforces the dependency.
 
 ## Commits (branch audit-manual/release)
 
@@ -47,7 +57,13 @@ holzBar's CI, release and local install pipeline: no build carries get-task-allo
 | 3 | 5b2e1db2 | fix(ci): resolve F-05 — check holzBar.app and all its code without the removed XPC service |
 | 4 | f2117f4a | fix(release): resolve F-05, F-10, F-11, F-52, F-53 — sign v* tag builds in their own job, fail closed, pin the certificate |
 | 5 | 613ef3dd | fix(ci): resolve F-10 — pin every action by commit SHA and check the workflows in CI |
-| 6 | (this commit) | fix(ci): resolve F-10, F-53 — add SLSA provenance, OpenSSF Scorecard, CodeQL and Dependabot (also carries this summary) |
+| 6 | c8bf65e5 | fix(ci): resolve F-10, F-53 — add SLSA provenance, OpenSSF Scorecard, CodeQL and Dependabot (also carries this summary) |
+| 7 | 8b85d460 | fix(ci): address review of R-01 — reject any Mach-O besides holzBar's main executable |
+| 8 | b74d6473 | fix(release): address review of R-02 — run the sign job in the release environment |
+| 9 | 54a91ff5 | fix(release): address review of R-03 — move the cask only to a newer version |
+| 10 | 2fe22323 | fix(release): address review of R-06 — keep the ad hoc build a week for re-runs |
+| 11 | 7221c342 | fix(ci): address review of R-04 — find secrets in expressions that span lines |
+| 12 | (this commit) | fix(ci): address review of R-05 — record the merge dependency on xpc-attribution |
 
 ## Per finding
 
@@ -109,6 +125,16 @@ holzBar's CI, release and local install pipeline: no build carries get-task-allo
 - **slsa-github-generator is no longer actively maintained.** Its README has said so since 2026-08-07, and its JS actions declare node20, which GitHub removed from runners on 2026-09-23. A generator failure holds back the cask, because the cask is fail-closed behind provenance. Consider dropping SLSA in favor of GitHub's attestation (the generator's README recommends that).
 - **CodeQL cannot fully analyze Swift 6.4 yet** (CodeQL 2.27.1 supports up to 6.3.3). The weekly swift job may report extraction errors. It is not a required check.
 - **The first v* tag after merge is the first real run of the new release.yml.** Use a beta tag.
+
+## Review fix-ups (R-01 to R-06)
+
+- **R-01 (major):** check-signature.sh and the sign job's post-sign check fail on every Mach-O file other than `Contents/MacOS/holzBar` and on any `XPCServices`, `PlugIns`, `Helpers` or `Frameworks` folder (decision xpc-trust-1, point 5). Tested: the reviewer's sigprobe fixture (Helpers/tool with get-task-allow) and a second binary in Contents/MacOS fail with the file named; a clean fixture passes; the installed 0.0.7-beta1 fails on its XPC service. The extracted release check step gives the same errors.
+- **R-02:** `environment: release` on the sign job (see above). Read-only check: the environment has only the `v*` tag policy (no reviewers, no wait timer) and only `CASK_DEPLOY_KEY`.
+- **R-03:** the cask job compares the version in Casks/holzbar.rb on the newest main with the tag (0.0.7-beta1 < 0.0.7 < 0.0.8, beta10 > beta9, leading zeros read as decimal) instead of trusting the release list order. Tested in /bin/bash 3.2 and bash 5.
+- **R-04:** workflow-check.py scans each file's whole text for `${{ }}`, so expressions split across lines are found; `secrets . NAME` counts; quoted `"false"` is accepted for persist-credentials. Tested with probe workflows.
+- **R-05:** hard merge dependency recorded above; the CI=true comments name the F-52 skip they rely on.
+- **R-06:** holzBar-adhoc is kept 7 days; publish's refusal names "Re-run failed jobs" or a new tag. The docs must say the same (doc updates).
+- Gates G1 to G9 green after every fix-up commit.
 
 ## Self-Check: PASSED
 

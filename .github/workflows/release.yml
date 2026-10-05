@@ -78,8 +78,9 @@ jobs:
       - name: Build
         run: |
           set -euo pipefail
-          # The project's SwiftLint build phase runs no tool from the runner only while CI is
-          # set; nothing in this workflow may unset it.
+          # With its CI and Release skip (audit F-52, which ships together with this check),
+          # the project's SwiftLint build phase runs no tool from the runner while CI is set;
+          # nothing in this workflow may unset it.
           if [ "${CI:-}" != true ]; then
             echo "::error::CI is not set to true, so the project's SwiftLint build phase would run."
             exit 1
