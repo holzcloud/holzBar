@@ -149,13 +149,19 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             )
             if case .dismiss(let panel) = step {
                 let dismissStarted = ProcessInfo.processInfo.systemUptime
+                let isPanelItem = systemItem?.identifier == panel.item
+                let polls = ItemClick27.escapeAnswerPolls(for: panel, clickedItem: systemItem?.identifier)
                 Self.postEscape(to: panel.ownerPID)
-                let went = await Self.waitForPanelToGo(window: panel.window, polls: Self.escapeAnswerPolls)
+                let went = await Self.waitForPanelToGo(window: panel.window, polls: polls)
                 let waited = (ProcessInfo.processInfo.systemUptime - dismissStarted) * 1000
                 if went {
-                    Self.bridgeLogger.debug("Click bridge: Escape closed the panel in \(waited, privacy: .public) ms")
+                    Self.bridgeLogger.debug(
+                        "Click bridge: Escape closed the panel in \(waited, privacy: .public) ms (own item: \(isPanelItem, privacy: .public))"
+                    )
                 } else {
-                    Self.bridgeLogger.debug("Click bridge: the panel stayed \(waited, privacy: .public) ms after Escape, replaying the click")
+                    Self.bridgeLogger.debug(
+                        "Click bridge: the panel stayed \(waited, privacy: .public) ms after Escape (own item: \(isPanelItem, privacy: .public)), replaying the click"
+                    )
                 }
                 guard let next = ItemClick27.stepAfterDismissal(
                     of: panel,
@@ -251,10 +257,6 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             .filter { owners.contains($0.ownerPID) }
             .map { (number: Int($0.windowID), layer: $0.layer, height: $0.bounds.height, ownerPID: $0.ownerPID) }
     }
-
-    /// How many 50 ms rounds a panel gets to answer Escape before the click is replayed
-    /// instead: about 200 ms. Not measured on macOS 27 yet.
-    private static let escapeAnswerPolls = 4
 
     /// Presses Escape in the given process, which dismisses an open system panel.
     ///

@@ -132,6 +132,19 @@ nonisolated enum ItemClick27 {
         return .liftAndReplay
     }
 
+    /// How many 50 ms rounds a panel gets to leave the screen after Escape before the click is
+    /// replayed instead.
+    ///
+    /// The window list cannot tell an Escape the panel ignored from one it answered with a
+    /// slide-out that keeps its window listed a little longer. For a click on another item the
+    /// replay opens that item's panel either way, so about 200 ms is enough. For a click on the
+    /// panel's own item, the gesture that closes it, a replay that lands on a panel still
+    /// sliding out would open it again, so it gets about 600 ms. Neither is measured on
+    /// macOS 27 yet.
+    static func escapeAnswerPolls(for panel: OpenPanel, clickedItem: String?) -> Int {
+        clickedItem == panel.item ? 12 : 4
+    }
+
     /// The step after Escape was sent to a panel, or `nil` when the click is done.
     ///
     /// A panel whose window stayed has the click replayed, which closes it as well, so the

@@ -101,6 +101,18 @@ struct ClickBridgeStep27Tests {
         }
     }
 
+    @Test("A click on the panel's own item waits longer for Escape than a click elsewhere")
+    func ownItemWaitsLongerForEscape() {
+        let panel = Windows.notificationCenterPanel
+        let ownItem = ItemClick27.escapeAnswerPolls(for: panel, clickedItem: Windows.clock)
+        let otherItem = ItemClick27.escapeAnswerPolls(for: panel, clickedItem: Windows.controlCentreItem)
+        let overflowButton = ItemClick27.escapeAnswerPolls(for: panel, clickedItem: nil)
+        // A replay onto a panel still sliding out would open it again.
+        #expect(ownItem * 50 >= 600)
+        #expect(otherItem * 50 == 200)
+        #expect(overflowButton == otherItem)
+    }
+
     @Test("A click on the overflow button still opens after the panel went")
     func overflowButtonAfterDismissal() {
         let step = ItemClick27.stepAfterDismissal(
