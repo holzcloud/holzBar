@@ -179,6 +179,12 @@ private final class HotkeyRecorderModel {
 
     let hotkey: Hotkey
 
+    /// The recorder that is recording, if any.
+    ///
+    /// Only one recorder records at a time, because each one's monitor
+    /// swallows every key press in the app.
+    private static weak var current: HotkeyRecorderModel?
+
     @ObservationIgnored private lazy var monitor = EventMonitor.local(for: .keyDown) { [weak self] event in
         guard let self else {
             return event
@@ -202,6 +208,8 @@ private final class HotkeyRecorderModel {
         guard !isRecording else {
             return
         }
+        Self.current?.stopRecording()
+        Self.current = self
         hotkey.disable()
         monitor.start()
         isRecording = true
