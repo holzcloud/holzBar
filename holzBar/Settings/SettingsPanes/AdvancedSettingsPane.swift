@@ -61,6 +61,9 @@ struct AdvancedSettingsPane: View {
                 allPermissions
             }
         }
+        .onAppear {
+            appState.permissions.refresh()
+        }
     }
 
     @ViewBuilder

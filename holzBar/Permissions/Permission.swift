@@ -146,6 +146,20 @@ class Permission: Identifiable {
         checkTask = nil
     }
 
+    /// Checks the permission again, as the user, a profile or `tccutil` can grant it or
+    /// take it away while holzBar runs.
+    ///
+    /// Nothing polls while the app has the permission. A permission asked for at launch
+    /// that is missing checks once a second until it is granted again (``startCheck()``),
+    /// so what waits for the grant runs; any other permission is only checked once.
+    func refresh() {
+        if requestsAtLaunch {
+            startCheck()
+        } else {
+            updateHasPermission()
+        }
+    }
+
     /// Performs the request and opens the System Settings app to the appropriate pane.
     ///
     /// The check runs again afterwards, as a reset can take away a permission the app had.
