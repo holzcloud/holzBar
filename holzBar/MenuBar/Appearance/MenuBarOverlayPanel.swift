@@ -327,8 +327,12 @@ final class MenuBarOverlayPanel: NSPanel {
 
         // On macOS 27 the split shape starts its trailing half where the run of items starts,
         // and a read can move that edge without changing the item cache: a concealed item
-        // keeps its old frame, and the items right of it stay where they are.
+        // keeps its old frame, and the items right of it stay where they are. No other shape
+        // depends on that edge.
         observeNotifications(named: .menuBarItemsAreaDidChange27, in: NotificationCenter.default) { panel in
+            guard panel.appState?.appearanceManager.configuration.shapeKind == .split else {
+                return
+            }
             panel.contentView?.needsDisplay = true
         }
 

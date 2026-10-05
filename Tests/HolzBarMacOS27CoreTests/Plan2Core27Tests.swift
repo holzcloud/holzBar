@@ -855,3 +855,33 @@ struct SectionLayoutEditing27Tests {
         #expect(updated["ru.keepcoder.Telegram"] == .alwaysHidden)
     }
 }
+
+@Suite("Items area inputs")
+struct ItemsAreaInputs27Tests {
+    let battery = CGRect(x: 1650, y: 0, width: 30, height: 24)
+    let wifi = CGRect(x: 1690, y: 0, width: 28, height: 24)
+    let clock = CGRect(x: 1787, y: 0, width: 113, height: 30)
+
+    private func inputs(systemFrames: [CGRect], drawn: [CGRect] = []) -> ItemsAreaInputs27 {
+        ItemsAreaInputs27(
+            leftEdges: [1: 1400],
+            drawnFramesByDisplay: [2: drawn],
+            systemItemFrames: systemFrames,
+            overflowButtonFrame: nil
+        )
+    }
+
+    @Test("Two reads of the same bar compare equal, whatever order they found the frames in")
+    func sameFramesInAnotherOrder() {
+        let other = CGRect(x: -300, y: 6, width: 30, height: 24)
+        let drawn = CGRect(x: -200, y: 6, width: 30, height: 24)
+        #expect(inputs(systemFrames: [battery, wifi, clock], drawn: [other, drawn])
+            == inputs(systemFrames: [clock, battery, wifi], drawn: [drawn, other]))
+    }
+
+    @Test("A moved system item is a change")
+    func movedFrame() {
+        #expect(inputs(systemFrames: [battery, wifi, clock])
+            != inputs(systemFrames: [battery.offsetBy(dx: -40, dy: 0), wifi, clock]))
+    }
+}

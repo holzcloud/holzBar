@@ -73,21 +73,14 @@ nonisolated enum MenuBarItemProvider27 {
         var lastReadAt: TimeInterval = 0
 
         /// Everything the edge of the items area is built from, besides the item cache.
-        var itemsAreaInputs: ItemsAreaInputs {
-            ItemsAreaInputs(
+        var itemsAreaInputs: ItemsAreaInputs27 {
+            ItemsAreaInputs27(
                 leftEdges: lastLeftEdges,
                 drawnFramesByDisplay: lastDrawnFramesByDisplay,
                 systemItemFrames: lastSystemItemFrames,
                 overflowButtonFrame: lastOverflowButtonFrame
             )
         }
-    }
-
-    private struct ItemsAreaInputs: Equatable {
-        let leftEdges: [CGDirectDisplayID: CGFloat]
-        let drawnFramesByDisplay: [CGDirectDisplayID: [CGRect]]
-        let systemItemFrames: [CGRect]
-        let overflowButtonFrame: CGRect?
     }
 
     // The state holds Accessibility elements, which are immutable references that any
