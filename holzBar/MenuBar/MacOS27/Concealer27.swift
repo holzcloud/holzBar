@@ -46,8 +46,11 @@ final class Concealer27 {
 
     /// Visible applications concealed for the moment so holzBar's icon clears the notch
     /// (`NotchCover27`). Never part of the saved layout; cleared when the active display
-    /// changes or an application launches or quits.
+    /// changes, an application launches or quits, or what the sections conceal changes.
     @ObservationIgnored private var notchConcealed = Set<String>()
+
+    /// The reveal state and the sections' concealed sets `notchConcealed` was worked out for.
+    @ObservationIgnored private var notchCoverBasis: (state: RevealState27, sets: [Set<String>])?
 
     /// The display whose notch `notchConcealed` was worked out for.
     @ObservationIgnored private var notchCoverDisplayID: CGDirectDisplayID?
@@ -204,12 +207,20 @@ final class Concealer27 {
         let applications = NSWorkspace.shared.runningApplications
         let running = Set(applications.compactMap(\.bundleIdentifier))
         let layout = SectionLayout27.effectiveLayout(observed: [:], saved: savedLayout, running: running)
+        let state = revealState(appState)
+        // What the sections conceal sets how crowded the bar is: once that changes (a reveal
+        // that ends, a layout edit), the notch is worked out again from the next settled read.
+        let sectionSets = ConcealmentPlanner27.concealedSets(layout: layout, state: state)
+        if let notchCoverBasis, notchCoverBasis.state != state || notchCoverBasis.sets != sectionSets {
+            notchConcealed.removeAll()
+        }
+        notchCoverBasis = (state, sectionSets)
         // Applications concealed for the notch join whatever the sections conceal.
         let target = NotchCover27.adding(
             notchConcealed.subtracting(temporarilyShown.keys),
             to: ConcealmentPlanner27.concealedSets(
                 layout: layout,
-                state: revealState(appState),
+                state: state,
                 temporarilyShown: Set(temporarilyShown.keys)
             )
         )
