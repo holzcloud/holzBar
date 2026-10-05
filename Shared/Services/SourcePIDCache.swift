@@ -37,6 +37,11 @@ import OSLog
 ///   is paused for 10 s, doubling up to 60 s. An item whose app could not be
 ///   asked in time stays without its app until a later read, and SectionRestore
 ///   never places such an item.
+/// - The frames come from each app itself, so any app could report an item where
+///   another app's item is, such as Control Center's camera and microphone indicator.
+///   Apps signed by Apple are asked first, and the first of them to claim a window gets
+///   it. Any other app gets a window only when a finished scan found no other app
+///   claiming it (``SourcePIDClaims``).
 actor SourcePIDCache {
     /// An object that contains a running application and provides an
     /// interface to access relevant information, such as its process
@@ -60,6 +65,12 @@ actor SourcePIDCache {
         var isTerminated: Bool {
             runningApp.isTerminated
         }
+
+        /// A Boolean value indicating whether the app's code is signed by Apple.
+        ///
+        /// Read from the code signature once, the first time it is used, on the
+        /// cache's queue: the check blocks while it reads the signature.
+        private(set) lazy var isSignedByApple = CodeSignature.isSignedByApple(processIdentifier: processIdentifier)
 
         /// A Boolean value indicating whether the app may not have a user
         /// interface, and so has no items to ask about.
@@ -120,13 +131,18 @@ actor SourcePIDCache {
 
     /// The outcome of one scan over the running apps.
     nonisolated private struct Scan {
-        /// The source process of each window found.
-        var found = [CGWindowID: pid_t]()
+        /// The apps that report an item at each window's centre.
+        var claims = [CGWindowID: SourcePIDClaims]()
         /// Whether every app was asked or skipped, rather than the scan running out
         /// of time or being cancelled.
         var isFinished = true
         /// The apps the scan could not ask.
         var skippedApps = [CachedApplication]()
+
+        /// Which app the window with the given identifier belongs to.
+        func decision(for windowID: CGWindowID) -> SourcePIDClaims.Decision {
+            claims[windowID, default: SourcePIDClaims()].decision(scanFinished: isFinished)
+        }
     }
 
     /// The shared cache.
@@ -194,7 +210,8 @@ actor SourcePIDCache {
 
         // Prefer the cached apps, as they may have already done the work to
         // initialize their extras menu bars.
-        let cachedApps = Dictionary(apps.map { ($0.processIdentifier, $0) }) { first, _ in first }
+        // A terminated app's process identifier may already belong to a new process.
+        let cachedApps = Dictionary(apps.lazy.filter { !$0.isTerminated }.map { ($0.processIdentifier, $0) }) { first, _ in first }
         apps = runningApps.map { cachedApps[$0.processIdentifier] ?? CachedApplication($0) }
         pids = windowIDs.reduce(into: [:]) { result, windowID in
             if let pid = pids[windowID], runningPIDs.contains(pid) {
@@ -236,10 +253,20 @@ actor SourcePIDCache {
         return stable
     }
 
-    /// Reorders the cached apps so that those that are confirmed
-    /// to have an extras menu bar are first in the array.
+    /// Reorders the cached apps: those signed by Apple first, then the others, and in
+    /// each group those that are confirmed to have an extras menu bar first. Apps that a
+    /// scan skips anyway come last, without a signature check.
     private func partitionApps() {
-        apps = apps.filter(\.hasExtrasMenuBar) + apps.filter { !$0.hasExtrasMenuBar }
+        func group(of app: CachedApplication) -> Int {
+            if app.isTerminated || app.isProhibited {
+                return 4
+            }
+            return (app.isSignedByApple ? 0 : 2) + (app.hasExtrasMenuBar ? 0 : 1)
+        }
+        let grouped = apps.map { (app: $0, group: group(of: $0)) }
+        apps = (0...4).flatMap { group in
+            grouped.filter { $0.group == group }.map(\.app)
+        }
     }
 
     /// Makes the given Accessibility call and tells whether it ran into the
@@ -325,9 +352,12 @@ actor SourcePIDCache {
                 guard enabled.value else {
                     continue
                 }
+                let claim = SourcePIDClaims.Claim(pid: pid, isSignedByApple: app.isSignedByApple)
                 for windowID in matches {
-                    scan.found[windowID] = pid
-                    remaining[windowID] = nil
+                    scan.claims[windowID, default: SourcePIDClaims()].add(claim)
+                    if scan.claims[windowID]?.isSettled == true {
+                        remaining[windowID] = nil
+                    }
                 }
             }
             if timedOut {
@@ -337,7 +367,16 @@ actor SourcePIDCache {
             }
         }
 
-        logger.debug("Source PID scan found \(scan.found.count, privacy: .public) of \(centers.count, privacy: .public) windows, finished: \(scan.isFinished, privacy: .public), in \(start.duration(to: .now), privacy: .public)")
+        var found = 0
+        var contested = 0
+        for windowID in centers.keys {
+            switch scan.decision(for: windowID) {
+            case .owner: found += 1
+            case .contested: contested += 1
+            case .unresolved: break
+            }
+        }
+        logger.debug("Source PID scan found \(found, privacy: .public) of \(centers.count, privacy: .public) windows, \(contested, privacy: .public) contested, finished: \(scan.isFinished, privacy: .public), in \(start.duration(to: .now), privacy: .public)")
         return scan
     }
 
@@ -399,11 +438,12 @@ actor SourcePIDCache {
 
         let scan = scan(for: centers)
         for windowID in centers.keys {
-            if let pid = scan.found[windowID] {
+            if case .owner(let pid) = scan.decision(for: windowID) {
                 pids[windowID] = pid
                 result[windowID] = pid
                 failedLookups[windowID] = nil
             } else if scan.isFinished {
+                // Not found, or contested: a contested window belongs to no app.
                 failedLookups[windowID] = FailedLookup(failedAt: now, skippedApps: scan.skippedApps)
             }
         }
