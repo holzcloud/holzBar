@@ -205,17 +205,20 @@ extension MenuBarItemManager {
             controlItems = pair
         }
 
-        if appState.settings.advanced.keepLiveActivitiesVisible {
+        let keepsLiveActivitiesVisible = appState.settings.advanced.keepLiveActivitiesVisible
+        if keepsLiveActivitiesVisible {
             await keepLiveActivitiesVisible(items, controlItems: controlItems)
         }
 
         let keys = identityKeys(for: items)
+        // Live Activities kept visible are never moved back by a saved or new-items section.
         let candidates = items.filter { item in
             item.isMovable &&
             item.canBeHidden &&
             !item.isControlItem &&
             !item.isSystemClone &&
             !item.tag.namespace.isUUID &&
+            !(keepsLiveActivitiesVisible && item.tag.isLiveActivity) &&
             !isTemporarilyShown(item)
         }
 
