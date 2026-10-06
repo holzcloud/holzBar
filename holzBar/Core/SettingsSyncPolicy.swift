@@ -790,9 +790,10 @@ nonisolated extension SettingsSyncPolicy {
     /// older. Only when the file has none is this Mac's copy written, and not listed as
     /// current: this build ignores it, and builds before it, which delete a layout missing from
     /// a file they apply (F-60), keep one. This Mac's layout is written when the
-    /// user changed it (`keepsOwnLayout`) or the file has no current one; otherwise the
-    /// file's current layout is kept, with only this Mac's entries it has never seen, so
-    /// holzBar's own placements never replace another Mac's layout. A layout for this Mac's
+    /// user changed it (`keepsOwnLayout`) or the file has no layout for this Mac's macOS
+    /// version; otherwise the file's current layout is kept, with only this Mac's entries it
+    /// has never seen, so holzBar's own placements never replace another Mac's layout, and a
+    /// Mac's copy of it is passed on as a copy, never listed as current. A layout for this Mac's
     /// macOS version that the file holds unlisted, as an earlier build wrote it, is kept as
     /// it is and stays unlisted unless the user changed this Mac's layout. A layout written
     /// unlisted as a Mac's copy is marked as one, and the mark is passed on.
@@ -851,6 +852,20 @@ nonisolated extension SettingsSyncPolicy {
             } else if remote?[layouts.own] != nil, fileCopiedLayouts.contains(layouts.own) {
                 copiedLayouts.insert(layouts.own)
             }
+        } else if
+            !keepsOwnLayout,
+            !fileCurrentLayouts.contains(layouts.own),
+            fileCopiedLayouts.contains(layouts.own),
+            let fileCopy = remote?[layouts.own]
+        {
+            // A Mac's copy of this macOS version's layout, as written over a missing file or
+            // passed on from an older version: the arrangement it stands for, perhaps newer
+            // than this Mac's, is on the Macs that made it. Listing this Mac's layout, which
+            // may be stale or hold only holzBar's own placements, would make them apply it
+            // silently (SA-05). The copy is passed on as a copy; only a layout change of the
+            // user's lists this Mac's layout as current again.
+            settings[layouts.own] = fileCopy
+            copiedLayouts.insert(layouts.own)
         } else if
             !keepsOwnLayout,
             !fileCurrentLayouts.contains(layouts.own),
@@ -1049,8 +1064,10 @@ nonisolated extension SettingsSyncPolicy {
     ///
     /// This Mac's layout then holds only holzBar's own placements. Listed as current over a
     /// file that went away, it would replace the arrangement of the Mac whose layout this Mac
-    /// kept (SA-05). Marked as a copy, the Macs of this build keep their arrangement, and the
-    /// next write of that Mac lists it again.
+    /// kept (SA-05). Marked as a copy, the Macs of this build keep their arrangement; the
+    /// copy is passed on as one until the user changes the layout on a Mac of this macOS
+    /// version. This Mac still keeps the record of the kept layout
+    /// (``WriteRecord/keepsLayoutToTakeIn``).
     ///
     /// - Parameter fileSettings: The file's settings as read; `nil` when it is missing or
     ///   unusable.
@@ -1515,7 +1532,8 @@ nonisolated extension SettingsSyncPolicy {
         /// take in (``keptLayoutDigest``), so the written version holds a layout to take in
         /// (``SettingsSyncPolicy/holdsLayoutToTakeIn(_:local:)``), and it
         /// waits: Restart takes it in, or the next launch (``Action/takeInLayout``). It does not
-        /// pause this Mac's pushes, which keep that layout.
+        /// pause this Mac's pushes, which keep that layout. A write that left this Mac's layout
+        /// unlisted keeps the record of a kept layout (``WriteRecord/keepsLayoutToTakeIn``).
         ///
         /// - Parameters:
         ///   - record: What the write records (``WritePlan/record``).
@@ -1528,8 +1546,12 @@ nonisolated extension SettingsSyncPolicy {
             }
             rememberLayout(record.oldCopyDigest)
             guard record.takesInLayout else {
+                let kept = keptLayoutDigest
                 rememberLayout(record.layoutDigest)
                 markSynced(base: local.userDigest, layout: record.layoutDigest, layoutEdits: local.layoutEdits, modified: modified)
+                if record.keepsLayoutToTakeIn {
+                    keptLayoutDigest = kept
+                }
                 return
             }
             markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: modified)
@@ -1676,6 +1698,15 @@ nonisolated extension SettingsSyncPolicy {
         /// writing the same copy back, which must stay recognized however often the user
         /// rearranges this Mac's layout meanwhile.
         var oldCopyDigest: String?
+        /// Whether the write left this Mac's layout unlisted, without a layout change of the
+        /// user's, while this Mac keeps another Mac's layout it has not taken in
+        /// (``Local/keptLayoutDigest``), as over a missing file
+        /// (``writesOwnLayoutAsCopy(fileSettings:local:)``). The record of that layout stays:
+        /// an older version of this Mac's own that holds it, as a sync app may bring back, is
+        /// then still taken in rather than written over as an old copy
+        /// (``isOldOwnLayout(_:local:)``), and a later write over a missing file still marks
+        /// this Mac's layout as a copy.
+        var keepsLayoutToTakeIn = false
     }
 
     /// A write of the sync file: what is written and what the write records.
@@ -1765,7 +1796,12 @@ nonisolated extension SettingsSyncPolicy {
             settings: written.settings,
             currentLayouts: written.currentLayouts,
             copiedLayouts: written.copiedLayouts,
-            record: WriteRecord(layoutDigest: layoutDigest, takesInLayout: takesInLayout, oldCopyDigest: oldCopyDigest),
+            record: WriteRecord(
+                layoutDigest: layoutDigest,
+                takesInLayout: takesInLayout,
+                oldCopyDigest: oldCopyDigest,
+                keepsLayoutToTakeIn: local.keptLayoutDigest != nil && !local.editsLayout && !written.currentLayouts.contains(layouts.own)
+            ),
             insertsCopy: remote?[layouts.other] == nil && written.copiedLayouts.contains(layouts.other),
             passesOtherAsCopy: passesOtherAsCopy && fileCurrentLayouts.contains(layouts.other) && remote?[layouts.other] != nil,
             basedOn: basedOn(fileVersion: fileVersion, local: local)
