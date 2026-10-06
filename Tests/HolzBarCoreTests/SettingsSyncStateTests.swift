@@ -26,6 +26,7 @@ struct SettingsSyncStateTests {
         #expect(State.versionDigestKey == "SettingsSyncVersionSettingsDigest")
         #expect(State.recentLayoutsKey == "SettingsSyncRecentLayoutDigests")
         #expect(State.keptLayoutKey == "SettingsSyncKeptLayoutDigest")
+        #expect(State.lastWrittenKey == "SettingsSyncLastWritten")
         #expect(State.legacyBaseKey == "SettingsSyncBaseDigest")
     }
 
@@ -60,10 +61,11 @@ struct SettingsSyncStateTests {
         every.layoutEdits = 7
         every.pending = lastSynced
         every.keptLayoutDigest = "k"
+        every.lastWritten = lastSynced
         #expect(every.versionDigest == "b")
         #expect(Set(every.changes(from: State()).map(\.key)) == [
             State.baseKey, State.baseLayoutKey, State.layoutEditsKey, State.syncedLayoutEditsKey, State.lastSyncedKey, State.pendingKey,
-            State.versionDigestKey, State.recentLayoutsKey, State.keptLayoutKey,
+            State.versionDigestKey, State.recentLayoutsKey, State.keptLayoutKey, State.lastWrittenKey,
         ])
         var everyStored = [String: Any]()
         for (key, value) in every.changes(from: State()) {

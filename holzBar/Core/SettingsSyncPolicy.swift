@@ -238,6 +238,9 @@ nonisolated enum SettingsSyncPolicy {
         /// The date of the newest version this Mac synced with (``State/lastSynced``); `nil`
         /// when it has not synced.
         var lastSynced: Date?
+        /// The date of the last version this Mac wrote (``State/lastWritten``); `nil` when it
+        /// has not written since it joined this folder.
+        var lastWritten: Date?
 
         /// Whether this Mac joins the folder.
         var isJoining: Bool {
@@ -280,6 +283,9 @@ nonisolated enum SettingsSyncPolicy {
         /// but does not list as current (``unlistedLayoutDigest(in:currentLayouts:copiedLayouts:layouts:)``);
         /// `nil` when it holds none.
         var unlistedLayoutDigest: String?
+        /// The date of the version the write was based on (``SettingsSyncFile/basedOnKey``);
+        /// `nil` for files of earlier builds.
+        var basedOn: Date?
     }
 
     /// What reading the sync file gave.
@@ -435,7 +441,8 @@ nonisolated enum SettingsSyncPolicy {
             if !isLaunch, let postponed = local.postponed, version.modified <= postponed {
                 return .wait
             }
-            return local.hasChanges ? .ask : .apply
+            // A version written without this Mac's last write would revert it: it asks.
+            return local.hasChanges || missesLastWrite(version, local: local) ? .ask : .apply
         }
     }
 }
@@ -492,8 +499,9 @@ nonisolated extension SettingsSyncPolicy {
         if version.isFromThisMac, !local.isJoining {
             return local.editsLayout ? .choice(isJoining: false) : .restart
         }
-        // A version that is not newer may lack this Mac's last changes: it asks.
-        if !version.isNewer, !local.isJoining {
+        // A version that is not newer, or one written without this Mac's last write, may
+        // lack this Mac's last changes: it asks.
+        if !version.isNewer || missesLastWrite(version, local: local), !local.isJoining {
             return .choice(isJoining: false)
         }
         return hint(for: local)
@@ -947,6 +955,39 @@ nonisolated extension SettingsSyncPolicy {
         return layout != local.baseLayoutDigest
     }
 
+    /// The date of the version a write is based on (``SettingsSyncFile/basedOnKey``): the
+    /// newest of the version this Mac last synced with and the file's version it writes over,
+    /// or ``SettingsSyncFile/noParent`` when it knows neither, as over a missing file on a Mac
+    /// that never synced.
+    ///
+    /// The decision writes only over a version whose changes this Mac holds or the user chose
+    /// to replace, so the write holds every change up to that date.
+    ///
+    /// - Parameter fileVersion: The file's version before the write, if it holds one.
+    static func basedOn(fileVersion: Version?, local: Local) -> Date {
+        [local.lastSynced, fileVersion?.modified].compactMap(\.self).max() ?? SettingsSyncFile.noParent
+    }
+
+    /// Whether a version from another Mac was written without this Mac's last write: it
+    /// records the version it was based on (``Version/basedOn``), and that is older than
+    /// this Mac's last write (``Local/lastWritten``), in whole seconds.
+    ///
+    /// Such a version replaced the file without that write, as when the file went missing or
+    /// became unusable, or a sync app kept another Mac's concurrent write: applying it would
+    /// revert this Mac's last change silently, so holzBar asks. Files of earlier builds
+    /// record no parent and are decided as before.
+    static func missesLastWrite(_ version: Version, local: Local) -> Bool {
+        guard
+            !version.isFromThisMac,
+            !local.isJoining,
+            let basedOn = version.basedOn,
+            let lastWritten = local.lastWritten
+        else {
+            return false
+        }
+        return wholeSeconds(basedOn) < wholeSeconds(lastWritten)
+    }
+
     /// Whether a version is dated before the newest version this Mac synced with
     /// (``Local/lastSynced``), compared in whole seconds, as the sync file stores its date.
     ///
@@ -1287,6 +1328,12 @@ nonisolated extension SettingsSyncPolicy {
         /// layout change of the user's replaces it.
         var keptLayoutDigest: String?
 
+        /// The date of the last version this Mac wrote, as written into the file; `nil` when it
+        /// has not written since it joined a folder it had not synced with. Another Mac's
+        /// version based on an older one lacks that write
+        /// (``SettingsSyncPolicy/missesLastWrite(_:local:)``).
+        var lastWritten: Date?
+
         /// How many layout digests ``recentLayouts`` keeps: enough for many days of
         /// rearranging while a Mac still on 0.0.7 beta 1 writes an old copy back now and then.
         /// An old copy this Mac writes over is remembered anew
@@ -1390,6 +1437,9 @@ nonisolated extension SettingsSyncPolicy {
         ///   - local: This Mac's side of the decision that wrote; its layout edits
         ///     (``Local/layoutEdits``) are recorded.
         mutating func recordWrite(_ record: WriteRecord, modified: Date?, local: Local) {
+            if let modified {
+                lastWritten = modified
+            }
             rememberLayout(record.oldCopyDigest)
             guard record.takesInLayout else {
                 rememberLayout(record.layoutDigest)
@@ -1521,6 +1571,7 @@ nonisolated extension SettingsSyncPolicy {
             pending = nil
             if forgetsLastSync {
                 lastSynced = nil
+                lastWritten = nil
             }
         }
     }
@@ -1559,6 +1610,8 @@ nonisolated extension SettingsSyncPolicy {
         /// as a copy, as the file's version is older than this Mac's last sync
         /// (``passesOtherLayoutAsCopy(_:local:)``).
         var passesOtherAsCopy = false
+        /// The date of the version the write is based on (``basedOn(fileVersion:local:)``).
+        var basedOn = SettingsSyncFile.noParent
     }
 
     /// Plans a write of this Mac's settings into the sync file
@@ -1628,7 +1681,8 @@ nonisolated extension SettingsSyncPolicy {
             copiedLayouts: written.copiedLayouts,
             record: WriteRecord(layoutDigest: layoutDigest, takesInLayout: takesInLayout, oldCopyDigest: oldCopyDigest),
             insertsCopy: remote?[layouts.other] == nil && written.copiedLayouts.contains(layouts.other),
-            passesOtherAsCopy: passesOtherAsCopy && fileCurrentLayouts.contains(layouts.other) && remote?[layouts.other] != nil
+            passesOtherAsCopy: passesOtherAsCopy && fileCurrentLayouts.contains(layouts.other) && remote?[layouts.other] != nil,
+            basedOn: basedOn(fileVersion: fileVersion, local: local)
         )
     }
 }
@@ -1774,6 +1828,8 @@ nonisolated extension SettingsSyncPolicy.State {
     static let recentLayoutsKey = "SettingsSyncRecentLayoutDigests"
     /// The key of ``keptLayoutDigest``.
     static let keptLayoutKey = "SettingsSyncKeptLayoutDigest"
+    /// The key of ``lastWritten``.
+    static let lastWrittenKey = "SettingsSyncLastWritten"
     /// The key of the base of earlier test builds, which held the layouts too.
     static let legacyBaseKey = "SettingsSyncBaseDigest"
 
@@ -1788,7 +1844,8 @@ nonisolated extension SettingsSyncPolicy.State {
             pending: value(Self.pendingKey) as? Date,
             versionDigest: value(Self.versionDigestKey) as? String,
             recentLayouts: Array((value(Self.recentLayoutsKey) as? [String] ?? []).prefix(Self.recentLayoutLimit)),
-            keptLayoutDigest: value(Self.keptLayoutKey) as? String
+            keptLayoutDigest: value(Self.keptLayoutKey) as? String,
+            lastWritten: value(Self.lastWrittenKey) as? Date
         )
     }
 
@@ -1822,6 +1879,9 @@ nonisolated extension SettingsSyncPolicy.State {
         }
         if keptLayoutDigest != old.keptLayoutDigest {
             changes.append((Self.keptLayoutKey, keptLayoutDigest))
+        }
+        if lastWritten != old.lastWritten {
+            changes.append((Self.lastWrittenKey, lastWritten))
         }
         return changes
     }
@@ -1903,6 +1963,7 @@ nonisolated extension SettingsSyncPolicy.Local {
         recentLayouts = Set(state.recentLayouts)
         keptLayoutDigest = state.keptLayoutDigest
         lastSynced = state.lastSynced
+        lastWritten = state.lastWritten
     }
 }
 
@@ -1933,13 +1994,15 @@ nonisolated extension SettingsSyncPolicy.Version {
     ///   - unlistedLayoutDigest: The layout digest of a layout for this Mac's macOS version
     ///     that the file holds unlisted
     ///     (``SettingsSyncPolicy/unlistedLayoutDigest(in:currentLayouts:copiedLayouts:layouts:)``).
+    ///   - basedOn: The date of the version the write was based on, if the file records it.
     init(
         settings: [String: Any],
         layouts: SettingsSyncPolicy.Layouts,
         isFromThisMac: Bool,
         modified: Date,
         isNewer: Bool,
-        unlistedLayoutDigest: String? = nil
+        unlistedLayoutDigest: String? = nil,
+        basedOn: Date? = nil
     ) {
         let layoutDigest = SettingsSyncPolicy.layoutDigest(of: settings, layouts: layouts)
         self.init(
@@ -1948,7 +2011,8 @@ nonisolated extension SettingsSyncPolicy.Version {
             isNewer: isNewer,
             userDigest: SettingsSyncPolicy.userDigest(of: settings),
             layoutDigest: layoutDigest == SettingsSyncPolicy.noLayoutDigest ? nil : layoutDigest,
-            unlistedLayoutDigest: unlistedLayoutDigest
+            unlistedLayoutDigest: unlistedLayoutDigest,
+            basedOn: basedOn
         )
     }
 }

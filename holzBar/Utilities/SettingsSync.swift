@@ -1218,6 +1218,7 @@ final class SettingsSync {
             SettingsSyncFile.settingsKey: written.settings,
             SettingsSyncFile.currentLayoutsKey: written.currentLayouts,
             SettingsSyncFile.copiedLayoutsKey: written.copiedLayouts,
+            SettingsSyncFile.basedOnKey: written.basedOn,
         ]
         do {
             try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
@@ -1314,7 +1315,8 @@ final class SettingsSync {
             isFromThisMac: contents.isFromThisMac,
             modified: contents.modified,
             isNewer: contents.isNewer,
-            unlistedLayoutDigest: unlistedLayoutDigest
+            unlistedLayoutDigest: unlistedLayoutDigest,
+            basedOn: contents.basedOn
         )
         let unlistedLayoutData = unlistedLayoutDigest.flatMap { _ in
             contents.settings[layouts.own].flatMap {

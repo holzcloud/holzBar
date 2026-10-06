@@ -159,6 +159,21 @@ struct SettingsSyncFileTests {
         #expect(try #require(contents(in: listed)).copiedLayouts.isEmpty)
     }
 
+    @Test("The contents give the version a write was based on, which files of earlier builds lack")
+    func contentsBasedOn() throws {
+        #expect(SettingsSyncFile.basedOnKey == "basedOn")
+        var recorded = file(deviceID: otherMac, modified: lastSynced, settings: [:])
+        recorded[SettingsSyncFile.basedOnKey] = lastSynced.addingTimeInterval(-60)
+        #expect(try #require(contents(in: recorded)).basedOn == lastSynced.addingTimeInterval(-60))
+        let earlier = file(deviceID: otherMac, modified: lastSynced, settings: [:])
+        #expect(try #require(contents(in: earlier)).basedOn == nil)
+        // The date survives a round trip through the file as written.
+        recorded[SettingsSyncFile.basedOnKey] = SettingsSyncFile.noParent
+        let data = try PropertyListSerialization.data(fromPropertyList: recorded, format: .xml, options: 0)
+        let read = try #require(try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
+        #expect(try #require(contents(in: read)).basedOn == SettingsSyncFile.noParent)
+    }
+
     @Test("A file without date or settings has no contents")
     func contentsWithoutDateOrSettings() {
         #expect(contents(in: file(deviceID: otherMac, modified: lastSynced, settings: nil)) == nil)

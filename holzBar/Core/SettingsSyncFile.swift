@@ -38,6 +38,17 @@ nonisolated enum SettingsSyncFile {
     /// builds ignore the key, and their files lack it.
     static let copiedLayoutsKey = "copiedLayouts"
 
+    /// The key of the version a write was based on: the date of the newest version of the
+    /// folder the writing Mac had synced with or wrote over, or ``noParent`` when it knew none
+    /// (`SettingsSyncPolicy.basedOn(fileVersion:local:)`). A Mac whose last write is newer
+    /// knows the version lacks that write, and asks instead of applying it
+    /// (`SettingsSyncPolicy.missesLastWrite(_:local:)`). Earlier builds ignore the key, and
+    /// their files lack it.
+    static let basedOnKey = "basedOn"
+
+    /// The ``basedOnKey`` date of a write by a Mac that knew no version of the folder.
+    static let noParent = Date(timeIntervalSinceReferenceDate: 0)
+
     /// The largest sync file holzBar reads: 1 MB. holzBar's settings take a few kilobytes.
     static let maximumFileSize = 1 << 20
 
@@ -69,6 +80,9 @@ nonisolated enum SettingsSyncFile {
         /// The layout keys whose values in ``settings`` are a Mac's copy
         /// (``copiedLayoutsKey``); empty for files of earlier builds.
         var copiedLayouts: Set<String> = []
+        /// The date of the version the write was based on (``basedOnKey``); `nil` for files of
+        /// earlier builds.
+        var basedOn: Date?
     }
 
     /// Returns what the sync file holds.
@@ -105,7 +119,8 @@ nonisolated enum SettingsSyncFile {
                 && modified <= now.addingTimeInterval(allowedClockSkew),
             settings: settings.filter { !localKeys.contains($0.key) },
             currentLayouts: Set(file[currentLayoutsKey] as? [String] ?? []),
-            copiedLayouts: Set(file[copiedLayoutsKey] as? [String] ?? [])
+            copiedLayouts: Set(file[copiedLayoutsKey] as? [String] ?? []),
+            basedOn: file[basedOnKey] as? Date
         )
     }
 
