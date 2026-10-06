@@ -797,8 +797,8 @@ nonisolated extension SettingsSyncPolicy {
     /// The other macOS version's layout is the file's, never this Mac's copy, which may be
     /// older. Only when the file has none is this Mac's copy written, and not listed as
     /// current: this build ignores it, and builds before it, which delete a layout missing from
-    /// a file they apply (F-60), keep one. This Mac's layout is written when the
-    /// user changed it (`keepsOwnLayout`) or the file has no layout for this Mac's macOS
+    /// a file they apply (F-60), keep one. This Mac's layout is written when
+    /// `keepsOwnLayout` holds or the file has no layout for this Mac's macOS
     /// version; otherwise the file's current layout is kept, with only this Mac's entries it
     /// has never seen, so holzBar's own placements never replace another Mac's layout, and a
     /// Mac's copy of it is passed on as a copy, never listed as current. A layout for this Mac's
@@ -811,10 +811,15 @@ nonisolated extension SettingsSyncPolicy {
     ///   - remote: The file's settings as read, if any.
     ///   - fileCurrentLayouts: The layouts the file lists as current.
     ///   - fileCopiedLayouts: The layouts the file marks as a Mac's copy
-    ///     (``SettingsSyncFile/copiedLayoutsKey``); a copy of this Mac's layout counts as none.
+    ///     (``SettingsSyncFile/copiedLayoutsKey``); a copy of a layout for this Mac's macOS
+    ///     version is passed on as a copy unless `keepsOwnLayout`.
     ///   - layouts: This Mac's layout keys.
-    ///   - keepsOwnLayout: Whether this Mac's layout is written as it is: the user changed
-    ///     it, or chose to keep this Mac's settings.
+    ///   - keepsOwnLayout: Whether this Mac's layout is written as it is, listed as current
+    ///     unless `writesOwnLayoutAsCopy`: the user changed it (``writesOwnLayout(_:)``), the
+    ///     file lists an old copy of this Mac's own (``isOldOwnLayout(_:local:)``), or the user
+    ///     kept this Mac's settings over a version whose layout may be stale
+    ///     (``keepsOwnLayoutOverStale(_:local:)``). Keeping this Mac's settings over any other
+    ///     version keeps that version's layout.
     ///   - passesOtherLayoutAsCopy: Whether the file's current layout of the other macOS
     ///     version is passed on marked as a copy, as it may be stale
     ///     (``passesOtherLayoutAsCopy(_:local:)``).
