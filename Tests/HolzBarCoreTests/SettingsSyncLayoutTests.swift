@@ -429,12 +429,34 @@ struct SettingsSyncLayoutTests {
 
     // MARK: Counting layout edits
 
-    @Test("A layout from before the update counts as changed until the first sync; a fresh install's does not")
+    @Test("A layout from before the update counts as changed until the first sync only on a Mac that did not sync")
     func initialLayoutEdits() {
-        #expect(Policy.initialLayoutEdits(hasLayout: true) == 1)
-        #expect(Policy.initialLayoutEdits(hasLayout: false) == 0)
-        #expect(Policy.editsLayout(count: Policy.initialLayoutEdits(hasLayout: true), synced: 0))
-        #expect(!Policy.editsLayout(count: Policy.initialLayoutEdits(hasLayout: false), synced: 0))
+        #expect(Policy.initialLayoutEdits(hasLayout: true, syncs: false) == 1)
+        #expect(Policy.initialLayoutEdits(hasLayout: true, syncs: true) == 0)
+        #expect(Policy.initialLayoutEdits(hasLayout: false, syncs: false) == 0)
+        #expect(Policy.initialLayoutEdits(hasLayout: false, syncs: true) == 0)
+        #expect(Policy.editsLayout(count: Policy.initialLayoutEdits(hasLayout: true, syncs: false), synced: 0))
+        #expect(!Policy.editsLayout(count: Policy.initialLayoutEdits(hasLayout: true, syncs: true), synced: 0))
+        #expect(!Policy.editsLayout(count: Policy.initialLayoutEdits(hasLayout: false, syncs: false), synced: 0))
+    }
+
+    @Test("After the update, a Mac that syncs takes in the layout of another Mac of its macOS version without a question", arguments: layoutBackends)
+    func upgradeOfSyncingMacTakesInLayout(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        // The first Mac updated wrote its layout; this Mac's differs by holzBar's own placement.
+        let mine = settings(layouts, own: ["a": 0, "b": 1, "placed": 2])
+        let remote = settings(layouts, own: ["a": 0, "b": 0], ownKnown: ["placed"])
+        let edits = Policy.initialLayoutEdits(hasLayout: true, syncs: true)
+        let joining = local(mine, layouts, base: nil, editsLayout: Policy.editsLayout(count: edits, synced: 0))
+        for trigger in [Policy.Trigger.localChange, .check, .launch] {
+            #expect(Policy.decide(trigger, local: joining, file: version(remote, layouts)) == .adopt)
+        }
+        let takenIn = Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: joining, isNewer: true)
+        #expect(isLayout(takenIn[layouts.own], ["a": 0, "b": 0]))
+        // A Mac that did not sync compares its layout once, as it may be the user's.
+        let unsynced = Policy.initialLayoutEdits(hasLayout: true, syncs: false)
+        let joiningUnsynced = local(mine, layouts, base: nil, editsLayout: Policy.editsLayout(count: unsynced, synced: 0))
+        #expect(Policy.decide(.check, local: joiningUnsynced, file: version(remote, layouts)) == .ask)
     }
 
     @Test("Only layout edits the last sync did not record count")
