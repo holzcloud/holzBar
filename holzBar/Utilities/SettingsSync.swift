@@ -829,14 +829,16 @@ final class SettingsSync {
     /// like a learned key (`SettingsSyncPolicy.layoutToTakeIn(_:over:layouts:)`), unless the
     /// version is older than this Mac's last sync (`SettingsSyncPolicy.takesInOtherLayout`).
     private static func takeInOtherLayout(from remote: RemoteVersion?, local: SettingsSyncPolicy.Local) {
-        guard
-            let remote,
-            SettingsSyncPolicy.takesInOtherLayout(from: remote.version, local: local),
-            let remoteSettings = remote.settings
-        else {
+        guard let remote, let remoteSettings = remote.settings else {
             return
         }
-        let layout = SettingsSyncPolicy.layoutToTakeIn(remoteSettings, over: syncedSettings(), layouts: layouts)
+        let layout = SettingsSyncPolicy.otherLayoutToTakeIn(
+            remoteSettings,
+            over: syncedSettings(),
+            layouts: layouts,
+            version: remote.version,
+            local: local
+        )
         guard !layout.isEmpty else {
             return
         }
@@ -1466,32 +1468,31 @@ final class SettingsSync {
         let action = SettingsSyncPolicy.decide(.launch, local: local, file: inspection.file)
         let version = inspection.remote?.version
         if let remote = inspection.settings, let version {
+            let applied = SettingsSyncPolicy.settingsToApplyAtLaunch(
+                for: action,
+                remote: remote,
+                over: settings,
+                layouts: layouts,
+                local: local,
+                version: version
+            )
             switch SettingsSyncPolicy.launchApplication(for: action) {
             case .settings:
-                let applied = SettingsSyncPolicy.settingsToApply(
-                    remote,
-                    over: settings,
-                    layouts: layouts,
-                    baseLayoutDigest: local.baseLayoutDigest,
-                    editsLayout: local.editsLayout
-                )
                 SettingsBackup.apply(applied, removesMissingKeys: false)
                 Defaults.set(true, forKey: .syncsSettingsWithICloud)
                 logger.notice("Applied settings from the sync folder")
             case .ownLayout:
                 // A joining Mac whose layout the user did not change takes in the folder's
                 // layout for its macOS version, before anything reads it.
-                let ownLayout = SettingsSyncPolicy.ownLayoutToTakeIn(remote, over: settings, layouts: layouts, local: local, version: version)
-                if !ownLayout.isEmpty {
-                    SettingsBackup.apply(ownLayout, removesMissingKeys: false)
+                if !applied.isEmpty {
+                    SettingsBackup.apply(applied, removesMissingKeys: false)
                     logger.info("Took in the layout from the sync folder")
                 }
             case .keptLayout:
                 // This Mac kept another Mac's layout in its last write; only that layout is
                 // taken in, and this Mac's other changes are written after launch.
-                let layout = SettingsSyncPolicy.keptLayoutToTakeIn(remote, over: settings, layouts: layouts)
-                if !layout.isEmpty {
-                    SettingsBackup.apply(layout, removesMissingKeys: false)
+                if !applied.isEmpty {
+                    SettingsBackup.apply(applied, removesMissingKeys: false)
                 }
                 logger.info("Took in the layout from the sync folder")
             case .nothing:
@@ -1507,11 +1508,7 @@ final class SettingsSync {
         // other macOS version's layout never ask; a Mac that has synced takes them in
         // silently, the layout only from a version not older than its last sync.
         if state.base != nil, let remote = inspection.settings, let version {
-            let learned = SettingsSyncPolicy.learnedSettings(merging: remote, into: settings)
-            let otherLayout = SettingsSyncPolicy.takesInOtherLayout(from: version, local: local)
-                ? SettingsSyncPolicy.layoutToTakeIn(remote, over: settings, layouts: layouts)
-                : [:]
-            let takenIn = learned.merging(otherLayout) { _, layout in layout }
+            let takenIn = SettingsSyncPolicy.settingsToTakeInAtLaunch(from: remote, over: settings, layouts: layouts, version: version, local: local)
             if !takenIn.isEmpty {
                 SettingsBackup.apply(takenIn, removesMissingKeys: false)
             }

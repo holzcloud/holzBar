@@ -1870,6 +1870,68 @@ nonisolated extension SettingsSyncPolicy {
         case keptLayout
     }
 
+    /// The settings the launch applies for a decision (``launchApplication(for:)``), without
+    /// removing any this Mac has; empty when there is nothing to apply.
+    ///
+    /// - Parameters:
+    ///   - action: The decision at launch.
+    ///   - remote: The version's current settings
+    ///     (``withoutStaleLayouts(_:currentLayouts:)``).
+    ///   - settings: This Mac's settings.
+    ///   - layouts: This Mac's layout keys.
+    ///   - local: This Mac's side of the decision.
+    ///   - version: The version.
+    static func settingsToApplyAtLaunch(
+        for action: Action,
+        remote: [String: Any],
+        over settings: [String: Any],
+        layouts: Layouts,
+        local: Local,
+        version: Version
+    ) -> [String: Any] {
+        switch launchApplication(for: action) {
+        case .settings:
+            settingsToApply(remote, over: settings, layouts: layouts, baseLayoutDigest: local.baseLayoutDigest, editsLayout: local.editsLayout)
+        case .ownLayout:
+            ownLayoutToTakeIn(remote, over: settings, layouts: layouts, local: local, version: version)
+        case .keptLayout:
+            keptLayoutToTakeIn(remote, over: settings, layouts: layouts)
+        case .nothing:
+            [:]
+        }
+    }
+
+    /// The other macOS version's layout to take in from a version, silently, as at launch or
+    /// with an adoption: none from a version older than this Mac's last sync
+    /// (``takesInOtherLayout(from:local:)``), or when this Mac holds it already
+    /// (``layoutToTakeIn(_:over:layouts:)``).
+    static func otherLayoutToTakeIn(
+        _ remote: [String: Any],
+        over settings: [String: Any],
+        layouts: Layouts,
+        version: Version,
+        local: Local
+    ) -> [String: Any] {
+        guard takesInOtherLayout(from: version, local: local) else {
+            return [:]
+        }
+        return layoutToTakeIn(remote, over: settings, layouts: layouts)
+    }
+
+    /// What a Mac that has synced takes in silently at launch when it applied no version
+    /// whole: what the other Macs have learned (``learnedKeys``) and the other macOS
+    /// version's layout (``otherLayoutToTakeIn(_:over:layouts:version:local:)``).
+    static func settingsToTakeInAtLaunch(
+        from remote: [String: Any],
+        over settings: [String: Any],
+        layouts: Layouts,
+        version: Version,
+        local: Local
+    ) -> [String: Any] {
+        learnedSettings(merging: remote, into: settings)
+            .merging(otherLayoutToTakeIn(remote, over: settings, layouts: layouts, version: version, local: local)) { _, layout in layout }
+    }
+
     /// What the launch applies for a decision. The launch never writes and never asks.
     static func launchApplication(for action: Action) -> LaunchApplication {
         switch action {

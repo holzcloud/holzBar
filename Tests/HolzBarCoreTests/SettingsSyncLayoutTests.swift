@@ -1397,6 +1397,65 @@ struct SettingsSyncLayoutTests {
         #expect(!Policy.holdsOlderLayoutToJoin(theirs, local: neverSynced))
     }
 
+    // MARK: What the launch applies
+
+    @Test("The launch applies for each decision exactly what the decision says", arguments: layoutBackends)
+    func settingsToApplyAtLaunch(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let mine = settings(layouts, own: first, other: second)
+        let remote = settings(layouts, showOnHover: false, own: third, other: third)
+        let synced = local(mine, layouts, base: mine)
+        let version = newerVersion(remote, layouts)
+        func applied(_ action: Policy.Action, local: Policy.Local, version: Policy.Version) -> [String: Any] {
+            Policy.settingsToApplyAtLaunch(for: action, remote: remote, over: mine, layouts: layouts, local: local, version: version)
+        }
+        // A version applied whole.
+        let whole = applied(.apply, local: synced, version: version)
+        #expect(whole["ShowOnHover"] as? Bool == false)
+        // This Mac's items the version has never seen stay.
+        let merged = third.merging(["b": 1]) { $1 }
+        #expect(isLayout(whole[layouts.own], merged))
+        // A joining Mac's adoption takes in only the folder's layout of its macOS version.
+        var joining = synced
+        joining.base = nil
+        let adopted = applied(.adopt, local: joining, version: version)
+        #expect(Set(adopted.keys) == [layouts.own])
+        #expect(isLayout(adopted[layouts.own], merged))
+        #expect(applied(.adopt, local: synced, version: version).isEmpty)
+        // A kept layout of this Mac's own version.
+        var own = version
+        own.isFromThisMac = true
+        let kept = applied(.takeInLayout, local: synced, version: own)
+        #expect(Set(kept.keys) == [layouts.own])
+        // Nothing else.
+        for action in [Policy.Action.none, .ask, .write, .wait, .retry] {
+            #expect(applied(action, local: synced, version: version).isEmpty)
+        }
+    }
+
+    @Test("A Mac that synced takes in the learned settings at launch, and the other macOS version's layout only from a version not older than its last sync", arguments: layoutBackends)
+    func settingsToTakeInAtLaunch(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let seeded = Defaults.Key.macOS27LayoutSeeded.rawValue
+        let mine = settings(layouts, own: first, other: second)
+        var remote = settings(layouts, own: first, other: third)
+        remote[seeded] = true
+        var synced = local(mine, layouts, base: mine)
+        synced.lastSynced = lastSynced
+        let newer = newerVersion(remote, layouts)
+        let takenIn = Policy.settingsToTakeInAtLaunch(from: remote, over: mine, layouts: layouts, version: newer, local: synced)
+        #expect(takenIn[seeded] as? Bool == true)
+        #expect(isLayout(takenIn[layouts.other], third))
+        #expect(takenIn[layouts.own] == nil)
+        var older = newer
+        older.modified = lastSynced.addingTimeInterval(-60)
+        let fromOlder = Policy.settingsToTakeInAtLaunch(from: remote, over: mine, layouts: layouts, version: older, local: synced)
+        #expect(fromOlder[seeded] as? Bool == true)
+        #expect(fromOlder[layouts.other] == nil)
+        #expect(Policy.otherLayoutToTakeIn(remote, over: mine, layouts: layouts, version: older, local: synced).isEmpty)
+        #expect(!Policy.otherLayoutToTakeIn(remote, over: mine, layouts: layouts, version: newer, local: synced).isEmpty)
+    }
+
     // MARK: Running
 
     @Test("A newer version that changed only the other macOS version's layout is adopted", arguments: layoutBackends)
