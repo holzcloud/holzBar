@@ -153,6 +153,10 @@ struct SettingsSyncFileTests {
         var wrongType = earlier
         wrongType[SettingsSyncFile.currentLayoutsKey] = "ItemSections"
         #expect(try #require(contents(in: wrongType)).currentLayouts.isEmpty)
+        var copied = listed
+        copied[SettingsSyncFile.copiedLayoutsKey] = ["ItemSections"]
+        #expect(try #require(contents(in: copied)).copiedLayouts == ["ItemSections"])
+        #expect(try #require(contents(in: listed)).copiedLayouts.isEmpty)
     }
 
     @Test("A file without date or settings has no contents")

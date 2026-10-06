@@ -131,10 +131,23 @@ struct SettingsSyncLayoutTests {
         #expect(isLayout(listed.settings[layouts.other], third))
         #expect(listed.settings["ShowOnHover"] as? Bool == false)
         #expect(listed.currentLayouts == [layouts.own, layouts.other].sorted())
+        #expect(listed.copiedLayouts.isEmpty)
         // A copy from a file of an earlier build is carried on for those builds, but not listed.
         let unlisted = Policy.fileToWrite(mine, file: file, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: true)
         #expect(isLayout(unlisted.settings[layouts.other], third))
         #expect(unlisted.currentLayouts == [layouts.own])
+        #expect(unlisted.copiedLayouts.isEmpty)
+        // A copy's mark is passed on with it.
+        let marked = Policy.fileToWrite(
+            mine,
+            file: file,
+            fileCurrentLayouts: [],
+            fileCopiedLayouts: [layouts.other],
+            layouts: layouts,
+            keepsOwnLayout: true
+        )
+        #expect(isLayout(marked.settings[layouts.other], third))
+        #expect(marked.copiedLayouts == [layouts.other])
         let without = Policy.fileToWrite(
             mine,
             file: settings(layouts, own: first),
@@ -146,14 +159,17 @@ struct SettingsSyncLayoutTests {
         // otherwise delete that layout (F-60), but not listed: this build ignores it.
         #expect(isLayout(without.settings[layouts.other], second))
         #expect(without.currentLayouts == [layouts.own])
+        #expect(without.copiedLayouts == [layouts.other])
         #expect(Policy.withoutStaleLayouts(without.settings, currentLayouts: Set(without.currentLayouts))[layouts.other] == nil)
         let empty = Policy.fileToWrite(mine, file: nil, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: false)
         #expect(isLayout(empty.settings[layouts.other], second))
         #expect(isLayout(empty.settings[layouts.own], first))
         #expect(empty.currentLayouts == [layouts.own])
+        #expect(empty.copiedLayouts == [layouts.other])
         // A Mac without a copy writes none.
         let bare = Policy.fileToWrite(settings(layouts, own: first), file: nil, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: false)
         #expect(bare.settings[layouts.other] == nil)
+        #expect(bare.copiedLayouts.isEmpty)
     }
 
     @Test("Without a layout change of the user's, a write keeps the file's layout and adds only items it has never seen", arguments: layoutBackends)
@@ -167,10 +183,11 @@ struct SettingsSyncLayoutTests {
         // A layout change of the user's, or "Keep This Mac's Settings", writes this Mac's.
         let edited = Policy.fileToWrite(mine, file: file, fileCurrentLayouts: [layouts.own], layouts: layouts, keepsOwnLayout: true)
         #expect(isLayout(edited.settings[layouts.own], ["a": 2, "known": 2, "new": 1]))
-        // So does a file without a current layout for this macOS version.
+        // A layout an earlier build wrote, unlisted, is passed on as it is, unlisted.
         let unlisted = Policy.fileToWrite(mine, file: file, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: false)
-        #expect(isLayout(unlisted.settings[layouts.own], ["a": 2, "known": 2, "new": 1]))
-        #expect(unlisted.currentLayouts == [layouts.own])
+        #expect(isLayout(unlisted.settings[layouts.own], ["a": 0]))
+        #expect(unlisted.currentLayouts.isEmpty)
+        // So is a file without a current layout for this macOS version.
         let missing = Policy.fileToWrite(mine, file: settings(layouts), fileCurrentLayouts: [layouts.own], layouts: layouts, keepsOwnLayout: false)
         #expect(isLayout(missing.settings[layouts.own], ["a": 2, "known": 2, "new": 1]))
         // A Mac without a layout of its own passes the file's on as it is.
@@ -180,6 +197,17 @@ struct SettingsSyncLayoutTests {
         let bareUnlisted = Policy.fileToWrite(settings(layouts), file: file, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: true)
         #expect(isLayout(bareUnlisted.settings[layouts.own], ["a": 0]))
         #expect(bareUnlisted.currentLayouts.isEmpty)
+        #expect(bareUnlisted.copiedLayouts.isEmpty)
+        let bareCopy = Policy.fileToWrite(
+            settings(layouts),
+            file: file,
+            fileCurrentLayouts: [],
+            fileCopiedLayouts: [layouts.own],
+            layouts: layouts,
+            keepsOwnLayout: false
+        )
+        #expect(isLayout(bareCopy.settings[layouts.own], ["a": 0]))
+        #expect(bareCopy.copiedLayouts == [layouts.own])
     }
 
     // MARK: Applying and taking in
@@ -270,6 +298,40 @@ struct SettingsSyncLayoutTests {
                 }
             }
         }
+        // A Mac of the other macOS version marks its copy of this Mac's layout as a copy:
+        // it is no arrangement to ask about, and this Mac writes its own layout over it.
+        let copy = settings(layouts, own: second, other: third)
+        let copyFile = Policy.Version(
+            settings: Policy.withoutStaleLayouts(copy, currentLayouts: [layouts.other]),
+            layouts: layouts,
+            isFromThisMac: false,
+            modified: lastSynced.addingTimeInterval(60),
+            isNewer: true,
+            unlistedLayoutDigest: Policy.unlistedLayoutDigest(
+                in: copy,
+                currentLayouts: [layouts.other],
+                copiedLayouts: [layouts.own],
+                layouts: layouts
+            )
+        )
+        #expect(copyFile.unlistedLayoutDigest == nil)
+        for editsLayout in [false, true] {
+            let joining = local(mine, layouts, base: nil, baseLayout: settings(layouts, own: third), editsLayout: editsLayout)
+            for trigger in [Policy.Trigger.localChange, .check, .launch] {
+                #expect(Policy.decide(trigger, local: joining, file: .version(copyFile)) != .ask)
+            }
+        }
+        let overCopy = Policy.fileToWrite(
+            mine,
+            file: copy,
+            fileCurrentLayouts: [layouts.other],
+            fileCopiedLayouts: [layouts.own],
+            layouts: layouts,
+            keepsOwnLayout: false
+        )
+        #expect(isLayout(overCopy.settings[layouts.own], first))
+        #expect(overCopy.currentLayouts == [layouts.own, layouts.other].sorted())
+        #expect(overCopy.copiedLayouts.isEmpty)
         // A real difference still asks.
         let joining = local(mine, layouts, base: nil)
         #expect(Policy.decide(.check, local: joining, file: version(settings(layouts, showOnHover: false, other: third), layouts)) == .ask)
@@ -354,12 +416,146 @@ struct SettingsSyncLayoutTests {
         let mine = settings(layouts, own: first)
         let synced = local(mine, layouts, base: mine)
         #expect(Policy.decide(.check, local: synced, file: version(current, layouts)) == .adopt)
+        // A file that holds no layout for this macOS version is written after a change.
         let joining = local(mine, layouts, base: nil, editsLayout: true)
         #expect(Policy.decide(.check, local: joining, file: version(current, layouts)) == .write)
         let applied = Policy.settingsToApply(current, over: mine, layouts: layouts, baseLayoutDigest: synced.baseLayoutDigest, editsLayout: true)
         #expect(applied[layouts.own] == nil)
         #expect(applied[layouts.other] == nil)
         #expect(Policy.layoutToTakeIn(current, over: mine, layouts: layouts).isEmpty)
+    }
+
+    // MARK: Files of earlier builds
+
+    /// A version of a file an earlier build wrote: its layouts are unlisted.
+    private func earlierVersion(_ file: [String: Any], _ layouts: Policy.Layouts, fromThisMac: Bool = false, isNewer: Bool = true) -> Policy.File {
+        .version(
+            Policy.Version(
+                settings: Policy.withoutStaleLayouts(file, currentLayouts: []),
+                layouts: layouts,
+                isFromThisMac: fromThisMac,
+                modified: lastSynced.addingTimeInterval(60),
+                isNewer: isNewer,
+                unlistedLayoutDigest: Policy.unlistedLayoutDigest(in: file, currentLayouts: [], layouts: layouts)
+            )
+        )
+    }
+
+    @Test("Only a layout for this macOS version that the file holds but does not list counts as unlisted", arguments: layoutBackends)
+    func unlistedLayoutDigest(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let file = settings(layouts, own: first, other: second)
+        #expect(Policy.unlistedLayoutDigest(in: file, currentLayouts: [], layouts: layouts) == Policy.layoutDigest(of: file, layouts: layouts))
+        #expect(Policy.unlistedLayoutDigest(in: file, currentLayouts: [layouts.other], layouts: layouts) != nil)
+        #expect(Policy.unlistedLayoutDigest(in: file, currentLayouts: [layouts.own], layouts: layouts) == nil)
+        #expect(Policy.unlistedLayoutDigest(in: settings(layouts, other: second), currentLayouts: [], layouts: layouts) == nil)
+        #expect(Policy.unlistedLayoutDigest(in: [layouts.own: "not a layout"], currentLayouts: [], layouts: layouts) == nil)
+    }
+
+    @Test("A write without a layout change of the user's never replaces a layout of this macOS version that an earlier build wrote", arguments: layoutBackends)
+    func writeKeepsEarlierBuildLayout(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        // A Mac of this macOS version still on 0.0.7 beta 1 arranged `third`; its file lists no layout.
+        let beta1File = settings(layouts, own: third, other: second)
+        let mine = settings(layouts, showOnHover: false, own: first, other: second)
+        // This Mac adopted that file without taking its layout in.
+        let adopted = local(settings(layouts, own: first, other: second), layouts, base: settings(layouts), baseLayout: settings(layouts))
+        #expect(Policy.decide(.check, local: adopted, file: earlierVersion(beta1File, layouts)) == .adopt)
+        // A change of a user setting writes, and keeps that Mac's layout as it is, unlisted.
+        var changed = local(mine, layouts, base: settings(layouts), baseLayout: settings(layouts))
+        #expect(Policy.decide(.localChange, local: changed, file: earlierVersion(beta1File, layouts)) == .write)
+        let written = Policy.fileToWrite(mine, file: beta1File, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: false)
+        #expect(isLayout(written.settings[layouts.own], third))
+        #expect(!written.currentLayouts.contains(layouts.own))
+        #expect(written.settings["ShowOnHover"] as? Bool == false)
+        // This Mac has not taken that layout in, so it records none as synced.
+        let current = Set(written.currentLayouts)
+        #expect(Policy.syncedLayoutDigest(afterWriting: written.settings, currentLayouts: current, layouts: layouts, local: changed) == nil)
+        // The file this Mac then wrote still holds it, and a layout change of the user's asks.
+        changed.editsLayout = true
+        let ownFile = Policy.File.version(
+            Policy.Version(
+                settings: Policy.withoutStaleLayouts(written.settings, currentLayouts: current),
+                layouts: layouts,
+                isFromThisMac: true,
+                modified: lastSynced.addingTimeInterval(120),
+                isNewer: false,
+                unlistedLayoutDigest: Policy.unlistedLayoutDigest(in: written.settings, currentLayouts: current, layouts: layouts)
+            )
+        )
+        #expect(Policy.decide(.localChange, local: changed, file: ownFile) == .ask)
+    }
+
+    @Test("A layout change of the user's asks before it replaces a layout of this macOS version that an earlier build wrote", arguments: layoutBackends)
+    func layoutChangeAsksAboutEarlierBuildLayout(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let beta1File = settings(layouts, own: third, other: second)
+        let moved = settings(layouts, own: second)
+        let edited = local(moved, layouts, base: moved, baseLayout: settings(layouts), editsLayout: true)
+        for trigger in [Policy.Trigger.localChange, .check, .launch] {
+            #expect(Policy.decide(trigger, local: edited, file: earlierVersion(beta1File, layouts)) == .ask)
+            #expect(Policy.decide(trigger, local: edited, file: earlierVersion(beta1File, layouts, fromThisMac: true, isNewer: false)) == .ask)
+            #expect(Policy.decide(trigger, local: edited, file: earlierVersion(beta1File, layouts, isNewer: false)) == .ask)
+        }
+        #expect(Policy.hint(for: edited) == .choice(isJoining: false))
+        // "Later" waits for that version.
+        var postponed = edited
+        postponed.postponed = lastSynced.addingTimeInterval(60)
+        #expect(Policy.decide(.check, local: postponed, file: earlierVersion(beta1File, layouts)) == .wait)
+        // A joining Mac whose layout the user changed asks too.
+        let joining = local(moved, layouts, base: nil, baseLayout: settings(layouts), editsLayout: true)
+        #expect(Policy.decide(.check, local: joining, file: earlierVersion(beta1File, layouts)) == .ask)
+        // Nothing is lost when the layout is this Mac's, or the one it last synced.
+        let same = local(settings(layouts, own: third), layouts, base: moved, baseLayout: settings(layouts), editsLayout: true)
+        #expect(Policy.decide(.localChange, local: same, file: earlierVersion(beta1File, layouts)) == .write)
+        let syncedIt = local(moved, layouts, base: moved, baseLayout: settings(layouts, own: third), editsLayout: true)
+        #expect(Policy.decide(.localChange, local: syncedIt, file: earlierVersion(beta1File, layouts)) == .write)
+        // "Keep This Mac's Settings" writes.
+        var keeps = edited
+        keeps.forcesWrite = true
+        #expect(Policy.decide(.localChange, local: keeps, file: earlierVersion(beta1File, layouts)) == .write)
+        let kept = Policy.fileToWrite(moved, file: beta1File, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: true)
+        #expect(isLayout(kept.settings[layouts.own], second))
+        #expect(kept.currentLayouts.contains(layouts.own))
+        // Without a layout change of the user's, nothing asks.
+        let unchanged = local(settings(layouts, showOnHover: false, own: second), layouts, base: settings(layouts), baseLayout: settings(layouts))
+        #expect(Policy.decide(.localChange, local: unchanged, file: earlierVersion(beta1File, layouts)) == .write)
+    }
+
+    @Test("Choosing the folder's settings over a layout change takes in the layout an earlier build wrote", arguments: layoutBackends)
+    func useTakesInEarlierBuildLayout(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let beta1File = settings(layouts, showOnHover: false, own: ["a": 3, "known": 1], other: second, ownKnown: ["known"])
+        let current = Policy.withoutStaleLayouts(beta1File, currentLayouts: [])
+        guard case .version(let earlier) = earlierVersion(beta1File, layouts) else {
+            Issue.record("Expected a version")
+            return
+        }
+        let mine = settings(layouts, own: ["a": 1, "known": 2, "unseen": 1])
+        let edited = local(mine, layouts, base: mine, baseLayout: settings(layouts), editsLayout: true)
+        let used = Policy.settingsToUse(current, unlisted: beta1File, over: mine, layouts: layouts, version: earlier, local: edited)
+        #expect(isLayout(used.settings[layouts.own], ["a": 3, "known": 1, "unseen": 1]))
+        #expect(used.settings["ShowOnHover"] as? Bool == false)
+        #expect(used.layoutDigest == earlier.unlistedLayoutDigest)
+        // Recorded as synced, a later write passes it on and keeps it as synced, so the next
+        // layout change of the user's does not ask about it again.
+        let after = local(mine, layouts, base: mine, baseLayout: [layouts.own: beta1File[layouts.own] as Any])
+        #expect(after.baseLayoutDigest == earlier.unlistedLayoutDigest)
+        let written = Policy.fileToWrite(mine, file: beta1File, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: false)
+        let current2 = Set(written.currentLayouts)
+        #expect(Policy.syncedLayoutDigest(afterWriting: written.settings, currentLayouts: current2, layouts: layouts, local: after) == earlier.unlistedLayoutDigest)
+        var nextEdit = after
+        nextEdit.editsLayout = true
+        #expect(Policy.decide(.localChange, local: nextEdit, file: earlierVersion(beta1File, layouts, fromThisMac: true, isNewer: false)) == .write)
+        // Without a question about that layout, the folder's settings apply as before.
+        let unedited = local(mine, layouts, base: mine, baseLayout: settings(layouts))
+        let plain = Policy.settingsToUse(current, unlisted: beta1File, over: mine, layouts: layouts, version: earlier, local: unedited)
+        #expect(plain.settings[layouts.own] == nil)
+        #expect(plain.layoutDigest == nil)
+        // A listed layout is recorded as written.
+        let listed = Policy.fileToWrite(mine, file: nil, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: true)
+        let listedDigest = Policy.syncedLayoutDigest(afterWriting: listed.settings, currentLayouts: Set(listed.currentLayouts), layouts: layouts, local: unedited)
+        #expect(listedDigest == Policy.layoutDigest(of: mine, layouts: layouts))
     }
 
     // MARK: Running

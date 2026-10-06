@@ -8,8 +8,8 @@ import Foundation
 /// Decides which settings of the sync file this Mac applies, and reads the file safely.
 ///
 /// The file holds the date it was written (``modifiedKey``), the writing Mac's id (see
-/// ``SettingsSyncDevice``), the settings (``settingsKey``) and the layouts among them that
-/// are current (``currentLayoutsKey``).
+/// ``SettingsSyncDevice``), the settings (``settingsKey``), the layouts among them that
+/// are current (``currentLayoutsKey``) and those that are a Mac's copy (``copiedLayoutsKey``).
 ///
 /// Anyone who can write the synced folder can write the file: a shared Dropbox or
 /// Nextcloud folder, a network share, a Syncthing peer. So the file is read only when it
@@ -31,6 +31,13 @@ nonisolated enum SettingsSyncFile {
     /// the layout it stands for. Earlier builds ignore the key.
     static let currentLayoutsKey = "currentLayouts"
 
+    /// The key of the layout keys whose values in the settings are a Mac's copy of another
+    /// macOS version's layout, written unlisted for builds before this one, which delete a
+    /// layout missing from a file they apply (F-60). Such a copy is no Mac's arrangement: it is
+    /// never compared, and a Mac of that macOS version writes its own layout over it. Earlier
+    /// builds ignore the key, and their files lack it.
+    static let copiedLayoutsKey = "copiedLayouts"
+
     /// The largest sync file holzBar reads: 1 MB. holzBar's settings take a few kilobytes.
     static let maximumFileSize = 1 << 20
 
@@ -51,6 +58,9 @@ nonisolated enum SettingsSyncFile {
         /// The layout keys whose values in ``settings`` are current (``currentLayoutsKey``);
         /// empty for files of earlier builds.
         let currentLayouts: Set<String>
+        /// The layout keys whose values in ``settings`` are a Mac's copy
+        /// (``copiedLayoutsKey``); empty for files of earlier builds.
+        var copiedLayouts: Set<String> = []
     }
 
     /// Returns what the sync file holds.
@@ -86,7 +96,8 @@ nonisolated enum SettingsSyncFile {
                 && modified > lastSynced ?? .distantPast
                 && modified <= now.addingTimeInterval(allowedClockSkew),
             settings: settings.filter { !localKeys.contains($0.key) },
-            currentLayouts: Set(file[currentLayoutsKey] as? [String] ?? [])
+            currentLayouts: Set(file[currentLayoutsKey] as? [String] ?? []),
+            copiedLayouts: Set(file[copiedLayoutsKey] as? [String] ?? [])
         )
     }
 

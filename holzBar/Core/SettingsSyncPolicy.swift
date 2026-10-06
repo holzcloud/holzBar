@@ -256,6 +256,10 @@ nonisolated enum SettingsSyncPolicy {
         /// (``layoutDigest(of:layouts:)``); `nil` when it has none or does not list it as
         /// current (``SettingsSyncFile/currentLayoutsKey``).
         var layoutDigest: String?
+        /// The layout digest of a layout for this Mac's macOS version that the version holds
+        /// but does not list as current (``unlistedLayoutDigest(in:currentLayouts:copiedLayouts:layouts:)``);
+        /// `nil` when it holds none.
+        var unlistedLayoutDigest: String?
     }
 
     /// What reading the sync file gave.
@@ -304,7 +308,9 @@ nonisolated enum SettingsSyncPolicy {
 
     /// Decides what to do with the sync file.
     ///
-    /// A version that holds this Mac's settings is adopted (``holdsLocalSettings(_:local:)``);
+    /// A version that holds this Mac's settings is adopted (``holdsLocalSettings(_:local:)``).
+    /// A layout change of the user's that would replace a layout an earlier build wrote asks
+    /// (``replacesUnlistedLayout(_:local:)``);
     /// a joining Mac whose layout the user did not change takes in the version's layout for
     /// its macOS version as it adopts
     /// (``ownLayoutToTakeIn(_:over:layouts:local:isNewer:)``). A version that changed nothing
@@ -329,6 +335,12 @@ nonisolated enum SettingsSyncPolicy {
             }
             if local.forcesWrite {
                 return isLaunch ? .none : .write
+            }
+            if replacesUnlistedLayout(version, local: local) {
+                if !isLaunch, let postponed = local.postponed, version.modified <= postponed {
+                    return .wait
+                }
+                return .ask
             }
             if version.isFromThisMac {
                 return writesChanges
@@ -499,6 +511,53 @@ nonisolated extension SettingsSyncPolicy {
         return applied
     }
 
+    /// The settings to apply when the user chooses a version's settings over this Mac's, and
+    /// the layout digest to record as synced.
+    ///
+    /// When the user's layout change would have replaced a layout the version holds unlisted
+    /// (``replacesUnlistedLayout(_:local:)``), the question was about that layout: it is
+    /// applied, with this Mac's entries it has never seen, and recorded as synced, so the
+    /// next change of the user's does not ask about it again. Otherwise the version's
+    /// settings are applied as ``settingsToApply(_:over:layouts:baseLayoutDigest:editsLayout:)``
+    /// applies them.
+    ///
+    /// - Parameters:
+    ///   - remote: The version's current settings
+    ///     (``withoutStaleLayouts(_:currentLayouts:)``).
+    ///   - unlisted: The version's settings that hold its unlisted layout, if any.
+    ///   - settings: This Mac's settings.
+    ///   - layouts: This Mac's layout keys.
+    ///   - version: The version.
+    ///   - local: This Mac's side.
+    static func settingsToUse(
+        _ remote: [String: Any],
+        unlisted: [String: Any]?,
+        over settings: [String: Any],
+        layouts: Layouts,
+        version: Version,
+        local: Local
+    ) -> (settings: [String: Any], layoutDigest: String?) {
+        var applied = settingsToApply(
+            remote,
+            over: settings,
+            layouts: layouts,
+            baseLayoutDigest: local.baseLayoutDigest,
+            editsLayout: local.editsLayout
+        )
+        guard
+            replacesUnlistedLayout(version, local: local),
+            let unlistedLayout = validatedLayout(in: unlisted, key: layouts.own)
+        else {
+            return (applied, version.layoutDigest)
+        }
+        applied[layouts.own] = mergedLayout(
+            unlistedLayout,
+            keeping: validatedLayout(in: settings, key: layouts.own),
+            seen: knownEntries(in: remote, layouts: layouts)
+        )
+        return (applied, version.unlistedLayoutDigest)
+    }
+
     /// The other macOS version's layout from a version of the sync file, when it differs
     /// from this Mac's copy: taken in silently, like a learned key.
     ///
@@ -568,12 +627,17 @@ nonisolated extension SettingsSyncPolicy {
     /// a file they apply (F-60), keep one. This Mac's layout is written when the
     /// user changed it (`keepsOwnLayout`) or the file has no current one; otherwise the
     /// file's current layout is kept, with only this Mac's entries it has never seen, so
-    /// holzBar's own placements never replace another Mac's layout.
+    /// holzBar's own placements never replace another Mac's layout. A layout for this Mac's
+    /// macOS version that the file holds unlisted, as an earlier build wrote it, is kept as
+    /// it is and stays unlisted unless the user changed this Mac's layout. A layout written
+    /// unlisted as a Mac's copy is marked as one, and the mark is passed on.
     ///
     /// - Parameters:
     ///   - local: This Mac's settings.
     ///   - remote: The file's settings as read, if any.
     ///   - fileCurrentLayouts: The layouts the file lists as current.
+    ///   - fileCopiedLayouts: The layouts the file marks as a Mac's copy
+    ///     (``SettingsSyncFile/copiedLayoutsKey``); a copy of this Mac's layout counts as none.
     ///   - layouts: This Mac's layout keys.
     ///   - keepsOwnLayout: Whether this Mac's layout is written as it is: the user changed
     ///     it, or chose to keep this Mac's settings.
@@ -581,25 +645,45 @@ nonisolated extension SettingsSyncPolicy {
         _ local: [String: Any],
         file remote: [String: Any]?,
         fileCurrentLayouts: Set<String>,
+        fileCopiedLayouts: Set<String> = [],
         layouts: Layouts,
         keepsOwnLayout: Bool
-    ) -> (settings: [String: Any], currentLayouts: [String]) {
+    ) -> (settings: [String: Any], currentLayouts: [String], copiedLayouts: [String]) {
         var settings = settingsToWrite(local, file: remote)
         var currentLayouts = Set<String>()
+        var copiedLayouts = Set<String>()
         // Files of earlier builds list no layout; their copy is carried on for those builds.
-        // Without one, this Mac's copy, from ``settingsToWrite(_:file:)``, stays unlisted.
+        // Without one, this Mac's copy, from ``settingsToWrite(_:file:)``, stays unlisted and
+        // is marked as a copy.
         if let fileOther = remote?[layouts.other] {
             settings[layouts.other] = fileOther
             if fileCurrentLayouts.contains(layouts.other) {
                 currentLayouts.insert(layouts.other)
+            } else if fileCopiedLayouts.contains(layouts.other) {
+                copiedLayouts.insert(layouts.other)
             }
+        } else if settings[layouts.other] != nil {
+            copiedLayouts.insert(layouts.other)
         }
         let fileLayout = fileCurrentLayouts.contains(layouts.own) ? validatedLayout(in: remote, key: layouts.own) : nil
         if local[layouts.own] == nil {
             settings[layouts.own] = remote?[layouts.own]
             if fileLayout != nil {
                 currentLayouts.insert(layouts.own)
+            } else if remote?[layouts.own] != nil, fileCopiedLayouts.contains(layouts.own) {
+                copiedLayouts.insert(layouts.own)
             }
+        } else if
+            !keepsOwnLayout,
+            !fileCurrentLayouts.contains(layouts.own),
+            !fileCopiedLayouts.contains(layouts.own),
+            let fileOwn = remote?[layouts.own]
+        {
+            // A layout an earlier build wrote, unlisted: a Mac of this macOS version that
+            // still runs that build may have arranged it, and applies the file as it is. It
+            // is passed on as it is, unlisted, and only a change of the user's replaces it
+            // (``replacesUnlistedLayout(_:local:)``).
+            settings[layouts.own] = fileOwn
         } else {
             if !keepsOwnLayout, let fileLayout {
                 settings[layouts.own] = mergedLayout(
@@ -610,7 +694,36 @@ nonisolated extension SettingsSyncPolicy {
             }
             currentLayouts.insert(layouts.own)
         }
-        return (settings, currentLayouts.sorted())
+        return (settings, currentLayouts.sorted(), copiedLayouts.sorted())
+    }
+
+    /// The layout digest this Mac records as synced after it wrote the sync file
+    /// (``fileToWrite(_:file:fileCurrentLayouts:fileCopiedLayouts:layouts:keepsOwnLayout:)``).
+    ///
+    /// It is the written layout for this Mac's macOS version when the file lists it. A layout
+    /// passed on unlisted counts only when it is the one this Mac last synced, as after the
+    /// user chose it (``settingsToUse(_:unlisted:over:layouts:version:local:)``); otherwise
+    /// this Mac has not taken it in, and the next change of the user's asks about it.
+    ///
+    /// - Parameters:
+    ///   - written: The written settings.
+    ///   - currentLayouts: The layouts the written file lists as current.
+    ///   - copiedLayouts: The layouts the written file marks as a Mac's copy.
+    ///   - layouts: This Mac's layout keys.
+    ///   - local: This Mac's side of the decision that wrote.
+    /// - Returns: The layout digest, or `nil` for none.
+    static func syncedLayoutDigest(
+        afterWriting written: [String: Any],
+        currentLayouts: Set<String>,
+        copiedLayouts: Set<String> = [],
+        layouts: Layouts,
+        local: Local
+    ) -> String? {
+        if currentLayouts.contains(layouts.own) {
+            return layoutDigest(of: written, layouts: layouts)
+        }
+        let unlisted = unlistedLayoutDigest(in: written, currentLayouts: currentLayouts, copiedLayouts: copiedLayouts, layouts: layouts)
+        return unlisted != nil && unlisted == local.baseLayoutDigest ? unlisted : nil
     }
 
     /// Whether a version holds this Mac's settings: equal user settings, and a layout for
@@ -627,6 +740,54 @@ nonisolated extension SettingsSyncPolicy {
             return true
         }
         return versionLayout == comparedLayout
+    }
+
+    /// The layout digest of a layout for this Mac's macOS version that the sync file holds
+    /// but does not list as current, or `nil`.
+    ///
+    /// Builds before this one list no layout. A Mac of this macOS version that runs one may
+    /// have arranged the layout, and applies a file it finds newer as it is, at launch,
+    /// removing what it lacks; but the layout may as well be an old copy kept by a Mac of the
+    /// other macOS version. So it is never compared, applied or taken in, and never replaced
+    /// without asking (``replacesUnlistedLayout(_:local:)``).
+    ///
+    /// A layout this build wrote as a Mac's copy for earlier builds
+    /// (``SettingsSyncFile/copiedLayoutsKey``) is no Mac's arrangement and does not count.
+    ///
+    /// - Parameters:
+    ///   - settings: The file's settings as read.
+    ///   - currentLayouts: The layouts the file lists as current.
+    ///   - copiedLayouts: The layouts the file marks as a Mac's copy.
+    ///   - layouts: This Mac's layout keys.
+    /// - Returns: The digest as ``layoutDigest(of:layouts:)`` computes it, comparable with
+    ///   this Mac's (``Local/layoutDigest``); `nil` when the file lists the layout, holds none
+    ///   or holds one holzBar would not apply.
+    static func unlistedLayoutDigest(
+        in settings: [String: Any],
+        currentLayouts: Set<String>,
+        copiedLayouts: Set<String> = [],
+        layouts: Layouts
+    ) -> String? {
+        guard
+            !currentLayouts.contains(layouts.own),
+            !copiedLayouts.contains(layouts.own),
+            let layout = validatedLayout(in: settings, key: layouts.own)
+        else {
+            return nil
+        }
+        return digest(of: [layouts.own: layout])
+    }
+
+    /// Whether writing this Mac's layout, which the user changed, would replace a layout of
+    /// its macOS version that the version holds unlisted
+    /// (``Version/unlistedLayoutDigest``), and that this Mac neither holds nor last synced.
+    /// Such a layout may be another Mac's arrangement, made on a build before this one, which
+    /// that Mac would lose at its next launch: holzBar asks instead.
+    static func replacesUnlistedLayout(_ version: Version, local: Local) -> Bool {
+        guard local.editsLayout, let unlisted = version.unlistedLayoutDigest else {
+            return false
+        }
+        return unlisted != local.layoutDigest && unlisted != local.baseLayoutDigest
     }
 
     /// Whether a version changed nothing this Mac uses since this Mac last synced: its user
@@ -805,14 +966,25 @@ nonisolated extension SettingsSyncPolicy.Version {
     ///
     /// - Parameter settings: The version's current settings
     ///   (``SettingsSyncPolicy/withoutStaleLayouts(_:currentLayouts:)``).
-    init(settings: [String: Any], layouts: SettingsSyncPolicy.Layouts, isFromThisMac: Bool, modified: Date, isNewer: Bool) {
+    ///   - unlistedLayoutDigest: The layout digest of a layout for this Mac's macOS version
+    ///     that the file holds unlisted
+    ///     (``SettingsSyncPolicy/unlistedLayoutDigest(in:currentLayouts:copiedLayouts:layouts:)``).
+    init(
+        settings: [String: Any],
+        layouts: SettingsSyncPolicy.Layouts,
+        isFromThisMac: Bool,
+        modified: Date,
+        isNewer: Bool,
+        unlistedLayoutDigest: String? = nil
+    ) {
         let layoutDigest = SettingsSyncPolicy.layoutDigest(of: settings, layouts: layouts)
         self.init(
             isFromThisMac: isFromThisMac,
             modified: modified,
             isNewer: isNewer,
             userDigest: SettingsSyncPolicy.userDigest(of: settings),
-            layoutDigest: layoutDigest == SettingsSyncPolicy.noLayoutDigest ? nil : layoutDigest
+            layoutDigest: layoutDigest == SettingsSyncPolicy.noLayoutDigest ? nil : layoutDigest,
+            unlistedLayoutDigest: unlistedLayoutDigest
         )
     }
 }

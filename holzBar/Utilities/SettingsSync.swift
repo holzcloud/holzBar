@@ -1013,10 +1013,20 @@ final class SettingsSync {
         /// Whether another Mac wrote it after this Mac last synced
         /// (`SettingsSyncPolicy.Version.isNewer`).
         let isNewer: Bool
+        /// The version as the decision saw it.
+        let version: SettingsSyncPolicy.Version
+        /// Its layout for this Mac's macOS version that it holds unlisted, as an earlier build
+        /// wrote it (`SettingsSyncPolicy.unlistedLayoutDigest`), as a binary property list.
+        let unlistedLayoutData: Data?
 
         /// Its settings.
         var settings: [String: Any]? {
             (try? PropertyListSerialization.propertyList(from: settingsData, format: nil)) as? [String: Any]
+        }
+
+        /// Its unlisted layout for this Mac's macOS version, under its key, if it holds one.
+        var unlistedLayout: [String: Any]? {
+            unlistedLayoutData.flatMap { (try? PropertyListSerialization.propertyList(from: $0, format: nil)) as? [String: Any] }
         }
     }
 
@@ -1054,8 +1064,8 @@ final class SettingsSync {
         var remote: RemoteVersion?
         /// The date written into the file.
         var written: Date?
-        /// The layout digest of the layout for this Mac's macOS version written into the
-        /// file, if it lists one.
+        /// The layout digest this Mac records as synced after the write
+        /// (`SettingsSyncPolicy.syncedLayoutDigest(afterWriting:currentLayouts:copiedLayouts:layouts:local:)`).
         var writtenLayoutDigest: String?
         var problem: ExchangeProblem?
     }
@@ -1070,6 +1080,8 @@ final class SettingsSync {
         var fileSettings: [String: Any]?
         /// The layouts the file lists as current.
         var currentLayouts: Set<String> = []
+        /// The layouts the file marks as a Mac's copy.
+        var copiedLayouts: Set<String> = []
         var remote: RemoteVersion?
         var problem: ExchangeProblem?
     }
@@ -1260,6 +1272,7 @@ final class SettingsSync {
                 request,
                 fileSettings: inspection.fileSettings,
                 currentLayouts: inspection.currentLayouts,
+                copiedLayouts: inspection.copiedLayouts,
                 to: writingURL
             )
         }
@@ -1271,12 +1284,14 @@ final class SettingsSync {
 
     /// Writes this Mac's settings into the sync file, with the learned settings merged
     /// with the file's, the other macOS version's layout kept from the file (this Mac's copy,
-    /// unlisted, only when the file has none) and the layouts that are current listed
-    /// (`SettingsSyncPolicy.fileToWrite`).
+    /// unlisted and marked as a copy, only when the file has none), a layout of this Mac's
+    /// macOS version that an earlier build wrote kept unless the user changed this Mac's,
+    /// and the layouts that are current listed (`SettingsSyncPolicy.fileToWrite`).
     private nonisolated static func write(
         _ request: ExchangeRequest,
         fileSettings: [String: Any]?,
         currentLayouts: Set<String>,
+        copiedLayouts: Set<String>,
         to fileURL: URL
     ) -> ExchangeResult {
         guard let settings = (try? PropertyListSerialization.propertyList(from: request.settingsData, format: nil)) as? [String: Any] else {
@@ -1287,6 +1302,7 @@ final class SettingsSync {
             settings,
             file: fileSettings,
             fileCurrentLayouts: currentLayouts,
+            fileCopiedLayouts: copiedLayouts,
             layouts: layouts,
             keepsOwnLayout: request.local.forcesWrite || request.local.editsLayout
         )
@@ -1297,10 +1313,15 @@ final class SettingsSync {
             SettingsSyncDevice.deviceIDKey: request.deviceID,
             SettingsSyncFile.settingsKey: written.settings,
             SettingsSyncFile.currentLayoutsKey: written.currentLayouts,
+            SettingsSyncFile.copiedLayoutsKey: written.copiedLayouts,
         ]
-        let writtenLayoutDigest = written.currentLayouts.contains(layouts.own)
-            ? SettingsSyncPolicy.layoutDigest(of: written.settings, layouts: layouts)
-            : nil
+        let writtenLayoutDigest = SettingsSyncPolicy.syncedLayoutDigest(
+            afterWriting: written.settings,
+            currentLayouts: Set(written.currentLayouts),
+            copiedLayouts: Set(written.copiedLayouts),
+            layouts: layouts,
+            local: request.local
+        )
         do {
             try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             let data = try PropertyListSerialization.data(fromPropertyList: file, format: .xml, options: 0)
@@ -1346,23 +1367,38 @@ final class SettingsSync {
         guard let settingsData = try? PropertyListSerialization.data(fromPropertyList: current, format: .binary, options: 0) else {
             return Inspection(file: .unusable, problem: .ignoredFile("it holds no settings"))
         }
+        let unlistedLayoutDigest = SettingsSyncPolicy.unlistedLayoutDigest(
+            in: contents.settings,
+            currentLayouts: contents.currentLayouts,
+            copiedLayouts: contents.copiedLayouts,
+            layouts: layouts
+        )
         let version = SettingsSyncPolicy.Version(
             settings: current,
             layouts: layouts,
             isFromThisMac: contents.isFromThisMac,
             modified: contents.modified,
-            isNewer: contents.isNewer
+            isNewer: contents.isNewer,
+            unlistedLayoutDigest: unlistedLayoutDigest
         )
+        let unlistedLayoutData = unlistedLayoutDigest.flatMap { _ in
+            contents.settings[layouts.own].flatMap {
+                try? PropertyListSerialization.data(fromPropertyList: [layouts.own: $0], format: .binary, options: 0)
+            }
+        }
         return Inspection(
             file: .version(version),
             settings: current,
             fileSettings: contents.settings,
             currentLayouts: contents.currentLayouts,
+            copiedLayouts: contents.copiedLayouts,
             remote: RemoteVersion(
                 modified: contents.modified,
                 settingsData: settingsData,
                 layoutDigest: version.layoutDigest,
-                isNewer: version.isNewer
+                isNewer: version.isNewer,
+                version: version,
+                unlistedLayoutData: unlistedLayoutData
             )
         )
     }
@@ -1772,17 +1808,18 @@ final class SettingsSync {
         }
         let settings = Self.syncedSettings()
         let local = Self.currentLocal(settings: settings, postponed: nil)
-        let applied = SettingsSyncPolicy.settingsToApply(
+        let used = SettingsSyncPolicy.settingsToUse(
             remoteSettings,
+            unlisted: remote.unlistedLayout,
             over: settings,
             layouts: Self.layouts,
-            baseLayoutDigest: local.baseLayoutDigest,
-            editsLayout: local.editsLayout
+            version: remote.version,
+            local: local
         )
-        SettingsBackup.apply(applied, removesMissingKeys: false)
+        SettingsBackup.apply(used.settings, removesMissingKeys: false)
         Self.markSynced(
             base: SettingsSyncPolicy.userDigest(of: Self.syncedSettings()),
-            layout: remote.layoutDigest,
+            layout: used.layoutDigest,
             layoutEdits: Self.layoutEdits,
             modified: remote.modified
         )
