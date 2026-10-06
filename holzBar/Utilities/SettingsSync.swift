@@ -1262,6 +1262,9 @@ final class SettingsSync {
                 return ExchangeResult(action: .retry, problem: .tooLarge)
             }
             try data.write(to: fileURL, options: .atomic)
+            if written.insertsCopy {
+                logger.notice("The sync file had no layout for the other macOS version; wrote this Mac's copy of it, which a Mac of that version still on 0.0.7 beta 1 applies at its next launch")
+            }
             // A layout of another Mac's that the write kept waits for this Mac to take it in.
             return ExchangeResult(
                 action: .write,

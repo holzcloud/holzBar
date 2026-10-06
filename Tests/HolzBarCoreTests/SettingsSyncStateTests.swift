@@ -257,5 +257,14 @@ struct SettingsSyncStateTests {
         #expect(!same.record.takesInLayout)
         let empty = Policy.planWrite(mine, file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: keeps)
         #expect(empty.record == Policy.WriteRecord(layoutDigest: Policy.layoutDigest(of: mine, layouts: layouts), takesInLayout: false))
+        #expect(!empty.insertsCopy)
+
+        // This Mac's copy of the other macOS version's layout is added only to a file without
+        // one (F-60), and the plan says so.
+        let withCopy = mine.merging([layouts.other: ["o": 1]]) { $1 }
+        #expect(Policy.planWrite(withCopy, file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: keeps).insertsCopy)
+        #expect(Policy.planWrite(withCopy, file: file, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], layouts: layouts, local: keeps).insertsCopy)
+        let fileWithOther = file.merging([layouts.other: ["o": 2]]) { $1 }
+        #expect(!Policy.planWrite(withCopy, file: fileWithOther, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], layouts: layouts, local: keeps).insertsCopy)
     }
 }

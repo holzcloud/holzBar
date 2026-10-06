@@ -1319,6 +1319,10 @@ nonisolated extension SettingsSyncPolicy {
         var copiedLayouts: [String]
         /// What the write records.
         var record: WriteRecord
+        /// Whether the write adds this Mac's copy of the other macOS version's layout, as the
+        /// file has none. A Mac of that version still on 0.0.7 beta 1 applies it at its next
+        /// launch, and it may be older than that Mac's layout (F-60).
+        var insertsCopy = false
     }
 
     /// Plans a write of this Mac's settings into the sync file
@@ -1368,7 +1372,8 @@ nonisolated extension SettingsSyncPolicy {
             settings: written.settings,
             currentLayouts: written.currentLayouts,
             copiedLayouts: written.copiedLayouts,
-            record: WriteRecord(layoutDigest: layoutDigest, takesInLayout: takesInLayout)
+            record: WriteRecord(layoutDigest: layoutDigest, takesInLayout: takesInLayout),
+            insertsCopy: remote?[layouts.other] == nil && written.copiedLayouts.contains(layouts.other)
         )
     }
 }
