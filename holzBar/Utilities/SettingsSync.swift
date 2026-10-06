@@ -21,9 +21,11 @@ import SystemConfiguration
 /// the sync settings and the holzBar menu. When both Macs changed their settings, or a Mac
 /// joins a folder that holds another Mac's different settings, holzBar asks which settings
 /// to use, in a sheet on the Settings window, and overwrites neither unasked
-/// (``SettingsSyncPolicy``, F-02). holzBar never opens a dialog by itself for sync: a modal
-/// dialog would pause holzBar until it closed, and another Mac could open one at any time
-/// (F-14). The folder's own app syncs the file; holzBar never connects to the network.
+/// (``SettingsSyncPolicy``, F-02). Each Mac compares only the layout of the macOS version it
+/// runs; the other version's layout is passed on unchanged and taken in silently (SA-05).
+/// holzBar never opens a dialog by itself for sync: a modal dialog would pause holzBar until
+/// it closed, and another Mac could open one at any time (F-14). The folder's own app syncs
+/// the file; holzBar never connects to the network.
 ///
 /// The folder is stored as a bookmark (`SettingsSyncLocation`). Without one, iCloud Drive
 /// is used, as before folders could be chosen, and stored as the choice.
@@ -54,9 +56,21 @@ final class SettingsSync {
 
     private nonisolated static let lastSyncedKey = "SettingsSyncLastSynced"
 
-    /// The key of the digest of the user settings this Mac last wrote or applied
-    /// (``SettingsSyncPolicy/Local/base``). Without one, this Mac joins the folder.
-    private static let baseKey = "SettingsSyncBaseDigest"
+    /// The key of the digest of the user settings, without the layouts, this Mac last wrote
+    /// or applied (``SettingsSyncPolicy/Local/base``). Without one, this Mac joins the folder.
+    private static let baseKey = "SettingsSyncBaseSettingsDigest"
+
+    /// The key of the layout digest of the sync file's layout for this Mac's macOS version
+    /// when this Mac last synced (``SettingsSyncPolicy/Local/baseLayoutDigest``). It depends
+    /// only on the layout, so it stays when sync is turned off or the folder changes.
+    private static let baseLayoutKey = "SettingsSyncBaseLayoutDigest"
+
+    /// The key of the base of earlier test builds, which held the layouts too
+    /// (``migrateSyncState()``).
+    private static let legacyBaseKey = "SettingsSyncBaseDigest"
+
+    /// The layout keys of this Mac's macOS version and the other one.
+    private nonisolated static let layouts = SettingsSyncPolicy.Layouts(backend: .current)
 
     /// The key of the date of a newer version from another Mac that waits for the user;
     /// while it waits, this Mac's changes are not written.
@@ -113,7 +127,7 @@ final class SettingsSync {
             logger.notice("Gave this Mac a new sync id")
         case .otherMac:
             defaults.removeObject(forKey: lastSyncedKey)
-            defaults.removeObject(forKey: baseKey)
+            forgetBase()
             defaults.removeObject(forKey: pendingKey)
             logger.notice("This Mac's settings come from another Mac; it joins the sync folder again")
         }
@@ -123,6 +137,27 @@ final class SettingsSync {
             defaults.set(SettingsSyncDevice.hardwareHash(of: hardwareID, salt: salt), forKey: deviceHashKey)
         }
         defaults.set(UUID().uuidString, forKey: deviceIDKey)
+    }
+
+    /// Forgets the user settings this Mac last synced, so it joins the folder again. The
+    /// layout last synced stays: it depends only on the layout.
+    private static func forgetBase() {
+        UserDefaults.standard.removeObject(forKey: baseKey)
+        UserDefaults.standard.removeObject(forKey: legacyBaseKey)
+    }
+
+    /// Brings the sync state of earlier builds up to date, at every launch before anything
+    /// reads the settings.
+    ///
+    /// The base of earlier test builds held the layouts, which no longer count as user
+    /// settings: it is removed, so this Mac joins the folder once more. Equal settings are
+    /// adopted silently.
+    private static func migrateSyncState() {
+        let defaults = UserDefaults.standard
+        if defaults.object(forKey: legacyBaseKey) != nil {
+            defaults.removeObject(forKey: legacyBaseKey)
+            logger.notice("Settings sync compares the layouts per macOS version now; this Mac joins the sync folder again")
+        }
     }
 
     /// This Mac's hardware UUID, read from the I/O Registry. It never leaves this Mac and
@@ -553,7 +588,7 @@ final class SettingsSync {
     /// Forgets the state of the folder when sync is turned off, so turning it on joins
     /// the folder again.
     private func forgetSyncState() {
-        UserDefaults.standard.removeObject(forKey: Self.baseKey)
+        Self.forgetBase()
         UserDefaults.standard.removeObject(forKey: Self.pendingKey)
         postponed = nil
         exchangeTask?.cancel()
@@ -606,6 +641,7 @@ final class SettingsSync {
                 .push,
                 fileURL: Self.fileURL(inFolder: url),
                 base: nil,
+                baseLayoutDigest: UserDefaults.standard.string(forKey: Self.baseLayoutKey),
                 pending: nil,
                 lastSynced: nil,
                 postponed: nil,
@@ -641,10 +677,11 @@ final class SettingsSync {
             commitJoin(join)
             switch result.action {
             case .write:
-                Self.markSynced(base: request.local.userDigest, modified: result.written)
+                Self.markSynced(base: request.local.userDigest, layout: result.writtenLayoutDigest, modified: result.written)
                 Self.logger.info("Wrote settings to the sync folder")
             case .adopt:
-                Self.markSynced(base: request.local.userDigest, modified: result.remote?.modified)
+                Self.markSynced(base: request.local.userDigest, layout: result.remote?.layoutDigest, modified: result.remote?.modified)
+                Self.takeInOtherLayout(from: result.remote)
             default:
                 // The file could not be read; the folder is joined once it can.
                 break
@@ -692,7 +729,7 @@ final class SettingsSync {
         location.syncFolderURL = join.folderURL
         updateFolderDisplayName()
         defaults.removeObject(forKey: Self.lastSyncedKey)
-        defaults.removeObject(forKey: Self.baseKey)
+        Self.forgetBase()
         defaults.removeObject(forKey: Self.pendingKey)
         postponed = nil
         withdrawHint()
@@ -758,11 +795,64 @@ final class SettingsSync {
         SettingsBackup.currentSettings().filter { !localKeys.contains($0.key) }
     }
 
-    /// Remembers that this Mac has synced the given user settings with the file of the
-    /// given date, and that no version waits for the user.
-    private static func markSynced(base: String, modified: Date?) {
+    /// This Mac's side of a decision, from its synced settings.
+    private static func makeLocal(
+        settings: [String: Any],
+        base: String?,
+        baseLayoutDigest: String?,
+        pending: Date?,
+        postponed: Date?,
+        forcesWrite: Bool
+    ) -> SettingsSyncPolicy.Local {
+        let layoutDigest = SettingsSyncPolicy.layoutDigest(of: settings, layouts: layouts)
+        return SettingsSyncPolicy.Local(
+            settings: settings,
+            layouts: layouts,
+            base: base,
+            baseLayoutDigest: baseLayoutDigest,
+            editsLayout: base == nil || layoutDigest != baseLayoutDigest,
+            pending: pending,
+            postponed: postponed,
+            forcesWrite: forcesWrite
+        )
+    }
+
+    /// This Mac's side of a decision, with the sync state in its defaults.
+    private static func currentLocal(settings: [String: Any], postponed: Date?) -> SettingsSyncPolicy.Local {
+        let defaults = UserDefaults.standard
+        return makeLocal(
+            settings: settings,
+            base: defaults.string(forKey: baseKey),
+            baseLayoutDigest: defaults.string(forKey: baseLayoutKey),
+            pending: defaults.object(forKey: pendingKey) as? Date,
+            postponed: postponed,
+            forcesWrite: false
+        )
+    }
+
+    /// Takes in the other macOS version's layout from a version of the sync file, silently,
+    /// like a learned key (`SettingsSyncPolicy.layoutToTakeIn(_:over:layouts:)`).
+    private static func takeInOtherLayout(from remote: RemoteVersion?) {
+        guard let remoteSettings = remote?.settings else {
+            return
+        }
+        let layout = SettingsSyncPolicy.layoutToTakeIn(remoteSettings, over: syncedSettings(), layouts: layouts)
+        guard !layout.isEmpty else {
+            return
+        }
+        SettingsBackup.apply(layout, removesMissingKeys: false)
+        logger.info("Took in the other macOS version's layout from the sync folder")
+    }
+
+    /// Remembers that this Mac has synced the given user settings and layout with the file
+    /// of the given date, and that no version waits for the user.
+    ///
+    /// - Parameter layout: The layout digest of the file's layout for this Mac's macOS
+    ///   version, or `nil` when it has none.
+    private static func markSynced(base: String, layout: String?, modified: Date?) {
         let defaults = UserDefaults.standard
         defaults.set(base, forKey: baseKey)
+        defaults.set(layout ?? SettingsSyncPolicy.noLayoutDigest, forKey: baseLayoutKey)
         if let modified {
             let lastSynced = defaults.object(forKey: lastSyncedKey) as? Date ?? .distantPast
             defaults.set(max(lastSynced, modified), forKey: lastSyncedKey)
@@ -804,8 +894,11 @@ final class SettingsSync {
     private nonisolated struct RemoteVersion: Sendable {
         /// When the version was written.
         let modified: Date
-        /// Its settings, as a binary property list.
+        /// Its current settings (`SettingsSyncPolicy.withoutStaleLayouts(_:currentLayouts:)`),
+        /// as a binary property list.
         let settingsData: Data
+        /// The layout digest of its layout for this Mac's macOS version, if it has one.
+        let layoutDigest: String?
 
         /// Its settings.
         var settings: [String: Any]? {
@@ -845,14 +938,22 @@ final class SettingsSync {
         var remote: RemoteVersion?
         /// The date written into the file.
         var written: Date?
+        /// The layout digest of the layout for this Mac's macOS version written into the
+        /// file, if it lists one.
+        var writtenLayoutDigest: String?
         var problem: ExchangeProblem?
     }
 
     /// What reading the sync file gave, as the decision sees it.
     private nonisolated struct Inspection {
         var file: SettingsSyncPolicy.File
-        /// The file's settings, without the keys that stay on each Mac.
+        /// The file's current settings, without the keys that stay on each Mac and without
+        /// the layouts it does not list as current.
         var settings: [String: Any]?
+        /// The file's settings as read, without the keys that stay on each Mac, for a write.
+        var fileSettings: [String: Any]?
+        /// The layouts the file lists as current.
+        var currentLayouts: Set<String> = []
         var remote: RemoteVersion?
         var problem: ExchangeProblem?
     }
@@ -866,15 +967,17 @@ final class SettingsSync {
         _ kind: ExchangeKind,
         fileURL: URL,
         base: String?,
+        baseLayoutDigest: String?,
         pending: Date?,
         lastSynced: Date?,
         postponed: Date?,
         presenter: SettingsSyncPresenter?
     ) -> ExchangeRequest? {
         let settings = Self.syncedSettings()
-        let local = SettingsSyncPolicy.Local(
-            userDigest: SettingsSyncPolicy.userDigest(of: settings),
+        let local = Self.makeLocal(
+            settings: settings,
             base: base,
+            baseLayoutDigest: baseLayoutDigest,
             pending: pending,
             postponed: postponed,
             forcesWrite: kind == .keepThisMac
@@ -920,6 +1023,7 @@ final class SettingsSync {
                 kind,
                 fileURL: fileURL,
                 base: defaults.string(forKey: Self.baseKey),
+                baseLayoutDigest: defaults.string(forKey: Self.baseLayoutKey),
                 pending: defaults.object(forKey: Self.pendingKey) as? Date,
                 lastSynced: defaults.object(forKey: Self.lastSyncedKey) as? Date,
                 postponed: postponed,
@@ -964,7 +1068,8 @@ final class SettingsSync {
         case .wait, .retry:
             break
         case .adopt:
-            Self.markSynced(base: request.local.userDigest, modified: result.remote?.modified)
+            Self.markSynced(base: request.local.userDigest, layout: result.remote?.layoutDigest, modified: result.remote?.modified)
+            Self.takeInOtherLayout(from: result.remote)
             withdrawHint()
         case .write:
             if request.kind == .check {
@@ -974,7 +1079,7 @@ final class SettingsSync {
                 withdrawHint()
                 requestExchange(.push)
             } else {
-                Self.markSynced(base: request.local.userDigest, modified: result.written)
+                Self.markSynced(base: request.local.userDigest, layout: result.writtenLayoutDigest, modified: result.written)
                 withdrawHint()
                 Self.logger.info("Wrote settings to the sync folder")
             }
@@ -1051,7 +1156,12 @@ final class SettingsSync {
                 result = ExchangeResult(action: action, remote: inspection.remote, problem: inspection.problem)
                 return
             }
-            result = write(request, fileSettings: inspection.settings, to: writingURL)
+            result = write(
+                request,
+                fileSettings: inspection.fileSettings,
+                currentLayouts: inspection.currentLayouts,
+                to: writingURL
+            )
         }
         if let coordinationError {
             return ExchangeResult(action: .retry, problem: .failed(String(describing: coordinationError)))
@@ -1060,24 +1170,41 @@ final class SettingsSync {
     }
 
     /// Writes this Mac's settings into the sync file, with the learned settings merged
-    /// with the file's.
-    private nonisolated static func write(_ request: ExchangeRequest, fileSettings: [String: Any]?, to fileURL: URL) -> ExchangeResult {
+    /// with the file's, the other macOS version's layout kept from the file and the layouts
+    /// that are current listed (`SettingsSyncPolicy.fileToWrite`).
+    private nonisolated static func write(
+        _ request: ExchangeRequest,
+        fileSettings: [String: Any]?,
+        currentLayouts: Set<String>,
+        to fileURL: URL
+    ) -> ExchangeResult {
         guard let settings = (try? PropertyListSerialization.propertyList(from: request.settingsData, format: nil)) as? [String: Any] else {
             return ExchangeResult(action: .retry, problem: .failed("The settings could not be decoded"))
         }
         let modified = Date.now
+        let written = SettingsSyncPolicy.fileToWrite(
+            settings,
+            file: fileSettings,
+            fileCurrentLayouts: currentLayouts,
+            layouts: layouts,
+            keepsOwnLayout: request.local.forcesWrite || request.local.editsLayout
+        )
         // The id alone tells the Macs apart; the computer name, which usually holds the
         // owner's name, stays on this Mac.
         let file: [String: Any] = [
             SettingsSyncFile.modifiedKey: modified,
             SettingsSyncDevice.deviceIDKey: request.deviceID,
-            SettingsSyncFile.settingsKey: SettingsSyncPolicy.settingsToWrite(settings, file: fileSettings),
+            SettingsSyncFile.settingsKey: written.settings,
+            SettingsSyncFile.currentLayoutsKey: written.currentLayouts,
         ]
+        let writtenLayoutDigest = written.currentLayouts.contains(layouts.own)
+            ? SettingsSyncPolicy.layoutDigest(of: written.settings, layouts: layouts)
+            : nil
         do {
             try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             let data = try PropertyListSerialization.data(fromPropertyList: file, format: .xml, options: 0)
             try data.write(to: fileURL, options: .atomic)
-            return ExchangeResult(action: .write, written: modified)
+            return ExchangeResult(action: .write, written: modified, writtenLayoutDigest: writtenLayoutDigest)
         } catch {
             return ExchangeResult(action: .retry, problem: .failed(String(describing: error)))
         }
@@ -1108,21 +1235,29 @@ final class SettingsSync {
                 deviceID: deviceID,
                 computerName: computerName,
                 localKeys: localKeys
-            ),
-            let settingsData = try? PropertyListSerialization.data(fromPropertyList: contents.settings, format: .binary, options: 0)
+            )
         else {
             return Inspection(file: .unusable, problem: .ignoredFile("it holds no settings"))
         }
+        // Layouts the file does not list as current, as in files of earlier builds, are
+        // neither compared, applied nor taken in.
+        let current = SettingsSyncPolicy.withoutStaleLayouts(contents.settings, currentLayouts: contents.currentLayouts)
+        guard let settingsData = try? PropertyListSerialization.data(fromPropertyList: current, format: .binary, options: 0) else {
+            return Inspection(file: .unusable, problem: .ignoredFile("it holds no settings"))
+        }
         let version = SettingsSyncPolicy.Version(
+            settings: current,
+            layouts: layouts,
             isFromThisMac: contents.isFromThisMac,
             modified: contents.modified,
-            isNewer: contents.isNewer,
-            userDigest: SettingsSyncPolicy.userDigest(of: contents.settings)
+            isNewer: contents.isNewer
         )
         return Inspection(
             file: .version(version),
-            settings: contents.settings,
-            remote: RemoteVersion(modified: contents.modified, settingsData: settingsData)
+            settings: current,
+            fileSettings: contents.settings,
+            currentLayouts: contents.currentLayouts,
+            remote: RemoteVersion(modified: contents.modified, settingsData: settingsData, layoutDigest: version.layoutDigest)
         )
     }
 
@@ -1225,6 +1360,7 @@ final class SettingsSync {
     /// never writes the file and never asks: when both Macs changed their settings, the
     /// version is remembered and the check after setup asks.
     static func pullIfNeeded() {
+        migrateSyncState()
         guard Defaults.bool(forKey: .syncsSettingsWithICloud) else {
             return
         }
@@ -1248,25 +1384,30 @@ final class SettingsSync {
             computerName: computerName
         )
         log(inspection.problem)
-        let local = SettingsSyncPolicy.Local(
-            userDigest: SettingsSyncPolicy.userDigest(of: settings),
-            base: defaults.string(forKey: baseKey),
-            pending: defaults.object(forKey: pendingKey) as? Date,
-            postponed: nil,
-            forcesWrite: false
-        )
+        let local = currentLocal(settings: settings, postponed: nil)
         switch SettingsSyncPolicy.decide(.launch, local: local, file: inspection.file) {
         case .apply:
             guard let remote = inspection.settings, let modified = inspection.remote?.modified else {
                 return
             }
-            SettingsBackup.apply(SettingsSyncPolicy.settingsToApply(remote, over: settings), removesMissingKeys: false)
+            let applied = SettingsSyncPolicy.settingsToApply(
+                remote,
+                over: settings,
+                layouts: layouts,
+                baseLayoutDigest: local.baseLayoutDigest,
+                editsLayout: local.editsLayout
+            )
+            SettingsBackup.apply(applied, removesMissingKeys: false)
             Defaults.set(true, forKey: .syncsSettingsWithICloud)
-            markSynced(base: SettingsSyncPolicy.userDigest(of: syncedSettings()), modified: modified)
+            markSynced(
+                base: SettingsSyncPolicy.userDigest(of: syncedSettings()),
+                layout: inspection.remote?.layoutDigest,
+                modified: modified
+            )
             logger.notice("Applied settings from the sync folder")
             return
         case .adopt:
-            markSynced(base: local.userDigest, modified: inspection.remote?.modified)
+            markSynced(base: local.userDigest, layout: inspection.remote?.layoutDigest, modified: inspection.remote?.modified)
         case .ask:
             setPending(inspection.remote?.modified)
         case .none:
@@ -1274,12 +1415,14 @@ final class SettingsSync {
         case .write, .wait, .retry:
             break
         }
-        // What the other Macs have learned (``SettingsSyncPolicy/learnedKeys``) never asks;
-        // a Mac that has synced takes it in silently.
+        // What the other Macs have learned (``SettingsSyncPolicy/learnedKeys``) and the
+        // other macOS version's layout never ask; a Mac that has synced takes them in
+        // silently.
         if defaults.string(forKey: baseKey) != nil, let remote = inspection.settings {
             let learned = SettingsSyncPolicy.learnedSettings(merging: remote, into: settings)
-            if !learned.isEmpty {
-                SettingsBackup.apply(learned, removesMissingKeys: false)
+            let takenIn = learned.merging(SettingsSyncPolicy.layoutToTakeIn(remote, over: settings, layouts: layouts)) { _, layout in layout }
+            if !takenIn.isEmpty {
+                SettingsBackup.apply(takenIn, removesMissingKeys: false)
             }
         }
     }
@@ -1324,14 +1467,7 @@ final class SettingsSync {
         guard waitingVersion != nil else {
             return
         }
-        let defaults = UserDefaults.standard
-        let local = SettingsSyncPolicy.Local(
-            userDigest: SettingsSyncPolicy.userDigest(of: Self.syncedSettings()),
-            base: defaults.string(forKey: Self.baseKey),
-            pending: defaults.object(forKey: Self.pendingKey) as? Date,
-            postponed: postponed,
-            forcesWrite: false
-        )
+        let local = Self.currentLocal(settings: Self.syncedSettings(), postponed: postponed)
         let refreshed = SettingsSyncPolicy.hint(for: local)
         if hint != refreshed {
             hint = refreshed
@@ -1513,8 +1649,17 @@ final class SettingsSync {
         if let join {
             commitJoin(join)
         }
-        SettingsBackup.apply(SettingsSyncPolicy.settingsToApply(remoteSettings, over: Self.syncedSettings()), removesMissingKeys: false)
-        Self.markSynced(base: SettingsSyncPolicy.userDigest(of: Self.syncedSettings()), modified: remote.modified)
+        let settings = Self.syncedSettings()
+        let local = Self.currentLocal(settings: settings, postponed: nil)
+        let applied = SettingsSyncPolicy.settingsToApply(
+            remoteSettings,
+            over: settings,
+            layouts: Self.layouts,
+            baseLayoutDigest: local.baseLayoutDigest,
+            editsLayout: local.editsLayout
+        )
+        SettingsBackup.apply(applied, removesMissingKeys: false)
+        Self.markSynced(base: SettingsSyncPolicy.userDigest(of: Self.syncedSettings()), layout: remote.layoutDigest, modified: remote.modified)
         postponed = nil
         withdrawHint()
         Defaults.set(true, forKey: .syncsSettingsWithICloud)
