@@ -1184,8 +1184,11 @@ nonisolated extension SettingsSyncPolicy {
         /// layout change of the user's replaces it.
         var keptLayoutDigest: String?
 
-        /// How many layout digests ``recentLayouts`` keeps.
-        static let recentLayoutLimit = 8
+        /// How many layout digests ``recentLayouts`` keeps: enough for many days of
+        /// rearranging while a Mac still on 0.0.7 beta 1 writes an old copy back now and then.
+        /// An old copy this Mac writes over is remembered anew
+        /// (``SettingsSyncPolicy/WriteRecord/oldCopyDigest``).
+        static let recentLayoutLimit = 64
 
         /// Remembers a layout digest this Mac synced (``recentLayouts``).
         mutating func rememberLayout(_ digest: String?) {
@@ -1284,6 +1287,7 @@ nonisolated extension SettingsSyncPolicy {
         ///   - local: This Mac's side of the decision that wrote; its layout edits
         ///     (``Local/layoutEdits``) are recorded.
         mutating func recordWrite(_ record: WriteRecord, modified: Date?, local: Local) {
+            rememberLayout(record.oldCopyDigest)
             guard record.takesInLayout else {
                 rememberLayout(record.layoutDigest)
                 markSynced(base: local.userDigest, layout: record.layoutDigest, layoutEdits: local.layoutEdits, modified: modified)
@@ -1364,6 +1368,12 @@ nonisolated extension SettingsSyncPolicy {
         /// Whether the write kept another Mac's layout that this Mac takes in
         /// (``takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``).
         var takesInLayout: Bool
+        /// The layout digest of an old copy of a layout this Mac synced that the file held
+        /// unlisted and the write replaced (``replacesUnlistedLayout(_:local:)``), or `nil`. It
+        /// is remembered anew (``State/recentLayouts``): a Mac still on 0.0.7 beta 1 keeps
+        /// writing the same copy back, which must stay recognized however often the user
+        /// rearranges this Mac's layout meanwhile.
+        var oldCopyDigest: String?
     }
 
     /// A write of the sync file: what is written and what the write records.
@@ -1433,11 +1443,15 @@ nonisolated extension SettingsSyncPolicy {
             local: local
         )
         let takesInLayout = takesInKeptLayout(fileLayoutDigest: fileLayoutDigest, writtenLayoutDigest: layoutDigest, local: local)
+        let fileUnlisted = remote.flatMap {
+            unlistedLayoutDigest(in: $0, currentLayouts: fileCurrentLayouts, copiedLayouts: fileCopiedLayouts, layouts: layouts)
+        }
+        let oldCopyDigest = fileUnlisted.flatMap { local.recentLayouts.contains($0) ? $0 : nil }
         return WritePlan(
             settings: written.settings,
             currentLayouts: written.currentLayouts,
             copiedLayouts: written.copiedLayouts,
-            record: WriteRecord(layoutDigest: layoutDigest, takesInLayout: takesInLayout),
+            record: WriteRecord(layoutDigest: layoutDigest, takesInLayout: takesInLayout, oldCopyDigest: oldCopyDigest),
             insertsCopy: remote?[layouts.other] == nil && written.copiedLayouts.contains(layouts.other)
         )
     }

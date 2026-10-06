@@ -581,6 +581,28 @@ struct SettingsSyncLayoutTests {
         #expect(!passedOn.currentLayouts.contains(layouts.own))
     }
 
+    @Test("An old copy of this Mac's layout stays recognized after the user rearranged many times", arguments: layoutBackends)
+    func oldCopyRecognizedAfterManyEdits(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let mine = settings(layouts, own: first)
+        var state = Policy.State(base: Policy.userDigest(of: mine), baseLayoutDigest: nil, lastSynced: lastSynced, versionDigest: Policy.userDigest(of: mine))
+        // This Mac wrote `first`; a Mac still on beta 1 applied it. The user then rearranged
+        // twenty times, each written.
+        let edits = 20
+        for index in 0 ... edits {
+            let arranged = settings(layouts, own: ["a": index, "b": 1])
+            state.countLayoutEdit()
+            let local = Policy.Local(settings: arranged, layouts: layouts, state: state, layoutEdits: state.layoutEdits, postponed: nil, forcesWrite: false)
+            state.recordWrite(Policy.WriteRecord(layoutDigest: local.layoutDigest, takesInLayout: false), modified: lastSynced.addingTimeInterval(Double(index)), local: local)
+        }
+        // The beta 1 Mac writes its copy of `first` back, unlisted; the next drag writes over it
+        // without a question.
+        let beta1File = settings(layouts, own: first)
+        state.countLayoutEdit()
+        let dragged = Policy.Local(settings: settings(layouts, own: ["a": 99, "b": 1]), layouts: layouts, state: state, layoutEdits: state.layoutEdits, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.localChange, local: dragged, file: earlierVersion(beta1File, layouts)) == .write)
+    }
+
     @Test("Choosing the folder's settings over a layout change takes in the layout an earlier build wrote", arguments: layoutBackends)
     func useTakesInEarlierBuildLayout(backend: MenuBarBackendKind) {
         let layouts = Policy.Layouts(backend: backend)

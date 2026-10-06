@@ -197,13 +197,16 @@ struct SettingsSyncStateTests {
         #expect(state.recentLayouts.isEmpty)
         state.markSynced(base: "b", layout: Policy.noLayoutDigest, layoutEdits: 0, modified: nil)
         #expect(state.recentLayouts.isEmpty)
-        for index in 0 ..< 10 {
+        // Many days of rearranging while a Mac still on 0.0.7 beta 1 may write an old copy back.
+        #expect(State.recentLayoutLimit == 64)
+        let writes = State.recentLayoutLimit + 2
+        for index in 0 ..< writes {
             state.recordWrite(Policy.WriteRecord(layoutDigest: "l\(index)", takesInLayout: false), modified: nil, local: Policy.Local(userDigest: "b", base: "b", pending: nil, postponed: nil, forcesWrite: false))
         }
-        #expect(state.recentLayouts == ["l9", "l8", "l7", "l6", "l5", "l4", "l3", "l2"])
+        #expect(state.recentLayouts == (2 ..< writes).reversed().map { "l\($0)" })
         // A layout synced again moves to the front.
         state.markSynced(base: "b", layout: "l5", layoutEdits: 0, modified: nil)
-        #expect(state.recentLayouts == ["l5", "l9", "l8", "l7", "l6", "l4", "l3", "l2"])
+        #expect(state.recentLayouts == ["l5"] + (2 ..< writes).reversed().filter { $0 != 5 }.map { "l\($0)" })
         // A kept layout's write remembers only this Mac's layout: the kept one is another
         // Mac's arrangement until this Mac takes it in.
         var kept = State()
@@ -217,7 +220,7 @@ struct SettingsSyncStateTests {
         // They stay when this Mac leaves the folder, and are read back at most the limit.
         kept.leaveFolder(forgetsLastSync: true)
         #expect(kept.recentLayouts == ["mine"])
-        let stored: [String: Any] = [State.recentLayoutsKey: (0 ..< 12).map { "s\($0)" }]
+        let stored: [String: Any] = [State.recentLayoutsKey: (0 ..< State.recentLayoutLimit + 4).map { "s\($0)" }]
         #expect(State(reading: { stored[$0] }).recentLayouts.count == State.recentLayoutLimit)
         #expect(Policy.Local(settings: [:], layouts: Policy.Layouts(backend: .service26), state: takenIn, layoutEdits: 0, postponed: nil, forcesWrite: false).recentLayouts == ["mine", "kept"])
     }
@@ -254,6 +257,29 @@ struct SettingsSyncStateTests {
             #expect(left.keptLayoutDigest == "kept")
             #expect(Policy.Local(settings: [:], layouts: Policy.Layouts(backend: .service26), state: left, layoutEdits: 0, postponed: nil, forcesWrite: false).keptLayoutDigest == "kept")
         }
+    }
+
+    @Test("An old copy this Mac writes over stays remembered however often the user rearranges meanwhile")
+    func oldCopyRemembered() {
+        let local = Policy.Local(userDigest: "b", base: "b", pending: nil, postponed: nil, forcesWrite: false)
+        var state = State()
+        state.recordWrite(Policy.WriteRecord(layoutDigest: "copy", takesInLayout: false), modified: nil, local: local)
+        for round in 0 ..< 3 {
+            for index in 0 ..< State.recentLayoutLimit - 1 {
+                state.recordWrite(Policy.WriteRecord(layoutDigest: "r\(round)-\(index)", takesInLayout: false), modified: nil, local: local)
+            }
+            // A Mac still on beta 1 wrote the copy back; this Mac writes over it.
+            state.recordWrite(Policy.WriteRecord(layoutDigest: "r\(round)-over", takesInLayout: false, oldCopyDigest: "copy"), modified: nil, local: local)
+            #expect(state.recentLayouts.prefix(2) == ["r\(round)-over", "copy"])
+        }
+        // Also when the write keeps another Mac's layout to take in.
+        var kept = State(recentLayouts: ["copy"])
+        kept.recordWrite(Policy.WriteRecord(layoutDigest: "kept", takesInLayout: true, oldCopyDigest: "copy"), modified: nil, local: local)
+        #expect(kept.recentLayouts.contains("copy"))
+        // Without one, nothing else is remembered.
+        var plain = State()
+        plain.recordWrite(Policy.WriteRecord(layoutDigest: "w", takesInLayout: false), modified: nil, local: local)
+        #expect(plain.recentLayouts == ["w"])
     }
 
     @Test("A version of another Mac's that is not newer never moves the date of the last sync")
@@ -331,6 +357,20 @@ struct SettingsSyncStateTests {
         let empty = Policy.planWrite(mine, file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: keeps)
         #expect(empty.record == Policy.WriteRecord(layoutDigest: Policy.layoutDigest(of: mine, layouts: layouts), takesInLayout: false))
         #expect(!empty.insertsCopy)
+
+        // A write over an unlisted old copy of a layout this Mac synced records it.
+        let copyLayout: [String: Any] = ["a": 9, "b": 1]
+        let copyDigest = Policy.layoutDigest(of: [layouts.own: copyLayout], layouts: layouts)
+        let beta1File: [String: Any] = ["ShowOnHover": true, layouts.own: copyLayout]
+        var remembers = keeps
+        remembers.recentLayouts = [copyDigest]
+        let overCopy = Policy.planWrite(mine, file: beta1File, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: remembers)
+        #expect(overCopy.record.oldCopyDigest == copyDigest)
+        #expect(overCopy.currentLayouts.contains(layouts.own))
+        // Not an unlisted layout this Mac never synced, nor a listed one or a marked copy.
+        #expect(Policy.planWrite(mine, file: beta1File, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: keeps).record.oldCopyDigest == nil)
+        #expect(Policy.planWrite(mine, file: beta1File, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], layouts: layouts, local: remembers).record.oldCopyDigest == nil)
+        #expect(Policy.planWrite(mine, file: beta1File, fileCurrentLayouts: [], fileCopiedLayouts: [layouts.own], layouts: layouts, local: remembers).record.oldCopyDigest == nil)
 
         // This Mac's copy of the other macOS version's layout is added only to a file without
         // one (F-60), and the plan says so.
