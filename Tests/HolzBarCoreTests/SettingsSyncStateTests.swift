@@ -491,13 +491,19 @@ struct SettingsSyncStateTests {
         #expect(empty.record == Policy.WriteRecord(layoutDigest: Policy.layoutDigest(of: mine, layouts: layouts), takesInLayout: false))
         #expect(!empty.insertsCopy)
 
-        // A write over an unlisted old copy of a layout this Mac synced records it.
+        // A write over an unlisted old copy of a layout this Mac synced records it, whether it
+        // passes it on or, after a layout change of the user's, replaces it.
         let copyLayout: [String: Any] = ["a": 9, "b": 1]
         let copyDigest = Policy.layoutDigest(of: [layouts.own: copyLayout], layouts: layouts)
         let beta1File: [String: Any] = ["ShowOnHover": true, layouts.own: copyLayout]
         var remembers = keeps
         remembers.recentLayouts = [copyDigest]
-        let overCopy = Policy.planWrite(mine, file: beta1File, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: remembers)
+        let passesCopy = Policy.planWrite(mine, file: beta1File, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: remembers)
+        #expect(passesCopy.record.oldCopyDigest == copyDigest)
+        #expect(!passesCopy.currentLayouts.contains(layouts.own))
+        var replaces = remembers
+        replaces.editsLayout = true
+        let overCopy = Policy.planWrite(mine, file: beta1File, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: replaces)
         #expect(overCopy.record.oldCopyDigest == copyDigest)
         #expect(overCopy.currentLayouts.contains(layouts.own))
         // Not an unlisted layout this Mac never synced, nor a listed one or a marked copy.

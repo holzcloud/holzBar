@@ -543,7 +543,7 @@ struct SettingsSyncLayoutTests {
         #expect(Policy.decide(.localChange, local: unchanged, file: earlierVersion(beta1File, layouts)) == .write)
     }
 
-    @Test("An old copy of this Mac's layout that a Mac still on 0.0.7 beta 1 writes back is written over without a question", arguments: layoutBackends)
+    @Test("An old copy of this Mac's layout that a Mac still on 0.0.7 beta 1 writes back is passed on, and a drag writes over it without a question", arguments: layoutBackends)
     func staleCopyOfOwnLayoutWrittenOver(backend: MenuBarBackendKind) {
         let layouts = Policy.Layouts(backend: backend)
         let oldLayout: [String: Any] = ["x": 2]
@@ -556,12 +556,22 @@ struct SettingsSyncLayoutTests {
         let beta1File = settings(layouts, own: oldLayout, other: ["i": 0])
         let mine = settings(layouts, showOnHover: false, own: currentLayout)
 
-        // A change of a user setting writes this Mac's layout over the old copy, listed.
+        // A change of a user setting passes it on unchanged and unlisted: it may as well be a
+        // beta 1 Mac's return to that arrangement, which that Mac would lose at its next
+        // launch. The copy stays recognized.
         let changed = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
         let written = Policy.planWrite(mine, file: beta1File, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: changed)
-        #expect(isLayout(written.settings[layouts.own], currentLayout))
-        #expect(written.currentLayouts.contains(layouts.own))
-        #expect(written.record.layoutDigest == Policy.layoutDigest(of: mine, layouts: layouts))
+        #expect(isLayout(written.settings[layouts.own], oldLayout))
+        #expect(!written.currentLayouts.contains(layouts.own))
+        #expect(!written.copiedLayouts.contains(layouts.own))
+        #expect(written.record.oldCopyDigest == Policy.layoutDigest(of: [layouts.own: oldLayout], layouts: layouts))
+        // A drag writes this Mac's layout over it, listed.
+        var draggedLocal = changed
+        draggedLocal.editsLayout = true
+        let overCopy = Policy.planWrite(mine, file: beta1File, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: draggedLocal)
+        #expect(isLayout(overCopy.settings[layouts.own], currentLayout))
+        #expect(overCopy.currentLayouts.contains(layouts.own))
+        #expect(overCopy.record.layoutDigest == Policy.layoutDigest(of: mine, layouts: layouts))
 
         // A drag writes over it without a question, and choosing the folder's settings would
         // not bring it back.
