@@ -64,6 +64,11 @@ struct SettingsSyncLayoutTests {
         )
     }
 
+    /// A version of the sync file from another Mac, as the decision sees it.
+    private func newerVersion(_ settings: [String: Any], _ layouts: Policy.Layouts, isNewer: Bool = true) -> Policy.Version {
+        Policy.Version(settings: settings, layouts: layouts, isFromThisMac: false, modified: lastSynced.addingTimeInterval(60), isNewer: isNewer)
+    }
+
     /// Whether `value` is the layout `layout`.
     private func isLayout(_ value: Any?, _ layout: [String: Any]) -> Bool {
         guard let value else {
@@ -354,7 +359,7 @@ struct SettingsSyncLayoutTests {
         let remote = settings(layouts, own: ["a": 1], other: third, ownKnown: ["known"])
         let joining = local(mine, layouts, base: nil)
         #expect(Policy.decide(.check, local: joining, file: version(remote, layouts)) == .adopt)
-        let takenIn = Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: joining, isNewer: true)
+        let takenIn = Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: joining, version: newerVersion(remote, layouts))
         #expect(Set(takenIn.keys) == [layouts.own])
         #expect(isLayout(takenIn[layouts.own], ["a": 1, "unseen": 1]))
 
@@ -378,17 +383,17 @@ struct SettingsSyncLayoutTests {
         // joining, from a version this Mac already synced, without a current layout of
         // this macOS version, or when this Mac already holds it.
         let edited = local(mine, layouts, base: nil, editsLayout: true)
-        #expect(Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: edited, isNewer: true).isEmpty)
-        #expect(Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: recorded, isNewer: true).isEmpty)
-        #expect(Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: joining, isNewer: false).isEmpty)
+        #expect(Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: edited, version: newerVersion(remote, layouts)).isEmpty)
+        #expect(Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: recorded, version: newerVersion(remote, layouts)).isEmpty)
+        #expect(Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: joining, version: newerVersion(remote, layouts, isNewer: false)).isEmpty)
         let stale = Policy.withoutStaleLayouts(remote, currentLayouts: [layouts.other])
-        #expect(Policy.ownLayoutToTakeIn(stale, over: mine, layouts: layouts, local: joining, isNewer: true).isEmpty)
+        #expect(Policy.ownLayoutToTakeIn(stale, over: mine, layouts: layouts, local: joining, version: newerVersion(remote, layouts)).isEmpty)
         let held = settings(layouts, own: ["a": 1, "unseen": 1])
-        #expect(Policy.ownLayoutToTakeIn(remote, over: held, layouts: layouts, local: local(held, layouts, base: nil), isNewer: true).isEmpty)
+        #expect(Policy.ownLayoutToTakeIn(remote, over: held, layouts: layouts, local: local(held, layouts, base: nil), version: newerVersion(remote, layouts)).isEmpty)
 
         // A fresh install takes in the folder's layout as it is.
         let fresh = settings(layouts)
-        let freshTakenIn = Policy.ownLayoutToTakeIn(remote, over: fresh, layouts: layouts, local: local(fresh, layouts, base: nil), isNewer: true)
+        let freshTakenIn = Policy.ownLayoutToTakeIn(remote, over: fresh, layouts: layouts, local: local(fresh, layouts, base: nil), version: newerVersion(remote, layouts))
         #expect(isLayout(freshTakenIn[layouts.own], ["a": 1]))
     }
 
@@ -657,6 +662,59 @@ struct SettingsSyncLayoutTests {
         #expect(!Policy.takesInKeptLayout(fileLayoutDigest: remoteDigest, writtenLayoutDigest: writtenDigest, local: keepsEdited))
     }
 
+    @Test("A kept layout this Mac has not taken in is taken in when this Mac joins again before a restart", arguments: layoutBackends)
+    func keptLayoutTakenInAfterRejoin(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let mineLayout: [String: Any] = ["a": 0, "b": 1]
+        let otherLayout: [String: Any] = ["a": 2, "b": 1]
+        // This Mac holds only holzBar's own layout; another Mac arranged `otherLayout`; each
+        // changed a setting, and the user keeps this Mac's settings.
+        let mine = settings(layouts, showOnHover: false, own: mineLayout)
+        let remote = settings(layouts, showOnHover: true, own: otherLayout)
+        var state = Policy.State(
+            base: Policy.userDigest(of: settings(layouts).filter { $0.key != "ShowOnHover" }),
+            baseLayoutDigest: Policy.layoutDigest(of: mine, layouts: layouts),
+            lastSynced: lastSynced
+        )
+        let keeps = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: true)
+        #expect(Policy.decide(.localChange, local: keeps, file: version(remote, layouts)) == .write)
+        let written = Policy.planWrite(mine, file: remote, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], layouts: layouts, local: keeps)
+        #expect(written.record.takesInLayout)
+        let writeDate = lastSynced.addingTimeInterval(120)
+        state.recordWrite(written.record, modified: writeDate, local: keeps)
+
+        // Sync is turned off and on, or the same folder chosen again, before a restart.
+        state.leaveFolder(forgetsLastSync: false)
+        let joining = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        let current = Policy.withoutStaleLayouts(written.settings, currentLayouts: Set(written.currentLayouts))
+        let own = Policy.Version(settings: current, layouts: layouts, isFromThisMac: true, modified: writeDate, isNewer: false)
+        for trigger in [Policy.Trigger.localChange, .check, .launch] {
+            #expect(Policy.decide(trigger, local: joining, file: .version(own)) == .adopt)
+        }
+        // The joining Mac takes the kept layout in instead of recording it as synced.
+        let takenIn = Policy.ownLayoutToTakeIn(current, over: mine, layouts: layouts, local: joining, version: own)
+        #expect(isLayout(takenIn[layouts.own], otherLayout))
+        state.recordAdoption(layoutDigest: own.layoutDigest, modified: own.modified, local: joining, takesInOwnLayout: !takenIn.isEmpty)
+        #expect(state.baseLayoutDigest == Policy.layoutDigest(of: mine, layouts: layouts))
+
+        // Restart, or the next launch, applies it.
+        let after = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.check, local: after, file: .version(own)) == .apply)
+        #expect(Policy.decide(.launch, local: after, file: .version(own)) == .apply)
+        let applied = Policy.settingsToApply(current, over: mine, layouts: layouts, baseLayoutDigest: after.baseLayoutDigest, editsLayout: false)
+        #expect(isLayout(applied[layouts.own], otherLayout))
+        // A drag before then asks instead of writing this Mac's layout over the other Mac's.
+        let dragged = settings(layouts, showOnHover: false, own: ["a": 1, "b": 1])
+        let edited = Policy.Local(settings: dragged, layouts: layouts, state: state, layoutEdits: 1, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.localChange, local: edited, file: .version(own)) == .ask)
+
+        // A version of this Mac's own layout holds nothing to take in.
+        let ownLayout = Policy.planWrite(mine, file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: joining)
+        let ownCurrent = Policy.withoutStaleLayouts(ownLayout.settings, currentLayouts: Set(ownLayout.currentLayouts))
+        let ownVersion = Policy.Version(settings: ownCurrent, layouts: layouts, isFromThisMac: true, modified: writeDate, isNewer: false)
+        #expect(Policy.ownLayoutToTakeIn(ownCurrent, over: mine, layouts: layouts, local: joining, version: ownVersion).isEmpty)
+    }
+
     @Test("A write over a version that is not newer keeps its layout and takes it in", arguments: layoutBackends)
     func notNewerLayoutTakenIn(backend: MenuBarBackendKind) {
         let layouts = Policy.Layouts(backend: backend)
@@ -826,7 +884,7 @@ struct SettingsSyncLayoutTests {
         for trigger in [Policy.Trigger.localChange, .check, .launch] {
             #expect(Policy.decide(trigger, local: joining, file: version(remote, layouts)) == .adopt)
         }
-        let takenIn = Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: joining, isNewer: true)
+        let takenIn = Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: joining, version: newerVersion(remote, layouts))
         #expect(isLayout(takenIn[layouts.own], ["a": 0, "b": 0]))
         // A Mac that never synced, even with sync on, compares its layout once, as it may be
         // the user's.

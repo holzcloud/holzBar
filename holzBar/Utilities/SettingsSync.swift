@@ -864,7 +864,7 @@ final class SettingsSync {
                 over: Self.syncedSettings(),
                 layouts: Self.layouts,
                 local: local,
-                isNewer: remote.isNewer
+                version: remote.version
             ).isEmpty
         {
             // Pending first, so no push overwrites the version while the hint is shown.
@@ -955,9 +955,6 @@ final class SettingsSync {
         let settingsData: Data
         /// The layout digest of its layout for this Mac's macOS version, if it has one.
         let layoutDigest: String?
-        /// Whether another Mac wrote it after this Mac last synced
-        /// (`SettingsSyncPolicy.Version.isNewer`).
-        let isNewer: Bool
         /// The version as the decision saw it.
         let version: SettingsSyncPolicy.Version
         /// Its layout for this Mac's macOS version that it holds unlisted, as an earlier build
@@ -1293,7 +1290,6 @@ final class SettingsSync {
             modified: modified,
             settingsData: settingsData,
             layoutDigest: version.layoutDigest,
-            isNewer: false,
             version: version,
             unlistedLayoutData: nil
         )
@@ -1363,7 +1359,6 @@ final class SettingsSync {
                 modified: contents.modified,
                 settingsData: settingsData,
                 layoutDigest: version.layoutDigest,
-                isNewer: version.isNewer,
                 version: version,
                 unlistedLayoutData: unlistedLayoutData
             )
@@ -1519,8 +1514,8 @@ final class SettingsSync {
         case .adopt:
             // A joining Mac whose layout the user did not change takes in the folder's layout
             // for its macOS version, before anything reads it.
-            if let remote = inspection.settings, let isNewer = inspection.remote?.isNewer {
-                let ownLayout = SettingsSyncPolicy.ownLayoutToTakeIn(remote, over: settings, layouts: layouts, local: local, isNewer: isNewer)
+            if let remote = inspection.settings, let version = inspection.remote?.version {
+                let ownLayout = SettingsSyncPolicy.ownLayoutToTakeIn(remote, over: settings, layouts: layouts, local: local, version: version)
                 if !ownLayout.isEmpty {
                     SettingsBackup.apply(ownLayout, removesMissingKeys: false)
                     logger.info("Took in the layout from the sync folder")

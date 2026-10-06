@@ -333,7 +333,7 @@ nonisolated enum SettingsSyncPolicy {
     /// (``replacesUnlistedLayout(_:local:)``);
     /// a joining Mac whose layout the user did not change takes in the version's layout for
     /// its macOS version as it adopts
-    /// (``ownLayoutToTakeIn(_:over:layouts:local:isNewer:)``). A version that changed nothing
+    /// (``ownLayoutToTakeIn(_:over:layouts:local:version:)``). A version that changed nothing
     /// this Mac uses since it last synced lets this Mac's changes win
     /// (``changedNothingSinceBase(_:local:)``).
     ///
@@ -636,20 +636,30 @@ nonisolated extension SettingsSyncPolicy {
     ///   - settings: This Mac's settings.
     ///   - layouts: This Mac's layout keys.
     ///   - local: This Mac's side of the decision that adopted the version.
-    ///   - isNewer: Whether the version is newer than this Mac's last sync
-    ///     (``Version/isNewer``). One this Mac already wrote or applied is in its layout,
-    ///     apart from holzBar's own placements since, which stay.
+    ///   - version: The version. One from another Mac that is not newer than this Mac's last
+    ///     sync (``Version/isNewer``) is in this Mac's layout already, apart from holzBar's
+    ///     own placements since, which stay. One this Mac wrote may hold another Mac's layout
+    ///     that this Mac kept and has not taken in
+    ///     (``takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``), as when sync
+    ///     was turned off and on before a restart; it is taken in like a newer one. When its
+    ///     layout is this Mac's own, this Mac already holds it.
     /// - Returns: The layout to apply, or an empty dictionary when there is nothing to take in:
-    ///   this Mac is not joining, the user changed its layout, the version is not newer, it
-    ///   has no current layout for this Mac's macOS version, or this Mac already holds it.
+    ///   this Mac is not joining, the user changed its layout, the version is another Mac's
+    ///   and not newer, it has no current layout for this Mac's macOS version, or this Mac
+    ///   already holds it.
     static func ownLayoutToTakeIn(
         _ remote: [String: Any],
         over settings: [String: Any],
         layouts: Layouts,
         local: Local,
-        isNewer: Bool
+        version: Version
     ) -> [String: Any] {
-        guard local.isJoining, !local.editsLayout, isNewer, let remoteLayout = validatedLayout(in: remote, key: layouts.own) else {
+        guard
+            local.isJoining,
+            !local.editsLayout,
+            version.isNewer || version.isFromThisMac,
+            let remoteLayout = validatedLayout(in: remote, key: layouts.own)
+        else {
             return [:]
         }
         let merged = mergedLayout(
@@ -994,7 +1004,7 @@ nonisolated extension SettingsSyncPolicy {
         /// Records a version that holds this Mac's settings (``Action/adopt``) as synced.
         ///
         /// When this Mac takes in the version's layout for its macOS version
-        /// (``SettingsSyncPolicy/ownLayoutToTakeIn(_:over:layouts:local:isNewer:)``), holzBar
+        /// (``SettingsSyncPolicy/ownLayoutToTakeIn(_:over:layouts:local:version:)``), holzBar
         /// reads that layout only at launch: this Mac's own layout is recorded as synced and
         /// the date of the last sync is kept, so the version is one to apply, and it waits.
         ///
