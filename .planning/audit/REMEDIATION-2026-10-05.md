@@ -202,6 +202,22 @@ Found in the review of the sync chain, not an audit finding. holzBar's own autom
 
 Commits: `4c5e3539` (per-macOS layouts), `422bba40` (automatic versus user layout changes), `d41ca102` (docs); review fix-ups `ab2aad45` (a joining Mac takes in the folder's layout), `fde070f9` (migration counts an existing layout as changed only on a Mac that did not sync), `b5b9959f` (the other layout is kept for 0.0.7 beta 1 when the file has none) and the docs commit. Details, tests and the two-Mac test steps: [remediation/sa05-SUMMARY.md](remediation/sa05-SUMMARY.md).
 
+## Sync fix round 1 (2026-10-06)
+
+The second review of SA-05 confirmed nine sync issues; all are fixed or documented. Details, tests and the two-Mac test steps (including a Mac still on 0.0.7 beta 1): [remediation/sync-fix-SUMMARY.md](remediation/sync-fix-SUMMARY.md).
+
+| Issue | Severity | Fix | Commit |
+|---|---|---|---|
+| An updated Mac wrote its old layout over a same-OS drag made on a Mac still on 0.0.7 beta 1 | blocker | An unlisted layout of an earlier build is passed on unless the user rearranged this Mac's; then holzBar asks. This build marks its own layout copies (`copiedLayouts`) | `4ddb0e98` |
+| A sync file over 1 MB was overwritten unasked | blocker | Such a file is left alone like an unreadable one; holzBar never writes one | `b3da7f87` |
+| "Keep This Mac's Settings" wrote an untouched layout over another Mac's | major | Only a user layout change writes this Mac's layout; a kept layout of another Mac is taken in at restart or launch | `a43c23f6` |
+| A "not newer" version's layout was recorded as synced without being applied | minor | Same take-in as above | `a43c23f6` |
+| Restart within 1.5 s of a drag on macOS 26 lost the drag | minor | Restart asks while a section save is pending | `29a73434` |
+| A Command-click without a move counted as a layout edit | minor | Only a save that changes the layout counts | `44d0347b` |
+| The migration seed treated "sync on" as "synced" | minor | The seed needs a date of the last sync | `7255b104` |
+| Tests missed state-machine mutations; race and wrap tests were tautological | minor | Sync bookkeeping moved into `SettingsSyncPolicy.State`, with tests checked by mutation | `0320c839` |
+| F-60 remains for a write into a missing or unusable file while a beta 1 Mac of the other OS syncs | minor | Documented as a known issue (update every Mac before changing or recreating the sync folder) | docs commit |
+
 ## Still open
 
 The 18 open findings are all low and manual-only, and were not in the chosen scope: F-43, F-44, F-45, F-47, F-50, F-57, F-59, F-61, F-67, F-69, F-75, F-76, F-95, F-97, F-101, F-102, F-107, F-110. Two consequences to keep in mind:
