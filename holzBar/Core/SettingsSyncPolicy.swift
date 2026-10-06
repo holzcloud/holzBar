@@ -233,6 +233,9 @@ nonisolated enum SettingsSyncPolicy {
         var versionDigest: String?
         /// The layout digests this Mac recently synced (``State/recentLayouts``).
         var recentLayouts: Set<String> = []
+        /// The layout digest of another Mac's layout that this Mac's own version holds and
+        /// this Mac has not taken in yet (``State/keptLayoutDigest``).
+        var keptLayoutDigest: String?
 
         /// Whether this Mac joins the folder.
         var isJoining: Bool {
@@ -386,8 +389,9 @@ nonisolated enum SettingsSyncPolicy {
                 }
                 // This Mac kept another Mac's layout in its last write and has not taken it
                 // in yet (``takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``):
-                // only that layout is taken in, and a layout change of the user's asks. Other
-                // changes are written meanwhile, keeping that layout.
+                // only that layout is taken in, and a layout change of the user's asks, also
+                // when this Mac joins the folder again before a restart. Other changes are
+                // written meanwhile, keeping that layout.
                 if local.editsLayout {
                     if !isLaunch, let postponed = local.postponed, version.modified <= postponed {
                         return .wait
@@ -907,10 +911,16 @@ nonisolated extension SettingsSyncPolicy {
     }
 
     /// Whether a version this Mac wrote holds a layout for its macOS version that it has not
-    /// taken in: one it kept from another Mac
-    /// (``takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``).
+    /// taken in: the one it kept from another Mac
+    /// (``takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``), as this Mac
+    /// recorded it (``Local/keptLayoutDigest``).
+    ///
+    /// The record stays when this Mac leaves the folder, so a Mac that joins again before a
+    /// restart still knows the layout is another Mac's arrangement: a layout change of the
+    /// user's asks instead of writing over it. Any other layout of this Mac's own version is an
+    /// old copy of this Mac's, as a sync app may bring back, and is never taken in.
     static func holdsLayoutToTakeIn(_ version: Version, local: Local) -> Bool {
-        guard version.isFromThisMac, !local.isJoining, let layout = version.layoutDigest else {
+        guard version.isFromThisMac, let layout = version.layoutDigest, layout == local.keptLayoutDigest else {
             return false
         }
         return layout != local.baseLayoutDigest
@@ -1139,6 +1149,16 @@ nonisolated extension SettingsSyncPolicy {
         /// layout, so they stay when this Mac leaves the folder.
         var recentLayouts: [String] = []
 
+        /// The layout digest of another Mac's layout for this Mac's macOS version that this
+        /// Mac's own version holds and this Mac has not taken in yet: its last write kept it
+        /// (``SettingsSyncPolicy/takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``),
+        /// or a joining Mac adopted its own version to take it in
+        /// (``SettingsSyncPolicy/ownLayoutToTakeIn(_:over:layouts:local:version:)``); `nil` when
+        /// none waits. Taking it in, applying a version or any other sync clears it. It stays
+        /// when this Mac leaves the folder, so a re-join before a restart still asks before a
+        /// layout change of the user's replaces it.
+        var keptLayoutDigest: String?
+
         /// How many layout digests ``recentLayouts`` keeps.
         static let recentLayoutLimit = 8
 
@@ -1186,6 +1206,7 @@ nonisolated extension SettingsSyncPolicy {
                 lastSynced = max(lastSynced ?? .distantPast, modified)
             }
             pending = nil
+            keptLayoutDigest = nil
         }
 
         /// Records a version that holds this Mac's settings (``Action/adopt``) as synced.
@@ -1194,9 +1215,9 @@ nonisolated extension SettingsSyncPolicy {
         /// (``SettingsSyncPolicy/ownLayoutToTakeIn(_:over:layouts:local:version:)``), holzBar
         /// reads that layout only at launch: this Mac's own layout is recorded as synced. A
         /// version from another Mac keeps the date of the last sync, so it is one to apply,
-        /// and it waits. This Mac's own version holds a layout to take in
-        /// (``SettingsSyncPolicy/holdsLayoutToTakeIn(_:local:)``) and waits without pausing
-        /// this Mac's pushes.
+        /// and it waits. This Mac's own version holds a layout to take in, recorded as
+        /// ``keptLayoutDigest`` (``SettingsSyncPolicy/holdsLayoutToTakeIn(_:local:)``), and
+        /// waits without pausing this Mac's pushes.
         ///
         /// - Parameters:
         ///   - version: The version, or `nil` for none.
@@ -1215,6 +1236,7 @@ nonisolated extension SettingsSyncPolicy {
             }
             guard !version.isFromThisMac else {
                 markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: version.syncedDate)
+                keptLayoutDigest = version.layoutDigest
                 return
             }
             markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: nil)
@@ -1225,8 +1247,9 @@ nonisolated extension SettingsSyncPolicy {
         ///
         /// When the write kept another Mac's layout that this Mac has not taken in
         /// (``SettingsSyncPolicy/takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``),
-        /// this Mac's own layout is recorded as synced instead, so the written version holds a
-        /// layout to take in (``SettingsSyncPolicy/holdsLayoutToTakeIn(_:local:)``), and it
+        /// this Mac's own layout is recorded as synced instead and the kept one as the layout to
+        /// take in (``keptLayoutDigest``), so the written version holds a layout to take in
+        /// (``SettingsSyncPolicy/holdsLayoutToTakeIn(_:local:)``), and it
         /// waits: Restart takes it in, or the next launch (``Action/takeInLayout``). It does not
         /// pause this Mac's pushes, which keep that layout.
         ///
@@ -1242,6 +1265,7 @@ nonisolated extension SettingsSyncPolicy {
                 return
             }
             markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: modified)
+            keptLayoutDigest = record.layoutDigest
         }
 
         /// Records that this Mac took in the layout of its own version that it kept from
@@ -1255,6 +1279,7 @@ nonisolated extension SettingsSyncPolicy {
             rememberLayout(layoutDigest)
             syncedLayoutEdits = layoutEdits
             pending = nil
+            keptLayoutDigest = nil
         }
 
         /// Records that the user chose a version's settings
@@ -1291,8 +1316,8 @@ nonisolated extension SettingsSyncPolicy {
 
         /// Forgets the folder this Mac synced with, so it joins a folder again: sync was
         /// turned off, another folder was chosen, or this Mac's settings come from another
-        /// Mac. The layout last synced and the layout edits stay, as they depend only on the
-        /// layout.
+        /// Mac. The layout last synced, a kept layout not taken in yet and the layout edits
+        /// stay, as they depend only on the layout.
         ///
         /// - Parameter forgetsLastSync: Whether the date of the last sync goes too, for a
         ///   folder this Mac has not synced with.
@@ -1405,6 +1430,8 @@ nonisolated extension SettingsSyncPolicy.State {
     static let versionDigestKey = "SettingsSyncVersionSettingsDigest"
     /// The key of ``recentLayouts``.
     static let recentLayoutsKey = "SettingsSyncRecentLayoutDigests"
+    /// The key of ``keptLayoutDigest``.
+    static let keptLayoutKey = "SettingsSyncKeptLayoutDigest"
     /// The key of the base of earlier test builds, which held the layouts too.
     static let legacyBaseKey = "SettingsSyncBaseDigest"
 
@@ -1418,7 +1445,8 @@ nonisolated extension SettingsSyncPolicy.State {
             lastSynced: value(Self.lastSyncedKey) as? Date,
             pending: value(Self.pendingKey) as? Date,
             versionDigest: value(Self.versionDigestKey) as? String,
-            recentLayouts: Array((value(Self.recentLayoutsKey) as? [String] ?? []).prefix(Self.recentLayoutLimit))
+            recentLayouts: Array((value(Self.recentLayoutsKey) as? [String] ?? []).prefix(Self.recentLayoutLimit)),
+            keptLayoutDigest: value(Self.keptLayoutKey) as? String
         )
     }
 
@@ -1449,6 +1477,9 @@ nonisolated extension SettingsSyncPolicy.State {
         }
         if recentLayouts != old.recentLayouts {
             changes.append((Self.recentLayoutsKey, recentLayouts.isEmpty ? nil : recentLayouts))
+        }
+        if keptLayoutDigest != old.keptLayoutDigest {
+            changes.append((Self.keptLayoutKey, keptLayoutDigest))
         }
         return changes
     }
@@ -1528,6 +1559,7 @@ nonisolated extension SettingsSyncPolicy.Local {
         self.layoutEdits = layoutEdits
         versionDigest = state.versionDigest
         recentLayouts = Set(state.recentLayouts)
+        keptLayoutDigest = state.keptLayoutDigest
     }
 }
 
