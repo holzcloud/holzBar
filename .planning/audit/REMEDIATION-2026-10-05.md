@@ -279,6 +279,23 @@ The review of round 4 confirmed eight sync issues (three blockers, one major, fo
 | Release notes claimed a waiting version stays offered when the file goes away, also across a relaunch | minor | "while holzBar runs", and a known issue for the relaunch | docs commit |
 | `WritePlan.passesOtherAsCopy` guard conditions were untested | minor | Tests for each condition, checked by mutation | `21f381da` |
 
+## Sync fix round 6 (2026-10-06)
+
+The review of round 5 confirmed eight sync issues (three blockers, one major, four minor); all are fixed. "Keep This Mac's Settings" over another Mac's version that may be stale (not newer than this Mac's last sync, or without a change this Mac holds) now keeps this Mac's arrangement instead of relisting the stale one. A Mac that holds another Mac's change asks about a version that lacks it, not only the Mac that made it. A Mac whose last sync held its layout only as a copy writes its layout as a copy over a missing file. Each Mac's writes are recorded in order whatever its clock says, and the file the app writes is built in Core and tested end to end. Details, tests and the two-Mac test steps: [remediation/sync-fix-SUMMARY.md](remediation/sync-fix-SUMMARY.md).
+
+| Issue | Severity | Fix | Commit |
+|---|---|---|---|
+| Keep over a version not newer than this Mac's last sync relisted its stale layout as current; every Mac, this one too, applied it (also for a re-joining Mac, through `66bb63a0`) | blocker | `keepsOwnLayoutOverStale`: such a keep writes this Mac's layout | `f238cabe` |
+| Keep over a version without this Mac's last write kept the other Mac's stale layout, so the arrangement was lost whichever button the user clicked | blocker | The same rule for a version that misses a write this Mac holds | `bc4d8a81` |
+| The seen record claimed a write whose layout this Mac never took in, so its next write over a missing file listed a stale layout that the arranging Mac applied silently | blocker | A Mac whose last sync held its layout only as a copy writes its layout as a copy over a missing file, or one without that layout | `383a5405` |
+| A third Mac silently applied a version that lacked another Mac's write its settings held | major | `missesLastWrite` compares every entry of the Mac's record of writes | `dadb3801` |
+| Keep answered while the file was missing did not record the answered version, so the other Mac asked again | minor | The write records that version's writes; when it listed another arrangement, this Mac's layout is written as a copy, so that Mac keeps it | `0d3a717e` |
+| A clock set back, or two writes in one second, hid a missing write | minor | `writeStamp`: each write is recorded one second after the one before at least; the file's date stays the clock's | `47c4f09e` |
+| The seen record the app writes into the file was untested glue | minor | `SettingsSyncFile.fileToWrite(plan:deviceID:modified:)` in Core, used by the app and the tests; round-trip test | `a9fa5b50` |
+| `fileToWrite`'s parameter docs were stale | minor | Corrected | `34786f18` |
+
+The mutation check found five untested guards of the new rules; `7cd02fd8` tests them.
+
 ## Still open
 
 The 18 open findings are all low and manual-only, and were not in the chosen scope: F-43, F-44, F-45, F-47, F-50, F-57, F-59, F-61, F-67, F-69, F-75, F-76, F-95, F-97, F-101, F-102, F-107, F-110. Two consequences to keep in mind:
