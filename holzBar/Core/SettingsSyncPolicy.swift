@@ -218,6 +218,10 @@ nonisolated enum SettingsSyncPolicy {
         /// Whether the user changed this Mac's layout since it last synced. holzBar's own
         /// placements of new items do not count.
         var editsLayout = false
+        /// The number of layout edits this side saw (``State/layoutEdits``). A sync made with
+        /// this side records it, so an edit made while the exchange ran still counts
+        /// afterwards.
+        var layoutEdits = 0
 
         /// Whether this Mac joins the folder.
         var isJoining: Bool {
@@ -997,15 +1001,15 @@ nonisolated extension SettingsSyncPolicy {
         /// - Parameters:
         ///   - layoutDigest: The version's layout digest (``Version/layoutDigest``).
         ///   - modified: The version's date.
-        ///   - local: This Mac's side of the decision that adopted the version.
-        ///   - layoutEdits: The number of layout edits that decision saw.
+        ///   - local: This Mac's side of the decision that adopted the version; its layout
+        ///     edits (``Local/layoutEdits``) are recorded.
         ///   - takesInOwnLayout: Whether this Mac takes in the version's layout.
-        mutating func recordAdoption(layoutDigest: String?, modified: Date?, local: Local, layoutEdits: Int, takesInOwnLayout: Bool) {
+        mutating func recordAdoption(layoutDigest: String?, modified: Date?, local: Local, takesInOwnLayout: Bool) {
             guard takesInOwnLayout else {
-                markSynced(base: local.userDigest, layout: layoutDigest, layoutEdits: layoutEdits, modified: modified)
+                markSynced(base: local.userDigest, layout: layoutDigest, layoutEdits: local.layoutEdits, modified: modified)
                 return
             }
-            markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: layoutEdits, modified: nil)
+            markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: nil)
             pending = modified
         }
 
@@ -1018,20 +1022,187 @@ nonisolated extension SettingsSyncPolicy {
         /// waits: Restart applies it, or the next launch.
         ///
         /// - Parameters:
-        ///   - layoutDigest: The layout digest the write records
-        ///     (``SettingsSyncPolicy/syncedLayoutDigest(afterWriting:currentLayouts:copiedLayouts:layouts:local:)``).
+        ///   - record: What the write records (``WritePlan/record``).
         ///   - modified: The date written into the file.
-        ///   - local: This Mac's side of the decision that wrote.
-        ///   - layoutEdits: The number of layout edits that decision saw.
-        ///   - takesInLayout: Whether the write kept a layout this Mac takes in.
-        mutating func recordWrite(layoutDigest: String?, modified: Date?, local: Local, layoutEdits: Int, takesInLayout: Bool) {
-            guard takesInLayout else {
-                markSynced(base: local.userDigest, layout: layoutDigest, layoutEdits: layoutEdits, modified: modified)
+        ///   - local: This Mac's side of the decision that wrote; its layout edits
+        ///     (``Local/layoutEdits``) are recorded.
+        mutating func recordWrite(_ record: WriteRecord, modified: Date?, local: Local) {
+            guard record.takesInLayout else {
+                markSynced(base: local.userDigest, layout: record.layoutDigest, layoutEdits: local.layoutEdits, modified: modified)
                 return
             }
-            markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: layoutEdits, modified: modified)
+            markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: modified)
             pending = modified
         }
+
+        /// Forgets the folder this Mac synced with, so it joins a folder again: sync was
+        /// turned off, another folder was chosen, or this Mac's settings come from another
+        /// Mac. The layout last synced and the layout edits stay, as they depend only on the
+        /// layout.
+        ///
+        /// - Parameter forgetsLastSync: Whether the date of the last sync goes too, for a
+        ///   folder this Mac has not synced with.
+        mutating func leaveFolder(forgetsLastSync: Bool) {
+            base = nil
+            pending = nil
+            if forgetsLastSync {
+                lastSynced = nil
+            }
+        }
+    }
+
+    /// What a write of the sync file records (``State/recordWrite(_:modified:local:)``).
+    struct WriteRecord: Equatable, Sendable {
+        /// The layout digest this Mac records as synced
+        /// (``syncedLayoutDigest(afterWriting:currentLayouts:copiedLayouts:layouts:local:)``).
+        var layoutDigest: String?
+        /// Whether the write kept another Mac's layout that this Mac takes in
+        /// (``takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``).
+        var takesInLayout: Bool
+    }
+
+    /// A write of the sync file: what is written and what the write records.
+    struct WritePlan {
+        /// The settings to write.
+        var settings: [String: Any]
+        /// The layouts the written file lists as current.
+        var currentLayouts: [String]
+        /// The layouts the written file marks as a Mac's copy.
+        var copiedLayouts: [String]
+        /// What the write records.
+        var record: WriteRecord
+    }
+
+    /// Plans a write of this Mac's settings into the sync file
+    /// (``fileToWrite(_:file:fileCurrentLayouts:fileCopiedLayouts:layouts:keepsOwnLayout:)``),
+    /// with the layout digest it records and whether this Mac then takes in a layout the
+    /// write kept.
+    ///
+    /// - Parameters:
+    ///   - settings: This Mac's settings.
+    ///   - remote: The file's settings as read, if any.
+    ///   - fileCurrentLayouts: The layouts the file lists as current.
+    ///   - fileCopiedLayouts: The layouts the file marks as a Mac's copy.
+    ///   - layouts: This Mac's layout keys.
+    ///   - local: This Mac's side of the decision that writes.
+    static func planWrite(
+        _ settings: [String: Any],
+        file remote: [String: Any]?,
+        fileCurrentLayouts: Set<String>,
+        fileCopiedLayouts: Set<String>,
+        layouts: Layouts,
+        local: Local
+    ) -> WritePlan {
+        let written = fileToWrite(
+            settings,
+            file: remote,
+            fileCurrentLayouts: fileCurrentLayouts,
+            fileCopiedLayouts: fileCopiedLayouts,
+            layouts: layouts,
+            keepsOwnLayout: writesOwnLayout(local)
+        )
+        let layoutDigest = syncedLayoutDigest(
+            afterWriting: written.settings,
+            currentLayouts: Set(written.currentLayouts),
+            copiedLayouts: Set(written.copiedLayouts),
+            layouts: layouts,
+            local: local
+        )
+        // The file's current layout for this Mac's macOS version, as the decision saw it
+        // (``Version/layoutDigest``).
+        let fileLayoutDigest = remote.flatMap { remote in
+            let digest = self.layoutDigest(of: withoutStaleLayouts(remote, currentLayouts: fileCurrentLayouts), layouts: layouts)
+            return digest == noLayoutDigest ? nil : digest
+        }
+        let takesInLayout = takesInKeptLayout(fileLayoutDigest: fileLayoutDigest, writtenLayoutDigest: layoutDigest, local: local)
+        return WritePlan(
+            settings: written.settings,
+            currentLayouts: written.currentLayouts,
+            copiedLayouts: written.copiedLayouts,
+            record: WriteRecord(layoutDigest: layoutDigest, takesInLayout: takesInLayout)
+        )
+    }
+}
+
+// MARK: - Stored Sync State
+
+nonisolated extension SettingsSyncPolicy.State {
+    /// The key of ``base``. Keys starting with "SettingsSync" are never exported, imported
+    /// or synced.
+    static let baseKey = "SettingsSyncBaseSettingsDigest"
+    /// The key of ``baseLayoutDigest``.
+    static let baseLayoutKey = "SettingsSyncBaseLayoutDigest"
+    /// The key of ``layoutEdits``.
+    static let layoutEditsKey = "SettingsSyncLayoutEdits"
+    /// The key of ``syncedLayoutEdits``.
+    static let syncedLayoutEditsKey = "SettingsSyncSyncedLayoutEdits"
+    /// The key of ``lastSynced``.
+    static let lastSyncedKey = "SettingsSyncLastSynced"
+    /// The key of ``pending``.
+    static let pendingKey = "SettingsSyncPendingModified"
+    /// The key of the base of earlier test builds, which held the layouts too.
+    static let legacyBaseKey = "SettingsSyncBaseDigest"
+
+    /// The sync state stored under its keys, read with `value`.
+    init(reading value: (String) -> Any?) {
+        self.init(
+            base: value(Self.baseKey) as? String,
+            baseLayoutDigest: value(Self.baseLayoutKey) as? String,
+            layoutEdits: value(Self.layoutEditsKey) as? Int ?? 0,
+            syncedLayoutEdits: value(Self.syncedLayoutEditsKey) as? Int ?? 0,
+            lastSynced: value(Self.lastSyncedKey) as? Date,
+            pending: value(Self.pendingKey) as? Date
+        )
+    }
+
+    /// The values to store for the fields that differ from `old`, under their keys; `nil`
+    /// removes the key.
+    func changes(from old: Self) -> [(key: String, value: Any?)] {
+        var changes = [(key: String, value: Any?)]()
+        if base != old.base {
+            changes.append((Self.baseKey, base))
+        }
+        if baseLayoutDigest != old.baseLayoutDigest {
+            changes.append((Self.baseLayoutKey, baseLayoutDigest))
+        }
+        if layoutEdits != old.layoutEdits {
+            changes.append((Self.layoutEditsKey, layoutEdits))
+        }
+        if syncedLayoutEdits != old.syncedLayoutEdits {
+            changes.append((Self.syncedLayoutEditsKey, syncedLayoutEdits))
+        }
+        if lastSynced != old.lastSynced {
+            changes.append((Self.lastSyncedKey, lastSynced))
+        }
+        if pending != old.pending {
+            changes.append((Self.pendingKey, pending))
+        }
+        return changes
+    }
+
+    /// What bringing the sync state of an earlier build up to date changes.
+    struct Migration: Equatable, Sendable {
+        /// Whether the base of earlier test builds, which held the layouts too, is removed,
+        /// so this Mac joins the folder once more.
+        var removesLegacyBase: Bool
+        /// The number of layout edits to start counting from
+        /// (``SettingsSyncPolicy/initialLayoutEdits(hasLayout:syncs:hasSynced:)``), or `nil`
+        /// when this Mac counts them already.
+        var layoutEdits: Int?
+    }
+
+    /// What bringing the stored sync state of an earlier build up to date changes, from the
+    /// values stored under their keys, read with `value`.
+    static func migration(reading value: (String) -> Any?, layouts: SettingsSyncPolicy.Layouts) -> Migration {
+        var layoutEdits: Int?
+        if value(layoutEditsKey) == nil {
+            layoutEdits = SettingsSyncPolicy.initialLayoutEdits(
+                hasLayout: value(layouts.own) != nil,
+                syncs: value(Defaults.Key.syncsSettingsWithICloud.rawValue) as? Bool ?? false,
+                hasSynced: value(lastSyncedKey) != nil
+            )
+        }
+        return Migration(removesLegacyBase: value(legacyBaseKey) != nil, layoutEdits: layoutEdits)
     }
 }
 
@@ -1081,6 +1252,7 @@ nonisolated extension SettingsSyncPolicy.Local {
             postponed: postponed,
             forcesWrite: forcesWrite
         )
+        self.layoutEdits = layoutEdits
     }
 }
 

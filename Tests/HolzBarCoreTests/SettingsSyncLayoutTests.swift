@@ -610,7 +610,7 @@ struct SettingsSyncLayoutTests {
         )
         #expect(Policy.takesInKeptLayout(fileLayoutDigest: remoteDigest, writtenLayoutDigest: writtenDigest, local: keeps))
         let modified = lastSynced.addingTimeInterval(120)
-        state.recordWrite(layoutDigest: writtenDigest, modified: modified, local: keeps, layoutEdits: 0, takesInLayout: true)
+        state.recordWrite(Policy.WriteRecord(layoutDigest: writtenDigest, takesInLayout: true), modified: modified, local: keeps)
         #expect(state.baseLayoutDigest == keeps.layoutDigest)
         #expect(state.pending == modified)
         #expect(state.lastSynced == modified)
@@ -670,12 +670,12 @@ struct SettingsSyncLayoutTests {
         let writtenDigest = Policy.syncedLayoutDigest(afterWriting: written.settings, currentLayouts: Set(written.currentLayouts), layouts: layouts, local: changed)
         #expect(Policy.takesInKeptLayout(fileLayoutDigest: Policy.layoutDigest(of: remote, layouts: layouts), writtenLayoutDigest: writtenDigest, local: changed))
         var state = Policy.State(base: changed.base, baseLayoutDigest: changed.baseLayoutDigest, lastSynced: lastSynced)
-        state.recordWrite(layoutDigest: writtenDigest, modified: lastSynced, local: changed, layoutEdits: 0, takesInLayout: true)
+        state.recordWrite(Policy.WriteRecord(layoutDigest: writtenDigest, takesInLayout: true), modified: lastSynced, local: changed)
         let after = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
         #expect(Policy.decide(.launch, local: after, file: ownVersion(written, layouts, modified: lastSynced)) == .apply)
         // Without the take-in, the write records the written layout.
         var plain = Policy.State(base: changed.base, baseLayoutDigest: changed.baseLayoutDigest, lastSynced: lastSynced)
-        plain.recordWrite(layoutDigest: writtenDigest, modified: lastSynced, local: changed, layoutEdits: 0, takesInLayout: false)
+        plain.recordWrite(Policy.WriteRecord(layoutDigest: writtenDigest, takesInLayout: false), modified: lastSynced, local: changed)
         #expect(plain.baseLayoutDigest == writtenDigest)
         #expect(plain.pending == nil)
     }
@@ -698,7 +698,7 @@ struct SettingsSyncLayoutTests {
         #expect(!Policy.takesInKeptLayout(fileLayoutDigest: Policy.layoutDigest(of: settings(layouts, own: third), layouts: layouts), writtenLayoutDigest: changed.layoutDigest, local: changed))
         // This Mac's own version with the layout it recorded holds nothing to take in.
         var state = Policy.State(base: changed.base, baseLayoutDigest: changed.baseLayoutDigest, lastSynced: lastSynced)
-        state.recordWrite(layoutDigest: writtenDigest, modified: lastSynced, local: changed, layoutEdits: 0, takesInLayout: false)
+        state.recordWrite(Policy.WriteRecord(layoutDigest: writtenDigest, takesInLayout: false), modified: lastSynced, local: changed)
         let after = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
         guard case .version(let own) = ownVersion(written, layouts, modified: lastSynced) else {
             Issue.record("Expected a version")
@@ -910,14 +910,14 @@ struct SettingsSyncLayoutTests {
         let remoteLayout = Policy.layoutDigest(of: remote, layouts: layouts)
 
         var adopted = Policy.State(lastSynced: lastSynced)
-        adopted.recordAdoption(layoutDigest: remoteLayout, modified: modified, local: joining, layoutEdits: 0, takesInOwnLayout: false)
+        adopted.recordAdoption(layoutDigest: remoteLayout, modified: modified, local: joining, takesInOwnLayout: false)
         #expect(adopted.base == joining.userDigest)
         #expect(adopted.baseLayoutDigest == remoteLayout)
         #expect(adopted.lastSynced == modified)
         #expect(adopted.pending == nil)
 
         var waiting = Policy.State(lastSynced: lastSynced)
-        waiting.recordAdoption(layoutDigest: remoteLayout, modified: modified, local: joining, layoutEdits: 0, takesInOwnLayout: true)
+        waiting.recordAdoption(layoutDigest: remoteLayout, modified: modified, local: joining, takesInOwnLayout: true)
         #expect(waiting.base == joining.userDigest)
         #expect(waiting.baseLayoutDigest == joining.layoutDigest)
         #expect(waiting.lastSynced == lastSynced)

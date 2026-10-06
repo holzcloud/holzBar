@@ -54,35 +54,12 @@ final class SettingsSync {
         lastSyncedKey,
     ]
 
-    private nonisolated static let lastSyncedKey = "SettingsSyncLastSynced"
-
-    /// The key of the digest of the user settings, without the layouts, this Mac last wrote
-    /// or applied (``SettingsSyncPolicy/Local/base``). Without one, this Mac joins the folder.
-    private static let baseKey = "SettingsSyncBaseSettingsDigest"
-
-    /// The key of the layout digest of the sync file's layout for this Mac's macOS version
-    /// when this Mac last synced (``SettingsSyncPolicy/Local/baseLayoutDigest``). It depends
-    /// only on the layout, so it stays when sync is turned off or the folder changes.
-    private static let baseLayoutKey = "SettingsSyncBaseLayoutDigest"
-
-    /// The key of the base of earlier test builds, which held the layouts too
-    /// (``migrateSyncState()``).
-    private static let legacyBaseKey = "SettingsSyncBaseDigest"
+    /// The key of the date of the newest version this Mac wrote or applied
+    /// (``SettingsSyncPolicy/State``, which keeps the keys of the sync state).
+    private nonisolated static let lastSyncedKey = SettingsSyncPolicy.State.lastSyncedKey
 
     /// The layout keys of this Mac's macOS version and the other one.
     private nonisolated static let layouts = SettingsSyncPolicy.Layouts(backend: .current)
-
-    /// The key of the number of changes the user made to this Mac's layout
-    /// (``userChangedLayout()``). It is never reset.
-    private static let layoutEditsKey = "SettingsSyncLayoutEdits"
-
-    /// The key of the number of layout edits the last sync recorded; a larger count means
-    /// the user changed the layout since (``SettingsSyncPolicy/Local/editsLayout``).
-    private static let syncedLayoutEditsKey = "SettingsSyncSyncedLayoutEdits"
-
-    /// The key of the date of a newer version from another Mac that waits for the user;
-    /// while it waits, this Mac's changes are not written.
-    private static let pendingKey = "SettingsSyncPendingModified"
 
     /// The key of this Mac's sync id. Keys starting with "SettingsSync" are never exported,
     /// imported or synced (`SettingsBackup.excludedKeyPrefixes`).
@@ -134,9 +111,7 @@ final class SettingsSync {
         case .firstSeen:
             logger.notice("Gave this Mac a new sync id")
         case .otherMac:
-            defaults.removeObject(forKey: lastSyncedKey)
-            forgetBase()
-            defaults.removeObject(forKey: pendingKey)
+            updateState { $0.leaveFolder(forgetsLastSync: true) }
             logger.notice("This Mac's settings come from another Mac; it joins the sync folder again")
         }
         if let hardwareID {
@@ -145,13 +120,6 @@ final class SettingsSync {
             defaults.set(SettingsSyncDevice.hardwareHash(of: hardwareID, salt: salt), forKey: deviceHashKey)
         }
         defaults.set(UUID().uuidString, forKey: deviceIDKey)
-    }
-
-    /// Forgets the user settings this Mac last synced, so it joins the folder again. The
-    /// layout last synced stays: it depends only on the layout.
-    private static func forgetBase() {
-        UserDefaults.standard.removeObject(forKey: baseKey)
-        UserDefaults.standard.removeObject(forKey: legacyBaseKey)
     }
 
     /// Brings the sync state of earlier builds up to date, at every launch before anything
@@ -165,18 +133,13 @@ final class SettingsSync {
     /// user arranged it (`SettingsSyncPolicy.initialLayoutEdits(hasLayout:syncs:hasSynced:)`).
     private static func migrateSyncState() {
         let defaults = UserDefaults.standard
-        if defaults.object(forKey: legacyBaseKey) != nil {
-            defaults.removeObject(forKey: legacyBaseKey)
+        let migration = SettingsSyncPolicy.State.migration(reading: defaults.object(forKey:), layouts: layouts)
+        if migration.removesLegacyBase {
+            defaults.removeObject(forKey: SettingsSyncPolicy.State.legacyBaseKey)
             logger.notice("Settings sync compares the layouts per macOS version now; this Mac joins the sync folder again")
         }
-        if defaults.object(forKey: layoutEditsKey) == nil {
-            let hasLayout = defaults.object(forKey: layouts.own) != nil
-            let edits = SettingsSyncPolicy.initialLayoutEdits(
-                hasLayout: hasLayout,
-                syncs: Defaults.bool(forKey: .syncsSettingsWithICloud),
-                hasSynced: defaults.object(forKey: lastSyncedKey) != nil
-            )
-            defaults.set(edits, forKey: layoutEditsKey)
+        if let edits = migration.layoutEdits {
+            defaults.set(edits, forKey: SettingsSyncPolicy.State.layoutEditsKey)
         }
     }
 
@@ -192,20 +155,12 @@ final class SettingsSync {
 
     /// The number of changes the user made to this Mac's layout.
     private static var layoutEdits: Int {
-        UserDefaults.standard.integer(forKey: layoutEditsKey)
+        state.layoutEdits
     }
 
     /// The sync state this Mac keeps in its defaults.
     private static var state: SettingsSyncPolicy.State {
-        let defaults = UserDefaults.standard
-        return SettingsSyncPolicy.State(
-            base: defaults.string(forKey: baseKey),
-            baseLayoutDigest: defaults.string(forKey: baseLayoutKey),
-            layoutEdits: defaults.integer(forKey: layoutEditsKey),
-            syncedLayoutEdits: defaults.integer(forKey: syncedLayoutEditsKey),
-            lastSynced: defaults.object(forKey: lastSyncedKey) as? Date,
-            pending: defaults.object(forKey: pendingKey) as? Date
-        )
+        SettingsSyncPolicy.State(reading: UserDefaults.standard.object(forKey:))
     }
 
     /// Changes the sync state with `change` and stores the values it changed.
@@ -214,30 +169,12 @@ final class SettingsSync {
         var new = old
         change(&new)
         let defaults = UserDefaults.standard
-        func store(_ value: Any?, forKey key: String) {
+        for (key, value) in new.changes(from: old) {
             if let value {
                 defaults.set(value, forKey: key)
             } else {
                 defaults.removeObject(forKey: key)
             }
-        }
-        if new.base != old.base {
-            store(new.base, forKey: baseKey)
-        }
-        if new.baseLayoutDigest != old.baseLayoutDigest {
-            store(new.baseLayoutDigest, forKey: baseLayoutKey)
-        }
-        if new.layoutEdits != old.layoutEdits {
-            defaults.set(new.layoutEdits, forKey: layoutEditsKey)
-        }
-        if new.syncedLayoutEdits != old.syncedLayoutEdits {
-            defaults.set(new.syncedLayoutEdits, forKey: syncedLayoutEditsKey)
-        }
-        if new.lastSynced != old.lastSynced {
-            store(new.lastSynced, forKey: lastSyncedKey)
-        }
-        if new.pending != old.pending {
-            store(new.pending, forKey: pendingKey)
         }
     }
 
@@ -669,8 +606,7 @@ final class SettingsSync {
     /// Forgets the state of the folder when sync is turned off, so turning it on joins
     /// the folder again.
     private func forgetSyncState() {
-        Self.forgetBase()
-        UserDefaults.standard.removeObject(forKey: Self.pendingKey)
+        Self.updateState { $0.leaveFolder(forgetsLastSync: false) }
         postponed = nil
         exchangeTask?.cancel()
         exchangeTask = nil
@@ -718,9 +654,7 @@ final class SettingsSync {
         // A join ignores the previous folder's state: this Mac has not synced with the
         // chosen folder yet.
         var joiningState = Self.state
-        joiningState.base = nil
-        joiningState.pending = nil
-        joiningState.lastSynced = nil
+        joiningState.leaveFolder(forgetsLastSync: true)
         guard
             let request = makeRequest(
                 .push,
@@ -761,7 +695,7 @@ final class SettingsSync {
             case .write:
                 recordWrite(result, of: request)
             case .adopt:
-                adopt(result.remote, local: request.local, layoutEdits: request.layoutEdits)
+                adopt(result.remote, local: request.local)
             default:
                 // The file could not be read; the folder is joined once it can.
                 break
@@ -808,9 +742,7 @@ final class SettingsSync {
         // previous folder.
         location.syncFolderURL = join.folderURL
         updateFolderDisplayName()
-        defaults.removeObject(forKey: Self.lastSyncedKey)
-        Self.forgetBase()
-        defaults.removeObject(forKey: Self.pendingKey)
+        Self.updateState { $0.leaveFolder(forgetsLastSync: true) }
         postponed = nil
         withdrawHint()
         if isEnabled {
@@ -922,7 +854,7 @@ final class SettingsSync {
     /// layout at launch, so it is not applied now: this Mac's own layout is recorded as
     /// synced instead, which makes the version one to apply, and it waits with the quiet
     /// Restart hint; the next launch applies it as well.
-    private func adopt(_ remote: RemoteVersion?, local: SettingsSyncPolicy.Local, layoutEdits: Int) {
+    private func adopt(_ remote: RemoteVersion?, local: SettingsSyncPolicy.Local) {
         Self.takeInOtherLayout(from: remote)
         if
             let remote,
@@ -941,7 +873,6 @@ final class SettingsSync {
                     layoutDigest: remote.layoutDigest,
                     modified: remote.modified,
                     local: local,
-                    layoutEdits: layoutEdits,
                     takesInOwnLayout: true
                 )
             }
@@ -954,7 +885,6 @@ final class SettingsSync {
                 layoutDigest: remote?.layoutDigest,
                 modified: remote?.modified,
                 local: local,
-                layoutEdits: layoutEdits,
                 takesInOwnLayout: false
             )
         }
@@ -965,18 +895,12 @@ final class SettingsSync {
     /// layout, which this Mac has not taken in, offers it with the quiet Restart hint; the
     /// next launch applies it as well (`SettingsSyncPolicy.State.recordWrite`).
     private func recordWrite(_ result: ExchangeResult, of request: ExchangeRequest) {
-        let writtenVersion = result.writtenVersion
-        Self.updateState {
-            $0.recordWrite(
-                layoutDigest: result.writtenLayoutDigest,
-                modified: result.written,
-                local: request.local,
-                layoutEdits: request.layoutEdits,
-                takesInLayout: writtenVersion != nil
-            )
+        guard let record = result.record else {
+            return
         }
+        Self.updateState { $0.recordWrite(record, modified: result.written, local: request.local) }
         Self.logger.info("Wrote settings to the sync folder")
-        guard let writtenVersion else {
+        guard record.takesInLayout, let writtenVersion = result.writtenVersion else {
             withdrawHint()
             return
         }
@@ -1054,9 +978,8 @@ final class SettingsSync {
     /// Everything an exchange needs, gathered on the main actor.
     private nonisolated struct ExchangeRequest: Sendable {
         let kind: ExchangeKind
+        /// This Mac's side, with the layout edits it saw, which the sync records.
         let local: SettingsSyncPolicy.Local
-        /// The number of layout edits ``local`` saw, which the sync records.
-        let layoutEdits: Int
         let fileURL: URL
         /// This Mac's synced settings, as a binary property list.
         let settingsData: Data
@@ -1087,9 +1010,8 @@ final class SettingsSync {
         var remote: RemoteVersion?
         /// The date written into the file.
         var written: Date?
-        /// The layout digest this Mac records as synced after the write
-        /// (`SettingsSyncPolicy.syncedLayoutDigest(afterWriting:currentLayouts:copiedLayouts:layouts:local:)`).
-        var writtenLayoutDigest: String?
+        /// What the write records (`SettingsSyncPolicy.WritePlan.record`).
+        var record: SettingsSyncPolicy.WriteRecord?
         /// The written version, when it kept another Mac's layout that this Mac takes in
         /// (`SettingsSyncPolicy.takesInKeptLayout`).
         var writtenVersion: RemoteVersion?
@@ -1126,7 +1048,6 @@ final class SettingsSync {
         presenter: SettingsSyncPresenter?
     ) -> ExchangeRequest? {
         let settings = Self.syncedSettings()
-        let layoutEdits = state.layoutEdits
         let local = Self.makeLocal(settings: settings, state: state, postponed: postponed, forcesWrite: kind == .keepThisMac)
         guard SettingsSyncPolicy.needsExchange(kind.trigger, local: local) else {
             return nil
@@ -1138,7 +1059,6 @@ final class SettingsSync {
         return ExchangeRequest(
             kind: kind,
             local: local,
-            layoutEdits: layoutEdits,
             fileURL: fileURL,
             settingsData: settingsData,
             lastSynced: state.lastSynced,
@@ -1203,7 +1123,7 @@ final class SettingsSync {
         case .wait, .retry:
             break
         case .adopt:
-            adopt(result.remote, local: request.local, layoutEdits: request.layoutEdits)
+            adopt(result.remote, local: request.local)
         case .write:
             if request.kind == .check {
                 // A check never writes; this Mac's changes are pushed with a read of their
@@ -1294,7 +1214,6 @@ final class SettingsSync {
                 fileSettings: inspection.fileSettings,
                 currentLayouts: inspection.currentLayouts,
                 copiedLayouts: inspection.copiedLayouts,
-                fileLayoutDigest: inspection.remote?.layoutDigest,
                 to: writingURL
             )
         }
@@ -1314,20 +1233,19 @@ final class SettingsSync {
         fileSettings: [String: Any]?,
         currentLayouts: Set<String>,
         copiedLayouts: Set<String>,
-        fileLayoutDigest: String?,
         to fileURL: URL
     ) -> ExchangeResult {
         guard let settings = (try? PropertyListSerialization.propertyList(from: request.settingsData, format: nil)) as? [String: Any] else {
             return ExchangeResult(action: .retry, problem: .failed("The settings could not be decoded"))
         }
         let modified = Date.now
-        let written = SettingsSyncPolicy.fileToWrite(
+        let written = SettingsSyncPolicy.planWrite(
             settings,
             file: fileSettings,
             fileCurrentLayouts: currentLayouts,
             fileCopiedLayouts: copiedLayouts,
             layouts: layouts,
-            keepsOwnLayout: SettingsSyncPolicy.writesOwnLayout(request.local)
+            local: request.local
         )
         // The id alone tells the Macs apart; the computer name, which usually holds the
         // owner's name, stays on this Mac.
@@ -1338,13 +1256,6 @@ final class SettingsSync {
             SettingsSyncFile.currentLayoutsKey: written.currentLayouts,
             SettingsSyncFile.copiedLayoutsKey: written.copiedLayouts,
         ]
-        let writtenLayoutDigest = SettingsSyncPolicy.syncedLayoutDigest(
-            afterWriting: written.settings,
-            currentLayouts: Set(written.currentLayouts),
-            copiedLayouts: Set(written.copiedLayouts),
-            layouts: layouts,
-            local: request.local
-        )
         do {
             try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             let data = try PropertyListSerialization.data(fromPropertyList: file, format: .xml, options: 0)
@@ -1354,16 +1265,11 @@ final class SettingsSync {
             }
             try data.write(to: fileURL, options: .atomic)
             // A layout of another Mac's that the write kept waits for this Mac to take it in.
-            let takesInLayout = SettingsSyncPolicy.takesInKeptLayout(
-                fileLayoutDigest: fileLayoutDigest,
-                writtenLayoutDigest: writtenLayoutDigest,
-                local: request.local
-            )
             return ExchangeResult(
                 action: .write,
                 written: modified,
-                writtenLayoutDigest: writtenLayoutDigest,
-                writtenVersion: takesInLayout ? writtenVersion(written, modified: modified) : nil
+                record: written.record,
+                writtenVersion: written.record.takesInLayout ? writtenVersion(written, modified: modified) : nil
             )
         } catch {
             return ExchangeResult(action: .retry, problem: .failed(String(describing: error)))
@@ -1371,10 +1277,7 @@ final class SettingsSync {
     }
 
     /// The version this Mac just wrote, as a version that waits for the user.
-    private nonisolated static func writtenVersion(
-        _ written: (settings: [String: Any], currentLayouts: [String], copiedLayouts: [String]),
-        modified: Date
-    ) -> RemoteVersion? {
+    private nonisolated static func writtenVersion(_ written: SettingsSyncPolicy.WritePlan, modified: Date) -> RemoteVersion? {
         let current = SettingsSyncPolicy.withoutStaleLayouts(written.settings, currentLayouts: Set(written.currentLayouts))
         guard let settingsData = try? PropertyListSerialization.data(fromPropertyList: current, format: .binary, options: 0) else {
             return nil
@@ -1639,7 +1542,7 @@ final class SettingsSync {
         // What the other Macs have learned (``SettingsSyncPolicy/learnedKeys``) and the
         // other macOS version's layout never ask; a Mac that has synced takes them in
         // silently.
-        if defaults.string(forKey: baseKey) != nil, let remote = inspection.settings {
+        if state.base != nil, let remote = inspection.settings {
             let learned = SettingsSyncPolicy.learnedSettings(merging: remote, into: settings)
             let takenIn = learned.merging(SettingsSyncPolicy.layoutToTakeIn(remote, over: settings, layouts: layouts)) { _, layout in layout }
             if !takenIn.isEmpty {
