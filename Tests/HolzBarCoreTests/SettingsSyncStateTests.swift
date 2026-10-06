@@ -318,6 +318,129 @@ struct SettingsSyncStateTests {
         #expect(other == State(base: nil, baseLayoutDigest: "layout", layoutEdits: 4, syncedLayoutEdits: 3, lastSynced: nil, pending: nil, keptLayoutDigest: "kept"))
     }
 
+    // MARK: Acting on decisions
+
+    @Test("Acting on a decision while holzBar runs stores the state and changes the hint as each action needs")
+    func outcomes() {
+        let local = Policy.Local(userDigest: "mine", base: "base", pending: nil, postponed: nil, forcesWrite: false, layoutDigest: "placements")
+        let start = State(base: "base", baseLayoutDigest: "placements", lastSynced: lastSynced, versionDigest: "base")
+        let other = Policy.Version(isFromThisMac: false, modified: lastSynced.addingTimeInterval(60), isNewer: true, userDigest: "other", layoutDigest: "theirs")
+        let own = Policy.Version(isFromThisMac: true, modified: lastSynced.addingTimeInterval(60), isNewer: false, userDigest: "mine", layoutDigest: "kept")
+        func outcome(
+            _ action: Policy.Action,
+            isCheck: Bool = false,
+            version: Policy.Version? = nil,
+            state: State? = nil,
+            takesInOwnLayout: Bool = false,
+            written: (record: Policy.WriteRecord, modified: Date?)? = nil
+        ) -> Policy.Outcome {
+            Policy.outcome(of: action, isCheck: isCheck, version: version, local: local, state: state ?? start, takesInOwnLayout: takesInOwnLayout, written: written)
+        }
+
+        // Nothing waits any more.
+        var waiting = start
+        waiting.pending = other.modified
+        #expect(outcome(.none, version: other, state: waiting) == Policy.Outcome(state: start, hint: .withdraw))
+        // Nothing now.
+        for action in [Policy.Action.wait, .retry] {
+            #expect(outcome(action, version: other, state: waiting) == Policy.Outcome(state: waiting, hint: .unchanged))
+        }
+        // A version from another Mac to apply or ask about waits, and pauses pushes.
+        for action in [Policy.Action.apply, .ask] {
+            #expect(outcome(action, version: other) == Policy.Outcome(state: waiting, hint: .offerFileVersion))
+            #expect(outcome(action) == Policy.Outcome(state: start, hint: .unchanged))
+        }
+        // This Mac's own version with a kept layout waits without pausing pushes.
+        let takeIn = outcome(.takeInLayout, version: own)
+        #expect(takeIn == Policy.Outcome(state: start, hint: .offerFileVersion))
+        #expect(takeIn.state.pending == nil)
+        #expect(outcome(.takeInLayout) == Policy.Outcome(state: start, hint: .unchanged))
+
+        // An adoption that takes a layout in offers it: this Mac's own version without pausing
+        // pushes, another Mac's as a version to apply.
+        var adoptedOwn = start
+        adoptedOwn.recordAdoption(own, local: local, takesInOwnLayout: true)
+        #expect(outcome(.adopt, version: own, takesInOwnLayout: true) == Policy.Outcome(state: adoptedOwn, hint: .offerFileVersion))
+        #expect(adoptedOwn.keptLayoutDigest == "kept")
+        #expect(adoptedOwn.pending == nil)
+        let adoptedOther = outcome(.adopt, version: other, takesInOwnLayout: true)
+        #expect(adoptedOther.hint == .offerFileVersion)
+        #expect(adoptedOther.state.pending == other.modified)
+        // Any other adoption withdraws the hint.
+        var adopted = start
+        adopted.recordAdoption(other, local: local, takesInOwnLayout: false)
+        #expect(outcome(.adopt, version: other) == Policy.Outcome(state: adopted, hint: .withdraw))
+        var adoptedNone = start
+        adoptedNone.recordAdoption(nil, local: local, takesInOwnLayout: false)
+        #expect(outcome(.adopt, takesInOwnLayout: true) == Policy.Outcome(state: adoptedNone, hint: .withdraw))
+
+        // A check never writes: a push follows.
+        #expect(outcome(.write, isCheck: true, version: other, state: waiting) == Policy.Outcome(state: start, hint: .withdraw, pushes: true))
+        // A write that kept another Mac's layout offers the written version; any other write
+        // withdraws the hint.
+        let keptRecord = Policy.WriteRecord(layoutDigest: "kept", takesInLayout: true)
+        let writeDate = lastSynced.addingTimeInterval(90)
+        var wroteKept = start
+        wroteKept.recordWrite(keptRecord, modified: writeDate, local: local)
+        #expect(outcome(.write, version: other, written: (keptRecord, writeDate)) == Policy.Outcome(state: wroteKept, hint: .offerWrittenVersion))
+        let plainRecord = Policy.WriteRecord(layoutDigest: "placements", takesInLayout: false)
+        var wrote = start
+        wrote.recordWrite(plainRecord, modified: writeDate, local: local)
+        #expect(outcome(.write, version: other, written: (plainRecord, writeDate)) == Policy.Outcome(state: wrote, hint: .withdraw))
+        #expect(outcome(.write, version: other) == Policy.Outcome(state: start, hint: .unchanged))
+        // Only a check that found changes pushes.
+        for action in [Policy.Action.none, .wait, .retry, .adopt, .apply, .ask, .takeInLayout] {
+            #expect(!outcome(action, isCheck: true, version: other).pushes)
+        }
+    }
+
+    @Test("The launch applies the version, the folder's layout or a kept layout as decided, and records it")
+    func launch() {
+        #expect(Policy.launchApplication(for: .apply) == .settings)
+        #expect(Policy.launchApplication(for: .adopt) == .ownLayout)
+        #expect(Policy.launchApplication(for: .takeInLayout) == .keptLayout)
+        for action in [Policy.Action.none, .wait, .retry, .write, .ask] {
+            #expect(Policy.launchApplication(for: action) == .nothing)
+        }
+
+        let local = Policy.Local(userDigest: "mine", base: "base", pending: nil, postponed: nil, forcesWrite: false, layoutDigest: "placements")
+        let start = State(base: "base", baseLayoutDigest: "placements", layoutEdits: 3, syncedLayoutEdits: 2, lastSynced: lastSynced, versionDigest: "base", keptLayoutDigest: "kept")
+        let other = Policy.Version(isFromThisMac: false, modified: lastSynced.addingTimeInterval(60), isNewer: true, userDigest: "other", layoutDigest: "theirs")
+        let own = Policy.Version(isFromThisMac: true, modified: lastSynced.addingTimeInterval(60), isNewer: false, userDigest: "mine", layoutDigest: "kept")
+        func launched(_ action: Policy.Action, _ version: Policy.Version?, appliedBase: String? = "applied") -> State {
+            var state = start
+            state.recordLaunch(action, version: version, local: local, appliedBase: appliedBase)
+            return state
+        }
+        var applied = start
+        applied.recordApplied(other, base: "applied", layoutDigest: "theirs")
+        #expect(launched(.apply, other) == applied)
+        #expect(launched(.apply, nil) == start)
+        #expect(launched(.apply, other, appliedBase: nil) == start)
+        var adopted = start
+        adopted.recordAdoption(other, local: local, takesInOwnLayout: false)
+        #expect(launched(.adopt, other) == adopted)
+        var takenIn = start
+        takenIn.recordLayoutTakeIn(layoutDigest: "kept")
+        #expect(launched(.takeInLayout, own) == takenIn)
+        #expect(takenIn.keptLayoutDigest == nil)
+        #expect(takenIn.base == "base")
+        #expect(launched(.takeInLayout, nil) == start)
+        var asked = start
+        asked.pending = other.modified
+        #expect(launched(.ask, other) == asked)
+        var waiting = start
+        waiting.pending = other.modified
+        var cleared = waiting
+        cleared.recordLaunch(.none, version: other, local: local, appliedBase: nil)
+        #expect(cleared == start)
+        for action in [Policy.Action.write, .wait, .retry] {
+            var state = waiting
+            state.recordLaunch(action, version: other, local: local, appliedBase: "applied")
+            #expect(state == waiting)
+        }
+    }
+
     // MARK: Planning a write
 
     @Test("A planned write records the layout it wrote, and a kept layout of another Mac's to take in", arguments: [MenuBarBackendKind.service26, .accessibility27])

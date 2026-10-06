@@ -1365,6 +1365,44 @@ nonisolated extension SettingsSyncPolicy {
             versionDigest = version.userDigest
         }
 
+        /// Records what the launch did for a decision (``launchApplication(for:)``), after it
+        /// applied it.
+        ///
+        /// - An applied version is recorded with its layout, and the user settings it left.
+        /// - An adoption records the version as synced; a layout the launch took in with it is
+        ///   in this Mac's settings already.
+        /// - A kept layout taken in is recorded as synced, and this Mac's other changes stay to
+        ///   be written after launch.
+        /// - A version to ask about waits (``pending``): the check after launch asks.
+        /// - Without anything to do, no version waits any more.
+        ///
+        /// - Parameters:
+        ///   - action: The decision at launch.
+        ///   - version: The file's version, if it holds one.
+        ///   - local: This Mac's side of the decision.
+        ///   - appliedBase: The digest of this Mac's user settings after the launch applied
+        ///     the version's; needed only for ``Action/apply``.
+        mutating func recordLaunch(_ action: Action, version: Version?, local: Local, appliedBase: String?) {
+            switch action {
+            case .apply:
+                if let version, let appliedBase {
+                    recordApplied(version, base: appliedBase, layoutDigest: version.layoutDigest)
+                }
+            case .adopt:
+                recordAdoption(version, local: local, takesInOwnLayout: false)
+            case .takeInLayout:
+                if let version {
+                    recordLayoutTakeIn(layoutDigest: version.layoutDigest)
+                }
+            case .ask:
+                pending = version?.modified
+            case .none:
+                pending = nil
+            case .write, .wait, .retry:
+                break
+            }
+        }
+
         /// Forgets the folder this Mac synced with, so it joins a folder again: sync was
         /// turned off, another folder was chosen, or this Mac's settings come from another
         /// Mac. The layout last synced, a kept layout not taken in yet and the layout edits
@@ -1476,6 +1514,124 @@ nonisolated extension SettingsSyncPolicy {
             record: WriteRecord(layoutDigest: layoutDigest, takesInLayout: takesInLayout, oldCopyDigest: oldCopyDigest),
             insertsCopy: remote?[layouts.other] == nil && written.copiedLayouts.contains(layouts.other)
         )
+    }
+}
+
+// MARK: - Acting on Decisions
+
+nonisolated extension SettingsSyncPolicy {
+    /// What holzBar does with the hint after it acted on a decision while it runs.
+    enum HintChange: Equatable, Sendable {
+        /// The hint stays as it is.
+        case unchanged
+        /// No version waits for the user any more: the hint goes.
+        case withdraw
+        /// The file's version waits for the user: a newer one from another Mac, or this Mac's
+        /// own with a layout to take in.
+        case offerFileVersion
+        /// The version this Mac just wrote waits to have the layout it kept taken in.
+        case offerWrittenVersion
+    }
+
+    /// What acting on a decision while holzBar runs does: the sync state to store, the hint,
+    /// and whether a push follows.
+    struct Outcome: Equatable, Sendable {
+        /// The sync state to store.
+        var state: State
+        /// What happens to the hint.
+        var hint: HintChange
+        /// Whether a push of this Mac's changes follows: a check found changes to write, and
+        /// a check never writes.
+        var pushes = false
+    }
+
+    /// What acting on a decision while holzBar runs does
+    /// (`SettingsSync.handle(_:of:)`, and a chosen folder that is joined without a question).
+    ///
+    /// - A newer version from another Mac that is applied or asked about waits for the user
+    ///   with ``State/pending``, so no push writes over it while the hint is shown.
+    /// - This Mac's own version with a layout to take in (``Action/takeInLayout``) is offered
+    ///   without ``State/pending``: this Mac's pushes go on, keeping that layout.
+    /// - An adoption that takes in a layout offers it; any other adoption withdraws the hint.
+    /// - A write that kept another Mac's layout offers the written version; any other write
+    ///   withdraws the hint.
+    ///
+    /// - Parameters:
+    ///   - action: The decision (``decide(_:local:file:)``).
+    ///   - isCheck: Whether the exchange was a check, which never writes.
+    ///   - version: The file's version, if it holds one.
+    ///   - local: This Mac's side of the decision.
+    ///   - state: The sync state stored now.
+    ///   - takesInOwnLayout: For an adoption, whether this Mac takes in the version's layout
+    ///     for its macOS version (``ownLayoutToTakeIn(_:over:layouts:local:version:)``).
+    ///   - written: For a write, what it records and the date it wrote.
+    static func outcome(
+        of action: Action,
+        isCheck: Bool,
+        version: Version?,
+        local: Local,
+        state: State,
+        takesInOwnLayout: Bool = false,
+        written: (record: WriteRecord, modified: Date?)? = nil
+    ) -> Outcome {
+        var state = state
+        switch action {
+        case .none:
+            state.pending = nil
+            return Outcome(state: state, hint: .withdraw)
+        case .wait, .retry:
+            return Outcome(state: state, hint: .unchanged)
+        case .adopt:
+            let takesIn = takesInOwnLayout && version != nil
+            state.recordAdoption(version, local: local, takesInOwnLayout: takesIn)
+            return Outcome(state: state, hint: takesIn ? .offerFileVersion : .withdraw)
+        case .write:
+            if isCheck {
+                state.pending = nil
+                return Outcome(state: state, hint: .withdraw, pushes: true)
+            }
+            guard let written else {
+                return Outcome(state: state, hint: .unchanged)
+            }
+            state.recordWrite(written.record, modified: written.modified, local: local)
+            return Outcome(state: state, hint: written.record.takesInLayout ? .offerWrittenVersion : .withdraw)
+        case .apply, .ask:
+            guard let version else {
+                return Outcome(state: state, hint: .unchanged)
+            }
+            state.pending = version.modified
+            return Outcome(state: state, hint: .offerFileVersion)
+        case .takeInLayout:
+            return Outcome(state: state, hint: version == nil ? .unchanged : .offerFileVersion)
+        }
+    }
+
+    /// What the launch applies for a decision, before anything reads the settings
+    /// (`SettingsSync.pullIfNeeded()`).
+    enum LaunchApplication: Equatable, Sendable {
+        /// Nothing.
+        case nothing
+        /// The version's settings (``settingsToApply(_:over:layouts:baseLayoutDigest:editsLayout:)``).
+        case settings
+        /// The folder's layout for this Mac's macOS version, when a joining Mac adopts
+        /// (``ownLayoutToTakeIn(_:over:layouts:local:version:)``).
+        case ownLayout
+        /// The layout this Mac kept from another Mac (``keptLayoutToTakeIn(_:over:layouts:)``).
+        case keptLayout
+    }
+
+    /// What the launch applies for a decision. The launch never writes and never asks.
+    static func launchApplication(for action: Action) -> LaunchApplication {
+        switch action {
+        case .apply:
+            .settings
+        case .adopt:
+            .ownLayout
+        case .takeInLayout:
+            .keptLayout
+        case .none, .wait, .retry, .write, .ask:
+            .nothing
+        }
     }
 }
 
