@@ -235,6 +235,9 @@ nonisolated enum SettingsSyncPolicy {
         /// The layout digest of another Mac's layout that this Mac's own version holds and
         /// this Mac has not taken in yet (``State/keptLayoutDigest``).
         var keptLayoutDigest: String?
+        /// The date of the newest version this Mac synced with (``State/lastSynced``); `nil`
+        /// when it has not synced.
+        var lastSynced: Date?
 
         /// Whether this Mac joins the folder.
         var isJoining: Bool {
@@ -781,6 +784,9 @@ nonisolated extension SettingsSyncPolicy {
     ///   - recentLayouts: The layout digests this Mac recently synced. An unlisted layout of
     ///     this Mac's macOS version that is one of them is an old copy of this Mac's
     ///     (``replacesUnlistedLayout(_:local:)``): this Mac's layout is written over it.
+    ///   - passesOtherLayoutAsCopy: Whether the file's current layout of the other macOS
+    ///     version is passed on marked as a copy, as it may be stale
+    ///     (``passesOtherLayoutAsCopy(_:local:)``).
     static func fileToWrite(
         _ local: [String: Any],
         file remote: [String: Any]?,
@@ -788,7 +794,8 @@ nonisolated extension SettingsSyncPolicy {
         fileCopiedLayouts: Set<String> = [],
         layouts: Layouts,
         keepsOwnLayout: Bool,
-        recentLayouts: Set<String> = []
+        recentLayouts: Set<String> = [],
+        passesOtherLayoutAsCopy: Bool = false
     ) -> (settings: [String: Any], currentLayouts: [String], copiedLayouts: [String]) {
         var settings = settingsToWrite(local, file: remote)
         var currentLayouts = Set<String>()
@@ -796,11 +803,13 @@ nonisolated extension SettingsSyncPolicy {
         // Files of earlier builds list no layout; their copy is carried on for those builds.
         // Without one, this Mac's copy, from ``settingsToWrite(_:file:)``, stays unlisted and
         // is marked as a copy.
+        // A current one from a version older than this Mac's last sync may be stale: it is
+        // passed on as a copy, which this build never applies.
         if let fileOther = remote?[layouts.other] {
             settings[layouts.other] = fileOther
-            if fileCurrentLayouts.contains(layouts.other) {
+            if fileCurrentLayouts.contains(layouts.other), !passesOtherLayoutAsCopy {
                 currentLayouts.insert(layouts.other)
-            } else if fileCopiedLayouts.contains(layouts.other) {
+            } else if fileCurrentLayouts.contains(layouts.other) || fileCopiedLayouts.contains(layouts.other) {
                 copiedLayouts.insert(layouts.other)
             }
         } else if settings[layouts.other] != nil {
@@ -925,6 +934,50 @@ nonisolated extension SettingsSyncPolicy {
         return layout != local.baseLayoutDigest
     }
 
+    /// Whether a version is dated before the newest version this Mac synced with
+    /// (``Local/lastSynced``), compared in whole seconds, as the sync file stores its date.
+    ///
+    /// Such a version is older than one this Mac has seen: a sync app brought it back, by
+    /// its conflict resolution or a late upload, or the Mac that wrote it has a clock behind
+    /// this Mac's.
+    static func isBeforeLastSync(_ version: Version, local: Local) -> Bool {
+        guard let lastSynced = local.lastSynced else {
+            return false
+        }
+        return wholeSeconds(version.modified) < wholeSeconds(lastSynced)
+    }
+
+    /// A date in whole seconds, as the sync file stores it.
+    static func wholeSeconds(_ date: Date) -> Double {
+        date.timeIntervalSinceReferenceDate.rounded(.down)
+    }
+
+    /// Whether this Mac takes in the other macOS version's layout from a version of the sync
+    /// file (``layoutToTakeIn(_:over:layouts:)``): not from one dated before the newest
+    /// version this Mac synced with (``isBeforeLastSync(_:local:)``), whose layout may be older
+    /// than the one the other Macs use. That includes an older version of this Mac's own.
+    static func takesInOtherLayout(from version: Version, local: Local) -> Bool {
+        !isBeforeLastSync(version, local: local)
+    }
+
+    /// Whether a write passes the file's current layout of the other macOS version on marked
+    /// as a copy instead of as current: the file's version is dated before the newest
+    /// version this Mac synced with (``isBeforeLastSync(_:local:)``), so the layout may be
+    /// older than the one the Macs of that version use.
+    ///
+    /// Listed as current, the other Macs would apply that stale layout over their
+    /// arrangement. Marked as a copy, this build never applies it, and those Macs keep their
+    /// arrangement and list it as current again when they next write. This Mac's own copy is
+    /// never written instead: it may be older still.
+    ///
+    /// - Parameter fileVersion: The file's version before the write, if it holds one.
+    static func passesOtherLayoutAsCopy(_ fileVersion: Version?, local: Local) -> Bool {
+        guard let fileVersion else {
+            return false
+        }
+        return isBeforeLastSync(fileVersion, local: local)
+    }
+
     /// Whether a layout for this Mac's macOS version that this Mac's own version of the sync
     /// file lists as current is an old copy of this Mac's: neither the layout it last synced
     /// nor another Mac's that it kept and has not taken in (``holdsLayoutToTakeIn(_:local:)``).
@@ -932,7 +985,7 @@ nonisolated extension SettingsSyncPolicy {
     /// A sync app may bring back an older version this Mac wrote, by its conflict resolution
     /// or a late upload. Its layout is never taken in, and a write over it writes this Mac's
     /// layout instead of passing the stale one on to the other Macs
-    /// (``planWrite(_:file:fileCurrentLayouts:fileCopiedLayouts:fileIsFromThisMac:layouts:local:)``).
+    /// (``planWrite(_:file:fileCurrentLayouts:fileCopiedLayouts:fileVersion:layouts:local:)``).
     /// While this Mac joins, its own version's layout is the folder's arrangement, which a
     /// joining Mac without a layout change takes in
     /// (``ownLayoutToTakeIn(_:over:layouts:local:version:)``), so it is no old copy.
@@ -1398,9 +1451,33 @@ nonisolated extension SettingsSyncPolicy {
                 pending = version?.modified
             case .none:
                 pending = nil
+                recordUnchanged(version, local: local)
             case .write, .wait, .retry:
                 break
             }
+        }
+
+        /// Records that a newer version from another Mac changed nothing this Mac uses since it
+        /// last synced (``SettingsSyncPolicy/changedNothingSinceBase(_:local:)``), and that this
+        /// Mac had no changes to write over it (``Action/none``): this Mac has synced with it,
+        /// so its date is the last sync. A version brought back later, dated before it, is then
+        /// known to be older (``SettingsSyncPolicy/isBeforeLastSync(_:local:)``), and its other
+        /// macOS version's layout is neither taken in nor passed on as current.
+        ///
+        /// - Parameters:
+        ///   - version: The file's version, if it holds one.
+        ///   - local: This Mac's side of the decision.
+        mutating func recordUnchanged(_ version: Version?, local: Local) {
+            guard
+                let version,
+                !local.isJoining,
+                !version.isFromThisMac,
+                version.isNewer,
+                SettingsSyncPolicy.changedNothingSinceBase(version, local: local)
+            else {
+                return
+            }
+            lastSynced = max(lastSynced ?? .distantPast, version.modified)
         }
 
         /// Forgets the folder this Mac synced with, so it joins a folder again: sync was
@@ -1450,6 +1527,10 @@ nonisolated extension SettingsSyncPolicy {
         /// file has none. A Mac of that version still on 0.0.7 beta 1 applies it at its next
         /// launch, and it may be older than that Mac's layout (F-60).
         var insertsCopy = false
+        /// Whether the write passes the file's current layout of the other macOS version on
+        /// as a copy, as the file's version is older than this Mac's last sync
+        /// (``passesOtherLayoutAsCopy(_:local:)``).
+        var passesOtherAsCopy = false
     }
 
     /// Plans a write of this Mac's settings into the sync file
@@ -1460,14 +1541,16 @@ nonisolated extension SettingsSyncPolicy {
     /// This Mac's layout is written as it is after a change of the user's
     /// (``writesOwnLayout(_:)``), and over an old copy of this Mac's own
     /// (``isOldOwnLayout(_:local:)``): passing that copy on would bring a stale arrangement
-    /// back to the other Macs.
+    /// back to the other Macs. For the same reason, the other macOS version's layout of a
+    /// version older than this Mac's last sync is passed on as a copy
+    /// (``passesOtherLayoutAsCopy(_:local:)``).
     ///
     /// - Parameters:
     ///   - settings: This Mac's settings.
     ///   - remote: The file's settings as read, if any.
     ///   - fileCurrentLayouts: The layouts the file lists as current.
     ///   - fileCopiedLayouts: The layouts the file marks as a Mac's copy.
-    ///   - fileIsFromThisMac: Whether this Mac wrote the file's version.
+    ///   - fileVersion: The file's version as the decision saw it, if it holds one.
     ///   - layouts: This Mac's layout keys.
     ///   - local: This Mac's side of the decision that writes.
     static func planWrite(
@@ -1475,10 +1558,12 @@ nonisolated extension SettingsSyncPolicy {
         file remote: [String: Any]?,
         fileCurrentLayouts: Set<String>,
         fileCopiedLayouts: Set<String>,
-        fileIsFromThisMac: Bool = false,
+        fileVersion: Version? = nil,
         layouts: Layouts,
         local: Local
     ) -> WritePlan {
+        let fileIsFromThisMac = fileVersion?.isFromThisMac == true
+        let passesOtherAsCopy = passesOtherLayoutAsCopy(fileVersion, local: local)
         // The file's current layout for this Mac's macOS version, as the decision saw it
         // (``Version/layoutDigest``).
         let fileLayoutDigest = remote.flatMap { remote in
@@ -1493,7 +1578,8 @@ nonisolated extension SettingsSyncPolicy {
             fileCopiedLayouts: fileCopiedLayouts,
             layouts: layouts,
             keepsOwnLayout: writesOwnLayout(local) || overwritesOldOwnLayout,
-            recentLayouts: local.recentLayouts
+            recentLayouts: local.recentLayouts,
+            passesOtherLayoutAsCopy: passesOtherAsCopy
         )
         let layoutDigest = syncedLayoutDigest(
             afterWriting: written.settings,
@@ -1512,7 +1598,8 @@ nonisolated extension SettingsSyncPolicy {
             currentLayouts: written.currentLayouts,
             copiedLayouts: written.copiedLayouts,
             record: WriteRecord(layoutDigest: layoutDigest, takesInLayout: takesInLayout, oldCopyDigest: oldCopyDigest),
-            insertsCopy: remote?[layouts.other] == nil && written.copiedLayouts.contains(layouts.other)
+            insertsCopy: remote?[layouts.other] == nil && written.copiedLayouts.contains(layouts.other),
+            passesOtherAsCopy: passesOtherAsCopy && fileCurrentLayouts.contains(layouts.other) && remote?[layouts.other] != nil
         )
     }
 }
@@ -1578,6 +1665,7 @@ nonisolated extension SettingsSyncPolicy {
         switch action {
         case .none:
             state.pending = nil
+            state.recordUnchanged(version, local: local)
             return Outcome(state: state, hint: .withdraw)
         case .wait, .retry:
             return Outcome(state: state, hint: .unchanged)
@@ -1785,6 +1873,7 @@ nonisolated extension SettingsSyncPolicy.Local {
         versionDigest = state.versionDigest
         recentLayouts = Set(state.recentLayouts)
         keptLayoutDigest = state.keptLayoutDigest
+        lastSynced = state.lastSynced
     }
 }
 

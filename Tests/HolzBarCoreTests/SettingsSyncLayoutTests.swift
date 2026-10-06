@@ -909,13 +909,15 @@ struct SettingsSyncLayoutTests {
         let changed = Policy.Local(settings: toggled, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
         #expect(Policy.decide(.localChange, local: changed, file: .version(olderVersion)) == .write)
         #expect(Policy.decide(.launch, local: changed, file: .version(olderVersion)) == .none)
-        let push = Policy.planWrite(toggled, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileIsFromThisMac: true, layouts: layouts, local: changed)
+        let push = Policy.planWrite(toggled, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileVersion: olderVersion, layouts: layouts, local: changed)
         #expect(isLayout(push.settings[layouts.own], toggled[layouts.own] as? [String: Any] ?? [:]))
         #expect(push.currentLayouts.contains(layouts.own))
         #expect(push.record == Policy.WriteRecord(layoutDigest: changed.layoutDigest, takesInLayout: false))
         // Another Mac's version with that layout is no copy of this Mac's: its arrangement is
         // kept.
-        let fromOther = Policy.planWrite(toggled, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileIsFromThisMac: false, layouts: layouts, local: changed)
+        var olderFromOther = olderVersion
+        olderFromOther.isFromThisMac = false
+        let fromOther = Policy.planWrite(toggled, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileVersion: olderFromOther, layouts: layouts, local: changed)
         #expect(isLayout(fromOther.settings[layouts.own], olderLayout.merging(["placed": 1]) { $1 }))
 
         // The layout this Mac last synced, and a kept one, are no old copies.
@@ -923,7 +925,7 @@ struct SettingsSyncLayoutTests {
         var keeping = changed
         keeping.keptLayoutDigest = olderVersion.layoutDigest
         #expect(!Policy.isOldOwnLayout(olderVersion.layoutDigest, local: keeping))
-        let kept = Policy.planWrite(toggled, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileIsFromThisMac: true, layouts: layouts, local: keeping)
+        let kept = Policy.planWrite(toggled, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileVersion: olderVersion, layouts: layouts, local: keeping)
         #expect(kept.record.takesInLayout)
         #expect(isLayout(kept.settings[layouts.own], olderLayout.merging(["placed": 1]) { $1 }))
         // Nor is the folder's arrangement while this Mac joins, which it takes in.
@@ -931,7 +933,7 @@ struct SettingsSyncLayoutTests {
         joiningState.leaveFolder(forgetsLastSync: false)
         let joining = Policy.Local(settings: toggled, layouts: layouts, state: joiningState, layoutEdits: 0, postponed: nil, forcesWrite: false)
         #expect(!Policy.isOldOwnLayout(olderVersion.layoutDigest, local: joining))
-        #expect(Policy.planWrite(toggled, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileIsFromThisMac: true, layouts: layouts, local: joining).record.takesInLayout)
+        #expect(Policy.planWrite(toggled, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileVersion: olderVersion, layouts: layouts, local: joining).record.takesInLayout)
         #expect(!Policy.isOldOwnLayout(nil, local: idle))
     }
 
@@ -1037,6 +1039,145 @@ struct SettingsSyncLayoutTests {
         // Nor does a joining Mac's.
         let joining = local(mine, layouts, base: nil, baseLayout: settings(layouts, own: third))
         #expect(!Policy.holdsLayoutToTakeIn(own, local: joining))
+    }
+
+    // MARK: The other macOS version's layout from an older version
+
+    @Test("A stale layout of the other macOS version from an older version is neither taken in nor passed on as current, so the other Mac keeps its arrangement", arguments: layoutBackends)
+    func staleOtherLayoutPassedOnAsCopy(backend: MenuBarBackendKind) {
+        // Mac A runs `backend`; Mac C runs the other macOS version.
+        let layouts = Policy.Layouts(backend: backend)
+        let otherLayouts = Policy.Layouts(backend: backend == .accessibility27 ? .service26 : .accessibility27)
+        let mineLayout: [String: Any] = ["a": 0, "b": 1]
+        let staleOther: [String: Any] = ["x": 0, "y": 1]
+        let currentOther: [String: Any] = ["x": 1, "y": 0]
+        // A wrote V1, holding C's arrangement `staleOther` as current.
+        let v1Settings = settings(layouts, own: mineLayout, other: staleOther)
+        var stateA = Policy.State(
+            base: Policy.userDigest(of: v1Settings),
+            baseLayoutDigest: Policy.layoutDigest(of: v1Settings, layouts: layouts),
+            lastSynced: lastSynced,
+            versionDigest: Policy.userDigest(of: v1Settings)
+        )
+        // C rearranged and wrote V2; A adopts it, as only C's layout changed.
+        let v2Settings = settings(layouts, own: mineLayout, other: currentOther)
+        let v2 = Policy.Version(settings: v2Settings, layouts: layouts, isFromThisMac: false, modified: lastSynced.addingTimeInterval(120), isNewer: true)
+        let beforeV2 = Policy.Local(settings: v1Settings, layouts: layouts, state: stateA, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.check, local: beforeV2, file: .version(v2)) == .adopt)
+        #expect(Policy.takesInOtherLayout(from: v2, local: beforeV2))
+        stateA = Policy.outcome(of: .adopt, isCheck: true, version: v2, local: beforeV2, state: stateA).state
+        #expect(stateA.lastSynced == v2.modified)
+
+        // The sync app brings V1 back: A takes nothing of it in, at launch or as it adopts it.
+        let v1 = Policy.Version(settings: v1Settings, layouts: layouts, isFromThisMac: true, modified: lastSynced, isNewer: false)
+        let mineA = settings(layouts, own: mineLayout, other: currentOther)
+        let idleA = Policy.Local(settings: mineA, layouts: layouts, state: stateA, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.isBeforeLastSync(v1, local: idleA))
+        #expect(!Policy.takesInOtherLayout(from: v1, local: idleA))
+        #expect(Policy.decide(.launch, local: idleA, file: .version(v1)) == .adopt)
+        #expect(Policy.takesInOtherLayout(from: v2, local: idleA))
+
+        // A's next change writes V1's layout of C's macOS version as a copy, not as current.
+        let toggledA = settings(layouts, showOnHover: false, own: mineLayout, other: currentOther)
+        let changedA = Policy.Local(settings: toggledA, layouts: layouts, state: stateA, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.localChange, local: changedA, file: .version(v1)) == .write)
+        let plan = Policy.planWrite(
+            toggledA,
+            file: v1Settings,
+            fileCurrentLayouts: [layouts.own, layouts.other],
+            fileCopiedLayouts: [],
+            fileVersion: v1,
+            layouts: layouts,
+            local: changedA
+        )
+        #expect(plan.passesOtherAsCopy)
+        #expect(!plan.currentLayouts.contains(layouts.other))
+        #expect(plan.copiedLayouts.contains(layouts.other))
+        #expect(plan.currentLayouts.contains(layouts.own))
+
+        // C applies A's change and keeps its arrangement.
+        let mineC = settings(otherLayouts, own: currentOther, other: mineLayout)
+        let stateC = Policy.State(
+            base: Policy.userDigest(of: mineC),
+            baseLayoutDigest: Policy.layoutDigest(of: mineC, layouts: otherLayouts),
+            lastSynced: v2.modified,
+            versionDigest: Policy.userDigest(of: mineC)
+        )
+        let idleC = Policy.Local(settings: mineC, layouts: otherLayouts, state: stateC, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        let readByC = Policy.withoutStaleLayouts(plan.settings, currentLayouts: Set(plan.currentLayouts))
+        let v3 = Policy.Version(settings: readByC, layouts: otherLayouts, isFromThisMac: false, modified: lastSynced.addingTimeInterval(300), isNewer: true)
+        #expect(Policy.decide(.launch, local: idleC, file: .version(v3)) == .apply)
+        let applied = Policy.settingsToApply(readByC, over: mineC, layouts: otherLayouts, baseLayoutDigest: idleC.baseLayoutDigest, editsLayout: false)
+        #expect(applied[otherLayouts.own] == nil)
+        #expect(applied["ShowOnHover"] as? Bool == false)
+        // Listed as current, C would have applied the stale arrangement.
+        let listed = Policy.withoutStaleLayouts(plan.settings, currentLayouts: Set(plan.currentLayouts).union([layouts.other]))
+        let staleApplied = Policy.settingsToApply(listed, over: mineC, layouts: otherLayouts, baseLayoutDigest: idleC.baseLayoutDigest, editsLayout: false)
+        #expect(isLayout(staleApplied[otherLayouts.own], staleOther))
+
+        // An earlier upload of another Mac, dated before A's last sync, is passed on the same way.
+        let earlier = Policy.Version(settings: v1Settings, layouts: layouts, isFromThisMac: false, modified: lastSynced.addingTimeInterval(60), isNewer: false)
+        #expect(Policy.decide(.localChange, local: changedA, file: .version(earlier)) == .write)
+        #expect(!Policy.takesInOtherLayout(from: earlier, local: idleA))
+        let overEarlier = Policy.planWrite(toggledA, file: v1Settings, fileCurrentLayouts: [layouts.own, layouts.other], fileCopiedLayouts: [], fileVersion: earlier, layouts: layouts, local: changedA)
+        #expect(overEarlier.copiedLayouts.contains(layouts.other))
+
+        // A version as new as the last sync, in whole seconds, keeps it current.
+        let same = Policy.Version(settings: v2Settings, layouts: layouts, isFromThisMac: true, modified: v2.modified, isNewer: false)
+        var subsecond = changedA
+        subsecond.lastSynced = v2.modified.addingTimeInterval(0.7)
+        #expect(!Policy.isBeforeLastSync(same, local: subsecond))
+        let overV2 = Policy.planWrite(toggledA, file: v2Settings, fileCurrentLayouts: [layouts.own, layouts.other], fileCopiedLayouts: [], fileVersion: v2, layouts: layouts, local: changedA)
+        #expect(!overV2.passesOtherAsCopy)
+        #expect(overV2.currentLayouts.contains(layouts.other))
+        // Without a last sync, nothing is known to be older.
+        var unsynced = changedA
+        unsynced.lastSynced = nil
+        #expect(!Policy.isBeforeLastSync(v1, local: unsynced))
+        #expect(!Policy.passesOtherLayoutAsCopy(nil, local: changedA))
+    }
+
+    @Test("A newer version from another Mac that changed nothing this Mac uses is recorded as synced at launch", arguments: layoutBackends)
+    func unchangedNewerVersionRecordedAtLaunch(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let syncedSettings = settings(layouts, own: first, other: second)
+        let state = Policy.State(
+            base: Policy.userDigest(of: syncedSettings),
+            baseLayoutDigest: Policy.layoutDigest(of: syncedSettings, layouts: layouts),
+            lastSynced: lastSynced,
+            versionDigest: Policy.userDigest(of: syncedSettings)
+        )
+        let changed = Policy.Local(
+            settings: settings(layouts, showOnHover: false, own: first, other: second),
+            layouts: layouts,
+            state: state,
+            layoutEdits: 0,
+            postponed: nil,
+            forcesWrite: false
+        )
+        let newer = newerVersion(settings(layouts, own: first, other: third), layouts)
+        #expect(Policy.decide(.launch, local: changed, file: .version(newer)) == .none)
+        var launched = state
+        launched.recordLaunch(.none, version: newer, local: changed, appliedBase: nil)
+        #expect(launched.lastSynced == newer.modified)
+        // Not for a version that is not newer, one of this Mac's, or one that changed something.
+        for other in [
+            newerVersion(settings(layouts, own: first, other: third), layouts, isNewer: false),
+            Policy.Version(settings: settings(layouts, own: first, other: third), layouts: layouts, isFromThisMac: true, modified: newer.modified, isNewer: false),
+            newerVersion(settings(layouts, own: third, other: third), layouts),
+        ] {
+            var unchanged = state
+            unchanged.recordLaunch(.none, version: other, local: changed, appliedBase: nil)
+            #expect(unchanged.lastSynced == lastSynced)
+        }
+        var joining = state
+        joining.leaveFolder(forgetsLastSync: false)
+        let joiningLocal = Policy.Local(settings: syncedSettings, layouts: layouts, state: joining, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        joining.recordLaunch(.none, version: newer, local: joiningLocal, appliedBase: nil)
+        #expect(joining.lastSynced == lastSynced)
+        // A check that finds nothing to do records it too.
+        let outcome = Policy.outcome(of: .none, isCheck: true, version: newer, local: changed, state: state)
+        #expect(outcome.state.lastSynced == newer.modified)
     }
 
     // MARK: Running
