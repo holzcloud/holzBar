@@ -1133,6 +1133,27 @@ struct SettingsSyncLayoutTests {
         #expect(!plan.currentLayouts.contains(layouts.other))
         #expect(plan.copiedLayouts.contains(layouts.other))
         #expect(plan.currentLayouts.contains(layouts.own))
+        // The plan says so only when it passed a current layout of the other macOS version on:
+        // not for an older version without one, one that lists it without holding it, or one
+        // that holds it only as a copy.
+        let withoutOther = settings(layouts, own: mineLayout)
+        for (file, current, copied) in [
+            (withoutOther, [layouts.own], [String]()),
+            (withoutOther, [layouts.own, layouts.other], []),
+            (v1Settings, [layouts.own], [layouts.other]),
+        ] {
+            let passed = Policy.planWrite(
+                toggledA,
+                file: file,
+                fileCurrentLayouts: Set(current),
+                fileCopiedLayouts: Set(copied),
+                fileVersion: v1,
+                layouts: layouts,
+                local: changedA
+            )
+            #expect(!passed.passesOtherAsCopy)
+            #expect(!passed.currentLayouts.contains(layouts.other))
+        }
 
         // C applies A's change and keeps its arrangement.
         let mineC = settings(otherLayouts, own: currentOther, other: mineLayout)
