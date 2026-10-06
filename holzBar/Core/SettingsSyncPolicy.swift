@@ -587,6 +587,32 @@ nonisolated extension SettingsSyncPolicy {
         }
         return version.layoutDigest == nil || version.layoutDigest == local.baseLayoutDigest
     }
+
+    // MARK: Layout Edits
+
+    /// The number of layout edits an install starts counting from, at the first launch of a
+    /// build that counts them.
+    ///
+    /// Whether an existing layout is the user's or holzBar's own is unknown, so it counts as
+    /// changed until the first sync after the update; a fresh install's does not, as holzBar
+    /// writes it.
+    static func initialLayoutEdits(hasLayout: Bool) -> Int {
+        hasLayout ? 1 : 0
+    }
+
+    /// Whether the user changed this Mac's layout since it last synced
+    /// (``Local/editsLayout``).
+    ///
+    /// Only the user's changes of the layout are counted; holzBar's own placements of new
+    /// items are not. A sync records the count it was made with, so an edit made while an
+    /// exchange ran still counts afterwards.
+    ///
+    /// - Parameters:
+    ///   - count: The number of layout edits on this Mac.
+    ///   - synced: The number the last sync recorded.
+    static func editsLayout(count: Int, synced: Int) -> Bool {
+        count != synced
+    }
 }
 
 nonisolated extension SettingsSyncPolicy.Local {

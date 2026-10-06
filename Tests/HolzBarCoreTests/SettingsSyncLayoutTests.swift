@@ -382,6 +382,30 @@ struct SettingsSyncLayoutTests {
         #expect(Policy.decide(.check, local: withLayout, file: relaid) == .ask)
     }
 
+    // MARK: Counting layout edits
+
+    @Test("A layout from before the update counts as changed until the first sync; a fresh install's does not")
+    func initialLayoutEdits() {
+        #expect(Policy.initialLayoutEdits(hasLayout: true) == 1)
+        #expect(Policy.initialLayoutEdits(hasLayout: false) == 0)
+        #expect(Policy.editsLayout(count: Policy.initialLayoutEdits(hasLayout: true), synced: 0))
+        #expect(!Policy.editsLayout(count: Policy.initialLayoutEdits(hasLayout: false), synced: 0))
+    }
+
+    @Test("Only layout edits the last sync did not record count")
+    func editsLayoutCount() {
+        #expect(!Policy.editsLayout(count: 0, synced: 0))
+        #expect(!Policy.editsLayout(count: 3, synced: 3))
+        #expect(Policy.editsLayout(count: 4, synced: 3))
+        // An edit made while an exchange ran still counts after that exchange records the
+        // count it was made with.
+        let captured = 4
+        let afterEdit = captured + 1
+        #expect(Policy.editsLayout(count: afterEdit, synced: captured))
+        // The count wraps instead of trapping.
+        #expect(Policy.editsLayout(count: Int.min, synced: Int.max))
+    }
+
     @Test("The hint offers a restart exactly where a newer version is applied, also with layouts", arguments: layoutBackends)
     func hintMatchesDecisionWithLayouts(backend: MenuBarBackendKind) {
         let layouts = Policy.Layouts(backend: backend)

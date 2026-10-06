@@ -150,6 +150,8 @@ enum SettingsBackup {
                     return
                 }
                 apply(settings, removesMissingKeys: true)
+                // The imported layout is the user's change; it counts for sync.
+                SettingsSync.userChangedLayout()
                 logger.notice("Imported settings from \(url.path(percentEncoded: false), privacy: .private)")
                 relaunch()
             } catch {
