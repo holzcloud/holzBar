@@ -159,19 +159,60 @@ struct SettingsSyncFileTests {
         #expect(try #require(contents(in: listed)).copiedLayouts.isEmpty)
     }
 
-    @Test("The contents give the version a write was based on, which files of earlier builds lack")
-    func contentsBasedOn() throws {
-        #expect(SettingsSyncFile.basedOnKey == "basedOn")
+    @Test("The contents give the writes a version holds, this Mac's apart, which files of earlier builds lack")
+    func contentsSeen() throws {
+        #expect(SettingsSyncFile.seenKey == "seen")
+        let thisWrite = lastSynced.addingTimeInterval(-60)
         var recorded = file(deviceID: otherMac, modified: lastSynced, settings: [:])
-        recorded[SettingsSyncFile.basedOnKey] = lastSynced.addingTimeInterval(-60)
-        #expect(try #require(contents(in: recorded)).basedOn == lastSynced.addingTimeInterval(-60))
+        recorded[SettingsSyncFile.seenKey] = [thisMac: thisWrite, otherMac: lastSynced, "third": "not a date"]
+        let read = try #require(contents(in: recorded))
+        #expect(read.seen == [otherMac: lastSynced])
+        #expect(read.seenWrite == thisWrite)
+        // A record without this Mac holds none of its writes; files of earlier builds, or a
+        // record of the wrong type, record none.
+        recorded[SettingsSyncFile.seenKey] = [otherMac: lastSynced]
+        #expect(try #require(contents(in: recorded)).seen == [otherMac: lastSynced])
+        #expect(try #require(contents(in: recorded)).seenWrite == nil)
         let earlier = file(deviceID: otherMac, modified: lastSynced, settings: [:])
-        #expect(try #require(contents(in: earlier)).basedOn == nil)
-        // The date survives a round trip through the file as written.
-        recorded[SettingsSyncFile.basedOnKey] = SettingsSyncFile.noParent
+        #expect(try #require(contents(in: earlier)).seen == nil)
+        #expect(try #require(contents(in: earlier)).seenWrite == nil)
+        recorded[SettingsSyncFile.seenKey] = [lastSynced]
+        #expect(try #require(contents(in: recorded)).seen == nil)
+        // The record survives a round trip through the file as written, in whole seconds.
+        let written = SettingsSyncFile.seenToWrite([thisMac: thisWrite], deviceID: otherMac, modified: lastSynced.addingTimeInterval(0.4))
+        recorded[SettingsSyncFile.seenKey] = written
         let data = try PropertyListSerialization.data(fromPropertyList: recorded, format: .xml, options: 0)
-        let read = try #require(try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
-        #expect(try #require(contents(in: read)).basedOn == SettingsSyncFile.noParent)
+        let roundTrip = try #require(try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
+        let readBack = try #require(contents(in: roundTrip))
+        #expect(readBack.seenWrite.map(SettingsSyncPolicy.wholeSeconds) == SettingsSyncPolicy.wholeSeconds(thisWrite))
+        #expect(readBack.seen?[otherMac].map(SettingsSyncPolicy.wholeSeconds) == SettingsSyncPolicy.wholeSeconds(lastSynced))
+    }
+
+    @Test("The record of writes holds the writing Mac's write and at most the newest writes of the limit")
+    func seenRecordLimit() {
+        #expect(SettingsSyncFile.seenLimit == 64)
+        let written = SettingsSyncFile.seenToWrite(["a": lastSynced], deviceID: thisMac, modified: lastSynced.addingTimeInterval(60))
+        #expect(written == ["a": lastSynced, thisMac: lastSynced.addingTimeInterval(60)])
+        // This Mac's own entry is replaced by its write.
+        #expect(SettingsSyncFile.seenToWrite([thisMac: lastSynced], deviceID: thisMac, modified: lastSynced.addingTimeInterval(60)) == [thisMac: lastSynced.addingTimeInterval(60)])
+        // Of too many writes, the newest are kept, and the writing Mac's always.
+        var many = [String: Date]()
+        for index in 0 ..< 100 {
+            many["mac\(index)"] = lastSynced.addingTimeInterval(Double(index))
+        }
+        let limited = SettingsSyncFile.limitedSeen(many)
+        #expect(limited.count == 64)
+        #expect(limited["mac99"] != nil)
+        #expect(limited["mac36"] != nil)
+        #expect(limited["mac35"] == nil)
+        #expect(SettingsSyncFile.limitedSeen(["a": lastSynced]) == ["a": lastSynced])
+        let full = SettingsSyncFile.seenToWrite(many, deviceID: thisMac, modified: lastSynced.addingTimeInterval(-1))
+        #expect(full.count == 64)
+        #expect(full[thisMac] == lastSynced.addingTimeInterval(-1))
+        #expect(full["mac36"] == nil)
+        var tooMany = file(deviceID: otherMac, modified: lastSynced, settings: [:])
+        tooMany[SettingsSyncFile.seenKey] = many
+        #expect(contents(in: tooMany)?.seen?.count == 64)
     }
 
     @Test("A file without date or settings has no contents")

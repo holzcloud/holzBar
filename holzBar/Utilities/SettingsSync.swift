@@ -1220,7 +1220,7 @@ final class SettingsSync {
             SettingsSyncFile.settingsKey: written.settings,
             SettingsSyncFile.currentLayoutsKey: written.currentLayouts,
             SettingsSyncFile.copiedLayoutsKey: written.copiedLayouts,
-            SettingsSyncFile.basedOnKey: written.basedOn,
+            SettingsSyncFile.seenKey: SettingsSyncFile.seenToWrite(written.seen, deviceID: request.deviceID, modified: modified),
         ]
         do {
             try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
@@ -1318,7 +1318,8 @@ final class SettingsSync {
             modified: contents.modified,
             isNewer: contents.isNewer,
             unlistedLayoutDigest: unlistedLayoutDigest,
-            basedOn: contents.basedOn
+            seen: contents.seen,
+            seenWrite: contents.seenWrite
         )
         let unlistedLayoutData = unlistedLayoutDigest.flatMap { _ in
             contents.settings[layouts.own].flatMap {

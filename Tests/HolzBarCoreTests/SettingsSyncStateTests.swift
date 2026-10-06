@@ -27,6 +27,7 @@ struct SettingsSyncStateTests {
         #expect(State.recentLayoutsKey == "SettingsSyncRecentLayoutDigests")
         #expect(State.keptLayoutKey == "SettingsSyncKeptLayoutDigest")
         #expect(State.lastWrittenKey == "SettingsSyncLastWritten")
+        #expect(State.seenKey == "SettingsSyncSeenWrites")
         #expect(State.legacyBaseKey == "SettingsSyncBaseDigest")
     }
 
@@ -62,16 +63,23 @@ struct SettingsSyncStateTests {
         every.pending = lastSynced
         every.keptLayoutDigest = "k"
         every.lastWritten = lastSynced
+        every.seen = ["other": lastSynced]
         #expect(every.versionDigest == "b")
         #expect(Set(every.changes(from: State()).map(\.key)) == [
             State.baseKey, State.baseLayoutKey, State.layoutEditsKey, State.syncedLayoutEditsKey, State.lastSyncedKey, State.pendingKey,
-            State.versionDigestKey, State.recentLayoutsKey, State.keptLayoutKey, State.lastWrittenKey,
+            State.versionDigestKey, State.recentLayoutsKey, State.keptLayoutKey, State.lastWrittenKey, State.seenKey,
         ])
         var everyStored = [String: Any]()
         for (key, value) in every.changes(from: State()) {
             everyStored[key] = value
         }
         #expect(State(reading: { everyStored[$0] }) == every)
+        // An empty record of writes is removed; a stored one of the wrong type reads as none.
+        var forgotten = every
+        forgotten.leaveFolder(forgetsLastSync: true)
+        #expect(forgotten.seen.isEmpty)
+        #expect(forgotten.changes(from: every).contains { $0.key == State.seenKey && $0.value == nil })
+        #expect(State(reading: { $0 == State.seenKey ? ["other": "date"] : nil }).seen.isEmpty)
     }
 
     // MARK: Migration

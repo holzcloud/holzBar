@@ -9,7 +9,8 @@ import Foundation
 ///
 /// The file holds the date it was written (``modifiedKey``), the writing Mac's id (see
 /// ``SettingsSyncDevice``), the settings (``settingsKey``), the layouts among them that
-/// are current (``currentLayoutsKey``) and those that are a Mac's copy (``copiedLayoutsKey``).
+/// are current (``currentLayoutsKey``) and those that are a Mac's copy (``copiedLayoutsKey``),
+/// and the newest write of each Mac that the settings hold (``seenKey``).
 ///
 /// Anyone who can write the synced folder can write the file: a shared Dropbox or
 /// Nextcloud folder, a network share, a Syncthing peer. So the file is read only when it
@@ -38,16 +39,42 @@ nonisolated enum SettingsSyncFile {
     /// builds ignore the key, and their files lack it.
     static let copiedLayoutsKey = "copiedLayouts"
 
-    /// The key of the version a write was based on: the date of the newest version of the
-    /// folder the writing Mac had synced with or wrote over, or ``noParent`` when it knew none
-    /// (`SettingsSyncPolicy.basedOn(fileVersion:local:)`). A Mac whose last write is newer
-    /// knows the version lacks that write, and asks instead of applying it
-    /// (`SettingsSyncPolicy.missesLastWrite(_:local:)`). Earlier builds ignore the key, and
-    /// their files lack it.
-    static let basedOnKey = "basedOn"
+    /// The key of the writes a version holds: for each Mac, by its sync id
+    /// (`SettingsSyncDevice.deviceIDKey`), the date of its newest write whose changes the
+    /// version includes, the writing Mac's own write among them
+    /// (`SettingsSyncPolicy.seen(writingOver:local:)`). A Mac whose last write is newer than
+    /// its entry knows the version lacks that write, and asks instead of applying it
+    /// (`SettingsSyncPolicy.missesLastWrite(_:local:)`). Each Mac's dates come from its own
+    /// clock, so clocks that differ do not matter. Earlier builds ignore the key, and their
+    /// files lack it.
+    static let seenKey = "seen"
 
-    /// The ``basedOnKey`` date of a write by a Mac that knew no version of the folder.
-    static let noParent = Date(timeIntervalSinceReferenceDate: 0)
+    /// The most Macs a record of the writes a version holds (``seenKey``) keeps: the newest
+    /// writes. A folder is shared by a few Macs; the limit keeps a file written by anyone
+    /// who can write the folder from growing the record without bound.
+    static let seenLimit = 64
+
+    /// The record of writes `seen`, at most `limit` of them, the newest kept.
+    static func limitedSeen(_ seen: [String: Date], limit: Int = seenLimit) -> [String: Date] {
+        guard seen.count > limit else {
+            return seen
+        }
+        let newest = seen.sorted { $0.value != $1.value ? $0.value > $1.value : $0.key < $1.key }.prefix(max(limit, 0))
+        return Dictionary(uniqueKeysWithValues: newest.map { ($0.key, $0.value) })
+    }
+
+    /// The record of writes to write into the file (``seenKey``): the writes of the other Macs
+    /// that the written settings hold, and this Mac's write.
+    ///
+    /// - Parameters:
+    ///   - seen: The other Macs' writes (`SettingsSyncPolicy.WritePlan.seen`).
+    ///   - deviceID: This Mac's sync id.
+    ///   - modified: The date written into the file.
+    static func seenToWrite(_ seen: [String: Date], deviceID: String, modified: Date) -> [String: Date] {
+        var written = limitedSeen(seen.filter { $0.key != deviceID }, limit: seenLimit - 1)
+        written[deviceID] = modified
+        return written
+    }
 
     /// The largest sync file holzBar reads: 1 MB. holzBar's settings take a few kilobytes.
     static let maximumFileSize = 1 << 20
@@ -80,9 +107,12 @@ nonisolated enum SettingsSyncFile {
         /// The layout keys whose values in ``settings`` are a Mac's copy
         /// (``copiedLayoutsKey``); empty for files of earlier builds.
         var copiedLayouts: Set<String> = []
-        /// The date of the version the write was based on (``basedOnKey``); `nil` for files of
-        /// earlier builds.
-        var basedOn: Date?
+        /// The newest write of each other Mac that the version holds, by sync id, the writing
+        /// Mac's among them (``seenKey``); `nil` for files of earlier builds.
+        var seen: [String: Date]?
+        /// The date of this Mac's newest write that the version holds (``seenKey``); `nil` when
+        /// it holds none, or the file records no writes.
+        var seenWrite: Date?
     }
 
     /// Returns what the sync file holds.
@@ -111,6 +141,8 @@ nonisolated enum SettingsSyncFile {
             return nil
         }
         let isFromThisMac = SettingsSyncDevice.isFromThisMac(file: file, deviceID: deviceID, computerName: computerName)
+        // Each entry is a sync id and a date; anything else is no record.
+        let seen = (file[seenKey] as? [String: Any]).map { limitedSeen($0.compactMapValues { $0 as? Date }) }
         return Contents(
             modified: modified,
             isFromThisMac: isFromThisMac,
@@ -120,7 +152,8 @@ nonisolated enum SettingsSyncFile {
             settings: settings.filter { !localKeys.contains($0.key) },
             currentLayouts: Set(file[currentLayoutsKey] as? [String] ?? []),
             copiedLayouts: Set(file[copiedLayoutsKey] as? [String] ?? []),
-            basedOn: file[basedOnKey] as? Date
+            seen: seen?.filter { $0.key != deviceID },
+            seenWrite: seen?[deviceID]
         )
     }
 
