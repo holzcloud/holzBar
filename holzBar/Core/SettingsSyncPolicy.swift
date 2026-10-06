@@ -1048,8 +1048,15 @@ nonisolated extension SettingsSyncPolicy {
     }
 
     /// Whether a layout for this Mac's macOS version that this Mac's own version of the sync
-    /// file lists as current is an old copy of this Mac's: neither the layout it last synced
-    /// nor another Mac's that it kept and has not taken in (``holdsLayoutToTakeIn(_:local:)``).
+    /// file lists as current is an old copy of this Mac's: the version is dated before this
+    /// Mac's last sync (``isBeforeLastSync(_:local:)``), and its layout is neither the one this
+    /// Mac last synced nor another Mac's that it kept and has not taken in
+    /// (``holdsLayoutToTakeIn(_:local:)``).
+    ///
+    /// The date is the evidence: when the record of a kept layout was lost, as when sync was
+    /// turned off while the write ran or holzBar quit right after it, this Mac's last version
+    /// is not older than its last sync, and its layout is kept and taken in rather than
+    /// replaced by holzBar's own layout (SA-05).
     ///
     /// A sync app may bring back an older version this Mac wrote, by its conflict resolution
     /// or a late upload. Its layout is never taken in, and a write over it writes this Mac's
@@ -1059,10 +1066,9 @@ nonisolated extension SettingsSyncPolicy {
     /// joining Mac without a layout change takes in
     /// (``ownLayoutToTakeIn(_:over:layouts:local:version:)``), so it is no old copy.
     ///
-    /// - Parameter layoutDigest: The layout digest of the version's current layout
-    ///   (``Version/layoutDigest``).
-    static func isOldOwnLayout(_ layoutDigest: String?, local: Local) -> Bool {
-        guard !local.isJoining, let layoutDigest else {
+    /// - Parameter version: This Mac's own version.
+    static func isOldOwnLayout(_ version: Version, local: Local) -> Bool {
+        guard !local.isJoining, let layoutDigest = version.layoutDigest, isBeforeLastSync(version, local: local) else {
             return false
         }
         return layoutDigest != local.baseLayoutDigest && layoutDigest != local.keptLayoutDigest
@@ -1651,7 +1657,7 @@ nonisolated extension SettingsSyncPolicy {
             let digest = self.layoutDigest(of: withoutStaleLayouts(remote, currentLayouts: fileCurrentLayouts), layouts: layouts)
             return digest == noLayoutDigest ? nil : digest
         }
-        let overwritesOldOwnLayout = fileIsFromThisMac && isOldOwnLayout(fileLayoutDigest, local: local)
+        let overwritesOldOwnLayout = fileVersion.map { fileIsFromThisMac && isOldOwnLayout($0, local: local) } ?? false
         let written = fileToWrite(
             settings,
             file: remote,

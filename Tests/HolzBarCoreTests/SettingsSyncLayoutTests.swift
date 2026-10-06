@@ -898,7 +898,7 @@ struct SettingsSyncLayoutTests {
         let older = settings(layouts, own: olderLayout)
         let olderVersion = Policy.Version(settings: older, layouts: layouts, isFromThisMac: true, modified: lastSynced.addingTimeInterval(-60), isNewer: false)
         let idle = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
-        #expect(Policy.isOldOwnLayout(olderVersion.layoutDigest, local: idle))
+        #expect(Policy.isOldOwnLayout(olderVersion, local: idle))
         #expect(!Policy.holdsLayoutToTakeIn(olderVersion, local: idle))
         for trigger in [Policy.Trigger.launch, .check, .localChange] {
             #expect(Policy.decide(trigger, local: idle, file: .version(olderVersion)) == .none)
@@ -921,10 +921,12 @@ struct SettingsSyncLayoutTests {
         #expect(isLayout(fromOther.settings[layouts.own], olderLayout.merging(["placed": 1]) { $1 }))
 
         // The layout this Mac last synced, and a kept one, are no old copies.
-        #expect(!Policy.isOldOwnLayout(idle.baseLayoutDigest, local: idle))
+        var atBase = olderVersion
+        atBase.layoutDigest = idle.baseLayoutDigest
+        #expect(!Policy.isOldOwnLayout(atBase, local: idle))
         var keeping = changed
         keeping.keptLayoutDigest = olderVersion.layoutDigest
-        #expect(!Policy.isOldOwnLayout(olderVersion.layoutDigest, local: keeping))
+        #expect(!Policy.isOldOwnLayout(olderVersion, local: keeping))
         let kept = Policy.planWrite(toggled, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileVersion: olderVersion, layouts: layouts, local: keeping)
         #expect(kept.record.takesInLayout)
         #expect(isLayout(kept.settings[layouts.own], olderLayout.merging(["placed": 1]) { $1 }))
@@ -932,9 +934,23 @@ struct SettingsSyncLayoutTests {
         var joiningState = state
         joiningState.leaveFolder(forgetsLastSync: false)
         let joining = Policy.Local(settings: toggled, layouts: layouts, state: joiningState, layoutEdits: 0, postponed: nil, forcesWrite: false)
-        #expect(!Policy.isOldOwnLayout(olderVersion.layoutDigest, local: joining))
+        #expect(!Policy.isOldOwnLayout(olderVersion, local: joining))
         #expect(Policy.planWrite(toggled, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileVersion: olderVersion, layouts: layouts, local: joining).record.takesInLayout)
-        #expect(!Policy.isOldOwnLayout(nil, local: idle))
+        var noLayout = olderVersion
+        noLayout.layoutDigest = nil
+        #expect(!Policy.isOldOwnLayout(noLayout, local: idle))
+
+        // This Mac's last version, not older than its last sync, holds another Mac's layout
+        // whose record was lost (sync turned off while the write ran, or a quit right after
+        // it): it is no old copy. A change keeps that layout and takes it in later.
+        let latest = Policy.Version(settings: older, layouts: layouts, isFromThisMac: true, modified: lastSynced.addingTimeInterval(0.5), isNewer: false)
+        #expect(!Policy.isOldOwnLayout(latest, local: changed))
+        let overLatest = Policy.planWrite(toggled, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileVersion: latest, layouts: layouts, local: changed)
+        #expect(isLayout(overLatest.settings[layouts.own], olderLayout.merging(["placed": 1]) { $1 }))
+        #expect(overLatest.record.takesInLayout)
+        var later = latest
+        later.modified = lastSynced.addingTimeInterval(30)
+        #expect(!Policy.isOldOwnLayout(later, local: changed))
     }
 
     @Test("A kept layout that a Mac still on 0.0.7 beta 1 writes back is passed on, never replaced by holzBar's own layout", arguments: layoutBackends)
