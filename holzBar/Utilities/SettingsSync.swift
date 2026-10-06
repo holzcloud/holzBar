@@ -187,7 +187,7 @@ final class SettingsSync {
     /// (SA-05): they push nothing, keep the hint at Restart and never make a join ask.
     static func userChangedLayout() {
         // While sync is paused, every `SettingsSync…` key stays as it is.
-        guard SettingsSyncPause.allowsChanges() else {
+        guard SettingsSyncPause.isActive() else {
             return
         }
         let defaults = UserDefaults.standard
@@ -341,7 +341,7 @@ final class SettingsSync {
     /// where the folder panel starts.
     func refreshFolder() {
         // While sync is paused, nothing resolves or looks up a folder.
-        guard SettingsSyncPause.allowsChanges() else {
+        guard SettingsSyncPause.isActive() else {
             return
         }
         if isEnabled {
@@ -402,7 +402,7 @@ final class SettingsSync {
         didSet {
             // While sync is paused, it stays off in this session and the stored choice
             // stays as it is.
-            guard SettingsSyncPause.allowsChanges() else {
+            guard SettingsSyncPause.isActive() else {
                 return
             }
             Defaults.set(isEnabled, forKey: .syncsSettingsWithICloud)
@@ -479,7 +479,7 @@ final class SettingsSync {
     func performSetup(with appState: AppState) {
         self.appState = appState
         let isTurnedOn = Defaults.bool(forKey: .syncsSettingsWithICloud)
-        if SettingsSyncPause.isPaused {
+        if !SettingsSyncPause.isActive() {
             isTurnedOnWhilePaused = isTurnedOn
             Self.logger.info("Settings sync is paused in this build")
         }
@@ -678,7 +678,7 @@ final class SettingsSync {
     /// - Returns: Whether a folder was chosen; joining it goes on afterwards.
     @discardableResult
     func chooseFolder() -> Bool {
-        guard SettingsSyncPause.allowsChanges(), !isChoosingFolder else {
+        guard SettingsSyncPause.isActive(), SettingsSyncPause.allowsChanges(), !isChoosingFolder else {
             return false
         }
         let panel = NSOpenPanel()
@@ -1484,7 +1484,7 @@ final class SettingsSync {
     static func pullIfNeeded() {
         // While sync is paused, the sync folder is not read and the sync state of earlier
         // builds stays as it is, to be brought up to date when sync resumes.
-        guard SettingsSyncPause.allowsChanges() else {
+        guard SettingsSyncPause.isActive() else {
             return
         }
         migrateSyncState()

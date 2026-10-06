@@ -16,16 +16,30 @@ nonisolated enum SettingsSyncPause {
     /// Whether settings sync is paused in this build.
     static let isPaused = true
 
+    /// Whether settings sync may start in this build: read the sync folder, watch it, mount
+    /// it, write to it, or bring the stored sync state up to date.
+    ///
+    /// Every entry point that starts sync checks this, and only this, so the run gates
+    /// cannot follow ``allowsChanges(isPaused:)`` by mistake.
+    ///
+    /// - Parameter isPaused: Whether sync is paused in this build.
+    static func isActive(isPaused: Bool = isPaused) -> Bool {
+        !isPaused
+    }
+
     /// Whether settings sync runs.
     ///
     /// - Parameters:
     ///   - isTurnedOn: Whether the user turned sync on, as stored.
     ///   - isPaused: Whether sync is paused in this build.
     static func syncs(isTurnedOn: Bool, isPaused: Bool = isPaused) -> Bool {
-        isTurnedOn && !isPaused
+        isTurnedOn && isActive(isPaused: isPaused)
     }
 
-    /// Whether the user can turn sync on or off, or choose its folder.
+    /// Whether the user can turn sync on or off, or choose its folder, in the settings.
+    ///
+    /// Only the settings' controls check this; whether sync may start is
+    /// ``isActive(isPaused:)``.
     ///
     /// - Parameter isPaused: Whether sync is paused in this build.
     static func allowsChanges(isPaused: Bool = isPaused) -> Bool {
