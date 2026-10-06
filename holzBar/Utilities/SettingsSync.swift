@@ -27,6 +27,9 @@ import SystemConfiguration
 /// it closed, and another Mac could open one at any time (F-14). The folder's own app syncs
 /// the file; holzBar never connects to the network.
 ///
+/// Sync is paused in this build (``SettingsSyncPause``): nothing here starts, and the stored
+/// sync configuration stays as it is, so sync can resume after its redesign.
+///
 /// The folder is stored as a bookmark (`SettingsSyncLocation`). Without one, iCloud Drive
 /// is used, as before folders could be chosen, and stored as the choice.
 ///
@@ -183,6 +186,10 @@ final class SettingsSync {
     /// holzBar's own placements never do, so they never count as a settings change for sync
     /// (SA-05): they push nothing, keep the hint at Restart and never make a join ask.
     static func userChangedLayout() {
+        // While sync is paused, every `SettingsSync…` key stays as it is.
+        guard SettingsSyncPause.allowsChanges() else {
+            return
+        }
         let defaults = UserDefaults.standard
         defaults.set(defaults.integer(forKey: layoutEditsKey) &+ 1, forKey: layoutEditsKey)
     }
@@ -333,6 +340,10 @@ final class SettingsSync {
     /// have been moved, renamed or deleted since. While sync is off, looks up iCloud Drive,
     /// where the folder panel starts.
     func refreshFolder() {
+        // While sync is paused, nothing resolves or looks up a folder.
+        guard SettingsSyncPause.allowsChanges() else {
+            return
+        }
         if isEnabled {
             resolveFolder(checksNewFolder: false)
         } else if location.syncFolderURL == nil, location.iCloudDriveURL == nil {
@@ -389,6 +400,11 @@ final class SettingsSync {
     /// them, or when the folder is chosen (``chooseFolder()``).
     var isEnabled = false {
         didSet {
+            // While sync is paused, it stays off in this session and the stored choice
+            // stays as it is.
+            guard SettingsSyncPause.allowsChanges() else {
+                return
+            }
             Defaults.set(isEnabled, forKey: .syncsSettingsWithICloud)
             updateObservers()
             if oldValue, !isEnabled {
@@ -456,9 +472,20 @@ final class SettingsSync {
     /// on it.
     @ObservationIgnored private var settingsWindowWait: SettingsWindowWait?
 
+    /// Whether the user turned sync on, as stored, shown while sync is paused
+    /// (``SettingsSyncPause``); nothing syncs then, and the choice stays as it is.
+    private(set) var isTurnedOnWhilePaused = false
+
     func performSetup(with appState: AppState) {
         self.appState = appState
-        isEnabled = Defaults.bool(forKey: .syncsSettingsWithICloud)
+        let isTurnedOn = Defaults.bool(forKey: .syncsSettingsWithICloud)
+        if SettingsSyncPause.isPaused {
+            isTurnedOnWhilePaused = isTurnedOn
+            Self.logger.info("Settings sync is paused in this build")
+        }
+        // While sync is paused, it stays off without writing the stored choice: nothing
+        // observes the settings or touches the sync folder.
+        isEnabled = SettingsSyncPause.syncs(isTurnedOn: isTurnedOn)
         if isEnabled {
             // The launch skipped a file that was not on this Mac and never asks; check
             // the file once the folder is watched.
@@ -651,7 +678,7 @@ final class SettingsSync {
     /// - Returns: Whether a folder was chosen; joining it goes on afterwards.
     @discardableResult
     func chooseFolder() -> Bool {
-        guard !isChoosingFolder else {
+        guard SettingsSyncPause.allowsChanges(), !isChoosingFolder else {
             return false
         }
         let panel = NSOpenPanel()
@@ -1455,6 +1482,11 @@ final class SettingsSync {
     /// never writes the file and never asks: when both Macs changed their settings, the
     /// version is remembered and the check after setup asks.
     static func pullIfNeeded() {
+        // While sync is paused, the sync folder is not read and the sync state of earlier
+        // builds stays as it is, to be brought up to date when sync resumes.
+        guard SettingsSyncPause.allowsChanges() else {
+            return
+        }
         migrateSyncState()
         guard Defaults.bool(forKey: .syncsSettingsWithICloud) else {
             return

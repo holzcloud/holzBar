@@ -292,14 +292,19 @@ private struct RevealRulesSettings: View {
 // MARK: - SettingsSyncToggle
 
 /// Turns syncing the settings on or off, through iCloud Drive or any folder the Macs keep
-/// in sync (jordanbaird/Ice#95, SYNC-01).
+/// in sync (jordanbaird/Ice#95, SYNC-01). While sync is paused (``SettingsSyncPause``), the
+/// controls show the stored choice, disabled, with a note.
 private struct SettingsSyncToggle: View {
     @Bindable var sync: SettingsSync
+
+    private var isPaused: Bool {
+        !SettingsSyncPause.allowsChanges()
+    }
 
     var body: some View {
         LabeledContent {
             HStack {
-                if sync.isEnabled {
+                if sync.isEnabled || sync.isTurnedOnWhilePaused {
                     switch sync.hint {
                     case .restart:
                         Button("Restart") {
@@ -324,10 +329,15 @@ private struct SettingsSyncToggle: View {
                     }
                 }
             }
+            .disabled(isPaused)
         } label: {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Sync settings between your Macs")
-                if sync.isEnabled {
+                if isPaused {
+                    Text("Sync is paused in this beta and returns in the next one. Your sync folder and these settings stay as they are.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else if sync.isEnabled {
                     if let folder = sync.folderDisplayName {
                         Text("Through \(folder)")
                             .font(.subheadline)
