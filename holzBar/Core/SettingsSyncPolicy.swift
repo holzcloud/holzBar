@@ -1100,23 +1100,32 @@ nonisolated extension SettingsSyncPolicy {
     }
 
     /// Whether a write marks this Mac's layout as a copy instead of listing it as current: the
-    /// sync file is missing or unusable, or holds no layout for this Mac's macOS version, while
-    /// this Mac keeps another Mac's layout it has not taken in (``Local/keptLayoutDigest``),
-    /// and the user did not change this Mac's layout.
+    /// sync file is missing or unusable, or holds no layout for this Mac's macOS version, the
+    /// user did not change this Mac's layout, and this Mac holds no current layout of the
+    /// folder: it keeps another Mac's layout it has not taken in (``Local/keptLayoutDigest``),
+    /// or its last sync had no current layout for its macOS version
+    /// (``Local/baseLayoutDigest`` is ``noLayoutDigest``), as after it applied a version that
+    /// held that layout only as a copy.
     ///
-    /// This Mac's layout then holds only holzBar's own placements. Listed as current over a
-    /// file without the kept layout, it would replace the arrangement of the Mac whose layout this Mac
-    /// kept (SA-05). Marked as a copy, the Macs of this build keep their arrangement; the
-    /// copy is passed on as one until the user changes the layout on a Mac of this macOS
-    /// version. This Mac still keeps the record of the kept layout
-    /// (``WriteRecord/keepsLayoutToTakeIn``).
+    /// This Mac's layout then holds only holzBar's own placements over a layout that may be
+    /// older than the arrangement the copy, or the kept layout, stands for; the record of
+    /// writes this Mac passes on (``seen(writingOver:local:)``) may as well claim the write
+    /// that made that arrangement. Listed as current, it would replace that arrangement on the
+    /// Mac that made it, silently (SA-05, F-02). Marked as a copy, the Macs of this build keep
+    /// their arrangement; the copy is passed on as one until the user changes the layout on a
+    /// Mac of this macOS version. This Mac still keeps the record of a kept layout
+    /// (``WriteRecord/keepsLayoutToTakeIn``). A Mac that has not synced with the folder, as
+    /// one that sets up a new folder, lists its layout.
     ///
     /// - Parameters:
     ///   - fileSettings: The file's settings as read; `nil` when it is missing or unusable.
     ///   - layouts: This Mac's layout keys.
     ///   - local: This Mac's side of the decision that writes.
     static func writesOwnLayoutAsCopy(fileSettings: [String: Any]?, layouts: Layouts, local: Local) -> Bool {
-        fileSettings?[layouts.own] == nil && local.keptLayoutDigest != nil && !local.editsLayout
+        guard fileSettings?[layouts.own] == nil, !local.editsLayout else {
+            return false
+        }
+        return local.keptLayoutDigest != nil || (local.baseLayoutDigest == noLayoutDigest && local.lastSynced != nil)
     }
 
     /// Whether a layout for this Mac's macOS version that this Mac's own version of the sync
