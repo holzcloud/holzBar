@@ -141,7 +141,7 @@ Route: **auto** = auto-fixable, fixed by the automatic pipeline; **decision: \<c
 
 Review fix-ups that name no finding ID:
 
-- sync-alerts: `e92c3aab` (SA-04), `58461af9` (SA-06), `b50fd7b4` (SA-07), `07e3b78b` (SA-08).
+- sync-alerts: `e92c3aab` (SA-04), `58461af9` (SA-06), `b50fd7b4` (SA-07), `07e3b78b` (SA-08), `4c5e3539`, `422bba40` (SA-05).
 - xpc: `1d359ef7` (XPC-01), `b0ae6887` (XPC-06), `13223d12` (XPC-07).
 - events: `dc3f9bdb` (EV-01), `747bad6e` (EV-02), `784338f5` (EV-04).
 - ax-observers: `e9474da8` (AXO-2), `780ca8f5` (AXO-R1), `a61458c9` (AXO-R2), `02fb2d2e` (AXO-R3).
@@ -191,9 +191,15 @@ The release restructure (`f2117f4a`, then `54a91ff5` and `2fe22323`) fixes both,
 - **Open:** `SIGNING_CERTIFICATE_P12` and `SIGNING_CERTIFICATE_PASSWORD` are still repository secrets, so a workflow pushed to any branch by a credential with the workflow scope can read them. The maintainer accepted this until the beta after 0.0.7-beta2, because the secrets have to be re-entered and the `.p12` and its password are not at hand.
 - **Todo:** [2026-10-05-move-the-signing-secrets-into-the-release-environment-f-10.md](../todos/pending/2026-10-05-move-the-signing-secrets-into-the-release-environment-f-10.md). Its step 2 (`environment: release` on the sign job) is already done, so only settings remain: set both secrets with `--env release` (a fresh `.p12` exported from Keychain Access with a new password works too), release one beta, then delete the repository copies and the residual-risk notes.
 
-## Open question: SA-05
+## SA-05: resolved
 
-Found in the review of the sync chain, not an audit finding; it needs the maintainer's decision. holzBar's own automatic layout writes (`ItemSections`, `MacOS27Layout`) count as user changes for conflict detection: `SettingsSyncPolicy.learnedKeys` (`holzBar/Core/SettingsSyncPolicy.swift`) leaves them out, so they enter the user digest. A Mac whose layout holzBar rearranged on its own can therefore ask the sync conflict question. The implementer advised against simply leaving the other OS's layout key out of the digest.
+Found in the review of the sync chain, not an audit finding. holzBar's own automatic layout writes (`ItemSections`, `MacOS27Layout`) counted as user changes for conflict detection, so a Mac whose layout holzBar rearranged on its own could ask the sync question, and a macOS 26 Mac and a macOS 27 Mac compared each other's layouts. The maintainer chose **"Automatisches nicht mitzählen"**:
+
+- Each Mac compares only its own macOS version's layout key; the other version's key (`MacOS27Layout` before macOS 27, `ItemSections` on macOS 27) is left out of the user digest, kept from the sync file when this Mac writes (never this Mac's older copy) and taken in silently when it adopts or applies a version.
+- Only user-initiated layout changes count (Layout pane drags, keys and undo, Command-drags, applying a profile, importing settings), through a local count of layout edits. holzBar's own placements (new items and the first save before macOS 27, seeding and new apps on macOS 27) never push, keep the hint at Restart, never make a join ask and travel with the next real change.
+- Sync files list their current layouts (`currentLayouts`), so the layout copies in files of earlier builds are neither compared, applied nor taken in.
+
+Commits: `4c5e3539` (per-macOS layouts), `422bba40` (automatic versus user layout changes) and the docs commit. Details, tests and the two-Mac test steps: [remediation/sa05-SUMMARY.md](remediation/sa05-SUMMARY.md).
 
 ## Still open
 
