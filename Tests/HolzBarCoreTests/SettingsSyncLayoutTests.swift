@@ -619,44 +619,62 @@ struct SettingsSyncLayoutTests {
         let modified = lastSynced.addingTimeInterval(120)
         state.recordWrite(Policy.WriteRecord(layoutDigest: writtenDigest, takesInLayout: true), modified: modified, local: keeps)
         #expect(state.baseLayoutDigest == keeps.layoutDigest)
-        #expect(state.pending == modified)
         #expect(state.lastSynced == modified)
+        // The kept layout waits without pausing this Mac's pushes.
+        #expect(state.pending == nil)
 
         // The written version holds the other Mac's layout, which this Mac takes in: by
         // Restart, or at the next launch.
         let after = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
         let own = ownVersion(written, layouts, modified: modified)
-        #expect(Policy.decide(.check, local: after, file: own) == .apply)
-        #expect(Policy.decide(.launch, local: after, file: own) == .apply)
-        #expect(Policy.hint(for: after) == .restart)
-        #expect(!Policy.needsExchange(.localChange, local: after))
-        let applied = Policy.settingsToApply(
-            Policy.withoutStaleLayouts(written.settings, currentLayouts: Set(written.currentLayouts)),
-            over: mine,
-            layouts: layouts,
-            baseLayoutDigest: after.baseLayoutDigest,
-            editsLayout: false
-        )
-        #expect(isLayout(applied[layouts.own], ["a": 5, "b": 1, "placed": 1]))
+        guard case .version(let ownVersion) = own else {
+            Issue.record("Expected a version")
+            return
+        }
+        #expect(Policy.decide(.check, local: after, file: own) == .takeInLayout)
+        #expect(Policy.decide(.launch, local: after, file: own) == .takeInLayout)
+        #expect(Policy.hint(for: after, version: ownVersion) == .restart)
+        let current = Policy.withoutStaleLayouts(written.settings, currentLayouts: Set(written.currentLayouts))
+        let takenIn = Policy.keptLayoutToTakeIn(current, over: mine, layouts: layouts)
+        #expect(Set(takenIn.keys) == [layouts.own])
+        #expect(isLayout(takenIn[layouts.own], ["a": 5, "b": 1, "placed": 1]))
+        // Restart takes in only the layout, and records it as synced.
+        let used = Policy.settingsToUse(current, unlisted: nil, over: mine, layouts: layouts, version: ownVersion, local: after)
+        #expect(Set(used.settings.keys) == [layouts.own])
+        #expect(isLayout(used.settings[layouts.own], ["a": 5, "b": 1, "placed": 1]))
+        var restarted = state
+        restarted.recordUse(of: ownVersion, layoutDigest: used.layoutDigest, base: "not recorded")
+        #expect(restarted.base == state.base)
+        #expect(restarted.baseLayoutDigest == ownVersion.layoutDigest)
+        let afterRestart = Policy.Local(settings: mine.merging(takenIn) { $1 }, layouts: layouts, state: restarted, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.check, local: afterRestart, file: own) == .adopt)
         // A layout change of the user's meanwhile asks instead of writing over it.
         let edited = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 1, postponed: nil, forcesWrite: false)
         #expect(Policy.decide(.check, local: edited, file: own) == .ask)
         #expect(Policy.decide(.localChange, local: edited, file: own) == .ask)
-        #expect(Policy.hint(for: edited) == .choice(isJoining: false))
+        #expect(Policy.decide(.launch, local: edited, file: own) == .ask)
+        #expect(Policy.hint(for: edited, version: ownVersion) == .choice(isJoining: false))
+        #expect(Policy.hint(for: after, version: ownVersion, savesLayoutSoon: true) == .choice(isJoining: false))
         var later = edited
         later.postponed = modified
         #expect(Policy.decide(.check, local: later, file: own) == .wait)
-        // A change of a user setting only writes, and keeps that layout.
-        let changed = Policy.Local(
-            settings: settings(layouts, showOnHover: true, own: ["a": 0, "b": 1, "placed": 1]),
-            layouts: layouts,
-            state: state,
-            layoutEdits: 0,
-            postponed: nil,
-            forcesWrite: false
-        )
+        // A change of a user setting is written as usual, keeping that layout, which still
+        // waits: Restart, or the launch, takes in only the layout, and the change stays.
+        let toggled = settings(layouts, showOnHover: true, own: ["a": 0, "b": 1, "placed": 1])
+        let changed = Policy.Local(settings: toggled, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.needsExchange(.localChange, local: changed))
         #expect(Policy.decide(.check, local: changed, file: own) == .write)
-        #expect(Policy.decide(.launch, local: changed, file: own) == .none)
+        #expect(Policy.decide(.localChange, local: changed, file: own) == .write)
+        #expect(Policy.decide(.launch, local: changed, file: own) == .takeInLayout)
+        #expect(Policy.hint(for: changed, version: ownVersion) == .restart)
+        let rewritten = Policy.planWrite(toggled, file: written.settings, fileCurrentLayouts: Set(written.currentLayouts), fileCopiedLayouts: [], layouts: layouts, local: changed)
+        #expect(isLayout(rewritten.settings[layouts.own], ["a": 5, "b": 1, "placed": 1]))
+        #expect(rewritten.record.takesInLayout)
+        var launched = state
+        launched.recordLayoutTakeIn(layoutDigest: ownVersion.layoutDigest)
+        let afterLaunch = Policy.Local(settings: toggled.merging(takenIn) { $1 }, layouts: layouts, state: launched, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(afterLaunch.hasChanges)
+        #expect(Policy.decide(.localChange, local: afterLaunch, file: own) == .write)
         // After a layout change of the user's, keeping this Mac's settings writes its layout.
         var keepsEdited = keeps
         keepsEdited.editsLayout = true
@@ -697,15 +715,16 @@ struct SettingsSyncLayoutTests {
         // The joining Mac takes the kept layout in instead of recording it as synced.
         let takenIn = Policy.ownLayoutToTakeIn(current, over: mine, layouts: layouts, local: joining, version: own)
         #expect(isLayout(takenIn[layouts.own], otherLayout))
-        state.recordAdoption(layoutDigest: own.layoutDigest, modified: own.modified, local: joining, takesInOwnLayout: !takenIn.isEmpty)
+        state.recordAdoption(own, local: joining, takesInOwnLayout: !takenIn.isEmpty)
         #expect(state.baseLayoutDigest == Policy.layoutDigest(of: mine, layouts: layouts))
+        #expect(state.pending == nil)
 
-        // Restart, or the next launch, applies it.
+        // Restart, or the next launch, takes it in.
         let after = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
-        #expect(Policy.decide(.check, local: after, file: .version(own)) == .apply)
-        #expect(Policy.decide(.launch, local: after, file: .version(own)) == .apply)
-        let applied = Policy.settingsToApply(current, over: mine, layouts: layouts, baseLayoutDigest: after.baseLayoutDigest, editsLayout: false)
-        #expect(isLayout(applied[layouts.own], otherLayout))
+        #expect(Policy.decide(.check, local: after, file: .version(own)) == .takeInLayout)
+        #expect(Policy.decide(.launch, local: after, file: .version(own)) == .takeInLayout)
+        #expect(Policy.hint(for: after, version: own) == .restart)
+        #expect(isLayout(Policy.keptLayoutToTakeIn(current, over: mine, layouts: layouts)[layouts.own], otherLayout))
         // A drag before then asks instead of writing this Mac's layout over the other Mac's.
         let dragged = settings(layouts, showOnHover: false, own: ["a": 1, "b": 1])
         let edited = Policy.Local(settings: dragged, layouts: layouts, state: state, layoutEdits: 1, postponed: nil, forcesWrite: false)
@@ -733,7 +752,7 @@ struct SettingsSyncLayoutTests {
         var state = Policy.State(base: changed.base, baseLayoutDigest: changed.baseLayoutDigest, lastSynced: lastSynced)
         state.recordWrite(Policy.WriteRecord(layoutDigest: writtenDigest, takesInLayout: true), modified: lastSynced, local: changed)
         let after = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
-        #expect(Policy.decide(.launch, local: after, file: ownVersion(written, layouts, modified: lastSynced)) == .apply)
+        #expect(Policy.decide(.launch, local: after, file: ownVersion(written, layouts, modified: lastSynced)) == .takeInLayout)
         // Without the take-in, the write records the written layout.
         var plain = Policy.State(base: changed.base, baseLayoutDigest: changed.baseLayoutDigest, lastSynced: lastSynced)
         plain.recordWrite(Policy.WriteRecord(layoutDigest: writtenDigest, takesInLayout: false), modified: lastSynced, local: changed)
@@ -971,14 +990,16 @@ struct SettingsSyncLayoutTests {
         let remoteLayout = Policy.layoutDigest(of: remote, layouts: layouts)
 
         var adopted = Policy.State(lastSynced: lastSynced)
-        adopted.recordAdoption(layoutDigest: remoteLayout, modified: modified, local: joining, takesInOwnLayout: false)
+        let remoteVersion = Policy.Version(settings: remote, layouts: layouts, isFromThisMac: false, modified: modified, isNewer: true)
+        #expect(remoteVersion.layoutDigest == remoteLayout)
+        adopted.recordAdoption(remoteVersion, local: joining, takesInOwnLayout: false)
         #expect(adopted.base == joining.userDigest)
         #expect(adopted.baseLayoutDigest == remoteLayout)
         #expect(adopted.lastSynced == modified)
         #expect(adopted.pending == nil)
 
         var waiting = Policy.State(lastSynced: lastSynced)
-        waiting.recordAdoption(layoutDigest: remoteLayout, modified: modified, local: joining, takesInOwnLayout: true)
+        waiting.recordAdoption(remoteVersion, local: joining, takesInOwnLayout: true)
         #expect(waiting.base == joining.userDigest)
         #expect(waiting.baseLayoutDigest == joining.layoutDigest)
         #expect(waiting.lastSynced == lastSynced)

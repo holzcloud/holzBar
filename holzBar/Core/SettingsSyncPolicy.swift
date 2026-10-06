@@ -315,6 +315,11 @@ nonisolated enum SettingsSyncPolicy {
         /// Apply the file's settings: silently at launch, after a restart the user agrees
         /// to while holzBar runs.
         case apply
+        /// The file holds this Mac's own version with another Mac's layout that this Mac kept
+        /// and has not taken in: take in only that layout, silently at launch, after a
+        /// restart the user agrees to while holzBar runs. This Mac's other changes are
+        /// written as usual meanwhile.
+        case takeInLayout
         /// Ask which settings to use.
         case ask
     }
@@ -373,14 +378,15 @@ nonisolated enum SettingsSyncPolicy {
                 }
                 // This Mac kept another Mac's layout in its last write and has not taken it
                 // in yet (``takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``):
-                // it is applied like a newer version, and a layout change of the user's asks.
+                // only that layout is taken in, and a layout change of the user's asks. Other
+                // changes are written meanwhile, keeping that layout.
                 if local.editsLayout {
                     if !isLaunch, let postponed = local.postponed, version.modified <= postponed {
                         return .wait
                     }
                     return .ask
                 }
-                return local.hasChanges ? writesChanges : .apply
+                return isLaunch || !local.hasChanges ? .takeInLayout : writesChanges
             }
             if local.isJoining {
                 // Only the user's layout differs from a file without one, or from the layout
@@ -444,6 +450,29 @@ nonisolated extension SettingsSyncPolicy {
             local.editsLayout = true
         }
         return hint(for: local)
+    }
+
+    /// The hint for a given waiting version, given this Mac's side.
+    ///
+    /// For this Mac's own version, which holds another Mac's layout it kept
+    /// (``Action/takeInLayout``), only that layout is taken in: the hint offers a restart
+    /// unless the user changed this Mac's layout, whatever other changes this Mac made.
+    static func hint(for local: Local, version: Version) -> Hint {
+        if version.isFromThisMac, !local.isJoining {
+            return local.editsLayout ? .choice(isJoining: false) : .restart
+        }
+        return hint(for: local)
+    }
+
+    /// The hint for a given waiting version when the user acts on it, given this Mac's side
+    /// and whether a layout change of the user's is still to be saved
+    /// (``hint(for:savesLayoutSoon:)``).
+    static func hint(for local: Local, version: Version, savesLayoutSoon: Bool) -> Hint {
+        var local = local
+        if savesLayoutSoon {
+            local.editsLayout = true
+        }
+        return hint(for: local, version: version)
     }
 }
 
@@ -565,6 +594,9 @@ nonisolated extension SettingsSyncPolicy {
     /// The settings to apply when the user chooses a version's settings over this Mac's, and
     /// the layout digest to record as synced.
     ///
+    /// Of this Mac's own version only the layout is used (``keptLayoutToTakeIn(_:over:layouts:)``):
+    /// its user settings are this Mac's, perhaps older than its current ones.
+    ///
     /// When the user's layout change would have replaced a layout the version holds unlisted
     /// (``replacesUnlistedLayout(_:local:)``), the question was about that layout: it is
     /// applied, with this Mac's entries it has never seen, and recorded as synced, so the
@@ -588,13 +620,17 @@ nonisolated extension SettingsSyncPolicy {
         version: Version,
         local: Local
     ) -> (settings: [String: Any], layoutDigest: String?) {
-        var applied = settingsToApply(
-            remote,
-            over: settings,
-            layouts: layouts,
-            baseLayoutDigest: local.baseLayoutDigest,
-            editsLayout: local.editsLayout
-        )
+        var applied = if version.isFromThisMac {
+            keptLayoutToTakeIn(remote, over: settings, layouts: layouts)
+        } else {
+            settingsToApply(
+                remote,
+                over: settings,
+                layouts: layouts,
+                baseLayoutDigest: local.baseLayoutDigest,
+                editsLayout: local.editsLayout
+            )
+        }
         guard
             replacesUnlistedLayout(version, local: local),
             let unlistedLayout = validatedLayout(in: unlisted, key: layouts.own)
@@ -624,6 +660,26 @@ nonisolated extension SettingsSyncPolicy {
             return [:]
         }
         return [layouts.other: remoteLayout]
+    }
+
+    /// The layout for this Mac's macOS version from this Mac's own version of the sync file,
+    /// which holds another Mac's layout that this Mac kept (``Action/takeInLayout``), with
+    /// this Mac's entries it has never seen.
+    ///
+    /// - Parameter remote: The version's current settings
+    ///   (``withoutStaleLayouts(_:currentLayouts:)``).
+    /// - Returns: The layout to apply, or an empty dictionary when the version has no current
+    ///   layout for this Mac's macOS version.
+    static func keptLayoutToTakeIn(_ remote: [String: Any], over settings: [String: Any], layouts: Layouts) -> [String: Any] {
+        guard let remoteLayout = validatedLayout(in: remote, key: layouts.own) else {
+            return [:]
+        }
+        let merged = mergedLayout(
+            remoteLayout,
+            keeping: validatedLayout(in: settings, key: layouts.own),
+            seen: knownEntries(in: remote, layouts: layouts)
+        )
+        return [layouts.own: merged]
     }
 
     /// The layout for this Mac's macOS version that a joining Mac takes in when it adopts a
@@ -662,18 +718,12 @@ nonisolated extension SettingsSyncPolicy {
         guard
             local.isJoining,
             !local.editsLayout,
-            version.isNewer || version.isFromThisMac,
-            let remoteLayout = validatedLayout(in: remote, key: layouts.own)
+            version.isNewer || version.isFromThisMac
         else {
             return [:]
         }
-        let merged = mergedLayout(
-            remoteLayout,
-            keeping: validatedLayout(in: settings, key: layouts.own),
-            seen: knownEntries(in: remote, layouts: layouts)
-        )
-        let takenIn = [layouts.own: merged]
-        guard layoutDigest(of: takenIn, layouts: layouts) != layoutDigest(of: settings, layouts: layouts) else {
+        let takenIn = keptLayoutToTakeIn(remote, over: settings, layouts: layouts)
+        guard !takenIn.isEmpty, layoutDigest(of: takenIn, layouts: layouts) != layoutDigest(of: settings, layouts: layouts) else {
             return [:]
         }
         return takenIn
@@ -804,7 +854,7 @@ nonisolated extension SettingsSyncPolicy {
     /// layout differs, or when this Mac wrote over a version that is not newer than its last
     /// sync. holzBar reads the layout at launch, so it is not applied now: this Mac records
     /// its own layout as synced, and the version it wrote waits for a restart
-    /// (``State/recordWrite(layoutDigest:modified:local:layoutEdits:takesInLayout:)``).
+    /// (``State/recordWrite(_:modified:local:)``, ``Action/takeInLayout``).
     ///
     /// - Parameters:
     ///   - fileLayoutDigest: The layout digest of the file's current layout before the
@@ -1027,22 +1077,28 @@ nonisolated extension SettingsSyncPolicy {
         ///
         /// When this Mac takes in the version's layout for its macOS version
         /// (``SettingsSyncPolicy/ownLayoutToTakeIn(_:over:layouts:local:version:)``), holzBar
-        /// reads that layout only at launch: this Mac's own layout is recorded as synced and
-        /// the date of the last sync is kept, so the version is one to apply, and it waits.
+        /// reads that layout only at launch: this Mac's own layout is recorded as synced. A
+        /// version from another Mac keeps the date of the last sync, so it is one to apply,
+        /// and it waits. This Mac's own version holds a layout to take in
+        /// (``SettingsSyncPolicy/holdsLayoutToTakeIn(_:local:)``) and waits without pausing
+        /// this Mac's pushes.
         ///
         /// - Parameters:
-        ///   - layoutDigest: The version's layout digest (``Version/layoutDigest``).
-        ///   - modified: The version's date.
+        ///   - version: The version, or `nil` for none.
         ///   - local: This Mac's side of the decision that adopted the version; its layout
         ///     edits (``Local/layoutEdits``) are recorded.
         ///   - takesInOwnLayout: Whether this Mac takes in the version's layout.
-        mutating func recordAdoption(layoutDigest: String?, modified: Date?, local: Local, takesInOwnLayout: Bool) {
-            guard takesInOwnLayout else {
-                markSynced(base: local.userDigest, layout: layoutDigest, layoutEdits: local.layoutEdits, modified: modified)
+        mutating func recordAdoption(_ version: Version?, local: Local, takesInOwnLayout: Bool) {
+            guard takesInOwnLayout, let version else {
+                markSynced(base: local.userDigest, layout: version?.layoutDigest, layoutEdits: local.layoutEdits, modified: version?.modified)
+                return
+            }
+            guard !version.isFromThisMac else {
+                markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: version.modified)
                 return
             }
             markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: nil)
-            pending = modified
+            pending = version.modified
         }
 
         /// Records a write of this Mac's settings (``Action/write``) as synced.
@@ -1051,7 +1107,8 @@ nonisolated extension SettingsSyncPolicy {
         /// (``SettingsSyncPolicy/takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``),
         /// this Mac's own layout is recorded as synced instead, so the written version holds a
         /// layout to take in (``SettingsSyncPolicy/holdsLayoutToTakeIn(_:local:)``), and it
-        /// waits: Restart applies it, or the next launch.
+        /// waits: Restart takes it in, or the next launch (``Action/takeInLayout``). It does not
+        /// pause this Mac's pushes, which keep that layout.
         ///
         /// - Parameters:
         ///   - record: What the write records (``WritePlan/record``).
@@ -1064,7 +1121,37 @@ nonisolated extension SettingsSyncPolicy {
                 return
             }
             markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: modified)
-            pending = modified
+        }
+
+        /// Records that this Mac took in the layout of its own version that it kept from
+        /// another Mac (``Action/takeInLayout``), or a layout the user chose from it. The user
+        /// settings this Mac last synced stay, so its other changes are still written; a
+        /// layout change of the user's that the layout replaced no longer counts.
+        ///
+        /// - Parameter layoutDigest: The layout digest taken in.
+        mutating func recordLayoutTakeIn(layoutDigest: String?) {
+            baseLayoutDigest = layoutDigest ?? SettingsSyncPolicy.noLayoutDigest
+            syncedLayoutEdits = layoutEdits
+            pending = nil
+        }
+
+        /// Records that the user chose a version's settings
+        /// (``SettingsSyncPolicy/settingsToUse(_:unlisted:over:layouts:version:local:)``) and
+        /// they were applied.
+        ///
+        /// The layout edits made so far no longer count.
+        ///
+        /// - Parameters:
+        ///   - version: The version.
+        ///   - layoutDigest: The layout digest the choice records.
+        ///   - base: The digest of this Mac's user settings after they were applied.
+        mutating func recordUse(of version: Version, layoutDigest: String?, base: String) {
+            guard !version.isFromThisMac else {
+                // Only the layout of this Mac's own version was used.
+                recordLayoutTakeIn(layoutDigest: layoutDigest)
+                return
+            }
+            markSynced(base: base, layout: layoutDigest, layoutEdits: layoutEdits, modified: version.modified)
         }
 
         /// Forgets the folder this Mac synced with, so it joins a folder again: sync was

@@ -112,15 +112,22 @@ struct SettingsSyncStateTests {
         #expect(kept.syncedLayoutEdits == 4)
         #expect(kept.editsLayout)
 
+        let version = Policy.Version(
+            isFromThisMac: false,
+            modified: lastSynced.addingTimeInterval(10),
+            isNewer: true,
+            userDigest: local.userDigest,
+            layoutDigest: "version"
+        )
         var adopted = start
         adopted.countLayoutEdit()
-        adopted.recordAdoption(layoutDigest: "version", modified: lastSynced.addingTimeInterval(10), local: local, takesInOwnLayout: false)
+        adopted.recordAdoption(version, local: local, takesInOwnLayout: false)
         #expect(adopted.syncedLayoutEdits == 4)
         #expect(adopted.editsLayout)
 
         var takenIn = start
         takenIn.countLayoutEdit()
-        takenIn.recordAdoption(layoutDigest: "version", modified: lastSynced.addingTimeInterval(10), local: local, takesInOwnLayout: true)
+        takenIn.recordAdoption(version, local: local, takesInOwnLayout: true)
         #expect(takenIn.syncedLayoutEdits == 4)
         #expect(takenIn.editsLayout)
 
@@ -128,6 +135,39 @@ struct SettingsSyncStateTests {
         var quiet = start
         quiet.recordWrite(Policy.WriteRecord(layoutDigest: "written", takesInLayout: false), modified: lastSynced.addingTimeInterval(10), local: local)
         #expect(!quiet.editsLayout)
+    }
+
+    @Test("Taking in a kept layout records only the layout; choosing another Mac's version records it whole")
+    func recordUse() {
+        let start = State(base: "base", baseLayoutDigest: "mine", layoutEdits: 4, syncedLayoutEdits: 3, lastSynced: lastSynced, pending: lastSynced)
+        let own = Policy.Version(isFromThisMac: true, modified: lastSynced.addingTimeInterval(10), isNewer: false, userDigest: "older", layoutDigest: "kept")
+        var takenIn = start
+        takenIn.recordUse(of: own, layoutDigest: own.layoutDigest, base: "applied")
+        // This Mac's user settings stay unsynced changes; the layout edits no longer count.
+        #expect(takenIn == State(base: "base", baseLayoutDigest: "kept", layoutEdits: 4, syncedLayoutEdits: 4, lastSynced: lastSynced, pending: nil))
+        var launched = start
+        launched.recordLayoutTakeIn(layoutDigest: nil)
+        #expect(launched.baseLayoutDigest == Policy.noLayoutDigest)
+        #expect(!launched.editsLayout)
+        #expect(launched.pending == nil)
+
+        let other = Policy.Version(isFromThisMac: false, modified: lastSynced.addingTimeInterval(10), isNewer: true, userDigest: "other", layoutDigest: "theirs")
+        var used = start
+        used.recordUse(of: other, layoutDigest: other.layoutDigest, base: "applied")
+        #expect(used == State(base: "applied", baseLayoutDigest: "theirs", layoutEdits: 4, syncedLayoutEdits: 4, lastSynced: other.modified, pending: nil))
+    }
+
+    @Test("Adopting this Mac's own version with a layout to take in waits without pausing pushes")
+    func recordOwnAdoption() {
+        let local = Policy.Local(userDigest: "mine", base: nil, pending: nil, postponed: nil, forcesWrite: false, layoutDigest: "placements")
+        let own = Policy.Version(isFromThisMac: true, modified: lastSynced.addingTimeInterval(10), isNewer: false, userDigest: "mine", layoutDigest: "kept")
+        var state = State(baseLayoutDigest: "kept", lastSynced: lastSynced)
+        state.recordAdoption(own, local: local, takesInOwnLayout: true)
+        #expect(state == State(base: "mine", baseLayoutDigest: "placements", lastSynced: own.modified, pending: nil))
+        let other = Policy.Version(isFromThisMac: false, modified: lastSynced.addingTimeInterval(10), isNewer: true, userDigest: "mine", layoutDigest: "theirs")
+        var waiting = State(baseLayoutDigest: "theirs", lastSynced: lastSynced)
+        waiting.recordAdoption(other, local: local, takesInOwnLayout: true)
+        #expect(waiting == State(base: "mine", baseLayoutDigest: "placements", lastSynced: lastSynced, pending: other.modified))
     }
 
     @Test("Leaving the folder forgets the user settings and the waiting version, but keeps the layout last synced and the layout edits")
