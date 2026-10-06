@@ -355,9 +355,12 @@ private struct SettingsSyncToggle: View {
                 }
             }
         }
-        .annotation(
-            "Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart."
-        )
+        .annotation {
+            // While sync is paused, the note above says so, and nothing here happens.
+            if !isPaused {
+                Text("Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart.")
+            }
+        }
         .onAppear {
             sync.refreshFolder()
         }
