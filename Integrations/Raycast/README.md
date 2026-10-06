@@ -13,8 +13,8 @@ The scripts open `holzbar://` URLs, so the same commands work from Alfred, Short
 | `holzbar://toggle/always-hidden` | Show or hide the always-hidden section | Nothing persistent |
 | `holzbar://search` | Open the menu bar item search | Nothing persistent; ignored while Zen mode is on |
 | `holzbar://settings` | Open the settings | Nothing persistent; ignored while Zen mode is on |
-| `holzbar://shelf/toggle` | Turn the holzBar Shelf on or off | A setting that syncs, asks first |
-| `holzbar://auto-rehide/toggle` | Turn auto-rehide on or off | A setting that syncs, asks first |
+| `holzbar://shelf/toggle` | Turn the holzBar Shelf on or off | A lasting setting, asks first |
+| `holzbar://auto-rehide/toggle` | Turn auto-rehide on or off | A lasting setting, asks first |
 | `holzbar://application-menus/toggle` | Hide or show the application menus | Nothing persistent |
 | `holzbar://zen/on` | Turn Zen mode on: hidden items stay hidden until it is off | Nothing persistent |
 | `holzbar://zen/off`, `holzbar://zen/toggle` | Turn Zen mode off (or on, while it is off) | Asks first; refused while the screen is shared |

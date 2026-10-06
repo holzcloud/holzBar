@@ -73,7 +73,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | State management | Combine | `@Observable` and Combine | `@Observable`, no Combine |
 | Mouse event tap when "Show on hover" is off | always running | — | off |
 | Timers and polling while nothing is shown | yes | — | only while needed |
-| Settings sync checks for changes | — (no sync) | — (no sync) | when the synced folder delivers them, no polling |
+| Settings sync checks for changes | — (no sync) | — (no sync) | when the synced folder delivers them, no polling <sub>paused in 0.0.7-beta2</sub> |
 | Settings migration | 6 version steps at every launch | — | once, while importing Ice settings |
 | Runtime patching of AppKit (method swizzling) | yes | yes | none |
 | Item images in memory | kept | — | released when unused |
