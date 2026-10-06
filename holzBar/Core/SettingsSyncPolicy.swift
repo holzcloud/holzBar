@@ -386,6 +386,11 @@ nonisolated enum SettingsSyncPolicy {
             return !isLaunch && (local.isJoining || local.forcesWrite || local.hasChanges) ? .write : .none
         case .version(let version):
             if holdsOlderLayoutToJoin(version, local: local) {
+                // The user answered this question with "Keep This Mac's Settings": it writes,
+                // keeping the version's layout to take in, as for a Mac that is not joining.
+                if keepsThisMac(over: version, local: local) {
+                    return isLaunch ? .none : .write
+                }
                 if !isLaunch, let postponed = local.postponed, version.modified <= postponed {
                     return .wait
                 }
@@ -1112,7 +1117,9 @@ nonisolated extension SettingsSyncPolicy {
     /// a layout as synced that this Mac never took in, so the user's next change of this
     /// Mac's layout would replace that arrangement without a question. It asks instead, as a
     /// Mac that is not joining does (``isUnsyncedChange(_:local:)``). A layout this Mac last
-    /// synced differs from its own only by holzBar's placements, which never ask.
+    /// synced differs from its own only by holzBar's placements, which never ask. When the
+    /// user answers with "Keep This Mac's Settings" (``keepsThisMac(over:local:)``), the
+    /// decision writes.
     static func holdsOlderLayoutToJoin(_ version: Version, local: Local) -> Bool {
         guard
             local.isJoining,

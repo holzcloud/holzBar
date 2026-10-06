@@ -1363,6 +1363,34 @@ struct SettingsSyncLayoutTests {
         postponed.postponed = theirs.modified
         #expect(Policy.decide(.check, local: postponed, file: .version(theirs)) == .wait)
 
+        // "Keep This Mac's Settings" for that question writes, keeping the version's layout,
+        // which this Mac then takes in; never at launch. Over a version that was not asked
+        // about it still asks.
+        var keeps = joining
+        keeps.forcesWrite = true
+        keeps.keepsOver = theirs
+        #expect(Policy.decide(.localChange, local: keeps, file: .version(theirs)) == .write)
+        #expect(Policy.decide(.launch, local: keeps, file: .version(theirs)) == .none)
+        let kept = Policy.planWrite(
+            mine,
+            file: settings(layouts, own: third),
+            fileCurrentLayouts: [layouts.own],
+            fileCopiedLayouts: [],
+            fileVersion: theirs,
+            layouts: layouts,
+            local: keeps
+        )
+        // The version's arrangement, with this Mac's items it has never seen.
+        #expect(isLayout(kept.settings[layouts.own], third.merging(["b": 1, "placed": 1]) { $1 }))
+        #expect(kept.currentLayouts.contains(layouts.own))
+        #expect(kept.record.takesInLayout)
+        var unasked = theirs
+        unasked.modified = theirs.modified.addingTimeInterval(-30)
+        #expect(Policy.decide(.localChange, local: keeps, file: .version(unasked)) == .ask)
+        var notKept = keeps
+        notKept.forcesWrite = false
+        #expect(Policy.decide(.localChange, local: notKept, file: .version(theirs)) == .ask)
+
         // The layout this Mac last synced, or holds, is adopted as before; so is a newer
         // version, whose layout is taken in.
         let synced = newerVersion(syncedSettings, layouts, isNewer: false)
