@@ -817,7 +817,7 @@ nonisolated extension SettingsSyncPolicy {
     ///     version is passed on marked as a copy, as it may be stale
     ///     (``passesOtherLayoutAsCopy(_:local:)``).
     ///   - writesOwnLayoutAsCopy: Whether this Mac's layout, written as it is, is marked as a
-    ///     copy instead of listed as current (``writesOwnLayoutAsCopy(fileSettings:local:)``).
+    ///     copy instead of listed as current (``writesOwnLayoutAsCopy(fileSettings:layouts:local:)``).
     static func fileToWrite(
         _ local: [String: Any],
         file remote: [String: Any]?,
@@ -1062,20 +1062,23 @@ nonisolated extension SettingsSyncPolicy {
     }
 
     /// Whether a write marks this Mac's layout as a copy instead of listing it as current: the
-    /// sync file is missing or unusable while this Mac keeps another Mac's layout it has not
-    /// taken in (``Local/keptLayoutDigest``), and the user did not change this Mac's layout.
+    /// sync file is missing or unusable, or holds no layout for this Mac's macOS version, while
+    /// this Mac keeps another Mac's layout it has not taken in (``Local/keptLayoutDigest``),
+    /// and the user did not change this Mac's layout.
     ///
     /// This Mac's layout then holds only holzBar's own placements. Listed as current over a
-    /// file that went away, it would replace the arrangement of the Mac whose layout this Mac
+    /// file without the kept layout, it would replace the arrangement of the Mac whose layout this Mac
     /// kept (SA-05). Marked as a copy, the Macs of this build keep their arrangement; the
     /// copy is passed on as one until the user changes the layout on a Mac of this macOS
     /// version. This Mac still keeps the record of the kept layout
     /// (``WriteRecord/keepsLayoutToTakeIn``).
     ///
-    /// - Parameter fileSettings: The file's settings as read; `nil` when it is missing or
-    ///   unusable.
-    static func writesOwnLayoutAsCopy(fileSettings: [String: Any]?, local: Local) -> Bool {
-        fileSettings == nil && local.keptLayoutDigest != nil && !local.editsLayout
+    /// - Parameters:
+    ///   - fileSettings: The file's settings as read; `nil` when it is missing or unusable.
+    ///   - layouts: This Mac's layout keys.
+    ///   - local: This Mac's side of the decision that writes.
+    static func writesOwnLayoutAsCopy(fileSettings: [String: Any]?, layouts: Layouts, local: Local) -> Bool {
+        fileSettings?[layouts.own] == nil && local.keptLayoutDigest != nil && !local.editsLayout
     }
 
     /// Whether a layout for this Mac's macOS version that this Mac's own version of the sync
@@ -1727,7 +1730,7 @@ nonisolated extension SettingsSyncPolicy {
         /// Whether the write left this Mac's layout unlisted, without a layout change of the
         /// user's, while this Mac keeps another Mac's layout it has not taken in
         /// (``Local/keptLayoutDigest``), as over a missing file
-        /// (``writesOwnLayoutAsCopy(fileSettings:local:)``). The record of that layout stays:
+        /// (``writesOwnLayoutAsCopy(fileSettings:layouts:local:)``). The record of that layout stays:
         /// an older version of this Mac's own that holds it, as a sync app may bring back, is
         /// then still taken in rather than written over as an old copy
         /// (``isOldOwnLayout(_:local:)``), and a later write over a missing file still marks
@@ -1812,7 +1815,7 @@ nonisolated extension SettingsSyncPolicy {
             layouts: layouts,
             keepsOwnLayout: writesOwnLayout(local) || overwritesOldOwnLayout,
             passesOtherLayoutAsCopy: passesOtherAsCopy,
-            writesOwnLayoutAsCopy: writesOwnLayoutAsCopy(fileSettings: remote, local: local)
+            writesOwnLayoutAsCopy: writesOwnLayoutAsCopy(fileSettings: remote, layouts: layouts, local: local)
         )
         let layoutDigest = syncedLayoutDigest(
             afterWriting: written.settings,

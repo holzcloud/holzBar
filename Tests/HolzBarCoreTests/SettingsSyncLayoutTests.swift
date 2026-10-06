@@ -1384,7 +1384,7 @@ struct SettingsSyncLayoutTests {
         )
         let keeping = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
         #expect(Policy.decide(.localChange, local: keeping, file: .missing) == .write)
-        #expect(Policy.writesOwnLayoutAsCopy(fileSettings: nil, local: keeping))
+        #expect(Policy.writesOwnLayoutAsCopy(fileSettings: nil, layouts: layouts, local: keeping))
         let plan = Policy.planWrite(mine, file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], fileVersion: nil, layouts: layouts, local: keeping)
         #expect(!plan.currentLayouts.contains(layouts.own))
         #expect(plan.copiedLayouts.contains(layouts.own))
@@ -1487,7 +1487,24 @@ struct SettingsSyncLayoutTests {
         var notKeeping = keeping
         notKeeping.keptLayoutDigest = nil
         #expect(Policy.planWrite(mine, file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], fileVersion: nil, layouts: layouts, local: notKeeping).currentLayouts.contains(layouts.own))
-        #expect(!Policy.writesOwnLayoutAsCopy(fileSettings: settings(layouts), local: keeping))
+        // A file that holds no layout for this macOS version, as one a Mac of the other
+        // macOS version wrote, is written the same way; one that holds it is not.
+        #expect(Policy.writesOwnLayoutAsCopy(fileSettings: settings(layouts, other: ["o": 1]), layouts: layouts, local: keeping))
+        let overNoLayout = Policy.planWrite(mine, file: settings(layouts, other: ["o": 1]), fileCurrentLayouts: [layouts.other], fileCopiedLayouts: [], fileVersion: nil, layouts: layouts, local: keeping)
+        #expect(!overNoLayout.currentLayouts.contains(layouts.own))
+        #expect(overNoLayout.copiedLayouts.contains(layouts.own))
+        #expect(overNoLayout.record.keepsLayoutToTakeIn)
+        #expect(!Policy.writesOwnLayoutAsCopy(fileSettings: settings(layouts, own: keptLayout), layouts: layouts, local: keeping))
+        // A write without a layout change of the user's that lists a layout as current, here
+        // the one this Mac last synced, ends the record.
+        let syncedLayout = settings(layouts, own: mineLayout)
+        let overSynced = Policy.planWrite(mine, file: syncedLayout, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileVersion: nil, layouts: layouts, local: keeping)
+        #expect(overSynced.currentLayouts.contains(layouts.own))
+        #expect(!overSynced.record.takesInLayout)
+        #expect(!overSynced.record.keepsLayoutToTakeIn)
+        var afterSynced = state
+        afterSynced.recordWrite(overSynced.record, modified: lastSynced.addingTimeInterval(100), local: keeping)
+        #expect(afterSynced.keptLayoutDigest == nil)
     }
 
     // MARK: The writes a version holds
