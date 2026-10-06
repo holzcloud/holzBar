@@ -1976,6 +1976,14 @@ struct SettingsSyncLayoutTests {
         var notAnswered = keepA
         notAnswered.keepsOver = nil
         #expect(!Policy.keepsOwnLayoutOverStale(restored, local: notAnswered))
+        // This Mac's own version is never another Mac's stale layout: an old copy of its own
+        // is written over by its own rule (isOldOwnLayout).
+        var own = restored
+        own.isFromThisMac = true
+        var keepOwn = keepA
+        keepOwn.keepsOver = own
+        #expect(Policy.keepsThisMac(over: own, local: keepOwn))
+        #expect(!Policy.keepsOwnLayoutOverStale(own, local: keepOwn))
         #expect(!Policy.keepsOwnLayoutOverStale(restored, local: idleA))
         #expect(!Policy.keepsOwnLayoutOverStale(nil, local: keepA))
     }
@@ -2043,6 +2051,62 @@ struct SettingsSyncLayoutTests {
         var keepHolds = keepA
         keepHolds.keepsOver = holdsWrite
         #expect(!Policy.keepsOwnLayoutOverStale(holdsWrite, local: keepHolds))
+    }
+
+    @Test("A write over a missing file, or one without a layout for this macOS version, marks this Mac's layout as a copy only while this Mac holds no current layout of the folder", arguments: layoutBackends)
+    func ownLayoutAsCopyConditions(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let mine = Policy.layoutDigest(of: settings(layouts, own: first), layouts: layouts)
+        var local = Policy.Local(
+            userDigest: "user",
+            base: "user",
+            pending: nil,
+            postponed: nil,
+            forcesWrite: false,
+            layoutDigest: mine,
+            baseLayoutDigest: mine,
+            lastSynced: lastSynced
+        )
+        let withoutLayout = settings(layouts)
+        let withLayout = settings(layouts, own: second)
+        // A Mac that synced a current layout lists its own.
+        #expect(!Policy.writesOwnLayoutAsCopy(fileSettings: nil, layouts: layouts, local: local))
+        // One whose last sync held no current layout writes a copy, over a missing file or one
+        // without this macOS version's layout, unless the user rearranged.
+        local.baseLayoutDigest = Policy.noLayoutDigest
+        #expect(Policy.writesOwnLayoutAsCopy(fileSettings: nil, layouts: layouts, local: local))
+        #expect(Policy.writesOwnLayoutAsCopy(fileSettings: withoutLayout, layouts: layouts, local: local))
+        #expect(!Policy.writesOwnLayoutAsCopy(fileSettings: withLayout, layouts: layouts, local: local))
+        var edited = local
+        edited.editsLayout = true
+        #expect(!Policy.writesOwnLayoutAsCopy(fileSettings: nil, layouts: layouts, local: edited))
+        // A Mac that has not synced with the folder, as one that sets up a new one, lists it.
+        var fresh = local
+        fresh.lastSynced = nil
+        #expect(!Policy.writesOwnLayoutAsCopy(fileSettings: nil, layouts: layouts, local: fresh))
+        fresh.keptLayoutDigest = "kept"
+        #expect(Policy.writesOwnLayoutAsCopy(fileSettings: nil, layouts: layouts, local: fresh))
+
+        // Keep This Mac's Settings over a version gone away: a copy when the answered version
+        // lists another Mac's arrangement, not for this Mac's own version, nor without the
+        // user's keep; and only the keep counts that version's writes.
+        local.baseLayoutDigest = mine
+        var answered = newerVersion(withLayout, layouts)
+        answered.seen = ["B": lastSynced]
+        var keeps = local
+        keeps.forcesWrite = true
+        keeps.keepsOver = answered
+        #expect(Policy.writesOwnLayoutAsCopy(fileSettings: nil, layouts: layouts, local: keeps))
+        #expect(Policy.seen(writingOver: nil, local: keeps) == ["B": lastSynced])
+        var notKept = keeps
+        notKept.forcesWrite = false
+        #expect(!Policy.writesOwnLayoutAsCopy(fileSettings: nil, layouts: layouts, local: notKept))
+        #expect(Policy.seen(writingOver: nil, local: notKept).isEmpty)
+        var ownAnswered = answered
+        ownAnswered.isFromThisMac = true
+        var keepsOwn = keeps
+        keepsOwn.keepsOver = ownAnswered
+        #expect(!Policy.writesOwnLayoutAsCopy(fileSettings: nil, layouts: layouts, local: keepsOwn))
     }
 
     // MARK: What the launch applies
