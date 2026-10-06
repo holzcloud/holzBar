@@ -208,8 +208,8 @@ nonisolated enum SettingsSyncPolicy {
         /// The date of the version the user answered "Later" for in this session.
         var postponed: Date?
         /// Whether the user chose to keep this Mac's settings. The keep writes over the
-        /// version the user answered (``keepsOver``), an older one or this Mac's own, never
-        /// over a version that arrived since.
+        /// version the user answered (``keepsOver``) or this Mac's own, never over another
+        /// version, whatever its date.
         var forcesWrite: Bool
         /// The digest of this Mac's layout for its macOS version
         /// (``layoutDigest(of:layouts:)``).
@@ -224,9 +224,8 @@ nonisolated enum SettingsSyncPolicy {
         /// this side records it, so an edit made while the exchange ran still counts
         /// afterwards.
         var layoutEdits = 0
-        /// The date of the version the user answered with "Keep This Mac's Settings"
-        /// (``forcesWrite``).
-        var keepsOver: Date?
+        /// The version the user answered with "Keep This Mac's Settings" (``forcesWrite``).
+        var keepsOver: Version?
         /// The digest of the user settings of the version this Mac last wrote, applied or
         /// adopted (``State/versionDigest``); `nil` while it joins, or when an earlier build
         /// synced last.
@@ -948,9 +947,14 @@ nonisolated extension SettingsSyncPolicy {
     }
 
     /// Whether the user's "Keep This Mac's Settings" writes over a version: one this Mac
-    /// wrote, the version the user answered (``Local/keepsOver``) or an older one. A version
-    /// from another Mac that arrived while the question was open was never asked about, so
-    /// the usual rules decide about it, and a change of this Mac's makes them ask.
+    /// wrote, or the version the user answered (``Local/keepsOver``), recognized by its date
+    /// and contents (``Version/isSame(as:)``).
+    ///
+    /// Any other version from another Mac was never asked about, so the usual rules decide
+    /// about it, and a change of this Mac's makes them ask: one that arrived while the
+    /// question was open, also when it is dated before the answered one, as by a Mac whose
+    /// clock runs behind or a sync app that delivered an earlier upload late, and an older one
+    /// a sync app brought back.
     static func keepsThisMac(over version: Version, local: Local) -> Bool {
         guard local.forcesWrite else {
             return false
@@ -961,7 +965,7 @@ nonisolated extension SettingsSyncPolicy {
         guard let keepsOver = local.keepsOver else {
             return false
         }
-        return version.modified <= keepsOver
+        return version.isSame(as: keepsOver)
     }
 
     /// Whether a version holds this Mac's settings: equal user settings, and a layout for
@@ -1593,6 +1597,17 @@ nonisolated extension SettingsSyncPolicy.Local {
 }
 
 nonisolated extension SettingsSyncPolicy.Version {
+    /// Whether this is the same version of the sync file as `other`: the same date, writer
+    /// and settings. Whether it is newer than this Mac's last sync is left out, as it depends
+    /// on when the file was read.
+    func isSame(as other: Self) -> Bool {
+        isFromThisMac == other.isFromThisMac &&
+            modified == other.modified &&
+            userDigest == other.userDigest &&
+            layoutDigest == other.layoutDigest &&
+            unlistedLayoutDigest == other.unlistedLayoutDigest
+    }
+
     /// The date a sync with this version records as the last sync
     /// (``SettingsSyncPolicy/State/lastSynced``): its own, unless it is another Mac's version
     /// that is not newer. Such a version may be dated far in the future, and recording that

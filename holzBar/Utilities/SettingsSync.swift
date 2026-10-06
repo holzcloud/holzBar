@@ -414,9 +414,9 @@ final class SettingsSync {
     /// The date of the version the user answered "Later" for in this session.
     @ObservationIgnored private var postponed: Date?
 
-    /// The date of the version the user answered "Keep This Mac's Settings" for; the keep
-    /// writes over that version only (`SettingsSyncPolicy.keepsThisMac(over:local:)`).
-    @ObservationIgnored private var keepsOver: Date?
+    /// The version the user answered "Keep This Mac's Settings" for; the keep writes over
+    /// that version only (`SettingsSyncPolicy.keepsThisMac(over:local:)`).
+    @ObservationIgnored private var keepsOver: SettingsSyncPolicy.Version?
 
     /// Whether a sync question is open.
     @ObservationIgnored private var isAsking = false
@@ -1785,14 +1785,15 @@ final class SettingsSync {
         SettingsBackup.relaunch()
     }
 
-    /// Writes this Mac's settings over the version from another Mac the user answered. A
-    /// version that arrived since is not written over; the usual rules decide about it.
+    /// Writes this Mac's settings over the version from another Mac the user answered. Any
+    /// other version, also one dated before it, is not written over; the usual rules decide
+    /// about it.
     private func keepThisMac(over remote: RemoteVersion, join: JoinRequest?) {
         if let join {
             commitJoin(join)
         }
         postponed = nil
-        keepsOver = remote.modified
+        keepsOver = remote.version
         requestExchange(.keepThisMac)
     }
 }
