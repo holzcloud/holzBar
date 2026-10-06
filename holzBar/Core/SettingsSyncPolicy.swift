@@ -1125,6 +1125,28 @@ nonisolated extension SettingsSyncPolicy {
         byUser && saved.contains { key, section in before[key].map { $0 != section } ?? false }
     }
 
+    /// The sections of holzBar's own placements to save before macOS 27, after a
+    /// reconciliation: where it placed new items, and where macOS put an item it left there
+    /// (`MenuBarItemManager.performReconciliation`).
+    ///
+    /// The reconciliation chose them from the saved sections it read before it moved items.
+    /// A move may take long enough for the user to drag an item and for that arrangement to
+    /// be saved meanwhile; holzBar's placement must not replace the section the user just
+    /// saved, which the restore would then undo. So only items that still have no saved
+    /// section, and that a profile does not place, are saved.
+    ///
+    /// - Parameters:
+    ///   - placements: The section of each item holzBar placed or left in place.
+    ///   - savedNow: The saved section of each item, read right before saving.
+    ///   - wanted: The section of each item a profile places, if one is applied.
+    static func ownPlacementsToStore<Key: Hashable, Section>(
+        _ placements: [Key: Section],
+        savedNow: [Key: Section],
+        wanted: [Key: Section]?
+    ) -> [Key: Section] {
+        placements.filter { savedNow[$0.key] == nil && wanted?[$0.key] == nil }
+    }
+
     /// Whether the user changed this Mac's layout since it last synced
     /// (``Local/editsLayout``).
     ///

@@ -331,13 +331,15 @@ extension MenuBarItemManager {
         if let wanted {
             storeSections(wanted, byUser: true)
         }
-        storeSections(placedSections, byUser: false)
+        // holzBar's own placements never replace a section the user saved while the items
+        // moved (`SettingsSyncPolicy.ownPlacementsToStore`).
+        storeSections(SettingsSyncPolicy.ownPlacementsToStore(placedSections, savedNow: savedSections(), wanted: wanted), byUser: false)
         // So is where macOS put an item holzBar left there, as holzBar's own placement: a later
         // move of the user's then changes a saved section and counts for sync
         // (`SettingsSyncPolicy.countsAsSectionSaveEdit`). Not while the user arranges the items,
         // as the section may be one the user is choosing.
         if !yieldsToUser(wanted: nil, appState: appState) {
-            storeSections(unsavedSections.filter { wanted?[$0.key] == nil }, byUser: false)
+            storeSections(SettingsSyncPolicy.ownPlacementsToStore(unsavedSections, savedNow: savedSections(), wanted: wanted), byUser: false)
         }
     }
 

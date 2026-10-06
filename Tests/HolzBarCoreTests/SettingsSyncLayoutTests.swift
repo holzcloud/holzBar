@@ -1238,6 +1238,19 @@ struct SettingsSyncLayoutTests {
         #expect(!Policy.countsAsSectionSaveEdit(byUser: true, saved: [String: Int](), before: [String: Int]()))
     }
 
+    @Test("Before macOS 27, holzBar's own placements never replace a section the user saved while the items moved")
+    func ownPlacementsSpareUserSections() {
+        // The reconciliation read no saved section for "new" and "left"; while it moved items,
+        // the user dragged "left" to section 2, and that was saved.
+        let placements = ["new": 0, "left": 1, "other": 1]
+        let savedNow = ["left": 2, "known": 0]
+        #expect(Policy.ownPlacementsToStore(placements, savedNow: savedNow, wanted: nil) == ["new": 0, "other": 1])
+        // Items a profile places are saved by the profile.
+        #expect(Policy.ownPlacementsToStore(placements, savedNow: savedNow, wanted: ["other": 2]) == ["new": 0])
+        // Without a save in between, every placement is saved.
+        #expect(Policy.ownPlacementsToStore(placements, savedNow: [:], wanted: nil) == placements)
+    }
+
     // MARK: Sync state
 
     @Test("A sync records the layout edits its decision saw, so an edit made while it ran still counts")
