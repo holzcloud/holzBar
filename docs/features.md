@@ -57,7 +57,7 @@
 
 #### Settings
 - ✅ **Export and import** all settings
-- ✅ **Sync between Macs** through iCloud Drive or any folder your Macs sync (Nextcloud, Dropbox, OneDrive, Syncthing, a network share) — changes from another Mac arrive as soon as the folder delivers them, with no polling; holzBar asks before it replaces either Mac's settings ([details](#settings-sync))
+- ⏸️ **Sync between Macs** (paused in 0.0.7-beta2, [details](#settings-sync)) through iCloud Drive or any folder your Macs sync (Nextcloud, Dropbox, OneDrive, Syncthing, a network share) — changes from another Mac arrive as soon as the folder delivers them, with no polling; holzBar asks before it replaces either Mac's settings ([details](#settings-sync))
 - ✅ **Imports your Ice settings** on first launch
 - ✅ **Alerts in Settings are sheets** on its window, so holzBar keeps working while one is open
 - ✅ Launch at login
@@ -68,6 +68,9 @@
 </table>
 
 ## Settings sync
+
+> [!NOTE]
+> **Settings sync is paused in 0.0.7-beta2.** Even reworked, it could still lose a menu bar arrangement between Macs in rare cases, so it returns after a redesign in the next beta. In 0.0.7-beta2 holzBar does not read, write, watch or mount anything in the sync folder, shows no sync question or hint, and **Settings → Advanced** shows the sync controls greyed out. The sync folder, whether sync is on and the other sync settings stay as they are, so sync can resume later. **Export…** and **Import…** still move settings between Macs. The rest of this section describes sync as it was built for 0.0.7-beta2 before the pause; the redesign may change it.
 
 - **A quiet hint, never a dialog.** Changes from another Mac wait as **Settings changed on another Mac** with **Restart**, in Settings → Advanced and at the top of holzBar's menu.
 - **holzBar asks before it replaces settings.** When both Macs changed their settings, or a Mac joins a folder that holds another Mac's different settings, the hint reads **Choose Settings…** and holzBar asks which settings to use, in a sheet on the Settings window. It never overwrites another Mac's settings unasked.

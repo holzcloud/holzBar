@@ -42,7 +42,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Opened items stay up to 30 s, or open without showing the item | ❌ | ✅ | ✅ |
 | Show an item briefly when it changes | ❌ | ✅ | ✅ <sub>opt-in per item</sub> |
 | Export and import settings | ❌ | ✅ | ✅ |
-| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | ✅ |
+| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | ✅ <sub>paused in 0.0.7-beta2</sub> |
 | Languages | English | many, through Crowdin | English, German, French, Italian, Romansh |
 | Keep Live Activities visible | ❌ | — | ✅ <sub>experimental</sub> |
 | Show on scroll with a mouse wheel | ❌ | — | ✅ |
