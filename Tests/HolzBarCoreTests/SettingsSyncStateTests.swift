@@ -23,6 +23,7 @@ struct SettingsSyncStateTests {
         #expect(State.syncedLayoutEditsKey == "SettingsSyncSyncedLayoutEdits")
         #expect(State.lastSyncedKey == "SettingsSyncLastSynced")
         #expect(State.pendingKey == "SettingsSyncPendingModified")
+        #expect(State.versionDigestKey == "SettingsSyncVersionSettingsDigest")
         #expect(State.legacyBaseKey == "SettingsSyncBaseDigest")
     }
 
@@ -56,9 +57,16 @@ struct SettingsSyncStateTests {
         every.markSynced(base: "b", layout: "l", layoutEdits: 2, modified: lastSynced)
         every.layoutEdits = 7
         every.pending = lastSynced
+        #expect(every.versionDigest == "b")
         #expect(Set(every.changes(from: State()).map(\.key)) == [
             State.baseKey, State.baseLayoutKey, State.layoutEditsKey, State.syncedLayoutEditsKey, State.lastSyncedKey, State.pendingKey,
+            State.versionDigestKey,
         ])
+        var everyStored = [String: Any]()
+        for (key, value) in every.changes(from: State()) {
+            everyStored[key] = value
+        }
+        #expect(State(reading: { everyStored[$0] }) == every)
     }
 
     // MARK: Migration
@@ -154,7 +162,9 @@ struct SettingsSyncStateTests {
         let other = Policy.Version(isFromThisMac: false, modified: lastSynced.addingTimeInterval(10), isNewer: true, userDigest: "other", layoutDigest: "theirs")
         var used = start
         used.recordUse(of: other, layoutDigest: other.layoutDigest, base: "applied")
-        #expect(used == State(base: "applied", baseLayoutDigest: "theirs", layoutEdits: 4, syncedLayoutEdits: 4, lastSynced: other.modified, pending: nil))
+        // The digest of the version is kept apart from this Mac's, which may hold settings the
+        // version lacks.
+        #expect(used == State(base: "applied", baseLayoutDigest: "theirs", layoutEdits: 4, syncedLayoutEdits: 4, lastSynced: other.modified, pending: nil, versionDigest: "other"))
     }
 
     @Test("Adopting this Mac's own version with a layout to take in waits without pausing pushes")
@@ -163,16 +173,16 @@ struct SettingsSyncStateTests {
         let own = Policy.Version(isFromThisMac: true, modified: lastSynced.addingTimeInterval(10), isNewer: false, userDigest: "mine", layoutDigest: "kept")
         var state = State(baseLayoutDigest: "kept", lastSynced: lastSynced)
         state.recordAdoption(own, local: local, takesInOwnLayout: true)
-        #expect(state == State(base: "mine", baseLayoutDigest: "placements", lastSynced: own.modified, pending: nil))
+        #expect(state == State(base: "mine", baseLayoutDigest: "placements", lastSynced: own.modified, pending: nil, versionDigest: "mine"))
         let other = Policy.Version(isFromThisMac: false, modified: lastSynced.addingTimeInterval(10), isNewer: true, userDigest: "mine", layoutDigest: "theirs")
         var waiting = State(baseLayoutDigest: "theirs", lastSynced: lastSynced)
         waiting.recordAdoption(other, local: local, takesInOwnLayout: true)
-        #expect(waiting == State(base: "mine", baseLayoutDigest: "placements", lastSynced: lastSynced, pending: other.modified))
+        #expect(waiting == State(base: "mine", baseLayoutDigest: "placements", lastSynced: lastSynced, pending: other.modified, versionDigest: "mine"))
     }
 
     @Test("Leaving the folder forgets the user settings and the waiting version, but keeps the layout last synced and the layout edits")
     func leaveFolder() {
-        let start = State(base: "base", baseLayoutDigest: "layout", layoutEdits: 4, syncedLayoutEdits: 3, lastSynced: lastSynced, pending: lastSynced)
+        let start = State(base: "base", baseLayoutDigest: "layout", layoutEdits: 4, syncedLayoutEdits: 3, lastSynced: lastSynced, pending: lastSynced, versionDigest: "v")
         var off = start
         off.leaveFolder(forgetsLastSync: false)
         #expect(off == State(base: nil, baseLayoutDigest: "layout", layoutEdits: 4, syncedLayoutEdits: 3, lastSynced: lastSynced, pending: nil))

@@ -227,6 +227,10 @@ nonisolated enum SettingsSyncPolicy {
         /// The date of the version the user answered with "Keep This Mac's Settings"
         /// (``forcesWrite``).
         var keepsOver: Date?
+        /// The digest of the user settings of the version this Mac last wrote, applied or
+        /// adopted (``State/versionDigest``); `nil` while it joins, or when an earlier build
+        /// synced last.
+        var versionDigest: String?
 
         /// Whether this Mac joins the folder.
         var isJoining: Bool {
@@ -345,7 +349,9 @@ nonisolated enum SettingsSyncPolicy {
     /// its macOS version as it adopts
     /// (``ownLayoutToTakeIn(_:over:layouts:local:version:)``). A version that changed nothing
     /// this Mac uses since it last synced lets this Mac's changes win
-    /// (``changedNothingSinceBase(_:local:)``).
+    /// (``changedNothingSinceBase(_:local:)``). A version from another Mac dated before this
+    /// Mac's last sync is never applied silently or written over while it holds changes this
+    /// Mac has not synced: it asks (``isUnsyncedChange(_:local:)``).
     ///
     /// - Parameters:
     ///   - trigger: What made holzBar look at the file.
@@ -401,7 +407,16 @@ nonisolated enum SettingsSyncPolicy {
                 return writesChanges
             }
             if !version.isNewer {
-                return writesChanges
+                // Dated before this Mac's last sync by a clock behind this Mac's, or kept by the
+                // sync app over this Mac's later write: whether it holds this Mac's last changes
+                // is unknown, so one this Mac has not synced asks.
+                guard isUnsyncedChange(version, local: local) else {
+                    return writesChanges
+                }
+                if !isLaunch, let postponed = local.postponed, version.modified <= postponed {
+                    return .wait
+                }
+                return .ask
             }
             if !isLaunch, let postponed = local.postponed, version.modified <= postponed {
                 return .wait
@@ -456,10 +471,16 @@ nonisolated extension SettingsSyncPolicy {
     ///
     /// For this Mac's own version, which holds another Mac's layout it kept
     /// (``Action/takeInLayout``), only that layout is taken in: the hint offers a restart
-    /// unless the user changed this Mac's layout, whatever other changes this Mac made.
+    /// unless the user changed this Mac's layout, whatever other changes this Mac made. A
+    /// version from another Mac that is not newer than this Mac's last sync is asked about
+    /// (``isUnsyncedChange(_:local:)``).
     static func hint(for local: Local, version: Version) -> Hint {
         if version.isFromThisMac, !local.isJoining {
             return local.editsLayout ? .choice(isJoining: false) : .restart
+        }
+        // A version that is not newer may lack this Mac's last changes: it asks.
+        if !version.isNewer, !local.isJoining {
+            return .choice(isJoining: false)
         }
         return hint(for: local)
     }
@@ -960,6 +981,27 @@ nonisolated extension SettingsSyncPolicy {
         return unlisted != local.layoutDigest && unlisted != local.baseLayoutDigest
     }
 
+    /// Whether a version from another Mac that is not newer than this Mac's last sync holds a
+    /// change this Mac has not synced: user settings other than those this Mac last synced
+    /// (``Local/base``) and those of the version it last synced (``Local/versionDigest``), which
+    /// differ after applying a version that lacks some of this Mac's settings, or a layout for
+    /// this Mac's macOS version other than the one it last synced.
+    ///
+    /// Without the digest of the version this Mac last synced, as an earlier build left it,
+    /// the date alone decides, as before.
+    static func isUnsyncedChange(_ version: Version, local: Local) -> Bool {
+        guard !version.isFromThisMac, let base = local.base, let versionDigest = local.versionDigest else {
+            return false
+        }
+        if version.userDigest != base, version.userDigest != versionDigest {
+            return true
+        }
+        guard let layout = version.layoutDigest else {
+            return false
+        }
+        return layout != local.baseLayoutDigest
+    }
+
     /// Whether a version changed nothing this Mac uses since this Mac last synced: its user
     /// settings are those of the last sync, and its layout for this Mac's macOS version is
     /// none or the one last synced. Another Mac may have changed only its learned keys or
@@ -1040,6 +1082,10 @@ nonisolated extension SettingsSyncPolicy {
         /// The date of a version that waits for the user; while it waits, this Mac's changes
         /// are not written.
         var pending: Date?
+        /// The digest of the user settings of the version this Mac last wrote, applied or
+        /// adopted. It is the ``base`` unless this Mac applied a version that lacks some of
+        /// its settings; `nil` while it joins, or when an earlier build synced last.
+        var versionDigest: String?
 
         /// Whether the user changed this Mac's layout since it last synced
         /// (``SettingsSyncPolicy/editsLayout(count:synced:)``).
@@ -1065,6 +1111,7 @@ nonisolated extension SettingsSyncPolicy {
         ///     version from another Mac stays newer.
         mutating func markSynced(base: String, layout: String?, layoutEdits: Int, modified: Date?) {
             self.base = base
+            versionDigest = base
             baseLayoutDigest = layout ?? SettingsSyncPolicy.noLayoutDigest
             syncedLayoutEdits = layoutEdits
             if let modified {
@@ -1151,7 +1198,20 @@ nonisolated extension SettingsSyncPolicy {
                 recordLayoutTakeIn(layoutDigest: layoutDigest)
                 return
             }
+            recordApplied(version, base: base, layoutDigest: layoutDigest)
+        }
+
+        /// Records that a version from another Mac was applied: at launch, or after the user
+        /// chose it. The layout edits made so far no longer count.
+        ///
+        /// - Parameters:
+        ///   - version: The version.
+        ///   - base: The digest of this Mac's user settings after they were applied, which may
+        ///     differ from the version's when it lacks some of this Mac's settings.
+        ///   - layoutDigest: The layout digest to record as synced.
+        mutating func recordApplied(_ version: Version, base: String, layoutDigest: String?) {
             markSynced(base: base, layout: layoutDigest, layoutEdits: layoutEdits, modified: version.modified)
+            versionDigest = version.userDigest
         }
 
         /// Forgets the folder this Mac synced with, so it joins a folder again: sync was
@@ -1163,6 +1223,7 @@ nonisolated extension SettingsSyncPolicy {
         ///   folder this Mac has not synced with.
         mutating func leaveFolder(forgetsLastSync: Bool) {
             base = nil
+            versionDigest = nil
             pending = nil
             if forgetsLastSync {
                 lastSynced = nil
@@ -1259,6 +1320,8 @@ nonisolated extension SettingsSyncPolicy.State {
     static let lastSyncedKey = "SettingsSyncLastSynced"
     /// The key of ``pending``.
     static let pendingKey = "SettingsSyncPendingModified"
+    /// The key of ``versionDigest``.
+    static let versionDigestKey = "SettingsSyncVersionSettingsDigest"
     /// The key of the base of earlier test builds, which held the layouts too.
     static let legacyBaseKey = "SettingsSyncBaseDigest"
 
@@ -1270,7 +1333,8 @@ nonisolated extension SettingsSyncPolicy.State {
             layoutEdits: value(Self.layoutEditsKey) as? Int ?? 0,
             syncedLayoutEdits: value(Self.syncedLayoutEditsKey) as? Int ?? 0,
             lastSynced: value(Self.lastSyncedKey) as? Date,
-            pending: value(Self.pendingKey) as? Date
+            pending: value(Self.pendingKey) as? Date,
+            versionDigest: value(Self.versionDigestKey) as? String
         )
     }
 
@@ -1295,6 +1359,9 @@ nonisolated extension SettingsSyncPolicy.State {
         }
         if pending != old.pending {
             changes.append((Self.pendingKey, pending))
+        }
+        if versionDigest != old.versionDigest {
+            changes.append((Self.versionDigestKey, versionDigest))
         }
         return changes
     }
@@ -1372,6 +1439,7 @@ nonisolated extension SettingsSyncPolicy.Local {
             forcesWrite: forcesWrite
         )
         self.layoutEdits = layoutEdits
+        versionDigest = state.versionDigest
     }
 }
 

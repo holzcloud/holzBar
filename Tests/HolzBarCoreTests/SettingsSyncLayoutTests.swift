@@ -857,6 +857,47 @@ struct SettingsSyncLayoutTests {
         #expect(Policy.decide(.check, local: running, file: remote) == .ask)
     }
 
+    @Test("A version another Mac wrote before this Mac's last sync asks instead of being written over", arguments: layoutBackends)
+    func olderVersionFromAnotherMacAsks(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        // Another Mac's version without a setting this Mac has: applying it leaves this Mac's
+        // settings different from the version's.
+        var mine = settings(layouts, own: first)
+        mine["ShowOnClick"] = true
+        let remote = settings(layouts, showOnHover: false, own: first)
+        let applied = Policy.settingsToApply(remote, over: mine, layouts: layouts, baseLayoutDigest: nil, editsLayout: false)
+        let afterApply = mine.merging(applied) { $1 }
+        let appliedVersion = Policy.Version(settings: remote, layouts: layouts, isFromThisMac: false, modified: lastSynced, isNewer: true)
+        var state = Policy.State(lastSynced: lastSynced.addingTimeInterval(-60))
+        state.recordApplied(appliedVersion, base: Policy.userDigest(of: afterApply), layoutDigest: appliedVersion.layoutDigest)
+        #expect(state.base != appliedVersion.userDigest)
+        var seen = appliedVersion
+        seen.isNewer = false
+        // The version this Mac applied is synced: nothing to do, at no launch.
+        let synced = Policy.Local(settings: afterApply, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.check, local: synced, file: .version(seen)) == .none)
+        #expect(Policy.decide(.launch, local: synced, file: .version(seen)) == .none)
+
+        // This Mac writes a change; the file then holds another Mac's change dated before it.
+        var changedSettings = afterApply
+        changedSettings["ShowOnClick"] = false
+        let changed = Policy.Local(settings: changedSettings, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        let written = Policy.planWrite(changedSettings, file: remote, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], layouts: layouts, local: changed)
+        state.recordWrite(written.record, modified: lastSynced.addingTimeInterval(100), local: changed)
+        var olderSettings = remote
+        olderSettings["ShowOnHover"] = true
+        let older = Policy.Version(settings: olderSettings, layouts: layouts, isFromThisMac: false, modified: lastSynced.addingTimeInterval(90), isNewer: false)
+        let idle = Policy.Local(settings: changedSettings, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.check, local: idle, file: .version(older)) == .ask)
+        #expect(Policy.decide(.launch, local: idle, file: .version(older)) == .ask)
+        #expect(Policy.hint(for: idle, version: older) == .choice(isJoining: false))
+        // This Mac's next change asks too, instead of writing over the other Mac's.
+        var next = changedSettings
+        next["ShowOnHover"] = false
+        let nextLocal = Policy.Local(settings: next, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.localChange, local: nextLocal, file: .version(older)) == .ask)
+    }
+
     @Test("A newer version equal to the last sync lets this Mac's changes win")
     func unchangedVersionLetsChangesWin() {
         let changed = Policy.Local(userDigest: "changed", base: "base", pending: nil, postponed: nil, forcesWrite: false)

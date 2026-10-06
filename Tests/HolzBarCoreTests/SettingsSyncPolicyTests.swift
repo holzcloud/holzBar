@@ -125,6 +125,66 @@ struct SettingsSyncPolicyTests {
         #expect(SettingsSyncPolicy.decide(.check, local: local(base, base: base), file: version(changed, isNewer: false)) == .none)
     }
 
+    @Test("A version from another Mac that is not newer, with changes this Mac has not synced, asks")
+    func notNewerUnsyncedChangeAsks() {
+        // This Mac wrote its settings last; the file holds another Mac's dated before that,
+        // as a clock behind or a sync conflict leaves it.
+        var synced = local(base, base: base)
+        synced.versionDigest = base
+        let older = version("other", isNewer: false)
+        guard case .version(let olderVersion) = older else {
+            Issue.record("Expected a version")
+            return
+        }
+        #expect(SettingsSyncPolicy.isUnsyncedChange(olderVersion, local: synced))
+        for trigger in [SettingsSyncPolicy.Trigger.check, .launch] {
+            #expect(SettingsSyncPolicy.decide(trigger, local: synced, file: older) == .ask)
+        }
+        // It is never applied silently, and a change of this Mac's does not write over it.
+        var changedHere = synced
+        changedHere.userDigest = changed
+        #expect(SettingsSyncPolicy.decide(.localChange, local: changedHere, file: older) == .ask)
+        #expect(!SettingsSyncPolicy.needsExchange(.localChange, local: local(changed, base: base, pending: olderVersion.modified)))
+        #expect(SettingsSyncPolicy.hint(for: synced, version: olderVersion) == .choice(isJoining: false))
+        // "Later" waits for it in this session.
+        var postponed = synced
+        postponed.postponed = olderVersion.modified
+        #expect(SettingsSyncPolicy.decide(.check, local: postponed, file: older) == .wait)
+        // "Keep This Mac's Settings" writes over it.
+        var keeps = changedHere
+        keeps.forcesWrite = true
+        keeps.keepsOver = olderVersion.modified
+        #expect(SettingsSyncPolicy.decide(.localChange, local: keeps, file: older) == .write)
+
+        // The version this Mac last applied, which lacked some of its settings, is synced.
+        var applied = local(base, base: base)
+        applied.versionDigest = "other"
+        #expect(!SettingsSyncPolicy.isUnsyncedChange(olderVersion, local: applied))
+        #expect(SettingsSyncPolicy.decide(.check, local: applied, file: older) == .none)
+        #expect(SettingsSyncPolicy.decide(.launch, local: applied, file: older) == .none)
+        // A layout this Mac has not synced asks, though the user settings match.
+        var relaid = applied
+        relaid.baseLayoutDigest = "layout"
+        let olderLayout = SettingsSyncPolicy.Version(
+            isFromThisMac: false,
+            modified: lastSynced,
+            isNewer: false,
+            userDigest: "other",
+            layoutDigest: "another layout"
+        )
+        #expect(SettingsSyncPolicy.isUnsyncedChange(olderLayout, local: relaid))
+        #expect(SettingsSyncPolicy.decide(.check, local: relaid, file: .version(olderLayout)) == .ask)
+        var sameLayout = olderLayout
+        sameLayout.layoutDigest = "layout"
+        #expect(!SettingsSyncPolicy.isUnsyncedChange(sameLayout, local: relaid))
+        // This Mac's own version, and a Mac whose state an earlier build left, keep the date rule.
+        #expect(!SettingsSyncPolicy.isUnsyncedChange(SettingsSyncPolicy.Version(isFromThisMac: true, modified: lastSynced, isNewer: false, userDigest: "other"), local: synced))
+        #expect(!SettingsSyncPolicy.isUnsyncedChange(olderVersion, local: local(base, base: base)))
+        #expect(SettingsSyncPolicy.decide(.check, local: local(base, base: base), file: older) == .none)
+        // A newer version is decided as before.
+        #expect(SettingsSyncPolicy.hint(for: synced, version: SettingsSyncPolicy.Version(isFromThisMac: false, modified: lastSynced, isNewer: true, userDigest: "other")) == .restart)
+    }
+
     @Test("A missing file is written only with local changes")
     func missingFile() {
         #expect(SettingsSyncPolicy.decide(.localChange, local: local(changed, base: base), file: .missing) == .write)

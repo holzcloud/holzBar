@@ -57,7 +57,9 @@ nonisolated enum SettingsSyncFile {
         /// Whether this Mac wrote it.
         let isFromThisMac: Bool
         /// Whether another Mac wrote it after this Mac last synced, and it is dated at most
-        /// ``allowedClockSkew`` in the future.
+        /// ``allowedClockSkew`` in the future. The date alone cannot tell whether a version
+        /// that is not newer holds changes this Mac has not synced, as with a clock behind this
+        /// Mac's; the digests decide that (`SettingsSyncPolicy.isUnsyncedChange(_:local:)`).
         let isNewer: Bool
         /// The settings, without the keys that stay on each Mac.
         let settings: [String: Any]

@@ -1492,7 +1492,7 @@ final class SettingsSync {
         let local = currentLocal(settings: settings, postponed: nil)
         switch SettingsSyncPolicy.decide(.launch, local: local, file: inspection.file) {
         case .apply:
-            guard let remote = inspection.settings, let modified = inspection.remote?.modified else {
+            guard let remote = inspection.settings, let version = inspection.remote?.version else {
                 return
             }
             let applied = SettingsSyncPolicy.settingsToApply(
@@ -1504,12 +1504,8 @@ final class SettingsSync {
             )
             SettingsBackup.apply(applied, removesMissingKeys: false)
             Defaults.set(true, forKey: .syncsSettingsWithICloud)
-            markSynced(
-                base: SettingsSyncPolicy.userDigest(of: syncedSettings()),
-                layout: inspection.remote?.layoutDigest,
-                layoutEdits: layoutEdits,
-                modified: modified
-            )
+            let base = SettingsSyncPolicy.userDigest(of: syncedSettings())
+            updateState { $0.recordApplied(version, base: base, layoutDigest: version.layoutDigest) }
             logger.notice("Applied settings from the sync folder")
             return
         case .adopt:
