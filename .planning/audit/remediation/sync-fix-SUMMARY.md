@@ -1,39 +1,257 @@
 ---
 phase: audit-remediation-sync-fix
-plan: sync-fix-r2
+plan: sync-fix-r3
 subsystem: settings-sync
 tags: [sync, layout, beta1-compat, macos26, macos27]
 requirements: [SA-05, F-02, F-60]
 status: complete
 key-files:
-  created:
-    - Tests/HolzBarCoreTests/SettingsSyncStateTests.swift
+  created: []
   modified:
     - holzBar/Core/SettingsSyncPolicy.swift
-    - holzBar/Core/SettingsSyncFile.swift
     - holzBar/Utilities/SettingsSync.swift
     - holzBar/MenuBar/MenuBarItems/SectionRestore.swift
-    - holzBar/MenuBar/Profiles/LayoutProfiles.swift
     - Tests/HolzBarCoreTests/SettingsSyncLayoutTests.swift
     - Tests/HolzBarCoreTests/SettingsSyncPolicyTests.swift
-    - Tests/HolzBarMacOS27CoreTests/SectionLayout27Tests.swift
+    - Tests/HolzBarCoreTests/SettingsSyncStateTests.swift
     - docs/release-notes/v0.0.7-beta2.md
     - docs/features.md
     - .planning/audit/REMEDIATION-2026-10-05.md
     - .planning/audit/remediation/sync-fix-SUMMARY.md
 decisions:
-  - "A joining Mac takes in the layout of its own written version like a newer one, so a kept layout is never recorded as synced without being applied."
-  - "Keep This Mac's Settings writes only over the version the user answered (Local.keepsOver), an older one or this Mac's own."
-  - "A version from another Mac that is not newer asks when it holds changes this Mac has not synced; it is never applied silently. The state keeps the digest of the version last synced (SettingsSyncVersionSettingsDigest), and such a version's date never becomes the last sync."
-  - "A kept layout waits without pending (new action takeInLayout); only the layout is taken in, by Restart or at launch, and other changes keep syncing."
-  - "The last eight synced layout digests are remembered (SettingsSyncRecentLayoutDigests); an unlisted layout equal to one of them is an old copy of this Mac's and is written over without a question."
-  - "Before macOS 27, a bar save counts as the user's edit only when a saved section changed; reconciliation records where macOS put an item as holzBar's own placement."
-  - "F-60 is not fixable from this side: the copy stays, is logged at notice level, and every case is documented."
-  - "Write planning, state storage, the migration seed and the captured edit count live in Core and are tested."
+  - "A layout counts as recently synced (State.recentLayouts) only once this Mac took it in; a kept layout of another Mac does not."
+  - "The kept layout is recorded explicitly (State.keptLayoutDigest, key SettingsSyncKeptLayoutDigest) and survives leaving the folder; only that layout of an own version is taken in, also while joining, and a layout edit asks."
+  - "Any other layout of an own version is an old copy (isOldOwnLayout): never taken in, and a write over it writes this Mac's layout. While joining, the own version's layout stays the folder's arrangement (by design)."
+  - "Keep This Mac's Settings writes only over the answered version, recognized by writer, date and digests (Version.isSame(as:)), or over this Mac's own."
+  - "64 recent layouts, and an old copy written over is remembered anew (WriteRecord.oldCopyDigest)."
+  - "holzBar's own section placements are stored only for items still without a saved section (ownPlacementsToStore)."
+  - "What acting on a decision does is decided in Core (outcome, launchApplication, State.recordLaunch); the app only executes it."
+  - "Not fixed, documented: a write over a missing or unusable file can make another Mac revert its last change; the macOS 26 first-move and displaced-item residuals."
 metrics:
   completed: 2026-10-06
-commits: 12
-plan_head_before: 5699fec7705c9bfb270f81af0f9e154f491653ab
+commits: 8
+plan_head_before: c537deff947f9712c646d30b096a8d30efe27e94
+plan_head_after: 94412993b6fe040f05810c39bd201393e49b7bbb
+---
+
+# Sync fix round 3: the review of round 2
+
+**One-liner:** these fixes close the gaps the round 2 review found:
+- A kept arrangement from another Mac is recorded as such. It never counts as this Mac's own synced layout, a re-join asks before a drag writes over it, and an older own version that a sync app brings back is never taken in.
+- "Keep This Mac's Settings" recognizes the answered version by its contents.
+- Old-copy detection survives many rearrangements.
+- holzBar's own section placements never overwrite a section the user just saved.
+- What happens after each sync decision is decided and tested in Core.
+
+Maintainer policy (2026-10-05):
+- When two Macs' settings differ, holzBar asks.
+- holzBar's own placements never count (SA-05).
+- The other macOS version's layout is taken in silently.
+- Nothing in the sync file is overwritten with a stale copy, and no change of the user's is lost or reverted silently (F-02, F-60).
+- Users update one Mac at a time, so a Mac still on 0.0.7 beta 1 must be handled safely.
+
+`commits: 8` counts the commits before this summary. The summary is the ninth commit.
+
+## Commits
+
+| Commit | Issue (severity) |
+|---|---|
+| `88a8ac31` | A kept-but-not-taken-in layout counts as recently synced, so after a beta 1 write-back holzBar's own layout replaces the other Mac's arrangement (blocker) |
+| `b9e981e2` | Re-joining after a layout edit writes this Mac's layout over another Mac's kept layout without asking (major) |
+| `bf742362` | An older version this Mac wrote, brought back by the sync app, is taken in silently at launch and reverts the layout (major) |
+| `9e62214d` | Keep This Mac's Settings writes over an unasked version from a third Mac dated at or before the answered one (major) |
+| `ab28fc08` | Stale-copy detection keeps only the last 8 layouts (minor) |
+| `aa6e6ef5` | Before macOS 27, reconciliation can store an item's old section over the one the user just saved (minor) |
+| `f5895cb6` | Issue 13 only partly fixed: the dispatch of sync decisions is outside the test package (minor) |
+| `94412993` | Docs, including the two minors that are documented rather than fixed |
+| this commit | This summary |
+
+## Issues and fixes
+
+### Blocker: a kept layout counted as recently synced, `88a8ac31`
+
+`State.recordWrite` now calls `rememberLayout` only when the write did not keep another Mac's layout to take in. `State.recordAdoption` calls it only when it takes nothing in. `recordLayoutTakeIn` and `recordApplied` remember a layout once it is taken in.
+
+After a beta 1 Mac writes the kept layout back unlisted, the next non-layout push on this Mac passes it on unlisted instead of writing holzBar's own placements over it, and a drag asks. The adoption of the beta 1 write-back still withdraws the Restart hint. This Mac then keeps its own layout, and the other Mac's arrangement stays in the file and on that Mac, so nothing is lost.
+
+### Major: re-join after a drag, `b9e981e2`
+
+New `State.keptLayoutDigest`, stored under `SettingsSyncKeptLayoutDigest`, which starts with "SettingsSync" and is never synced. It holds the other Mac's layout that this Mac's own version holds and this Mac has not taken in.
+- A write with `takesInLayout`, or a joining adoption of this Mac's own version that takes its layout in, sets it.
+- `markSynced` clears it, so every other write, adoption or apply clears it. So does `recordLayoutTakeIn`.
+- `leaveFolder` keeps it.
+- `Local.keptLayoutDigest` copies it from the state.
+
+`holdsLayoutToTakeIn` now requires `version.layoutDigest == local.keptLayoutDigest` (and `!= baseLayoutDigest`) and no longer excludes a joining Mac. A layout edit then asks (or waits after "Later") for both `forgetsLastSync` values and every trigger. Without an edit, a joining Mac with other changes takes the kept layout in at launch and keeps it in its writes while it runs.
+
+### Major: an older own version brought back by the sync app, `bf742362`
+
+With the explicit record, an own version whose layout is neither the base nor the kept one is no longer taken in. That holds at launch, on a check and on a local change. The new `isOldOwnLayout(_:local:)` names that case. `planWrite` takes `fileIsFromThisMac` and writes this Mac's layout, listed as current, over such a copy (`keepsOwnLayout`), so the stale arrangement does not spread. The app passes `inspection.remote?.version.isFromThisMac`.
+
+While joining, the own version's layout stays the folder's arrangement. Taking it in is the documented join rule, so the reviewer's P2 variant is unchanged.
+
+### Major: Keep only over the answered version, `9e62214d`
+
+`Local.keepsOver` is now the answered `Version`, not its date. `keepsThisMac` accepts this Mac's own version or one that `isSame(as:)` the answered version. `isSame` compares writer, date, user digest, layout digest and unlisted layout digest. It leaves out `isNewer`, which depends on when the file is read.
+
+Any other version from another Mac goes through the usual rules, which ask when this Mac has changes:
+- one dated earlier,
+- the same date with other settings,
+- the same settings written later,
+- an older one a sync app brought back.
+
+The test "an older version is written over too" was replaced by tests of these cases.
+
+### Minor: 8 recent layouts, `ab28fc08`
+
+`recentLayoutLimit` is now 64, about 4 KB in defaults. `planWrite` records the file's unlisted layout of this macOS version when it is one this Mac synced (`WriteRecord.oldCopyDigest`), and `recordWrite` remembers it anew. A beta 1 Mac that keeps writing the same stale copy back therefore keeps it recognized however often the user rearranges between its writes. I chose this over a separate list of own layouts: one list also covers applied layouts, which a beta 1 Mac writes back the same way.
+
+### Minor: reconciliation over a fresh user save, `aa6e6ef5`
+
+The new `SettingsSyncPolicy.ownPlacementsToStore(_:savedNow:wanted:)` keeps only items that still have no saved section and that no profile places. `performReconciliation` re-reads `savedSections()` right before it stores `placedSections` and `unsavedSections`.
+
+### Minor: the dispatch in Core, `f5895cb6`
+
+- `SettingsSyncPolicy.outcome(of:isCheck:version:local:state:takesInOwnLayout:written:)` returns, for every `Action`, the state to store, a `HintChange` (`unchanged`, `withdraw`, `offerFileVersion`, `offerWrittenVersion`) and whether a push follows.
+- `launchApplication(for:)` says what the launch applies, and `State.recordLaunch(_:version:local:appliedBase:)` says what it records.
+- `SettingsSync.handle` and `finishJoin` share `act(on:of:)`, which only executes the outcome. `adopt()`, `recordWrite()` and `setPending()` are gone, and `pullIfNeeded` uses the two launch functions.
+- Hints are now offered with this Mac's current side in all cases. Before, `.apply`, `.ask` and `.takeInLayout` used the request's side, which a change made during the exchange could leave stale.
+
+Still in the app, and not unit-tested:
+- calling `ownLayoutToTakeIn` to compute `takesInOwnLayout`
+- mapping a `HintChange` to `offer` or `withdrawHint`
+- applying the dictionaries at launch
+- `keepsOver = remote.version`
+- `fileIsFromThisMac` in `write`
+- the `savedSections()` re-read in `SectionRestore`
+
+### Not fixed (minor): writing over a missing or unusable file
+
+Documented as a known issue (release notes, features). A safe fix needs each write to carry its parent version. A single parent digest makes a Mac that was offline while another Mac wrote twice ask about a plain fast-forward, which is common (a closed laptop). Avoiding that needs a version history in the file. The file format, beta 1 compatibility and every write path would change for a case that needs the file lost between two Macs' syncs. This is not a regression: base `d7c01063` had the same rule.
+
+### Not fixed (minor): macOS 26 first move of an unsaved item, and a displaced item saved by a Command-click
+
+Documented as known issues in the release notes. Both fixes need the item's section at the start of the user's drag. holzBar does not see the drag start when its drag monitors do not run (they run only for "Show all sections on drag" or a custom appearance). Section records from cache reads can be taken mid-drag. For (b), such a record could make a save skip the user's real move, which the restore would then undo, which is worse than the residual. For (a), it could count holzBar's own Live Activity moves as the user's (SA-05). Both residuals are narrower than at base `d7c01063`.
+
+## Tests
+
+- `swift test --filter SettingsSync`: 129 tests in 6 suites (120 before this round).
+- Full `swift test`: 478 + 196 + 3 tests pass.
+
+New tests:
+- In `SettingsSyncLayoutTests`:
+  - the beta 1 write-back of a kept layout (blocker)
+  - a re-join after a drag, for both `forgetsLastSync` values and every trigger, with the hint, "Later", and the joining take-in and write without a drag
+  - the old own version, for every trigger, the write over it, another Mac's version, a kept layout and a joining Mac
+  - an old copy after twenty rearrangements
+  - `ownPlacementsToStore`
+- In `SettingsSyncStateTests`:
+  - the kept layout's lifetime and storage
+  - an old copy remembered anew over three rounds of 63 writes
+  - `planWrite`'s `oldCopyDigest`
+  - `outcome` for every action
+  - `launchApplication` and `recordLaunch` for every action
+- In `SettingsSyncPolicyTests`:
+  - Keep only over the answered version, including one read again as not newer
+  - unasked versions dated later, earlier or the same, with other settings, layout or unlisted layout, an older one, and the same settings rewritten later
+
+Mutation check: `scratchpad/r3mut.py` applied each mutation alone, re-ran `swift test --filter SettingsSync` and restored the file. All 43 mutations are caught. Two of them were missed at first; I strengthened the tests and re-ran all 43:
+- `isSame` without the date
+- `keepsThisMac` using `==`, which includes `isNewer`
+
+The mutations covered:
+- both `rememberLayout` guards
+- the kept-layout check in `holdsLayoutToTakeIn`, and a joining guard added back
+- `markSynced` clearing the kept layout, `recordWrite` and `recordAdoption` setting it, `recordLayoutTakeIn` clearing it, and `leaveFolder` clearing it
+- `Local` copying the kept layout, its storage key, and reading it back
+- every part of `isOldOwnLayout`, and of `planWrite`'s `overwritesOldOwnLayout`
+- `keepsThisMac` going back to a date bound, and each field of `isSame`
+- the 64 limit, the old-copy refresh and the old-copy condition
+- both conditions of `ownPlacementsToStore`
+- every branch of `outcome` (pending for apply/ask, no pending for takeInLayout, the adoption hint and record, the push after a check, the written-version hint, wait/retry unchanged)
+- `launchApplication(.takeInLayout)`
+- `recordLaunch` for ask, none, takeInLayout and adopt
+
+## Gates
+
+Before each commit:
+- `appcheck.sh … syncfix` reported `ERRORS: 0`.
+- `swift test --filter SettingsSync` passed. The CLT TestingMacros flake was retried by script.
+- `swiftlint lint --strict --quiet` printed nothing.
+- The privacy checks (network, logs) and the strings check passed. The strings check reported 382 strings in 5 languages.
+- The former-name grep found nothing.
+
+The full `swift test` passed before this summary commit. No new user-facing strings. No new log line carries a digest or id.
+
+## Deviations
+
+- The round 3 review's Issue 1 and Issue 7 share `State.keptLayoutDigest`. `b9e981e2` adds it, and with it the own version no longer takes in a non-kept layout, which is part of Issue 7. `bf742362` adds the write over the old copy and Issue 7's tests.
+- For Issue 7, `ownLayoutToTakeIn` keeps taking in any own version while joining (no layout edit). That is the documented join rule, which the review called by design. A joining Mac's write over such a version also keeps it, and it is taken in.
+- For Issue 4, I kept one list and refresh entries on use, instead of the review's separate list of own layouts (see above).
+- For Issue 9, the hint is now offered with this Mac's current side throughout, a small behaviour change.
+
+## Known risks
+
+- The adoption of a beta 1 write-back of a kept layout withdraws the Restart hint, so this Mac never takes the kept arrangement in. The other Mac keeps it, and a drag on this Mac asks before replacing it.
+- An own version restored by a sync app stays in the file until this Mac's next change writes over it. Other Macs that synced a later version of this Mac's ask about it, as a version that is not newer, instead of applying it.
+- The two documented minors above.
+- Before an update, a Mac running an unreleased build of round 2 has no `SettingsSyncKeptLayoutDigest`, so a kept layout waiting on it is not taken in. Its next push keeps the layout in the file and records it.
+
+## Two-Mac test steps (round 3)
+
+Use Macs that sync the same folder, on this build unless a step says otherwise. Check the layout in holzBar's Layout pane, the hint in Settings → Advanced, and `holzBar/Settings.plist` in the sync folder (its `currentLayouts` array and its `ItemSections` / `MacOS27Layout`). The round 2 steps I to P and the round 1 steps A to H below still apply.
+
+**Q. Keep, drag, then join again** (Issue 1), A and B on the same macOS version:
+1. On B, Command-drag an item and change "Show on hover".
+2. On A, without touching the layout, change "Show on hover" the other way. Choose "Choose Settings…" → "Keep This Mac's Settings". Do not restart.
+3. On A, Command-drag an item. The hint reads "Choose Settings…".
+4. Turn sync off and on in Settings → Advanced. The hint again reads "Choose Settings…", and nothing is written: B's arrangement is still in the file. Quit and reopen B; it keeps its arrangement.
+5. Repeat steps 1 to 3, then choose the same folder again with "Change…". holzBar asks "Which settings should holzBar use?" before it joins.
+6. Repeat steps 1 and 2. Turn sync off, Command-drag on A, then turn sync on. The result is the same as step 4.
+7. In the question, "Keep This Mac's Settings" writes A's dragged layout. "Use Settings from Sync Folder" restarts A with B's arrangement.
+
+**R. A sync app brings back an older version of this Mac's** (Issue 7):
+1. On A, change a setting so A writes the file. Copy `Settings.plist` aside.
+2. On A, Command-drag an item; A writes again.
+3. Put the copy back over `Settings.plist`.
+4. Quit and reopen A. A keeps the dragged layout, and no hint appears.
+5. On A, change "Show on hover". The file now holds A's dragged layout, listed as current.
+
+**S. Keep with a version dated earlier** (Issue 2):
+1. Make A ask: both Macs change "Show on hover". Leave the sheet open on A.
+2. Set B's clock a few minutes back, change another setting on B and wait for it to reach A. A's last sync must be older than that change's date.
+3. Click "Keep This Mac's Settings" on A. A does not write over B's new version, and the hint returns as "Choose Settings…".
+4. Set B's clock back.
+
+**T. A kept arrangement that a Mac still on 0.0.7 beta 1 writes back** (blocker): A and B on this build, C on 0.0.7 beta 1, all on the same macOS version.
+1. Do steps Q.1 and Q.2.
+2. Quit and reopen C, which applies the file. Change a setting on C, which writes the file back without `currentLayouts`.
+3. On A, change "Show on hover". The file still holds B's arrangement under the layout key, not listed. Quit and reopen B; it keeps its arrangement.
+4. On A, Command-drag. A asks.
+
+**U. Many rearrangements while a beta 1 Mac of the other version writes an old copy back** (Issue 4): A on macOS 27 with this build, C on macOS 26 with 0.0.7 beta 1.
+1. On A, arrange and let it write. Quit and reopen C.
+2. On A, Command-drag ten or more times, letting each write.
+3. On C, change a setting.
+4. On A, Command-drag again. There is no question.
+
+**V. An item you move while holzBar restores** (Issue 8, macOS 26, timing-dependent):
+1. Wake the Mac or connect a display so holzBar puts several items back.
+2. While it moves them, Command-drag an item that has never been saved (for example one that just appeared).
+3. After a few seconds, and after the next restore (for example after another wake), the item stays where you put it.
+
+**W. Dispatch** (Issue 9): repeat round 2's steps I, K and L and round 1's step C. The hints, the take-in at Restart or launch, and the push after a check behave as described there.
+
+## Threat surface
+
+There is no new network, file or permission surface. One new defaults key, `SettingsSyncKeptLayoutDigest`, holds a string read with a type check. It starts with "SettingsSync", so it is never exported, imported or synced. `SettingsSyncRecentLayoutDigests` now holds up to 64 strings. The sync file format is unchanged. Logs carry no digests, ids or values.
+
+## Self-Check: PASSED
+
+- The eight commits `88a8ac31` to `94412993` exist on `audit-manual/sync-fix` after `c537deff` (`git merge-base --is-ancestor`).
+- All modified files exist.
+- The gates passed before each commit, and the full `swift test` passed before this one.
+
 ---
 
 # Sync fix round 2: the review of round 1

@@ -247,8 +247,8 @@ The review of round 2 confirmed nine more sync issues (one blocker, three major,
 | Stale-copy detection kept only the last 8 layouts | minor | 64 layouts; an old copy is remembered anew each time it is written over | `ab28fc08` |
 | Before macOS 27, reconciliation could store an item's old section over one the user just saved | minor | Saved sections are re-read before holzBar stores its own placements | `aa6e6ef5` |
 | Dispatching sync decisions (handle, pullIfNeeded, adopt, finishJoin) was untested | minor | `SettingsSyncPolicy.outcome`, `launchApplication` and `State.recordLaunch` in Core with tests; the app only executes them | `f5895cb6` |
-| Writing over a missing or unusable file can make another Mac silently revert its last synced change | minor | Not fixed: a safe fix needs a version history in the file. Documented as a known issue | docs commit |
-| Before macOS 27, a first move of an unsaved item does not count, and a displaced item saved by a Command-click counts | minor | Not fixed: needs the section at drag start, which holzBar does not see in every mode. Documented as a known issue | docs commit |
+| Writing over a missing or unusable file can make another Mac silently revert its last synced change | minor | Not fixed: a safe fix needs a version history in the file. Documented as a known issue | `94412993` |
+| Before macOS 27, a first move of an unsaved item does not count, and a displaced item saved by a Command-click counts | minor | Not fixed: needs the section at drag start, which holzBar does not see in every mode. Documented as a known issue | `94412993` |
 
 ## Still open
 
