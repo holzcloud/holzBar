@@ -755,13 +755,7 @@ final class SettingsSync {
             commitJoin(join)
             switch result.action {
             case .write:
-                Self.markSynced(
-                    base: request.local.userDigest,
-                    layout: result.writtenLayoutDigest,
-                    layoutEdits: request.layoutEdits,
-                    modified: result.written
-                )
-                Self.logger.info("Wrote settings to the sync folder")
+                recordWrite(result, of: request)
             case .adopt:
                 adopt(result.remote, local: request.local, layoutEdits: request.layoutEdits)
             default:
@@ -963,6 +957,29 @@ final class SettingsSync {
         withdrawHint()
     }
 
+    /// Remembers a write of this Mac's settings as synced. A write that kept another Mac's
+    /// layout, which this Mac has not taken in, offers it with the quiet Restart hint; the
+    /// next launch applies it as well (`SettingsSyncPolicy.State.recordWrite`).
+    private func recordWrite(_ result: ExchangeResult, of request: ExchangeRequest) {
+        let writtenVersion = result.writtenVersion
+        Self.updateState {
+            $0.recordWrite(
+                layoutDigest: result.writtenLayoutDigest,
+                modified: result.written,
+                local: request.local,
+                layoutEdits: request.layoutEdits,
+                takesInLayout: writtenVersion != nil
+            )
+        }
+        Self.logger.info("Wrote settings to the sync folder")
+        guard let writtenVersion else {
+            withdrawHint()
+            return
+        }
+        offer(writtenVersion, local: Self.currentLocal(settings: Self.syncedSettings(), postponed: postponed))
+        Self.logger.info("The sync folder holds another layout for this macOS version; it is applied at the next restart")
+    }
+
     /// Remembers that this Mac has synced the given user settings and layout with the file
     /// of the given date, and that no version waits for the user.
     ///
@@ -1069,6 +1086,9 @@ final class SettingsSync {
         /// The layout digest this Mac records as synced after the write
         /// (`SettingsSyncPolicy.syncedLayoutDigest(afterWriting:currentLayouts:copiedLayouts:layouts:local:)`).
         var writtenLayoutDigest: String?
+        /// The written version, when it kept another Mac's layout that this Mac takes in
+        /// (`SettingsSyncPolicy.takesInKeptLayout`).
+        var writtenVersion: RemoteVersion?
         var problem: ExchangeProblem?
     }
 
@@ -1188,14 +1208,7 @@ final class SettingsSync {
                 withdrawHint()
                 requestExchange(.push)
             } else {
-                Self.markSynced(
-                    base: request.local.userDigest,
-                    layout: result.writtenLayoutDigest,
-                    layoutEdits: request.layoutEdits,
-                    modified: result.written
-                )
-                withdrawHint()
-                Self.logger.info("Wrote settings to the sync folder")
+                recordWrite(result, of: request)
             }
         case .apply, .ask:
             guard let remote = result.remote else {
@@ -1277,6 +1290,7 @@ final class SettingsSync {
                 fileSettings: inspection.fileSettings,
                 currentLayouts: inspection.currentLayouts,
                 copiedLayouts: inspection.copiedLayouts,
+                fileLayoutDigest: inspection.remote?.layoutDigest,
                 to: writingURL
             )
         }
@@ -1296,6 +1310,7 @@ final class SettingsSync {
         fileSettings: [String: Any]?,
         currentLayouts: Set<String>,
         copiedLayouts: Set<String>,
+        fileLayoutDigest: String?,
         to fileURL: URL
     ) -> ExchangeResult {
         guard let settings = (try? PropertyListSerialization.propertyList(from: request.settingsData, format: nil)) as? [String: Any] else {
@@ -1308,7 +1323,7 @@ final class SettingsSync {
             fileCurrentLayouts: currentLayouts,
             fileCopiedLayouts: copiedLayouts,
             layouts: layouts,
-            keepsOwnLayout: request.local.forcesWrite || request.local.editsLayout
+            keepsOwnLayout: SettingsSyncPolicy.writesOwnLayout(request.local)
         )
         // The id alone tells the Macs apart; the computer name, which usually holds the
         // owner's name, stays on this Mac.
@@ -1334,10 +1349,47 @@ final class SettingsSync {
                 return ExchangeResult(action: .retry, problem: .tooLarge)
             }
             try data.write(to: fileURL, options: .atomic)
-            return ExchangeResult(action: .write, written: modified, writtenLayoutDigest: writtenLayoutDigest)
+            // A layout of another Mac's that the write kept waits for this Mac to take it in.
+            let takesInLayout = SettingsSyncPolicy.takesInKeptLayout(
+                fileLayoutDigest: fileLayoutDigest,
+                writtenLayoutDigest: writtenLayoutDigest,
+                local: request.local
+            )
+            return ExchangeResult(
+                action: .write,
+                written: modified,
+                writtenLayoutDigest: writtenLayoutDigest,
+                writtenVersion: takesInLayout ? writtenVersion(written, modified: modified) : nil
+            )
         } catch {
             return ExchangeResult(action: .retry, problem: .failed(String(describing: error)))
         }
+    }
+
+    /// The version this Mac just wrote, as a version that waits for the user.
+    private nonisolated static func writtenVersion(
+        _ written: (settings: [String: Any], currentLayouts: [String], copiedLayouts: [String]),
+        modified: Date
+    ) -> RemoteVersion? {
+        let current = SettingsSyncPolicy.withoutStaleLayouts(written.settings, currentLayouts: Set(written.currentLayouts))
+        guard let settingsData = try? PropertyListSerialization.data(fromPropertyList: current, format: .binary, options: 0) else {
+            return nil
+        }
+        let version = SettingsSyncPolicy.Version(
+            settings: current,
+            layouts: layouts,
+            isFromThisMac: true,
+            modified: modified,
+            isNewer: false
+        )
+        return RemoteVersion(
+            modified: modified,
+            settingsData: settingsData,
+            layoutDigest: version.layoutDigest,
+            isNewer: false,
+            version: version,
+            unlistedLayoutData: nil
+        )
     }
 
     /// Turns what reading the sync file gave into what the decision needs.

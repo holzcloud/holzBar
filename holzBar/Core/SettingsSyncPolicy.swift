@@ -359,7 +359,19 @@ nonisolated enum SettingsSyncPolicy {
                 return .ask
             }
             if version.isFromThisMac {
-                return writesChanges
+                guard holdsLayoutToTakeIn(version, local: local) else {
+                    return writesChanges
+                }
+                // This Mac kept another Mac's layout in its last write and has not taken it
+                // in yet (``takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``):
+                // it is applied like a newer version, and a layout change of the user's asks.
+                if local.editsLayout {
+                    if !isLaunch, let postponed = local.postponed, version.modified <= postponed {
+                        return .wait
+                    }
+                    return .ask
+                }
+                return local.hasChanges ? writesChanges : .apply
             }
             if local.isJoining {
                 // Only the user's layout differs from a file without one, or from the layout
@@ -742,6 +754,48 @@ nonisolated extension SettingsSyncPolicy {
         return unlisted != nil && unlisted == local.baseLayoutDigest ? unlisted : nil
     }
 
+    /// Whether this Mac writes its own layout for its macOS version as it is: only after a
+    /// change of the user's. Otherwise the file's current layout is kept, even when the user
+    /// chose to keep this Mac's settings: this Mac's layout then holds only holzBar's own
+    /// placements, which never replace another Mac's arrangement (SA-05).
+    static func writesOwnLayout(_ local: Local) -> Bool {
+        local.editsLayout
+    }
+
+    /// Whether a write that kept the file's current layout for this Mac's macOS version
+    /// leaves this Mac with another Mac's layout to take in: the user did not change this
+    /// Mac's layout, the file's layout is not the one this Mac last synced, and the written
+    /// layout is not this Mac's.
+    ///
+    /// That happens when the user chose to keep this Mac's settings over a version whose
+    /// layout differs, or when this Mac wrote over a version that is not newer than its last
+    /// sync. holzBar reads the layout at launch, so it is not applied now: this Mac records
+    /// its own layout as synced, and the version it wrote waits for a restart
+    /// (``State/recordWrite(layoutDigest:modified:local:layoutEdits:takesInLayout:)``).
+    ///
+    /// - Parameters:
+    ///   - fileLayoutDigest: The layout digest of the file's current layout before the
+    ///     write (``Version/layoutDigest``).
+    ///   - writtenLayoutDigest: The layout digest this Mac records after the write
+    ///     (``syncedLayoutDigest(afterWriting:currentLayouts:copiedLayouts:layouts:local:)``).
+    ///   - local: This Mac's side of the decision that wrote.
+    static func takesInKeptLayout(fileLayoutDigest: String?, writtenLayoutDigest: String?, local: Local) -> Bool {
+        guard !writesOwnLayout(local), let fileLayoutDigest, let writtenLayoutDigest else {
+            return false
+        }
+        return fileLayoutDigest != local.baseLayoutDigest && writtenLayoutDigest != local.layoutDigest
+    }
+
+    /// Whether a version this Mac wrote holds a layout for its macOS version that it has not
+    /// taken in: one it kept from another Mac
+    /// (``takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``).
+    static func holdsLayoutToTakeIn(_ version: Version, local: Local) -> Bool {
+        guard version.isFromThisMac, !local.isJoining, let layout = version.layoutDigest else {
+            return false
+        }
+        return layout != local.baseLayoutDigest
+    }
+
     /// Whether a version holds this Mac's settings: equal user settings, and a layout for
     /// this Mac's macOS version that is equal to the one this Mac holds against it
     /// (``Local/comparedLayout``), or none while the user did not change this Mac's.
@@ -923,6 +977,30 @@ nonisolated extension SettingsSyncPolicy {
                 return
             }
             markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: layoutEdits, modified: nil)
+            pending = modified
+        }
+
+        /// Records a write of this Mac's settings (``Action/write``) as synced.
+        ///
+        /// When the write kept another Mac's layout that this Mac has not taken in
+        /// (``SettingsSyncPolicy/takesInKeptLayout(fileLayoutDigest:writtenLayoutDigest:local:)``),
+        /// this Mac's own layout is recorded as synced instead, so the written version holds a
+        /// layout to take in (``SettingsSyncPolicy/holdsLayoutToTakeIn(_:local:)``), and it
+        /// waits: Restart applies it, or the next launch.
+        ///
+        /// - Parameters:
+        ///   - layoutDigest: The layout digest the write records
+        ///     (``SettingsSyncPolicy/syncedLayoutDigest(afterWriting:currentLayouts:copiedLayouts:layouts:local:)``).
+        ///   - modified: The date written into the file.
+        ///   - local: This Mac's side of the decision that wrote.
+        ///   - layoutEdits: The number of layout edits that decision saw.
+        ///   - takesInLayout: Whether the write kept a layout this Mac takes in.
+        mutating func recordWrite(layoutDigest: String?, modified: Date?, local: Local, layoutEdits: Int, takesInLayout: Bool) {
+            guard takesInLayout else {
+                markSynced(base: local.userDigest, layout: layoutDigest, layoutEdits: layoutEdits, modified: modified)
+                return
+            }
+            markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: layoutEdits, modified: modified)
             pending = modified
         }
     }
