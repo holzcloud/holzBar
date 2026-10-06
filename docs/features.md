@@ -74,7 +74,8 @@
 - **The launch never waits for the cloud.** holzBar waits at most a second for the sync file and checks a file that is not on this Mac yet after launch.
 - **Each macOS version keeps its own layout.** A Mac on macOS 26 and one on macOS 27 never compare their layouts or ask about them; each passes the other's on unchanged, and settings a Mac lacks are kept.
 - **A network share is used only while it is mounted**; holzBar never mounts it itself. Until it is, Settings → Advanced shows "The sync folder cannot be found", and syncing picks up again by itself once the share is mounted.
-- **Only your changes count.** holzBar's own placement of new menu bar items never turns **Restart** into **Choose Settings…** and never shows a hint on another Mac; it travels with your next change. Layout changes you make (in the Layout pane, by Command-dragging, by applying a profile or by importing settings) count.
+- **Only your changes count.** holzBar's own placement of new menu bar items never turns **Restart** into **Choose Settings…** and never shows a hint on another Mac. It is not synced by itself: it goes along with your next layout change, or with any other change of yours when no other Mac has seen the item yet. Layout changes you make (in the Layout pane, by Command-dragging, by applying a profile or by importing settings) count.
+- **A Mac that joins takes the folder's layout** for its macOS version, unless you rearranged its items since it last synced; then holzBar asks if the layouts differ. While holzBar runs, the layout arrives with a restart the hint offers.
 
 ## macOS 27
 
