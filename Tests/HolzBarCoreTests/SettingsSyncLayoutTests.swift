@@ -1924,6 +1924,71 @@ struct SettingsSyncLayoutTests {
         #expect(!Policy.keepsOwnLayoutOverStale(nil, local: keepA))
     }
 
+    @Test("Keep This Mac's Settings answering a version without this Mac's last write keeps this Mac's arrangement", arguments: layoutBackends)
+    func keepOverVersionWithoutLastWriteKeepsArrangement(backend: MenuBarBackendKind) throws {
+        let layouts = Policy.Layouts(backend: backend)
+        // A and B synced `first`. A rearranged to `second` and wrote it; the file went away
+        // before B read it, and B wrote a change of a setting over the missing file, listing
+        // its `first` as current.
+        let synced = settings(layouts, own: first)
+        let both = Policy.State(
+            base: Policy.userDigest(of: synced),
+            baseLayoutDigest: Policy.layoutDigest(of: synced, layouts: layouts),
+            lastSynced: lastSynced,
+            versionDigest: Policy.userDigest(of: synced),
+            lastWritten: lastSynced
+        )
+        var stateA = both
+        stateA.seen = ["B": lastSynced]
+        var stateB = both
+        stateB.seen = ["A": lastSynced]
+        let mineA = settings(layouts, own: second)
+        var editA = Policy.Local(settings: mineA, layouts: layouts, state: stateA, layoutEdits: 1, postponed: nil, forcesWrite: false)
+        editA.editsLayout = true
+        let planA = Policy.planWrite(mineA, file: synced, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileVersion: nil, layouts: layouts, local: editA)
+        let writtenA = lastSynced.addingTimeInterval(100)
+        stateA = Policy.outcome(of: .write, isCheck: false, version: nil, local: editA, state: stateA, written: (planA.record, writtenA)).state
+        stateA.layoutEdits = 1
+        let mineB = settings(layouts, showOnHover: false, own: first)
+        let changedB = Policy.Local(settings: mineB, layouts: layouts, state: stateB, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        let planB = Policy.planWrite(mineB, file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], fileVersion: nil, layouts: layouts, local: changedB)
+        let versionB = try read(planB, writer: "B", modified: lastSynced.addingTimeInterval(200), reader: "A", layouts: layouts, lastSynced: stateA.lastSynced)
+        #expect(versionB.version.isNewer)
+        #expect(versionB.version.layoutDigest == Policy.layoutDigest(of: synced, layouts: layouts))
+
+        // A asks; "Keep This Mac's Settings" writes A's arrangement, and A takes nothing in.
+        let idleA = Policy.Local(settings: mineA, layouts: layouts, state: stateA, layoutEdits: 1, postponed: nil, forcesWrite: false)
+        #expect(!idleA.editsLayout)
+        #expect(Policy.decide(.check, local: idleA, file: .version(versionB.version)) == .ask)
+        var keepA = idleA
+        keepA.forcesWrite = true
+        keepA.keepsOver = versionB.version
+        #expect(Policy.decide(.localChange, local: keepA, file: .version(versionB.version)) == .write)
+        #expect(Policy.keepsOwnLayoutOverStale(versionB.version, local: keepA))
+        let kept = Policy.planWrite(
+            mineA,
+            file: planB.settings,
+            fileCurrentLayouts: Set(planB.currentLayouts),
+            fileCopiedLayouts: Set(planB.copiedLayouts),
+            fileVersion: versionB.version,
+            layouts: layouts,
+            local: keepA
+        )
+        #expect(kept.currentLayouts.contains(layouts.own))
+        #expect(isLayout(kept.settings[layouts.own], second))
+        #expect(!kept.record.takesInLayout)
+        let afterKeep = Policy.outcome(of: .write, isCheck: false, version: versionB.version, local: keepA, state: stateA, written: (kept.record, lastSynced.addingTimeInterval(300)))
+        #expect(afterKeep.hint == .withdraw)
+        #expect(afterKeep.state.keptLayoutDigest == nil)
+
+        // A version that holds A's last write keeps its layout, which A then takes in.
+        var holdsWrite = versionB.version
+        holdsWrite.seenWrite = writtenA
+        var keepHolds = keepA
+        keepHolds.keepsOver = holdsWrite
+        #expect(!Policy.keepsOwnLayoutOverStale(holdsWrite, local: keepHolds))
+    }
+
     // MARK: What the launch applies
 
     @Test("The launch applies for each decision exactly what the decision says", arguments: layoutBackends)

@@ -941,13 +941,16 @@ nonisolated extension SettingsSyncPolicy {
     /// Whether the user's "Keep This Mac's Settings" writes this Mac's layout for its macOS
     /// version over the answered version's, although the user did not change it: the version
     /// is another Mac's, lists a layout other than the one this Mac last synced, and is not
-    /// newer than this Mac's last sync (``Version/isNewer``).
+    /// newer than this Mac's last sync (``Version/isNewer``) or lacks this Mac's last write
+    /// (``missesLastWrite(_:local:)``).
     ///
-    /// Such a layout may be older than the arrangement the Macs use now, as when a sync app
-    /// brings back an older version. Kept with a fresh date, it would be listed as current
+    /// Such a layout may be older than the arrangement the Macs use now: a sync app brought
+    /// back an older version, or a Mac that never read this Mac's last write, as when the file
+    /// went away, listed its own. Kept with a fresh date, it would be listed as current
     /// again, and every Mac that arranged a newer one would apply it silently, this Mac too
-    /// at its restart (F-02). This Mac's layout is the one it last synced, with only holzBar's
-    /// own placements since, which is what the user chose to keep.
+    /// at its restart, so the arrangement would be lost whichever answer the user gave
+    /// (F-02). This Mac's layout is the one it last synced, with only holzBar's own placements
+    /// since, which is what the user chose to keep.
     ///
     /// - Parameter fileVersion: The file's version before the write, if it holds one.
     static func keepsOwnLayoutOverStale(_ fileVersion: Version?, local: Local) -> Bool {
@@ -960,7 +963,7 @@ nonisolated extension SettingsSyncPolicy {
         else {
             return false
         }
-        return !fileVersion.isNewer
+        return !fileVersion.isNewer || missesLastWrite(fileVersion, local: local)
     }
 
     /// Whether a write that kept the file's current layout for this Mac's macOS version
