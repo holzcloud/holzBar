@@ -890,18 +890,20 @@ nonisolated extension SettingsSyncPolicy {
     /// The number of layout edits an install starts counting from, at the first launch of a
     /// build that counts them.
     ///
-    /// A Mac that syncs already had its layout from the sync folder, which earlier builds
-    /// synced whole, so only holzBar's own placements can set it apart: it counts as
+    /// A Mac that has synced already had its layout from the sync folder, which earlier
+    /// builds synced whole, so only holzBar's own placements can set it apart: it counts as
     /// unchanged, and the first sync takes in the folder's layout without a question. On a
-    /// Mac that does not sync, whether an existing layout is the user's arrangement or
-    /// holzBar's own is unknown, so it counts as changed until the first sync. A fresh
-    /// install's does not, as holzBar writes it.
+    /// Mac that has not synced, sync off or on but never in reach of the folder, whether an
+    /// existing layout is the user's arrangement or holzBar's own is unknown, so it counts as
+    /// changed until the first sync. A fresh install's does not, as holzBar writes it.
     ///
     /// - Parameters:
     ///   - hasLayout: Whether this Mac has a layout for its macOS version.
     ///   - syncs: Whether settings sync is on.
-    static func initialLayoutEdits(hasLayout: Bool, syncs: Bool) -> Int {
-        hasLayout && !syncs ? 1 : 0
+    ///   - hasSynced: Whether this Mac has written or applied the sync file (it has a date
+    ///     of its last sync).
+    static func initialLayoutEdits(hasLayout: Bool, syncs: Bool, hasSynced: Bool) -> Int {
+        hasLayout && !(syncs && hasSynced) ? 1 : 0
     }
 
     /// Whether saving a layout counts as a change of the user's

@@ -159,10 +159,10 @@ final class SettingsSync {
     ///
     /// The base of earlier test builds held the layouts, which no longer count as user
     /// settings: it is removed, so this Mac joins the folder once more. Equal settings are
-    /// adopted silently. Layout edits start being counted: on a Mac that syncs, the layout
-    /// came from the sync folder and counts as unchanged; on one that does not, a layout that
-    /// already exists counts as changed until the first sync, as nobody knows whether the
-    /// user arranged it (`SettingsSyncPolicy.initialLayoutEdits(hasLayout:syncs:)`).
+    /// adopted silently. Layout edits start being counted: on a Mac that has synced, the
+    /// layout came from the sync folder and counts as unchanged; on one that has not, a layout
+    /// that already exists counts as changed until the first sync, as nobody knows whether the
+    /// user arranged it (`SettingsSyncPolicy.initialLayoutEdits(hasLayout:syncs:hasSynced:)`).
     private static func migrateSyncState() {
         let defaults = UserDefaults.standard
         if defaults.object(forKey: legacyBaseKey) != nil {
@@ -171,8 +171,12 @@ final class SettingsSync {
         }
         if defaults.object(forKey: layoutEditsKey) == nil {
             let hasLayout = defaults.object(forKey: layouts.own) != nil
-            let syncs = Defaults.bool(forKey: .syncsSettingsWithICloud)
-            defaults.set(SettingsSyncPolicy.initialLayoutEdits(hasLayout: hasLayout, syncs: syncs), forKey: layoutEditsKey)
+            let edits = SettingsSyncPolicy.initialLayoutEdits(
+                hasLayout: hasLayout,
+                syncs: Defaults.bool(forKey: .syncsSettingsWithICloud),
+                hasSynced: defaults.object(forKey: lastSyncedKey) != nil
+            )
+            defaults.set(edits, forKey: layoutEditsKey)
         }
     }
 
