@@ -1789,9 +1789,9 @@ struct SettingsSyncLayoutTests {
         postponed.postponed = theirs.modified
         #expect(Policy.decide(.check, local: postponed, file: .version(theirs)) == .wait)
 
-        // "Keep This Mac's Settings" for that question writes, keeping the version's layout,
-        // which this Mac then takes in; never at launch. Over a version that was not asked
-        // about it still asks.
+        // "Keep This Mac's Settings" for that question writes this Mac's layout, as the
+        // version's may be stale; never at launch. Over a version that was not asked about it
+        // still asks.
         var keeps = joining
         keeps.forcesWrite = true
         keeps.keepsOver = theirs
@@ -1806,10 +1806,10 @@ struct SettingsSyncLayoutTests {
             layouts: layouts,
             local: keeps
         )
-        // The version's arrangement, with this Mac's items it has never seen.
-        #expect(isLayout(kept.settings[layouts.own], third.merging(["b": 1, "placed": 1]) { $1 }))
+        // This Mac's arrangement, listed as current; nothing to take in.
+        #expect(isLayout(kept.settings[layouts.own], first.merging(["placed": 1]) { $1 }))
         #expect(kept.currentLayouts.contains(layouts.own))
-        #expect(kept.record.takesInLayout)
+        #expect(!kept.record.takesInLayout)
         var unasked = theirs
         unasked.modified = theirs.modified.addingTimeInterval(-30)
         #expect(Policy.decide(.localChange, local: keeps, file: .version(unasked)) == .ask)
@@ -1849,6 +1849,79 @@ struct SettingsSyncLayoutTests {
         var neverSynced = joining
         neverSynced.baseLayoutDigest = nil
         #expect(!Policy.holdsOlderLayoutToJoin(theirs, local: neverSynced))
+    }
+
+    @Test("Keep This Mac's Settings over another Mac's version not newer than the last sync writes this Mac's layout, so no Mac takes the stale one back", arguments: layoutBackends, [false, true])
+    func keepOverOlderVersionWritesOwnLayout(backend: MenuBarBackendKind, joining: Bool) throws {
+        let layouts = Policy.Layouts(backend: backend)
+        // A and C synced C's newest arrangement `second` at `synced`. A sync app brings back
+        // B's version from before, with the older arrangement `first`.
+        let mine = settings(layouts, own: second)
+        let synced = lastSynced.addingTimeInterval(200)
+        let syncedState = Policy.State(
+            base: Policy.userDigest(of: mine),
+            baseLayoutDigest: Policy.layoutDigest(of: mine, layouts: layouts),
+            lastSynced: synced,
+            versionDigest: Policy.userDigest(of: mine),
+            lastWritten: nil,
+            seen: ["C": synced]
+        )
+        var stateA = syncedState
+        if joining {
+            stateA.leaveFolder(forgetsLastSync: false)
+        }
+        let older = settings(layouts, own: first)
+        let restored = Policy.Version(settings: older, layouts: layouts, isFromThisMac: false, modified: lastSynced.addingTimeInterval(100), isNewer: false)
+        let idleA = Policy.Local(settings: mine, layouts: layouts, state: stateA, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.check, local: idleA, file: .version(restored)) == .ask)
+
+        // The user answers "Keep This Mac's Settings": A writes its own arrangement as current,
+        // and has nothing to take in at its restart.
+        var keepA = idleA
+        keepA.forcesWrite = true
+        keepA.keepsOver = restored
+        #expect(Policy.decide(.localChange, local: keepA, file: .version(restored)) == .write)
+        #expect(Policy.keepsOwnLayoutOverStale(restored, local: keepA))
+        let plan = Policy.planWrite(mine, file: older, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileVersion: restored, layouts: layouts, local: keepA)
+        #expect(plan.currentLayouts.contains(layouts.own))
+        #expect(isLayout(plan.settings[layouts.own], second))
+        #expect(!plan.record.takesInLayout)
+        let afterKeep = Policy.outcome(of: .write, isCheck: false, version: restored, local: keepA, state: stateA, written: (plan.record, synced.addingTimeInterval(100)))
+        #expect(afterKeep.hint == .withdraw)
+        #expect(afterKeep.state.keptLayoutDigest == nil)
+        #expect(afterKeep.state.baseLayoutDigest == Policy.layoutDigest(of: mine, layouts: layouts))
+
+        // C, which arranged `second`, keeps it: A's version holds its settings.
+        var stateC = syncedState
+        stateC.lastWritten = synced
+        stateC.seen = [:]
+        let idleC = Policy.Local(settings: mine, layouts: layouts, state: stateC, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        let forC = try read(plan, writer: "A", modified: synced.addingTimeInterval(100), reader: "C", layouts: layouts, lastSynced: synced)
+        #expect(forC.version.layoutDigest == Policy.layoutDigest(of: mine, layouts: layouts))
+        #expect(Policy.decide(.launch, local: idleC, file: .version(forC.version)) == .adopt)
+
+        // Only a stale layout is written over: a version that lists the layout this Mac last
+        // synced keeps the file's, without holzBar's own placements since; so does a newer
+        // version, whose layout this Mac then takes in, and a version the user did not answer.
+        var placed = second
+        placed["b"] = 2
+        let placedMine = settings(layouts, own: placed)
+        var keepSame = Policy.Local(settings: placedMine, layouts: layouts, state: stateA, layoutEdits: 0, postponed: nil, forcesWrite: true)
+        let sameLayout = Policy.Version(settings: settings(layouts, showOnHover: false, own: second), layouts: layouts, isFromThisMac: false, modified: restored.modified, isNewer: false)
+        keepSame.keepsOver = sameLayout
+        #expect(!Policy.keepsOwnLayoutOverStale(sameLayout, local: keepSame))
+        let samePlan = Policy.planWrite(placedMine, file: settings(layouts, showOnHover: false, own: second), fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], fileVersion: sameLayout, layouts: layouts, local: keepSame)
+        #expect(isLayout(samePlan.settings[layouts.own], second))
+        var newer = restored
+        newer.isNewer = true
+        var keepNewer = keepA
+        keepNewer.keepsOver = newer
+        #expect(!Policy.keepsOwnLayoutOverStale(newer, local: keepNewer))
+        var notAnswered = keepA
+        notAnswered.keepsOver = nil
+        #expect(!Policy.keepsOwnLayoutOverStale(restored, local: notAnswered))
+        #expect(!Policy.keepsOwnLayoutOverStale(restored, local: idleA))
+        #expect(!Policy.keepsOwnLayoutOverStale(nil, local: keepA))
     }
 
     // MARK: What the launch applies

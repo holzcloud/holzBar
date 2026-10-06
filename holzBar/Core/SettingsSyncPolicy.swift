@@ -392,8 +392,9 @@ nonisolated enum SettingsSyncPolicy {
             return !isLaunch && (local.isJoining || local.forcesWrite || local.hasChanges) ? .write : .none
         case .version(let version):
             if holdsOlderLayoutToJoin(version, local: local) {
-                // The user answered this question with "Keep This Mac's Settings": it writes,
-                // keeping the version's layout to take in, as for a Mac that is not joining.
+                // The user answered this question with "Keep This Mac's Settings": it writes
+                // this Mac's layout over the version's, which may be stale
+                // (``keepsOwnLayoutOverStale(_:local:)``), as for a Mac that is not joining.
                 if keepsThisMac(over: version, local: local) {
                     return isLaunch ? .none : .write
                 }
@@ -929,10 +930,37 @@ nonisolated extension SettingsSyncPolicy {
 
     /// Whether this Mac writes its own layout for its macOS version as it is: only after a
     /// change of the user's. Otherwise the file's current layout is kept, even when the user
-    /// chose to keep this Mac's settings: this Mac's layout then holds only holzBar's own
-    /// placements, which never replace another Mac's arrangement (SA-05).
+    /// chose to keep this Mac's settings over a newer version: this Mac's layout then holds
+    /// only holzBar's own placements, which never replace another Mac's arrangement (SA-05).
+    /// Only a version whose layout may be stale is written over
+    /// (``keepsOwnLayoutOverStale(_:local:)``).
     static func writesOwnLayout(_ local: Local) -> Bool {
         local.editsLayout
+    }
+
+    /// Whether the user's "Keep This Mac's Settings" writes this Mac's layout for its macOS
+    /// version over the answered version's, although the user did not change it: the version
+    /// is another Mac's, lists a layout other than the one this Mac last synced, and is not
+    /// newer than this Mac's last sync (``Version/isNewer``).
+    ///
+    /// Such a layout may be older than the arrangement the Macs use now, as when a sync app
+    /// brings back an older version. Kept with a fresh date, it would be listed as current
+    /// again, and every Mac that arranged a newer one would apply it silently, this Mac too
+    /// at its restart (F-02). This Mac's layout is the one it last synced, with only holzBar's
+    /// own placements since, which is what the user chose to keep.
+    ///
+    /// - Parameter fileVersion: The file's version before the write, if it holds one.
+    static func keepsOwnLayoutOverStale(_ fileVersion: Version?, local: Local) -> Bool {
+        guard
+            let fileVersion,
+            !fileVersion.isFromThisMac,
+            keepsThisMac(over: fileVersion, local: local),
+            let layout = fileVersion.layoutDigest,
+            layout != local.baseLayoutDigest
+        else {
+            return false
+        }
+        return !fileVersion.isNewer
     }
 
     /// Whether a write that kept the file's current layout for this Mac's macOS version
@@ -940,9 +968,12 @@ nonisolated extension SettingsSyncPolicy {
     /// Mac's layout, the file's layout is not the one this Mac last synced, and the written
     /// layout is not this Mac's.
     ///
-    /// That happens when the user chose to keep this Mac's settings over a version whose
-    /// layout differs, or when this Mac wrote over a version that is not newer than its last
-    /// sync. holzBar reads the layout at launch, so it is not applied now: this Mac records
+    /// That happens when the user chose to keep this Mac's settings over a newer version whose
+    /// layout differs (over one that may be stale, this Mac's layout is written:
+    /// ``keepsOwnLayoutOverStale(_:local:)``), or when this Mac wrote over a version that is
+    /// not newer than its last sync without a question, as when an earlier build synced last
+    /// (``isUnsyncedChange(_:local:)``). holzBar reads the layout at launch, so it is not
+    /// applied now: this Mac records
     /// its own layout as synced, and the version it wrote waits for a restart
     /// (``State/recordWrite(_:modified:local:)``, ``Action/takeInLayout``).
     ///
@@ -1142,7 +1173,7 @@ nonisolated extension SettingsSyncPolicy {
     /// Mac that is not joining does (``isUnsyncedChange(_:local:)``). A layout this Mac last
     /// synced differs from its own only by holzBar's placements, which never ask. When the
     /// user answers with "Keep This Mac's Settings" (``keepsThisMac(over:local:)``), the
-    /// decision writes.
+    /// decision writes, with this Mac's layout (``keepsOwnLayoutOverStale(_:local:)``).
     static func holdsOlderLayoutToJoin(_ version: Version, local: Local) -> Bool {
         guard
             local.isJoining,
@@ -1777,7 +1808,9 @@ nonisolated extension SettingsSyncPolicy {
     /// This Mac's layout is written as it is after a change of the user's
     /// (``writesOwnLayout(_:)``), and over an old copy of this Mac's own
     /// (``isOldOwnLayout(_:local:)``): passing that copy on would bring a stale arrangement
-    /// back to the other Macs. For the same reason, the other macOS version's layout of a
+    /// back to the other Macs. So is it when the user kept this Mac's settings over another
+    /// Mac's version whose layout may be stale (``keepsOwnLayoutOverStale(_:local:)``). For
+    /// the same reason, the other macOS version's layout of a
     /// version older than this Mac's last sync is passed on as a copy
     /// (``passesOtherLayoutAsCopy(_:local:)``).
     ///
@@ -1813,7 +1846,7 @@ nonisolated extension SettingsSyncPolicy {
             fileCurrentLayouts: fileCurrentLayouts,
             fileCopiedLayouts: fileCopiedLayouts,
             layouts: layouts,
-            keepsOwnLayout: writesOwnLayout(local) || overwritesOldOwnLayout,
+            keepsOwnLayout: writesOwnLayout(local) || overwritesOldOwnLayout || keepsOwnLayoutOverStale(fileVersion, local: local),
             passesOtherLayoutAsCopy: passesOtherAsCopy,
             writesOwnLayoutAsCopy: writesOwnLayoutAsCopy(fileSettings: remote, layouts: layouts, local: local)
         )
