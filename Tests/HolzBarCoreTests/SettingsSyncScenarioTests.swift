@@ -391,4 +391,57 @@ struct SettingsSyncScenarioTests {
         d.launch(folder, at: at(502))
         #expect(d.layout == newer)
     }
+
+    @Test("Keep This Mac's Settings answered while the sync file is missing records the answered version, so its Mac neither asks again nor loses its arrangement", arguments: [false, true])
+    func keepWhileFileMissing(rearrangedThere: Bool) {
+        let folder = SyncFolder()
+        let a = SyncingMac("A", backend: .service26, settings: ["ShowOnHover": true, "ItemSections": older])
+        let b = SyncingMac("B", backend: .service26, settings: ["ShowOnHover": true, "ItemSections": older])
+        b.exchange(folder, at: at(100))
+        a.exchange(folder, at: at(110))
+        b.settings["ShowOnClick"] = true
+        if rearrangedThere {
+            b.arrange(newer)
+        }
+        b.exchange(folder, at: at(200))
+        // A changed a setting too: it asks. The file goes away, and the user keeps A's.
+        a.settings["ShowOnScroll"] = true
+        #expect(a.exchange(folder, at: at(210), check: true) == .ask)
+        folder.file = nil
+        #expect(a.keep(folder, at: at(220)) == .write)
+        #expect(a.waiting == nil)
+        // B's arrangement is answered with a copy of A's layout, so B keeps it.
+        #expect(folder.currentLayouts.contains("ItemSections") == !rearrangedThere)
+        // B takes A's settings with a restart, without asking again about the choice.
+        #expect(b.exchange(folder, at: at(230), check: true) == .apply)
+        #expect(b.hint == .restart)
+        b.launch(folder, at: at(240))
+        #expect(b.settings["ShowOnScroll"] as? Bool == true)
+        #expect(b.layout == (rearrangedThere ? newer : older))
+        #expect(a.layout == older)
+    }
+
+    @Test("Keep This Mac's Settings answered while the sync file is missing lists this Mac's arrangement when the answered version lacked it")
+    func keepStaleWhileFileMissing() {
+        let folder = SyncFolder()
+        let a = SyncingMac("A", backend: .service26, settings: ["ShowOnHover": true, "ItemSections": older])
+        let b = SyncingMac("B", backend: .service26, settings: ["ShowOnHover": true, "ItemSections": older])
+        b.exchange(folder, at: at(100))
+        a.exchange(folder, at: at(110))
+        // A rearranges; the file goes away before B reads it, and B writes over it.
+        a.arrange(newer)
+        a.exchange(folder, at: at(200))
+        folder.file = nil
+        b.settings["ShowOnHover"] = false
+        b.exchange(folder, at: at(300))
+        #expect(a.exchange(folder, at: at(310), check: true) == .ask)
+        // The file goes away again before the user keeps A's settings.
+        folder.file = nil
+        #expect(a.keep(folder, at: at(320)) == .write)
+        #expect(folder.currentLayouts.contains("ItemSections"))
+        b.exchange(folder, at: at(330), check: true)
+        b.launch(folder, at: at(340))
+        #expect(b.layout == newer)
+        #expect(a.layout == newer)
+    }
 }

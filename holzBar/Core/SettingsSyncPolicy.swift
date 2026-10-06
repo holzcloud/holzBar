@@ -1017,11 +1017,15 @@ nonisolated extension SettingsSyncPolicy {
     /// The decision writes only over a version whose changes this Mac holds or the user chose
     /// to replace, so the write holds them. Over a missing or unusable file, only this Mac's
     /// own record counts: a write of another Mac that the file held is not in this Mac's
-    /// settings, and that Mac asks (``missesLastWrite(_:local:)``).
+    /// settings, and that Mac asks (``missesLastWrite(_:local:)``). When the user chose to
+    /// keep this Mac's settings over a version (``Local/keepsOver``) that went away before the
+    /// write, the writes of that version count as well: the user replaced them, and the Mac
+    /// that wrote it does not ask about that choice again.
     ///
     /// - Parameter fileVersion: The file's version before the write, if it holds one.
     static func seen(writingOver fileVersion: Version?, local: Local) -> [String: Date] {
-        mergedSeen(local.seen, fileVersion?.seen ?? [:])
+        let replaced = fileVersion ?? (local.forcesWrite ? local.keepsOver : nil)
+        return mergedSeen(local.seen, replaced?.seen ?? [:])
     }
 
     /// Two records of writes merged: the newest write of each Mac, at most
@@ -1117,6 +1121,12 @@ nonisolated extension SettingsSyncPolicy {
     /// (``WriteRecord/keepsLayoutToTakeIn``). A Mac that has not synced with the folder, as
     /// one that sets up a new folder, lists its layout.
     ///
+    /// So does "Keep This Mac's Settings" over the file gone away, when the answered version
+    /// lists another Mac's arrangement that the keep would have kept had the file been there
+    /// (``keepsOwnLayoutOverStale(_:local:)`` does not hold): the write records that version's
+    /// writes (``seen(writingOver:local:)``), so the Mac that made it does not ask again, and
+    /// keeps its arrangement instead of applying this Mac's layout.
+    ///
     /// - Parameters:
     ///   - fileSettings: The file's settings as read; `nil` when it is missing or unusable.
     ///   - layouts: This Mac's layout keys.
@@ -1125,7 +1135,19 @@ nonisolated extension SettingsSyncPolicy {
         guard fileSettings?[layouts.own] == nil, !local.editsLayout else {
             return false
         }
-        return local.keptLayoutDigest != nil || (local.baseLayoutDigest == noLayoutDigest && local.lastSynced != nil)
+        if local.keptLayoutDigest != nil || (local.baseLayoutDigest == noLayoutDigest && local.lastSynced != nil) {
+            return true
+        }
+        guard
+            local.forcesWrite,
+            let answered = local.keepsOver,
+            !answered.isFromThisMac,
+            let layout = answered.layoutDigest,
+            layout != local.baseLayoutDigest
+        else {
+            return false
+        }
+        return !keepsOwnLayoutOverStale(answered, local: local)
     }
 
     /// Whether a layout for this Mac's macOS version that this Mac's own version of the sync
