@@ -218,6 +218,22 @@ The second review of SA-05 confirmed nine sync issues; all are fixed or document
 | Tests missed state-machine mutations; race and wrap tests were tautological | minor | Sync bookkeeping moved into `SettingsSyncPolicy.State`, with tests checked by mutation | `0320c839` |
 | F-60 remains for a write into a missing or unusable file while a beta 1 Mac of the other OS syncs | minor | Documented as a known issue (update every Mac before changing or recreating the sync folder) | `6a61e075` |
 
+## Sync fix round 2 (2026-10-06)
+
+The review of round 1 confirmed nine more sync issues (one major, eight minor); all are fixed, F-60 as far as this side can (the rest documented). Maintainer policy: when two Macs' settings differ holzBar asks; holzBar's own placements never count (SA-05); the other macOS version's layout is taken in silently; nothing in the sync file is overwritten with a stale copy, and no change of the user's is lost or reverted silently (F-02, F-60). Details, tests and the two-Mac test steps (including a Mac still on 0.0.7 beta 1): [remediation/sync-fix-SUMMARY.md](remediation/sync-fix-SUMMARY.md).
+
+| Issue | Severity | Fix | Commit |
+|---|---|---|---|
+| A Mac that re-joined before restarting recorded a kept layout as synced without applying it; its next drag overwrote the other Mac's arrangement | major | A joining Mac takes in a kept layout from its own written version too | `9cc17194` |
+| A "not newer" version from another Mac was ignored and then overwritten | minor | It asks when it holds changes this Mac has not synced; the state keeps the digest of the last synced version, and its date never moves the last sync | `a8f59dd2`, `5b301828` |
+| "Keep This Mac's Settings" wrote over a version that arrived while the sheet was open | minor | The keep writes only over the answered version, an older one or this Mac's own | `92302f58` |
+| Before macOS 27, a Command-click without a move counted as an edit while an unsaved item existed | minor | Only a changed saved section counts; reconciliation records where macOS put an item as holzBar's own placement | `92d34d08` |
+| On macOS 27, applying a profile counted as an edit without changing the layout | minor | It counts only when the layout changed | `5b107e81` |
+| A beta 1 Mac of the other macOS version triggered the question, and "Use" reverted to an old copy of this Mac's layout | minor | The last eight synced layouts are remembered; an old copy of one is written over without a question and never applied | `a940db58` |
+| F-60: a file without the other version's layout gets this Mac's possibly stale copy | minor | Kept (leaving it out would delete the beta 1 Mac's layout); logged at notice level; every case documented | `fa10465a` |
+| After a write that kept another Mac's layout, pushes stopped and an ordinary change asked about this Mac's own write | minor | The kept layout waits without `pending` and is taken in alone (`takeInLayout`) | `4e2995bc` |
+| The tests could not catch regressions in the `SettingsSync.swift` wiring | minor | Write planning, state storage, migration and the captured edit count moved into Core with tests | `7f923e78` |
+
 ## Still open
 
 The 18 open findings are all low and manual-only, and were not in the chosen scope: F-43, F-44, F-45, F-47, F-50, F-57, F-59, F-61, F-67, F-69, F-75, F-76, F-95, F-97, F-101, F-102, F-107, F-110. Two consequences to keep in mind:
