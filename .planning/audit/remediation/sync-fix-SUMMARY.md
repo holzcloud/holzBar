@@ -1,37 +1,233 @@
 ---
 phase: audit-remediation-sync-fix
-plan: sync-fix-r3
+plan: sync-fix-r4
 subsystem: settings-sync
-tags: [sync, layout, beta1-compat, macos26, macos27]
+tags: [sync, layout, beta1-compat, macos26, macos27, parent-version]
 requirements: [SA-05, F-02, F-60]
 status: complete
 key-files:
   created: []
   modified:
     - holzBar/Core/SettingsSyncPolicy.swift
+    - holzBar/Core/SettingsSyncFile.swift
     - holzBar/Utilities/SettingsSync.swift
     - holzBar/MenuBar/MenuBarItems/SectionRestore.swift
+    - holzBar/MenuBar/MenuBarItems/MenuBarItemManager.swift
+    - holzBar/MenuBar/LayoutBar/LayoutBarPaddingView.swift
     - Tests/HolzBarCoreTests/SettingsSyncLayoutTests.swift
     - Tests/HolzBarCoreTests/SettingsSyncPolicyTests.swift
     - Tests/HolzBarCoreTests/SettingsSyncStateTests.swift
+    - Tests/HolzBarCoreTests/SettingsSyncFileTests.swift
     - docs/release-notes/v0.0.7-beta2.md
     - docs/features.md
     - .planning/audit/REMEDIATION-2026-10-05.md
     - .planning/audit/remediation/sync-fix-SUMMARY.md
 decisions:
-  - "A layout counts as recently synced (State.recentLayouts) only once this Mac took it in; a kept layout of another Mac does not."
-  - "The kept layout is recorded explicitly (State.keptLayoutDigest, key SettingsSyncKeptLayoutDigest) and survives leaving the folder; only that layout of an own version is taken in, also while joining, and a layout edit asks."
-  - "Any other layout of an own version is an old copy (isOldOwnLayout): never taken in, and a write over it writes this Mac's layout. While joining, the own version's layout stays the folder's arrangement (by design)."
-  - "Keep This Mac's Settings writes only over the answered version, recognized by writer, date and digests (Version.isSame(as:)), or over this Mac's own."
-  - "64 recent layouts, and an old copy written over is remembered anew (WriteRecord.oldCopyDigest)."
-  - "holzBar's own section placements are stored only for items still without a saved section (ownPlacementsToStore)."
-  - "What acting on a decision does is decided in Core (outcome, launchApplication, State.recordLaunch); the app only executes it."
-  - "Not fixed, documented: a write over a missing or unusable file can make another Mac revert its last change; the macOS 26 first-move and displaced-item residuals."
+  - "Each write records the version it was based on (file key basedOn): the newest of this Mac's last sync and the file's version it writes over, or a fixed no-parent date. A Mac whose last write (State.lastWritten) is newer than that, in whole seconds, asks instead of applying. Files without the key (0.0.7 beta 1, earlier builds) are decided as before."
+  - "A version dated before this Mac's last sync (isBeforeLastSync, whole seconds) gives no layout of the other macOS version to take in, and a write passes that layout on only marked as a copy, never this Mac's own copy."
+  - "A newer version from another Mac that changed nothing this Mac uses, met with nothing to write, counts as the last sync (State.recordUnchanged)."
+  - "A check that finds the file missing or unusable while a version waits waits; over a missing file, this Mac's layout is written as a copy while it keeps another Mac's arrangement without a layout edit."
+  - "An own version's layout is an old copy only when the version is dated before the last sync (positive evidence)."
+  - "A joining Mac asks about another Mac's not-newer version whose layout is neither its base nor its own."
+  - "Before macOS 27, the bar read before the user's arrangement (sectionsBeforeArrangement, captured only with no drag, no pending save, no Layout pane move, no Command and no mouse button held) decides what the user moved (sectionsToSave)."
+  - "Documented, not fixed: the 64-layout stale-copy recognition can replace a beta 1 user's exact return to a recently synced arrangement."
 metrics:
   completed: 2026-10-06
 commits: 8
-plan_head_before: c537deff947f9712c646d30b096a8d30efe27e94
-plan_head_after: 94412993b6fe040f05810c39bd201393e49b7bbb
+plan_head_before: 1af3511494d48b524682c5fffef411c2287eeaed
+plan_head_after: 1bf75b1d2624b29a443fdae17f0dce577415a866
+actuals:
+  tasks: 7
+  commits: 8
+---
+
+# Sync fix round 4: the review of round 3
+
+**One-liner:** each write now records the version it was based on, so a Mac whose last change a newer version lacks asks instead of losing it, and a layout of the other macOS version from an older version never comes back as current. Also in this round:
+- A waiting version survives the sync file going away.
+- An arrangement this Mac keeps is not replaced over a missing file.
+- Before macOS 27, the user's moves are told from macOS's.
+- An own version is an old copy only on positive evidence.
+- A re-joining Mac asks about an older arrangement it never took.
+- More of the glue is decided in Core.
+
+Maintainer policy (2026-10-05):
+- When two Macs' settings differ, holzBar asks.
+- holzBar's own placements never count (SA-05).
+- The other macOS version's layout is taken in silently.
+- Nothing in the sync file is overwritten with a stale copy, and no change of the user's is lost or reverted silently (F-02, F-60).
+- Users update one Mac at a time, so a Mac still on 0.0.7 beta 1 must be handled safely.
+
+`commits: 8` counts the commits before this summary. The summary is the ninth commit.
+
+## Commits
+
+| Commit | Issue (severity) |
+|---|---|
+| `a42f8c59` | A stale layout of the other macOS version, from an old own version or a not-newer version, is taken in, written back as current, and applied silently by the other Mac (blocker) |
+| `226db335` | Writing over a missing or unusable file: a waiting version is dropped (a'), and holzBar's own layout replaces a kept arrangement (b) (major) |
+| `d0488e5e` | Writing over a missing or unusable file reverts another Mac's last change (a), via the parent-version record (major; design guidance) |
+| `62ee8bb4` | Before macOS 27, a first move of an unsaved item does not count, and a Command-click after macOS displaced items syncs the displacement (major) |
+| `e77271bf` | isOldOwnLayout uses negative evidence (minor) |
+| `dc5bd356` | A joining Mac adopts another Mac's not-newer version and records its layout as synced without taking it in (minor) |
+| `44ee0fb8` | Issue 13 only partly fixed: the glue that feeds the Core decisions is untested (minor) |
+| `1bf75b1d` | Docs, including the minor that is documented rather than fixed (64-layout recognition and a beta 1 user's return to an earlier arrangement) |
+| this commit | This summary |
+
+## Issues and fixes
+
+### Design: the parent-version record, `d0488e5e`
+
+The review asked for a parent-version record if it closes the remaining issues' common cause. It closes the one that needs it: a write by a Mac that had not seen another Mac's last write. Each write stores `basedOn`, the date of the newest version the write accounts for: the newest of this Mac's last sync and the file's version it writes over, or `SettingsSyncFile.noParent` when it knew neither. The decision writes only over a version whose changes this Mac holds or the user chose to replace, so this date is honest. Each Mac keeps the date of its own last write (`State.lastWritten`, key `SettingsSyncLastWritten`). A newer version from another Mac whose `basedOn` is older than that write, compared in whole seconds as the plist stores dates, lacks the write. `missesLastWrite` then makes it ask (at launch through the check after it), and the hint offers the choice.
+
+Only the Mac whose write is missing asks. The other Macs, whose own changes are in the version, apply it as before. That avoids extra questions after adoptions and other Macs' writes.
+
+A full parent digest per version was considered and not used. The digest would not fix contents copied from a stale file (the blocker below), and a date is enough to tell "based on my last write" from "not".
+
+Files of 0.0.7 beta 1 carry no `basedOn` and are decided exactly as before. Beta 1 ignores the new top-level key, as it reads only `modified` and `settings`.
+
+What remains: a beta 1 Mac's write over a deleted file. Also a chain where a third Mac writes on top of a concurrent write that the sync app kept before this Mac saw it, and clock skew between Macs. These are in Known issues.
+
+### Blocker: the other macOS version's layout from an older version, `a42f8c59`
+
+`isBeforeLastSync` compares a version's date with this Mac's last sync, in whole seconds. When the version is older, the launch tail and an adoption take in nothing of its other macOS version's layout (`takesInOtherLayout`). That covers every older version of this Mac's own. `planWrite` now takes the file's version (`fileVersion`, replacing `fileIsFromThisMac`). It passes that layout on marked as a copy (`passesOtherLayoutAsCopy`), so updated Macs of that version ignore it and keep their arrangement, and it never substitutes this Mac's own copy, which can lag. The write logs that it did so, without values.
+
+So that a version brought back later is known to be older, a newer version from another Mac that changed nothing this Mac uses, met with nothing to write at launch or on a check, now counts as the last sync (`State.recordUnchanged`). An adoption already did.
+
+In the two-backend test, A adopts C's V2, V1 comes back, A changes a setting and writes, and C applies A's change while keeping its arrangement. Listed as current, C would have applied the stale one.
+
+### Major: a missing or unusable file, `226db335` and `d0488e5e`
+
+- (a') A check that finds the file missing or unusable while a version waits now returns `.wait`. The hint keeps the in-memory version, nothing is pushed, and Keep This Mac's Settings still writes. The launch is unchanged: a version that waits is in memory only, so after a relaunch with the file gone nothing can be offered.
+- (b) `writesOwnLayoutAsCopy`: over a missing or unusable file, while this Mac keeps another Mac's layout without a layout edit, this Mac's layout is written marked as a copy. The Mac that made the arrangement keeps it and lists it again with its next write, and this Mac then takes it through the usual Restart hint.
+- (a) The parent-version record above.
+
+### Major: macOS 26 first move and displaced items, `62ee8bb4`
+
+Each reconciliation read that the user cannot be arranging during records the section of every candidate item as `sectionsBeforeArrangement`, updated with holzBar's own moves. "Cannot be arranging" means no drag, no pending save, no Layout pane move running (`userMovesInProgress`), and neither Command nor a mouse button held (`capturesBarBeforeArrangement`). `saveSections(byUser: true)` decides with `SettingsSyncPolicy.sectionsToSave`:
+- An item in another section than recorded moved. It is saved, and it counts when that changes its saved section, also on its first move.
+- An item still in its recorded section keeps its saved section (the restore brings it back), so macOS's displacement is never saved or synced.
+- Items without a record are saved as before.
+
+The save uses the record up.
+
+Why the read must come before the arrangement: a snapshot taken at the save could already hold the user's move, and would then revert it. That is why mouse buttons and Command count, and why a Layout pane move blocks capture until its save.
+
+Residual (Known issues): during the 2 s settle window after a display change or wake, holzBar does not read the bar. A displacement and an arrangement both within that window are decided as before, and so are items that appear during a drag or are temporarily shown.
+
+### Minor: positive evidence for an old own copy, `e77271bf`
+
+`isOldOwnLayout` takes the version and requires it to be dated before the last sync. When the kept-layout record was lost (sync turned off while the write ran, a quit right after it, or branch-build state), the version is not older. A write then keeps its layout and offers it to be taken in, and does not write holzBar's own layout over it.
+
+### Minor: a joining Mac and an older version, `dc5bd356`
+
+`holdsOlderLayoutToJoin` asks while joining, without a layout edit, about another Mac's version that is not newer and whose layout is neither the base (kept across leaving the folder) nor this Mac's. Comparing with the base keeps holzBar's own placements from asking. This mirrors `isUnsyncedChange` for a Mac that is not joining.
+
+### Minor: the glue, `44ee0fb8`
+
+`settingsToApplyAtLaunch`, `settingsToTakeInAtLaunch` and `otherLayoutToTakeIn` move pullIfNeeded's per-decision application, its take-in tail and the adoption's take-in into Core. `planWrite` reads the file's version itself, so the old `fileIsFromThisMac` flag in the glue is gone. Still in the app, which the test package does not build: reading and writing the file, `request.kind == .check`, the hint dispatch and the logs.
+
+### Minor, documented: 64-layout recognition and a beta 1 return, `1bf75b1d`
+
+A beta 1 Mac writing back an old copy and a beta 1 user who moves the menu bar back to exactly an arrangement this Mac synced recently look the same to this build. Narrowing recognition would bring the old-copy question back for the common write-back. Documented in Known issues.
+
+## Tests
+
+Each new or changed condition was mutated in a scratch copy (`scratchpad/r4mut`, never in the worktree), and `swift test --filter SettingsSync` failed for every mutation:
+- `isBeforeLastSync` (`<` → `<=`; whole seconds dropped)
+- `passesOtherLayoutAsCopy` off
+- the copy mark in `fileToWrite`
+- `takesInOtherLayout` always true
+- `recordUnchanged`: its newer guard, and both calls
+- the `.wait` for a missing file, and its `forcesWrite` and launch conditions
+- every term of `writesOwnLayoutAsCopy`, and its use in `fileToWrite`
+- `missesLastWrite` (`<=`, whole seconds, the joining and own guards), and its use in `decide` and the hint
+- the `lastWritten` record and its reset
+- `basedOn` ignoring the file's version
+- the file's `basedOn` read
+- the date term of `isOldOwnLayout`, and its use in `planWrite`
+- each guard term of `holdsOlderLayoutToJoin`, both comparisons, and its call in `decide`
+- each branch of `sectionsToSave` and each term of `capturesBarBeforeArrangement`
+- each case of `settingsToApplyAtLaunch`, the stale guard of `otherLayoutToTakeIn`, and the learned part of `settingsToTakeInAtLaunch`
+
+New tests:
+- `SettingsSyncLayoutTests`: `staleOtherLayoutPassedOnAsCopy` and `unchangedNewerVersionRecordedAtLaunch` (blocker); `keptLayoutNotReplacedOverMissingFile`; `versionWithoutLastWriteAsks` and `writeRecordsBasedOn` (parent record); `joiningAsksAboutOlderLayout`; `sectionSaveWithBarBeforeArrangement` and `barBeforeArrangementCapture`; `settingsToApplyAtLaunch` and `settingsToTakeInAtLaunch`. Also extended: `oldOwnVersionNotTakenIn` (positive evidence) and `sectionSaveCountsOnlyChangedSections`.
+- `SettingsSyncPolicyTests`: `missingFileKeepsWaitingVersion`.
+- `SettingsSyncFileTests`: `contentsBasedOn`, with a plist round trip of the no-parent date.
+- `SettingsSyncStateTests`: the `SettingsSyncLastWritten` key in the stored-keys and round-trip tests.
+
+`swift test --filter SettingsSync`: 141 tests. Full `swift test`: 490 + 196 + 3 tests, all passing.
+
+## Gates
+
+Before each commit:
+- `appcheck.sh … syncfix` gave `ERRORS: 0`.
+- `swift test --filter SettingsSync` passed (the CLT `TestingMacros` plugin error was retried).
+- `swiftlint lint --strict --quiet` printed nothing.
+- `privacy-check.py network`, `privacy-check.py logs` and `strings-check.py` passed.
+- The name grep found nothing.
+
+Before this summary, the full `swift test` passed.
+
+## Deviations
+
+- The design guidance was applied where a parent record closes the cause (the general missing-file case). The blocker needs a rule about stale contents, which a parent record cannot express, so it uses the version's date against the last sync. A newer version that changed nothing now counts as the last sync, which makes that rule hold.
+- `planWrite` takes the file's version instead of `fileIsFromThisMac` (default `nil`), part of the glue fix.
+- `countsAsSectionSaveEdit` was replaced by `sectionsToSave`, which also returns the sections to save. Its test now calls the new function.
+- No new user-facing strings.
+
+## Known risks
+
+- The 2 s settle window before macOS 27, and items that appear during a drag or are temporarily shown (documented).
+- A beta 1 Mac's write over a deleted or damaged file; a chain of concurrent writes; clock skew between Macs, which can make a version look based on this Mac's last write or not (documented).
+- The 64-layout recognition and a beta 1 user's return to an arrangement this Mac synced recently (documented).
+- At launch, a version that waited before a relaunch is gone if the file is missing: there is nothing to offer, and the other Mac asks thanks to the parent record.
+- The capture of the bar before an arrangement relies on `NSEvent.modifierFlags` and `NSEvent.pressedMouseButtons` at the reconciliation read. It was type-checked, not run on a Mac (two-Mac step AD).
+
+## Two-Mac test steps (round 4)
+
+Use Macs that sync the same folder, on this build unless a step says otherwise. In `holzBar/Settings.plist` also check the new `basedOn` date and the `copiedLayouts` array. The round 3 steps Q to W, the round 2 steps I to P and the round 1 steps A to H still apply.
+
+**X. A stale layout of the other macOS version** (blocker): A on macOS 26, C on macOS 27.
+1. On A, change a setting so A writes. Copy `Settings.plist` aside.
+2. On C, Command-drag an item; C writes. Wait until A has read it (A shows no hint).
+3. Put the copy back over `Settings.plist`.
+4. Quit and reopen A. On A, change "Show on hover". The file lists `MacOS27Layout` under `copiedLayouts`, not `currentLayouts`, and the log says the older layout for the other macOS version was passed on as a copy.
+5. On C, restart through the hint. C takes A's setting and keeps its arrangement.
+
+**Y. The sync file goes away** (major): A and B on the same macOS version.
+1. On B, change "Show on hover". Before A shows the hint, delete `Settings.plist` (or replace it with an empty file).
+2. On A, change another setting. A writes; `basedOn` is older than B's write.
+3. B shows "Choose Settings…" instead of "Restart". "Keep This Mac's Settings" keeps B's change.
+4. Repeat with A showing B's Restart hint before the file goes away: the hint stays, and A does not write until you answer.
+5. Keep variant: do round 3's Q.1 and Q.2, delete the file, and change a setting on A. The file lists A's layout under `copiedLayouts`. Quit and reopen B; it keeps its arrangement.
+
+**Z. A Mac still on 0.0.7 beta 1** (compatibility): C on beta 1 and the same macOS version as A. Repeat Y.1 to Y.3 with C writing the file in Y.2 by changing a setting. B applies C's file without asking, as before (Known issues). C applies A's files with `basedOn` without complaint.
+
+**AA. Re-join with an older version** (minor): A and B on the same macOS version.
+1. Set B's clock a few minutes back. On B, Command-drag an item; B writes.
+2. On A, turn sync off and on. A asks "Which settings should holzBar use?" instead of joining silently.
+3. Set B's clock back.
+
+**AB. Old own copy without a record** (minor): not manually reproducible on purpose (needs sync turned off within milliseconds of a write). The unit tests cover it.
+
+**AC. First move and displaced items** (major, macOS 26, timing-dependent):
+1. Connect or disconnect a display, and wait about three seconds. If macOS moves items, holzBar starts putting them back.
+2. While it moves them, Command-click any item. Nothing is synced, and the moved items go back to their saved sections with the next restore.
+3. Make an item appear that has never been saved (launch an app with a menu bar item while you Command-drag another). Then Command-drag that item into another section. Another Mac's newer settings no longer move it back: this Mac writes its layout.
+
+**AD. A move in the Layout pane during a restore** (major): drag an item in the Layout pane right after a wake. The move is saved and synced, never reverted by the next restore.
+
+## Threat surface
+
+There is no new network or permission surface. The sync file has one new top-level key, `basedOn`, a date read with a type check; beta 1 ignores it. There is one new defaults key, `SettingsSyncLastWritten`, a date read with a type check. It starts with "SettingsSync", so it is never exported, imported or synced. The new log line carries no values, digests or ids.
+
+## Self-Check: PASSED
+
+- The eight commits `a42f8c59` to `1bf75b1d` exist on `audit-manual/sync-fix` after `1af35114` (`git merge-base --is-ancestor`).
+- All modified files exist.
+- The gates passed before each commit, and the full `swift test` passed before this one.
+
 ---
 
 # Sync fix round 3: the review of round 2
