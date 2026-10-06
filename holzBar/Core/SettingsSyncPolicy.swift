@@ -422,6 +422,20 @@ nonisolated extension SettingsSyncPolicy {
         }
         return local.hasChanges ? .choice(isJoining: false) : .restart
     }
+
+    /// The hint for a waiting version when the user acts on it, given this Mac's side and
+    /// whether a layout change of the user's is still to be saved.
+    ///
+    /// Before macOS 27, an arrangement on the bar is saved a moment after the user made it,
+    /// once the bar shows it. Restarting before then would lose it, so it counts as a layout
+    /// change of the user's: the hint asks instead.
+    static func hint(for local: Local, savesLayoutSoon: Bool) -> Hint {
+        var local = local
+        if savesLayoutSoon {
+            local.editsLayout = true
+        }
+        return hint(for: local)
+    }
 }
 
 // MARK: - Layouts

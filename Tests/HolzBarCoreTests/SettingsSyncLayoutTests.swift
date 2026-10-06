@@ -750,6 +750,19 @@ struct SettingsSyncLayoutTests {
         #expect(Policy.decide(.launch, local: running, file: remote) == .apply)
     }
 
+    @Test("Restart asks instead while an arrangement on the bar is still to be saved", arguments: layoutBackends)
+    func restartWaitsForUnsavedArrangement(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let synced = settings(layouts, own: first)
+        let waiting = local(synced, layouts, base: synced, pending: lastSynced.addingTimeInterval(60))
+        #expect(Policy.hint(for: waiting, savesLayoutSoon: false) == .restart)
+        #expect(Policy.hint(for: waiting, savesLayoutSoon: true) == .choice(isJoining: false))
+        let joining = local(synced, layouts, base: nil)
+        #expect(Policy.hint(for: joining, savesLayoutSoon: true) == .choice(isJoining: true))
+        let edited = local(synced, layouts, base: synced, editsLayout: true)
+        #expect(Policy.hint(for: edited, savesLayoutSoon: false) == .choice(isJoining: false))
+    }
+
     @Test("A layout change of the user's counts as a change", arguments: layoutBackends)
     func userLayoutChangeCounts(backend: MenuBarBackendKind) {
         let layouts = Policy.Layouts(backend: backend)

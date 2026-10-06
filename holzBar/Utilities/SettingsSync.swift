@@ -1698,7 +1698,10 @@ final class SettingsSync {
             return
         }
         refreshHint()
-        guard hint == .restart else {
+        let local = Self.currentLocal(settings: Self.syncedSettings(), postponed: postponed)
+        // An arrangement on the bar that is not saved yet would be lost by the restart.
+        let savesLayoutSoon = appState?.itemManager.needsSectionSave == true
+        guard SettingsSyncPolicy.hint(for: local, savesLayoutSoon: savesLayoutSoon) == .restart else {
             chooseSettings()
             return
         }
