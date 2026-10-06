@@ -77,6 +77,27 @@ nonisolated enum SettingsSyncFile {
         return written
     }
 
+    /// The sync file to write for a planned write (`SettingsSyncPolicy.planWrite`): its date,
+    /// this Mac's sync id, the settings, the layouts that are current and those that are a
+    /// Mac's copy, and the writes the settings hold with this Mac's (``seenToWrite(_:deviceID:modified:)``).
+    /// The computer name, which usually holds the owner's name, stays on this Mac: the id
+    /// alone tells the Macs apart.
+    ///
+    /// - Parameters:
+    ///   - plan: The planned write.
+    ///   - deviceID: This Mac's sync id.
+    ///   - modified: The date to write into the file.
+    static func fileToWrite(plan: SettingsSyncPolicy.WritePlan, deviceID: String, modified: Date) -> [String: Any] {
+        [
+            modifiedKey: modified,
+            SettingsSyncDevice.deviceIDKey: deviceID,
+            settingsKey: plan.settings,
+            currentLayoutsKey: plan.currentLayouts,
+            copiedLayoutsKey: plan.copiedLayouts,
+            seenKey: seenToWrite(plan.seen, deviceID: deviceID, modified: modified),
+        ]
+    }
+
     /// The largest sync file holzBar reads: 1 MB. holzBar's settings take a few kilobytes.
     static let maximumFileSize = 1 << 20
 

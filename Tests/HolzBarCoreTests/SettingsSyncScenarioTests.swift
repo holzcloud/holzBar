@@ -128,14 +128,7 @@ private final class SyncingMac {
                 layouts: layouts,
                 local: local
             )
-            folder.file = [
-                SettingsSyncFile.modifiedKey: now,
-                SettingsSyncDevice.deviceIDKey: id,
-                SettingsSyncFile.settingsKey: planned.settings,
-                SettingsSyncFile.currentLayoutsKey: planned.currentLayouts,
-                SettingsSyncFile.copiedLayoutsKey: planned.copiedLayouts,
-                SettingsSyncFile.seenKey: SettingsSyncFile.seenToWrite(planned.seen, deviceID: id, modified: now),
-            ]
+            folder.file = SettingsSyncFile.fileToWrite(plan: planned, deviceID: id, modified: now)
             written = (planned.record, now)
             plan = planned
         }

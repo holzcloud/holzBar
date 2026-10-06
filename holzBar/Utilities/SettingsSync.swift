@@ -1212,16 +1212,7 @@ final class SettingsSync {
             layouts: layouts,
             local: request.local
         )
-        // The id alone tells the Macs apart; the computer name, which usually holds the
-        // owner's name, stays on this Mac.
-        let file: [String: Any] = [
-            SettingsSyncFile.modifiedKey: modified,
-            SettingsSyncDevice.deviceIDKey: request.deviceID,
-            SettingsSyncFile.settingsKey: written.settings,
-            SettingsSyncFile.currentLayoutsKey: written.currentLayouts,
-            SettingsSyncFile.copiedLayoutsKey: written.copiedLayouts,
-            SettingsSyncFile.seenKey: SettingsSyncFile.seenToWrite(written.seen, deviceID: request.deviceID, modified: modified),
-        ]
+        let file = SettingsSyncFile.fileToWrite(plan: written, deviceID: request.deviceID, modified: modified)
         do {
             try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             let data = try PropertyListSerialization.data(fromPropertyList: file, format: .xml, options: 0)

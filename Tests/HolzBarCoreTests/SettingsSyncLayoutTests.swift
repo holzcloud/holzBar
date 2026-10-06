@@ -1519,14 +1519,7 @@ struct SettingsSyncLayoutTests {
         layouts: Policy.Layouts,
         lastSynced: Date?
     ) throws -> (version: Policy.Version, settings: [String: Any]) {
-        let file: [String: Any] = [
-            SettingsSyncFile.modifiedKey: modified,
-            SettingsSyncDevice.deviceIDKey: writer,
-            SettingsSyncFile.settingsKey: plan.settings,
-            SettingsSyncFile.currentLayoutsKey: plan.currentLayouts,
-            SettingsSyncFile.copiedLayoutsKey: plan.copiedLayouts,
-            SettingsSyncFile.seenKey: SettingsSyncFile.seenToWrite(plan.seen, deviceID: writer, modified: modified),
-        ]
+        let file = SettingsSyncFile.fileToWrite(plan: plan, deviceID: writer, modified: modified)
         let contents = try #require(
             SettingsSyncFile.contents(of: file, lastSynced: lastSynced, deviceID: reader, computerName: nil, localKeys: [], now: modified)
         )

@@ -215,6 +215,66 @@ struct SettingsSyncFileTests {
         #expect(contents(in: tooMany)?.seen?.count == 64)
     }
 
+    @Test("A planned write survives the round trip through the file the app writes, with the writes it holds", arguments: [MenuBarBackendKind.service26, .accessibility27])
+    func plannedWriteRoundTrip(backend: MenuBarBackendKind) throws {
+        typealias Policy = SettingsSyncPolicy
+        let layouts = Policy.Layouts(backend: backend)
+        let third = "THIRD-MAC"
+        let thisWrite = lastSynced.addingTimeInterval(-60)
+        let thirdWrite = lastSynced.addingTimeInterval(-30)
+        // The writing Mac holds this Mac's and a third Mac's writes, and changed a setting.
+        let mine: [String: Any] = ["ShowOnHover": false, layouts.own: ["a": 1], layouts.other: ["b": 2]]
+        let state = Policy.State(
+            base: Policy.userDigest(of: ["ShowOnHover": true]),
+            baseLayoutDigest: Policy.layoutDigest(of: mine, layouts: layouts),
+            lastSynced: lastSynced.addingTimeInterval(-10),
+            versionDigest: Policy.userDigest(of: ["ShowOnHover": true]),
+            seen: [thisMac: thisWrite, third: thirdWrite]
+        )
+        let local = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        let plan = Policy.planWrite(mine, file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], fileVersion: nil, layouts: layouts, local: local)
+        let modified = lastSynced.addingTimeInterval(120.7)
+        let written = SettingsSyncFile.fileToWrite(plan: plan, deviceID: otherMac, modified: modified)
+        // The id alone tells the Macs apart; the computer name stays on the writing Mac.
+        #expect(written[SettingsSyncDevice.deviceNameKey] == nil)
+        let data = try PropertyListSerialization.data(fromPropertyList: written, format: .xml, options: 0)
+        let file = try #require(try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
+
+        // Another Mac reads the writer's version, its layouts and the writes it holds.
+        let read = try #require(contents(in: file, now: modified))
+        #expect(!read.isFromThisMac)
+        #expect(read.isNewer)
+        #expect(Policy.wholeSeconds(read.modified) == Policy.wholeSeconds(modified))
+        #expect(read.currentLayouts == Set(plan.currentLayouts))
+        #expect(read.copiedLayouts == Set(plan.copiedLayouts))
+        #expect(read.settings["ShowOnHover"] as? Bool == false)
+        #expect(read.seenWrite.map(Policy.wholeSeconds) == Policy.wholeSeconds(thisWrite))
+        #expect(read.seen?.keys.sorted() == [otherMac, third].sorted())
+        #expect(read.seen?[otherMac].map(Policy.wholeSeconds) == Policy.wholeSeconds(modified))
+        #expect(read.seen?[third].map(Policy.wholeSeconds) == Policy.wholeSeconds(thirdWrite))
+        // That Mac's last write is in it; a later one is not, and it asks.
+        let version = Policy.Version(
+            settings: Policy.withoutStaleLayouts(read.settings, currentLayouts: read.currentLayouts),
+            layouts: layouts,
+            isFromThisMac: read.isFromThisMac,
+            modified: read.modified,
+            isNewer: read.isNewer,
+            seen: read.seen,
+            seenWrite: read.seenWrite
+        )
+        var reader = Policy.Local(settings: ["ShowOnHover": true], layouts: layouts, state: Policy.State(base: "base", lastWritten: thisWrite), layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(!Policy.missesLastWrite(version, local: reader))
+        reader.lastWritten = thisWrite.addingTimeInterval(1)
+        #expect(Policy.missesLastWrite(version, local: reader))
+        // The writing Mac finds its own version, with its write.
+        let own = try #require(
+            SettingsSyncFile.contents(of: file, lastSynced: modified, deviceID: otherMac, computerName: nil, localKeys: localKeys, now: modified)
+        )
+        #expect(own.isFromThisMac)
+        #expect(own.seenWrite.map(Policy.wholeSeconds) == Policy.wholeSeconds(modified))
+        #expect(own.seen?.keys.sorted() == [thisMac, third].sorted())
+    }
+
     @Test("A file without date or settings has no contents")
     func contentsWithoutDateOrSettings() {
         #expect(contents(in: file(deviceID: otherMac, modified: lastSynced, settings: nil)) == nil)
