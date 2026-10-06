@@ -1338,6 +1338,65 @@ struct SettingsSyncLayoutTests {
         #expect(left.lastWritten == nil)
     }
 
+    @Test("A joining Mac asks about another Mac's version that is not newer and holds a layout it never synced", arguments: layoutBackends)
+    func joiningAsksAboutOlderLayout(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        // This Mac synced `first`, holzBar placed an item since, and sync was turned off and on.
+        let syncedSettings = settings(layouts, own: first)
+        let mine = settings(layouts, own: first.merging(["placed": 1]) { $1 })
+        var state = Policy.State(
+            base: Policy.userDigest(of: syncedSettings),
+            baseLayoutDigest: Policy.layoutDigest(of: syncedSettings, layouts: layouts),
+            lastSynced: lastSynced,
+            versionDigest: Policy.userDigest(of: syncedSettings)
+        )
+        state.leaveFolder(forgetsLastSync: false)
+        let joining = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        // Another Mac's version dated before the last sync, with the same user settings and
+        // another arrangement.
+        let theirs = newerVersion(settings(layouts, own: third), layouts, isNewer: false)
+        #expect(Policy.holdsOlderLayoutToJoin(theirs, local: joining))
+        #expect(Policy.decide(.check, local: joining, file: .version(theirs)) == .ask)
+        #expect(Policy.decide(.launch, local: joining, file: .version(theirs)) == .ask)
+        #expect(Policy.hint(for: joining, version: theirs) == .choice(isJoining: true))
+        var postponed = joining
+        postponed.postponed = theirs.modified
+        #expect(Policy.decide(.check, local: postponed, file: .version(theirs)) == .wait)
+
+        // The layout this Mac last synced, or holds, is adopted as before; so is a newer
+        // version, whose layout is taken in.
+        let synced = newerVersion(syncedSettings, layouts, isNewer: false)
+        #expect(Policy.decide(.check, local: joining, file: .version(synced)) == .adopt)
+        let held = newerVersion(mine, layouts, isNewer: false)
+        #expect(Policy.decide(.check, local: joining, file: .version(held)) == .adopt)
+        let newer = newerVersion(settings(layouts, own: third), layouts)
+        #expect(!Policy.holdsOlderLayoutToJoin(newer, local: joining))
+        #expect(Policy.decide(.check, local: joining, file: .version(newer)) == .adopt)
+        // Not for a Mac that is not joining, which asks through isUnsyncedChange, for a layout
+        // change of the user's, this Mac's own version, or a version without a layout.
+        let notJoining = Policy.Local(
+            settings: mine,
+            layouts: layouts,
+            state: Policy.State(base: state.baseLayoutDigest.map { _ in Policy.userDigest(of: syncedSettings) }, baseLayoutDigest: state.baseLayoutDigest, lastSynced: lastSynced),
+            layoutEdits: 0,
+            postponed: nil,
+            forcesWrite: false
+        )
+        #expect(!Policy.holdsOlderLayoutToJoin(theirs, local: notJoining))
+        var edited = joining
+        edited.editsLayout = true
+        #expect(!Policy.holdsOlderLayoutToJoin(theirs, local: edited))
+        var own = theirs
+        own.isFromThisMac = true
+        #expect(!Policy.holdsOlderLayoutToJoin(own, local: joining))
+        var noLayout = theirs
+        noLayout.layoutDigest = nil
+        #expect(!Policy.holdsOlderLayoutToJoin(noLayout, local: joining))
+        var neverSynced = joining
+        neverSynced.baseLayoutDigest = nil
+        #expect(!Policy.holdsOlderLayoutToJoin(theirs, local: neverSynced))
+    }
+
     // MARK: Running
 
     @Test("A newer version that changed only the other macOS version's layout is adopted", arguments: layoutBackends)

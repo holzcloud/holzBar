@@ -385,6 +385,12 @@ nonisolated enum SettingsSyncPolicy {
             }
             return !isLaunch && (local.isJoining || local.forcesWrite || local.hasChanges) ? .write : .none
         case .version(let version):
+            if holdsOlderLayoutToJoin(version, local: local) {
+                if !isLaunch, let postponed = local.postponed, version.modified <= postponed {
+                    return .wait
+                }
+                return .ask
+            }
             if holdsLocalSettings(version, local: local) {
                 return .adopt
             }
@@ -1094,6 +1100,31 @@ nonisolated extension SettingsSyncPolicy {
             return false
         }
         return version.isSame(as: keepsOver)
+    }
+
+    /// Whether a joining Mac asks about another Mac's version that is not newer than its last
+    /// sync instead of adopting it: the version's layout for this Mac's macOS version is
+    /// neither the one this Mac last synced (``Local/baseLayoutDigest``, kept when it left the
+    /// folder) nor this Mac's.
+    ///
+    /// A joining Mac takes in only a newer version's layout
+    /// (``ownLayoutToTakeIn(_:over:layouts:local:version:)``). Adopting this one would record
+    /// a layout as synced that this Mac never took in, so the user's next change of this
+    /// Mac's layout would replace that arrangement without a question. It asks instead, as a
+    /// Mac that is not joining does (``isUnsyncedChange(_:local:)``). A layout this Mac last
+    /// synced differs from its own only by holzBar's placements, which never ask.
+    static func holdsOlderLayoutToJoin(_ version: Version, local: Local) -> Bool {
+        guard
+            local.isJoining,
+            !local.editsLayout,
+            !version.isFromThisMac,
+            !version.isNewer,
+            let layout = version.layoutDigest,
+            let baseLayout = local.baseLayoutDigest
+        else {
+            return false
+        }
+        return layout != baseLayout && layout != local.layoutDigest
     }
 
     /// Whether a version holds this Mac's settings: equal user settings, and a layout for
