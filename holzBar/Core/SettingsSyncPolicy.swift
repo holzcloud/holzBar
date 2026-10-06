@@ -1130,9 +1130,12 @@ nonisolated extension SettingsSyncPolicy {
         /// its settings; `nil` while it joins, or when an earlier build synced last.
         var versionDigest: String?
         /// The layout digests for this Mac's macOS version that this Mac recently wrote,
-        /// applied or adopted, the newest first, at most ``recentLayoutLimit``. A Mac still on
-        /// 0.0.7 beta 1 may write one of them back unlisted, as an old copy
-        /// (``SettingsSyncPolicy/replacesUnlistedLayout(_:local:)``). They depend only on the
+        /// applied, adopted or took in, the newest first, at most ``recentLayoutLimit``. A Mac
+        /// still on 0.0.7 beta 1 may write one of them back unlisted, as an old copy
+        /// (``SettingsSyncPolicy/replacesUnlistedLayout(_:local:)``). Another Mac's layout that
+        /// a write of this Mac's kept, or an adoption is to take in, counts only once this Mac
+        /// took it in: until then it is that Mac's arrangement, which a beta 1 Mac writing it
+        /// back must not let this Mac's own layout replace (SA-05). They depend only on the
         /// layout, so they stay when this Mac leaves the folder.
         var recentLayouts: [String] = []
 
@@ -1201,7 +1204,11 @@ nonisolated extension SettingsSyncPolicy {
         ///     edits (``Local/layoutEdits``) are recorded.
         ///   - takesInOwnLayout: Whether this Mac takes in the version's layout.
         mutating func recordAdoption(_ version: Version?, local: Local, takesInOwnLayout: Bool) {
-            rememberLayout(version?.layoutDigest)
+            // A layout this Mac has not taken in is not one it synced: a beta 1 Mac writing it
+            // back is no old copy of this Mac's, and is passed on (``recentLayouts``).
+            if !takesInOwnLayout {
+                rememberLayout(version?.layoutDigest)
+            }
             guard takesInOwnLayout, let version else {
                 markSynced(base: local.userDigest, layout: version?.layoutDigest, layoutEdits: local.layoutEdits, modified: version?.syncedDate)
                 return
@@ -1229,8 +1236,8 @@ nonisolated extension SettingsSyncPolicy {
         ///   - local: This Mac's side of the decision that wrote; its layout edits
         ///     (``Local/layoutEdits``) are recorded.
         mutating func recordWrite(_ record: WriteRecord, modified: Date?, local: Local) {
-            rememberLayout(record.layoutDigest)
             guard record.takesInLayout else {
+                rememberLayout(record.layoutDigest)
                 markSynced(base: local.userDigest, layout: record.layoutDigest, layoutEdits: local.layoutEdits, modified: modified)
                 return
             }

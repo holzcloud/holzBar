@@ -788,6 +788,56 @@ struct SettingsSyncLayoutTests {
         #expect(Policy.ownLayoutToTakeIn(ownCurrent, over: mine, layouts: layouts, local: joining, version: ownVersion).isEmpty)
     }
 
+    @Test("A kept layout that a Mac still on 0.0.7 beta 1 writes back is passed on, never replaced by holzBar's own layout", arguments: layoutBackends)
+    func keptLayoutWrittenBackByBeta1(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let mineLayout: [String: Any] = ["a": 0, "b": 1]
+        let otherLayout: [String: Any] = ["a": 2, "b": 1]
+        // This Mac holds only holzBar's own layout; another Mac arranged `otherLayout`; the user
+        // keeps this Mac's settings without rearranging.
+        let mine = settings(layouts, showOnHover: false, own: mineLayout)
+        let remote = settings(layouts, showOnHover: true, own: otherLayout)
+        var state = Policy.State(
+            base: Policy.userDigest(of: settings(layouts).filter { $0.key != "ShowOnHover" }),
+            baseLayoutDigest: Policy.layoutDigest(of: mine, layouts: layouts),
+            lastSynced: lastSynced
+        )
+        var keeps = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: true)
+        keeps.keepsOver = lastSynced.addingTimeInterval(60)
+        let written = Policy.planWrite(mine, file: remote, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], layouts: layouts, local: keeps)
+        #expect(written.record.takesInLayout)
+        state.recordWrite(written.record, modified: lastSynced.addingTimeInterval(120), local: keeps)
+        // The kept layout is the other Mac's arrangement, not one this Mac synced.
+        #expect(!state.recentLayouts.contains(Policy.layoutDigest(of: remote, layouts: layouts)))
+
+        // A Mac of this macOS version still on beta 1 applies the written file at launch and
+        // writes it back without listing its layouts.
+        let beta1File = written.settings
+        let beta1Version = Policy.Version(
+            settings: Policy.withoutStaleLayouts(beta1File, currentLayouts: []),
+            layouts: layouts,
+            isFromThisMac: false,
+            modified: lastSynced.addingTimeInterval(200),
+            isNewer: true,
+            unlistedLayoutDigest: Policy.unlistedLayoutDigest(in: beta1File, currentLayouts: [], layouts: layouts)
+        )
+        let idle = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.check, local: idle, file: .version(beta1Version)) == .adopt)
+        state.recordAdoption(beta1Version, local: idle, takesInOwnLayout: false)
+
+        // A change of a user setting is written; the other Mac's arrangement is passed on as
+        // it is, unlisted, and holzBar's own layout does not replace it (SA-05).
+        let toggled = settings(layouts, showOnHover: true, own: mineLayout)
+        let changed = Policy.Local(settings: toggled, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.localChange, local: changed, file: .version(beta1Version)) == .write)
+        let push = Policy.planWrite(toggled, file: beta1File, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: changed)
+        #expect(isLayout(push.settings[layouts.own], otherLayout))
+        #expect(!push.currentLayouts.contains(layouts.own))
+        // A layout change of the user's asks before it replaces that arrangement.
+        let edited = Policy.Local(settings: settings(layouts, showOnHover: false, own: ["a": 1, "b": 0]), layouts: layouts, state: state, layoutEdits: 1, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.localChange, local: edited, file: .version(beta1Version)) == .ask)
+    }
+
     @Test("A write over a version that is not newer keeps its layout and takes it in", arguments: layoutBackends)
     func notNewerLayoutTakenIn(backend: MenuBarBackendKind) {
         let layouts = Policy.Layouts(backend: backend)
