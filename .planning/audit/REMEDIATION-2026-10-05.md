@@ -264,6 +264,21 @@ The review of round 3 confirmed seven sync issues (one blocker, two major, four 
 | The glue that feeds Core decisions was untested | minor | The launch's application and take-in, and an adoption's take-in, are decided in Core; the write plan reads the file's version itself. Reading and writing the file stay in the app | `44ee0fb8` |
 | The 64-layout stale-copy recognition can replace a beta 1 user's return to an arrangement this Mac synced recently | minor | Documented as a known issue: a beta 1 Mac's write-back and that return look the same | docs commit |
 
+## Sync fix round 5 (2026-10-06)
+
+The review of round 4 confirmed eight sync issues (three blockers, one major, four minor); all are fixed, the docs minor in the docs. The date-only `basedOn` record of round 4 (never released) is replaced by a record of the newest write of each Mac a version holds (`seen`, by sync id, each date from that Mac's own clock), so a version without a Mac's last write asks however many writes follow. A layout of a macOS version that the file holds only as a copy is never listed as current again without a layout change of the user's; until then each Mac of that version keeps its own arrangement (documented). Details, tests and the two-Mac test steps: [remediation/sync-fix-SUMMARY.md](remediation/sync-fix-SUMMARY.md).
+
+| Issue | Severity | Fix | Commit |
+|---|---|---|---|
+| After a copy write over a missing file, the next write listed holzBar's own layout as current and the other Mac applied it (variant b of `226db335`) | blocker | A copied layout of this macOS version is passed on as a copy without a layout edit; a write that leaves it unlisted keeps the kept-layout record; a file without that layout is written the same way | `1f52adbd`, `c5e09be3` |
+| A copy of the other macOS version's layout (demoted by date, or inserted over a missing file) was replaced by a Mac behind with its stale layout listed as current, and the Mac that arranged it applied that silently | blocker | Same fix; three-Mac tests for both triggers | `1f52adbd` |
+| The parent record was date-only: a second write of the rewriting Mac, or a third Mac on top, hid the missing write | blocker | Per-Mac record of writes (`seen`); applying a version takes its record and this Mac's newest write it holds | `815726d9` |
+| Keep This Mac's Settings never wrote for a re-joining Mac asked about an older version | major | The keep is checked for that question and writes | `66bb63a0` |
+| A question about a version without this Mac's write became a Restart once a descendant arrived | minor | Fixed by the per-Mac record | `815726d9` |
+| An unlisted same-OS layout matching one of the last 64 synced layouts was replaced by any write | minor | Passed on unless the user changed this Mac's layout; trade-off documented | `14f77476` |
+| Release notes claimed a waiting version stays offered when the file goes away, also across a relaunch | minor | "while holzBar runs", and a known issue for the relaunch | docs commit |
+| `WritePlan.passesOtherAsCopy` guard conditions were untested | minor | Tests for each condition, checked by mutation | `21f381da` |
+
 ## Still open
 
 The 18 open findings are all low and manual-only, and were not in the chosen scope: F-43, F-44, F-45, F-47, F-50, F-57, F-59, F-61, F-67, F-69, F-75, F-76, F-95, F-97, F-101, F-102, F-107, F-110. Two consequences to keep in mind:
