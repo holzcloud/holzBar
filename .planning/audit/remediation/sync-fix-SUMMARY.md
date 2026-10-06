@@ -1,12 +1,13 @@
 ---
 phase: audit-remediation-sync-fix
-plan: sync-fix-r5
+plan: sync-fix-r6
 subsystem: settings-sync
-tags: [sync, layout, beta1-compat, macos26, macos27, seen-record]
+tags: [sync, layout, keep, seen-record, beta1-compat, macos26, macos27]
 requirements: [SA-05, F-02, F-60]
 status: complete
 key-files:
-  created: []
+  created:
+    - Tests/HolzBarCoreTests/SettingsSyncScenarioTests.swift
   modified:
     - holzBar/Core/SettingsSyncPolicy.swift
     - holzBar/Core/SettingsSyncFile.swift
@@ -19,19 +20,205 @@ key-files:
     - .planning/audit/REMEDIATION-2026-10-05.md
     - .planning/audit/remediation/sync-fix-SUMMARY.md
 decisions:
-  - "A write without a layout change of the user's never lists this Mac's layout as current over a layout of its macOS version that the file marks as a copy: the copy is passed on as a copy (only writesOwnLayout or overwritesOldOwnLayout list the local layout again)."
-  - "A write that leaves this Mac's layout unlisted without a layout edit keeps keptLayoutDigest (WriteRecord.keepsLayoutToTakeIn); this Mac writes its layout as a copy over a missing or unusable file, and over one without a layout for its macOS version, while it keeps another Mac's."
-  - "The file records the newest write of each Mac the written settings hold (key seen, sync id to date, each Mac's own clock), replacing the unreleased basedOn date. missesLastWrite compares this Mac's entry with State.lastWritten. A write and an adoption merge the record into State.seen; an apply replaces it and sets lastWritten to this Mac's newest write the version holds; at most 64 entries."
-  - "Keep This Mac's Settings for a joining Mac asked about an older version (holdsOlderLayoutToJoin) writes."
-  - "An unlisted layout of this macOS version is passed on unchanged unless the user changed this Mac's layout, also when this Mac synced it recently."
+  - "Keep This Mac's Settings over another Mac's answered version that lists another layout and is not newer than this Mac's last sync, or misses a write this Mac holds, writes this Mac's layout as current (keepsOwnLayoutOverStale); over a newer version that holds this Mac's writes it still keeps and takes in that version's layout."
+  - "missesLastWrite compares every entry of Local.seen with the version's record, not only this Mac's own write."
+  - "Over a missing file, or one without its macOS version's layout, a Mac without a layout edit writes its layout as a copy also when its last sync held that layout only as a copy (base noLayoutDigest, and it has synced), and when Keep answers another Mac's arrangement that the keep would have kept. The broader 'any Mac that has synced' rule was not taken."
+  - "Keep over a missing file merges the answered version's record of writes."
+  - "Each Mac's writes are recorded in its seen entry and lastWritten at least one second after the one before (writeStamp); the file's date stays the clock's."
+  - "SettingsSyncFile.fileToWrite(plan:deviceID:modified:) builds the written file in Core."
 metrics:
   completed: 2026-10-06
-commits: 7
-plan_head_before: 0fa5a4bce7d2ce52420ad845d3b9b0f742f1bfe7
-plan_head_after: 304412d2
+commits: 10
+plan_head_before: 032ba55ffa0770a9f50443ab93db44bf9d62c6ce
+plan_head_after: 542d2ccc
 actuals:
-  tasks: 8
-  commits: 7
+  tasks: 9
+  commits: 10
+---
+
+# Sync fix round 6: the review of round 5
+
+**One-liner:** "Keep This Mac's Settings" over another Mac's version that may be stale now keeps this Mac's arrangement instead of putting the stale one back on every Mac, a Mac that took another Mac's change asks about a version without it, and a Mac whose last sync held its layout only as a copy writes its layout as a copy over a missing file. Also in this round:
+- Keep answered while the file is missing records the answered version.
+- Each Mac's writes are recorded in order whatever its clock says.
+- The file the app writes is built in Core and tested through a round trip.
+- The `fileToWrite` docs are corrected.
+- A scenario suite drives several Macs through the Core decisions as the app does.
+
+Maintainer policy (2026-10-05), unchanged: holzBar asks when two Macs' settings differ; its own placements never count (SA-05); the other macOS version's layout is taken in silently; nothing in the sync file is overwritten with a stale copy, and no change of the user's is lost or reverted silently (F-02, F-60); Macs are updated one at a time.
+
+`commits: 10` counts the commits before this summary. The summary is the eleventh commit.
+
+## Commits
+
+| Commit | Issue |
+|---|---|
+| `f238cabe` | Blocker: Keep over a version not newer than the last sync relists its stale layout (review issues 1 and 6, merged) |
+| `bc4d8a81` | Blocker: Keep over a version without this Mac's last write keeps the stale layout |
+| `dadb3801` | Major: a third Mac applies a version without a write its settings hold |
+| `383a5405` | Blocker: the seen record claims a write whose layout this Mac never took in |
+| `0d3a717e` | Minor: Keep while the file is missing does not record the answered version |
+| `a9fa5b50` | Minor: the file the app writes is untested glue |
+| `47c4f09e` | Minor: a clock set back, or two writes in one second, hides a missing write |
+| `34786f18` | Minor: stale `fileToWrite` docs |
+| `7cd02fd8` | Follow-up: tests for five guards the mutation check found untested |
+| `542d2ccc` | Docs: release notes, features, remediation record |
+
+## Issues and fixes
+
+### Blockers: Keep over a stale version, `f238cabe` and `bc4d8a81`
+
+- `keepsOwnLayoutOverStale(_:local:)` holds when:
+  - the user's Keep answers another Mac's version (`keepsThisMac(over:)`, not this Mac's own);
+  - that version lists a layout other than the one this Mac last synced;
+  - and the version is not newer than this Mac's last sync, or misses a write this Mac holds (`missesLastWrite`).
+- `planWrite` passes it into `keepsOwnLayout`. This Mac's layout, the one it last synced plus only holzBar's placements since, is listed as current. `takesInLayout` is then false, so nothing waits for the restart. The rule holds for a joining Mac (the `66bb63a0` path) and for one that is not joining.
+- Over a newer version that holds this Mac's writes, Keep still keeps and takes in that version's layout (round 1's SA-05 rule). So does Keep over a version whose layout is the one this Mac last synced.
+- Tests:
+  - `keepOverOlderVersionWritesOwnLayout`: both paths, the third Mac's view, and each guard.
+  - `keepOverVersionWithoutLastWriteKeepsArrangement`: the review's `keepLosesArrangement`, now expecting the arrangement to survive.
+  - Scenarios `keepOverRestoredVersion(rejoins:)` and `keepAfterLostWrite`.
+  - `joiningAsksAboutOlderLayout` now expects this Mac's layout.
+
+### Major: a third Mac, `dadb3801`
+
+`missesLastWrite` also compares each entry of `Local.seen` (the newest write of each other Mac that this Mac's settings hold) with the version's record, in whole seconds; a missing entry counts as older. The writer's own entry is compared too: it also catches an older version of that Mac brought back. The writer's clock being set back is covered by `writeStamp` below. Test: `versionWithoutHeldWriteOfAnotherMacAsks`; scenario `keepAfterLostWrite` (C asks at launch and keeps A's arrangement).
+
+### Blocker: a record without the layout, `383a5405`
+
+`writesOwnLayoutAsCopy` also holds when this Mac's last sync had no current layout of its macOS version (`baseLayoutDigest == noLayoutDigest`) and it has synced with the folder (`lastSynced != nil`), without a layout edit. Both of the review's variants reach that state: a version holding the layout only as a copy was applied, and `recordApplied` records no layout. A Mac that has not synced with the folder, as one that sets up a new folder, still lists its layout. Scenarios `copyAfterAppliedCopy` (variant 2) and `copyByDateThenLostFile` (variant 1).
+
+### Minor: Keep while the file is missing, `0d3a717e`
+
+- `seen(writingOver:local:)` uses `local.keepsOver` when there is no file version and the write is the user's Keep, so the answered Mac's write counts as held.
+- With that, the other Mac would apply this Mac's layout silently. So `writesOwnLayoutAsCopy` also holds when the answered version lists another arrangement that the keep would have kept had the file been there (`keepsOwnLayoutOverStale` does not hold). This Mac's layout is then written as a copy, and the other Mac keeps its arrangement.
+- When the answered version's layout may be stale, this Mac's layout is listed as current, as with the file there.
+- Scenarios `keepWhileFileMissing(rearrangedThere:)` and `keepStaleWhileFileMissing`.
+
+### Minor: the glue, `a9fa5b50`
+
+`SettingsSyncFile.fileToWrite(plan:deviceID:modified:)` builds the file: date, sync id, settings, `currentLayouts`, `copiedLayouts` and `seen`. `SettingsSync.write`, the layout test helper and the scenario Macs use it. `plannedWriteRoundTrip` goes from `planWrite` to the file, through an XML property list and `contents(of:)`, to `seen`, `seenWrite` and `missesLastWrite` for the reader and the writer. Dropping any key, or the id, fails tests.
+
+### Minor: clock set back, `47c4f09e`
+
+`writeStamp(_:after:)` returns the write's date, or one second after this Mac's last write when that date is not later in whole seconds. `fileToWrite` writes it as this Mac's `seen` entry (`WritePlan.writeStamp(at:)`, from `local.lastWritten`). `recordWrite` stores it as `lastWritten`, from the same `Local`. The file's `modified` stays the clock's date, as the other Macs compare it with their own clocks. Tests: `writeStamp` and the scenario `writeAfterClockSetBack` (a clock set back by 50 s, and a second write within one second).
+
+### Minor: docs, `34786f18`
+
+The `fileCopiedLayouts` and `keepsOwnLayout` parameter docs of `fileToWrite` now describe what the code does. Related docs (`writesOwnLayout`, `takesInKeptLayout`, `holdsOlderLayoutToJoin`, `planWrite`, `seen(writingOver:)`, `missesLastWrite`, `SettingsSyncFile.seenKey`) were corrected in the commits that changed their behaviour.
+
+## Tests
+
+`swift test --filter SettingsSync`: 157 tests in 7 suites (145 before this round). Full `swift test`: 506 + 196 + 3 tests, all passing.
+
+New: `SettingsSyncScenarioTests` drives several Macs through the Core decisions the way `SettingsSync` does: exchange, `outcome`, launch, Use and Keep, with the file built by `fileToWrite`. It holds the review's scenarios with expectations of the fixed behaviour (eight tests, eleven cases).
+
+The review's harness (`syncfix-verify-5` `ReviewSimTests` and `VerifySimTests`, copied to `scratchpad/r6sim`) passes against this round's code:
+- D, A and B keep `L_base` after Keep over the restored `V_old`, both re-joining and not.
+- In S2 and S3, D keeps `L2`.
+- In S4, B shows Restart.
+- In V4, A's Keep writes `L2`.
+- In V5, C asks and keeps `L2`.
+- In V7, A asks and keeps `ShowOnClick` false.
+
+`ReviewR5Tests` and `ReviewR5KeepOlderTests` now fail exactly at the expectations that described the defects.
+
+Mutation check (`scratchpad/r6mut.py` on `scratchpad/r6sim`, never in the worktree; 30 mutations, each applied alone). Each of these made `swift test --filter SettingsSync` fail:
+- `keepsOwnLayoutOverStale`:
+  - off, not-newer only, missed-write only;
+  - without its base, `keepsThisMac` and own-version guards.
+- `missesLastWrite`:
+  - without the `seen` loop;
+  - `<=`, a missing entry counted as held, and the whole-second comparison dropped.
+- `writesOwnLayoutAsCopy`:
+  - without the no-layout branch, its `lastSynced` guard and the edit guard;
+  - the keep branch off or always;
+  - without its base, own-version and `forcesWrite` guards.
+- `seen(writingOver:)`: without `keepsOver`, and with it also outside a keep.
+- `writeStamp`:
+  - off, `<` instead of `<=`, and `+0`;
+  - `recordWrite` storing the clock's date, and the plan without `lastWritten`.
+- `fileToWrite`: `seen` with the clock's date, and without `seen`, the id, `copiedLayouts` or `currentLayouts`.
+
+Five of the 30 survived the first run (the own-version guard of `keepsOwnLayoutOverStale`; the `lastSynced`, own-version and `forcesWrite` guards of the keep copy; `keepsOver` used outside a keep). `7cd02fd8` added tests, and all five now fail. Two of them cannot be reached through the app, which sets `keepsOver` only for a keep, but the tests pin them anyway.
+
+## Gates
+
+Before each commit:
+- `appcheck.sh … syncfix` gave `ERRORS: 0`.
+- `swift test --filter SettingsSync` passed (the CLT `TestingMacros` plugin error was retried).
+- `swiftlint lint --strict --quiet` printed nothing.
+- `privacy-check.py network`, `privacy-check.py logs` and `strings-check.py` passed.
+- The name grep found nothing.
+
+The full `swift test` passed before the docs commit and this summary.
+
+## Deviations
+
+- Issues 1 and 6 of the review were merged by the reviewer and are one commit (`f238cabe`). Issue 2 (missed write) is its own commit on the same rule.
+- Issue 3: the reviewer's minimal form, with a `lastSynced != nil` gate on the no-layout branch, so a Mac setting up a new folder still lists its layout. The broader "any Mac that has synced" rule was not taken: after a lost file it would also stop a Mac's own newest arrangement, which it wrote before the loss, from reaching the Mac that missed it, which applies it correctly today. Issue 2's enabling write (a Mac behind lists its unedited layout over a missing file) is therefore not changed. Every Mac that holds the lost write now asks (issue 4), and Keep keeps that write (issue 2), so nothing is reverted silently.
+- Issue 4 keeps the writer's own entry in the comparison (see above) instead of excluding it, which would need the writer's id in `Version`.
+- Issue 5 goes beyond the review's one line: recording the answered version alone would have let the other Mac apply this Mac's layout over its arrangement silently. The keep over a missing file therefore writes a copy when the answered version's arrangement is the one Keep would have kept.
+- Issue 6 stamps only the `seen` entry and `lastWritten`, not the file's date. A stamped file date could lie ahead of the other Macs' clocks, past `allowedClockSkew`, and turn every later version into a "not newer" one.
+- Changed test expectation: `joiningAsksAboutOlderLayout` (Keep writes this Mac's layout).
+- No new user-facing strings.
+
+## Known risks
+
+- More arrangements wait as a copy for the next rearrangement: a Mac whose last sync held its layout only as a copy writes a copy over a deleted or damaged file, and so does Keep answered over another Mac's arrangement while the file is missing. In both, each Mac keeps its own arrangement (documented in Known issues).
+- Keep over a stale version writes this Mac's layout, with holzBar's own placements since its last sync, over the version's. The user asked for this, and those placements are of items that layout already lacked or that holzBar placed after the last sync.
+- `missesLastWrite` may ask once more than needed:
+  - when a Mac's clock was set back after its `lastWritten` was reset (an applied version without its newest write, or a forgotten folder);
+  - when a version's record dropped an entry past the 64-Mac limit.
+- `writeStamp` after a write dated far in the future (a wrong clock) keeps that Mac's record ahead until its clock catches up. It only affects that Mac's own entries, which are compared only with each other.
+- The scenario Macs copy the glue in `SettingsSync.swift`. A change there has to be mirrored in `SettingsSyncScenarioTests`; the Core functions they call are the app's.
+- The round 5 risks still apply.
+
+## Two-Mac test steps (round 6)
+
+Use Macs that sync the same folder, all on this build and the same macOS version unless a step says otherwise. In `holzBar/Settings.plist`, check `currentLayouts`, `copiedLayouts` and `seen`. The earlier rounds' steps still apply, except round 5's AH: Keep on re-join now keeps this Mac's arrangement.
+
+**AK. Keep over a restored older version** (blocker):
+1. On D, Command-drag an item. A and B restart with D's arrangement.
+2. Put back a copy of `Settings.plist` saved before step 1 (as a sync app restoring it).
+3. On A, choose "Choose Settings…" → "Keep This Mac's Settings". A keeps D's arrangement and shows no Restart, and `currentLayouts` lists it.
+4. D and B, after a restart, still show D's arrangement.
+5. Repeat with sync turned off and on on A before step 3.
+
+**AL. Keep after a lost write** (blocker):
+1. On A, Command-drag an item. Before B reads it, delete `Settings.plist`.
+2. On B, change "Show on hover".
+3. On A, choose "Keep This Mac's Settings". A keeps its arrangement, and B shows it after a restart.
+
+**AM. Third Mac** (major): repeat AL with a third Mac C that restarted with A's arrangement before step 1's deletion. After step 2, C shows "Choose Settings…", not Restart, and its arrangement stays after a relaunch.
+
+**AN. Record without the layout** (blocker):
+1. Do round 5's AE.1 and AE.2.
+2. On B, change a setting, and on A, restart with it. A keeps its own arrangement.
+3. Delete `Settings.plist`, and on A, change a setting. `copiedLayouts` lists the layout.
+4. B keeps its arrangement after a relaunch.
+
+**AO. Keep while the file is missing** (minor):
+1. On B, Command-drag an item and change a setting. On A, change a setting: A shows "Choose Settings…".
+2. Delete `Settings.plist`, then on A choose "Keep This Mac's Settings". `copiedLayouts` lists the layout.
+3. B shows Restart, not "Choose Settings…". After the restart, B keeps its arrangement and has A's setting.
+
+**AP. Clock set back** (minor):
+1. On A, change a setting.
+2. Set A's clock back a minute and change the setting back. `seen` holds A's entry a second after the first write.
+3. Delete `Settings.plist`; on B, change a setting.
+4. A shows "Choose Settings…".
+
+## Threat surface
+
+There is no new network, file or permission surface. The file's keys are unchanged; `seen` may now hold a date up to a second past the write's for this Mac's own entry. No log line carries ids, digests or dates.
+
+## Self-Check: PASSED
+
+- The ten commits `f238cabe` to `542d2ccc` exist on `audit-manual/sync-fix` after `032ba55f` (`git merge-base --is-ancestor`).
+- All created and modified files exist.
+- The gates passed before each commit, and the full `swift test` passed before the docs commit and this one.
+
 ---
 
 # Sync fix round 5: the review of round 4
