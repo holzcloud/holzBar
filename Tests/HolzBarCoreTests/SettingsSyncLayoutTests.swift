@@ -1584,16 +1584,64 @@ struct SettingsSyncLayoutTests {
     @Test("Before macOS 27, saving the bar counts as a change of the user's only when an item's saved section changed")
     func sectionSaveCountsOnlyChangedSections() {
         let before = ["a": 0, "b": 1]
+        func counts(byUser: Bool = true, _ onBar: [String: Int], saved: [String: Int]) -> Bool {
+            Policy.sectionsToSave(byUser: byUser, onBar: onBar, saved: saved, beforeArrangement: nil).countsAsEdit
+        }
         // A Command-click that moved nothing, with an item saved for the first time where
         // macOS put it.
-        #expect(!Policy.countsAsSectionSaveEdit(byUser: true, saved: ["a": 0, "b": 1, "new": 0], before: before))
-        #expect(!Policy.countsAsSectionSaveEdit(byUser: true, saved: before, before: before))
+        #expect(!counts(["a": 0, "b": 1, "new": 0], saved: before))
+        #expect(!counts(before, saved: before))
         // A move of the user's.
-        #expect(Policy.countsAsSectionSaveEdit(byUser: true, saved: ["a": 0, "b": 2], before: before))
-        #expect(Policy.countsAsSectionSaveEdit(byUser: true, saved: ["a": 1, "b": 1, "new": 0], before: before))
+        #expect(counts(["a": 0, "b": 2], saved: before))
+        #expect(counts(["a": 1, "b": 1, "new": 0], saved: before))
         // holzBar's own saves never count.
-        #expect(!Policy.countsAsSectionSaveEdit(byUser: false, saved: ["a": 0, "b": 2], before: before))
-        #expect(!Policy.countsAsSectionSaveEdit(byUser: true, saved: [String: Int](), before: [String: Int]()))
+        #expect(!counts(byUser: false, ["a": 0, "b": 2], saved: before))
+        #expect(!counts([String: Int](), saved: [String: Int]()))
+        // Every item is saved where it is; items not on the bar keep their saved section.
+        let save = Policy.sectionsToSave(byUser: true, onBar: ["b": 2, "new": 0], saved: before, beforeArrangement: nil)
+        #expect(save.sections == ["a": 0, "b": 2, "new": 0])
+    }
+
+    @Test("Before macOS 27, the bar before the user's arrangement tells the user's moves from macOS's")
+    func sectionSaveWithBarBeforeArrangement() {
+        let saved = ["moved": 0, "displaced": 0, "kept": 1]
+        // macOS displaced `displaced` before the arrangement (a display change); the user then
+        // moved `moved` and `unsaved`, an item without a saved section, and left `fresh` where
+        // it is.
+        let beforeArrangement = ["moved": 0, "displaced": 2, "kept": 1, "unsaved": 1, "fresh": 1]
+        let onBar = ["moved": 1, "displaced": 2, "kept": 1, "unsaved": 0, "fresh": 1, "appeared": 2]
+        let save = Policy.sectionsToSave(byUser: true, onBar: onBar, saved: saved, beforeArrangement: beforeArrangement)
+        #expect(save.sections == ["moved": 1, "displaced": 0, "kept": 1, "unsaved": 0, "fresh": 1, "appeared": 2])
+        #expect(save.countsAsEdit)
+        // The first move of an item without a saved section counts.
+        let firstMove = Policy.sectionsToSave(byUser: true, onBar: ["unsaved": 0], saved: [String: Int](), beforeArrangement: ["unsaved": 1])
+        #expect(firstMove.sections == ["unsaved": 0])
+        #expect(firstMove.countsAsEdit)
+        // A Command-click after macOS displaced items saves none of them as the user's.
+        let click = Policy.sectionsToSave(byUser: true, onBar: ["displaced": 2, "kept": 1], saved: saved, beforeArrangement: ["displaced": 2, "kept": 1])
+        #expect(click.sections == saved)
+        #expect(!click.countsAsEdit)
+        // A displaced item the user moves back to its saved section is no change.
+        let back = Policy.sectionsToSave(byUser: true, onBar: ["displaced": 0], saved: saved, beforeArrangement: ["displaced": 2])
+        #expect(back.sections == saved)
+        #expect(!back.countsAsEdit)
+        // An item the user moved elsewhere counts.
+        let elsewhere = Policy.sectionsToSave(byUser: true, onBar: ["displaced": 1], saved: saved, beforeArrangement: ["displaced": 2])
+        #expect(elsewhere.sections["displaced"] == 1)
+        #expect(elsewhere.countsAsEdit)
+        // holzBar's own save ignores the record.
+        let own = Policy.sectionsToSave(byUser: false, onBar: onBar, saved: saved, beforeArrangement: beforeArrangement)
+        #expect(own.sections["displaced"] == 2)
+        #expect(!own.countsAsEdit)
+    }
+
+    @Test("Before macOS 27, only a read the user cannot be arranging during records the bar before an arrangement")
+    func barBeforeArrangementCapture() {
+        #expect(Policy.capturesBarBeforeArrangement(isDragging: false, savesArrangementSoon: false, commandHeld: false, mouseButtonPressed: false))
+        #expect(!Policy.capturesBarBeforeArrangement(isDragging: true, savesArrangementSoon: false, commandHeld: false, mouseButtonPressed: false))
+        #expect(!Policy.capturesBarBeforeArrangement(isDragging: false, savesArrangementSoon: true, commandHeld: false, mouseButtonPressed: false))
+        #expect(!Policy.capturesBarBeforeArrangement(isDragging: false, savesArrangementSoon: false, commandHeld: true, mouseButtonPressed: false))
+        #expect(!Policy.capturesBarBeforeArrangement(isDragging: false, savesArrangementSoon: false, commandHeld: false, mouseButtonPressed: true))
     }
 
     @Test("Before macOS 27, holzBar's own placements never replace a section the user saved while the items moved")

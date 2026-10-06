@@ -152,7 +152,13 @@ enum LayoutBarMoves {
         if registersUndo, let anchor = anchor(of: item, appState: appState) {
             registerUndo(windowID: item.windowID, anchor: anchor, appState: appState, actionName: actionName)
         }
+        // Until the move is saved, no read of the bar counts as the bar before it
+        // (`SettingsSyncPolicy.sectionsToSave`).
+        appState.itemManager.userMovesInProgress += 1
         Task {
+            defer {
+                appState.itemManager.userMovesInProgress -= 1
+            }
             try? await Task.sleep(for: .milliseconds(25))
             do {
                 try await appState.itemManager.move(item: item, to: destination, origin: .user)

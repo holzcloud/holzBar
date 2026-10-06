@@ -48,26 +48,40 @@ extension MenuBarItemManager {
     /// Saves the section of every cached item under its identity key. Sections of items that
     /// are not on the bar now (their apps are not running) are kept.
     ///
+    /// After an arrangement of the user's, the bar as holzBar last read it before the
+    /// arrangement (``sectionsBeforeArrangement``) tells what the user moved: an item macOS
+    /// displaced before it keeps its saved section, and an item's first move counts
+    /// (`SettingsSyncPolicy.sectionsToSave`).
+    ///
     /// - Parameter byUser: Whether the user arranged the items; holzBar's first-run save does
     ///   not count as a settings change for sync.
     func saveSections(byUser: Bool) {
         guard backend.canMoveItems else {
             return
         }
-        let before = storedSectionIndexes()
-        var stored = before
+        var onBar = [String: Int]()
         for section in MenuBarSection.Name.allCases {
             for item in itemCache[section] where !item.isControlItem && !item.tag.namespace.isUUID {
-                stored[identityKey(for: item)] = section.profileIndex
+                onBar[identityKey(for: item)] = section.profileIndex
             }
         }
-        Defaults.set(stored, forKey: .itemSections)
+        let save = SettingsSyncPolicy.sectionsToSave(
+            byUser: byUser,
+            onBar: onBar,
+            saved: storedSectionIndexes(),
+            beforeArrangement: sectionsBeforeArrangement?.mapValues(\.profileIndex)
+        )
+        if byUser {
+            // The read before this arrangement is used up; the next reconciliation reads anew.
+            sectionsBeforeArrangement = nil
+        }
+        Defaults.set(save.sections, forKey: .itemSections)
         // A Command-click on the bar that moved nothing is no change of the user's, nor is an
         // item saved for the first time where macOS put it.
-        if SettingsSyncPolicy.countsAsSectionSaveEdit(byUser: byUser, saved: stored, before: before) {
+        if save.countsAsEdit {
             SettingsSync.userChangedLayout()
         }
-        Self.restoreLogger.debug("Saved the sections of \(stored.count, privacy: .public) items")
+        Self.restoreLogger.debug("Saved the sections of \(save.sections.count, privacy: .public) items")
     }
 
     /// Saves the sections of the given items (by identity key), keeping the others.
@@ -244,6 +258,24 @@ extension MenuBarItemManager {
             !isTemporarilyShown(item)
         }
 
+        // The bar as read now is the bar before the user's next arrangement, unless the user
+        // may be arranging it already.
+        let recordsBar = SettingsSyncPolicy.capturesBarBeforeArrangement(
+            isDragging: appState.isDraggingMenuBarItem,
+            savesArrangementSoon: needsSectionSave || userMovesInProgress > 0,
+            commandHeld: NSEvent.modifierFlags.contains(.command),
+            mouseButtonPressed: NSEvent.pressedMouseButtons != 0
+        )
+        if recordsBar {
+            var bar = [String: MenuBarSection.Name]()
+            for item in candidates {
+                if let key = keys[item.windowID] {
+                    bar[key] = section(of: item, controlItems: controlItems)
+                }
+            }
+            sectionsBeforeArrangement = bar
+        }
+
         let storedKnown = Defaults.array(forKey: .knownItemTags) as? [String]
         var known = Set((storedKnown ?? []).map(storedIdentityKey))
         let saved = savedSections()
@@ -305,6 +337,9 @@ extension MenuBarItemManager {
                 )
                 try await self.move(item: move.item, to: destination)
                 untriedNewKeys.remove(move.key)
+                if recordsBar {
+                    sectionsBeforeArrangement?[move.key] = move.section
+                }
                 if move.isNew {
                     placedSections[move.key] = move.section
                 }
@@ -336,7 +371,7 @@ extension MenuBarItemManager {
         storeSections(SettingsSyncPolicy.ownPlacementsToStore(placedSections, savedNow: savedSections(), wanted: wanted), byUser: false)
         // So is where macOS put an item holzBar left there, as holzBar's own placement: a later
         // move of the user's then changes a saved section and counts for sync
-        // (`SettingsSyncPolicy.countsAsSectionSaveEdit`). Not while the user arranges the items,
+        // (`SettingsSyncPolicy.sectionsToSave`). Not while the user arranges the items,
         // as the section may be one the user is choosing.
         if !yieldsToUser(wanted: nil, appState: appState) {
             storeSections(SettingsSyncPolicy.ownPlacementsToStore(unsavedSections, savedNow: savedSections(), wanted: wanted), byUser: false)

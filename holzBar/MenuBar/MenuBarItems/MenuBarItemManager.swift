@@ -57,6 +57,14 @@ final class MenuBarItemManager {
     /// items (see `SectionRestore.swift`).
     @ObservationIgnored var needsSectionSave = false
 
+    /// The section of each item on the bar when holzBar last read it before the user's next
+    /// arrangement, so a save tells the user's moves from macOS's
+    /// (`SettingsSyncPolicy.sectionsToSave`); `nil` when holzBar has no such read.
+    @ObservationIgnored var sectionsBeforeArrangement: [String: MenuBarSection.Name]?
+
+    /// The number of moves the user asked for in the Layout pane that are still running.
+    @ObservationIgnored var userMovesInProgress = 0
+
     /// Whether the sections are being reconciled.
     @ObservationIgnored var isReconcilingSections = false
 

@@ -1262,26 +1262,68 @@ nonisolated extension SettingsSyncPolicy {
         byUser && saved != before
     }
 
-    /// Whether saving the section of every item on the bar before macOS 27 counts as a change
-    /// of the user's (`SettingsSync.userChangedLayout()`): the user arranged the items, and an
-    /// item that had a saved section is saved in another one.
+    /// The sections to save for the items on the bar before macOS 27, and whether the save
+    /// counts as a change of the user's (`SettingsSync.userChangedLayout()`).
     ///
-    /// An item saved for the first time holds the section macOS or holzBar gave it, not one
-    /// the user chose: with the default new-items placement, holzBar leaves a new item where
-    /// macOS puts it, and the save after any Command-click on the bar records it (SA-05).
-    /// holzBar records such an item's section as its own placement as soon as it sees the
-    /// item, so a later move of the user's changes a saved section and counts.
+    /// Without a record of the bar from before the user's arrangement, every item is saved
+    /// where it is, and the save counts when the user arranged the items and an item that
+    /// had a saved section is saved in another one. An item saved for the first time holds
+    /// the section macOS or holzBar gave it, not one the user chose (SA-05).
+    ///
+    /// With that record (``capturesBarBeforeArrangement(isDragging:savesArrangementSoon:commandHeld:mouseButtonPressed:)``),
+    /// what the user moved is known: an item now in another section than the record moved,
+    /// and counts when that changes its saved section, also for an item saved for the first
+    /// time. An item in the recorded section did not move: macOS may have displaced it before
+    /// the arrangement, as after a display change or wake, so it keeps its saved section,
+    /// which the restore brings back, and is never saved as the user's arrangement.
     ///
     /// - Parameters:
-    ///   - byUser: Whether the user arranged the items.
-    ///   - saved: The section of each item saved now.
-    ///   - before: The section of each item saved before.
-    static func countsAsSectionSaveEdit<Key: Hashable, Section: Equatable>(
+    ///   - byUser: Whether the user arranged the items; holzBar's first-run save is not.
+    ///   - onBar: The section of each item on the bar now.
+    ///   - saved: The section of each item saved before.
+    ///   - beforeArrangement: The section of each item on the bar when holzBar last read it
+    ///     before the user's arrangement, if it has that record.
+    /// - Returns: The sections to save, and whether the save counts as the user's change.
+    static func sectionsToSave<Key: Hashable, Section: Equatable>(
         byUser: Bool,
+        onBar: [Key: Section],
         saved: [Key: Section],
-        before: [Key: Section]
+        beforeArrangement: [Key: Section]?
+    ) -> (sections: [Key: Section], countsAsEdit: Bool) {
+        var sections = saved
+        var countsAsEdit = false
+        for (key, section) in onBar {
+            let savedSection = saved[key]
+            guard byUser, let recorded = beforeArrangement?[key] else {
+                sections[key] = section
+                countsAsEdit = countsAsEdit || (byUser && savedSection.map { $0 != section } ?? false)
+                continue
+            }
+            if section != recorded {
+                // The user moved it.
+                sections[key] = section
+                countsAsEdit = countsAsEdit || savedSection != section
+            } else if savedSection == nil {
+                // Unmoved and never saved: holzBar's own record of where it is.
+                sections[key] = section
+            }
+        }
+        return (sections, countsAsEdit)
+    }
+
+    /// Whether holzBar records the sections of the bar it just read as the bar before the
+    /// user's next arrangement (``sectionsToSave(byUser:onBar:saved:beforeArrangement:)``).
+    ///
+    /// Only a read the user cannot be arranging during counts: no item is being dragged, no
+    /// save of an arrangement is pending, and neither Command nor a mouse button is held, as
+    /// a Command-drag on the bar needs both and holzBar may not see it start.
+    static func capturesBarBeforeArrangement(
+        isDragging: Bool,
+        savesArrangementSoon: Bool,
+        commandHeld: Bool,
+        mouseButtonPressed: Bool
     ) -> Bool {
-        byUser && saved.contains { key, section in before[key].map { $0 != section } ?? false }
+        !isDragging && !savesArrangementSoon && !commandHeld && !mouseButtonPressed
     }
 
     /// The sections of holzBar's own placements to save before macOS 27, after a
