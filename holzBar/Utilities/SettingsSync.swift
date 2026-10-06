@@ -153,11 +153,6 @@ final class SettingsSync {
         updateState { $0.countLayoutEdit() }
     }
 
-    /// The number of changes the user made to this Mac's layout.
-    private static var layoutEdits: Int {
-        state.layoutEdits
-    }
-
     /// The sync state this Mac keeps in its defaults.
     private static var state: SettingsSyncPolicy.State {
         SettingsSyncPolicy.State(reading: UserDefaults.standard.object(forKey:))
@@ -900,18 +895,6 @@ final class SettingsSync {
         Self.logger.info("The sync folder holds another layout for this macOS version; it is applied at the next restart")
     }
 
-    /// Remembers that this Mac has synced the given user settings and layout with the file
-    /// of the given date, and that no version waits for the user.
-    ///
-    /// - Parameters:
-    ///   - layout: The layout digest of the file's layout for this Mac's macOS version, or
-    ///     `nil` when it has none.
-    ///   - layoutEdits: The number of layout edits the sync saw; edits made since still
-    ///     count.
-    private static func markSynced(base: String, layout: String?, layoutEdits: Int, modified: Date?) {
-        updateState { $0.markSynced(base: base, layout: layout, layoutEdits: layoutEdits, modified: modified) }
-    }
-
     /// Remembers the date of the version that waits for the user, or that none waits.
     private static func setPending(_ modified: Date?) {
         updateState { $0.pending = modified }
@@ -1521,12 +1504,7 @@ final class SettingsSync {
                     logger.info("Took in the layout from the sync folder")
                 }
             }
-            markSynced(
-                base: local.userDigest,
-                layout: inspection.remote?.layoutDigest,
-                layoutEdits: layoutEdits,
-                modified: inspection.remote?.modified
-            )
+            updateState { $0.recordAdoption(inspection.remote?.version, local: local, takesInOwnLayout: false) }
         case .takeInLayout:
             // This Mac kept another Mac's layout in its last write; only that layout is taken
             // in, and this Mac's other changes are written after launch.

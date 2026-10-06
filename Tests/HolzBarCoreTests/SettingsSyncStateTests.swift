@@ -208,6 +208,31 @@ struct SettingsSyncStateTests {
         #expect(Policy.Local(settings: [:], layouts: Policy.Layouts(backend: .service26), state: kept, layoutEdits: 0, postponed: nil, forcesWrite: false).recentLayouts == ["mine", "kept"])
     }
 
+    @Test("A version of another Mac's that is not newer never moves the date of the last sync")
+    func notNewerKeepsLastSynced() {
+        let future = lastSynced.addingTimeInterval(365 * 24 * 60 * 60)
+        let ahead = Policy.Version(isFromThisMac: false, modified: future, isNewer: false, userDigest: "other", layoutDigest: "theirs")
+        #expect(ahead.syncedDate == nil)
+        var used = State(base: "base", lastSynced: lastSynced)
+        used.recordUse(of: ahead, layoutDigest: ahead.layoutDigest, base: "applied")
+        #expect(used.lastSynced == lastSynced)
+        #expect(used.versionDigest == "other")
+        let local = Policy.Local(userDigest: "other", base: "base", pending: nil, postponed: nil, forcesWrite: false)
+        var adopted = State(base: "base", lastSynced: lastSynced)
+        adopted.recordAdoption(ahead, local: local, takesInOwnLayout: false)
+        #expect(adopted.lastSynced == lastSynced)
+        // A newer version, and this Mac's own, record their date.
+        let newer = Policy.Version(isFromThisMac: false, modified: lastSynced.addingTimeInterval(60), isNewer: true, userDigest: "other")
+        let own = Policy.Version(isFromThisMac: true, modified: lastSynced.addingTimeInterval(90), isNewer: false, userDigest: "other")
+        #expect(newer.syncedDate == newer.modified)
+        #expect(own.syncedDate == own.modified)
+        adopted.recordAdoption(own, local: local, takesInOwnLayout: false)
+        #expect(adopted.lastSynced == own.modified)
+        var applied = State(base: "base", lastSynced: lastSynced)
+        applied.recordApplied(newer, base: "applied", layoutDigest: nil)
+        #expect(applied.lastSynced == newer.modified)
+    }
+
     @Test("Leaving the folder forgets the user settings and the waiting version, but keeps the layout last synced and the layout edits")
     func leaveFolder() {
         let start = State(base: "base", baseLayoutDigest: "layout", layoutEdits: 4, syncedLayoutEdits: 3, lastSynced: lastSynced, pending: lastSynced, versionDigest: "v")

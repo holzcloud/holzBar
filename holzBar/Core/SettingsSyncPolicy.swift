@@ -1203,11 +1203,11 @@ nonisolated extension SettingsSyncPolicy {
         mutating func recordAdoption(_ version: Version?, local: Local, takesInOwnLayout: Bool) {
             rememberLayout(version?.layoutDigest)
             guard takesInOwnLayout, let version else {
-                markSynced(base: local.userDigest, layout: version?.layoutDigest, layoutEdits: local.layoutEdits, modified: version?.modified)
+                markSynced(base: local.userDigest, layout: version?.layoutDigest, layoutEdits: local.layoutEdits, modified: version?.syncedDate)
                 return
             }
             guard !version.isFromThisMac else {
-                markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: version.modified)
+                markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: version.syncedDate)
                 return
             }
             markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: local.layoutEdits, modified: nil)
@@ -1278,7 +1278,7 @@ nonisolated extension SettingsSyncPolicy {
         ///     differ from the version's when it lacks some of this Mac's settings.
         ///   - layoutDigest: The layout digest to record as synced.
         mutating func recordApplied(_ version: Version, base: String, layoutDigest: String?) {
-            markSynced(base: base, layout: layoutDigest, layoutEdits: layoutEdits, modified: version.modified)
+            markSynced(base: base, layout: layoutDigest, layoutEdits: layoutEdits, modified: version.syncedDate)
             versionDigest = version.userDigest
         }
 
@@ -1525,6 +1525,14 @@ nonisolated extension SettingsSyncPolicy.Local {
 }
 
 nonisolated extension SettingsSyncPolicy.Version {
+    /// The date a sync with this version records as the last sync
+    /// (``SettingsSyncPolicy/State/lastSynced``): its own, unless it is another Mac's version
+    /// that is not newer. Such a version may be dated far in the future, and recording that
+    /// date would make every later version of the other Macs look older.
+    var syncedDate: Date? {
+        isNewer || isFromThisMac ? modified : nil
+    }
+
     /// A version with the digests of its settings.
     ///
     /// - Parameter settings: The version's current settings
