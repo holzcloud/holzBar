@@ -459,7 +459,8 @@ nonisolated enum SettingsSyncPolicy {
             if !isLaunch, let postponed = local.postponed, version.modified <= postponed {
                 return .wait
             }
-            // A version written without this Mac's last write would revert it: it asks.
+            // A version written without a write this Mac's settings hold, its own or another
+            // Mac's, would revert it: it asks.
             return local.hasChanges || missesLastWrite(version, local: local) ? .ask : .apply
         }
     }
@@ -517,8 +518,8 @@ nonisolated extension SettingsSyncPolicy {
         if version.isFromThisMac, !local.isJoining {
             return local.editsLayout ? .choice(isJoining: false) : .restart
         }
-        // A version that is not newer, or one written without this Mac's last write, may
-        // lack this Mac's last changes: it asks.
+        // A version that is not newer, or one written without a write this Mac's settings
+        // hold, may lack changes this Mac has: it asks.
         if !version.isNewer || missesLastWrite(version, local: local), !local.isJoining {
             return .choice(isJoining: false)
         }
@@ -1029,26 +1030,29 @@ nonisolated extension SettingsSyncPolicy {
         SettingsSyncFile.limitedSeen(seen.merging(other) { max($0, $1) })
     }
 
-    /// Whether a version from another Mac was written without this Mac's last write: it
-    /// records the writes it holds (``Version/seen``), and this Mac's newest one among them
-    /// (``Version/seenWrite``) is older than this Mac's last write (``Local/lastWritten``), in
-    /// whole seconds.
+    /// Whether a version from another Mac was written without a write this Mac's settings
+    /// hold: it records the writes it holds (``Version/seen``), and this Mac's newest one among
+    /// them (``Version/seenWrite``) is older than this Mac's last write (``Local/lastWritten``),
+    /// or its entry for another Mac is older than that Mac's newest write this Mac holds
+    /// (``Local/seen``), in whole seconds.
     ///
     /// Such a version replaced the file without that write, as when the file went missing or
     /// became unusable, a sync app kept another Mac's concurrent write, or a Mac wrote on top
-    /// of such a version, however often: applying it would revert this Mac's last change
-    /// silently, so holzBar asks. Each Mac's write is dated by its own clock, so clocks that
-    /// differ do not matter. Files of earlier builds record no writes and are decided as before.
+    /// of such a version, however often: applying it would revert that change silently, here
+    /// and so on every Mac that took it in, not only the one that made it, so holzBar asks.
+    /// Each Mac's writes are dated by its own clock, and only compared with each other, so
+    /// clocks that differ do not matter. Files of earlier builds record no writes and are
+    /// decided as before.
     static func missesLastWrite(_ version: Version, local: Local) -> Bool {
-        guard
-            !version.isFromThisMac,
-            !local.isJoining,
-            version.seen != nil,
-            let lastWritten = local.lastWritten
-        else {
+        guard !version.isFromThisMac, !local.isJoining, let versionSeen = version.seen else {
             return false
         }
-        return wholeSeconds(version.seenWrite ?? .distantPast) < wholeSeconds(lastWritten)
+        if let lastWritten = local.lastWritten, wholeSeconds(version.seenWrite ?? .distantPast) < wholeSeconds(lastWritten) {
+            return true
+        }
+        return local.seen.contains { id, written in
+            wholeSeconds(versionSeen[id] ?? .distantPast) < wholeSeconds(written)
+        }
     }
 
     /// Whether a version is dated before the newest version this Mac synced with

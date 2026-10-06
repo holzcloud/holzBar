@@ -43,7 +43,8 @@ nonisolated enum SettingsSyncFile {
     /// (`SettingsSyncDevice.deviceIDKey`), the date of its newest write whose changes the
     /// version includes, the writing Mac's own write among them
     /// (`SettingsSyncPolicy.seen(writingOver:local:)`). A Mac whose last write is newer than
-    /// its entry knows the version lacks that write, and asks instead of applying it
+    /// its entry, or that holds a newer write of another Mac than the entry of that Mac, knows
+    /// the version lacks that write, and asks instead of applying it
     /// (`SettingsSyncPolicy.missesLastWrite(_:local:)`). Each Mac's dates come from its own
     /// clock, so clocks that differ do not matter. Earlier builds ignore the key, and their
     /// files lack it.
