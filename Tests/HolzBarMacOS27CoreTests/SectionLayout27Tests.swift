@@ -72,6 +72,18 @@ struct ApplyingProfile27Tests {
         #expect(result == ["com.tinyspeck.slackmacgap": .hidden, "com.example.New": .alwaysHidden])
     }
 
+    @Test("Applying the current profile again leaves the layout as it is, so sync sees no layout change")
+    func reapplyingChangesNothing() {
+        let known: Set<String> = ["com.tinyspeck.slackmacgap", "ru.keepcoder.Telegram"]
+        let profile: [String: MacOS27Section] = ["com.tinyspeck.slackmacgap": .hidden]
+        let saved: [String: MacOS27Section] = ["ru.keepcoder.Telegram": .alwaysHidden, "com.example.New": .hidden]
+        let once = SectionLayout27.applyingProfile(profile, knownApplications: known, to: saved)
+        #expect(once != saved)
+        #expect(SectionLayout27.applyingProfile(profile, knownApplications: known, to: once) == once)
+        let replaced = SectionLayout27.applyingProfile(profile, knownApplications: nil, to: saved)
+        #expect(SectionLayout27.applyingProfile(profile, knownApplications: nil, to: replaced) == replaced)
+    }
+
     @Test("An app the profile has visible becomes visible")
     func knownVisibleAppBecomesVisible() {
         let known: Set<String> = ["com.tinyspeck.slackmacgap", "ru.keepcoder.Telegram"]

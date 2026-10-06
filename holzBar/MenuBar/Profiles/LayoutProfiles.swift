@@ -195,15 +195,19 @@ final class LayoutProfiles {
                 logger.notice("Layout profile \(profile.name, privacy: .private) has no macOS 27 layout, so the current one stays")
             } else {
                 let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
+                let before = stored.compactMapValues(MacOS27Section.init(rawValue:))
                 let layout = SectionLayout27.applyingProfile(
                     profile.applicationSections.compactMapValues(MacOS27Section.init(rawValue:)),
                     knownApplications: profile.knownApplications.map(Set.init),
-                    to: stored.compactMapValues(MacOS27Section.init(rawValue:))
+                    to: before
                 )
                 Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
                 // Applying a profile is the user's change, also when a display or Space
-                // applies a bound one; it counts for sync.
-                SettingsSync.userChangedLayout()
+                // applies a bound one; it counts for sync when it changed the layout, not
+                // when the profile was applied again.
+                if SettingsSyncPolicy.countsAsLayoutEdit(byUser: true, saved: layout, before: before) {
+                    SettingsSync.userChangedLayout()
+                }
             }
             appState.concealer27.update()
             Task {
