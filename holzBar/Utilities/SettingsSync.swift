@@ -1054,6 +1054,8 @@ final class SettingsSync {
         case ignoredFile(String)
         /// Reading or writing failed with the given error.
         case failed(String)
+        /// This Mac's settings make a sync file larger than holzBar reads.
+        case tooLarge
     }
 
     /// What an exchange did.
@@ -1214,6 +1216,8 @@ final class SettingsSync {
             logger.error("Ignoring the sync file: \(reason, privacy: .public)")
         case .failed(let error):
             logger.error("Error syncing settings with the sync folder: \(error, privacy: .private)")
+        case .tooLarge:
+            logger.error("This Mac's settings are larger than the sync file may be, such as with a large custom icon; not writing them")
         case nil:
             break
         }
@@ -1325,6 +1329,10 @@ final class SettingsSync {
         do {
             try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             let data = try PropertyListSerialization.data(fromPropertyList: file, format: .xml, options: 0)
+            // Every Mac leaves a larger file alone, so it would never sync.
+            guard SettingsSyncFile.fitsSizeLimit(byteCount: data.count) else {
+                return ExchangeResult(action: .retry, problem: .tooLarge)
+            }
             try data.write(to: fileURL, options: .atomic)
             return ExchangeResult(action: .write, written: modified, writtenLayoutDigest: writtenLayoutDigest)
         } catch {
@@ -1347,7 +1355,7 @@ final class SettingsSync {
             return Inspection(file: .missing)
         case .refused(let refusal):
             let reason = String(describing: refusal)
-            return Inspection(file: refusal == .unreadable ? .unreadable : .unusable, problem: .ignoredFile(reason))
+            return Inspection(file: SettingsSyncPolicy.File(refusal: refusal), problem: .ignoredFile(reason))
         }
         guard
             let file = (try? PropertyListSerialization.propertyList(from: data, format: nil)) as? [String: Any],

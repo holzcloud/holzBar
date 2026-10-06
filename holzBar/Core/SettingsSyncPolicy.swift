@@ -266,13 +266,29 @@ nonisolated enum SettingsSyncPolicy {
     nonisolated enum File: Equatable, Sendable {
         /// There is no file.
         case missing
-        /// The file holds nothing holzBar can use (too large, not a regular file, no date
-        /// or settings); holzBar may write over it.
+        /// The file holds nothing holzBar can use (not a regular file, no date or
+        /// settings); holzBar may write over it.
         case unusable
-        /// The file could not be read now; holzBar must not write over it.
+        /// The file could not be read now, or is larger than holzBar reads; holzBar must not
+        /// write over it.
         case unreadable
         /// A version of the file.
         case version(Version)
+
+        /// What a file holzBar refused to read is for the decision.
+        ///
+        /// A file larger than holzBar reads holds another Mac's settings, such as a large
+        /// custom icon, that this Mac cannot see: writing over it would lose them unasked,
+        /// and the Mac that wrote it would later apply this Mac's version silently. So it is
+        /// left alone, like a file that cannot be read now.
+        init(refusal: SettingsSyncFile.Refusal) {
+            switch refusal {
+            case .notRegularFile:
+                self = .unusable
+            case .tooLarge, .unreadable:
+                self = .unreadable
+            }
+        }
     }
 
     /// What settings sync does.

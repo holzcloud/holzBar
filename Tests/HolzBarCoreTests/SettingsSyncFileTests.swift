@@ -233,6 +233,31 @@ struct SettingsSyncFileTests {
         #expect(SettingsSyncFile.readContents(atPath: path, maximumSize: 101) == .contents(Data(count: 101)))
     }
 
+    @Test("holzBar writes no file larger than it reads")
+    func sizeLimit() {
+        #expect(SettingsSyncFile.fitsSizeLimit(byteCount: 0))
+        #expect(SettingsSyncFile.fitsSizeLimit(byteCount: SettingsSyncFile.maximumFileSize))
+        #expect(!SettingsSyncFile.fitsSizeLimit(byteCount: SettingsSyncFile.maximumFileSize + 1))
+    }
+
+    @Test("A file over the limit is never written over, and nothing of it is applied")
+    func tooLargeFileIsLeftAlone() {
+        #expect(SettingsSyncPolicy.File(refusal: .tooLarge) == .unreadable)
+        #expect(SettingsSyncPolicy.File(refusal: .unreadable) == .unreadable)
+        #expect(SettingsSyncPolicy.File(refusal: .notRegularFile) == .unusable)
+        let file = SettingsSyncPolicy.File(refusal: .tooLarge)
+        let sides = [
+            SettingsSyncPolicy.Local(userDigest: "changed", base: "base", pending: nil, postponed: nil, forcesWrite: false),
+            SettingsSyncPolicy.Local(userDigest: "base", base: nil, pending: nil, postponed: nil, forcesWrite: false),
+            SettingsSyncPolicy.Local(userDigest: "base", base: "base", pending: nil, postponed: nil, forcesWrite: true),
+        ]
+        for local in sides {
+            for trigger in [SettingsSyncPolicy.Trigger.localChange, .check, .launch] {
+                #expect(SettingsSyncPolicy.decide(trigger, local: local, file: file) == .retry)
+            }
+        }
+    }
+
     @Test("Only a real folder, or none yet, is written into")
     func usableFolder() throws {
         let folder = try temporaryFolder()

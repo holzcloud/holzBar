@@ -41,6 +41,12 @@ nonisolated enum SettingsSyncFile {
     /// The largest sync file holzBar reads: 1 MB. holzBar's settings take a few kilobytes.
     static let maximumFileSize = 1 << 20
 
+    /// Whether a sync file of `byteCount` bytes is small enough for holzBar to read. holzBar
+    /// never writes a larger one, which every Mac would leave alone.
+    static func fitsSizeLimit(byteCount: Int) -> Bool {
+        byteCount <= maximumFileSize
+    }
+
     /// How far in the future a file's date may lie, for Macs whose clocks differ.
     static let allowedClockSkew: TimeInterval = 60 * 60
 
