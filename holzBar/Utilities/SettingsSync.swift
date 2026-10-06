@@ -714,13 +714,7 @@ final class SettingsSync {
                 )
                 Self.logger.info("Wrote settings to the sync folder")
             case .adopt:
-                Self.markSynced(
-                    base: request.local.userDigest,
-                    layout: result.remote?.layoutDigest,
-                    layoutEdits: request.layoutEdits,
-                    modified: result.remote?.modified
-                )
-                Self.takeInOtherLayout(from: result.remote)
+                adopt(result.remote, local: request.local, layoutEdits: request.layoutEdits)
             default:
                 // The file could not be read; the folder is joined once it can.
                 break
@@ -889,6 +883,38 @@ final class SettingsSync {
         logger.info("Took in the other macOS version's layout from the sync folder")
     }
 
+    /// Remembers a version that holds this Mac's settings as synced while holzBar runs, and
+    /// takes in the other macOS version's layout.
+    ///
+    /// A joining Mac whose layout the user did not change takes in the version's layout for
+    /// its macOS version too (`SettingsSyncPolicy.ownLayoutToTakeIn`). holzBar reads that
+    /// layout at launch, so it is not applied now: this Mac's own layout is recorded as
+    /// synced instead, which makes the version one to apply, and it waits with the quiet
+    /// Restart hint; the next launch applies it as well.
+    private func adopt(_ remote: RemoteVersion?, local: SettingsSyncPolicy.Local, layoutEdits: Int) {
+        Self.takeInOtherLayout(from: remote)
+        if
+            let remote,
+            let remoteSettings = remote.settings,
+            !SettingsSyncPolicy.ownLayoutToTakeIn(
+                remoteSettings,
+                over: Self.syncedSettings(),
+                layouts: Self.layouts,
+                local: local,
+                isNewer: remote.isNewer
+            ).isEmpty
+        {
+            Self.markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: layoutEdits, modified: nil)
+            // Pending first, so no push overwrites the version while the hint is shown.
+            Self.setPending(remote.modified)
+            offer(remote, local: Self.currentLocal(settings: Self.syncedSettings(), postponed: postponed))
+            Self.logger.info("The sync folder holds another layout for this macOS version; it is applied at the next restart")
+            return
+        }
+        Self.markSynced(base: local.userDigest, layout: remote?.layoutDigest, layoutEdits: layoutEdits, modified: remote?.modified)
+        withdrawHint()
+    }
+
     /// Remembers that this Mac has synced the given user settings and layout with the file
     /// of the given date, and that no version waits for the user.
     ///
@@ -948,6 +974,9 @@ final class SettingsSync {
         let settingsData: Data
         /// The layout digest of its layout for this Mac's macOS version, if it has one.
         let layoutDigest: String?
+        /// Whether another Mac wrote it after this Mac last synced
+        /// (`SettingsSyncPolicy.Version.isNewer`).
+        let isNewer: Bool
 
         /// Its settings.
         var settings: [String: Any]? {
@@ -1122,14 +1151,7 @@ final class SettingsSync {
         case .wait, .retry:
             break
         case .adopt:
-            Self.markSynced(
-                base: request.local.userDigest,
-                layout: result.remote?.layoutDigest,
-                layoutEdits: request.layoutEdits,
-                modified: result.remote?.modified
-            )
-            Self.takeInOtherLayout(from: result.remote)
-            withdrawHint()
+            adopt(result.remote, local: request.local, layoutEdits: request.layoutEdits)
         case .write:
             if request.kind == .check {
                 // A check never writes; this Mac's changes are pushed with a read of their
@@ -1321,7 +1343,12 @@ final class SettingsSync {
             settings: current,
             fileSettings: contents.settings,
             currentLayouts: contents.currentLayouts,
-            remote: RemoteVersion(modified: contents.modified, settingsData: settingsData, layoutDigest: version.layoutDigest)
+            remote: RemoteVersion(
+                modified: contents.modified,
+                settingsData: settingsData,
+                layoutDigest: version.layoutDigest,
+                isNewer: version.isNewer
+            )
         )
     }
 
@@ -1472,6 +1499,15 @@ final class SettingsSync {
             logger.notice("Applied settings from the sync folder")
             return
         case .adopt:
+            // A joining Mac whose layout the user did not change takes in the folder's layout
+            // for its macOS version, before anything reads it.
+            if let remote = inspection.settings, let isNewer = inspection.remote?.isNewer {
+                let ownLayout = SettingsSyncPolicy.ownLayoutToTakeIn(remote, over: settings, layouts: layouts, local: local, isNewer: isNewer)
+                if !ownLayout.isEmpty {
+                    SettingsBackup.apply(ownLayout, removesMissingKeys: false)
+                    logger.info("Took in the layout from the sync folder")
+                }
+            }
             markSynced(
                 base: local.userDigest,
                 layout: inspection.remote?.layoutDigest,

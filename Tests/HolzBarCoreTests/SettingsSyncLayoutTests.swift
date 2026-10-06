@@ -279,6 +279,51 @@ struct SettingsSyncLayoutTests {
         }
     }
 
+    @Test("A joining Mac without a layout change of the user's takes in the folder's layout of its macOS version", arguments: layoutBackends)
+    func joiningTakesInOwnLayout(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let mine = settings(layouts, own: ["a": 0, "known": 2, "unseen": 1], other: second)
+        let remote = settings(layouts, own: ["a": 1], other: third, ownKnown: ["known"])
+        let joining = local(mine, layouts, base: nil)
+        #expect(Policy.decide(.check, local: joining, file: version(remote, layouts)) == .adopt)
+        let takenIn = Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: joining, isNewer: true)
+        #expect(Set(takenIn.keys) == [layouts.own])
+        #expect(isLayout(takenIn[layouts.own], ["a": 1, "unseen": 1]))
+
+        // While holzBar runs, the Mac records its own layout as synced: the version is then
+        // applied by Restart or at the next launch, with the same layout.
+        let recorded = local(mine, layouts, base: mine)
+        #expect(!recorded.hasChanges)
+        #expect(Policy.decide(.check, local: recorded, file: version(remote, layouts)) == .apply)
+        #expect(Policy.decide(.launch, local: recorded, file: version(remote, layouts)) == .apply)
+        #expect(Policy.hint(for: recorded) == .restart)
+        let applied = Policy.settingsToApply(
+            remote,
+            over: mine,
+            layouts: layouts,
+            baseLayoutDigest: recorded.baseLayoutDigest,
+            editsLayout: false
+        )
+        #expect(isLayout(applied[layouts.own], ["a": 1, "unseen": 1]))
+
+        // Nothing is taken in after a layout change of the user's, by a Mac that is not
+        // joining, from a version this Mac already synced, without a current layout of
+        // this macOS version, or when this Mac already holds it.
+        let edited = local(mine, layouts, base: nil, editsLayout: true)
+        #expect(Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: edited, isNewer: true).isEmpty)
+        #expect(Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: recorded, isNewer: true).isEmpty)
+        #expect(Policy.ownLayoutToTakeIn(remote, over: mine, layouts: layouts, local: joining, isNewer: false).isEmpty)
+        let stale = Policy.withoutStaleLayouts(remote, currentLayouts: [layouts.other])
+        #expect(Policy.ownLayoutToTakeIn(stale, over: mine, layouts: layouts, local: joining, isNewer: true).isEmpty)
+        let held = settings(layouts, own: ["a": 1, "unseen": 1])
+        #expect(Policy.ownLayoutToTakeIn(remote, over: held, layouts: layouts, local: local(held, layouts, base: nil), isNewer: true).isEmpty)
+
+        // A fresh install takes in the folder's layout as it is.
+        let fresh = settings(layouts)
+        let freshTakenIn = Policy.ownLayoutToTakeIn(remote, over: fresh, layouts: layouts, local: local(fresh, layouts, base: nil), isNewer: true)
+        #expect(isLayout(freshTakenIn[layouts.own], ["a": 1]))
+    }
+
     @Test("Joining after a layout change of the user's asks only about another user's layout", arguments: layoutBackends)
     func joiningWithEdits(backend: MenuBarBackendKind) {
         let layouts = Policy.Layouts(backend: backend)
