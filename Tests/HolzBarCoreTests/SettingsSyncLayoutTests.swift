@@ -1180,6 +1180,52 @@ struct SettingsSyncLayoutTests {
         #expect(outcome.state.lastSynced == newer.modified)
     }
 
+    @Test("A write over a missing or unusable file never lists holzBar's own layout as current while this Mac keeps another Mac's layout", arguments: layoutBackends)
+    func keptLayoutNotReplacedOverMissingFile(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        // A kept B's arrangement (Keep This Mac's Settings without a layout change); the file
+        // then went away, and A changes a setting.
+        let mineLayout: [String: Any] = ["a": 0, "b": 1, "placed": 1]
+        let keptLayout: [String: Any] = ["a": 5, "b": 1]
+        let mine = settings(layouts, showOnHover: false, own: mineLayout)
+        let state = Policy.State(
+            base: Policy.userDigest(of: settings(layouts, own: mineLayout)),
+            baseLayoutDigest: Policy.layoutDigest(of: mine, layouts: layouts),
+            lastSynced: lastSynced,
+            keptLayoutDigest: Policy.layoutDigest(of: settings(layouts, own: keptLayout), layouts: layouts)
+        )
+        let keeping = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.localChange, local: keeping, file: .missing) == .write)
+        #expect(Policy.writesOwnLayoutAsCopy(fileSettings: nil, local: keeping))
+        let plan = Policy.planWrite(mine, file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], fileVersion: nil, layouts: layouts, local: keeping)
+        #expect(!plan.currentLayouts.contains(layouts.own))
+        #expect(plan.copiedLayouts.contains(layouts.own))
+        #expect(isLayout(plan.settings[layouts.own], mineLayout))
+        #expect(!plan.record.takesInLayout)
+        // B, which made that arrangement, applies A's change and keeps it.
+        let mineB = settings(layouts, own: keptLayout)
+        let localB = local(mineB, layouts, base: mineB)
+        let readByB = Policy.withoutStaleLayouts(plan.settings, currentLayouts: Set(plan.currentLayouts))
+        #expect(Policy.decide(.launch, local: localB, file: version(readByB, layouts)) == .apply)
+        let applied = Policy.settingsToApply(readByB, over: mineB, layouts: layouts, baseLayoutDigest: localB.baseLayoutDigest, editsLayout: false)
+        #expect(applied[layouts.own] == nil)
+        #expect(applied["ShowOnHover"] as? Bool == false)
+        // B's next write lists its arrangement as current again.
+        let rewritten = Policy.planWrite(mineB, file: plan.settings, fileCurrentLayouts: Set(plan.currentLayouts), fileCopiedLayouts: Set(plan.copiedLayouts), fileVersion: nil, layouts: layouts, local: localB)
+        #expect(rewritten.currentLayouts.contains(layouts.own))
+        #expect(isLayout(rewritten.settings[layouts.own], keptLayout))
+
+        // A layout change of the user's is written as current, as is a write without a kept
+        // layout or over a file that is there.
+        var edited = keeping
+        edited.editsLayout = true
+        #expect(Policy.planWrite(mine, file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], fileVersion: nil, layouts: layouts, local: edited).currentLayouts.contains(layouts.own))
+        var notKeeping = keeping
+        notKeeping.keptLayoutDigest = nil
+        #expect(Policy.planWrite(mine, file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], fileVersion: nil, layouts: layouts, local: notKeeping).currentLayouts.contains(layouts.own))
+        #expect(!Policy.writesOwnLayoutAsCopy(fileSettings: settings(layouts), local: keeping))
+    }
+
     // MARK: Running
 
     @Test("A newer version that changed only the other macOS version's layout is adopted", arguments: layoutBackends)

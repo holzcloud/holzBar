@@ -191,6 +191,33 @@ struct SettingsSyncPolicyTests {
         #expect(SettingsSyncPolicy.decide(.check, local: local(base, base: base), file: .missing) == .none)
     }
 
+    @Test("A waiting version is never given up or written over because the file went away")
+    func missingFileKeepsWaitingVersion() {
+        let waiting = lastSynced.addingTimeInterval(60)
+        for file in [SettingsSyncPolicy.File.missing, .unusable] {
+            // A check finds the file gone while the version waits: nothing changes, with or
+            // without changes of this Mac's.
+            #expect(SettingsSyncPolicy.decide(.check, local: local(changed, base: base, pending: waiting), file: file) == .wait)
+            #expect(SettingsSyncPolicy.decide(.check, local: local(base, base: base, pending: waiting), file: file) == .wait)
+            let outcome = SettingsSyncPolicy.outcome(
+                of: .wait,
+                isCheck: true,
+                version: nil,
+                local: local(changed, base: base, pending: waiting),
+                state: SettingsSyncPolicy.State(base: base, lastSynced: lastSynced, pending: waiting)
+            )
+            #expect(outcome.state.pending == waiting)
+            #expect(outcome.hint == .unchanged)
+            #expect(!outcome.pushes)
+            // Keeping this Mac's settings still writes.
+            #expect(SettingsSyncPolicy.decide(.localChange, local: local(changed, base: base, pending: waiting, forcesWrite: true), file: file) == .write)
+            // Without a waiting version, as before.
+            #expect(SettingsSyncPolicy.decide(.check, local: local(changed, base: base), file: file) == .write)
+            #expect(SettingsSyncPolicy.decide(.check, local: local(base, base: base), file: file) == .none)
+            #expect(SettingsSyncPolicy.decide(.launch, local: local(changed, base: base, pending: waiting), file: file) == .none)
+        }
+    }
+
     @Test("The launch never writes")
     func launchNeverWrites() {
         #expect(SettingsSyncPolicy.decide(.launch, local: local(changed, base: base), file: .missing) == .none)
