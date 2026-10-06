@@ -250,6 +250,20 @@ The review of round 2 confirmed nine more sync issues (one blocker, three major,
 | Writing over a missing or unusable file can make another Mac silently revert its last synced change | minor | Not fixed: a safe fix needs a version history in the file. Documented as a known issue | `94412993` |
 | Before macOS 27, a first move of an unsaved item does not count, and a displaced item saved by a Command-click counts | minor | Not fixed: needs the section at drag start, which holzBar does not see in every mode. Documented as a known issue | `94412993` |
 
+## Sync fix round 4 (2026-10-06)
+
+The review of round 3 confirmed seven sync issues (one blocker, two major, four minor) and asked for a parent-version record instead of more special cases. The blocker and both majors are fixed; three minors are fixed (one of them as far as the test package can reach) and one is documented. Each write now records the version it was based on (`basedOn`), which closes the general case of a write over a missing or unusable file; files of 0.0.7 beta 1 lack it and are decided as before. Details, tests and the two-Mac test steps: [remediation/sync-fix-SUMMARY.md](remediation/sync-fix-SUMMARY.md).
+
+| Issue | Severity | Fix | Commit |
+|---|---|---|---|
+| A stale layout of the other macOS version, from an old own version or a not-newer version, was taken in, written back as current and applied silently by the other Mac | blocker | A version older than this Mac's last sync gives no layout of the other macOS version to take in, and a write passes it on only as a copy; a newer version that changed nothing this Mac uses counts as the last sync | `a42f8c59` |
+| Writing over a missing or unusable file reverted another Mac's last change, dropped a waiting version and could write holzBar's own layout over a kept arrangement | major | A waiting version stays when the file goes away; over a missing file a kept arrangement is not replaced (`226db335`). Each write records the version it was based on, and a Mac whose last write is newer asks instead of applying (`d0488e5e`) | `226db335`, `d0488e5e` |
+| Before macOS 27, a first move of an unsaved item did not count, and a Command-click after macOS displaced items synced the displacement | major | The bar as last read before the user's arrangement tells the user's moves from macOS's; residual: a displacement and an arrangement both within the 2 s settle window, and items that appear during a drag | `62ee8bb4` |
+| An own version's layout without a kept record counted as an old copy | minor | Only a version dated before this Mac's last sync is an old copy | `e77271bf` |
+| A joining Mac adopted another Mac's not-newer version and recorded its layout as synced without taking it in | minor | It asks | `dc5bd356` |
+| The glue that feeds Core decisions was untested | minor | The launch's application and take-in, and an adoption's take-in, are decided in Core; the write plan reads the file's version itself. Reading and writing the file stay in the app | `44ee0fb8` |
+| The 64-layout stale-copy recognition can replace a beta 1 user's return to an arrangement this Mac synced recently | minor | Documented as a known issue: a beta 1 Mac's write-back and that return look the same | docs commit |
+
 ## Still open
 
 The 18 open findings are all low and manual-only, and were not in the chosen scope: F-43, F-44, F-45, F-47, F-50, F-57, F-59, F-61, F-67, F-69, F-75, F-76, F-95, F-97, F-101, F-102, F-107, F-110. Two consequences to keep in mind:
