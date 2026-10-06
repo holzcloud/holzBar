@@ -79,7 +79,9 @@ nonisolated enum SettingsSyncFile {
 
     /// The sync file to write for a planned write (`SettingsSyncPolicy.planWrite`): its date,
     /// this Mac's sync id, the settings, the layouts that are current and those that are a
-    /// Mac's copy, and the writes the settings hold with this Mac's (``seenToWrite(_:deviceID:modified:)``).
+    /// Mac's copy, and the writes the settings hold with this Mac's
+    /// (``seenToWrite(_:deviceID:modified:)``), recorded after its last write
+    /// (`SettingsSyncPolicy.WritePlan.writeStamp(at:)`).
     /// The computer name, which usually holds the owner's name, stays on this Mac: the id
     /// alone tells the Macs apart.
     ///
@@ -94,7 +96,7 @@ nonisolated enum SettingsSyncFile {
             settingsKey: plan.settings,
             currentLayoutsKey: plan.currentLayouts,
             copiedLayoutsKey: plan.copiedLayouts,
-            seenKey: seenToWrite(plan.seen, deviceID: deviceID, modified: modified),
+            seenKey: seenToWrite(plan.seen, deviceID: deviceID, modified: plan.writeStamp(at: modified)),
         ]
     }
 

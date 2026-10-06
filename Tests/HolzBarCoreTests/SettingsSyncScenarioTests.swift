@@ -437,4 +437,29 @@ struct SettingsSyncScenarioTests {
         #expect(b.layout == newer)
         #expect(a.layout == newer)
     }
+
+    @Test("A write after the clock was set back, or within the same second, is still told apart from the one before", arguments: [-50.0, 0.3])
+    func writeAfterClockSetBack(offset: Double) {
+        let folder = SyncFolder()
+        let a = SyncingMac("A", backend: .service26, settings: ["ShowOnHover": true])
+        let b = SyncingMac("B", backend: .service26, settings: ["ShowOnHover": true])
+        b.exchange(folder, at: at(100))
+        a.exchange(folder, at: at(110))
+        a.settings["ShowOnClick"] = true
+        a.exchange(folder, at: at(200))
+        b.exchange(folder, at: at(201), check: true)
+        b.use()
+        // A writes again, with its clock set back or within the same second.
+        a.settings["ShowOnClick"] = false
+        #expect(a.exchange(folder, at: at(200 + offset)) == .write)
+        #expect(a.state.lastWritten == at(201))
+        // The file goes away before B reads it; B writes over the missing file.
+        folder.file = nil
+        b.settings["ShowOnHover"] = false
+        b.exchange(folder, at: at(300))
+        // A's last change is not in B's version: A asks instead of reverting it.
+        #expect(a.exchange(folder, at: at(301), check: true) == .ask)
+        #expect(a.launch(folder, at: at(302)) == .ask)
+        #expect(a.settings["ShowOnClick"] as? Bool == false)
+    }
 }

@@ -519,4 +519,26 @@ struct SettingsSyncStateTests {
         let fileWithOther = file.merging([layouts.other: ["o": 2]]) { $1 }
         #expect(!Policy.planWrite(withCopy, file: fileWithOther, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], layouts: layouts, local: keeps).insertsCopy)
     }
+
+    @Test("Each write of a Mac is recorded after the one before, in whole seconds, whatever its clock says")
+    func writeStamp() {
+        let last = lastSynced.addingTimeInterval(0.6)
+        // A later write keeps its date; without a write before, any date does.
+        #expect(Policy.writeStamp(lastSynced.addingTimeInterval(1.2), after: last) == lastSynced.addingTimeInterval(1.2))
+        #expect(Policy.writeStamp(lastSynced.addingTimeInterval(-100), after: nil) == lastSynced.addingTimeInterval(-100))
+        // One within the same second, or after the clock was set back, follows the last write.
+        let next = Date(timeIntervalSinceReferenceDate: Policy.wholeSeconds(last) + 1)
+        #expect(Policy.writeStamp(lastSynced.addingTimeInterval(0.9), after: last) == next)
+        #expect(Policy.writeStamp(lastSynced.addingTimeInterval(-100), after: last) == next)
+        // The record and the file both use it.
+        let local = Policy.Local(userDigest: "b", base: "b", pending: nil, postponed: nil, forcesWrite: false, lastWritten: last)
+        var state = Policy.State(base: "b", lastWritten: last)
+        state.recordWrite(Policy.WriteRecord(layoutDigest: "w", takesInLayout: false), modified: lastSynced.addingTimeInterval(-100), local: local)
+        #expect(state.lastWritten == next)
+        let plan = Policy.planWrite(["ShowOnHover": true], file: nil, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: Policy.Layouts(backend: .service26), local: local)
+        #expect(plan.writeStamp(at: lastSynced.addingTimeInterval(-100)) == next)
+        let file = SettingsSyncFile.fileToWrite(plan: plan, deviceID: "A", modified: lastSynced.addingTimeInterval(-100))
+        #expect((file[SettingsSyncFile.seenKey] as? [String: Date])?["A"] == next)
+        #expect(file[SettingsSyncFile.modifiedKey] as? Date == lastSynced.addingTimeInterval(-100))
+    }
 }

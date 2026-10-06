@@ -1077,6 +1077,26 @@ nonisolated extension SettingsSyncPolicy {
         date.timeIntervalSinceReferenceDate.rounded(.down)
     }
 
+    /// The date that records a write of this Mac's: in the file's record of writes
+    /// (``SettingsSyncFile/seenKey``) and as this Mac's last write (``State/lastWritten``).
+    ///
+    /// It is the write's date, unless that is not after this Mac's last write in whole
+    /// seconds, as the file stores it: after the clock was set back, or for a second write
+    /// within the same second. Then it is one second after the last write, so each of this
+    /// Mac's writes is recorded after the one before, and a version that lacks the newer one
+    /// is told apart (``missesLastWrite(_:local:)``). The file's own date stays the write's,
+    /// as the other Macs compare it with their clocks.
+    ///
+    /// - Parameters:
+    ///   - modified: The date written into the file.
+    ///   - lastWritten: This Mac's last write before this one (``Local/lastWritten``).
+    static func writeStamp(_ modified: Date, after lastWritten: Date?) -> Date {
+        guard let lastWritten, wholeSeconds(modified) <= wholeSeconds(lastWritten) else {
+            return modified
+        }
+        return Date(timeIntervalSinceReferenceDate: wholeSeconds(lastWritten) + 1)
+    }
+
     /// Whether this Mac takes in the other macOS version's layout from a version of the sync
     /// file (``layoutToTakeIn(_:over:layouts:)``): not from one dated before the newest
     /// version this Mac synced with (``isBeforeLastSync(_:local:)``), whose layout may be older
@@ -1509,7 +1529,8 @@ nonisolated extension SettingsSyncPolicy {
         var keptLayoutDigest: String?
 
         /// The date of this Mac's newest write whose changes its settings hold: the last version
-        /// it wrote, as written into the file, or after it applied a version, this Mac's newest
+        /// it wrote, as the file's record of writes holds it
+        /// (``SettingsSyncPolicy/writeStamp(_:after:)``), or after it applied a version, this Mac's newest
         /// write that version holds. `nil` when there is none to look for: it has not written
         /// since it joined a folder it had not synced with, or it applied a version of an
         /// earlier build. Another Mac's version that holds an older write of this Mac's lacks it
@@ -1632,7 +1653,7 @@ nonisolated extension SettingsSyncPolicy {
         ///     (``Local/layoutEdits``) are recorded.
         mutating func recordWrite(_ record: WriteRecord, modified: Date?, local: Local) {
             if let modified {
-                lastWritten = modified
+                lastWritten = SettingsSyncPolicy.writeStamp(modified, after: local.lastWritten)
             }
             seen = SettingsSyncPolicy.mergedSeen(seen, record.seen)
             rememberLayout(record.oldCopyDigest)
@@ -1829,6 +1850,15 @@ nonisolated extension SettingsSyncPolicy {
         /// as a copy, as the file's version is older than this Mac's last sync
         /// (``passesOtherLayoutAsCopy(_:local:)``).
         var passesOtherAsCopy = false
+        /// This Mac's last write before this one (``Local/lastWritten``), after which this
+        /// write is recorded (``writeStamp(_:after:)``).
+        var lastWritten: Date?
+
+        /// The date that records this write when it is written at `modified`
+        /// (``writeStamp(_:after:)``).
+        func writeStamp(at modified: Date) -> Date {
+            SettingsSyncPolicy.writeStamp(modified, after: lastWritten)
+        }
 
         /// The writes of the other Macs that the written settings hold, without this Mac's own
         /// (``seen(writingOver:local:)``); the file records them with this Mac's write
@@ -1912,7 +1942,8 @@ nonisolated extension SettingsSyncPolicy {
                 seen: seen(writingOver: fileVersion, local: local)
             ),
             insertsCopy: remote?[layouts.other] == nil && written.copiedLayouts.contains(layouts.other),
-            passesOtherAsCopy: passesOtherAsCopy && fileCurrentLayouts.contains(layouts.other) && remote?[layouts.other] != nil
+            passesOtherAsCopy: passesOtherAsCopy && fileCurrentLayouts.contains(layouts.other) && remote?[layouts.other] != nil,
+            lastWritten: local.lastWritten
         )
     }
 }
