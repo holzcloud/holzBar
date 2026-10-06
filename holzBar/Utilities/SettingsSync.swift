@@ -183,13 +183,58 @@ final class SettingsSync {
     /// holzBar's own placements never do, so they never count as a settings change for sync
     /// (SA-05): they push nothing, keep the hint at Restart and never make a join ask.
     static func userChangedLayout() {
-        let defaults = UserDefaults.standard
-        defaults.set(defaults.integer(forKey: layoutEditsKey) &+ 1, forKey: layoutEditsKey)
+        updateState { $0.countLayoutEdit() }
     }
 
     /// The number of changes the user made to this Mac's layout.
     private static var layoutEdits: Int {
         UserDefaults.standard.integer(forKey: layoutEditsKey)
+    }
+
+    /// The sync state this Mac keeps in its defaults.
+    private static var state: SettingsSyncPolicy.State {
+        let defaults = UserDefaults.standard
+        return SettingsSyncPolicy.State(
+            base: defaults.string(forKey: baseKey),
+            baseLayoutDigest: defaults.string(forKey: baseLayoutKey),
+            layoutEdits: defaults.integer(forKey: layoutEditsKey),
+            syncedLayoutEdits: defaults.integer(forKey: syncedLayoutEditsKey),
+            lastSynced: defaults.object(forKey: lastSyncedKey) as? Date,
+            pending: defaults.object(forKey: pendingKey) as? Date
+        )
+    }
+
+    /// Changes the sync state with `change` and stores the values it changed.
+    private static func updateState(_ change: (inout SettingsSyncPolicy.State) -> Void) {
+        let old = state
+        var new = old
+        change(&new)
+        let defaults = UserDefaults.standard
+        func store(_ value: Any?, forKey key: String) {
+            if let value {
+                defaults.set(value, forKey: key)
+            } else {
+                defaults.removeObject(forKey: key)
+            }
+        }
+        if new.base != old.base {
+            store(new.base, forKey: baseKey)
+        }
+        if new.baseLayoutDigest != old.baseLayoutDigest {
+            store(new.baseLayoutDigest, forKey: baseLayoutKey)
+        }
+        if new.layoutEdits != old.layoutEdits {
+            defaults.set(new.layoutEdits, forKey: layoutEditsKey)
+        }
+        if new.syncedLayoutEdits != old.syncedLayoutEdits {
+            defaults.set(new.syncedLayoutEdits, forKey: syncedLayoutEditsKey)
+        }
+        if new.lastSynced != old.lastSynced {
+            store(new.lastSynced, forKey: lastSyncedKey)
+        }
+        if new.pending != old.pending {
+            store(new.pending, forKey: pendingKey)
+        }
     }
 
     /// This Mac's hardware UUID, read from the I/O Registry. It never leaves this Mac and
@@ -668,14 +713,15 @@ final class SettingsSync {
         Self.verifyDeviceIdentity()
         // A join ignores the previous folder's state: this Mac has not synced with the
         // chosen folder yet.
+        var joiningState = Self.state
+        joiningState.base = nil
+        joiningState.pending = nil
+        joiningState.lastSynced = nil
         guard
             let request = makeRequest(
                 .push,
                 fileURL: Self.fileURL(inFolder: url),
-                base: nil,
-                baseLayoutDigest: UserDefaults.standard.string(forKey: Self.baseLayoutKey),
-                pending: nil,
-                lastSynced: nil,
+                state: joiningState,
                 postponed: nil,
                 presenter: nil
             )
@@ -833,26 +879,19 @@ final class SettingsSync {
 
     /// This Mac's side of a decision, from its synced settings.
     ///
-    /// - Parameter layoutEdits: The number of layout edits the decision sees
-    ///   (``userChangedLayout()``); the user changed the layout when the last sync recorded
-    ///   fewer.
+    /// The decision sees the layout edits counted so far (``userChangedLayout()``); the user
+    /// changed the layout when the last sync recorded another number.
     private static func makeLocal(
         settings: [String: Any],
-        base: String?,
-        baseLayoutDigest: String?,
-        layoutEdits: Int,
-        pending: Date?,
+        state: SettingsSyncPolicy.State,
         postponed: Date?,
         forcesWrite: Bool
     ) -> SettingsSyncPolicy.Local {
-        let syncedLayoutEdits = UserDefaults.standard.integer(forKey: syncedLayoutEditsKey)
-        return SettingsSyncPolicy.Local(
+        SettingsSyncPolicy.Local(
             settings: settings,
             layouts: layouts,
-            base: base,
-            baseLayoutDigest: baseLayoutDigest,
-            editsLayout: SettingsSyncPolicy.editsLayout(count: layoutEdits, synced: syncedLayoutEdits),
-            pending: pending,
+            state: state,
+            layoutEdits: state.layoutEdits,
             postponed: postponed,
             forcesWrite: forcesWrite
         )
@@ -860,16 +899,7 @@ final class SettingsSync {
 
     /// This Mac's side of a decision, with the sync state in its defaults.
     private static func currentLocal(settings: [String: Any], postponed: Date?) -> SettingsSyncPolicy.Local {
-        let defaults = UserDefaults.standard
-        return makeLocal(
-            settings: settings,
-            base: defaults.string(forKey: baseKey),
-            baseLayoutDigest: defaults.string(forKey: baseLayoutKey),
-            layoutEdits: layoutEdits,
-            pending: defaults.object(forKey: pendingKey) as? Date,
-            postponed: postponed,
-            forcesWrite: false
-        )
+        makeLocal(settings: settings, state: state, postponed: postponed, forcesWrite: false)
     }
 
     /// Takes in the other macOS version's layout from a version of the sync file, silently,
@@ -907,14 +937,29 @@ final class SettingsSync {
                 isNewer: remote.isNewer
             ).isEmpty
         {
-            Self.markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: layoutEdits, modified: nil)
             // Pending first, so no push overwrites the version while the hint is shown.
-            Self.setPending(remote.modified)
+            Self.updateState {
+                $0.recordAdoption(
+                    layoutDigest: remote.layoutDigest,
+                    modified: remote.modified,
+                    local: local,
+                    layoutEdits: layoutEdits,
+                    takesInOwnLayout: true
+                )
+            }
             offer(remote, local: Self.currentLocal(settings: Self.syncedSettings(), postponed: postponed))
             Self.logger.info("The sync folder holds another layout for this macOS version; it is applied at the next restart")
             return
         }
-        Self.markSynced(base: local.userDigest, layout: remote?.layoutDigest, layoutEdits: layoutEdits, modified: remote?.modified)
+        Self.updateState {
+            $0.recordAdoption(
+                layoutDigest: remote?.layoutDigest,
+                modified: remote?.modified,
+                local: local,
+                layoutEdits: layoutEdits,
+                takesInOwnLayout: false
+            )
+        }
         withdrawHint()
     }
 
@@ -927,24 +972,12 @@ final class SettingsSync {
     ///   - layoutEdits: The number of layout edits the sync saw; edits made since still
     ///     count.
     private static func markSynced(base: String, layout: String?, layoutEdits: Int, modified: Date?) {
-        let defaults = UserDefaults.standard
-        defaults.set(base, forKey: baseKey)
-        defaults.set(layout ?? SettingsSyncPolicy.noLayoutDigest, forKey: baseLayoutKey)
-        defaults.set(layoutEdits, forKey: syncedLayoutEditsKey)
-        if let modified {
-            let lastSynced = defaults.object(forKey: lastSyncedKey) as? Date ?? .distantPast
-            defaults.set(max(lastSynced, modified), forKey: lastSyncedKey)
-        }
-        defaults.removeObject(forKey: pendingKey)
+        updateState { $0.markSynced(base: base, layout: layout, layoutEdits: layoutEdits, modified: modified) }
     }
 
     /// Remembers the date of the version that waits for the user, or that none waits.
     private static func setPending(_ modified: Date?) {
-        if let modified {
-            UserDefaults.standard.set(modified, forKey: pendingKey)
-        } else {
-            UserDefaults.standard.removeObject(forKey: pendingKey)
-        }
+        updateState { $0.pending = modified }
     }
 
     // MARK: Exchanges
@@ -1046,27 +1079,17 @@ final class SettingsSync {
     /// - Returns: The request, or `nil` when the exchange is not needed: a push of
     ///   settings that did not change since the last sync, or while a version from another
     ///   Mac waits for the user (``SettingsSyncPolicy/needsExchange(_:local:)``).
+    /// - Parameter state: The sync state the decision sees; a join's has not synced yet.
     private func makeRequest(
         _ kind: ExchangeKind,
         fileURL: URL,
-        base: String?,
-        baseLayoutDigest: String?,
-        pending: Date?,
-        lastSynced: Date?,
+        state: SettingsSyncPolicy.State = SettingsSync.state,
         postponed: Date?,
         presenter: SettingsSyncPresenter?
     ) -> ExchangeRequest? {
         let settings = Self.syncedSettings()
-        let layoutEdits = Self.layoutEdits
-        let local = Self.makeLocal(
-            settings: settings,
-            base: base,
-            baseLayoutDigest: baseLayoutDigest,
-            layoutEdits: layoutEdits,
-            pending: pending,
-            postponed: postponed,
-            forcesWrite: kind == .keepThisMac
-        )
+        let layoutEdits = state.layoutEdits
+        let local = Self.makeLocal(settings: settings, state: state, postponed: postponed, forcesWrite: kind == .keepThisMac)
         guard SettingsSyncPolicy.needsExchange(kind.trigger, local: local) else {
             return nil
         }
@@ -1080,7 +1103,7 @@ final class SettingsSync {
             layoutEdits: layoutEdits,
             fileURL: fileURL,
             settingsData: settingsData,
-            lastSynced: lastSynced,
+            lastSynced: state.lastSynced,
             deviceID: Self.deviceID,
             computerName: Self.computerName,
             presenter: presenter
@@ -1103,19 +1126,7 @@ final class SettingsSync {
             resolveFolder(checksNewFolder: true)
             return
         }
-        let defaults = UserDefaults.standard
-        guard
-            let request = makeRequest(
-                kind,
-                fileURL: fileURL,
-                base: defaults.string(forKey: Self.baseKey),
-                baseLayoutDigest: defaults.string(forKey: Self.baseLayoutKey),
-                pending: defaults.object(forKey: Self.pendingKey) as? Date,
-                lastSynced: defaults.object(forKey: Self.lastSyncedKey) as? Date,
-                postponed: postponed,
-                presenter: presenter
-            )
-        else {
+        guard let request = makeRequest(kind, fileURL: fileURL, postponed: postponed, presenter: presenter) else {
             runQueuedExchange()
             return
         }

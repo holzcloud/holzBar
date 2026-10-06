@@ -470,13 +470,105 @@ struct SettingsSyncLayoutTests {
         #expect(!Policy.editsLayout(count: 0, synced: 0))
         #expect(!Policy.editsLayout(count: 3, synced: 3))
         #expect(Policy.editsLayout(count: 4, synced: 3))
-        // An edit made while an exchange ran still counts after that exchange records the
-        // count it was made with.
-        let captured = 4
-        let afterEdit = captured + 1
-        #expect(Policy.editsLayout(count: afterEdit, synced: captured))
-        // The count wraps instead of trapping.
-        #expect(Policy.editsLayout(count: Int.min, synced: Int.max))
+        #expect(Policy.editsLayout(count: 3, synced: 4))
+    }
+
+    // MARK: Sync state
+
+    @Test("A sync records the layout edits its decision saw, so an edit made while it ran still counts")
+    func syncRecordsCapturedEdits() {
+        var state = Policy.State(base: nil, layoutEdits: 4, syncedLayoutEdits: 3)
+        #expect(state.editsLayout)
+        // The exchange starts with the count it sees; the user edits while it runs.
+        let captured = state.layoutEdits
+        state.countLayoutEdit()
+        #expect(state.layoutEdits == 5)
+        state.markSynced(base: "base", layout: "layout", layoutEdits: captured, modified: nil)
+        #expect(state.syncedLayoutEdits == 4)
+        #expect(state.editsLayout)
+        // Without an edit in between, the sync leaves no edit.
+        state.markSynced(base: "base", layout: "layout", layoutEdits: state.layoutEdits, modified: nil)
+        #expect(!state.editsLayout)
+    }
+
+    @Test("The layout edit count wraps instead of trapping")
+    func layoutEditCountWraps() {
+        var state = Policy.State(layoutEdits: Int.max, syncedLayoutEdits: Int.max)
+        #expect(!state.editsLayout)
+        state.countLayoutEdit()
+        #expect(state.layoutEdits == Int.min)
+        #expect(state.editsLayout)
+    }
+
+    @Test("A sync records the base, the layout, the newest date and that nothing waits")
+    func markSynced() {
+        let older = lastSynced.addingTimeInterval(-60)
+        let newer = lastSynced.addingTimeInterval(60)
+        var state = Policy.State(base: nil, baseLayoutDigest: "old", lastSynced: lastSynced, pending: newer)
+        state.markSynced(base: "base", layout: nil, layoutEdits: 2, modified: older)
+        #expect(state.base == "base")
+        #expect(state.baseLayoutDigest == Policy.noLayoutDigest)
+        #expect(state.syncedLayoutEdits == 2)
+        // A version dated before the last sync never moves it back.
+        #expect(state.lastSynced == lastSynced)
+        #expect(state.pending == nil)
+        state.markSynced(base: "next", layout: "layout", layoutEdits: 2, modified: newer)
+        #expect(state.baseLayoutDigest == "layout")
+        #expect(state.lastSynced == newer)
+        state.markSynced(base: "next", layout: "layout", layoutEdits: 2, modified: nil)
+        #expect(state.lastSynced == newer)
+    }
+
+    @Test("Adopting records the version's layout, or this Mac's while the version's layout waits for a restart", arguments: layoutBackends)
+    func recordAdoption(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let mine = settings(layouts, own: ["a": 0, "known": 2, "unseen": 1])
+        let remote = settings(layouts, own: ["a": 1], ownKnown: ["known"])
+        let modified = lastSynced.addingTimeInterval(60)
+        let joining = local(mine, layouts, base: nil)
+        let remoteLayout = Policy.layoutDigest(of: remote, layouts: layouts)
+
+        var adopted = Policy.State(lastSynced: lastSynced)
+        adopted.recordAdoption(layoutDigest: remoteLayout, modified: modified, local: joining, layoutEdits: 0, takesInOwnLayout: false)
+        #expect(adopted.base == joining.userDigest)
+        #expect(adopted.baseLayoutDigest == remoteLayout)
+        #expect(adopted.lastSynced == modified)
+        #expect(adopted.pending == nil)
+
+        var waiting = Policy.State(lastSynced: lastSynced)
+        waiting.recordAdoption(layoutDigest: remoteLayout, modified: modified, local: joining, layoutEdits: 0, takesInOwnLayout: true)
+        #expect(waiting.base == joining.userDigest)
+        #expect(waiting.baseLayoutDigest == joining.layoutDigest)
+        #expect(waiting.lastSynced == lastSynced)
+        #expect(waiting.pending == modified)
+        // The version stays newer and is applied, by Restart or at the next launch, with
+        // the layout taken in; its hint is a restart.
+        let after = Policy.Local(settings: mine, layouts: layouts, state: waiting, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        let file = Policy.File.version(
+            Policy.Version(settings: remote, layouts: layouts, isFromThisMac: false, modified: modified, isNewer: modified > lastSynced)
+        )
+        #expect(Policy.decide(.check, local: after, file: file) == .apply)
+        #expect(Policy.decide(.launch, local: after, file: file) == .apply)
+        #expect(Policy.hint(for: after) == .restart)
+        let applied = Policy.settingsToApply(remote, over: mine, layouts: layouts, baseLayoutDigest: after.baseLayoutDigest, editsLayout: after.editsLayout)
+        #expect(isLayout(applied[layouts.own], ["a": 1, "unseen": 1]))
+        // Recording the version's layout instead would have left this Mac's layout in place.
+        let adoptedLocal = Policy.Local(settings: mine, layouts: layouts, state: adopted, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.check, local: adoptedLocal, file: file) == .adopt)
+    }
+
+    @Test("A Mac that synced keeps holzBar's own placements when another Mac changed only the other macOS version's layout", arguments: layoutBackends)
+    func placementsKeptWhenOtherLayoutChanges(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        // Synced with `first`; holzBar placed an item since.
+        let mine = settings(layouts, own: ["a": 0, "b": 1, "placed": 1], other: second)
+        let synced = local(mine, layouts, base: mine, baseLayout: settings(layouts, own: first))
+        #expect(synced.layoutDigest != synced.baseLayoutDigest)
+        #expect(!synced.hasChanges)
+        let remote = version(settings(layouts, own: first, other: third), layouts)
+        #expect(Policy.decide(.check, local: synced, file: remote) == .adopt)
+        #expect(Policy.decide(.launch, local: synced, file: remote) == .adopt)
+        #expect(Policy.decide(.localChange, local: synced, file: remote) == .adopt)
     }
 
     @Test("The hint offers a restart exactly where a newer version is applied, also with layouts", arguments: layoutBackends)

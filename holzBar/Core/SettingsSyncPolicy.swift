@@ -674,6 +674,83 @@ nonisolated extension SettingsSyncPolicy {
     }
 }
 
+// MARK: - Sync State
+
+nonisolated extension SettingsSyncPolicy {
+    /// What this Mac remembers of its last sync, kept in its defaults, and how each outcome
+    /// of an exchange changes it.
+    struct State: Equatable, Sendable {
+        /// The digest of the user settings this Mac last wrote or applied
+        /// (``Local/base``); `nil` while it joins the folder.
+        var base: String?
+        /// The layout digest this Mac last synced (``Local/baseLayoutDigest``).
+        var baseLayoutDigest: String?
+        /// The number of changes the user made to this Mac's layout. It is never reset.
+        var layoutEdits = 0
+        /// The number of layout edits the last sync recorded.
+        var syncedLayoutEdits = 0
+        /// The date of the newest version this Mac wrote or applied.
+        var lastSynced: Date?
+        /// The date of a version that waits for the user; while it waits, this Mac's changes
+        /// are not written.
+        var pending: Date?
+
+        /// Whether the user changed this Mac's layout since it last synced
+        /// (``SettingsSyncPolicy/editsLayout(count:synced:)``).
+        var editsLayout: Bool {
+            SettingsSyncPolicy.editsLayout(count: layoutEdits, synced: syncedLayoutEdits)
+        }
+
+        /// Counts a change of this Mac's layout that the user made. The count wraps instead
+        /// of trapping.
+        mutating func countLayoutEdit() {
+            layoutEdits &+= 1
+        }
+
+        /// Remembers that this Mac has synced the given user settings and layout with the
+        /// file of the given date, and that no version waits for the user.
+        ///
+        /// - Parameters:
+        ///   - layout: The layout digest of the file's layout for this Mac's macOS version,
+        ///     or `nil` when it has none.
+        ///   - layoutEdits: The number of layout edits the sync saw; edits made since still
+        ///     count.
+        ///   - modified: The file's date, or `nil` to keep the date of the last sync, so a
+        ///     version from another Mac stays newer.
+        mutating func markSynced(base: String, layout: String?, layoutEdits: Int, modified: Date?) {
+            self.base = base
+            baseLayoutDigest = layout ?? SettingsSyncPolicy.noLayoutDigest
+            syncedLayoutEdits = layoutEdits
+            if let modified {
+                lastSynced = max(lastSynced ?? .distantPast, modified)
+            }
+            pending = nil
+        }
+
+        /// Records a version that holds this Mac's settings (``Action/adopt``) as synced.
+        ///
+        /// When this Mac takes in the version's layout for its macOS version
+        /// (``SettingsSyncPolicy/ownLayoutToTakeIn(_:over:layouts:local:isNewer:)``), holzBar
+        /// reads that layout only at launch: this Mac's own layout is recorded as synced and
+        /// the date of the last sync is kept, so the version is one to apply, and it waits.
+        ///
+        /// - Parameters:
+        ///   - layoutDigest: The version's layout digest (``Version/layoutDigest``).
+        ///   - modified: The version's date.
+        ///   - local: This Mac's side of the decision that adopted the version.
+        ///   - layoutEdits: The number of layout edits that decision saw.
+        ///   - takesInOwnLayout: Whether this Mac takes in the version's layout.
+        mutating func recordAdoption(layoutDigest: String?, modified: Date?, local: Local, layoutEdits: Int, takesInOwnLayout: Bool) {
+            guard takesInOwnLayout else {
+                markSynced(base: local.userDigest, layout: layoutDigest, layoutEdits: layoutEdits, modified: modified)
+                return
+            }
+            markSynced(base: local.userDigest, layout: local.layoutDigest, layoutEdits: layoutEdits, modified: nil)
+            pending = modified
+        }
+    }
+}
+
 nonisolated extension SettingsSyncPolicy.Local {
     /// This Mac's side, with the digests of its settings.
     init(
@@ -695,6 +772,30 @@ nonisolated extension SettingsSyncPolicy.Local {
             layoutDigest: SettingsSyncPolicy.layoutDigest(of: settings, layouts: layouts),
             baseLayoutDigest: baseLayoutDigest,
             editsLayout: editsLayout
+        )
+    }
+
+    /// This Mac's side, with the digests of its settings and the sync state it keeps.
+    ///
+    /// - Parameter layoutEdits: The number of layout edits the decision sees; the user
+    ///   changed the layout when the last sync recorded another.
+    init(
+        settings: [String: Any],
+        layouts: SettingsSyncPolicy.Layouts,
+        state: SettingsSyncPolicy.State,
+        layoutEdits: Int,
+        postponed: Date?,
+        forcesWrite: Bool
+    ) {
+        self.init(
+            settings: settings,
+            layouts: layouts,
+            base: state.base,
+            baseLayoutDigest: state.baseLayoutDigest,
+            editsLayout: SettingsSyncPolicy.editsLayout(count: layoutEdits, synced: state.syncedLayoutEdits),
+            pending: state.pending,
+            postponed: postponed,
+            forcesWrite: forcesWrite
         )
     }
 }
