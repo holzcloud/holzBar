@@ -24,6 +24,7 @@ struct SettingsSyncStateTests {
         #expect(State.lastSyncedKey == "SettingsSyncLastSynced")
         #expect(State.pendingKey == "SettingsSyncPendingModified")
         #expect(State.versionDigestKey == "SettingsSyncVersionSettingsDigest")
+        #expect(State.recentLayoutsKey == "SettingsSyncRecentLayoutDigests")
         #expect(State.legacyBaseKey == "SettingsSyncBaseDigest")
     }
 
@@ -60,7 +61,7 @@ struct SettingsSyncStateTests {
         #expect(every.versionDigest == "b")
         #expect(Set(every.changes(from: State()).map(\.key)) == [
             State.baseKey, State.baseLayoutKey, State.layoutEditsKey, State.syncedLayoutEditsKey, State.lastSyncedKey, State.pendingKey,
-            State.versionDigestKey,
+            State.versionDigestKey, State.recentLayoutsKey,
         ])
         var everyStored = [String: Any]()
         for (key, value) in every.changes(from: State()) {
@@ -152,7 +153,7 @@ struct SettingsSyncStateTests {
         var takenIn = start
         takenIn.recordUse(of: own, layoutDigest: own.layoutDigest, base: "applied")
         // This Mac's user settings stay unsynced changes; the layout edits no longer count.
-        #expect(takenIn == State(base: "base", baseLayoutDigest: "kept", layoutEdits: 4, syncedLayoutEdits: 4, lastSynced: lastSynced, pending: nil))
+        #expect(takenIn == State(base: "base", baseLayoutDigest: "kept", layoutEdits: 4, syncedLayoutEdits: 4, lastSynced: lastSynced, pending: nil, recentLayouts: ["kept"]))
         var launched = start
         launched.recordLayoutTakeIn(layoutDigest: nil)
         #expect(launched.baseLayoutDigest == Policy.noLayoutDigest)
@@ -164,7 +165,7 @@ struct SettingsSyncStateTests {
         used.recordUse(of: other, layoutDigest: other.layoutDigest, base: "applied")
         // The digest of the version is kept apart from this Mac's, which may hold settings the
         // version lacks.
-        #expect(used == State(base: "applied", baseLayoutDigest: "theirs", layoutEdits: 4, syncedLayoutEdits: 4, lastSynced: other.modified, pending: nil, versionDigest: "other"))
+        #expect(used == State(base: "applied", baseLayoutDigest: "theirs", layoutEdits: 4, syncedLayoutEdits: 4, lastSynced: other.modified, pending: nil, versionDigest: "other", recentLayouts: ["theirs"]))
     }
 
     @Test("Adopting this Mac's own version with a layout to take in waits without pausing pushes")
@@ -173,11 +174,38 @@ struct SettingsSyncStateTests {
         let own = Policy.Version(isFromThisMac: true, modified: lastSynced.addingTimeInterval(10), isNewer: false, userDigest: "mine", layoutDigest: "kept")
         var state = State(baseLayoutDigest: "kept", lastSynced: lastSynced)
         state.recordAdoption(own, local: local, takesInOwnLayout: true)
-        #expect(state == State(base: "mine", baseLayoutDigest: "placements", lastSynced: own.modified, pending: nil, versionDigest: "mine"))
+        #expect(state == State(base: "mine", baseLayoutDigest: "placements", lastSynced: own.modified, pending: nil, versionDigest: "mine", recentLayouts: ["placements", "kept"]))
         let other = Policy.Version(isFromThisMac: false, modified: lastSynced.addingTimeInterval(10), isNewer: true, userDigest: "mine", layoutDigest: "theirs")
         var waiting = State(baseLayoutDigest: "theirs", lastSynced: lastSynced)
         waiting.recordAdoption(other, local: local, takesInOwnLayout: true)
-        #expect(waiting == State(base: "mine", baseLayoutDigest: "placements", lastSynced: lastSynced, pending: other.modified, versionDigest: "mine"))
+        #expect(waiting == State(base: "mine", baseLayoutDigest: "placements", lastSynced: lastSynced, pending: other.modified, versionDigest: "mine", recentLayouts: ["placements", "theirs"]))
+    }
+
+    @Test("A sync remembers the last layouts it synced, the newest first")
+    func recentLayouts() {
+        var state = State()
+        state.markSynced(base: "b", layout: nil, layoutEdits: 0, modified: nil)
+        #expect(state.recentLayouts.isEmpty)
+        state.markSynced(base: "b", layout: Policy.noLayoutDigest, layoutEdits: 0, modified: nil)
+        #expect(state.recentLayouts.isEmpty)
+        for index in 0 ..< 10 {
+            state.recordWrite(Policy.WriteRecord(layoutDigest: "l\(index)", takesInLayout: false), modified: nil, local: Policy.Local(userDigest: "b", base: "b", pending: nil, postponed: nil, forcesWrite: false))
+        }
+        #expect(state.recentLayouts == ["l9", "l8", "l7", "l6", "l5", "l4", "l3", "l2"])
+        // A layout synced again moves to the front.
+        state.markSynced(base: "b", layout: "l5", layoutEdits: 0, modified: nil)
+        #expect(state.recentLayouts == ["l5", "l9", "l8", "l7", "l6", "l4", "l3", "l2"])
+        // A kept layout's write remembers the written layout and this Mac's.
+        var kept = State()
+        let local = Policy.Local(userDigest: "b", base: "b", pending: nil, postponed: nil, forcesWrite: false, layoutDigest: "mine")
+        kept.recordWrite(Policy.WriteRecord(layoutDigest: "kept", takesInLayout: true), modified: nil, local: local)
+        #expect(kept.recentLayouts == ["mine", "kept"])
+        // They stay when this Mac leaves the folder, and are read back at most eight.
+        kept.leaveFolder(forgetsLastSync: true)
+        #expect(kept.recentLayouts == ["mine", "kept"])
+        let stored: [String: Any] = [State.recentLayoutsKey: (0 ..< 12).map { "s\($0)" }]
+        #expect(State(reading: { stored[$0] }).recentLayouts.count == State.recentLayoutLimit)
+        #expect(Policy.Local(settings: [:], layouts: Policy.Layouts(backend: .service26), state: kept, layoutEdits: 0, postponed: nil, forcesWrite: false).recentLayouts == ["mine", "kept"])
     }
 
     @Test("Leaving the folder forgets the user settings and the waiting version, but keeps the layout last synced and the layout edits")

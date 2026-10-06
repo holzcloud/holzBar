@@ -231,6 +231,8 @@ nonisolated enum SettingsSyncPolicy {
         /// adopted (``State/versionDigest``); `nil` while it joins, or when an earlier build
         /// synced last.
         var versionDigest: String?
+        /// The layout digests this Mac recently synced (``State/recentLayouts``).
+        var recentLayouts: Set<String> = []
 
         /// Whether this Mac joins the folder.
         var isJoining: Bool {
@@ -773,13 +775,17 @@ nonisolated extension SettingsSyncPolicy {
     ///   - layouts: This Mac's layout keys.
     ///   - keepsOwnLayout: Whether this Mac's layout is written as it is: the user changed
     ///     it, or chose to keep this Mac's settings.
+    ///   - recentLayouts: The layout digests this Mac recently synced. An unlisted layout of
+    ///     this Mac's macOS version that is one of them is an old copy of this Mac's
+    ///     (``replacesUnlistedLayout(_:local:)``): this Mac's layout is written over it.
     static func fileToWrite(
         _ local: [String: Any],
         file remote: [String: Any]?,
         fileCurrentLayouts: Set<String>,
         fileCopiedLayouts: Set<String> = [],
         layouts: Layouts,
-        keepsOwnLayout: Bool
+        keepsOwnLayout: Bool,
+        recentLayouts: Set<String> = []
     ) -> (settings: [String: Any], currentLayouts: [String], copiedLayouts: [String]) {
         var settings = settingsToWrite(local, file: remote)
         var currentLayouts = Set<String>()
@@ -809,7 +815,8 @@ nonisolated extension SettingsSyncPolicy {
             !keepsOwnLayout,
             !fileCurrentLayouts.contains(layouts.own),
             !fileCopiedLayouts.contains(layouts.own),
-            let fileOwn = remote?[layouts.own]
+            let fileOwn = remote?[layouts.own],
+            !isRecentLayout(remote, layouts: layouts, recentLayouts: recentLayouts)
         {
             // A layout an earlier build wrote, unlisted: a Mac of this macOS version that
             // still runs that build may have arranged it, and applies the file as it is. It
@@ -827,6 +834,15 @@ nonisolated extension SettingsSyncPolicy {
             currentLayouts.insert(layouts.own)
         }
         return (settings, currentLayouts.sorted(), copiedLayouts.sorted())
+    }
+
+    /// Whether the layout of this Mac's macOS version in `settings` is one this Mac recently
+    /// synced.
+    private static func isRecentLayout(_ settings: [String: Any]?, layouts: Layouts, recentLayouts: Set<String>) -> Bool {
+        guard !recentLayouts.isEmpty, let layout = validatedLayout(in: settings, key: layouts.own) else {
+            return false
+        }
+        return recentLayouts.contains(digest(of: [layouts.own: layout]))
     }
 
     /// The layout digest this Mac records as synced after it wrote the sync file
@@ -971,14 +987,19 @@ nonisolated extension SettingsSyncPolicy {
 
     /// Whether writing this Mac's layout, which the user changed, would replace a layout of
     /// its macOS version that the version holds unlisted
-    /// (``Version/unlistedLayoutDigest``), and that this Mac neither holds nor last synced.
+    /// (``Version/unlistedLayoutDigest``), and that this Mac neither holds nor synced.
     /// Such a layout may be another Mac's arrangement, made on a build before this one, which
     /// that Mac would lose at its next launch: holzBar asks instead.
+    ///
+    /// A layout this Mac recently synced (``Local/recentLayouts``) is an old copy of one it
+    /// had: a Mac still on 0.0.7 beta 1, of either macOS version, writes back the copy it
+    /// applied, and a Mac that kept it unchanged loses nothing. It is written over without a
+    /// question and never applied.
     static func replacesUnlistedLayout(_ version: Version, local: Local) -> Bool {
         guard local.editsLayout, let unlisted = version.unlistedLayoutDigest else {
             return false
         }
-        return unlisted != local.layoutDigest && unlisted != local.baseLayoutDigest
+        return unlisted != local.layoutDigest && unlisted != local.baseLayoutDigest && !local.recentLayouts.contains(unlisted)
     }
 
     /// Whether a version from another Mac that is not newer than this Mac's last sync holds a
@@ -1086,6 +1107,27 @@ nonisolated extension SettingsSyncPolicy {
         /// adopted. It is the ``base`` unless this Mac applied a version that lacks some of
         /// its settings; `nil` while it joins, or when an earlier build synced last.
         var versionDigest: String?
+        /// The layout digests for this Mac's macOS version that this Mac recently wrote,
+        /// applied or adopted, the newest first, at most ``recentLayoutLimit``. A Mac still on
+        /// 0.0.7 beta 1 may write one of them back unlisted, as an old copy
+        /// (``SettingsSyncPolicy/replacesUnlistedLayout(_:local:)``). They depend only on the
+        /// layout, so they stay when this Mac leaves the folder.
+        var recentLayouts: [String] = []
+
+        /// How many layout digests ``recentLayouts`` keeps.
+        static let recentLayoutLimit = 8
+
+        /// Remembers a layout digest this Mac synced (``recentLayouts``).
+        mutating func rememberLayout(_ digest: String?) {
+            guard let digest, digest != SettingsSyncPolicy.noLayoutDigest else {
+                return
+            }
+            recentLayouts.removeAll { $0 == digest }
+            recentLayouts.insert(digest, at: 0)
+            if recentLayouts.count > Self.recentLayoutLimit {
+                recentLayouts.removeLast(recentLayouts.count - Self.recentLayoutLimit)
+            }
+        }
 
         /// Whether the user changed this Mac's layout since it last synced
         /// (``SettingsSyncPolicy/editsLayout(count:synced:)``).
@@ -1113,6 +1155,7 @@ nonisolated extension SettingsSyncPolicy {
             self.base = base
             versionDigest = base
             baseLayoutDigest = layout ?? SettingsSyncPolicy.noLayoutDigest
+            rememberLayout(layout)
             syncedLayoutEdits = layoutEdits
             if let modified {
                 lastSynced = max(lastSynced ?? .distantPast, modified)
@@ -1136,6 +1179,7 @@ nonisolated extension SettingsSyncPolicy {
         ///     edits (``Local/layoutEdits``) are recorded.
         ///   - takesInOwnLayout: Whether this Mac takes in the version's layout.
         mutating func recordAdoption(_ version: Version?, local: Local, takesInOwnLayout: Bool) {
+            rememberLayout(version?.layoutDigest)
             guard takesInOwnLayout, let version else {
                 markSynced(base: local.userDigest, layout: version?.layoutDigest, layoutEdits: local.layoutEdits, modified: version?.modified)
                 return
@@ -1163,6 +1207,7 @@ nonisolated extension SettingsSyncPolicy {
         ///   - local: This Mac's side of the decision that wrote; its layout edits
         ///     (``Local/layoutEdits``) are recorded.
         mutating func recordWrite(_ record: WriteRecord, modified: Date?, local: Local) {
+            rememberLayout(record.layoutDigest)
             guard record.takesInLayout else {
                 markSynced(base: local.userDigest, layout: record.layoutDigest, layoutEdits: local.layoutEdits, modified: modified)
                 return
@@ -1178,6 +1223,7 @@ nonisolated extension SettingsSyncPolicy {
         /// - Parameter layoutDigest: The layout digest taken in.
         mutating func recordLayoutTakeIn(layoutDigest: String?) {
             baseLayoutDigest = layoutDigest ?? SettingsSyncPolicy.noLayoutDigest
+            rememberLayout(layoutDigest)
             syncedLayoutEdits = layoutEdits
             pending = nil
         }
@@ -1279,7 +1325,8 @@ nonisolated extension SettingsSyncPolicy {
             fileCurrentLayouts: fileCurrentLayouts,
             fileCopiedLayouts: fileCopiedLayouts,
             layouts: layouts,
-            keepsOwnLayout: writesOwnLayout(local)
+            keepsOwnLayout: writesOwnLayout(local),
+            recentLayouts: local.recentLayouts
         )
         let layoutDigest = syncedLayoutDigest(
             afterWriting: written.settings,
@@ -1322,6 +1369,8 @@ nonisolated extension SettingsSyncPolicy.State {
     static let pendingKey = "SettingsSyncPendingModified"
     /// The key of ``versionDigest``.
     static let versionDigestKey = "SettingsSyncVersionSettingsDigest"
+    /// The key of ``recentLayouts``.
+    static let recentLayoutsKey = "SettingsSyncRecentLayoutDigests"
     /// The key of the base of earlier test builds, which held the layouts too.
     static let legacyBaseKey = "SettingsSyncBaseDigest"
 
@@ -1334,7 +1383,8 @@ nonisolated extension SettingsSyncPolicy.State {
             syncedLayoutEdits: value(Self.syncedLayoutEditsKey) as? Int ?? 0,
             lastSynced: value(Self.lastSyncedKey) as? Date,
             pending: value(Self.pendingKey) as? Date,
-            versionDigest: value(Self.versionDigestKey) as? String
+            versionDigest: value(Self.versionDigestKey) as? String,
+            recentLayouts: Array((value(Self.recentLayoutsKey) as? [String] ?? []).prefix(Self.recentLayoutLimit))
         )
     }
 
@@ -1362,6 +1412,9 @@ nonisolated extension SettingsSyncPolicy.State {
         }
         if versionDigest != old.versionDigest {
             changes.append((Self.versionDigestKey, versionDigest))
+        }
+        if recentLayouts != old.recentLayouts {
+            changes.append((Self.recentLayoutsKey, recentLayouts.isEmpty ? nil : recentLayouts))
         }
         return changes
     }
@@ -1440,6 +1493,7 @@ nonisolated extension SettingsSyncPolicy.Local {
         )
         self.layoutEdits = layoutEdits
         versionDigest = state.versionDigest
+        recentLayouts = Set(state.recentLayouts)
     }
 }
 

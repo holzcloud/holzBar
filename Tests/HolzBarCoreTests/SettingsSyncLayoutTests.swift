@@ -528,6 +528,57 @@ struct SettingsSyncLayoutTests {
         #expect(Policy.decide(.localChange, local: unchanged, file: earlierVersion(beta1File, layouts)) == .write)
     }
 
+    @Test("An old copy of this Mac's layout that a Mac still on 0.0.7 beta 1 writes back is written over without a question", arguments: layoutBackends)
+    func staleCopyOfOwnLayoutWrittenOver(backend: MenuBarBackendKind) {
+        let layouts = Policy.Layouts(backend: backend)
+        let oldLayout: [String: Any] = ["x": 2]
+        let currentLayout: [String: Any] = ["x": 1, "y": 2]
+        // This Mac synced `oldLayout`, then `currentLayout`. A beta 1 Mac, of either macOS
+        // version, applied a file with `oldLayout` and writes it back, unlisted.
+        var state = Policy.State(lastSynced: lastSynced)
+        state.markSynced(base: Policy.userDigest(of: settings(layouts)), layout: Policy.layoutDigest(of: [layouts.own: oldLayout], layouts: layouts), layoutEdits: 0, modified: lastSynced)
+        state.markSynced(base: Policy.userDigest(of: settings(layouts)), layout: Policy.layoutDigest(of: [layouts.own: currentLayout], layouts: layouts), layoutEdits: 0, modified: lastSynced)
+        let beta1File = settings(layouts, own: oldLayout, other: ["i": 0])
+        let mine = settings(layouts, showOnHover: false, own: currentLayout)
+
+        // A change of a user setting writes this Mac's layout over the old copy, listed.
+        let changed = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        let written = Policy.planWrite(mine, file: beta1File, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: changed)
+        #expect(isLayout(written.settings[layouts.own], currentLayout))
+        #expect(written.currentLayouts.contains(layouts.own))
+        #expect(written.record.layoutDigest == Policy.layoutDigest(of: mine, layouts: layouts))
+
+        // A drag writes over it without a question, and choosing the folder's settings would
+        // not bring it back.
+        let dragged = settings(layouts, showOnHover: false, own: ["x": 1, "y": 0])
+        let edited = Policy.Local(settings: dragged, layouts: layouts, state: state, layoutEdits: 1, postponed: nil, forcesWrite: false)
+        let file = earlierVersion(beta1File, layouts)
+        guard case .version(let beta1Version) = file else {
+            Issue.record("Expected a version")
+            return
+        }
+        #expect(!Policy.replacesUnlistedLayout(beta1Version, local: edited))
+        #expect(Policy.decide(.localChange, local: edited, file: file) == .write)
+        let used = Policy.settingsToUse(
+            Policy.withoutStaleLayouts(beta1File, currentLayouts: []),
+            unlisted: beta1File,
+            over: dragged,
+            layouts: layouts,
+            version: beta1Version,
+            local: edited
+        )
+        #expect(used.settings[layouts.own] == nil)
+
+        // A layout this Mac never synced is still passed on, and a drag still asks.
+        let fresh = Policy.State(base: state.base, baseLayoutDigest: state.baseLayoutDigest, lastSynced: lastSynced)
+        let unknown = Policy.Local(settings: dragged, layouts: layouts, state: fresh, layoutEdits: 1, postponed: nil, forcesWrite: false)
+        #expect(Policy.decide(.localChange, local: unknown, file: file) == .ask)
+        let unknownChanged = Policy.Local(settings: mine, layouts: layouts, state: fresh, layoutEdits: 0, postponed: nil, forcesWrite: false)
+        let passedOn = Policy.planWrite(mine, file: beta1File, fileCurrentLayouts: [], fileCopiedLayouts: [], layouts: layouts, local: unknownChanged)
+        #expect(isLayout(passedOn.settings[layouts.own], oldLayout))
+        #expect(!passedOn.currentLayouts.contains(layouts.own))
+    }
+
     @Test("Choosing the folder's settings over a layout change takes in the layout an earlier build wrote", arguments: layoutBackends)
     func useTakesInEarlierBuildLayout(backend: MenuBarBackendKind) {
         let layouts = Policy.Layouts(backend: backend)
