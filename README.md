@@ -8,6 +8,9 @@
 [![Homebrew](https://img.shields.io/badge/brew-holzbar-D58C4A?style=for-the-badge&logo=homebrew&logoColor=white)](#-install)
 [![macOS](https://img.shields.io/badge/macOS-14%20→%2027-111827?style=for-the-badge&logo=apple&logoColor=white)](docs/features.md#macos-27)
 [![Privacy](https://img.shields.io/badge/privacy-no%20network%20connections-0E7C66?style=for-the-badge)](docs/privacy-and-permissions.md)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/holzcloud/holzBar/badge)](https://scorecard.dev/viewer/?uri=github.com/holzcloud/holzBar)
+[![SLSA 3](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/holzcloud/holzBar/codeql.yml?style=for-the-badge&label=CodeQL&logo=github)](https://github.com/holzcloud/holzBar/actions/workflows/codeql.yml)
 [![License](https://img.shields.io/github/license/holzcloud/holzBar?style=for-the-badge&color=4B5563)](LICENSE)
 [![Website](https://img.shields.io/badge/website-holzcloud.ch%2Fholzbar-0E7C66?style=for-the-badge)](https://holzcloud.ch/holzbar)
 [![Sponsor](https://img.shields.io/badge/sponsor-%E2%99%A5-EA4AAA?style=for-the-badge&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/holzcloud)
@@ -17,7 +20,7 @@ and make the bar look the way you like — on the notch, on every display, on ma
 
 **[🌐 holzcloud.ch/holzbar](https://holzcloud.ch/holzbar)**
 
-[Install](#-install) · [Features](docs/features.md) · [Comparison](docs/comparison.md) · [Privacy](docs/privacy-and-permissions.md) · [Troubleshooting](docs/build-and-troubleshooting.md) · [Credits](#-credits)
+[Install](#-install) · [Verify](#-verify-a-download) · [Features](docs/features.md) · [Comparison](docs/comparison.md) · [Privacy](docs/privacy-and-permissions.md) · [Troubleshooting](docs/build-and-troubleshooting.md) · [Credits](#-credits)
 
 </div>
 
@@ -40,8 +43,9 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 | 🪵 **macOS 14 to 27** | A dedicated backend for the redesigned macOS 27 menu bar. Every pull request launches the app on macOS 14, 15, 26 and 27 and runs the unit tests. |
 | 🔒 **Never online** | No update checks, telemetry or analytics. A CI check proves there is no network code in the app. |
 | 📦 **Zero dependencies, modern Swift** | Built with Swift 6.4 and Xcode 27, Swift 6 language mode, no third-party packages. |
-| 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. |
-| ✨ **More features** | Profiles, folders, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, settings sync through any folder. |
+| 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. From 0.0.7-beta2, one executable with no helper process or nested code, and no entitlements, not even one that lets a debugger attach. |
+| 🔏 **Verifiable releases** | Signed with holzBar's own certificate, with GitHub build provenance and, from 0.0.7-beta2, SLSA Build Level 3 provenance. Actions pinned by commit SHA (except the SLSA generator, which must be referenced by its release tag), rated by OpenSSF Scorecard. |
+| ✨ **More features** | Profiles, folders, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, settings sync through any folder, a camera and microphone dot on macOS 27. |
 | 🌍 **Five languages** | English, German, French, Italian and Romansh. |
 
 ## ⚖️ holzBar vs. Ice and Thaw
@@ -58,6 +62,9 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 | Network connections | Sparkle update checks | Sparkle update checks | **none** |
 | Swift packages | 5 | 10 | **none** |
 | Swift language mode | Swift 5 | Swift 6 | Swift 6 |
+| One executable, no helper process with the app's permissions | ❌ | — | ✅ <sub>from 0.0.7-beta2</sub> |
+| Build provenance: GitHub attestation, SLSA Build Level 3 | ❌ | — | ✅ <sub>SLSA from 0.0.7-beta2</sub> |
+| OpenSSF Scorecard, actions pinned by commit SHA | — | — | ✅ <sub>except the SLSA generator (release tag)</sub> |
 | Rules (Wi-Fi, app, time, power, display, Focus) | ❌ | ✅ | 🔜 |
 
 ## 🚀 Install
@@ -78,12 +85,39 @@ brew install --cask holzbar
 xattr -dr com.apple.quarantine /Applications/holzBar.app
 ```
 
-Then open it again. The release is signed with holzBar's own certificate and carries a build provenance attestation; certificate SHA-256 `e55f0df15060b8c06c6842ccee85e6bc9f86cbbda3bd408abf991457840b1d95`; see [docs/signing.md](docs/signing.md). To build from source, see [Build and troubleshooting](docs/build-and-troubleshooting.md).
+Then open it again. The release is signed with holzBar's own certificate, SHA-256 `e55f0df15060b8c06c6842ccee85e6bc9f86cbbda3bd408abf991457840b1d95`, and carries a build provenance attestation and, from 0.0.7-beta2, SLSA Build Level 3 provenance: [verify a download](#-verify-a-download). To build from source, see [Build and troubleshooting](docs/build-and-troubleshooting.md).
 
 <p align="center"><img src="Resources/Screenshots/shelf.png" alt="The menu bar with the holzBar Shelf open below it, showing the hidden items" width="560"></p>
 
 > [!WARNING]
-> **macOS 27:** while holzBar hides menu bar items, Control Centre does not show its camera, microphone and screen recording indicator (the green dot beside the clock still shows the camera). holzBar cannot prevent this; it comes back while no item is hidden. [Details](docs/features.md#macos-27)
+> **macOS 27:** while holzBar hides menu bar items, Control Centre does not show its camera, microphone and screen recording indicator (the green dot beside the clock still shows the camera). holzBar cannot prevent this; it comes back while no item is hidden. Instead, holzBar puts a dot on its own icon while the microphone (orange) or the camera (green) is in use; it needs no permission, is on by default (**Settings → General**) and does not cover screen recording. [Details](docs/features.md#macos-27)
+
+## 🔏 Verify a download
+
+The certificate holzBar is signed with; this prints the SHA-256 above:
+
+```sh
+codesign -d --extract-certificates=/tmp/holzbar-certificate /Applications/holzBar.app && shasum -a 256 /tmp/holzbar-certificate0
+```
+
+The build provenance of the zip Homebrew downloaded, pinned to the release workflow and the version's tag ([GitHub CLI](https://cli.github.com): `brew install gh`, then `gh auth login`):
+
+```sh
+V=$(brew list --cask --versions holzbar | awk '{print $2}')
+gh attestation verify "$(brew --cache --cask holzbar)" -R holzcloud/holzBar \
+  --signer-workflow holzcloud/holzBar/.github/workflows/release.yml \
+  --source-ref "refs/tags/v$V" --deny-self-hosted-runners
+```
+
+The SLSA provenance, from 0.0.7-beta2 on (`brew install slsa-verifier`):
+
+```sh
+gh release download "v$V" -R holzcloud/holzBar -p "holzBar-$V.zip" -p "holzBar-$V.intoto.jsonl"
+slsa-verifier verify-artifact "holzBar-$V.zip" --provenance-path "holzBar-$V.intoto.jsonl" \
+  --source-uri github.com/holzcloud/holzBar --source-tag "v$V"
+```
+
+A zip changed after the build, or built anywhere else, fails. Older releases and more detail: [docs/signing.md](docs/signing.md). Verifying uses the network from your terminal; holzBar itself never does.
 
 ## 🔜 Planned for 0.0.7 "Automation"
 

@@ -21,6 +21,7 @@
 - ✅ **Keyboard and VoiceOver** — arrange items in the Layout pane with the arrow keys, undo with ⌘Z, move items with VoiceOver actions
 - ✅ **Opened items stay** up to 30 s after their menu closes — or open without showing the item at all
 - ✅ **Show When It Changes** — a marked item shows for 5 s when its title or value changes
+- ✅ **Privacy indicators stay visible** — the camera and microphone indicator, the FaceTime item and the Screenshot tool's recording button can be moved, never hidden <sub>macOS 14 to 26</sub>
 - ✅ Item spacing <sub>BETA</sub>
 
 </td>
@@ -49,21 +50,31 @@
 - ✅ **Zen mode** — one hotkey, menu item, URL or Shortcuts action keeps hidden items hidden; optionally on while the screen is mirrored or shared, without any permission
 - ✅ **Shortcuts actions** — Zen mode, show or hide a section, apply a profile, open an item by name, search
 - ✅ **`holzbar://` URL commands** and [Raycast script commands](../Integrations/Raycast)
-- ✅ Hotkeys for sections, search, the holzBar Shelf, app menus, **auto-rehide**, **a quick peek**, **Zen mode**, **each layout profile** and **each menu bar item**
+- ✅ Hotkeys for sections, search, the holzBar Shelf, app menus, **auto-rehide**, **a quick peek**, **Zen mode**, **each layout profile** and **each menu bar item** — a combination another holzBar hotkey already uses moves only when you choose **Replace**
 
 </td>
 <td valign="top" width="50%">
 
 #### Settings
 - ✅ **Export and import** all settings
-- ✅ **Sync between Macs** through iCloud Drive or any folder your Macs sync (Nextcloud, Dropbox, OneDrive, Syncthing, a network share) — changes from another Mac arrive as soon as the folder delivers them, with no polling
+- ✅ **Sync between Macs** through iCloud Drive or any folder your Macs sync (Nextcloud, Dropbox, OneDrive, Syncthing, a network share) — changes from another Mac arrive as soon as the folder delivers them, with no polling; holzBar asks before it replaces either Mac's settings ([details](#settings-sync))
 - ✅ **Imports your Ice settings** on first launch
+- ✅ **Alerts in Settings are sheets** on its window, so holzBar keeps working while one is open
 - ✅ Launch at login
 - ✅ **English, German, French, Italian and Romansh** — holzBar follows your Mac's language; choose another one for holzBar alone in System Settings → General → Language & Region → Applications
 
 </td>
 </tr>
 </table>
+
+## Settings sync
+
+- **A quiet hint, never a dialog.** Changes from another Mac wait as **Settings changed on another Mac** with **Restart**, in Settings → Advanced and at the top of holzBar's menu.
+- **holzBar asks before it replaces settings.** When both Macs changed their settings, or a Mac joins a folder that holds another Mac's different settings, the hint reads **Choose Settings…** and holzBar asks which settings to use, in a sheet on the Settings window. It never overwrites another Mac's settings unasked.
+- **The launch never waits for the cloud.** holzBar waits at most a second for the sync file and checks a file that is not on this Mac yet after launch.
+- **Settings a Mac lacks are kept**, such as the other macOS version's layout.
+- **A network share is used only while it is mounted**; holzBar never mounts it itself. Until it is, Settings → Advanced shows "The sync folder cannot be found", and syncing picks up again by itself once the share is mounted.
+- holzBar's own placement of new menu bar items counts as a settings change, so a newly placed item can turn **Restart** into **Choose Settings…**, and a Mac on macOS 26 and one on macOS 27 usually get the question when they join.
 
 ## macOS 27
 
@@ -76,12 +87,14 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **A second display** works like the first: hovering and clicking items there opens their menus instead of revealing hidden items
 - **Notched MacBooks**: holzBar's icon is kept out from under the notch, and items folded beside the notch come back on a wider display
 - **No screenshots under the bar**: no screen-recording indicator when items are shown or hidden, and a click on the clock no longer flashes hidden items
+- **Split shape** that follows the icons, on every display
+- **A dot on holzBar's icon** while hidden items are concealed and an app uses the microphone (orange) or the camera (green), in place of Control Centre's indicator. On by default in Settings → General, with no permission; the icon appears for the dot even when **Show holzBar icon** is off
 
 **Known limitations on macOS 27**
 
 - Items can't be reordered on the bar itself — only assigned to sections.
 - Opening a system item (clock, battery, Wi-Fi) while hidden items are concealed adds ~150 ms.
-- **The privacy indicator is hidden while items are hidden.** Control Centre's indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item; the small green dot beside the clock still shows the camera. It comes back while holzBar hides no item. See [Permissions](privacy-and-permissions.md#permissions).
+- **Control Centre's privacy indicator is hidden while items are hidden.** Its indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item, and comes back while holzBar hides no item. holzBar's dot covers the microphone and the camera, not screen recording; the small green dot beside the clock still shows the camera. See [Permissions](privacy-and-permissions.md#permissions).
 - Coming from 0.0.5 or earlier, macOS asks for Accessibility once more. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.
 
 ## Planned for 0.0.7 "Automation"

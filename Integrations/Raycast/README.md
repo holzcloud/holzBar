@@ -11,8 +11,8 @@ The scripts open `holzbar://` URLs, so the same commands work from Alfred, Short
 |---|---|---|
 | `holzbar://toggle/hidden` | Show or hide the hidden section (`show/…`, `hide/…` also work) | Nothing persistent |
 | `holzbar://toggle/always-hidden` | Show or hide the always-hidden section | Nothing persistent |
-| `holzbar://search` | Open the menu bar item search | Nothing persistent |
-| `holzbar://settings` | Open the settings | Nothing persistent |
+| `holzbar://search` | Open the menu bar item search | Nothing persistent; ignored while Zen mode is on |
+| `holzbar://settings` | Open the settings | Nothing persistent; ignored while Zen mode is on |
 | `holzbar://shelf/toggle` | Turn the holzBar Shelf on or off | A setting that syncs, asks first |
 | `holzbar://auto-rehide/toggle` | Turn auto-rehide on or off | A setting that syncs, asks first |
 | `holzbar://application-menus/toggle` | Hide or show the application menus | Nothing persistent |
@@ -22,7 +22,7 @@ The scripts open `holzbar://` URLs, so the same commands work from Alfred, Short
 
 Any app can open these URLs, and a web page can once your browser has asked, so every command that changes something lasting asks first: holzBar shows a question such as "Apply the layout profile …?" or "Turn off the holzBar Shelf?", and only a click on the button acts (Return answers nothing, Escape cancels). The question names only profiles you saved, never text from the URL; one question is open at a time, and after you cancel one, holzBar ignores such commands for 30 seconds.
 
-While Zen mode is on, no URL reveals hidden items or changes a setting: `show` and `toggle` of a hidden section, the Shelf and auto-rehide toggles and profiles are ignored. A URL can always turn Zen mode on. Turning it off asks first, and while the screen is shared (Zen mode turned on by "Turn on Zen mode while the screen is mirrored or shared"), only you can turn it off, from holzBar's menu, its hotkey or Shortcuts.
+While Zen mode is on, no URL reveals hidden items or changes a setting: `show` and `toggle` of a hidden section, the search, Settings, the Shelf and auto-rehide toggles and profiles are ignored. A URL can always turn Zen mode on. Turning it off asks first, and while the screen is shared (Zen mode turned on by "Turn on Zen mode while the screen is mirrored or shared"), only you can turn it off, from holzBar's menu, its hotkey or Shortcuts.
 
 ## Shortcuts
 

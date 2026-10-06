@@ -47,23 +47,25 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Keep Live Activities visible | ❌ | — | ✅ <sub>experimental</sub> |
 | Show on scroll with a mouse wheel | ❌ | — | ✅ |
 | Search tolerates typos and abbreviations | ✅ (library) | ✅ | ✅ (built in) |
-| Refuses hotkeys macOS cannot register, and says why | ❌ | — | ✅ |
+| Refuses hotkeys macOS cannot register, and says why; asks before taking another hotkey's combination | ❌ | — | ✅ |
 | Input never stalls when an app hangs | ❌ | ✅ | ✅ |
 | Items keep their section when an app changes its title | ❌ | ✅ | ✅ |
 | Pauses while the screen is locked, settles after wake | ❌ | ✅ | ✅ |
 | Look on every desktop, follows the icons, steps aside in fullscreen | ❌ | ✅ | ✅ |
 | No screen-recording indicator when showing or hiding (macOS 27) | — | ✅ | ✅ |
 | Hover and click on a second display (macOS 27) | — | ✅ | ✅ |
-| URL commands ask before they change anything lasting; no URL ends Zen mode during a screen share | — | — | ✅ |
+| Dot on its icon while the microphone or camera is in use and Control Centre's indicator is not drawn (macOS 27) | — | — | ✅ |
+| URL commands ask before they change anything lasting; no URL shows hidden items while Zen mode is on or ends it during a screen share | — | — | ✅ |
 | Validated hotkeys, colours and numbers in imported and synced settings (no crash loop from bad settings) | ❌ | — | ✅ |
 | **Privacy and permissions** | | | |
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | — | private, enforced by CI |
 | Asks for Screen Recording only when a feature needs it | ❌ | — | ✅ |
 | Hardened runtime (no injected code or libraries) | ✅ | ✅ | ✅ (checked by CI) |
+| No entitlements, not even `get-task-allow` | — | — | ✅ from 0.0.7-beta2 (checked by CI and the release) |
 | Settings import accepts only known keys of the right type, in range | — (no import) | — | ✅ |
 | Settings import and sync can't turn sync on; the sync file carries no computer name | — (no sync) | — | ✅ |
-| Menu bar item service accepts only holzBar's own code | team check only | — | team or exact code hash |
+| No helper process runs with holzBar's permissions | ❌ (menu bar item service) | — | ✅ from 0.0.7-beta2: one executable, no nested code (checked by CI) |
 | Fix for the permissions loop | ❌ | — | ✅ |
 | **Code and resources** | | | |
 | Swift packages | 5 | 10 (Sparkle, AXSwift6, CompactSlider, Ifrit, LaunchAtLogin-Modern and 5 from Apple) | **none** |
@@ -75,7 +77,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Settings migration | 6 version steps at every launch | — | once, while importing Ice settings |
 | Runtime patching of AppKit (method swizzling) | yes | yes | none |
 | Item images in memory | kept | — | released when unused |
-| Unit tests run on every change | none | ✅ | ✅ 371 |
+| Unit tests run on every change | none | ✅ | ✅ 610 |
 | App size | — | — | 16.7 MB |
 | **Distribution and maintenance** | | | |
 | Install and update with Homebrew | ✅ | ✅ | ✅ |
@@ -83,6 +85,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Every bug group of Ice's 282 open reports solved | — | — | ✅ confirmed on a Mac in 0.0.6, [see the list](upstream-bugs.md) |
 | Signed with a Developer ID | ✅ | — | ❌ (own certificate instead; the cask handles quarantine) |
 | Stable signature, so Accessibility survives updates | ✅ | — | ✅ (own certificate, [docs/signing.md](signing.md)) |
-| Build provenance attestation (`gh attestation verify`) | ❌ | — | ✅ |
+| Build provenance attestation (`gh attestation verify`) | ❌ | — | ✅, and SLSA Build Level 3 provenance from 0.0.7-beta2 |
+| GitHub Actions pinned by commit SHA (Dependabot keeps them current), OpenSSF Scorecard | — | — | ✅ <sub>except the SLSA generator, referenced by its release tag</sub> |
 
 The AppleScript, Touch ID and smooth show and hide rows are about features other menu bar apps have (AppleScript: Bartender 7 and SaneBar; Touch ID lock: SaneBar; smooth show and hide: Vanilla), not Ice or Thaw as far as their documentation says.
