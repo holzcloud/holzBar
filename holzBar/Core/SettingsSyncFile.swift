@@ -8,7 +8,8 @@ import Foundation
 /// Decides which settings of the sync file this Mac applies, and reads the file safely.
 ///
 /// The file holds the date it was written (``modifiedKey``), the writing Mac's id (see
-/// ``SettingsSyncDevice``) and the settings (``settingsKey``).
+/// ``SettingsSyncDevice``), the settings (``settingsKey``) and the layouts among them that
+/// are current (``currentLayoutsKey``).
 ///
 /// Anyone who can write the synced folder can write the file: a shared Dropbox or
 /// Nextcloud folder, a network share, a Syncthing peer. So the file is read only when it
@@ -22,6 +23,13 @@ nonisolated enum SettingsSyncFile {
 
     /// The key of the synced settings.
     static let settingsKey = "settings"
+
+    /// The key of the layout keys whose values in the settings are current: the writer's
+    /// own layout, and the other macOS version's when the writer kept it from a file that
+    /// listed it (`SettingsSyncPolicy.Layouts`). Files of earlier builds lack it; their
+    /// layouts are not used, as their copy of the other version's layout may be older than
+    /// the layout it stands for. Earlier builds ignore the key.
+    static let currentLayoutsKey = "currentLayouts"
 
     /// The largest sync file holzBar reads: 1 MB. holzBar's settings take a few kilobytes.
     static let maximumFileSize = 1 << 20
@@ -40,6 +48,9 @@ nonisolated enum SettingsSyncFile {
         let isNewer: Bool
         /// The settings, without the keys that stay on each Mac.
         let settings: [String: Any]
+        /// The layout keys whose values in ``settings`` are current (``currentLayoutsKey``);
+        /// empty for files of earlier builds.
+        let currentLayouts: Set<String>
     }
 
     /// Returns what the sync file holds.
@@ -74,7 +85,8 @@ nonisolated enum SettingsSyncFile {
             isNewer: !isFromThisMac
                 && modified > lastSynced ?? .distantPast
                 && modified <= now.addingTimeInterval(allowedClockSkew),
-            settings: settings.filter { !localKeys.contains($0.key) }
+            settings: settings.filter { !localKeys.contains($0.key) },
+            currentLayouts: Set(file[currentLayoutsKey] as? [String] ?? [])
         )
     }
 

@@ -201,6 +201,9 @@ final class LayoutProfiles {
                     to: stored.compactMapValues(MacOS27Section.init(rawValue:))
                 )
                 Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
+                // Applying a profile is the user's change, also when a display or Space
+                // applies a bound one; it counts for sync.
+                SettingsSync.userChangedLayout()
             }
             appState.concealer27.update()
             Task {

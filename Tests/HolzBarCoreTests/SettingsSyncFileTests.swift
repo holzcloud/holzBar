@@ -142,6 +142,19 @@ struct SettingsSyncFileTests {
         #expect(Set(result.settings.keys) == ["UseIceBar"])
     }
 
+    @Test("The contents list the file's current layouts")
+    func contentsCurrentLayouts() throws {
+        var listed = file(deviceID: otherMac, modified: lastSynced, settings: [:])
+        listed[SettingsSyncFile.currentLayoutsKey] = ["ItemSections", "MacOS27Layout"]
+        #expect(try #require(contents(in: listed)).currentLayouts == ["ItemSections", "MacOS27Layout"])
+        // Files of earlier builds list none.
+        let earlier = file(deviceID: otherMac, modified: lastSynced, settings: [:])
+        #expect(try #require(contents(in: earlier)).currentLayouts.isEmpty)
+        var wrongType = earlier
+        wrongType[SettingsSyncFile.currentLayoutsKey] = "ItemSections"
+        #expect(try #require(contents(in: wrongType)).currentLayouts.isEmpty)
+    }
+
     @Test("A file without date or settings has no contents")
     func contentsWithoutDateOrSettings() {
         #expect(contents(in: file(deviceID: otherMac, modified: lastSynced, settings: nil)) == nil)

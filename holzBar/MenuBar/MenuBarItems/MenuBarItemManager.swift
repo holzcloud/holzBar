@@ -584,10 +584,12 @@ extension MenuBarItemManager {
             }
 
             if backend.canMoveItems {
-                // The sections the user arranged, or of the first run, are recorded.
+                // The sections the user arranged, or of the first run, are recorded; only the
+                // user's arrangement counts as a settings change for sync.
                 if needsSectionSave || Defaults.dictionary(forKey: .itemSections) == nil {
+                    let byUser = needsSectionSave
                     needsSectionSave = false
-                    saveSections()
+                    saveSections(byUser: byUser)
                 }
                 // Moving runs outside the cache task, which it would otherwise hold up.
                 Task {
