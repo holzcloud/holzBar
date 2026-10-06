@@ -64,18 +64,22 @@ struct DebouncerTests {
 
     @Test("A cancelled throttle task does not take a newer pending action")
     func cancelledThrottleTaskIsStale() async throws {
-        let debouncer = Debouncer(delay: .milliseconds(100))
+        let debouncer = Debouncer(delay: .milliseconds(300))
         let runs = Recorder()
         debouncer.throttle { runs.values.append(1) }
         debouncer.throttle { runs.values.append(2) }
-        await blockAfterSleepStarts(for: .milliseconds(200))
+        await blockAfterSleepStarts(for: .milliseconds(400))
         debouncer.cancel()
         debouncer.throttle { runs.values.append(3) }
         debouncer.throttle { runs.values.append(4) }
-        // The last call waits the delay; only the stale task would run it now.
-        try await Task.sleep(for: .milliseconds(20))
+        // The last call waits the delay; only the stale task would run it now. Its sleep has
+        // finished, so it runs as soon as the main actor is free: yielding lets it run without
+        // waiting on a clock, which a busy CI runner overshoots.
+        for _ in 0..<10 {
+            await Task.yield()
+        }
         #expect(runs.values == [1, 3])
-        try await Task.sleep(for: .milliseconds(400))
+        try await Task.sleep(for: .milliseconds(1000))
         #expect(runs.values == [1, 3, 4])
     }
 
