@@ -14,15 +14,18 @@ struct SettingsSyncPolicyTests {
         base: String?,
         pending: Date? = nil,
         postponed: Date? = nil,
-        forcesWrite: Bool = false
+        forcesWrite: Bool = false,
+        keepsOver: Date? = nil
     ) -> SettingsSyncPolicy.Local {
-        SettingsSyncPolicy.Local(
+        var local = SettingsSyncPolicy.Local(
             userDigest: userDigest,
             base: base,
             pending: pending,
             postponed: postponed,
             forcesWrite: forcesWrite
         )
+        local.keepsOver = keepsOver
+        return local
     }
 
     private func version(
@@ -136,15 +139,41 @@ struct SettingsSyncPolicyTests {
         #expect(SettingsSyncPolicy.decide(.launch, local: local(changed, base: base), file: version(base, isNewer: false)) == .none)
     }
 
-    @Test("Keeping this Mac's settings writes over a newer version")
+    @Test("Keeping this Mac's settings writes over the version the user answered")
     func keepThisMac() {
-        let forced = local(changed, base: base, pending: lastSynced.addingTimeInterval(60), forcesWrite: true)
+        let answered = lastSynced.addingTimeInterval(60)
+        let forced = local(changed, base: base, pending: answered, forcesWrite: true, keepsOver: answered)
         #expect(SettingsSyncPolicy.decide(.localChange, local: forced, file: version("other")) == .write)
         #expect(SettingsSyncPolicy.decide(.localChange, local: forced, file: version(changed)) == .adopt)
         #expect(SettingsSyncPolicy.decide(.localChange, local: forced, file: .unreadable) == .retry)
+        #expect(SettingsSyncPolicy.decide(.localChange, local: forced, file: .missing) == .write)
         #expect(SettingsSyncPolicy.decide(.launch, local: forced, file: version("other")) == .none)
-        let joining = local(changed, base: nil, forcesWrite: true)
+        // An older version, and this Mac's own, are written over too.
+        #expect(SettingsSyncPolicy.decide(.localChange, local: forced, file: version("older", modified: lastSynced.addingTimeInterval(30))) == .write)
+        #expect(SettingsSyncPolicy.decide(.localChange, local: forced, file: version("own", fromThisMac: true, modified: answered.addingTimeInterval(60))) == .write)
+        let joining = local(changed, base: nil, forcesWrite: true, keepsOver: answered)
         #expect(SettingsSyncPolicy.decide(.localChange, local: joining, file: version("other")) == .write)
+    }
+
+    @Test("Keeping this Mac's settings never writes over a version that arrived while the question was open")
+    func keepThisMacSparesLaterVersion() {
+        let answered = lastSynced.addingTimeInterval(60)
+        let later = version("later", modified: answered.addingTimeInterval(1))
+        // This Mac changed its settings, so the later version is asked about.
+        let forced = local(changed, base: base, pending: answered, forcesWrite: true, keepsOver: answered)
+        #expect(SettingsSyncPolicy.decide(.localChange, local: forced, file: later) == .ask)
+        // Without a change of this Mac's, it is applied like any newer version.
+        let unchanged = local(base, base: base, pending: answered, forcesWrite: true, keepsOver: answered)
+        #expect(SettingsSyncPolicy.decide(.localChange, local: unchanged, file: later) == .apply)
+        // A joining Mac asks.
+        let joining = local(changed, base: nil, forcesWrite: true, keepsOver: answered)
+        #expect(SettingsSyncPolicy.decide(.localChange, local: joining, file: later) == .ask)
+        // A keep without an answered version writes over no other Mac's version.
+        let unanswered = local(changed, base: base, forcesWrite: true)
+        #expect(SettingsSyncPolicy.decide(.localChange, local: unanswered, file: version("other")) == .ask)
+        #expect(SettingsSyncPolicy.keepsThisMac(over: SettingsSyncPolicy.Version(isFromThisMac: true, modified: answered, isNewer: false, userDigest: "own"), local: unanswered))
+        // Without a keep, nothing is written over.
+        #expect(!SettingsSyncPolicy.keepsThisMac(over: SettingsSyncPolicy.Version(isFromThisMac: true, modified: answered, isNewer: false, userDigest: "own"), local: local(changed, base: base, keepsOver: answered)))
     }
 
     // MARK: Exchanges

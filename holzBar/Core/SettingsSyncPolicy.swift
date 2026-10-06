@@ -207,7 +207,9 @@ nonisolated enum SettingsSyncPolicy {
         var pending: Date?
         /// The date of the version the user answered "Later" for in this session.
         var postponed: Date?
-        /// Whether the user chose to keep this Mac's settings.
+        /// Whether the user chose to keep this Mac's settings. The keep writes over the
+        /// version the user answered (``keepsOver``), an older one or this Mac's own, never
+        /// over a version that arrived since.
         var forcesWrite: Bool
         /// The digest of this Mac's layout for its macOS version
         /// (``layoutDigest(of:layouts:)``).
@@ -222,6 +224,9 @@ nonisolated enum SettingsSyncPolicy {
         /// this side records it, so an edit made while the exchange ran still counts
         /// afterwards.
         var layoutEdits = 0
+        /// The date of the version the user answered with "Keep This Mac's Settings"
+        /// (``forcesWrite``).
+        var keepsOver: Date?
 
         /// Whether this Mac joins the folder.
         var isJoining: Bool {
@@ -353,7 +358,7 @@ nonisolated enum SettingsSyncPolicy {
             if holdsLocalSettings(version, local: local) {
                 return .adopt
             }
-            if local.forcesWrite {
+            if keepsThisMac(over: version, local: local) {
                 return isLaunch ? .none : .write
             }
             if replacesUnlistedLayout(version, local: local) {
@@ -822,6 +827,23 @@ nonisolated extension SettingsSyncPolicy {
             return false
         }
         return layout != local.baseLayoutDigest
+    }
+
+    /// Whether the user's "Keep This Mac's Settings" writes over a version: one this Mac
+    /// wrote, the version the user answered (``Local/keepsOver``) or an older one. A version
+    /// from another Mac that arrived while the question was open was never asked about, so
+    /// the usual rules decide about it, and a change of this Mac's makes them ask.
+    static func keepsThisMac(over version: Version, local: Local) -> Bool {
+        guard local.forcesWrite else {
+            return false
+        }
+        if version.isFromThisMac {
+            return true
+        }
+        guard let keepsOver = local.keepsOver else {
+            return false
+        }
+        return version.modified <= keepsOver
     }
 
     /// Whether a version holds this Mac's settings: equal user settings, and a layout for

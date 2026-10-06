@@ -419,6 +419,10 @@ final class SettingsSync {
     /// The date of the version the user answered "Later" for in this session.
     @ObservationIgnored private var postponed: Date?
 
+    /// The date of the version the user answered "Keep This Mac's Settings" for; the keep
+    /// writes over that version only (`SettingsSyncPolicy.keepsThisMac(over:local:)`).
+    @ObservationIgnored private var keepsOver: Date?
+
     /// Whether a sync question is open.
     @ObservationIgnored private var isAsking = false
 
@@ -608,6 +612,7 @@ final class SettingsSync {
     private func forgetSyncState() {
         Self.updateState { $0.leaveFolder(forgetsLastSync: false) }
         postponed = nil
+        keepsOver = nil
         exchangeTask?.cancel()
         exchangeTask = nil
         queuedExchanges = []
@@ -1045,7 +1050,10 @@ final class SettingsSync {
         presenter: SettingsSyncPresenter?
     ) -> ExchangeRequest? {
         let settings = Self.syncedSettings()
-        let local = Self.makeLocal(settings: settings, state: state, postponed: postponed, forcesWrite: kind == .keepThisMac)
+        var local = Self.makeLocal(settings: settings, state: state, postponed: postponed, forcesWrite: kind == .keepThisMac)
+        if kind == .keepThisMac {
+            local.keepsOver = keepsOver
+        }
         guard SettingsSyncPolicy.needsExchange(kind.trigger, local: local) else {
             return nil
         }
@@ -1732,7 +1740,7 @@ final class SettingsSync {
             use(remote, join: join)
             return
         case .alertSecondButtonReturn:
-            keepThisMac(join: join)
+            keepThisMac(over: remote, join: join)
         default:
             if join != nil {
                 // Sync stays off, or keeps the previous folder.
@@ -1795,12 +1803,14 @@ final class SettingsSync {
         SettingsBackup.relaunch()
     }
 
-    /// Writes this Mac's settings over the version from another Mac.
-    private func keepThisMac(join: JoinRequest?) {
+    /// Writes this Mac's settings over the version from another Mac the user answered. A
+    /// version that arrived since is not written over; the usual rules decide about it.
+    private func keepThisMac(over remote: RemoteVersion, join: JoinRequest?) {
         if let join {
             commitJoin(join)
         }
         postponed = nil
+        keepsOver = remote.modified
         requestExchange(.keepThisMac)
     }
 }

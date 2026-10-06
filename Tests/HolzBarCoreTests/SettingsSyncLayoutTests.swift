@@ -518,6 +518,7 @@ struct SettingsSyncLayoutTests {
         // "Keep This Mac's Settings" writes.
         var keeps = edited
         keeps.forcesWrite = true
+        keeps.keepsOver = lastSynced.addingTimeInterval(60)
         #expect(Policy.decide(.localChange, local: keeps, file: earlierVersion(beta1File, layouts)) == .write)
         let kept = Policy.fileToWrite(moved, file: beta1File, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: true)
         #expect(isLayout(kept.settings[layouts.own], second))
@@ -596,6 +597,7 @@ struct SettingsSyncLayoutTests {
         var keeps = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: false)
         #expect(Policy.decide(.check, local: keeps, file: version(remote, layouts)) == .ask)
         keeps.forcesWrite = true
+        keeps.keepsOver = lastSynced.addingTimeInterval(60)
         #expect(Policy.decide(.localChange, local: keeps, file: version(remote, layouts)) == .write)
         #expect(!Policy.writesOwnLayout(keeps))
         let written = Policy.fileToWrite(
@@ -676,7 +678,8 @@ struct SettingsSyncLayoutTests {
             baseLayoutDigest: Policy.layoutDigest(of: mine, layouts: layouts),
             lastSynced: lastSynced
         )
-        let keeps = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: true)
+        var keeps = Policy.Local(settings: mine, layouts: layouts, state: state, layoutEdits: 0, postponed: nil, forcesWrite: true)
+        keeps.keepsOver = lastSynced.addingTimeInterval(60)
         #expect(Policy.decide(.localChange, local: keeps, file: version(remote, layouts)) == .write)
         let written = Policy.planWrite(mine, file: remote, fileCurrentLayouts: [layouts.own], fileCopiedLayouts: [], layouts: layouts, local: keeps)
         #expect(written.record.takesInLayout)
