@@ -53,14 +53,16 @@ extension MenuBarItemManager {
         guard backend.canMoveItems else {
             return
         }
-        var stored = storedSectionIndexes()
+        let before = storedSectionIndexes()
+        var stored = before
         for section in MenuBarSection.Name.allCases {
             for item in itemCache[section] where !item.isControlItem && !item.tag.namespace.isUUID {
                 stored[identityKey(for: item)] = section.profileIndex
             }
         }
         Defaults.set(stored, forKey: .itemSections)
-        if byUser {
+        // A Command-click on the bar that moved nothing is no change of the user's.
+        if SettingsSyncPolicy.countsAsLayoutEdit(byUser: byUser, saved: stored, before: before) {
             SettingsSync.userChangedLayout()
         }
         Self.restoreLogger.debug("Saved the sections of \(stored.count, privacy: .public) items")
@@ -74,12 +76,13 @@ extension MenuBarItemManager {
         guard !sections.isEmpty else {
             return
         }
-        var stored = storedSectionIndexes()
+        let before = storedSectionIndexes()
+        var stored = before
         for (key, section) in sections {
             stored[key] = section.profileIndex
         }
         Defaults.set(stored, forKey: .itemSections)
-        if byUser {
+        if SettingsSyncPolicy.countsAsLayoutEdit(byUser: byUser, saved: stored, before: before) {
             SettingsSync.userChangedLayout()
         }
     }

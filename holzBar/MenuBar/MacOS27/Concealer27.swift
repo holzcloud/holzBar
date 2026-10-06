@@ -848,9 +848,12 @@ final class Concealer27 {
     /// Only the user moves an application this way (the Layout pane, with its undo), so it
     /// counts as a settings change for sync.
     func setSection(_ section: MacOS27Section, for bundleID: String) {
-        let updated = SectionLayout27.settingSection(section, for: bundleID, in: savedLayout)
+        let before = savedLayout
+        let updated = SectionLayout27.settingSection(section, for: bundleID, in: before)
         Defaults.set(updated.mapValues(\.rawValue), forKey: .macOS27Layout)
-        SettingsSync.userChangedLayout()
+        if SettingsSyncPolicy.countsAsLayoutEdit(byUser: true, saved: updated, before: before) {
+            SettingsSync.userChangedLayout()
+        }
         update()
         Task { [weak self] in
             await self?.appState?.itemManager.cacheItemsRegardless()

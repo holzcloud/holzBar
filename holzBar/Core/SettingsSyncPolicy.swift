@@ -904,6 +904,19 @@ nonisolated extension SettingsSyncPolicy {
         hasLayout && !syncs ? 1 : 0
     }
 
+    /// Whether saving a layout counts as a change of the user's
+    /// (`SettingsSync.userChangedLayout()`): the user arranged the items, and the saved
+    /// layout differs from the one before. A Command-click on the bar that moves nothing
+    /// saves the same layout, and holzBar's own placements never count (SA-05).
+    ///
+    /// - Parameters:
+    ///   - byUser: Whether the user arranged the items.
+    ///   - saved: The layout saved now.
+    ///   - before: The layout saved before.
+    static func countsAsLayoutEdit<Layout: Equatable>(byUser: Bool, saved: Layout, before: Layout) -> Bool {
+        byUser && saved != before
+    }
+
     /// Whether the user changed this Mac's layout since it last synced
     /// (``Local/editsLayout``).
     ///

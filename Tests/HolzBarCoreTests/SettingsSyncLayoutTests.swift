@@ -835,6 +835,17 @@ struct SettingsSyncLayoutTests {
         #expect(Policy.editsLayout(count: 3, synced: 4))
     }
 
+    @Test("Saving a layout counts as a change of the user's only when the user arranged it and it changed")
+    func layoutSaveCountsOnlyWhenChanged() {
+        let before = ["a": 0, "b": 1]
+        // A Command-click on the bar that moved nothing saves the same layout.
+        #expect(!Policy.countsAsLayoutEdit(byUser: true, saved: before, before: before))
+        #expect(Policy.countsAsLayoutEdit(byUser: true, saved: ["a": 0, "b": 2], before: before))
+        #expect(Policy.countsAsLayoutEdit(byUser: true, saved: ["a": 0, "b": 1, "c": 2], before: before))
+        // holzBar's own placements never count.
+        #expect(!Policy.countsAsLayoutEdit(byUser: false, saved: ["a": 0, "b": 2], before: before))
+    }
+
     // MARK: Sync state
 
     @Test("A sync records the layout edits its decision saw, so an edit made while it ran still counts")
