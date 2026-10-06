@@ -563,7 +563,9 @@ nonisolated extension SettingsSyncPolicy {
     /// layouts handled per macOS version, and the layouts the written file lists as current.
     ///
     /// The other macOS version's layout is the file's, never this Mac's copy, which may be
-    /// older; it is left out when the file has none. This Mac's layout is written when the
+    /// older. Only when the file has none is this Mac's copy written, and not listed as
+    /// current: this build ignores it, and builds before it, which delete a layout missing from
+    /// a file they apply (F-60), keep one. This Mac's layout is written when the
     /// user changed it (`keepsOwnLayout`) or the file has no current one; otherwise the
     /// file's current layout is kept, with only this Mac's entries it has never seen, so
     /// holzBar's own placements never replace another Mac's layout.
@@ -585,9 +587,12 @@ nonisolated extension SettingsSyncPolicy {
         var settings = settingsToWrite(local, file: remote)
         var currentLayouts = Set<String>()
         // Files of earlier builds list no layout; their copy is carried on for those builds.
-        settings[layouts.other] = remote?[layouts.other]
-        if settings[layouts.other] != nil, fileCurrentLayouts.contains(layouts.other) {
-            currentLayouts.insert(layouts.other)
+        // Without one, this Mac's copy, from ``settingsToWrite(_:file:)``, stays unlisted.
+        if let fileOther = remote?[layouts.other] {
+            settings[layouts.other] = fileOther
+            if fileCurrentLayouts.contains(layouts.other) {
+                currentLayouts.insert(layouts.other)
+            }
         }
         let fileLayout = fileCurrentLayouts.contains(layouts.own) ? validatedLayout(in: remote, key: layouts.own) : nil
         if local[layouts.own] == nil {

@@ -122,7 +122,7 @@ struct SettingsSyncLayoutTests {
 
     // MARK: Writing
 
-    @Test("A write keeps the file's layout of the other macOS version, never this Mac's copy", arguments: layoutBackends)
+    @Test("A write keeps the file's layout of the other macOS version, and adds this Mac's copy unlisted only when the file has none", arguments: layoutBackends)
     func writeKeepsOtherLayout(backend: MenuBarBackendKind) {
         let layouts = Policy.Layouts(backend: backend)
         let mine = settings(layouts, showOnHover: false, own: first, other: second)
@@ -142,12 +142,18 @@ struct SettingsSyncLayoutTests {
             layouts: layouts,
             keepsOwnLayout: true
         )
-        #expect(without.settings[layouts.other] == nil)
+        // Without one, this Mac's copy is written for builds before this one, which would
+        // otherwise delete that layout (F-60), but not listed: this build ignores it.
+        #expect(isLayout(without.settings[layouts.other], second))
         #expect(without.currentLayouts == [layouts.own])
+        #expect(Policy.withoutStaleLayouts(without.settings, currentLayouts: Set(without.currentLayouts))[layouts.other] == nil)
         let empty = Policy.fileToWrite(mine, file: nil, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: false)
-        #expect(empty.settings[layouts.other] == nil)
+        #expect(isLayout(empty.settings[layouts.other], second))
         #expect(isLayout(empty.settings[layouts.own], first))
         #expect(empty.currentLayouts == [layouts.own])
+        // A Mac without a copy writes none.
+        let bare = Policy.fileToWrite(settings(layouts, own: first), file: nil, fileCurrentLayouts: [], layouts: layouts, keepsOwnLayout: false)
+        #expect(bare.settings[layouts.other] == nil)
     }
 
     @Test("Without a layout change of the user's, a write keeps the file's layout and adds only items it has never seen", arguments: layoutBackends)

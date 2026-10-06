@@ -1259,8 +1259,9 @@ final class SettingsSync {
     }
 
     /// Writes this Mac's settings into the sync file, with the learned settings merged
-    /// with the file's, the other macOS version's layout kept from the file and the layouts
-    /// that are current listed (`SettingsSyncPolicy.fileToWrite`).
+    /// with the file's, the other macOS version's layout kept from the file (this Mac's copy,
+    /// unlisted, only when the file has none) and the layouts that are current listed
+    /// (`SettingsSyncPolicy.fileToWrite`).
     private nonisolated static func write(
         _ request: ExchangeRequest,
         fileSettings: [String: Any]?,
