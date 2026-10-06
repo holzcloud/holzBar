@@ -926,6 +926,27 @@ nonisolated extension SettingsSyncPolicy {
         return layout != local.baseLayoutDigest
     }
 
+    /// Whether a layout for this Mac's macOS version that this Mac's own version of the sync
+    /// file lists as current is an old copy of this Mac's: neither the layout it last synced
+    /// nor another Mac's that it kept and has not taken in (``holdsLayoutToTakeIn(_:local:)``).
+    ///
+    /// A sync app may bring back an older version this Mac wrote, by its conflict resolution
+    /// or a late upload. Its layout is never taken in, and a write over it writes this Mac's
+    /// layout instead of passing the stale one on to the other Macs
+    /// (``planWrite(_:file:fileCurrentLayouts:fileCopiedLayouts:fileIsFromThisMac:layouts:local:)``).
+    /// While this Mac joins, its own version's layout is the folder's arrangement, which a
+    /// joining Mac without a layout change takes in
+    /// (``ownLayoutToTakeIn(_:over:layouts:local:version:)``), so it is no old copy.
+    ///
+    /// - Parameter layoutDigest: The layout digest of the version's current layout
+    ///   (``Version/layoutDigest``).
+    static func isOldOwnLayout(_ layoutDigest: String?, local: Local) -> Bool {
+        guard !local.isJoining, let layoutDigest else {
+            return false
+        }
+        return layoutDigest != local.baseLayoutDigest && layoutDigest != local.keptLayoutDigest
+    }
+
     /// Whether the user's "Keep This Mac's Settings" writes over a version: one this Mac
     /// wrote, the version the user answered (``Local/keepsOver``) or an older one. A version
     /// from another Mac that arrived while the question was open was never asked about, so
@@ -1362,11 +1383,17 @@ nonisolated extension SettingsSyncPolicy {
     /// with the layout digest it records and whether this Mac then takes in a layout the
     /// write kept.
     ///
+    /// This Mac's layout is written as it is after a change of the user's
+    /// (``writesOwnLayout(_:)``), and over an old copy of this Mac's own
+    /// (``isOldOwnLayout(_:local:)``): passing that copy on would bring a stale arrangement
+    /// back to the other Macs.
+    ///
     /// - Parameters:
     ///   - settings: This Mac's settings.
     ///   - remote: The file's settings as read, if any.
     ///   - fileCurrentLayouts: The layouts the file lists as current.
     ///   - fileCopiedLayouts: The layouts the file marks as a Mac's copy.
+    ///   - fileIsFromThisMac: Whether this Mac wrote the file's version.
     ///   - layouts: This Mac's layout keys.
     ///   - local: This Mac's side of the decision that writes.
     static func planWrite(
@@ -1374,16 +1401,24 @@ nonisolated extension SettingsSyncPolicy {
         file remote: [String: Any]?,
         fileCurrentLayouts: Set<String>,
         fileCopiedLayouts: Set<String>,
+        fileIsFromThisMac: Bool = false,
         layouts: Layouts,
         local: Local
     ) -> WritePlan {
+        // The file's current layout for this Mac's macOS version, as the decision saw it
+        // (``Version/layoutDigest``).
+        let fileLayoutDigest = remote.flatMap { remote in
+            let digest = self.layoutDigest(of: withoutStaleLayouts(remote, currentLayouts: fileCurrentLayouts), layouts: layouts)
+            return digest == noLayoutDigest ? nil : digest
+        }
+        let overwritesOldOwnLayout = fileIsFromThisMac && isOldOwnLayout(fileLayoutDigest, local: local)
         let written = fileToWrite(
             settings,
             file: remote,
             fileCurrentLayouts: fileCurrentLayouts,
             fileCopiedLayouts: fileCopiedLayouts,
             layouts: layouts,
-            keepsOwnLayout: writesOwnLayout(local),
+            keepsOwnLayout: writesOwnLayout(local) || overwritesOldOwnLayout,
             recentLayouts: local.recentLayouts
         )
         let layoutDigest = syncedLayoutDigest(
@@ -1393,12 +1428,6 @@ nonisolated extension SettingsSyncPolicy {
             layouts: layouts,
             local: local
         )
-        // The file's current layout for this Mac's macOS version, as the decision saw it
-        // (``Version/layoutDigest``).
-        let fileLayoutDigest = remote.flatMap { remote in
-            let digest = self.layoutDigest(of: withoutStaleLayouts(remote, currentLayouts: fileCurrentLayouts), layouts: layouts)
-            return digest == noLayoutDigest ? nil : digest
-        }
         let takesInLayout = takesInKeptLayout(fileLayoutDigest: fileLayoutDigest, writtenLayoutDigest: layoutDigest, local: local)
         return WritePlan(
             settings: written.settings,

@@ -1195,6 +1195,7 @@ final class SettingsSync {
                 fileSettings: inspection.fileSettings,
                 currentLayouts: inspection.currentLayouts,
                 copiedLayouts: inspection.copiedLayouts,
+                fileIsFromThisMac: inspection.remote?.version.isFromThisMac == true,
                 to: writingURL
             )
         }
@@ -1208,12 +1209,14 @@ final class SettingsSync {
     /// with the file's, the other macOS version's layout kept from the file (this Mac's copy,
     /// unlisted and marked as a copy, only when the file has none), a layout of this Mac's
     /// macOS version that an earlier build wrote kept unless the user changed this Mac's,
-    /// and the layouts that are current listed (`SettingsSyncPolicy.fileToWrite`).
+    /// an old copy of this Mac's own layout written over, and the layouts that are current
+    /// listed (`SettingsSyncPolicy.planWrite`).
     private nonisolated static func write(
         _ request: ExchangeRequest,
         fileSettings: [String: Any]?,
         currentLayouts: Set<String>,
         copiedLayouts: Set<String>,
+        fileIsFromThisMac: Bool,
         to fileURL: URL
     ) -> ExchangeResult {
         guard let settings = (try? PropertyListSerialization.propertyList(from: request.settingsData, format: nil)) as? [String: Any] else {
@@ -1225,6 +1228,7 @@ final class SettingsSync {
             file: fileSettings,
             fileCurrentLayouts: currentLayouts,
             fileCopiedLayouts: copiedLayouts,
+            fileIsFromThisMac: fileIsFromThisMac,
             layouts: layouts,
             local: request.local
         )
