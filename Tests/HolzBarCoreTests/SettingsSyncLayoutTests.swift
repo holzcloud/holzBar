@@ -1026,6 +1026,21 @@ struct SettingsSyncLayoutTests {
         #expect(!Policy.countsAsLayoutEdit(byUser: false, saved: ["a": 0, "b": 2], before: before))
     }
 
+    @Test("Before macOS 27, saving the bar counts as a change of the user's only when an item's saved section changed")
+    func sectionSaveCountsOnlyChangedSections() {
+        let before = ["a": 0, "b": 1]
+        // A Command-click that moved nothing, with an item saved for the first time where
+        // macOS put it.
+        #expect(!Policy.countsAsSectionSaveEdit(byUser: true, saved: ["a": 0, "b": 1, "new": 0], before: before))
+        #expect(!Policy.countsAsSectionSaveEdit(byUser: true, saved: before, before: before))
+        // A move of the user's.
+        #expect(Policy.countsAsSectionSaveEdit(byUser: true, saved: ["a": 0, "b": 2], before: before))
+        #expect(Policy.countsAsSectionSaveEdit(byUser: true, saved: ["a": 1, "b": 1, "new": 0], before: before))
+        // holzBar's own saves never count.
+        #expect(!Policy.countsAsSectionSaveEdit(byUser: false, saved: ["a": 0, "b": 2], before: before))
+        #expect(!Policy.countsAsSectionSaveEdit(byUser: true, saved: [String: Int](), before: [String: Int]()))
+    }
+
     // MARK: Sync state
 
     @Test("A sync records the layout edits its decision saw, so an edit made while it ran still counts")

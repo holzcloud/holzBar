@@ -1068,6 +1068,28 @@ nonisolated extension SettingsSyncPolicy {
         byUser && saved != before
     }
 
+    /// Whether saving the section of every item on the bar before macOS 27 counts as a change
+    /// of the user's (`SettingsSync.userChangedLayout()`): the user arranged the items, and an
+    /// item that had a saved section is saved in another one.
+    ///
+    /// An item saved for the first time holds the section macOS or holzBar gave it, not one
+    /// the user chose: with the default new-items placement, holzBar leaves a new item where
+    /// macOS puts it, and the save after any Command-click on the bar records it (SA-05).
+    /// holzBar records such an item's section as its own placement as soon as it sees the
+    /// item, so a later move of the user's changes a saved section and counts.
+    ///
+    /// - Parameters:
+    ///   - byUser: Whether the user arranged the items.
+    ///   - saved: The section of each item saved now.
+    ///   - before: The section of each item saved before.
+    static func countsAsSectionSaveEdit<Key: Hashable, Section: Equatable>(
+        byUser: Bool,
+        saved: [Key: Section],
+        before: [Key: Section]
+    ) -> Bool {
+        byUser && saved.contains { key, section in before[key].map { $0 != section } ?? false }
+    }
+
     /// Whether the user changed this Mac's layout since it last synced
     /// (``Local/editsLayout``).
     ///

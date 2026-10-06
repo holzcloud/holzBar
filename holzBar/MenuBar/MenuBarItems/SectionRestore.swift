@@ -17,8 +17,9 @@ import OSLog
 /// Activities visible. macOS 27 keeps its sections per app (`Concealer27`) and does not use it.
 ///
 /// Only the user's arrangements count as a settings change for sync
-/// (`SettingsSync.userChangedLayout()`); the first-run save and the placement of new items
-/// are holzBar's own and do not (SA-05).
+/// (`SettingsSync.userChangedLayout()`), and only where they change a saved section; the
+/// first-run save, the placement of new items and the record of where macOS put an item
+/// holzBar left there are holzBar's own and do not (SA-05).
 extension MenuBarItemManager {
     /// Logger for saving and restoring sections.
     private static let restoreLogger = Logger(category: "SectionRestore")
@@ -61,8 +62,9 @@ extension MenuBarItemManager {
             }
         }
         Defaults.set(stored, forKey: .itemSections)
-        // A Command-click on the bar that moved nothing is no change of the user's.
-        if SettingsSyncPolicy.countsAsLayoutEdit(byUser: byUser, saved: stored, before: before) {
+        // A Command-click on the bar that moved nothing is no change of the user's, nor is an
+        // item saved for the first time where macOS put it.
+        if SettingsSyncPolicy.countsAsSectionSaveEdit(byUser: byUser, saved: stored, before: before) {
             SettingsSync.userChangedLayout()
         }
         Self.restoreLogger.debug("Saved the sections of \(stored.count, privacy: .public) items")
@@ -248,6 +250,8 @@ extension MenuBarItemManager {
         let newItemsSection = appState.settings.advanced.newItemsPlacement.section
 
         var moves = [(item: MenuBarItem, key: String, section: MenuBarSection.Name, isNew: Bool)]()
+        // Items without a saved section that stay where they are, by their section now.
+        var unsavedSections = [String: MenuBarSection.Name]()
         for item in candidates {
             guard let key = keys[item.windowID] else {
                 continue
@@ -262,13 +266,19 @@ extension MenuBarItemManager {
                 target = newItemsSection
             }
             guard var target else {
+                if saved[key] == nil {
+                    unsavedSections[key] = section(of: item, controlItems: controlItems)
+                }
                 continue
             }
             if target == .alwaysHidden && controlItems.alwaysHidden == nil {
                 target = .hidden
             }
-            if target != section(of: item, controlItems: controlItems) {
+            let current = section(of: item, controlItems: controlItems)
+            if target != current {
                 moves.append((item, key, target, isNew))
+            } else if saved[key] == nil {
+                unsavedSections[key] = current
             }
         }
 
@@ -322,6 +332,13 @@ extension MenuBarItemManager {
             storeSections(wanted, byUser: true)
         }
         storeSections(placedSections, byUser: false)
+        // So is where macOS put an item holzBar left there, as holzBar's own placement: a later
+        // move of the user's then changes a saved section and counts for sync
+        // (`SettingsSyncPolicy.countsAsSectionSaveEdit`). Not while the user arranges the items,
+        // as the section may be one the user is choosing.
+        if !yieldsToUser(wanted: nil, appState: appState) {
+            storeSections(unsavedSections.filter { wanted?[$0.key] == nil }, byUser: false)
+        }
     }
 
     /// Whether a restore stops moving items because the user arranges them: an item is being
