@@ -216,7 +216,7 @@ The second review of SA-05 confirmed nine sync issues; all are fixed or document
 | A Command-click without a move counted as a layout edit | minor | Only a save that changes the layout counts | `44d0347b` |
 | The migration seed treated "sync on" as "synced" | minor | The seed needs a date of the last sync | `7255b104` |
 | Tests missed state-machine mutations; race and wrap tests were tautological | minor | Sync bookkeeping moved into `SettingsSyncPolicy.State`, with tests checked by mutation | `0320c839` |
-| F-60 remains for a write into a missing or unusable file while a beta 1 Mac of the other OS syncs | minor | Documented as a known issue (update every Mac before changing or recreating the sync folder) | docs commit |
+| F-60 remains for a write into a missing or unusable file while a beta 1 Mac of the other OS syncs | minor | Documented as a known issue (update every Mac before changing or recreating the sync folder) | `6a61e075` |
 
 ## Still open
 
