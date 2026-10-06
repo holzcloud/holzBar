@@ -234,6 +234,22 @@ The review of round 1 confirmed nine more sync issues (one major, eight minor); 
 | After a write that kept another Mac's layout, pushes stopped and an ordinary change asked about this Mac's own write | minor | The kept layout waits without `pending` and is taken in alone (`takeInLayout`) | `4e2995bc` |
 | The tests could not catch regressions in the `SettingsSync.swift` wiring | minor | Write planning, state storage, migration and the captured edit count moved into Core with tests | `7f923e78` |
 
+## Sync fix round 3 (2026-10-06)
+
+The review of round 2 confirmed nine more sync issues (one blocker, three major, five minor). The blocker and the three majors are fixed, and so are three minors. The other two minors are documented as known issues: their safe fixes need a new file format or the drag start, which holzBar does not see. Details, tests and the two-Mac test steps (including a Mac still on 0.0.7 beta 1): [remediation/sync-fix-SUMMARY.md](remediation/sync-fix-SUMMARY.md).
+
+| Issue | Severity | Fix | Commit |
+|---|---|---|---|
+| A kept layout that was not taken in yet counted as recently synced, so after a beta 1 Mac wrote it back, holzBar's own layout replaced the other Mac's arrangement | blocker | A layout is remembered only once this Mac has taken it in | `88a8ac31` |
+| Re-joining after a layout edit wrote this Mac's layout over a kept layout without asking | major | `State.keptLayoutDigest` records the kept layout and survives leaving the folder; a layout edit asks also while this Mac joins | `b9e981e2` |
+| An older version of this Mac's own, brought back by the sync app, was taken in silently at launch and spread | major | Only the recorded kept layout is taken in; a write over an old own copy writes this Mac's layout | `bf742362` |
+| "Keep This Mac's Settings" wrote over an unasked version from a third Mac dated at or before the answered one | major | The keep recognizes the answered version by its contents, not its date | `9e62214d` |
+| Stale-copy detection kept only the last 8 layouts | minor | 64 layouts; an old copy is remembered anew each time it is written over | `ab28fc08` |
+| Before macOS 27, reconciliation could store an item's old section over one the user just saved | minor | Saved sections are re-read before holzBar stores its own placements | `aa6e6ef5` |
+| Dispatching sync decisions (handle, pullIfNeeded, adopt, finishJoin) was untested | minor | `SettingsSyncPolicy.outcome`, `launchApplication` and `State.recordLaunch` in Core with tests; the app only executes them | `f5895cb6` |
+| Writing over a missing or unusable file can make another Mac silently revert its last synced change | minor | Not fixed: a safe fix needs a version history in the file. Documented as a known issue | docs commit |
+| Before macOS 27, a first move of an unsaved item does not count, and a displaced item saved by a Command-click counts | minor | Not fixed: needs the section at drag start, which holzBar does not see in every mode. Documented as a known issue | docs commit |
+
 ## Still open
 
 The 18 open findings are all low and manual-only, and were not in the chosen scope: F-43, F-44, F-45, F-47, F-50, F-57, F-59, F-61, F-67, F-69, F-75, F-76, F-95, F-97, F-101, F-102, F-107, F-110. Two consequences to keep in mind:
