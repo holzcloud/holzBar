@@ -19,7 +19,9 @@ final class MenuBarSpacers {
     /// The number of spacers.
     var count = 0 {
         didSet {
-            Defaults.set(count, forKey: .spacerCount)
+            if !isLoadingStoredValues {
+                Defaults.set(count, forKey: .spacerCount)
+            }
             update()
         }
     }
@@ -27,14 +29,25 @@ final class MenuBarSpacers {
     /// The width of each spacer, in points.
     var width: Double = 16 {
         didSet {
-            Defaults.set(width, forKey: .spacerWidth)
+            if !isLoadingStoredValues {
+                Defaults.set(width, forKey: .spacerWidth)
+            }
             update()
         }
     }
 
     @ObservationIgnored private var statusItems = [NSStatusItem]()
 
+    /// A Boolean value that indicates whether ``performSetup()`` is assigning the stored
+    /// values. While it is, nothing is saved: out-of-range values are clamped in memory
+    /// and the stored ones stay as they were (analysis §4.9 item 2).
+    @ObservationIgnored private var isLoadingStoredValues = false
+
     func performSetup() {
+        isLoadingStoredValues = true
+        defer {
+            isLoadingStoredValues = false
+        }
         if let stored = Defaults.object(forKey: .spacerWidth) as? Double {
             // Kept in the slider's range; the pane shows it as an `Int`.
             width = Defaults.Key.spacerWidth.clamped(stored, fallback: width)

@@ -17,7 +17,9 @@ final class GeneralSettings {
     /// should be shown.
     var showHolzBarIcon = true {
         didSet {
-            Defaults.set(showHolzBarIcon, forKey: .showHolzBarIcon)
+            if !isLoadingStoredValues {
+                Defaults.set(showHolzBarIcon, forKey: .showHolzBarIcon)
+            }
         }
     }
 
@@ -26,7 +28,9 @@ final class GeneralSettings {
     /// Centre's indicator is not drawn while holzBar hides items.
     var holzBarIconShowsCaptureDot = true {
         didSet {
-            Defaults.set(holzBarIconShowsCaptureDot, forKey: .holzBarIconShowsCaptureDot)
+            if !isLoadingStoredValues {
+                Defaults.set(holzBarIconShowsCaptureDot, forKey: .holzBarIconShowsCaptureDot)
+            }
         }
     }
 
@@ -37,11 +41,13 @@ final class GeneralSettings {
             if case .custom = holzBarIcon.name {
                 lastCustomHolzBarIcon = holzBarIcon
             }
-            do {
-                let data = try encoder.encode(holzBarIcon)
-                Defaults.set(data, forKey: .holzBarIcon)
-            } catch {
-                Logger.serialization.error("Error encoding holzBar icon: \(error, privacy: .private)")
+            if !isLoadingStoredValues {
+                do {
+                    let data = try encoder.encode(holzBarIcon)
+                    Defaults.set(data, forKey: .holzBarIcon)
+                } catch {
+                    Logger.serialization.error("Error encoding holzBar icon: \(error, privacy: .private)")
+                }
             }
         }
     }
@@ -53,7 +59,9 @@ final class GeneralSettings {
     /// should be rendered as template images.
     var customHolzBarIconIsTemplate = false {
         didSet {
-            Defaults.set(customHolzBarIconIsTemplate, forKey: .customHolzBarIconIsTemplate)
+            if !isLoadingStoredValues {
+                Defaults.set(customHolzBarIconIsTemplate, forKey: .customHolzBarIconIsTemplate)
+            }
         }
     }
 
@@ -61,21 +69,27 @@ final class GeneralSettings {
     /// in a separate bar below the menu bar.
     var useShelf = false {
         didSet {
-            Defaults.set(useShelf, forKey: .useShelf)
+            if !isLoadingStoredValues {
+                Defaults.set(useShelf, forKey: .useShelf)
+            }
         }
     }
 
     /// The location where the holzBar Shelf appears.
     var shelfLocation: HolzBarShelfLocation = .dynamic {
         didSet {
-            Defaults.set(shelfLocation.rawValue, forKey: .shelfLocation)
+            if !isLoadingStoredValues {
+                Defaults.set(shelfLocation.rawValue, forKey: .shelfLocation)
+            }
         }
     }
 
     /// The displays the holzBar Shelf is used on.
     var shelfDisplays: HolzBarShelfDisplays = .all {
         didSet {
-            Defaults.set(shelfDisplays.rawValue, forKey: .shelfDisplays)
+            if !isLoadingStoredValues {
+                Defaults.set(shelfDisplays.rawValue, forKey: .shelfDisplays)
+            }
         }
     }
 
@@ -83,7 +97,9 @@ final class GeneralSettings {
     /// visible items that the notch covers.
     var showsNotchOverflowInShelf = true {
         didSet {
-            Defaults.set(showsNotchOverflowInShelf, forKey: .showsNotchOverflowInShelf)
+            if !isLoadingStoredValues {
+                Defaults.set(showsNotchOverflowInShelf, forKey: .showsNotchOverflowInShelf)
+            }
         }
     }
 
@@ -99,7 +115,9 @@ final class GeneralSettings {
     /// area of the menu bar.
     var showOnClick = true {
         didSet {
-            Defaults.set(showOnClick, forKey: .showOnClick)
+            if !isLoadingStoredValues {
+                Defaults.set(showOnClick, forKey: .showOnClick)
+            }
         }
     }
 
@@ -108,7 +126,9 @@ final class GeneralSettings {
     /// empty area of the menu bar.
     var showOnHover = false {
         didSet {
-            Defaults.set(showOnHover, forKey: .showOnHover)
+            if !isLoadingStoredValues {
+                Defaults.set(showOnHover, forKey: .showOnHover)
+            }
         }
     }
 
@@ -117,14 +137,18 @@ final class GeneralSettings {
     /// menu bar.
     var showOnScroll = true {
         didSet {
-            Defaults.set(showOnScroll, forKey: .showOnScroll)
+            if !isLoadingStoredValues {
+                Defaults.set(showOnScroll, forKey: .showOnScroll)
+            }
         }
     }
 
     /// The offset to apply to the menu bar item spacing and padding.
     var itemSpacingOffset: Double = 0 {
         didSet {
-            Defaults.set(itemSpacingOffset, forKey: .itemSpacingOffset)
+            if !isLoadingStoredValues {
+                Defaults.set(itemSpacingOffset, forKey: .itemSpacingOffset)
+            }
             appState?.spacingManager.offset = spacingOffsetPoints
         }
     }
@@ -140,14 +164,18 @@ final class GeneralSettings {
     /// should automatically rehide.
     var autoRehide = true {
         didSet {
-            Defaults.set(autoRehide, forKey: .autoRehide)
+            if !isLoadingStoredValues {
+                Defaults.set(autoRehide, forKey: .autoRehide)
+            }
         }
     }
 
     /// A strategy that determines how the auto-rehide feature works.
     var rehideStrategy: RehideStrategy = .smart {
         didSet {
-            Defaults.set(rehideStrategy.rawValue, forKey: .rehideStrategy)
+            if !isLoadingStoredValues {
+                Defaults.set(rehideStrategy.rawValue, forKey: .rehideStrategy)
+            }
         }
     }
 
@@ -155,7 +183,9 @@ final class GeneralSettings {
     /// is ``RehideStrategy/timed``.
     var rehideInterval: TimeInterval = 15 {
         didSet {
-            Defaults.set(rehideInterval, forKey: .rehideInterval)
+            if !isLoadingStoredValues {
+                Defaults.set(rehideInterval, forKey: .rehideInterval)
+            }
         }
     }
 
@@ -165,12 +195,17 @@ final class GeneralSettings {
     /// Decoder for properties.
     @ObservationIgnored private let decoder = JSONDecoder()
 
+    /// A Boolean value that indicates whether ``loadInitialState()`` is assigning the stored
+    /// values. While it is, no `didSet` saves: a launch never rewrites a stored synced setting
+    /// the user did not change (analysis §4.9 item 2).
+    @ObservationIgnored private var isLoadingStoredValues = false
+
     /// The shared app state.
     @ObservationIgnored private(set) weak var appState: AppState?
 
     /// Performs the initial setup of the model.
     ///
-    /// Each setting saves itself in its `didSet`; loading assigns the stored values.
+    /// Each setting saves itself in its `didSet`; loading assigns the stored values without saving.
     func performSetup(with appState: AppState) {
         self.appState = appState
         loadInitialState()
@@ -179,6 +214,10 @@ final class GeneralSettings {
 
     /// Loads the model's initial state.
     private func loadInitialState() {
+        isLoadingStoredValues = true
+        defer {
+            isLoadingStoredValues = false
+        }
         Defaults.ifPresent(key: .showHolzBarIcon, assign: &showHolzBarIcon)
         Defaults.ifPresent(key: .holzBarIconShowsCaptureDot, assign: &holzBarIconShowsCaptureDot)
         Defaults.ifPresent(key: .customHolzBarIconIsTemplate, assign: &customHolzBarIconIsTemplate)
@@ -186,6 +225,8 @@ final class GeneralSettings {
         Defaults.ifPresent(key: .showOnClick, assign: &showOnClick)
         Defaults.ifPresent(key: .showOnHover, assign: &showOnHover)
         Defaults.ifPresent(key: .showOnScroll, assign: &showOnScroll)
+        // Out-of-range values are clamped when used, in memory only, and never by rewriting
+        // storage (analysis §4.9 item 2).
         Defaults.ifPresent(key: .itemSpacingOffset) { (value: Double) in
             itemSpacingOffset = Defaults.Key.itemSpacingOffset.clamped(value, fallback: itemSpacingOffset)
         }
