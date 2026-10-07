@@ -164,6 +164,10 @@ Recent decisions affecting current work:
 - [Phase 07]: README and website keep the stable signature and attestation at 🔜 until the first release signed with holzBar's own certificate
 - [Phase 07]: 0.0.5 was a different cask and bundle id; the release notes tell its users to export, uninstall it, install holzbar and import (no automatic migration)
 
+### Roadmap Evolution
+
+- Phase 28 added: Settings sync redesign (per-Mac causal replicas; settings on macOS 26 and 27, arrangement and profiles on macOS 27), for 0.0.7-beta3
+
 ### Pending Todos
 
 - [2026-10-05] [release] Move the signing secrets into the release environment (F-10) — [todo file](.planning/todos/pending/2026-10-05-move-the-signing-secrets-into-the-release-environment-f-10.md)
