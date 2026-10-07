@@ -27,3 +27,7 @@ Plan the redesign as its own GSD phase (discuss, plan, execute, verify), not wit
 - **Handle layout edits made during the pause.** userChangedLayout and the state migration do not run while sync is paused; see "Next beta" in the remediation log.
 - **Keep the maintainer's policy.** Ask on conflicts, never overwrite silently, and never count holzBar's own placements as the user's change.
 - **Re-enable and test.** Change SettingsSyncPause and its test, then run two-Mac tests: same macOS, 26 with 27, and one Mac still on beta 1.
+
+## Update 2026-10-07
+
+Analysis finished and decided: see `.planning/research/sync-redesign/DECISIONS.md` (D2 single shared file; settings on macOS 26 and 27; arrangement and profiles only between macOS 27 Macs). Next: add the phase with `/gsd-phase`.
