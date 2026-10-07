@@ -24,6 +24,7 @@ nonisolated enum SyncCapture {
         var state = state
         var keys = Set(snapshot.values.keys)
         keys.formUnion(state.baseline.keys)
+        keys.formUnion(state.replica.registers.keys)
         for key in keys.sorted() {
             guard
                 let descriptor = environment.table.descriptor(for: key),
