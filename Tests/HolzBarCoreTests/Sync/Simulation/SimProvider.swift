@@ -85,13 +85,16 @@ struct SimProvider: Sendable {
     private(set) var violations: [SimViolation] = []
     private var resolved: Set<Int> = []
     private var computerNames: [SimMacName: String] = [:]
-    private var nextVersion = 1
+    private var nextVersion: Int
     private var nextSequence = 1
     private var log: [String] = []
 
-    init(policy: SimFaultPolicy = .ideal, random: SimRandom = SimRandom(seed: 0)) {
+    /// - Parameter firstVersionID: the first version ID this provider hands out. A world gives every folder its
+    ///   own range, so version IDs are unique across folders.
+    init(policy: SimFaultPolicy = .ideal, random: SimRandom = SimRandom(seed: 0), firstVersionID: Int = 1) {
         self.policy = policy
         self.random = random
+        nextVersion = firstVersionID
     }
 
     /// Folder-change signals reach running Macs after a delivery (SMB emits none).

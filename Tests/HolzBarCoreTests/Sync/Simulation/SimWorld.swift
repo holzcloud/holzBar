@@ -56,6 +56,8 @@ final class SimWorld {
     private(set) var brains: [SimMacName: any SimSyncBrain] = [:]
     /// The append-only trace: one canonical line per event, write, ingest, prompt and delivery.
     private(set) var trace: [String] = []
+    /// The ground truth: vector clocks over this run's events, never fed by engine metadata.
+    let groundTruth = SimGroundTruth()
     /// The longest a coordinated call blocks before the caller gives up.
     var ioTimeoutMilliseconds: Int64 = 5_000
 
@@ -66,6 +68,7 @@ final class SimWorld {
     private var userTokenCounter = 0
     private var autoTokenCounter = 0
     private var backups: [SimMacName: SimMacBackup] = [:]
+    private var registeredVersions: [String: Int] = [:]
 
     private struct SimTimer {
         var time: Int64
@@ -110,10 +113,12 @@ final class SimWorld {
             state.enabled = spec.enabled && spec.folder != nil
             state.folderID = spec.folder
             macs[name] = state
+            groundTruth.setGeneration(spec.generation, of: name)
             brains[name] = self.brainFactory(spec.version, name)
             clock.setOffset(spec.clockOffsetMilliseconds, of: name)
             if let folder = spec.folder { ensureReplica(of: name, in: folder) }
         }
+        groundTruth.holderSource = { [unowned self] in self.holderSnapshot() }
         for spec in specs where spec.running {
             step(.launch(mac: spec.name))
         }
@@ -143,6 +148,8 @@ final class SimWorld {
     /// Runs one event.
     func step(_ event: SimEvent) {
         record("E \(event.canonical)")
+        groundTruth.recordEvent(event.canonical, time: clock.now)
+        let cause = stepCause(of: event)
         switch event {
         case .advance(let milliseconds):
             advanceTime(to: clock.now + max(0, milliseconds))
@@ -165,6 +172,7 @@ final class SimWorld {
             guard macs[mac] != nil else { return }
             die(mac)
             macs[mac]?.generation = 27
+            groundTruth.setGeneration(27, of: mac)
         case .clone, .copyAccount, .restorePrefs, .restoreSigma, .restoreHome, .sigmaLost, .reinstall:
             handleIdentity(event)
         case .turnOn(let mac, let folder):
@@ -184,6 +192,23 @@ final class SimWorld {
         // Deliveries and timers due at this very instant (no delay) run before the next event.
         if case .advance = event {} else { advanceTime(to: clock.now) }
         flushProviderLogs()
+        registerProviderVersions()
+        groundTruth.observe(cause: cause, time: clock.now)
+    }
+
+    /// Whether a step is the sync peer's own doing or something else that may destroy a holder.
+    private func stepCause(of event: SimEvent) -> SimStepCause {
+        switch event {
+        case .provider, .userEdit, .userDelete, .userImport, .setHotkey, .chooseItemIcon, .oversizeIcon, .moveApp27,
+             .applyProfile, .saveProfile, .renameProfile, .deleteProfile, .autoPlace, .learn, .setFlag, .seed27,
+             .placeNewApp27, .clone, .copyAccount, .restorePrefs, .restoreSigma, .restoreHome, .sigmaLost, .reinstall,
+             .crash, .upgradeOS:
+            return .nonSync
+        case .launch(let mac), .restartApp(let mac), .updateApp(let mac, _):
+            return macs[mac]?.version == .beta2 ? .nonSync : .sync
+        default:
+            return .sync
+        }
     }
 
     /// Runs a list of events.
@@ -307,13 +332,16 @@ final class SimWorld {
                 let outcome = providers[folder]!.write(from: mac, path: path, data: data)
                 flushProviderLog(folder)
                 if case .written(let version) = outcome {
+                    groundTruth.recordWrite(version: version, writer: mac, path: path, time: clock.now)
                     record("W \(mac) \(folder) \(path) v\(version) \(SimDigest.canonicalRendering(of: data))")
                 } else {
                     record("W! \(mac) \(folder) \(path) \(outcome)")
                 }
             case .ingest(let version):
+                groundTruth.recordIngest(mac: mac, version: version, time: clock.now)
                 record("I \(mac) v\(version)")
             case .promptShown(let prompt):
+                groundTruth.recordPrompt(mac: mac, prompt: prompt, time: clock.now)
                 record("Q \(mac) #\(prompt.id) \(prompt.title) \(prompt.shown.count)")
             case .requestDownload(let folder, let path):
                 providers[folder]?.requestDownload(path: path, mac: mac)
@@ -334,6 +362,7 @@ final class SimWorld {
                 record("N \(mac) \(text)")
             }
         }
+        registerProviderVersions()
         if relaunch, macs[mac]?.running == true {
             quit(mac)
             launch(mac)
@@ -357,7 +386,10 @@ final class SimWorld {
     }
 
     private func makeProvider(folder: String) -> SimProvider {
-        SimProvider(policy: policy, random: random.fork("provider-\(folder)"))
+        SimProvider(
+            policy: policy, random: random.fork("provider-\(folder)"),
+            firstVersionID: providers.count * 1_000_000 + 1
+        )
     }
 
     private func flushProviderLogs() {
@@ -467,8 +499,12 @@ final class SimWorld {
     }
 
     private func answerPrompt(_ answer: SimAnswer, on mac: SimMacName) {
-        guard macs[mac]?.running == true, brains[mac]?.openPrompt != nil else { return }
+        guard macs[mac]?.running == true, let prompt = brains[mac]?.openPrompt else { return }
         runHook(mac) { brain, context in brain.userCommand(.answer(answer), &context) }
+        // The answer is recorded once the prompt is gone; its ingests were recorded while the hook's actions ran.
+        if brains[mac]?.openPrompt?.id != prompt.id {
+            groundTruth.recordAnswer(mac: mac, prompt: prompt, answer: answer, time: clock.now)
+        }
     }
 
     /// Applies a change to a running Mac's defaults and tells its brain.
@@ -480,6 +516,14 @@ final class SimWorld {
     ) {
         guard macs[mac]?.running == true else { return }
         mutate(&macs[mac]!.defaults)
+        for unit in units.sorted() {
+            let tokens = SimUnits.value(of: unit, in: macs[mac]!.defaults)?.tokens ?? []
+            if origin == .user {
+                groundTruth.recordUserChange(mac: mac, unit: unit, tokens: tokens, time: clock.now)
+            } else {
+                groundTruth.recordAutomaticChange(mac: mac, unit: unit, tokens: tokens, time: clock.now)
+            }
+        }
         runHook(mac) { brain, context in brain.defaultsChanged(origin: origin, units: units, &context) }
     }
 
@@ -500,8 +544,16 @@ final class SimWorld {
                 let present = set.contains { SimUnits.parse($0.0).key == key }
                 if !present, macs[mac]!.defaults[key] != nil { removed.append(key) }
             }
+            let removedUnits = SimUnits.units(of: macs[mac]!.defaults).map(\.unit).filter {
+                removed.contains(SimUnits.parse($0).key)
+            }
             for key in removed { macs[mac]!.defaults[key] = nil }
             for (unit, value) in set { SimUnits.set(unit, to: value, in: &macs[mac]!.defaults) }
+            // An import is a user change of every atom it sets and a user delete of every importable key it removes.
+            for unit in removedUnits { groundTruth.recordUserChange(mac: mac, unit: unit, tokens: [], time: clock.now) }
+            for (unit, value) in set {
+                groundTruth.recordUserChange(mac: mac, unit: unit, tokens: value.tokens, time: clock.now)
+            }
             let command = SimUserCommand.importFile(set: setUnits, removed: removed)
             runHook(mac) { brain, context in brain.userCommand(command, &context) }
         case .setHotkey(let mac, let action, let combo):
@@ -630,6 +682,69 @@ final class SimWorld {
         }
     }
 
+    // MARK: Ground truth feed
+
+    /// Tells the ground truth about versions the provider made itself (conflict copies, foreign bytes).
+    private func registerProviderVersions() {
+        for folder in providers.keys.sorted() {
+            let provider = providers[folder]!
+            let known = registeredVersions[folder] ?? 0
+            for id in provider.versions.keys.sorted() where id > known {
+                guard let version = provider.versions[id] else { continue }
+                switch version.kind {
+                case .write:
+                    break
+                case .conflictCopy(let origin):
+                    groundTruth.recordCopy(version: id, of: origin, path: version.path, time: version.writtenAt)
+                case .foreign:
+                    groundTruth.recordForeign(version: id, path: version.path, time: version.writtenAt)
+                }
+            }
+            registeredVersions[folder] = (provider.versions.keys.max() ?? known)
+        }
+    }
+
+    /// Everything that holds tokens now: defaults, readable files (decoded by the brains) and pending holdings.
+    func holderSnapshot() -> SimHolderSnapshot {
+        var snapshot = SimHolderSnapshot()
+        for mac in macs.keys.sorted() {
+            snapshot.defaults[mac] = SimUnits.tokens(in: macs[mac]!.defaults)
+            let pending = brains[mac]?.heldTokens ?? []
+            if !pending.isEmpty { snapshot.pending[mac] = pending }
+        }
+        for folder in providers.keys.sorted() {
+            let provider = providers[folder]!
+            for mac in provider.replicas.keys.sorted() {
+                let replica = provider.replica(of: mac)
+                for path in replica.entries.keys.sorted() {
+                    guard case .present(let data) = replica.entries[path]! else { continue }
+                    let version = replica.versions[path] ?? 0
+                    if let kind = provider.version(version)?.kind, case .foreign = kind { continue }
+                    var tokens = Set<String>()
+                    for brainMac in brains.keys.sorted() {
+                        tokens.formUnion(brains[brainMac]!.heldTokens(inFile: path, data: data))
+                    }
+                    snapshot.files.append(SimHeldFile(
+                        place: "\(folder):\(mac):\(path)", mac: mac, path: path, version: version, tokens: tokens
+                    ))
+                }
+                for path in replica.conflictVersions.keys.sorted() {
+                    for conflict in replica.conflictVersions[path] ?? [] {
+                        var tokens = Set<String>()
+                        for brainMac in brains.keys.sorted() {
+                            tokens.formUnion(brains[brainMac]!.heldTokens(inFile: path, data: conflict.data))
+                        }
+                        snapshot.files.append(SimHeldFile(
+                            place: "\(folder):\(mac):\(path)#v\(conflict.version)", mac: mac, path: path,
+                            version: conflict.version, tokens: tokens
+                        ))
+                    }
+                }
+            }
+        }
+        return snapshot
+    }
+
     // MARK: Provider events
 
     private func handleProvider(_ event: SimProviderEvent) {
@@ -669,5 +784,6 @@ final class SimWorld {
             provider(folder)
             providers[folder]!.setOffline(mac, until: clock.now + max(0, duration))
         }
+        registerProviderVersions()
     }
 }
