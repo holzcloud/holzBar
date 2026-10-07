@@ -24,9 +24,11 @@ nonisolated enum SyncUnitKey: Hashable, Comparable, Sendable {
         case (.split, .whole):
             false
         case (.split(let leftFamily, let leftItem), .split(let rightFamily, let rightItem)):
-            leftFamily == rightFamily
-                ? leftItem.utf8.lexicographicallyPrecedes(rightItem.utf8)
-                : leftFamily.utf8.lexicographicallyPrecedes(rightFamily.utf8)
+            if leftFamily == rightFamily {
+                leftItem.utf8.lexicographicallyPrecedes(rightItem.utf8)
+            } else {
+                leftFamily.utf8.lexicographicallyPrecedes(rightFamily.utf8)
+            }
         }
     }
 }
