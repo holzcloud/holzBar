@@ -35,7 +35,7 @@ struct SimVersion: Equatable, Sendable {
 }
 
 /// A write attempt on an unmounted folder.
-struct SimViolation: Equatable, Sendable {
+struct SimWriteViolation: Equatable, Sendable {
     var time: Int64
     var mac: SimMacName
     var path: String
@@ -82,7 +82,7 @@ struct SimProvider: Sendable {
     /// The version the cloud currently considers current per path (absent: deleted or never written).
     private(set) var current: [String: Int] = [:]
     private(set) var queue: [SimDelivery] = []
-    private(set) var violations: [SimViolation] = []
+    private(set) var violations: [SimWriteViolation] = []
     private var resolved: Set<Int> = []
     private var computerNames: [SimMacName: String] = [:]
     private var nextVersion: Int
@@ -120,7 +120,7 @@ struct SimProvider: Sendable {
     mutating func write(from mac: SimMacName, path: String, data: Data) -> SimWriteOutcome {
         ensureReplica(for: mac)
         guard replicas[mac]!.isMounted else {
-            violations.append(SimViolation(time: now, mac: mac, path: path, note: "write on an unmounted folder"))
+            violations.append(SimWriteViolation(time: now, mac: mac, path: path, note: "write on an unmounted folder"))
             log.append("violation \(mac) \(path) unmounted")
             return .notMounted
         }

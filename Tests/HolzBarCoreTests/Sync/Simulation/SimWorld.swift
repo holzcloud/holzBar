@@ -61,6 +61,19 @@ final class SimWorld {
     /// The longest a coordinated call blocks before the caller gives up.
     var ioTimeoutMilliseconds: Int64 = 5_000
 
+    /// The oracles this world runs at each moment, and what they found.
+    var oracles: SimOracleSet
+    private(set) var stepIndex = 0
+    private(set) var stepRecords: [SimStepRecord] = []
+    private(set) var oracleViolations: [SimViolation] = []
+    /// The thing just observed, while an oracle runs.
+    private(set) var focus: SimFocus?
+    private var currentStep: SimStepRecord?
+    private var violationKeys = Set<String>()
+    private var sessionReads: [SimMacName: [String: Int]] = [:]
+    private var sessionWrites: [SimMacName: [String: Int]] = [:]
+    private var knownWriteViolations = 0
+
     private let brainFactory: BrainFactory
     private let policy: SimFaultPolicy
     private var timers: [SimTimer] = []
@@ -93,9 +106,11 @@ final class SimWorld {
         macs specs: [SimMacSpec],
         preset: SimProviderPreset? = nil,
         policy: SimFaultPolicy? = nil,
-        brainFactory: BrainFactory? = nil
+        brainFactory: BrainFactory? = nil,
+        oracles: SimOracleSet = .none
     ) {
         self.seed = seed
+        self.oracles = oracles
         self.policy = policy ?? preset?.policy ?? .ideal
         random = SimRandom(seed: seed)
         self.brainFactory = brainFactory ?? { SimWorld.defaultBrain(for: $0, mac: $1) }
@@ -136,7 +151,7 @@ final class SimWorld {
     }
 
     /// Writes attempted on an unmounted folder, across all folders (violation candidates for the oracles).
-    var violations: [SimViolation] {
+    var violations: [SimWriteViolation] {
         providers.keys.sorted().flatMap { providers[$0]!.violations }
     }
 
@@ -145,8 +160,23 @@ final class SimWorld {
 
     // MARK: Stepping
 
-    /// Runs one event.
+    /// Runs one event, records what it did and runs the step oracles.
     func step(_ event: SimEvent) {
+        stepIndex += 1
+        currentStep = SimStepRecord(index: stepIndex, event: event, time: clock.now, before: snapshots())
+        stepBody(event)
+        let writeViolationCount = violations.count
+        currentStep?.writeViolationsAdded = writeViolationCount - knownWriteViolations
+        knownWriteViolations = writeViolationCount
+        currentStep?.after = snapshots()
+        if let record = currentStep {
+            stepRecords.append(record)
+            runOracles(.step, focus: .step(record), event: event)
+        }
+        currentStep = nil
+    }
+
+    private func stepBody(_ event: SimEvent) {
         record("E \(event.canonical)")
         groundTruth.recordEvent(event.canonical, time: clock.now)
         let cause = stepCause(of: event)
@@ -278,20 +308,25 @@ final class SimWorld {
         var seen = Set<SimMacName>()
         for notice in notices where seen.insert(notice.mac).inserted {
             guard let state = macs[notice.mac], state.running, state.enabled, state.folderID == folder else { continue }
-            runHook(notice.mac) { brain, context in brain.folderSignal(&context) }
+            runHook(notice.mac, .folderSignal) { brain, context in brain.folderSignal(&context) }
         }
     }
 
     private func fire(mac: SimMacName, tag: String) {
         guard macs[mac]?.running == true else { return }
-        runHook(mac) { brain, context in brain.timerFired(tag: tag, &context) }
+        runHook(mac, .timer) { brain, context in brain.timerFired(tag: tag, &context) }
     }
 
     // MARK: Hooks
 
     /// Runs a hook against a Mac's brain with a fresh context and carries out what it recorded.
     @discardableResult
-    private func runHook(_ mac: SimMacName, _ body: (inout any SimSyncBrain, inout SimMacContext) -> Void) -> Bool {
+    private func runHook(
+        _ mac: SimMacName,
+        _ name: SimHookName,
+        answered: SimAnsweredPrompt? = nil,
+        _ body: (inout any SimSyncBrain, inout SimMacContext) -> Void
+    ) -> Bool {
         guard var state = macs[mac], var brain = brains[mac] else { return false }
         let before = state.defaults
         let replica: SimFolderReplica
@@ -308,6 +343,12 @@ final class SimWorld {
             globalNow: clock.now,
             ioTimeoutMilliseconds: ioTimeoutMilliseconds
         )
+        var hook = SimHookRecord(
+            mac: mac, name: name, stepIndex: stepIndex, brainKind: state.version,
+            syncCaused: state.version != .beta2, changeCountBefore: groundTruth.changes.count,
+            blockedMilliseconds: 0
+        )
+        hook.answered = answered
         body(&brain, &context)
         brains[mac] = brain
         state.defaults = context.defaults
@@ -318,31 +359,108 @@ final class SimWorld {
         state.folderID = context.folderID
         macs[mac] = state
         if let folder = state.folderID { ensureReplica(of: mac, in: folder) }
-        process(context.actions, of: mac, before: before)
+        hook.blockedMilliseconds = context.blockedMilliseconds
+        for action in context.actions {
+            if case .ingest(let version) = action { hook.ingests.append(version) }
+        }
+        hook.transitions = Self.transitions(of: mac, before: before, after: context.defaults)
+        hook.keyChanges = Self.keyChanges(of: mac, before: before, after: context.defaults)
+        for entry in context.readLog {
+            var version = 0
+            if case .data(_, let read) = entry.result { version = read }
+            let read = SimReadRecord(
+                mac: mac, entry: entry, version: version, versionKind: version > 0 ? kind(ofVersion: version) : nil,
+                versionWriter: version > 0 ? writer(ofVersion: version) : nil, stepIndex: stepIndex, hook: name
+            )
+            hook.reads.append(read)
+            if version > 0 { sessionReads[mac, default: [:]][entry.path] = version }
+        }
+        process(context.actions, of: mac, before: before, hook: &hook)
+        currentStep?.hooks.append(hook)
+        for read in hook.reads { runOracles(.read, focus: .read(read), event: currentStep?.event) }
         return true
     }
 
-    private func process(_ actions: [SimMacAction], of mac: SimMacName, before: [String: SimValue]) {
+    private static func transitions(
+        of mac: SimMacName, before: [String: SimValue], after: [String: SimValue]
+    ) -> [SimTransition] {
+        var old: [String: SimValue] = [:]
+        var new: [String: SimValue] = [:]
+        for (unit, value) in SimUnits.units(of: before) { old[unit] = value }
+        for (unit, value) in SimUnits.units(of: after) { new[unit] = value }
+        var result: [SimTransition] = []
+        for unit in Set(old.keys).union(new.keys).sorted() where old[unit] != new[unit] {
+            result.append(SimTransition(mac: mac, unit: unit, old: old[unit], new: new[unit]))
+        }
+        return result
+    }
+
+    private static func keyChanges(
+        of mac: SimMacName, before: [String: SimValue], after: [String: SimValue]
+    ) -> [SimKeyChange] {
+        var result: [SimKeyChange] = []
+        for key in Set(before.keys).union(after.keys).sorted() where before[key] != after[key] {
+            result.append(SimKeyChange(mac: mac, key: key, old: before[key], new: after[key]))
+        }
+        return result
+    }
+
+    private func process(
+        _ actions: [SimMacAction], of mac: SimMacName, before: [String: SimValue], hook: inout SimHookRecord
+    ) {
         var relaunch = false
+        var ingestedSoFar: [Int] = []
         for action in actions {
             switch action {
             case .write(let folder, let path, let data):
                 ensureReplica(of: mac, in: folder)
                 providers[folder]!.now = clock.now
+                let previousReplica = providers[folder]!.replica(of: mac)
+                let previousEntry = previousReplica.entry(path)
+                let previousVersion = max(previousReplica.versions[path] ?? 0, 0)
+                var dominated = true
+                if previousVersion > 0 {
+                    dominated = groundTruth.past(ofVersion: previousVersion).isSubset(of: groundTruth.past(ofMac: mac))
+                }
+                let seen = previousVersion > 0
+                    && (sessionReads[mac]?[path] == previousVersion || sessionWrites[mac]?[path] == previousVersion)
                 let outcome = providers[folder]!.write(from: mac, path: path, data: data)
                 flushProviderLog(folder)
+                var newVersion: Int?
                 if case .written(let version) = outcome {
+                    newVersion = version
                     groundTruth.recordWrite(version: version, writer: mac, path: path, time: clock.now)
+                    sessionWrites[mac, default: [:]][path] = version
                     record("W \(mac) \(folder) \(path) v\(version) \(SimDigest.canonicalRendering(of: data))")
                 } else {
                     record("W! \(mac) \(folder) \(path) \(outcome)")
                 }
+                let write = SimWriteRecord(
+                    mac: mac, folder: folder, path: path, data: data, version: newVersion, time: clock.now,
+                    stepIndex: stepIndex, brainKind: macs[mac]?.version ?? .beta1,
+                    changeCount: groundTruth.changes.count, previousEntry: previousEntry,
+                    previousVersion: previousVersion, previousDominated: dominated, previousSeenInSession: seen,
+                    previousKind: previousVersion > 0 ? kind(ofVersion: previousVersion) : nil,
+                    previousWriter: previousVersion > 0 ? writer(ofVersion: previousVersion) : nil,
+                    hook: hook.name, ingestsSoFar: ingestedSoFar, unmounted: newVersion == nil
+                )
+                hook.writes.append(write)
+                runOracles(.write, focus: .write(write), event: currentStep?.event)
             case .ingest(let version):
                 groundTruth.recordIngest(mac: mac, version: version, time: clock.now)
+                ingestedSoFar.append(version)
+                if let path = path(ofVersion: version) { sessionReads[mac, default: [:]][path] = version }
                 record("I \(mac) v\(version)")
             case .promptShown(let prompt):
                 groundTruth.recordPrompt(mac: mac, prompt: prompt, time: clock.now)
                 record("Q \(mac) #\(prompt.id) \(prompt.title) \(prompt.shown.count)")
+                hook.prompts.append(prompt)
+                let promptRecord = SimPromptRecord(
+                    mac: mac, prompt: prompt, stepIndex: stepIndex, time: clock.now, hook: hook.name,
+                    openBefore: currentStep?.before[mac]?.openPrompt
+                )
+                currentStep?.prompts.append(promptRecord)
+                runOracles(.prompt, focus: .prompt(promptRecord), event: currentStep?.event)
             case .requestDownload(let folder, let path):
                 providers[folder]?.requestDownload(path: path, mac: mac)
                 flushProviderLog(folder)
@@ -406,13 +524,17 @@ final class SimWorld {
         )
         state.running = true
         macs[mac] = state
-        runHook(mac) { brain, context in brain.launch(&context) }
+        sessionReads[mac] = [:]
+        sessionWrites[mac] = [:]
+        runHook(mac, .launch) { brain, context in brain.launch(&context) }
     }
 
     private func quit(_ mac: SimMacName) {
         guard macs[mac]?.running == true else { return }
-        runHook(mac) { brain, context in brain.quit(&context) }
+        runHook(mac, .quit) { brain, context in brain.quit(&context) }
         macs[mac]?.running = false
+        sessionReads[mac] = [:]
+        sessionWrites[mac] = [:]
         timers.removeAll { $0.mac == mac }
     }
 
@@ -420,6 +542,8 @@ final class SimWorld {
     private func die(_ mac: SimMacName) {
         guard macs[mac] != nil else { return }
         macs[mac]?.running = false
+        sessionReads[mac] = [:]
+        sessionWrites[mac] = [:]
         brains[mac]?.processDied()
         timers.removeAll { $0.mac == mac }
     }
@@ -495,16 +619,26 @@ final class SimWorld {
         guard macs[mac]?.running == true else { return }
         if case .turnOn(let folder) = command { ensureReplica(of: mac, in: folder) }
         if case .changeFolder(let folder) = command { ensureReplica(of: mac, in: folder) }
-        runHook(mac) { brain, context in brain.userCommand(command, &context) }
+        runHook(mac, .command) { brain, context in brain.userCommand(command, &context) }
     }
 
     private func answerPrompt(_ answer: SimAnswer, on mac: SimMacName) {
         guard macs[mac]?.running == true, let prompt = brains[mac]?.openPrompt else { return }
-        runHook(mac) { brain, context in brain.userCommand(.answer(answer), &context) }
+        let hooksBefore = currentStep?.hooks.count ?? 0
+        runHook(mac, .answer, answered: SimAnsweredPrompt(prompt: prompt, answer: answer)) { brain, context in
+            brain.userCommand(.answer(answer), &context)
+        }
         // The answer is recorded once the prompt is gone; its ingests were recorded while the hook's actions ran.
         if brains[mac]?.openPrompt?.id != prompt.id {
             groundTruth.recordAnswer(mac: mac, prompt: prompt, answer: answer, time: clock.now)
         }
+        let hooks = Array((currentStep?.hooks ?? []).dropFirst(hooksBefore)).filter { $0.name == .answer && $0.mac == mac }
+        let record = SimAnswerRecord(
+            mac: mac, prompt: prompt, answer: answer, stepIndex: stepIndex, time: clock.now,
+            transitions: hooks.flatMap(\.transitions), writes: hooks.flatMap(\.writes)
+        )
+        currentStep?.answers.append(record)
+        runOracles(.answer, focus: .answer(record), event: currentStep?.event)
     }
 
     /// Applies a change to a running Mac's defaults and tells its brain.
@@ -524,7 +658,7 @@ final class SimWorld {
                 groundTruth.recordAutomaticChange(mac: mac, unit: unit, tokens: tokens, time: clock.now)
             }
         }
-        runHook(mac) { brain, context in brain.defaultsChanged(origin: origin, units: units, &context) }
+        runHook(mac, .defaultsChanged) { brain, context in brain.defaultsChanged(origin: origin, units: units, &context) }
     }
 
     private func handleUser(_ event: SimEvent) {
@@ -555,7 +689,7 @@ final class SimWorld {
                 groundTruth.recordUserChange(mac: mac, unit: unit, tokens: value.tokens, time: clock.now)
             }
             let command = SimUserCommand.importFile(set: setUnits, removed: removed)
-            runHook(mac) { brain, context in brain.userCommand(command, &context) }
+            runHook(mac, .command) { brain, context in brain.userCommand(command, &context) }
         case .setHotkey(let mac, let action, let combo):
             let unit = "Hotkeys/\(action)"
             let token = mintUserToken(unit: unit)
@@ -743,6 +877,116 @@ final class SimWorld {
             }
         }
         return snapshot
+    }
+
+    // MARK: Observation
+
+    private func snapshots() -> [SimMacName: SimMacSnapshot] {
+        var result: [SimMacName: SimMacSnapshot] = [:]
+        for mac in macs.keys.sorted() {
+            guard let state = macs[mac], let brain = brains[mac] else { continue }
+            result[mac] = SimMacSnapshot(
+                version: state.version, generation: state.generation, running: state.running, enabled: state.enabled,
+                folderID: state.folderID, hint: brain.hint, openPrompt: brain.openPrompt, heldTokens: brain.heldTokens,
+                defaultsTokens: SimUnits.tokens(in: state.defaults),
+                report: (brain as? any SimBrainIntrospection)?.report()
+            )
+        }
+        return result
+    }
+
+    private func runOracles(_ moment: SimCheckMoment, focus newFocus: SimFocus, event: SimEvent?) {
+        let active = oracles.oracles(at: moment)
+        guard !active.isEmpty else { return }
+        focus = newFocus
+        for oracle in active {
+            guard let found = oracle.check(self, event: event) else { continue }
+            if violationKeys.insert("\(found.id)|\(found.description)").inserted { oracleViolations.append(found) }
+        }
+        focus = nil
+    }
+
+    /// Runs the oracles of a moment on demand (the drain and the metamorphic runners use it).
+    func runOracles(_ moment: SimCheckMoment, event: SimEvent? = nil) {
+        let active = oracles.oracles(at: moment)
+        for oracle in active {
+            guard let found = oracle.check(self, event: event) else { continue }
+            if violationKeys.insert("\(found.id)|\(found.description)").inserted { oracleViolations.append(found) }
+        }
+    }
+
+    /// Records a violation found outside the per-step oracles (the drain and the metamorphic runners).
+    func report(_ found: SimViolation) {
+        if violationKeys.insert("\(found.id)|\(found.description)").inserted { oracleViolations.append(found) }
+    }
+
+    /// Adds a Mac after the start (a fresh Mac joining after a drain, INV-C6).
+    func addMac(_ spec: SimMacSpec) {
+        let name = spec.name
+        guard macs[name] == nil else { return }
+        var state = SimMacState(
+            name: name,
+            version: spec.version,
+            markers: SimIdentityMarkers(mac: name),
+            uid: 501,
+            generation: spec.generation,
+            random: random.fork("mac-\(name.name)")
+        )
+        state.defaults = spec.defaults
+        state.enabled = spec.enabled && spec.folder != nil
+        state.folderID = spec.folder
+        macs[name] = state
+        groundTruth.setGeneration(spec.generation, of: name)
+        brains[name] = brainFactory(spec.version, name)
+        clock.setOffset(spec.clockOffsetMilliseconds, of: name)
+        if let folder = spec.folder { ensureReplica(of: name, in: folder) }
+        if spec.running { step(.launch(mac: name)) }
+    }
+
+    /// Asks the provider to download every dataless file on every Mac (the drain assumes they become readable).
+    func materializeDatalessFiles() {
+        for folder in providers.keys.sorted() {
+            for mac in providers[folder]!.replicas.keys.sorted() {
+                let replica = providers[folder]!.replica(of: mac)
+                for path in replica.entries.keys.sorted() {
+                    if case .dataless = replica.entries[path]! { providers[folder]!.requestDownload(path: path, mac: mac) }
+                }
+            }
+        }
+        flushProviderLogs()
+    }
+
+    /// True while the provider still has deliveries queued.
+    var hasPendingDeliveries: Bool {
+        providers.values.contains { $0.nextDeliveryTime != nil } || !timers.isEmpty
+    }
+
+    /// A digest of the world state without its history, for visited-state pruning in the exhaustive runner.
+    var stateDigest: String {
+        var lines: [String] = ["now=\(clock.now)"]
+        for mac in macs.keys.sorted() {
+            let state = macs[mac]!
+            lines.append("mac \(mac) run=\(state.running) en=\(state.enabled) f=\(state.folderID ?? "-") v=\(state.version.rawValue) g=\(state.generation)")
+            lines.append("defaults \(mac) \(SimValue.dictionary(state.defaults).canonical)")
+            lines.append("held \(mac) \(brains[mac]!.heldTokens.sorted()) \(brains[mac]!.openPrompt?.shown.count ?? -1) \(brains[mac]!.hint ?? "-")")
+            lines.append("offset \(mac) \(clock.offset(of: mac))")
+        }
+        for folder in providers.keys.sorted() {
+            let provider = providers[folder]!
+            for mac in provider.replicas.keys.sorted() {
+                let replica = provider.replica(of: mac)
+                for path in replica.entries.keys.sorted() {
+                    lines.append("entry \(folder) \(mac) \(path) \(replica.versions[path] ?? 0) \(replica.isMounted)")
+                }
+            }
+            for item in provider.queue.sorted(by: { ($0.time, $0.sequence) < ($1.time, $1.sequence) }) {
+                lines.append("queue \(folder) \(item.time - clock.now) \(item.target) \(item.path) \(item.version) \(item.mode)")
+            }
+        }
+        for timer in timers.sorted(by: { ($0.time, $0.sequence) < ($1.time, $1.sequence) }) {
+            lines.append("timer \(timer.mac) \(timer.tag) \(timer.time - clock.now)")
+        }
+        return SimDigest.hex(of: lines.joined(separator: "\n"))
     }
 
     // MARK: Provider events

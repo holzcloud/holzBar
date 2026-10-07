@@ -266,6 +266,15 @@ enum SimMacAction: Equatable, Sendable {
     case note(String)
 }
 
+/// One read a hook made: what was asked and what came back.
+struct SimReadLogEntry: Equatable, Sendable {
+    var path: String
+    var maximumBytes: Int
+    var result: SimReadResult
+    /// The replica held truncated or in-progress content at the path when the read began.
+    var wasPartial: Bool
+}
+
 /// Everything a hook can touch. The world builds it from the Mac's state and the folder replica, hands it in
 /// `inout`, and carries out the recorded actions afterwards.
 struct SimMacContext: Sendable {
@@ -291,6 +300,8 @@ struct SimMacContext: Sendable {
     private(set) var actions: [SimMacAction] = []
     /// How long the Mac's calling thread blocked on stalled coordinated I/O during this hook.
     private(set) var blockedMilliseconds: Int64 = 0
+    /// Every bounded read of this hook, for the oracles (INV-F1, INV-Z2).
+    private(set) var readLog: [SimReadLogEntry] = []
 
     init(
         mac: SimMacName,
@@ -330,6 +341,14 @@ struct SimMacContext: Sendable {
 
     /// A bounded read. A dataless file returns `.notLocal` without content; a partial file returns truncated bytes.
     mutating func read(_ path: String, maximumBytes: Int) -> SimReadResult {
+        var wasPartial = false
+        if case .partial = replica.entry(path) { wasPartial = true }
+        let result = performRead(path, maximumBytes: maximumBytes)
+        readLog.append(SimReadLogEntry(path: path, maximumBytes: maximumBytes, result: result, wasPartial: wasPartial))
+        return result
+    }
+
+    private mutating func performRead(_ path: String, maximumBytes: Int) -> SimReadResult {
         guard folderID != nil else { return .notMounted }
         if let outcome = stallOutcome() { return outcome }
         return replica.read(path, maximumBytes: maximumBytes)
