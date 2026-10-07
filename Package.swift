@@ -4,13 +4,13 @@ import PackageDescription
 // Test-only package. It compiles holzBar's pure logic, `holzBar/Core` (any macOS) and
 // `holzBar/MenuBar/MacOS27/Core` (macOS 27), so it can be unit tested with `swift test`.
 // The app compiles the same files through the synchronized `holzBar` folder group.
-// It also compiles `Shared/CodeSigning`, the code signing helpers shared by the app and the XPC service.
+// It also compiles `Shared/CodeSigning`, which tells whether a running process is signed
+// by Apple; the app compiles it through the synchronized `Shared` folder group.
 //
 // The targets use the app's concurrency settings, so the tests check the semantics the app
 // ships: Swift 6 language mode with approachable concurrency (SWIFT_APPROACHABLE_CONCURRENCY)
 // and member import visibility everywhere, and the main actor as the default isolation for
-// the app's Core code (SWIFT_DEFAULT_ACTOR_ISOLATION). The code signing helpers keep
-// nonisolated as their default, as in the XPC service.
+// the app's code (SWIFT_DEFAULT_ACTOR_ISOLATION).
 let approachableConcurrency: [SwiftSetting] = [
     .swiftLanguageMode(.v6),
     .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
@@ -48,7 +48,7 @@ let package = Package(
         .target(
             name: "SharedCodeSigning",
             path: "Shared/CodeSigning",
-            swiftSettings: approachableConcurrency
+            swiftSettings: appCore
         ),
         .testTarget(
             name: "SharedCodeSigningTests",

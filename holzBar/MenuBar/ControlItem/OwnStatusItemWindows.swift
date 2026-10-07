@@ -8,17 +8,18 @@ import Cocoa
 /// Recognises the windows of holzBar's own control items on macOS 26.
 ///
 /// On macOS 26 every status item window is owned by Control Center, and the
-/// application behind an item comes from the menu bar item service. When the
-/// service has no answer, holzBar did not recognise even its own section
-/// dividers: without them the item cache stayed empty, and the layout settings
-/// and the holzBar Shelf showed "Loading menu bar items…" forever
-/// (jordanbaird/Ice#687, jordanbaird/Ice#710, jordanbaird/Ice#711 and others).
+/// application behind an item is looked up through Accessibility
+/// (``SourcePIDCache``). Before holzBar matched its control items by frame, a
+/// lookup without an answer left even its own section dividers unrecognised:
+/// without them the item cache stayed empty, and the layout settings and the
+/// holzBar Shelf showed "Loading menu bar items…" forever (jordanbaird/Ice#687,
+/// jordanbaird/Ice#710, jordanbaird/Ice#711 and others).
 ///
 /// Versions up to 0.0.6 recognised the windows by `NSWindow.windowNumber`, which on
 /// macOS 26.7.1 is no window server identifier (1 << 32, 2 << 32, …), so it never
 /// matched. The frame of the status item's window does match the Control Center
 /// window (``StatusItemWindowFrame``), so holzBar recognises its control items by
-/// their frames, without the service, Accessibility or window titles.
+/// their frames, without Accessibility or window titles.
 enum OwnStatusItemWindows {
     /// A weak reference to a control item's status item.
     private struct Entry {

@@ -39,6 +39,8 @@ final class WindowListBackend: MenuBarBackend {
         Bridging.getMenuBarWindowList(option: [.itemsOnly, .activeSpace])
     }
 
+    func itemListRefreshSkipped() { }
+
     func cacheFromLayout(
         items: [MenuBarItem],
         displayID: CGDirectDisplayID?,
@@ -68,6 +70,11 @@ final class WindowListBackend: MenuBarBackend {
     func isInsideItemsArea(point: CGPoint, screen: NSScreen, appState: AppState) -> Bool {
         // Between item windows the bar is empty.
         false
+    }
+
+    /// The split shape measures the item windows themselves.
+    func itemsAreaLeftEdge(on screen: NSScreen, appState: AppState) -> CGFloat? {
+        nil
     }
 
     func makeSystemItemClickBridge(appState: AppState) -> (any SystemItemClickBridge)? {

@@ -1,8 +1,8 @@
 ---
-status: awaiting_human_verify
+status: resolved
 trigger: "macOS 26.7.1 (25G241), holzBar 0.0.6 installed via Homebrew: Settings > Menu Bar Layout shows \"Loading menu bar items…\" forever (items never load). Findings so far: unified log of the running app (pid 19393) repeatedly shows `[MenuBarItemManager] Missing control item for hidden section, clearing menu bar item cache (22 items)` and `[SectionRestore] Missing control item for hidden section, not reconciling sections`; no XPC/MenuBarItemService errors. Window list: holzBar's 4 control-item windows (IDs 2055-2058, two displays, hidden divider expanded to width 5016) are owned by Control Center (pid 855), not holzBar. Defaults have autosave names `holzBar.ControlItem.Hidden/Visible` but no ItemSections key, so the control items were never recognised on this install. The 0.0.5 fix c261c07 (OwnStatusItemWindows: match NSWindow.windowNumber of own status items) evidently does not work. Tag match needs namespace .holzBar AND title == autosave name; title comes from kCGWindowName of the Control-Center-owned window (needs Screen Recording), ScreenCapture.checkPermissions() judges permission by the first non-own window's title. No Xcode on this Mac (only CLT), so the app can only be built in CI. After the fix, also review all other holzBar logs for further errors."
 created: 2026-10-05T06:41:02Z
-updated: 2026-10-05T09:45:00Z
+updated: 2026-10-05T08:25:00Z
 ---
 
 ## Current Focus
@@ -161,6 +161,7 @@ verification:
   stability: "BlockingWork/StatusItemWindowFrame tests run 25 times: 0 failures"
   revert_and_reconfirm: { result: partial, bug_returned_on_revert: true, fixed_on_reapply: true, note: "At unit level (M1 = the 0.0.6 code shape → red; reapplied → green). App-level revert/reconfirm needs a CI build on the user's Mac (0.0.6 reproduces on every launch) — pending human verification." }
   guardrail_verdict: accepted
+  human_verification: { result: pass, date: 2026-10-05, build: "v0.0.7-beta1 (release run 37282353481, PR #52 merged as 9b68bf3)", note: "User installed 0.0.7-beta1 via Homebrew on macOS 26.7.1 with two displays and confirmed: Menu Bar Layout lists the items, the icon click opens the Shelf with the hidden items, also on the second display. Log of pid 15143: ItemSections saved, no main-thread Security fault, one 'Missing control item for hidden section' 1 s after launch (Control Center had not created the item windows yet), none afterwards." }
 oracle_type: "derived — window bounds and frames measured on this Mac (macOS 26.7.1) with probe scripts; the blocking test models the measured self-deadlock (work waits for the main actor)"
 files_changed:
   - holzBar/Core/BlockingWork.swift (new)

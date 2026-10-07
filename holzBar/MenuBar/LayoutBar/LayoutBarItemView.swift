@@ -32,6 +32,10 @@ final class LayoutBarItemView: NSView {
     /// A Boolean value that indicates whether the item view is currently inside a container.
     var hasContainer = false
 
+    /// The container the view is dragged from, which stops setting its arranged views
+    /// until the dragging session ends.
+    private(set) weak var dragSourceContainer: LayoutBarContainer?
+
     /// The image displayed inside the view: the item's chosen image, its picture or its
     /// app's icon (`ItemIconStore`).
     private var displayImage: NSImage? {
@@ -49,6 +53,12 @@ final class LayoutBarItemView: NSView {
         didSet {
             needsDisplay = true
         }
+    }
+
+    /// The process whose responsiveness decides whether the item can be moved: the app
+    /// the item belongs to, not Control Center, which owns every item window on macOS 26.
+    private var responsivenessPID: pid_t {
+        item.sourcePID ?? item.ownerPID
     }
 
     /// A Boolean value that indicates whether the view is enabled.
@@ -122,6 +132,16 @@ final class LayoutBarItemView: NSView {
         return alert
     }
 
+    /// Shows the alert as a sheet on the view's window, unless a sheet is already there.
+    ///
+    /// A drag reports many events, so this shows one sheet per drag, not a stack of them.
+    private func showSheet(_ alert: NSAlert) {
+        guard let window, window.attachedSheet == nil else {
+            return
+        }
+        alert.beginSheetModal(for: window, completionHandler: nil)
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         if !isDraggingPlaceholder {
             displayImage?.draw(
@@ -130,7 +150,7 @@ final class LayoutBarItemView: NSView {
                 operation: .sourceOver,
                 fraction: isEnabled ? 1.0 : 0.67
             )
-            if Bridging.isProcessUnresponsive(item.ownerPID) {
+            if Bridging.isProcessUnresponsive(responsivenessPID) {
                 let warningImage = NSImage.warning
                 let width: CGFloat = 15
                 let scale = width / warningImage.size.width
@@ -314,7 +334,7 @@ final class LayoutBarItemView: NSView {
 
     /// Whether the item can be moved; otherwise beeps and says why.
     private func checkMovable() -> Bool {
-        guard isEnabled, !Bridging.isProcessUnresponsive(item.ownerPID) else {
+        guard isEnabled, !Bridging.isProcessUnresponsive(responsivenessPID) else {
             NSSound.beep()
             Self.announce(toolTip ?? String(localized: "Menu bar item is not movable."))
             return false
@@ -453,7 +473,7 @@ final class LayoutBarItemView: NSView {
         let popover = NSPopover()
         popover.behavior = .transient
         popover.contentViewController = NSHostingController(
-            rootView: ItemHotkeyView(hotkey: hotkey, itemName: item.displayName)
+            rootView: ItemHotkeyView(hotkey: hotkey, settings: appState.settings.hotkeys, itemName: item.displayName)
         )
         popover.show(relativeTo: bounds, of: self, preferredEdge: .maxY)
     }
@@ -462,14 +482,12 @@ final class LayoutBarItemView: NSView {
         super.mouseDragged(with: event)
 
         guard isEnabled else {
-            let alert = provideAlertForDisabledItem()
-            alert.runModal()
+            showSheet(provideAlertForDisabledItem())
             return
         }
 
-        guard !Bridging.isProcessUnresponsive(item.ownerPID) else {
-            let alert = provideAlertForUnresponsiveItem()
-            alert.runModal()
+        guard !Bridging.isProcessUnresponsive(responsivenessPID) else {
+            showSheet(provideAlertForUnresponsiveItem())
             return
         }
 
@@ -495,6 +513,7 @@ extension LayoutBarItemView: NSDraggingSource {
         // aren't arranged during a dragging session
         if let container = superview as? LayoutBarContainer {
             container.canSetArrangedViews = false
+            dragSourceContainer = container
         }
 
         // prevent the dragging image from animating back to its original location
@@ -510,10 +529,20 @@ extension LayoutBarItemView: NSDraggingSource {
     }
 
     func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
+        let sourceContainer = dragSourceContainer
         defer {
             // always remove container info at the end of a session
             oldContainerInfo = nil
             appState?.profiles.isLayoutDragInProgress = false
+            // The source row follows the item cache again: after a drop that moves the item
+            // the move's cache change updates the rows. A drag that moved nothing (dropped
+            // outside every row, cancelled, or refused by the row) puts them back to the
+            // cache now, which may also have changed during the drag.
+            dragSourceContainer = nil
+            sourceContainer?.canSetArrangedViews = true
+            if operation.isEmpty {
+                LayoutBarRouter.shared.showItemCache()
+            }
         }
 
         // since the session's `animatesToStartingPositionsOnCancelOrFail` property was
@@ -526,11 +555,15 @@ extension LayoutBarItemView: NSDraggingSource {
         // if the drop occurs outside of a container, reinsert the view into its original
         // container at its original index
         if !hasContainer {
-            guard let (container, index) = oldContainerInfo else {
+            // The row stays as it was during the drag, unless it was rebuilt meanwhile.
+            guard
+                let (container, index) = oldContainerInfo,
+                !container.arrangedViews.contains(where: { $0.item.tag == item.tag })
+            else {
                 return
             }
             container.shouldAnimateNextLayoutPass = false
-            container.arrangedViews.insert(self, at: index)
+            container.arrangedViews.insert(self, at: min(index, container.arrangedViews.count))
         }
     }
 }
@@ -542,13 +575,14 @@ extension LayoutBarItemView: NSAccessibilityLayoutItem { }
 /// The hotkey recorder for opening one item's menu.
 private struct ItemHotkeyView: View {
     let hotkey: Hotkey
+    let settings: HotkeysSettings
     let itemName: String
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Open \u{201C}\(itemName)\u{201D} with a hotkey")
                 .font(.headline)
-            HotkeyRecorder(hotkey: hotkey) {
+            HotkeyRecorder(hotkey: hotkey, settings: settings) {
                 Text("Hotkey")
             }
         }

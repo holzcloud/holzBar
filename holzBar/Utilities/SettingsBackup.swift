@@ -51,19 +51,28 @@ enum SettingsBackup {
         }
     }
 
-    /// Replaces the current settings with the given ones.
+    /// Applies the given settings; a file import also removes the settings the file lacks.
     ///
     /// Only holzBar's own keys with a value of the expected kind are applied; every other
     /// key is ignored, counted in the log and returned.
     ///
-    /// - Parameter settings: The settings from a file or from iCloud Drive.
+    /// - Parameters:
+    ///   - settings: The settings from a file or from the sync folder.
+    ///   - removesMissingKeys: Whether current settings that `settings` lacks are removed.
+    ///     A file import replaces every setting; sync keeps the settings the other Mac
+    ///     never had (``Defaults/Key/keysRemoved(applying:over:removesMissingKeys:)``).
     /// - Returns: The keys that were ignored, sorted.
     @discardableResult
-    static func apply(_ settings: [String: Any]) -> [String] {
+    static func apply(_ settings: [String: Any], removesMissingKeys: Bool) -> [String] {
         let defaults = UserDefaults.standard
         let incoming = settings.filter { key, _ in !isExcluded(key) }
         let (accepted, ignored) = Defaults.Key.validatedSettings(incoming)
-        for (key, _) in currentSettings() where accepted[key] == nil {
+        let removed = Defaults.Key.keysRemoved(
+            applying: accepted,
+            over: currentSettings(),
+            removesMissingKeys: removesMissingKeys
+        )
+        for key in removed {
             defaults.removeObject(forKey: key)
         }
         for (key, value) in accepted {
@@ -81,7 +90,9 @@ enum SettingsBackup {
     }
 
     /// Asks for a location and writes the settings there.
-    static func exportToFile() {
+    ///
+    /// - Parameter window: The window that shows an error as a sheet.
+    static func exportToFile(attachedTo window: NSWindow?) {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.propertyList]
         panel.nameFieldStringValue = "holzBar Settings.plist"
@@ -95,12 +106,19 @@ enum SettingsBackup {
             try data.write(to: url, options: .atomic)
             logger.notice("Exported settings to \(url.path(percentEncoded: false), privacy: .private)")
         } catch {
-            show(error, message: String(localized: "The settings could not be exported."))
+            Task {
+                await show(error, message: String(localized: "The settings could not be exported."), attachedTo: window)
+            }
         }
     }
 
     /// Asks for a settings file, applies it and relaunches the app.
-    static func importFromFile() {
+    ///
+    /// The open panel runs in the button's action; the question and errors that follow are
+    /// sheets on the given window, so they pause nothing else in holzBar.
+    ///
+    /// - Parameter window: The window that shows the question and errors as sheets.
+    static func importFromFile(attachedTo window: NSWindow?) {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.propertyList]
         panel.allowsMultipleSelection = false
@@ -109,32 +127,36 @@ enum SettingsBackup {
         guard panel.runModal() == .OK, let url = panel.url else {
             return
         }
-        do {
-            // Data(contentsOf:) would fetch an http(s) URL; holzBar reads only files.
-            guard url.isFileURL else {
-                throw CocoaError(.fileReadUnsupportedScheme)
+        Task {
+            do {
+                // Data(contentsOf:) would fetch an http(s) URL; holzBar reads only files.
+                guard url.isFileURL else {
+                    throw CocoaError(.fileReadUnsupportedScheme)
+                }
+                let data = try Data(contentsOf: url)
+                guard let settings = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
+                    throw CocoaError(.fileReadCorruptFile)
+                }
+                let alert = NSAlert()
+                alert.messageText = String(localized: "Replace your settings?")
+                alert.informativeText = String(localized: "holzBar will replace its current settings with the ones from “\(url.lastPathComponent)” and restart.")
+                let importButton = alert.addButton(withTitle: String(localized: "Import and Restart"))
+                let cancel = alert.addButton(withTitle: String(localized: "Cancel"))
+                // Replacing the settings cannot be undone: the button says so (HIG).
+                importButton.hasDestructiveAction = true
+                // Escape in every language, not only for the English title "Cancel".
+                cancel.keyEquivalent = "\u{1B}"
+                guard await alert.present(attachedTo: window) == .alertFirstButtonReturn else {
+                    return
+                }
+                apply(settings, removesMissingKeys: true)
+                // The imported layout is the user's change; it counts for sync.
+                SettingsSync.userChangedLayout()
+                logger.notice("Imported settings from \(url.path(percentEncoded: false), privacy: .private)")
+                relaunch()
+            } catch {
+                await show(error, message: String(localized: "The settings could not be imported."), attachedTo: window)
             }
-            let data = try Data(contentsOf: url)
-            guard let settings = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
-                throw CocoaError(.fileReadCorruptFile)
-            }
-            let alert = NSAlert()
-            alert.messageText = String(localized: "Replace your settings?")
-            alert.informativeText = String(localized: "holzBar will replace its current settings with the ones from “\(url.lastPathComponent)” and restart.")
-            let importButton = alert.addButton(withTitle: String(localized: "Import and Restart"))
-            let cancel = alert.addButton(withTitle: String(localized: "Cancel"))
-            // Replacing the settings cannot be undone: the button says so (HIG).
-            importButton.hasDestructiveAction = true
-            // Escape in every language, not only for the English title "Cancel".
-            cancel.keyEquivalent = "\u{1B}"
-            guard alert.runModal() == .alertFirstButtonReturn else {
-                return
-            }
-            apply(settings)
-            logger.notice("Imported settings from \(url.path(percentEncoded: false), privacy: .private)")
-            relaunch()
-        } catch {
-            show(error, message: String(localized: "The settings could not be imported."))
         }
     }
 
@@ -155,7 +177,11 @@ enum SettingsBackup {
         NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: configuration) { @Sendable _, error in
             Task { @MainActor in
                 if let error {
-                    Self.show(error, message: String(localized: "holzBar could not restart itself. Quit holzBar and open it again."))
+                    await Self.show(
+                        error,
+                        message: String(localized: "holzBar could not restart itself. Quit holzBar and open it again."),
+                        attachedTo: nil
+                    )
                 } else {
                     NSApp.terminate(nil)
                 }
@@ -163,10 +189,11 @@ enum SettingsBackup {
         }
     }
 
-    private static func show(_ error: Error, message: String) {
+    /// Logs the error and shows it as a sheet on the given window, or as a dialog without one.
+    private static func show(_ error: Error, message: String, attachedTo window: NSWindow?) async {
         logger.error("\(message, privacy: .private) \(error, privacy: .private)")
         let alert = NSAlert(error: error)
         alert.messageText = message
-        alert.runModal()
+        await alert.present(attachedTo: window)
     }
 }

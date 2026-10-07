@@ -5,6 +5,7 @@
 
 import Cocoa
 import Observation
+import OSLog
 
 // MARK: - ControlItem
 
@@ -149,6 +150,28 @@ final class ControlItem {
     /// Key-value observer of the screen's frame.
     @ObservationIgnored private var screenObservation: NSKeyValueObservation?
 
+    /// A Boolean value that indicates whether the fallback from an undecodable
+    /// custom icon to the default icon has been logged.
+    @ObservationIgnored private var didLogCustomIconFallback = false
+
+    /// The dot over holzBar's icon while another app uses the microphone or a camera.
+    ///
+    /// On macOS 27 Control Centre's capture indicator is not drawn while holzBar conceals
+    /// items, so holzBar marks its own icon instead; never while nothing is concealed.
+    @ObservationIgnored private var captureDot: CaptureDotView?
+
+    /// Logger for the control item.
+    private static let logger = Logger(category: "ControlItem")
+
+    /// What holzBar's icon shows while another app records; `nil` for the dividers and before
+    /// macOS 27.
+    private var captureBadge: CaptureBadge? {
+        guard identifier == .visible, #available(macOS 27.0, *) else {
+            return nil
+        }
+        return appState?.captureBadge27
+    }
+
     /// The control item's underlying status item.
     private var statusItem: NSStatusItem {
         storage.statusItem
@@ -218,10 +241,9 @@ final class ControlItem {
         }
 
         observers.append(
-            ObservationLoop.observe { appState.isDraggingMenuBarItem } onChange: { [weak self] isDragging in
-                if isDragging {
-                    self?.updateStatusItem()
-                }
+            ObservationLoop.observe { appState.isDraggingMenuBarItem } onChange: { [weak self] _ in
+                // Redraw when a drag ends too, so the dividers drop the drag marker and width.
+                self?.updateStatusItem()
             }
         )
 
@@ -241,6 +263,14 @@ final class ControlItem {
                     self?.updateStatusItem()
                 }
             )
+            if #available(macOS 27.0, *) {
+                observers.append(
+                    ObservationLoop.observe { appState.captureBadge27 } onChange: { [weak self] _ in
+                        self?.updateMenuBarPresence()
+                        self?.updateStatusItem()
+                    }
+                )
+            }
         }
 
         if identifier == .alwaysHidden {
@@ -289,7 +319,8 @@ final class ControlItem {
         }
         switch identifier {
         case .visible:
-            if appState.settings.general.showHolzBarIcon {
+            // The icon also shows while it carries the capture dot.
+            if CaptureIndicator.showsHolzBarIcon(isIconEnabled: appState.settings.general.showHolzBarIcon, badge: captureBadge) {
                 addToMenuBar()
             } else {
                 removeFromMenuBar()
@@ -322,6 +353,8 @@ final class ControlItem {
                     }
                     frame = window.frame
                     updateOnScreenFrame()
+                    // A change of the bar's height moves the icon, and the dot with it.
+                    positionCaptureDot()
                 }
             },
             newWindow.observe(\.screen, options: [.initial, .new]) { [weak self] window, _ in
@@ -385,19 +418,32 @@ final class ControlItem {
             case .hideSection: icon.hidden.nsImage(for: appState)
             }
 
-            if
-                case .custom = icon.name,
-                let originalImage = image
-            {
-                // Custom icons need to be resized to fit inside the button.
-                let originalWidth = originalImage.size.width
-                let originalHeight = originalImage.size.height
-                let ratio = max(originalWidth / 25, originalHeight / 17)
-                let newSize = CGSize(width: originalWidth / ratio, height: originalHeight / ratio)
-                image = originalImage.resized(to: newSize)
+            if case .custom = icon.name {
+                if let originalImage = image {
+                    // Custom icons need to be resized to fit inside the button.
+                    let originalWidth = originalImage.size.width
+                    let originalHeight = originalImage.size.height
+                    let ratio = max(originalWidth / 25, originalHeight / 17)
+                    let newSize = CGSize(width: originalWidth / ratio, height: originalHeight / ratio)
+                    image = originalImage.resized(to: newSize)
+                } else {
+                    // A stored custom icon the bitmap decoder refuses, such as an SVG or PDF
+                    // icon imported from Ice, falls back to the default icon instead of
+                    // leaving the holzBar icon an empty slot.
+                    if !didLogCustomIconFallback {
+                        didLogCustomIconFallback = true
+                        Self.logger.notice("Custom icon could not be decoded, so using the default icon")
+                    }
+                    let defaultIcon = ControlItemImageSet.defaultHolzBarIcon
+                    image = switch state {
+                    case .showSection: defaultIcon.visible.nsImage(for: appState)
+                    case .hideSection: defaultIcon.hidden.nsImage(for: appState)
+                    }
+                }
             }
 
             button.image = image
+            updateCaptureDot(on: button)
         case .hidden, .alwaysHidden:
             if #available(macOS 27.0, *) {
                 // holzBar is signed locally, so MenuBarAgent drops its items whenever anything is
@@ -440,6 +486,58 @@ final class ControlItem {
                 button.isHighlighted = false
             }
         }
+    }
+
+    /// Shows or hides the dot over holzBar's icon, with a tooltip and an accessibility value
+    /// that say what is in use.
+    ///
+    /// The accessibility label stays holzBar's name, so VoiceOver still names the control that
+    /// shows and hides items and reads what is in use as its value.
+    ///
+    /// The status item's length never changes for the dot, so the bar does not reflow on
+    /// macOS 27.
+    private func updateCaptureDot(on button: NSStatusBarButton) {
+        guard let badge = captureBadge else {
+            if captureDot != nil {
+                captureDot?.removeFromSuperview()
+                captureDot = nil
+                button.toolTip = nil
+                button.setAccessibilityLabel(nil)
+                button.setAccessibilityValue(nil)
+            }
+            return
+        }
+        let dot = captureDot ?? CaptureDotView()
+        if dot.superview !== button {
+            button.addSubview(dot)
+        }
+        captureDot = dot
+        dot.color = badge.showsCamera ? .systemGreen : .systemOrange
+        positionCaptureDot()
+        let description = switch badge {
+        case .microphone: String(localized: "Microphone in use")
+        case .camera: String(localized: "Camera in use")
+        case .cameraAndMicrophone: String(localized: "Camera and microphone in use")
+        }
+        button.toolTip = description
+        button.setAccessibilityLabel(Constants.displayName)
+        button.setAccessibilityValue(description)
+    }
+
+    /// Places the capture dot at the top trailing corner of the drawn icon, overlapping it.
+    private func positionCaptureDot() {
+        guard let captureDot, let button = statusItem.button else {
+            return
+        }
+        let imageRect = button.cell?.imageRect(forBounds: button.bounds) ?? button.bounds
+        let diameter = CaptureDotView.diameter
+        let x = min(imageRect.maxX - diameter + 1, button.bounds.maxX - diameter)
+        let y = if button.isFlipped {
+            max(imageRect.minY - 1, button.bounds.minY)
+        } else {
+            min(imageRect.maxY - diameter + 1, button.bounds.maxY - diameter)
+        }
+        captureDot.frame = CGRect(x: x, y: y, width: diameter, height: diameter)
     }
 
     /// Updates the visibility of the status item.
@@ -516,16 +614,27 @@ final class ControlItem {
 
         switch event.type {
         case .leftMouseDown:
-            let modifierFlags = NSEvent.modifierFlags
+            let modifierFlags = NSEvent.heldModifierFlags
+
+            if modifierFlags == .control {
+                // Shown from a run loop block, not from a task: the menu's tracking loop
+                // inside a main-actor job would hold back every other main-actor job while
+                // the menu is open, on macOS 27 clicks on the clock, battery, Wi-Fi and
+                // Control Centre among them (F-14). The common modes include the button's
+                // own mouse tracking, so the menu opens on the click as before.
+                RunLoop.main.perform(inModes: [.common]) { [weak self] in
+                    MainActor.assumeIsolated {
+                        self?.showMenu()
+                    }
+                }
+                // A block added to a run loop does not wake it up by itself.
+                CFRunLoopWakeUp(CFRunLoopGetMain())
+                return
+            }
 
             // Running this from a Task seems to improve the visual
             // responsiveness of the status item's button.
             Task {
-                if modifierFlags == .control {
-                    showMenu()
-                    return
-                }
-
                 if
                     modifierFlags == .option,
                     let section = menuBarManager.section(withName: .alwaysHidden),
@@ -556,6 +665,29 @@ final class ControlItem {
         }
 
         let menu = NSMenu(title: "holzBar")
+
+        // Settings from another Mac wait quietly here and in the sync settings; holzBar
+        // never opens a dialog for them by itself. While sync is paused, none wait.
+        if SettingsSyncPause.isActive(), let hint = appState.settingsSync.hint {
+            menu.addItem(.sectionHeader(title: String(localized: "Settings changed on another Mac")))
+            let hintItem = switch hint {
+            case .restart:
+                NSMenuItem(
+                    title: String(localized: "Restart"),
+                    action: #selector(restartWithWaitingSettings),
+                    keyEquivalent: ""
+                )
+            case .choice:
+                NSMenuItem(
+                    title: String(localized: "Choose Settings…"),
+                    action: #selector(chooseSyncedSettings),
+                    keyEquivalent: ""
+                )
+            }
+            hintItem.target = self
+            menu.addItem(hintItem)
+            menu.addItem(.separator())
+        }
 
         let settingsItem = NSMenuItem(
             title: String(localized: "holzBar Settings…"),
@@ -674,6 +806,16 @@ final class ControlItem {
     /// Turns Zen mode on or off.
     @objc private func toggleZenMode() {
         appState?.menuBarManager.toggleZenMode()
+    }
+
+    /// Restarts with the settings from another Mac that wait in the sync folder.
+    @objc private func restartWithWaitingSettings() {
+        appState?.settingsSync.restartWithWaitingSettings()
+    }
+
+    /// Asks which settings to use, as settings from another Mac wait in the sync folder.
+    @objc private func chooseSyncedSettings() {
+        appState?.settingsSync.chooseSettings()
     }
 
     /// Opens the menu bar search panel.

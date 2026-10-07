@@ -10,18 +10,29 @@ jobs:
     # Xcode 27 (macOS 27 SDK) is only on the xcode-27 image (macOS 27).
     runs-on: xcode-27
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/select-xcode
 
       # Same settings as the release build (see release.yml), without publishing: signed ad
-      # hoc, with the hardened runtime the project turns on for both targets.
+      # hoc, with the hardened runtime the project turns on, and without get-task-allow, which
+      # Xcode otherwise adds to code signed to run locally.
       - name: Build
         run: |
+          # With its CI and Release skip (audit F-52, which ships together with this check),
+          # the project's SwiftLint build phase runs no tool from the runner while CI is set;
+          # nothing in this workflow may unset it.
+          if [ "${CI:-}" != true ]; then
+            echo "::error::CI is not set to true, so the project's SwiftLint build phase would run."
+            exit 1
+          fi
           set +e
           xcodebuild -project holzBar.xcodeproj -scheme holzBar -configuration Release \
             -destination 'platform=macOS' -derivedDataPath build build \
-            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= > build.log 2>&1
+            CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
+            CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO > build.log 2>&1
           STATUS=$?
           # The Release build compiles arm64 and x86_64, so every warning
           # appears twice in build.log; list each one once, relative to the
@@ -55,64 +66,63 @@ jobs:
           fi
           exit $STATUS
 
-      # Every build is hardened (library validation, no DYLD variables, no injected code). The
-      # app and its XPC service must both carry the runtime flag in their code directory.
+      # Every build is hardened (library validation, no DYLD variables, no injected code) and
+      # carries no entitlement, not even get-task-allow, which would let a debugger attach.
+      # The script checks the app and every piece of code inside it.
       - name: Check the signature
-        run: |
-          APP=build/Build/Products/Release/holzBar.app
-          SERVICE="$APP/Contents/XPCServices/MenuBarItemService.xpc"
-          codesign --verify --deep --strict "$APP"
-          for BUNDLE in "$APP" "$SERVICE"; do
-            codesign --verify --strict "$BUNDLE"
-            FLAGS=$(codesign -dv "$BUNDLE" 2>&1 | grep -E '^CodeDirectory' || true)
-            echo "$(basename "$BUNDLE"): $FLAGS"
-            if ! echo "$FLAGS" | grep -qE 'flags=0x[0-9a-f]+\([^)]*runtime'; then
-              echo "::error::$(basename "$BUNDLE") is not signed with the hardened runtime"
-              exit 1
-            fi
-          done
-          echo "==> Hardened runtime: holzBar.app and MenuBarItemService.xpc"
+        run: Scripts/check-signature.sh build/Build/Products/Release/holzBar.app
 
-      # The app connects to its embedded XPC service by MenuBarItemService.name; a mismatch
-      # silently breaks item discovery on macOS 26, which no CI test would otherwise notice.
+      # The app's identity (CLAUDE.md, "Naming"): a changed bundle identifier would lose every
+      # user's settings and permissions, and the URL scheme is how Shortcuts, Raycast and
+      # scripts reach holzBar. Each value is printed and must be exactly what users rely on.
       - name: Check the identifiers
         run: |
-          APP=build/Build/Products/Release/holzBar.app
-          SERVICE="$APP/Contents/XPCServices/MenuBarItemService.xpc"
-          APP_ID=$(plutil -extract CFBundleIdentifier raw -o - "$APP/Contents/Info.plist")
-          APP_NAME=$(plutil -extract CFBundleName raw -o - "$APP/Contents/Info.plist")
-          DISPLAY_NAME=$(plutil -extract CFBundleDisplayName raw -o - "$APP/Contents/Info.plist")
-          SERVICE_ID=$(plutil -extract CFBundleIdentifier raw -o - "$SERVICE/Contents/Info.plist")
-          URL_SCHEMES=$(plutil -extract CFBundleURLTypes.0.CFBundleURLSchemes json -o - "$APP/Contents/Info.plist")
-          SERVICE_NAME=$(sed -nE 's/^[[:space:]]*static let name = "([^"]+)".*/\1/p' Shared/Services/MenuBarItemService.swift)
+          PLIST=build/Build/Products/Release/holzBar.app/Contents/Info.plist
+          APP_ID=$(plutil -extract CFBundleIdentifier raw -o - "$PLIST")
+          APP_NAME=$(plutil -extract CFBundleName raw -o - "$PLIST")
+          DISPLAY_NAME=$(plutil -extract CFBundleDisplayName raw -o - "$PLIST")
+          URL_TYPES=$(plutil -extract CFBundleURLTypes json -o - "$PLIST" 2> /dev/null || true)
           echo "==> Identifiers"
           echo "app: $APP_ID"
           echo "name: $APP_NAME"
           echo "display name: $DISPLAY_NAME"
-          echo "service: $SERVICE_ID"
-          echo "URL schemes: $URL_SCHEMES"
-          if [ "$SERVICE_ID" != "$SERVICE_NAME" ]; then
-            echo "::error::The XPC service's bundle identifier ($SERVICE_ID) differs from MenuBarItemService.name ($SERVICE_NAME)"
-            exit 1
+          echo "URL types: ${URL_TYPES:-none}"
+          FAILED=0
+          if [ "$APP_ID" != com.holzcloud.holzBar ]; then
+            echo "::error::The bundle identifier is $APP_ID, not com.holzcloud.holzBar"
+            FAILED=1
           fi
-          if [ "$SERVICE_ID" != "$APP_ID.MenuBarItemService" ]; then
-            echo "::error::The XPC service's bundle identifier ($SERVICE_ID) is not the app's ($APP_ID) plus .MenuBarItemService"
-            exit 1
+          if [ "$APP_NAME" != holzBar ]; then
+            echo "::error::CFBundleName is $APP_NAME, not holzBar"
+            FAILED=1
           fi
+          if [ "$DISPLAY_NAME" != holzBar ]; then
+            echo "::error::CFBundleDisplayName is $DISPLAY_NAME, not holzBar"
+            FAILED=1
+          fi
+          if ! grep -q '"holzbar"' <<< "$URL_TYPES"; then
+            echo "::error::The app does not declare the URL scheme holzbar"
+            FAILED=1
+          fi
+          exit "$FAILED"
 
       # holzBar never connects to the network (CLAUDE.md, "Private"). The no-network job checks
-      # the sources; this step checks what was really built: neither executable may reference
-      # URLSession, NSURLConnection, WKWebView, Network connections, listeners or browsers, or
-      # BSD sockets, link WebKit, or carry a network entitlement. NWPathMonitor (the "Reveal
-      # when offline" rule) only observes whether a network path exists, so its symbols pass.
+      # the sources; this step checks what was really built: no executable in the app may
+      # reference URLSession, NSURLConnection, WKWebView, Network connections, listeners or
+      # browsers, or BSD sockets, or link WebKit. "Check the signature" already rejects every
+      # entitlement, network ones included. NWPathMonitor (the "Reveal when offline" rule)
+      # only observes whether a network path exists, so its symbols pass.
       - name: Check the binaries for network code
         run: |
           APP=build/Build/Products/Release/holzBar.app
-          SERVICE="$APP/Contents/XPCServices/MenuBarItemService.xpc"
+          # A regular expression: the $ signs are meant literally, not as shell expansions.
+          # shellcheck disable=SC2016
           PATTERN='_OBJC_CLASS_\$_(NSURLSession|NSURLConnection|WKWebView)|Foundation\.URLSession|Network\.NW(Connection|Listener|Browser)|_nw_(connection|listener|browser)_|(^|[^A-Za-z0-9_])_(socket|connect|getaddrinfo)( |$)'
           FAILED=0
-          for BIN in "$APP/Contents/MacOS/holzBar" "$SERVICE/Contents/MacOS/MenuBarItemService"; do
-            NAME=$(basename "$BIN")
+          COUNT=0
+          while IFS= read -r -d '' BIN; do
+            NAME="${BIN#"$APP"/}"
+            COUNT=$((COUNT + 1))
             HITS=$(nm -um "$BIN" | xcrun swift-demangle | grep -E "$PATTERN" || true)
             if [ -n "$HITS" ]; then
               echo "$HITS"
@@ -123,17 +133,15 @@ jobs:
               echo "::error::$NAME links WebKit"
               FAILED=1
             fi
-          done
-          for BUNDLE in "$APP" "$SERVICE"; do
-            if codesign -d --entitlements - --xml "$BUNDLE" 2>/dev/null | grep -q 'com.apple.security.network'; then
-              echo "::error::$(basename "$BUNDLE") carries a network entitlement"
-              FAILED=1
-            fi
-          done
+          done < <(find "$APP" -type f \( -path '*/Contents/MacOS/*' -o -name '*.dylib' \) -print0)
+          if [ "$COUNT" -eq 0 ]; then
+            echo "::error::No executable found in $APP"
+            FAILED=1
+          fi
           if [ "$FAILED" -ne 0 ]; then
             exit 1
           fi
-          echo "==> No network code in the binaries"
+          echo "==> No network code in the $COUNT executables of the app"
 
       # Every license text shown under Settings, About, Acknowledgements must be in the app.
       # holzBar links no package since 05.1, so there may be no license file at all.
@@ -163,8 +171,11 @@ jobs:
         run: |
           RESOURCES=build/Build/Products/Release/holzBar.app/Contents/Resources
           FAILED=0
+          # The listings only show the folders' contents in the log.
+          # shellcheck disable=SC2012
           echo "Resources: $(ls "$RESOURCES" | tr '\n' ' ')"
           for LANGUAGE in en de fr it rm; do
+            # shellcheck disable=SC2012
             FILES=$(ls "$RESOURCES/$LANGUAGE.lproj" 2>/dev/null | tr '\n' ' ' || true)
             echo "$LANGUAGE.lproj: ${FILES:-missing}"
             if [ "$LANGUAGE" != en ] && [ ! -f "$RESOURCES/$LANGUAGE.lproj/Localizable.strings" ]; then
@@ -182,7 +193,7 @@ jobs:
           echo "==> Five languages and the App Intents metadata in the app"
 
       - name: Keep the app for the compatibility check
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: holzBar-app
           path: build/Build/Products/Release/holzBar.app
@@ -200,9 +211,11 @@ jobs:
         runner: [macos-14, macos-15, macos-26, xcode-27]
     runs-on: ${{ matrix.runner }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: holzBar-app
           path: holzBar.app
@@ -211,7 +224,8 @@ jobs:
         run: |
           sw_vers
           APP="$PWD/holzBar.app"
-          chmod +x "$APP/Contents/MacOS/holzBar" "$APP/Contents/XPCServices/MenuBarItemService.xpc/Contents/MacOS/MenuBarItemService"
+          # upload-artifact keeps no file modes: make every executable in the app executable again.
+          find "$APP" -type f -path '*/Contents/MacOS/*' -exec chmod +x {} +
           echo "==> Minimum macOS: $(vtool -show-build "$APP/Contents/MacOS/holzBar" | awk '/minos/ {print $2; exit}')"
           "$APP/Contents/MacOS/holzBar" > launch.log 2>&1 &
           PID=$!
@@ -227,6 +241,8 @@ jobs:
             cat launch.log
             echo "==> Crash report"
             sleep 5
+            # Newest first; report names contain no newlines.
+            # shellcheck disable=SC2010
             REPORT=$(ls -t ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i holzbar | head -1 || true)
             if [ -n "$REPORT" ]; then
               head -c 20000 ~/Library/Logs/DiagnosticReports/"$REPORT"
@@ -240,6 +256,8 @@ jobs:
         if: matrix.runner != 'xcode-27'
         id: xcode
         run: |
+          # Xcode bundle names contain no newlines.
+          # shellcheck disable=SC2012
           VERSION=$(ls -d /Applications/Xcode_*.app | sed -E 's|.*/Xcode_(.*)\.app|\1|' | grep -E '^[0-9]+(\.[0-9]+)*$' | sort -V | tail -1)
           echo "==> Xcode $VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
@@ -262,7 +280,9 @@ jobs:
   former-name:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Check for the former name
         run: |
@@ -294,7 +314,9 @@ jobs:
   no-network:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: No network code
         run: python3 .github/scripts/privacy-check.py network
@@ -309,15 +331,41 @@ jobs:
   strings:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Every text in five languages
         run: python3 .github/scripts/strings-check.py
 
+  # The release workflow runs only for a v* tag, so a broken expression or script in it would
+  # surface only then. actionlint (with shellcheck) checks every workflow on every pull
+  # request; workflow-check.py enforces pinned actions, read-only tokens and where secrets
+  # and write permissions may be used. Runs locally too: python3 .github/scripts/workflow-check.py
+  workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The official image, with shellcheck, pinned by digest like the SwiftLint image in
+      # lint.yml. Bumping actionlint means updating both the tag and the digest; Dependabot
+      # does not update docker:// references.
+      - name: Lint the workflows
+        uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+        with:
+          args: -color
+
+      - name: Pinned actions, read-only tokens, secrets only where they are needed
+        run: python3 .github/scripts/workflow-check.py
+
   test:
     runs-on: xcode-27
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - uses: ./.github/actions/select-xcode
 

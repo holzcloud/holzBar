@@ -81,4 +81,15 @@ nonisolated enum NotchCover27 {
         }
         return sets.map { $0.union(apps) }
     }
+
+    /// Whether the apps concealed for the notch are worth working out again after the
+    /// sections' concealment changed from `before` to `after`.
+    ///
+    /// Only a change that conceals an app the sections did not conceal before can free room
+    /// on the bar. One that conceals less leaves it at least as crowded: clearing then would
+    /// show the apps concealed for the notch with the released ones, only to conceal them
+    /// again a settled read later.
+    static func sectionsMayFreeRoom(before: Set<String>, after: Set<String>) -> Bool {
+        !after.isSubset(of: before)
+    }
 }

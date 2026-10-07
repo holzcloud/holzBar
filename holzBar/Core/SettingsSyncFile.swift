@@ -8,7 +8,8 @@ import Foundation
 /// Decides which settings of the sync file this Mac applies, and reads the file safely.
 ///
 /// The file holds the date it was written (``modifiedKey``), the writing Mac's id (see
-/// ``SettingsSyncDevice``) and the settings (``settingsKey``).
+/// ``SettingsSyncDevice``), the settings (``settingsKey``) and the layouts among them that
+/// are current (``currentLayoutsKey``).
 ///
 /// Anyone who can write the synced folder can write the file: a shared Dropbox or
 /// Nextcloud folder, a network share, a Syncthing peer. So the file is read only when it
@@ -23,14 +24,36 @@ nonisolated enum SettingsSyncFile {
     /// The key of the synced settings.
     static let settingsKey = "settings"
 
+    /// The key of the layout keys whose values in the settings are current: the writer's
+    /// own layout, and the other macOS version's when the writer kept it from a file that
+    /// listed it (`SettingsSyncPolicy.Layouts`). Files of earlier builds lack it; their
+    /// layouts are not used, as their copy of the other version's layout may be older than
+    /// the layout it stands for. Earlier builds ignore the key.
+    static let currentLayoutsKey = "currentLayouts"
+
     /// The largest sync file holzBar reads: 1 MB. holzBar's settings take a few kilobytes.
     static let maximumFileSize = 1 << 20
 
     /// How far in the future a file's date may lie, for Macs whose clocks differ.
     static let allowedClockSkew: TimeInterval = 60 * 60
 
-    /// Returns the settings to apply from the sync file, if another Mac wrote them after
-    /// this Mac last synced.
+    /// What the sync file holds, as seen from this Mac.
+    nonisolated struct Contents {
+        /// When the file was written.
+        let modified: Date
+        /// Whether this Mac wrote it.
+        let isFromThisMac: Bool
+        /// Whether another Mac wrote it after this Mac last synced, and it is dated at most
+        /// ``allowedClockSkew`` in the future.
+        let isNewer: Bool
+        /// The settings, without the keys that stay on each Mac.
+        let settings: [String: Any]
+        /// The layout keys whose values in ``settings`` are current (``currentLayoutsKey``);
+        /// empty for files of earlier builds.
+        let currentLayouts: Set<String>
+    }
+
+    /// Returns what the sync file holds.
     ///
     /// - Parameters:
     ///   - file: The contents of the sync file.
@@ -40,27 +63,52 @@ nonisolated enum SettingsSyncFile {
     ///     of older holzBar builds, which carry no id.
     ///   - localKeys: The keys that stay on this Mac; they are removed from the settings.
     ///   - now: The current date.
-    /// - Returns: The settings and the date the file was written, or `nil` when the file
-    ///   is this Mac's own, is not newer, is dated more than ``allowedClockSkew`` in the
-    ///   future, or lacks its date or settings.
-    static func newerSettings(
-        in file: [String: Any],
+    /// - Returns: The contents, or `nil` when the file lacks its date or settings.
+    static func contents(
+        of file: [String: Any],
         lastSynced: Date?,
         deviceID: String,
         computerName: String?,
         localKeys: Set<String>,
         now: Date = .now
-    ) -> (settings: [String: Any], modified: Date)? {
+    ) -> Contents? {
         guard
             let modified = file[modifiedKey] as? Date,
-            let settings = file[settingsKey] as? [String: Any],
-            !SettingsSyncDevice.isFromThisMac(file: file, deviceID: deviceID, computerName: computerName),
-            modified > lastSynced ?? .distantPast,
-            modified <= now.addingTimeInterval(allowedClockSkew)
+            let settings = file[settingsKey] as? [String: Any]
         else {
             return nil
         }
-        return (settings.filter { !localKeys.contains($0.key) }, modified)
+        let isFromThisMac = SettingsSyncDevice.isFromThisMac(file: file, deviceID: deviceID, computerName: computerName)
+        return Contents(
+            modified: modified,
+            isFromThisMac: isFromThisMac,
+            isNewer: !isFromThisMac
+                && modified > lastSynced ?? .distantPast
+                && modified <= now.addingTimeInterval(allowedClockSkew),
+            settings: settings.filter { !localKeys.contains($0.key) },
+            currentLayouts: Set(file[currentLayoutsKey] as? [String] ?? [])
+        )
+    }
+
+    /// Whether the sync file's contents are on this Mac, so reading it does not wait for a
+    /// download.
+    ///
+    /// An online-only file of iCloud Drive or another file provider is dataless
+    /// (`SF_DATALESS`), and a ubiquitous file may hold an older version until the current
+    /// one is downloaded.
+    ///
+    /// - Parameters:
+    ///   - flags: The file's flags (`st_flags` of `lstat`).
+    ///   - isUbiquitous: Whether the file is in iCloud Drive, if known.
+    ///   - downloadingStatus: The file's download status, if it is ubiquitous.
+    static func isLocal(flags: UInt32, isUbiquitous: Bool?, downloadingStatus: URLUbiquitousItemDownloadingStatus?) -> Bool {
+        guard flags & UInt32(SF_DATALESS) == 0 else {
+            return false
+        }
+        guard isUbiquitous == true else {
+            return true
+        }
+        return downloadingStatus == .current
     }
 
     // MARK: Reading

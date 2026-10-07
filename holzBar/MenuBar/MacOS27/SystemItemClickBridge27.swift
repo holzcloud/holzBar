@@ -37,13 +37,16 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     /// items do not flash into view (Thaw #1181).
     private let clockCover = ClockCover27()
 
-    /// The system item whose panel holzBar last opened, so a second click on the same item is
-    /// understood as the click that dismisses it.
-    private var itemShowingPanel: String?
+    /// The panel holzBar saw open after a bridged click, so a second click on the same item is
+    /// understood as the click that dismisses it. Forgotten whenever a click may have closed it
+    /// unseen.
+    private var panelMemory = ItemClick27.PanelMemory()
 
-    /// The tap, created on first use.
+    /// The tap, created on first use. It sees right and other clicks only to forget the panel
+    /// they may close (a right click on the desktop closes Notification Center) and lets them
+    /// through unchanged.
     private lazy var tap = EventTap(
-        types: [.leftMouseDown, .leftMouseUp],
+        types: [.leftMouseDown, .leftMouseUp, .rightMouseDown, .otherMouseDown],
         location: .hidEventTap,
         placement: .headInsertEventTap,
         option: .defaultTap
@@ -65,6 +68,8 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
 
     func stop() {
         tap.disable()
+        // The stopped tap no longer sees the clicks that close the panel.
+        panelMemory.forget()
     }
 
     /// Marks the clicks holzBar replays, so the tap lets them through.
@@ -79,6 +84,11 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             return event
         }
         guard event.getIntegerValueField(.eventSourceUserData) != Self.replayedClickMarker else {
+            return event
+        }
+        if event.type == .rightMouseDown || event.type == .otherMouseDown {
+            // Never bridged, but it may close the panel holzBar saw open, and nothing would tell.
+            panelMemory.forget()
             return event
         }
         if event.type == .leftMouseUp {
@@ -110,6 +120,9 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             isConcealing: concealer.isConcealing,
             menuBarRect: menuBarRect
         ) else {
+            // A click let through may close the panel holzBar saw open (a click on the desktop
+            // closes Notification Center), and nothing would tell.
+            panelMemory.forget()
             return event
         }
         let location = event.location
@@ -120,36 +133,61 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         // fixed second and a half, which is what made every hidden item flash into view.
         let systemItem = MenuBarItemProvider27.systemItem(at: location)
         let mayOpenFromPress = systemItem.map { !self.systemItemsIgnoringPress.contains($0.identifier) } ?? false
+        let taken = panelMemory.takeForBridgedClick()
         Task {
             // A click that lands while a panel is up is the click that dismisses it, and
             // Escape dismisses it just as well — with no lift of concealment at all. Lifting
             // for such a click brought every hidden item back on screen first, and the panel
             // only answered once MenuBarAgent had finished moving the bar: the icons appeared,
             // and the panel closed late behind them.
-            // A banner shows in the same window as the panel — same process, same level, the
-            // size of the display (measured on macOS 27.0) — so the window alone cannot say
-            // whether a panel is open, and a click that arrived while a banner happened to be
-            // up was answered with Escape, dismissing the banner instead of opening the panel.
-            // A click is treated as dismissing a panel only when holzBar opened one itself and its
-            // window is still there; a panel opened some other way is closed by the replayed
-            // click, as it would be without holzBar.
-            if self.itemShowingPanel != nil, ItemClick27.openPanelWindow(windows: Self.windowsForPanelCheck()) != nil {
-                Self.postEscape()
-                Self.bridgeLogger.debug("Click bridge: a panel was open, dismissed with Escape")
-                guard systemItem?.identifier != self.itemShowingPanel else {
-                    self.itemShowingPanel = nil
+            // So a click on the item whose panel holzBar opened, while that panel's window is
+            // still up, dismisses it with Escape. Only a panel holzBar saw open in a new window
+            // is remembered, and any click the bridge lets through forgets it: that click may
+            // have closed it, and a banner shows in the same window as the panel — same
+            // process, same level, the size of the display (measured on macOS 27.0) — so the
+            // window alone cannot say whether a panel is open. Escape goes to the panel's own
+            // process only, and unless the panel's window really goes, the held-back click is
+            // replayed, so it is never lost. A panel opened some other way is closed by the
+            // replayed click, as it would be without holzBar.
+            var step = ItemClick27.firstStep(
+                remembered: taken.remembered,
+                windows: Self.windowsForPanelCheck(),
+                mayOpenFromPress: mayOpenFromPress
+            )
+            if case .dismiss(let panel) = step {
+                let dismissStarted = ProcessInfo.processInfo.systemUptime
+                let isPanelItem = systemItem?.identifier == panel.item
+                let polls = ItemClick27.escapeAnswerPolls(for: panel, clickedItem: systemItem?.identifier)
+                Self.postEscape(to: panel.ownerPID)
+                let went = await Self.waitForPanelToGo(window: panel.window, polls: polls)
+                let waited = (ProcessInfo.processInfo.systemUptime - dismissStarted) * 1000
+                if went {
+                    Self.bridgeLogger.debug(
+                        "Click bridge: Escape closed the panel in \(waited, privacy: .public) ms (own item: \(isPanelItem, privacy: .public))"
+                    )
+                } else {
+                    Self.bridgeLogger.debug(
+                        "Click bridge: the panel stayed \(waited, privacy: .public) ms after Escape (own item: \(isPanelItem, privacy: .public)), replaying the click"
+                    )
+                }
+                guard let next = ItemClick27.stepAfterDismissal(
+                    of: panel,
+                    clickedItem: systemItem?.identifier,
+                    windowWent: went,
+                    windows: Self.windowsForPanelCheck(),
+                    mayOpenFromPress: mayOpenFromPress
+                ) else {
                     return
                 }
-                // A different system item was clicked, so its own panel still has to open.
-                try? await Task.sleep(for: Self.panelDismissWait)
+                step = next
             }
-            if mayOpenFromPress, let systemItem {
+            if step == .press, let systemItem {
                 let baseline = Self.windowNumbers()
                 await Self.press(systemItem.element)
-                if await Self.waitForPanel(baseline: baseline, pollsOf50ms: 5) {
+                if let opened = await Self.waitForOpenedPanel(item: systemItem.identifier, baseline: baseline, polls: 5) {
                     // Remembered here as well, or the next click on this item would dismiss
                     // its panel and open it again in the same breath.
-                    self.itemShowingPanel = systemItem.identifier
+                    self.panelMemory.remember(opened, openedBy: taken.click)
                     return
                 }
                 // Waiting for a panel that never comes only delays the click, so an item
@@ -166,11 +204,15 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             self.clockCover.show(appState: appState)
             await concealer.suspendReleased(for: Self.clickRestoreDelay)
             let released = (ProcessInfo.processInfo.systemUptime - bridgeStarted) * 1000
+            let baseline = Self.windowNumbers()
             Self.replayClick(at: location)
             // One bounded wait, past the concealment's return.
             self.clockCover.hide(after: .milliseconds(300))
-            self.itemShowingPanel = systemItem?.identifier
             Self.bridgeLogger.debug("Click bridge: lifted in \(released, privacy: .public) ms, click replayed")
+            // Notification Center's window appears about 166 ms after the click (measured on
+            // macOS 27.0). The replay may as well have closed a panel opened some other way.
+            let opened = await Self.waitForOpenedPanel(item: systemItem?.identifier, baseline: baseline, polls: 8)
+            self.panelMemory.remember(opened, openedBy: taken.click)
         }
         heldBackReleaseUntil = .now + .seconds(1)
         return nil
@@ -210,8 +252,9 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         "com.apple.controlcenter",
     ]
 
-    /// The windows on screen that could be a system item's panel, as `ItemClick27` wants them.
-    private static func windowsForPanelCheck() -> [(number: Int, layer: Int, height: CGFloat)] {
+    /// The windows on screen that could be a system item's panel, with the process that draws
+    /// each, as `ItemClick27` wants them.
+    private static func windowsForPanelCheck() -> [ItemClick27.PanelWindow] {
         let owners = Set(
             NSWorkspace.shared.runningApplications
                 .filter { panelOwnerBundleIDs.contains($0.bundleIdentifier ?? "") }
@@ -219,29 +262,44 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         )
         return WindowInfo.createWindows(option: .onScreen)
             .filter { owners.contains($0.ownerPID) }
-            .map { (number: Int($0.windowID), layer: $0.layer, height: $0.bounds.height) }
+            .map { (number: Int($0.windowID), layer: $0.layer, height: $0.bounds.height, ownerPID: $0.ownerPID) }
     }
 
-    /// How long the panel that was open takes to go after Escape, before the item that was
-    /// clicked is given its own turn.
-    private static let panelDismissWait = Duration.milliseconds(120)
-
-    /// Presses Escape, which dismisses an open system panel.
+    /// Presses Escape in the given process, which dismisses an open system panel.
     ///
-    /// Notification Center and Control Centre both answer it while items stay concealed, so a
-    /// click that dismisses a panel needs no lift of concealment at all.
-    private static func postEscape() {
+    /// Notification Center and Control Centre both answer Escape while items stay concealed, so
+    /// a click that dismisses a panel needs no lift of concealment at all. Posted at the HID
+    /// level, Escape reached whichever app had keyboard focus, so a dialog or sheet in front was
+    /// cancelled or fullscreen ended; addressed to the panel's own process it reaches nothing
+    /// else. Whether Notification Center and Control Centre act on an Escape sent to their
+    /// process is not measured yet; when they do not, the click is replayed.
+    private static func postEscape(to pid: pid_t) {
         let source = CGEventSource(stateID: .hidSystemState)
         for down in [true, false] {
-            CGEvent(keyboardEventSource: source, virtualKey: 53, keyDown: down)?.post(tap: .cghidEventTap)
+            CGEvent(keyboardEventSource: source, virtualKey: 53, keyDown: down)?.postToPid(pid)
         }
     }
 
-    /// Waits for a system item's panel to appear.
-    private static func waitForPanel(baseline: Set<Int>, pollsOf50ms: Int) async -> Bool {
-        for _ in 0..<pollsOf50ms {
+    /// Waits for a system item's panel to appear in a new window, for at most the given number
+    /// of 50 ms rounds. Polled: nothing announces another process's window.
+    private static func waitForOpenedPanel(item: String?, baseline: Set<Int>, polls: Int) async -> ItemClick27.OpenPanel? {
+        for _ in 0..<polls {
             try? await Task.sleep(for: .milliseconds(50))
-            if ItemClick27.panelOpened(before: baseline, windows: windowsForPanelCheck()) {
+            if let opened = ItemClick27.openedPanel(item: item, before: baseline, windows: windowsForPanelCheck()) {
+                return opened
+            }
+        }
+        return nil
+    }
+
+    /// Waits for the given panel window to leave the screen, for at most the given number of
+    /// 50 ms rounds.
+    ///
+    /// - Returns: Whether it went.
+    private static func waitForPanelToGo(window: Int, polls: Int) async -> Bool {
+        for _ in 0..<polls {
+            try? await Task.sleep(for: .milliseconds(50))
+            if !ItemClick27.panelIsOnScreen(window: window, windows: windowsForPanelCheck()) {
                 return true
             }
         }

@@ -24,12 +24,8 @@ nonisolated enum ItemHitTest27 {
     /// Whether the pointer rests in the part of the bar that holds items, gaps included.
     ///
     /// The gaps between items are not empty bar: hovering them must not reveal a section,
-    /// because the whole right-hand run of icons belongs to the items. The area starts at
-    /// the leftmost thing drawn on this display and reaches its right edge. Frames left
-    /// behind on the other display are ignored. The edge remembered from the last read counts
-    /// alongside the frames holzBar has cached, because that cache holds only the items holzBar
-    /// manages: the run of the bar can start further left than anything in it. Only items
-    /// that are drawn feed that edge, so the space a concealed section frees is not swallowed.
+    /// because the whole right-hand run of icons belongs to the items. The area starts where
+    /// that run starts (`itemsAreaLeftEdge`) and reaches the display's right edge.
     static func isInsideItemsArea(
         point: CGPoint,
         displayBounds: CGRect,
@@ -42,6 +38,35 @@ nonisolated enum ItemHitTest27 {
         guard displayBounds.minX...displayBounds.maxX ~= point.x else {
             return false
         }
+        guard let leftEdge = itemsAreaLeftEdge(
+            displayBounds: displayBounds,
+            items: items,
+            concealedPIDs: concealedPIDs,
+            systemFrames: systemFrames,
+            rememberedLeftEdge: rememberedLeftEdge,
+            drawnFramesOnDisplay: drawnFramesOnDisplay
+        ) else {
+            return false
+        }
+        return point.x >= leftEdge
+    }
+
+    /// Where the run of items on a display starts, or `nil` when nothing is known there.
+    ///
+    /// The run starts at the leftmost thing drawn on this display. Frames left behind on
+    /// the other display are ignored. The edge remembered from the last read counts
+    /// alongside the frames holzBar has cached, because that cache holds only the items holzBar
+    /// manages: the run of the bar can start further left than anything in it. Only items
+    /// that are drawn feed that edge, so the space a concealed section frees is not swallowed.
+    /// The split menu bar shape sizes its trailing half from the same edge.
+    static func itemsAreaLeftEdge(
+        displayBounds: CGRect,
+        items: [Item],
+        concealedPIDs: Set<pid_t>,
+        systemFrames: [CGRect],
+        rememberedLeftEdge: CGFloat?,
+        drawnFramesOnDisplay: [CGRect] = []
+    ) -> CGFloat? {
         func isOnThisDisplay(_ frame: CGRect) -> Bool {
             frame.minX >= displayBounds.minX && frame.minX <= displayBounds.maxX
         }
@@ -54,10 +79,7 @@ nonisolated enum ItemHitTest27 {
         if let remembered = rememberedLeftEdge, displayBounds.minX...displayBounds.maxX ~= remembered {
             edges.append(remembered)
         }
-        guard let leftEdge = edges.min() else {
-            return false
-        }
-        return point.x >= leftEdge
+        return edges.min()
     }
 
     /// Whether the pointer rests on an item: a drawn cached item, a system item, or (on

@@ -47,6 +47,10 @@ final class MenuBarManager {
     /// A Boolean value that indicates whether the application menus are hidden.
     @ObservationIgnored private(set) var isHidingApplicationMenus = false
 
+    /// Hides the hidden section again after "Show the hidden section for a moment"; a new
+    /// press, or the section shown or hidden another way, cancels it.
+    @ObservationIgnored var temporaryShowTask: Task<Void, Never>?
+
     /// The panel that contains the holzBar Shelf interface.
     let shelfPanel = HolzBarShelfPanel()
 
@@ -138,6 +142,10 @@ final class MenuBarManager {
         }
 
         // Handle the `focusedApp` rehide strategy.
+        focusChangeRehide = FocusChangeRehide(
+            frontmostPID: NSWorkspace.shared.frontmostApplication?.processIdentifier,
+            ownPID: NSRunningApplication.current.processIdentifier
+        )
         keyValueObservations.append(
             NSWorkspace.shared.observe(\.frontmostApplication, options: [.new]) { [weak self] _, _ in
                 Task { @MainActor in
@@ -184,12 +192,25 @@ final class MenuBarManager {
         }
     }
 
+    /// The last frontmost application other than holzBar, for the `focusedApp` rehide strategy.
+    @ObservationIgnored private var focusChangeRehide = FocusChangeRehide()
+
     /// Rehides the hidden section when the focused application changes, with the
     /// `focusedApp` rehide strategy.
     private func frontmostApplicationDidChange() {
+        guard
+            let pid = NSWorkspace.shared.frontmostApplication?.processIdentifier,
+            focusChangeRehide.isFocusChange(to: pid, ownPID: NSRunningApplication.current.processIdentifier)
+        else {
+            return
+        }
+
         if
             let appState,
-            case .focusedApp = appState.settings.general.rehideStrategy,
+            FocusChangeRehide.applies(
+                autoRehide: appState.settings.general.autoRehide,
+                rehidesOnFocusChange: appState.settings.general.rehideStrategy == .focusedApp
+            ),
             let hiddenSection = section(withName: .hidden),
             let screen = appState.hidEventManager.bestScreen(appState: appState),
             !appState.hidEventManager.isMouseInsideMenuBar(appState: appState, screen: screen)
@@ -216,6 +237,22 @@ final class MenuBarManager {
         }
     }
 
+    /// Whether the application menus may be hidden for shown items.
+    ///
+    /// Not if:
+    ///   * The "HideApplicationMenus" setting isn't enabled.
+    ///   * Using the holzBar Shelf.
+    ///   * The menu bar is hidden by the system.
+    ///   * The active space is fullscreen.
+    ///   * The settings window is visible.
+    private func canHideApplicationMenus(appState: AppState) -> Bool {
+        appState.settings.advanced.hideApplicationMenus &&
+        !appState.settings.general.usesShelf &&
+        !isMenuBarHiddenBySystem &&
+        !appState.activeSpace.isFullscreen &&
+        !appState.navigationState.isSettingsPresented
+    }
+
     /// Hides or shows the application menus after a section was shown or hidden.
     private func sectionStatesDidChange() {
         guard let appState else {
@@ -229,19 +266,7 @@ final class MenuBarManager {
             return
         }
 
-        // Don't continue if:
-        //   * The "HideApplicationMenus" setting isn't enabled.
-        //   * Using the holzBar Shelf.
-        //   * The menu bar is hidden by the system.
-        //   * The active space is fullscreen.
-        //   * The settings window is visible.
-        guard
-            appState.settings.advanced.hideApplicationMenus,
-            !appState.settings.general.usesShelf,
-            !isMenuBarHiddenBySystem,
-            !appState.activeSpace.isFullscreen,
-            !appState.navigationState.isSettingsPresented
-        else {
+        guard canHideApplicationMenus(appState: appState) else {
             return
         }
 
@@ -258,6 +283,15 @@ final class MenuBarManager {
             Task {
                 // Get all items.
                 var items = await MenuBarItem.getMenuBarItems(on: screen.displayID, option: .activeSpace)
+
+                // The sections may have been hidden again, or Settings opened or the
+                // setting turned off, during the lookup.
+                guard
+                    self.canHideApplicationMenus(appState: appState),
+                    self.sections.contains(where: { $0.controlItem.state == .showSection })
+                else {
+                    return
+                }
 
                 // Filter the items down according to the currently enabled/shown sections.
                 if
@@ -417,6 +451,12 @@ final class MenuBarManager {
         }
         logger.info("Showing application menus")
         appState.deactivate(withPolicy: .accessory)
+        isHidingApplicationMenus = false
+    }
+
+    /// Records that the application menus are shown again because holzBar switched to the
+    /// accessory activation policy without ``showApplicationMenus()`` (Settings, the search).
+    func applicationMenusDidReappear() {
         isHidingApplicationMenus = false
     }
 

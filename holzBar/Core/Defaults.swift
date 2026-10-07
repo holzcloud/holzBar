@@ -160,6 +160,8 @@ nonisolated extension Defaults {
         case rehideStrategy = "RehideStrategy"
         case rehideInterval = "RehideInterval"
         case itemSpacingOffset = "ItemSpacingOffset"
+        /// macOS 27: a dot on holzBar's icon while another app uses the microphone or a camera.
+        case holzBarIconShowsCaptureDot = "HolzBarIconShowsCaptureDot"
 
         // MARK: Hotkeys Settings
         case hotkeys = "Hotkeys"
@@ -204,6 +206,20 @@ nonisolated extension Defaults {
         case macOS27LayoutSeeded = "MacOS27LayoutSeeded"
         case macOS27ClickRestoreDelay = "MacOS27ClickRestoreDelay"
         case macOS27ShelfWaitsForRefresh = "MacOS27IceBarWaitsForRefresh"
+
+        // MARK: Debugging
+        /// Loses the round trip of every move and click event barrier before macOS 27: the
+        /// entry event is dropped, so the real event never reaches the item, the exit event
+        /// never comes back and each barrier times out; shows that holzBar recovers from a
+        /// lost event. Hidden:
+        /// `defaults write com.holzcloud.holzBar DebugDropsBarrierExitEvent -bool true`.
+        /// Never exported, imported or synced.
+        case debugDropsBarrierExitEvent = "DebugDropsBarrierExitEvent"
+        /// Blocks every item image capture before macOS 27 forever, so each one times out;
+        /// shows that holzBar recovers from a stuck capture and stops capturing after three.
+        /// Hidden: `defaults write com.holzcloud.holzBar DebugHangsItemImageCapture -bool true`.
+        /// Never exported, imported or synced.
+        case debugHangsItemImageCapture = "DebugHangsItemImageCapture"
 
         // MARK: Migration
         case hasMigrated0_8_0 = "hasMigrated0_8_0"
@@ -255,6 +271,7 @@ nonisolated extension Defaults.Key {
             .showOnHover,
             .showOnScroll,
             .autoRehide,
+            .holzBarIconShowsCaptureDot,
             .enableAlwaysHiddenSection,
             .showAllSectionsOnUserDrag,
             .hideApplicationMenus,
@@ -266,6 +283,8 @@ nonisolated extension Defaults.Key {
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
+            .debugDropsBarrierExitEvent,
+            .debugHangsItemImageCapture,
             .hasMigrated0_8_0,
             .hasMigrated0_10_0,
             .hasMigrated0_10_1,
@@ -376,8 +395,13 @@ nonisolated extension Defaults.Key {
     /// Keys that stay on this Mac: never exported, imported or synced.
     ///
     /// Turning settings sync on writes the settings to a folder outside this Mac, so only
-    /// the user turns it on, on each Mac; a settings file cannot.
-    static let localOnlyKeys: Set<Defaults.Key> = [.syncsSettingsWithICloud]
+    /// the user turns it on, on each Mac; a settings file cannot. Debug defaults stay on
+    /// this Mac too.
+    static let localOnlyKeys: Set<Defaults.Key> = [
+        .syncsSettingsWithICloud,
+        .debugDropsBarrierExitEvent,
+        .debugHangsItemImageCapture,
+    ]
 
     /// The stored key names an imported or synced settings file may set, with the
     /// kind of value each one takes. Every key except the ``localOnlyKeys``.
@@ -397,5 +421,23 @@ nonisolated extension Defaults.Key {
     /// expected kind, numbers within their range (``SettingsSchema``).
     static func validatedSettings(_ settings: [String: Any]) -> (accepted: [String: Any], ignored: [String]) {
         SettingsSchema.validated(settings, kinds: importableKinds, numberRules: importableNumberRules)
+    }
+
+    /// The keys of the current settings that applying `accepted` removes, sorted.
+    ///
+    /// A settings file replaces every setting, so it removes the keys it lacks. Sync keeps
+    /// them: the sending Mac may never have had them, such as the per-OS keys
+    /// `MacOS27Layout`, `MacOS27LayoutSeeded` and `KnownApplications27` of a macOS 27 Mac or
+    /// `ItemSections` of a macOS 26 Mac (F-60).
+    ///
+    /// - Parameters:
+    ///   - accepted: The validated settings that are applied.
+    ///   - current: The current settings.
+    ///   - removesMissingKeys: Whether keys that `accepted` lacks are removed.
+    static func keysRemoved(applying accepted: [String: Any], over current: [String: Any], removesMissingKeys: Bool) -> [String] {
+        guard removesMissingKeys else {
+            return []
+        }
+        return current.keys.filter { accepted[$0] == nil }.sorted()
     }
 }

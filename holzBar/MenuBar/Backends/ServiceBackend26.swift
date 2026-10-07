@@ -8,9 +8,9 @@ import Cocoa
 /// The menu bar backend of macOS 26.
 ///
 /// The items are still windows, but Control Center owns every one of them. The
-/// process that created an item comes from the menu bar item service, which asks
-/// Accessibility in the XPC service. Everything else works as on macOS 14 and 15,
-/// so the window-list backend does it.
+/// process that created an item is looked up in holzBar through Accessibility, on
+/// the cache's own queue (``SourcePIDCache``). Everything else works as on macOS 14
+/// and 15, so the window-list backend does it.
 @available(macOS 26.0, *)
 @MainActor
 final class ServiceBackend26: MenuBarBackend {
@@ -27,36 +27,40 @@ final class ServiceBackend26: MenuBarBackend {
 
     var lastMoveOperationTimestamp: ContinuousClock.Instant? { windowList.lastMoveOperationTimestamp }
 
-    /// Starts the menu bar item service.
+    /// Starts the source-PID cache.
     func performSetup() async {
-        await MenuBarItemService.Connection.shared.start()
+        await SourcePIDCache.shared.start()
     }
 
-    /// The item windows, each with the process the item service names as its source.
+    /// The item windows, each with the source process that Accessibility names for it.
     ///
     /// holzBar's own control items are recognised by their frames instead
-    /// (``OwnStatusItemWindows``), all of them before the first lookup suspends, so
-    /// holzBar's frames cannot change while the windows are matched. Control Center may
-    /// lag behind them, updating its windows only a moment after an item changes its
-    /// length or moves to another display, so a list read in between may not match until
-    /// the next read.
+    /// (``OwnStatusItemWindows``), all of them before the one lookup for the other
+    /// windows suspends, so holzBar's frames cannot change while the windows are
+    /// matched. Control Center may lag behind them, updating its windows only a moment
+    /// after an item changes its length or moves to another display, so a list read in
+    /// between may not match until the next read.
     func items(on display: CGDirectDisplayID?, option: MenuBarItem.ListOption) async -> [MenuBarItem] {
         let windows = MenuBarItem.getMenuBarItemWindows(on: display, option: option)
         let controlItems = OwnStatusItemWindows.controlItems(forWindowBounds: windows.map(\.bounds))
-        var items = [MenuBarItem]()
-        for (window, controlItem) in zip(windows, controlItems) {
-            if let controlItem {
-                items.append(MenuBarItem(uncheckedItemWindow: window, controlItem: controlItem))
-                continue
-            }
-            let sourcePID = await MenuBarItemService.Connection.shared.sourcePID(for: window)
-            items.append(MenuBarItem(uncheckedItemWindow: window, sourcePID: sourcePID))
+        let lookups = zip(windows, controlItems).compactMap { window, controlItem in
+            controlItem == nil ? window : nil
         }
-        return items
+        let sourcePIDs = lookups.isEmpty ? [:] : await SourcePIDCache.shared.pids(for: lookups)
+        return zip(windows, controlItems).map { window, controlItem in
+            if let controlItem {
+                return MenuBarItem(uncheckedItemWindow: window, controlItem: controlItem)
+            }
+            return MenuBarItem(uncheckedItemWindow: window, sourcePID: sourcePIDs[window.windowID])
+        }
     }
 
     func itemListSignature() async -> [CGWindowID] {
         await windowList.itemListSignature()
+    }
+
+    func itemListRefreshSkipped() {
+        windowList.itemListRefreshSkipped()
     }
 
     func cacheFromLayout(
@@ -81,6 +85,10 @@ final class ServiceBackend26: MenuBarBackend {
 
     func isInsideItemsArea(point: CGPoint, screen: NSScreen, appState: AppState) -> Bool {
         windowList.isInsideItemsArea(point: point, screen: screen, appState: appState)
+    }
+
+    func itemsAreaLeftEdge(on screen: NSScreen, appState: AppState) -> CGFloat? {
+        windowList.itemsAreaLeftEdge(on: screen, appState: appState)
     }
 
     func makeSystemItemClickBridge(appState: AppState) -> (any SystemItemClickBridge)? {

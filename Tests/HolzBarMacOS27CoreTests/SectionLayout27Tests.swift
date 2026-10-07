@@ -53,6 +53,56 @@ struct SectionLayout27Tests {
         #expect(SectionLayout27.bundles(in: [.alwaysHidden], layout: layout) == ["c"])
     }
 }
+
+@Suite("Applying a layout profile on macOS 27")
+struct ApplyingProfile27Tests {
+    @Test("A profile saved before macOS 27 leaves the layout as it is")
+    func profileSavedBefore27ChangesNothing() {
+        let saved: [String: MacOS27Section] = ["com.tinyspeck.slackmacgap": .hidden, "ru.keepcoder.Telegram": .alwaysHidden]
+        #expect(SectionLayout27.applyingProfile([:], knownApplications: nil, to: saved) == saved)
+    }
+
+    @Test("Apps the profile does not know keep their section")
+    func unknownAppsKeepTheirSection() {
+        let result = SectionLayout27.applyingProfile(
+            ["com.tinyspeck.slackmacgap": .hidden],
+            knownApplications: ["com.tinyspeck.slackmacgap"],
+            to: ["com.example.New": .alwaysHidden]
+        )
+        #expect(result == ["com.tinyspeck.slackmacgap": .hidden, "com.example.New": .alwaysHidden])
+    }
+
+    @Test("An app the profile has visible becomes visible")
+    func knownVisibleAppBecomesVisible() {
+        let known: Set<String> = ["com.tinyspeck.slackmacgap", "ru.keepcoder.Telegram"]
+        let home: [String: MacOS27Section] = ["com.tinyspeck.slackmacgap": .hidden]
+        let work: [String: MacOS27Section] = ["ru.keepcoder.Telegram": .alwaysHidden]
+        let afterHome = SectionLayout27.applyingProfile(home, knownApplications: known, to: [:])
+        let afterWork = SectionLayout27.applyingProfile(work, knownApplications: known, to: afterHome)
+        #expect(afterHome == ["com.tinyspeck.slackmacgap": .hidden])
+        #expect(afterWork == ["ru.keepcoder.Telegram": .alwaysHidden])
+    }
+
+    @Test("A profile saved on macOS 27 with every app visible shows the apps it knew")
+    func allVisibleProfileClearsKnownApps() {
+        let result = SectionLayout27.applyingProfile(
+            [:],
+            knownApplications: ["com.tinyspeck.slackmacgap", "ru.keepcoder.Telegram"],
+            to: ["com.tinyspeck.slackmacgap": .hidden, "ru.keepcoder.Telegram": .alwaysHidden, "com.example.New": .hidden]
+        )
+        #expect(result == ["com.example.New": .hidden])
+    }
+
+    @Test("A profile saved on macOS 27 before it recorded its apps replaces the layout")
+    func profileWithoutKnownAppsReplacesLayout() {
+        let result = SectionLayout27.applyingProfile(
+            ["ru.keepcoder.Telegram": .hidden],
+            knownApplications: nil,
+            to: ["com.tinyspeck.slackmacgap": .hidden, "ru.keepcoder.Telegram": .alwaysHidden]
+        )
+        #expect(result == ["ru.keepcoder.Telegram": .hidden])
+    }
+}
 @Suite("Seeding the macOS 27 layout from the bar")
 struct SeededLayout27Tests {
     // A bar as it stood before macOS 27: always-hidden items, the always-hidden divider,

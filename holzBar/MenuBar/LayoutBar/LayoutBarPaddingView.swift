@@ -77,11 +77,18 @@ final class LayoutBarPaddingView: NSView {
 
         if #available(macOS 27.0, *) {
             // On macOS 27 the saved layout decides sections and macOS orders the items within
-            // one, so a drop only moves the item's application to this section.
-            if !draggingSource.item.isControlItem {
-                LayoutBarMoves.setSection(of: draggingSource.item, to: container.section, appState: appState)
+            // one, so a drop from another row only moves the item's application to this
+            // section. The row the drag began in decides, not the item cache, which may no
+            // longer list the item (a new title, or its app quit).
+            let item = draggingSource.item
+            if !item.isControlItem, draggingSource.dragSourceContainer !== container {
+                // A section that cannot be set fails the drop, like one that changes nothing.
+                return LayoutBarMoves.setSection(of: item, to: container.section, appState: appState)
             }
-            return true
+            // A drop that changes no section changes nothing on the bar. It fails, and the
+            // end of the drag puts the rows back to the item cache, after the dragged view
+            // is back in a row (`draggingSession(_:endedAt:operation:)`).
+            return false
         }
 
         let item = draggingSource.item
@@ -157,8 +164,10 @@ enum LayoutBarMoves {
                 }
             } catch {
                 Logger.default.error("Error moving menu bar item: \(error, privacy: .private)")
-                let alert = NSAlert(error: error)
-                alert.runModal()
+                // The item stays where it was, so no cache change brings back the rows a
+                // drag rearranged; the cache the rows missed during the drag is shown now.
+                LayoutBarRouter.shared.showItemCache()
+                await NSAlert(error: error).present(attachedTo: appState.navigationState.settingsWindow)
             }
         }
     }
@@ -179,6 +188,7 @@ enum LayoutBarMoves {
             let items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
             guard let destination = endDestination(of: section, in: items) else {
                 Logger.default.error("No control item to move next to")
+                LayoutBarRouter.shared.showItemCache()
                 return
             }
             move(item, to: destination, appState: appState, actionName: actionName, announcement: announcement, registersUndo: false)
@@ -262,19 +272,24 @@ enum LayoutBarMoves {
 
     /// Moves an item to another section: on macOS 27 its application, before next to the
     /// section's control item.
-    static func setSection(of item: MenuBarItem, to section: MenuBarSection.Name, appState: AppState) {
+    ///
+    /// - Returns: `false` if the section cannot be set (on macOS 27 an item without an
+    ///   application); a move that fails later is reported then.
+    @discardableResult
+    static func setSection(of item: MenuBarItem, to section: MenuBarSection.Name, appState: AppState) -> Bool {
         let actionName = String(localized: "Change Section")
         let announcement = String(localized: "\(item.displayName) moved to \(section.displayString)")
         if #available(macOS 27.0, *) {
             guard let bundleID = item.sourceApplication?.bundleIdentifier else {
                 NSSound.beep()
-                return
+                return false
             }
             setSection27(section, for: bundleID, appState: appState, actionName: actionName)
             LayoutBarItemView.announce(announcement)
-            return
+            return true
         }
         moveToEnd(of: section, item: item, appState: appState, actionName: actionName, announcement: announcement)
+        return true
     }
 
     /// Sets an application's section on macOS 27 and registers the former one for undo.

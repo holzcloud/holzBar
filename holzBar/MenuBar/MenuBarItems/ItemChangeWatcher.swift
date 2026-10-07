@@ -10,13 +10,15 @@ import OSLog
 /// Shows a hidden item for a moment when its title or value changes, for the items the
 /// user marked "Show When It Changes" (THAW-12).
 ///
-/// One `AXObserver` per process that owns a marked item listens for
+/// `AXObserver`s for the processes that own marked items listen for
 /// `kAXTitleChangedNotification` and `kAXValueChangedNotification` on those items'
-/// elements only; its run-loop source runs on the main run loop. The observers follow the
-/// item list (they are set up again when it changes) and nothing runs while no item is
-/// marked. Each notification passes ``ChangeReveal``'s debounce and rate limit; a due item
-/// is shown for 5 seconds (`MenuBarManager.revealBriefly(itemKey:)`). No timer and no
-/// polling: one bounded wait per batch of changes.
+/// elements only; they are registered off the main thread and their run-loop sources run
+/// on the main run loop. The observers follow the item list (they are set up again when it
+/// changes, or an item's app relaunched) and nothing runs while no item is marked. Each
+/// notification passes ``ChangeReveal``'s debounce and rate limit; a due item is shown for
+/// 5 seconds (`MenuBarManager.revealBriefly(itemKey:)`). No timer and no
+/// polling: one bounded wait per batch of changes, and a few bounded retries for a marked
+/// item whose app did not answer yet.
 ///
 /// An item whose app only swaps its picture may post nothing, and is then never shown.
 @MainActor
@@ -33,14 +35,19 @@ final class ItemChangeWatcher {
     /// Follows the item list.
     private var cacheObserver: ObservationLoop?
 
-    /// The observers, by process identifier.
-    private var observers = [pid_t: AXObserver]()
+    /// The observers of the registrations that were applied.
+    private var observers = [AXObserver]()
 
     /// The observed elements with their items' keys, by process identifier.
     private var watched = [pid_t: [(element: AXUIElement, key: String)]]()
 
-    /// The observed items and their windows, so an unchanged list sets nothing up again.
-    private var watchedWindows = [String: CGWindowID]()
+    /// The marked items in the menu bar, the observed ones among them, and which
+    /// registration is current.
+    private var watchList = ItemChangeWatchList()
+
+    /// The one wait before the items that were not observed are tried again; a changed
+    /// list cancels it.
+    private var retryTask: Task<Void, Never>?
 
     /// The debounce and rate limit.
     private var changeReveal = ChangeReveal()
@@ -48,7 +55,7 @@ final class ItemChangeWatcher {
     /// The one wait until the next change is due.
     private var dueTask: Task<Void, Never>?
 
-    private let logger = Logger(category: "ItemChangeWatcher")
+    private nonisolated static let logger = Logger(category: "ItemChangeWatcher")
 
     /// Starts following the marked items.
     func performSetup(with appState: AppState) {
@@ -91,7 +98,15 @@ final class ItemChangeWatcher {
     // MARK: Observers
 
     /// Observes exactly the marked items that are in the menu bar now.
-    private func updateObservers() {
+    ///
+    /// The lookups and registrations ask the items' apps, and a busy app would hold the
+    /// main thread, and on macOS 27 the click tap and every click on the Mac with it, so they
+    /// run on ``registrationQueue``. The result is applied here, unless the list changed
+    /// meanwhile.
+    ///
+    /// - Parameter retrying: Whether only the items not observed yet are tried again, for
+    ///   an unchanged list.
+    private func updateObservers(retrying: Bool = false) {
         guard let appState else {
             return
         }
@@ -100,32 +115,179 @@ final class ItemChangeWatcher {
         let items = itemManager.itemCache.managedItems.filter { item in
             !item.isControlItem && wanted.contains(itemManager.identityKey(for: item))
         }
+        let targets = items.map { item in
+            Target(
+                key: itemManager.identityKey(for: item),
+                windowID: item.windowID,
+                pid: item.sourcePID ?? item.ownerPID,
+                bounds: item.bounds
+            )
+        }
+        // The process counts too: a relaunched app's item may keep its window identifier.
         let windows = Dictionary(
-            items.map { (itemManager.identityKey(for: $0), $0.windowID) },
+            targets.map { ($0.key, ItemChangeWatchList.Location(windowID: $0.windowID, pid: $0.pid)) },
             uniquingKeysWith: { first, _ in first }
         )
-        guard windows != watchedWindows else {
+        let update = watchList.update(windows: windows, retrying: retrying)
+        // A batch under way for an older list stops at its next item.
+        let generation = watchList.generation
+        Self.latestGeneration.withLock { $0 = generation }
+        if update.removesObservers {
+            removeAll()
+        } else if !retrying {
             return
         }
-        watchedWindows = windows
-        removeAll()
-        for item in items {
-            let pid = item.sourcePID ?? item.ownerPID
-            guard let element = element(for: item, pid: pid) else {
-                continue
-            }
-            observe(element, key: itemManager.identityKey(for: item), pid: pid)
+        retryTask?.cancel()
+        retryTask = nil
+        guard let registration = update.registration else {
+            return
+        }
+        // Observed items are not looked up again.
+        let pending = targets.filter { registration.keys.contains($0.key) }
+        Task { [weak self] in
+            let batch = await Self.register(pending, generation: registration.generation)
+            self?.apply(batch, of: registration)
         }
     }
 
-    /// The Accessibility element of the item: on macOS 27 the one the item list was read
-    /// from; before, the child of its app's extras menu bar at the item's place. Every call
-    /// to the app waits 0.25 s at most.
-    private func element(for item: MenuBarItem, pid: pid_t) -> AXUIElement? {
-        if #available(macOS 27.0, *) {
-            return MenuBarItemProvider27.element(forWindowID: item.windowID)
+    /// Adds the observers of a finished registration, or drops them when the list changed
+    /// meanwhile.
+    private func apply(_ batch: Batch, of registration: ItemChangeWatchList.Registration) {
+        guard watchList.finish(registration, observed: Set(batch.watched.map(\.key))) else {
+            return
         }
-        let application = AXUIElementCreateApplication(pid)
+        for observer in batch.observers {
+            CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer), .defaultMode)
+        }
+        observers += batch.observers
+        for entry in batch.watched {
+            watched[entry.pid, default: []].append((element: entry.element, key: entry.key))
+        }
+        scheduleRetryIfNeeded()
+    }
+
+    /// Tries the marked items that were not observed again once 2 s later, at most three
+    /// times for one list: their app may not answer Accessibility yet, and the list may not
+    /// change again.
+    private func scheduleRetryIfNeeded() {
+        guard watchList.takeRetry() else {
+            return
+        }
+        retryTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(2))
+            } catch {
+                return
+            }
+            self?.updateObservers(retrying: true)
+        }
+    }
+
+    private func removeAll() {
+        for observer in observers {
+            CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer), .defaultMode)
+        }
+        observers.removeAll()
+        watched.removeAll()
+    }
+
+    // MARK: Registration
+
+    /// The queue the lookups and registrations run on, one batch at a time. It is not
+    /// `MenuBarItemProvider27`'s queue: clicks and the item cache wait for that one.
+    private nonisolated static let registrationQueue = DispatchQueue(
+        label: "com.holzcloud.holzBar.ItemChangeWatcher",
+        qos: .utility
+    )
+
+    /// The generation of the latest registration (`ItemChangeWatchList`), set on the main
+    /// actor. The queue runs one batch after the other, and a batch for an older list stops
+    /// at its next item instead of asking the remaining apps for a result that is dropped.
+    private nonisolated static let latestGeneration = OSAllocatedUnfairLock(initialState: 0)
+
+    /// A marked item to observe.
+    private nonisolated struct Target: Sendable {
+        let key: String
+        let windowID: CGWindowID
+        let pid: pid_t
+        let bounds: CGRect
+    }
+
+    /// The result of a registration: the observers that observe at least one element, and
+    /// the observed elements. Observers and elements are references that any thread may
+    /// use; these are not used again on the registration queue once they are handed over.
+    private nonisolated struct Batch: @unchecked Sendable {
+        var observers = [AXObserver]()
+        var watched = [(pid: pid_t, element: AXUIElement, key: String)]()
+    }
+
+    private nonisolated static func register(_ targets: [Target], generation: Int) async -> Batch {
+        await withCheckedContinuation { continuation in
+            registrationQueue.async {
+                continuation.resume(returning: batch(for: targets, generation: generation))
+            }
+        }
+    }
+
+    /// Looks up the items' elements and observes them, one new observer per process; runs
+    /// on the registration queue. Stops early, with a result that is dropped, once a newer
+    /// registration started.
+    private nonisolated static func batch(for targets: [Target], generation: Int) -> Batch {
+        var batch = Batch()
+        var observers = [pid_t: AXObserver]()
+        for target in targets {
+            guard latestGeneration.withLock({ $0 }) == generation else {
+                return Batch()
+            }
+            guard let element = element(for: target) else {
+                continue
+            }
+            let observer: AXObserver
+            if let existing = observers[target.pid] {
+                observer = existing
+            } else {
+                var created: AXObserver?
+                guard AXObserverCreate(target.pid, itemChangeWatcherCallback, &created) == .success, let created else {
+                    continue
+                }
+                observers[target.pid] = created
+                observer = created
+            }
+            // The process identifier travels as the context pointer (it is never 0 here).
+            let context = UnsafeMutableRawPointer(bitPattern: Int(target.pid))
+            var added = [String]()
+            for notification in [kAXTitleChangedNotification, kAXValueChangedNotification] {
+                let result = AXObserverAddNotification(observer, element, notification as CFString, context)
+                if result == .success {
+                    added.append(notification)
+                }
+                // An app that did not answer once would cost the second wait too.
+                if result == .cannotComplete {
+                    break
+                }
+            }
+            guard !added.isEmpty else {
+                logger.debug("A marked item posts no change notifications")
+                continue
+            }
+            batch.watched.append((pid: target.pid, element: element, key: target.key))
+        }
+        let observedPIDs = Set(batch.watched.map(\.pid))
+        batch.observers = observers.filter { observedPIDs.contains($0.key) }.map(\.value)
+        return batch
+    }
+
+    /// The Accessibility element of the item. On macOS 27 it is the one the item list was
+    /// read from; the calls to it keep the default messaging timeout, which
+    /// `ItemClicker27`'s presses on the same element need, so they may wait for a busy app
+    /// for seconds, though never on the main thread. Before macOS 27 it is the child of its
+    /// app's extras menu bar at the item's place, and every call to the app waits 0.25 s at
+    /// most.
+    private nonisolated static func element(for target: Target) -> AXUIElement? {
+        if #available(macOS 27.0, *) {
+            return MenuBarItemProvider27.element(forWindowID: target.windowID)
+        }
+        let application = AXUIElementCreateApplication(target.pid)
         AXHelpers.setMessagingTimeout(0.25, for: application)
         guard let extrasMenuBar = AXHelpers.extrasMenuBar(for: application) else {
             return nil
@@ -136,41 +298,8 @@ final class ItemChangeWatcher {
             guard let frame = AXHelpers.frame(for: child) else {
                 return false
             }
-            return abs(frame.minX - item.bounds.minX) < 2 && abs(frame.width - item.bounds.width) < 2
+            return abs(frame.minX - target.bounds.minX) < 2 && abs(frame.width - target.bounds.width) < 2
         }
-    }
-
-    private func observe(_ element: AXUIElement, key: String, pid: pid_t) {
-        let observer: AXObserver
-        if let existing = observers[pid] {
-            observer = existing
-        } else {
-            var created: AXObserver?
-            guard AXObserverCreate(pid, itemChangeWatcherCallback, &created) == .success, let created else {
-                return
-            }
-            CFRunLoopAddSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(created), .defaultMode)
-            observers[pid] = created
-            observer = created
-        }
-        // The process identifier travels as the context pointer (it is never 0 here).
-        let context = UnsafeMutableRawPointer(bitPattern: Int(pid))
-        let added = [kAXTitleChangedNotification, kAXValueChangedNotification].filter { notification in
-            AXObserverAddNotification(observer, element, notification as CFString, context) == .success
-        }
-        guard !added.isEmpty else {
-            logger.debug("A marked item posts no change notifications")
-            return
-        }
-        watched[pid, default: []].append((element: element, key: key))
-    }
-
-    private func removeAll() {
-        for observer in observers.values {
-            CFRunLoopRemoveSource(CFRunLoopGetMain(), AXObserverGetRunLoopSource(observer), .defaultMode)
-        }
-        observers.removeAll()
-        watched.removeAll()
     }
 
     // MARK: Changes

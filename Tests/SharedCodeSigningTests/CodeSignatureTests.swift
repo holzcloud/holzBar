@@ -1,150 +1,79 @@
 import Foundation
-import LightweightCodeRequirements
 import Security
 import Testing
 @testable import SharedCodeSigning
 
-/// Proves that the code directory hashes `CodeSignature` reads from disk are the
-/// ones `CodeDirectoryHash` compares for a running process. The menu bar item
-/// service pins holzBar's ad hoc build with exactly such a requirement.
+/// On macOS 26 holzBar asks apps signed by Apple first which menu bar item window is
+/// theirs. The tests use programs they start, not the test process: xctest is signed by
+/// Apple when it comes with Xcode or the Command Line Tools.
 @Suite("CodeSignature")
 struct CodeSignatureTests {
-    @Test("The hashes of this process's code are distinct 20-byte hashes")
-    func hashesOfThisProcess() throws {
-        let hashes = try CodeSignature.codeDirectoryHashes(ofCodeAt: CodeSignature.currentCodeURL())
-        #expect(!hashes.isEmpty)
-        #expect(hashes.allSatisfy { $0.count == 20 }, "hash sizes: \(hashes.map(\.count))")
-        #expect(Set(hashes).count == hashes.count, "\(hashes.count) hashes")
-    }
-
-    @Test("This process's code has a signing identifier")
-    func signingIdentifierOfThisProcess() throws {
-        let identifier = try CodeSignature.signingIdentifier(ofCodeAt: CodeSignature.currentCodeURL())
-        #expect(!identifier.isEmpty)
-    }
-
-    @Test("A requirement on identifier and hashes matches this process")
-    @available(macOS 15.0, *)
-    func requirementMatchesThisProcess() throws {
-        let url = try CodeSignature.currentCodeURL()
-        let identifier = try CodeSignature.signingIdentifier(ofCodeAt: url)
-        let hashes = try CodeSignature.codeDirectoryHashes(ofCodeAt: url)
-        let result = try validateThisProcess(identifier: identifier, hashes: hashes)
-        #expect(
-            result.signatureIsValid,
-            "failureReason \(result.failureReason), \(hashes.count) hashes, identifier \(identifier), \(taskValidation(identifier: identifier, hashes: hashes))"
-        )
-        #expect(
-            result.requirementMatched,
-            "failureReason \(result.failureReason), \(hashes.count) hashes, identifier \(identifier), \(taskValidation(identifier: identifier, hashes: hashes))"
-        )
-    }
-
-    @Test("Another signing identifier does not match")
-    @available(macOS 15.0, *)
-    func otherIdentifierDoesNotMatch() throws {
-        let hashes = try CodeSignature.codeDirectoryHashes(ofCodeAt: CodeSignature.currentCodeURL())
-        let result = try validateThisProcess(identifier: "com.example.not-this-process", hashes: hashes)
-        #expect(
-            !result.requirementMatched,
-            "failureReason \(result.failureReason), \(hashes.count) hashes"
-        )
-    }
-
-    @Test("Another program's hashes do not match")
-    @available(macOS 15.0, *)
-    func otherProgramsHashesDoNotMatch() throws {
-        let url = try CodeSignature.currentCodeURL()
-        let identifier = try CodeSignature.signingIdentifier(ofCodeAt: url)
-        let ownHashes = try CodeSignature.codeDirectoryHashes(ofCodeAt: url)
-        let otherHashes = try CodeSignature.codeDirectoryHashes(ofCodeAt: URL(filePath: "/usr/bin/true"))
-        #expect(Set(ownHashes).isDisjoint(with: otherHashes))
-        let result = try validateThisProcess(identifier: identifier, hashes: otherHashes)
-        #expect(
-            !result.requirementMatched,
-            "failureReason \(result.failureReason), \(otherHashes.count) hashes"
-        )
-    }
-
-    @Test("Code that does not exist has no hashes")
-    func missingCodeThrows() {
-        let url = URL(filePath: "/nonexistent/CodeSignatureTests/missing")
-        #expect(throws: CodeSignature.Failure.self) {
-            try CodeSignature.codeDirectoryHashes(ofCodeAt: url)
+    @Test("A running program of macOS is signed by Apple")
+    func appleProgram() throws {
+        try withRunningProgram(at: URL(filePath: "/bin/sleep")) { pid in
+            #expect(CodeSignature.isSignedByApple(processIdentifier: pid))
         }
     }
 
-    /// Checks this running process against a requirement on the given signing
-    /// identifier and code directory hashes.
-    @available(macOS 15.0, *)
-    private func validateThisProcess(identifier: String, hashes: [Data]) throws -> ValidationResult {
-        let requirement = try ProcessCodeRequirement.allOf {
-            SigningIdentifier(identifier)
-            CodeDirectoryHash.in(hashes)
+    // Before macOS 26 an ad hoc signed arm64e program may not run on Apple silicon, and
+    // only the macOS 26 backend asks for signatures.
+    @Test("An ad hoc signed copy of that program is not")
+    @available(macOS 26.0, *)
+    func adHocCopy() throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "CodeSignatureTests-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer {
+            try? FileManager.default.removeItem(at: directory)
         }
-        return try SecCodeCheckValidityWithProcessRequirement(
-            code: codeOfThisProcess(),
-            flags: [],
-            requirement: requirement
-        )
+        let copy = directory.appending(path: "sleep")
+        try FileManager.default.copyItem(at: URL(filePath: "/bin/sleep"), to: copy)
+        let codesign = Process()
+        codesign.executableURL = URL(filePath: "/usr/bin/codesign")
+        codesign.arguments = ["--force", "--sign", "-", copy.path(percentEncoded: false)]
+        codesign.standardError = FileHandle.nullDevice
+        try codesign.run()
+        codesign.waitUntilExit()
+        try #require(codesign.terminationStatus == 0)
+
+        try withRunningProgram(at: copy) { pid in
+            #expect(!CodeSignature.isSignedByApple(processIdentifier: pid))
+        }
     }
 
-    /// Returns the code of this running process, looked up by its audit token
-    /// the way the system looks up an XPC peer.
-    private func codeOfThisProcess() throws -> SecCode {
-        var token = audit_token_t()
-        var count = mach_msg_type_number_t(MemoryLayout<audit_token_t>.size / MemoryLayout<integer_t>.size)
-        // task_self_trap() instead of the global mach_task_self_, which older
-        // SDKs (macOS 15.2) do not mark as concurrency-safe in Swift 6.
-        let task = task_self_trap()
-        defer { mach_port_deallocate(task, task) }
-        let result = withUnsafeMutablePointer(to: &token) { pointer in
-            pointer.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { info in
-                task_info(task, task_flavor_t(TASK_AUDIT_TOKEN), info, &count)
-            }
+    @Test("A process that has exited is not")
+    func exitedProcess() throws {
+        let process = Process()
+        process.executableURL = URL(filePath: "/usr/bin/true")
+        try process.run()
+        process.waitUntilExit()
+        #expect(!CodeSignature.isSignedByApple(processIdentifier: process.processIdentifier))
+    }
+
+    /// Starts the program at the given location, waiting 30 s, passes its process to
+    /// `body` while it runs, and stops it afterwards.
+    private func withRunningProgram(at url: URL, _ body: (pid_t) throws -> Void) throws {
+        let process = Process()
+        process.executableURL = url
+        process.arguments = ["30"]
+        try process.run()
+        defer {
+            process.terminate()
+            process.waitUntilExit()
         }
-        try #require(result == KERN_SUCCESS, "task_info failed with \(result)")
-        let tokenData = withUnsafeBytes(of: token) { Data($0) }
-        let attributes = [kSecGuestAttributeAudit as String: tokenData] as CFDictionary
+        // The program must really run with valid code, or a "not signed by Apple" result
+        // would prove nothing: a process killed at launch still answers kill(pid, 0) until
+        // it is reaped, but has no code to check.
+        try #require(hasValidCode(processIdentifier: process.processIdentifier))
+        try body(process.processIdentifier)
+    }
+
+    /// Whether the running process has code whose signature is valid, by any signer.
+    private func hasValidCode(processIdentifier: pid_t) -> Bool {
         var code: SecCode?
-        let status = SecCodeCopyGuestWithAttributes(nil, attributes, [], &code)
-        try #require(status == errSecSuccess, "SecCodeCopyGuestWithAttributes failed with status \(status)")
-        return try #require(code)
-    }
-
-    /// Describes how `SecTaskValidateForRequirement` judges this process
-    /// against the same requirement, and which hashes were compared, for the
-    /// log of a failing run.
-    @available(macOS 15.0, *)
-    private func taskValidation(identifier: String, hashes: [Data]) -> String {
-        let hex = { (data: Data) in data.map { String(format: "%02x", $0) }.joined() }
-        var running = "unknown"
-        if let code = try? codeOfThisProcess() {
-            var information: CFDictionary?
-            let flags = SecCSFlags(rawValue: UInt32(kSecCSDynamicInformation))
-            // A running process's code is passed as static code to read its dynamic information.
-            let staticCode = unsafeBitCast(code, to: SecStaticCode.self)
-            if SecCodeCopySigningInformation(staticCode, flags, &information) == errSecSuccess,
-               let unique = (information as NSDictionary?)?[kSecCodeInfoUnique as String] as? Data {
-                running = hex(unique)
-            }
+        let attributes = [kSecGuestAttributePid as String: processIdentifier] as CFDictionary
+        guard SecCodeCopyGuestWithAttributes(nil, attributes, [], &code) == errSecSuccess, let code else {
+            return false
         }
-        return "hashes \(hashes.map(hex)), running cdhash \(running), " + taskResult(identifier: identifier, hashes: hashes)
-    }
-
-    @available(macOS 15.0, *)
-    private func taskResult(identifier: String, hashes: [Data]) -> String {
-        do {
-            let requirement = try ProcessCodeRequirement.allOf {
-                SigningIdentifier(identifier)
-                CodeDirectoryHash.in(hashes)
-            }
-            guard let task = SecTaskCreateFromSelf(nil) else {
-                return "SecTaskCreateFromSelf returned nil"
-            }
-            return "SecTaskValidateForRequirement returned \(try SecTaskValidateForRequirement(task: task, requirement: requirement))"
-        } catch {
-            return "SecTaskValidateForRequirement threw \(error)"
-        }
+        return SecCodeCheckValidity(code, [], nil) == errSecSuccess
     }
 }

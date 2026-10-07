@@ -20,14 +20,21 @@ struct SettingsSyncFileTests {
         return file
     }
 
-    private func newer(in file: [String: Any]) -> (settings: [String: Any], modified: Date)? {
-        SettingsSyncFile.newerSettings(
-            in: file,
-            lastSynced: lastSynced,
+    /// The file's contents, if another Mac wrote them after this Mac last synced.
+    private func newer(
+        in file: [String: Any],
+        lastSynced: Date?? = nil,
+        computerName: String? = "Mac",
+        now: Date = .now
+    ) -> SettingsSyncFile.Contents? {
+        SettingsSyncFile.contents(
+            of: file,
+            lastSynced: lastSynced ?? self.lastSynced,
             deviceID: thisMac,
-            computerName: "Mac",
-            localKeys: localKeys
-        )
+            computerName: computerName,
+            localKeys: localKeys,
+            now: now
+        ).flatMap { $0.isNewer ? $0 : nil }
     }
 
     @Test("A newer file from another Mac is applied")
@@ -72,12 +79,10 @@ struct SettingsSyncFileTests {
 
     @Test("A Mac that never synced applies any file from another Mac")
     func neverSynced() {
-        let result = SettingsSyncFile.newerSettings(
+        let result = newer(
             in: file(deviceID: otherMac, modified: .distantPast.addingTimeInterval(1), settings: [:]),
-            lastSynced: nil,
-            deviceID: thisMac,
-            computerName: nil,
-            localKeys: localKeys
+            lastSynced: .some(nil),
+            computerName: nil
         )
         #expect(result != nil)
     }
@@ -85,13 +90,10 @@ struct SettingsSyncFileTests {
     @Test("A file dated far in the future is ignored")
     func farFutureFileIgnored() {
         let now = lastSynced.addingTimeInterval(3600)
-        func newer(modified: Date) -> (settings: [String: Any], modified: Date)? {
-            SettingsSyncFile.newerSettings(
+        func newer(modified: Date) -> SettingsSyncFile.Contents? {
+            self.newer(
                 in: file(deviceID: otherMac, modified: modified, settings: ["UseIceBar": true]),
-                lastSynced: lastSynced,
-                deviceID: thisMac,
                 computerName: nil,
-                localKeys: localKeys,
                 now: now
             )
         }
@@ -101,6 +103,75 @@ struct SettingsSyncFileTests {
         // A file dated years ahead would make this Mac ignore every later change.
         #expect(newer(modified: now.addingTimeInterval(SettingsSyncFile.allowedClockSkew + 1)) == nil)
         #expect(newer(modified: .distantFuture) == nil)
+    }
+
+    private func contents(in file: [String: Any], now: Date = .now) -> SettingsSyncFile.Contents? {
+        SettingsSyncFile.contents(
+            of: file,
+            lastSynced: lastSynced,
+            deviceID: thisMac,
+            computerName: nil,
+            localKeys: localKeys,
+            now: now
+        )
+    }
+
+    @Test("The contents tell this Mac's, older and newer files apart")
+    func contentsOfFile() throws {
+        let modified = lastSynced.addingTimeInterval(60)
+        let now = lastSynced.addingTimeInterval(120)
+        let own = try #require(contents(in: file(deviceID: thisMac, modified: modified, settings: ["UseIceBar": true]), now: now))
+        #expect(own.isFromThisMac)
+        #expect(!own.isNewer)
+        let other = try #require(contents(in: file(deviceID: otherMac, modified: modified, settings: ["UseIceBar": true]), now: now))
+        #expect(!other.isFromThisMac)
+        #expect(other.isNewer)
+        #expect(other.modified == modified)
+        let older = try #require(contents(in: file(deviceID: otherMac, modified: lastSynced, settings: [:]), now: now))
+        #expect(!older.isNewer)
+        let future = now.addingTimeInterval(SettingsSyncFile.allowedClockSkew + 1)
+        let farAhead = try #require(contents(in: file(deviceID: otherMac, modified: future, settings: [:]), now: now))
+        #expect(!farAhead.isFromThisMac)
+        #expect(!farAhead.isNewer)
+    }
+
+    @Test("The contents leave out the local keys")
+    func contentsWithoutLocalKeys() throws {
+        let settings: [String: Any] = ["SyncsSettingsWithICloud": true, "UseIceBar": true]
+        let result = try #require(contents(in: file(deviceID: otherMac, modified: lastSynced, settings: settings)))
+        #expect(Set(result.settings.keys) == ["UseIceBar"])
+    }
+
+    @Test("The contents list the file's current layouts")
+    func contentsCurrentLayouts() throws {
+        var listed = file(deviceID: otherMac, modified: lastSynced, settings: [:])
+        listed[SettingsSyncFile.currentLayoutsKey] = ["ItemSections", "MacOS27Layout"]
+        #expect(try #require(contents(in: listed)).currentLayouts == ["ItemSections", "MacOS27Layout"])
+        // Files of earlier builds list none.
+        let earlier = file(deviceID: otherMac, modified: lastSynced, settings: [:])
+        #expect(try #require(contents(in: earlier)).currentLayouts.isEmpty)
+        var wrongType = earlier
+        wrongType[SettingsSyncFile.currentLayoutsKey] = "ItemSections"
+        #expect(try #require(contents(in: wrongType)).currentLayouts.isEmpty)
+    }
+
+    @Test("A file without date or settings has no contents")
+    func contentsWithoutDateOrSettings() {
+        #expect(contents(in: file(deviceID: otherMac, modified: lastSynced, settings: nil)) == nil)
+        #expect(contents(in: file(deviceID: otherMac, modified: nil, settings: [:])) == nil)
+    }
+
+    @Test("Online-only files are not read at launch")
+    func localFiles() {
+        let dataless = UInt32(SF_DATALESS)
+        #expect(!SettingsSyncFile.isLocal(flags: dataless, isUbiquitous: nil, downloadingStatus: nil))
+        #expect(!SettingsSyncFile.isLocal(flags: dataless, isUbiquitous: false, downloadingStatus: nil))
+        #expect(!SettingsSyncFile.isLocal(flags: 0, isUbiquitous: true, downloadingStatus: .notDownloaded))
+        #expect(!SettingsSyncFile.isLocal(flags: 0, isUbiquitous: true, downloadingStatus: .downloaded))
+        #expect(!SettingsSyncFile.isLocal(flags: 0, isUbiquitous: true, downloadingStatus: nil))
+        #expect(SettingsSyncFile.isLocal(flags: 0, isUbiquitous: true, downloadingStatus: .current))
+        #expect(SettingsSyncFile.isLocal(flags: 0, isUbiquitous: false, downloadingStatus: nil))
+        #expect(SettingsSyncFile.isLocal(flags: 0, isUbiquitous: nil, downloadingStatus: nil))
     }
 
     // MARK: Reading

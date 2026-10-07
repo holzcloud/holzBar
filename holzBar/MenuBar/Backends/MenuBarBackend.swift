@@ -13,8 +13,8 @@ import Cocoa
 /// branching on the macOS version themselves:
 ///
 /// - ``WindowListBackend``: macOS 14 and 15, the window list and posted events.
-/// - ``ServiceBackend26``: macOS 26, the window list with source processes from the
-///   menu bar item service.
+/// - ``ServiceBackend26``: macOS 26, the window list with source processes looked up
+///   through Accessibility (``SourcePIDCache``).
 /// - ``AccessibilityBackend27``: macOS 27, Accessibility; items cannot be moved.
 @MainActor
 protocol MenuBarBackend: AnyObject {
@@ -43,6 +43,10 @@ protocol MenuBarBackend: AnyObject {
     /// A value that changes whenever the items on the active space change.
     func itemListSignature() async -> [CGWindowID]
 
+    /// Called when a refresh found the item list unchanged and did not rebuild the cache,
+    /// so work that rides on the refreshes can run anyway.
+    func itemListRefreshSkipped()
+
     /// Builds the item cache from the saved layout, or returns `nil` where the order
     /// of the items on the bar decides their sections.
     func cacheFromLayout(
@@ -63,6 +67,10 @@ protocol MenuBarBackend: AnyObject {
     /// Whether the given point, in CoreGraphics coordinates, is in the part of the bar
     /// that holds items, including the gaps between them.
     func isInsideItemsArea(point: CGPoint, screen: NSScreen, appState: AppState) -> Bool
+
+    /// Where the run of items on the given screen starts, in CoreGraphics x, from values
+    /// already read, or `nil` where the backend does not know it.
+    func itemsAreaLeftEdge(on screen: NSScreen, appState: AppState) -> CGFloat?
 
     /// Creates the tap that lets clicks reach the system items while items are
     /// concealed, where the backend needs one.

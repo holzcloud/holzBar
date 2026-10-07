@@ -35,7 +35,7 @@ final class AccessibilityBackend27: MenuBarBackend {
     var lastMoveOperationTimestamp: ContinuousClock.Instant? { nil }
 
     /// There are no item windows: bounds come from Accessibility, and the owning
-    /// process is known directly, without the item service.
+    /// process is known directly, without a source-PID lookup.
     func performSetup() async {
         Bridging.setSyntheticWindowBoundsProvider { MenuBarItemProvider27.currentBounds(for: $0) }
     }
@@ -53,7 +53,18 @@ final class AccessibilityBackend27: MenuBarBackend {
     /// signature also carries each item's position.
     func itemListSignature() async -> [CGWindowID] {
         let items = await MenuBarItemProvider27.items()
-        return items.map { $0.windowID &+ UInt32(truncatingIfNeeded: Int($0.bounds.minX)) }
+        return items.map { item in
+            // A conversion that cannot trap, whatever position the item's process reports,
+            // and that truncates like the `Int(_:)` before it, so signatures stay as they were.
+            let minX = Int32(exactly: item.bounds.minX.rounded(.towardZero)) ?? 0
+            return item.windowID &+ UInt32(bitPattern: minX)
+        }
+    }
+
+    /// Owners whose observer registration failed are tried again once their pause is over,
+    /// also while the item list stays the same.
+    func itemListRefreshSkipped() {
+        itemChangeObserver.retryDueRegistrations()
     }
 
     /// The saved layout, not the order on the bar, places items in sections, so holzBar's
@@ -97,6 +108,19 @@ final class AccessibilityBackend27: MenuBarBackend {
     func isInsideItemsArea(point: CGPoint, screen: NSScreen, appState: AppState) -> Bool {
         ItemHitTest27.isInsideItemsArea(
             point: point,
+            displayBounds: CGDisplayBounds(screen.displayID),
+            items: hitTestItems(appState: appState),
+            concealedPIDs: appState.concealer27.concealedPIDs,
+            systemFrames: systemFrames(),
+            rememberedLeftEdge: MenuBarItemProvider27.leftEdge(for: screen.displayID),
+            drawnFramesOnDisplay: MenuBarItemProvider27.drawnFrames(for: screen.displayID)
+        )
+    }
+
+    /// The edge of the items area as the split shape draws it (`SplitShape27`), from the
+    /// cache and the last read: no Accessibility call, so the overlay can ask while it draws.
+    func itemsAreaLeftEdge(on screen: NSScreen, appState: AppState) -> CGFloat? {
+        SplitShape27.leftEdge(
             displayBounds: CGDisplayBounds(screen.displayID),
             items: hitTestItems(appState: appState),
             concealedPIDs: appState.concealer27.concealedPIDs,

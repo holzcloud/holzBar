@@ -61,6 +61,9 @@ struct AdvancedSettingsPane: View {
                 allPermissions
             }
         }
+        .onAppear {
+            appState.permissions.refresh()
+        }
     }
 
     @ViewBuilder
@@ -226,10 +229,10 @@ struct AdvancedSettingsPane: View {
         LabeledContent {
             HStack {
                 Button("Export…") {
-                    SettingsBackup.exportToFile()
+                    SettingsBackup.exportToFile(attachedTo: appState.navigationState.settingsWindow)
                 }
                 Button("Import…") {
-                    SettingsBackup.importFromFile()
+                    SettingsBackup.importFromFile(attachedTo: appState.navigationState.settingsWindow)
                 }
             }
         } label: {
@@ -289,14 +292,31 @@ private struct RevealRulesSettings: View {
 // MARK: - SettingsSyncToggle
 
 /// Turns syncing the settings on or off, through iCloud Drive or any folder the Macs keep
-/// in sync (jordanbaird/Ice#95, SYNC-01).
+/// in sync (jordanbaird/Ice#95, SYNC-01). While sync is paused (``SettingsSyncPause``), the
+/// controls show the stored choice, disabled, with a note.
 private struct SettingsSyncToggle: View {
     @Bindable var sync: SettingsSync
+
+    private var isPaused: Bool {
+        !SettingsSyncPause.allowsChanges()
+    }
 
     var body: some View {
         LabeledContent {
             HStack {
-                if sync.isEnabled {
+                if sync.isEnabled || sync.isTurnedOnWhilePaused {
+                    switch sync.hint {
+                    case .restart:
+                        Button("Restart") {
+                            sync.restartWithWaitingSettings()
+                        }
+                    case .choice:
+                        Button("Choose Settings…") {
+                            sync.chooseSettings()
+                        }
+                    case nil:
+                        EmptyView()
+                    }
                     Button("Change…") {
                         sync.chooseFolder()
                     }
@@ -309,10 +329,15 @@ private struct SettingsSyncToggle: View {
                     }
                 }
             }
+            .disabled(isPaused)
         } label: {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Sync settings between your Macs")
-                if sync.isEnabled {
+                if isPaused {
+                    Text("Sync is paused in this beta and returns in the next one. Your sync folder and these settings stay as they are.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else if sync.isEnabled {
                     if let folder = sync.folderDisplayName {
                         Text("Through \(folder)")
                             .font(.subheadline)
@@ -322,11 +347,22 @@ private struct SettingsSyncToggle: View {
                             .font(.subheadline)
                             .foregroundStyle(.orange)
                     }
+                    if sync.hint != nil {
+                        Text("Settings changed on another Mac")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
         }
-        .annotation(
-            "Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart."
-        )
+        .annotation {
+            // While sync is paused, the note above says so, and nothing here happens.
+            if !isPaused {
+                Text("Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart.")
+            }
+        }
+        .onAppear {
+            sync.refreshFolder()
+        }
     }
 }

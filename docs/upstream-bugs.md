@@ -1,6 +1,6 @@
 # Upstream bug reports
 
-In October 2026, [Ice](https://github.com/jordanbaird/Ice) had 282 open bug reports. This page groups them and records where each group stands in holzBar. Reports were read through their issue pages; most have no logs. Every group is fixed: the groups that could only be checked on a Mac were confirmed solved there for holzBar 0.0.6.
+In October 2026, [Ice](https://github.com/jordanbaird/Ice) had 282 open bug reports. This page groups them and records where each group stands in holzBar. Reports were read through their issue pages; most have no logs. Every group is fixed: the groups that could only be checked on a Mac were confirmed solved there for holzBar 0.0.6, unless their row says otherwise.
 
 Issue numbers below refer to [jordanbaird/Ice](https://github.com/jordanbaird/Ice/issues).
 
@@ -19,17 +19,18 @@ Issue numbers below refer to [jordanbaird/Ice](https://github.com/jordanbaird/Ic
 | Crash on clicking the icon or with the Ice Bar on macOS 26 (`EXC_BREAKPOINT`, `NSStatusBarWindow.windowNumber`) | #786, #796, #810, #821, #855, #867, #880, #905, #925, #947, #977, #779, #742, #669 | The `macos-26` base no longer casts window numbers with `CGWindowID(_:)`; see also [#989](https://github.com/jordanbaird/Ice/pull/989) |
 | "Check for updates automatically?" dialog that cannot be closed | #681, #688, #699, #837, #882, #912, #926, #931, #932, #937, #957, #969 | Sparkle is not started; holzBar updates through Homebrew |
 | Outdated Sparkle | #785 | Sparkle is removed |
-| Main thread hangs in screen capture | #777 | Captures run on their own queue (`macos-26` base) |
+| Main thread hangs in screen capture | #777 | Captures run on their own queue (`macos-26` base). A capture that does not return is given up after 2 s, later captures continue on a new queue, and single captures skip items that are off screen |
 | Ice Bar images too small or too large on another display | #825, #829, #929, #955, #987 | Scale derived from the capture (#995) |
 | Show on scroll ignores a mouse wheel | #717 | Wheel deltas are scaled from lines to points |
 | Hidden section's divider gone after Command-dragging it out | #619 | The divider is put back |
 | "Hide application menus" only works with the always-hidden section on | #434, #620, #879 | Shown hidden items are no longer dropped from the check |
 | Menu bar behaviour on displays without a menu bar ("Displays have separate Spaces" off) | #383, #456, #646 | Only the primary display counts as having a menu bar |
-| Layout editor or Ice Bar stuck on "Loading menu bar items…" on macOS 26 | #687, #710, #711, #677, #679, #762 and others | The menu bar item service failed to start (`XPCRichError` code 1, seen on 26.7.1). holzBar recognises its own dividers by the frames of their windows (on 26.7.1 a status item's window number is no window server identifier) and looks up the other items in the app when the service fails. holzBar 0.0.6 waited for the service on its main thread, so the service, which asks holzBar through Accessibility about holzBar's own items, got no answer; the requests now wait off the main thread; the service also accepts holzBar's own ad hoc builds, which have no team identifier, by requiring the exact code of the app it is embedded in (signing identifier and code directory hashes) |
+| Layout editor or Ice Bar stuck on "Loading menu bar items…" on macOS 26 | #687, #710, #711, #677, #679, #762 and others | The menu bar item service failed to start (`XPCRichError` code 1, seen on 26.7.1). holzBar recognises its own dividers by the frames of their windows (on 26.7.1 a status item's window number is no window server identifier) and looks up the other items' apps itself, on its own queue and with time limits; a lookup that runs out of time is continued by the next read. holzBar no longer has an item service |
 | Layout editor or Shelf empty or white on macOS 26 ("Unable to display menu bar items") | #635, #664, #673, #677, #679, #682, #685, #687, #696, #710, #711, #716, #730, #741, #743, #744, #753, #758, #762, #773, #818, #833, #846, #891, #913, #916, #921, #973 | Confirmed solved on a Mac in holzBar 0.0.6 |
 | Moving an item times out (Live Activities, iPhone items) | #656, #704, #729, #746, #861, #918 | Confirmed solved on a Mac in holzBar 0.0.6 |
-| Pointer gone or stuck after clicking an item in the Shelf | #640, #751, #757 | Confirmed solved on a Mac in holzBar 0.0.6 |
+| Pointer gone or stuck after clicking an item in the Shelf | #640, #751, #757 | Confirmed solved on a Mac in holzBar 0.0.6. holzBar now also recovers when an event's round trip is lost: it gives up after about 2 s, and the pointer and show on hover come back |
 | Bar, tint or shape drawn in the wrong place (middle of the screen, rotated or secondary displays, fullscreen) | #445, #517, #550, #609, #750, #780, #858, #863, #986, #988, #959 | Confirmed solved on a Mac in holzBar 0.0.6 |
+| Shape or tint drawn over a fullscreen app | #521 | Fullscreen spaces were never recognised: a private call was declared with the wrong return type, inherited from Ice. Now they are, so the overlay steps aside in fullscreen on every supported macOS. Not yet confirmed on a Mac |
 | Split shape on ultrawide and external displays | #94, #529, #573, #608 | Confirmed solved on a Mac in holzBar 0.0.6 |
 | Volume and brightness HUD hidden with its item on macOS 26 | #701, #719 | Confirmed solved on a Mac in holzBar 0.0.6 |
 | High CPU, energy or memory | #334, #479, #530, #578, #819 | Confirmed solved on a Mac in holzBar 0.0.6 |

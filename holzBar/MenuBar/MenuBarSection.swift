@@ -153,7 +153,18 @@ final class MenuBarSection {
 
     /// Shows the section.
     func show() {
-        guard let menuBarManager, isHidden else {
+        guard let menuBarManager else {
+            return
+        }
+
+        // Shown another way, the hidden section no longer hides after a moment, also
+        // when it is already shown. Showing the always-hidden section, which an item
+        // change does briefly, leaves the hidden section's timer running.
+        if name != .alwaysHidden {
+            menuBarManager.temporaryShowTask?.cancel()
+        }
+
+        guard isHidden else {
             return
         }
 
@@ -178,13 +189,17 @@ final class MenuBarSection {
 
             if let screen = screenForShelf {
                 Task {
-                    switch name {
+                    let shown = switch name {
                     case .visible, .hidden:
                         await menuBarManager.shelfPanel.show(section: .hidden, on: screen)
                     case .alwaysHidden:
                         await menuBarManager.shelfPanel.show(section: .alwaysHidden, on: screen)
                     }
-                    startRehideChecks()
+                    // A show cut short by a close leaves the section hidden, and its
+                    // rehide checks would keep running with nothing left to hide.
+                    if shown {
+                        startRehideChecks()
+                    }
                 }
             }
 
@@ -217,6 +232,11 @@ final class MenuBarSection {
             return
         }
 
+        // Hiding the always-hidden section alone can leave the hidden section shown, so
+        // its timer keeps running.
+        if name != .alwaysHidden {
+            menuBarManager.temporaryShowTask?.cancel()
+        }
         menuBarManager.shelfPanel.close() // Make sure the holzBar Shelf is always closed.
         menuBarManager.showOnHoverAllowed = true
 

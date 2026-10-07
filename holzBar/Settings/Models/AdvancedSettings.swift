@@ -91,7 +91,8 @@ final class AdvancedSettings {
     }
 
     /// A Boolean value that indicates whether a hidden item is shown in the menu bar to
-    /// open its menu; off, its menu opens without showing it, where the app allows.
+    /// open its menu; off, its menu opens without showing it, where the app allows. A press
+    /// blocked by the menu it opened counts as taken, so the item is then not shown.
     var openHiddenItemsInMenuBar = true {
         didSet {
             Defaults.set(openHiddenItemsInMenuBar, forKey: .openHiddenItemsInMenuBar)

@@ -94,7 +94,8 @@ nonisolated enum ItemIdentity {
     ///
     /// Earlier versions stored `namespace:raw title`; such a key is canonicalised, and for a
     /// namespace in `titleChangingOwners` it matches the app's first item. Keys this version
-    /// stored are returned unchanged.
+    /// stored are returned unchanged, including `namespace:2`, `namespace:3`, … of the later
+    /// items of an app whose items have no title.
     static func storedKey(_ stored: String, titleChangingOwners: Set<String>) -> String {
         guard let separator = stored.firstIndex(of: ":") else {
             // A namespace without a title.
@@ -108,6 +109,12 @@ nonisolated enum ItemIdentity {
             }
             return "\(namespace):#1"
         }
+        // A key of this version for a later item without a title: `namespace:<occurrence>`,
+        // which starts at 2 and has no leading zero. A raw title such as `0` or `01` is a
+        // key of an earlier version and is canonicalised below.
+        if title.wholeMatch(of: /[2-9]|[1-9]\d+/) != nil {
+            return stored
+        }
         // A key of this version: a canonical title (no digits, or an identifier) with an
         // optional `:<occurrence>`.
         if let match = title.wholeMatch(of: /(.*):(\d+)/) {
@@ -117,6 +124,23 @@ nonisolated enum ItemIdentity {
             }
         }
         return baseKey(namespace: namespace, canonicalTitle: canonicalTitle(title))
+    }
+
+    /// Returns the stored values keyed by the keys their stored keys match today
+    /// (``storedKey(_:titleChangingOwners:)``).
+    ///
+    /// When several stored keys match one key (a key of an earlier read or version next to
+    /// the current one), the value stored under exactly that key wins, else the one whose
+    /// stored key sorts first, so the choice is the same on every launch.
+    static func storedValues<Value>(_ stored: [String: Value], titleChangingOwners: Set<String>) -> [String: Value] {
+        var values = [String: Value]()
+        for (storedKey, value) in stored.sorted(by: { $0.key < $1.key }) {
+            let key = Self.storedKey(storedKey, titleChangingOwners: titleChangingOwners)
+            if storedKey == key || values[key] == nil {
+                values[key] = value
+            }
+        }
+        return values
     }
 
     // MARK: Private

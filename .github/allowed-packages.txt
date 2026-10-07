@@ -1,6 +1,9 @@
 # Swift packages holzBar may resolve, one repository URL per line (lower case,
 # without a trailing slash or .git). privacy-check.py network fails when
-# Package.resolved pins a package that is not listed here.
+# Package.resolved pins, or holzBar.xcodeproj references, a package that is not
+# listed here, when the project references a package without a committed
+# Package.resolved, and when any Package.swift depends on a package. While the
+# list is empty, any mention of a package object in the project fails.
 #
 # holzBar links no Swift package (since 05.1: its sliders, launch at login and
 # event lock are its own or the system's). A new package must be added here on

@@ -71,7 +71,10 @@ struct SectionedList<ItemID: Hashable>: View {
             }
         }
         .scrollIndicatorsFlash(trigger: scrollIndicatorsFlashTrigger)
-        .onKeyDown(key: .downArrow, isEnabled: selection != nil) {
+        .onKeyDown(key: .downArrow, isEnabled: selection != nil) { event in
+            guard handlesKeyDown(event) else {
+                return .ignored
+            }
             Task {
                 if let nextSelectableItem {
                     selection = nextSelectableItem.id
@@ -79,7 +82,10 @@ struct SectionedList<ItemID: Hashable>: View {
             }
             return .handled
         }
-        .onKeyDown(key: .upArrow, isEnabled: selection != nil) {
+        .onKeyDown(key: .upArrow, isEnabled: selection != nil) { event in
+            guard handlesKeyDown(event) else {
+                return .ignored
+            }
             Task {
                 if let previousSelectableItem {
                     selection = previousSelectableItem.id
@@ -87,7 +93,10 @@ struct SectionedList<ItemID: Hashable>: View {
             }
             return .handled
         }
-        .onKeyDown(key: .return, isEnabled: selection != nil) {
+        .onKeyDown(key: .return, isEnabled: selection != nil) { event in
+            guard handlesKeyDown(event) else {
+                return .ignored
+            }
             Task {
                 items.first { $0.id == selection }?.action?()
             }
@@ -123,6 +132,21 @@ struct SectionedList<ItemID: Hashable>: View {
             }
             scrollView.scrollTo(selection, anchor: anchor)
         }
+    }
+
+    /// Returns a Boolean value that indicates whether the list handles a key press.
+    ///
+    /// The key monitors see every key press in the app before the search field's
+    /// input method does, so the list leaves a key press to the field while it has
+    /// marked text (input-method composition) or while a modifier is held.
+    private func handlesKeyDown(_ event: NSEvent) -> Bool {
+        if
+            let client = event.window?.firstResponder as? NSTextInputClient,
+            client.hasMarkedText()
+        {
+            return false
+        }
+        return event.modifierFlags.isDisjoint(with: [.command, .option, .control, .shift])
     }
 
     private func scrollDirection(for selection: ItemID, geometry: GeometryProxy) -> ScrollDirection? {

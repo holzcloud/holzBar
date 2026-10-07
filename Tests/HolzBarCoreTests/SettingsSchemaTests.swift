@@ -103,6 +103,24 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["SyncsSettingsWithICloud"])
     }
 
+    @Test("A settings file cannot drop event barrier exits")
+    func settingsFileCannotDropBarrierExits() {
+        #expect(Defaults.Key.localOnlyKeys.contains(.debugDropsBarrierExitEvent))
+        #expect(Defaults.Key.importableKinds["DebugDropsBarrierExitEvent"] == nil)
+        let result = Defaults.Key.validatedSettings(["DebugDropsBarrierExitEvent": true, "ShowOnHover": true])
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["DebugDropsBarrierExitEvent"])
+    }
+
+    @Test("A settings file cannot hang item captures")
+    func settingsFileCannotHangItemCaptures() {
+        #expect(Defaults.Key.localOnlyKeys.contains(.debugHangsItemImageCapture))
+        #expect(Defaults.Key.importableKinds["DebugHangsItemImageCapture"] == nil)
+        let result = Defaults.Key.validatedSettings(["DebugHangsItemImageCapture": true, "ShowOnHover": true])
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["DebugHangsItemImageCapture"])
+    }
+
     @Test("Numbers out of range are clamped, and infinity and NaN refused")
     func numbersAreClamped() {
         let result = Defaults.Key.validatedSettings([
@@ -169,14 +187,46 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.useShelf.rawValue == "UseIceBar")
         #expect(Defaults.Key.hasImportedPreviousSettings.rawValue == "HasImportedIceSettings")
         #expect(Defaults.Key.macOS27ShelfWaitsForRefresh.rawValue == "MacOS27IceBarWaitsForRefresh")
+        #expect(Defaults.Key.debugDropsBarrierExitEvent.rawValue == "DebugDropsBarrierExitEvent")
+        #expect(Defaults.Key.debugHangsItemImageCapture.rawValue == "DebugHangsItemImageCapture")
         #expect(Defaults.Key.hotkeys.rawValue == "Hotkeys")
         #expect(Defaults.Key.menuBarAppearanceConfigurationV2.rawValue == "MenuBarAppearanceConfigurationV2")
+        #expect(Defaults.Key.holzBarIconShowsCaptureDot.rawValue == "HolzBarIconShowsCaptureDot")
+    }
+
+    @Test("Sync keeps the settings the other Mac lacks")
+    func syncKeepsMissingKeys() {
+        let removed = Defaults.Key.keysRemoved(
+            applying: ["A": 1],
+            over: ["A": 0, "B": 1],
+            removesMissingKeys: false
+        )
+        #expect(removed.isEmpty)
+    }
+
+    @Test("A file import removes the settings the file lacks")
+    func importRemovesMissingKeys() {
+        let removed = Defaults.Key.keysRemoved(
+            applying: ["A": 1],
+            over: ["C": 2, "A": 0, "B": 1],
+            removesMissingKeys: true
+        )
+        #expect(removed == ["B", "C"])
+    }
+
+    @Test("A setting in both is never removed")
+    func keyInBothIsKept() {
+        let current: [String: Any] = ["A": 0, "B": 1]
+        let accepted: [String: Any] = ["A": 1, "B": 2]
+        #expect(Defaults.Key.keysRemoved(applying: accepted, over: current, removesMissingKeys: true).isEmpty)
+        #expect(Defaults.Key.keysRemoved(applying: accepted, over: current, removesMissingKeys: false).isEmpty)
     }
 
     @Test("Settings keep their kinds")
     func settingsKeepTheirKinds() {
         #expect(Defaults.Key.hotkeys.settingsKind == .dictionary)
         #expect(Defaults.Key.showOnHover.settingsKind == .bool)
+        #expect(Defaults.Key.holzBarIconShowsCaptureDot.settingsKind == .bool)
         #expect(Defaults.Key.showOnHoverDelay.settingsKind == .number)
         #expect(Defaults.Key.layoutProfiles.settingsKind == .data)
         #expect(Defaults.Key.knownItemTags.settingsKind == .stringArray)

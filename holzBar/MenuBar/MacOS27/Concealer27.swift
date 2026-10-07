@@ -21,17 +21,47 @@ final class Concealer27 {
     @ObservationIgnored private let controller = ConcealmentController27(backend: MenuBarAssessmentAssertion27())
     @ObservationIgnored private let logger = Logger(category: "Concealer27")
     @ObservationIgnored private weak var appState: AppState?
-    /// Tasks that observe application launches and quits; cancelled with the concealer.
+    /// Tasks that observe display changes; cancelled with the concealer.
     @ObservationIgnored private var observerTasks = [Task<Void, Never>]()
+
+    /// Observes the running applications, so a menu bar agent that launches or quits is
+    /// noticed: NSWorkspace's launch and quit notifications reach regular apps only.
+    @ObservationIgnored private var runningApplicationsObservation: NSKeyValueObservation?
+
+    /// The bundle identifiers running at the last change of the running applications.
+    @ObservationIgnored private var runningBundleIDs = Set<String>()
     @ObservationIgnored private var applyTask: Task<Void, Never>?
     @ObservationIgnored private var suspendedUntil: ContinuousClock.Instant?
 
-    /// When concealment last changed, which is when the bar last started moving.
+    /// Counts the suspensions begun, so only the timer of the one that owns ``suspendedUntil``
+    /// puts concealment back.
+    @ObservationIgnored private var suspensionOwner = 0
+
+    /// When the last concealment change landed on the bar, which is when the bar last started
+    /// moving.
     @ObservationIgnored private var lastChangeAt = ContinuousClock.now
+
+    /// The applies queued, and whoever waits for one to land.
+    @ObservationIgnored private var applyLedger = ApplyLedger27<CheckedContinuation<Bool, Never>>()
+
+    /// How long a show is waited for. MenuBarAgent answers an activation within 3 s or the
+    /// activation times out (`MenuBarAssessmentAssertion27`), so a show that has not landed by
+    /// then is not waited for.
+    private static let applyWaitLimit = Duration.seconds(3)
 
     /// How long MenuBarAgent animates the bar after items are concealed or released
     /// (measured on macOS 27.0: about 250 ms, with a margin here).
     private static let settleAfterChange = Duration.milliseconds(400)
+
+    /// Failed applies in a row, each answered by one more try a moment later.
+    @ObservationIgnored private var failedApplies = 0
+
+    /// Counts the changes of `isConcealing` and `concealedPIDs`, so an apply that fails for
+    /// good corrects them only while they still describe its own target.
+    @ObservationIgnored private var stateGeneration = 0
+
+    /// How many times in a row a failed apply is tried again.
+    private static let maximumApplyRetries = 3
 
     /// Applications shown for a moment, with the number of callers showing each.
     @ObservationIgnored private var temporarilyShown = [String: Int]()
@@ -41,13 +71,31 @@ final class Concealer27 {
     /// Whether any application is meant to be concealed right now.
     private(set) var isConcealing = false
 
+    /// Whether a suspension under way lifted concealment; see ``concealsThroughSuspensions``.
+    private(set) var suspendedConcealment = SuspendedConcealment()
+
+    /// Whether any application is meant to be concealed, counting the ones a suspension
+    /// releases for a moment (a bridged click, a relayout for the notch).
+    ///
+    /// `isConcealing` turns `false` for every suspension. What follows concealment as a state,
+    /// such as the capture badge on holzBar's icon, reads this instead, so it does not flicker
+    /// with every click on a system item.
+    var concealsThroughSuspensions: Bool {
+        suspendedConcealment.conceals(isConcealing: isConcealing)
+    }
+
     /// Process identifiers of the applications meant to be concealed right now.
     private(set) var concealedPIDs = Set<pid_t>()
 
     /// Visible applications concealed for the moment so holzBar's icon clears the notch
     /// (`NotchCover27`). Never part of the saved layout; cleared when the active display
-    /// changes or an application launches or quits.
+    /// changes, an application that may own items launches or quits, or what the sections
+    /// conceal changes.
     @ObservationIgnored private var notchConcealed = Set<String>()
+
+    /// The applications the sections concealed when `update()` last ran, to tell when
+    /// `notchConcealed` is worth working out again.
+    @ObservationIgnored private var notchCoverBasis: Set<String>?
 
     /// The display whose notch `notchConcealed` was worked out for.
     @ObservationIgnored private var notchCoverDisplayID: CGDirectDisplayID?
@@ -83,20 +131,18 @@ final class Concealer27 {
             logger.error("MenuBarClientCore assertions are unavailable, so items will not be hidden")
             return
         }
-        let workspaceCenter = NSWorkspace.shared.notificationCenter
-        observerTasks.append(Task { [weak self] in
-            for await notification in workspaceCenter.notifications(named: NSWorkspace.didLaunchApplicationNotification) {
-                let application = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
-                self?.applicationDidLaunch(bundleID: application?.bundleIdentifier)
+        runningBundleIDs = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
+        // Reads only the bundle identifiers of the changed applications, keeps no reference to
+        // them, takes no lock and never waits: the handler runs on the main thread.
+        runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.old, .new]) { [weak self] _, change in
+            let changed = (change.newValue ?? []) + (change.oldValue ?? [])
+            guard changed.contains(where: { $0.bundleIdentifier != nil }) else {
+                return
             }
-        })
-        observerTasks.append(Task { [weak self] in
-            for await _ in workspaceCenter.notifications(named: NSWorkspace.didTerminateApplicationNotification) {
-                // The bar is laid out anew, so the notch is worked out again.
-                self?.notchConcealed.removeAll()
-                self?.update()
+            Task { @MainActor in
+                self?.runningApplicationsDidChange()
             }
-        })
+        }
         observerTasks.append(Task { [weak self] in
             let center = NotificationCenter.default
             for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
@@ -139,25 +185,67 @@ final class Concealer27 {
         }
     }
 
-    /// Answers an application's launch.
+    /// Answers a change of the running applications.
+    ///
+    /// Most changes leave the set of bundle identifiers as it was (a helper restarts, a second
+    /// instance starts) and do nothing. Otherwise concealment is worked out again only when an
+    /// application that may own items launched or quit (``AgentLaunches27``), at once: the
+    /// allowlist has to land before a launching agent creates its status item.
+    private func runningApplicationsDidChange() {
+        let applications = NSWorkspace.shared.runningApplications
+        let running = Set(applications.compactMap(\.bundleIdentifier))
+        guard running != runningBundleIDs else {
+            return
+        }
+        let instances = applications.compactMap { application -> AgentLaunches27.Instance? in
+            guard let bundleID = application.bundleIdentifier else {
+                return nil
+            }
+            let policy: AgentLaunches27.Policy = switch application.activationPolicy {
+            case .regular: .regular
+            case .accessory: .accessory
+            case .prohibited: .prohibited
+            @unknown default: .accessory
+            }
+            return (bundleID, application.bundleURL?.path(percentEncoded: false), policy)
+        }
+        let layout = savedLayout
+        let stored = Defaults.array(forKey: .knownApplications27) as? [String] ?? []
+        let known = Set(layout.keys).union(stored)
+        let concealedInLayout = Set(layout.filter { $0.value != .visible }.keys)
+        let reaction = AgentLaunches27.reaction(
+            previous: runningBundleIDs,
+            instances: instances,
+            known: known,
+            concealedInLayout: concealedInLayout
+        )
+        runningBundleIDs = reaction.running
+        guard reaction.updatesConcealment else {
+            return
+        }
+        logger.debug("Applications that may own items launched or quit (\(reaction.graces.count, privacy: .public) in concealed sections)")
+        applicationsDidChange(graces: reaction.graces)
+    }
+
+    /// Answers applications that may own items launching or quitting, with exactly one update.
     ///
     /// An application whose saved section is hidden or always hidden is shown until its item
     /// exists, or for at most 10 s, then concealed: concealed before its status item exists,
     /// it gets an item of 3 points (jordanbaird/Ice#1007).
-    private func applicationDidLaunch(bundleID: String?) {
+    ///
+    /// - Parameter candidates: The launched applications whose saved section is concealed.
+    private func applicationsDidChange(graces candidates: [String]) {
         // The bar is laid out anew, so the notch is worked out again.
         notchConcealed.removeAll()
-        guard
-            let bundleID,
-            let section = savedLayout[bundleID],
-            launchGrace.begin(bundleID, isConcealed: section != .visible, at: .now)
-        else {
+        let now = ContinuousClock.now
+        let begun = candidates.filter { launchGrace.begin($0, isConcealed: true, at: now) }
+        guard !begun.isEmpty else {
             update()
             return
         }
-        logger.debug("An application in a concealed section launched, showing it until its item exists")
-        showTemporarily(bundleID: bundleID)
-        // One bounded wait per grace.
+        logger.debug("\(begun.count, privacy: .public) applications in concealed sections launched, showing them until their items exist")
+        showTemporarily(bundleIDs: begun)
+        // One bounded wait per change.
         Task { [weak self] in
             try? await Task.sleep(for: LaunchGrace27.timeout)
             guard let self else {
@@ -190,26 +278,47 @@ final class Concealer27 {
 
     /// Derives what to conceal from holzBar's sections and applies it.
     func update() {
+        applyChanges()
+    }
+
+    /// Derives what to conceal from holzBar's sections and queues the apply.
+    ///
+    /// - Returns: Whether the change is on its way: queued now, or at the end of the suspension
+    ///   under way. `false` while concealment is paused or unavailable.
+    @discardableResult
+    private func applyChanges() -> Bool {
         guard let appState, MenuBarAssessmentAssertion27.isAvailable else {
-            return
+            return false
         }
         // While the screen is locked, the Mac sleeps or the session is away, the assertions
         // stay as they are; the concealment is applied again once the bar has settled.
         guard !appState.systemActivityMonitor.isPaused else {
-            return
+            return false
         }
         if let suspendedUntil, ContinuousClock.now < suspendedUntil {
-            return
+            return true
         }
         let applications = NSWorkspace.shared.runningApplications
         let running = Set(applications.compactMap(\.bundleIdentifier))
         let layout = SectionLayout27.effectiveLayout(observed: [:], saved: savedLayout, running: running)
+        let state = revealState(appState)
+        // What the sections conceal sets how crowded the bar is: once they conceal more (a
+        // reveal that ends, a layout edit), the notch is worked out again from the next settled
+        // read. When they conceal less, the bar is no roomier and the apps stay concealed; the
+        // next settled read adds more if the icon is under the notch again.
+        let sectionConcealed = ConcealmentPlanner27.effectivelyConcealed(
+            sets: ConcealmentPlanner27.concealedSets(layout: layout, state: state)
+        )
+        if let notchCoverBasis, NotchCover27.sectionsMayFreeRoom(before: notchCoverBasis, after: sectionConcealed) {
+            notchConcealed.removeAll()
+        }
+        notchCoverBasis = sectionConcealed
         // Applications concealed for the notch join whatever the sections conceal.
         let target = NotchCover27.adding(
             notchConcealed.subtracting(temporarilyShown.keys),
             to: ConcealmentPlanner27.concealedSets(
                 layout: layout,
-                state: revealState(appState),
+                state: state,
                 temporarilyShown: Set(temporarilyShown.keys)
             )
         )
@@ -221,20 +330,21 @@ final class Concealer27 {
         }
         isConcealing = !target.isEmpty
         defer { MenuBarItemProvider27.setConcealedPIDs(concealedPIDs) }
-        concealedPIDs = Set(applications.compactMap { application in
-            guard let bundleID = application.bundleIdentifier, concealed.contains(bundleID) else {
-                return nil
-            }
-            return application.processIdentifier
-        })
-        lastChangeAt = .now
+        concealedPIDs = Self.processIdentifiers(of: concealed, among: applications)
+        stateGeneration += 1
+        let generation = stateGeneration
         let previous = applyTask
-        let task = Task { [controller, logger] in
+        let sequence = applyLedger.queue()
+        let task = Task { [weak self, controller, logger] in
             await previous?.value
             do {
                 try await controller.apply(target: target, running: running)
+                self?.failedApplies = 0
+                self?.applyFinished(sequence, succeeded: true)
             } catch {
                 logger.error("Could not apply concealment: \(error, privacy: .private)")
+                self?.applyDidFail(generation: generation)
+                self?.applyFinished(sequence, succeeded: false)
             }
         }
         applyTask = task
@@ -249,6 +359,84 @@ final class Concealer27 {
             await self?.checkNotchCover()
             await self?.checkOwnIcon()
         }
+        return true
+    }
+
+    /// Records that an apply landed and answers whoever waited for it.
+    private func applyFinished(_ sequence: Int, succeeded: Bool) {
+        // The bar starts moving when the change lands, not when it was queued.
+        lastChangeAt = .now
+        for waiter in applyLedger.finish(sequence, succeeded: succeeded) {
+            waiter.resume(returning: succeeded)
+        }
+    }
+
+    /// Waits for the given apply to land, for at most ``applyWaitLimit``.
+    ///
+    /// The apply and the time limit share the continuation, and the ledger hands it to only
+    /// one of them. The shared timeout helpers do not fit: they wait for the operation to
+    /// return, and nothing cancels an apply.
+    ///
+    /// - Returns: Whether the apply succeeded in time.
+    private func waitForApply(_ apply: Int) async -> Bool {
+        await withCheckedContinuation { continuation in
+            guard let id = applyLedger.wait(for: apply, waiter: continuation) else {
+                continuation.resume(returning: applyLedger.lastSucceeded)
+                return
+            }
+            // Holds the concealer for at most the limit, so the continuation is always resumed.
+            Task {
+                try? await Task.sleep(for: Self.applyWaitLimit)
+                self.applyLedger.abandon(id)?.resume(returning: false)
+            }
+        }
+    }
+
+    /// Waits until the concealment changes queued so far have landed, so a capture never
+    /// photographs a bar whose change is still on its way.
+    func waitForPendingApplies() async {
+        guard applyLedger.hasPending else {
+            return
+        }
+        _ = await waitForApply(applyLedger.lastQueued)
+    }
+
+    /// Tries a failed apply again a moment later, a few times in a row, then follows the
+    /// assertions that are actually live.
+    ///
+    /// `isConcealing` and `concealedPIDs` already describe the concealment that failed, and
+    /// hit-testing, captures and the click bridge rely on them; MenuBarAgent can reject an
+    /// assertion or time out while it is busy, after login or wake.
+    private func applyDidFail(generation: Int) {
+        guard failedApplies < Self.maximumApplyRetries else {
+            // The next failure, from whatever change comes next, gets its own tries.
+            failedApplies = 0
+            guard generation == stateGeneration else {
+                return
+            }
+            logger.notice("Concealment could not be applied, keeping to the assertions still live")
+            let concealed = controller.liveConcealed
+            lastConcealed = concealed
+            isConcealing = controller.isActive
+            concealedPIDs = Self.processIdentifiers(of: concealed, among: NSWorkspace.shared.runningApplications)
+            MenuBarItemProvider27.setConcealedPIDs(concealedPIDs)
+            return
+        }
+        failedApplies += 1
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            self?.update()
+        }
+    }
+
+    /// The process identifiers of the given applications that are running.
+    private static func processIdentifiers(of bundleIDs: Set<String>, among applications: [NSRunningApplication]) -> Set<pid_t> {
+        Set(applications.compactMap { application in
+            guard let bundleID = application.bundleIdentifier, bundleIDs.contains(bundleID) else {
+                return nil
+            }
+            return application.processIdentifier
+        })
     }
 
     /// Puts holzBar's icon back when MenuBarAgent dropped it while concealing.
@@ -261,7 +449,7 @@ final class Concealer27 {
         guard
             let appState,
             isConcealing,
-            appState.settings.general.showHolzBarIcon,
+            CaptureIndicator.showsHolzBarIcon(isIconEnabled: appState.settings.general.showHolzBarIcon, badge: appState.captureBadge27),
             !didReinsertIcon
         else {
             readsWithoutIcon = 0
@@ -278,6 +466,38 @@ final class Concealer27 {
         }
         logger.notice("holzBar's icon went missing while concealing, putting it back")
         readsWithoutIcon = 0
+        didReinsertIcon = true
+        appState.menuBarManager.controlItem(withName: .visible)?.reinsert()
+    }
+
+    /// Puts holzBar's icon back when a capture starts and MenuBarAgent dropped the icon.
+    ///
+    /// holzBar's icon carries the capture dot while concealing. ``checkOwnIcon()`` looks for the
+    /// icon only after a concealment change, and a capture can start long after one
+    /// (jordanbaird/Ice#1001). Two reads of the settled bar without the icon, 400 ms apart, put
+    /// it back. Like ``checkOwnIcon()``, it puts the icon back at most once per change of
+    /// concealment, so captures that start and stop again never make it loop.
+    func checkOwnIconForCapture() async {
+        guard let appState, isConcealing, !didReinsertIcon else {
+            return
+        }
+        await waitForPendingApplies()
+        if let remaining = timeUntilSettled() {
+            try? await Task.sleep(for: remaining)
+        }
+        guard !Task.isCancelled, !(await MenuBarItemProvider27.items()).contains(where: { $0.tag == .visibleControlItem }) else {
+            return
+        }
+        try? await Task.sleep(for: Self.settleAfterChange)
+        guard
+            !Task.isCancelled,
+            isConcealing,
+            !didReinsertIcon,
+            !(await MenuBarItemProvider27.items()).contains(where: { $0.tag == .visibleControlItem })
+        else {
+            return
+        }
+        logger.notice("holzBar's icon was missing when a capture started, putting it back")
         didReinsertIcon = true
         appState.menuBarManager.controlItem(withName: .visible)?.reinsert()
     }
@@ -406,20 +626,18 @@ final class Concealer27 {
 
     /// Releases every assertion for a moment, so a click can reach a system item.
     func suspend(for duration: Duration) {
-        lastChangeAt = .now
-        suspendedUntil = .now + duration
+        let deadline = suspensionDeadline(for: duration)
+        let owner = beginSuspension(until: deadline)
         isConcealing = false
         concealedPIDs.removeAll()
+        stateGeneration += 1
         let previous = applyTask
-        applyTask = Task { [controller] in
+        applyTask = Task { [weak self, controller] in
             await previous?.value
             controller.releaseAll()
+            self?.lastChangeAt = .now
         }
-        Task { [weak self] in
-            try? await Task.sleep(for: duration)
-            self?.suspendedUntil = nil
-            self?.update()
-        }
+        scheduleEndOfSuspension(at: deadline, owner: owner)
     }
 
     /// Releases every assertion and returns once that has actually happened.
@@ -429,10 +647,10 @@ final class Concealer27 {
     /// still live, and MenuBarAgent ignores those — which is why a click on the clock sometimes
     /// did nothing and worked on the second try.
     func suspendReleased(for duration: Duration) async {
-        lastChangeAt = .now
-        suspendedUntil = .now + duration
+        let owner = beginSuspension(until: suspensionDeadline(for: duration))
         isConcealing = false
         concealedPIDs.removeAll()
+        stateGeneration += 1
         let previous = applyTask
         let release = Task { [controller] in
             await previous?.value
@@ -440,10 +658,57 @@ final class Concealer27 {
         }
         applyTask = release
         await release.value
+        lastChangeAt = .now
+        // The duration counts from the release, which can queue behind a change before it. A
+        // suspension begun meanwhile, or an early end, owns the deadline now.
+        guard suspensionOwner == owner else {
+            return
+        }
+        let deadline = suspensionDeadline(for: duration)
+        suspendedUntil = deadline
+        scheduleEndOfSuspension(at: deadline, owner: owner)
+    }
+
+    /// When a suspension for the given duration ends: never before the one under way, so a
+    /// short suspension (a bridged click's) cannot cut a longer one (a relayout's) short.
+    private func suspensionDeadline(for duration: Duration) -> ContinuousClock.Instant {
+        let deadline = ContinuousClock.now + duration
+        guard let suspendedUntil else {
+            return deadline
+        }
+        return max(suspendedUntil, deadline)
+    }
+
+    /// Makes a new suspension the owner of the deadline, which it never brings forward.
+    private func beginSuspension(until deadline: ContinuousClock.Instant) -> Int {
+        suspensionOwner += 1
+        suspendedUntil = deadline
+        updateSuspendedConcealment { $0.begin(isConcealing: isConcealing) }
+        return suspensionOwner
+    }
+
+    /// Changes ``suspendedConcealment``; an unchanged value is not assigned, so nothing
+    /// observes it.
+    private func updateSuspendedConcealment(_ change: (inout SuspendedConcealment) -> Void) {
+        var updated = suspendedConcealment
+        change(&updated)
+        if updated != suspendedConcealment {
+            suspendedConcealment = updated
+        }
+    }
+
+    /// Puts concealment back at the deadline, unless a later suspension or an early end owns it.
+    private func scheduleEndOfSuspension(at deadline: ContinuousClock.Instant, owner: Int) {
         Task { [weak self] in
-            try? await Task.sleep(for: duration)
-            self?.suspendedUntil = nil
-            self?.update()
+            try? await Task.sleep(until: deadline, clock: .continuous)
+            guard let self, suspensionOwner == owner else {
+                return
+            }
+            suspendedUntil = nil
+            // Within the same turn as the update, so observers see concealment go on again
+            // without a gap.
+            updateSuspendedConcealment { $0.end() }
+            update()
         }
     }
 
@@ -452,11 +717,14 @@ final class Concealer27 {
         guard suspendedUntil != nil else {
             return
         }
+        suspensionOwner += 1
         suspendedUntil = nil
+        updateSuspendedConcealment { $0.end() }
         update()
     }
 
-    /// How much of the bar's movement is still to come after the last concealment change.
+    /// How much of the bar's movement is still to come after the last concealment change
+    /// landed. A change still on its way is waited for with ``waitForPendingApplies()`` first.
     ///
     /// Work that runs while MenuBarAgent animates the bar lands on top of that animation:
     /// revealing the hidden items set off four overlapping display captures of 260–290 ms
@@ -507,6 +775,24 @@ final class Concealer27 {
         showTemporarily(bundleIDs: CollectionOfOne(bundleID))
     }
 
+    /// Shows an application for a moment and returns once MenuBarAgent applied the change that
+    /// shows it, to click or photograph its item where it is drawn.
+    /// Every call must be balanced by ``endTemporaryShow(bundleID:)``, whatever it returns.
+    ///
+    /// The item's frame is where it was last drawn until the change lands, and another item or
+    /// the clock may stand there by then.
+    ///
+    /// - Returns: Whether the change landed: `false` when concealment is paused or unavailable,
+    ///   the apply failed, or it took longer than 3 s.
+    func showTemporarily(bundleID: String) async -> Bool {
+        temporarilyShown[bundleID, default: 0] += 1
+        let carrying = applyLedger.nextApply
+        guard applyChanges() else {
+            return false
+        }
+        return await waitForApply(carrying)
+    }
+
     /// Ends one ``showTemporarily(bundleID:)``.
     func endTemporaryShow(bundleID: String) {
         endTemporaryShow(bundleIDs: CollectionOfOne(bundleID))
@@ -517,7 +803,8 @@ final class Concealer27 {
     ///
     /// An application missing from the saved layout is visible. holzBar remembers
     /// every application it has seen on the bar, so only new ones are placed, and
-    /// the first run only records what is there.
+    /// the first run only records what is there. This placement is holzBar's own and does
+    /// not count as a settings change for sync.
     func placeNewApplications(items: [MenuBarItem]) {
         guard let appState else {
             return
@@ -557,9 +844,13 @@ final class Concealer27 {
     }
 
     /// Moves an application to a section of the saved layout and applies it.
+    ///
+    /// Only the user moves an application this way (the Layout pane, with its undo), so it
+    /// counts as a settings change for sync.
     func setSection(_ section: MacOS27Section, for bundleID: String) {
         let updated = SectionLayout27.settingSection(section, for: bundleID, in: savedLayout)
         Defaults.set(updated.mapValues(\.rawValue), forKey: .macOS27Layout)
+        SettingsSync.userChangedLayout()
         update()
         Task { [weak self] in
             await self?.appState?.itemManager.cacheItemsRegardless()
@@ -577,6 +868,7 @@ final class Concealer27 {
     /// The bar is read once, the first time it can be: a user who has arranged a layout of their
     /// own keeps it, and a bar whose order macOS 27 has already rearranged is left alone (see
     /// ``SectionLayout27/seededLayout(items:hiddenControlItem:alwaysHiddenControlItem:)``).
+    /// This placement is holzBar's own and does not count as a settings change for sync.
     func seedLayoutIfNeeded(items: [MenuBarItem]) {
         guard
             !Defaults.bool(forKey: .macOS27LayoutSeeded),

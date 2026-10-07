@@ -31,6 +31,13 @@ struct URLCommandTests {
         #expect(command.arguments == ["My Work"])
     }
 
+    @Test("An encoded slash stays in the profile name")
+    func encodedSlashStaysInProfileName() {
+        // Integrations/Raycast/holzbar-profile.sh encodes "/" for this.
+        #expect(action("holzbar://profile/Home%2FOffice") == .applyProfile("Home/Office"))
+        #expect(action("holzbar://profile/Home/Office") == .applyProfile("Home"))
+    }
+
     @Test("The command is case-insensitive")
     func commandIsCaseInsensitive() throws {
         let command = try #require(parse("HOLZBAR://Toggle/Hidden"))
@@ -136,6 +143,16 @@ struct URLCommandTests {
             // Hiding stays possible; showing is refused where the section is known.
             #expect(URLCommand.Action.hide(.hidden).decision(zenMode: zen) == .perform)
         }
+    }
+
+    @Test("Zen mode refuses the search and Settings, which show hidden items")
+    func zenModeRefusesSearchAndSettings() {
+        for zen in [ZenMode(isManual: true), ZenMode(isAutomatic: true), ZenMode(isManual: true, isAutomatic: true)] {
+            #expect(URLCommand.Action.search.decision(zenMode: zen) == .refuse)
+            #expect(URLCommand.Action.settings.decision(zenMode: zen) == .refuse)
+        }
+        #expect(URLCommand.Action.search.decision(zenMode: ZenMode()) == .perform)
+        #expect(URLCommand.Action.settings.decision(zenMode: ZenMode()) == .perform)
     }
 
     @Test("Another app may turn Zen mode on without asking")

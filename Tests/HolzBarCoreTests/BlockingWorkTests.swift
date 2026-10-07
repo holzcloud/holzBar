@@ -43,4 +43,63 @@ struct BlockingWorkTests {
         let result = await BlockingWork.run(on: queue) { value }
         #expect(result == value)
     }
+
+    // MARK: Bounded
+
+    // An item image capture on macOS 26 can block its thread forever (F-13). The bounded
+    // variant gives the caller a fallback after the timeout; the work goes on blocking its
+    // queue, which is why later work has to go to another one.
+
+    @Test("Work that finishes in time returns its value")
+    func boundedReturnsTheValue() async {
+        let result = await BlockingWork.run(on: queue, timeout: .seconds(2), fallback: -1) { 7 }
+        #expect(result.value == 7)
+        #expect(!result.timedOut)
+    }
+
+    @Test("Work that blocks past the timeout returns the fallback on time")
+    func boundedReturnsTheFallbackOnTime() async {
+        let blocker = DispatchSemaphore(value: 0)
+        defer { blocker.signal() }
+        let start = ContinuousClock.now
+        let result = await BlockingWork.run(on: queue, timeout: .milliseconds(100), fallback: -1) {
+            blocker.wait()
+            return 1
+        }
+        let elapsed = start.duration(to: .now)
+        #expect(result.value == -1)
+        #expect(result.timedOut)
+        // Slack for shared CI runners, as in the task timeout tests.
+        #expect(elapsed < .milliseconds(100) + .milliseconds(400), "Returned after \(elapsed)")
+    }
+
+    @Test("A late completion does not resume the caller twice")
+    func lateCompletionResumesOnce() async {
+        let blocker = DispatchSemaphore(value: 0)
+        let result = await BlockingWork.run(on: queue, timeout: .milliseconds(100), fallback: -1) {
+            blocker.wait()
+            return 1
+        }
+        #expect(result.timedOut)
+        blocker.signal()
+        // The queue is serial, so this runs only after the late work finished and tried to
+        // resume; a second resume would trap the test process.
+        let next = await BlockingWork.run(on: queue) { 2 }
+        #expect(next == 2)
+    }
+
+    @Test("Work on a fresh queue runs while the old one is blocked")
+    func freshQueueRuns() async {
+        let blocker = DispatchSemaphore(value: 0)
+        defer { blocker.signal() }
+        let stuck = await BlockingWork.run(on: queue, timeout: .milliseconds(100), fallback: -1) {
+            blocker.wait()
+            return 1
+        }
+        #expect(stuck.timedOut)
+        let freshQueue = DispatchQueue(label: "BlockingWorkTests.fresh")
+        let result = await BlockingWork.run(on: freshQueue, timeout: .seconds(2), fallback: -1) { 5 }
+        #expect(result.value == 5)
+        #expect(!result.timedOut)
+    }
 }

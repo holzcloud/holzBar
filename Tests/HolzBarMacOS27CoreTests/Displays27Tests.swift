@@ -40,6 +40,18 @@ struct NotchCover27Tests {
         #expect(NotchCover27.adding(["a"], to: []) == [["a"]])
         #expect(NotchCover27.adding(["a"], to: [["x"], ["x", "y"]]) == [["x", "a"], ["x", "y", "a"]])
     }
+
+    @Test("Only sections that conceal more free room for the notch")
+    func freeRoom() {
+        // Hiding the Hidden section again conceals more.
+        #expect(NotchCover27.sectionsMayFreeRoom(before: ["x"], after: ["x", "h"]))
+        // A layout edit that moves one app into a concealed section and another out of it.
+        #expect(NotchCover27.sectionsMayFreeRoom(before: ["x"], after: ["y"]))
+        // Revealing the Hidden section conceals less, so the bar is no roomier.
+        #expect(!NotchCover27.sectionsMayFreeRoom(before: ["x", "h"], after: ["x"]))
+        #expect(!NotchCover27.sectionsMayFreeRoom(before: ["x"], after: ["x"]))
+        #expect(!NotchCover27.sectionsMayFreeRoom(before: ["x"], after: []))
+    }
 }
 
 @Suite("LaunchGrace27")
