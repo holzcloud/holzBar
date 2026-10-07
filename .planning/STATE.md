@@ -188,5 +188,5 @@ Items acknowledged and deferred at milestone close, most recent first:
 ## Session Continuity
 
 Last session: 2026-10-07
-Stopped at: Session resumed. Sync redesign analysis finished (judge panel and synthesis in `.planning/research/sync-redesign/SYNC-REDESIGN-ANALYSIS.md`); maintainer decisions recorded in `.planning/research/sync-redesign/DECISIONS.md` (one file per Mac, settings on macOS 26 and 27, arrangement and profiles only between macOS 27 Macs, per-unit merge, keep publishing while a question waits, beta1 Macs as a separate group). Next: `/gsd-phase` adds "Settings sync redesign" before the 0.0.7-beta3 release, then `/gsd-spec-phase`, `/gsd-plan-phase` (simulator first).
+Stopped at: Phase 28 planning interrupted by the usage limit. Done: phase added, 28-CONTEXT.md, 28-UI-SPEC.md (approved), 28-PATTERNS.md. The planner wrote 28-01 to 28-06-PLAN.md but stopped before finishing (possibly incomplete, not plan-checked). Next: re-run `/gsd-plan-phase 28` and choose to review/complete the existing plans, then the plan checker, then `/gsd-execute-phase 28`.
 Resume file: None
