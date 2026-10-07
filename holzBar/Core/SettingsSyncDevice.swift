@@ -75,10 +75,41 @@ nonisolated enum SettingsSyncDevice {
         return hardwareHash(of: hardwareID, salt: salt) == storedHash ? .same : .otherMac
     }
 
+    /// Decides whether the defaults that hold the sync id belong to this Mac and this user
+    /// account: the hash includes the user ID, so an account copied on the same Mac gets its
+    /// own id. A hash of an older build (without the user ID) does not match.
+    ///
+    /// - Parameters:
+    ///   - storedHash: The hash stored beside the sync id, if any.
+    ///   - salt: The salt stored beside it, if any.
+    ///   - hardwareID: This Mac's hardware UUID, if it could be read.
+    ///   - uid: The user ID of the running account.
+    static func identity(storedHash: String?, salt: Data?, hardwareID: String?, uid: UInt32) -> Identity {
+        guard let hardwareID else {
+            return .unknown
+        }
+        guard let storedHash, let salt else {
+            return .firstSeen
+        }
+        return hardwareHash(of: hardwareID, uid: uid, salt: salt) == storedHash ? .same : .otherMac
+    }
+
     /// The SHA-256 of the salt followed by the hardware UUID, as 64 lower-case hexadecimal
-    /// characters.
+    /// characters. This is the hash of 0.0.6 and the first betas of 0.0.7; it is only read,
+    /// to recognise those hashes (``hardwareHash(of:uid:salt:)`` is the one written).
     static func hardwareHash(of hardwareID: String, salt: Data) -> String {
         SHA256.hash(data: salt + Data(hardwareID.utf8)).map { String(format: "%02x", $0) }.joined()
+    }
+
+    /// The SHA-256 of the salt, the hardware UUID and the user ID (4 bytes, big endian), as 64
+    /// lower-case hexadecimal characters.
+    ///
+    /// The hash stays in this Mac's preferences: it is never exported, imported, synced or
+    /// logged, and it holds neither the hardware UUID nor the user ID in a form that can be
+    /// read back (analysis section 4.5; the privacy document says so).
+    static func hardwareHash(of hardwareID: String, uid: UInt32, salt: Data) -> String {
+        let userID = withUnsafeBytes(of: uid.bigEndian) { Data($0) }
+        return SHA256.hash(data: salt + Data(hardwareID.utf8) + userID).map { String(format: "%02x", $0) }.joined()
     }
 
     /// A new random salt of 32 bytes.
