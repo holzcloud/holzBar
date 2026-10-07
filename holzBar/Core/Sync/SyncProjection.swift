@@ -321,7 +321,7 @@ nonisolated enum SyncProjection {
             writeDictionary(Defaults.Key.macOS27Layout.rawValue, changes, defaults: defaults, into: &writes) { payload in
                 // Visible is the absence of a stored section.
                 if case .value(let value) = payload, let section = value.integerValue, section != 0 {
-                    return section
+                    return Int(section)
                 }
                 return nil
             }
