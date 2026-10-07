@@ -30,4 +30,4 @@ Plan the redesign as its own GSD phase (discuss, plan, execute, verify), not wit
 
 ## Update 2026-10-07
 
-Analysis finished and decided: see `.planning/research/sync-redesign/DECISIONS.md` (D2 single shared file; settings on macOS 26 and 27; arrangement and profiles only between macOS 27 Macs). Next: add the phase with `/gsd-phase`.
+Analysis finished and decided: see `.planning/research/sync-redesign/DECISIONS.md` (one file per Mac, D1 engine; settings on macOS 26 and 27; arrangement and profiles only between macOS 27 Macs). Next: add the phase with `/gsd-phase`.

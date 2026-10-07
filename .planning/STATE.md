@@ -4,7 +4,7 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: "Sync redesign decided (D2 single file, settings on 26+27, arrangement and profiles only on 27); next is /gsd-phase to add the sync redesign phase for 0.0.7-beta3"
+stopped_at: "Sync redesign decided (one file per Mac, settings on 26+27, arrangement and profiles only on 27); next is /gsd-phase to add the sync redesign phase for 0.0.7-beta3"
 last_updated: "2026-10-07T12:00:00.000Z"
 last_activity: 2026-10-07
 last_activity_desc: "0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded"
@@ -184,5 +184,5 @@ Items acknowledged and deferred at milestone close, most recent first:
 ## Session Continuity
 
 Last session: 2026-10-07
-Stopped at: Session resumed. Sync redesign analysis finished (judge panel and synthesis in `.planning/research/sync-redesign/SYNC-REDESIGN-ANALYSIS.md`); maintainer decisions recorded in `.planning/research/sync-redesign/DECISIONS.md` (D2 single shared file, settings on macOS 26 and 27, arrangement and profiles only between macOS 27 Macs, per-unit merge, keep publishing while a question waits, beta1 Macs as a separate group). Next: `/gsd-phase` adds "Settings sync redesign" before the 0.0.7-beta3 release, then `/gsd-spec-phase`, `/gsd-plan-phase` (simulator first).
+Stopped at: Session resumed. Sync redesign analysis finished (judge panel and synthesis in `.planning/research/sync-redesign/SYNC-REDESIGN-ANALYSIS.md`); maintainer decisions recorded in `.planning/research/sync-redesign/DECISIONS.md` (one file per Mac, settings on macOS 26 and 27, arrangement and profiles only between macOS 27 Macs, per-unit merge, keep publishing while a question waits, beta1 Macs as a separate group). Next: `/gsd-phase` adds "Settings sync redesign" before the 0.0.7-beta3 release, then `/gsd-spec-phase`, `/gsd-plan-phase` (simulator first).
 Resume file: None
