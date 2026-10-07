@@ -71,17 +71,23 @@ extension SimValue {
     }
 }
 
-/// A simulated Mac that runs the real ``SyncEngine``. It feeds events in, executes the effects
-/// the engine returns strictly in order, and answers the oracles' questions about files and about
-/// itself. Everything is deterministic: the clock is the Mac's wall clock, the randomness is the
-/// Mac's own stream and the I/O is ``SimFolderIO`` on the simulated folder.
+/// A simulated Mac that runs the real ``SyncEngine``. It does what the app's host does: it reads the
+/// preferences and Sigma and feeds the launch in, hands every other event to the engine, and executes
+/// the effects the engine returns strictly in order. It opens the sheet when the engine has a question
+/// and the hint is showing, and it answers it with the engine's own answer commands. Everything is
+/// deterministic: the clock is the Mac's wall clock, the randomness is the Mac's own stream and the
+/// I/O is ``SimFolderIO`` on the simulated folder.
 ///
-/// The engine state lives in the Mac's Sigma blob. Plan 28-08 replaces the bootstrap this
-/// adapter does at its first launch (a Sigma that already belongs to a group, enabled, with an
-/// empty replica) with the real launch and join events.
+/// The engine state lives in the Mac's Sigma blob, which the adapter writes only when the engine says
+/// `persist`, so a crash between two effects leaves exactly what had been persisted.
 struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     static let counterMirrorKey = "SettingsSyncCounter"
     static let generationKey = "SettingsSyncGeneration"
+    static let deviceIDKey = "SettingsSyncDeviceID"
+    static let deviceHashKey = "SettingsSyncDeviceHash"
+    static let deviceSaltKey = "SettingsSyncDeviceSalt"
+    static let legacyDeviceIDKey = "SettingsSyncLegacyDeviceID"
+    static let lastSyncedKey = "SettingsSyncLastSynced"
 
     var kind: SimMacVersion { .redesign }
 
@@ -89,14 +95,8 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     var guards = SyncGuards.all
     let table: SyncUnitTable
 
-    /// Whether launch applies the fast-forwards that wait, as the app does at launch from the
-    /// persisted replica (analysis section 4.6.6, step 8). Until plan 28-08 adds the launch event
-    /// to the engine, the adapter does it with the restart command and keeps the relaunch back.
-    var appliesAtLaunch = true
-
     /// The engine state while the app runs; `nil` while it does not.
     private var live: SyncState?
-    private var ignoresRelaunch = false
     private var pendingFresh: SyncFreshIdentity?
     /// Which tokens each dot carried, for the oracles' questions. It is bookkeeping of the test
     /// harness, not engine memory, so it outlives a crash.
@@ -105,6 +105,21 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     private var cachedView = SyncView(hint: nil, lines: [])
     private var cachedReport = SimBrainReport()
 
+    // The sheet. It stays as it was shown until it is answered or its question is gone.
+    private var question: SyncQuestion?
+    private var prompt: SimPrompt?
+    /// Survives relaunches so that prompt IDs stay unique per Mac.
+    private var promptCounter = 0
+    private var promptWasOpenAtStart = false
+
+    // What the hook did, for the oracles.
+    private var joinedInHook = false
+    private var inLaunch = false
+    private var reidentifyReason: String?
+    private var lastJoinVersions: [Int] = []
+    private var unreadListed: Set<String> = []
+    private var refusedListed: Set<String> = []
+
     init(table: SyncUnitTable = SimEngineUnits.table(), guards: SyncGuards = .all) {
         self.table = table
         self.guards = guards
@@ -112,38 +127,49 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
 
     // MARK: Hooks
 
+    private mutating func begin(launching: Bool = false) {
+        promptWasOpenAtStart = prompt != nil
+        joinedInHook = false
+        inLaunch = launching
+        reidentifyReason = nil
+    }
+
     mutating func launch(_ context: inout SimMacContext) {
+        begin(launching: true)
         live = nil
-        guard context.enabled, context.folderID != nil else {
-            return
+        question = nil
+        prompt = nil
+        if pendingFresh == nil {
+            pendingFresh = Self.freshIdentity(&context)
         }
-        ensureLive(&context)
-        run(.defaultsChanged(snapshot(context)), &context)
-        run(.timer(.periodic), &context)
-        if appliesAtLaunch {
-            ignoresRelaunch = true
-            run(.command(.restart), &context)
-            ignoresRelaunch = false
-        }
+        let step = SyncEngine.launch(launchInput(context), environment: environment(context))
+        perform(step, &context)
     }
 
     mutating func quit(_ context: inout SimMacContext) {
+        begin()
         guard live != nil else {
             return
         }
         run(.quit(snapshot(context)), &context)
         live = nil
+        question = nil
+        prompt = nil
     }
 
     mutating func processDied() {
         live = nil
+        question = nil
+        prompt = nil
     }
 
     mutating func defaultsChanged(origin: SimChangeOrigin, units: [String], _ context: inout SimMacContext) {
+        begin()
         run(.defaultsChanged(snapshot(context)), &context)
     }
 
     mutating func folderSignal(_ context: inout SimMacContext) {
+        begin()
         guard live != nil else {
             return
         }
@@ -151,6 +177,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     }
 
     mutating func timerFired(tag: String, _ context: inout SimMacContext) {
+        begin()
         guard let timer = Self.timer(forTag: tag) else {
             return
         }
@@ -158,30 +185,20 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     }
 
     mutating func userCommand(_ command: SimUserCommand, _ context: inout SimMacContext) {
+        begin()
         switch command {
-        case .turnOn(let folder), .changeFolder(let folder):
-            context.enabled = true
-            context.folderID = folder
-            ensureLive(&context)
-            live?.isEnabled = true
-            run(.defaultsChanged(snapshot(context)), &context)
-            run(.timer(.periodic), &context)
+        case .turnOn(let folder):
+            run(.command(.turnOn(folder)), &context)
+        case .changeFolder(let folder):
+            run(.command(.changeFolder(folder)), &context)
         case .turnOff:
-            context.enabled = false
-            for timer in Self.allTimers {
-                context.cancelTimer(tag: Self.tag(of: timer))
-            }
-            if var state = live {
-                state.isEnabled = false
-                live = state
-                store(state, &context)
-            }
+            run(.command(.turnOff), &context)
         case .restart:
             run(.command(.restart), &context)
         case .importFile:
-            run(.defaultsChanged(snapshot(context)), &context)
-        case .answer:
-            break
+            run(.command(.importFinished(snapshot(context))), &context)
+        case .answer(let answer):
+            self.answer(answer, &context)
         }
     }
 
@@ -196,6 +213,8 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         }
     }
 
+    var openPrompt: SimPrompt? { prompt }
+
     var heldTokens: Set<String> { cachedHeld }
 
     // MARK: Running the engine
@@ -208,18 +227,49 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
             pendingFresh = Self.freshIdentity(&context)
         }
         let step = SyncEngine.handle(event, state: state, environment: environment(context))
+        perform(step, &context)
+    }
+
+    /// Takes the new state, then carries out the effects in the order the engine gave them. A crash the
+    /// world asked for stops the Mac between two effects, with only what was persisted by then.
+    private mutating func perform(_ step: SyncStep, _ context: inout SimMacContext) {
+        if let previous = live {
+            learn(previous)
+        }
         live = step.state
         if let fresh = pendingFresh, step.state.mac == fresh.mac {
             pendingFresh = nil
         }
         learn(step.state)
-        for effect in step.effects {
-            execute(effect, &context)
+        if step.effects.contains(where: { if case .commitFolder = $0 { true } else { false } }) {
+            // The join decided on the folder: what it read becomes part of what this Mac has seen.
+            for version in lastJoinVersions {
+                context.reportIngest(version: version)
+            }
+            joinedInHook = true
         }
-        refresh(context)
+        for effect in step.effects {
+            guard !context.crashed else {
+                break
+            }
+            execute(effect, &context)
+            if context.effectRun() {
+                break
+            }
+        }
+        if context.crashed {
+            live = nil
+            question = nil
+            prompt = nil
+            return
+        }
+        refresh(&context)
     }
 
     private mutating func execute(_ effect: SyncEffect, _ context: inout SimMacContext) {
+        guard !context.crashed else {
+            return
+        }
         switch effect {
         case .applyUnits(let changes):
             for key in changes.keys.sorted() {
@@ -239,11 +289,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
                 store(state, &context)
             }
         case .readFolder(let request):
-            let result = SimFolderIO.read(request, &context)
-            for version in newVersions(in: result) {
-                context.reportIngest(version: version)
-            }
-            run(.folderRead(result.read, purpose: request.purpose), &context)
+            readFolder(request, &context)
         case .writeOwnFile(let request):
             let result = SimFolderIO.write(request, &context)
             run(.writeFinished(result), &context)
@@ -258,12 +304,68 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         case .cancelTimer(let timer):
             context.cancelTimer(tag: Self.tag(of: timer))
         case .relaunch:
-            if !ignoresRelaunch {
-                context.requestRelaunch()
-            }
+            context.requestRelaunch()
         case .requestDownload(let macs):
             for mac in macs {
                 context.requestDownload(SimFolderIO.path(of: mac))
+            }
+        case .storeIdentity(let mac, let legacyID):
+            storeIdentity(mac, legacyID: legacyID, &context)
+        case .commitFolder(let folder):
+            context.enabled = true
+            context.folderID = folder
+            context.pendingFolderID = nil
+        case .forgetFolder:
+            context.enabled = false
+            context.folderID = nil
+            context.pendingFolderID = nil
+        }
+    }
+
+    private mutating func readFolder(_ request: SyncReadRequest, _ context: inout SimMacContext) {
+        var isJoin = false
+        if case .join = request.purpose {
+            isJoin = true
+        }
+        // A join reads the folder the user chose, which is not the sync folder before it commits.
+        let saved = context.folderID
+        if isJoin, let folder = live?.pendingJoin?.folderIdentity {
+            context.folderID = folder
+        }
+        let result = SimFolderIO.read(request, &context)
+        context.folderID = saved
+        if isJoin {
+            recordJoinRead(result)
+        } else {
+            for version in newVersions(in: result) {
+                context.reportIngest(version: version)
+            }
+        }
+        run(.folderRead(result.read, purpose: request.purpose), &context)
+    }
+
+    /// What the join found: the versions it will have seen at the commit, and which listed files it
+    /// could not read yet or refused for good.
+    private mutating func recordJoinRead(_ result: SimFolderReadResult) {
+        lastJoinVersions = result.versions.values.sorted()
+        unreadListed = []
+        refusedListed = []
+        for file in result.read.files {
+            guard let mac = file.macID else {
+                continue
+            }
+            let path = SimFolderIO.path(of: mac)
+            switch file.state {
+            case .dataless, .pending:
+                unreadListed.insert(path)
+            case .refused(let refusal):
+                if refusal == .unreadable {
+                    unreadListed.insert(path)
+                } else {
+                    refusedListed.insert(path)
+                }
+            case .contents, .conflictCopy:
+                break
             }
         }
     }
@@ -286,6 +388,66 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         return versions
     }
 
+    /// What the host does for `storeIdentity`: the ID, the salt, the hash that binds the ID to this Mac and
+    /// this account, and the earlier ID.
+    private mutating func storeIdentity(_ mac: SyncMacID, legacyID: String?, _ context: inout SimMacContext) {
+        var salt = Data(context.environment.salt.utf8)
+        if case .data(let stored)? = context.defaults[Self.deviceSaltKey] {
+            salt = stored
+        }
+        context.defaults[Self.deviceSaltKey] = .data(salt)
+        context.defaults[Self.deviceIDKey] = .string(mac.rawValue)
+        context.defaults[Self.deviceHashKey] = .string(
+            SettingsSyncDevice.hardwareHash(of: context.environment.hardwareID, uid: UInt32(max(0, context.environment.uid)), salt: salt)
+        )
+        if let legacyID {
+            context.defaults[Self.legacyDeviceIDKey] = .string(legacyID)
+        }
+        if reidentifyReason == nil, cachedReport.deviceID != nil {
+            reidentifyReason = inLaunch ? "hardware" : "collision"
+        }
+    }
+
+    // MARK: Inputs
+
+    private func launchInput(_ context: SimMacContext) -> SyncLaunchInput {
+        var generation: UInt64?
+        if case .int(let number)? = context.defaults[Self.generationKey] {
+            generation = UInt64(max(0, number))
+        }
+        var lastSynced: Date?
+        if case .int(let milliseconds)? = context.defaults[Self.lastSyncedKey] {
+            lastSynced = Date(timeIntervalSince1970: Double(milliseconds) / 1000)
+        }
+        var storedID: String?
+        if case .string(let id)? = context.defaults[Self.deviceIDKey] {
+            storedID = id
+        }
+        var storedHash: String?
+        if case .string(let hash)? = context.defaults[Self.deviceHashKey] {
+            storedHash = hash
+        }
+        var salt: Data?
+        if case .data(let data)? = context.defaults[Self.deviceSaltKey] {
+            salt = data
+        }
+        return SyncLaunchInput(
+            snapshot: snapshot(context),
+            stored: context.sigma.map { SyncStateCodec.decode($0) } ?? .unreadable,
+            identity: SyncIdentityInput(
+                storedID: storedID,
+                storedHash: storedHash,
+                salt: salt,
+                hardwareID: context.environment.hardwareID,
+                uid: UInt32(max(0, context.environment.uid))
+            ),
+            defaultsGeneration: generation,
+            lastSyncedSeen: lastSynced,
+            syncIsOn: context.enabled && context.folderID != nil,
+            folder: context.folderID
+        )
+    }
+
     private func environment(_ context: SimMacContext) -> SyncEnvironment {
         var mirror: UInt64 = 0
         if case .int(let number)? = context.defaults[Self.counterMirrorKey] {
@@ -304,34 +466,6 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
 
     private static func highWater(_ context: SimMacContext) -> UInt64 {
         context.caches.flatMap { String(data: $0, encoding: .utf8) }.flatMap { UInt64($0) } ?? 0
-    }
-
-    // MARK: State
-
-    /// The engine state of this Mac: Sigma if it holds one, else a new one that already belongs
-    /// to a group.
-    private mutating func ensureLive(_ context: inout SimMacContext) {
-        if live != nil {
-            return
-        }
-        var state: SyncState
-        if let data = context.sigma, case .state(let decoded) = SyncStateCodec.decode(data) {
-            state = decoded
-        } else {
-            let fresh = Self.freshIdentity(&context)
-            state = SyncState(mac: fresh.mac, nonce: fresh.nonce, isEnabled: true)
-            // Every whole unit starts with the value this Mac holds as its baseline: nothing in
-            // it is a change of the user's.
-            let current = snapshot(context)
-            for key in table.wholeKeys {
-                state.baseline[key] = current.values[key]?.digest ?? .unset
-            }
-            store(state, &context)
-        }
-        state.isEnabled = context.enabled
-        live = state
-        learn(state)
-        refresh(context)
     }
 
     private func store(_ state: SyncState, _ context: inout SimMacContext) {
@@ -384,13 +518,115 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         allTimers.first { self.tag(of: $0) == tag }
     }
 
+    // MARK: The sheet
+
+    /// Opens the sheet when the engine has a question and the hint shows; closes it when the question
+    /// is gone (answered, or decided elsewhere) or the hint hides (Later). A sheet that is open stays as
+    /// it was shown, and a new one never opens in the hook that closed the last, as in the app.
+    private mutating func updatePrompt(_ context: inout SimMacContext) {
+        guard let state = live else {
+            question = nil
+            prompt = nil
+            return
+        }
+        let current = SyncEngine.question(for: state, scope: .mine, environment: environment(context))
+        let isShowing = cachedView.hint == .choose || cachedView.hint == .chooseAfterJoin
+        if prompt != nil {
+            if current == nil || !isShowing {
+                question = nil
+                prompt = nil
+            }
+            return
+        }
+        guard let current, isShowing, !promptWasOpenAtStart else {
+            return
+        }
+        promptCounter += 1
+        let opened = Self.simPrompt(for: current, id: promptCounter)
+        question = current
+        prompt = opened
+        context.reportPrompt(opened)
+    }
+
+    private static func simPrompt(for question: SyncQuestion, id: Int) -> SimPrompt {
+        var shown: [SimPromptUnit] = []
+        for row in question.rows {
+            let unit = SimEngineUnits.unit(of: row.unit)
+            let local = row.local.flatMap(token(of:))
+            for value in row.folder {
+                shown.append(SimPromptUnit(unit: unit, local: local, folder: token(of: value)))
+            }
+            if case .clash(let partner) = row.style {
+                // The other hotkey that holds the combination is what the answer may take away.
+                shown.append(SimPromptUnit(unit: SimEngineUnits.unit(of: partner), local: nil, folder: row.folder.first.flatMap(token(of:))))
+            }
+        }
+        let title = question.kind == .joining ? "This folder already holds holzBar settings" : "Which settings should holzBar use?"
+        return SimPrompt(id: id, title: title, shown: shown)
+    }
+
+    private static func token(of value: SyncRowValue) -> String? {
+        guard case .value(let synced) = value.value, let value = SimValue(sync: synced) else {
+            return nil
+        }
+        return value.tokens.first
+    }
+
+    /// The simulator's answer as the engine's: the button, and for every pop-up row the pick that goes
+    /// with the button (Use takes a value of the folder, Keep the value this Mac holds).
+    private mutating func answer(_ answer: SimAnswer, _ context: inout SimMacContext) {
+        guard let question, prompt != nil else {
+            return
+        }
+        var choices: [SyncUnitKey: Int] = [:]
+        let button: SyncAnswerButton
+        switch answer {
+        case .use:
+            button = .use
+        case .keep:
+            button = .keep
+        case .later:
+            button = .later
+        case .cancel:
+            button = .cancel
+        case .pick(let picks):
+            button = .useChosen
+            for (unit, side) in picks {
+                guard let key = SimEngineUnits.key(ofUnit: unit), let row = question.rows.first(where: { $0.unit == key }) else {
+                    continue
+                }
+                choices[key] = Self.index(of: side == .local ? .keep : .use, in: row)
+            }
+        }
+        for row in question.rows where choices[row.unit] == nil {
+            switch row.style {
+            case .multi, .bystander:
+                choices[row.unit] = Self.index(of: answer == .keep ? .keep : .use, in: row)
+            default:
+                break
+            }
+        }
+        run(.command(.answer(SyncAnswerRequest(button: button, choices: choices, question: question))), &context)
+    }
+
+    /// The index of the value a pop-up pick takes: the value this Mac holds for Keep, another one for Use.
+    private static func index(of answer: SimAnswer, in row: SyncRow) -> Int {
+        let local = row.local?.value
+        if answer == .keep {
+            return row.folder.firstIndex { $0.value == local } ?? 0
+        }
+        return row.folder.firstIndex { $0.value != local } ?? 0
+    }
+
     // MARK: Bookkeeping for the oracles
 
     /// Remembers the token every live entry carries, by dot.
     private mutating func learn(_ state: SyncState) {
-        for key in state.replica.keys {
-            for entry in state.replica.live(key) {
-                dotTokens[entry.dot, default: []].formUnion(Self.tokens(of: entry))
+        for replica in [state.replica, state.pendingJoin?.replica].compactMap({ $0 }) {
+            for key in replica.keys {
+                for entry in replica.live(key) {
+                    dotTokens[entry.dot, default: []].formUnion(Self.tokens(of: entry))
+                }
             }
         }
     }
@@ -402,12 +638,14 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         return Set(sim.tokens)
     }
 
-    private mutating func refresh(_ context: SimMacContext) {
+    private mutating func refresh(_ context: inout SimMacContext) {
         guard let state = live else {
             return
         }
         let environment = environment(context)
         cachedView = SyncEngine.view(of: state, environment: environment)
+        context.pendingFolderID = state.pendingJoin?.folderIdentity
+        updatePrompt(&context)
         var held = Set<String>()
         var applied = Set<String>()
         var waiting = Set<String>()
@@ -423,11 +661,23 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
                 }
             }
         }
+        // What a join has read but not committed is held too: nothing is lost while the question waits.
+        if let pending = state.pendingJoin {
+            for key in pending.replica.keys {
+                for entry in pending.replica.live(key) {
+                    held.formUnion(Self.tokens(of: entry))
+                }
+            }
+        }
         cachedHeld = held
         var report = SimBrainReport()
         report.deviceID = state.mac.rawValue
         report.ownFilePath = SimFolderIO.path(of: state.mac)
-        report.joining = state.pendingJoin != nil
+        report.joining = state.pendingJoin != nil || joinedInHook
+        report.joinCommitted = state.pendingJoin == nil && context.enabled
+        report.unreadListedFiles = unreadListed
+        report.refusedFiles = refusedListed
+        report.reidentifyReason = reidentifyReason
         report.ownCounter = Int(clamping: state.counter)
         // The oracles' menu hint is the Choose Settings hint: a bystander gets none (INV-P7). A
         // Restart hint is shown in the menu too, but it is no question.
@@ -469,9 +719,15 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         guard let contents = Self.contents(path: path, data: data) else {
             return nil
         }
+        // The oracle asks for user changes: a value that was there before sync and a value holzBar
+        // placed itself are held and relayed, but they are no user change that a file could claim.
         var claimed = Set<String>()
         for (dot, tokens) in dotTokens where contents.replica.context.covers(dot) {
-            claimed.formUnion(tokens)
+            for token in tokens {
+                if case .user? = SimValue.origin(ofToken: token) {
+                    claimed.insert(token)
+                }
+            }
         }
         return claimed
     }

@@ -33,6 +33,16 @@ enum SimFolderIO {
     // MARK: Read
 
     static func read(_ request: SyncReadRequest, _ context: inout SimMacContext) -> SimFolderReadResult {
+        // The launch read is bounded: every call may block only for what is left of the budget,
+        // and the coordinators are cancelled when it is used up (INV-R2).
+        let originalTimeout = context.ioTimeoutMilliseconds
+        defer { context.ioTimeoutMilliseconds = originalTimeout }
+        func bound() {
+            if case .launch(let budget) = request.purpose {
+                context.ioTimeoutMilliseconds = max(0, min(originalTimeout, Int64(budget * 1000) - context.blockedMilliseconds))
+            }
+        }
+        bound()
         let names: [String]
         switch context.list(directory) {
         case .names(let listed):
@@ -52,6 +62,7 @@ enum SimFolderIO {
         let skipped = max(0, candidates.count - request.maximumFiles)
         var versions: [SyncMacID: Int] = [:]
         for name in candidates.prefix(request.maximumFiles) {
+            bound()
             guard let outcome = readFile(named: name, &context) else {
                 continue
             }
@@ -60,6 +71,7 @@ enum SimFolderIO {
                 versions[mac] = version
             }
         }
+        bound()
         let legacy = request.legacy == .none ? nil : readLegacy(request.legacy, &context)
         return SimFolderReadResult(read: SyncFolderRead(availability: .available, files: files, legacy: legacy, skipped: skipped), versions: versions)
     }

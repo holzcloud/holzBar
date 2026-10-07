@@ -550,6 +550,13 @@ extension SimSafetyOracles {
         guard let step = step(world) else { return nil }
         for mac in step.after.keys.sorted() where world.isRedesign(mac) {
             guard step.after[mac]?.report?.menuHint == true else { continue }
+            // A join with rows asks (analysis section 4.7), and so does a value that was there before sync and
+            // differs from the group's: neither is a conflict of this Mac's entries, and both are its question.
+            if step.after[mac]?.report?.joining == true { continue }
+            let holdsPreValue = SimUnits.tokens(in: world.macs[mac]?.defaults ?? [:]).contains {
+                if case .pre? = SimValue.origin(ofToken: $0) { true } else { false }
+            }
+            if holdsPreValue { continue }
             if conflictedUnits(world, mac).isEmpty {
                 return "Mac \(mac) shows a menu hint although it has no live entry in any conflict"
             }
@@ -687,10 +694,15 @@ extension SimSafetyOracles {
     static let f1 = SimClosureOracle("INV-F1", .step) { world, _ in
         guard let step = step(world) else { return nil }
         for hook in step.hooks where hook.syncCaused && charged(world, hook) {
+            // The read back of a file the hook wrote itself has no provider version yet, and is reliable.
+            let written = Set(hook.writes.map(\.path))
             let unreliable = hook.reads.first { read in
                 if read.entry.wasPartial { return true }
                 if case .foreign? = read.versionKind { return true }
-                if case .data(_, let version) = read.entry.result, version == 0, read.replicaVersion == 0 { return true }
+                if case .data(_, let version) = read.entry.result, version == 0, read.replicaVersion == 0,
+                   !written.contains(read.entry.path) {
+                    return true
+                }
                 return false
             }
             guard let bad = unreliable else { continue }

@@ -327,9 +327,14 @@ enum SimLocalKeys {
     ]
     /// Device tuning keys. The simulator's key model has none yet; the plans that add one list it here.
     static let tuning: Set<String> = []
-    /// The keys sync keeps its own bookkeeping in: the generation and the counter mirror. The engine
-    /// writes them on purpose before it persists its state (analysis section 4.4), so INV-N1 leaves them out.
-    static let syncBookkeeping: Set<String> = ["SettingsSyncGeneration", "SettingsSyncCounter"]
+    /// The keys sync keeps its own bookkeeping in: the generation and the counter mirror, and the Mac's
+    /// identity (the ID, the hash that binds it to this Mac and account, the salt and the earlier ID).
+    /// The engine writes them on purpose before it persists its state (analysis sections 4.4 and 4.5),
+    /// so INV-N1 leaves them out. `SettingsSyncLastSynced` is not among them: sync never writes it.
+    static let syncBookkeeping: Set<String> = [
+        "SettingsSyncGeneration", "SettingsSyncCounter", "SettingsSyncDeviceID", "SettingsSyncDeviceHash",
+        "SettingsSyncDeviceSalt", "SettingsSyncLegacyDeviceID",
+    ]
     /// Local on generation 26 Macs: the macOS 27 families are only applied on generation 27.
     static let generation27Only: Set<String> = ["MacOS27Layout", "LayoutProfiles", "KnownApplications27"]
 

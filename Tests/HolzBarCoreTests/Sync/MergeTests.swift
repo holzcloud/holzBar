@@ -516,6 +516,9 @@ struct MergeTests {
             case .cancelTimer: "cancel"
             case .relaunch: "relaunch"
             case .requestDownload: "download"
+            case .storeIdentity: "identity"
+            case .commitFolder: "commit"
+            case .forgetFolder: "forget"
             }
         }
     }
@@ -557,7 +560,7 @@ struct MergeTests {
         relaunched.session = SyncSession()
         relaunched.session.snapshot = Fixtures.snapshot([Fixtures.s1: .string("mine")])
         let intact = contents(Fixtures.macA, installation: healing.nonce, healing.replica)
-        let quiet = SyncEngine.handle(.folderRead(SyncFolderRead(files: [file(intact)]), purpose: .launch), state: relaunched, environment: environment)
+        let quiet = SyncEngine.handle(.folderRead(SyncFolderRead(files: [file(intact)]), purpose: .launch(budget: 1)), state: relaunched, environment: environment)
         #expect(quiet.effects.isEmpty)
         #expect(SyncEngine.view(of: quiet.state, environment: environment).hint == nil)
     }

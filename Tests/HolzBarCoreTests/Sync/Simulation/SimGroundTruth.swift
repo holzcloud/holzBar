@@ -171,6 +171,17 @@ final class SimGroundTruth {
         )
     }
 
+    /// The answer did not close its prompt (the Mac refused it, or it was Cancel at a running sheet): it
+    /// is no answer, so nothing it showed as losing is lost.
+    func retractAnswer(mac: SimMacName, prompt: SimPrompt) {
+        guard let index = changes.lastIndex(where: { $0.kind == .answer && $0.mac == mac }) else { return }
+        changes[index].lostTokens = []
+        if let shown = prompts.lastIndex(where: { $0.mac == mac && $0.prompt.id == prompt.id && $0.answer != nil }) {
+            prompts[shown].answer = nil
+            prompts[shown].answeredAt = nil
+        }
+    }
+
     /// Foreign bytes: a version no Mac wrote, with an empty past.
     func recordForeign(version: Int, path: String, time: Int64) {
         versions[version] = Version(id: version, writer: nil, path: path, clock: [:], time: time, originVersion: nil)

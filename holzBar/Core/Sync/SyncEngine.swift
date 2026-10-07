@@ -155,20 +155,40 @@ nonisolated enum SyncTimer: Hashable, Sendable {
 nonisolated enum SyncReadPurpose: Hashable, Sendable {
     /// A background or triggered check, or the poll.
     case check
-    /// The read at launch.
-    case launch
-    /// The read of a join (plan 28-08).
+    /// The read at launch, which the host bounds to `budget` seconds in total.
+    case launch(budget: TimeInterval)
+    /// The read of a join: the whole folder, every listed device file, and the legacy file's
+    /// settings. The host reads the folder the user chose, not yet the active one.
     case join
 }
+
+/// An opaque name of a sync folder that the host derives from the folder's bookmark.
+typealias SyncFolderIdentity = String
 
 /// What the user asks of the engine.
 nonisolated enum SyncCommand: Hashable, Sendable {
     /// Apply what waits and relaunch.
     case restart
+    /// Turn On…: join the folder the user chose. Nothing changes until the join commits.
+    case turnOn(SyncFolderIdentity)
+    /// Change…: join another folder; Cancel keeps the previous one.
+    case changeFolder(SyncFolderIdentity)
+    /// Turn Off: stop all folder access, keep the state.
+    case turnOff
+    /// Cancel while a join reads the folder or asks.
+    case cancelJoin
+    /// A button of the question's sheet.
+    case answer(SyncAnswerRequest)
+    /// The user imported a settings file: its values are in the snapshot, and they are the
+    /// user's changes.
+    case importFinished(SyncSnapshot)
 }
 
 /// What happened.
 nonisolated enum SyncEvent: Sendable {
+    /// The app starts. For this event the `state` argument of ``SyncEngine/handle(_:state:environment:)``
+    /// is not used: the state comes from ``SyncLaunchInput/stored``.
+    case launch(SyncLaunchInput)
     /// The defaults changed (or the app started): the new snapshot. Capture runs after a debounce.
     case defaultsChanged(SyncSnapshot)
     /// The host read the folder.
@@ -310,6 +330,13 @@ nonisolated enum SyncEffect: Sendable {
     case relaunch
     /// Ask the provider to download these Macs' files.
     case requestDownload(macs: [SyncMacID])
+    /// Keep this Mac's identity in the defaults: the ID, the hash that binds it to this Mac and
+    /// this account, and the earlier ID (`legacyID`) that this Mac still recognizes as its own.
+    case storeIdentity(mac: SyncMacID, legacyID: String?)
+    /// The join committed: the folder the user chose is the sync folder now.
+    case commitFolder(SyncFolderIdentity)
+    /// Sync is off: the host forgets the folder and stops all access to it.
+    case forgetFolder
 }
 
 /// The new state and what the host must do.
@@ -351,6 +378,41 @@ nonisolated struct SyncView: Hashable, Sendable {
     var lines: [SyncStatusLine]
 }
 
+// MARK: - Draft
+
+/// What a step holds while the engine decides: the state, the writes to the defaults and the
+/// effects, in the order the host must run them.
+nonisolated struct SyncDraft {
+    /// The state the step started from; a persist is due when the new state differs from it.
+    let original: SyncState
+    var state: SyncState
+    /// The values to write to the defaults, in one `applyUnits` effect.
+    var applies: [SyncUnitKey: SyncPayload] = [:]
+    /// Effects that must run before anything is persisted.
+    var leading: [SyncEffect] = []
+    var effects: [SyncEffect] = []
+
+    init(_ state: SyncState, original: SyncState? = nil) {
+        self.original = original ?? state
+        self.state = state
+    }
+
+    /// The step: leading effects, the applies, the persist when anything persistent changed,
+    /// then the rest, so Sigma is persisted before any file is written.
+    mutating func finish() -> SyncStep {
+        var list = leading
+        if !applies.isEmpty {
+            list.append(.applyUnits(applies))
+        }
+        if !applies.isEmpty || state.differsPersistently(from: original) {
+            state.generation = original.generation + 1
+            list.append(.persist(SyncPersist(generation: state.generation, counter: state.counter)))
+        }
+        list += effects
+        return SyncStep(state: state, effects: list)
+    }
+}
+
 // MARK: - Engine
 
 /// The decision core of the redesigned settings sync: one entry point, pure transitions.
@@ -362,37 +424,14 @@ nonisolated enum SyncEngine {
     /// How long the legacy status line shows after the legacy file last changed.
     static let legacyDisplayHorizon: TimeInterval = 30 * 24 * 3600
 
-    /// What a draft of a step holds while the engine decides.
-    private struct Draft {
-        let original: SyncState
-        var state: SyncState
-        var applies: [SyncUnitKey: SyncPayload] = [:]
-        var effects: [SyncEffect] = []
-
-        init(_ state: SyncState) {
-            original = state
-            self.state = state
-        }
-
-        /// The step: applies first, then the persist when anything persistent changed, then the
-        /// rest, so Sigma is persisted before any file is written.
-        mutating func finish() -> SyncStep {
-            var list: [SyncEffect] = []
-            if !applies.isEmpty {
-                list.append(.applyUnits(applies))
-            }
-            if !applies.isEmpty || state.differsPersistently(from: original) {
-                state.generation = original.generation + 1
-                list.append(.persist(SyncPersist(generation: state.generation, counter: state.counter)))
-            }
-            list += effects
-            return SyncStep(state: state, effects: list)
-        }
-    }
-
     static func handle(_ event: SyncEvent, state: SyncState, environment: SyncEnvironment) -> SyncStep {
-        var draft = Draft(state)
+        if case .launch(let input) = event {
+            return launch(input, environment: environment)
+        }
+        var draft = SyncDraft(state)
         switch event {
+        case .launch:
+            break
         case .defaultsChanged(let snapshot):
             draft.state.session.snapshot = snapshot
             if state.isEnabled {
@@ -405,29 +444,36 @@ nonisolated enum SyncEngine {
                 publish(&draft, trigger: .quit, environment: environment)
             }
         case .timer(let timer):
-            guard state.isEnabled else {
-                break
-            }
             onTimer(timer, &draft, environment: environment)
         case .folderRead(let read, let purpose):
-            guard state.isEnabled else {
-                break
+            if case .join = purpose {
+                onJoinRead(read, &draft, environment: environment)
+            } else if state.isEnabled, state.pendingJoin == nil {
+                // While a join waits, it owns the folder: no other read is merged.
+                onRead(read, purpose: purpose, &draft, environment: environment)
             }
-            onRead(read, purpose: purpose, &draft, environment: environment)
         case .writeFinished(let result):
             onWrite(result, &draft)
-        case .command(.restart):
-            guard state.isEnabled else {
-                break
-            }
-            restart(&draft, environment: environment)
+        case .command(let command):
+            onCommand(command, &draft, environment: environment)
         }
         return draft.finish()
     }
 
     // MARK: Timers
 
-    private static func onTimer(_ timer: SyncTimer, _ draft: inout Draft, environment: SyncEnvironment) {
+    private static func onTimer(_ timer: SyncTimer, _ draft: inout SyncDraft, environment: SyncEnvironment) {
+        if let pending = draft.state.pendingJoin {
+            // A join in flight owns the folder: only its own reads run, and a change of the
+            // defaults waits until the join is decided (capture is a diff, nothing is lost).
+            if pending.phase == .reading, timer == .check || timer == .periodic {
+                draft.effects.append(.readFolder(readRequest(.join, draft.state)))
+            }
+            return
+        }
+        guard draft.state.isEnabled else {
+            return
+        }
         switch timer {
         case .capture:
             capture(&draft, environment: environment)
@@ -444,10 +490,15 @@ nonisolated enum SyncEngine {
         }
     }
 
-    private static func readRequest(_ purpose: SyncReadPurpose, _ state: SyncState) -> SyncReadRequest {
-        // The legacy file's settings are read only to found a group (plan 28-08); afterwards
+    static func readRequest(_ purpose: SyncReadPurpose, _ state: SyncState) -> SyncReadRequest {
+        // The legacy file's settings are read only to found a group, at a join; afterwards
         // only its metadata, for the status line.
-        let legacy: SyncLegacyRequest = state.legacy.foundingDigest == nil ? .none : .metadata
+        let legacy: SyncLegacyRequest
+        if case .join = purpose {
+            legacy = .settings
+        } else {
+            legacy = state.legacy.foundingDigest == nil ? .none : .metadata
+        }
         var macs = Set(state.replica.context.macs)
         macs.formUnion(state.previousMacIDs)
         macs.insert(state.mac)
@@ -456,7 +507,7 @@ nonisolated enum SyncEngine {
 
     // MARK: Capture and publish
 
-    private static func capture(_ draft: inout Draft, environment: SyncEnvironment) {
+    static func capture(_ draft: inout SyncDraft, environment: SyncEnvironment) {
         guard let snapshot = draft.state.session.snapshot else {
             return
         }
@@ -464,7 +515,7 @@ nonisolated enum SyncEngine {
     }
 
     /// Asks the publish rules and, when they say write, emits the write.
-    private static func publish(_ draft: inout Draft, trigger: SyncWriteTrigger, environment: SyncEnvironment) {
+    static func publish(_ draft: inout SyncDraft, trigger: SyncWriteTrigger, environment: SyncEnvironment) {
         switch SyncPublish.decision(state: draft.state, environment: environment, trigger: trigger) {
         case .write(let request):
             draft.state.session.isTooLargeToPublish = false
@@ -476,7 +527,7 @@ nonisolated enum SyncEngine {
         }
     }
 
-    private static func onWrite(_ result: SyncWriteResult, _ draft: inout Draft) {
+    private static func onWrite(_ result: SyncWriteResult, _ draft: inout SyncDraft) {
         draft.state = SyncPublish.apply(result, to: draft.state)
         if case .failed(.ownFileChanged) = result {
             // The own file is not what this session read: read it again before any write.
@@ -486,14 +537,30 @@ nonisolated enum SyncEngine {
 
     // MARK: Reads
 
-    private static func onRead(_ read: SyncFolderRead, purpose: SyncReadPurpose, _ draft: inout Draft, environment: SyncEnvironment) {
+    private static func onRead(_ read: SyncFolderRead, purpose: SyncReadPurpose, _ draft: inout SyncDraft, environment: SyncEnvironment) {
         // A change made while the folder was away still counts: capture first, then merge.
         capture(&draft, environment: environment)
         let merged = SyncMerge.merge(read, into: draft.state, environment: environment)
         draft.state = merged.state
+        if merged.reidentified {
+            draft.leading.append(.storeIdentity(mac: draft.state.mac, legacyID: nil))
+        }
+        // A state that was behind the defaults mints nothing until the own file was joined.
+        if resolveDeferredCapture(&draft.state) {
+            capture(&draft, environment: environment)
+        }
         if let snapshot = draft.state.session.snapshot {
             let plan = SyncPlan.plan(state: draft.state, snapshot: snapshot, environment: environment)
             draft.state = SyncCapture.settle(plan, snapshot: snapshot, state: draft.state, environment: environment)
+            if case .launch = purpose {
+                // The launch applies what arrived in time, as it applies what waited; a later
+                // check only shows the Restart hint.
+                let changes = plan.fastForwardPayloads
+                if !changes.isEmpty {
+                    draft.applies = changes
+                    draft.state = SyncCapture.applied(changes, snapshot: snapshot, state: draft.state, environment: environment)
+                }
+            }
         }
         if !merged.downloads.isEmpty {
             draft.effects.append(.requestDownload(macs: merged.downloads))
@@ -508,9 +575,66 @@ nonisolated enum SyncEngine {
         }
     }
 
+    /// Lets capture run once the own file was read and joined, when the state was behind.
+    ///
+    /// - Returns: Whether capture was deferred until now.
+    static func resolveDeferredCapture(_ state: inout SyncState) -> Bool {
+        guard state.captureDeferred, state.session.ownFile != .unread else {
+            return false
+        }
+        state.captureDeferred = false
+        state.session.isTrusted = true
+        return true
+    }
+
+    // MARK: Commands
+
+    private static func onCommand(_ command: SyncCommand, _ draft: inout SyncDraft, environment: SyncEnvironment) {
+        switch command {
+        case .restart:
+            guard draft.state.isEnabled else {
+                return
+            }
+            restart(&draft, environment: environment)
+        case .turnOn(let folder):
+            startJoin(folder, isChange: false, &draft, environment: environment)
+        case .changeFolder(let folder):
+            startJoin(folder, isChange: draft.state.isEnabled, &draft, environment: environment)
+        case .turnOff:
+            turnOff(&draft)
+        case .cancelJoin:
+            cancelJoin(&draft)
+        case .answer(let request):
+            answer(request, &draft, environment: environment)
+        case .importFinished(let snapshot):
+            draft.state.session.snapshot = snapshot
+            guard draft.state.isEnabled, draft.state.pendingJoin == nil else {
+                return
+            }
+            // An import is the user's change: capture it now and publish it.
+            capture(&draft, environment: environment)
+            publish(&draft, trigger: .ownChange, environment: environment)
+        }
+    }
+
+    /// Turn Off: all folder access stops, the state and its open siblings stay, the hint and
+    /// the timers go.
+    private static func turnOff(_ draft: inout SyncDraft) {
+        guard draft.state.isEnabled || draft.state.pendingJoin != nil else {
+            return
+        }
+        draft.state.isEnabled = false
+        draft.state.pendingJoin = nil
+        draft.state.session.waitingFiles = 0
+        for timer in [SyncTimer.capture, .relay, .check, .periodic, .healing] {
+            draft.effects.append(.cancelTimer(timer))
+        }
+        draft.effects.append(.forgetFolder)
+    }
+
     // MARK: Restart
 
-    private static func restart(_ draft: inout Draft, environment: SyncEnvironment) {
+    private static func restart(_ draft: inout SyncDraft, environment: SyncEnvironment) {
         // A change made just before Restart still counts (S-64).
         capture(&draft, environment: environment)
         if let snapshot = draft.state.session.snapshot {
@@ -531,10 +655,16 @@ nonisolated enum SyncEngine {
     /// What the app shows of `state`: the hint and the status lines, computed from the
     /// persisted replica, the last snapshot and the session.
     static func view(of state: SyncState, environment: SyncEnvironment) -> SyncView {
+        // Turned off: no hint, no line; the state is kept but says nothing.
+        guard state.isEnabled || state.pendingJoin != nil else {
+            return SyncView(hint: nil, lines: [])
+        }
         let plan = state.session.snapshot.map { SyncPlan.plan(state: state, snapshot: $0, environment: environment) }
         var lines: [SyncStatusLine] = []
-        if state.pendingJoin != nil {
-            lines.append(.joining(waitingFiles: state.session.waitingFiles))
+        if let pending = state.pendingJoin {
+            if pending.phase == .reading {
+                lines.append(.joining(waitingFiles: state.session.waitingFiles))
+            }
         } else if state.session.waitingFiles > 0 {
             lines.append(.waitingFiles(state.session.waitingFiles))
         }
@@ -564,10 +694,15 @@ nonisolated enum SyncEngine {
         if state.session.skippedFiles > 0 {
             lines.append(.skippedFiles(state.session.skippedFiles))
         }
-        let hint: SyncHint? = if state.pendingJoin != nil {
-            .chooseAfterJoin
+        var hint: SyncHint?
+        if let pending = state.pendingJoin {
+            hint = pending.phase == .asking ? .chooseAfterJoin : nil
         } else {
-            plan?.hint
+            hint = plan?.hint
+            // Later hides the question until the next launch; a Restart hint stays.
+            if hint == .choose, let plan, state.laterLaunch == state.launchCount {
+                hint = plan.fastForwards.isEmpty ? nil : .restart
+            }
         }
         return SyncView(hint: hint, lines: lines)
     }

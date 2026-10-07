@@ -114,10 +114,20 @@ nonisolated enum SyncCapture {
     /// Mints an entry of this Mac for `key` that supersedes the dots this Mac had applied (all
     /// of them without the applied-context guard), and records it as applied and baseline.
     ///
+    /// An answer passes `superseding`: exactly the dots its sheet showed, so an entry that
+    /// arrived after the sheet opened survives as a sibling and is asked about again.
+    ///
     /// - Returns: Whether an entry was minted. A counter above 2^34 mints nothing and marks the
     ///   unit invalid, because this Mac has to re-identify before it can mint again.
     @discardableResult
-    static func mint(_ key: SyncUnitKey, payload: SyncPayload, digest: SyncDigest, state: inout SyncState, environment: SyncEnvironment) -> Bool {
+    static func mint(
+        _ key: SyncUnitKey,
+        payload: SyncPayload,
+        digest: SyncDigest,
+        state: inout SyncState,
+        environment: SyncEnvironment,
+        superseding shown: Set<SyncDot>? = nil
+    ) -> Bool {
         guard
             let counter = SyncIdentity.nextCounter(
                 stateCounter: state.counter,
@@ -132,7 +142,9 @@ nonisolated enum SyncCapture {
         }
         let dot = SyncDot(mac: state.mac, n: counter)
         let entry = SyncEntry(dot: dot, at: environment.now, payload: payload)
-        let superseded: Set<SyncDot> = if environment.guards.contains(.appliedContext) {
+        let superseded: Set<SyncDot> = if let shown {
+            shown
+        } else if environment.guards.contains(.appliedContext) {
             Set(state.applied[key] ?? [])
         } else {
             Set(state.replica.live(key).map(\.dot))

@@ -58,6 +58,8 @@ struct SimMacState: Sendable {
     /// Whether sync is turned on, and the folder it points to (the simulator's stand-in for the bookmark).
     var enabled = false
     var folderID: String?
+    /// The folder a join reads before it commits: the user chose it, but it is not yet the sync folder.
+    var pendingFolderID: String?
     var defaults: [String: SimValue] = [:]
     /// The opaque local sync state (Sigma). Never synced.
     var sigma: Data?
@@ -291,12 +293,21 @@ struct SimMacContext: Sendable {
     var random: SimRandom
     var enabled: Bool
     var folderID: String?
+    /// The folder of a pending join. Reads of the join see its replica, not the sync folder's.
+    var pendingFolderID: String?
+
+    /// The world asks the Mac to crash after this many effects of the hook (`nil`: no crash).
+    var crashAfterEffects: Int?
+    /// How many effects the brain has carried out in this hook.
+    private(set) var effectsRun = 0
+    /// Whether the crash the world asked for has happened: the brain carries out no further effect.
+    private(set) var crashed = false
 
     /// A copy of the Mac's replica at the start of the hook (reads and the Mac's own writes see it).
     private(set) var replica: SimFolderReplica
     /// The global virtual time, used only for stall and partial-exposure semantics. Brains must not read it.
     private let globalNow: Int64
-    let ioTimeoutMilliseconds: Int64
+    var ioTimeoutMilliseconds: Int64
     private(set) var actions: [SimMacAction] = []
     /// How long the Mac's calling thread blocked on stalled coordinated I/O during this hook.
     private(set) var blockedMilliseconds: Int64 = 0
@@ -320,6 +331,7 @@ struct SimMacContext: Sendable {
         random = state.random
         enabled = state.enabled
         folderID = state.folderID
+        pendingFolderID = state.pendingFolderID
         self.replica = replica
         self.globalNow = globalNow
         self.ioTimeoutMilliseconds = ioTimeoutMilliseconds
@@ -393,6 +405,16 @@ struct SimMacContext: Sendable {
         guard let folderID else { return }
         replica.conflictVersions[path] = nil
         actions.append(.resolveConflictVersions(folder: folderID, path: path))
+    }
+
+    // MARK: Crash
+
+    /// The brain calls this after every effect it carries out. When the world asked for a crash
+    /// after this many effects, the Mac stops: the answer is `true` and the brain does nothing more.
+    mutating func effectRun() -> Bool {
+        effectsRun += 1
+        if let crashAfterEffects, effectsRun >= crashAfterEffects { crashed = true }
+        return crashed
     }
 
     // MARK: Reports and requests

@@ -510,6 +510,14 @@ nonisolated struct SyncUnitTable: Sendable {
         }
     }
 
+    /// Every whole unit of the table, sorted: the units whose absence a join records as the
+    /// baseline "unset", so a value the user sets later is captured as a change.
+    var wholeUnitKeys: [SyncUnitKey] {
+        wholeDescriptors.keys.sorted { $0.utf8.lexicographicallyPrecedes($1.utf8) }
+            .filter { wholeDescriptors[$0]?.isSet == false }
+            .map { SyncUnitKey.whole($0) }
+    }
+
     /// The stored key of a whole unit, if the unit is a single stored key.
     func storedKey(forUnit unit: String) -> Defaults.Key? {
         keysByUnit[unit]

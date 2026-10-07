@@ -109,7 +109,10 @@ nonisolated struct SyncPlan: Sendable {
             }
             let values = state.replica.distinctValues(key)
             guard values.count == 1 else {
-                outcomes[key] = .conflict(mine: live.contains { state.isOwn($0.dot.mac) })
+                // This Mac takes part when it minted one of the values, or holds one of them as
+                // its applied value (it adopted a sibling at a join).
+                let applied = Set(state.applied[key] ?? [])
+                outcomes[key] = .conflict(mine: live.contains { state.isOwn($0.dot.mac) || applied.contains($0.dot) })
                 continue
             }
             let payload = values[0]
@@ -141,7 +144,7 @@ nonisolated struct SyncPlan: Sendable {
     /// Simulates applying the fast-forwards of the hotkeys together with the local hotkeys and
     /// returns the groups of units that would share a key combination. A group without a
     /// fast-forward is already how this Mac is, and not a clash.
-    private static func clashes(fastForwards: [SyncUnitKey: SyncPayload], snapshot: SyncSnapshot) -> [SyncClash] {
+    static func clashes(fastForwards: [SyncUnitKey: SyncPayload], snapshot: SyncSnapshot) -> [SyncClash] {
         let family = Defaults.Key.hotkeys.rawValue
         var combinations: [SyncUnitKey: [Int]] = [:]
         for (key, value) in snapshot.values {

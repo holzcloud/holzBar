@@ -21,10 +21,29 @@ nonisolated enum SyncLocalOrigin: String, Hashable, Sendable {
     case preexisting
 }
 
+/// Where a pending join stands.
+nonisolated enum SyncJoinPhase: String, Hashable, Sendable {
+    /// Files of the folder are still being read or downloaded; nothing is decided.
+    case reading
+    /// Every file was read, and the rows of the question wait for an answer.
+    case asking
+}
+
+/// What the legacy file `holzBar/Settings.plist` offered to a founding join: its settings units
+/// (validated and normalized), kept so the question survives a relaunch.
+nonisolated struct SyncPendingLegacy: Hashable, Sendable {
+    /// The legacy file's synced units.
+    var units: [SyncUnitKey: SyncValue]
+    /// When the legacy file was written, for display only.
+    var modified: Date?
+    /// The digest of the legacy file's `(modified, deviceID)`.
+    var digest: SyncDigest
+}
+
 /// A join that waits for the user: the folder's replica as it was read, which of its
 /// differences were shown and whether this Mac is founding the group. It survives a relaunch.
 nonisolated struct SyncPendingJoin: Hashable, Sendable {
-    /// The tentative state of the folder.
+    /// The tentative state of the folder (joined with this Mac's replica in the same group).
     var replica: SyncReplica
     /// The dots of the values the user has been shown, per unit.
     var shown: [SyncUnitKey: [SyncDot]]
@@ -32,6 +51,15 @@ nonisolated struct SyncPendingJoin: Hashable, Sendable {
     var isFounding: Bool
     /// A digest of what identifies the folder, if known.
     var folderIdentity: String?
+    /// Whether the files are still being read or the question waits.
+    var phase = SyncJoinPhase.reading
+    /// Whether this is Change…: Cancel then keeps the previous folder.
+    var isChange = false
+    /// Whether this Mac's state belongs to the group in the folder (trusted, and some device
+    /// file belongs to a Mac it knows); otherwise this Mac's values are dot-less.
+    var isSameGroup = false
+    /// The legacy file's units when this Mac founds the group from it.
+    var legacy: SyncPendingLegacy?
 }
 
 /// What this Mac knows about the legacy file `holzBar/Settings.plist` of 0.0.6 and
@@ -124,9 +152,13 @@ nonisolated enum SyncOwnFileStatus: Hashable, Sendable {
 /// What this Mac knows about the folder in this session. It is never persisted: a relaunch
 /// starts with an empty session, so nothing of it is evidence of anything.
 nonisolated struct SyncSession: Hashable, Sendable {
-    /// Whether Sigma may be used to capture changes. The launch of plan 28-08 clears it when a
-    /// trust check fails (generation, tripwire, identity); the engine then mints nothing.
+    /// Whether Sigma may be used to capture changes. The launch clears it when a trust check
+    /// fails (generation, tripwire, identity); the engine then mints nothing.
     var isTrusted = true
+    /// What the launch found out about Sigma.
+    var trust = SyncTrust()
+    /// `SettingsSyncLastSynced` as the defaults held it at launch; a join commit records it.
+    var lastSyncedSeen: Date?
     /// The own device file, as last read in this session.
     var ownFile = SyncOwnFileStatus.unread
     /// What the last read said about the folder.
@@ -194,6 +226,10 @@ nonisolated struct SyncState: Hashable, Sendable {
     var previousMacIDs: [SyncMacID]
     /// Whether sync is turned on.
     var isEnabled: Bool
+    /// Whether capture waits until the own file was read and joined: Sigma was behind the
+    /// defaults at launch (it was restored alone, or a crash kept it from being written), so
+    /// it may not know this Mac's own later writes.
+    var captureDeferred = false
     /// What this Mac knows about the folder in this session; not part of Sigma on disk.
     var session = SyncSession()
 
@@ -272,8 +308,21 @@ nonisolated enum SyncStateCodec {
                     ["unit": unitFields(key), "dots": (pending.shown[key] ?? []).sorted().map(dotFields)]
                 },
                 "isFounding": pending.isFounding,
+                "phase": pending.phase.rawValue,
+                "isChange": pending.isChange,
+                "isSameGroup": pending.isSameGroup,
             ]
             fields["folderIdentity"] = pending.folderIdentity
+            if let legacy = pending.legacy {
+                var record: [String: Any] = [
+                    "units": legacy.units.keys.sorted().map { key -> [String: Any] in
+                        ["unit": unitFields(key), "value": legacy.units[key]?.propertyList ?? ""]
+                    },
+                    "digest": legacy.digest.hex,
+                ]
+                record["modified"] = legacy.modified
+                fields["legacy"] = record
+            }
             root["pendingJoin"] = fields
         }
         var legacy: [String: Any] = [:]
@@ -300,6 +349,9 @@ nonisolated enum SyncStateCodec {
         root["refusals"] = refusals
         root["previousMacIDs"] = state.previousMacIDs.map(\.rawValue)
         root["isEnabled"] = state.isEnabled
+        if state.captureDeferred {
+            root["captureDeferred"] = true
+        }
         return try PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0)
     }
 
@@ -384,12 +436,41 @@ nonisolated enum SyncStateCodec {
                 let entry = try record(element)
                 shown[try unit(entry)] = try dots(entry)
             }
-            state.pendingJoin = SyncPendingJoin(
+            var pendingJoin = SyncPendingJoin(
                 replica: try SyncDeviceFile.decodeReplica(try dictionary(fields, "replica")),
                 shown: shown,
                 isFounding: try bool(fields, "isFounding"),
                 folderIdentity: try optionalString(fields, "folderIdentity")
             )
+            // Fields that came after the first version of this format: a pending join written
+            // without them is a question that waits.
+            if let phase = try optionalString(fields, "phase") {
+                guard let known = SyncJoinPhase(rawValue: phase) else {
+                    throw .wrongStructure("phase")
+                }
+                pendingJoin.phase = known
+            } else {
+                pendingJoin.phase = .asking
+            }
+            pendingJoin.isChange = try optionalBool(fields, "isChange") ?? false
+            pendingJoin.isSameGroup = try optionalBool(fields, "isSameGroup") ?? false
+            if let legacy = fields["legacy"] {
+                let legacyFields = try record(legacy)
+                var units: [SyncUnitKey: SyncValue] = [:]
+                for element in try list(legacyFields, "units") {
+                    let entry = try record(element)
+                    guard let value = entry["value"] else {
+                        throw .wrongStructure("legacy")
+                    }
+                    units[try unit(entry)] = value
+                }
+                pendingJoin.legacy = SyncPendingLegacy(
+                    units: units,
+                    modified: try optionalDate(legacyFields, "modified"),
+                    digest: SyncDigest(hex: try string(legacyFields, "digest"))
+                )
+            }
+            state.pendingJoin = pendingJoin
         }
         let legacy = try dictionary(top, "legacy")
         state.legacy = SyncLegacyRecord(
@@ -427,6 +508,7 @@ nonisolated enum SyncStateCodec {
             return id
         }
         state.isEnabled = try bool(top, "isEnabled")
+        state.captureDeferred = try optionalBool(top, "captureDeferred") ?? false
         return state
     }
 
@@ -478,6 +560,16 @@ nonisolated enum SyncStateCodec {
             throw .wrongStructure(key)
         }
         return date
+    }
+
+    private static func optionalBool(_ fields: [String: SyncValue], _ key: String) throws(SyncRefusal) -> Bool? {
+        guard let value = fields[key] else {
+            return nil
+        }
+        guard let flag = value.boolValue else {
+            throw .wrongStructure(key)
+        }
+        return flag
     }
 
     private static func bool(_ fields: [String: SyncValue], _ key: String) throws(SyncRefusal) -> Bool {

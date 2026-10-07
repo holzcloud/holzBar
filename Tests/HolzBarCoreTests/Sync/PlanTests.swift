@@ -289,13 +289,17 @@ struct PlanTests {
         #expect(!SyncEngine.view(of: state, environment: Fixtures.environment()).lines.contains(.olderHolzBar))
     }
 
-    @Test("A pending join shows the joining line and the join hint")
+    @Test("A join that reads shows the joining line, and one that asks shows the join hint")
     func joiningView() {
         var state = Fixtures.state()
-        state.pendingJoin = SyncPendingJoin(replica: .empty, shown: [:], isFounding: false, folderIdentity: nil)
+        state.pendingJoin = SyncPendingJoin(replica: .empty, shown: [:], isFounding: false, folderIdentity: nil, phase: .reading)
         state.session.waitingFiles = 4
-        let view = SyncEngine.view(of: state, environment: Fixtures.environment())
-        #expect(view.hint == .chooseAfterJoin)
-        #expect(view.lines.first == .joining(waitingFiles: 4))
+        let reading = SyncEngine.view(of: state, environment: Fixtures.environment())
+        #expect(reading.hint == nil)
+        #expect(reading.lines.first == .joining(waitingFiles: 4))
+        state.pendingJoin?.phase = .asking
+        let asking = SyncEngine.view(of: state, environment: Fixtures.environment())
+        #expect(asking.hint == .chooseAfterJoin)
+        #expect(!asking.lines.contains(.joining(waitingFiles: 4)))
     }
 }

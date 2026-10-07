@@ -11,6 +11,9 @@ struct SimMacSpec: Sendable {
     var running = false
     var defaults: [String: SimValue] = [:]
     var clockOffsetMilliseconds: Int64 = 0
+    /// A folder the provider keeps on this Mac's disk although sync is not turned on for it: a Mac that is
+    /// about to join a folder its user already syncs with the provider.
+    var syncedFolder: String?
 
     init(
         _ name: SimMacName,
@@ -20,7 +23,8 @@ struct SimMacSpec: Sendable {
         folder: String? = "F1",
         running: Bool = false,
         defaults: [String: SimValue] = [:],
-        clockOffsetMilliseconds: Int64 = 0
+        clockOffsetMilliseconds: Int64 = 0,
+        syncedFolder: String? = nil
     ) {
         self.name = name
         self.version = version
@@ -30,6 +34,7 @@ struct SimMacSpec: Sendable {
         self.running = running
         self.defaults = defaults
         self.clockOffsetMilliseconds = clockOffsetMilliseconds
+        self.syncedFolder = syncedFolder
     }
 }
 
@@ -83,6 +88,7 @@ final class SimWorld {
     private let brainFactory: BrainFactory
     private let policy: SimFaultPolicy
     private var timers: [SimTimer] = []
+    private var crashPlans: [SimMacName: Int] = [:]
     private var timerSequence = 0
     private var userTokenCounter = 0
     private var autoTokenCounter = 0
@@ -137,7 +143,7 @@ final class SimWorld {
             groundTruth.setGeneration(spec.generation, of: name)
             brains[name] = self.brainFactory(spec.version, name)
             clock.setOffset(spec.clockOffsetMilliseconds, of: name)
-            if let folder = spec.folder { ensureReplica(of: name, in: folder) }
+            if let folder = spec.folder ?? spec.syncedFolder { ensureReplica(of: name, in: folder) }
         }
         groundTruth.holderSource = { [unowned self] in self.holderSnapshot() }
         for spec in specs where spec.running {
@@ -331,12 +337,14 @@ final class SimWorld {
         _ mac: SimMacName,
         _ name: SimHookName,
         answered: SimAnsweredPrompt? = nil,
+        folderOverride: String? = nil,
         _ body: (inout any SimSyncBrain, inout SimMacContext) -> Void
     ) -> Bool {
         guard var state = macs[mac], var brain = brains[mac] else { return false }
         let before = state.defaults
         let replica: SimFolderReplica
-        if let folder = state.folderID {
+        // A join reads the folder the user chose, which is not the sync folder yet.
+        if let folder = folderOverride ?? state.pendingFolderID ?? state.folderID {
             replica = providers[folder]?.replica(of: mac) ?? SimFolderReplica()
         } else {
             replica = SimFolderReplica()
@@ -349,6 +357,7 @@ final class SimWorld {
             globalNow: clock.now,
             ioTimeoutMilliseconds: ioTimeoutMilliseconds
         )
+        context.crashAfterEffects = crashPlans[mac]
         var hook = SimHookRecord(
             mac: mac, name: name, stepIndex: stepIndex, brainKind: state.version,
             syncCaused: state.version != .beta2, changeCountBefore: groundTruth.changes.count,
@@ -363,8 +372,10 @@ final class SimWorld {
         state.random = context.random
         state.enabled = context.enabled
         state.folderID = context.folderID
+        state.pendingFolderID = context.pendingFolderID
         macs[mac] = state
         if let folder = state.folderID { ensureReplica(of: mac, in: folder) }
+        if let folder = state.pendingFolderID { ensureReplica(of: mac, in: folder) }
         hook.blockedMilliseconds = context.blockedMilliseconds
         for action in context.actions {
             if case .ingest(let version) = action { hook.ingests.append(version) }
@@ -383,9 +394,22 @@ final class SimWorld {
             if version > 0 { sessionReads[mac, default: [:]][entry.path] = version }
         }
         process(context.actions, of: mac, before: before, hook: &hook)
+        if context.crashed {
+            // The crash the test asked for: the effects before it happened, the Mac is gone.
+            crashPlans[mac] = nil
+            record("CRASH \(mac) after \(context.effectsRun) effects")
+            die(mac)
+        }
         currentStep?.hooks.append(hook)
         for read in hook.reads { runOracles(.read, focus: .read(read), event: currentStep?.event) }
         return true
+    }
+
+    /// Makes the Mac crash after it carried out `count` effects in a hook (the next hook that has
+    /// that many): the process dies with whatever was persisted by then, and a later launch
+    /// starts from that. The brain asks the context after every effect.
+    func crashAfterEffect(_ count: Int, on mac: SimMacName) {
+        crashPlans[mac] = max(count, 1)
     }
 
     private static func transitions(
@@ -587,12 +611,14 @@ final class SimWorld {
             macs[to]?.enabled = source.enabled
             macs[to]?.folderID = source.folderID
             macs[to]?.markers.hardwareID = source.markers.hardwareID
+            // Another user account on the same Mac: the same hardware, another user ID.
+            macs[to]?.uid = source.uid + 1
             if let folder = source.folderID { ensureReplica(of: to, in: folder) }
         case .restorePrefs(let mac):
+            // Only the preferences go back (a restore of ~/Library/Preferences): the sync state stays.
             guard let backup = backups[mac], macs[mac] != nil else { return }
             die(mac)
             macs[mac]?.defaults = backup.defaults
-            macs[mac]?.sigma = backup.sigma
             macs[mac]?.enabled = backup.enabled
             macs[mac]?.folderID = backup.folderID
         case .restoreSigma(let mac):
@@ -629,22 +655,26 @@ final class SimWorld {
 
     private func command(_ command: SimUserCommand, on mac: SimMacName) {
         guard macs[mac]?.running == true else { return }
-        if case .turnOn(let folder) = command { ensureReplica(of: mac, in: folder) }
-        if case .changeFolder(let folder) = command { ensureReplica(of: mac, in: folder) }
-        runHook(mac, .command) { brain, context in brain.userCommand(command, &context) }
+        var chosen: String?
+        if case .turnOn(let folder) = command { ensureReplica(of: mac, in: folder); chosen = folder }
+        if case .changeFolder(let folder) = command { ensureReplica(of: mac, in: folder); chosen = folder }
+        // The join reads the folder the user chose before it is the sync folder.
+        runHook(mac, .command, folderOverride: chosen) { brain, context in brain.userCommand(command, &context) }
     }
 
     private func answerPrompt(_ answer: SimAnswer, on mac: SimMacName) {
         guard macs[mac]?.running == true, let prompt = brains[mac]?.openPrompt else { return }
         let hooksBefore = currentStep?.hooks.count ?? 0
+        // The click is part of the Mac's past before anything the Mac does about it, so what the hook writes
+        // comes after the answer. When the prompt is still open afterwards, the answer was refused: no answer.
+        groundTruth.recordAnswer(mac: mac, prompt: prompt, answer: answer, time: clock.now)
         runHook(mac, .answer, answered: SimAnsweredPrompt(prompt: prompt, answer: answer)) { brain, context in
             brain.userCommand(.answer(answer), &context)
         }
-        // The answer is recorded once the prompt is gone; its ingests were recorded while the hook's actions ran.
-        if brains[mac]?.openPrompt?.id != prompt.id {
-            groundTruth.recordAnswer(mac: mac, prompt: prompt, answer: answer, time: clock.now)
-        }
         let hooks = Array((currentStep?.hooks ?? []).dropFirst(hooksBefore)).filter { $0.name == .answer && $0.mac == mac }
+        if brains[mac]?.openPrompt?.id == prompt.id {
+            groundTruth.retractAnswer(mac: mac, prompt: prompt)
+        }
         let record = SimAnswerRecord(
             mac: mac, prompt: prompt, answer: answer, stepIndex: stepIndex, time: clock.now,
             transitions: hooks.flatMap(\.transitions), writes: hooks.flatMap(\.writes)
@@ -956,7 +986,7 @@ final class SimWorld {
         groundTruth.setGeneration(spec.generation, of: name)
         brains[name] = brainFactory(spec.version, name)
         clock.setOffset(spec.clockOffsetMilliseconds, of: name)
-        if let folder = spec.folder { ensureReplica(of: name, in: folder) }
+        if let folder = spec.folder ?? spec.syncedFolder { ensureReplica(of: name, in: folder) }
         if spec.running { step(.launch(mac: name)) }
     }
 
