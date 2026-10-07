@@ -4,11 +4,11 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: Completed 28-01-PLAN.md
-last_updated: "2026-10-07T12:59:57.353Z"
+stopped_at: Completed 28-02-PLAN.md
+last_updated: "2026-10-07T13:09:13.374Z"
 last_activity: 2026-10-07
 last_activity_desc: 0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded
-state_head: e611d3bc775c3ceaefe6722030aa74665322c124
+state_head: 42a714653fd358c3cbaaff6cf59f630538aa76f2
 progress:
   total_phases: 33
   completed_phases: 13
@@ -87,6 +87,7 @@ Progress: [█████████████░░░░░░░░░░
 | Phase 05.1.1.1.1 P01 | 73min | 5 tasks | 19 files |
 | Phase 28 P03 | 35min | 3 tasks | 13 files |
 | Phase 28 P01 | 60min | 3 tasks | 13 files |
+| Phase 28 P02 | 35min | 3 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -170,6 +171,8 @@ Recent decisions affecting current work:
 - [Phase 28]: Sync join keeps an entry when the other replica holds the same dot (any payload) or has not seen it; same-dot different-payload entries both stay and are reported as collisions
 - [Phase 28]: Device files are compared by SyncReplica.digest, never by raw bytes (binary plist key order is not canonical across processes)
 - [Phase 28]: Sets are capped in the replica initializer (2,000 smallest SHA-256), so the cap is part of the lattice
+- [Phase 28]: 28-02: simulator hooks record ordered actions in an inout SimMacContext and the world feeds the ground truth in that order; provider version IDs are unique across folders
+- [Phase 28]: 28-02: INV-S1g exclusion is implemented per holder: a loss is excluded only when every holder that ever held the token was destroyed by a non-sync event
 
 ### Roadmap Evolution
 
@@ -194,6 +197,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-07T12:59:57.329Z
-Stopped at: Completed 28-01-PLAN.md
+Last session: 2026-10-07T13:09:13.350Z
+Stopped at: Completed 28-02-PLAN.md
 Resume file: None
