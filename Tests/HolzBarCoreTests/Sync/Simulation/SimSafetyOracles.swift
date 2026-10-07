@@ -455,7 +455,8 @@ extension SimSafetyOracles {
         guard let step = step(world) else { return nil }
         for hook in step.hooks where hook.syncCaused && charged(world, hook) {
             let generation = world.macs[hook.mac]?.generation ?? 26
-            for change in hook.keyChanges where SimLocalKeys.isLocal(change.key, generation: generation) {
+            for change in hook.keyChanges
+            where SimLocalKeys.isLocal(change.key, generation: generation) && !SimLocalKeys.syncBookkeeping.contains(change.key) {
                 return "Mac \(hook.mac) changed the local key \(change.key) in its \(hook.name.rawValue) hook"
             }
         }

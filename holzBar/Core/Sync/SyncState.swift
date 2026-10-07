@@ -110,6 +110,40 @@ nonisolated extension SyncRefusal {
     }
 }
 
+/// What this Mac found when it last looked at the own device file in this session.
+nonisolated enum SyncOwnFileStatus: Hashable, Sendable {
+    /// The own file has not been read in this session (or could not be: dataless, refused, unreadable).
+    case unread
+    /// The folder was read and held no own file.
+    case absent
+    /// The own file was read and joined; `digest` is the digest of its replica, and `isDominated`
+    /// says the state holds everything the file holds.
+    case read(digest: SyncDigest, isDominated: Bool)
+}
+
+/// What this Mac knows about the folder in this session. It is never persisted: a relaunch
+/// starts with an empty session, so nothing of it is evidence of anything.
+nonisolated struct SyncSession: Hashable, Sendable {
+    /// Whether Sigma may be used to capture changes. The launch of plan 28-08 clears it when a
+    /// trust check fails (generation, tripwire, identity); the engine then mints nothing.
+    var isTrusted = true
+    /// The own device file, as last read in this session.
+    var ownFile = SyncOwnFileStatus.unread
+    /// What the last read said about the folder.
+    var availability = SyncFolderAvailability.available
+    /// The newest snapshot of the local settings the engine was given. Timers carry none, so
+    /// the engine keeps the last one; applying updates it, so a timer never sees a stale value.
+    var snapshot: SyncSnapshot?
+    /// How many device files are still downloading, or being written by their providers.
+    var waitingFiles = 0
+    /// How many device files the last read left out because of the file limit.
+    var skippedFiles = 0
+    /// Whether the replica is too large to write, so the previous own file stays.
+    var isTooLargeToPublish = false
+
+    init() {}
+}
+
 /// Sigma: this Mac's sync state, one atomic record in
 /// `~/Library/Application Support/holzBar/Sync/State.plist`.
 ///
@@ -160,6 +194,8 @@ nonisolated struct SyncState: Hashable, Sendable {
     var previousMacIDs: [SyncMacID]
     /// Whether sync is turned on.
     var isEnabled: Bool
+    /// What this Mac knows about the folder in this session; not part of Sigma on disk.
+    var session = SyncSession()
 
     init(
         mac: SyncMacID,

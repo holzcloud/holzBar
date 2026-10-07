@@ -492,6 +492,24 @@ nonisolated struct SyncUnitTable: Sendable {
         }
     }
 
+    /// `value` as this build's normalizer writes it, which is how the local value of the unit
+    /// compares after the defaults hold it. A unit without a normalizer keeps its value.
+    func normalized(_ value: SyncValue, for key: SyncUnitKey) -> SyncValue {
+        guard case .whole(let unit) = key else {
+            return value
+        }
+        switch unit {
+        case Defaults.Key.menuBarAppearanceConfigurationV2.rawValue:
+            return normalizers.appearance(value) ?? value
+        case Defaults.Key.itemGroups.rawValue:
+            return normalizers.itemGroups(value) ?? value
+        case Self.holzBarIconUnit:
+            return normalizers.holzBarIcon(value) ?? value
+        default:
+            return value
+        }
+    }
+
     /// The stored key of a whole unit, if the unit is a single stored key.
     func storedKey(forUnit unit: String) -> Defaults.Key? {
         keysByUnit[unit]
@@ -578,5 +596,21 @@ nonisolated struct SyncUnitTable: Sendable {
             }
         }
         return true
+    }
+}
+
+nonisolated extension SyncUnitTable {
+    /// A table of the given descriptors, with no stored keys behind them: whole units and
+    /// families are told apart by ``SyncUnitDescriptor/isFamily``. Only tests use it, to build
+    /// the small permissive tables the simulator needs; the app uses ``version1(normalizers:)``.
+    init(version: Int, descriptors: [SyncUnitDescriptor], normalizers: SyncNormalizers = .canonical) {
+        self.init(
+            version: version,
+            normalizers: normalizers,
+            wholeDescriptors: Dictionary(descriptors.filter { !$0.isFamily }.map { ($0.name, $0) }) { first, _ in first },
+            familyDescriptors: Dictionary(descriptors.filter(\.isFamily).map { ($0.name, $0) }) { first, _ in first },
+            knownItems: [:],
+            keysByUnit: [:]
+        )
     }
 }
