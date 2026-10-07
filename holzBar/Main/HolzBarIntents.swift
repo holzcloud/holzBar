@@ -157,7 +157,7 @@ struct ApplyLayoutProfileIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        try intentAppState().profiles.apply(named: profile.id)
+        try intentAppState().profiles.apply(named: profile.id, byUser: true)
         return .result()
     }
 }

@@ -140,18 +140,42 @@ final class LayoutProfiles {
         }
     }
 
+    /// The IDs of the stored profiles. The hotkeys load before the profiles do, and register
+    /// only the profile hotkeys whose profile exists.
+    static func storedProfileIDs() -> Set<String> {
+        guard
+            let data = Defaults.data(forKey: .layoutProfiles),
+            let decoded = try? JSONDecoder().decode([LayoutProfile].self, from: data)
+        else {
+            return []
+        }
+        return Set(decoded.map(\.profileID))
+    }
+
+    /// Orders profiles by name, then by ID for equal names, so every Mac sorts alike.
+    private static func areInOrder(_ lhs: LayoutProfile, _ rhs: LayoutProfile) -> Bool {
+        switch lhs.name.localizedStandardCompare(rhs.name) {
+        case .orderedAscending:
+            true
+        case .orderedDescending:
+            false
+        case .orderedSame:
+            lhs.profileID < rhs.profileID
+        }
+    }
+
     private func load() {
         if
             let data = Defaults.data(forKey: .layoutProfiles),
             let decoded = try? JSONDecoder().decode([LayoutProfile].self, from: data)
         {
-            profiles = decoded.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            profiles = decoded.sorted(by: Self.areInOrder)
         }
         currentProfileName = Defaults.string(forKey: .currentLayoutProfile)
     }
 
     private func save() {
-        profiles.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        profiles.sort(by: Self.areInOrder)
         if let data = try? JSONEncoder().encode(profiles) {
             Defaults.set(data, forKey: .layoutProfiles)
         }
@@ -183,62 +207,105 @@ final class LayoutProfiles {
                 }
             }
         }
-        let applicationSections = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
-        // The layout leaves visible applications out, so the profile records which ones it
-        // knew; applying it makes those visible unless it has them in another section.
-        var knownApplications: [String]?
+        // A profile saved again under its name keeps its ID and its bindings.
+        let previous = profiles.first { $0.name == name }
+        // A profile records only the part of the running macOS generation and keeps the other
+        // part of a profile saved before, so saving on one generation never wipes what the
+        // other one saved (D-05). A Mac before macOS 27 never copies its own macOS 27 layout
+        // into a profile.
+        var itemSectionsToSave = previous?.itemSections ?? [:]
+        var applicationSections = previous?.applicationSections ?? [:]
+        var knownApplications = previous?.knownApplications
         if #available(macOS 27.0, *) {
+            applicationSections = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
+            // The layout leaves visible applications out, so the profile records which ones it
+            // knew; applying it makes those visible unless it has them in another section.
             let known = Defaults.array(forKey: .knownApplications27) as? [String] ?? []
             knownApplications = itemApplications.union(known).union(applicationSections.keys).sorted()
+        } else {
+            itemSectionsToSave = itemSections
         }
-        // A profile saved again under its name keeps its bindings.
-        let previous = profiles.first { $0.name == name }
         let profile = LayoutProfile(
             profileID: previous?.profileID ?? ProfileIdentity.newProfileID(),
             name: name,
-            itemSections: itemSections,
+            itemSections: itemSectionsToSave,
             applicationSections: applicationSections,
             knownApplications: knownApplications,
             displayUUID: previous?.displayUUID,
             spaceUUID: previous?.spaceUUID
         )
         registerUndo(named: String(localized: "Save Profile"))
-        profiles.removeAll { $0.name == name }
+        profiles.removeAll { $0.profileID == profile.profileID }
         profiles.append(profile)
         currentProfileName = name
         save()
         logger.notice("Saved layout profile \(name, privacy: .private)")
     }
 
-    /// Deletes the profile with the given name.
-    func delete(named name: String) {
+    /// The profiles this Mac can apply: every profile on macOS 27, and before it the ones
+    /// that have a part for the item layout. A profile saved only on macOS 27 changes nothing
+    /// on an older Mac.
+    var applicableProfiles: [LayoutProfile] {
+        if #available(macOS 27.0, *) {
+            return profiles
+        }
+        return profiles.filter { !$0.itemSections.isEmpty }
+    }
+
+    /// Deletes the profile with the given ID and its hotkey.
+    func delete(profileID: String) {
+        guard let profile = profile(withID: profileID) else {
+            return
+        }
         registerUndo(named: String(localized: "Delete Profile"))
-        profiles.removeAll { $0.name == name }
-        if currentProfileName == name {
+        profiles.removeAll { $0.profileID == profileID }
+        if currentProfileName == profile.name, !profiles.contains(where: { $0.name == profile.name }) {
             currentProfileName = nil
         }
         save()
-        appState?.settings.hotkeys.removeHotkey(for: .applyProfile(name))
+        appState?.settings.hotkeys.removeHotkey(for: .applyProfile(profileID))
+    }
+
+    /// The profile with the given ID.
+    func profile(withID profileID: String) -> LayoutProfile? {
+        profiles.first { $0.profileID == profileID }
     }
 
     /// The profile with the given name. An exact match wins, since names may differ only in
-    /// case; without one, the name is matched without regard to case.
+    /// case; without one, the name is matched without regard to case. Of several exact
+    /// matches (two Macs may create the same name independently), the one with the smallest
+    /// ID wins, so every Mac picks the same.
     func profile(named name: String) -> LayoutProfile? {
-        profiles.first { $0.name == name }
+        profiles.filter { $0.name == name }.min { $0.profileID < $1.profileID }
             ?? profiles.first { $0.name.caseInsensitiveCompare(name) == .orderedSame }
     }
 
     /// Applies the profile with the given name, matched as in ``profile(named:)``.
-    func apply(named name: String) {
+    func apply(named name: String, byUser: Bool) {
         guard let profile = self.profile(named: name) else {
             logger.warning("No layout profile named \(name, privacy: .private)")
             return
         }
-        apply(profile)
+        apply(profile, byUser: byUser)
+    }
+
+    /// Applies the profile with the given ID.
+    func apply(profileID: String, byUser: Bool) {
+        guard let profile = profile(withID: profileID) else {
+            logger.warning("No layout profile with ID \(profileID, privacy: .private)")
+            return
+        }
+        apply(profile, byUser: byUser)
     }
 
     /// Applies the given profile.
-    func apply(_ profile: LayoutProfile) {
+    ///
+    /// - Parameters:
+    ///   - profile: The profile to apply.
+    ///   - byUser: Whether the user did it: the menu, Settings, a hotkey, Shortcuts and
+    ///     `holzbar://` pass `true`; a Space or display binding passes `false`, since it is
+    ///     automatic (D-04).
+    func apply(_ profile: LayoutProfile, byUser: Bool) {
         guard let appState else {
             return
         }
@@ -258,9 +325,6 @@ final class LayoutProfiles {
                     to: stored.compactMapValues(MacOS27Section.init(rawValue:))
                 )
                 Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
-                // Applying a profile is the user's change, also when a display or Space
-                // applies a bound one; it counts for sync.
-                SettingsSync.userChangedLayout()
             }
             appState.concealer27.update()
             Task {
@@ -287,15 +351,15 @@ final class LayoutProfiles {
         save()
     }
 
-    /// Renames a profile; its hotkey moves with it. A name that another profile has is
-    /// refused.
+    /// Renames a profile. Its ID, and with it its hotkey and bindings, stay. A name that
+    /// another profile has is refused.
     func rename(_ profile: LayoutProfile, to newName: String) {
         let newName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard
             !newName.isEmpty,
             newName != profile.name,
             !profiles.contains(where: { $0.name == newName }),
-            let index = profiles.firstIndex(where: { $0.name == profile.name })
+            let index = profiles.firstIndex(where: { $0.profileID == profile.profileID })
         else {
             return
         }
@@ -305,7 +369,6 @@ final class LayoutProfiles {
             currentProfileName = newName
         }
         save()
-        appState?.settings.hotkeys.moveHotkey(from: .applyProfile(profile.name), to: .applyProfile(newName))
     }
 
     // MARK: Undo
@@ -336,36 +399,36 @@ final class LayoutProfiles {
         actionName: String
     ) {
         registerUndo(named: actionName)
-        let removedNames = Set(profiles.map(\.name)).subtracting(restored.map(\.name))
+        let removedIDs = Set(profiles.map(\.profileID)).subtracting(restored.map(\.profileID))
         profiles = restored
         currentProfileName = restoredCurrent
         save()
         guard let hotkeySettings = appState?.settings.hotkeys else {
             return
         }
-        for name in removedNames where hotkeys[name] == nil {
-            hotkeySettings.removeHotkey(for: .applyProfile(name))
+        for profileID in removedIDs where hotkeys[profileID] == nil {
+            hotkeySettings.removeHotkey(for: .applyProfile(profileID))
         }
-        for (name, keyCombination) in hotkeys {
+        for (profileID, keyCombination) in hotkeys {
             // Another hotkey may have taken the combination since, and the system
             // registers a combination only once per app.
-            guard hotkeySettings.hotkey(using: keyCombination, except: .applyProfile(name)) == nil else {
+            guard hotkeySettings.hotkey(using: keyCombination, except: .applyProfile(profileID)) == nil else {
                 logger.info("Not restoring a profile's hotkey: another hotkey uses its combination")
                 continue
             }
-            hotkeySettings.setKeyCombination(keyCombination, for: .applyProfile(name))
+            hotkeySettings.setKeyCombination(keyCombination, for: .applyProfile(profileID))
         }
     }
 
-    /// The key combinations of the profiles' hotkeys, by profile name.
+    /// The key combinations of the profiles' hotkeys, by profile ID.
     private func profileHotkeys() -> [String: KeyCombination] {
         guard let hotkeySettings = appState?.settings.hotkeys else {
             return [:]
         }
         var result = [String: KeyCombination]()
         for profile in profiles {
-            if let keyCombination = hotkeySettings.existingHotkey(for: .applyProfile(profile.name))?.keyCombination {
-                result[profile.name] = keyCombination
+            if let keyCombination = hotkeySettings.existingHotkey(for: .applyProfile(profile.profileID))?.keyCombination {
+                result[profile.profileID] = keyCombination
             }
         }
         return result
@@ -378,7 +441,7 @@ final class LayoutProfiles {
     func bind(_ profile: LayoutProfile, toDisplay displayUUID: String?) {
         registerUndo(named: String(localized: "Bind Profile"))
         for index in profiles.indices {
-            if profiles[index].name == profile.name {
+            if profiles[index].profileID == profile.profileID {
                 profiles[index].displayUUID = displayUUID
             } else if displayUUID != nil, profiles[index].displayUUID == displayUUID {
                 profiles[index].displayUUID = nil
@@ -392,7 +455,7 @@ final class LayoutProfiles {
     func bind(_ profile: LayoutProfile, toSpace spaceUUID: String?) {
         registerUndo(named: String(localized: "Bind Profile"))
         for index in profiles.indices {
-            if profiles[index].name == profile.name {
+            if profiles[index].profileID == profile.profileID {
                 profiles[index].spaceUUID = spaceUUID
             } else if spaceUUID != nil, profiles[index].spaceUUID == spaceUUID {
                 profiles[index].spaceUUID = nil
@@ -403,7 +466,7 @@ final class LayoutProfiles {
 
     /// Removes both bindings of a profile.
     func unbind(_ profile: LayoutProfile) {
-        guard let index = profiles.firstIndex(where: { $0.name == profile.name }) else {
+        guard let index = profiles.firstIndex(where: { $0.profileID == profile.profileID }) else {
             return
         }
         registerUndo(named: String(localized: "Remove Binding"))
@@ -451,17 +514,21 @@ final class LayoutProfiles {
         else {
             return
         }
+        // `ProfileBinding` identifies profiles by the string in `name`; here it is the profile ID,
+        // so two profiles with the same name stay apart.
         let bindings = profiles.map { profile in
-            ProfileBinding.Profile(name: profile.name, displayUUID: profile.displayUUID, spaceUUID: profile.spaceUUID)
+            ProfileBinding.Profile(name: profile.profileID, displayUUID: profile.displayUUID, spaceUUID: profile.spaceUUID)
         }
+        let currentProfileID = profiles.first { $0.name == currentProfileName }?.profileID
         guard
-            let name = ProfileBinding.profileToApply(profiles: bindings, event: event, currentProfile: currentProfileName),
-            let profile = profiles.first(where: { $0.name == name })
+            let profileID = ProfileBinding.profileToApply(profiles: bindings, event: event, currentProfile: currentProfileID),
+            let profile = profile(withID: profileID)
         else {
             return
         }
-        logger.notice("Applying the bound layout profile \(name, privacy: .private)")
-        apply(profile)
+        logger.notice("Applying the bound layout profile \(profile.name, privacy: .private)")
+        // A Space or display applies it by itself, so it is not the user's change.
+        apply(profile, byUser: false)
     }
 }
 

@@ -166,7 +166,7 @@ enum URLCommands {
                 detail: String(localized: "Another app asked holzBar to rearrange your menu bar."),
                 confirmTitle: String(localized: "Apply"),
                 perform: {
-                    appState.profiles.apply(named: storedName)
+                    appState.profiles.apply(named: storedName, byUser: true)
                 }
             )
         case .toggleShelf:

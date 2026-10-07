@@ -268,7 +268,7 @@ private struct LayoutProfileRow: View {
             }
             Spacer()
             Button("Apply") {
-                profiles.apply(profile)
+                profiles.apply(profile, byUser: true)
             }
             Menu("Bind") {
                 if let currentScreen, let uuid = Bridging.getDisplayUUIDString(for: currentScreen.displayID) {
@@ -304,7 +304,7 @@ private struct LayoutProfileRow: View {
         }
         .confirmationDialog("Delete the profile \u{201C}\(profile.name)\u{201D}?", isPresented: $isConfirmingDelete) {
             Button("Delete", role: .destructive) {
-                profiles.delete(named: profile.name)
+                profiles.delete(profileID: profile.profileID)
             }
             Button("Cancel", role: .cancel) { }
         } message: {
