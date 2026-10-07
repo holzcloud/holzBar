@@ -42,6 +42,20 @@ nonisolated enum SyncMerge {
 
         // The identity checks run before any file is joined, over every file, so that one
         // re-identification covers every suspect dot.
+        // What this installation's own file holds is published, so it is no evidence that a dot
+        // was minted twice, even when another Mac has read it already (Sigma restored alone).
+        if let ownFile = files.contents.first(where: { $0.mac == state.mac && $0.installation == state.nonce }) {
+            let signals = SyncIdentity.collisionSignals(
+                ownMac: state.mac,
+                ownNonce: state.nonce,
+                file: ownFile,
+                fileName: ownFile.mac.rawValue + ".plist",
+                state: state
+            )
+            if signals.isEmpty {
+                state.publishedCounter = max(state.publishedCounter, ownFile.replica.context[state.mac])
+            }
+        }
         var reidentified = false
         var blocked = Set<SyncMacID>()
         var suspects = Set<SyncDot>()

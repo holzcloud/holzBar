@@ -144,9 +144,16 @@ nonisolated enum SyncPublish {
             written: environment.now,
             replica: replica
         )
+        // The encoded size is checked before anything is written: above the limit the previous
+        // file stays and Settings warns. Leaving a unit out is not allowed, because the file's
+        // context would then cover an entry the file lacks, and readers would delete it.
+        let encoded: Data
         do throws(SyncRefusal) {
-            _ = try SyncDeviceFile.encode(contents)
+            encoded = try SyncDeviceFile.encode(contents)
         } catch {
+            return .none(.tooLarge)
+        }
+        guard encoded.count <= SyncDeviceFile.maximumWriteSize else {
             return .none(.tooLarge)
         }
         let counter = max(state.counter, replica.context[state.mac])
