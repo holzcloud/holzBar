@@ -60,6 +60,9 @@ final class HotkeysSettings {
         else {
             return
         }
+        // The profiles are not loaded yet at this point of the launch, so the stored ones tell
+        // which profile IDs exist.
+        let storedProfileIDs = LayoutProfiles.storedProfileIDs()
         // The stored hotkeys in load order: the actions, then the profiles and items.
         var loaded = [(target: HotkeyTarget, keyCombination: KeyCombination)]()
         for hotkey in hotkeys {
@@ -83,7 +86,7 @@ final class HotkeysSettings {
             loaded.append((target, keyCombination))
         }
         // The system registers a combination only once per app, so a hotkey with the
-        // combination of one loaded before it never worked. It loses its combination.
+        // combination of one loaded before it is not registered.
         let duplicates = HotkeyStorage.duplicateStorageKeys(inLoadOrder: loaded.map { entry in
             (entry.target.storageKey, entry.keyCombination.key.rawValue, entry.keyCombination.modifiers.rawValue)
         })
@@ -96,6 +99,13 @@ final class HotkeysSettings {
                 hotkey(withAction: action)?.keyCombination = keyCombination
                 continue
             }
+            // A hotkey of a profile this Mac does not have stays stored but is not
+            // registered: it may arrive from another Mac before its profile, or belong to a
+            // profile that exists only there. It must not hold a combination meanwhile.
+            if case .applyProfile(let profileID) = target, !storedProfileIDs.contains(profileID) {
+                Logger.hotkeys.info("Not registering the stored hotkey of \(target.logDescription, privacy: .public): no such profile on this Mac")
+                continue
+            }
             let hotkey = Hotkey(target: target)
             if let appState {
                 hotkey.performSetup(with: appState)
@@ -103,14 +113,9 @@ final class HotkeysSettings {
             hotkey.keyCombination = keyCombination
             dynamicHotkeys.append(hotkey)
         }
-        if !duplicates.isEmpty {
-            withMutableCopy(of: dictionary) { dictionary in
-                for key in duplicates {
-                    dictionary[key] = nil
-                }
-                Defaults.set(dictionary, forKey: .hotkeys)
-            }
-        }
+        // The stored value stays the user's: loading never writes the setting back. A
+        // duplicate combination is dropped at registration only, and sync presents hotkeys
+        // that clash across Macs as a clash row.
     }
 
     /// Decodes a stored key combination, or returns `nil` for none or an invalid one.
@@ -185,8 +190,9 @@ final class HotkeysSettings {
         switch target {
         case .action(let action):
             action.title
-        case .applyProfile(let name):
-            name
+        case .applyProfile(let profileID):
+            // The ID is never shown; a profile this Mac lacks gets a generic name.
+            appState?.profiles.profile(withID: profileID)?.name ?? String(localized: "Layout Profile")
         case .openItem(let key):
             // The key, when the item is not in the menu bar now.
             appState?.itemManager.item(withIdentityKey: key)?.displayName ?? key

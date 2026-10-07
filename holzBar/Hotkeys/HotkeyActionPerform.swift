@@ -13,10 +13,10 @@ extension HotkeyTarget {
         switch self {
         case .action(let action):
             action.perform(appState: appState)
-        case .applyProfile(let name):
+        case .applyProfile(let profileID):
             // No question, unlike `holzbar://profile/<name>`: the user gave the profile
             // this hotkey.
-            appState.profiles.apply(named: name)
+            appState.profiles.apply(profileID: profileID, byUser: true)
         case .openItem(let key):
             appState.itemManager.openItem(withIdentityKey: key)
         }

@@ -9,9 +9,14 @@ struct HotkeysSettingsPane: View {
     @Environment(AppState.self) var appState
     var settings: HotkeysSettings
 
-    /// The names of the saved layout profiles.
-    private var profileNames: [String] {
-        appState.profiles.profiles.map(\.name)
+    /// The saved layout profiles.
+    private var profiles: [LayoutProfile] {
+        appState.profiles.profiles
+    }
+
+    /// The IDs of the saved layout profiles.
+    private var profileIDs: [String] {
+        profiles.map(\.profileID)
     }
 
     /// A hotkey that opens a menu bar item, with the item's identity key.
@@ -54,25 +59,25 @@ struct HotkeysSettingsPane: View {
                 hotkeyRecorder(forAction: .toggleZenMode)
             }
         }
-        .task(id: profileNames) {
+        .task(id: profileIDs) {
             // Each profile gets its hotkey object here, outside the view update, so the
             // rows below only read them.
-            for name in profileNames {
-                _ = settings.hotkey(for: .applyProfile(name))
+            for profileID in profileIDs {
+                _ = settings.hotkey(for: .applyProfile(profileID))
             }
         }
     }
 
     @ViewBuilder
     private var profileHotkeyRows: some View {
-        if profileNames.isEmpty {
+        if profiles.isEmpty {
             Text("Save a layout profile in the Menu Bar Layout pane to give it a hotkey.")
                 .foregroundStyle(.secondary)
         } else {
-            ForEach(profileNames, id: \.self) { name in
-                if let hotkey = settings.existingHotkey(for: .applyProfile(name)) {
+            ForEach(profiles, id: \.profileID) { profile in
+                if let hotkey = settings.existingHotkey(for: .applyProfile(profile.profileID)) {
                     HotkeyRecorder(hotkey: hotkey, settings: settings) {
-                        Text(name)
+                        Text(profile.name)
                     }
                 }
             }

@@ -16,12 +16,14 @@ struct HotkeyTargetTests {
 
     @Test("Profiles and items have prefixed keys")
     func profilesAndItemsHavePrefixedKeys() {
-        let profile = HotkeyTarget.applyProfile("Work")
+        let profileID = "8F3A2C1E-5B7D-8A40-9C1F-0D2E3F4A5B6C"
+        let profile = HotkeyTarget.applyProfile(profileID)
         let item = HotkeyTarget.openItem("com.example:#1")
-        #expect(profile.storageKey == "ApplyProfile:Work")
+        #expect(profile.storageKey == "ApplyProfile:\(profileID)")
         #expect(item.storageKey == "OpenItem:com.example:#1")
-        #expect(HotkeyTarget(storageKey: "ApplyProfile:Work") == profile)
+        #expect(HotkeyTarget(storageKey: "ApplyProfile:\(profileID)") == profile)
         #expect(HotkeyTarget(storageKey: "OpenItem:com.example:#1") == item)
+        // A key of an older build still names a target; the profile migration re-keys it.
         #expect(HotkeyTarget(storageKey: "ApplyProfile:My Work: Home") == .applyProfile("My Work: Home"))
         #expect(profile.isDynamic)
         #expect(item.isDynamic)
@@ -37,6 +39,7 @@ struct HotkeyTargetTests {
 
     @Test("The log names no profile and no item")
     func logNamesNoProfileOrItem() {
+        #expect(!HotkeyTarget.applyProfile("8F3A2C1E-5B7D-8A40-9C1F-0D2E3F4A5B6C").logDescription.contains("8F3A2C1E"))
         #expect(!HotkeyTarget.applyProfile("Secret").logDescription.contains("Secret"))
         #expect(!HotkeyTarget.openItem("com.example:#1").logDescription.contains("example"))
         #expect(HotkeyTarget.action(.toggleZenMode).logDescription == "ToggleZenMode")

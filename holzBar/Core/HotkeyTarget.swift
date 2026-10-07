@@ -14,7 +14,7 @@ import Foundation
 nonisolated enum HotkeyTarget: Hashable, Sendable {
     /// One of holzBar's actions.
     case action(HotkeyAction)
-    /// Applies the layout profile with this name.
+    /// Applies the layout profile with this profile ID (`LayoutProfile.profileID`).
     case applyProfile(String)
     /// Opens the menu of the item stored under this identity key.
     case openItem(String)
@@ -30,8 +30,8 @@ nonisolated enum HotkeyTarget: Hashable, Sendable {
         switch self {
         case .action(let action):
             action.rawValue
-        case .applyProfile(let name):
-            Self.profilePrefix + name
+        case .applyProfile(let profileID):
+            Self.profilePrefix + profileID
         case .openItem(let key):
             Self.itemPrefix + key
         }
@@ -42,11 +42,11 @@ nonisolated enum HotkeyTarget: Hashable, Sendable {
         if let action = HotkeyAction(rawValue: storageKey) {
             self = .action(action)
         } else if storageKey.hasPrefix(Self.profilePrefix) {
-            let name = String(storageKey.dropFirst(Self.profilePrefix.count))
-            guard !name.isEmpty else {
+            let profileID = String(storageKey.dropFirst(Self.profilePrefix.count))
+            guard !profileID.isEmpty else {
                 return nil
             }
-            self = .applyProfile(name)
+            self = .applyProfile(profileID)
         } else if storageKey.hasPrefix(Self.itemPrefix) {
             let key = String(storageKey.dropFirst(Self.itemPrefix.count))
             guard !key.isEmpty else {
