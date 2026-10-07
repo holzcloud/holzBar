@@ -62,6 +62,11 @@ final class MenuBarItemGroups {
         "music.note", "network", "bolt", "cloud", "wrench.and.screwdriver", "star",
     ]
 
+    /// A Boolean value that indicates whether ``performSetup(with:)`` is assigning the stored
+    /// groups. While it is, they are not encoded and saved again: a launch never rewrites a
+    /// stored synced setting the user did not change (analysis §4.9 item 2).
+    @ObservationIgnored private var isLoadingStoredValues = false
+
     @ObservationIgnored private let logger = Logger(category: "MenuBarItemGroups")
     @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var statusItems = [UUID: NSStatusItem]()
@@ -75,7 +80,9 @@ final class MenuBarItemGroups {
             let data = Defaults.data(forKey: .itemGroups),
             let decoded = try? JSONDecoder().decode([MenuBarItemGroup].self, from: data)
         {
+            isLoadingStoredValues = true
             groups = decoded
+            isLoadingStoredValues = false
         } else {
             updateStatusItems()
         }
@@ -92,6 +99,9 @@ final class MenuBarItemGroups {
     }
 
     private func save() {
+        guard !isLoadingStoredValues else {
+            return
+        }
         if let data = try? JSONEncoder().encode(groups) {
             Defaults.set(data, forKey: .itemGroups)
         }

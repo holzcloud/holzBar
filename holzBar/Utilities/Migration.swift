@@ -68,6 +68,24 @@ enum MigrationManager {
         )
     }
 
+    /// Clears a `MacOS27LayoutSeeded` flag that a Mac before macOS 27 received while its
+    /// own `MacOS27Layout` is empty (a 0.0.6-beta1 merge artifact), so the layout is still
+    /// seeded after an upgrade to macOS 27 (``LayoutSeedRepair``).
+    ///
+    /// It touches only the local flag key, and does nothing once the flag is gone.
+    static func repairLayoutSeededFlagIfNeeded() {
+        guard #unavailable(macOS 27.0) else {
+            return
+        }
+        let seeded = Defaults.bool(forKey: .macOS27LayoutSeeded)
+        let layout = Defaults.dictionary(forKey: .macOS27Layout)
+        guard LayoutSeedRepair.shouldClearSeededFlag(isMacOS27: false, seeded: seeded, layoutIsEmpty: layout?.isEmpty ?? true) else {
+            return
+        }
+        Defaults.removeObject(forKey: .macOS27LayoutSeeded)
+        logger.notice("Cleared the macOS 27 layout seeded flag left by a settings merge")
+    }
+
     /// Converts the menu bar appearance of Ice before 0.11.10 into the current
     /// configuration (what Ice 0.11.10 did at launch).
     ///

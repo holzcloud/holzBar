@@ -14,11 +14,13 @@ final class MenuBarAppearanceManager {
     /// The current menu bar appearance configuration.
     var configuration: MenuBarAppearanceConfigurationV2 = .defaultConfiguration {
         didSet {
-            do {
-                let data = try encoder.encode(configuration)
-                Defaults.set(data, forKey: .menuBarAppearanceConfigurationV2)
-            } catch {
-                Logger.serialization.error("Error encoding menu bar appearance configuration: \(error, privacy: .private)")
+            if !isLoadingStoredValues {
+                do {
+                    let data = try encoder.encode(configuration)
+                    Defaults.set(data, forKey: .menuBarAppearanceConfigurationV2)
+                } catch {
+                    Logger.serialization.error("Error encoding menu bar appearance configuration: \(error, privacy: .private)")
+                }
             }
             // The overlay panels may not have been configured yet. Since some of the
             // properties on the manager might call for them, try to configure now
@@ -37,6 +39,11 @@ final class MenuBarAppearanceManager {
 
     /// The shared app state.
     @ObservationIgnored private weak var appState: AppState?
+
+    /// A Boolean value that indicates whether ``loadInitialState()`` is assigning the stored
+    /// configuration. While it is, the configuration is not encoded and saved again: a launch
+    /// never rewrites a stored synced setting the user did not change (analysis §4.9 item 2).
+    @ObservationIgnored private var isLoadingStoredValues = false
 
     /// Encoder for UserDefaults values.
     @ObservationIgnored private let encoder = JSONEncoder()
@@ -109,6 +116,10 @@ final class MenuBarAppearanceManager {
 
     /// Loads the initial values for the configuration.
     private func loadInitialState() {
+        isLoadingStoredValues = true
+        defer {
+            isLoadingStoredValues = false
+        }
         do {
             if let data = Defaults.data(forKey: .menuBarAppearanceConfigurationV2) {
                 configuration = try decoder.decode(MenuBarAppearanceConfigurationV2.self, from: data)
