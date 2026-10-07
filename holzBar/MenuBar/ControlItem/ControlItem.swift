@@ -667,8 +667,8 @@ final class ControlItem {
         let menu = NSMenu(title: "holzBar")
 
         // Settings from another Mac wait quietly here and in the sync settings; holzBar
-        // never opens a dialog for them by itself.
-        if let hint = appState.settingsSync.hint {
+        // never opens a dialog for them by itself. While sync is paused, none wait.
+        if SettingsSyncPause.isActive(), let hint = appState.settingsSync.hint {
             menu.addItem(.sectionHeader(title: String(localized: "Settings changed on another Mac")))
             let hintItem = switch hint {
             case .restart:

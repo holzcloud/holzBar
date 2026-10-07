@@ -7785,6 +7785,34 @@
         }
       }
     },
+    "Sync is paused in this beta and returns in the next one. Your sync folder and these settings stay as they are." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Abgleich ist in dieser Beta pausiert und kommt in der nächsten zurück. Dein Abgleichordner und diese Einstellungen bleiben, wie sie sind."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La synchronisation est en pause dans cette bêta et reviendra dans la prochaine. Votre dossier de synchronisation et ces réglages restent tels quels."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronizzazione è in pausa in questa beta e tornerà nella prossima. La tua cartella di sincronizzazione e queste impostazioni restano come sono."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sincronisaziun è en pausa en questa beta e turna en la proxima. Tes ordinatur da sincronisaziun e quests parameters restan sco ch'els èn."
+          }
+        }
+      }
+    },
     "Sync settings between your Macs" : {
       "localizations" : {
         "de" : {

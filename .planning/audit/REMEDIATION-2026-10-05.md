@@ -12,6 +12,7 @@
 - **Fixed: 93. Partly fixed: 1 (F-10). Open: 18.**
 - The remediation fixed 92: the 66 auto-fixable findings, and 26 manual-only findings after the maintainer's 16 decisions (F-10 only partly). F-111 and F-112 were fixed along the way by the release chain ([below](#f-111-and-f-112-fixed-by-the-release-chain)).
 - Every high and medium finding is fixed, F-10 partly. All 18 open findings are low and manual-only.
+- **Settings sync is paused in 0.0.7-beta2** (maintainer decision, 2026-10-06): the sync findings F-02, F-15, F-18, F-38 and F-60 (five of the 93 fixed) and the review finding SA-05 are fixed in the code, but the feature does not run in that build, so these fixes have no effect there; it returns after a redesign in the next beta ([below](#settings-sync-paused-in-007-beta2)).
 - What changed most:
   - The embedded XPC service `MenuBarItemService` is removed. holzBar ships a single executable with no nested code; on macOS 26 the source-PID lookup runs in the app, on a background queue, with time limits. `Scripts/check-signature.sh` (CI, release, `install.sh`) fails on any other Mach-O file.
   - Release builds no longer carry `com.apple.security.get-task-allow`; the published 0.0.7-beta1 did.
@@ -27,7 +28,7 @@ Route: **auto** = auto-fixable, fixed by the automatic pipeline; **decision: \<c
 | ID | Severity | Title | Status | Route | Commits | Note |
 |---|---|---|---|---|---|---|
 | F-01 | high | Timeouts never fire: a lost event round trip hangs every move and click (pointer hidden, input monitors off), and the Shelf's wait is unbounded | fixed | decision: event-timeouts | f14aed13, e8eff47e |  |
-| F-02 | high | Settings sync overwrites other Macs' settings: push() never reads or compares the file (turning sync on, every launch, after "Later") | fixed | decision: sync | f2f8b9cc |  |
+| F-02 | high | Settings sync overwrites other Macs' settings: push() never reads or compares the file (turning sync on, every launch, after "Later") | fixed | decision: sync | f2f8b9cc | Code fixed; the feature is paused in 0.0.7-beta2, redesign in the next beta ([below](#settings-sync-paused-in-007-beta2)). |
 | F-03 | high | Applying a layout profile on macOS 27 replaces the whole saved layout, wiping it for profiles saved before macOS 27 | fixed | auto | 9e633177, 04e29a11, 5ae56d1c |  |
 | F-04 | medium | macOS 26: the embedded XPC service runs with holzBar's TCC grants and is never checked, so swapping it hands those grants to other code | fixed | decision: xpc-trust | 8ea35478 |  |
 | F-05 | medium | Release and install builds carry get-task-allow on the app and the XPC service, so a debugger can inject code that runs with holzBar's grants | fixed | decision: release | 108452a3, de59fe70, 5b2e1db2, f2117f4a |  |
@@ -40,10 +41,10 @@ Route: **auto** = auto-fixable, fixed by the automatic pipeline; **decision: \<c
 | F-12 | medium | macOS 26 local fallback: the main-thread running-apps observer blocks on the lookup lock while a scan waits for holzBar's own Accessibility replies | fixed | decision: xpc-trust | 8ea35478 |  |
 | F-13 | medium | One stuck window capture wedges the serial capture queue for the session: images stop updating and search and Shelf stop opening | fixed | decision: capture-queue | 84de2f53, d6291797 |  |
 | F-14 | medium | NSAlert.runModal() inside main-actor Tasks blocks all main-actor work while the alert is open (macOS 27 system-item clicks are swallowed) | fixed | decision: modal-alerts | 570b6e5e, b595e8c1 |  |
-| F-15 | medium | Settings sync does coordinated file I/O on the main thread, so a dataless file, a hung file provider or a stalled volume blocks launch and the UI | fixed | decision: sync | f2f8b9cc |  |
+| F-15 | medium | Settings sync does coordinated file I/O on the main thread, so a dataless file, a hung file provider or a stalled volume blocks launch and the UI | fixed | decision: sync | f2f8b9cc | Code fixed; the feature is paused in 0.0.7-beta2, redesign in the next beta ([below](#settings-sync-paused-in-007-beta2)). |
 | F-16 | medium | Accessibility observer registration runs on the main thread with no messaging timeout, stalling holzBar and, on macOS 27, every click | fixed | decision: ax-observers | 3834cb6a |  |
 | F-17 | medium | Launches and quits of menu bar agents go unnoticed: automatic Zen misses Screen Sharing, and macOS 27 concealment keeps newly launched Visible agents hidden | fixed | decision: agent-launches | 3a0c23be |  |
-| F-18 | medium | The sync-folder bookmark is resolved without .withoutMounting on every access, so holzBar mounts network shares itself and blocks while the mount times out | fixed | auto | 2eabb385, c31dfd88, 22aebd79, 3e6935c2 |  |
+| F-18 | medium | The sync-folder bookmark is resolved without .withoutMounting on every access, so holzBar mounts network shares itself and blocks while the mount times out | fixed | auto | 2eabb385, c31dfd88, 22aebd79, 3e6935c2 | Code fixed; the feature is paused in 0.0.7-beta2, redesign in the next beta ([below](#settings-sync-paused-in-007-beta2)). |
 | F-19 | medium | CGSSpaceGetType is declared with a Swift enum return type, so fullscreen spaces are never detected on macOS 26 and 27 | fixed | auto | cd3df1db |  |
 | F-20 | medium | Smart rehide (the default) never fires without Screen Recording, because it only considers windows that have a title | fixed | auto | 11927c0b, 48c4cfa0 |  |
 | F-21 | medium | With Caps Lock on, every item move and click on macOS 26 waits indefinitely and replays later | fixed | auto | 32065b86, f4cc7583, 54237c97, 4e62a66b |  |
@@ -63,7 +64,7 @@ Route: **auto** = auto-fixable, fixed by the automatic pipeline; **decision: \<c
 | F-35 | medium | The Shelf jumps after it opens, because every resize recomputes its position from the current mouse location | fixed | auto | 2546ae7c |  |
 | F-36 | medium | Opening a hidden item without showing it treats a menu-opening AXPress as a failure and clicks the item again | fixed | decision: axpress | 914ee0d4, 0aeafbf4 |  |
 | F-37 | medium | macOS 26 source-PID lookups have no overall time limit, so one slow app stalls every item read | fixed | decision: xpc-trust | 62dd5816 |  |
-| F-38 | medium | The sync device ID lives in the preferences file, so Macs set up by Migration Assistant, restore or clone ignore each other's changes | fixed | decision: sync | ec55d265 |  |
+| F-38 | medium | The sync device ID lives in the preferences file, so Macs set up by Migration Assistant, restore or clone ignore each other's changes | fixed | decision: sync | ec55d265 | Code fixed; the feature is paused in 0.0.7-beta2, redesign in the next beta ([below](#settings-sync-paused-in-007-beta2)). |
 | F-39 | medium | The Split menu bar shape always degrades to the full shape on macOS 27 | fixed | decision: split-shape | 6645b8e0, 768f40f0, 25a1a938, bdaa6ab4, cdab120b, 3102c6fc, 5e8cb6f0, f1117f9f, 8d1d0df4 |  |
 | F-40 | medium | install.sh skips the TCC reset for ad hoc builds most of the time (SIGPIPE under pipefail) | fixed | auto | fc73e170 |  |
 | F-41 | medium | verify-layout.sh restores MacOS27Layout with string values, wiping the real macOS 27 layout while printing PASS | fixed | auto | 17586778, eb366154 |  |
@@ -85,7 +86,7 @@ Route: **auto** = auto-fixable, fixed by the automatic pipeline; **decision: \<c
 | F-57 | low | macOS 27 item scan sets a short messaging timeout only on the application element; per-item reads wait up to 6 s | open | manual-only | — | Not in the chosen scope (manual-only, no decision asked). |
 | F-58 | low | macOS 27: image-store deletes and writes run in unordered detached tasks, so old-appearance glyphs can survive a theme switch | fixed | auto | 786dc6d9 |  |
 | F-59 | low | One bad entry in a dictionary- or JSON-valued setting empties the whole setting, and the next save writes the loss back | open | manual-only | — | Not in the chosen scope (manual-only, no decision asked). |
-| F-60 | low | Applying synced settings deletes local keys the sending Mac never had, wiping the per-OS layout between macOS 26 and 27 Macs | fixed | decision: sync | 88921465 |  |
+| F-60 | low | Applying synced settings deletes local keys the sending Mac never had, wiping the per-OS layout between macOS 26 and 27 Macs | fixed | decision: sync | 88921465 | Code fixed; the feature is paused in 0.0.7-beta2, redesign in the next beta ([below](#settings-sync-paused-in-007-beta2)). |
 | F-61 | low | A custom icon of a few hundred KB pushes the sync file over the 1 MiB read limit, and other Macs silently ignore all synced settings | open | manual-only | — | Not in the chosen scope (manual-only, no decision asked). |
 | F-62 | low | A stored custom icon that ImageIO refuses leaves holzBar's own menu bar icon blank, with no fallback | fixed | auto | 1622fecf |  |
 | F-63 | low | An unknown shape kind, end cap or black-background value fails the whole appearance decode, and the next edit overwrites it | fixed | auto | f65e7bfc |  |
@@ -193,6 +194,8 @@ The release restructure (`f2117f4a`, then `54a91ff5` and `2fe22323`) fixes both,
 
 ## SA-05: resolved
 
+Code resolved, but settings sync is paused in 0.0.7-beta2 ([below](#settings-sync-paused-in-007-beta2)).
+
 Found in the review of the sync chain, not an audit finding. holzBar's own automatic layout writes (`ItemSections`, `MacOS27Layout`) counted as user changes for conflict detection, so a Mac whose layout holzBar rearranged on its own could ask the sync question, and a macOS 26 Mac and a macOS 27 Mac compared each other's layouts. The maintainer chose **"Automatisches nicht mitzählen"**:
 
 - Each Mac compares only its own macOS version's layout key; the other version's key (`MacOS27Layout` before macOS 27, `ItemSections` on macOS 27) is left out of the user digest, kept from the sync file when this Mac writes (never this Mac's older copy; only a file without one gets this Mac's copy, not listed as current, for 0.0.7 beta 1) and taken in silently when it adopts or applies a version.
@@ -201,6 +204,16 @@ Found in the review of the sync chain, not an audit finding. holzBar's own autom
 - Sync files list their current layouts (`currentLayouts`), so the layout copies in files of earlier builds are neither compared, applied nor taken in.
 
 Commits: `4c5e3539` (per-macOS layouts), `422bba40` (automatic versus user layout changes), `d41ca102` (docs); review fix-ups `ab2aad45` (a joining Mac takes in the folder's layout), `fde070f9` (migration counts an existing layout as changed only on a Mac that did not sync), `b5b9959f` (the other layout is kept for 0.0.7 beta 1 when the file has none) and the docs commit. Details, tests and the two-Mac test steps: [remediation/sa05-SUMMARY.md](remediation/sa05-SUMMARY.md).
+
+## Settings sync paused in 0.0.7-beta2
+
+The maintainer decided on 2026-10-06 to pause settings sync in 0.0.7-beta2 and redesign it for the next beta. F-02, F-15, F-18, F-38, F-60 and SA-05 stay fixed in the code above, but the feature does not run in that build.
+
+- **Why:** even after the sync chain and SA-05, a reworked sync could still lose a menu bar arrangement between Macs in rare cases. The follow-up branch `audit-manual/sync-fix` (58 commits on `d7c01063`, `0320c839` … `9b0f4bb5`) went through six review rounds (round summaries `5699fec7`, `c537deff`, `1af35114`, `0fa5a4bc`, `032ba55f`, `9b0f4bb5`; details in `.planning/audit/remediation/sync-fix-SUMMARY.md` on that branch). Each round found further ways a stale layout could be written back as current or a user's arrangement replaced (writes over a missing file, older versions of a Mac's own, the other macOS version's copies, Keep This Mac's Settings over older versions, clock steps), and the rounds did not converge. That branch is not merged; it is the reference for the redesign.
+- **What the build does:** `SettingsSyncPause.isPaused` (`holzBar/Core/SettingsSyncPause.swift`, tested by `SettingsSyncPauseTests`) keeps every sync entry point from starting, each through the one check `SettingsSyncPause.isActive()` (`allowsChanges()` only disables the settings' controls): the launch pull, setup, the folder refresh and choice, the hint in the holzBar menu, and the layout-edit count. holzBar never reads, writes, watches, creates or mounts anything in the sync folder, shows no sync question or hint, and never changes the stored sync configuration (`SyncsSettingsWithICloud`, the folder bookmark, the device id and every `SettingsSync…` key stay as they are). Settings → Advanced shows the sync controls disabled with a note in all five languages. Export… and Import… work as before.
+- **Docs:** the 0.0.7-beta2 release notes (no sync question and no sync fixes; the pause under Changed), `docs/features.md`, the README and `docs/comparison.md` (paused in 0.0.7-beta2) and `docs/privacy-and-permissions.md`.
+- **Next beta:** redesign sync, then set `SettingsSyncPause.isPaused` to `false` and update its test. 0.0.7-beta2 leaves the sync state of earlier builds untouched (no migration runs) and does not count layout edits made while sync is paused; the redesign has to account for both and must meet the requirement in the next bullet.
+- **Requirement for the redesign (layout edits made during the pause):** 0.0.7-beta2 never runs `SettingsSync.migrateSyncState()` or `SettingsSync.userChangedLayout()`, and it writes no app-version marker, so the redesign cannot tell which Macs ran it. On a Mac that synced under 0.0.7-beta1, `SettingsSyncLayoutEdits` is then still missing when sync resumes; today's migration calls `SettingsSyncPolicy.initialLayoutEdits(hasLayout: true, syncs: true)`, which returns 0, so a menu bar the user rearranged during 0.0.7-beta2 counts as unchanged and the join takes the folder's layout for that macOS version without a question. That is the loss the pause exists to prevent, and the user-facing docs promise that sync can resume. When sync resumes on a Mac migrating from any build before the redesign, an existing layout must count as edited by the user (`initialLayoutEdits` returns 1 for `hasLayout` regardless of `syncs`), so the first sync asks instead of replacing it. Optional, only with the maintainer's agreement: a non-sync marker such as a last-launched-version key would let later builds tell which build ran last; 0.0.7-beta2 deliberately writes none, so the redesign must rely on the rule above.
 
 ## Still open
 

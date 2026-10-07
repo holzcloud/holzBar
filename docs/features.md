@@ -57,7 +57,7 @@
 
 #### Settings
 - ✅ **Export and import** all settings
-- ✅ **Sync between Macs** through iCloud Drive or any folder your Macs sync (Nextcloud, Dropbox, OneDrive, Syncthing, a network share) — changes from another Mac arrive as soon as the folder delivers them, with no polling; holzBar asks before it replaces either Mac's settings ([details](#settings-sync))
+- ⏸️ **Sync between Macs** through iCloud Drive or any folder your Macs sync (Nextcloud, Dropbox, OneDrive, Syncthing, a network share) — paused in 0.0.7-beta2, returns after a redesign in the next beta ([details](#settings-sync))
 - ✅ **Imports your Ice settings** on first launch
 - ✅ **Alerts in Settings are sheets** on its window, so holzBar keeps working while one is open
 - ✅ Launch at login
@@ -68,6 +68,9 @@
 </table>
 
 ## Settings sync
+
+> [!NOTE]
+> **Settings sync is paused in 0.0.7-beta2.** Even reworked, it could still lose a menu bar arrangement between Macs in rare cases, so it returns after a redesign in the next beta. In 0.0.7-beta2 holzBar does not read, write, watch or mount anything in the sync folder, shows no sync question or hint, and **Settings → Advanced** shows the sync controls greyed out. The sync folder, whether sync is on and the other sync settings stay as they are, so sync can resume later. **Export…** and **Import…** still move settings between Macs. The rest of this section describes sync as it was built for 0.0.7-beta2 before the pause; the redesign may change it.
 
 - **A quiet hint, never a dialog.** Changes from another Mac wait as **Settings changed on another Mac** with **Restart**, in Settings → Advanced and at the top of holzBar's menu.
 - **holzBar asks before it replaces settings.** When both Macs changed their settings, or a Mac joins a folder that holds another Mac's different settings, the hint reads **Choose Settings…** and holzBar asks which settings to use, in a sheet on the Settings window. It never overwrites another Mac's settings unasked.
@@ -154,7 +157,7 @@ The "holzBar vs. Ice and Thaw" table above marks these with 🔜.
 <td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode, automatic reveal and settings backup<br><img src="../Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, showing hidden items when the battery is low or the network is lost, and settings Export… and Import…"></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><b>Sync and permissions</b> — settings sync through any folder your Macs sync, and the state of every permission<br><img src="../Resources/Screenshots/settings-advanced-sync.png" alt="holzBar settings, Advanced pane further down: showing hidden items automatically, Export… and Import…, Sync settings between your Macs with Turn On… through iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share, and Accessibility and Screen Recording both granted"></td>
+<td width="50%" valign="top"><b>Sync and permissions</b> — settings sync through any folder your Macs sync, and the state of every permission (taken before the pause: in 0.0.7-beta2 the sync controls are greyed out)<br><img src="../Resources/Screenshots/settings-advanced-sync.png" alt="holzBar settings, Advanced pane further down: showing hidden items automatically, Export… and Import…, Sync settings between your Macs with Turn On… through iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share, and Accessibility and Screen Recording both granted"></td>
 <td width="50%" valign="top"></td>
 </tr>
 </table>
