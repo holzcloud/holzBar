@@ -204,6 +204,9 @@ nonisolated enum SyncDeviceFile {
     }
 
     private static func parse(_ data: Data, fileName: String) throws(SyncRefusal) -> Contents {
+        guard data.count <= maximumReadSize else {
+            throw .tooLarge(data.count)
+        }
         let object: Any
         do {
             object = try PropertyListSerialization.propertyList(from: data, options: [], format: nil)
@@ -213,29 +216,48 @@ nonisolated enum SyncDeviceFile {
         guard let root = object as? [String: Any] else {
             throw .wrongStructure("root")
         }
+        // The format comes first: a file of a newer format is named as such and never read
+        // further, whatever else is in it.
+        let format = try integer(root["format"].flatMap { SyncValue(propertyList: $0) }, "format")
+        guard format >= 1 else {
+            throw .wrongStructure("format")
+        }
+        guard format <= currentFormat else {
+            throw .newerFormat(format)
+        }
         guard let top = SyncValue(propertyList: root)?.dictionaryValue else {
             throw .wrongStructure("values")
         }
         guard let macString = top["mac"]?.stringValue, let mac = SyncMacID(macString) else {
             throw .wrongStructure("mac")
         }
-        guard let installation = top["installation"]?.stringValue else {
+        guard macID(fromFileName: fileName) == mac else {
+            throw .nameMismatch
+        }
+        guard
+            let installation = top["installation"]?.stringValue,
+            !installation.isEmpty,
+            installation.count <= maximumInstallationLength
+        else {
             throw .wrongStructure("installation")
         }
         guard let written = top["written"]?.dateValue else {
             throw .wrongStructure("written")
         }
-        let replica = try decodeReplica(top)
-        let extra = top.filter { !knownKeys.contains($0.key) }
+        let minor = try integer(top["minor"], "minor")
+        let unitTable = try integer(top["unitTable"], "unitTable")
+        guard minor >= 0, unitTable >= 0 else {
+            throw .wrongStructure("minor")
+        }
         return Contents(
-            format: try integer(top["format"], "format"),
-            minor: try integer(top["minor"], "minor"),
-            unitTable: try integer(top["unitTable"], "unitTable"),
+            format: format,
+            minor: minor,
+            unitTable: unitTable,
             mac: mac,
             installation: installation,
             written: written,
-            replica: replica,
-            extra: extra
+            replica: try decodeReplica(top),
+            extra: top.filter { !knownKeys.contains($0.key) }
         )
     }
 
@@ -253,10 +275,10 @@ nonisolated enum SyncDeviceFile {
         }
         var counters: [SyncMacID: UInt64] = [:]
         for name in contextFields.keys.sorted() {
-            guard let mac = SyncMacID(name), let number = contextFields[name]?.integerValue, let counter = UInt64(exactly: number) else {
+            guard let mac = SyncMacID(name), let number = contextFields[name]?.integerValue else {
                 throw .wrongStructure("context")
             }
-            counters[mac] = counter
+            counters[mac] = try counter(number, minimum: 0)
         }
         let context = SyncContext(counters: counters)
 
@@ -274,6 +296,9 @@ nonisolated enum SyncDeviceFile {
             guard let items = families[family]?.dictionaryValue else {
                 throw .wrongStructure("entries")
             }
+            guard items.count <= maximumEntriesPerFamily else {
+                throw .tooManyEntries(family)
+            }
             for item in items.keys.sorted() {
                 registers[.split(family: family, item: item)] = try decodeEntries(items[item], context: context)
             }
@@ -287,6 +312,9 @@ nonisolated enum SyncDeviceFile {
             guard let elements = setFields[name]?.arrayValue else {
                 throw .wrongStructure("sets")
             }
+            guard elements.count <= maximumSetElements else {
+                throw .tooManyEntries(name)
+            }
             sets[name] = try elements.map { element throws(SyncRefusal) in
                 guard let string = element.stringValue else {
                     throw .wrongStructure("sets")
@@ -295,6 +323,13 @@ nonisolated enum SyncDeviceFile {
             }
         }
         return SyncReplica(context: context, registers: registers, sets: sets)
+    }
+
+    private static func counter(_ number: Int64, minimum: UInt64) throws(SyncRefusal) -> UInt64 {
+        guard let counter = UInt64(exactly: number), counter >= minimum, counter <= maximumCounter else {
+            throw .counterOutOfRange
+        }
+        return counter
     }
 
     private static func decodeEntries(_ value: SyncValue?, context: SyncContext) throws(SyncRefusal) -> [SyncEntry] {
@@ -314,10 +349,14 @@ nonisolated enum SyncDeviceFile {
             let macString = fields["mac"]?.stringValue,
             let mac = SyncMacID(macString),
             let number = fields["n"]?.integerValue,
-            let counter = UInt64(exactly: number),
             let at = fields["at"]?.dateValue
         else {
             throw .wrongStructure("entry")
+        }
+        let dot = SyncDot(mac: mac, n: try counter(number, minimum: 1))
+        // Honest publication: a file never holds a change its own context has not seen.
+        guard context.covers(dot) else {
+            throw .uncoveredEntry
         }
         let payload: SyncPayload
         switch (fields["value"], fields["deleted"]) {
@@ -329,10 +368,42 @@ nonisolated enum SyncDeviceFile {
             throw .wrongStructure("entry")
         }
         return SyncEntry(
-            dot: SyncDot(mac: mac, n: counter),
+            dot: dot,
             at: at,
             payload: payload,
             extra: fields.filter { !knownEntryKeys.contains($0.key) }
         )
     }
+
+    // MARK: Names
+
+    /// Whether `name` is the name of a device file: exactly `<MacID>.plist`, with an
+    /// upper-case UUID. Everything else in the folder is ignored: `.DS_Store`, `Icon\r`,
+    /// temporary files and the conflict names of Dropbox, Nextcloud, OneDrive and Syncthing.
+    static func isDeviceFileName(_ name: String) -> Bool {
+        macID(fromFileName: name) != nil
+    }
+
+    /// The Mac a device file name belongs to, or `nil` when it is not exactly `<MacID>.plist`.
+    static func macID(fromFileName name: String) -> SyncMacID? {
+        guard name.utf8.count == SyncMacID.length + fileExtension.utf8.count, name.hasSuffix(fileExtension) else {
+            return nil
+        }
+        return SyncMacID(String(name.dropLast(fileExtension.count)))
+    }
+
+    /// The Mac whose device file `fileName` is a conflict copy of: a `.plist` name that
+    /// begins with the identity of a Mac in `knownMacs` but is not exactly `<MacID>.plist`.
+    ///
+    /// A conflict copy is a collision signal for that Mac only. Conflict names can contain
+    /// the computer name (OneDrive does), so they are never logged, stored or shown; only
+    /// the returned identity is.
+    static func conflictCopyOwner(fileName: String, knownMacs: [SyncMacID]) -> SyncMacID? {
+        guard fileName.hasSuffix(fileExtension), macID(fromFileName: fileName) == nil else {
+            return nil
+        }
+        return knownMacs.sorted().first { fileName.hasPrefix($0.rawValue) }
+    }
+
+    private static let fileExtension = ".plist"
 }
