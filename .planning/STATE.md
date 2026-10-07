@@ -4,11 +4,11 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: "Sync redesign decided (one file per Mac, settings on 26+27, arrangement and profiles only on 27); next is /gsd-phase to add the sync redesign phase for 0.0.7-beta3"
-last_updated: "2026-10-07T12:00:00.000Z"
+stopped_at: Completed 28-03-PLAN.md
+last_updated: "2026-10-07T12:49:07.586Z"
 last_activity: 2026-10-07
-last_activity_desc: "0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded"
-state_head: e1c8ed8884e1f0f5c5686f87b63ca7ad64189f6f
+last_activity_desc: 0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded
+state_head: d729449057667bc33f495b9b74d03e3eccc77701
 progress:
   total_phases: 33
   completed_phases: 13
@@ -85,6 +85,7 @@ Progress: [█████████████░░░░░░░░░░
 | Phase 05.1.1.1 P02 | 150min | 3 tasks | 32 files |
 | Phase 05.1.1.1 P03 | 240min | 4 tasks | 50 files |
 | Phase 05.1.1.1.1 P01 | 73min | 5 tasks | 19 files |
+| Phase 28 P03 | 35min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -163,6 +164,8 @@ Recent decisions affecting current work:
 - [Phase 06.1]: macOS 14 launch crash (openWindow inside the scene update) found by the compat job and fixed before any release
 - [Phase 07]: README and website keep the stable signature and attestation at 🔜 until the first release signed with holzBar's own certificate
 - [Phase 07]: 0.0.5 was a different cask and bundle id; the release notes tell its users to export, uninstall it, install holzbar and import (no automatic migration)
+- [Phase 28]: Legacy profile ID is a version-8 UUID from SHA-256 of 'com.holzcloud.holzBar.LayoutProfile:' + name (one-way, D-05); duplicate names derive from name#2, #3
+- [Phase 28]: Profile hotkey registration checks stored profile IDs because hotkeys load before LayoutProfiles.performSetup
 
 ### Roadmap Evolution
 
@@ -187,6 +190,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-07
-Stopped at: Phase 28 planning interrupted by the usage limit. Done: phase added, 28-CONTEXT.md, 28-UI-SPEC.md (approved), 28-PATTERNS.md. The planner wrote 28-01 to 28-06-PLAN.md but stopped before finishing (possibly incomplete, not plan-checked). Next: re-run `/gsd-plan-phase 28` and choose to review/complete the existing plans, then the plan checker, then `/gsd-execute-phase 28`.
+Last session: 2026-10-07T12:49:07.562Z
+Stopped at: Completed 28-03-PLAN.md
 Resume file: None
