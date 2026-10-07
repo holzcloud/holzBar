@@ -4,11 +4,11 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: Completed 28-05-PLAN.md
-last_updated: "2026-10-07T13:12:51.319Z"
+stopped_at: Completed 28-04-PLAN.md
+last_updated: "2026-10-07T13:22:29.182Z"
 last_activity: 2026-10-07
 last_activity_desc: 0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded
-state_head: 235da842adb26bbf204268350c8838473fdf11af
+state_head: 70cf27988e6d9e310cf9607335c0d159ea96f5f9
 progress:
   total_phases: 33
   completed_phases: 13
@@ -89,6 +89,7 @@ Progress: [█████████████░░░░░░░░░░
 | Phase 28 P01 | 60min | 3 tasks | 13 files |
 | Phase 28 P02 | 35min | 3 tasks | 15 files |
 | Phase 28 P05 | 25min | 3 tasks | 12 files |
+| Phase 28 P04 | 45min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -174,6 +175,7 @@ Recent decisions affecting current work:
 - [Phase 28]: Sets are capped in the replica initializer (2,000 smallest SHA-256), so the cap is part of the lattice
 - [Phase 28]: 28-02: simulator hooks record ordered actions in an inout SimMacContext and the world feeds the ground truth in that order; provider version IDs are unique across folders
 - [Phase 28]: 28-02: INV-S1g exclusion is implemented per holder: a loss is excluded only when every holder that ever held the token was destroyed by a non-sync event
+- [Phase 28]: 28-04: a missing or uid-less identity hash rotates the Mac ID once (legacy ID kept); known27 is addressable as .whole(known27) only to answer scope; l27 absent is 0 and applying 0 removes the entry
 
 ### Roadmap Evolution
 
@@ -198,6 +200,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-07T13:12:51.295Z
-Stopped at: Completed 28-05-PLAN.md
+Last session: 2026-10-07T13:22:29.155Z
+Stopped at: Completed 28-04-PLAN.md
 Resume file: None
