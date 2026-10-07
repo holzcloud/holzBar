@@ -167,6 +167,7 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 - [2026-10-05] [release] Move the signing secrets into the release environment (F-10) — [todo file](.planning/todos/pending/2026-10-05-move-the-signing-secrets-into-the-release-environment-f-10.md)
+- [2026-10-07] [sync] Redesign settings sync (paused in 0.0.7-beta2) — [todo file](.planning/todos/pending/2026-10-07-redesign-settings-sync-paused-in-0-0-7-beta2.md)
 
 ### Blockers/Concerns
 
