@@ -4,11 +4,11 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: Completed 28-06-PLAN.md
-last_updated: "2026-10-07T13:43:13.478Z"
+stopped_at: Completed 28-07-PLAN.md
+last_updated: "2026-10-07T14:10:42.609Z"
 last_activity: 2026-10-07
 last_activity_desc: 0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded
-state_head: 2146f7e1faecf68a60ada95332351ab66bc964c2
+state_head: e6ba724e85bbb542c7d8c2e233b10d35a8e18d4c
 progress:
   total_phases: 33
   completed_phases: 13
@@ -91,6 +91,7 @@ Progress: [█████████████░░░░░░░░░░
 | Phase 28 P05 | 25min | 3 tasks | 12 files |
 | Phase 28 P04 | 45min | 3 tasks | 10 files |
 | Phase 28 P06 | 3h | 3 tasks | 16 files |
+| Phase 28 P07 | 120min | 3 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -179,6 +180,8 @@ Recent decisions affecting current work:
 - [Phase 28]: 28-04: a missing or uid-less identity hash rotates the Mac ID once (legacy ID kept); known27 is addressable as .whole(known27) only to answer scope; l27 absent is 0 and applying 0 removes the entry
 - [Phase 28]: 28-06: oracles read per-step observation records and the ground truth; the engine is asked only through the optional SimBrainIntrospection hooks, and violations are charged to redesigned Macs only
 - [Phase 28]: 28-06: control engines run in the redesigned slot; LastWriterWinsByClock and SharedFileBeta1StyleEngine are caught, oracles extend per family with SimOracleSet.adding
+- [Phase 28]: 28-07: the host passes a fresh identity (SyncFreshIdentity) in SyncEnvironment; the engine uses no randomness and leaves a file that calls for re-identification out of the join without one
+- [Phase 28]: 28-07: SyncState carries a never-persisted SyncSession (trust flag, own-file status, snapshot, folder status); family items with no baseline count as unset, whole units with no baseline are never captured
 
 ### Roadmap Evolution
 
@@ -203,6 +206,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-07T13:43:13.451Z
-Stopped at: Completed 28-06-PLAN.md
+Last session: 2026-10-07T14:10:42.585Z
+Stopped at: Completed 28-07-PLAN.md
 Resume file: None
