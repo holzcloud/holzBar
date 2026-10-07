@@ -570,11 +570,12 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
 | 25. Control Center control | 0/3 | Planned (optional; go/no-go spike) | - |
 | 26. Swift 6.4 adoption | 0/3 | Planned | - |
 | 27. Release 0.0.7-beta1 | 0/2 | Planned | - |
+| 28. Settings sync redesign | 0/18 | Planned | - |
 
 ### Phase 28: Settings sync redesign
 
 **Goal**: Settings sync works again in 0.0.7-beta3 on a design that cannot lose, revert or silently overwrite a user's change: one file per Mac (`holzBar/Macs/<MacID>.plist`), causal dots and a lattice join, questions only on real conflicts; settings sync on macOS 26 and 27, the arrangement and layout profiles only between macOS 27 Macs. Decisions: `.planning/research/sync-redesign/DECISIONS.md`; design: `SYNC-REDESIGN-ANALYSIS.md`, D1, A1–A3.
-**Requirements**: SYNC-R01 to SYNC-R10 (defined in this phase's SPEC.md)
+**Requirements**: SYNC-R01 to SYNC-R10 (defined in `REQUIREMENTS.md`, section "Settings sync redesign (Phase 28)", and in this phase's `28-CONTEXT.md`)
 **Depends on**: 0.0.7-beta2 (released); independent of Phases 8 to 27
 **Success Criteria** (what must be TRUE):
   1. A deterministic multi-Mac simulator in the Core tests drives the real sync engine with seeded random interleavings, exact 0.0.7-beta1 and beta2 peers and provider faults, and checks the A2 invariants; it passes before any app code uses the engine
@@ -583,7 +584,24 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
   4. Different settings changed on two Macs merge without a question; the same setting changed differently asks, and an answer supersedes exactly what it showed
   5. Only user actions create synced entries; holzBar's placements, seeding, learned keys and flags never sync or cause a question
   6. `SettingsSyncPause.isPaused` is false and its test updated; docs, release notes `v0.0.7-beta3.md` and the five String Catalogs are current; CI is green
-**Plans:** 0 plans
+**Plans:** 18 plans in 12 waves (0/18 executed); gate G1 (simulator and mutation gate) is plan 28-13, and every plan that touches the app depends on it
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 28 to break down)
+- [ ] 28-01-PLAN.md — Wave 1: Core data model (dots, contexts, replica join, device-file and state codecs, read-only legacy reader); SYNC-R01 to SYNC-R10 recorded in REQUIREMENTS.md
+- [ ] 28-02-PLAN.md — Wave 1: simulation world (seeded randomness, virtual clock, hostile file provider with presets, beta1 and beta2 peers, ground truth)
+- [ ] 28-03-PLAN.md — Wave 1: stable profile IDs, profile hotkeys by ID, no hotkey write-back at load, generation-split profile save, `apply(byUser:)`, `Scripts/typecheck-app.sh`
+- [ ] 28-04-PLAN.md — Wave 2: unit table version 1 with the macOS 27 families, projections, identity, counters, reuse check
+- [ ] 28-05-PLAN.md — Wave 2: no model writes a synced key at load; the old layout-edit hook removed; seeded-flag repair on macOS 26
+- [ ] 28-06-PLAN.md — Wave 2: oracles, liveness drain, metamorphic pairs, generator, shrinker, scenario DSL, two control engines
+- [ ] 28-07-PLAN.md — Wave 3: engine core: `SyncEngine.handle`, capture by normalized diff, plan, merge, publish; the real engine in the simulator
+- [ ] 28-08-PLAN.md — Wave 4: engine lifecycle: launch trust checks, join and founding, question and answers, Turn Off and On, four engine-variant control engines
+- [ ] 28-09-PLAN.md — Wave 5: macOS 27 families in the engine (`l27`, `prof`, known applications), intent capture, layout oracles
+- [ ] 28-10-PLAN.md — Wave 6: A1 catalogue S-01 to S-33 as fixed tests, with macOS 27 arrangement forms and the beta1 boundary
+- [ ] 28-11-PLAN.md — Wave 7: A1 catalogue S-34 to S-70 as fixed tests, and the coverage test
+- [ ] 28-12-PLAN.md — Wave 7: D3, judge and A2 scenarios, version skew, same-ID installations, A2 mapping
+- [ ] 28-13-PLAN.md — Wave 8: gate G1: seeded and exhaustive exploration, fuzzing, determinism lint, mutation gate, recorded result
+- [ ] 28-14-PLAN.md — Wave 9: app adapter: defaults store and alias rule, model normalizers, one prefix list, writer lint
+- [ ] 28-15-PLAN.md — Wave 10: host: folder reader and writer, state store, launch, triggers, effects, migration from the pause; old exchange code removed
+- [ ] 28-16-PLAN.md — Wave 11: capture wiring: Layout-pane move, profiles, Import, protected placement and seeding; D-04 re-check of other arrangement paths
+- [ ] 28-17-PLAN.md — Wave 11: UI: hint, status lines, question sheet, Profiles footnotes, strings in en, de, fr, it, rm
+- [ ] 28-18-PLAN.md — Wave 12: docs, release notes `v0.0.7-beta3.md`, UAT script, and the flip of `SettingsSyncPause.isPaused` as the last code change
