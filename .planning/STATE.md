@@ -4,11 +4,11 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: Completed 28-03-PLAN.md
-last_updated: "2026-10-07T12:49:07.586Z"
+stopped_at: Completed 28-01-PLAN.md
+last_updated: "2026-10-07T12:59:57.353Z"
 last_activity: 2026-10-07
 last_activity_desc: 0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded
-state_head: d729449057667bc33f495b9b74d03e3eccc77701
+state_head: e611d3bc775c3ceaefe6722030aa74665322c124
 progress:
   total_phases: 33
   completed_phases: 13
@@ -86,6 +86,7 @@ Progress: [█████████████░░░░░░░░░░
 | Phase 05.1.1.1 P03 | 240min | 4 tasks | 50 files |
 | Phase 05.1.1.1.1 P01 | 73min | 5 tasks | 19 files |
 | Phase 28 P03 | 35min | 3 tasks | 13 files |
+| Phase 28 P01 | 60min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -166,6 +167,9 @@ Recent decisions affecting current work:
 - [Phase 07]: 0.0.5 was a different cask and bundle id; the release notes tell its users to export, uninstall it, install holzbar and import (no automatic migration)
 - [Phase 28]: Legacy profile ID is a version-8 UUID from SHA-256 of 'com.holzcloud.holzBar.LayoutProfile:' + name (one-way, D-05); duplicate names derive from name#2, #3
 - [Phase 28]: Profile hotkey registration checks stored profile IDs because hotkeys load before LayoutProfiles.performSetup
+- [Phase 28]: Sync join keeps an entry when the other replica holds the same dot (any payload) or has not seen it; same-dot different-payload entries both stay and are reported as collisions
+- [Phase 28]: Device files are compared by SyncReplica.digest, never by raw bytes (binary plist key order is not canonical across processes)
+- [Phase 28]: Sets are capped in the replica initializer (2,000 smallest SHA-256), so the cap is part of the lattice
 
 ### Roadmap Evolution
 
@@ -190,6 +194,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-07T12:49:07.562Z
-Stopped at: Completed 28-03-PLAN.md
+Last session: 2026-10-07T12:59:57.329Z
+Stopped at: Completed 28-01-PLAN.md
 Resume file: None

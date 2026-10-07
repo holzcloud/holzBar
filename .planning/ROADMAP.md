@@ -570,7 +570,7 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
 | 25. Control Center control | 0/3 | Planned (optional; go/no-go spike) | - |
 | 26. Swift 6.4 adoption | 0/3 | Planned | - |
 | 27. Release 0.0.7-beta1 | 0/2 | Planned | - |
-| 28. Settings sync redesign | 1/18 | In Progress|  |
+| 28. Settings sync redesign | 2/18 | In Progress|  |
 
 ### Phase 28: Settings sync redesign
 
@@ -585,10 +585,10 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
   5. Only user actions create synced entries; holzBar's placements, seeding, learned keys and flags never sync or cause a question
   6. `SettingsSyncPause.isPaused` is false and its test updated; docs, release notes `v0.0.7-beta3.md` and the five String Catalogs are current; CI is green
 
-**Plans:** 18 plans in 12 waves (1/18 executed); gate G1 (simulator and mutation gate) is plan 28-13, and every plan that touches the app depends on it
+**Plans:** 2/18 plans executed in 12 waves (1/18 executed); gate G1 (simulator and mutation gate) is plan 28-13, and every plan that touches the app depends on it
 
 Plans:
-- [ ] 28-01-PLAN.md — Wave 1: Core data model (dots, contexts, replica join, device-file and state codecs, read-only legacy reader); SYNC-R01 to SYNC-R10 recorded in REQUIREMENTS.md
+- [x] 28-01-PLAN.md — Wave 1: Core data model (dots, contexts, replica join, device-file and state codecs, read-only legacy reader); SYNC-R01 to SYNC-R10 recorded in REQUIREMENTS.md
 - [ ] 28-02-PLAN.md — Wave 1: simulation world (seeded randomness, virtual clock, hostile file provider with presets, beta1 and beta2 peers, ground truth)
 - [x] 28-03-PLAN.md — Wave 1: stable profile IDs, profile hotkeys by ID, no hotkey write-back at load, generation-split profile save, `apply(byUser:)`, `Scripts/typecheck-app.sh`
 - [ ] 28-04-PLAN.md — Wave 2: unit table version 1 with the macOS 27 families, projections, identity, counters, reuse check
