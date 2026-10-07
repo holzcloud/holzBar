@@ -210,7 +210,10 @@ struct SimWriteRecord: Sendable {
 struct SimReadRecord: Sendable {
     var mac: SimMacName
     var entry: SimReadLogEntry
+    /// The provider version of the bytes that came back (0 when nothing did).
     var version: Int
+    /// The provider version the Mac's replica holds at the path, whatever the read returned.
+    var replicaVersion: Int = 0
     var versionKind: SimVersion.Kind?
     var versionWriter: SimMacName?
     var stepIndex: Int
@@ -248,6 +251,8 @@ struct SimHookRecord: Sendable {
     var changeCountBefore: Int
     var blockedMilliseconds: Int64
     var ingests: [Int] = []
+    /// The ingests whose past was already inside the Mac's own past (a dominated version changes nothing).
+    var dominatedIngests: [Int] = []
     var transitions: [SimTransition] = []
     var keyChanges: [SimKeyChange] = []
     var reads: [SimReadRecord] = []
@@ -404,5 +409,17 @@ extension SimWorld {
     static func unit(ofToken token: String) -> String? {
         if case .user(_, let unit)? = SimValue.origin(ofToken: token) { return unit }
         return nil
+    }
+}
+
+/// A small memo the oracles of one world share.
+final class SimOracleCache {
+    private var lists: [String: [String]] = [:]
+
+    func list(_ key: String, _ build: () -> [String]) -> [String] {
+        if let known = lists[key] { return known }
+        let built = build()
+        lists[key] = built
+        return built
     }
 }

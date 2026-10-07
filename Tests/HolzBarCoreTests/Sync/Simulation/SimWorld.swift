@@ -68,7 +68,11 @@ final class SimWorld {
     private(set) var oracleViolations: [SimViolation] = []
     /// The thing just observed, while an oracle runs.
     private(set) var focus: SimFocus?
-    private var currentStep: SimStepRecord?
+    private(set) var currentStep: SimStepRecord?
+    /// Values the oracles compute once per world (the digests of the planted markers).
+    let oracleCache = SimOracleCache()
+    /// Every write handed to a provider, in order.
+    private(set) var writeLog: [SimWriteRecord] = []
     private var violationKeys = Set<String>()
     private var sessionReads: [SimMacName: [String: Int]] = [:]
     private var sessionWrites: [SimMacName: [String: Int]] = [:]
@@ -170,10 +174,10 @@ final class SimWorld {
         knownWriteViolations = writeViolationCount
         currentStep?.after = snapshots()
         if let record = currentStep {
+            currentStep = nil
             stepRecords.append(record)
             runOracles(.step, focus: .step(record), event: event)
         }
-        currentStep = nil
     }
 
     private func stepBody(_ event: SimEvent) {
@@ -369,7 +373,8 @@ final class SimWorld {
             var version = 0
             if case .data(_, let read) = entry.result { version = read }
             let read = SimReadRecord(
-                mac: mac, entry: entry, version: version, versionKind: version > 0 ? kind(ofVersion: version) : nil,
+                mac: mac, entry: entry, version: version, replicaVersion: max(replica.versions[entry.path] ?? 0, 0),
+                versionKind: version > 0 ? kind(ofVersion: version) : nil,
                 versionWriter: version > 0 ? writer(ofVersion: version) : nil, stepIndex: stepIndex, hook: name
             )
             hook.reads.append(read)
@@ -445,8 +450,13 @@ final class SimWorld {
                     hook: hook.name, ingestsSoFar: ingestedSoFar, unmounted: newVersion == nil
                 )
                 hook.writes.append(write)
+                writeLog.append(write)
                 runOracles(.write, focus: .write(write), event: currentStep?.event)
             case .ingest(let version):
+                if groundTruth.versions[version] != nil,
+                   groundTruth.past(ofVersion: version).isSubset(of: groundTruth.past(ofMac: mac)) {
+                    hook.dominatedIngests.append(version)
+                }
                 groundTruth.recordIngest(mac: mac, version: version, time: clock.now)
                 ingestedSoFar.append(version)
                 if let path = path(ofVersion: version) { sessionReads[mac, default: [:]][path] = version }
@@ -904,6 +914,11 @@ final class SimWorld {
             if violationKeys.insert("\(found.id)|\(found.description)").inserted { oracleViolations.append(found) }
         }
         focus = nil
+    }
+
+    /// Every step so far, including the one in progress.
+    var allSteps: [SimStepRecord] {
+        stepRecords + (currentStep.map { [$0] } ?? [])
     }
 
     /// Runs the oracles of a moment on demand (the drain and the metamorphic runners use it).
