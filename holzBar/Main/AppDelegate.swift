@@ -15,6 +15,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Must come before the iCloud pull, which reads the copied sync file,
         // and before the app state, which reads the settings.
         MigrationManager.importPreviousSettingsIfNeeded()
+        // Clears the seeded flag a 0.0.6-beta1 merge left on a Mac before macOS 27.
+        MigrationManager.repairLayoutSeededFlagIfNeeded()
         // Runs before sync looks at the defaults, so on the first redesigned launch (a join,
         // D-02) the profile IDs are already in place and nothing is captured as a user change.
         LayoutProfiles.migrateStoredProfileIdentities()

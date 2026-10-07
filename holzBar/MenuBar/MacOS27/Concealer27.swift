@@ -845,12 +845,11 @@ final class Concealer27 {
 
     /// Moves an application to a section of the saved layout and applies it.
     ///
-    /// Only the user moves an application this way (the Layout pane, with its undo), so it
-    /// counts as a settings change for sync.
+    /// Only the user moves an application this way (the Layout pane, with its undo). The
+    /// sync capture of this user move is wired in plan 28-16.
     func setSection(_ section: MacOS27Section, for bundleID: String) {
         let updated = SectionLayout27.settingSection(section, for: bundleID, in: savedLayout)
         Defaults.set(updated.mapValues(\.rawValue), forKey: .macOS27Layout)
-        SettingsSync.userChangedLayout()
         update()
         Task { [weak self] in
             await self?.appState?.itemManager.cacheItemsRegardless()

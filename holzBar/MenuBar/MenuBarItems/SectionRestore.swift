@@ -16,9 +16,8 @@ import OSLog
 /// puts items back. It also places new items (the new-items setting) and keeps Live
 /// Activities visible. macOS 27 keeps its sections per app (`Concealer27`) and does not use it.
 ///
-/// Only the user's arrangements count as a settings change for sync
-/// (`SettingsSync.userChangedLayout()`); the first-run save and the placement of new items
-/// are holzBar's own and do not (SA-05).
+/// Only the user's arrangements count as a settings change for sync (`byUser`); the
+/// first-run save and the placement of new items are holzBar's own and do not (SA-05).
 extension MenuBarItemManager {
     /// Logger for saving and restoring sections.
     private static let restoreLogger = Logger(category: "SectionRestore")
@@ -60,9 +59,6 @@ extension MenuBarItemManager {
             }
         }
         Defaults.set(stored, forKey: .itemSections)
-        if byUser {
-            SettingsSync.userChangedLayout()
-        }
         Self.restoreLogger.debug("Saved the sections of \(stored.count, privacy: .public) items")
     }
 
@@ -79,9 +75,6 @@ extension MenuBarItemManager {
             stored[key] = section.profileIndex
         }
         Defaults.set(stored, forKey: .itemSections)
-        if byUser {
-            SettingsSync.userChangedLayout()
-        }
     }
 
     /// Saves the sections once the bar has taken the arrangement the user just made: a drop

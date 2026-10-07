@@ -75,8 +75,8 @@ final class SettingsSync {
     /// The layout keys of this Mac's macOS version and the other one.
     private nonisolated static let layouts = SettingsSyncPolicy.Layouts(backend: .current)
 
-    /// The key of the number of changes the user made to this Mac's layout
-    /// (``userChangedLayout()``). It is never reset.
+    /// The key of the number of changes the user made to this Mac's layout. Nothing counts
+    /// them any more; plan 28-15 replaces this file as a whole.
     private static let layoutEditsKey = "SettingsSyncLayoutEdits"
 
     /// The key of the number of layout edits the last sync recorded; a larger count means
@@ -177,21 +177,6 @@ final class SettingsSync {
             let syncs = Defaults.bool(forKey: .syncsSettingsWithICloud)
             defaults.set(SettingsSyncPolicy.initialLayoutEdits(hasLayout: hasLayout, syncs: syncs), forKey: layoutEditsKey)
         }
-    }
-
-    /// Counts a change of this Mac's layout that the user made: a drag, a key or an undo in
-    /// the Layout pane, a Command-drag on the bar, applying a profile or importing settings.
-    ///
-    /// Only user-initiated layout changes call it, right after they write the layout;
-    /// holzBar's own placements never do, so they never count as a settings change for sync
-    /// (SA-05): they push nothing, keep the hint at Restart and never make a join ask.
-    static func userChangedLayout() {
-        // While sync is paused, every `SettingsSync…` key stays as it is.
-        guard SettingsSyncPause.isActive() else {
-            return
-        }
-        let defaults = UserDefaults.standard
-        defaults.set(defaults.integer(forKey: layoutEditsKey) &+ 1, forKey: layoutEditsKey)
     }
 
     /// The number of changes the user made to this Mac's layout.
@@ -860,9 +845,8 @@ final class SettingsSync {
 
     /// This Mac's side of a decision, from its synced settings.
     ///
-    /// - Parameter layoutEdits: The number of layout edits the decision sees
-    ///   (``userChangedLayout()``); the user changed the layout when the last sync recorded
-    ///   fewer.
+    /// - Parameter layoutEdits: The number of layout edits the decision sees; the user
+    ///   changed the layout when the last sync recorded fewer.
     private static func makeLocal(
         settings: [String: Any],
         base: String?,
