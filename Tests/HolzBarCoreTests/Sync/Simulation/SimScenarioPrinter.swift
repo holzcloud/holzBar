@@ -94,12 +94,13 @@ enum SimScenarioPrinter {
         lines.append("@Test(\"\(name)\")")
         lines.append("func \(identifier(name))() {")
         let preset = failure.preset.map { ".\($0.rawValue)" } ?? "nil"
+        lines.append("    // Add `.brains { version, mac in <the engine under test> }` to run it against that engine.")
         lines.append("    SimScenario(\"\(name)\", seed: \(failure.seed), preset: \(preset))")
         lines.append("        .macs([")
         for spec in failure.macs { lines.append("            \(swiftSpec(spec)),") }
         lines.append("        ])")
         for event in failure.events { lines.append("        \(event.builderCall)") }
-        lines.append("        .expectNoViolation()")
+        lines.append("        .expectNoViolation([\"\(failure.violation.id)\"])")
         lines.append("        .check()")
         lines.append("}")
         return lines.joined(separator: "\n")

@@ -69,6 +69,8 @@ final class SimWorld {
     /// The thing just observed, while an oracle runs.
     private(set) var focus: SimFocus?
     private(set) var currentStep: SimStepRecord?
+    /// What the drain phase found, for the liveness oracles (`SimDrain.run` sets it).
+    var drainFacts: SimDrainFacts?
     /// Values the oracles compute once per world (the digests of the planted markers).
     let oracleCache = SimOracleCache()
     /// Every write handed to a provider, in order.
@@ -969,6 +971,16 @@ final class SimWorld {
             }
         }
         flushProviderLogs()
+    }
+
+    /// The global time of the next delivery or timer, if any.
+    var nextDueTime: Int64? {
+        var due: Int64?
+        for provider in providers.values {
+            if let next = provider.nextDeliveryTime { due = min(due ?? next, next) }
+        }
+        if let next = timers.map(\.time).min() { due = min(due ?? next, next) }
+        return due
     }
 
     /// True while the provider still has deliveries queued.

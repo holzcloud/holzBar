@@ -185,11 +185,18 @@ struct SimWorldTests {
         let files = try FileManager.default.contentsOfDirectory(atPath: directory.path)
             .filter { $0.hasSuffix(".swift") && !$0.hasSuffix("Tests.swift") }
         // Spelled in pieces so this file does not contain the patterns it forbids elsewhere.
-        let forbidden = ["Da" + "te()", ".ran" + "dom(", "Dispatch" + "Queue", "Ta" + "sk {", "Task" + ".detached", "Thre" + "ad."]
+        let forbidden = ["Da" + "te()", "Dispatch" + "Queue", "Ta" + "sk {", "Task" + ".detached", "Thre" + "ad."]
+        // The system generator is a call on a type (`Int.ran` + `dom(in:)`); the run mode `SimRunMode.random(steps:)` is not.
+        let systemGenerator = try NSRegularExpression(pattern: "([A-Za-z0-9_]+)\\.ran" + "dom\\(")
         for file in files {
             let text = try String(contentsOf: directory.appendingPathComponent(file), encoding: .utf8)
             for pattern in forbidden {
                 #expect(!text.contains(pattern), "\(file) contains \(pattern)")
+            }
+            let range = NSRange(text.startIndex..., in: text)
+            for match in systemGenerator.matches(in: text, range: range) {
+                let owner = (text as NSString).substring(with: match.range(at: 1))
+                #expect(owner == "SimRunMode", "\(file) calls the system generator on \(owner)")
             }
         }
     }

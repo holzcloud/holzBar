@@ -83,7 +83,7 @@ struct SimControlEngineTests {
         }
         let swift = SimScenarioPrinter.swiftTest(scenario)
         #expect(swift.contains("@Test(\"last writer wins by clock\")"))
-        #expect(swift.contains(".expectNoViolation()"))
+        #expect(swift.contains(".expectNoViolation([\"INV-S1\"])"))
         #expect(swift.contains(".macs(["))
     }
 
@@ -101,5 +101,60 @@ struct SimControlEngineTests {
         #expect(shrunk == [.advance(milliseconds: 7_000), .advance(milliseconds: 23_000)])
         let untouched = SimShrinker().shrink(Array(events.prefix(3)), failing: failing)
         #expect(untouched == Array(events.prefix(3)))
+    }
+
+    @Test("The last-writer-wins-by-clock engine also fails INV-F9 within a bounded number of seeds")
+    func lastWriterWinsFailsClockIndependence() throws {
+        let setup = { (seed: UInt64) in
+            SimMetaSetup(seed: seed, preset: .iCloud, macs: Self.twoMacs(), brainFactory: Self.lastWriterFactory)
+        }
+        var firstSeed: UInt64?
+        for seed in UInt64(1)...100 {
+            let found = SimMetamorphic.clockIndependence(setup(seed), Self.events(seed: seed), clockSeed: seed)
+            if found.contains(where: { $0.id == "INV-F9" }) {
+                firstSeed = seed
+                break
+            }
+        }
+        #expect(firstSeed != nil, "LastWriterWinsByClock survived seeds 1 through 100 of the clock pair")
+    }
+
+    @Test("The shared-file beta1-style engine is caught by INV-S1 and INV-S6 within seeds 1 through 200")
+    func sharedFileEngineIsCaught() throws {
+        let factory: SimWorld.BrainFactory = { _, _ in SharedFileBeta1StyleEngine() }
+        let macs = [
+            SimMacSpec(.A, .redesign, running: true),
+            SimMacSpec(.B, .redesign, running: true, clockOffsetMilliseconds: Self.hour),
+        ]
+        var firstS1: UInt64?
+        var firstS6: UInt64?
+        for seed in UInt64(1)...200 where firstS1 == nil || firstS6 == nil {
+            var config = SimGenerator.Config(macs: macs, preset: .iCloud, steps: 60)
+            config.identityEvents = false
+            let events = SimGenerator.events(seed: seed, config)
+            let world = Self.run(seed: seed, events: events, macs: macs, preset: .iCloud, factory: factory)
+            let ids = Set(world.oracleViolations.map(\.id))
+            if firstS1 == nil, ids.contains("INV-S1") { firstS1 = seed }
+            if firstS6 == nil, ids.contains("INV-S6") { firstS6 = seed }
+        }
+        #expect(firstS1 != nil, "the shared-file engine survived seeds 1 through 200 on INV-S1")
+        #expect(firstS6 != nil, "the shared-file engine survived seeds 1 through 200 on INV-S6")
+    }
+
+    @Test("A sound engine is not caught by the same oracles on the same seeds")
+    func soundEngineSurvives() {
+        let factory = SimHarnessTests.convergent()
+        let macs = SimHarnessTests.twoMacs()
+        // The converging test engine applies the larger token silently, so only the oracles about files and privacy apply.
+        let oracles = SimOracleSet.safety.only(["INV-S6", "INV-S8", "INV-PR2", "INV-B1", "INV-B9", "INV-N1", "INV-Z1", "INV-Z6"])
+        for seed in UInt64(1)...30 {
+            var config = SimGenerator.Config(macs: macs, preset: .iCloud, steps: 50)
+            config.identityEvents = false
+            config.providerEvents = false
+            // The test engine has no size limit, so the oversize icon (a state too large to publish) is left out.
+            let events = SimGenerator.events(seed: seed, config).filter { if case .oversizeIcon = $0 { false } else { true } }
+            let world = Self.run(seed: seed, events: events, macs: macs, preset: .iCloud, factory: factory, oracles: oracles)
+            #expect(world.oracleViolations.isEmpty, "seed \(seed): \(world.oracleViolations.map { "\($0.id) \($0.description)" })")
+        }
     }
 }

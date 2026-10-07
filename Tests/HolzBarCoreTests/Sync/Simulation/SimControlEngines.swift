@@ -124,3 +124,28 @@ struct LastWriterWinsByClock: SimSyncBrain {
         }
     }
 }
+
+/// Several redesigned-style Macs that write one shared file the way 0.0.7-beta1 does: push five seconds after any
+/// change without reading first, apply a newer file silently with remove-missing at launch. It writes the file
+/// older peers read (INV-S6, INV-B1) and loses concurrent edits (INV-S1).
+struct SharedFileBeta1StyleEngine: SimSyncBrain {
+    private var inner = SimMacBeta1()
+
+    var kind: SimMacVersion { .redesign }
+
+    mutating func launch(_ context: inout SimMacContext) { inner.launch(&context) }
+    mutating func quit(_ context: inout SimMacContext) { inner.quit(&context) }
+    mutating func processDied() { inner.processDied() }
+    mutating func defaultsChanged(origin: SimChangeOrigin, units: [String], _ context: inout SimMacContext) {
+        inner.defaultsChanged(origin: origin, units: units, &context)
+    }
+    mutating func folderSignal(_ context: inout SimMacContext) { inner.folderSignal(&context) }
+    mutating func timerFired(tag: String, _ context: inout SimMacContext) { inner.timerFired(tag: tag, &context) }
+    mutating func userCommand(_ command: SimUserCommand, _ context: inout SimMacContext) {
+        inner.userCommand(command, &context)
+    }
+
+    var hint: String? { inner.hint }
+    var openPrompt: SimPrompt? { inner.openPrompt }
+    func heldTokens(inFile path: String, data: Data) -> Set<String> { inner.heldTokens(inFile: path, data: data) }
+}
