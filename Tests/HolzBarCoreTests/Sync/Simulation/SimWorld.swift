@@ -43,7 +43,8 @@ final class SimWorld {
     static func defaultBrain(for version: SimMacVersion, mac: SimMacName) -> any SimSyncBrain {
         switch version {
         case .beta1: SimMacBeta1()
-        case .beta2, .redesign, .redesignSkew: SimInertBrain(kind: version)
+        case .beta2: SimMacBeta2()
+        case .redesign, .redesignSkew: SimInertBrain(kind: version)
         }
     }
 
@@ -59,6 +60,7 @@ final class SimWorld {
     var ioTimeoutMilliseconds: Int64 = 5_000
 
     private let brainFactory: BrainFactory
+    private let policy: SimFaultPolicy
     private var timers: [SimTimer] = []
     private var timerSequence = 0
     private var userTokenCounter = 0
@@ -80,8 +82,18 @@ final class SimWorld {
         var folderID: String?
     }
 
-    init(seed: UInt64, macs specs: [SimMacSpec], brainFactory: BrainFactory? = nil) {
+    /// - Parameters:
+    ///   - preset: the provider preset; without it (and without `policy`) the provider is ideal: no delay, no faults.
+    ///   - policy: an explicit fault policy, which wins over `preset`.
+    init(
+        seed: UInt64,
+        macs specs: [SimMacSpec],
+        preset: SimProviderPreset? = nil,
+        policy: SimFaultPolicy? = nil,
+        brainFactory: BrainFactory? = nil
+    ) {
         self.seed = seed
+        self.policy = policy ?? preset?.policy ?? .ideal
         random = SimRandom(seed: seed)
         self.brainFactory = brainFactory ?? { SimWorld.defaultBrain(for: $0, mac: $1) }
         for spec in specs {
@@ -116,6 +128,11 @@ final class SimWorld {
     func brain(of mac: SimMacName) -> any SimSyncBrain { brains[mac]! }
     func replica(of mac: SimMacName, folder: String = "F1") -> SimFolderReplica {
         providers[folder]?.replica(of: mac) ?? SimFolderReplica()
+    }
+
+    /// Writes attempted on an unmounted folder, across all folders (violation candidates for the oracles).
+    var violations: [SimViolation] {
+        providers.keys.sorted().flatMap { providers[$0]!.violations }
     }
 
     /// SHA-256 over the canonical text of every event and write, in order.
@@ -164,6 +181,9 @@ final class SimWorld {
         case .autoPlace, .learn, .setFlag, .seed27, .placeNewApp27:
             handleAutomatic(event)
         }
+        // Deliveries and timers due at this very instant (no delay) run before the next event.
+        if case .advance = event {} else { advanceTime(to: clock.now) }
+        flushProviderLogs()
     }
 
     /// Runs a list of events.
@@ -248,6 +268,7 @@ final class SimWorld {
     @discardableResult
     private func runHook(_ mac: SimMacName, _ body: (inout any SimSyncBrain, inout SimMacContext) -> Void) -> Bool {
         guard var state = macs[mac], var brain = brains[mac] else { return false }
+        let before = state.defaults
         let replica: SimFolderReplica
         if let folder = state.folderID {
             replica = providers[folder]?.replica(of: mac) ?? SimFolderReplica()
@@ -272,11 +293,11 @@ final class SimWorld {
         state.folderID = context.folderID
         macs[mac] = state
         if let folder = state.folderID { ensureReplica(of: mac, in: folder) }
-        process(context.actions, of: mac)
+        process(context.actions, of: mac, before: before)
         return true
     }
 
-    private func process(_ actions: [SimMacAction], of mac: SimMacName) {
+    private func process(_ actions: [SimMacAction], of mac: SimMacName, before: [String: SimValue]) {
         var relaunch = false
         for action in actions {
             switch action {
@@ -305,7 +326,8 @@ final class SimWorld {
             case .resolveConflictVersions(let folder, let path):
                 providers[folder]?.resolveConflictVersions(path: path, mac: mac)
             case .automaticWrite(let unit):
-                record("AUTO \(mac) \(unit)")
+                let changed = SimUnits.value(of: unit, in: before) != SimUnits.value(of: unit, in: macs[mac]?.defaults ?? [:])
+                record("AUTO \(mac) \(unit) changed=\(changed)")
             case .relaunch:
                 relaunch = true
             case .note(let text):
@@ -331,11 +353,15 @@ final class SimWorld {
             providers[folder] = makeProvider(folder: folder)
         }
         providers[folder]!.now = clock.now
-        providers[folder]!.ensureReplica(for: mac)
+        providers[folder]!.ensureReplica(for: mac, computerName: macs[mac]?.markers.computerName)
     }
 
     private func makeProvider(folder: String) -> SimProvider {
-        SimProvider()
+        SimProvider(policy: policy, random: random.fork("provider-\(folder)"))
+    }
+
+    private func flushProviderLogs() {
+        for folder in providers.keys.sorted() { flushProviderLog(folder) }
     }
 
     // MARK: Lifecycle
@@ -607,6 +633,41 @@ final class SimWorld {
     // MARK: Provider events
 
     private func handleProvider(_ event: SimProviderEvent) {
-        // The fault operations arrive with the provider fault model.
+        func provider(_ folder: String) {
+            if providers[folder] == nil { providers[folder] = makeProvider(folder: folder) }
+            providers[folder]!.now = clock.now
+        }
+        switch event {
+        case .restore(let folder, let path, let version):
+            provider(folder)
+            providers[folder]!.restore(path: path, version: version)
+        case .delete(let folder, let path):
+            provider(folder)
+            providers[folder]!.delete(path: path)
+        case .deleteFolder(let folder):
+            provider(folder)
+            providers[folder]!.deleteFolder()
+        case .evict(let folder, let path, let mac):
+            provider(folder)
+            providers[folder]!.evict(path: path, mac: mac)
+        case .exposePartial(let folder, let path, let mac, let duration):
+            provider(folder)
+            providers[folder]!.exposePartial(path: path, mac: mac, until: clock.now + max(0, duration))
+        case .stall(let folder, let mac, let duration):
+            provider(folder)
+            providers[folder]!.stall(mac: mac, until: duration.map { clock.now + max(0, $0) } ?? Int64.max)
+        case .unmount(let folder, let mac):
+            provider(folder)
+            providers[folder]!.unmount(mac)
+        case .mount(let folder, let mac):
+            provider(folder)
+            providers[folder]!.mount(mac)
+        case .foreign(let folder, let path, let kind):
+            provider(folder)
+            providers[folder]!.foreign(path: path, kind: kind)
+        case .offline(let folder, let mac, let duration):
+            provider(folder)
+            providers[folder]!.setOffline(mac, until: clock.now + max(0, duration))
+        }
     }
 }

@@ -137,6 +137,8 @@ struct SimMacBeta1: SimSyncBrain {
     /// `accept(file)` of A2 section 2.6, over a bounded coordinated read of the file.
     private func acceptedFile(_ context: inout SimMacContext) -> AcceptedFile? {
         let result = context.read(Self.filePath, maximumBytes: Self.maximumFileSize)
+        // A coordinated read of a dataless file downloads it; the content is there at the next signal.
+        if result == .notLocal { context.requestDownload(Self.filePath) }
         guard case .data(let data, let version) = result, let file = Self.parse(data) else { return nil }
         if let deviceID = file.deviceID {
             guard deviceID != ownDeviceID(context) else { return nil }
