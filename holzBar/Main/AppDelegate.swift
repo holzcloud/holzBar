@@ -15,6 +15,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Must come before the iCloud pull, which reads the copied sync file,
         // and before the app state, which reads the settings.
         MigrationManager.importPreviousSettingsIfNeeded()
+        // Runs before sync looks at the defaults, so on the first redesigned launch (a join,
+        // D-02) the profile IDs are already in place and nothing is captured as a user change.
+        LayoutProfiles.migrateStoredProfileIdentities()
         SettingsSync.pullIfNeeded()
         let appState = AppState()
         AppState.current = appState

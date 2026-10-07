@@ -9,7 +9,12 @@ import OSLog
 
 /// A saved arrangement of menu bar items into sections.
 struct LayoutProfile: Codable, Hashable, Identifiable {
-    /// The profile's name, which also identifies it.
+    /// The profile's stable ID, which a rename keeps (``ProfileIdentity``). Profiles that
+    /// existed before IDs get one derived from their name, so the same profile on two Macs
+    /// has the same ID.
+    var profileID: String
+
+    /// The profile's name as the user sees it.
     var name: String
 
     /// The section of each item, keyed by the item's tag (macOS 26 and earlier).
@@ -31,7 +36,40 @@ struct LayoutProfile: Codable, Hashable, Identifiable {
     /// The UUID of the Space whose activation applies the profile.
     var spaceUUID: String?
 
-    var id: String { name }
+    var id: String { profileID }
+
+    init(
+        profileID: String,
+        name: String,
+        itemSections: [String: Int],
+        applicationSections: [String: Int],
+        knownApplications: [String]?,
+        displayUUID: String?,
+        spaceUUID: String?
+    ) {
+        self.profileID = profileID
+        self.name = name
+        self.itemSections = itemSections
+        self.applicationSections = applicationSections
+        self.knownApplications = knownApplications
+        self.displayUUID = displayUUID
+        self.spaceUUID = spaceUUID
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let name = try container.decode(String.self, forKey: .name)
+        // Profiles of older builds pass through `ProfileIdentity.migrate` first; a missing ID
+        // here is only a safety net and gets the same ID the migration would give.
+        profileID = try container.decodeIfPresent(String.self, forKey: .profileID)
+            ?? ProfileIdentity.legacyProfileID(forName: name)
+        self.name = name
+        itemSections = try container.decode([String: Int].self, forKey: .itemSections)
+        applicationSections = try container.decode([String: Int].self, forKey: .applicationSections)
+        knownApplications = try container.decodeIfPresent([String].self, forKey: .knownApplications)
+        displayUUID = try container.decodeIfPresent(String.self, forKey: .displayUUID)
+        spaceUUID = try container.decodeIfPresent(String.self, forKey: .spaceUUID)
+    }
 
     /// Whether the profile is bound to a display or a Space.
     var isBound: Bool {
@@ -81,6 +119,24 @@ final class LayoutProfiles {
             for await _ in center.notifications(named: NSWorkspace.activeSpaceDidChangeNotification) {
                 self?.activeSpaceDidChange()
             }
+        }
+    }
+
+    /// Gives the stored profiles their IDs and re-keys the profile hotkeys by them, once.
+    ///
+    /// Runs before the app state and before sync looks at the defaults, so the first launch
+    /// of this build already has the IDs in place and nothing is captured as a user change.
+    static func migrateStoredProfileIdentities() {
+        let hotkeys = Defaults.dictionary(forKey: .hotkeys) as? [String: Data] ?? [:]
+        let migration = ProfileIdentity.migrate(profilesData: Defaults.data(forKey: .layoutProfiles), hotkeys: hotkeys)
+        guard migration.changed else {
+            return
+        }
+        if let data = migration.profilesData {
+            Defaults.set(data, forKey: .layoutProfiles)
+        }
+        if migration.hotkeys != hotkeys {
+            Defaults.set(migration.hotkeys, forKey: .hotkeys)
         }
     }
 
@@ -138,6 +194,7 @@ final class LayoutProfiles {
         // A profile saved again under its name keeps its bindings.
         let previous = profiles.first { $0.name == name }
         let profile = LayoutProfile(
+            profileID: previous?.profileID ?? ProfileIdentity.newProfileID(),
             name: name,
             itemSections: itemSections,
             applicationSections: applicationSections,
