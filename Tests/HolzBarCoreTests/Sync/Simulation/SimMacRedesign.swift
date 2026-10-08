@@ -18,13 +18,16 @@ enum SimEngineUnits {
     /// The simulator's name of the set of known applications (a unit of the world, a set of the engine).
     static let knownUnit = SimUnits.known27
 
-    static func table(wholeUnits: [String] = SimEngineUnits.wholeUnits) -> SyncUnitTable {
+    /// - Parameter scoped: Whether the macOS 27 families belong to generation-27 Macs only. A control engine
+    ///   passes `false`: it lets every Mac author and apply them.
+    static func table(wholeUnits: [String] = SimEngineUnits.wholeUnits, scoped: Bool = true) -> SyncUnitTable {
         var descriptors = wholeUnits.map { descriptor($0, isFamily: false) }
         descriptors.append(descriptor(family, isFamily: true))
         // The macOS 27 families: authored and applied by generation-27 Macs only.
-        descriptors.append(descriptor(SyncUnitTable.layout27Family, isFamily: true, scope: .g27))
-        descriptors.append(descriptor(SyncUnitTable.profilesFamily, isFamily: true, scope: .g27))
-        descriptors.append(descriptor(SyncUnitTable.knownApplicationsSet, isFamily: false, scope: .g27, isSet: true))
+        let scope: SyncGeneration? = scoped ? .g27 : nil
+        descriptors.append(descriptor(SyncUnitTable.layout27Family, isFamily: true, scope: scope))
+        descriptors.append(descriptor(SyncUnitTable.profilesFamily, isFamily: true, scope: scope))
+        descriptors.append(descriptor(SyncUnitTable.knownApplicationsSet, isFamily: false, scope: scope, isSet: true))
         return SyncUnitTable(version: 1, descriptors: descriptors)
     }
 
@@ -113,6 +116,9 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     /// The defenses the engine runs with; a control engine removes one.
     var guards = SyncGuards.all
     let table: SyncUnitTable
+    /// A control engine that cannot tell holzBar's own stores from the user's moves: it captures every change of
+    /// the macOS 27 families as an intent (decision D-04).
+    var automaticStoresAreIntents = false
 
     /// The engine state while the app runs; `nil` while it does not.
     private var live: SyncState?
@@ -189,7 +195,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         run(.defaultsChanged(after), &context)
         // Only the user's own changes of the macOS 27 families are intents; an automatic store writes the same
         // keys and sends none (decision D-04).
-        if origin == .user {
+        if origin == .user || automaticStoresAreIntents {
             let intents = Self.intents(from: before, to: after, units: Set(units))
             if !intents.isEmpty {
                 run(.intent(.userSet(intents)), &context)
@@ -638,6 +644,23 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         for row in question.rows {
             let unit = SimEngineUnits.unit(of: row.unit)
             let local = row.local.flatMap(token(of:))
+            if row.style == .multi || row.style == .bystander, !row.folder.isEmpty {
+                // A pop-up row: Use takes one value and Keep another, and every other value shown loses either way.
+                // Each token is listed once, on the side that loses it, so the oracles' model of what an answer
+                // takes away is what the engine's answer supersedes.
+                let chosenToUse = row.folder[index(of: .use, in: row)].value
+                let chosenToKeep = row.folder[index(of: .keep, in: row)].value
+                var tokens: [String] = []
+                for token in ([row.local].compactMap { $0 } + row.folder).compactMap(token(of:)) where !tokens.contains(token) {
+                    tokens.append(token)
+                }
+                let used = token(ofPayload: chosenToUse)
+                let kept = token(ofPayload: chosenToKeep)
+                for token in tokens where token != used || token != kept {
+                    shown.append(SimPromptUnit(unit: unit, local: token == used ? nil : token, folder: token == kept ? nil : token))
+                }
+                continue
+            }
             for value in row.folder {
                 shown.append(SimPromptUnit(unit: unit, local: local, folder: token(of: value)))
             }
@@ -651,7 +674,11 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     }
 
     private static func token(of value: SyncRowValue) -> String? {
-        guard case .value(let synced) = value.value, let value = SimValue(sync: synced) else {
+        token(ofPayload: value.value)
+    }
+
+    private static func token(ofPayload payload: SyncPayload) -> String? {
+        guard case .value(let synced) = payload, let value = SimValue(sync: synced) else {
             return nil
         }
         return value.tokens.first

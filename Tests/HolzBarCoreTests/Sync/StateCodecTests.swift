@@ -54,6 +54,7 @@ struct StateCodecTests {
         state.refusals = [idB.rawValue: SyncRefusalRecord(reason: SyncRefusal.tooLarge(5).code, size: 2_000_000, modified: date, firstSeen: date)]
         state.previousMacIDs = [idB]
         state.isEnabled = true
+        state.systemGeneration = .g27
         return state
     }
 

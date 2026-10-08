@@ -118,9 +118,10 @@ nonisolated struct SyncPlan: Sendable {
             let values = state.replica.distinctValues(key)
             guard values.count == 1 else {
                 // This Mac takes part when it minted one of the values, or holds one of them as
-                // its applied value (it adopted a sibling at a join).
+                // its applied value (it adopted a sibling at a join). An applied deletion is no value
+                // its user ever saw, so it makes this Mac no party.
                 let applied = Set(state.applied[key] ?? [])
-                outcomes[key] = .conflict(mine: live.contains { state.isOwn($0.dot.mac) || applied.contains($0.dot) })
+                outcomes[key] = .conflict(mine: live.contains { state.isOwn($0.dot.mac) || (applied.contains($0.dot) && $0.payload != .deleted) })
                 continue
             }
             let payload = values[0]

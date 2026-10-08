@@ -737,7 +737,12 @@ extension SimSafetyOracles {
                 return false
             }
             guard isCopy == copies else { continue }
-            let hinted = step.after[hook.mac]?.hint != nil && step.before[hook.mac]?.hint == nil
+            // A hint that appears in a step in which the Mac also took in a version that is not dominated is that
+            // version's doing, not the dominated one's.
+            let tookInNewVersion = step.hooks.contains { other in
+                other.mac == hook.mac && other.ingests.contains { !other.dominatedIngests.contains($0) }
+            }
+            let hinted = step.after[hook.mac]?.hint != nil && step.before[hook.mac]?.hint == nil && !tookInNewVersion
             if !hook.transitions.isEmpty || !hook.prompts.isEmpty || hinted {
                 return "Mac \(hook.mac) reacted to a dominated \(copies ? "conflict copy" : "version") "
                     + "(v\(hook.ingests.map(String.init).joined(separator: ", v"))) with a change, a prompt or a hint"
