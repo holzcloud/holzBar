@@ -67,7 +67,10 @@ struct SimOracleSet: Sendable {
 
     static let none = SimOracleSet()
     /// Every safety invariant the world can observe.
-    static let safety = SimOracleSet(SimSafetyOracles.all)
+    static let safety = SimOracleSet(SimSafetyOracles.all).adding(layout27)
+    /// The invariants of the macOS 27 families: INV-L1 to INV-L6, INV-K1 and the automatic-store rule. They
+    /// stay quiet in a world without a generation-27 Mac, so the safety set includes them for every world.
+    static let layout27 = SimOracleSet(SimLayout27Oracles.all)
     /// The liveness checks of the drain phase.
     static let liveness = SimOracleSet(SimLivenessOracles.all)
 

@@ -142,6 +142,8 @@ nonisolated extension SyncEngine {
         }
         var state = identity.state
         let defaultsGeneration = input.defaultsGeneration ?? 0
+        // An upgrade from macOS 26 to 27 is recognised here, before anything is decided with the state.
+        SyncLayout27.noteSystemGeneration(&state, snapshot: input.snapshot, environment: environment)
 
         var trust = SyncTrust()
         if let stored = identity.stored {
@@ -222,6 +224,7 @@ nonisolated extension SyncEngine {
                 draft.applies = changes
                 draft.state = SyncCapture.applied(changes, snapshot: snapshot, state: draft.state, environment: environment)
             }
+            applyKnownApplications(&draft, environment: environment)
         }
         draft.effects.append(.readFolder(readRequest(.launch(budget: launchReadBudget), draft.state)))
         draft.effects.append(.schedule(.periodic, after: SyncTimer.periodic.delay))
@@ -320,13 +323,13 @@ nonisolated extension SyncEngine {
     /// Whether the local settings differ from what Sigma last captured: some unit has another
     /// value than its baseline, or a unit with no baseline holds a value.
     private static func differsFromBaseline(_ snapshot: SyncSnapshot, state: SyncState, table: SyncUnitTable) -> Bool {
-        for (key, baseline) in state.baseline.sorted(by: { $0.key < $1.key }) {
+        for (key, baseline) in state.baseline.sorted(by: { $0.key < $1.key }) where !SyncLayout27.isIntentCaptured(key) {
             let local = SyncProjection.localValue(key, in: snapshot.values, table: table)?.digest ?? .unset
             if local != baseline {
                 return true
             }
         }
-        for key in snapshot.values.keys.sorted() where state.baseline[key] == nil {
+        for key in snapshot.values.keys.sorted() where state.baseline[key] == nil && !SyncLayout27.isIntentCaptured(key) {
             // A whole unit that holds a value Sigma never captured is a difference; an item of
             // a family without a baseline had no value when Sigma was made.
             if let descriptor = table.descriptor(for: key), !descriptor.isFamily, !descriptor.isSet {

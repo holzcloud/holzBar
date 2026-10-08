@@ -30,7 +30,8 @@ nonisolated enum SyncCapture {
                 let descriptor = environment.table.descriptor(for: key),
                 !descriptor.isSet,
                 environment.table.isAuthoredHere(key, generation: environment.generation),
-                !snapshot.aliased.contains(key)
+                !snapshot.aliased.contains(key),
+                !SyncLayout27.isIntentCaptured(key)
             else {
                 continue
             }
@@ -48,7 +49,6 @@ nonisolated enum SyncCapture {
     ) {
         let local = SyncProjection.localValue(key, in: snapshot.values, table: environment.table)
         let digest = local?.digest ?? .unset
-        let item = key.itemName
         let baseline: SyncDigest
         if let known = state.baseline[key] {
             baseline = known
@@ -73,7 +73,20 @@ nonisolated enum SyncCapture {
         if digest == baseline {
             return
         }
-        if let local, local == SyncProjection.unrepresentable || !descriptor.validate(item, local) {
+        recordChange(key, descriptor, local: local, state: &state, environment: environment)
+    }
+
+    /// Records that the user changed `key` to `local` (`nil` is a deletion): an unusable value
+    /// stays on this Mac, a value the group already holds is adopted, anything else is minted.
+    private static func recordChange(
+        _ key: SyncUnitKey,
+        _ descriptor: SyncUnitDescriptor,
+        local: SyncValue?,
+        state: inout SyncState,
+        environment: SyncEnvironment
+    ) {
+        let digest = local?.digest ?? .unset
+        if let local, local == SyncProjection.unrepresentable || !descriptor.validate(key.itemName, local) {
             state.localOnly[key] = .invalid
             state.baseline[key] = digest
             return
@@ -95,6 +108,42 @@ nonisolated enum SyncCapture {
             return
         }
         _ = mint(key, payload: payload, digest: digest, state: &state, environment: environment)
+    }
+
+    // MARK: Intents
+
+    /// The state after the user's changes of the macOS 27 families (``SyncIntent``). A unit this
+    /// Mac does not author gets nothing (INV-L2), nor does a change that leaves the unit as it
+    /// was, nor a deletion of a unit nobody ever published. Nothing is minted for a state that
+    /// is not trusted.
+    static func capture(intents: [SyncUnitIntent], state: inout SyncState, environment: SyncEnvironment) {
+        if !state.session.isTrusted, environment.guards.contains(.trustedState) {
+            return
+        }
+        for change in intents {
+            let key = change.unit
+            guard
+                SyncLayout27.isIntentCaptured(key),
+                let descriptor = environment.table.descriptor(for: key),
+                !descriptor.isSet,
+                environment.table.isAuthoredHere(key, generation: environment.generation),
+                !change.isNoChange
+            else {
+                continue
+            }
+            let local: SyncValue?
+            switch change.to {
+            case .value(let value):
+                local = environment.table.normalized(value, for: key)
+            case .deleted:
+                guard !state.replica.live(key).isEmpty || !(state.applied[key] ?? []).isEmpty else {
+                    state.baseline[key] = .unset
+                    continue
+                }
+                local = nil
+            }
+            recordChange(key, descriptor, local: local, state: &state, environment: environment)
+        }
     }
 
     /// Whether `payload` is what the defaults hold as `local`, compared as this build normalizes

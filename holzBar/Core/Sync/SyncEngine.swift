@@ -16,10 +16,13 @@ nonisolated struct SyncSnapshot: Hashable, Sendable {
     /// The units whose key this Mac maps to another key: relayed only, never captured as a
     /// deletion and never applied (analysis section 4.6.2, the alias rule).
     var aliased: Set<SyncUnitKey>
+    /// The local `KnownApplications27`, sorted and unique; empty before macOS 27.
+    var known27: [String]
 
-    init(values: [SyncUnitKey: SyncValue] = [:], aliased: Set<SyncUnitKey> = []) {
+    init(values: [SyncUnitKey: SyncValue] = [:], aliased: Set<SyncUnitKey> = [], known27: [String] = []) {
         self.values = values
         self.aliased = aliased
+        self.known27 = known27
     }
 
     /// The snapshot after the defaults took `changes`: what the engine itself applied, so a
@@ -137,6 +140,9 @@ nonisolated enum SyncTimer: Hashable, Sendable {
     case periodic
     /// Two seconds after the own file turned out to be missing, older or damaged.
     case healing
+    /// An hour after this Mac learned an application: a learned-only change is published at the
+    /// latest then, or rides along with the next write.
+    case learned
 
     /// How long the host waits before it fires the timer.
     var delay: TimeInterval {
@@ -147,6 +153,8 @@ nonisolated enum SyncTimer: Hashable, Sendable {
             10
         case .periodic:
             15 * 60
+        case .learned:
+            60 * 60
         }
     }
 }
@@ -201,6 +209,9 @@ nonisolated enum SyncEvent: Sendable {
     case command(SyncCommand)
     /// The app quits: the last snapshot.
     case quit(SyncSnapshot)
+    /// The user changed units of the macOS 27 families (plan 28-09); the defaults are never
+    /// diffed for these.
+    case intent(SyncIntent)
 }
 
 // MARK: - Folder reads
@@ -337,6 +348,9 @@ nonisolated enum SyncEffect: Sendable {
     case commitFolder(SyncFolderIdentity)
     /// Sync is off: the host forgets the folder and stops all access to it.
     case forgetFolder
+    /// Add these applications to `KnownApplications27` (``SyncProjection/knownApplicationsUnion(_:into:)``).
+    /// It never removes an element, and it comes only at launch and at Restart.
+    case applyKnownApplications([String])
 }
 
 /// The new state and what the host must do.
@@ -433,9 +447,16 @@ nonisolated enum SyncEngine {
         case .launch:
             break
         case .defaultsChanged(let snapshot):
+            let previous = draft.state.session.snapshot
             draft.state.session.snapshot = snapshot
             if state.isEnabled {
-                draft.effects.append(.schedule(.capture, after: SyncTimer.capture.delay))
+                // A change that only learned applications waits for the hour; anything else is
+                // captured and published as before.
+                if let previous, previous.values == snapshot.values, previous.known27 != snapshot.known27 {
+                    learnKnownApplications(&draft, environment: environment)
+                } else {
+                    draft.effects.append(.schedule(.capture, after: SyncTimer.capture.delay))
+                }
             }
         case .quit(let snapshot):
             draft.state.session.snapshot = snapshot
@@ -456,6 +477,8 @@ nonisolated enum SyncEngine {
             onWrite(result, &draft)
         case .command(let command):
             onCommand(command, &draft, environment: environment)
+        case .intent(let intent):
+            onIntent(intent, &draft, environment: environment)
         }
         return draft.finish()
     }
@@ -490,6 +513,10 @@ nonisolated enum SyncEngine {
         case .periodic:
             draft.effects.append(.readFolder(readRequest(.check, draft.state)))
             draft.effects.append(.schedule(.periodic, after: SyncTimer.periodic.delay))
+        case .learned:
+            draft.state.session.isLearnedTimerPending = false
+            capture(&draft, environment: environment)
+            publish(&draft, trigger: .learned, environment: environment)
         }
     }
 
@@ -516,7 +543,9 @@ nonisolated enum SyncEngine {
         guard let snapshot = draft.state.session.snapshot, draft.state.pendingJoin == nil else {
             return
         }
+        drainIntents(&draft, environment: environment)
         draft.state = SyncCapture.capture(snapshot, state: draft.state, environment: environment)
+        learnKnownApplications(&draft, environment: environment)
     }
 
     /// Asks the publish rules and, when they say write, emits the write.
@@ -651,6 +680,7 @@ nonisolated enum SyncEngine {
                 draft.state = SyncCapture.applied(changes, snapshot: snapshot, state: draft.state, environment: environment)
             }
         }
+        applyKnownApplications(&draft, environment: environment)
         publish(&draft, trigger: .ownChange, environment: environment)
         draft.effects.append(.relaunch)
     }

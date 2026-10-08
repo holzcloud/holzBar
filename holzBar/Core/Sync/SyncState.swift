@@ -176,6 +176,12 @@ nonisolated struct SyncSession: Hashable, Sendable {
     var skippedFiles = 0
     /// Whether the replica is too large to write, so the previous own file stays.
     var isTooLargeToPublish = false
+    /// The user changes of the macOS 27 families that wait until the state can mint again: a join
+    /// is pending, the state is not trusted or capture is deferred. They are never lost, because an
+    /// intent cannot be found again by comparing the defaults.
+    var queuedIntents: [SyncUnitIntent] = []
+    /// Whether the timer that publishes learned applications is running.
+    var isLearnedTimerPending = false
 
     init() {}
 }
@@ -234,6 +240,9 @@ nonisolated struct SyncState: Hashable, Sendable {
     /// defaults at launch (it was restored alone, or a crash kept it from being written), so
     /// it may not know this Mac's own later writes.
     var captureDeferred = false
+    /// The macOS generation of the last launch, so an upgrade from macOS 26 to 27 is recognised;
+    /// `nil` in a state written before it was recorded.
+    var systemGeneration: SyncGeneration?
     /// What this Mac knows about the folder in this session; not part of Sigma on disk.
     var session = SyncSession()
 
@@ -356,6 +365,9 @@ nonisolated enum SyncStateCodec {
         root["isEnabled"] = state.isEnabled
         if state.captureDeferred {
             root["captureDeferred"] = true
+        }
+        if let generation = state.systemGeneration {
+            root["systemGeneration"] = generation == .g27 ? 27 : 26
         }
         return try PropertyListSerialization.data(fromPropertyList: root, format: .binary, options: 0)
     }
@@ -515,6 +527,9 @@ nonisolated enum SyncStateCodec {
         }
         state.isEnabled = try bool(top, "isEnabled")
         state.captureDeferred = try optionalBool(top, "captureDeferred") ?? false
+        if top["systemGeneration"] != nil {
+            state.systemGeneration = try integer(top, "systemGeneration") >= 27 ? .g27 : .g26
+        }
         return state
     }
 
