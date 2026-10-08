@@ -4,11 +4,11 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: Completed 28-10-PLAN.md
-last_updated: "2026-10-08T09:08:40.637Z"
+stopped_at: Completed 28-12-PLAN.md
+last_updated: "2026-10-08T10:55:45.780Z"
 last_activity: 2026-10-07
 last_activity_desc: 0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded
-state_head: 28de59b4a9f753344880243e5e3d44c2653c9185
+state_head: 676846ede2b00b40182b3a4c082c01568840f891
 progress:
   total_phases: 33
   completed_phases: 13
@@ -95,6 +95,7 @@ Progress: [█████████████░░░░░░░░░░
 | Phase 28 P08 | 4h | 3 tasks | 23 files |
 | Phase 28 P09 | not measured | 3 tasks | 20 files |
 | Phase 28 P10 | one run | 3 tasks | 11 files |
+| Phase 28 P12 | one run | 3 tasks | 24 files |
 
 ## Accumulated Context
 
@@ -190,6 +191,8 @@ Recent decisions affecting current work:
 - [Phase 28]: 28-09: known27 is a silent union (learned timer of one hour, applied at launch and Restart only); the upgrade from macOS 26 to 27 marks seeded entries automatic via SyncState.systemGeneration
 - [Phase 28]: 28-10: an intent of the macOS 27 families that arrives while sync is off marks the unit as the user's present value, so the next join asks about it
 - [Phase 28]: 28-10: a catalogue BOUNDARY scenario counts only the legacy-file writes of the redesigned build and runs on generation-26 and generation-27 Macs inside one scenario id
+- [Phase 28]: 28-12: a lost state is a new installation of one ID, so the engine re-identifies and keeps every entry; D3-S10 asserts the counter only for a state restored alone
+- [Phase 28]: 28-12: every A2 id of section 7 is mapped to the scenario that asserts it (A2Mapping); SC-04 maps to SC-33
 
 ### Roadmap Evolution
 
@@ -214,6 +217,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-08T09:08:40.611Z
-Stopped at: Completed 28-10-PLAN.md
+Last session: 2026-10-08T10:55:45.751Z
+Stopped at: Completed 28-12-PLAN.md
 Resume file: None
