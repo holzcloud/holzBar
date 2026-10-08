@@ -172,6 +172,14 @@ nonisolated enum CatalogueG6FileFaults {
     /// Keep. In the generation-27 form A holds an automatic placement of its own, which must never be promoted over B's
     /// intent; in the generation-26 form the arrangement is a local key that never syncs.
     static func keptWorld(_ name: String, generation: Int, arrangement: CatalogueBox<SimValue?>) -> SimScenario {
+        askedWorld(name, generation: generation, arrangement: arrangement)
+            .answer(.A, .keep)
+            .settle()
+            .expectUser(.A, Catalogue.hover, 2)
+    }
+
+    /// The same world up to the moment A's sheet is open.
+    static func askedWorld(_ name: String, generation: Int, arrangement: CatalogueBox<SimValue?>) -> SimScenario {
         var scenario = Catalogue.scenario(name, macs: CatalogueG3Generations.specs([.A, .B], generation: generation))
         if generation == 27 { scenario = scenario.placeNewApp27(.A, bundle: Catalogue.appA) }
         scenario = scenario.settle().offline(.A, seconds: 3_600)
@@ -185,9 +193,6 @@ nonisolated enum CatalogueG6FileFaults {
             .expect("A is asked about the setting") { world in
                 world.brains[.A]?.openPrompt?.shown.map(\.unit).contains(Catalogue.hover) == true ? nil : "A's sheet shows \(Catalogue.shownUnits(world, .A))"
             }
-            .answer(.A, .keep)
-            .settle()
-            .expectUser(.A, Catalogue.hover, 2)
     }
 
     /// What every form of S-37 and S-38 ends with: the arrangement of B on every Mac that shares one, no arrangement
