@@ -27,6 +27,9 @@ nonisolated enum SyncUnitOutcome: Hashable, Sendable {
     case aliased
     /// A value that was here before sync and the group has none: published as this Mac's entry.
     case publishPreexisting
+    /// This Mac's own entry is the only live one and the local value has changed since it was captured: a change of
+    /// the user's that waits for its capture. Nothing is applied over it and no hint shows.
+    case pendingLocal
     /// A unit of a family this Mac neither authors nor applies (the macOS 27 families on macOS 26):
     /// it stays in the replica and in the file byte for byte, and never reaches the hint, the
     /// questions or the status lines.
@@ -144,6 +147,11 @@ nonisolated struct SyncPlan: Sendable {
                 outcomes[key] = .protectedLocalOnly
             } else if local != nil, state.localOrigin[key] == .preexisting {
                 outcomes[key] = .preRow
+            } else if live.allSatisfy({ state.isOwn($0.dot.mac) }), let baseline = state.baseline[key], (local?.digest ?? .unset) != baseline {
+                // The only entries are this Mac's own and the local value moved on from what was last captured: a
+                // change of the user's that the capture has not minted yet (it runs two seconds after the edit). It is
+                // no change of another Mac, so nothing waits and no hint shows (found by A1 S-65).
+                outcomes[key] = .pendingLocal
             } else {
                 outcomes[key] = .fastForward
                 payloads[key] = payload

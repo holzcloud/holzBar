@@ -42,6 +42,25 @@ struct PlanTests {
         #expect(result.hint == .restart)
     }
 
+    @Test("A user edit that the capture has not minted yet is no change of another Mac: nothing waits and no hint shows")
+    func pendingLocalChange() {
+        // The only live entry is this Mac's own, and the local value moved on from what was captured.
+        var state = holding([Fixtures.entry(Fixtures.macA, 5, .string("captured"))])
+        state.baseline[Fixtures.s1] = SyncValue.string("captured").digest
+        let result = plan(state, [Fixtures.s1: .string("edited")])
+        #expect(result.outcomes[Fixtures.s1] == .pendingLocal)
+        #expect(result.fastForwards.isEmpty)
+        #expect(result.hint == nil)
+        // Another Mac's entry is a fast-forward as before, and so is an own entry when the local value is the captured one.
+        var other = holding([Fixtures.entry(Fixtures.macB, 5, .string("theirs"))])
+        other.baseline[Fixtures.s1] = SyncValue.string("captured").digest
+        #expect(plan(other, [Fixtures.s1: .string("edited")]).outcomes[Fixtures.s1] == .fastForward)
+        #expect(plan(state, [Fixtures.s1: .string("captured")]).outcomes[Fixtures.s1] == .equal)
+        // Nothing settles a pending change: its capture still finds the edit.
+        let settled = SyncCapture.settle(result, snapshot: Fixtures.snapshot([Fixtures.s1: .string("edited")]), state: state, environment: Fixtures.environment())
+        #expect(settled.baseline[Fixtures.s1] == SyncValue.string("captured").digest)
+    }
+
     @Test("A deletion differs from a present value and equals an absent one")
     func deletion() {
         let state = holding([Fixtures.entry(Fixtures.macB, 5, nil)])
