@@ -45,15 +45,22 @@ enum SimEngineUnits {
         )
     }
 
+    /// The families of the app's own name that a catalogue table may add: the item icons and the reveal rules.
+    static let appFamilies = ["ItemIcons", "RevealRules"]
+
     /// The engine's key for a simulator unit name, or `nil` for a unit the table does not hold.
-    static func key(ofUnit unit: String) -> SyncUnitKey? {
+    /// - Parameter hotkeyFamily: The family the units `Hotkeys/<item>` belong to: the simulator's own `Hk`, unless a
+    ///   scenario needs the app's real family (`Hotkeys`), whose clash check reads real key combinations.
+    static func key(ofUnit unit: String, hotkeyFamily: String = family) -> SyncUnitKey? {
         guard let slash = unit.firstIndex(of: "/") else {
             return unit == knownUnit ? nil : .whole(unit)
         }
         let item = String(unit[unit.index(after: slash)...])
         switch String(unit[..<slash]) {
         case simFamilyKey:
-            return .split(family: family, item: item)
+            return .split(family: hotkeyFamily, item: item)
+        case let name where appFamilies.contains(name):
+            return .split(family: name, item: item)
         case SyncUnitTable.layout27Family:
             return .split(family: SyncUnitTable.layout27Family, item: item)
         case SyncUnitTable.profilesFamily:
@@ -72,6 +79,8 @@ enum SimEngineUnits {
             switch family {
             case SyncUnitTable.layout27Family, SyncUnitTable.profilesFamily:
                 return "\(family)/\(item)"
+            case let name where appFamilies.contains(name):
+                return "\(name)/\(item)"
             default:
                 return "\(simFamilyKey)/\(item)"
             }
@@ -119,6 +128,14 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     /// A control engine that cannot tell holzBar's own stores from the user's moves: it captures every change of
     /// the macOS 27 families as an intent (decision D-04).
     var automaticStoresAreIntents = false
+    /// The family the units `Hotkeys/<item>` belong to (see ``SimEngineUnits/key(ofUnit:hotkeyFamily:)``).
+    var hotkeyFamily = SimEngineUnits.family
+    /// Units this build maps to another key while the other key is in the defaults: the old unit of each pair is
+    /// relayed only, never captured as a deletion and never applied (the alias rule of an item that changes its key).
+    var aliases: [String: String] = [:]
+    /// What this build's app does to the defaults at every launch before sync runs (a load-time writer); it returns
+    /// the units it rewrote. The builds of one catalogue world differ in it, which is how version skew is simulated.
+    var loadTimeWriter: (@Sendable (inout [String: SimValue]) -> [String])?
 
     /// The engine state while the app runs; `nil` while it does not.
     private var live: SyncState?
@@ -160,6 +177,9 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     }
 
     mutating func launch(_ context: inout SimMacContext) {
+        for unit in loadTimeWriter?(&context.defaults) ?? [] {
+            context.reportAutomaticWrite(unit: unit)
+        }
         begin(launching: true)
         live = nil
         question = nil
@@ -186,6 +206,9 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         live = nil
         question = nil
         prompt = nil
+        // A process that is gone shows no hint and holds nothing in memory.
+        cachedView = SyncView(hint: nil, lines: [])
+        cachedReport.menuHint = false
     }
 
     mutating func defaultsChanged(origin: SimChangeOrigin, units: [String], _ context: inout SimMacContext) {
@@ -328,9 +351,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
             }
         }
         if context.crashed {
-            live = nil
-            question = nil
-            prompt = nil
+            processDied()
             return
         }
         refresh(&context)
@@ -557,9 +578,16 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
 
     private func snapshot(_ context: SimMacContext) -> SyncSnapshot {
         var values: [SyncUnitKey: SyncValue] = [:]
+        var aliased = Set<SyncUnitKey>()
         let isGeneration27 = context.environment.generation == 27
+        let present = Set(SimUnits.units(of: context.defaults).map(\.unit))
+        for (old, new) in aliases.sorted(by: { $0.key < $1.key }) where present.contains(new) {
+            if let key = SimEngineUnits.key(ofUnit: old, hotkeyFamily: hotkeyFamily) {
+                aliased.insert(key)
+            }
+        }
         for (unit, value) in SimUnits.units(of: context.defaults) {
-            guard let key = SimEngineUnits.key(ofUnit: unit), table.descriptor(for: key) != nil else {
+            guard let key = SimEngineUnits.key(ofUnit: unit, hotkeyFamily: hotkeyFamily), table.descriptor(for: key) != nil else {
                 continue
             }
             // The macOS 27 families exist only on a generation-27 Mac, as in the app's projection.
@@ -574,7 +602,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
                 if case .string(let text) = element { text } else { nil }
             }).sorted { $0.utf8.lexicographicallyPrecedes($1.utf8) }
         }
-        return SyncSnapshot(values: values, known27: known)
+        return SyncSnapshot(values: values, aliased: aliased, known27: known)
     }
 
     private static func freshIdentity(_ context: inout SimMacContext) -> SyncFreshIdentity {
@@ -893,6 +921,37 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
             return nil
         }
         return Int(clamping: contents.replica.context[mac])
+    }
+}
+
+extension SimMacRedesign {
+    /// The stored key (and unit) of the appearance, the JSON setting that a newer build re-encodes with more fields.
+    static let appearanceUnit = "MenuBarAppearanceConfigurationV2"
+
+    /// A build N2 that runs next to the build N1 of the same table: it normalizes the appearance with an extra
+    /// field (`field`, filled with a default when the value lacks it) and, as the app does at every launch, rewrites
+    /// the stored appearance that way before sync runs. N1 only sorts the keys, so the two builds store and compare
+    /// the same setting differently, and neither may mint a dot, show a hint or strip the field (INV-A5).
+    static func skew(descriptors: [SyncUnitDescriptor], extraAppearanceField field: String) -> SimMacRedesign {
+        let fill: @Sendable (SyncValue) -> SyncValue? = { value in
+            guard case .data(let data) = value, var object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
+                return nil
+            }
+            if object[field] == nil {
+                object[field] = "default"
+            }
+            return (try? JSONSerialization.data(withJSONObject: object, options: [.sortedKeys, .withoutEscapingSlashes])).map { .data($0) }
+        }
+        let normalizers = SyncNormalizers(appearance: fill, itemGroups: SyncNormalizers.canonicalJSON, holzBarIcon: SyncNormalizers.structuralIcon)
+        var build = SimMacRedesign(table: SyncUnitTable(version: 1, descriptors: descriptors, normalizers: normalizers))
+        build.loadTimeWriter = { defaults in
+            guard case .data(let data)? = defaults[appearanceUnit], let filled = fill(.data(data)), case .data(let encoded) = filled else {
+                return []
+            }
+            defaults[appearanceUnit] = .data(encoded)
+            return [appearanceUnit]
+        }
+        return build
     }
 }
 

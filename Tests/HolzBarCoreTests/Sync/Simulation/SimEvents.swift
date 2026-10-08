@@ -50,6 +50,8 @@ enum SimProviderEvent: Hashable, Sendable {
     case unmount(folder: String = "F1", mac: SimMacName)
     case mount(folder: String = "F1", mac: SimMacName)
     case foreign(folder: String = "F1", path: String, kind: SimForeignKind)
+    /// A Mac outside the simulation puts a whole file there (a valid device file of a Mac that is not simulated).
+    case plant(folder: String = "F1", path: String, data: Data)
     /// The Mac neither sends nor receives for `forMilliseconds`.
     case offline(folder: String = "F1", mac: SimMacName, forMilliseconds: Int64)
 }
@@ -60,6 +62,8 @@ enum SimEvent: Hashable, Sendable {
     // MARK: User
     /// A user edit. `nil` value mints a fresh `u<k>@<unit>` token.
     case userEdit(mac: SimMacName, unit: String, value: SimValue? = nil)
+    /// `defaults write` while holzBar is not running: the preferences change and no hook runs. Ignored while the Mac runs.
+    case defaultsWriteWhileQuit(mac: SimMacName, unit: String, value: SimValue?)
     /// Reset to default, remove a hotkey, delete a profile.
     case userDelete(mac: SimMacName, unit: String)
     /// Import of a settings file that sets `units` (fresh tokens) and removes every importable key it lacks.
@@ -113,6 +117,12 @@ enum SimEvent: Hashable, Sendable {
     case restoreHome(mac: SimMacName, keepCaches: Bool)
     case sigmaLost(mac: SimMacName)
     case reinstall(mac: SimMacName)
+    /// Two installations of one Mac under one ID: the target takes the source's hardware, account, preferences and
+    /// local sync state, so that both write the same device file.
+    case duplicateInstallation(source: SimMacName, target: SimMacName)
+    /// A menu bar item changes its stored key (an item whose title changes): the value of unit `from` moves to
+    /// unit `to`, which holzBar does by itself.
+    case rekeyItem(mac: SimMacName, from: String, to: String)
 
     // MARK: Time
     /// Virtual time passes; due deliveries and timers run in order.
@@ -128,7 +138,7 @@ enum SimEvent: Hashable, Sendable {
     /// The Mac the event acts on, when it has one.
     var mac: SimMacName? {
         switch self {
-        case .userEdit(let mac, _, _), .userDelete(let mac, _), .userImport(let mac, _),
+        case .userEdit(let mac, _, _), .defaultsWriteWhileQuit(let mac, _, _), .userDelete(let mac, _), .userImport(let mac, _),
              .setHotkey(let mac, _, _), .chooseItemIcon(let mac, _), .oversizeIcon(let mac),
              .moveApp27(let mac, _, _), .applyProfile(let mac, _, _), .saveProfile(let mac, _),
              .renameProfile(let mac, _), .deleteProfile(let mac, _), .turnOn(let mac, _),
@@ -137,9 +147,9 @@ enum SimEvent: Hashable, Sendable {
              .placeNewApp27(let mac, _), .upgradeOS(let mac), .launch(let mac), .quit(let mac),
              .crash(let mac), .restartApp(let mac), .updateApp(let mac, _), .restorePrefs(let mac),
              .restoreSigma(let mac), .restoreHome(let mac, _), .sigmaLost(let mac),
-             .reinstall(let mac), .clockStep(let mac, _), .timerFired(let mac, _):
+             .reinstall(let mac), .clockStep(let mac, _), .timerFired(let mac, _), .rekeyItem(let mac, _, _):
             mac
-        case .clone(_, let to), .copyAccount(_, let to):
+        case .clone(_, let to), .copyAccount(_, let to), .duplicateInstallation(_, let to):
             to
         case .advance, .provider:
             nil
@@ -151,6 +161,8 @@ enum SimEvent: Hashable, Sendable {
         switch self {
         case .userEdit(let mac, let unit, let value):
             return "userEdit(\(mac),\(unit),\(value?.canonical ?? "fresh"))"
+        case .defaultsWriteWhileQuit(let mac, let unit, let value):
+            return "defaultsWriteWhileQuit(\(mac),\(unit),\(value?.canonical ?? "remove"))"
         case .userDelete(let mac, let unit): return "userDelete(\(mac),\(unit))"
         case .userImport(let mac, let units): return "userImport(\(mac),\(units.sorted().joined(separator: "|")))"
         case .setHotkey(let mac, let action, let combo): return "setHotkey(\(mac),\(action),\(combo))"
@@ -183,6 +195,8 @@ enum SimEvent: Hashable, Sendable {
         case .restoreHome(let mac, let keep): return "restoreHome(\(mac),keepCaches=\(keep))"
         case .sigmaLost(let mac): return "sigmaLost(\(mac))"
         case .reinstall(let mac): return "reinstall(\(mac))"
+        case .duplicateInstallation(let source, let target): return "duplicateInstallation(\(source)->\(target))"
+        case .rekeyItem(let mac, let from, let to): return "rekeyItem(\(mac),\(from)->\(to))"
         case .advance(let milliseconds): return "advance(\(milliseconds))"
         case .clockStep(let mac, let milliseconds): return "clockStep(\(mac),\(milliseconds))"
         case .timerFired(let mac, let tag): return "timerFired(\(mac),\(tag))"
@@ -203,6 +217,7 @@ extension SimProviderEvent {
         case .unmount(let folder, let mac): "unmount(\(folder),\(mac))"
         case .mount(let folder, let mac): "mount(\(folder),\(mac))"
         case .foreign(let folder, let path, let kind): "foreign(\(folder),\(path),\(kind.rawValue))"
+        case .plant(let folder, let path, let data): "plant(\(folder),\(path),\(SimDigest.hex(of: data)))"
         case .offline(let folder, let mac, let duration): "offline(\(folder),\(mac),\(duration))"
         }
     }

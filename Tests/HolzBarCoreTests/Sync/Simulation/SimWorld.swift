@@ -215,11 +215,19 @@ final class SimWorld {
             die(mac)
             macs[mac]?.generation = 27
             groundTruth.setGeneration(27, of: mac)
-        case .clone, .copyAccount, .restorePrefs, .restoreSigma, .restoreHome, .sigmaLost, .reinstall:
+        case .rekeyItem(let mac, let from, let to):
+            rekey(mac, from: from, to: to)
+        case .defaultsWriteWhileQuit(let mac, let unit, let value):
+            // The user's `defaults write` while the app is quit: the preferences change, no brain hears of it.
+            guard macs[mac]?.running == false else { return }
+            SimUnits.set(unit, to: value, in: &macs[mac]!.defaults)
+            groundTruth.recordUserChange(mac: mac, unit: unit, tokens: value?.tokens ?? [], time: clock.now)
+        case .clone, .copyAccount, .duplicateInstallation, .restorePrefs, .restoreSigma, .restoreHome, .sigmaLost, .reinstall:
             handleIdentity(event)
             // Replaced settings are what the user knows now.
             switch event {
-            case .clone(_, let target), .copyAccount(_, let target), .restorePrefs(let target), .restoreHome(let target, _), .reinstall(let target):
+            case .clone(_, let target), .copyAccount(_, let target), .duplicateInstallation(_, let target), .restorePrefs(let target),
+                 .restoreHome(let target, _), .reinstall(let target):
                 if let defaults = macs[target]?.defaults {
                     groundTruth.resetInformed(mac: target, tokens: SimUnits.tokens(in: defaults))
                 }
@@ -250,10 +258,10 @@ final class SimWorld {
     /// Whether a step is the sync peer's own doing or something else that may destroy a holder.
     private func stepCause(of event: SimEvent) -> SimStepCause {
         switch event {
-        case .provider, .userEdit, .userDelete, .userImport, .setHotkey, .chooseItemIcon, .oversizeIcon, .moveApp27,
+        case .provider, .userEdit, .defaultsWriteWhileQuit, .userDelete, .userImport, .setHotkey, .chooseItemIcon, .oversizeIcon, .moveApp27,
              .applyProfile, .saveProfile, .renameProfile, .deleteProfile, .autoPlace, .learn, .setFlag, .seed27,
-             .placeNewApp27, .clone, .copyAccount, .restorePrefs, .restoreSigma, .restoreHome, .sigmaLost, .reinstall,
-             .crash, .upgradeOS:
+             .placeNewApp27, .clone, .copyAccount, .duplicateInstallation, .restorePrefs, .restoreSigma, .restoreHome, .sigmaLost,
+             .reinstall, .crash, .upgradeOS, .rekeyItem:
             return .nonSync
         case .launch(let mac), .restartApp(let mac), .updateApp(let mac, _):
             return macs[mac]?.version == .beta2 ? .nonSync : .sync
@@ -632,6 +640,19 @@ final class SimWorld {
             // Another user account on the same Mac: the same hardware, another user ID.
             macs[to]?.uid = source.uid + 1
             if let folder = source.folderID { ensureReplica(of: to, in: folder) }
+        case .duplicateInstallation(let source, let target):
+            // A second installation of one Mac: the same hardware, the same account, the same preferences and sync
+            // state, so the hash that binds the ID to the Mac still matches and the ID stays.
+            guard let from = macs[source], macs[target] != nil, source != target else { return }
+            die(target)
+            macs[target]?.defaults = from.defaults
+            macs[target]?.sigma = from.sigma
+            macs[target]?.caches = from.caches
+            macs[target]?.enabled = from.enabled
+            macs[target]?.folderID = from.folderID
+            macs[target]?.markers.hardwareID = from.markers.hardwareID
+            macs[target]?.uid = from.uid
+            if let folder = from.folderID { ensureReplica(of: target, in: folder) }
         case .restorePrefs(let mac):
             // Only the preferences go back (a restore of ~/Library/Preferences): the sync state stays.
             guard let backup = backups[mac], macs[mac] != nil else { return }
@@ -886,6 +907,15 @@ final class SimWorld {
         }
     }
 
+    /// An item changes its stored key: holzBar moves the value from one unit to the other by itself.
+    private func rekey(_ mac: SimMacName, from: String, to: String) {
+        guard let value = SimUnits.value(of: from, in: macs[mac]?.defaults ?? [:]) else { return }
+        change(mac, origin: .automatic, units: [from, to]) {
+            SimUnits.set(from, to: nil, in: &$0)
+            SimUnits.set(to, to: value, in: &$0)
+        }
+    }
+
     // MARK: Ground truth feed
 
     /// Tells the ground truth about versions the provider made itself (conflict copies, foreign bytes).
@@ -1109,6 +1139,9 @@ final class SimWorld {
         case .foreign(let folder, let path, let kind):
             provider(folder)
             providers[folder]!.foreign(path: path, kind: kind)
+        case .plant(let folder, let path, let data):
+            provider(folder)
+            providers[folder]!.plant(path: path, data: data)
         case .offline(let folder, let mac, let duration):
             provider(folder)
             providers[folder]!.setOffline(mac, until: clock.now + max(0, duration))
