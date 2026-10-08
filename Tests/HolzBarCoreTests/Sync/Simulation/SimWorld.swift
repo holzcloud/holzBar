@@ -217,6 +217,15 @@ final class SimWorld {
             groundTruth.setGeneration(27, of: mac)
         case .clone, .copyAccount, .restorePrefs, .restoreSigma, .restoreHome, .sigmaLost, .reinstall:
             handleIdentity(event)
+            // Replaced settings are what the user knows now.
+            switch event {
+            case .clone(_, let target), .copyAccount(_, let target), .restorePrefs(let target), .restoreHome(let target, _), .reinstall(let target):
+                if let defaults = macs[target]?.defaults {
+                    groundTruth.resetInformed(mac: target, tokens: SimUnits.tokens(in: defaults))
+                }
+            default:
+                break
+            }
         case .turnOn(let mac, let folder):
             command(.turnOn(folder: folder), on: mac)
         case .turnOff(let mac):
@@ -364,9 +373,13 @@ final class SimWorld {
             blockedMilliseconds: 0
         )
         hook.answered = answered
+        hook.openPromptAtStart = brain.openPrompt
         body(&brain, &context)
         brains[mac] = brain
         state.defaults = context.defaults
+        // The user sees the settings the Mac holds, so a value that landed in them is known now; a value
+        // that was only merged is not.
+        groundTruth.recordInformed(mac: mac, tokens: SimUnits.tokens(in: context.defaults))
         state.sigma = context.sigma
         state.caches = context.caches
         state.random = context.random
@@ -379,6 +392,7 @@ final class SimWorld {
         hook.blockedMilliseconds = context.blockedMilliseconds
         for action in context.actions {
             if case .ingest(let version) = action { hook.ingests.append(version) }
+            if case .merged(let version) = action { hook.ingests.append(version) }
         }
         hook.transitions = Self.transitions(of: mac, before: before, after: context.defaults)
         hook.keyChanges = Self.keyChanges(of: mac, before: before, after: context.defaults)
@@ -451,7 +465,7 @@ final class SimWorld {
                 let previousVersion = max(previousReplica.versions[path] ?? 0, 0)
                 var dominated = true
                 if previousVersion > 0 {
-                    dominated = groundTruth.past(ofVersion: previousVersion).isSubset(of: groundTruth.past(ofMac: mac))
+                    dominated = groundTruth.past(ofVersion: previousVersion).isSubset(of: groundTruth.seenPast(ofMac: mac))
                 }
                 let seen = previousVersion > 0
                     && (sessionReads[mac]?[path] == previousVersion || sessionWrites[mac]?[path] == previousVersion)
@@ -478,12 +492,16 @@ final class SimWorld {
                 hook.writes.append(write)
                 writeLog.append(write)
                 runOracles(.write, focus: .write(write), event: currentStep?.event)
-            case .ingest(let version):
+            case .ingest(let version), .merged(let version):
                 if groundTruth.versions[version] != nil,
-                   groundTruth.past(ofVersion: version).isSubset(of: groundTruth.past(ofMac: mac)) {
+                   groundTruth.past(ofVersion: version).isSubset(of: groundTruth.seenPast(ofMac: mac)) {
                     hook.dominatedIngests.append(version)
                 }
-                groundTruth.recordIngest(mac: mac, version: version, time: clock.now)
+                if case .merged = action {
+                    groundTruth.recordMerge(mac: mac, version: version, time: clock.now)
+                } else {
+                    groundTruth.recordIngest(mac: mac, version: version, time: clock.now)
+                }
                 ingestedSoFar.append(version)
                 if let path = path(ofVersion: version) { sessionReads[mac, default: [:]][path] = version }
                 record("I \(mac) v\(version)")
@@ -493,7 +511,7 @@ final class SimWorld {
                 hook.prompts.append(prompt)
                 let promptRecord = SimPromptRecord(
                     mac: mac, prompt: prompt, stepIndex: stepIndex, time: clock.now, hook: hook.name,
-                    openBefore: currentStep?.before[mac]?.openPrompt
+                    openBefore: hook.openPromptAtStart
                 )
                 currentStep?.prompts.append(promptRecord)
                 runOracles(.prompt, focus: .prompt(promptRecord), event: currentStep?.event)
@@ -674,6 +692,9 @@ final class SimWorld {
         let hooks = Array((currentStep?.hooks ?? []).dropFirst(hooksBefore)).filter { $0.name == .answer && $0.mac == mac }
         if brains[mac]?.openPrompt?.id == prompt.id {
             groundTruth.retractAnswer(mac: mac, prompt: prompt)
+        } else {
+            // The sheet showed these values to the user.
+            groundTruth.recordInformed(mac: mac, tokens: prompt.shown.flatMap { [$0.local, $0.folder].compactMap { $0 } })
         }
         let record = SimAnswerRecord(
             mac: mac, prompt: prompt, answer: answer, stepIndex: stepIndex, time: clock.now,

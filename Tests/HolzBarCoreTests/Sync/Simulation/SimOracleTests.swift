@@ -513,6 +513,8 @@ struct SimOracleTests {
             brain.changedScript = { _, brain in brain.info.menuHint = menuHint }
             let world = Self.world([Self.running(.A)], [.A: brain], ids: ["INV-P7"])
             world.step(.userEdit(mac: .A, unit: Self.unit))
+            // The hint is judged at the next step: the change the user just made is captured later.
+            world.step(.advance(milliseconds: 1_000))
             return world
         }
         Self.check("INV-P7", bad: { world(menuHint: true) }, good: { world(menuHint: false) })

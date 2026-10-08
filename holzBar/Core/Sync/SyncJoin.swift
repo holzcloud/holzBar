@@ -266,6 +266,16 @@ nonisolated enum SyncJoin {
                 break
             }
         }
+        if !environment.guards.contains(.absentMeansNoValue) {
+            // Control engine: absence counts as a value, so a unit nobody has set is published as
+            // deleted, and a Mac that never had a setting deletes it for everyone (decision D-10).
+            for key in table.wholeUnitKeys where table.isAuthoredHere(key, generation: environment.generation) && !skipping.contains(key) {
+                guard SyncProjection.localValue(key, in: snapshot.values, table: table) == nil, state.replica.live(key).isEmpty else {
+                    continue
+                }
+                SyncCapture.mint(key, payload: .deleted, digest: .unset, state: &state, environment: environment)
+            }
+        }
     }
 }
 
@@ -276,7 +286,11 @@ nonisolated extension SyncEngine {
     /// commits. Capture runs once first when this Mac's state is trusted, so only units
     /// changed on both sides are asked about.
     static func startJoin(_ folder: SyncFolderIdentity, isChange: Bool, _ draft: inout SyncDraft, environment: SyncEnvironment) {
-        draft.state.pendingJoin = SyncPendingJoin(
+        draft.state.session.waitingFiles = 0
+        // Capture runs once, before the join: while it waits nothing is minted, because what it reads and
+        // shows is decided against the state as it is now.
+        capture(&draft, environment: environment)
+        var pending = SyncPendingJoin(
             replica: .empty,
             shown: [:],
             isFounding: false,
@@ -284,8 +298,8 @@ nonisolated extension SyncEngine {
             phase: .reading,
             isChange: isChange
         )
-        draft.state.session.waitingFiles = 0
-        capture(&draft, environment: environment)
+        pending.wasTrusted = draft.state.session.isTrusted
+        draft.state.pendingJoin = pending
         draft.effects.append(.readFolder(readRequest(.join, draft.state)))
     }
 
@@ -425,6 +439,8 @@ nonisolated extension SyncEngine {
             draft.effects.append(.commitFolder(folder))
         }
         draft.effects.append(.schedule(.periodic, after: SyncTimer.periodic.delay))
+        // What the user changed while the join waited is captured now.
+        capture(&draft, environment: environment)
         publish(&draft, trigger: .ownChange, environment: environment)
     }
 

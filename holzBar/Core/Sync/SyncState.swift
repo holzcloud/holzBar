@@ -58,6 +58,10 @@ nonisolated struct SyncPendingJoin: Hashable, Sendable {
     /// Whether this Mac's state belongs to the group in the folder (trusted, and some device
     /// file belongs to a Mac it knows); otherwise this Mac's values are dot-less.
     var isSameGroup = false
+    /// Whether this Mac's state was trusted when the join started: a relaunch keeps it so, because the
+    /// join, not a trust check, decides what the state is worth. A state that is no evidence mints nothing
+    /// while the join waits.
+    var wasTrusted = false
     /// The legacy file's units when this Mac founds the group from it.
     var legacy: SyncPendingLegacy?
 }
@@ -311,6 +315,7 @@ nonisolated enum SyncStateCodec {
                 "phase": pending.phase.rawValue,
                 "isChange": pending.isChange,
                 "isSameGroup": pending.isSameGroup,
+                "wasTrusted": pending.wasTrusted,
             ]
             fields["folderIdentity"] = pending.folderIdentity
             if let legacy = pending.legacy {
@@ -454,6 +459,7 @@ nonisolated enum SyncStateCodec {
             }
             pendingJoin.isChange = try optionalBool(fields, "isChange") ?? false
             pendingJoin.isSameGroup = try optionalBool(fields, "isSameGroup") ?? false
+            pendingJoin.wasTrusted = try optionalBool(fields, "wasTrusted") ?? false
             if let legacy = fields["legacy"] {
                 let legacyFields = try record(legacy)
                 var units: [SyncUnitKey: SyncValue] = [:]

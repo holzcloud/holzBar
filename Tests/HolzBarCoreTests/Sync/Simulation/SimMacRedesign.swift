@@ -244,7 +244,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         if step.effects.contains(where: { if case .commitFolder = $0 { true } else { false } }) {
             // The join decided on the folder: what it read becomes part of what this Mac has seen.
             for version in lastJoinVersions {
-                context.reportIngest(version: version)
+                context.reportMerge(version: version)
             }
             joinedInHook = true
         }
@@ -338,7 +338,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
             recordJoinRead(result)
         } else {
             for version in newVersions(in: result) {
-                context.reportIngest(version: version)
+                context.reportMerge(version: version)
             }
         }
         run(.folderRead(result.read, purpose: request.purpose), &context)
@@ -532,7 +532,9 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         let current = SyncEngine.question(for: state, scope: .mine, environment: environment(context))
         let isShowing = cachedView.hint == .choose || cachedView.hint == .chooseAfterJoin
         if prompt != nil {
-            if current == nil || !isShowing {
+            // Closed: answered, decided elsewhere (none of its rows is a question any more) or hidden by Later.
+            let rows = Set(question?.rows.map(\.unit) ?? [])
+            if current == nil || !isShowing || rows.isDisjoint(with: current?.rows.map(\.unit) ?? []) {
                 question = nil
                 prompt = nil
             }
@@ -606,7 +608,15 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
                 break
             }
         }
+        let before = live
         run(.command(.answer(SyncAnswerRequest(button: button, choices: choices, question: question))), &context)
+        // An answer the engine took changes its state (entries written, the join committed or cancelled,
+        // Later recorded); the sheet is done then, whatever the engine asks next.
+        if let before, let after = live, before.replica != after.replica || before.pendingJoin != after.pendingJoin
+            || before.laterLaunch != after.laterLaunch || before.isEnabled != after.isEnabled {
+            self.question = nil
+            prompt = nil
+        }
     }
 
     /// The index of the value a pop-up pick takes: the value this Mac holds for Keep, another one for Use.

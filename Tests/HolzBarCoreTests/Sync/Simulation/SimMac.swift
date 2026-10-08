@@ -257,6 +257,8 @@ enum SimMacAction: Equatable, Sendable {
     case write(folder: String, path: String, data: Data)
     /// The brain decided on a version: it merged, applied, adopted, found it dominated, or answered a prompt about it.
     case ingest(version: Int)
+    /// A redesigned Mac merged a version into its replica without applying it or asking its user: it relays it.
+    case merged(version: Int)
     case promptShown(SimPrompt)
     case requestDownload(folder: String, path: String)
     case schedule(afterMilliseconds: Int64, tag: String)
@@ -420,6 +422,7 @@ struct SimMacContext: Sendable {
     // MARK: Reports and requests
 
     mutating func reportIngest(version: Int) { actions.append(.ingest(version: version)) }
+    mutating func reportMerge(version: Int) { actions.append(.merged(version: version)) }
     mutating func reportPrompt(_ prompt: SimPrompt) { actions.append(.promptShown(prompt)) }
     mutating func reportAutomaticWrite(unit: String) { actions.append(.automaticWrite(unit: unit)) }
     mutating func scheduleTimer(afterMilliseconds: Int64, tag: String) {

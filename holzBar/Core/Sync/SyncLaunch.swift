@@ -156,18 +156,26 @@ nonisolated extension SyncEngine {
                 && differsFromBaseline(input.snapshot, state: state, table: environment.table)
         }
 
+        // The guard exists so the simulator can run an engine that trusts every state it loads: a
+        // state that is no evidence then mints at launch (analysis section 5.6).
+        let mode: SyncTrust.Mode = environment.guards.contains(.trustedState) ? trust.mode : (trust.hasState ? .trusted : .untrusted)
         state.session = SyncSession()
         state.session.snapshot = input.snapshot
         state.session.trust = trust
         state.session.lastSyncedSeen = input.lastSyncedSeen
         state.isEnabled = input.syncIsOn
-        if trust.hasState, trust.mode == .deferred {
+        if trust.hasState, mode == .deferred {
             state.captureDeferred = true
         }
-        if trust.mode == .untrusted {
+        if mode == .untrusted {
             state.captureDeferred = false
         }
-        state.session.isTrusted = trust.mode == .trusted && !state.captureDeferred
+        state.session.isTrusted = mode == .trusted && !state.captureDeferred
+        if let pending = state.pendingJoin {
+            // The trust checks passed because the join began and persisted; what the state was worth then is
+            // what it is worth until the join is decided.
+            state.session.isTrusted = pending.wasTrusted
+        }
 
         // Sigma is persisted above the defaults, so a state that was behind catches up.
         var original = identity.stored ?? state
@@ -192,7 +200,7 @@ nonisolated extension SyncEngine {
             // Off: the state is kept, nothing else happens.
             return draft.finish()
         }
-        if trust.mode == .untrusted || identity.changed {
+        if mode == .untrusted || identity.changed {
             // Joining: the folder is read whole, nothing is captured, nothing is minted, and
             // nothing from the folder is applied in this launch.
             guard let folder = input.folder else {

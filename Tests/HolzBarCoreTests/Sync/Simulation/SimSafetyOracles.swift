@@ -41,28 +41,22 @@ enum SimSafetyOracles {
             return false
         }
         guard change.id < changeCount else { return false }
-        for other in truth.changes where other.id < changeCount && other.id != change.id {
-            switch other.kind {
-            case .user:
-                if other.unit == unit, other.id > change.id, (other.clock[change.mac] ?? 0) >= change.sequence { return false }
-            case .answer:
-                if other.lostTokens.contains(token) { return false }
-            }
-        }
-        return true
+        return truth.isLive(token: token, unit: unit, known: Set(0..<changeCount))
     }
 
-    /// Whether some ingested version's past holds a later user change of the unit (or an answer that lost the token).
-    static func supersededByIngest(_ world: SimWorld, token: String, unit: String, ingests: [Int]) -> Bool {
+    /// Whether some ingested version's past, or the past of what the Mac has merged so far, holds a later user
+    /// change of the unit that knew the old value (or an answer that lost the token).
+    static func supersededByIngest(_ world: SimWorld, token: String, unit: String, ingests: [Int], mac: SimMacName? = nil) -> Bool {
         let truth = world.groundTruth
         let change = truth.change(forToken: token)
-        for version in ingests {
-            let past = truth.past(ofVersion: version)
+        var pasts = ingests.map { truth.past(ofVersion: $0) }
+        if let mac { pasts.append(truth.seenPast(ofMac: mac)) }
+        for past in pasts {
             for other in truth.changes where past.contains(other.id) {
                 switch other.kind {
                 case .user:
                     guard let change else { continue }
-                    if other.unit == unit, other.id > change.id, (other.clock[change.mac] ?? 0) >= change.sequence {
+                    if other.unit == unit, other.id > change.id, truth.knew(other, of: change) {
                         return true
                     }
                 case .answer:
@@ -92,7 +86,7 @@ enum SimSafetyOracles {
             }
             guard liveBefore(world, token: token, unit: transition.unit, changeCount: hook.changeCountBefore) else { continue }
             if let answered = hook.answered, answered.prompt.losingTokens(for: answered.answer).contains(token) { continue }
-            if supersededByIngest(world, token: token, unit: transition.unit, ingests: hook.ingests) { continue }
+            if supersededByIngest(world, token: token, unit: transition.unit, ingests: hook.ingests, mac: hook.mac) { continue }
             lost.append(token)
         }
         return lost
@@ -202,12 +196,13 @@ extension SimSafetyOracles {
     }
 
     /// What a Mac's units and files tell about which units it holds: units named by the tokens it holds.
-    static func conflictedUnits(_ world: SimWorld, _ mac: SimMacName) -> [String] {
+    static func conflictedUnits(_ world: SimWorld, _ mac: SimMacName, visibleOnly: Bool = false) -> [String] {
         let snapshot = world.holderSnapshot()
         var tokens = snapshot.defaults[mac] ?? []
         for file in snapshot.files { tokens.formUnion(file.tokens) }
-        let units = Set(tokens.compactMap { SimWorld.unit(ofToken: $0) })
-        return units.sorted().filter { world.groundTruth.conflict(mac: mac, unit: $0) }
+        var units = Set(tokens.compactMap { SimWorld.unit(ofToken: $0) })
+        if visibleOnly { units.formUnion(world.groundTruth.knownConflictUnits(mac: mac)) }
+        return units.sorted().filter { world.groundTruth.conflict(mac: mac, unit: $0, visibleOnly: visibleOnly) }
     }
 
     /// The units of an ingested file that a brain says it mentions; falls back to the units of its tokens.
@@ -257,8 +252,10 @@ extension SimSafetyOracles {
                     guard let newer = truth.change(forToken: new) else { continue }
                     for old in transition.oldTokens.subtracting(transition.newTokens) {
                         guard let older = truth.change(forToken: old), older.id != newer.id else { continue }
-                        if (older.clock[newer.mac] ?? 0) >= newer.sequence {
+                        if truth.knew(older, of: newer) {
                             if let answered = hook.answered, answered.prompt.losingTokens(for: answered.answer).contains(old) { continue }
+                            // An answer in the past of what was applied gave the old value up on purpose.
+                            if supersededByIngest(world, token: old, unit: transition.unit, ingests: hook.ingests, mac: hook.mac) { continue }
                             return "Mac \(hook.mac) moved \(transition.unit) back from \(old) to the older \(new)"
                         }
                     }
@@ -301,7 +298,7 @@ extension SimSafetyOracles {
             let change = truth.change(forToken: token)
             let replaced = carried.contains { other in
                 guard let later = truth.change(forToken: other), let change else { return false }
-                return later.unit == unit && later.id != change.id && (later.clock[change.mac] ?? 0) >= change.sequence
+                return later.unit == unit && later.id != change.id && truth.knew(later, of: change)
                     && truth.isLive(token: other, unit: unit)
             }
             if !replaced { return "Mac \(write.mac) published \(write.path) claiming \(token) but does not carry it" }
@@ -493,7 +490,7 @@ extension SimSafetyOracles {
         }
         for entry in record.prompt.shown {
             if joining, entry.local != entry.folder { continue }
-            if world.groundTruth.conflict(mac: record.mac, unit: entry.unit) { continue }
+            if world.groundTruth.conflict(mac: record.mac, unit: entry.unit, visibleOnly: true) { continue }
             if let local = entry.local, world.groundTruth.origin(of: local) == .pre { continue }
             if entry.unit.hasPrefix("Hotkeys/"), entry.local != nil, entry.folder != nil { continue }
             return "Mac \(record.mac) asks about \(entry.unit) without a conflict, a join difference, a pre value or a clash"
@@ -550,6 +547,15 @@ extension SimSafetyOracles {
         guard let step = step(world) else { return nil }
         for mac in step.after.keys.sorted() where world.isRedesign(mac) {
             guard step.after[mac]?.report?.menuHint == true else { continue }
+            // The change the user just made is captured two seconds later, so the hint may still be about the
+            // value it replaced.
+            switch step.event {
+            case .userEdit(let target, _, _), .userDelete(let target, _), .userImport(let target, _), .setHotkey(let target, _, _),
+                 .chooseItemIcon(let target, _), .oversizeIcon(let target), .moveApp27(let target, _, _):
+                if target == mac { continue }
+            default:
+                break
+            }
             // A join with rows asks (analysis section 4.7), and so does a value that was there before sync and
             // differs from the group's: neither is a conflict of this Mac's entries, and both are its question.
             if step.after[mac]?.report?.joining == true { continue }
@@ -557,7 +563,7 @@ extension SimSafetyOracles {
                 if case .pre? = SimValue.origin(ofToken: $0) { true } else { false }
             }
             if holdsPreValue { continue }
-            if conflictedUnits(world, mac).isEmpty {
+            if conflictedUnits(world, mac, visibleOnly: true).isEmpty {
                 return "Mac \(mac) shows a menu hint although it has no live entry in any conflict"
             }
         }
@@ -638,7 +644,10 @@ extension SimSafetyOracles {
         for hook in step.hooks where hook.syncCaused && charged(world, hook) && !hook.transitions.isEmpty {
             for version in hook.ingests {
                 guard world.writer(ofVersion: version) == hook.mac, let path = world.path(ofVersion: version) else { continue }
-                let newest = world.writeLog.filter { $0.mac == hook.mac && $0.path == path }.compactMap(\.version).max() ?? version
+                // What the Mac wrote before this hook: the file it writes after reading is newer than what it read.
+                let writtenHere = Set(hook.writes.compactMap(\.version))
+                let newest = world.writeLog.filter { $0.mac == hook.mac && $0.path == path }.compactMap(\.version)
+                    .filter { !writtenHere.contains($0) }.max() ?? version
                 if version < newest {
                     return "Mac \(hook.mac) applied its own older version v\(version) of \(path) (its newest is v\(newest))"
                 }
@@ -720,6 +729,9 @@ extension SimSafetyOracles {
     private static func dominatedChange(_ world: SimWorld, _ step: SimStepRecord, copies: Bool) -> String? {
         for hook in step.hooks where hook.syncCaused && charged(world, hook) {
             guard !hook.ingests.isEmpty, hook.ingests.allSatisfy({ hook.dominatedIngests.contains($0) }) else { continue }
+            // A join asks about this Mac's own values against the folder's, so a version the Mac has seen can
+            // be the subject of a question when its settings were rolled back or were never joined.
+            if step.after[hook.mac]?.report?.joining == true || hook.answered != nil { continue }
             let isCopy = hook.ingests.contains { version in
                 if case .conflictCopy? = world.kind(ofVersion: version) { return true }
                 return false

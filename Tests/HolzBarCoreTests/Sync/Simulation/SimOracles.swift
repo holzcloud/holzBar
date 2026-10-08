@@ -259,6 +259,8 @@ struct SimHookRecord: Sendable {
     var writes: [SimWriteRecord] = []
     var prompts: [SimPrompt] = []
     var answered: SimAnsweredPrompt?
+    /// The sheet that was open when the hook began, if any.
+    var openPromptAtStart: SimPrompt?
 }
 
 /// A Mac as the oracles see it before and after a step.
@@ -401,7 +403,7 @@ extension SimWorld {
     /// All user-change tokens in the past of a Mac, by ground truth.
     func userTokens(inPastOf mac: SimMacName) -> Set<String> {
         var tokens = Set<String>()
-        let past = groundTruth.past(ofMac: mac)
+        let past = groundTruth.seenPast(ofMac: mac)
         for change in groundTruth.changes where past.contains(change.id) { tokens.formUnion(change.tokens) }
         return tokens
     }

@@ -479,8 +479,11 @@ nonisolated enum SyncEngine {
             capture(&draft, environment: environment)
             publish(&draft, trigger: .ownChange, environment: environment)
         case .relay:
+            // A change the user made since the last capture belongs in the file that goes out now.
+            capture(&draft, environment: environment)
             publish(&draft, trigger: .relay, environment: environment)
         case .healing:
+            capture(&draft, environment: environment)
             publish(&draft, trigger: .healing, environment: environment)
         case .check:
             draft.effects.append(.readFolder(readRequest(.check, draft.state)))
@@ -508,7 +511,9 @@ nonisolated enum SyncEngine {
     // MARK: Capture and publish
 
     static func capture(_ draft: inout SyncDraft, environment: SyncEnvironment) {
-        guard let snapshot = draft.state.session.snapshot else {
+        // A join that waits decides against the state as it is: nothing is minted meanwhile, and what the
+        // user changes is captured once the join is decided.
+        guard let snapshot = draft.state.session.snapshot, draft.state.pendingJoin == nil else {
             return
         }
         draft.state = SyncCapture.capture(snapshot, state: draft.state, environment: environment)
