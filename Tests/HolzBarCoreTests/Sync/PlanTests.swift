@@ -155,7 +155,7 @@ struct PlanTests {
         #expect(result.fastForwards.isEmpty)
     }
 
-    @Test("A unit only macOS 27 authors is not planned on macOS 26, and unknown units have no outcome")
+    @Test("A unit only macOS 27 authors is relayed on macOS 26, and unknown units have no outcome")
     func unitsOutsideThisMacHaveNoOutcome() {
         var state = Fixtures.state()
         state.replica = Fixtures.replica([
@@ -163,7 +163,8 @@ struct PlanTests {
             .whole("FromTheFuture"): [Fixtures.entry(Fixtures.macB, 6, .string("v"))],
         ])
         let on26 = plan(state, environment: Fixtures.environment(generation: .g26))
-        #expect(on26.outcomes.isEmpty)
+        #expect(on26.outcomes == [Fixtures.only27: .relayOnly])
+        #expect(on26.hint == nil)
         let on27 = plan(state)
         #expect(on27.outcomes[Fixtures.only27] == .fastForward)
         #expect(on27.outcomes[.whole("FromTheFuture")] == nil)
