@@ -4,11 +4,11 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: Completed 28-08-PLAN.md
-last_updated: "2026-10-08T06:14:06.176Z"
+stopped_at: Completed 28-09-PLAN.md
+last_updated: "2026-10-08T08:25:45.121Z"
 last_activity: 2026-10-07
 last_activity_desc: 0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded
-state_head: 569edf753a814c3ec37741d6400b5f742c8d145d
+state_head: 5dcaa972d1c8fc0b6bbe0bb04cba5a5e5bc31a25
 progress:
   total_phases: 33
   completed_phases: 13
@@ -93,6 +93,7 @@ Progress: [█████████████░░░░░░░░░░
 | Phase 28 P06 | 3h | 3 tasks | 16 files |
 | Phase 28 P07 | 120min | 3 tasks | 15 files |
 | Phase 28 P08 | 4h | 3 tasks | 23 files |
+| Phase 28 P09 | not measured | 3 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -184,6 +185,8 @@ Recent decisions affecting current work:
 - [Phase 28]: 28-07: the host passes a fresh identity (SyncFreshIdentity) in SyncEnvironment; the engine uses no randomness and leaves a file that calls for re-identification out of the join without one
 - [Phase 28]: 28-07: SyncState carries a never-persisted SyncSession (trust flag, own-file status, snapshot, folder status); family items with no baseline count as unset, whole units with no baseline are never captured
 - [Phase 28]: 28-08: capture is a no-op while a join waits, and a pending join remembers whether the state was trusted when it began
+- [Phase 28]: 28-09: l27 and prof are captured from user intents only; an applied entry is never overridden by holzBar's own stores, and an applied deletion makes no party of a conflict
+- [Phase 28]: 28-09: known27 is a silent union (learned timer of one hour, applied at launch and Restart only); the upgrade from macOS 26 to 27 marks seeded entries automatic via SyncState.systemGeneration
 
 ### Roadmap Evolution
 
@@ -208,6 +211,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-08T06:14:01.346Z
-Stopped at: Completed 28-08-PLAN.md
+Last session: 2026-10-08T08:25:45.095Z
+Stopped at: Completed 28-09-PLAN.md
 Resume file: None
