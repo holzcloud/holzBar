@@ -148,6 +148,30 @@ struct MergeTests {
         #expect(own.state.mac == fresh.mac)
     }
 
+    @Test("A re-identification gives every entry of the old identity a dot of the new one, so a context that covers the old dot cannot drop it")
+    func reidentificationMintsAgain() {
+        var state = Fixtures.state()
+        let mine = Fixtures.entry(Fixtures.macA, 4, .string("mine"))
+        state.replica = Fixtures.replica([Fixtures.s1: [mine]])
+        state.publishedCounter = 4
+        state.counter = 4
+        state.applied[Fixtures.s1] = [mine.dot]
+        state.baseline[Fixtures.s1] = SyncValue.string("mine").digest
+        state.session.snapshot = SyncSnapshot(values: [Fixtures.s1: .string("mine")])
+        // Another installation wrote the same file: the copy of the own file says so, and says nothing of the dots.
+        let copyOfOwn = SyncFileOutcome(macID: nil, state: .conflictCopy(owner: Fixtures.macA))
+        let result = merge([copyOfOwn], into: state, environment: Fixtures.environment(freshIdentity: fresh))
+        #expect(result.reidentified)
+        let live = result.state.replica.live(Fixtures.s1)
+        #expect(live.map(\.dot.mac) == [fresh.mac])
+        #expect(live.map(\.payload) == [.value(.string("mine"))])
+        #expect(result.state.applied[Fixtures.s1] == live.map(\.dot))
+        // The other installation's file covers the old dot without holding the entry: nothing is dropped now.
+        let covering = contents(Fixtures.macB, Fixtures.replica([:], extraContext: [Fixtures.macB: 2, Fixtures.macA: 4]))
+        let joined = merge([file(covering)], into: result.state)
+        #expect(joined.state.replica.live(Fixtures.s1).map(\.payload) == [.value(.string("mine"))])
+    }
+
     @Test("Without a fresh identity a suspicious file is left out of the join")
     func noFreshIdentityLeavesTheFileOut() {
         var state = Fixtures.state()
