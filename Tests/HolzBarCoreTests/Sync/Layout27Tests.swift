@@ -535,6 +535,29 @@ struct Layout27Tests {
         #expect(plan(again).fastForwardPayloads[bundleA] == nil)
     }
 
+    @Test("A move made while sync is off over an entry the group still holds is published at the next join, not settled as equal")
+    func moveWhileOffOverAppliedEntryIsPublished() throws {
+        let applied = entry(macB, 1, .integer(1))
+        var held = state([bundleA: [applied]], local: [bundleA: .integer(0)])
+        held.isEnabled = false
+        held.applied[bundleA] = [applied.dot]
+        let intent = try #require(SyncLayout27.moveIntent(bundleID: "com.a", from: .integer(1), to: .integer(0)))
+        var again = handle(userSet([intent]), held).state
+        again.isEnabled = true
+        #expect(plan(again).outcomes[bundleA] == .publishPreexisting)
+        // The silent settle mints the move, which supersedes exactly the entry this Mac applied.
+        let snapshot = again.session.snapshot ?? SyncSnapshot()
+        let settled = SyncCapture.settle(plan(again), snapshot: snapshot, state: again, environment: environment(.g27))
+        let live = settled.replica.live(bundleA)
+        #expect(live.count == 1)
+        #expect(live.first?.value == .integer(0))
+        #expect(live.first.map { settled.isOwn($0.dot.mac) } == true)
+        // An automatic store of holzBar's own (no mark) is still no change.
+        var automatic = state([bundleA: [applied]], local: [bundleA: .integer(0)])
+        automatic.applied[bundleA] = [applied.dot]
+        #expect(plan(automatic).outcomes[bundleA] == .equal)
+    }
+
     @Test("A move made while sync is off by a Mac that does not author the unit marks nothing")
     func moveWhileOffOnMacOS26MarksNothing() throws {
         var held = state()

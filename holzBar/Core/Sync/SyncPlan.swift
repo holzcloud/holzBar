@@ -132,7 +132,14 @@ nonisolated struct SyncPlan: Sendable {
             } else if SyncLayout27.isIntentCaptured(key), Set(live.map(\.dot)).isSubset(of: state.applied[key] ?? []) {
                 // This Mac applied the entry: a local value that differs is holzBar's own store (a profile
                 // bound to a Space, a displaced item), never a change of another Mac, so nothing waits (D-04).
-                outcomes[key] = .equal
+                // A move the user made while sync was off is marked as theirs and is no store of holzBar's: it
+                // is a newer change of the entry this Mac applied, published at the next join instead of being
+                // settled as equal and left to diverge (found by A1 S-48).
+                if local != nil, state.localOrigin[key] == .preexisting, state.localOnly[key] == nil {
+                    outcomes[key] = .publishPreexisting
+                } else {
+                    outcomes[key] = .equal
+                }
             } else if state.localOnly[key] != nil {
                 outcomes[key] = .protectedLocalOnly
             } else if local != nil, state.localOrigin[key] == .preexisting {
