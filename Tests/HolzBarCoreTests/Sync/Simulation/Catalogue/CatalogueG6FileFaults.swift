@@ -35,7 +35,10 @@ nonisolated enum CatalogueG6FileFaults {
     /// Every running Mac holds the value `box` noted at the unit.
     static func everyMacHolds(_ scenario: SimScenario, _ unit: String, _ box: CatalogueBox<SimValue?>, label: String) -> SimScenario {
         scenario.expect(label) { world in
-            let different = world.macs.keys.sorted().filter { world.macs[$0]?.running == true && Catalogue.value(world, $0, unit) != box.value }
+            // A macOS 26 Mac has no arrangement of the macOS 27 families; it only relays them.
+            let different = world.macs.keys.sorted().filter {
+                world.macs[$0]?.running == true && !(unit.hasPrefix("l27/") && world.macs[$0]?.generation == 26) && Catalogue.value(world, $0, unit) != box.value
+            }
             return different.isEmpty ? nil : "\(different) do not hold \(box.value?.canonical ?? "nothing") at \(unit)"
         }
     }

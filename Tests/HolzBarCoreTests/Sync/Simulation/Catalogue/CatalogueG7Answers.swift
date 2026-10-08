@@ -525,11 +525,15 @@ nonisolated enum CatalogueG7Answers {
         let crashed = world("S-54 crash") {
             $0.answer(.A, .keep).crash(.A).launch(.A).settle()
         }
+        // An older state comes back (a restore of the state alone, or an older build): the file is newer than the record.
+        let older = world("S-54 older state") {
+            $0.answer(.A, .keep).settle().restoreSigma(.A).launch(.A).settle()
+        }
         // Sync is turned off while the exchange runs.
         let off = world("S-54 sync turned off") {
             $0.answer(.A, .keep).turnOff(.A).settle().turnOn(.A).settle()
         }
-        return Catalogue.combine("S-54", [sigmaLost, crashed, off])
+        return Catalogue.combine("S-54", [sigmaLost, older, crashed, off])
     }
 
     // MARK: Texts
