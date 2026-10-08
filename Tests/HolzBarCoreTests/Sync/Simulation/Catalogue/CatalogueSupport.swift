@@ -381,6 +381,7 @@ nonisolated enum Catalogue {
         CatalogueG3Generations.texts,
         CatalogueG4BetaPeers.texts,
         CatalogueG5Clocks.texts,
+        CatalogueG6FileFaults.texts,
     ]
 
     static let a1Texts: [String: CatalogueText] = a1Tables.reduce(into: [:]) { merged, table in merged.merge(table) { first, _ in first } }
