@@ -108,6 +108,43 @@ nonisolated enum SyncIdentity {
         return dots.sorted()
     }
 
+    /// The own live dots that a file's replica covers although it cannot have seen them.
+    ///
+    /// Two signs say that this identity is used by two installations. A dot above the published counter
+    /// that the replica covers was never published, so nobody saw it. And a dot that the replica covers
+    /// while it holds no entry at all for the unit never reached it either: a replica that has seen an entry
+    /// holds some entry for its unit, because a later entry replaces the one before and a deletion is an
+    /// entry too. The first sign is no sign when this installation's own file explains the dot.
+    ///
+    /// - Parameters:
+    ///   - publishedCounter: What this state had published before it read the folder; the state's own by default.
+    ///     Reading the own file raises the state's counter, and a dot that the file explains is no reuse, but a dot
+    ///     below the file's counter that the file does not explain is the very case of a restore with a clock set back.
+    ///   - ownFile: The replica of this installation's own file, if it was read. A dot it holds, or one that it
+    ///     supersedes with a later entry of this Mac's for the same unit, is published.
+    static func suspectCollidingDots(
+        in state: SyncState,
+        coveredBy file: SyncReplica,
+        publishedCounter: UInt64? = nil,
+        ownFile: SyncReplica? = nil
+    ) -> [SyncDot] {
+        let published = publishedCounter ?? state.publishedCounter
+        var dots = Set<SyncDot>()
+        for (key, entries) in state.replica.registers {
+            for entry in entries where entry.dot.mac == state.mac && file.context.covers(entry.dot) {
+                let neverSeen = file.live(key).isEmpty
+                guard entry.dot.n > published || neverSeen else {
+                    continue
+                }
+                if !neverSeen, let ownFile, ownFile.live(key).contains(where: { $0.dot.mac == state.mac && $0.dot.n >= entry.dot.n }) {
+                    continue
+                }
+                dots.insert(entry.dot)
+            }
+        }
+        return dots.sorted()
+    }
+
     // MARK: Collisions
 
     /// The signs in a device file that this Mac's identity is used twice.

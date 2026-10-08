@@ -43,8 +43,12 @@ nonisolated enum SyncMerge {
         // The identity checks run before any file is joined, over every file, so that one
         // re-identification covers every suspect dot.
         // What this installation's own file holds is published, so it is no evidence that a dot
-        // was minted twice, even when another Mac has read it already (Sigma restored alone).
-        if let ownFile = files.contents.first(where: { $0.mac == state.mac && $0.installation == state.nonce }) {
+        // was minted twice, even when another Mac has read it already (Sigma restored alone). A dot of this state that the
+        // file neither holds nor supersedes is not published by it, whatever its counter says (a restore with a clock set
+        // back), so the reuse check below counts from what the state had published before it read the file.
+        let publishedBefore = state.publishedCounter
+        let ownFile = files.contents.first(where: { $0.mac == state.mac && $0.installation == state.nonce })
+        if let ownFile {
             let signals = SyncIdentity.collisionSignals(
                 ownMac: state.mac,
                 ownNonce: state.nonce,
@@ -79,7 +83,12 @@ nonisolated enum SyncMerge {
                 blocked.insert(file.mac)
             }
             if !ownSameInstallation {
-                let reused = SyncIdentity.suspectReusedDots(in: state, coveredBy: file.replica.context)
+                let reused = SyncIdentity.suspectCollidingDots(
+                    in: state,
+                    coveredBy: file.replica,
+                    publishedCounter: publishedBefore,
+                    ownFile: ownFile?.replica
+                )
                 if !reused.isEmpty {
                     signalled = true
                     suspects.formUnion(reused)

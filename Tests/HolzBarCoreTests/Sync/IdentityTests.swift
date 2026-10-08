@@ -128,6 +128,35 @@ struct IdentityTests {
         #expect(SyncIdentity.suspectReusedDots(in: state, coveredBy: SyncContext(counters: [own: 100, other: 100])).isEmpty)
     }
 
+    @Test("A dot that a file's context covers while the file holds no entry for the unit is suspect, whatever the published counter says")
+    func neverSeenDotsAreSuspect() throws {
+        let own = try mac(ownID)
+        let other = try mac(otherID)
+        let state = try state(counter: 12, published: 12, units: ["A": 9, "B": 11])
+        // The file has seen both dots, holds an entry for A (a later one of another Mac) and none for B.
+        var replica = SyncReplica(context: SyncContext(counters: [own: 12, other: 50]))
+        replica = replica.setting(.whole("A"), to: SyncEntry(dot: SyncDot(mac: other, n: 50), at: date, payload: .value(.integer(1))))
+        let suspect = SyncIdentity.suspectCollidingDots(in: state, coveredBy: replica)
+        #expect(suspect == [SyncDot(mac: own, n: 11)])
+    }
+
+    @Test("A dot that the own file holds or supersedes is no collision, a dot that it neither holds nor supersedes is")
+    func ownFileExplainsDots() throws {
+        let own = try mac(ownID)
+        let other = try mac(otherID)
+        let state = try state(counter: 12, published: 10, units: ["A": 11, "B": 12])
+        // Another file has seen both dots and holds an entry of another Mac for each unit.
+        var seen = SyncReplica(context: SyncContext(counters: [own: 12, other: 50]))
+        seen = seen.setting(.whole("A"), to: SyncEntry(dot: SyncDot(mac: other, n: 50), at: date, payload: .value(.integer(1))))
+        seen = seen.setting(.whole("B"), to: SyncEntry(dot: SyncDot(mac: other, n: 51), at: date, payload: .value(.integer(1))))
+        // The own file holds A's entry as it is and has superseded nothing of B's.
+        var ownFile = SyncReplica(context: SyncContext(counters: [own: 12]))
+        ownFile = ownFile.setting(.whole("A"), to: SyncEntry(dot: SyncDot(mac: own, n: 11), at: date, payload: .value(.integer(11))))
+        #expect(SyncIdentity.suspectCollidingDots(in: state, coveredBy: seen, ownFile: ownFile) == [SyncDot(mac: own, n: 12)])
+        // Without the own file both dots above the published counter are suspect.
+        #expect(SyncIdentity.suspectCollidingDots(in: state, coveredBy: seen).count == 2)
+    }
+
     // MARK: Collision signals
 
     private func file(mac fileMac: String, installation: String, units: [String: (UInt64, Int64)]) throws -> SyncDeviceFile.Contents {

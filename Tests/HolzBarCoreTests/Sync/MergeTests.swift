@@ -172,6 +172,26 @@ struct MergeTests {
         #expect(joined.state.replica.live(Fixtures.s1).map(\.payload) == [.value(.string("mine"))])
     }
 
+    @Test("A file that covers an own dot of a published entry while it holds nothing for the unit re-identifies, and the entry survives")
+    func coveredDotWithoutEntryReidentifies() {
+        var state = Fixtures.state()
+        let mine = Fixtures.entry(Fixtures.macA, 4, .string("mine"))
+        state.replica = Fixtures.replica([Fixtures.s1: [mine]])
+        state.publishedCounter = 4
+        state.counter = 4
+        state.applied[Fixtures.s1] = [mine.dot]
+        state.baseline[Fixtures.s1] = SyncValue.string("mine").digest
+        state.session.snapshot = SyncSnapshot(values: [Fixtures.s1: .string("mine")])
+        // Another installation of this identity minted the same dot for another unit and published it elsewhere.
+        let theirs = Fixtures.entry(Fixtures.macA, 4, .string("theirs"))
+        let other = contents(Fixtures.macB, Fixtures.replica([Fixtures.s2: [theirs]], extraContext: [Fixtures.macB: 1]))
+        let result = merge([file(other)], into: state, environment: Fixtures.environment(freshIdentity: fresh))
+        #expect(result.reidentified)
+        #expect(result.state.mac == fresh.mac)
+        #expect(result.state.replica.live(Fixtures.s1).map(\.payload) == [.value(.string("mine"))])
+        #expect(result.state.replica.live(Fixtures.s1).map(\.dot.mac) == [fresh.mac])
+    }
+
     @Test("Without a fresh identity a suspicious file is left out of the join")
     func noFreshIdentityLeavesTheFileOut() {
         var state = Fixtures.state()
