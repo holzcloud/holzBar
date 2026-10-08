@@ -410,9 +410,15 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         case .relaunch:
             context.requestRelaunch()
         case .requestDownload(let macs):
+            // A join asks for the files of the folder the user chose, which is not the sync folder before it commits.
+            let saved = context.folderID
+            if saved == nil, let folder = live?.pendingJoin?.folderIdentity {
+                context.folderID = folder
+            }
             for mac in macs {
                 context.requestDownload(SimFolderIO.path(of: mac))
             }
+            context.folderID = saved
         case .storeIdentity(let mac, let legacyID):
             storeIdentity(mac, legacyID: legacyID, &context)
         case .commitFolder(let folder):
@@ -594,7 +600,8 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
             if SyncLayout27.isIntentCaptured(key), !isGeneration27 {
                 continue
             }
-            values[key] = SyncValue(sim: value) ?? SyncProjection.unrepresentable
+            // As the app's projection does: a JSON setting is compared as this build's normalizer writes it.
+            values[key] = table.normalized(SyncValue(sim: value) ?? SyncProjection.unrepresentable, for: key)
         }
         var known: [String] = []
         if isGeneration27, case .array(let elements)? = context.defaults["KnownApplications27"] {

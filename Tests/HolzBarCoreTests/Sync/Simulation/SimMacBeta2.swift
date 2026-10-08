@@ -75,14 +75,18 @@ struct SimMacBeta2: SimSyncBrain {
 
     /// Decode and re-encode: fill missing fields, drop unknown fields, write the keys in sorted order.
     private static func reencode(_ key: String, _ context: inout SimMacContext) {
-        guard case .data(let bytes)? = context.defaults[key], let rule = rule(for: key),
-              var object = (try? JSONSerialization.jsonObject(with: bytes)) as? [String: Any]
-        else { return }
-        for field in object.keys where !rule.known.contains(field) { object[field] = nil }
-        for (field, value) in rule.defaults where object[field] == nil { object[field] = value }
-        guard let encoded = try? JSONSerialization.data(withJSONObject: object, options: [.sortedKeys]) else { return }
+        guard case .data(let bytes)? = context.defaults[key], let encoded = reencoded(bytes, key: key) else { return }
         context.defaults[key] = .data(encoded)
         context.reportAutomaticWrite(unit: key)
+    }
+
+    /// What the load-time writer makes of the stored value of a key, or `nil` for a value it leaves alone. The redesigned
+    /// build's normalizer of that setting does the same, which is why a load-time rewrite is no change of the user's.
+    static func reencoded(_ bytes: Data, key: String) -> Data? {
+        guard let rule = rule(for: key), var object = (try? JSONSerialization.jsonObject(with: bytes)) as? [String: Any] else { return nil }
+        for field in object.keys where !rule.known.contains(field) { object[field] = nil }
+        for (field, value) in rule.defaults where object[field] == nil { object[field] = value }
+        return try? JSONSerialization.data(withJSONObject: object, options: [.sortedKeys])
     }
 
     // MARK: Fixtures for the values these writers touch

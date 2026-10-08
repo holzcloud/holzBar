@@ -85,10 +85,26 @@ nonisolated enum CatalogueExtraTables {
         hotkeyFamily: Bool = false,
         itemIcons: Bool = false,
         appearance: Bool = false,
-        newer: Bool = false
+        newer: Bool = false,
+        normalizers: SyncNormalizers = .canonical
     ) -> SyncUnitTable {
-        SyncUnitTable(version: 1, descriptors: descriptors(hotkeyFamily: hotkeyFamily, itemIcons: itemIcons, appearance: appearance, newer: newer))
+        SyncUnitTable(
+            version: 1,
+            descriptors: descriptors(hotkeyFamily: hotkeyFamily, itemIcons: itemIcons, appearance: appearance, newer: newer),
+            normalizers: normalizers
+        )
     }
+
+    /// The normalizers of a build that decodes and re-encodes the appearance as the app's models do, which is what
+    /// 0.0.7-beta2's load-time writer does to the stored value: a rewrite at launch then compares equal.
+    static let modelNormalizers = SyncNormalizers(
+        appearance: { value in
+            guard case .data(let data) = value, let encoded = SimMacBeta2.reencoded(data, key: SimMacRedesign.appearanceUnit) else { return nil }
+            return .data(encoded)
+        },
+        itemGroups: SyncNormalizers.canonicalJSON,
+        holzBarIcon: SyncNormalizers.structuralIcon
+    )
 
     /// The build of the older table of a world where a newer build runs next to it: it does not know `future` and refuses
     /// every value of `mode` but `"hidden"` and `"shown"`.
