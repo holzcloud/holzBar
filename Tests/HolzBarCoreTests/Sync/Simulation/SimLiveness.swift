@@ -45,6 +45,10 @@ struct SimDrainConfig: Sendable {
     var fresh: SimMacName? = "Z"
     /// Where the fresh Mac joins and its generation; defaults to the first redesigned Mac's.
     var freshFolder: String?
+    /// Whether the drain answers one open sheet and delivers everything before it looks at the next, as people answer
+    /// one after the other. Off, every open sheet is answered before anything is delivered, which is how two Macs press
+    /// Use for one conflict at the same moment.
+    var answerOneAtATime = false
 
     init() {}
 }
@@ -141,8 +145,8 @@ enum SimDrain {
                 }
             }
             var guardCount = 0
-            while !openSheets(world).isEmpty, guardCount < 8 {
-                for mac in openSheets(world) {
+            while !openSheets(world).isEmpty, guardCount < (config.answerOneAtATime ? 24 : 8) {
+                for mac in config.answerOneAtATime ? Array(openSheets(world).prefix(1)) : openSheets(world) {
                     world.step(.answer(mac: mac, chooseAnswer(config, random: &random, laters: &laters, index: &answerIndex)))
                 }
                 settle(world)

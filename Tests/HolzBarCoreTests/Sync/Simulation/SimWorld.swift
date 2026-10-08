@@ -14,6 +14,8 @@ struct SimMacSpec: Sendable {
     /// A folder the provider keeps on this Mac's disk although sync is not turned on for it: a Mac that is
     /// about to join a folder its user already syncs with the provider.
     var syncedFolder: String?
+    /// Further folders the provider keeps on this Mac's disk (a Mac that is about to change its folder to one of them).
+    var alsoOnDisk: [String] = []
 
     init(
         _ name: SimMacName,
@@ -24,8 +26,10 @@ struct SimMacSpec: Sendable {
         running: Bool = false,
         defaults: [String: SimValue] = [:],
         clockOffsetMilliseconds: Int64 = 0,
-        syncedFolder: String? = nil
+        syncedFolder: String? = nil,
+        alsoOnDisk: [String] = []
     ) {
+        self.alsoOnDisk = alsoOnDisk
         self.name = name
         self.version = version
         self.generation = generation
@@ -144,6 +148,7 @@ final class SimWorld {
             brains[name] = self.brainFactory(spec.version, name)
             clock.setOffset(spec.clockOffsetMilliseconds, of: name)
             if let folder = spec.folder ?? spec.syncedFolder { ensureReplica(of: name, in: folder) }
+            for folder in spec.alsoOnDisk { ensureReplica(of: name, in: folder) }
         }
         groundTruth.holderSource = { [unowned self] in self.holderSnapshot() }
         for spec in specs where spec.running {
