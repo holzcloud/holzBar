@@ -663,12 +663,15 @@ extension SimSafetyOracles {
             guard let introspection = world.introspection(of: hook.mac),
                   let before = step.before[hook.mac]?.report, let own = before.deviceID, let counter = before.ownCounter
             else { continue }
+            // A step that lets time pass can mint a dot and take in a relay that covers it in the same step, so the
+            // counter at the end of the step counts too: only a claim above both is a dot this Mac never minted.
+            let mintedByTheEnd = max(counter, step.after[hook.mac]?.report?.ownCounter ?? counter)
             for version in hook.ingests {
                 guard let path = world.path(ofVersion: version), let data = world.data(ofVersion: version),
-                      let claimed = introspection.claimedCounter(ofDevice: own, inFile: path, data: data), claimed > counter
+                      let claimed = introspection.claimedCounter(ofDevice: own, inFile: path, data: data), claimed > mintedByTheEnd
                 else { continue }
                 if step.after[hook.mac]?.report?.deviceID == own {
-                    return "Mac \(hook.mac) joined \(path), whose context covers its dot \(claimed) beyond its own \(counter), without re-identifying"
+                    return "Mac \(hook.mac) joined \(path), whose context covers its dot \(claimed) beyond its own \(mintedByTheEnd), without re-identifying"
                 }
             }
         }

@@ -259,6 +259,12 @@ nonisolated enum Catalogue {
         SimUnits.value(of: unit, in: world.defaults(of: mac))
     }
 
+    /// A Mac's arrangement of the macOS version its generation names: the entry of the application the scenarios move on
+    /// macOS 27, the entry `ItemSections/Visible` on macOS 26.
+    static func arrangement(_ world: SimWorld, _ mac: SimMacName, generation: Int) -> SimValue? {
+        value(world, mac, generation == 27 ? layoutA : sectionsEntry)
+    }
+
     /// The units the sheets of a Mac have shown so far, in order.
     static func shownUnits(_ world: SimWorld, _ mac: SimMacName? = nil) -> [String] {
         world.allSteps.flatMap(\.prompts).filter { mac == nil || $0.mac == mac }.flatMap { $0.prompt.shown.map(\.unit) }
@@ -318,19 +324,21 @@ nonisolated enum Catalogue {
 
     /// What every scenario with a real 0.0.7-beta1 peer asserts of the redesigned Macs (analysis section 4.8): they
     /// never write the legacy file, a status line (the old-group line) is the only trace of the peer, they show no
-    /// hint, and they opened `sheets` sheets, which the scenario names.
-    static func boundary(_ world: SimWorld, redesigned: [SimMacName], sheets: Int = 0) -> [String] {
+    /// hint (unless the scenario has changes between redesigned Macs that wait, `hints`), and they opened `sheets` sheets,
+    /// which the scenario names (`nil` leaves the count to the scenario).
+    static func boundary(_ world: SimWorld, redesigned: [SimMacName], sheets: Int? = 0, hints: Bool = false) -> [String] {
         var failures: [String] = []
         for mac in redesigned {
-            for write in writes(world, by: mac, path: SimFolderIO.legacyPath) {
+            // Only what the redesigned build wrote counts: a Mac that was on beta1 before its update wrote the file as beta1.
+            for write in writes(world, by: mac, path: SimFolderIO.legacyPath) where write.brainKind == .redesign || write.brainKind == .redesignSkew {
                 failures.append("\(mac) wrote the legacy file \(write.path)")
             }
             let extra = lines(world, mac).filter { $0 != .olderHolzBar }
             if !extra.isEmpty { failures.append("\(mac) shows \(extra) beyond the old-group line") }
-            if let hint = world.brains[mac]?.hint { failures.append("\(mac) shows the hint \"\(hint)\" because of the old peer") }
+            if !hints, let hint = world.brains[mac]?.hint { failures.append("\(mac) shows the hint \"\(hint)\" because of the old peer") }
         }
         let opened = world.allSteps.flatMap(\.prompts).filter { redesigned.contains($0.mac) }.count
-        if opened != sheets { failures.append("\(opened) sheets on the redesigned Macs, expected \(sheets)") }
+        if let sheets, opened != sheets { failures.append("\(opened) sheets on the redesigned Macs, expected \(sheets)") }
         return failures
     }
 
@@ -371,6 +379,8 @@ nonisolated enum Catalogue {
         CatalogueG1Joining.texts,
         CatalogueG2Infrastructure.texts,
         CatalogueG3Generations.texts,
+        CatalogueG4BetaPeers.texts,
+        CatalogueG5Clocks.texts,
     ]
 
     static let a1Texts: [String: CatalogueText] = a1Tables.reduce(into: [:]) { merged, table in merged.merge(table) { first, _ in first } }
@@ -436,9 +446,25 @@ extension SimScenario {
         }
     }
 
+    /// Remembers a Mac's arrangement now.
+    func noteArrangement(_ mac: SimMacName, generation: Int, in box: CatalogueBox<SimValue?>) -> SimScenario {
+        perform("note the arrangement of \(mac)") { world in
+            box.value = Catalogue.arrangement(world, mac, generation: generation)
+            return []
+        }
+    }
+
+    /// The Mac's arrangement is what `box` holds (a value noted earlier, or the one a scenario knows).
+    func expectArrangement(_ mac: SimMacName, generation: Int, is box: CatalogueBox<SimValue?>) -> SimScenario {
+        expect("\(mac) keeps its arrangement") { world in
+            let held = Catalogue.arrangement(world, mac, generation: generation)
+            return held == box.value ? nil : "\(mac) holds \(held?.canonical ?? "nothing"), expected \(box.value?.canonical ?? "nothing")"
+        }
+    }
+
     /// The beta1 boundary holds for the redesigned Macs; `sheets` is how many sheets they opened.
-    func expectBoundary(redesigned: [SimMacName], sheets: Int = 0) -> SimScenario {
-        perform("beta1 boundary") { Catalogue.boundary($0, redesigned: redesigned, sheets: sheets) }
+    func expectBoundary(redesigned: [SimMacName], sheets: Int? = 0, hints: Bool = false) -> SimScenario {
+        perform("beta1 boundary") { Catalogue.boundary($0, redesigned: redesigned, sheets: sheets, hints: hints) }
     }
 
     /// The Mac shows the old-group status line, or not.
