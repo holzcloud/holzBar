@@ -315,6 +315,26 @@ nonisolated extension SyncEngine {
         return true
     }
 
+    /// Whether an answer may write for the row: it supersedes dots only, never a unit that stays
+    /// on this Mac (local-only), is mapped to another key here (aliased) or holds a value this
+    /// build cannot use (not applicable).
+    private static func isAnswerable(_ row: SyncRow, state: SyncState, snapshot: SyncSnapshot, environment: SyncEnvironment) -> Bool {
+        var units = [row.unit]
+        if case .clash(let partner) = row.style {
+            units.append(partner)
+        }
+        for unit in units {
+            guard
+                state.localOnly[unit] == nil,
+                !snapshot.aliased.contains(unit),
+                environment.table.isApplicableHere(unit, generation: environment.generation)
+            else {
+                return false
+            }
+        }
+        return row.folder.allSatisfy { SyncJoin.isUsable($0.value, key: row.unit, table: environment.table) }
+    }
+
     /// The entries an answer writes, with their effect on `state`.
     ///
     /// - Returns: `nil` when the answer is refused: a row that needs a choice has none.
@@ -327,7 +347,9 @@ nonisolated extension SyncEngine {
         let table = environment.table
         let question = request.question
         // A row decided elsewhere (its shown dots are gone) is left out of the answer.
-        let rows = question.rows.filter { isCurrent($0, question: question, state: state) }
+        let rows = question.rows.filter {
+            isCurrent($0, question: question, state: state) && isAnswerable($0, state: state, snapshot: snapshot, environment: environment)
+        }
         for row in rows {
             switch row.style {
             case .multi, .bystander:
