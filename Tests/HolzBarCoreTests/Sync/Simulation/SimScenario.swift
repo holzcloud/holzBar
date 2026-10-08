@@ -29,6 +29,8 @@ struct SimScenario {
         case deliverAll
         case checkpoint
         case expect(SimExpectation)
+        /// A free step: it may drive the world (settle, relaunch) or read it, and returns one text per failure.
+        case perform(String, (SimWorld) -> [String])
     }
 
     var name: String
@@ -117,6 +119,9 @@ struct SimScenario {
     func expectFolderFiles(_ paths: [String], mac: SimMacName = .A) -> SimScenario { add(.expect(.folderFiles(mac: mac, paths: paths))) }
     func expectNoViolation(_ ids: [SimInvariantID]? = nil) -> SimScenario { add(.expect(.noViolation(ids))) }
 
+    /// A free step: `body` drives or reads the world and returns a text for every failed expectation.
+    func perform(_ label: String, _ body: @escaping (SimWorld) -> [String]) -> SimScenario { add(.perform(label, body)) }
+
     // MARK: Running
 
     /// The events of the scenario, in order.
@@ -137,6 +142,8 @@ struct SimScenario {
                 SimDrain.settle(world)
             case .checkpoint:
                 checkpointWrites = world.writeLog.count
+            case .perform(let label, let body):
+                for text in body(world) { fail("\(label): \(text)") }
             case .expect(let expectation):
                 switch expectation {
                 case .value(let mac, let unit, let expected):

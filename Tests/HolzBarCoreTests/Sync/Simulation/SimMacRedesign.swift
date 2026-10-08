@@ -279,6 +279,9 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
 
     var openPrompt: SimPrompt? { prompt }
 
+    /// The status lines the app shows in Settings.
+    var statusLines: [SyncStatusLine] { cachedView.lines }
+
     var heldTokens: Set<String> { cachedHeld }
 
     // MARK: Running the engine
