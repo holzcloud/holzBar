@@ -76,8 +76,68 @@ nonisolated enum Catalogue {
     static let sections = "ItemSections"
     static let sectionsEntry = "ItemSections/Visible"
 
+    /// The custom icon, a unit of its own with the cap of the real table (256 KiB).
+    static let icon = "HolzBarIcon"
+    /// Units that take values of hundreds of KiB, so that a few of them make a file over the 1 MiB limit.
+    static let pads = ["Pad1", "Pad2", "Pad3"]
+
     static let wholeUnits = [hover, shelf, menus, spacing, rehide]
-    static let table = SimEngineUnits.table(wholeUnits: wholeUnits)
+
+    /// The unit table of the catalogue: the real names of the settings the beta1 peer's file carries, the icon with its
+    /// cap, three units with a large cap, one split family of hotkeys and the macOS 27 families, scoped as in the app.
+    /// A hotkey is usable when it is a dictionary with a whole `combo`, an entry of `l27` when it is a section number.
+    static let table = makeTable(strict: true)
+
+    /// The same table of a build that accepts every value, which is how a value another build wrote can be unusable here
+    /// (S-12).
+    static let laxTable = makeTable(strict: false)
+
+    private static func makeTable(strict: Bool) -> SyncUnitTable {
+        var descriptors = wholeUnits.map { descriptor($0, cap: 1 << 10) }
+        descriptors.append(descriptor(icon, cap: 256 << 10))
+        descriptors += pads.map { descriptor($0, cap: 600 << 10) }
+        descriptors.append(descriptor(SimEngineUnits.family, cap: 4 << 10, family: true) { _, value in
+            if !strict { return true }
+            if case .integer? = value.dictionaryValue?["combo"] { return true }
+            return false
+        })
+        descriptors.append(descriptor(SyncUnitTable.layout27Family, cap: 1 << 10, family: true, scope: .g27) { _, value in
+            if !strict { return true }
+            if case .integer = value { return true }
+            if case .integer? = value.dictionaryValue?["section"] { return true }
+            return false
+        })
+        descriptors.append(descriptor(SyncUnitTable.profilesFamily, cap: 64 << 10, family: true, scope: .g27))
+        descriptors.append(descriptor(SyncUnitTable.knownApplicationsSet, cap: 0, scope: .g27, isSet: true))
+        return SyncUnitTable(version: 1, descriptors: descriptors)
+    }
+
+    private static func descriptor(
+        _ name: String,
+        cap: Int,
+        family: Bool = false,
+        scope: SyncGeneration? = nil,
+        isSet: Bool = false,
+        validate: @escaping @Sendable (String?, SyncValue) -> Bool = { _, _ in true }
+    ) -> SyncUnitDescriptor {
+        SyncUnitDescriptor(
+            name: name,
+            storedKeys: [],
+            cap: cap,
+            maximumItems: family ? SyncDeviceFile.maximumEntriesPerFamily : nil,
+            scope: scope,
+            isSet: isSet,
+            isFamily: family,
+            measure: { $0.encodedSize },
+            validate: validate
+        )
+    }
+
+    /// A value of about `bytes` bytes that still carries the token of its unit: JSON as the icon and the large units hold.
+    static func big(_ k: Int, _ unit: String, bytes: Int) -> SimValue {
+        let json = "{\"token\":\"u\(k)@\(unit)\",\"pad\":\"\(String(repeating: "x", count: bytes))\"}"
+        return .data(Data(json.utf8))
+    }
 
     /// The user's value number `k` of a unit (the world's own counter starts at 1, so scenarios that name their
     /// values use these and never `edit` without a value on the same unit).
@@ -106,7 +166,8 @@ nonisolated enum Catalogue {
     /// Which brain a Mac of a build gets: the real engine on this catalogue's unit table, the real beta1 peer.
     static func brain(_ version: SimMacVersion, _ mac: SimMacName) -> any SimSyncBrain {
         switch version {
-        case .redesign, .redesignSkew: SimMacRedesign(table: table)
+        case .redesign: SimMacRedesign(table: table)
+        case .redesignSkew: SimMacRedesign(table: laxTable)
         case .beta1: SimMacBeta1()
         case .beta2: SimMacBeta2()
         }
@@ -238,6 +299,16 @@ nonisolated enum Catalogue {
         return state.replica.live(key).compactMap(\.value).compactMap { SimValue(sync: $0) }
     }
 
+    /// Whether the sync folder could be used at a redesigned Mac's last read.
+    static func availability(_ world: SimWorld, _ mac: SimMacName) -> SyncFolderAvailability? {
+        (world.brains[mac] as? SimMacRedesign)?.folderAvailability
+    }
+
+    /// The launch hooks a Mac ran, in order.
+    static func launchHooks(_ world: SimWorld, _ mac: SimMacName) -> [SimHookRecord] {
+        world.allSteps.flatMap(\.hooks).filter { $0.mac == mac && $0.name == .launch }
+    }
+
     /// The status lines a redesigned Mac shows.
     static func lines(_ world: SimWorld, _ mac: SimMacName) -> [SyncStatusLine] {
         (world.brains[mac] as? SimMacRedesign)?.statusLines ?? []
@@ -298,6 +369,8 @@ nonisolated enum Catalogue {
     /// Every table of A1 texts; plans 28-11 and 28-12 add theirs here.
     static let a1Tables: [[String: CatalogueText]] = [
         CatalogueG1Joining.texts,
+        CatalogueG2Infrastructure.texts,
+        CatalogueG3Generations.texts,
     ]
 
     static let a1Texts: [String: CatalogueText] = a1Tables.reduce(into: [:]) { merged, table in merged.merge(table) { first, _ in first } }
@@ -379,6 +452,63 @@ extension SimScenario {
     func expectKey(_ mac: SimMacName, _ key: String, _ value: SimValue?) -> SimScenario {
         expect("\(mac) \(key)") { world in
             world.defaults(of: mac)[key] == value ? nil : "\(mac) holds \(world.defaults(of: mac)[key]?.canonical ?? "nothing") at \(key), expected \(value?.canonical ?? "nothing")"
+        }
+    }
+}
+
+// MARK: - Provider events on a Mac's own file
+
+/// A value a scenario step writes and a later step reads.
+final class CatalogueBox<Value> {
+    var value: Value
+
+    init(_ value: Value) { self.value = value }
+}
+
+extension SimScenario {
+    /// The provider events below name a file by its owner: the ID of a redesigned Mac is only known once it runs.
+    private func providerEvent(_ label: String, _ owner: SimMacName, _ make: @escaping (String) -> SimProviderEvent) -> SimScenario {
+        perform(label) { world in
+            guard let path = Catalogue.ownPath(world, owner) else { return ["\(owner) has no device file yet"] }
+            world.step(.provider(make(path)))
+            return []
+        }
+    }
+
+    /// The file of `owner` becomes a dataless placeholder on `mac` (Optimize Storage, Files On-Demand).
+    func evictFile(of owner: SimMacName, on mac: SimMacName) -> SimScenario {
+        providerEvent("evict the file of \(owner) on \(mac)", owner) { .evict(path: $0, mac: mac) }
+    }
+
+    /// The file of `owner` is deleted everywhere.
+    func deleteFile(of owner: SimMacName) -> SimScenario {
+        providerEvent("delete the file of \(owner)", owner) { .delete(path: $0) }
+    }
+
+    /// Another app puts bytes of `kind` where the file of `owner` is.
+    func foreignFile(of owner: SimMacName, _ kind: SimForeignKind) -> SimScenario {
+        providerEvent("put \(kind.rawValue) bytes over the file of \(owner)", owner) { .foreign(path: $0, kind: kind) }
+    }
+
+    /// Remembers how many times `owner` has written its file so far (the version a sync app could restore later).
+    func markFile(of owner: SimMacName, in box: CatalogueBox<Int>) -> SimScenario {
+        perform("mark the file of \(owner)") { world in
+            guard let path = Catalogue.ownPath(world, owner) else { return ["\(owner) has no device file yet"] }
+            box.value = Catalogue.writes(world, by: owner, path: path).count - 1
+            return []
+        }
+    }
+
+    /// Puts the file of `owner` back to the write that `box` marked, as a sync app restoring an old version would.
+    func restoreFile(of owner: SimMacName, to box: CatalogueBox<Int>) -> SimScenario {
+        perform("restore the file of \(owner)") { world in
+            guard let path = Catalogue.ownPath(world, owner) else { return ["\(owner) has no device file yet"] }
+            let writes = Catalogue.writes(world, by: owner, path: path)
+            guard box.value >= 0, box.value < writes.count, let version = writes[box.value].version else {
+                return ["no marked write of \(owner) to restore"]
+            }
+            world.step(.provider(.restore(path: path, version: version)))
+            return []
         }
     }
 }

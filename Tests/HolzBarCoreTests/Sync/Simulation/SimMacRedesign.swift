@@ -282,6 +282,9 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     /// The status lines the app shows in Settings.
     var statusLines: [SyncStatusLine] { cachedView.lines }
 
+    /// Whether the sync folder could be used at the last read, while the app runs.
+    var folderAvailability: SyncFolderAvailability? { live?.session.availability }
+
     var heldTokens: Set<String> { cachedHeld }
 
     // MARK: Running the engine
