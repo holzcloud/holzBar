@@ -515,6 +515,34 @@ struct Layout27Tests {
         #expect(handle(userSet([intent]), held).state.localOrigin[bundleA] == nil)
     }
 
+    @Test("A move made while sync is off is a present value of the user's: the plan asks where the group moved on")
+    func moveWhileOffIsAPresentValue() throws {
+        // The group's newer section is waiting, this Mac applied the older one, and the user moves the app while sync is off.
+        let older = entry(macB, 1, .integer(1))
+        let newer = entry(macB, 2, .integer(2))
+        var held = state([bundleA: [newer]], local: [bundleA: .integer(0)])
+        held.isEnabled = false
+        held.applied[bundleA] = [older.dot]
+        let intent = try #require(SyncLayout27.moveIntent(bundleID: "com.a", from: .integer(1), to: .integer(0)))
+        let step = handle(userSet([intent]), held)
+        // Nothing is minted while sync is off, and the value is marked as the user's.
+        #expect(step.state.replica == held.replica)
+        #expect(step.state.localOrigin[bundleA] == .preexisting)
+        // With sync on again the plan asks about it instead of replacing it at Restart.
+        var again = step.state
+        again.isEnabled = true
+        #expect(plan(again).outcomes[bundleA] == .preRow)
+        #expect(plan(again).fastForwardPayloads[bundleA] == nil)
+    }
+
+    @Test("A move made while sync is off by a Mac that does not author the unit marks nothing")
+    func moveWhileOffOnMacOS26MarksNothing() throws {
+        var held = state()
+        held.isEnabled = false
+        let intent = try #require(SyncLayout27.moveIntent(bundleID: "com.a", from: .integer(0), to: .integer(1)))
+        #expect(handle(userSet([intent]), held, .g26).state.localOrigin.isEmpty)
+    }
+
     @Test("The macOS generation of the last launch round-trips through Sigma and is absent in older files")
     func systemGenerationRoundTrips() throws {
         for generation in [SyncGeneration?.none, .g26, .g27] {

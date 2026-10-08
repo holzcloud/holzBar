@@ -175,6 +175,14 @@ nonisolated extension SyncEngine {
             draft.state.localOrigin[change.unit] = nil
         }
         guard draft.state.isEnabled || draft.state.pendingJoin != nil else {
+            // Sync is off: nothing is minted, but what the user set is a value of theirs that was there before the
+            // next join. The join asks about it where the group differs and publishes it where the group has none
+            // (D-10); without the mark a group that moved on meanwhile would replace it silently at Restart.
+            for change in intents where !change.isNoChange && environment.table.isAuthoredHere(change.unit, generation: environment.generation) {
+                if case .value = change.to {
+                    draft.state.localOrigin[change.unit] = .preexisting
+                }
+            }
             return
         }
         draft.state.session.queuedIntents += intents
