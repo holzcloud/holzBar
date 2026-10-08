@@ -248,6 +248,43 @@ struct Layout27Tests {
         #expect(view(held).hint == nil)
     }
 
+    @Test("A value over an applied entry that the state marked as the user's is asked about, never taken for holzBar's own store")
+    func markedValueOverAppliedEntryIsAsked() {
+        let mine = entry(macB, 1, .integer(1))
+        var held = state([bundleA: [mine]], local: [bundleA: .integer(2)])
+        held.applied[bundleA] = [mine.dot]
+        held.localOrigin[bundleA] = .preexisting
+        #expect(plan(held).outcomes[bundleA] == .preRow)
+        #expect(view(held).hint == .choose)
+    }
+
+    @Test("An intent that cannot be minted yet is marked as the user's value, and a minted one leaves no mark")
+    func queuedIntentIsMarked() throws {
+        let intent = try #require(SyncLayout27.moveIntent(bundleID: "com.a", from: .integer(0), to: .integer(1)))
+        // The state cannot mint yet: the intent waits in the session, which a crash would lose, and the unit is marked.
+        var waiting = state()
+        waiting.session.isTrusted = false
+        let queued = handle(userSet([intent]), waiting)
+        #expect(queued.state.session.queuedIntents.count == 1)
+        #expect(queued.state.localOrigin[bundleA] == .preexisting)
+        #expect(queued.state.replica.live(bundleA).isEmpty)
+        // A state that can mint writes the entry at once and leaves no mark.
+        var trusted = state()
+        trusted.session.isTrusted = true
+        let minted = handle(userSet([intent]), trusted)
+        #expect(minted.state.replica.live(bundleA).count == 1)
+        #expect(minted.state.localOrigin[bundleA] == nil)
+    }
+
+    @Test("A change of a key that does not sync schedules no capture, a change of a synced value does")
+    func unchangedSnapshotSchedulesNothing() {
+        let held = state([:], local: [Fixtures.s1: .string("same")])
+        let sameValues = SyncSnapshot(values: [Fixtures.s1: .string("same")])
+        #expect(!schedules(handle(.defaultsChanged(sameValues), held), .capture))
+        let changed = SyncSnapshot(values: [Fixtures.s1: .string("other")])
+        #expect(schedules(handle(.defaultsChanged(changed), held), .capture))
+    }
+
     // MARK: Generation scope
 
     @Test("A macOS 26 Mac relays the macOS 27 families and neither compares, shows nor applies them")

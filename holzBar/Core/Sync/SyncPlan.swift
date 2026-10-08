@@ -129,7 +129,7 @@ nonisolated struct SyncPlan: Sendable {
                 outcomes[key] = .equal
             } else if case .value(let value) = payload, !descriptor.validate(key.itemName, value) || descriptor.isOverCap(value) {
                 outcomes[key] = .notApplicable
-            } else if SyncLayout27.isIntentCaptured(key), Set(live.map(\.dot)).isSubset(of: state.applied[key] ?? []) {
+            } else if SyncLayout27.isIntentCaptured(key), state.localOrigin[key] != .preexisting, Set(live.map(\.dot)).isSubset(of: state.applied[key] ?? []) {
                 // This Mac applied the entry: a local value that differs is holzBar's own store (a profile
                 // bound to a Space, a displaced item), never a change of another Mac, so nothing waits (D-04).
                 outcomes[key] = .equal

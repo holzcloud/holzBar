@@ -450,10 +450,13 @@ nonisolated enum SyncEngine {
             let previous = draft.state.session.snapshot
             draft.state.session.snapshot = snapshot
             if state.isEnabled {
-                // A change that only learned applications waits for the hour; anything else is
-                // captured and published as before.
-                if let previous, previous.values == snapshot.values, previous.known27 != snapshot.known27 {
-                    learnKnownApplications(&draft, environment: environment)
+                // A change that only learned applications waits for the hour; a change of a key that does not
+                // sync (a learned list, a flag, a window frame) has nothing to capture and must not postpone the
+                // capture of a user's change that is waiting; anything else is captured and published as before.
+                if let previous, previous.values == snapshot.values, previous.aliased == snapshot.aliased {
+                    if previous.known27 != snapshot.known27 {
+                        learnKnownApplications(&draft, environment: environment)
+                    }
                 } else {
                     draft.effects.append(.schedule(.capture, after: SyncTimer.capture.delay))
                 }
