@@ -27,6 +27,10 @@ nonisolated enum SyncUnitOutcome: Hashable, Sendable {
     case aliased
     /// A value that was here before sync and the group has none: published as this Mac's entry.
     case publishPreexisting
+    /// A unit of a family this Mac neither authors nor applies (the macOS 27 families on macOS 26):
+    /// it stays in the replica and in the file byte for byte, and never reaches the hint, the
+    /// questions or the status lines.
+    case relayOnly
 }
 
 /// Hotkey units that cannot all apply because they would share a key combination.
@@ -92,7 +96,11 @@ nonisolated struct SyncPlan: Sendable {
         var outcomes: [SyncUnitKey: SyncUnitOutcome] = [:]
         var payloads: [SyncUnitKey: SyncPayload] = [:]
         for key in keys.sorted() {
-            guard let descriptor = table.descriptor(for: key), !descriptor.isSet, table.isApplicableHere(key, generation: environment.generation) else {
+            guard let descriptor = table.descriptor(for: key), !descriptor.isSet else {
+                continue
+            }
+            guard table.isApplicableHere(key, generation: environment.generation) else {
+                outcomes[key] = .relayOnly
                 continue
             }
             if snapshot.aliased.contains(key) {
@@ -110,9 +118,10 @@ nonisolated struct SyncPlan: Sendable {
             let values = state.replica.distinctValues(key)
             guard values.count == 1 else {
                 // This Mac takes part when it minted one of the values, or holds one of them as
-                // its applied value (it adopted a sibling at a join).
+                // its applied value (it adopted a sibling at a join). An applied deletion is no value
+                // its user ever saw, so it makes this Mac no party.
                 let applied = Set(state.applied[key] ?? [])
-                outcomes[key] = .conflict(mine: live.contains { state.isOwn($0.dot.mac) || applied.contains($0.dot) })
+                outcomes[key] = .conflict(mine: live.contains { state.isOwn($0.dot.mac) || (applied.contains($0.dot) && $0.payload != .deleted) })
                 continue
             }
             let payload = values[0]
@@ -120,6 +129,10 @@ nonisolated struct SyncPlan: Sendable {
                 outcomes[key] = .equal
             } else if case .value(let value) = payload, !descriptor.validate(key.itemName, value) || descriptor.isOverCap(value) {
                 outcomes[key] = .notApplicable
+            } else if SyncLayout27.isIntentCaptured(key), Set(live.map(\.dot)).isSubset(of: state.applied[key] ?? []) {
+                // This Mac applied the entry: a local value that differs is holzBar's own store (a profile
+                // bound to a Space, a displaced item), never a change of another Mac, so nothing waits (D-04).
+                outcomes[key] = .equal
             } else if state.localOnly[key] != nil {
                 outcomes[key] = .protectedLocalOnly
             } else if local != nil, state.localOrigin[key] == .preexisting {

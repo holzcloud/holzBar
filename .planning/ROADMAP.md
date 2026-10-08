@@ -570,7 +570,7 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
 | 25. Control Center control | 0/3 | Planned (optional; go/no-go spike) | - |
 | 26. Swift 6.4 adoption | 0/3 | Planned | - |
 | 27. Release 0.0.7-beta1 | 0/2 | Planned | - |
-| 28. Settings sync redesign | 8/18 | In Progress|  |
+| 28. Settings sync redesign | 9/18 | In Progress|  |
 
 ### Phase 28: Settings sync redesign
 
@@ -585,7 +585,7 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
   5. Only user actions create synced entries; holzBar's placements, seeding, learned keys and flags never sync or cause a question
   6. `SettingsSyncPause.isPaused` is false and its test updated; docs, release notes `v0.0.7-beta3.md` and the five String Catalogs are current; CI is green
 
-**Plans:** 8/18 plans executed in 12 waves (1/18 executed); gate G1 (simulator and mutation gate) is plan 28-13, and every plan that touches the app depends on it
+**Plans:** 9/18 plans executed in 12 waves (1/18 executed); gate G1 (simulator and mutation gate) is plan 28-13, and every plan that touches the app depends on it
 
 Plans:
 - [x] 28-01-PLAN.md — Wave 1: Core data model (dots, contexts, replica join, device-file and state codecs, read-only legacy reader); SYNC-R01 to SYNC-R10 recorded in REQUIREMENTS.md
@@ -596,7 +596,7 @@ Plans:
 - [x] 28-06-PLAN.md — Wave 2: oracles, liveness drain, metamorphic pairs, generator, shrinker, scenario DSL, two control engines
 - [x] 28-07-PLAN.md — Wave 3: engine core: `SyncEngine.handle`, capture by normalized diff, plan, merge, publish; the real engine in the simulator
 - [x] 28-08-PLAN.md — Wave 4: engine lifecycle: launch trust checks, join and founding, question and answers, Turn Off and On, four engine-variant control engines
-- [ ] 28-09-PLAN.md — Wave 5: macOS 27 families in the engine (`l27`, `prof`, known applications), intent capture, layout oracles
+- [x] 28-09-PLAN.md — Wave 5: macOS 27 families in the engine (`l27`, `prof`, known applications), intent capture, layout oracles
 - [ ] 28-10-PLAN.md — Wave 6: A1 catalogue S-01 to S-33 as fixed tests, with macOS 27 arrangement forms and the beta1 boundary
 - [ ] 28-11-PLAN.md — Wave 7: A1 catalogue S-34 to S-70 as fixed tests, and the coverage test
 - [ ] 28-12-PLAN.md — Wave 7: D3, judge and A2 scenarios, version skew, same-ID installations, A2 mapping

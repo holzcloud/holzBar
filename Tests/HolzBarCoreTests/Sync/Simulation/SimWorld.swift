@@ -799,7 +799,9 @@ final class SimWorld {
             entries["token"] = mintUserToken(unit: unit)
             change(mac, origin: .user, units: [unit]) { SimUnits.set(unit, to: .dictionary(entries), in: &$0) }
         case .deleteProfile(let mac, let profile):
+            // Only a Mac of macOS 27 has profiles of the macOS 27 family, and only a profile that exists can be deleted.
             let unit = "prof/\(profile)"
+            guard macs[mac]?.generation == 27, let defaults = macs[mac]?.defaults, SimUnits.value(of: unit, in: defaults) != nil else { return }
             change(mac, origin: .user, units: [unit]) { SimUnits.set(unit, to: nil, in: &$0) }
         default:
             break
@@ -827,6 +829,11 @@ final class SimWorld {
         var newValues: [(String, SimValue)] = []
         for bundle in target.keys.sorted() where current[bundle] != target[bundle] {
             let unit = "l27/\(bundle)"
+            // A profile bound to a Space or display is an automatic store, and an automatic store never
+            // overwrites an entry the user made (D-04).
+            if !byUser, let held = SimUnits.value(of: unit, in: macs[mac]!.defaults), held.tokens.contains(where: { groundTruth.origin(of: $0) == .user }) {
+                continue
+            }
             let token = byUser ? mintUserToken(unit: unit) : mintAutoToken(mac: mac)
             newValues.append((unit, .dictionary(["section": target[bundle]!, "token": token])))
             changed.append(unit)

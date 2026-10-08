@@ -15,6 +15,8 @@ nonisolated enum SyncWriteTrigger: Hashable, Sendable {
     case healing
     /// The app quits.
     case quit
+    /// An hour after this Mac learned an application.
+    case learned
 }
 
 /// Why nothing is written.

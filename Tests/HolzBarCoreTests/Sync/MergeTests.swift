@@ -519,6 +519,7 @@ struct MergeTests {
             case .storeIdentity: "identity"
             case .commitFolder: "commit"
             case .forgetFolder: "forget"
+            case .applyKnownApplications: "known"
             }
         }
     }

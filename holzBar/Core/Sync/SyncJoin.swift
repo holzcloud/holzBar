@@ -47,22 +47,43 @@ nonisolated enum SyncJoin {
     ///   - local: This Mac's value, `nil` when the key is absent.
     ///   - folder: The distinct values the folder holds for the unit.
     ///   - legacy: The legacy file's value, used only when the folder holds none (founding).
-    static func preview(unit key: SyncUnitKey, local: SyncValue?, folder: [SyncPayload], legacy: SyncValue?, environment: SyncEnvironment) -> SyncJoinPreview {
+    ///   - hasValue: Whether this Mac has a value of its own to protect. It is `local != nil` unless
+    ///     the value is the visible section an absent `l27` entry reads as, or one holzBar placed
+    ///     itself after an upgrade to macOS 27 (``SyncLayout27/noteSystemGeneration(_:snapshot:environment:)``).
+    static func preview(
+        unit key: SyncUnitKey,
+        local: SyncValue?,
+        folder: [SyncPayload],
+        legacy: SyncValue?,
+        hasValue: Bool? = nil,
+        environment: SyncEnvironment
+    ) -> SyncJoinPreview {
+        let hasValue = hasValue ?? (local != nil)
         let values: [SyncPayload] = folder.isEmpty ? (legacy.map { [.value($0)] } ?? []) : folder
         guard !values.isEmpty else {
-            return local == nil ? .nothing : .publish
+            return hasValue ? .publish : .nothing
         }
         let isEqual = values.contains { SyncCapture.matches($0, local: local, key: key, table: environment.table) }
         if values.count == 1 {
             if isEqual {
                 return .adopt
             }
-            return local == nil ? .fastForward : .row
+            return hasValue ? .row : .fastForward
         }
         if isEqual {
             return .adoptSibling
         }
-        return local == nil ? .bystander : .multiRow
+        return hasValue ? .multiRow : .bystander
+    }
+
+    /// Whether this Mac holds a value of `key` that is its own: a value in the defaults, and for
+    /// the macOS 27 families one that holzBar did not place itself (an absent `l27` entry is the
+    /// visible section, which is no value to protect, D-04).
+    static func hasOwnValue(_ key: SyncUnitKey, snapshot: SyncSnapshot, origins: [SyncUnitKey: SyncLocalOrigin]) -> Bool {
+        guard SyncLayout27.isIntentCaptured(key) else {
+            return snapshot.values[key] != nil
+        }
+        return snapshot.values[key] != nil && origins[key] != .automatic
     }
 
     /// The overall state of a read: the join waits while files are not read, and cannot go on
@@ -144,7 +165,7 @@ nonisolated enum SyncJoin {
             let plan = SyncPlan.plan(state: tentative, snapshot: snapshot, environment: environment)
             rows = SyncRows.running(state: tentative, plan: plan, snapshot: snapshot, environment: environment)
         } else {
-            rows = dotlessRows(replica: pending.replica, snapshot: snapshot, legacy: pending.legacy, environment: environment)
+            rows = dotlessRows(replica: pending.replica, snapshot: snapshot, legacy: pending.legacy, origins: state.localOrigin, environment: environment)
         }
         if let restrictedTo {
             rows = rows.filter { restrictedTo.contains($0.unit) }
@@ -158,7 +179,13 @@ nonisolated enum SyncJoin {
 
     /// The rows of a join with dot-less local values: the previews that ask, and the hotkeys
     /// that would share a key combination if the folder's value applied.
-    private static func dotlessRows(replica: SyncReplica, snapshot: SyncSnapshot, legacy: SyncPendingLegacy?, environment: SyncEnvironment) -> [SyncRow] {
+    private static func dotlessRows(
+        replica: SyncReplica,
+        snapshot: SyncSnapshot,
+        legacy: SyncPendingLegacy?,
+        origins: [SyncUnitKey: SyncLocalOrigin],
+        environment: SyncEnvironment
+    ) -> [SyncRow] {
         let table = environment.table
         var rows: [SyncRow] = []
         var incoming: [SyncUnitKey: SyncPayload] = [:]
@@ -178,7 +205,8 @@ nonisolated enum SyncJoin {
             guard localOnlyReason(local, key: key, table: table) == nil, folder.allSatisfy({ isUsable($0, key: key, table: table) }) else {
                 continue
             }
-            switch preview(unit: key, local: local, folder: folder, legacy: legacy?.units[key], environment: environment) {
+            let hasValue = hasOwnValue(key, snapshot: snapshot, origins: origins)
+            switch preview(unit: key, local: local, folder: folder, legacy: legacy?.units[key], hasValue: hasValue, environment: environment) {
             case .row:
                 rows.append(SyncRow(unit: key, local: SyncRows.local(key, snapshot: snapshot, environment: environment), folder: folderValues(key), style: .twoWay))
             case .multiRow:
@@ -213,6 +241,9 @@ nonisolated enum SyncJoin {
         environment: SyncEnvironment
     ) {
         let table = environment.table
+        // What holzBar placed itself after an upgrade is no value of the user's (INV-L6); the rest of
+        // the old bookkeeping is no evidence of anything.
+        let origins = state.localOrigin
         state.applied = [:]
         state.baseline = [:]
         state.localOnly = [:]
@@ -233,17 +264,21 @@ nonisolated enum SyncJoin {
                 state.localOrigin[key] = .preexisting
                 continue
             }
+            let hasValue = hasOwnValue(key, snapshot: snapshot, origins: origins)
+            if SyncLayout27.isIntentCaptured(key), origins[key] == .automatic, snapshot.values[key] != nil {
+                state.localOrigin[key] = .automatic
+            }
             let live = state.replica.live(key)
             let folder = state.replica.distinctValues(key)
             guard folder.allSatisfy({ isUsable($0, key: key, table: table) }) else {
                 continue
             }
             let legacyValue = legacy?.units[key]
-            switch preview(unit: key, local: local, folder: folder, legacy: legacyValue, environment: environment) {
+            switch preview(unit: key, local: local, folder: folder, legacy: legacyValue, hasValue: hasValue, environment: environment) {
             case .adopt, .adoptSibling:
                 if live.isEmpty {
                     // A value of the legacy file becomes this Mac's entry.
-                    if let local {
+                    if let local, hasValue {
                         SyncCapture.mint(key, payload: .value(local), digest: local.digest, state: &state, environment: environment)
                     }
                 } else {
@@ -287,6 +322,7 @@ nonisolated extension SyncEngine {
     /// changed on both sides are asked about.
     static func startJoin(_ folder: SyncFolderIdentity, isChange: Bool, _ draft: inout SyncDraft, environment: SyncEnvironment) {
         draft.state.session.waitingFiles = 0
+        noteUpgrade(&draft, environment: environment)
         // Capture runs once, before the join: while it waits nothing is minted, because what it reads and
         // shows is decided against the state as it is now.
         capture(&draft, environment: environment)
@@ -301,6 +337,15 @@ nonisolated extension SyncEngine {
         pending.wasTrusted = draft.state.session.isTrusted
         draft.state.pendingJoin = pending
         draft.effects.append(.readFolder(readRequest(.join, draft.state)))
+    }
+
+    /// A join after an upgrade from macOS 26 to 27 treats what holzBar copied or seeded as no value of
+    /// the user's. The launch records the generation first; this covers a join that comes without one.
+    private static func noteUpgrade(_ draft: inout SyncDraft, environment: SyncEnvironment) {
+        guard draft.state.systemGeneration != environment.generation else {
+            return
+        }
+        SyncLayout27.noteSystemGeneration(&draft.state, snapshot: draft.state.session.snapshot ?? SyncSnapshot(), environment: environment)
     }
 
     /// Cancel: the tentative state is discarded and nothing is written. After Turn On… sync
@@ -320,6 +365,7 @@ nonisolated extension SyncEngine {
             return
         }
         draft.state.session.availability = read.availability
+        noteUpgrade(&draft, environment: environment)
         if case .refused? = SyncJoin.overall(of: read, waiting: 0) {
             // Not found or not usable: the join goes on at the next trigger, or the user cancels.
             draft.state.session.waitingFiles = 0
