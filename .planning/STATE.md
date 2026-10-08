@@ -4,11 +4,11 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: Completed 28-10-PLAN.md
-last_updated: "2026-10-08T09:08:40.637Z"
+stopped_at: Completed 28-11-PLAN.md
+last_updated: "2026-10-08T09:41:56.226Z"
 last_activity: 2026-10-07
 last_activity_desc: 0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded
-state_head: 28de59b4a9f753344880243e5e3d44c2653c9185
+state_head: 3f9b67750483cd3ef9a7e2e026a9c9b7c3652bf2
 progress:
   total_phases: 33
   completed_phases: 13
@@ -95,6 +95,7 @@ Progress: [█████████████░░░░░░░░░░
 | Phase 28 P08 | 4h | 3 tasks | 23 files |
 | Phase 28 P09 | not measured | 3 tasks | 20 files |
 | Phase 28 P10 | one run | 3 tasks | 11 files |
+| Phase 28 P11 | one run | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -190,6 +191,8 @@ Recent decisions affecting current work:
 - [Phase 28]: 28-09: known27 is a silent union (learned timer of one hour, applied at launch and Restart only); the upgrade from macOS 26 to 27 marks seeded entries automatic via SyncState.systemGeneration
 - [Phase 28]: 28-10: an intent of the macOS 27 families that arrives while sync is off marks the unit as the user's present value, so the next join asks about it
 - [Phase 28]: 28-10: a catalogue BOUNDARY scenario counts only the legacy-file writes of the redesigned build and runs on generation-26 and generation-27 Macs inside one scenario id
+- [Phase 28]: 28-11: the answer takes in every non-conflicting entry at once, so the generation-27 forms of S-45 to S-49 assert B's arrangement on A after the answer; a drag after it is a newer change
+- [Phase 28]: 28-11: a unit whose only live entries are this Mac's own and whose local value moved on from its baseline is pending (SyncUnitOutcome.pendingLocal): no hint, no apply, no settle
 
 ### Roadmap Evolution
 
@@ -214,6 +217,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-08T09:08:40.611Z
-Stopped at: Completed 28-10-PLAN.md
+Last session: 2026-10-08T09:41:56.200Z
+Stopped at: Completed 28-11-PLAN.md
 Resume file: None
