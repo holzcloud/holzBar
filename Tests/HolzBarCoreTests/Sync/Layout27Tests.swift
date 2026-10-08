@@ -248,6 +248,62 @@ struct Layout27Tests {
         #expect(view(held).hint == nil)
     }
 
+    @Test("A value that the state marked as the user's is asked about where the group moved on past the applied entry, never taken for holzBar's own store")
+    func markedValueOverAppliedEntryIsAsked() {
+        // The group holds a newer entry than the one this Mac applied: another Mac moved the unit on, so the user's
+        // value (set while a join waited, or while sync was off) and the group's differ and the user chooses.
+        let older = entry(macB, 1, .integer(1))
+        let newer = entry(macB, 2, .integer(0))
+        var held = state([bundleA: [newer]], local: [bundleA: .integer(2)])
+        held.applied[bundleA] = [older.dot]
+        held.localOrigin[bundleA] = .preexisting
+        #expect(plan(held).outcomes[bundleA] == .preRow)
+        #expect(view(held).hint == .choose)
+    }
+
+    @Test("A value that the state marked as the user's over the entry this Mac applied is published, never taken for holzBar's own store")
+    func markedValueOverOnlyTheAppliedEntryIsPublished() {
+        // Nothing newer than the applied entry is live, so no other Mac holds a value to lose and nothing is asked: the
+        // user's value is a newer change of that entry (28-11, S-48), whether it was set while sync was off or while a
+        // join waited (28-12). An unmarked value is holzBar's own store and stays equal.
+        let mine = entry(macB, 1, .integer(1))
+        var held = state([bundleA: [mine]], local: [bundleA: .integer(2)])
+        held.applied[bundleA] = [mine.dot]
+        held.localOrigin[bundleA] = .preexisting
+        #expect(plan(held).outcomes[bundleA] == .publishPreexisting)
+        #expect(view(held).hint == nil)
+        let snapshot = held.session.snapshot ?? SyncSnapshot()
+        let settled = SyncCapture.settle(plan(held), snapshot: snapshot, state: held, environment: environment(.g27))
+        #expect(settled.replica.live(bundleA).map(\.value) == [.integer(2)])
+    }
+
+    @Test("An intent that cannot be minted yet is marked as the user's value, and a minted one leaves no mark")
+    func queuedIntentIsMarked() throws {
+        let intent = try #require(SyncLayout27.moveIntent(bundleID: "com.a", from: .integer(0), to: .integer(1)))
+        // The state cannot mint yet: the intent waits in the session, which a crash would lose, and the unit is marked.
+        var waiting = state()
+        waiting.session.isTrusted = false
+        let queued = handle(userSet([intent]), waiting)
+        #expect(queued.state.session.queuedIntents.count == 1)
+        #expect(queued.state.localOrigin[bundleA] == .preexisting)
+        #expect(queued.state.replica.live(bundleA).isEmpty)
+        // A state that can mint writes the entry at once and leaves no mark.
+        var trusted = state()
+        trusted.session.isTrusted = true
+        let minted = handle(userSet([intent]), trusted)
+        #expect(minted.state.replica.live(bundleA).count == 1)
+        #expect(minted.state.localOrigin[bundleA] == nil)
+    }
+
+    @Test("A change of a key that does not sync schedules no capture, a change of a synced value does")
+    func unchangedSnapshotSchedulesNothing() {
+        let held = state([:], local: [Fixtures.s1: .string("same")])
+        let sameValues = SyncSnapshot(values: [Fixtures.s1: .string("same")])
+        #expect(!schedules(handle(.defaultsChanged(sameValues), held), .capture))
+        let changed = SyncSnapshot(values: [Fixtures.s1: .string("other")])
+        #expect(schedules(handle(.defaultsChanged(changed), held), .capture))
+    }
+
     // MARK: Generation scope
 
     @Test("A macOS 26 Mac relays the macOS 27 families and neither compares, shows nor applies them")

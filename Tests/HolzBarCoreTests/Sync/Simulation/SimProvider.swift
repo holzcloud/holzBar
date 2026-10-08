@@ -512,6 +512,15 @@ struct SimProvider: Sendable {
         log.append("foreign \(kind.rawValue) \(path) v\(id)")
     }
 
+    /// A file that a Mac outside the simulation wrote: its bytes are valid and no simulated Mac wrote them, so the
+    /// ground truth does not follow what they hold.
+    mutating func plant(path: String, data: Data) {
+        let id = newVersion(path: path, data: data, writer: nil, kind: .foreign(.garbage))
+        current[path] = id
+        for target in replicas.keys.sorted() { enqueue(version: id, to: target, mode: .main, from: nil) }
+        log.append("plant \(path) v\(id)")
+    }
+
     /// Reorders one delivery: a fault operation of its own ("reordering across paths").
     mutating func retime(version: Int, target: SimMacName, to time: Int64) {
         for index in queue.indices where queue[index].version == version && queue[index].target == target {

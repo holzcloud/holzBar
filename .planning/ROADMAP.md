@@ -599,7 +599,7 @@ Plans:
 - [x] 28-09-PLAN.md — Wave 5: macOS 27 families in the engine (`l27`, `prof`, known applications), intent capture, layout oracles
 - [x] 28-10-PLAN.md — Wave 6: A1 catalogue S-01 to S-33 as fixed tests, with macOS 27 arrangement forms and the beta1 boundary
 - [x] 28-11-PLAN.md — Wave 7: A1 catalogue S-34 to S-70 as fixed tests, and the coverage test
-- [ ] 28-12-PLAN.md — Wave 7: D3, judge and A2 scenarios, version skew, same-ID installations, A2 mapping
+- [x] 28-12-PLAN.md — Wave 7: D3, judge and A2 scenarios, version skew, same-ID installations, A2 mapping
 - [ ] 28-13-PLAN.md — Wave 8: gate G1: seeded and exhaustive exploration, fuzzing, determinism lint, mutation gate, recorded result
 - [ ] 28-14-PLAN.md — Wave 9: app adapter: defaults store and alias rule, model normalizers, one prefix list, writer lint
 - [ ] 28-15-PLAN.md — Wave 10: host: folder reader and writer, state store, launch, triggers, effects, migration from the pause; old exchange code removed

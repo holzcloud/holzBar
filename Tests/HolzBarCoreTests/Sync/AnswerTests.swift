@@ -99,6 +99,24 @@ struct AnswerTests {
         #expect(SyncEngine.question(for: state, scope: .bystander, environment: environment()) == nil)
     }
 
+    @Test("A row whose local value the user changed after the sheet showed it is left out of the answer")
+    func rowWithAChangedLocalValueIsLeftOut() throws {
+        var state = conflict()
+        let question = try ask(state)
+        let request = SyncAnswerRequest(button: .use, question: question)
+        // The user sets the setting again while the sheet is open; it is no value of the sheet's.
+        let changed = Fixtures.snapshot([Fixtures.s1: .string("newer")])
+        let left = SyncEngine.writeAnswers(request, state: &state, snapshot: changed, environment: environment())
+        #expect(left?.wrote == false)
+        #expect(left?.applies.isEmpty == true)
+        #expect(state.replica.live(Fixtures.s1).count == 2, "nothing was superseded")
+        // The same answer with the value as the sheet showed it writes.
+        var unchanged = conflict()
+        let taken = SyncEngine.writeAnswers(request, state: &unchanged, snapshot: Fixtures.snapshot([Fixtures.s1: .string("mine")]), environment: environment())
+        #expect(taken?.wrote == true)
+        #expect(unchanged.replica.live(Fixtures.s1).count == 1)
+    }
+
     // MARK: Use and Keep
 
     @Test("Use writes one fresh entry with the folder's value that covers exactly the shown dots, applies it and relaunches")

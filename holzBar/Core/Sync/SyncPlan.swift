@@ -135,9 +135,11 @@ nonisolated struct SyncPlan: Sendable {
             } else if SyncLayout27.isIntentCaptured(key), Set(live.map(\.dot)).isSubset(of: state.applied[key] ?? []) {
                 // This Mac applied the entry: a local value that differs is holzBar's own store (a profile
                 // bound to a Space, a displaced item), never a change of another Mac, so nothing waits (D-04).
-                // A move the user made while sync was off is marked as theirs and is no store of holzBar's: it
-                // is a newer change of the entry this Mac applied, published at the next join instead of being
-                // settled as equal and left to diverge (found by A1 S-48).
+                // A value the user marked as theirs (a move made while sync was off, or one that waited for a
+                // state that could mint, 28-12) is no store of holzBar's: no other Mac holds anything newer than
+                // the entry this Mac applied, so it is a newer change of that entry, published at the next join
+                // instead of being settled as equal and left to diverge (found by A1 S-48). Where the group did
+                // move on, an entry that is not applied is live and the unit falls through to the question below.
                 if local != nil, state.localOrigin[key] == .preexisting, state.localOnly[key] == nil {
                     outcomes[key] = .publishPreexisting
                 } else {

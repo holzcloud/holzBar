@@ -43,8 +43,12 @@ nonisolated enum SyncMerge {
         // The identity checks run before any file is joined, over every file, so that one
         // re-identification covers every suspect dot.
         // What this installation's own file holds is published, so it is no evidence that a dot
-        // was minted twice, even when another Mac has read it already (Sigma restored alone).
-        if let ownFile = files.contents.first(where: { $0.mac == state.mac && $0.installation == state.nonce }) {
+        // was minted twice, even when another Mac has read it already (Sigma restored alone). A dot of this state that the
+        // file neither holds nor supersedes is not published by it, whatever its counter says (a restore with a clock set
+        // back), so the reuse check below counts from what the state had published before it read the file.
+        let publishedBefore = state.publishedCounter
+        let ownFile = files.contents.first(where: { $0.mac == state.mac && $0.installation == state.nonce })
+        if let ownFile {
             let signals = SyncIdentity.collisionSignals(
                 ownMac: state.mac,
                 ownNonce: state.nonce,
@@ -79,7 +83,12 @@ nonisolated enum SyncMerge {
                 blocked.insert(file.mac)
             }
             if !ownSameInstallation {
-                let reused = SyncIdentity.suspectReusedDots(in: state, coveredBy: file.replica.context)
+                let reused = SyncIdentity.suspectCollidingDots(
+                    in: state,
+                    coveredBy: file.replica,
+                    publishedCounter: publishedBefore,
+                    ownFile: ownFile?.replica
+                )
                 if !reused.isEmpty {
                     signalled = true
                     suspects.formUnion(reused)
@@ -89,7 +98,9 @@ nonisolated enum SyncMerge {
         }
         var own = ownStatusBeforeJoin(files)
         if signalled, let fresh = environment.freshIdentity {
+            let oldMac = state.mac
             state = SyncIdentity.reidentified(state, newMac: fresh.mac, newNonce: fresh.nonce, suspect: suspects.sorted())
+            state = mintAgain(entriesOf: oldMac, in: state, environment: environment)
             reidentified = true
             blocked = []
             own = .absent
@@ -123,6 +134,36 @@ nonisolated enum SyncMerge {
             downloads: files.downloads,
             needsHealing: healing
         )
+    }
+
+    /// The state after this Mac gave every entry of its old identity a dot of its new one.
+    ///
+    /// A collision gives two installations the same dots with other payloads, and a copy of the own file tells that the
+    /// file was written twice without telling which dots. The other installation's file may cover a dot of the old
+    /// identity without holding what this Mac minted under it, so the join would drop it as seen and superseded. Under a
+    /// dot that only this installation holds, the same value survives that join, and no other Mac has to be asked about
+    /// it: a Mac that already applied the value finds the same value again.
+    private static func mintAgain(entriesOf oldMac: SyncMacID, in state: SyncState, environment: SyncEnvironment) -> SyncState {
+        var state = state
+        guard let snapshot = state.session.snapshot else {
+            return state
+        }
+        for key in state.replica.keys.sorted() {
+            let own = state.replica.live(key).filter { $0.dot.mac == oldMac }
+            guard let newest = own.max(by: { $0.dot < $1.dot }) else {
+                continue
+            }
+            let local = SyncProjection.localValue(key, in: snapshot.values, table: environment.table)
+            SyncCapture.mint(
+                key,
+                payload: newest.payload,
+                digest: local?.digest ?? .unset,
+                state: &state,
+                environment: environment,
+                superseding: Set(own.map(\.dot))
+            )
+        }
+        return state
     }
 
     // MARK: Classification

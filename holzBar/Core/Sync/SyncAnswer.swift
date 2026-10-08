@@ -335,6 +335,22 @@ nonisolated extension SyncEngine {
         return row.folder.allSatisfy { SyncJoin.isUsable($0.value, key: row.unit, table: environment.table) }
     }
 
+    /// Whether this Mac still holds the value that the row showed as its own. A value the user set while the sheet was
+    /// open was never shown, so no answer may replace it: it is captured after the answer and asked about again if it
+    /// differs from the group's.
+    private static func isLocalAsShown(_ row: SyncRow, snapshot: SyncSnapshot, table: SyncUnitTable) -> Bool {
+        let local = SyncProjection.localValue(row.unit, in: snapshot.values, table: table)
+        switch row.local?.value {
+        case nil, .deleted?:
+            return local == nil
+        case .value(let shown)?:
+            guard let local else {
+                return false
+            }
+            return shown == local || table.normalized(shown, for: row.unit) == local
+        }
+    }
+
     /// The entries an answer writes, with their effect on `state`.
     ///
     /// - Returns: `nil` when the answer is refused: a row that needs a choice has none.
@@ -346,9 +362,12 @@ nonisolated extension SyncEngine {
     ) -> SyncAnswerWrite? {
         let table = environment.table
         let question = request.question
-        // A row decided elsewhere (its shown dots are gone) is left out of the answer.
+        // A row decided elsewhere (its shown dots are gone) is left out of the answer, and so is a row whose local value
+        // the user changed after the sheet showed it.
         let rows = question.rows.filter {
-            isCurrent($0, question: question, state: state) && isAnswerable($0, state: state, snapshot: snapshot, environment: environment)
+            isCurrent($0, question: question, state: state)
+                && isAnswerable($0, state: state, snapshot: snapshot, environment: environment)
+                && isLocalAsShown($0, snapshot: snapshot, table: table)
         }
         for row in rows {
             switch row.style {

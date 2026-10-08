@@ -227,7 +227,7 @@ extension SimSafetyOracles {
     static func isNonSyncDestruction(_ event: SimEvent, mac: SimMacName) -> Bool {
         switch event {
         case .reinstall(let target), .sigmaLost(let target), .restoreSigma(let target), .restorePrefs(let target),
-             .restoreHome(let target, _), .clone(_, let target), .copyAccount(_, let target):
+             .restoreHome(let target, _), .clone(_, let target), .copyAccount(_, let target), .duplicateInstallation(_, let target):
             return target == mac
         default:
             return false

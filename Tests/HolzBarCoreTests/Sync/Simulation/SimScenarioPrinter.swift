@@ -209,7 +209,10 @@ extension SimEvent {
         case .restoreSigma: return "\(who): the older local sync state is restored."
         case .restoreHome(_, let keepCaches): return "\(who): the whole home folder is restored from a backup (caches \(keepCaches ? "kept" : "lost"))."
         case .sigmaLost: return "\(who): the local sync state is lost."
+        case .defaultsWriteWhileQuit(_, let unit, _): return "\(who): the user writes \(unit) with `defaults write` while holzBar is quit."
         case .reinstall: return "\(who): holzBar is reinstalled and all its data removed."
+        case .duplicateInstallation(let source, let target): return "\(target): a second installation of \(source) runs with the same identity."
+        case .rekeyItem(_, let from, let to): return "\(who): the item \(from) is stored as \(to) from now on."
         case .advance(let milliseconds): return "\(milliseconds / 1000) s pass."
         case .clockStep(_, let milliseconds): return "\(who): the clock jumps by \(milliseconds / 1000) s."
         case .timerFired(_, let tag): return "\(who): the timer \(tag) fires."
@@ -256,7 +259,11 @@ extension SimEvent {
         case .restoreSigma(let name): return ".restoreSigma(\(mac(name)))"
         case .restoreHome(let name, let keepCaches): return ".restoreHome(\(mac(name)), keepCaches: \(keepCaches))"
         case .sigmaLost(let name): return ".sigmaLost(\(mac(name)))"
+        case .defaultsWriteWhileQuit(let name, let unit, let value):
+            return ".defaultsWrite(\(mac(name)), \(quoted(unit)), value: \(value.map { "SimValue.string(\(quoted($0.canonical)))" } ?? "nil"))"
         case .reinstall(let name): return ".reinstall(\(mac(name)))"
+        case .duplicateInstallation(let source, let target): return ".duplicateInstallation(source: \(mac(source)), target: \(mac(target)))"
+        case .rekeyItem(let name, let from, let to): return ".rekeyItem(\(mac(name)), from: \(quoted(from)), to: \(quoted(to)))"
         case .advance(let milliseconds):
             if milliseconds % 1000 == 0 { return ".advance(seconds: \(milliseconds / 1000))" }
             return ".advance(milliseconds: \(milliseconds))"
@@ -283,6 +290,7 @@ extension SimProviderEvent {
             return ".stall(\(folderPart(folder))mac: \(mac(name)), forMilliseconds: \(duration.map(String.init) ?? "nil"))"
         case .unmount(let folder, let name): return ".unmount(\(folderPart(folder))mac: \(mac(name)))"
         case .mount(let folder, let name): return ".mount(\(folderPart(folder))mac: \(mac(name)))"
+        case .plant(let folder, let path, _): return ".plant(\(folderPart(folder))path: \"\(path)\", data: Data())"
         case .foreign(let folder, let path, let kind): return ".foreign(\(folderPart(folder))path: \"\(path)\", kind: .\(kind.rawValue))"
         case .offline(let folder, let name, let duration):
             return ".offline(\(folderPart(folder))mac: \(mac(name)), forMilliseconds: \(duration))"

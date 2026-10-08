@@ -96,6 +96,9 @@ struct SimScenario {
     func restoreHome(_ mac: SimMacName, keepCaches: Bool) -> SimScenario { event(.restoreHome(mac: mac, keepCaches: keepCaches)) }
     func sigmaLost(_ mac: SimMacName) -> SimScenario { event(.sigmaLost(mac: mac)) }
     func reinstall(_ mac: SimMacName) -> SimScenario { event(.reinstall(mac: mac)) }
+    func defaultsWrite(_ mac: SimMacName, _ unit: String, value: SimValue?) -> SimScenario { event(.defaultsWriteWhileQuit(mac: mac, unit: unit, value: value)) }
+    func duplicateInstallation(source: SimMacName, target: SimMacName) -> SimScenario { event(.duplicateInstallation(source: source, target: target)) }
+    func rekeyItem(_ mac: SimMacName, from: String, to: String) -> SimScenario { event(.rekeyItem(mac: mac, from: from, to: to)) }
     func advance(seconds: Int64) -> SimScenario { event(.advance(milliseconds: seconds * 1000)) }
     func advance(milliseconds: Int64) -> SimScenario { event(.advance(milliseconds: milliseconds)) }
     func clockStep(_ mac: SimMacName, milliseconds: Int64) -> SimScenario { event(.clockStep(mac: mac, milliseconds: milliseconds)) }

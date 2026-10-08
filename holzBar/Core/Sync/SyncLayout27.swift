@@ -187,6 +187,15 @@ nonisolated extension SyncEngine {
         }
         draft.state.session.queuedIntents += intents
         drainIntents(&draft, environment: environment)
+        // An intent that cannot be minted yet waits in the session, which a crash loses, and an intent cannot be found
+        // again by comparing the defaults. What the user set stays a value of theirs in the state, which survives: once
+        // the state can mint, the entry replaces the mark; if the session is lost first, the value is asked about where
+        // the group differs and published where it has none.
+        for change in draft.state.session.queuedIntents where !change.isNoChange && environment.table.isAuthoredHere(change.unit, generation: environment.generation) {
+            if case .value = change.to {
+                draft.state.localOrigin[change.unit] = .preexisting
+            }
+        }
         if draft.state.isEnabled {
             draft.effects.append(.schedule(.capture, after: SyncTimer.capture.delay))
         }
