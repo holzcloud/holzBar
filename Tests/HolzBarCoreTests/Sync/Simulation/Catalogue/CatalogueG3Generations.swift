@@ -425,7 +425,9 @@ nonisolated enum CatalogueG3Generations {
 @Suite("CatalogueG3Generations")
 struct CatalogueG3GenerationsTests {
     @Test("A1 G3: two macOS versions", arguments: CatalogueG3Generations.scenarios)
-    func scenario(_ scenario: CatalogueScenario) {
-        Catalogue.check(scenario)
+    func scenario(_ scenario: CatalogueScenario) async {
+        await HeavyTestGate.run {
+            Catalogue.check(scenario)
+        }
     }
 }

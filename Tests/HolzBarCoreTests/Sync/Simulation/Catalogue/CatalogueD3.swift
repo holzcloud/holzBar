@@ -986,7 +986,9 @@ nonisolated enum CatalogueD3 {
 @Suite("CatalogueD3")
 struct CatalogueD3Tests {
     @Test("D3 section 15: the scenarios of the settings-only design", arguments: CatalogueExtraTables.selected(CatalogueD3.scenarios))
-    func scenario(_ scenario: CatalogueScenario) {
-        Catalogue.check(scenario)
+    func scenario(_ scenario: CatalogueScenario) async {
+        await HeavyTestGate.run {
+            Catalogue.check(scenario)
+        }
     }
 }

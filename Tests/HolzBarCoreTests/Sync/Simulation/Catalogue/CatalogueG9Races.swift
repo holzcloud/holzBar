@@ -265,7 +265,9 @@ nonisolated enum CatalogueG9Races {
 @Suite("CatalogueG9Races")
 struct CatalogueG9RacesTests {
     @Test("A1 G9: timing races", arguments: CatalogueG9Races.scenarios)
-    func scenario(_ scenario: CatalogueScenario) {
-        Catalogue.check(scenario)
+    func scenario(_ scenario: CatalogueScenario) async {
+        await HeavyTestGate.run {
+            Catalogue.check(scenario)
+        }
     }
 }

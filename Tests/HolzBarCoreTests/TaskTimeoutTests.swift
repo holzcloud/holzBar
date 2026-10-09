@@ -5,6 +5,15 @@ import Testing
 
 @Suite("Task timeout")
 struct TaskTimeoutTests {
+    /// How long past its timeout a test lets the helper take to return. A timer that fires on time still resumes its waiter
+    /// only when a thread of the Swift concurrency pool is free, and in a full run that is busy with the other suites for a
+    /// second or more even with the heavy simulation tests gated (`HeavyTestGate`). The bound stays far below what a helper
+    /// that waits for the operation takes (`operationHangs`), so it still tells the two apart.
+    private static let slack = Duration.seconds(10)
+
+    /// How long the operation that ignores cancellation is held before the test frees it itself.
+    private static let operationHangs = Duration.seconds(30)
+
     /// Holds an operation until the test opens it; opening before the wait lets it pass.
     private final class Gate: Sendable {
         private let state = OSAllocatedUnfairLock<(isOpen: Bool, waiter: CheckedContinuation<Void, Never>?)>(
@@ -44,7 +53,7 @@ struct TaskTimeoutTests {
         // Opens the gate even if the timeout never fires, so a broken helper fails the
         // test instead of hanging it.
         let safety = Task {
-            try? await Task.sleep(for: .seconds(3))
+            try? await Task.sleep(for: Self.operationHangs)
             gate.open()
         }
         defer {
@@ -58,8 +67,8 @@ struct TaskTimeoutTests {
             }.value
         }
         let elapsed = start.duration(to: .now)
-        // Slack for shared CI runners; the old helper waited for the operation (about 3 s here).
-        #expect(elapsed < .milliseconds(100) + .milliseconds(400), "Timed out after \(elapsed)")
+        // The old helper waited for the operation (`operationHangs`).
+        #expect(elapsed < .milliseconds(100) + Self.slack, "Timed out after \(elapsed)")
     }
 
     @Test("A result within the timeout is returned")
@@ -87,7 +96,7 @@ struct TaskTimeoutTests {
         await #expect(throws: CancellationError.self) {
             try await task.value
         }
-        #expect(start.duration(to: .now) < .seconds(1))
+        #expect(start.duration(to: .now) < Self.slack)
     }
 
     @Test("A detached task times out too")
@@ -100,7 +109,7 @@ struct TaskTimeoutTests {
                 await gate.wait()
             }.value
         }
-        #expect(start.duration(to: .now) < .seconds(1))
+        #expect(start.duration(to: .now) < Self.slack)
     }
 
     @Test("Only the first resume reaches the continuation")

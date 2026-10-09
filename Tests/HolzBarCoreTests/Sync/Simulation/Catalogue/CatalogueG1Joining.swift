@@ -517,7 +517,9 @@ nonisolated enum CatalogueG1Joining {
 @Suite("CatalogueG1Joining")
 struct CatalogueG1JoiningTests {
     @Test("A1 G1: joining, identity and routine writes", arguments: CatalogueG1Joining.scenarios)
-    func scenario(_ scenario: CatalogueScenario) {
-        Catalogue.check(scenario)
+    func scenario(_ scenario: CatalogueScenario) async {
+        await HeavyTestGate.run {
+            Catalogue.check(scenario)
+        }
     }
 }

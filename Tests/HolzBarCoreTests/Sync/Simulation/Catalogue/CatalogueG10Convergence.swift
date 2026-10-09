@@ -263,7 +263,9 @@ nonisolated enum CatalogueG10Convergence {
 @Suite("CatalogueG10Convergence")
 struct CatalogueG10ConvergenceTests {
     @Test("A1 G10: convergence and how often holzBar asks", arguments: CatalogueG10Convergence.scenarios)
-    func scenario(_ scenario: CatalogueScenario) {
-        Catalogue.check(scenario)
+    func scenario(_ scenario: CatalogueScenario) async {
+        await HeavyTestGate.run {
+            Catalogue.check(scenario)
+        }
     }
 }

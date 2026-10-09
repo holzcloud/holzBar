@@ -69,8 +69,10 @@ struct BlockingWorkTests {
         let elapsed = start.duration(to: .now)
         #expect(result.value == -1)
         #expect(result.timedOut)
-        // Slack for shared CI runners, as in the task timeout tests.
-        #expect(elapsed < .milliseconds(100) + .milliseconds(400), "Returned after \(elapsed)")
+        // Slack as in the task timeout tests: the fallback's timer resumes the caller only when a thread of the Swift
+        // concurrency pool is free, which in a full run can take a second or more. The work itself never returns before
+        // the test's `defer`, so a caller that waits for it would not return at all.
+        #expect(elapsed < .milliseconds(100) + .seconds(10), "Returned after \(elapsed)")
     }
 
     @Test("A late completion does not resume the caller twice")

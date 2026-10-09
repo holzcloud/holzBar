@@ -95,96 +95,108 @@ struct JoinLawsTests {
     }
 
     @Test("Joining is commutative")
-    func commutative() {
-        for seed in 0..<Self.seeds {
-            var rng = SplitMix64(state: seed)
-            let (macs, keys) = randomSetup(&rng)
-            let a = randomReplica(&rng, macs: macs, keys: keys)
-            let b = randomReplica(&rng, macs: macs, keys: keys)
-            let forward = SyncReplica.join(a, b)
-            let backward = SyncReplica.join(b, a)
-            #expect(forward.replica == backward.replica, "seed \(seed)")
-            #expect(forward.collisions == backward.collisions, "seed \(seed)")
-            #expect(forward.replica.digest == backward.replica.digest, "seed \(seed)")
+    func commutative() async {
+        await HeavyTestGate.run {
+            for seed in 0..<Self.seeds {
+                var rng = SplitMix64(state: seed)
+                let (macs, keys) = randomSetup(&rng)
+                let a = randomReplica(&rng, macs: macs, keys: keys)
+                let b = randomReplica(&rng, macs: macs, keys: keys)
+                let forward = SyncReplica.join(a, b)
+                let backward = SyncReplica.join(b, a)
+                #expect(forward.replica == backward.replica, "seed \(seed)")
+                #expect(forward.collisions == backward.collisions, "seed \(seed)")
+                #expect(forward.replica.digest == backward.replica.digest, "seed \(seed)")
+            }
         }
     }
 
     @Test("Joining is associative")
-    func associative() {
-        for seed in 0..<Self.seeds {
-            var rng = SplitMix64(state: seed &+ 1_000_000)
-            let (macs, keys) = randomSetup(&rng)
-            let a = randomReplica(&rng, macs: macs, keys: keys)
-            let b = randomReplica(&rng, macs: macs, keys: keys)
-            let c = randomReplica(&rng, macs: macs, keys: keys)
-            #expect(join(join(a, b), c) == join(a, join(b, c)), "seed \(seed)")
+    func associative() async {
+        await HeavyTestGate.run {
+            for seed in 0..<Self.seeds {
+                var rng = SplitMix64(state: seed &+ 1_000_000)
+                let (macs, keys) = randomSetup(&rng)
+                let a = randomReplica(&rng, macs: macs, keys: keys)
+                let b = randomReplica(&rng, macs: macs, keys: keys)
+                let c = randomReplica(&rng, macs: macs, keys: keys)
+                #expect(join(join(a, b), c) == join(a, join(b, c)), "seed \(seed)")
+            }
         }
     }
 
     @Test("Joining is idempotent")
-    func idempotent() {
-        for seed in 0..<Self.seeds {
-            var rng = SplitMix64(state: seed &+ 2_000_000)
-            let (macs, keys) = randomSetup(&rng)
-            let a = randomReplica(&rng, macs: macs, keys: keys)
-            let result = SyncReplica.join(a, a)
-            #expect(result.replica == a, "seed \(seed)")
-            #expect(result.collisions == SyncReplica.join(a, SyncReplica.empty).collisions, "seed \(seed)")
+    func idempotent() async {
+        await HeavyTestGate.run {
+            for seed in 0..<Self.seeds {
+                var rng = SplitMix64(state: seed &+ 2_000_000)
+                let (macs, keys) = randomSetup(&rng)
+                let a = randomReplica(&rng, macs: macs, keys: keys)
+                let result = SyncReplica.join(a, a)
+                #expect(result.replica == a, "seed \(seed)")
+                #expect(result.collisions == SyncReplica.join(a, SyncReplica.empty).collisions, "seed \(seed)")
+            }
         }
     }
 
     @Test("Joining a replica with an older copy of itself changes nothing")
-    func olderCopy() {
-        for seed in 0..<Self.seeds {
-            var rng = SplitMix64(state: seed &+ 3_000_000)
-            let (macs, keys) = randomSetup(&rng)
-            let x = randomReplica(&rng, macs: macs, keys: keys)
-            let previous = older(x, &rng)
-            #expect(join(x, previous) == x, "seed \(seed)")
-            #expect(join(previous, x) == x, "seed \(seed)")
+    func olderCopy() async {
+        await HeavyTestGate.run {
+            for seed in 0..<Self.seeds {
+                var rng = SplitMix64(state: seed &+ 3_000_000)
+                let (macs, keys) = randomSetup(&rng)
+                let x = randomReplica(&rng, macs: macs, keys: keys)
+                let previous = older(x, &rng)
+                #expect(join(x, previous) == x, "seed \(seed)")
+                #expect(join(previous, x) == x, "seed \(seed)")
+            }
         }
     }
 
     @Test("Contexts only grow")
-    func contextsGrow() {
-        for seed in 0..<Self.seeds {
-            var rng = SplitMix64(state: seed &+ 4_000_000)
-            let (macs, keys) = randomSetup(&rng)
-            let a = randomReplica(&rng, macs: macs, keys: keys)
-            let b = randomReplica(&rng, macs: macs, keys: keys)
-            let joined = join(a, b).context
-            for mac in macs {
-                #expect(joined[mac] == max(a.context[mac], b.context[mac]), "seed \(seed)")
+    func contextsGrow() async {
+        await HeavyTestGate.run {
+            for seed in 0..<Self.seeds {
+                var rng = SplitMix64(state: seed &+ 4_000_000)
+                let (macs, keys) = randomSetup(&rng)
+                let a = randomReplica(&rng, macs: macs, keys: keys)
+                let b = randomReplica(&rng, macs: macs, keys: keys)
+                let joined = join(a, b).context
+                for mac in macs {
+                    #expect(joined[mac] == max(a.context[mac], b.context[mac]), "seed \(seed)")
+                }
             }
         }
     }
 
     @Test("Joining the intermediate states of one Mac in any order equals joining its last state")
-    func coalescing() {
-        for seed in 0..<Self.seeds {
-            var rng = SplitMix64(state: seed &+ 5_000_000)
-            let (macs, keys) = randomSetup(&rng)
-            // A real history: local changes that have seen the current entries, and ingested replicas.
-            let me = macs[0]
-            var counter: UInt64 = 0
-            var states: [SyncReplica] = []
-            var current = SyncReplica.empty
-            for _ in 0..<Int.random(in: 2...4, using: &rng) {
-                if Bool.random(using: &rng) {
-                    current = join(current, randomReplica(&rng, macs: Array(macs.dropFirst()), keys: keys))
-                } else if let key = keys.randomElement(using: &rng) {
-                    counter = max(counter, current.context[me]) + 1
-                    let dot = SyncDot(mac: me, n: counter)
-                    current = current.setting(key, to: entry(dot, payloads[Int.random(in: 0..<payloads.count, using: &rng)]))
+    func coalescing() async {
+        await HeavyTestGate.run {
+            for seed in 0..<Self.seeds {
+                var rng = SplitMix64(state: seed &+ 5_000_000)
+                let (macs, keys) = randomSetup(&rng)
+                // A real history: local changes that have seen the current entries, and ingested replicas.
+                let me = macs[0]
+                var counter: UInt64 = 0
+                var states: [SyncReplica] = []
+                var current = SyncReplica.empty
+                for _ in 0..<Int.random(in: 2...4, using: &rng) {
+                    if Bool.random(using: &rng) {
+                        current = join(current, randomReplica(&rng, macs: Array(macs.dropFirst()), keys: keys))
+                    } else if let key = keys.randomElement(using: &rng) {
+                        counter = max(counter, current.context[me]) + 1
+                        let dot = SyncDot(mac: me, n: counter)
+                        current = current.setting(key, to: entry(dot, payloads[Int.random(in: 0..<payloads.count, using: &rng)]))
+                    }
+                    states.append(current)
                 }
-                states.append(current)
-            }
-            guard let last = states.last else {
-                continue
-            }
-            for order in permutations(of: Array(states.indices)) {
-                let joined = order.dropFirst().reduce(states[order[0]]) { join($0, states[$1]) }
-                #expect(joined == last, "seed \(seed) order \(order)")
+                guard let last = states.last else {
+                    continue
+                }
+                for order in permutations(of: Array(states.indices)) {
+                    let joined = order.dropFirst().reduce(states[order[0]]) { join($0, states[$1]) }
+                    #expect(joined == last, "seed \(seed) order \(order)")
+                }
             }
         }
     }

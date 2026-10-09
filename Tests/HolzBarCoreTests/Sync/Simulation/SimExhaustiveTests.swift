@@ -117,21 +117,23 @@ struct SimExhaustiveTests {
     }
 
     @Test("Every sequence over the alphabet of the family, up to the depth, ends with no oracle violation", arguments: SimExhaustiveTests.families)
-    func exhaustive(family: Family) {
-        let budget = SimBudget.read()
-        let alphabet = family.alphabet(Self.ownFiles(of: family.macs, preset: family.preset))
-        let result = SimRunner.run(
-            seed: Self.seed, preset: family.preset, macs: family.macs, brainFactory: SimExploration.brain,
-            mode: .exhaustive(depth: budget.depth, alphabet: alphabet), oracles: .safety, maximumRuns: budget.exhaustiveRuns
-        )
-        if let violation = result.violations.first {
-            let failure = SimFailure(
-                name: "exhaustive \(family.name)", seed: Self.seed, preset: family.preset, macs: family.macs, events: result.events, violation: violation
+    func exhaustive(family: Family) async {
+        await HeavyTestGate.run {
+            let budget = SimBudget.read()
+            let alphabet = family.alphabet(Self.ownFiles(of: family.macs, preset: family.preset))
+            let result = SimRunner.run(
+                seed: Self.seed, preset: family.preset, macs: family.macs, brainFactory: SimExploration.brain,
+                mode: .exhaustive(depth: budget.depth, alphabet: alphabet), oracles: .safety, maximumRuns: budget.exhaustiveRuns
             )
-            Issue.record(Comment(rawValue: "\(family.name): \(SimExploration.summary(result.violations))\n\n\(SimExploration.text(of: failure))"))
-            return
+            if let violation = result.violations.first {
+                let failure = SimFailure(
+                    name: "exhaustive \(family.name)", seed: Self.seed, preset: family.preset, macs: family.macs, events: result.events, violation: violation
+                )
+                Issue.record(Comment(rawValue: "\(family.name): \(SimExploration.summary(result.violations))\n\n\(SimExploration.text(of: failure))"))
+                return
+            }
+            #expect(result.runs > alphabet.count, "\(family.name) explored only \(result.runs) runs")
+            SimGateReport.record("exhaustive \(family.name) depth \(budget.depth) alphabet \(alphabet.count) runs \(result.runs) states \(result.visitedStates)")
         }
-        #expect(result.runs > alphabet.count, "\(family.name) explored only \(result.runs) runs")
-        SimGateReport.record("exhaustive \(family.name) depth \(budget.depth) alphabet \(alphabet.count) runs \(result.runs) states \(result.visitedStates)")
     }
 }

@@ -522,7 +522,9 @@ nonisolated enum CatalogueG8Automatic {
 @Suite("CatalogueG8Automatic")
 struct CatalogueG8AutomaticTests {
     @Test("A1 G8: automatic versus user changes", arguments: CatalogueG8Automatic.scenarios)
-    func scenario(_ scenario: CatalogueScenario) {
-        Catalogue.check(scenario)
+    func scenario(_ scenario: CatalogueScenario) async {
+        await HeavyTestGate.run {
+            Catalogue.check(scenario)
+        }
     }
 }

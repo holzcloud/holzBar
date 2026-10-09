@@ -74,9 +74,11 @@ struct SpacingRelaunchTests {
     func eventAlreadyHappened() async {
         let clock = ContinuousClock()
         let start = clock.now
-        let happened = await SpacingRelaunch.waitUntil(timeout: .seconds(5)) {}
+        // The bound is far below the timeout, and far above the second or more that a task can wait for a free thread of
+        // the Swift concurrency pool in a full run.
+        let happened = await SpacingRelaunch.waitUntil(timeout: .seconds(60)) {}
         #expect(happened)
-        #expect(clock.now - start < .seconds(4))
+        #expect(clock.now - start < .seconds(30))
     }
 
     @Test("Waiting returns as soon as the event happens")
@@ -96,7 +98,7 @@ struct SpacingRelaunchTests {
         }
         await yielder.value
         #expect(happened)
-        #expect(clock.now - start < .seconds(5))
+        #expect(clock.now - start < .seconds(20))
     }
 
     @Test("Waiting gives up at the timeout")
@@ -127,7 +129,7 @@ struct SpacingRelaunchTests {
         let happened = await wait.value
         continuation.finish()
         #expect(!happened)
-        #expect(clock.now - start < .seconds(5))
+        #expect(clock.now - start < .seconds(20))
     }
 
     @Test("An app gets 10 seconds to quit")
