@@ -39,6 +39,9 @@ COPIED = [
     "Tests/HolzBarCoreTests",
     "Tests/HolzBarMacOS27CoreTests",
     "Tests/SharedCodeSigningTests",
+    # UnitTableTests compares the unit table with this checked-in list (found from the test file's path, so the copy needs it):
+    # without it that test fails in every copy and "kills" every mutation.
+    ".github/sync-synced-keys.txt",
 ]
 
 # (name, file under holzBar/Core/Sync, text found exactly once, its replacement, the guard it breaks)
@@ -252,7 +255,8 @@ def main():
                 staled.append(name)
                 print(f"  stale mutation {name}: the mutated source does not build\n{output[-1500:]}")
             elif code != 0 and failing:
-                print(f"  killed   {name} by {failing[0]} ({stage}, {seconds:.0f} s)")
+                others = f" (and {len(failing) - 1} more: {'; '.join(failing[1:4])})" if len(failing) > 1 else ""
+                print(f"  killed   {name} by {failing[0]}{others} ({stage}, {seconds:.0f} s)")
             else:
                 survivors.append(name)
                 print(f"  SURVIVED {name}: {guard} ({seconds:.0f} s)")
