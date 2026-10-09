@@ -677,7 +677,7 @@ final class ControlItem {
                     action: #selector(restartWithWaitingSettings),
                     keyEquivalent: ""
                 )
-            case .choice:
+            case .choose, .chooseAfterJoin:
                 NSMenuItem(
                     title: String(localized: "Choose Settings…"),
                     action: #selector(chooseSyncedSettings),

@@ -310,7 +310,7 @@ private struct SettingsSyncToggle: View {
                         Button("Restart") {
                             sync.restartWithWaitingSettings()
                         }
-                    case .choice:
+                    case .choose, .chooseAfterJoin:
                         Button("Choose Settings…") {
                             sync.chooseSettings()
                         }
@@ -321,7 +321,7 @@ private struct SettingsSyncToggle: View {
                         sync.chooseFolder()
                     }
                     Button("Turn Off") {
-                        sync.isEnabled = false
+                        sync.turnOff()
                     }
                 } else {
                     Button("Turn On…") {

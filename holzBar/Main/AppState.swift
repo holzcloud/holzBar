@@ -65,8 +65,8 @@ final class AppState {
     /// Saved layout profiles.
     let profiles = LayoutProfiles()
 
-    /// Keeps the settings in step with other Macs through iCloud.
-    let settingsSync = SettingsSync()
+    /// Keeps the settings in step with other Macs through a folder they sync; the launch built it.
+    let settingsSync = SettingsSync.forAppState()
 
     /// Groups of menu bar items behind icons of their own.
     let itemGroups = MenuBarItemGroups()

@@ -12,7 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let appState: AppState
 
     override init() {
-        // Must come before the iCloud pull, which reads the copied sync file,
+        // Must come before sync starts, which reads the preferences,
         // and before the app state, which reads the settings.
         MigrationManager.importPreviousSettingsIfNeeded()
         // Clears the seeded flag a 0.0.6-beta1 merge left on a Mac before macOS 27.
@@ -20,7 +20,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Runs before sync looks at the defaults, so on the first redesigned launch (a join,
         // D-02) the profile IDs are already in place and nothing is captured as a user change.
         LayoutProfiles.migrateStoredProfileIdentities()
-        SettingsSync.pullIfNeeded()
+        // The order matters: sync starts after every migration above has rewritten the preferences, so
+        // none of them is taken for a change of the user's, and before the app state reads the settings,
+        // so what the folder holds is applied before any model loads it.
+        SettingsSync.launch()
         let appState = AppState()
         AppState.current = appState
         self.appState = appState
@@ -156,6 +159,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        // The last changes go into the own device file before the process goes.
+        appState.settingsSync.prepareForTermination()
         if #available(macOS 27.0, *) {
             // Released synchronously, before the process goes, so no application stays hidden.
             appState.concealer27.releaseAllForTermination()
