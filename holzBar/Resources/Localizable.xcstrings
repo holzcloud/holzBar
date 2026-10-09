@@ -6217,6 +6217,62 @@
         }
       }
     },
+    "Preview" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorschau"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aperçu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anteprima"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prevista"
+          }
+        }
+      }
+    },
+    "Preview: not tested on a Mac yet. Please report problems." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorschau: noch nicht auf einem Mac getestet. Bitte melde Probleme."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aperçu : pas encore testé sur un Mac. Merci de signaler les problèmes."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anteprima: non ancora testata su un Mac. Segnala eventuali problemi."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prevista: anc betg testà sin in Mac. Annunzia per plaschair problems."
+          }
+        }
+      }
+    },
     "Profile" : {
       "localizations" : {
         "de" : {
