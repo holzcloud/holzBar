@@ -139,11 +139,6 @@ enum SyncStatusText {
             return false
         }
     }
-
-    /// Whether a join reads the folder, and no question waits yet: Cancel is the only button.
-    static func isReading(_ view: SyncView) -> Bool {
-        isJoining(view) && view.hint != .chooseAfterJoin
-    }
 }
 
 // MARK: - Rows of the question sheet
