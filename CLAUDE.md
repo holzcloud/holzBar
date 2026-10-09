@@ -4,7 +4,7 @@ holzBar is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 
 ## Product direction
 
-holzBar is to become an alternative to **Brow, Glow and Vorssaint**: as many of their features, as powerful, as optional modules on top of the menu bar manager (decision of 2026-10-09, `.planning/research/VISION-BROW-GLOW-VORSSAINT.md`). Every feature is agreed with the user first (whether, and in which release). One overall design concept is made first (Apple's newest Liquid Glass guidance, holzBar's logo and colours, and the design language of Brow as the model); every future screen must follow it, and a screen that needs something the concept lacks extends the concept first. The principles below still hold for every module: off means no cost, permissions only when a module is switched on, never online.
+holzBar is to become an alternative to **Brow, Glow and Vorssaint**: as many of their features, as powerful, as optional modules on top of the menu bar manager (decision of 2026-10-09, `.planning/research/VISION-BROW-GLOW-VORSSAINT.md`). Every feature is agreed with the user first (whether, and in which release). One overall design concept is made first (Apple's newest Liquid Glass guidance, holzBar's logo and colours, and the design language of Brow as the model); every future screen must follow it, and a screen that needs something the concept lacks extends the concept first. All AI features run on the device with Apple's local models, never over the network. The principles below still hold for every module: off means no cost, permissions only when a module is switched on, never online.
 
 ## Rules
 
