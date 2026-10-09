@@ -64,6 +64,9 @@ final class LayoutProfiles {
     /// The UUIDs of the displays connected at the last check.
     @ObservationIgnored private var connectedDisplays = Set<String>()
 
+    /// What the Focus filter changed, so it can be undone.
+    @ObservationIgnored private var focusBinding = FocusFilterBinding()
+
     /// Receives the changes of the active Space.
     @ObservationIgnored private var spaceTask: Task<Void, Never>?
 
@@ -176,6 +179,15 @@ final class LayoutProfiles {
             return
         }
         apply(profile)
+    }
+
+    /// A Focus filter turned on with a profile, or off (`nil`): applies the profile, and
+    /// brings the one from before back when the Focus ends.
+    func focusFilterChanged(to name: String?) {
+        guard let target = focusBinding.profileToApply(requested: name, current: currentProfileName) else {
+            return
+        }
+        apply(named: target)
     }
 
     /// Applies the given profile.

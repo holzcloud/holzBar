@@ -49,6 +49,78 @@
           }
         }
       }
+    },
+    "NSLocationUsageDescription" : {
+      "comment" : "Location usage description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "holzBar reads the name of the Wi-Fi network you are connected to, so an automation rule can react to it. It does not read your location."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar liest den Namen des WLAN-Netzwerks, mit dem du verbunden bist, damit eine Automatisierungsregel darauf reagieren kann. Dein Standort wird nicht gelesen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar lit le nom du réseau Wi-Fi auquel vous êtes connecté afin qu’une règle d’automatisation puisse y réagir. Votre position n’est pas lue."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar legge il nome della rete Wi-Fi a cui sei connesso, così una regola di automazione può reagire. La tua posizione non viene letta."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar legia il num da la rait WLAN cun la quala ti es collià, per che ina regla d’automatisaziun possia reagir. Tia posiziun na vegn betg legida."
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription" : {
+      "comment" : "Location usage description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "holzBar reads the name of the Wi-Fi network you are connected to, so an automation rule can react to it. It does not read your location."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar liest den Namen des WLAN-Netzwerks, mit dem du verbunden bist, damit eine Automatisierungsregel darauf reagieren kann. Dein Standort wird nicht gelesen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar lit le nom du réseau Wi-Fi auquel vous êtes connecté afin qu’une règle d’automatisation puisse y réagir. Votre position n’est pas lue."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar legge il nome della rete Wi-Fi a cui sei connesso, così una regola di automazione può reagire. La tua posizione non viene letta."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar legia il num da la rait WLAN cun la quala ti es collià, per che ina regla d’automatisaziun possia reagir. Tia posiziun na vegn betg legida."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

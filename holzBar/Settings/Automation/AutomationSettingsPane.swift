@@ -43,6 +43,10 @@ struct AutomationSettingsPane: View {
             if !manager.rules.isEmpty {
                 ruleList
             }
+            Text("To apply a layout profile with a Focus, add the holzBar filter to that Focus in System Settings.")
+                .font(HolzBarTheme.Typography.caption)
+                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: HolzBarTheme.Spacing.sm) {
                 Button("Add Rule", systemImage: "plus") {
                     addRule()

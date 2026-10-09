@@ -505,6 +505,34 @@
         }
       }
     },
+    "Add" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinzufügen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agiuntar"
+          }
+        }
+      }
+    },
     "Add Condition" : {
       "localizations" : {
         "de" : {
@@ -5349,6 +5377,62 @@
         }
       }
     },
+    "Needs Location Services. Until you allow holzBar, this condition is never true." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Braucht die Ortungsdienste. Solange du holzBar nicht erlaubst, trifft diese Bedingung nie zu."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nécessite les services de localisation. Tant que vous n’autorisez pas holzBar, cette condition n’est jamais vraie."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiede i Servizi di localizzazione. Finché non autorizzi holzBar, questa condizione non è mai vera."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dovra ils servetschs da localisaziun. Entant che ti na lubeschas betg holzBar, n’è questa cundiziun mai vaira."
+          }
+        }
+      }
+    },
+    "Network name" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Netzwerkname"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nom du réseau"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome della rete"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Num da la rait"
+          }
+        }
+      }
+    },
     "New Group" : {
       "localizations" : {
         "de" : {
@@ -5457,6 +5541,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nagin element da la trav da menu na correspunda a «%@»."
+          }
+        }
+      }
+    },
+    "No profile" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Profil"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun profilo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagin profil"
           }
         }
       }
@@ -5821,6 +5933,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avrir"
+          }
+        }
+      }
+    },
+    "Open Location Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ortungsdienste öffnen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir les réglages de localisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri le impostazioni di localizzazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avrir las preferenzas da localisaziun"
           }
         }
       }
@@ -9297,6 +9437,34 @@
         }
       }
     },
+    "To apply a layout profile with a Focus, add the holzBar filter to that Focus in System Settings." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um mit einem Fokus ein Layoutprofil anzuwenden, füge den holzBar-Filter in den Systemeinstellungen zu diesem Fokus hinzu."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour appliquer un profil de disposition avec un mode de concentration, ajoutez le filtre holzBar à ce mode dans Réglages Système."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per applicare un profilo di layout con un Focus, aggiungi il filtro holzBar a quel Focus in Impostazioni di Sistema."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per applitgar in profil da layout cun in focus, agiuntescha il filter holzBar a quest focus en las preferenzas dal sistem."
+          }
+        }
+      }
+    },
     "Toggle" : {
       "localizations" : {
         "de" : {
@@ -10473,6 +10641,62 @@
         }
       }
     },
+    "Wi-Fi Network" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WLAN-Netzwerk"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réseau Wi-Fi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rete Wi-Fi"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rait WLAN"
+          }
+        }
+      }
+    },
+    "Wi-Fi network by name…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WLAN-Netzwerk nach Name…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réseau Wi-Fi par nom…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rete Wi-Fi per nome…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rait WLAN tenor il num…"
+          }
+        }
+      }
+    },
     "Width: %lld pt" : {
       "localizations" : {
         "de" : {
@@ -11343,6 +11567,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "macOS impedescha da spustar «%@»."
+          }
+        }
+      }
+    },
+    "macOS shares the Wi-Fi network name only with apps that may use Location Services. holzBar uses it only to read that name and never reads your location. macOS asks for your permission next." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS gibt den WLAN-Netzwerknamen nur an Apps weiter, die die Ortungsdienste nutzen dürfen. holzBar liest damit nur diesen Namen und nie deinen Standort. Als Nächstes fragt macOS nach deiner Erlaubnis."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ne communique le nom du réseau Wi-Fi qu’aux apps autorisées à utiliser les services de localisation. holzBar ne s’en sert que pour lire ce nom et ne lit jamais votre position. macOS vous demandera ensuite votre autorisation."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS condivide il nome della rete Wi-Fi solo con le app che possono usare i Servizi di localizzazione. holzBar lo usa solo per leggere quel nome e non legge mai la tua posizione. Subito dopo macOS chiede la tua autorizzazione."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS dat il num da la rait WLAN mo a apps che pon duvrar ils servetschs da localisaziun. holzBar al duvra mo per leger quest num e na legia mai tia posiziun. Silsuenter dumonda macOS tia permissiun."
           }
         }
       }

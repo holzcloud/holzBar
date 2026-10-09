@@ -51,6 +51,20 @@ final class AutomationManager {
     @ObservationIgnored private var pathMonitor: NWPathMonitor?
     @ObservationIgnored private var networkKinds: Set<AutomationNetworkKind>?
     @ObservationIgnored private var timeTask: Task<Void, Never>?
+    @ObservationIgnored private var storedWiFiMonitor: WiFiNetworkMonitor?
+
+    /// The reader of the Wi-Fi network name. It exists from the first time it is needed.
+    var wifiMonitor: WiFiNetworkMonitor {
+        if let storedWiFiMonitor {
+            return storedWiFiMonitor
+        }
+        let monitor = WiFiNetworkMonitor()
+        monitor.onChange = { [weak self] in
+            self?.evaluate()
+        }
+        storedWiFiMonitor = monitor
+        return monitor
+    }
 
     func performSetup(with appState: AppState) {
         self.appState = appState
@@ -145,8 +159,7 @@ final class AutomationManager {
         case .network:
             startPathMonitor()
         case .wifi:
-            // The Wi-Fi name needs Location Services and comes with its own step.
-            break
+            wifiMonitor.start()
         }
     }
 
@@ -164,7 +177,9 @@ final class AutomationManager {
             pathMonitor?.cancel()
             pathMonitor = nil
             networkKinds = nil
-        case .lowPowerMode, .runningApps, .frontmostApp, .displays, .wifi:
+        case .wifi:
+            storedWiFiMonitor?.stop()
+        case .lowPowerMode, .runningApps, .frontmostApp, .displays:
             break
         }
     }
@@ -300,6 +315,9 @@ final class AutomationManager {
         }
         if needed.contains(.network) {
             facts.networkKinds = networkKinds
+        }
+        if needed.contains(.wifi) {
+            facts.wifiName = storedWiFiMonitor?.networkName
         }
         return facts
     }
