@@ -102,7 +102,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 **Automation**
 - **Rules** that apply a profile, reveal items or switch Zen mode when a Wi-Fi network, an app, the time of day, the power source, a display or a Focus matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Spike first: the Focus filter.*
 - **Per-item conditions**: show a single item only while a condition holds, for example while a VPN is connected.
-- **Scripts** as a rule condition or action: only from a folder you choose, pinned by hash, run only after you confirm.
+- **Scripts** as a rule condition or action, and **hooks** that run before and after a profile is applied: only from a folder you choose, pinned by hash, run only after you confirm.
 
 **Safety and convenience**
 - **Layout snapshots** taken automatically, with a one-click restore.
@@ -122,32 +122,56 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ### 0.0.9
 
+The release starts with the **design system**: one Liquid Glass look (holzBar's blue, dark and light equally designed) and a new Settings window with a sidebar and a gallery of module cards. Every later screen follows it.
+
 **Automation**
-- **Widgets**: menu bar items of your own with text from permission-free sources (CPU load, memory, battery, free disk space, a countdown) and a Shortcut button; script widgets come last.
+- **Widgets**: menu bar items of your own with text from permission-free sources (CPU load, memory, battery, free disk space, a countdown) and a Shortcut button
 - **AppleScript dictionary** to show, hide, switch profiles and turn rules on or off, and **App Intents** for Shortcuts and Siri.
 - **Command palette**: one hotkey opens a panel to run any holzBar action.
 - A **keep-awake** action (no permission needed) and a **focus mode** hotkey that hides everything except chosen items.
+- **More rule triggers**: VPN, Bluetooth, audio, camera and microphone in use, Energy Mode. Each one asks only for the permission it needs, when you use it.
 
 **Convenience**
 - **Usage suggestions** (opt-in): suggests hiding items you never click; counters stay on your Mac and can be erased with one click.
 - **Smooth show and hide**, respecting Reduce Motion.
 - Replacement items for Apple items that macOS 27 cannot hide, and hiding system items such as Clock and Control Center.
 
+**Look**
+- **Shelf layouts**: a grid and a vertical layout for the holzBar Shelf.
+- **Moods**: saved looks (appearance) that switch per display or time.
+- More **menu bar styles** (single, paired, sections, Apple-logo style) as far as macOS 27 allows.
+
 **Polish**
 - A Control Center control to toggle Zen mode or apply a profile. *Spike, optional.*
 
-### 1.0.0
+### 1.0.0 (first stable release)
 
-- **Settings sync between your Macs** through any folder they sync (iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing, a network share), **redesigned from scratch**, designed not to lose or silently overwrite a change. It is not in 0.0.7; earlier releases carried a first version of it, which was withdrawn. Until 1.0.0, **Export…** and **Import…** move settings between Macs.
-- **Optional all-in-one modules**; the details follow closer to the release.
+- **Settings sync between your Macs** through any folder they sync (iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing, a network share), **redesigned from scratch**, designed not to lose or silently overwrite a change.
+- **Notch hub**: a panel at the notch (at the top centre on Macs without one) with Now Playing and lyrics, calendar and meetings (Calendar access asked when you switch it on), live activities, timers, a file drop, display controls and AirPods and accessory alerts. Notifications in the hub only if a feasibility test shows it can be done; macOS has no public API for it.
+- **Floating bar** for hidden items, at an icon, at the screen edge or under the cursor.
+- **Smart Categories**: items sorted by static facts such as system, network or media.
+- **Count badges**: the number of hidden items on the holzBar icon.
+- Up to **20 languages**, with a review process for the translations.
 
-### Wish list
+### 1.1.0: system monitor
 
-Not scheduled yet; they follow once 0.0.8 and 0.0.9 are out.
+CPU, GPU, memory, network, disk and power readouts in the menu bar and in the hub, connected devices with battery levels, and alerts when CPU, temperature or disk cross a limit.
 
-- **More rule triggers**: VPN, Bluetooth, audio, camera and microphone in use, Energy Mode. Each one is checked for the permission it needs before it is built.
-- **Shelf layouts**: a grid and a vertical layout for the holzBar Shelf.
-- **Script hooks**: a script that runs before and after a profile is applied, with the same folder choice, hash pinning and confirmation as the other scripts.
+### 1.2.0: launcher and tools
+
+An app launcher and search panel, file search through Spotlight, a calculator and unit converter (no currencies, because that needs the network), an emoji picker (no GIFs), text snippets, quick actions for system commands and Shortcuts, a radial menu, a scratchpad, and a tool to end a process or the one using a port.
+
+### 1.3.0: clipboard
+
+Clipboard history (opt-in, local, password managers excluded, erasable), paste as plain text, cut and paste in Finder, and clean URLs without tracking parameters.
+
+### 1.4.0 and later (order open)
+
+Window management (app switcher, Dock previews, layouts), mouse and keyboard tweaks (scroll direction, smooth scrolling, no acceleration, mouse button shortcuts, trackpad middle click, shortcut management), sound (per-app volume, output switcher, microphone mute, music app blocker), energy and display (extra brightness, display tools, cleaning mode), capture (screenshots, text from the screen, screen and GIF recording, colour picker, measure, QR, camera preview), system tools (cleanup scan, app uninstaller, Homebrew manager, wallpaper tools, focus timer) and text tools with on-device AI (translation, dictation, grammar fix, agent and workflows).
+
+### Principles for every module
+
+Each module is optional and costs nothing while it is off. It asks for its permission only when you switch it on, and says why. No module uses the network. **All AI features run on your Mac with Apple's own on-device models.** Cloud features, weather, speed tests, fan control, a charge limit and a hosts-file blocker are not planned.
 
 The "holzBar vs. Ice and Thaw" table above marks these with 🔜 and the release.
 
