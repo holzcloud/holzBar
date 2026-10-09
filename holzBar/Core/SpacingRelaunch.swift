@@ -22,9 +22,17 @@ nonisolated enum SpacingRelaunch {
 
     /// The bundle identifier of Control Center.
     ///
-    /// Control Center relaunches itself once told to quit, so the manager asks it once,
-    /// after the other apps.
+    /// Control Center refuses to quit: it answers a quit request with `NSTerminateCancel`
+    /// (measured on macOS 26.7.1). Asking it only cost the whole ``quitTimeout`` and reported
+    /// it as a failure on every apply, so holzBar does not ask it; its items take the new
+    /// spacing at the next login.
     static let controlCenterBundleIdentifier = "com.apple.controlcenter"
+
+    /// The bundle identifier of SystemUIServer.
+    ///
+    /// SystemUIServer ignores a quit request (measured on macOS 26.7.1), so, like Control
+    /// Center, it is not asked; its items take the new spacing at the next login.
+    static let systemUIServerBundleIdentifier = "com.apple.systemuiserver"
 
     /// The bundle identifier of MenuBarAgent.
     ///
@@ -36,8 +44,8 @@ nonisolated enum SpacingRelaunch {
     /// The processes to quit and reopen, sorted by process identifier.
     ///
     /// Every distinct process of `owners` is returned except holzBar itself (`ownPID`),
-    /// Control Center and MenuBarAgent. A skipped owner never stops the others from being
-    /// relaunched.
+    /// Control Center, SystemUIServer and MenuBarAgent. A skipped owner never stops the
+    /// others from being relaunched.
     ///
     /// - Parameters:
     ///   - owners: The processes that own the menu bar items.
@@ -45,6 +53,7 @@ nonisolated enum SpacingRelaunch {
     static func processesToRelaunch(owners: [Owner], ownPID: pid_t) -> [pid_t] {
         let skippedBundleIdentifiers: Set<String> = [
             controlCenterBundleIdentifier,
+            systemUIServerBundleIdentifier,
             menuBarAgentBundleIdentifier,
         ]
         let pids = owners.compactMap { owner -> pid_t? in
@@ -101,6 +110,33 @@ nonisolated enum SpacingRelaunch {
         running.contains { process in
             process.pid != oldPID && process.bundleID == bundleID && !process.isTerminated
         }
+    }
+
+    /// Applies a spacing, ends its progress and only then reports a failure.
+    ///
+    /// The progress (the spinner next to Apply) ends as soon as `apply` returns or throws. The
+    /// report is an alert that waits for the user, and by then holzBar is often not the active
+    /// app, so its sheet can sit beneath the active app's windows where nobody sees it. Ending
+    /// the progress after the report kept the spinner going until that hidden alert was found
+    /// and dismissed (measured on macOS 26.7.1).
+    ///
+    /// - Parameters:
+    ///   - apply: Applies the spacing.
+    ///   - finished: Ends the progress; called once, whether `apply` succeeded or not.
+    ///   - reportFailure: Reports the error `apply` threw; not called when it succeeded.
+    static func apply(
+        _ apply: () async throws -> Void,
+        finished: () -> Void,
+        reportFailure: (any Error) async -> Void
+    ) async {
+        do {
+            try await apply()
+        } catch {
+            finished()
+            await reportFailure(error)
+            return
+        }
+        finished()
     }
 
     /// How long an app gets to quit after being asked.

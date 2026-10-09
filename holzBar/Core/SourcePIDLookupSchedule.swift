@@ -57,6 +57,27 @@ nonisolated struct SourcePIDLookupSchedule {
     /// How long a window that a finished scan did not find is not scanned again.
     static let failedLookupInterval = Duration.seconds(30)
 
+    /// How long after its process started an app that has not reported finishing launching
+    /// still counts as launching.
+    ///
+    /// A scan cannot ask an app that is launching, and one signed by Apple that it skips
+    /// keeps every other app from its windows until it can be asked (``SourcePIDClaims``).
+    /// Some apps never report finishing launching, as `NSRunningApplication` documents:
+    /// WebKit's XPC services, signed by Apple, run as long as any app shows web content.
+    /// Waiting for them kept every third-party item from its app for good. Apps finish
+    /// launching within a few seconds, so one that has not after this long never will.
+    static let launchGrace = Duration.seconds(10)
+
+    /// Whether an app never finishes launching: it has not reported it although its process
+    /// has run for ``launchGrace`` or longer. An app whose running time is unknown still
+    /// counts as launching.
+    static func neverFinishesLaunching(isFinishedLaunching: Bool, runningFor runningTime: Duration?) -> Bool {
+        guard !isFinishedLaunching, let runningTime else {
+            return false
+        }
+        return runningTime >= launchGrace
+    }
+
     /// A paused app: how long its pause is, and when it may be asked again.
     private nonisolated struct Pause {
         let length: Duration

@@ -20,6 +20,7 @@ struct SourcePIDScanTests {
         var pid: pid_t
         var isSignedByApple = false
         var isValid = true
+        var neverFinishesLaunching = false
         var barTime = Duration.milliseconds(1)
         var childrenTime = Duration.milliseconds(1)
         var items = [Item]()
@@ -51,6 +52,10 @@ struct SourcePIDScanTests {
 
         func isValidForAccessibility(_ app: App) -> Bool {
             app.isValid
+        }
+
+        func neverFinishesLaunching(_ app: App) -> Bool {
+            app.neverFinishesLaunching
         }
 
         func extrasMenuBar(of app: App) -> Element? {
@@ -198,6 +203,46 @@ struct SourcePIDScanTests {
         scan.run(over: [controlCenter, loginItem], with: source, schedule: &schedule)
 
         #expect(scan.isFinished)
+        #expect(scan.decision(for: window) == .unresolved)
+    }
+
+    @Test("An app signed by Apple that never finishes launching does not keep other apps from their windows")
+    func appleAppThatNeverFinishesLaunching() {
+        // WebKit's XPC services: signed by Apple, accessory apps, never reported as finished
+        // launching. With one running, no third-party item got its app (holzBar 0.0.7 beta 2
+        // and 3 on macOS 26). Another window, which the login item does not claim, stays
+        // unresolved without waiting for them either.
+        let other: CGWindowID = 2
+        let webKit = (10...12).map { App(pid: $0, isSignedByApple: true, isValid: false, neverFinishesLaunching: true) }
+        let loginItem = App(pid: 20, items: [itemAtWindow])
+        let source = Source()
+        var schedule = SourcePIDLookupSchedule(ownPID: ownPID)
+        var scan = SourcePIDScan<App>(centers: [window: center, other: CGPoint(x: 600, y: 12)], startedAt: source.now)
+
+        scan.run(over: webKit + [loginItem], with: source, schedule: &schedule)
+
+        #expect(scan.isFinished)
+        #expect(!scan.skippedAppleApp)
+        #expect(scan.skippedApps.isEmpty)
+        #expect(scan.decision(for: window) == .owner(20))
+        #expect(scan.decision(for: other) == .unresolved)
+        #expect((10...12).allSatisfy { source.asked[$0] == nil })
+    }
+
+    @Test("An app signed by Apple that is still launching keeps another app from its window")
+    func launchingAppleApp() {
+        // Such as screencaptureui while it launches to show its recording item.
+        let launching = App(pid: 10, isSignedByApple: true, isValid: false, items: [itemAtWindow])
+        let loginItem = App(pid: 20, items: [itemAtWindow])
+        let source = Source()
+        var schedule = SourcePIDLookupSchedule(ownPID: ownPID)
+        var scan = SourcePIDScan<App>(centers: [window: center], startedAt: source.now)
+
+        scan.run(over: [launching, loginItem], with: source, schedule: &schedule)
+
+        #expect(scan.isFinished)
+        #expect(scan.skippedAppleApp)
+        #expect(pids(scan.skippedApps) == [10])
         #expect(scan.decision(for: window) == .unresolved)
     }
 

@@ -104,6 +104,18 @@ struct SourcePIDLookupScheduleTests {
         #expect(SourcePIDLookupSchedule.shouldRescan(failedAt: start, now: start + .seconds(1), skippedAppIsReady: true))
     }
 
+    @Test("An app that has not reported finishing launching 10 s after its process started never will")
+    func neverFinishesLaunching() {
+        #expect(!SourcePIDLookupSchedule.neverFinishesLaunching(isFinishedLaunching: false, runningFor: .zero))
+        #expect(!SourcePIDLookupSchedule.neverFinishesLaunching(isFinishedLaunching: false, runningFor: .milliseconds(9_999)))
+        #expect(SourcePIDLookupSchedule.neverFinishesLaunching(isFinishedLaunching: false, runningFor: .seconds(10)))
+        #expect(SourcePIDLookupSchedule.neverFinishesLaunching(isFinishedLaunching: false, runningFor: .seconds(86_400)))
+        // A launched app, whatever its running time.
+        #expect(!SourcePIDLookupSchedule.neverFinishesLaunching(isFinishedLaunching: true, runningFor: .seconds(86_400)))
+        // A process whose start time cannot be read still counts as launching.
+        #expect(!SourcePIDLookupSchedule.neverFinishesLaunching(isFinishedLaunching: false, runningFor: nil))
+    }
+
     @Test("The limits keep one lookup short")
     func limits() {
         #expect(SourcePIDLookupSchedule.messagingTimeout == 0.5)
