@@ -18,6 +18,8 @@ nonisolated enum AutomationNetworkKind: String, Codable, Sendable {
     case offline
     /// A connection the system treats as expensive, such as a phone's hotspot.
     case expensive
+    /// The traffic goes through a tunnel, as with a VPN that sends everything through it.
+    case vpn
 }
 
 /// A span of the day on chosen weekdays.
@@ -184,12 +186,14 @@ nonisolated enum AutomationAction: Codable, Equatable, Sendable {
     case applyProfile(String)
     case showSection(AutomationSection)
     case zen(Bool)
+    /// Keeps the Mac and its display from going to sleep on their own, or lets them.
+    case keepAwake(Bool)
 
     var isValid: Bool {
         switch self {
         case .applyProfile(let name):
             return !name.isEmpty && name.utf8.count <= 80
-        case .showSection, .zen:
+        case .showSection, .zen, .keepAwake:
             return true
         }
     }

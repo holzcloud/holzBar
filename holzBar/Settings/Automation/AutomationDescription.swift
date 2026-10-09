@@ -45,6 +45,8 @@ enum AutomationDescription {
             String(localized: "the Mac is connected through Ethernet")
         case .network(.offline):
             String(localized: "the Mac is offline")
+        case .network(.vpn):
+            String(localized: "the traffic goes through a VPN")
         case .network(.expensive):
             String(localized: "the connection is expensive, for example a hotspot")
         case .wifiNetwork(let name):
@@ -65,6 +67,10 @@ enum AutomationDescription {
             String(localized: "turn Zen mode on")
         case .zen(false):
             String(localized: "turn Zen mode off")
+        case .keepAwake(true):
+            String(localized: "keep the Mac awake")
+        case .keepAwake(false):
+            String(localized: "let the Mac sleep")
         }
     }
 

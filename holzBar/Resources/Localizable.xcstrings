@@ -2409,6 +2409,34 @@
         }
       }
     },
+    "Connected through a VPN" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über ein VPN verbunden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecté par un VPN"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connesso tramite VPN"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collià tras in VPN"
+          }
+        }
+      }
+    },
     "Continue" : {
       "localizations" : {
         "de" : {
@@ -4369,6 +4397,34 @@
         }
       }
     },
+    "Keep the Mac awake" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac wach halten"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garder le Mac éveillé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni il Mac attivo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantegnair il Mac sveglià"
+          }
+        }
+      }
+    },
     "Launch at login" : {
       "localizations" : {
         "de" : {
@@ -4477,6 +4533,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fin sanestra"
+          }
+        }
+      }
+    },
+    "Let the Mac sleep" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac schlafen lassen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser le Mac se mettre en veille"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascia che il Mac vada in stop"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laschar durmir il Mac"
           }
         }
       }
@@ -11375,6 +11459,62 @@
         }
       }
     },
+    "keep the Mac awake" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "den Mac wach halten"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "garder le Mac éveillé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tenere il Mac attivo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mantegnair il Mac sveglià"
+          }
+        }
+      }
+    },
+    "let the Mac sleep" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "den Mac schlafen lassen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "laisser le Mac se mettre en veille"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "lasciare che il Mac vada in stop"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "laschar durmir il Mac"
+          }
+        }
+      }
+    },
     "macOS 27 doesn't let apps hide this system item." : {
       "localizations" : {
         "de" : {
@@ -12043,6 +12183,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "il visur «%@» è collià"
+          }
+        }
+      }
+    },
+    "the traffic goes through a VPN" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "der Datenverkehr über ein VPN läuft"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "le trafic passe par un VPN"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il traffico passa attraverso una VPN"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il trafic va tras in VPN"
           }
         }
       }

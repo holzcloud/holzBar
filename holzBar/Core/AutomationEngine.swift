@@ -17,6 +17,7 @@ nonisolated enum AutomationEngine {
         case applyProfile(String)
         case showSection(AutomationSection)
         case setZen(Bool)
+        case setKeepAwake(Bool)
     }
 
     /// What the app looks like right now.
@@ -24,6 +25,8 @@ nonisolated enum AutomationEngine {
         /// The name of the profile that is applied.
         var currentProfile: String?
         var isZenOn: Bool
+        /// Whether holzBar keeps the Mac awake.
+        var isKeepAwakeOn = false
     }
 
     /// What the engine remembers between two passes.
@@ -68,6 +71,7 @@ nonisolated enum AutomationEngine {
             switch effect {
             case .applyProfile(let name): context.currentProfile = name
             case .setZen(let isOn): context.isZenOn = isOn
+            case .setKeepAwake(let isOn): context.isKeepAwakeOn = isOn
             case .showSection: break
             }
             effects.append(effect)
@@ -79,6 +83,7 @@ nonisolated enum AutomationEngine {
             switch effect {
             case .applyProfile(let name): context.currentProfile == name
             case .setZen(let isOn): context.isZenOn == isOn
+            case .setKeepAwake(let isOn): context.isKeepAwakeOn == isOn
             case .showSection: false
             }
         }
@@ -130,6 +135,7 @@ nonisolated enum AutomationEngine {
         switch effect {
         case .applyProfile(let name): context.currentProfile == name
         case .setZen(let isOn): context.isZenOn == isOn
+        case .setKeepAwake(let isOn): context.isKeepAwakeOn == isOn
         case .showSection: false
         }
     }
@@ -144,6 +150,8 @@ nonisolated enum AutomationEngine {
             return context.currentProfile.map(Effect.applyProfile)
         case .setZen:
             return .setZen(context.isZenOn)
+        case .setKeepAwake:
+            return .setKeepAwake(context.isKeepAwakeOn)
         case .showSection:
             return nil
         }
@@ -156,6 +164,7 @@ extension AutomationAction {
         case .applyProfile(let name): .applyProfile(name)
         case .showSection(let section): .showSection(section)
         case .zen(let isOn): .setZen(isOn)
+        case .keepAwake(let isOn): .setKeepAwake(isOn)
         }
     }
 }
