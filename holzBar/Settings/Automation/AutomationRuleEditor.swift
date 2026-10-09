@@ -9,9 +9,13 @@ import SwiftUI
 /// The editor of one rule, shown under its row: the name, the conditions and what the rule
 /// does.
 struct AutomationRuleEditor: View {
+    @Environment(AppState.self) private var appState
     @Binding var rule: AutomationRule
     let profileNames: [String]
     let onDelete: () -> Void
+
+    @State private var isAskingForWiFiName = false
+    @State private var wifiName = ""
 
     /// What a rule can do, as the choices of one menu.
     private enum ActionChoice: Hashable {
@@ -50,6 +54,26 @@ struct AutomationRuleEditor: View {
             Button("Delete Rule", role: .destructive, action: onDelete)
                 .padding(.top, HolzBarTheme.Spacing.xs)
         }
+        .alert("Wi-Fi Network", isPresented: $isAskingForWiFiName) {
+            TextField("Network name", text: $wifiName)
+            Button("Add") {
+                addWiFiCondition()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("macOS shares the Wi-Fi network name only with apps that may use Location Services. holzBar uses it only to read that name and never reads your location. macOS asks for your permission next.")
+        }
+    }
+
+    /// Adds the condition, and asks for Location Services now that the reason was shown.
+    private func addWiFiCondition() {
+        let name = wifiName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty, name.utf8.count <= 32 else {
+            return
+        }
+        appState.activate(for: .settings)
+        appState.automation.wifiMonitor.requestAuthorization()
+        add(.wifiNetwork(name))
     }
 
     private func heading(_ key: LocalizedStringKey) -> some View {
@@ -106,6 +130,10 @@ struct AutomationRuleEditor: View {
                 }
             }
             Divider()
+            Button("Wi-Fi network by name…") {
+                wifiName = appState.automation.wifiMonitor.currentName ?? ""
+                isAskingForWiFiName = true
+            }
             Button("Connected through Wi-Fi") {
                 add(.network(.wifi))
             }
@@ -220,6 +248,7 @@ struct AutomationRuleEditor: View {
 
 /// One condition of a rule: what it says, the settings it has, and a button to remove it.
 private struct AutomationConditionRow: View {
+    @Environment(AppState.self) private var appState
     @Binding var condition: AutomationCondition
     let onRemove: () -> Void
 
@@ -237,6 +266,9 @@ private struct AutomationConditionRow: View {
                 .accessibilityLabel(Text("Remove Condition"))
             }
             settings
+            if case .wifiNetwork = condition {
+                WiFiPermissionNote(monitor: appState.automation.wifiMonitor)
+            }
         }
         .padding(.horizontal, HolzBarTheme.Spacing.sm)
         .padding(.vertical, HolzBarTheme.Spacing.xs + 2)
@@ -320,6 +352,31 @@ private struct AutomationConditionRow: View {
                 condition = .time(window)
             }
         )
+    }
+}
+
+/// Says that the Wi-Fi name condition needs Location Services, until the user allowed it.
+private struct WiFiPermissionNote: View {
+    let monitor: WiFiNetworkMonitor
+
+    var body: some View {
+        if !monitor.isAuthorized {
+            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
+                Label("Needs Location Services. Until you allow holzBar, this condition is never true.", systemImage: "lock")
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if monitor.authorization != .notDetermined {
+                    Button("Open Location Settings") {
+                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_LocationServices") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    }
+                    .buttonStyle(.link)
+                    .font(HolzBarTheme.Typography.caption)
+                }
+            }
+        }
     }
 }
 
