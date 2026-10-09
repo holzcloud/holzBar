@@ -53,6 +53,9 @@ final class AutomationManager {
     @ObservationIgnored private var timeTask: Task<Void, Never>?
     @ObservationIgnored private var storedWiFiMonitor: WiFiNetworkMonitor?
 
+    /// The activity that keeps the Mac awake while a rule asks for it.
+    @ObservationIgnored private var keepAwakeActivity: (any NSObjectProtocol)?
+
     /// The reader of the Wi-Fi network name. It exists from the first time it is needed.
     var wifiMonitor: WiFiNetworkMonitor {
         if let storedWiFiMonitor {
@@ -243,6 +246,11 @@ final class AutomationManager {
             if path.isExpensive {
                 kinds.insert(.expensive)
             }
+            // A tunnel interface (`utun`, `ipsec`, `ppp`) carries the traffic: a VPN that sends
+            // everything through it. A VPN that only routes some networks is not seen.
+            if path.usesInterfaceType(.other) {
+                kinds.insert(.vpn)
+            }
             Task { @MainActor in
                 self?.networkChanged(kinds, from: monitor)
             }
@@ -364,7 +372,8 @@ final class AutomationManager {
             facts: currentFacts(),
             context: AutomationEngine.Context(
                 currentProfile: appState.profiles.currentProfileName,
-                isZenOn: appState.menuBarManager.zenMode.isManual
+                isZenOn: appState.menuBarManager.zenMode.isManual,
+                isKeepAwakeOn: keepAwakeActivity != nil
             ),
             state: engineState
         )
@@ -387,6 +396,27 @@ final class AutomationManager {
         case .setZen(let isOn):
             logger.notice("An automation rule turns Zen mode \(isOn ? "on" : "off", privacy: .public)")
             appState.menuBarManager.setManualZenMode(isOn)
+        case .setKeepAwake(let isOn):
+            setKeepAwake(isOn)
+        }
+    }
+
+    /// Keeps the Mac and its display awake, or lets them sleep. The activity is a hold on idle
+    /// sleep only; the user can still sleep the Mac, and it ends when holzBar quits.
+    private func setKeepAwake(_ isOn: Bool) {
+        if isOn {
+            guard keepAwakeActivity == nil else {
+                return
+            }
+            logger.notice("An automation rule keeps the Mac awake")
+            keepAwakeActivity = ProcessInfo.processInfo.beginActivity(
+                options: [.idleSystemSleepDisabled, .idleDisplaySleepDisabled],
+                reason: "An automation rule keeps the Mac awake"
+            )
+        } else if let activity = keepAwakeActivity {
+            logger.notice("An automation rule lets the Mac sleep again")
+            ProcessInfo.processInfo.endActivity(activity)
+            keepAwakeActivity = nil
         }
     }
 

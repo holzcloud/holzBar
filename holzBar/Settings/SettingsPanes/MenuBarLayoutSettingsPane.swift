@@ -22,6 +22,7 @@ struct MenuBarLayoutSettingsPane: View {
             HolzBarForm(spacing: 20) {
                 header
                 LayoutProfilesSection(profiles: appState.profiles)
+                LayoutHistorySection(snapshots: appState.snapshots)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
                 SpacersSection(spacers: appState.spacers)
                 if #available(macOS 27.0, *) {
@@ -150,6 +151,19 @@ private struct LayoutProfilesSection: View {
     @State private var newProfileName = ""
     @State private var renamedProfile: LayoutProfile?
     @State private var renamedName = ""
+    @State private var importedProfile: SharedProfile?
+    @State private var isShowingImportError = false
+
+    /// Whether the import sheet is shown.
+    private var isImporting: Binding<Bool> {
+        Binding {
+            importedProfile != nil
+        } set: { isPresented in
+            if !isPresented {
+                importedProfile = nil
+            }
+        }
+    }
 
     /// Whether the rename alert is shown.
     private var isRenaming: Binding<Bool> {
@@ -160,6 +174,27 @@ private struct LayoutProfilesSection: View {
                 renamedProfile = nil
             }
         }
+    }
+
+    /// Asks for a profile file and reads it. The file is untrusted: it is checked in full, and
+    /// nothing in it runs.
+    private func chooseProfileFile() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        guard panel.runModal() == .OK, let url = panel.url else {
+            return
+        }
+        let size = (try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? Int.max
+        guard
+            size <= SharedProfile.maximumSize,
+            let data = try? Data(contentsOf: url),
+            case .success(let shared) = SharedProfile.decode(data)
+        else {
+            isShowingImportError = true
+            return
+        }
+        importedProfile = shared
     }
 
     var body: some View {
@@ -183,6 +218,9 @@ private struct LayoutProfilesSection: View {
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
+                Button("Import Profile…") {
+                    chooseProfileFile()
+                }
                 Button("Save Current Layout…") {
                     newProfileName = profiles.currentProfileName ?? ""
                     isNamingProfile = true
@@ -196,6 +234,16 @@ private struct LayoutProfilesSection: View {
                 Button("Cancel", role: .cancel) { }
             } message: {
                 Text("A profile with the same name is replaced. Apply it later from here, or with holzbar://profile/<name>.")
+            }
+            .sheet(isPresented: isImporting) {
+                if let importedProfile {
+                    ImportProfileSheet(shared: importedProfile, profiles: profiles)
+                }
+            }
+            .alert("This file is not a holzBar profile.", isPresented: $isShowingImportError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("It could not be read, or it holds something a profile may not hold.")
             }
             .alert("Rename Profile", isPresented: isRenaming) {
                 TextField("Name", text: $renamedName)
@@ -219,6 +267,7 @@ private struct LayoutProfileRow: View {
     let isCurrent: Bool
     let rename: () -> Void
     @State private var isConfirmingDelete = false
+    @State private var isSharing = false
 
     /// The screen of the Settings window, which "This Display" means.
     private var currentScreen: NSScreen? {
@@ -290,6 +339,9 @@ private struct LayoutProfileRow: View {
             .fixedSize()
             Menu {
                 Button("Rename…", action: rename)
+                Button("Share…") {
+                    isSharing = true
+                }
                 Button("Delete…", role: .destructive) {
                     isConfirmingDelete = true
                 }
@@ -301,6 +353,9 @@ private struct LayoutProfileRow: View {
             .menuIndicator(.hidden)
             .buttonStyle(.borderless)
             .fixedSize()
+        }
+        .sheet(isPresented: $isSharing) {
+            ShareProfileSheet(profile: profile)
         }
         .confirmationDialog("Delete the profile \u{201C}\(profile.name)\u{201D}?", isPresented: $isConfirmingDelete) {
             Button("Delete", role: .destructive) {

@@ -117,6 +117,41 @@ struct AutomationEngineTests {
         #expect(ended.effects == [.setZen(false)])
     }
 
+    @Test("Keeping the Mac awake is undone when the rule ends")
+    func keepAwakeRestores() {
+        let rules = [rule("Power", [battery], action: .keepAwake(true))]
+        let started = run(rules, facts(power: .battery))
+        #expect(started.effects == [.setKeepAwake(true)])
+        let ended = Engine.evaluate(
+            rules: rules,
+            facts: facts(),
+            context: Engine.Context(currentProfile: "Home", isZenOn: false, isKeepAwakeOn: true),
+            state: started.state
+        )
+        #expect(ended.effects == [.setKeepAwake(false)])
+    }
+
+    @Test("A Mac that is already kept awake needs no new effect")
+    func keepAwakeAlreadyOn() {
+        let rules = [rule("Power", [battery], action: .keepAwake(true))]
+        let result = Engine.evaluate(
+            rules: rules,
+            facts: facts(power: .battery),
+            context: Engine.Context(currentProfile: nil, isZenOn: false, isKeepAwakeOn: true),
+            state: Engine.State()
+        )
+        #expect(result.effects.isEmpty)
+        #expect(result.state.undo.isEmpty)
+    }
+
+    @Test("The VPN condition reads the network kinds")
+    func vpnCondition() {
+        let vpn = AutomationCondition.network(.vpn)
+        #expect(vpn.evaluate(in: AutomationFacts(networkKinds: [.wifi, .vpn])) == true)
+        #expect(vpn.evaluate(in: AutomationFacts(networkKinds: [.wifi])) == false)
+        #expect(vpn.evaluate(in: AutomationFacts()) == nil)
+    }
+
     @Test("The first rule that applies a profile wins; the other waits")
     func firstProfileWins() {
         let rules = [

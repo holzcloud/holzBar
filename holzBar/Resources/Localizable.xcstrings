@@ -225,6 +225,34 @@
         }
       }
     },
+    "%@ · Items: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Objekte: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Éléments : %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Elementi: %lld"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ · Elements: %lld"
+          }
+        }
+      }
+    },
     "%lld items" : {
       "localizations" : {
         "de" : {
@@ -249,6 +277,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld elements"
+          }
+        }
+      }
+    },
+    "%lld items will move, %lld are not in the menu bar now. The layout as it is now is kept first, so you can undo this." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Objekte werden verschoben, %lld sind jetzt nicht in der Menüleiste. Das jetzige Layout wird zuerst gesichert, damit du das rückgängig machen kannst."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld éléments seront déplacés, %lld ne sont pas dans la barre des menus actuellement. La disposition actuelle est d’abord conservée, afin que vous puissiez annuler."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld elementi verranno spostati, %lld non sono ora nella barra dei menu. Il layout attuale viene prima conservato, così puoi annullare."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld elements vegnan spustads, %lld n’èn ussa betg en la trav da menu. Il layout actual vegn l’emprim memorisà, uschè che ti pos revocar."
           }
         }
       }
@@ -669,6 +725,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avanzà"
+          }
+        }
+      }
+    },
+    "After the bar settled" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nachdem sich die Leiste beruhigt hatte"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Après stabilisation de la barre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo che la barra si è assestata"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suenter che la trav è s’ordinada"
           }
         }
       }
@@ -1541,6 +1625,62 @@
         }
       }
     },
+    "Before a profile" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor einem Profil"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant un profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima di un profilo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant in profil"
+          }
+        }
+      }
+    },
+    "Before a restore" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor einer Wiederherstellung"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant une restauration"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima di un ripristino"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant ina restauraziun"
+          }
+        }
+      }
+    },
     "Below %@" : {
       "localizations" : {
         "de" : {
@@ -2409,6 +2549,34 @@
         }
       }
     },
+    "Connected through a VPN" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über ein VPN verbunden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecté par un VPN"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connesso tramite VPN"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collià tras in VPN"
+          }
+        }
+      }
+    },
     "Continue" : {
       "localizations" : {
         "de" : {
@@ -2461,6 +2629,118 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cooperar"
+          }
+        }
+      }
+    },
+    "Copy" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopieren"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar"
+          }
+        }
+      }
+    },
+    "Copy Diagnostics" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagnose kopieren"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier le diagnostic"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia diagnostica"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar la diagnosa"
+          }
+        }
+      }
+    },
+    "Copy Diagnostics…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagnose kopieren …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier le diagnostic…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia diagnostica…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar la diagnosa …"
+          }
+        }
+      }
+    },
+    "Copy and Open Issue Tracker" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopieren und Issue-Tracker öffnen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier et ouvrir le suivi des tickets"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia e apri il tracker"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar ed avrir il tracker dals issues"
           }
         }
       }
@@ -2689,6 +2969,62 @@
         }
       }
     },
+    "Delete All Snapshots" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Momentaufnahmen löschen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer tous les instantanés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina tutte le istantanee"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stizzar tut ils snapshots"
+          }
+        }
+      }
+    },
+    "Delete All Snapshots…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Momentaufnahmen löschen …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer tous les instantanés…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina tutte le istantanee…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stizzar tut ils snapshots …"
+          }
+        }
+      }
+    },
     "Delete Profile" : {
       "localizations" : {
         "de" : {
@@ -2741,6 +3077,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stizzar la regla"
+          }
+        }
+      }
+    },
+    "Delete all snapshots?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Momentaufnahmen löschen?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer tous les instantanés ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminare tutte le istantanee?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stizzar tut ils snapshots?"
           }
         }
       }
@@ -3385,6 +3749,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Exportar …"
+          }
+        }
+      }
+    },
+    "First check of the day" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erste Prüfung des Tages"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Première vérification du jour"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Primo controllo del giorno"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emprima controlla dal di"
           }
         }
       }
@@ -4145,6 +4537,90 @@
         }
       }
     },
+    "Import" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importieren"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar"
+          }
+        }
+      }
+    },
+    "Import Profile" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil importieren"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer un profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa profilo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar in profil"
+          }
+        }
+      }
+    },
+    "Import Profile…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil importieren …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer un profil…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa profilo…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar in profil …"
+          }
+        }
+      }
+    },
     "Import and Restart" : {
       "localizations" : {
         "de" : {
@@ -4257,6 +4733,34 @@
         }
       }
     },
+    "It could not be read, or it holds something a profile may not hold." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie konnte nicht gelesen werden, oder sie enthält etwas, das ein Profil nicht enthalten darf."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il n’a pas pu être lu, ou il contient quelque chose qu’un profil ne doit pas contenir."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è stato possibile leggerlo, oppure contiene qualcosa che un profilo non può contenere."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ella n’ha betg pudì vegnir legida u cuntegna insatge che in profil na dastga betg cuntegnair."
+          }
+        }
+      }
+    },
     "Items" : {
       "localizations" : {
         "de" : {
@@ -4341,6 +4845,34 @@
         }
       }
     },
+    "Keep a history of the layout" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlauf des Layouts führen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conserver un historique de la disposition"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantieni una cronologia del layout"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manar ina istorgia dal layout"
+          }
+        }
+      }
+    },
     "Keep the Dock icon hidden" : {
       "localizations" : {
         "de" : {
@@ -4369,6 +4901,34 @@
         }
       }
     },
+    "Keep the Mac awake" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac wach halten"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garder le Mac éveillé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni il Mac attivo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantegnair il Mac sveglià"
+          }
+        }
+      }
+    },
     "Launch at login" : {
       "localizations" : {
         "de" : {
@@ -4393,6 +4953,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aviar a l'annunzia"
+          }
+        }
+      }
+    },
+    "Layout History" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layoutverlauf"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historique de la disposition"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cronologia del layout"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Istorgia dal layout"
           }
         }
       }
@@ -4477,6 +5065,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fin sanestra"
+          }
+        }
+      }
+    },
+    "Let the Mac sleep" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mac schlafen lassen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser le Mac se mettre en veille"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascia che il Mac vada in stop"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laschar durmir il Mac"
           }
         }
       }
@@ -5629,6 +6245,34 @@
         }
       }
     },
+    "Not Now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht jetzt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas maintenant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non ora"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg ussa"
+          }
+        }
+      }
+    },
     "Not enough room to show “%@”" : {
       "localizations" : {
         "de" : {
@@ -5709,6 +6353,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Notch e monitur"
+          }
+        }
+      }
+    },
+    "Nothing is sent. Read the report, then copy it into your issue. It holds versions and counts only: no names of items, apps, profiles or networks, and no paths." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es wird nichts gesendet. Lies den Bericht und kopiere ihn dann in dein Issue. Er enthält nur Versionen und Zahlen: keine Namen von Objekten, Apps, Profilen oder Netzwerken und keine Pfade."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rien n’est envoyé. Lisez le rapport, puis copiez-le dans votre ticket. Il ne contient que des versions et des nombres : aucun nom d’élément, d’app, de profil ou de réseau, et aucun chemin."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non viene inviato nulla. Leggi il rapporto, poi copialo nella tua segnalazione. Contiene solo versioni e numeri: nessun nome di elementi, app, profili o reti e nessun percorso."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagut na vegn tramess. Legia il rapport e copiescha lu silsuenter en tia segnalaziun. El cuntegna mo versiuns e dumbers: nagins nums d’elements, d’apps, da profils u da raits e nagins paths."
           }
         }
       }
@@ -6889,6 +7561,34 @@
         }
       }
     },
+    "Remove Star" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stern entfernen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer l’étoile"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi stella"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allontanar la staila"
+          }
+        }
+      }
+    },
     "Remove the color" : {
       "localizations" : {
         "de" : {
@@ -7253,6 +7953,118 @@
         }
       }
     },
+    "Restore" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiederherstellen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar"
+          }
+        }
+      }
+    },
+    "Restore from %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von %@ wiederherstellen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurer depuis %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina da %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar da %@"
+          }
+        }
+      }
+    },
+    "Restore this layout?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Layout wiederherstellen?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurer cette disposition ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristinare questo layout?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar quest layout?"
+          }
+        }
+      }
+    },
+    "Restore…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiederherstellen …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurer…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar …"
+          }
+        }
+      }
+    },
     "Right-click in an empty area of the menu bar to display a minimal version of holzBar's menu. Disable this setting if you encounter conflicts with other apps." : {
       "localizations" : {
         "de" : {
@@ -7589,6 +8401,34 @@
         }
       }
     },
+    "Save…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sichern …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memorisar …"
+          }
+        }
+      }
+    },
     "Screen Recording" : {
       "localizations" : {
         "de" : {
@@ -7921,6 +8761,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Furma"
+          }
+        }
+      }
+    },
+    "Share Profile" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil teilen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partager le profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi profilo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cundivider il profil"
+          }
+        }
+      }
+    },
+    "Share…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teilen …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partager…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cundivider …"
           }
         }
       }
@@ -8737,6 +9633,34 @@
         }
       }
     },
+    "Star" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mit Stern markieren"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter une étoile"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi stella"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Marcar cun staila"
+          }
+        }
+      }
+    },
     "Strategy" : {
       "localizations" : {
         "de" : {
@@ -8789,6 +9713,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vaider dal sistem"
+          }
+        }
+      }
+    },
+    "Take Snapshot Now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt Momentaufnahme erstellen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créer un instantané maintenant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crea subito un’istantanea"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Far ussa in snapshot"
+          }
+        }
+      }
+    },
+    "Taken by you" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von dir erstellt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créé par vous"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Creata da te"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fatg da tai"
           }
         }
       }
@@ -8901,6 +9881,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La colur dal simbol e dal num da la gruppa"
+          }
+        }
+      }
+    },
+    "The file lists the applications below and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Uncheck an application to leave it out." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Datei enthält die unten aufgeführten Apps und deren Bereich. Sie enthält keine Bildschirm-, WLAN-, Tastenkürzel- oder andere Einstellungen. Entferne das Häkchen bei einer App, um sie wegzulassen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier contient les apps ci-dessous et la section de chacune. Il ne contient aucun réglage d’écran, de Wi-Fi, de raccourci ou autre. Décochez une app pour l’exclure."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file contiene le app qui sotto e la sezione di ciascuna. Non contiene impostazioni di schermo, Wi-Fi, abbreviazioni da tastiera o altro. Deseleziona un’app per escluderla."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La datoteca cuntegna las apps sutvart e la secziun da mintgina. Ella na cuntegna naginas preferenzas da visur, WLAN, cumbinaziuns da tastas u autras. Deactivescha ina app per l’exclude."
           }
         }
       }
@@ -9073,6 +10081,34 @@
         }
       }
     },
+    "The profile “%@” has %lld applications, %lld of them installed on this Mac. Importing adds it to your profiles; it moves nothing until you apply it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Profil „%@“ enthält %lld Apps, %lld davon sind auf diesem Mac installiert. Beim Importieren wird es zu deinen Profilen hinzugefügt; es verschiebt nichts, bis du es anwendest."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le profil « %@ » contient %lld apps, dont %lld sont installées sur ce Mac. L’importer l’ajoute à vos profils ; il ne déplace rien tant que vous ne l’appliquez pas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il profilo “%@” contiene %lld app, %lld delle quali sono installate su questo Mac. L’importazione lo aggiunge ai tuoi profili; non sposta nulla finché non lo applichi."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il profil «%@» cuntegna %lld apps, %lld da quellas èn installadas sin quest Mac. L’import al agiunta a tes profils; el na spusta nagut enfin che ti al applitgeschas."
+          }
+        }
+      }
+    },
     "The search shows pictures of your menu bar items, which macOS lets an app take only with Screen Recording. You can search by name without it." : {
       "localizations" : {
         "de" : {
@@ -9209,6 +10245,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Questa acziun na sa lascha betg revocar."
+          }
+        }
+      }
+    },
+    "This file is not a holzBar profile." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Datei ist kein holzBar-Profil."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce fichier n’est pas un profil holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo file non è un profilo holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quest datoteca n’è nagin profil holzBar."
           }
         }
       }
@@ -10753,6 +11817,34 @@
         }
       }
     },
+    "Your layout looks reset." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Layout sieht zurückgesetzt aus."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre disposition semble réinitialisée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tuo layout sembra reimpostato."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes layout para reinizialisà."
+          }
+        }
+      }
+    },
     "Zen Mode" : {
       "localizations" : {
         "de" : {
@@ -11371,6 +12463,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "igl è danter %@ e %@ (%@)"
+          }
+        }
+      }
+    },
+    "keep the Mac awake" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "den Mac wach halten"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "garder le Mac éveillé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tenere il Mac attivo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mantegnair il Mac sveglià"
+          }
+        }
+      }
+    },
+    "let the Mac sleep" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "den Mac schlafen lassen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "laisser le Mac se mettre en veille"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "lasciare che il Mac vada in stop"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "laschar durmir il Mac"
           }
         }
       }
@@ -12043,6 +13191,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "il visur «%@» è collià"
+          }
+        }
+      }
+    },
+    "the traffic goes through a VPN" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "der Datenverkehr über ein VPN läuft"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "le trafic passe par un VPN"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il traffico passa attraverso una VPN"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il trafic va tras in VPN"
           }
         }
       }

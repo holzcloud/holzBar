@@ -105,6 +105,7 @@ struct AutomationSettingsPane: View {
         case .applyProfile: "rectangle.stack"
         case .showSection: "eye"
         case .zen: "moon"
+        case .keepAwake: "cup.and.saucer"
         }
     }
 

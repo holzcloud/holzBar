@@ -24,6 +24,8 @@ struct AutomationRuleEditor: View {
         case alwaysHiddenSection
         case zenOn
         case zenOff
+        case keepAwake
+        case allowSleep
     }
 
     var body: some View {
@@ -143,6 +145,9 @@ struct AutomationRuleEditor: View {
             Button("Offline") {
                 add(.network(.offline))
             }
+            Button("Connected through a VPN") {
+                add(.network(.vpn))
+            }
             Button("Expensive connection (hotspot)") {
                 add(.network(.expensive))
             }
@@ -187,6 +192,8 @@ struct AutomationRuleEditor: View {
                 case .showSection(.alwaysHidden): .alwaysHiddenSection
                 case .zen(true): .zenOn
                 case .zen(false): .zenOff
+                case .keepAwake(true): .keepAwake
+                case .keepAwake(false): .allowSleep
                 }
             },
             set: { choice in
@@ -201,6 +208,10 @@ struct AutomationRuleEditor: View {
                     rule.action = .zen(true)
                 case .zenOff:
                     rule.action = .zen(false)
+                case .keepAwake:
+                    rule.action = .keepAwake(true)
+                case .allowSleep:
+                    rule.action = .keepAwake(false)
                 }
             }
         )
@@ -213,6 +224,8 @@ struct AutomationRuleEditor: View {
             Text("Show the always-hidden section").tag(ActionChoice.alwaysHiddenSection)
             Text("Turn Zen mode on").tag(ActionChoice.zenOn)
             Text("Turn Zen mode off").tag(ActionChoice.zenOff)
+            Text("Keep the Mac awake").tag(ActionChoice.keepAwake)
+            Text("Let the Mac sleep").tag(ActionChoice.allowSleep)
         }
     }
 
@@ -240,7 +253,7 @@ struct AutomationRuleEditor: View {
     /// Whether the action is one that can be undone when the rule ends.
     private var restoresApply: Bool {
         switch rule.action {
-        case .applyProfile, .zen: true
+        case .applyProfile, .zen, .keepAwake: true
         case .showSection: false
         }
     }

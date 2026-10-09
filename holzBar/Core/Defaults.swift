@@ -191,6 +191,8 @@ nonisolated extension Defaults {
         case spacerCount = "SpacerCount"
         case spacerWidth = "SpacerWidth"
         case revealRules = "RevealRules"
+        /// Whether the history of the layout is turned off (it is on by default).
+        case layoutSnapshotsDisabled = "LayoutSnapshotsDisabled"
         /// The automation rules, as JSON (`AutomationRule`).
         case automationRules = "AutomationRules"
         case knownItemTags = "KnownItemTags"
@@ -279,6 +281,7 @@ nonisolated extension Defaults.Key {
             .showAllSectionsOnUserDrag,
             .hideApplicationMenus,
             .keepsDockIconHidden,
+            .layoutSnapshotsDisabled,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
             .autoZenWhileSharingScreen,
