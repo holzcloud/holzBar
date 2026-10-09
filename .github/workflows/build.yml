@@ -207,16 +207,16 @@ jobs:
           path: build/Build/Products/Release/holzBar.app
           retention-days: 1
 
-  # holzBar's deployment target is macOS 14. Every macOS version GitHub offers launches
-  # the app built above (a missing symbol or a crash at launch fails here). macOS 14, 15
-  # and 26 also run the unit tests with that runner's newest Xcode and the pinned Swift
+  # holzBar's deployment target is macOS 14, but only macOS 26 and 27 are tested. Both
+  # launch the app built above (a missing symbol or a crash at launch fails here). macOS 26
+  # also runs the unit tests with that runner's newest Xcode and the pinned Swift
   # toolchain; on macOS 27 (the xcode-27 image) the test job runs them already.
   compat:
     needs: build
     strategy:
       fail-fast: false
       matrix:
-        runner: [macos-14, macos-15, macos-26, xcode-27]
+        runner: [macos-26, xcode-27]
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
