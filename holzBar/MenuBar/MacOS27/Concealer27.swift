@@ -803,8 +803,7 @@ final class Concealer27 {
     ///
     /// An application missing from the saved layout is visible. holzBar remembers
     /// every application it has seen on the bar, so only new ones are placed, and
-    /// the first run only records what is there. This placement is holzBar's own and does
-    /// not count as a settings change for sync.
+    /// the first run only records what is there.
     func placeNewApplications(items: [MenuBarItem]) {
         guard let appState else {
             return
@@ -844,13 +843,9 @@ final class Concealer27 {
     }
 
     /// Moves an application to a section of the saved layout and applies it.
-    ///
-    /// Only the user moves an application this way (the Layout pane, with its undo), so it
-    /// counts as a settings change for sync.
     func setSection(_ section: MacOS27Section, for bundleID: String) {
         let updated = SectionLayout27.settingSection(section, for: bundleID, in: savedLayout)
         Defaults.set(updated.mapValues(\.rawValue), forKey: .macOS27Layout)
-        SettingsSync.userChangedLayout()
         update()
         Task { [weak self] in
             await self?.appState?.itemManager.cacheItemsRegardless()
@@ -868,7 +863,6 @@ final class Concealer27 {
     /// The bar is read once, the first time it can be: a user who has arranged a layout of their
     /// own keeps it, and a bar whose order macOS 27 has already rearranged is left alone (see
     /// ``SectionLayout27/seededLayout(items:hiddenControlItem:alwaysHiddenControlItem:)``).
-    /// This placement is holzBar's own and does not count as a settings change for sync.
     func seedLayoutIfNeeded(items: [MenuBarItem]) {
         guard
             !Defaults.bool(forKey: .macOS27LayoutSeeded),

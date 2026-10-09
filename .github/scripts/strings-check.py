@@ -75,7 +75,6 @@ GENERIC_POSITION_RE = re.compile(r"^(?:\b(?:title|prompt|message)\s*=\s*|\s*\.\w
 GENERIC_POSITION_FILES = {
     "holzBar/Main/HolzBarIntents.swift",
     "holzBar/Utilities/SettingsBackup.swift",
-    "holzBar/Utilities/SettingsSync.swift",
     "holzBar/MenuBar/MenuBarItems/ItemIconStore.swift",
     "holzBar/MenuBar/Groups/MenuBarItemGroups.swift",
 }

@@ -55,7 +55,6 @@ struct AdvancedSettingsPane: View {
             }
             HolzBarSection("Settings") {
                 settingsBackup
-                settingsSync
             }
             HolzBarSection("Permissions") {
                 allPermissions
@@ -242,11 +241,6 @@ struct AdvancedSettingsPane: View {
     }
 
     @ViewBuilder
-    private var settingsSync: some View {
-        SettingsSyncToggle(sync: appState.settingsSync)
-    }
-
-    @ViewBuilder
     private var allPermissions: some View {
         ForEach(appState.permissions.allPermissions) { permission in
             LabeledContent {
@@ -286,83 +280,5 @@ private struct RevealRulesSettings: View {
         }
         Toggle("When the network connection is lost", isOn: $rules.revealsWhenOffline)
             .annotation("Hidden items are shown for the time set in \u{201C}Hide opened items again after\u{201D}, then hidden again.")
-    }
-}
-
-// MARK: - SettingsSyncToggle
-
-/// Turns syncing the settings on or off, through iCloud Drive or any folder the Macs keep
-/// in sync (jordanbaird/Ice#95, SYNC-01). While sync is paused (``SettingsSyncPause``), the
-/// controls show the stored choice, disabled, with a note.
-private struct SettingsSyncToggle: View {
-    @Bindable var sync: SettingsSync
-
-    private var isPaused: Bool {
-        !SettingsSyncPause.allowsChanges()
-    }
-
-    var body: some View {
-        LabeledContent {
-            HStack {
-                if sync.isEnabled || sync.isTurnedOnWhilePaused {
-                    switch sync.hint {
-                    case .restart:
-                        Button("Restart") {
-                            sync.restartWithWaitingSettings()
-                        }
-                    case .choice:
-                        Button("Choose Settings…") {
-                            sync.chooseSettings()
-                        }
-                    case nil:
-                        EmptyView()
-                    }
-                    Button("Change…") {
-                        sync.chooseFolder()
-                    }
-                    Button("Turn Off") {
-                        sync.isEnabled = false
-                    }
-                } else {
-                    Button("Turn On…") {
-                        sync.chooseFolder()
-                    }
-                }
-            }
-            .disabled(isPaused)
-        } label: {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Sync settings between your Macs")
-                if isPaused {
-                    Text("Sync is paused in this beta and returns in the next one. Your sync folder and these settings stay as they are.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                } else if sync.isEnabled {
-                    if let folder = sync.folderDisplayName {
-                        Text("Through \(folder)")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Text("The sync folder cannot be found. Choose it again.")
-                            .font(.subheadline)
-                            .foregroundStyle(.orange)
-                    }
-                    if sync.hint != nil {
-                        Text("Settings changed on another Mac")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-        }
-        .annotation {
-            // While sync is paused, the note above says so, and nothing here happens.
-            if !isPaused {
-                Text("Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart.")
-            }
-        }
-        .onAppear {
-            sync.refreshFolder()
-        }
     }
 }

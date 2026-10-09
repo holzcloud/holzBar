@@ -12,10 +12,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let appState: AppState
 
     override init() {
-        // Must come before the iCloud pull, which reads the copied sync file,
-        // and before the app state, which reads the settings.
+        // Must come before the app state, which reads the settings.
         MigrationManager.importPreviousSettingsIfNeeded()
-        SettingsSync.pullIfNeeded()
         let appState = AppState()
         AppState.current = appState
         self.appState = appState

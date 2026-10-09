@@ -8,7 +8,7 @@ import Foundation
 /// An action a hotkey performs.
 ///
 /// The raw values are stored in the `Hotkeys` setting (see ``HotkeyStorage``) and were
-/// Ice's, so imported and synced hotkeys keep working. Never change them. What each action
+/// Ice's, so imported hotkeys keep working. Never change them. What each action
 /// does is in `HotkeyActionPerform.swift`.
 nonisolated enum HotkeyAction: String, Codable, CaseIterable {
     // Menu Bar Sections

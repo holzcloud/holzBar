@@ -130,7 +130,7 @@ final class GeneralSettings {
     }
 
     /// ``itemSpacingOffset`` as whole points, kept in the slider's range. `Int(_:)` traps on
-    /// a value out of `Int`'s range or not finite, which an imported or synced file, or any
+    /// a value out of `Int`'s range or not finite, which an imported file, or any
     /// process writing holzBar's defaults, could store.
     private var spacingOffsetPoints: Int {
         Int(Defaults.Key.itemSpacingOffset.clamped(itemSpacingOffset, fallback: 0).rounded())

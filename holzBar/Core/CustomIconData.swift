@@ -8,7 +8,7 @@ import Foundation
 /// Which custom holzBar icons are decoded.
 ///
 /// A custom icon is stored as image data in the settings (`IceIcon`), which an imported
-/// file or the sync folder can set, and holzBar decodes it at every launch, in the process
+/// file can set, and holzBar decodes it at every launch, in the process
 /// that holds Accessibility. `NSImage(data:)` would hand those bytes to every parser AppKit
 /// has, PDF, EPS and SVG included. holzBar decodes them with ImageIO instead, and only when
 /// they are one of a few bitmap formats, within a size limit. A newly chosen icon is stored

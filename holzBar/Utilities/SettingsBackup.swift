@@ -28,19 +28,15 @@ enum SettingsBackup {
         // The original Ice updated itself with Sparkle, whose keys start with "SU"; holzBar
         // updates through Homebrew, so they are neither exported nor imported from Ice.
         "SU",
-        // This Mac's sync state (its sync id and the date of the last sync). A copied id
-        // would make two Macs ignore each other's changes, so these keys are never
-        // exported, imported, replaced or synced.
-        "SettingsSync",
     ]
 
     /// Returns a Boolean value that indicates whether the key is never exported,
-    /// imported, replaced or synced.
+    /// imported or replaced.
     private static func isExcluded(_ key: String) -> Bool {
         excludedKeyPrefixes.contains { key.hasPrefix($0) }
     }
 
-    /// The settings that are exported and synced: holzBar's own keys only.
+    /// The settings that are exported: holzBar's own keys only.
     static func currentSettings() -> [String: Any] {
         guard let bundleIdentifier = Bundle.main.bundleIdentifier else {
             return [:]
@@ -51,26 +47,21 @@ enum SettingsBackup {
         }
     }
 
-    /// Applies the given settings; a file import also removes the settings the file lacks.
+    /// Applies the settings of an imported file and removes the settings the file lacks.
     ///
     /// Only holzBar's own keys with a value of the expected kind are applied; every other
     /// key is ignored, counted in the log and returned.
     ///
-    /// - Parameters:
-    ///   - settings: The settings from a file or from the sync folder.
-    ///   - removesMissingKeys: Whether current settings that `settings` lacks are removed.
-    ///     A file import replaces every setting; sync keeps the settings the other Mac
-    ///     never had (``Defaults/Key/keysRemoved(applying:over:removesMissingKeys:)``).
+    /// - Parameter settings: The settings from the file.
     /// - Returns: The keys that were ignored, sorted.
     @discardableResult
-    static func apply(_ settings: [String: Any], removesMissingKeys: Bool) -> [String] {
+    static func apply(_ settings: [String: Any]) -> [String] {
         let defaults = UserDefaults.standard
         let incoming = settings.filter { key, _ in !isExcluded(key) }
         let (accepted, ignored) = Defaults.Key.validatedSettings(incoming)
         let removed = Defaults.Key.keysRemoved(
             applying: accepted,
-            over: currentSettings(),
-            removesMissingKeys: removesMissingKeys
+            over: currentSettings()
         )
         for key in removed {
             defaults.removeObject(forKey: key)
@@ -149,9 +140,7 @@ enum SettingsBackup {
                 guard await alert.present(attachedTo: window) == .alertFirstButtonReturn else {
                     return
                 }
-                apply(settings, removesMissingKeys: true)
-                // The imported layout is the user's change; it counts for sync.
-                SettingsSync.userChangedLayout()
+                apply(settings)
                 logger.notice("Imported settings from \(url.path(percentEncoded: false), privacy: .private)")
                 relaunch()
             } catch {

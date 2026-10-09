@@ -15,10 +15,6 @@ import OSLog
 /// Command-drag on the bar, a profile) and on the first run, and ``reconcileSections(wanted:trigger:)``
 /// puts items back. It also places new items (the new-items setting) and keeps Live
 /// Activities visible. macOS 27 keeps its sections per app (`Concealer27`) and does not use it.
-///
-/// Only the user's arrangements count as a settings change for sync
-/// (`SettingsSync.userChangedLayout()`); the first-run save and the placement of new items
-/// are holzBar's own and do not (SA-05).
 extension MenuBarItemManager {
     /// Logger for saving and restoring sections.
     private static let restoreLogger = Logger(category: "SectionRestore")
@@ -46,10 +42,7 @@ extension MenuBarItemManager {
 
     /// Saves the section of every cached item under its identity key. Sections of items that
     /// are not on the bar now (their apps are not running) are kept.
-    ///
-    /// - Parameter byUser: Whether the user arranged the items; holzBar's first-run save does
-    ///   not count as a settings change for sync.
-    func saveSections(byUser: Bool) {
+    func saveSections() {
         guard backend.canMoveItems else {
             return
         }
@@ -60,17 +53,11 @@ extension MenuBarItemManager {
             }
         }
         Defaults.set(stored, forKey: .itemSections)
-        if byUser {
-            SettingsSync.userChangedLayout()
-        }
         Self.restoreLogger.debug("Saved the sections of \(stored.count, privacy: .public) items")
     }
 
     /// Saves the sections of the given items (by identity key), keeping the others.
-    ///
-    /// - Parameter byUser: Whether the user chose the sections, with a profile; holzBar's
-    ///   placement of new items does not count as a settings change for sync.
-    func storeSections(_ sections: [String: MenuBarSection.Name], byUser: Bool) {
+    func storeSections(_ sections: [String: MenuBarSection.Name]) {
         guard !sections.isEmpty else {
             return
         }
@@ -79,9 +66,6 @@ extension MenuBarItemManager {
             stored[key] = section.profileIndex
         }
         Defaults.set(stored, forKey: .itemSections)
-        if byUser {
-            SettingsSync.userChangedLayout()
-        }
     }
 
     /// Saves the sections once the bar has taken the arrangement the user just made: a drop
@@ -316,9 +300,9 @@ extension MenuBarItemManager {
 
         // A profile's sections, and where new items were placed, are the sections to restore.
         if let wanted {
-            storeSections(wanted, byUser: true)
+            storeSections(wanted)
         }
-        storeSections(placedSections, byUser: false)
+        storeSections(placedSections)
     }
 
     /// Whether a restore stops moving items because the user arranges them: an item is being
