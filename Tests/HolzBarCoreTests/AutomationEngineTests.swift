@@ -126,10 +126,10 @@ struct AutomationEngineTests {
         let first = run(rules, facts(displays: ["DISPLAY-1"]))
         #expect(first.effects == [.applyProfile("A")])
         #expect(first.state.active == [rules[0].id])
-        // Once the first ended, the second may act.
+        // Once the first is gone, its change is undone and the second may act.
         let withoutFirst = [rules[1]]
         let later = run(withoutFirst, facts(displays: ["DISPLAY-1"]), profile: "A", state: first.state)
-        #expect(later.effects == [.applyProfile("B")])
+        #expect(later.effects == [.applyProfile("Home"), .applyProfile("B")])
     }
 
     @Test("A removed or disabled rule ends like a rule that stopped being true")
