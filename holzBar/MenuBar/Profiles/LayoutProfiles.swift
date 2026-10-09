@@ -100,8 +100,6 @@ final class LayoutProfiles {
             Defaults.set(data, forKey: .layoutProfiles)
         }
         Defaults.set(currentProfileName, forKey: .currentLayoutProfile)
-        // Profiles are part of what iCloud sync carries.
-        appState?.settingsSync.settingsDidChange()
     }
 
     /// Saves the current layout under the given name, replacing a profile of
@@ -201,9 +199,6 @@ final class LayoutProfiles {
                     to: stored.compactMapValues(MacOS27Section.init(rawValue:))
                 )
                 Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
-                // Applying a profile is the user's change, also when a display or Space
-                // applies a bound one; it counts for sync.
-                SettingsSync.userChangedLayout()
             }
             appState.concealer27.update()
             Task {
@@ -222,12 +217,6 @@ final class LayoutProfiles {
         Task {
             await itemManager.reconcileSections(wanted: sections, trigger: .profile)
         }
-    }
-
-    /// Replaces all profiles, for example with the ones from another Mac.
-    func replaceProfiles(with profiles: [LayoutProfile]) {
-        self.profiles = profiles
-        save()
     }
 
     /// Renames a profile; its hotkey moves with it. A name that another profile has is

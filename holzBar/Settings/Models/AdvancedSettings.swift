@@ -126,7 +126,7 @@ final class AdvancedSettings {
         Defaults.ifPresent(key: .keepsDockIconHidden, assign: &keepsDockIconHidden)
         Defaults.ifPresent(key: .enableSecondaryContextMenu, assign: &enableSecondaryContextMenu)
         // Kept in the sliders' ranges: a value that is not finite or out of range, from an
-        // imported or synced file, trapped where it became a `Duration`. Earlier versions
+        // imported file, trapped where it became a `Duration`. Earlier versions
         // allowed up to 60 s for the opened items; the slider goes to 30.
         Defaults.ifPresent(key: .showOnHoverDelay) { (value: Double) in
             showOnHoverDelay = Defaults.Key.showOnHoverDelay.clamped(value, fallback: showOnHoverDelay)

@@ -9,7 +9,7 @@ import Foundation
 /// menu bar item's menu (THAW-15).
 ///
 /// Every hotkey is stored in the `Hotkeys` setting under its ``storageKey``. An action
-/// keeps its raw value, which was Ice's (see ``HotkeyAction``), so imported and synced
+/// keeps its raw value, which was Ice's (see ``HotkeyAction``), so imported
 /// hotkeys keep working; profiles and items get keys with a prefix that no action uses.
 nonisolated enum HotkeyTarget: Hashable, Sendable {
     /// One of holzBar's actions.

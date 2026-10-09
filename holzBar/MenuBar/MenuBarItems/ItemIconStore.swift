@@ -12,8 +12,8 @@ import UniformTypeIdentifiers
 /// Images of the user's choice for menu bar items, and the app icon as the fallback when
 /// there is no picture of an item (THAW-16, jordanbaird/Ice#912, Thaw #1087).
 ///
-/// The choices are stored by item identity in the `ItemIcons` setting (synced like the
-/// rest); the images themselves stay on this Mac, in Application Support/holzBar/ItemIcons.
+/// The choices are stored by item identity in the `ItemIcons` setting; the images themselves
+/// stay on this Mac, in Application Support/holzBar/ItemIcons.
 /// A chosen file is read once from the open panel, scaled off the main thread to at most
 /// 64 points high at 2x and stored as a PNG with a new name. A choice whose file is missing
 /// falls back to the next one (``ItemIconChoice``).
@@ -79,7 +79,6 @@ final class ItemIconStore {
             choices[itemManager.identityKey(for: item)] = ItemIconChoice.storedValue(stored)
         }
         Defaults.set(choices, forKey: .itemIcons)
-        appState?.settingsSync.settingsDidChange()
         if case .file(let name) = previous, previous != stored {
             deleteFile(named: name)
         }

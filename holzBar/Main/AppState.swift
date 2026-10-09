@@ -65,9 +65,6 @@ final class AppState {
     /// Saved layout profiles.
     let profiles = LayoutProfiles()
 
-    /// Keeps the settings in step with other Macs through iCloud.
-    let settingsSync = SettingsSync()
-
     /// Groups of menu bar items behind icons of their own.
     let itemGroups = MenuBarItemGroups()
 
@@ -196,7 +193,6 @@ final class AppState {
         imageCache.performSetup(with: self)
         itemIconStore.performSetup(with: self)
         profiles.performSetup(with: self)
-        settingsSync.performSetup(with: self)
         itemGroups.performSetup(with: self)
         spacers.performSetup()
         revealRules.performSetup(with: self)

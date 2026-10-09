@@ -53,7 +53,7 @@ enum ControlItemImage: Codable, Hashable {
 extension ControlItemImage {
     /// Decodes the data of a custom icon, only as a bitmap (`CustomIconData`).
     ///
-    /// The data comes from the settings, which an imported file or the sync folder can
+    /// The data comes from the settings, which an imported file can
     /// set. Unlike `NSImage(data:)`, which tries every parser AppKit has (PDF, EPS, SVG,
     /// …), this decodes the first image with ImageIO, and only when its format is one of
     /// the allowed bitmap formats and its byte and pixel sizes are within the limits.

@@ -122,7 +122,7 @@ final class HotkeysSettings {
                 return nil
             }
             // The recorder's rule: no hotkey without a modifier, or with Shift alone, which
-            // would take the key from every app (an imported or synced file can store one).
+            // would take the key from every app (an imported file can store one).
             let refusesOptionOnly = if #available(macOS 15.0, *) { true } else { false }
             let modifiers = keyCombination.modifiers.rawValue
             if let rejection = HotkeyStorage.loadRejection(modifiers: modifiers, refusesOptionOnly: refusesOptionOnly) {

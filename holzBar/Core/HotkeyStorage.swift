@@ -9,7 +9,7 @@ import Foundation
 ///
 /// The `Hotkeys` setting maps each hotkey action's raw value to its key combination,
 /// stored as the JSON array `[key, modifiers]` (what `KeyCombination` encodes). Ice stored
-/// them the same way, so imported and synced hotkeys keep working.
+/// them the same way, so imported hotkeys keep working.
 nonisolated enum HotkeyStorage {
     /// The signature of holzBar's hotkey events.
     ///
@@ -57,7 +57,7 @@ nonisolated enum HotkeyStorage {
     /// The same rule as the hotkey recorder (`Modifiers.rejection(refusesOptionOnly:)`):
     /// a stored combination with no modifier, or Shift alone, would take that key from
     /// every app, system-wide, on every press. Anything can write holzBar's settings (an
-    /// imported or synced file, or any process of the user), so the rule is applied again
+    /// imported file, or any process of the user), so the rule is applied again
     /// when the hotkeys are loaded.
     ///
     /// - Parameter refusesOptionOnly: Whether the system refuses Option-only hotkeys

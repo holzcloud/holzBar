@@ -15,10 +15,10 @@ import OSLog
 ///   while Zen mode is on
 /// - `holzbar://settings` – the settings window; changes nothing persistent, refused
 ///   while Zen mode is on
-/// - `holzbar://shelf/toggle` – turn the holzBar Shelf on or off; a setting that lasts
-///   and syncs, so holzBar asks first
-/// - `holzbar://auto-rehide/toggle` – turn auto-rehide on or off; a setting that lasts
-///   and syncs, so holzBar asks first
+/// - `holzbar://shelf/toggle` – turn the holzBar Shelf on or off; a setting that lasts, so
+///   holzBar asks first
+/// - `holzbar://auto-rehide/toggle` – turn auto-rehide on or off; a setting that lasts, so
+///   holzBar asks first
 /// - `holzbar://application-menus/toggle` – hides or shows the application menus;
 ///   nothing persistent
 /// - `holzbar://zen/on`, `holzbar://zen/off`, `holzbar://zen/toggle` – Zen mode; turning

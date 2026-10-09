@@ -105,7 +105,7 @@ nonisolated enum SpacingRelaunch {
 
     /// How long an app gets to quit after being asked.
     ///
-    /// Long enough for an app that saves or syncs on quit. An app that is still running
+    /// Long enough for an app that saves or uploads on quit. An app that is still running
     /// then is left alone and reported.
     static let quitTimeout: Duration = .seconds(10)
 

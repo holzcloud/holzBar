@@ -42,7 +42,7 @@ nonisolated struct URLCommand: Equatable, Sendable {
         /// - The search and Settings change nothing lasting either, but list or reveal the
         ///   hidden items, so Zen mode refuses them.
         /// - Applying a profile rearranges the menu bar, and the Shelf and auto-rehide
-        ///   toggles change settings that last and sync to the user's other Macs: holzBar
+        ///   toggles change settings that last: holzBar
         ///   asks first, and refuses them while Zen mode is on.
         /// - Another app may always turn Zen mode on; it only hides. Turning it off needs
         ///   the user's answer, and is refused while the screen is shared (the automatic

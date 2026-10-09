@@ -91,7 +91,6 @@ final class ItemChangeWatcher {
             keys.insert(key)
         }
         Defaults.set(keys.sorted(), forKey: .revealOnChangeItems)
-        appState?.settingsSync.settingsDidChange()
         updateObservers()
     }
 
