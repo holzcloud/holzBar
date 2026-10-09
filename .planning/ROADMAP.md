@@ -574,7 +574,9 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
 
 ### Phase 28: Settings sync redesign
 
-**Goal**: Settings sync works again in 0.0.7-beta3 on a design that cannot lose, revert or silently overwrite a user's change: one file per Mac (`holzBar/Macs/<MacID>.plist`), causal dots and a lattice join, questions only on real conflicts; settings sync on macOS 26 and 27, the arrangement and layout profiles only between macOS 27 Macs. Decisions: `.planning/research/sync-redesign/DECISIONS.md`; design: `SYNC-REDESIGN-ANALYSIS.md`, D1, A1–A3.
+**Status 2026-10-09: ON HOLD.** Plans 28-01 to 28-17 are built and merged on `planning/sync-redesign`, but gate G1 failed (third pass, `28-G1-GATE.md`: open S6, A6, ID1, J1 and pair seeds), so sync stays paused (`SettingsSyncPause.isPaused = true`) and plan 28-18 (docs, release notes, flip) is deferred until G1 passes. The maintainer decided to ship 0.0.7-beta3 without sync and finish the sync in a later beta. ID1 is to be solved without a state-format change.
+
+**Goal**: Settings sync works again in a later 0.0.7 beta (was 0.0.7-beta3) on a design that cannot lose, revert or silently overwrite a user's change: one file per Mac (`holzBar/Macs/<MacID>.plist`), causal dots and a lattice join, questions only on real conflicts; settings sync on macOS 26 and 27, the arrangement and layout profiles only between macOS 27 Macs. Decisions: `.planning/research/sync-redesign/DECISIONS.md`; design: `SYNC-REDESIGN-ANALYSIS.md`, D1, A1–A3.
 **Requirements**: SYNC-R01 to SYNC-R10 (defined in `REQUIREMENTS.md`, section "Settings sync redesign (Phase 28)", and in this phase's `28-CONTEXT.md`)
 **Depends on**: 0.0.7-beta2 (released); independent of Phases 8 to 27
 **Success Criteria** (what must be TRUE):
@@ -585,7 +587,7 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
   5. Only user actions create synced entries; holzBar's placements, seeding, learned keys and flags never sync or cause a question
   6. `SettingsSyncPause.isPaused` is false and its test updated; docs, release notes `v0.0.7-beta3.md` and the five String Catalogs are current; CI is green
 
-**Plans:** 15/18 plans complete in 12 waves (28-01 to 28-12 and 28-14 to 28-16), plan 28-13 executed but gate G1 is NOT passed yet (being closed, see `28-G1-GATE.md`); gate G1 (simulator and mutation gate) is plan 28-13, and every plan that touches the app depends on it
+**Plans:** 16/18 plans complete in 12 waves (28-01 to 28-12 and 28-14 to 28-17), plan 28-13 executed but gate G1 is NOT passed yet (being closed, see `28-G1-GATE.md`); gate G1 (simulator and mutation gate) is plan 28-13, and every plan that touches the app depends on it
 
 Plans:
 - [x] 28-01-PLAN.md — Wave 1: Core data model (dots, contexts, replica join, device-file and state codecs, read-only legacy reader); SYNC-R01 to SYNC-R10 recorded in REQUIREMENTS.md
@@ -604,5 +606,5 @@ Plans:
 - [x] 28-14-PLAN.md — Wave 9: app adapter: defaults store and alias rule, model normalizers, one prefix list, writer lint
 - [x] 28-15-PLAN.md — Wave 10: host: folder reader and writer, state store, launch, triggers, effects, migration from the pause; old exchange code removed
 - [x] 28-16-PLAN.md — Wave 11: capture wiring: Layout-pane move, profiles, Import, protected placement and seeding; D-04 re-check of other arrangement paths
-- [ ] 28-17-PLAN.md — Wave 11: UI: hint, status lines, question sheet, Profiles footnotes, strings in en, de, fr, it, rm
+- [x] 28-17-PLAN.md — Wave 11: UI: hint, status lines, question sheet, Profiles footnotes, strings in en, de, fr, it, rm
 - [ ] 28-18-PLAN.md — Wave 12: docs, release notes `v0.0.7-beta3.md`, UAT script, and the flip of `SettingsSyncPause.isPaused` as the last code change
