@@ -89,14 +89,14 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ## Planned next
 
-**None of this is available yet.** It is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
+**Apart from the 0.0.7 items marked as in 0.0.7-beta3, none of this is available yet.** It is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
 
 ### 0.0.7: bugfixes
 
-0.0.7 is a bugfix release and adds no new features. It has no settings sync; that is planned for 1.0.0.
+0.0.7 is a bugfix release and adds no new features. Settings sync is removed from the app in 0.0.7-beta3; a redesigned sync is planned for 1.0.0 (Export… and Import… stay).
 
-- Cooperation with macOS 27's own overflow button, so items are not shown twice.
-- Glass tint and Shelf follow Reduce Transparency (and the macOS 27 slider, if a public signal exists).
+- Cooperation with macOS 27's own overflow button, so items are not shown twice. Not in 0.0.7-beta3; it follows in a later 0.0.7 beta.
+- **In 0.0.7-beta3:** System Glass and the holzBar Shelf follow Reduce Transparency and Increase Contrast; with either on they are drawn opaque with a border, and the change applies at once, with no restart. The macOS 27 Liquid Glass slider has no public API (checked in the macOS 27.0 SDK, see [macOS 27 notes](macos27.md#liquid-glass-and-transparency)), so holzBar does not follow it. Not yet checked on real macOS 26 and 27 systems.
 
 ### 0.0.8 "Automation"
 
