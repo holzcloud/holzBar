@@ -2,6 +2,10 @@
 
 holzBar is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, a menu bar manager for macOS, with macOS 27 support and Homebrew distribution.
 
+## Product direction
+
+holzBar is to become an alternative to **Brow, Glow and Vorssaint**: as many of their features, as powerful, as optional modules on top of the menu bar manager (decision of 2026-10-09, `.planning/research/VISION-BROW-GLOW-VORSSAINT.md`). Every feature is agreed with the user first (whether, and in which release). A design concept comes before any new screen: Apple's newest Liquid Glass guidance, holzBar's logo and colours, and the design language of Brow as the model. The principles below still hold for every module: off means no cost, permissions only when a module is switched on, never online.
+
 ## Rules
 
 - **Everything in this repository is written in English**: code, comments, commit messages, pull requests, issues, README and other docs. This applies even when the conversation is in another language.
