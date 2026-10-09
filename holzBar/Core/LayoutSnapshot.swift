@@ -47,6 +47,11 @@ nonisolated struct LayoutSnapshot: Codable, Equatable, Identifiable, Sendable {
         itemSections.count + applicationSections.count
     }
 
+    /// Whether the snapshot places nothing.
+    var isEmpty: Bool {
+        itemSections.isEmpty && applicationSections.isEmpty
+    }
+
     /// Whether another snapshot arranges everything in the same way.
     func hasSameArrangement(as other: LayoutSnapshot) -> Bool {
         itemSections == other.itemSections
@@ -61,7 +66,7 @@ nonisolated enum SnapshotPolicy {
     /// unchanged layout never makes a new file.
     static func shouldKeep(_ candidate: LayoutSnapshot, latest: LayoutSnapshot?) -> Bool {
         guard let latest else {
-            return candidate.count > 0
+            return !candidate.isEmpty
         }
         return !candidate.hasSameArrangement(as: latest)
     }
