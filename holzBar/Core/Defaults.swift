@@ -191,6 +191,8 @@ nonisolated extension Defaults {
         case spacerCount = "SpacerCount"
         case spacerWidth = "SpacerWidth"
         case revealRules = "RevealRules"
+        /// Whether the clean-up assistant was offered once, at the first launch.
+        case cleanUpOffered = "CleanUpOffered"
         /// Whether the pinned system items may be moved into hidden sections (they may not by default).
         case systemItemsMayHide = "SystemItemsMayHide"
         /// Whether showing the hidden items asks for Touch ID or the password. Local to the
@@ -287,6 +289,7 @@ nonisolated extension Defaults.Key {
             .hideApplicationMenus,
             .keepsDockIconHidden,
             .layoutSnapshotsDisabled,
+            .cleanUpOffered,
             .systemItemsMayHide,
             .lockHiddenItems,
             .enableSecondaryContextMenu,
@@ -413,6 +416,7 @@ nonisolated extension Defaults.Key {
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
         .lockHiddenItems,
+        .cleanUpOffered,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
     ]

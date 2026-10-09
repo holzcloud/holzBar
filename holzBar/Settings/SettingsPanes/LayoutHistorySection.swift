@@ -108,6 +108,7 @@ struct LayoutHistorySection: View {
         case .daily: String(localized: "First check of the day")
         case .beforeProfile: String(localized: "Before a profile")
         case .beforeRestore: String(localized: "Before a restore")
+        case .beforeAssistant: String(localized: "Before tidying up")
         case .manual: String(localized: "Taken by you")
         }
     }

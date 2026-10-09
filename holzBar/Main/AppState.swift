@@ -217,6 +217,9 @@ final class AppState {
 
         configureObservers()
         isSetUp = true
+        Task {
+            await TidyUpOffer.offerIfFirstLaunch(appState: self)
+        }
     }
 
     /// Brings holzBar up to date once the bar has settled after the screen was locked, the

@@ -14,11 +14,30 @@ struct MenuBarLayoutSettingsPane: View {
     }
 
     var body: some View {
+        content
+            .sheet(isPresented: Bindable(appState.navigationState).isTidyUpPresented) {
+                TidyUpSheet()
+            }
+    }
+
+    @ViewBuilder
+    private var content: some View {
         if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             cannotArrange
         } else {
             HolzBarForm(spacing: 20) {
                 header
+                HolzBarSection {
+                    HStack {
+                        Text("Let holzBar propose which items to hide, from what it knows of the apps. You decide, and you can undo it.")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Tidy Up…") {
+                            appState.navigationState.isTidyUpPresented = true
+                        }
+                    }
+                    .padding(10)
+                }
                 if !ScreenRecordingAccess.isGranted(appState) {
                     // Without Screen Recording the items show their apps' icons; the hint
                     // offers their real pictures.

@@ -108,6 +108,12 @@ final class LayoutSnapshots {
         lastRearrangement = .now
     }
 
+    /// Called before the clean-up assistant hides items: keeps the arrangement as it is now.
+    func willTidyUp() {
+        take(.beforeAssistant)
+        lastRearrangement = .now
+    }
+
     // MARK: Restoring
 
     /// What restoring the snapshot would change now.

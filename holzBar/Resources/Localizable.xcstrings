@@ -365,6 +365,34 @@
         }
       }
     },
+    "A helper that works in the background" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Helfer, der im Hintergrund arbeitet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un assistant qui travaille en arrière-plan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un assistente che lavora in background"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In g’agid che lavura en il fund"
+          }
+        }
+      }
+    },
     "A menu bar shape draws the wallpaper beside the shape. holzBar reads most wallpapers from their file; a moving wallpaper can be read only with Screen Recording." : {
       "localizations" : {
         "de" : {
@@ -417,6 +445,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In profil cun il medem num vegn remplazzà. Applitgescha el pli tard da qua u cun holzbar://profile/<name>."
+          }
+        }
+      }
+    },
+    "A system extra you rarely need on the bar" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein System-Extra, das du selten in der Leiste brauchst"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un extra du système rarement utile dans la barre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un extra di sistema che serve raramente nella barra"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In extra dal sistem che ti dovras darar en la trav"
+          }
+        }
+      }
+    },
+    "A utility that works in the background" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Hilfsprogramm, das im Hintergrund arbeitet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un utilitaire qui travaille en arrière-plan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un’utility che lavora in background"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In utensil che lavura en il fund"
           }
         }
       }
@@ -1705,6 +1789,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avant ina restauraziun"
+          }
+        }
+      }
+    },
+    "Before tidying up" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor dem Aufräumen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant le rangement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima di riordinare"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant che rumar si"
           }
         }
       }
@@ -4257,6 +4369,34 @@
         }
       }
     },
+    "Hide Selected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewählte ausblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer la sélection"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi selezionati"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuppar ils tschernids"
+          }
+        }
+      }
+    },
     "Hide app menus when showing menu bar items" : {
       "localizations" : {
         "de" : {
@@ -5121,6 +5261,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fin sanestra"
+          }
+        }
+      }
+    },
+    "Let holzBar propose which items to hide, from what it knows of the apps. You decide, and you can undo it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lass holzBar vorschlagen, welche Objekte ausgeblendet werden sollen, anhand dessen, was es über die Apps weiss. Du entscheidest, und du kannst es rückgängig machen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laissez holzBar proposer quels éléments masquer, d’après ce qu’il sait des apps. Vous décidez, et vous pouvez annuler."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascia che holzBar proponga quali elementi nascondere, in base a ciò che sa delle app. Decidi tu e puoi annullare."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascha che holzBar propona tge elements ch’èn d’zuppar, sin basa da quai ch’el sa da las apps. Ti decidas e ti pos revocar."
           }
         }
       }
@@ -6437,6 +6605,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nagut na vegn tramess. Legia il rapport e copiescha lu silsuenter en tia segnalaziun. El cuntegna mo versiuns e dumbers: nagins nums d’elements, d’apps, da profils u da raits e nagins paths."
+          }
+        }
+      }
+    },
+    "Nothing to propose: your menu bar is tidy already." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nichts vorzuschlagen: Deine Menüleiste ist bereits aufgeräumt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rien à proposer : votre barre des menus est déjà bien rangée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niente da proporre: la tua barra dei menu è già in ordine."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagut da propuoner: tia trav da menu è gia en uorden."
           }
         }
       }
@@ -10557,6 +10753,90 @@
         }
       }
     },
+    "Tidy Up" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufräumen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranger"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riordina"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rumar si"
+          }
+        }
+      }
+    },
+    "Tidy Up…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufräumen …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranger…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riordina…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rumar si …"
+          }
+        }
+      }
+    },
+    "Tidy up your menu bar?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menüleiste aufräumen?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranger votre barre des menus ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riordinare la barra dei menu?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rumar si ta trav da menu?"
+          }
+        }
+      }
+    },
     "Time of day" : {
       "localizations" : {
         "de" : {
@@ -12355,6 +12635,34 @@
         }
       }
     },
+    "holzBar can propose which items to hide, from what it knows of your apps. Nothing leaves your Mac, you decide, and you can undo it. You can do this any time in Menu Bar Layout." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kann vorschlagen, welche Objekte ausgeblendet werden sollen, anhand dessen, was es über deine Apps weiss. Nichts verlässt deinen Mac, du entscheidest, und du kannst es rückgängig machen. Das geht jederzeit unter «Menüleistenlayout»."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar peut proposer quels éléments masquer, d’après ce qu’il sait de vos apps. Rien ne quitte votre Mac, vous décidez, et vous pouvez annuler. Vous pouvez le faire à tout moment dans « Disposition de la barre des menus »."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar può proporre quali elementi nascondere, in base a ciò che sa delle tue app. Nulla lascia il tuo Mac, decidi tu e puoi annullare. Puoi farlo in qualsiasi momento in «Layout della barra dei menu»."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar po propuoner tge elements ch’èn d’zuppar, sin basa da quai ch’el sa da tias apps. Nagut na bandunescha tes Mac, ti decidas e ti pos revocar. Ti pos far quai a mintga mument sut «Disposiziun da la trav da menu»."
+          }
+        }
+      }
+    },
     "holzBar cannot arrange menu bar items in automatically hidden menu bars." : {
       "localizations" : {
         "de" : {
@@ -12547,6 +12855,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar n'è anc betg pront. Avra holzBar e concéda l'emprim sias permissiuns."
+          }
+        }
+      }
+    },
+    "holzBar looked at the apps in your menu bar on this Mac. Nothing leaves your Mac and nothing is recorded. It proposes to hide what works in the background; the clock, the battery and apps with messages stay. Uncheck what should stay visible." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar hat sich die Apps in deiner Menüleiste auf diesem Mac angesehen. Nichts verlässt deinen Mac, und nichts wird aufgezeichnet. Es schlägt vor, auszublenden, was im Hintergrund arbeitet; die Uhr, die Batterie und Apps mit Nachrichten bleiben. Entferne das Häkchen bei dem, was sichtbar bleiben soll."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar a regardé les apps de votre barre des menus sur ce Mac. Rien ne quitte votre Mac et rien n’est enregistré. Il propose de masquer ce qui travaille en arrière-plan ; l’horloge, la batterie et les apps de messages restent. Décochez ce qui doit rester visible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ha esaminato le app nella barra dei menu di questo Mac. Nulla lascia il tuo Mac e nulla viene registrato. Propone di nascondere ciò che lavora in background; l’orologio, la batteria e le app con messaggi restano. Deseleziona ciò che deve rimanere visibile."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ha tschertgà las apps da tia trav da menu sin quest Mac. Nagut na bandunescha tes Mac e nagut na vegn registrà. El propona da zuppar quai che lavura en il fund; l’ura, l’accu e las apps cun messadis restan. Deactivescha quai che duai restar visibel."
           }
         }
       }

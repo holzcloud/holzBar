@@ -15,6 +15,8 @@ nonisolated enum SnapshotReason: String, Codable, Sendable {
     case beforeProfile
     /// Before a snapshot was restored, so the restore can be undone.
     case beforeRestore
+    /// Before the clean-up assistant hid items.
+    case beforeAssistant
     /// The user asked for it.
     case manual
 }
