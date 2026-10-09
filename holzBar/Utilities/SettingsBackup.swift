@@ -21,18 +21,15 @@ enum SettingsBackup {
 
     /// Keys that describe this Mac or a particular app's windows rather than
     /// the user's choices.
-    static let excludedKeyPrefixes = [
-        "NSWindow Frame",
-        "NSStatusItem Preferred Position",
-        "NSStatusItem Visible",
-        // The original Ice updated itself with Sparkle, whose keys start with "SU"; holzBar
-        // updates through Homebrew, so they are neither exported nor imported from Ice.
-        "SU",
-        // This Mac's sync state (its sync id and the date of the last sync). A copied id
-        // would make two Macs ignore each other's changes, so these keys are never
-        // exported, imported, replaced or synced.
-        "SettingsSync",
-    ]
+    ///
+    /// The list is the sync unit table's (``SyncUnitTable/excludedKeyPrefixes``), so what
+    /// never syncs and what is never exported or imported are one list. It holds the window
+    /// frames and status item positions, the keys of Sparkle (the original Ice updated
+    /// itself with it; holzBar updates through Homebrew, so they are neither exported nor
+    /// imported from Ice) and this Mac's sync state (`SettingsSync…`: its sync id and the
+    /// date of the last sync). A copied id would make two Macs ignore each other's changes,
+    /// so these keys are never exported, imported, replaced or synced.
+    static let excludedKeyPrefixes = SyncUnitTable.excludedKeyPrefixes
 
     /// Returns a Boolean value that indicates whether the key is never exported,
     /// imported, replaced or synced.
