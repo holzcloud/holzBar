@@ -187,6 +187,21 @@ enum SimUnits {
         return result.sorted { $0.unit < $1.unit }
     }
 
+    /// Whether two values of a unit are the same setting. A JSON setting that the app's models decode and encode again
+    /// (the appearance) is one setting whatever the key order and the fields the build fills or drops; every other value
+    /// is the same only when it is equal.
+    static func equivalent(_ unit: String, _ left: SimValue?, _ right: SimValue?) -> Bool {
+        if left == right { return true }
+        // The known applications and the learned items are sets that grow by union: their order says nothing.
+        if case .array(let first)? = left, case .array(let second)? = right, unit == known27 {
+            return Set(first.map(\.canonical)) == Set(second.map(\.canonical))
+        }
+        guard case .data(let first)? = left, case .data(let second)? = right else { return false }
+        let key = parse(unit).key
+        guard let one = SimMacBeta2.reencoded(first, key: key), let other = SimMacBeta2.reencoded(second, key: key) else { return false }
+        return one == other
+    }
+
     /// Every token held in the defaults, by unit (sorted).
     static func tokens(in defaults: [String: SimValue]) -> Set<String> {
         var found = Set<String>()
@@ -221,6 +236,26 @@ struct SimPromptUnit: Hashable, Sendable {
     var local: String?
     /// The token the folder version holds.
     var folder: String?
+    /// A value of a pop-up row that loses whichever button is pressed: it is listed on both sides so that either answer takes
+    /// it away, which is no sign that the two sides are equal. It is no part of what two entries compare as.
+    var losesEitherWay = false
+
+    init(unit: String, local: String?, folder: String?, losesEitherWay: Bool = false) {
+        self.unit = unit
+        self.local = local
+        self.folder = folder
+        self.losesEitherWay = losesEitherWay
+    }
+
+    static func == (lhs: SimPromptUnit, rhs: SimPromptUnit) -> Bool {
+        lhs.unit == rhs.unit && lhs.local == rhs.local && lhs.folder == rhs.folder
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(unit)
+        hasher.combine(local)
+        hasher.combine(folder)
+    }
 }
 
 /// A sheet or alert the app shows. `shown` is what the user is shown; supersession is judged against it.
@@ -313,6 +348,12 @@ struct SimMacContext: Sendable {
     private(set) var actions: [SimMacAction] = []
     /// How long the Mac's calling thread blocked on stalled coordinated I/O during this hook.
     private(set) var blockedMilliseconds: Int64 = 0
+
+    /// A read that the app runs in the background (a check, the read of a join) blocks no thread of the Mac that launches: what it
+    /// waited for is not the launch's time.
+    mutating func discardBlocking(since earlier: Int64) {
+        blockedMilliseconds = earlier
+    }
     /// Every bounded read of this hook, for the oracles (INV-F1, INV-Z2).
     private(set) var readLog: [SimReadLogEntry] = []
 
@@ -443,6 +484,9 @@ protocol SimSyncBrain: Sendable {
     mutating func quit(_ context: inout SimMacContext)
     /// The process died without running quit code: volatile memory is gone.
     mutating func processDied()
+    /// The Mac's preferences or sync state were replaced from outside (a restore, a clone, a lost state): whatever the brain
+    /// remembered about waiting changes belongs to a state that is gone.
+    mutating func stateWasReplaced()
     mutating func defaultsChanged(origin: SimChangeOrigin, units: [String], _ context: inout SimMacContext)
     mutating func folderSignal(_ context: inout SimMacContext)
     mutating func timerFired(tag: String, _ context: inout SimMacContext)
@@ -462,6 +506,7 @@ protocol SimSyncBrain: Sendable {
 
 extension SimSyncBrain {
     mutating func processDied() {}
+    mutating func stateWasReplaced() {}
     var hint: String? { nil }
     var openPrompt: SimPrompt? { nil }
     var heldTokens: Set<String> { [] }

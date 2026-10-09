@@ -161,6 +161,9 @@ nonisolated extension SyncEngine {
         // The guard exists so the simulator can run an engine that trusts every state it loads: a
         // state that is no evidence then mints at launch (analysis section 5.6).
         let mode: SyncTrust.Mode = environment.guards.contains(.trustedState) ? trust.mode : (trust.hasState ? .trusted : .untrusted)
+        // The counter never goes below what the mirror in the defaults and the high-water mark in the Caches say this installation
+        // minted: a Sigma that was restored alone is behind them, and persisting it as it is would lower the mirror.
+        state.counter = max(state.counter, environment.counterFloors.mirror, environment.counterFloors.highWater)
         state.session = SyncSession()
         state.session.snapshot = input.snapshot
         state.session.trust = trust
@@ -175,8 +178,10 @@ nonisolated extension SyncEngine {
         state.session.isTrusted = mode == .trusted && !state.captureDeferred
         if let pending = state.pendingJoin {
             // The trust checks passed because the join began and persisted; what the state was worth then is
-            // what it is worth until the join is decided.
-            state.session.isTrusted = pending.wasTrusted
+            // what it is worth until the join is decided, unless the preferences were rolled back since: a state
+            // that no longer matches its defaults is no evidence, and committing it as the group's would publish
+            // the rolled-back settings as deletions.
+            state.session.isTrusted = pending.wasTrusted && mode != .untrusted
         }
 
         // Sigma is persisted above the defaults, so a state that was behind catches up.
@@ -188,7 +193,27 @@ nonisolated extension SyncEngine {
             draft.state.launchCount += 1
         }
 
-        if let pending = draft.state.pendingJoin {
+        if var pending = draft.state.pendingJoin {
+            if pending.phase == .asking, pending.wasTrusted, mode == .untrusted {
+                // The question was built from a state that was evidence then. The preferences were rolled back or the state was
+                // copied since, so the rows (and the commit that follows them) would treat the difference as the user's changes: the
+                // join reads the folder again and asks about what the state is worth now.
+                pending = SyncPendingJoin(
+                    replica: .empty,
+                    shown: [:],
+                    isFounding: false,
+                    folderIdentity: pending.folderIdentity,
+                    phase: .reading,
+                    isChange: pending.isChange
+                )
+                draft.state.pendingJoin = pending
+            }
+            if mode == .untrusted, var current = draft.state.pendingJoin {
+                // Preferences that were rolled back (or copied) while the join waited are not a change of the user's: what the settings
+                // hold now is the start of the join, not what they held before.
+                current.localAtDecision = SyncJoin.localDigests(snapshot: input.snapshot, replica: .empty, legacy: nil, environment: environment)
+                draft.state.pendingJoin = current
+            }
             // A join that was waiting at quit goes on: the same rows come back.
             if input.syncIsOn {
                 capture(&draft, environment: environment)
@@ -196,6 +221,7 @@ nonisolated extension SyncEngine {
             if pending.phase == .reading {
                 draft.effects.append(.readFolder(readRequest(.join, draft.state)))
             }
+            resolveAskingJoin(&draft, environment: environment)
             return draft.finish()
         }
         guard input.syncIsOn else {
@@ -300,7 +326,7 @@ nonisolated extension SyncEngine {
             } else {
                 // A copy of another Mac's state, or the defaults lost: Sigma stays a valid
                 // causal state under a new identity.
-                existing = SyncIdentity.reidentified(existing, newMac: mac, newNonce: fresh?.nonce ?? existing.nonce, suspect: [])
+                existing = SyncIdentity.reidentified(existing, newMac: mac, newNonce: fresh?.nonce ?? existing.nonce, suspect: [], floors: environment.counterFloors)
                 changed = true
             }
             state = existing

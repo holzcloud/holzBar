@@ -70,10 +70,8 @@ enum SimSafetyOracles {
     /// Whether a hook's changes are charged to a redesigned engine: the Mac runs one, or it applied a version
     /// that a redesigned Mac wrote (INV-B1).
     static func charged(_ world: SimWorld, _ hook: SimHookRecord) -> Bool {
-        if world.isRedesign(hook.mac) { return true }
-        return hook.ingests.contains { version in
-            world.writer(ofVersion: version).map { world.isRedesign($0) } ?? false
-        }
+        if SimWorld.isRedesign(build: hook.brainKind) { return true }
+        return hook.ingests.contains { world.isRedesignWriter(ofVersion: $0) }
     }
 
     /// The user-change tokens a hook took away from a unit that were still live and not justifiably superseded.
@@ -85,6 +83,7 @@ enum SimSafetyOracles {
             case .automatic, .unknown: continue
             }
             guard liveBefore(world, token: token, unit: transition.unit, changeCount: hook.changeCountBefore) else { continue }
+            if world.groundTruth.lostToAmnesia(token: token) { continue }
             if let answered = hook.answered, answered.prompt.losingTokens(for: answered.answer).contains(token) { continue }
             if supersededByIngest(world, token: token, unit: transition.unit, ingests: hook.ingests, mac: hook.mac) { continue }
             lost.append(token)
@@ -114,7 +113,7 @@ enum SimSafetyOracles {
     /// replica or any pending entry (losses where every holder was destroyed by non-sync events are excluded).
     static let s1g = SimClosureOracle("INV-S1g", .step) { world, _ in
         let lost = world.groundTruth.globallyLost().filter { token in
-            world.groundTruth.change(forToken: token).map { world.isRedesign($0.mac) } ?? false
+            !world.groundTruth.lostToAmnesia(token: token) && (world.groundTruth.change(forToken: token).map { SimWorld.isRedesign(build: $0.build) } ?? false)
         }
         guard !lost.isEmpty else { return nil }
         return "live user change \(lost.joined(separator: ", ")) is held nowhere: no settings, no readable file, no pending entry"
@@ -197,12 +196,22 @@ extension SimSafetyOracles {
 
     /// What a Mac's units and files tell about which units it holds: units named by the tokens it holds.
     static func conflictedUnits(_ world: SimWorld, _ mac: SimMacName, visibleOnly: Bool = false) -> [String] {
-        let snapshot = world.holderSnapshot()
+        candidateUnits(world, mac, visibleOnly: visibleOnly).filter { world.groundTruth.conflict(mac: mac, unit: $0, visibleOnly: visibleOnly) }
+    }
+
+    /// Whether the Mac is in any conflict: the same as `!conflictedUnits(...).isEmpty`, which stops at the first one.
+    static func hasConflict(_ world: SimWorld, _ mac: SimMacName, visibleOnly: Bool = false) -> Bool {
+        candidateUnits(world, mac, visibleOnly: visibleOnly).contains { world.groundTruth.conflict(mac: mac, unit: $0, visibleOnly: visibleOnly) }
+    }
+
+    private static func candidateUnits(_ world: SimWorld, _ mac: SimMacName, visibleOnly: Bool) -> [String] {
+        let snapshot = world.groundTruth.holders()
         var tokens = snapshot.defaults[mac] ?? []
         for file in snapshot.files { tokens.formUnion(file.tokens) }
         var units = Set(tokens.compactMap { SimWorld.unit(ofToken: $0) })
-        if visibleOnly { units.formUnion(world.groundTruth.knownConflictUnits(mac: mac)) }
-        return units.sorted().filter { world.groundTruth.conflict(mac: mac, unit: $0, visibleOnly: visibleOnly) }
+        // `conflict` asks `knownConflict` itself, so the units of what the Mac knows are all candidates.
+        if visibleOnly { units.formUnion(world.groundTruth.knownUnits(mac: mac)) }
+        return units.sorted()
     }
 
     /// The units of an ingested file that a brain says it mentions; falls back to the units of its tokens.
@@ -283,7 +292,7 @@ extension SimSafetyOracles {
         else { return nil }
         let truth = world.groundTruth
         let seen = world.userTokens(inPastOf: write.mac)
-        let over = claimed.subtracting(seen).sorted()
+        let over = claimed.subtracting(seen).filter { !truth.lostToAmnesia(token: $0) }.sorted()
         if !over.isEmpty {
             return "Mac \(write.mac) published \(write.path) claiming \(over.joined(separator: ", ")), which it has not seen"
         }
@@ -293,7 +302,7 @@ extension SimSafetyOracles {
         }
         for token in claimed.sorted() {
             guard let unit = SimWorld.unit(ofToken: token), truth.isLive(token: token, unit: unit),
-                  !carried.contains(token)
+                  !carried.contains(token), !truth.lostToAmnesia(token: token)
             else { continue }
             let change = truth.change(forToken: token)
             let replaced = carried.contains { other in
@@ -314,7 +323,8 @@ extension SimSafetyOracles {
                 if let answered = hook.answered, answered.answer == .use { continue }
                 let mentions = hook.ingests.compactMap { mentionedUnits(world, by: hook.mac, version: $0) }
                 guard !mentions.isEmpty else { continue }
-                if mentions.contains(where: { !$0.contains(transition.unit) }) {
+                // Another file read in the same hook may carry the deletion: the removal is wrong only when no file read mentions the unit.
+                if !mentions.contains(where: { $0.contains(transition.unit) }) {
                     return "Mac \(hook.mac) removed \(transition.unit) after reading a file that does not mention it"
                 }
             }
@@ -332,10 +342,46 @@ extension SimSafetyOracles {
         for change in truth.changes where change.id >= previous && change.id < write.changeCount {
             guard change.kind == .user, change.mac == write.mac, change.tokens.isEmpty, let unit = change.unit else { continue }
             if deleted.contains(unit) { continue }
+            // A deletion made before the Mac's settings were replaced from outside (a restore of the home folder or of the
+            // preferences, a clone, a reinstall) went with them: there is nothing left to publish.
+            if change.id < truth.settingsReplaced(at: write.mac) { continue }
+            // A deletion that the Mac's sync state lost before it was captured (the state is no evidence of it) leaves nothing to
+            // publish: a deletion is no value that a later diff of the settings finds again.
+            if truth.amnesia.contains(change.id) { continue }
+            // Only a synced unit has a deletion to publish: an import removes every importable key it lacks, the learned
+            // sets and the arrangement of macOS 26 among them, which never sync, and the known applications are a
+            // union that nobody deletes from (decision D-06).
+            let generation = world.macs[write.mac]?.generation ?? 26
+            if unit == SimUnits.known27 || !SimLocalKeys.isSyncedUnit(unit, generation: generation) { continue }
             let reset = truth.changes.contains {
                 $0.kind == .user && $0.unit == unit && $0.id > change.id && $0.id < write.changeCount && !$0.tokens.isEmpty
             }
-            if !reset { return "Mac \(write.mac) published \(write.path) without the explicit deletion of \(unit)" }
+            if reset { continue }
+            // The Mac's own answer about the unit that came after the deletion decided it: the user saw the deletion as the local
+            // side of the sheet and chose a value.
+            let decided = truth.changes.contains {
+                $0.kind == .answer && $0.mac == write.mac && $0.id > change.id && $0.id < write.changeCount && truth.knew($0, of: change)
+                    && $0.retainedTokens.union($0.lostTokens).contains { SimWorld.unit(ofToken: $0) == unit }
+            }
+            if decided { continue }
+            // A deletion has something to delete only when a value of the unit that this user knew of is out there: made on
+            // another Mac or published by this one. A value that was set and removed again before anything left the Mac
+            // (an edit and a reset inside the two seconds before the capture) is no change of the group's state.
+            let earlierWrites = world.writeLog.dropLast().filter { $0.mac == write.mac && $0.version != nil }
+            let outThere = truth.changes.contains { earlier in
+                guard earlier.kind == .user, earlier.unit == unit, earlier.id < change.id, !earlier.tokens.isEmpty,
+                      truth.knew(change, of: earlier),
+                      // A value that an earlier change of this Mac's user (or of the group) already replaced is no value to delete:
+                      // the deletion restates what the group already holds.
+                      earlier.tokens.contains(where: { liveBefore(world, token: $0, unit: unit, changeCount: change.id) })
+                else { return false }
+                // A value of another Mac is out there when that Mac ran a redesigned build when it set it: what a beta1 or beta2 Mac set
+                // is in the legacy file, which holzBar reads only to found a group, so it is no value of the group's.
+                return (earlier.mac != change.mac && SimWorld.isRedesign(build: earlier.build)) || earlierWrites.contains { earlierWrite in
+                    !(world.brains[write.mac]?.heldTokens(inFile: earlierWrite.path, data: earlierWrite.data) ?? []).isDisjoint(with: earlier.tokens)
+                }
+            }
+            if outThere { return "Mac \(write.mac) published \(write.path) without the explicit deletion of \(unit)" }
         }
         return nil
     }
@@ -369,10 +415,21 @@ extension SimSafetyOracles {
         for mac in step.before.keys.sorted() where world.isRedesign(mac) {
             guard let before = step.before[mac], let after = step.after[mac] else { continue }
             if isNonSyncDestruction(step.event, mac: mac) { continue }
+            // While sync is off nothing waits to be shown: Turn Off keeps the state, and the change is offered again when
+            // sync is turned on (the drain's progress check, INV-C5, sees a change that never comes back).
+            if !after.enabled || before.version != after.version { continue }
+            // A join that starts again reads the folder again: what the earlier read of the folder held is no change of this Mac's.
+            var startsAgain = false
+            switch step.event {
+            case .turnOn(let target, _), .changeFolder(let target, _), .turnOff(let target): startsAgain = target == mac
+            default: break
+            }
             for token in before.heldTokens.subtracting(after.heldTokens).sorted() {
+                if startsAgain, before.report?.pendingJoinTokens.contains(token) == true { continue }
                 if step.answers.contains(where: { $0.mac == mac }) { continue }
                 if after.defaultsTokens.contains(token) { continue }
-                guard let unit = SimWorld.unit(ofToken: token), world.groundTruth.isLive(token: token, unit: unit)
+                guard let unit = SimWorld.unit(ofToken: token), world.groundTruth.isLive(token: token, unit: unit),
+                      !world.groundTruth.lostToAmnesia(token: token)
                 else { continue }
                 return "Mac \(mac) dropped the waiting change \(token) without an answer or an application"
             }
@@ -489,9 +546,17 @@ extension SimSafetyOracles {
             return "Mac \(record.mac) shows \"\(record.prompt.title)\" without any value in question"
         }
         for entry in record.prompt.shown {
-            if joining, entry.local != entry.folder { continue }
+            // A row of a join is a difference between this Mac's settings and the group's (or between the group's own values, which
+            // this Mac is asked to choose from): that is the witness. Rows whose values are all equal are INV-P2's.
+            if joining { continue }
             if world.groundTruth.conflict(mac: record.mac, unit: entry.unit, visibleOnly: true) { continue }
-            if let local = entry.local, world.groundTruth.origin(of: local) == .pre { continue }
+            if let local = entry.local, world.groundTruth.isPreLike(local, at: record.mac) { continue }
+            // The value of the other side may be one that was there before sync knew of it (a clone carries the source's change that was not
+            // yet captured, and the clone captures it again under its own dot): a question about it has that witness as well.
+            if let folder = entry.folder, world.groundTruth.isPreLike(folder, at: record.mac) { continue }
+            // A row with several values lists them as several entries of one unit: a value of that kind in any of them is the witness.
+            let siblings = record.prompt.shown.filter { $0.unit == entry.unit }
+            if siblings.contains(where: { [$0.local, $0.folder].compactMap { $0 }.contains { world.groundTruth.isPreLike($0, at: record.mac) } }) { continue }
             if entry.unit.hasPrefix("Hotkeys/"), entry.local != nil, entry.folder != nil { continue }
             return "Mac \(record.mac) asks about \(entry.unit) without a conflict, a join difference, a pre value or a clash"
         }
@@ -501,7 +566,13 @@ extension SimSafetyOracles {
     /// INV-P2: equal means silent.
     static let p2 = SimClosureOracle("INV-P2", .prompt) { world, _ in
         guard let record = prompt(world), world.isRedesign(record.mac), !record.prompt.shown.isEmpty else { return nil }
-        if record.prompt.shown.allSatisfy({ $0.local == $0.folder }) {
+        if record.prompt.shown.allSatisfy({ $0.local == $0.folder && !$0.losesEitherWay }) {
+            // Two builds that store a JSON unit differently (a skewed build re-encodes it at load) hold values that carry one token and
+            // differ in their bytes: what makes them equal is the model of the build, which the engine of another build does not have.
+            let skewed = world.macs.values.contains { $0.version == .redesignSkew }
+            if skewed, record.prompt.shown.allSatisfy({ SimUnits.value(of: $0.unit, in: world.macs[record.mac]?.defaults ?? [:]).map { if case .data = $0 { true } else { false } } == true }) {
+                return nil
+            }
             return "Mac \(record.mac) asks although every shown value is equal"
         }
         return nil
@@ -511,7 +582,19 @@ extension SimSafetyOracles {
     static let p3 = SimClosureOracle("INV-P3", .prompt) { world, _ in
         guard let record = prompt(world), world.isRedesign(record.mac) else { return nil }
         for earlier in world.groundTruth.prompts where earlier.mac == record.mac && earlier.prompt.id != record.prompt.id {
-            guard let answered = earlier.answer, answered != .later else { continue }
+            // Cancel leaves a join and decides nothing, as Later does: what was open stays to be asked.
+            guard let answered = earlier.answer, answered != .later, answered != .cancel else { continue }
+            // "Only if the Mac's comparable state changed since": the Mac took in a version it had not seen, as another Mac's answer
+            // crossing its own does (two answers to one conflict that are given at the same time).
+            let answerStep = world.allSteps.first { step in
+                step.answers.contains { $0.mac == record.mac && $0.prompt.id == earlier.prompt.id }
+            }?.index ?? Int.max
+            let changedSince = !record.newIngests.isEmpty || world.allSteps.contains { step in
+                step.index > answerStep && step.hooks.contains { hook in
+                    hook.mac == record.mac && hook.ingests.contains { !hook.dominatedIngests.contains($0) }
+                }
+            }
+            if changedSince { continue }
             if earlier.prompt.shown == record.prompt.shown, earlier.prompt.title == record.prompt.title {
                 return "Mac \(record.mac) asks \"\(record.prompt.title)\" again after answering \(answered.canonical)"
             }
@@ -530,7 +613,12 @@ extension SimSafetyOracles {
         let launched = history.contains { step in
             step.index > later.index && step.hooks.contains { $0.mac == record.mac && $0.name == .launch }
         }
-        return launched ? nil : "Mac \(record.mac) asks again after Later without a launch in between"
+        if launched { return nil }
+        // Turning sync on starts a join that waits behind a sheet that is open: when the user puts that sheet off, the join sheet that
+        // follows is another question that the user was never asked, not the one that Later hid.
+        let dismissed = later.answers.last { $0.mac == record.mac && $0.answer == .later }?.prompt.title
+        if world.introspection(of: record.mac)?.report().joining == true, dismissed != record.prompt.title { return nil }
+        return "Mac \(record.mac) asks again after Later without a launch in between"
     }
 
     /// INV-P5: at most one sync sheet is open.
@@ -559,11 +647,12 @@ extension SimSafetyOracles {
             // A join with rows asks (analysis section 4.7), and so does a value that was there before sync and
             // differs from the group's: neither is a conflict of this Mac's entries, and both are its question.
             if step.after[mac]?.report?.joining == true { continue }
-            let holdsPreValue = SimUnits.tokens(in: world.macs[mac]?.defaults ?? [:]).contains {
-                if case .pre? = SimValue.origin(ofToken: $0) { true } else { false }
-            }
+            let holdsPreValue = SimUnits.tokens(in: world.macs[mac]?.defaults ?? [:]).contains { world.groundTruth.isPreLike($0, at: mac) }
             if holdsPreValue { continue }
-            if conflictedUnits(world, mac, visibleOnly: true).isEmpty {
+            // An automatic placement that a join published as the user's arrangement is a value of the group's, and one that another Mac
+            // changed meanwhile is in conflict with it, whatever the ground truth says about holzBar's own stores.
+            if world.groundTruth.holders().allTokens.contains(where: { world.groundTruth.origin(of: $0) == .automatic && world.groundTruth.isPreLike($0, at: mac) }) { continue }
+            if !hasConflict(world, mac, visibleOnly: true) {
                 return "Mac \(mac) shows a menu hint although it has no live entry in any conflict"
             }
         }
@@ -612,7 +701,10 @@ extension SimSafetyOracles {
             guard let before = step.before[mac]?.report?.deviceID, let after = step.after[mac]?.report,
                   let new = after.deviceID, new != before
             else { continue }
-            if !after.joining { return "Mac \(mac) changed its device ID from \(before) to \(new) without joining again" }
+            // With sync off there is no group to join: the Mac joins when the user turns sync on, whatever ID it holds then.
+            // A collision found while merging gives the Mac a new identity and re-mints its entries under it in the same merge:
+            // there is no group to join again, it is in one.
+            if !after.joining, after.reidentifyReason != "collision", world.macs[mac]?.enabled != false { return "Mac \(mac) changed its device ID from \(before) to \(new) without joining again" }
             if after.reidentifyReason == nil { return "Mac \(mac) changed its device ID from \(before) to \(new) without a reason" }
         }
         return nil
@@ -644,6 +736,8 @@ extension SimSafetyOracles {
         for hook in step.hooks where hook.syncCaused && charged(world, hook) && !hook.transitions.isEmpty {
             for version in hook.ingests {
                 guard world.writer(ofVersion: version) == hook.mac, let path = world.path(ofVersion: version) else { continue }
+                // A file of an identity the Mac gave up (a copy of an account re-identifies it) is another device's file now.
+                if let current = step.after[hook.mac]?.report?.deviceID, !path.contains(current) { continue }
                 // What the Mac wrote before this hook: the file it writes after reading is newer than what it read.
                 let writtenHere = Set(hook.writes.compactMap(\.version))
                 let newest = world.writeLog.filter { $0.mac == hook.mac && $0.path == path }.compactMap(\.version)
@@ -684,7 +778,7 @@ extension SimSafetyOracles {
         for mac in step.after.keys.sorted() where world.isRedesign(mac) {
             guard let before = step.before[mac]?.report, let after = step.after[mac]?.report else { continue }
             if !before.joinCommitted, after.joinCommitted {
-                let unread = after.unreadListedFiles.subtracting(after.refusedFiles)
+                let unread = after.unreadAtJoinCommit.subtracting(after.refusedFiles)
                 if !unread.isEmpty { return "Mac \(mac) committed its join while \(unread.sorted().joined(separator: ", ")) is unread" }
             }
         }
@@ -719,7 +813,18 @@ extension SimSafetyOracles {
             }
             guard let bad = unreliable else { continue }
             let reliable = hook.reads.contains { $0.version > 0 && !$0.entry.wasPartial && $0.versionKind == .write }
-            if !hook.transitions.isEmpty, !reliable {
+            // A launch applies what waited before it (a change merged from an earlier, reliable read): no unreliable file caused that.
+            let waiting = step.before[hook.mac]?.report?.waitingTokens ?? []
+            let waitingUnits = step.before[hook.mac]?.report?.waitingUnits ?? []
+            // A value written again in another encoding (a skewed build re-encodes a JSON setting at load) is no change of the settings,
+            // and the known applications are no setting at all.
+            let caused = hook.transitions.contains { transition in
+                guard transition.unit != SimUnits.known27, !SimUnits.equivalent(transition.unit, transition.old, transition.new) else { return false }
+                let arrived = transition.newTokens.subtracting(transition.oldTokens)
+                if arrived.isEmpty { return !waitingUnits.contains(transition.unit) }
+                return !arrived.isSubset(of: waiting)
+            }
+            if caused, !reliable {
                 return "Mac \(hook.mac) changed settings after reading the unreliable file \(bad.entry.path)"
             }
             if hook.ingests.contains(where: { world.kind(ofVersion: $0).map { if case .foreign = $0 { true } else { false } } ?? false }) {
@@ -735,6 +840,9 @@ extension SimSafetyOracles {
             // A join asks about this Mac's own values against the folder's, so a version the Mac has seen can
             // be the subject of a question when its settings were rolled back or were never joined.
             if step.after[hook.mac]?.report?.joining == true || hook.answered != nil { continue }
+            // A join that was waiting commits when the group's files arrive: what it applies is the join's, and the first thing the Mac
+            // takes in from a group it was not in is never a version it has seen as a member.
+            if step.before[hook.mac]?.report?.joining == true { continue }
             let isCopy = hook.ingests.contains { version in
                 if case .conflictCopy? = world.kind(ofVersion: version) { return true }
                 return false
@@ -745,8 +853,32 @@ extension SimSafetyOracles {
             let tookInNewVersion = step.hooks.contains { other in
                 other.mac == hook.mac && other.ingests.contains { !other.dominatedIngests.contains($0) }
             }
-            let hinted = step.after[hook.mac]?.hint != nil && step.before[hook.mac]?.hint == nil && !tookInNewVersion
-            if !hook.transitions.isEmpty || !hook.prompts.isEmpty || hinted {
+            // A Mac that already held a change that waits for its Restart shows that hint whenever it next looks: the hint is the waiting
+            // change's, not that of the version it read.
+            let seenBefore = world.groundTruth.seenPast(ofMac: hook.mac)
+            let waitingNow = step.after[hook.mac]?.report?.waitingTokens ?? []
+            let alreadyWaiting = step.before[hook.mac]?.report?.waitingTokens.isEmpty == false
+                || (!waitingNow.isEmpty && waitingNow.allSatisfy { token in
+                    world.groundTruth.change(forToken: token).map { seenBefore.contains($0.id) } ?? false
+                })
+            let hinted = step.after[hook.mac]?.hint != nil && step.before[hook.mac]?.hint == nil && !tookInNewVersion && !alreadyWaiting
+            // A question or a hint about a conflict that exists is that conflict's, whichever version the Mac read in the same hook.
+            // So is one about a value that was there before sync knew of it (a lone restore of the state captures it again).
+            let promptsAboutPre = !hook.prompts.isEmpty && hook.prompts.allSatisfy { prompt in
+                !prompt.shown.isEmpty && prompt.shown.allSatisfy { entry in
+                    [entry.local, entry.folder].compactMap { $0 }.contains { world.groundTruth.origin(of: $0) == .pre }
+                }
+            }
+            let asks = (!hook.prompts.isEmpty || hinted) && !hasConflict(world, hook.mac, visibleOnly: true) && !promptsAboutPre
+            // A value written again in another encoding is no change of the settings.
+            // And the Restart of a change that waited before is the waiting change's doing, not that of the version read in the same hook.
+            let waitingBefore = step.before[hook.mac]?.report?.waitingTokens ?? []
+            // The known applications are a set that only grows by union at launch (D-06): no setting, no question, no hint.
+            let changed = hook.transitions.contains {
+                $0.unit != SimUnits.known27 && !SimUnits.equivalent($0.unit, $0.old, $0.new)
+                    && !(!$0.newTokens.isEmpty && $0.newTokens.isSubset(of: waitingBefore))
+            }
+            if changed || asks {
                 return "Mac \(hook.mac) reacted to a dominated \(copies ? "conflict copy" : "version") "
                     + "(v\(hook.ingests.map(String.init).joined(separator: ", v"))) with a change, a prompt or a hint"
             }
@@ -827,9 +959,9 @@ extension SimSafetyOracles {
     static let z2 = SimClosureOracle("INV-Z2", .read) { world, _ in
         guard let read = read(world), world.isRedesign(read.mac), case .tooLarge(let size) = read.entry.result,
               size <= SimLimits.deviceFileWriter, read.replicaVersion > 0,
-              let writer = world.writer(ofVersion: read.replicaVersion), world.isRedesign(writer)
+              world.isRedesignWriter(ofVersion: read.replicaVersion)
         else { return nil }
-        return "Mac \(read.mac) refused \(read.entry.path) of \(size) bytes that \(writer) wrote within its limit"
+        return "Mac \(read.mac) refused \(read.entry.path) of \(size) bytes that \(world.writer(ofVersion: read.replicaVersion).map(\.name) ?? "a Mac") wrote within its limit"
     }
 
     /// INV-Z3: a state too large to publish is not written and shows a warning.
@@ -846,26 +978,41 @@ extension SimSafetyOracles {
         return nil
     }
 
-    /// INV-Z4: the local sync state is bounded by the devices ever seen.
+    /// INV-Z4: the local sync state is bounded by the devices ever seen and by what it holds: `c1 + c2 * D + c3 * U + c4 * E + P` for
+    /// `D` devices, `U` units that it keeps bookkeeping for, `E` live entries and `P` bytes of their values. The state keeps every live
+    /// entry of every unit, so it grows with the settings that sync (INV-Z3 bounds those at 1 MiB); what must not grow without bound is
+    /// the rest: the context of a device, the dot and the date of an entry, and the bookkeeping of a unit (its applied dots, its
+    /// baseline, its marks), which nothing but a new device or a new unit adds. The constants are the smallest round numbers that hold
+    /// over the seeded runs of the real engine, 15,000 distinct states of 420 worlds of 400 steps (they need a base of 2048 bytes,
+    /// 384 per device, 256 per unit and 45 per further entry of a unit): 2048 bytes, 384 per device, 256 per unit, 64 per entry.
     static let z4 = SimClosureOracle("INV-Z4", .step) { world, _ in
         guard let step = step(world) else { return nil }
         for mac in step.after.keys.sorted() where world.isRedesign(mac) {
             guard let report = step.after[mac]?.report else { continue }
-            let bound = 4_096 + 512 * max(report.devicesSeen, 1)
+            let bound = 2_048 + 384 * max(report.devicesSeen, 1) + 256 * report.bookkeptUnits + 64 * report.liveEntries + report.payloadBytes
             if report.sigmaBytes > bound {
-                return "Mac \(mac) keeps \(report.sigmaBytes) bytes of sync state for \(report.devicesSeen) devices (bound \(bound))"
+                return "Mac \(mac) keeps \(report.sigmaBytes) bytes of sync state for \(report.devicesSeen) devices, \(report.bookkeptUnits) units and \(report.liveEntries) entries (bound \(bound))"
             }
         }
         return nil
     }
 
-    /// INV-Z5: the number of device files holzBar created stays within a constant plus a few per Mac.
+    /// INV-Z5: the number of device files holzBar created stays within one per Mac plus one per identity that a Mac took on. Nothing
+    /// deletes a file by itself (D-9), so a Mac that re-identifies leaves its old file behind, and that is the only way the count
+    /// exceeds the Macs. A file under a name that no Mac ever held as its ID is a stray.
     static let z5 = SimClosureOracle("INV-Z5", .write) { world, _ in
         guard let write = chargedWrite(world), write.version != nil else { return nil }
-        let paths = Set(world.writeLog.filter { world.isRedesign($0.mac) && $0.version != nil }.map(\.path))
+        let paths = Set(world.writeLog.filter { SimWorld.isRedesign(build: $0.brainKind) && $0.version != nil && SimLimits.isDeviceFile($0.path) }.map(\.path))
+        var identities = Set<String>()
+        for step in world.allSteps {
+            for snapshot in step.before.values.map({ $0 }) + step.after.values.map({ $0 }) {
+                if let id = snapshot.report?.deviceID { identities.insert(id) }
+            }
+        }
+        for mac in world.macs.keys { if let id = world.introspection(of: mac)?.report().deviceID { identities.insert(id) } }
         let macs = world.macs.keys.filter { world.isRedesign($0) }.count
-        let bound = 16 + 4 * macs
-        return paths.count > bound ? "holzBar created \(paths.count) files for \(macs) Macs (bound \(bound))" : nil
+        let bound = max(identities.count, macs)
+        return paths.count > bound ? "holzBar created \(paths.count) files for \(identities.count) identities of \(macs) Macs (bound \(bound))" : nil
     }
 
     /// INV-Z6: a file that is too large, partial, dataless, foreign or unreadable is never written over.

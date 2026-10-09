@@ -10,8 +10,10 @@ struct SimBudget: Equatable, Sendable {
     var steps: Int
     var depth: Int
     var fuzzInputs: Int
+    /// The most runs one exhaustive family spends (`SYNC_SIM_RUNS`).
+    var exhaustiveRuns = 1_500
 
-    static let ci = SimBudget(seeds: 40, steps: 60, depth: 3, fuzzInputs: 10_000)
+    static let ci = SimBudget(seeds: 40, steps: 60, depth: 6, fuzzInputs: 10_000)
 
     /// Reads the budget from an environment (the process environment unless one is given).
     static func read(from environment: [String: String] = ProcessInfo.processInfo.environment) -> SimBudget {
@@ -22,7 +24,8 @@ struct SimBudget: Equatable, Sendable {
             seeds: value("SYNC_SIM_SEEDS", ci.seeds),
             steps: value("SYNC_SIM_STEPS", ci.steps),
             depth: value("SYNC_SIM_DEPTH", ci.depth),
-            fuzzInputs: value("SYNC_FUZZ_INPUTS", ci.fuzzInputs)
+            fuzzInputs: value("SYNC_FUZZ_INPUTS", ci.fuzzInputs),
+            exhaustiveRuns: value("SYNC_SIM_RUNS", ci.exhaustiveRuns)
         )
     }
 }
@@ -46,6 +49,9 @@ struct SimGenerator {
         var userEvents = true
         var automaticEvents = true
         var identityEvents = true
+        /// Whether the identity events that destroy what a Mac's sync state knows (clone, copied account, restores of the preferences,
+        /// of Sigma or of the home folder, a lost Sigma, a reinstall) are drawn. The OS upgrade stays with ``identityEvents``.
+        var evidenceLoss = true
         var providerEvents = true
         var clockEvents = true
         var crashes = true
@@ -117,7 +123,7 @@ struct SimGenerator {
         case .seed27, .place27: return config.automaticEvents && has27
         case .upgrade: return config.identityEvents && config.macs.contains { $0.generation == 26 }
         case .clock: return config.clockEvents
-        case .identity: return config.identityEvents && config.macs.count > 1
+        case .identity: return config.identityEvents && config.evidenceLoss && config.macs.count > 1
         case .update: return !config.updateVersions.isEmpty
         }
     }
@@ -132,6 +138,17 @@ struct SimGenerator {
         let rates = config.providerEvents ? config.preset?.policy.rates : nil
         let faultTotal = rates.map(faultSum) ?? 0
         var events: [SimEvent] = []
+        // The build each Mac runs, as the events so far leave it. holzBar offers only updates: a Mac that ran a redesigned build does
+        // not go back to one that reports no intents and keeps no state (the changes it makes there no engine sees), so a world that
+        // draws no event that destroys what a Mac's sync state knows draws updates to the same build or a later one only.
+        var builds = Dictionary(uniqueKeysWithValues: config.macs.map { ($0.name, $0.version) })
+        func rank(_ version: SimMacVersion) -> Int {
+            switch version {
+            case .beta1: 0
+            case .beta2: 1
+            case .redesign, .redesignSkew: 2
+            }
+        }
         for _ in 0..<config.steps {
             if let rates, faultTotal > 0, random.chance(min(faultTotal * 2, 0.5)) {
                 events.append(fault(&random, rates: rates, names: names, config: config))
@@ -143,7 +160,24 @@ struct SimGenerator {
                 pick -= weight(kind)
                 if pick <= 0 { chosen = kind; break }
             }
-            events.append(event(chosen, &random, names: names, config: config))
+            var drawn = event(chosen, &random, names: names, config: config)
+            if case .updateApp(let mac, let version) = drawn {
+                if !config.evidenceLoss, let current = builds[mac], rank(version) < rank(current) {
+                    drawn = .updateApp(mac: mac, version: current)
+                } else {
+                    builds[mac] = version
+                }
+            }
+            // A copy of a Mac's preferences and sync state (Migration Assistant, a disk clone, another account) is taken from a
+            // Mac whose last edit the engine has captured: the capture runs two seconds after an edit, and a copy taken inside
+            // that window would carry an edit that its source publishes as its own again.
+            switch drawn {
+            case .clone, .copyAccount, .duplicateInstallation:
+                events.append(.advance(milliseconds: 3_000))
+            default:
+                break
+            }
+            events.append(drawn)
         }
         return events
     }
@@ -312,10 +346,17 @@ struct SimRunner {
             var last = makeWorld()
             var lastEvents: [SimEvent] = []
             for level in 0..<max(depth, 0) {
+                // The runs left are shared by the levels left, and a level too large for its share is sampled at an even stride,
+                // so a cap never leaves the deeper levels unvisited.
+                let share = max((maximumRuns - runs) / (depth - level), 1)
+                let candidates = frontier.count * alphabet.count
+                let stride = max((candidates + share - 1) / share, 1)
                 var next: [[SimEvent]] = []
+                var position = 0
                 for prefix in frontier {
                     for event in alphabet {
-                        guard runs < maximumRuns else { break }
+                        defer { position += 1 }
+                        guard runs < maximumRuns, position % stride == 0 else { continue }
                         let events = prefix + [event]
                         let world = makeWorld()
                         world.run(events)

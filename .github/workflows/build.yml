@@ -369,6 +369,11 @@ jobs:
 
       - uses: ./.github/actions/select-xcode
 
+      # The settings sync engine decides the same on every run: no clock, no randomness, no unsorted
+      # iteration of a Dictionary or Set. The rules are in the header of the script.
+      - name: Sync code rules
+        run: python3 .github/scripts/sync-lint.py
+
       # swift honors TOOLCHAINS (set by select-xcode): the tests run with the swift.org toolchain.
       - name: Run the unit tests
         run: |

@@ -88,9 +88,9 @@ enum SimLayout27Oracles {
             guard world.macs[mac]?.running == true, world.brains[mac]?.hint != nil else { continue }
             let truth = world.groundTruth
             let comparable = truth.changes.contains { change in
-                change.kind == .user && change.mac != mac && change.unit.map { !isScoped($0) } == true
+                change.kind == .user && (change.mac != mac || truth.isOfPreviousState(change, at: mac)) && change.unit.map { !isScoped($0) } == true
             }
-            let pre = world.holderSnapshot().allTokens.contains { truth.origin(of: $0) == .pre }
+            let pre = world.groundTruth.holders().allTokens.contains { truth.origin(of: $0) == .pre }
             if !comparable, !pre {
                 return "Mac \(mac) shows a hint, and no unit it compares has a change of another Mac"
             }
@@ -132,6 +132,7 @@ enum SimLayout27Oracles {
         let now = scopedTokens(tokens(in: write, world))
         for (unit, held) in scopedTokens(tokens(in: previous, world)).sorted(by: { $0.key < $1.key }) {
             for token in held.sorted() where !(now[unit] ?? []).contains(token) {
+                if world.groundTruth.lostToAmnesia(token: token) { continue }
                 if !SimSafetyOracles.supersededByIngest(world, token: token, unit: unit, ingests: [], mac: write.mac) {
                     return "Mac \(write.mac) dropped \(token) at \(unit) from its file, and nothing it has seen superseded it"
                 }
@@ -152,11 +153,15 @@ enum SimLayout27Oracles {
             guard let old = before[unit] else { continue }
             // A value that went out of the file was replaced: by a new value whose change knew of it, or by an
             // answer that lost it. A relay that decided by a date would drop it for a value of another lineage.
-            for dropped in old.subtracting(held).sorted() {
+            for dropped in old.subtracting(held).sorted() where !truth.lostToAmnesia(token: dropped) {
                 guard let older = truth.change(forToken: dropped) else { continue }
                 let byLineage = held.contains { token in truth.change(forToken: token).map { truth.knew($0, of: older) } ?? false }
                 let byAnswer = truth.changes.contains { $0.kind == .answer && seen.contains($0.id) && $0.lostTokens.contains(dropped) }
-                if !byLineage, !byAnswer {
+                // A deletion that knew of the value replaces it as well.
+                let byDeletion = truth.changes.contains {
+                    $0.kind == .user && $0.unit == unit && $0.tokens.isEmpty && seen.contains($0.id) && truth.knew($0, of: older)
+                }
+                if !byLineage, !byAnswer, !byDeletion {
                     return "Mac \(write.mac) replaced \(dropped) at \(unit) by \(held.sorted().joined(separator: ", ")), none of which knew of it"
                 }
             }
@@ -244,7 +249,10 @@ enum SimLayout27Oracles {
             var automatic = Set<String>()
             for state in world.macs.values {
                 for (unit, value) in SimUnits.units(of: state.defaults) where isScoped(unit) {
-                    automatic.formUnion(value.tokens.filter { truth.origin(of: $0) == .automatic })
+                    // holzBar's own note that it placed a value lives in Sigma. A Mac whose Sigma was lost, restored or replaced
+                    // after the placement has no such note, and the value looks like one the user arranged (D-10): nothing
+                    // the engine could know, so only placements it can still know of are judged.
+                    automatic.formUnion(value.tokens.filter { truth.origin(of: $0) == .automatic && !truth.engineForgot($0, at: write.mac) })
                 }
             }
             if let token = tokens(in: write, world).intersection(automatic).sorted().first {

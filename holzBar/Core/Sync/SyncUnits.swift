@@ -593,6 +593,7 @@ nonisolated struct SyncUnitTable: Sendable {
         guard let sections = fields["applicationSections"]?.dictionaryValue else {
             return false
         }
+        // sync-lint: ordered every application has to be valid, so the order cannot change the result
         for (application, section) in sections {
             guard isItemKey(application), let number = section.integerValue, (0...2).contains(number) else {
                 return false

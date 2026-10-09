@@ -100,6 +100,7 @@ nonisolated enum SyncIdentity {
     /// minted twice: the identity is used by two installations.
     static func suspectReusedDots(in state: SyncState, coveredBy context: SyncContext) -> [SyncDot] {
         var dots = Set<SyncDot>()
+        // sync-lint: ordered dots go into a set that is sorted before it is used
         for entries in state.replica.registers.values {
             for entry in entries where entry.dot.mac == state.mac && entry.dot.n > state.publishedCounter && context.covers(entry.dot) {
                 dots.insert(entry.dot)
@@ -130,6 +131,7 @@ nonisolated enum SyncIdentity {
     ) -> [SyncDot] {
         let published = publishedCounter ?? state.publishedCounter
         var dots = Set<SyncDot>()
+        // sync-lint: ordered dots go into a set that is sorted before it is returned
         for (key, entries) in state.replica.registers {
             for entry in entries where entry.dot.mac == state.mac && file.context.covers(entry.dot) {
                 let neverSeen = file.live(key).isEmpty
@@ -174,12 +176,14 @@ nonisolated enum SyncIdentity {
         }
         // An own dot that this Mac's state holds, with another payload in the file.
         var known: [SyncDot: Set<SyncEntry.Identity>] = [:]
+        // sync-lint: ordered entries are collected into a dictionary keyed by dot
         for entries in state.replica.registers.values {
             for entry in entries where entry.dot.mac == ownMac {
                 known[entry.dot, default: []].insert(entry.identity)
             }
         }
         var mismatched = Set<SyncDot>()
+        // sync-lint: ordered dots go into a set
         for entries in file.replica.registers.values {
             for entry in entries where entry.dot.mac == ownMac {
                 if let held = known[entry.dot], !held.contains(entry.identity) {
@@ -215,17 +219,22 @@ nonisolated enum SyncIdentity {
     /// unit that holds a suspect dot becomes `preexisting`, so it is asked about where the
     /// group differs and published where the group has nothing, never dropped. The own file
     /// is a new file, so what was last published is forgotten.
-    static func reidentified(_ state: SyncState, newMac: SyncMacID, newNonce: String, suspect: [SyncDot]) -> SyncState {
+    static func reidentified(_ state: SyncState, newMac: SyncMacID, newNonce: String, suspect: [SyncDot], floors: SyncCounterFloors = SyncCounterFloors()) -> SyncState {
         var result = state
         let suspectDots = Set(suspect)
         if state.mac != newMac {
             if !result.previousMacIDs.contains(state.mac) {
                 result.previousMacIDs.append(state.mac)
             }
+            // The most this Mac minted under the identity it leaves: what its replica, its counters and the floors it keeps
+            // outside Sigma say. A dot of that identity above it was minted by a copy that stays.
+            let reached = max(state.replica.context[state.mac], state.counter, state.publishedCounter, floors.mirror, floors.highWater)
+            result.previousCeilings[state.mac] = max(result.previousCeilings[state.mac] ?? 0, reached)
             result.mac = newMac
         }
         result.nonce = newNonce
         result.published = SyncPublishedRecord()
+        // sync-lint: ordered every unit is assigned to its own key of a dictionary
         for (key, entries) in state.replica.registers where entries.contains(where: { suspectDots.contains($0.dot) }) {
             result.localOrigin[key] = .preexisting
         }

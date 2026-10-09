@@ -296,8 +296,9 @@ struct SimOracleTests {
     @Test("INV-S5 fires when a user deletion is not published as an explicit deletion")
     func s5() {
         func world(publishingDeletion: Bool) -> SimWorld {
+            // The first file carries the value (it is out there), the second is the publication after the deletion.
             let brain = Self.publishing { count in
-                SimScriptedBrain.file(tokens: [], deleted: count >= 2 && publishingDeletion ? [Self.unit] : [])
+                SimScriptedBrain.file(tokens: count == 1 ? [Self.token1] : [], deleted: count >= 2 && publishingDeletion ? [Self.unit] : [])
             }
             let world = Self.world([Self.running(.A)], [.A: brain], ids: ["INV-S5"])
             world.run([.userEdit(mac: .A, unit: Self.unit), .userDelete(mac: .A, unit: Self.unit)])
@@ -427,10 +428,16 @@ struct SimOracleTests {
     @Test("INV-A6 fires on a deletion that no user made")
     func a6() {
         func world(userDeleted: Bool) -> SimWorld {
-            let brain = Self.publishing { _ in SimScriptedBrain.file(deleted: ["ItemIcons/x"]) }
+            // From its second file on the Mac publishes the deletion of `ItemIcons/x`.
+            let brain = Self.publishing { count in SimScriptedBrain.file(deleted: count >= 2 ? ["ItemIcons/x"] : []) }
             let world = Self.world([Self.running(.A)], [.A: brain], ids: ["INV-A6"])
-            if userDeleted { world.step(.userDelete(mac: .A, unit: "ItemIcons/x")) }
-            world.step(.userEdit(mac: .A, unit: Self.unit))
+            if userDeleted {
+                world.step(.userEdit(mac: .A, unit: "ItemIcons/x"))
+                world.step(.userDelete(mac: .A, unit: "ItemIcons/x"))
+            } else {
+                world.step(.userEdit(mac: .A, unit: Self.unit))
+                world.step(.userEdit(mac: .A, unit: Self.unit))
+            }
             return world
         }
         Self.check("INV-A6", bad: { world(userDeleted: false) }, good: { world(userDeleted: true) })
@@ -611,6 +618,7 @@ struct SimOracleTests {
             brain.changedScript = { _, brain in
                 brain.info.joinCommitted = true
                 brain.info.unreadListedFiles = unread
+                brain.info.unreadAtJoinCommit = unread
                 brain.info.refusedFiles = refused
             }
             let world = Self.world([Self.running(.A)], [.A: brain], ids: ["INV-J1"])
@@ -803,22 +811,37 @@ struct SimOracleTests {
             world.step(.userEdit(mac: .A, unit: Self.unit))
             return world
         }
-        Self.check("INV-Z4", bad: { world(bytes: 500_000) }, good: { world(bytes: 3_000) })
+        // 2048 + 384 * 2 devices leaves 2816 bytes without a unit; every unit adds 256, every entry 64 and its value.
+        Self.check("INV-Z4", bad: { world(bytes: 500_000) }, good: { world(bytes: 2_500) })
+        var entries = SimScriptedBrain(id: "A")
+        entries.info.devicesSeen = 1
+        entries.info.liveEntries = 10
+        entries.info.bookkeptUnits = 10
+        entries.info.payloadBytes = 500
+        entries.changedScript = { _, brain in brain.info.sigmaBytes = 5_000 }
+        let held = Self.world([Self.running(.A)], [.A: entries], ids: ["INV-Z4"])
+        held.step(.userEdit(mac: .A, unit: Self.unit))
+        #expect(!Self.found(held, "INV-Z4"), "the state of ten entries and their values may take 5000 bytes")
+        entries.changedScript = { _, brain in brain.info.sigmaBytes = 7_000 }
+        let over = Self.world([Self.running(.A)], [.A: entries], ids: ["INV-Z4"])
+        over.step(.userEdit(mac: .A, unit: Self.unit))
+        #expect(Self.found(over, "INV-Z4"), "7000 bytes for ten entries and 500 bytes of values is more than the bound of 6132")
     }
 
     @Test("INV-Z5 fires when files multiply beyond the bound")
     func z5() {
-        func world(files: Int) -> SimWorld {
+        // A Mac keeps writing one file under its ID (good); a Mac that makes a new file at every write, with the same ID, leaves strays (bad).
+        func world(files: Int, strays: Bool) -> SimWorld {
             var brain = SimScriptedBrain(id: "A")
             brain.changedScript = { context, brain in
                 brain.counter += 1
-                _ = context.write("holzBar/Macs/\(brain.counter).plist", SimScriptedBrain.file())
+                _ = context.write("holzBar/Macs/\(strays ? brain.counter : 1).plist", SimScriptedBrain.file())
             }
             let world = Self.world([Self.running(.A)], [.A: brain], ids: ["INV-Z5"])
             for _ in 0..<files { world.step(.userEdit(mac: .A, unit: Self.unit)) }
             return world
         }
-        Self.check("INV-Z5", bad: { world(files: 30) }, good: { world(files: 5) })
+        Self.check("INV-Z5", bad: { world(files: 30, strays: true) }, good: { world(files: 5, strays: false) })
     }
 
     @Test("INV-Z6 fires when a Mac writes over bytes it could not read")

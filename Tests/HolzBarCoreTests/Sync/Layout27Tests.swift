@@ -284,7 +284,7 @@ struct Layout27Tests {
         var waiting = state()
         waiting.session.isTrusted = false
         let queued = handle(userSet([intent]), waiting)
-        #expect(queued.state.session.queuedIntents.count == 1)
+        #expect(queued.state.queuedIntents.count == 1)
         #expect(queued.state.localOrigin[bundleA] == .preexisting)
         #expect(queued.state.replica.live(bundleA).isEmpty)
         // A state that can mint writes the entry at once and leaves no mark.
@@ -555,11 +555,11 @@ struct Layout27Tests {
         let intent = try #require(SyncLayout27.moveIntent(bundleID: "com.a", from: .integer(0), to: .integer(1)))
         let queued = handle(userSet([intent]), held)
         #expect(queued.state.replica.registers.isEmpty)
-        #expect(queued.state.session.queuedIntents == [intent])
+        #expect(queued.state.queuedIntents == [intent])
         var trusted = queued.state
         trusted.session.isTrusted = true
         let fired = handle(.timer(.capture), trusted)
-        #expect(fired.state.session.queuedIntents.isEmpty)
+        #expect(fired.state.queuedIntents.isEmpty)
         #expect(fired.state.replica.live(bundleA).map(\.payload) == [.value(.integer(1))])
     }
 

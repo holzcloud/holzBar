@@ -60,6 +60,7 @@ nonisolated struct SyncPlan: Sendable {
 
     /// The rows of the sheet: this Mac's conflicts, the clashes and the pre rows.
     var questionRows: Int {
+        // sync-lint: ordered only the count is used
         outcomes.values.filter { outcome in
             switch outcome {
             case .conflict(mine: true), .preRow:
@@ -72,6 +73,7 @@ nonisolated struct SyncPlan: Sendable {
 
     /// The conflicts between other Macs.
     var bystanderRows: Int {
+        // sync-lint: ordered only the count is used
         outcomes.values.filter { $0 == .conflict(mine: false) }.count
     }
 
@@ -124,7 +126,13 @@ nonisolated struct SyncPlan: Sendable {
                 // its applied value (it adopted a sibling at a join). An applied deletion is no value
                 // its user ever saw, so it makes this Mac no party.
                 let applied = Set(state.applied[key] ?? [])
-                outcomes[key] = .conflict(mine: live.contains { state.isOwn($0.dot.mac) || (applied.contains($0.dot) && $0.payload != .deleted) })
+                // An application with no stored section is in the visible section, which is a value only in the group's entries
+                // (D-04): a Mac that matches an entry of that value by holding nothing took no part in its making.
+                let isImplicitVisible = SyncLayout27.isIntentCaptured(key) && snapshot.values[key] == nil
+                outcomes[key] = .conflict(mine: live.contains { entry in
+                    state.isOwn(entry.dot)
+                        || (applied.contains(entry.dot) && entry.payload != .deleted && !(isImplicitVisible && entry.payload == .value(SyncLayout27.visible)))
+                })
                 continue
             }
             let payload = values[0]
@@ -149,7 +157,7 @@ nonisolated struct SyncPlan: Sendable {
                 outcomes[key] = .protectedLocalOnly
             } else if local != nil, state.localOrigin[key] == .preexisting {
                 outcomes[key] = .preRow
-            } else if live.allSatisfy({ state.isOwn($0.dot.mac) }), let baseline = state.baseline[key], (local?.digest ?? .unset) != baseline {
+            } else if live.allSatisfy({ state.isOwn($0.dot) }), let baseline = state.baseline[key], (local?.digest ?? .unset) != baseline {
                 // The only entries are this Mac's own and the local value moved on from what was last captured: a
                 // change of the user's that the capture has not minted yet (it runs two seconds after the edit). It is
                 // no change of another Mac, so nothing waits and no hint shows (found by A1 S-65).
@@ -161,6 +169,7 @@ nonisolated struct SyncPlan: Sendable {
         }
         let clashes = clashes(fastForwards: payloads, snapshot: snapshot)
         for clash in clashes {
+            // sync-lint: ordered the units of a clash are an array in key order
             for unit in clash.units where outcomes[unit] == .fastForward {
                 outcomes[unit] = .clash
                 payloads[unit] = nil
@@ -177,12 +186,14 @@ nonisolated struct SyncPlan: Sendable {
     static func clashes(fastForwards: [SyncUnitKey: SyncPayload], snapshot: SyncSnapshot) -> [SyncClash] {
         let family = Defaults.Key.hotkeys.rawValue
         var combinations: [SyncUnitKey: [Int]] = [:]
+        // sync-lint: ordered every unit is assigned to its own key of a dictionary
         for (key, value) in snapshot.values {
             if case .split(family, _) = key, let combination = combination(of: value) {
                 combinations[key] = combination
             }
         }
         var incoming = Set<SyncUnitKey>()
+        // sync-lint: ordered every unit is assigned to its own key of a dictionary or goes into a set
         for (key, payload) in fastForwards {
             guard case .split(family, _) = key else {
                 continue

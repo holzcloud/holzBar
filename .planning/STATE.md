@@ -4,11 +4,11 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: Completed 28-12-PLAN.md
-last_updated: "2026-10-08T10:55:45.780Z"
+stopped_at: Completed 28-13-PLAN.md (G1 not passed)
+last_updated: "2026-10-09T04:23:45.109Z"
 last_activity: 2026-10-07
 last_activity_desc: 0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded
-state_head: 676846ede2b00b40182b3a4c082c01568840f891
+state_head: 74893795f0cba1848e9c7b5b1c5bbf71562da02c
 progress:
   total_phases: 33
   completed_phases: 13
@@ -97,6 +97,7 @@ Progress: [█████████████░░░░░░░░░░
 | Phase 28 P10 | one run | 3 tasks | 11 files |
 | Phase 28 P11 | one run | 3 tasks | 10 files |
 | Phase 28 P12 | one run | 3 tasks | 24 files |
+| Phase 28 P13 | several sessions | 3 tasks | 45 files |
 
 ## Accumulated Context
 
@@ -196,6 +197,7 @@ Recent decisions affecting current work:
 - [Phase 28]: 28-11: a unit whose only live entries are this Mac's own and whose local value moved on from its baseline is pending (SyncUnitOutcome.pendingLocal): no hint, no apply, no settle
 - [Phase 28]: 28-12: a lost state is a new installation of one ID, so the engine re-identifies and keeps every entry; D3-S10 asserts the counter only for a state restored alone
 - [Phase 28]: 28-12: every A2 id of section 7 is mapped to the scenario that asserts it (A2Mapping); SC-04 maps to SC-33
+- [Phase 28]: 28-13: G1 not passed. Clean worlds leave out eleven open exclusions (SimExploration.openExclusions) at 400 steps; the gate ran at a bounded budget; the mutation gate did not end
 
 ### Roadmap Evolution
 
@@ -220,6 +222,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-08T10:55:45.751Z
-Stopped at: Completed 28-12-PLAN.md
+Last session: 2026-10-09T04:23:45.083Z
+Stopped at: Completed 28-13-PLAN.md (G1 not passed)
 Resume file: None

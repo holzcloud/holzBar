@@ -174,6 +174,25 @@ struct CaptureTests {
         #expect(result.replica.distinctValues(Fixtures.s1).count == 2)
     }
 
+    @Test("A change also supersedes this Mac's own earlier entries that the defaults already carried, which a Sigma restored alone does not know as applied")
+    func supersedesOwnEntriesTheDefaultsCarried() {
+        var state = Fixtures.state()
+        let old = Fixtures.entry(Fixtures.macA, 10, .string("old"))
+        let later = Fixtures.entry(Fixtures.macA, 50, .string("later"))
+        let theirs = Fixtures.entry(Fixtures.macB, 20, .string("theirs"))
+        state.replica = Fixtures.replica([Fixtures.s1: [old, later, theirs]])
+        state.baseline[Fixtures.s1] = SyncValue.string("old").digest
+        // The mirror in the defaults says counter 40 was minted when they were last written: the old entry was carried, the later
+        // one was not, and another Mac's entry never is.
+        let environment = Fixtures.environment(floors: SyncCounterFloors(mirror: 40))
+        let result = capture([Fixtures.s1: .string("changed")], state: state, environment: environment)
+        let live = result.replica.live(Fixtures.s1)
+        #expect(!live.contains { $0.dot == old.dot })
+        #expect(live.contains { $0.dot == later.dot })
+        #expect(live.contains { $0.dot == theirs.dot })
+        #expect(live.count == 3)
+    }
+
     @Test("Without the applied-context guard a change supersedes every live entry")
     func withoutAppliedContextGuard() {
         var state = Fixtures.state()

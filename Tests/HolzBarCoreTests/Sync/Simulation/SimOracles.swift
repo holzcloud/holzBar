@@ -111,6 +111,8 @@ struct SimBrainReport: Equatable, Sendable {
     var joinCommitted = false
     /// Device files the join listed but has not read, and the ones refused for a lasting reason.
     var unreadListedFiles: Set<String> = []
+    /// The listed files that were unread when the last join committed (a later read may find a file dataless again).
+    var unreadAtJoinCommit: Set<String> = []
     var refusedFiles: Set<String> = []
     /// Why the ID changed at the last launch: `hardware`, `collision`, `reset`.
     var reidentifyReason: String?
@@ -124,6 +126,12 @@ struct SimBrainReport: Equatable, Sendable {
     /// A warning that the state is too large to publish (INV-Z3).
     var sizeWarning = false
     var sigmaBytes = 0
+    /// The live entries of the replica and the bytes their values take (what the state holds besides its bookkeeping).
+    var liveEntries = 0
+    var payloadBytes = 0
+    /// The units the state keeps bookkeeping for (a baseline, applied dots, a mark): the part of its size that does not follow the
+    /// live entries, since a unit whose entries are all gone still has its baseline.
+    var bookkeptUnits = 0
     var devicesSeen = 0
     var mountAttempts = 0
     var usedLegacyStateAsEvidence = false
@@ -131,6 +139,11 @@ struct SimBrainReport: Equatable, Sendable {
     var appliedTokens: Set<String> = []
     /// Tokens the Mac holds as waiting changes (answer pending, Restart pending).
     var waitingTokens: Set<String> = []
+    /// The units that have an entry waiting to be applied (a value or a deletion).
+    var waitingUnits: Set<String> = []
+    /// Tokens that only the folder's tentative state of a join that waits holds: they are what the folder said when the join read it,
+    /// not changes of this Mac's, and a join that starts again reads the folder again.
+    var pendingJoinTokens: Set<String> = []
 
     init() {}
 }
@@ -145,6 +158,9 @@ protocol SimBrainIntrospection: SimSyncBrain {
     func writerID(inFile path: String, data: Data) -> String?
     /// The highest counter of `device` the file's context claims.
     func claimedCounter(ofDevice device: String, inFile path: String, data: Data) -> Int?
+    /// The units of the last answer's sheet that the engine did not decide, because the user's setting changed while the sheet
+    /// was open: they stay a question, and what they showed as losing is not lost.
+    func answerLeftOutUnits() -> Set<String>
 }
 
 extension SimBrainIntrospection {
@@ -152,6 +168,7 @@ extension SimBrainIntrospection {
     func mentionedUnits(inFile path: String, data: Data) -> Set<String>? { nil }
     func writerID(inFile path: String, data: Data) -> String? { nil }
     func claimedCounter(ofDevice device: String, inFile path: String, data: Data) -> Int? { nil }
+    func answerLeftOutUnits() -> Set<String> { [] }
 }
 
 // MARK: - Observations
@@ -231,6 +248,8 @@ struct SimPromptRecord: Sendable {
     var hook: SimHookName
     /// Another sheet this Mac had open when this one appeared.
     var openBefore: SimPrompt?
+    /// The versions this hook had taken in when the sheet appeared (the hook is not part of the step record yet).
+    var newIngests: [Int] = []
 }
 
 struct SimAnswerRecord: Sendable {
@@ -371,6 +390,17 @@ extension SimWorld {
         return version == .redesign || version == .redesignSkew
     }
 
+    /// Whether a build is a redesigned one.
+    static func isRedesign(build: SimMacVersion?) -> Bool {
+        build == .redesign || build == .redesignSkew
+    }
+
+    /// Whether the Mac that wrote a provider version ran a redesigned build when it wrote it (a Mac that was updated since is
+    /// not charged for what its old build wrote).
+    func isRedesignWriter(ofVersion id: Int) -> Bool {
+        Self.isRedesign(build: writerBuilds[id])
+    }
+
     func introspection(of mac: SimMacName) -> (any SimBrainIntrospection)? {
         brains[mac] as? any SimBrainIntrospection
     }
@@ -406,7 +436,7 @@ extension SimWorld {
     /// All user-change tokens in the past of a Mac, by ground truth.
     func userTokens(inPastOf mac: SimMacName) -> Set<String> {
         var tokens = Set<String>()
-        let past = groundTruth.seenPast(ofMac: mac)
+        let past = groundTruth.claimablePast(ofMac: mac)
         for change in groundTruth.changes where past.contains(change.id) { tokens.formUnion(change.tokens) }
         return tokens
     }

@@ -340,13 +340,13 @@ struct SimHarnessTests {
     func automaticEvents() {
         for seed in UInt64(1)...5 {
             let events = SimControlEngineTests.events(seed: seed, count: 30)
-            let found = SimMetamorphic.automaticEventsInvisible(Self.metaSetup(seed: seed), events, insertionSeed: seed)
+            let found = SimMetamorphic.automaticEventsInvisible(Self.metaSetup(seed: seed), events, insertionSeed: seed, generic: true)
             #expect(found.isEmpty, "seed \(seed): \(found.map(\.description))")
         }
         var caught = false
         for seed in UInt64(1)...20 where !caught {
             let events = SimControlEngineTests.events(seed: seed, count: 30)
-            let found = SimMetamorphic.automaticEventsInvisible(Self.metaSetup(Self.convergent(.publishesAutomatic), seed: seed), events, insertionSeed: seed)
+            let found = SimMetamorphic.automaticEventsInvisible(Self.metaSetup(Self.convergent(.publishesAutomatic), seed: seed), events, insertionSeed: seed, generic: true)
             caught = found.contains { $0.id == "INV-A1" }
         }
         #expect(caught, "an engine that publishes automatic changes survived 20 seeds")

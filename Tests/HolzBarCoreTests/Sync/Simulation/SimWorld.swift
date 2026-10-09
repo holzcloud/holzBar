@@ -75,6 +75,8 @@ final class SimWorld {
     private(set) var stepIndex = 0
     private(set) var stepRecords: [SimStepRecord] = []
     private(set) var oracleViolations: [SimViolation] = []
+    /// Called when an oracle reports a violation, with the world as it is then (for debugging a failing seed).
+    var violationObserver: ((SimViolation, SimWorld) -> Void)?
     /// The thing just observed, while an oracle runs.
     private(set) var focus: SimFocus?
     private(set) var currentStep: SimStepRecord?
@@ -84,6 +86,8 @@ final class SimWorld {
     let oracleCache = SimOracleCache()
     /// Every write handed to a provider, in order.
     private(set) var writeLog: [SimWriteRecord] = []
+    /// The build of the Mac that wrote each provider version, at the time of the write.
+    private(set) var writerBuilds: [Int: SimMacVersion] = [:]
     private var violationKeys = Set<String>()
     private var sessionReads: [SimMacName: [String: Int]] = [:]
     private var sessionWrites: [SimMacName: [String: Int]] = [:]
@@ -98,6 +102,9 @@ final class SimWorld {
     private var autoTokenCounter = 0
     private var backups: [SimMacName: SimMacBackup] = [:]
     private var registeredVersions: [String: Int] = [:]
+    private var versionTokens: [Int: (path: String, tokens: Set<String>)] = [:]
+    /// Whether the step in progress is the sync peer's own doing (see `SimStepCause`).
+    private var activeCause = SimStepCause.sync
 
     private struct SimTimer {
         var time: Int64
@@ -112,6 +119,8 @@ final class SimWorld {
         var caches: Data?
         var enabled: Bool
         var folderID: String?
+        /// What the sync state of that moment knew, for the ground truth when the state comes back.
+        var knowledge: SimGroundTruth.Knowledge
     }
 
     /// - Parameters:
@@ -140,6 +149,7 @@ final class SimWorld {
                 generation: spec.generation,
                 random: random.fork("mac-\(name.name)")
             )
+            groundTruth.buildOfMac[name] = spec.version
             state.defaults = spec.defaults
             state.enabled = spec.enabled && spec.folder != nil
             state.folderID = spec.folder
@@ -197,6 +207,7 @@ final class SimWorld {
         record("E \(event.canonical)")
         groundTruth.recordEvent(event.canonical, time: clock.now)
         let cause = stepCause(of: event)
+        activeCause = cause
         switch event {
         case .advance(let milliseconds):
             advanceTime(to: clock.now + max(0, milliseconds))
@@ -234,10 +245,20 @@ final class SimWorld {
             case .clone(_, let target), .copyAccount(_, let target), .duplicateInstallation(_, let target), .restorePrefs(let target),
                  .restoreHome(let target, _), .reinstall(let target):
                 if let defaults = macs[target]?.defaults {
-                    groundTruth.resetInformed(mac: target, tokens: SimUnits.tokens(in: defaults))
+                    var preferencesOnly = false
+                    if case .restorePrefs = event { preferencesOnly = true }
+                    groundTruth.resetInformed(mac: target, tokens: SimUnits.tokens(in: defaults), identityKept: preferencesOnly)
                 }
             default:
                 break
+            }
+            for target in identityTargets(of: event) + Self.stateReplacedOnly(event) {
+                guard let defaults = macs[target]?.defaults else { continue }
+                let held = SimUnits.tokens(in: defaults)
+                groundTruth.engineKeeps(mac: target, tokens: held)
+                if let applied = SimMacRedesignProbe.appliedTokens(of: self, target) {
+                    groundTruth.markPre(tokens: held.subtracting(applied))
+                }
             }
         case .turnOn(let mac, let folder):
             command(.turnOn(folder: folder), on: mac)
@@ -310,11 +331,14 @@ final class SimWorld {
             if let due = timers.map(\.time).min() { candidate = min(candidate ?? due, due) }
             guard let due = candidate, due <= target else { break }
             let at = max(due, clock.now)
+            // What the step did so far belongs to the step; what the provider delivers belongs to the provider.
+            groundTruth.observe(cause: activeCause, time: clock.now)
             moveClock(to: at)
             for folder in providers.keys.sorted() {
                 guard let providerDue = providers[folder]!.nextDeliveryTime, providerDue <= at else { continue }
                 let notices = providers[folder]!.deliverDue(until: at)
                 flushProviderLog(folder)
+                groundTruth.observe(cause: .nonSync, time: at)
                 signal(notices, folder: folder)
             }
             let dueTimers = timers.filter { $0.time <= at }.sorted {
@@ -393,6 +417,16 @@ final class SimWorld {
         // The user sees the settings the Mac holds, so a value that landed in them is known now; a value
         // that was only merged is not.
         groundTruth.recordInformed(mac: mac, tokens: SimUnits.tokens(in: context.defaults))
+        if let report = introspection(of: mac)?.report(), report.joining, report.joinCommitted { groundTruth.recordJoinCommit(mac: mac) }
+        if let answered = hook.answered, answered.answer != .later, answered.answer != .cancel {
+            // A row the engine did not decide (it was decided elsewhere, or the user changed it after the sheet showed it) is no part of
+            // the answer, and the question about it that follows in the same hook is judged against the answer as it was.
+            groundTruth.leaveOut(mac: mac, prompt: answered.prompt, units: introspection(of: mac)?.answerLeftOutUnits() ?? [])
+            // The answer asserts the value the settings hold after it, whichever the sheet listed (the engine answers against its state,
+            // which may hold a value the sheet did not show).
+            let held = Set(answered.prompt.shown.map(\.unit)).flatMap { SimUnits.value(of: $0, in: context.defaults)?.tokens ?? [] }
+            groundTruth.assertHeld(mac: mac, tokens: held)
+        }
         state.sigma = context.sigma
         state.caches = context.caches
         state.random = context.random
@@ -478,7 +512,7 @@ final class SimWorld {
                 let previousVersion = max(previousReplica.versions[path] ?? 0, 0)
                 var dominated = true
                 if previousVersion > 0 {
-                    dominated = groundTruth.past(ofVersion: previousVersion).isSubset(of: groundTruth.seenPast(ofMac: mac))
+                    dominated = groundTruth.past(ofVersion: previousVersion).isSubset(of: groundTruth.claimablePast(ofMac: mac))
                 }
                 let seen = previousVersion > 0
                     && (sessionReads[mac]?[path] == previousVersion || sessionWrites[mac]?[path] == previousVersion)
@@ -504,11 +538,20 @@ final class SimWorld {
                 )
                 hook.writes.append(write)
                 writeLog.append(write)
+                if let version = newVersion { writerBuilds[version] = write.brainKind }
                 runOracles(.write, focus: .write(write), event: currentStep?.event)
             case .ingest(let version), .merged(let version):
                 if groundTruth.versions[version] != nil,
                    groundTruth.past(ofVersion: version).isSubset(of: groundTruth.seenPast(ofMac: mac)) {
-                    hook.dominatedIngests.append(version)
+                    // A file whose past is empty but which carries a value (one that no user change made: an automatic placement that
+                    // a Mac whose state was lost published as its own) is no version that a Mac can have seen.
+                    var carriesValue = false
+                    if let path = path(ofVersion: version), let data = data(ofVersion: version),
+                       let tokens = brains[mac]?.heldTokens(inFile: path, data: data) {
+                        carriesValue = tokens.contains { groundTruth.origin(of: $0) == .automatic }
+                            || (groundTruth.past(ofVersion: version).isEmpty && !tokens.isEmpty)
+                    }
+                    if !carriesValue { hook.dominatedIngests.append(version) }
                 }
                 if case .merged = action {
                     groundTruth.recordMerge(mac: mac, version: version, time: clock.now)
@@ -524,7 +567,7 @@ final class SimWorld {
                 hook.prompts.append(prompt)
                 let promptRecord = SimPromptRecord(
                     mac: mac, prompt: prompt, stepIndex: stepIndex, time: clock.now, hook: hook.name,
-                    openBefore: hook.openPromptAtStart
+                    openBefore: hook.openPromptAtStart, newIngests: hook.ingests.filter { !hook.dominatedIngests.contains($0) }
                 )
                 currentStep?.prompts.append(promptRecord)
                 runOracles(.prompt, focus: .prompt(promptRecord), event: currentStep?.event)
@@ -587,7 +630,7 @@ final class SimWorld {
         guard var state = macs[mac], !state.running else { return }
         backups[mac] = SimMacBackup(
             defaults: state.defaults, sigma: state.sigma, caches: state.caches,
-            enabled: state.enabled, folderID: state.folderID
+            enabled: state.enabled, folderID: state.folderID, knowledge: groundTruth.knowledge(of: mac)
         )
         state.running = true
         macs[mac] = state
@@ -618,8 +661,23 @@ final class SimWorld {
     private func update(_ mac: SimMacName, to version: SimMacVersion) {
         guard macs[mac] != nil else { return }
         quit(mac)
+        // The same build again changes nothing: the brain keeps what the harness records next to it.
+        guard macs[mac]?.version != version else { return }
+        let wasLegacy = macs[mac]?.version == .beta1 || macs[mac]?.version == .beta2
         macs[mac]?.version = version
+        groundTruth.buildOfMac[mac] = version
+        // The first run of a redesigned build finds the settings of the build before it with no state of its own: what they hold was
+        // there before sync knew of it (a join treats it so), and the changes made under a build that sent no intents are no changes
+        // the engine saw.
+        if wasLegacy, Self.isRedesign(build: version), let defaults = macs[mac]?.defaults {
+            groundTruth.markPre(tokens: SimUnits.tokens(in: defaults))
+        }
+        let previous = brains[mac]
         brains[mac] = brainFactory(version, mac)
+        if let old = previous as? SimMacRedesign, var new = brains[mac] as? SimMacRedesign {
+            new.carryBookkeeping(from: old)
+            brains[mac] = new
+        }
     }
 
     private func handleIdentity(_ event: SimEvent) {
@@ -627,6 +685,8 @@ final class SimWorld {
         case .clone(let from, let to):
             guard let source = macs[from], macs[to] != nil, from != to else { return }
             die(to)
+            brains[to]?.stateWasReplaced()
+            groundTruth.replaceKnowledge(of: to, with: groundTruth.knowledge(of: from))
             macs[to]?.defaults = source.defaults
             macs[to]?.sigma = source.sigma
             macs[to]?.caches = source.caches
@@ -636,6 +696,8 @@ final class SimWorld {
         case .copyAccount(let from, let to):
             guard let source = macs[from], macs[to] != nil, from != to else { return }
             die(to)
+            brains[to]?.stateWasReplaced()
+            groundTruth.replaceKnowledge(of: to, with: groundTruth.knowledge(of: from))
             macs[to]?.defaults = source.defaults
             macs[to]?.sigma = source.sigma
             macs[to]?.caches = source.caches
@@ -650,6 +712,8 @@ final class SimWorld {
             // state, so the hash that binds the ID to the Mac still matches and the ID stays.
             guard let from = macs[source], macs[target] != nil, source != target else { return }
             die(target)
+            brains[target]?.stateWasReplaced()
+            groundTruth.replaceKnowledge(of: target, with: groundTruth.knowledge(of: source))
             macs[target]?.defaults = from.defaults
             macs[target]?.sigma = from.sigma
             macs[target]?.caches = from.caches
@@ -661,17 +725,23 @@ final class SimWorld {
         case .restorePrefs(let mac):
             // Only the preferences go back (a restore of ~/Library/Preferences): the sync state stays.
             guard let backup = backups[mac], macs[mac] != nil else { return }
+            groundTruth.recordPreferencesRestored(mac: mac)
             die(mac)
+            brains[mac]?.stateWasReplaced()
             macs[mac]?.defaults = backup.defaults
             macs[mac]?.enabled = backup.enabled
             macs[mac]?.folderID = backup.folderID
         case .restoreSigma(let mac):
             guard let backup = backups[mac], macs[mac] != nil else { return }
             die(mac)
+            brains[mac]?.stateWasReplaced()
+            groundTruth.replaceKnowledge(of: mac, with: backup.knowledge)
             macs[mac]?.sigma = backup.sigma
         case .restoreHome(let mac, let keepCaches):
             guard let backup = backups[mac], macs[mac] != nil else { return }
             die(mac)
+            brains[mac]?.stateWasReplaced()
+            groundTruth.replaceKnowledge(of: mac, with: backup.knowledge)
             macs[mac]?.defaults = backup.defaults
             macs[mac]?.sigma = backup.sigma
             macs[mac]?.enabled = backup.enabled
@@ -680,10 +750,13 @@ final class SimWorld {
         case .sigmaLost(let mac):
             guard macs[mac] != nil else { return }
             die(mac)
+            brains[mac]?.stateWasReplaced()
+            groundTruth.replaceKnowledge(of: mac, with: nil)
             macs[mac]?.sigma = nil
         case .reinstall(let mac):
             guard macs[mac] != nil else { return }
             die(mac)
+            groundTruth.replaceKnowledge(of: mac, with: nil)
             macs[mac]?.defaults = [:]
             macs[mac]?.sigma = nil
             macs[mac]?.caches = nil
@@ -692,6 +765,28 @@ final class SimWorld {
             brains[mac] = brainFactory(macs[mac]!.version, mac)
         default:
             break
+        }
+        // Settings that carry no device ID (a copy of a Mac that never synced, a restore from before) give a Mac with no identity: its
+        // next launch makes the first one, which is no change of an ID the brain remembers.
+        for target in identityTargets(of: event) where isRedesign(target) && macs[target]?.defaults[SimMacRedesign.deviceIDKey] == nil {
+            brains[target] = brainFactory(macs[target]!.version, target)
+        }
+    }
+
+    private static func stateReplacedOnly(_ event: SimEvent) -> [SimMacName] {
+        switch event {
+        case .restoreSigma(let mac), .sigmaLost(let mac), .reinstall(let mac): return [mac]
+        default: return []
+        }
+    }
+
+    private func identityTargets(of event: SimEvent) -> [SimMacName] {
+        switch event {
+        case .clone(_, let target), .copyAccount(_, let target), .duplicateInstallation(_, let target), .restorePrefs(let target),
+             .restoreHome(let target, _):
+            return [target]
+        default:
+            return []
         }
     }
 
@@ -707,7 +802,9 @@ final class SimWorld {
     }
 
     private func answerPrompt(_ answer: SimAnswer, on mac: SimMacName) {
-        guard macs[mac]?.running == true, let prompt = brains[mac]?.openPrompt else { return }
+        guard macs[mac]?.running == true, let prompt = brains[mac]?.openPrompt else {
+            return
+        }
         let hooksBefore = currentStep?.hooks.count ?? 0
         // The click is part of the Mac's past before anything the Mac does about it, so what the hook writes
         // comes after the answer. When the prompt is still open afterwards, the answer was refused: no answer.
@@ -716,12 +813,28 @@ final class SimWorld {
             brain.userCommand(.answer(answer), &context)
         }
         let hooks = Array((currentStep?.hooks ?? []).dropFirst(hooksBefore)).filter { $0.name == .answer && $0.mac == mac }
-        if brains[mac]?.openPrompt?.id == prompt.id {
+        // An answer that decided no row of the sheet (every row was decided elsewhere, or its setting changed since the sheet showed it)
+        // is no answer: the user's click went to a sheet that no longer asked about the state, and the question about that state is a
+        // new one.
+        let leftOutAll: Bool = {
+            guard answer != .later, answer != .cancel, let left = introspection(of: mac)?.answerLeftOutUnits() else { return false }
+            let units = Set(prompt.shown.map(\.unit))
+            return !units.isEmpty && units.isSubset(of: left)
+        }()
+        if brains[mac]?.openPrompt?.id == prompt.id || leftOutAll {
             groundTruth.retractAnswer(mac: mac, prompt: prompt)
-        } else {
-            // The sheet showed these values to the user.
-            groundTruth.recordInformed(mac: mac, tokens: prompt.shown.flatMap { [$0.local, $0.folder].compactMap { $0 } })
+        } else if answer != .later, answer != .cancel {
+            // The sheet showed these values to the user, who decided. A user who answers Later has decided nothing: a
+            // change made afterwards does not supersede the version that waits, and becomes a question (A1 S-04, A2 SC-14).
+            // A row that the engine left out of the answer (the user changed its setting after the sheet showed it) is no answer: the
+            // user decided nothing about it, and the values it showed are still to be decided.
+            let leftOut = introspection(of: mac)?.answerLeftOutUnits() ?? []
+            groundTruth.recordInformed(
+                mac: mac, tokens: prompt.shown.filter { !leftOut.contains($0.unit) }.flatMap { [$0.local, $0.folder].compactMap { $0 } }
+            )
         }
+        // A sheet that is still open after the click was not answered: nothing happened that an oracle should judge as an answer.
+        if brains[mac]?.openPrompt?.id == prompt.id || leftOutAll { return }
         let record = SimAnswerRecord(
             mac: mac, prompt: prompt, answer: answer, stepIndex: stepIndex, time: clock.now,
             transitions: hooks.flatMap(\.transitions), writes: hooks.flatMap(\.writes)
@@ -744,7 +857,9 @@ final class SimWorld {
             if origin == .user {
                 groundTruth.recordUserChange(mac: mac, unit: unit, tokens: tokens, time: clock.now)
             } else {
-                groundTruth.recordAutomaticChange(mac: mac, unit: unit, tokens: tokens, time: clock.now)
+                groundTruth.recordAutomaticChange(
+                    mac: mac, unit: unit, tokens: tokens, time: clock.now, syncWasOff: macs[mac]?.folderID == nil || introspection(of: mac)?.report().joining == true
+                )
             }
         }
         runHook(mac, .defaultsChanged) { brain, context in brain.defaultsChanged(origin: origin, units: units, &context) }
@@ -756,6 +871,8 @@ final class SimWorld {
             let newValue = value ?? mintUserToken(unit: unit)
             change(mac, origin: .user, units: [unit]) { SimUnits.set(unit, to: newValue, in: &$0) }
         case .userDelete(let mac, let unit):
+            // Resetting a setting that holds no value changes nothing: there is no deletion to publish.
+            guard let defaults = macs[mac]?.defaults, SimUnits.value(of: unit, in: defaults) != nil else { return }
             change(mac, origin: .user, units: [unit]) { SimUnits.set(unit, to: nil, in: &$0) }
         case .userImport(let mac, let units):
             guard macs[mac]?.running == true else { return }
@@ -798,9 +915,17 @@ final class SimWorld {
         case .moveApp27(let mac, let bundle, let section):
             guard macs[mac]?.generation == 27 else { return }
             let unit = "l27/\(bundle)"
-            let token = mintUserToken(unit: unit)
-            change(mac, origin: .user, units: [unit]) {
-                SimUnits.set(unit, to: .dictionary(["section": .int(section), "token": token]), in: &$0)
+            // In the defaults a visible application has no entry (D-04): moving one back to the visible section removes its entry, and
+            // moving it to the section it is in changes nothing.
+            let current = Self.sections27(in: macs[mac]!.defaults)[bundle] ?? .int(0)
+            guard current != .int(section) else { return }
+            if section == 0 {
+                change(mac, origin: .user, units: [unit]) { SimUnits.set(unit, to: nil, in: &$0) }
+            } else {
+                let token = mintUserToken(unit: unit)
+                change(mac, origin: .user, units: [unit]) {
+                    SimUnits.set(unit, to: .dictionary(["section": .int(section), "token": token]), in: &$0)
+                }
             }
         case .applyProfile(let mac, let profile, let byUser):
             applyProfile(profile, on: mac, byUser: byUser)
@@ -852,16 +977,21 @@ final class SimWorld {
         else { return }
         let current = Self.sections27(in: macs[mac]!.defaults)
         var changed: [String] = []
-        var newValues: [(String, SimValue)] = []
-        for bundle in target.keys.sorted() where current[bundle] != target[bundle] {
+        var newValues: [(String, SimValue?)] = []
+        for bundle in target.keys.sorted() where (current[bundle] ?? .int(0)) != target[bundle] {
             let unit = "l27/\(bundle)"
             // A profile bound to a Space or display is an automatic store, and an automatic store never
             // overwrites an entry the user made (D-04).
             if !byUser, let held = SimUnits.value(of: unit, in: macs[mac]!.defaults), held.tokens.contains(where: { groundTruth.origin(of: $0) == .user }) {
                 continue
             }
-            let token = byUser ? mintUserToken(unit: unit) : mintAutoToken(mac: mac)
-            newValues.append((unit, .dictionary(["section": target[bundle]!, "token": token])))
+            if target[bundle] == .int(0) {
+                // A visible application has no entry in the defaults (D-04).
+                newValues.append((unit, nil))
+            } else {
+                let token = byUser ? mintUserToken(unit: unit) : mintAutoToken(mac: mac)
+                newValues.append((unit, .dictionary(["section": target[bundle]!, "token": token])))
+            }
             changed.append(unit)
         }
         guard !changed.isEmpty else { return }
@@ -944,6 +1074,18 @@ final class SimWorld {
     }
 
     /// Everything that holds tokens now: defaults, readable files (decoded by the brains) and pending holdings.
+    /// The tokens a file holds, whichever brain can read it. A provider version never changes its bytes, so the answer for
+    /// a version is kept (the brains of a Mac may be replaced by an update, and all of them read the same bytes).
+    private func tokens(inFile path: String, data: Data, version: Int) -> Set<String> {
+        if version > 0, let known = versionTokens[version], known.path == path { return known.tokens }
+        var tokens = Set<String>()
+        for brainMac in brains.keys.sorted() {
+            tokens.formUnion(brains[brainMac]!.heldTokens(inFile: path, data: data))
+        }
+        if version > 0 { versionTokens[version] = (path, tokens) }
+        return tokens
+    }
+
     func holderSnapshot() -> SimHolderSnapshot {
         var snapshot = SimHolderSnapshot()
         for mac in macs.keys.sorted() {
@@ -959,20 +1101,14 @@ final class SimWorld {
                     guard case .present(let data) = replica.entries[path]! else { continue }
                     let version = replica.versions[path] ?? 0
                     if let kind = provider.version(version)?.kind, case .foreign = kind { continue }
-                    var tokens = Set<String>()
-                    for brainMac in brains.keys.sorted() {
-                        tokens.formUnion(brains[brainMac]!.heldTokens(inFile: path, data: data))
-                    }
+                    let tokens = tokens(inFile: path, data: data, version: version)
                     snapshot.files.append(SimHeldFile(
                         place: "\(folder):\(mac):\(path)", mac: mac, path: path, version: version, tokens: tokens
                     ))
                 }
                 for path in replica.conflictVersions.keys.sorted() {
                     for conflict in replica.conflictVersions[path] ?? [] {
-                        var tokens = Set<String>()
-                        for brainMac in brains.keys.sorted() {
-                            tokens.formUnion(brains[brainMac]!.heldTokens(inFile: path, data: conflict.data))
-                        }
+                        let tokens = tokens(inFile: path, data: conflict.data, version: conflict.version)
                         snapshot.files.append(SimHeldFile(
                             place: "\(folder):\(mac):\(path)#v\(conflict.version)", mac: mac, path: path,
                             version: conflict.version, tokens: tokens
@@ -1004,9 +1140,11 @@ final class SimWorld {
         let active = oracles.oracles(at: moment)
         guard !active.isEmpty else { return }
         focus = newFocus
+        groundTruth.isCachingHolders = true
+        defer { groundTruth.isCachingHolders = false }
         for oracle in active {
             guard let found = oracle.check(self, event: event) else { continue }
-            if violationKeys.insert("\(found.id)|\(found.description)").inserted { oracleViolations.append(found) }
+            if violationKeys.insert("\(found.id)|\(found.description)").inserted { oracleViolations.append(found); violationObserver?(found, self) }
         }
         focus = nil
     }
@@ -1019,15 +1157,17 @@ final class SimWorld {
     /// Runs the oracles of a moment on demand (the drain and the metamorphic runners use it).
     func runOracles(_ moment: SimCheckMoment, event: SimEvent? = nil) {
         let active = oracles.oracles(at: moment)
+        groundTruth.isCachingHolders = true
+        defer { groundTruth.isCachingHolders = false }
         for oracle in active {
             guard let found = oracle.check(self, event: event) else { continue }
-            if violationKeys.insert("\(found.id)|\(found.description)").inserted { oracleViolations.append(found) }
+            if violationKeys.insert("\(found.id)|\(found.description)").inserted { oracleViolations.append(found); violationObserver?(found, self) }
         }
     }
 
     /// Records a violation found outside the per-step oracles (the drain and the metamorphic runners).
     func report(_ found: SimViolation) {
-        if violationKeys.insert("\(found.id)|\(found.description)").inserted { oracleViolations.append(found) }
+        if violationKeys.insert("\(found.id)|\(found.description)").inserted { oracleViolations.append(found); violationObserver?(found, self) }
     }
 
     /// Adds a Mac after the start (a fresh Mac joining after a drain, INV-C6).
@@ -1054,6 +1194,21 @@ final class SimWorld {
     }
 
     /// Asks the provider to download every dataless file on every Mac (the drain assumes they become readable).
+    /// The provider stops failing: every share is mounted, no Mac hangs or is offline, and no file shows a partial copy any more. The
+    /// quiet phase of an exploration starts from here (A2 section 5.6, Q1 to Q3: from T0 on there are no provider faults), so that a
+    /// share that was unmounted or hung at the end of the random phase does not keep a Mac from the agreement the drain checks.
+    func healProviders() {
+        for folder in providers.keys.sorted() {
+            for mac in providers[folder]!.replicas.keys.sorted() {
+                providers[folder]!.mount(mac)
+                providers[folder]!.stall(mac: mac, until: 0)
+                providers[folder]!.setOffline(mac, until: 0)
+            }
+            providers[folder]!.settle(at: clock.now)
+        }
+        flushProviderLogs()
+    }
+
     func materializeDatalessFiles() {
         for folder in providers.keys.sorted() {
             for mac in providers[folder]!.replicas.keys.sorted() {

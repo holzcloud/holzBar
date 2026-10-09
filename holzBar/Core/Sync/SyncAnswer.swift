@@ -130,7 +130,7 @@ nonisolated enum SyncRows {
         for key in plan.outcomes.keys.sorted() {
             switch plan.outcomes[key] {
             case .conflict(mine: true)?:
-                if let row = conflictRow(key, state: state) {
+                if let row = conflictRow(key, state: state, snapshot: snapshot, environment: environment) {
                     rows.append(row)
                 }
             case .preRow?:
@@ -172,14 +172,23 @@ nonisolated enum SyncRows {
     }
 
     /// A conflict this Mac takes part in: its own value against the others'.
-    private static func conflictRow(_ key: SyncUnitKey, state: SyncState) -> SyncRow? {
+    private static func conflictRow(_ key: SyncUnitKey, state: SyncState, snapshot: SyncSnapshot, environment: SyncEnvironment) -> SyncRow? {
         let live = state.replica.live(key)
         let applied = Set(state.applied[key] ?? [])
-        let mine = live.filter { state.isOwn($0.dot.mac) || applied.contains($0.dot) }
+        let mine = live.filter { state.isOwn($0.dot) || applied.contains($0.dot) }
         guard let first = mine.first else {
             return nil
         }
         let all = values(of: live)
+        // The settings of this Mac hold none of its own entries (they were restored, or replaced by a copy, after the entries were
+        // made): there is no value of this Mac to keep, so the sheet shows what the settings hold and asks which value to take.
+        // A row that names an entry the settings do not hold could not be answered, because an answer replaces only a value
+        // that is still the one it showed.
+        let table = environment.table
+        let current = SyncProjection.localValue(key, in: snapshot.values, table: table)
+        if !mine.contains(where: { SyncCapture.matches($0.payload, local: current, key: key, table: table) }) {
+            return SyncRow(unit: key, local: local(key, snapshot: snapshot, environment: environment), folder: all, style: .multi)
+        }
         let local = SyncRowValue(value: first.payload, at: first.at, source: .entry(first.dot))
         if all.count == 2, Set(mine.map(\.payload.digest)).count == 1 {
             return SyncRow(unit: key, local: local, folder: all.filter { $0.value.digest != first.payload.digest }, style: .twoWay)
@@ -413,6 +422,9 @@ nonisolated extension SyncEngine {
                     continue
                 }
                 write.wrote = true
+                // The answer is the user's last word about the unit: a change of it that waited for the state to mint (made before the
+                // sheet showed the value) would otherwise be minted after the answer and undo it in the group, while the settings hold the answer.
+                state.queuedIntents.removeAll { $0.unit == target.unit }
                 if !isUnchanged {
                     write.applies[target.unit] = target.payload
                 }

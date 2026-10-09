@@ -194,7 +194,10 @@ nonisolated enum SyncCapture {
         let superseded: Set<SyncDot> = if let shown {
             shown
         } else if environment.guards.contains(.appliedContext) {
-            Set(state.applied[key] ?? [])
+            // What this Mac applied, and its own earlier entries that the defaults already carried when they were last written
+            // (the counter mirror in the defaults is at least their counter): a Sigma that was restored alone does not know
+            // them as applied, and the change of the user's that comes after them replaces them, never asks about them.
+            Set(state.applied[key] ?? []).union(state.replica.live(key).filter { state.isOwn($0.dot) && $0.dot.n <= environment.counterFloors.mirror }.map(\.dot))
         } else {
             Set(state.replica.live(key).map(\.dot))
         }
@@ -226,6 +229,18 @@ nonisolated enum SyncCapture {
             case .publishPreexisting?:
                 if let local {
                     mint(key, payload: .value(local), digest: local.digest, state: &state, environment: environment)
+                }
+            case .conflict(mine: false)?:
+                // The dots this Mac applied were replaced by another Mac's entry of the same value (an answer that kept its value, a
+                // relay), and the settings still hold that value: this Mac holds the entry now, so it is a party to the conflict that
+                // the value is in, as it was before the entry replaced its own.
+                let live = state.replica.live(key)
+                let held = Set(state.applied[key] ?? [])
+                if let local, held.isDisjoint(with: Set(live.map(\.dot))), state.baseline[key] == local.digest {
+                    let matching = live.filter { matches($0.payload, local: local, key: key, table: environment.table) && $0.payload != .deleted }
+                    if !matching.isEmpty {
+                        state.applied[key] = matching.map(\.dot)
+                    }
                 }
             default:
                 break

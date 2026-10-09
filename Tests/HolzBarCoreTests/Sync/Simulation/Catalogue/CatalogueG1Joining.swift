@@ -237,11 +237,9 @@ nonisolated enum CatalogueG1Joining {
             .expectUser(.B, Catalogue.hover, 1)
             .expectUser(.A, Catalogue.hover, 2)
         // A user change of the same setting after Later is a change on both Macs: a question, never a replacement.
-        // INV-P1 and INV-P7 are left out of this one world: the simulator's ground truth reads Later as "the user
-        // was informed" and so sees no conflict at the question that returns, which the engine shows by design
-        // (Later hides the question until the next launch). Plan 28-09 left the same open item for plan 28-13.
+        // The ground truth agrees with the engine (plan 28-13): Later decides nothing, so the user was not informed of
+        // the waiting version and the change after Later is concurrent with it (A1 S-04, A2 R-FUN-4 and SC-14).
         let sameSetting = later("S-04 same setting")
-            .oracles(SimOracleSet.safety.without(["INV-P1", "INV-P7"]))
             .edit(.A, Catalogue.hover, value: Catalogue.user(4, Catalogue.hover))
             .settle()
             .restartApp(.A)
