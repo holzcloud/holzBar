@@ -119,6 +119,8 @@ final class SimWorld {
         var caches: Data?
         var enabled: Bool
         var folderID: String?
+        /// The folder of the join that waited at that moment: it is part of the sync state (`pendingJoin.folderIdentity`).
+        var pendingFolderID: String?
         /// What the sync state of that moment knew, for the ground truth when the state comes back.
         var knowledge: SimGroundTruth.Knowledge
     }
@@ -630,7 +632,7 @@ final class SimWorld {
         guard var state = macs[mac], !state.running else { return }
         backups[mac] = SimMacBackup(
             defaults: state.defaults, sigma: state.sigma, caches: state.caches,
-            enabled: state.enabled, folderID: state.folderID, knowledge: groundTruth.knowledge(of: mac)
+            enabled: state.enabled, folderID: state.folderID, pendingFolderID: state.pendingFolderID, knowledge: groundTruth.knowledge(of: mac)
         )
         state.running = true
         macs[mac] = state
@@ -692,7 +694,10 @@ final class SimWorld {
             macs[to]?.caches = source.caches
             macs[to]?.enabled = source.enabled
             macs[to]?.folderID = source.folderID
+            // The folder of a join that waits is part of the sync state that the copy carries; the Mac reads that folder, not an empty one.
+            macs[to]?.pendingFolderID = source.pendingFolderID
             if let folder = source.folderID { ensureReplica(of: to, in: folder) }
+            if let folder = source.pendingFolderID { ensureReplica(of: to, in: folder) }
         case .copyAccount(let from, let to):
             guard let source = macs[from], macs[to] != nil, from != to else { return }
             die(to)
@@ -703,10 +708,13 @@ final class SimWorld {
             macs[to]?.caches = source.caches
             macs[to]?.enabled = source.enabled
             macs[to]?.folderID = source.folderID
+            // The folder of a join that waits is part of the sync state that the copy carries; the Mac reads that folder, not an empty one.
+            macs[to]?.pendingFolderID = source.pendingFolderID
             macs[to]?.markers.hardwareID = source.markers.hardwareID
             // Another user account on the same Mac: the same hardware, another user ID.
             macs[to]?.uid = source.uid + 1
             if let folder = source.folderID { ensureReplica(of: to, in: folder) }
+            if let folder = source.pendingFolderID { ensureReplica(of: to, in: folder) }
         case .duplicateInstallation(let source, let target):
             // A second installation of one Mac: the same hardware, the same account, the same preferences and sync
             // state, so the hash that binds the ID to the Mac still matches and the ID stays.
@@ -719,9 +727,11 @@ final class SimWorld {
             macs[target]?.caches = from.caches
             macs[target]?.enabled = from.enabled
             macs[target]?.folderID = from.folderID
+            macs[target]?.pendingFolderID = from.pendingFolderID
             macs[target]?.markers.hardwareID = from.markers.hardwareID
             macs[target]?.uid = from.uid
             if let folder = from.folderID { ensureReplica(of: target, in: folder) }
+            if let folder = from.pendingFolderID { ensureReplica(of: target, in: folder) }
         case .restorePrefs(let mac):
             // Only the preferences go back (a restore of ~/Library/Preferences): the sync state stays.
             guard let backup = backups[mac], macs[mac] != nil else { return }
@@ -737,6 +747,7 @@ final class SimWorld {
             brains[mac]?.stateWasReplaced()
             groundTruth.replaceKnowledge(of: mac, with: backup.knowledge)
             macs[mac]?.sigma = backup.sigma
+            macs[mac]?.pendingFolderID = backup.pendingFolderID
         case .restoreHome(let mac, let keepCaches):
             guard let backup = backups[mac], macs[mac] != nil else { return }
             die(mac)
@@ -746,6 +757,7 @@ final class SimWorld {
             macs[mac]?.sigma = backup.sigma
             macs[mac]?.enabled = backup.enabled
             macs[mac]?.folderID = backup.folderID
+            macs[mac]?.pendingFolderID = backup.pendingFolderID
             if !keepCaches { macs[mac]?.caches = nil }
         case .sigmaLost(let mac):
             guard macs[mac] != nil else { return }
