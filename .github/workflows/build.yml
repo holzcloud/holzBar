@@ -1,21 +1,41 @@
 name: Build
 on:
   pull_request:
-    # Documentation-only changes need no build.
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
-      - ".planning/**"
-      - "Resources/Screenshots/**"
-      - "Resources/Logo/**"
-      - "LICENSE"
-      - "NOTICE"
 
 permissions:
   contents: read
 
 jobs:
+  # Documentation-only changes need no build or test on a macOS runner. A workflow-level
+  # paths filter would leave the required checks pending forever, so every job still exists
+  # and the macOS jobs are skipped instead; ci-ok is the one check that summarizes them.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Find out whether anything besides documentation changed
+        id: diff
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          # File names in this repository contain no newlines.
+          if git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -qvE '(\.md|^LICENSE|^NOTICE)$|^(docs|\.planning|Resources/Screenshots|Resources/Logo)/'; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=false" >> "$GITHUB_OUTPUT"
+            echo "==> Only documentation changed: the macOS jobs are skipped"
+          fi
+
   build:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     # Xcode 27 (macOS 27 SDK) is only on the xcode-27 image (macOS 27).
     runs-on: xcode-27
     steps:
@@ -213,7 +233,8 @@ jobs:
   # also runs the unit tests with that runner's newest Xcode and the pinned Swift
   # toolchain; on macOS 27 (the xcode-27 image) the test job runs them already.
   compat:
-    needs: build
+    needs: [changes, build]
+    if: needs.changes.outputs.code == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -370,6 +391,8 @@ jobs:
         run: python3 .github/scripts/workflow-check.py
 
   test:
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: xcode-27
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -383,3 +406,22 @@ jobs:
         run: |
           swift --version
           swift test
+
+  # The one check to require: it fails when any job failed or was cancelled, and passes
+  # when the macOS jobs were skipped because only documentation changed.
+  ci-ok:
+    if: always()
+    needs: [changes, build, compat, former-name, no-network, strings, workflows, test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the results of all jobs
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "==> $RESULTS"
+          for RESULT in $RESULTS; do
+            if [ "$RESULT" != success ] && [ "$RESULT" != skipped ]; then
+              echo "::error::A job finished with: $RESULT"
+              exit 1
+            fi
+          done
