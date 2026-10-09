@@ -18,6 +18,7 @@ nonisolated enum AutomationEngine {
         case showSection(AutomationSection)
         case setZen(Bool)
         case setKeepAwake(Bool)
+        case runScript(String)
     }
 
     /// What the app looks like right now.
@@ -75,7 +76,7 @@ nonisolated enum AutomationEngine {
             case .applyProfile(let name): context.currentProfile = name
             case .setZen(let isOn): context.isZenOn = isOn
             case .setKeepAwake(let isOn): context.isKeepAwakeOn = isOn
-            case .showSection: break
+            case .showSection, .runScript: break
             }
             effects.append(effect)
         }
@@ -87,7 +88,7 @@ nonisolated enum AutomationEngine {
             case .applyProfile(let name): context.currentProfile == name
             case .setZen(let isOn): context.isZenOn == isOn
             case .setKeepAwake(let isOn): context.isKeepAwakeOn == isOn
-            case .showSection: false
+            case .showSection, .runScript: false
             }
         }
 
@@ -141,7 +142,7 @@ nonisolated enum AutomationEngine {
         case .applyProfile(let name): context.currentProfile == name
         case .setZen(let isOn): context.isZenOn == isOn
         case .setKeepAwake(let isOn): context.isKeepAwakeOn == isOn
-        case .showSection: false
+        case .showSection, .runScript: false
         }
     }
 
@@ -157,7 +158,7 @@ nonisolated enum AutomationEngine {
             return .setZen(context.isZenOn)
         case .setKeepAwake:
             return .setKeepAwake(context.isKeepAwakeOn)
-        case .showSection:
+        case .showSection, .runScript:
             return nil
         }
     }
@@ -172,6 +173,7 @@ extension AutomationAction {
         case .zen(let isOn): .setZen(isOn)
         case .keepAwake(let isOn): .setKeepAwake(isOn)
         case .showItemOnlyWhile: nil
+        case .runScript(let name): .runScript(name)
         }
     }
 }

@@ -27,6 +27,7 @@ struct AutomationRuleEditor: View {
         case keepAwake
         case allowSleep
         case showItem
+        case runScript
     }
 
     var body: some View {
@@ -53,6 +54,9 @@ struct AutomationRuleEditor: View {
             }
             if case .showItemOnlyWhile(let key, let hiding) = rule.action {
                 itemPicker(key: key, hiding: hiding)
+            }
+            if case .runScript(let name) = rule.action {
+                scriptPicker(name: name)
             }
             if restoresApply {
                 Toggle("When it stops being true, go back", isOn: $rule.restoresWhenEnded)
@@ -135,6 +139,13 @@ struct AutomationRuleEditor: View {
                     }
                 }
             }
+            Menu("A script succeeds") {
+                ForEach(approvedScripts) { script in
+                    Button(script.name) {
+                        add(.scriptSucceeds(script.name))
+                    }
+                }
+            }
             Divider()
             Button("Wi-Fi network by name…") {
                 wifiName = appState.automation.wifiMonitor.currentName ?? ""
@@ -199,6 +210,7 @@ struct AutomationRuleEditor: View {
                 case .keepAwake(true): .keepAwake
                 case .keepAwake(false): .allowSleep
                 case .showItemOnlyWhile: .showItem
+                case .runScript: .runScript
                 }
             },
             set: { choice in
@@ -219,6 +231,8 @@ struct AutomationRuleEditor: View {
                     rule.action = .keepAwake(false)
                 case .showItem:
                     rule.action = .showItemOnlyWhile(itemKey: itemChoices.first?.key ?? "", hiding: .hidden)
+                case .runScript:
+                    rule.action = .runScript(approvedScripts.first?.name ?? "")
                 }
             }
         )
@@ -234,6 +248,7 @@ struct AutomationRuleEditor: View {
             Text("Keep the Mac awake").tag(ActionChoice.keepAwake)
             Text("Let the Mac sleep").tag(ActionChoice.allowSleep)
             Text("Show an item only while this is true").tag(ActionChoice.showItem)
+            Text("Run a script").tag(ActionChoice.runScript)
         }
     }
 
@@ -253,6 +268,41 @@ struct AutomationRuleEditor: View {
             ) {
                 ForEach(profileNames, id: \.self) { profileName in
                     Text(verbatim: profileName).tag(profileName)
+                }
+            }
+        }
+    }
+
+    /// The scripts the user approved and that may run now.
+    private var approvedScripts: [ScriptStore.Entry] {
+        appState.automation.scriptStore.scripts.filter { entry in
+            if case .allowed = entry.decision {
+                return true
+            }
+            return false
+        }
+    }
+
+    @ViewBuilder
+    private func scriptPicker(name: String) -> some View {
+        let scripts = approvedScripts
+        if scripts.isEmpty && name.isEmpty {
+            Text("Put a script in the Scripts folder and allow it below first.")
+                .font(HolzBarTheme.Typography.caption)
+                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+        } else {
+            Picker(
+                "Script",
+                selection: Binding(
+                    get: { name },
+                    set: { rule.action = .runScript($0) }
+                )
+            ) {
+                ForEach(scripts) { script in
+                    Text(verbatim: script.name).tag(script.name)
+                }
+                if !name.isEmpty, !scripts.contains(where: { $0.name == name }) {
+                    Text(verbatim: name).tag(name)
                 }
             }
         }
@@ -311,7 +361,7 @@ struct AutomationRuleEditor: View {
     private var restoresApply: Bool {
         switch rule.action {
         case .applyProfile, .zen, .keepAwake: true
-        case .showSection, .showItemOnlyWhile: false
+        case .showSection, .showItemOnlyWhile, .runScript: false
         }
     }
 }
@@ -364,7 +414,7 @@ private struct AutomationConditionRow: View {
             }
         case .time(let window):
             timeSettings(window)
-        case .power, .lowPowerMode, .appRunning, .appFrontmost, .displayConnected, .network, .wifiNetwork:
+        case .power, .lowPowerMode, .appRunning, .appFrontmost, .displayConnected, .network, .wifiNetwork, .scriptSucceeds:
             EmptyView()
         }
     }

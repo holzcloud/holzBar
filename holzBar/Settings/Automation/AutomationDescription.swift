@@ -74,6 +74,8 @@ enum AutomationDescription {
             String(localized: "keep the Mac awake")
         case .keepAwake(false):
             String(localized: "let the Mac sleep")
+        case .runScript(let name):
+            String(localized: "run the script \u{201C}\(name)\u{201D}")
         case .showItemOnlyWhile(let key, _):
             String(localized: "show \u{201C}\(itemName(forKey: key))\u{201D} and hide it otherwise")
         }

@@ -195,7 +195,7 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 
 | | |
 |---|---|
-| ⚙️ **Automation** | **Rules** (app, time, power, display, network are built — *Preview*; Focus filter and Wi-Fi name: *Preview*) · **per-item conditions** (*Preview*) · **scripts** (only from a folder you choose, after you confirm) |
+| ⚙️ **Automation** | **Rules** (app, time, power, display, network are built — *Preview*; Focus filter and Wi-Fi name: *Preview*) · **per-item conditions** (*Preview*) · **scripts** (*Preview*; only from the Scripts folder, after you allowed the exact content) |
 | 🛟 **Safety** | **Layout snapshots** with a one-click restore (*Preview*) · **shareable profiles** (*Preview*) · **Touch ID** to show hidden items (*Preview*) · **revoke permissions in Settings** (*Preview*) (with a guide) · **copy diagnostics** (*Preview*) (redacted, nothing is sent) |
 | 🪄 **Convenience** | **Tidy Up assistant** (*Preview*) · **works without Screen Recording** (*Preview*) (app icons instead of live snapshots) · system items such as Clock, Wi-Fi and Battery **pinned visible** (*Preview*) · more **menu bar styles** |
 | 🪵 **Polish** | SwiftUI reordering (*spike*) · keyboard and VoiceOver audit · Swift 6.4 clean-up |

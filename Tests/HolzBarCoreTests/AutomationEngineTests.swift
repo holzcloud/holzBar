@@ -346,4 +346,41 @@ struct AutomationEngineTests {
         #expect(rule.isValid)
         #expect(!AutomationAction.showItemOnlyWhile(itemKey: "", hiding: .hidden).isValid)
     }
+
+    @Test("A script runs once when its rule starts")
+    func scriptAction() {
+        let rules = [rule("Backup", [battery], action: .runScript("backup.sh"))]
+        let started = run(rules, facts(power: .battery))
+        #expect(started.effects == [.runScript("backup.sh")])
+        let again = run(rules, facts(power: .battery), state: started.state)
+        #expect(again.effects.isEmpty)
+        let ended = run(rules, facts(), state: again.state)
+        #expect(ended.effects.isEmpty)
+    }
+
+    @Test("A script condition reads the last answer and is unknown without one")
+    func scriptCondition() {
+        let condition = AutomationCondition.scriptSucceeds("check.sh")
+        var known = AutomationFacts()
+        #expect(condition.evaluate(in: known) == nil)
+        known.scriptResults = ["check.sh": true, "other.sh": false]
+        #expect(condition.evaluate(in: known) == true)
+        known.scriptResults["check.sh"] = false
+        #expect(condition.evaluate(in: known) == false)
+        #expect(condition.source == .scripts)
+        #expect(!AutomationCondition.scriptSucceeds("../x").isValid)
+    }
+
+    @Test("An imported list loses its script rules and keeps the others")
+    func importDropsScriptRules() throws {
+        let plain = rule("Plain", [battery], action: .zen(true))
+        let withCondition = rule("A", [.scriptSucceeds("check.sh")], action: .zen(true))
+        let withAction = rule("B", [battery], action: .runScript("go.sh"))
+        let data = try JSONEncoder().encode([plain, withCondition, withAction])
+        let stripped = try #require(AutomationRule.removingScriptRules(from: data))
+        let rules = try JSONDecoder().decode([AutomationRule].self, from: stripped)
+        #expect(rules == [plain])
+        #expect(AutomationRule.removingScriptRules(from: Data("nonsense".utf8)) == nil)
+        #expect(withCondition.usesScript && withAction.usesScript && !plain.usesScript)
+    }
 }

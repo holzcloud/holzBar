@@ -253,6 +253,34 @@
         }
       }
     },
+    "%@, %lld bytes, checksum starts with %@. It runs as you, with holzBar's permissions. Allow it only if you wrote it or read it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %lld Byte, Prüfsumme beginnt mit %@. Es läuft als du, mit den Berechtigungen von holzBar. Erlaube es nur, wenn du es geschrieben oder gelesen hast."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %lld octets, la somme de contrôle commence par %@. Il s’exécute comme vous, avec les autorisations de holzBar. Ne l’autorisez que si vous l’avez écrit ou lu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %lld byte, il checksum inizia con %@. Viene eseguito come te, con le autorizzazioni di holzBar. Consentilo solo se lo hai scritto o letto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %lld bytes, la summa da controlla cumenza cun %@. El vegn exequì sco ti, cun las permissiuns da holzBar. Lubescha el mo sche ti has scrit u legì el."
+          }
+        }
+      }
+    },
     "%lld items" : {
       "localizations" : {
         "de" : {
@@ -393,6 +421,34 @@
         }
       }
     },
+    "A link, not a file" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Link, keine Datei"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un lien, pas un fichier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un collegamento, non un file"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In link, nagina datoteca"
+          }
+        }
+      }
+    },
     "A menu bar shape draws the wallpaper beside the shape. holzBar reads most wallpapers from their file; a moving wallpaper can be read only with Screen Recording." : {
       "localizations" : {
         "de" : {
@@ -445,6 +501,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In profil cun il medem num vegn remplazzà. Applitgescha el pli tard da qua u cun holzbar://profile/<name>."
+          }
+        }
+      }
+    },
+    "A script succeeds" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Skript ist erfolgreich"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un script réussit"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uno script riesce"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In scrip reussescha"
           }
         }
       }
@@ -897,6 +981,34 @@
         }
       }
     },
+    "Allow" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlauben"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriser"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lubir"
+          }
+        }
+      }
+    },
     "Allow Screen Recording…" : {
       "localizations" : {
         "de" : {
@@ -949,6 +1061,90 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Permetta a holzBar en ils parameters dal sistem da s'aviar a l'annunzia."
+          }
+        }
+      }
+    },
+    "Allow this script?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Skript erlauben?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriser ce script ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consentire questo script?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lubir quest scrip?"
+          }
+        }
+      }
+    },
+    "Allowed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaubt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autorisé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consentito"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lubì"
+          }
+        }
+      }
+    },
+    "Allow…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlauben …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriser…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lubir …"
           }
         }
       }
@@ -2325,6 +2521,34 @@
         }
       }
     },
+    "Check Now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt prüfen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifier maintenant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controlla ora"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controllar ussa"
+          }
+        }
+      }
+    },
     "Chevron" : {
       "localizations" : {
         "de" : {
@@ -3497,6 +3721,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Puntà"
+          }
+        }
+      }
+    },
+    "Downloaded: remove the quarantine first" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heruntergeladen: entferne zuerst die Quarantäne"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Téléchargé : retirez d’abord la quarantaine"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scaricato: rimuovi prima la quarantena"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telechargià: allontanescha l’emprim la quarantena"
           }
         }
       }
@@ -6301,6 +6553,34 @@
         }
       }
     },
+    "Needs your approval" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Braucht deine Erlaubnis"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nécessite votre autorisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiede la tua approvazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dovra tia lubientscha"
+          }
+        }
+      }
+    },
     "Network name" : {
       "localizations" : {
         "de" : {
@@ -6553,6 +6833,62 @@
         }
       }
     },
+    "Not a plain file name" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein einfacher Dateiname"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas un simple nom de fichier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è un semplice nome di file"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagin num da datoteca simpel"
+          }
+        }
+      }
+    },
+    "Not a regular file" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine normale Datei"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas un fichier ordinaire"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è un file normale"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagina datoteca usitada"
+          }
+        }
+      }
+    },
     "Not enough room to show “%@”" : {
       "localizations" : {
         "de" : {
@@ -6581,6 +6917,34 @@
         }
       }
     },
+    "Not executable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht ausführbar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non exécutable"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non eseguibile"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg exequibel"
+          }
+        }
+      }
+    },
     "Not needed on macOS 27, which folds items that do not fit behind its own overflow button." : {
       "localizations" : {
         "de" : {
@@ -6605,6 +6969,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Betg necessari sut macOS 27 che metta ils elements che n'han betg plazza davos in agen buttun da surpli."
+          }
+        }
+      }
+    },
+    "Not owned by you" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gehört nicht dir"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ne vous appartient pas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è tuo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na tutga betg tai"
           }
         }
       }
@@ -7029,6 +7421,34 @@
         }
       }
     },
+    "Open Scripts Folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripte-Ordner öffnen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir le dossier des scripts"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri la cartella degli script"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avrir l’ordinatur dals scrips"
+          }
+        }
+      }
+    },
     "Open System Settings" : {
       "localizations" : {
         "de" : {
@@ -7277,6 +7697,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ulteriurs"
+          }
+        }
+      }
+    },
+    "Others can write to it" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Andere können darin schreiben"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D’autres peuvent y écrire"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altri possono scriverci"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auters pon scriver en ella"
           }
         }
       }
@@ -7617,6 +8065,34 @@
         }
       }
     },
+    "Put a script in the Scripts folder and allow it below first." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lege zuerst ein Skript in den Skripte-Ordner und erlaube es unten."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Placez d’abord un script dans le dossier des scripts et autorisez-le plus bas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metti prima uno script nella cartella degli script e consentilo qui sotto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metta l’emprim in scrip en l’ordinatur dals scrips e lubescha el sutvart."
+          }
+        }
+      }
+    },
     "Quit" : {
       "localizations" : {
         "de" : {
@@ -7893,6 +8369,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Allontanar"
+          }
+        }
+      }
+    },
+    "Remove Approval" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaubnis entziehen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer l’autorisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi l’approvazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allontanar la lubientscha"
           }
         }
       }
@@ -8681,6 +9185,34 @@
         }
       }
     },
+    "Run a script" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Skript ausführen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exécuter un script"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegui uno script"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exequir in scrip"
+          }
+        }
+      }
+    },
     "Save" : {
       "localizations" : {
         "de" : {
@@ -8929,6 +9461,90 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bildschirmaufnahme"
+          }
+        }
+      }
+    },
+    "Script" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skript"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Script"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Script"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrip"
+          }
+        }
+      }
+    },
+    "Scripts" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripte"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Script"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrips"
+          }
+        }
+      }
+    },
+    "Scripts run as you, with holzBar's permissions, and only after you allowed their exact content. Put them in the Scripts folder; nothing else can run." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripte laufen als du, mit den Berechtigungen von holzBar, und erst nachdem du ihren genauen Inhalt erlaubt hast. Lege sie in den Skripte-Ordner; nichts anderes kann laufen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les scripts s’exécutent comme vous, avec les autorisations de holzBar, et seulement après que vous avez autorisé leur contenu exact. Placez-les dans le dossier des scripts ; rien d’autre ne peut s’exécuter."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli script vengono eseguiti come te, con le autorizzazioni di holzBar, e solo dopo che hai consentito il loro contenuto esatto. Mettili nella cartella degli script; nient’altro può essere eseguito."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils scrips vegnan exequids sco ti, cun las permissiuns da holzBar, e mo suenter che ti has lubì lur cuntegn exact. Metta els en l’ordinatur dals scrips; nagut auter na po vegnir exequì."
           }
         }
       }
@@ -11341,6 +11957,34 @@
         }
       }
     },
+    "Too large" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu gross"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trop volumineux"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Troppo grande"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memia grond"
+          }
+        }
+      }
+    },
     "Trailing End Cap" : {
       "localizations" : {
         "de" : {
@@ -13643,6 +14287,34 @@
         }
       }
     },
+    "run the script “%@”" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "das Skript „%@“ ausführen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "exécuter le script « %@ »"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "esegui lo script “%@”"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "exequir il scrip «%@»"
+          }
+        }
+      }
+    },
     "show the always-hidden section" : {
       "localizations" : {
         "de" : {
@@ -13975,6 +14647,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "il visur «%@» è collià"
+          }
+        }
+      }
+    },
+    "the script “%@” succeeds" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "das Skript „%@“ erfolgreich ist"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "le script « %@ » réussit"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "lo script “%@” riesce"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il scrip «%@» reussescha"
           }
         }
       }

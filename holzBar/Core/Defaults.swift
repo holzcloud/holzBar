@@ -438,7 +438,19 @@ nonisolated extension Defaults.Key {
     /// keys it ignores: only holzBar's own keys that may be imported, with a value of the
     /// expected kind, numbers within their range (``SettingsSchema``).
     static func validatedSettings(_ settings: [String: Any]) -> (accepted: [String: Any], ignored: [String]) {
-        SettingsSchema.validated(settings, kinds: importableKinds, numberRules: importableNumberRules)
+        var result = SettingsSchema.validated(settings, kinds: importableKinds, numberRules: importableNumberRules)
+        // A file never brings a rule that runs or asks a script: scripts and their approvals
+        // are local to the Mac.
+        let rulesKey = Key.automationRules.rawValue
+        if let data = result.accepted[rulesKey] as? Data {
+            if let stripped = AutomationRule.removingScriptRules(from: data) {
+                result.accepted[rulesKey] = stripped
+            } else {
+                result.accepted.removeValue(forKey: rulesKey)
+                result.ignored = (result.ignored + [rulesKey]).sorted()
+            }
+        }
+        return result
     }
 
     /// The keys of the current settings that applying `accepted` removes, sorted.

@@ -57,6 +57,13 @@ final class AutomationManager {
     @ObservationIgnored private var lastItemSections = [String: Int]()
     @ObservationIgnored private var itemRuleTask: Task<Void, Never>?
 
+    /// The scripts of the Scripts folder and what the user approved.
+    let scriptStore = ScriptStore()
+    @ObservationIgnored private let scriptRunner = ScriptRunner()
+    /// What the approved scripts answered last, by file name. A script not here is unknown.
+    @ObservationIgnored private var scriptResults = [String: Bool]()
+    @ObservationIgnored private var lastScriptRun = [String: Date]()
+
     /// The activity that keeps the Mac awake while a rule asks for it.
     @ObservationIgnored private var keepAwakeActivity: (any NSObjectProtocol)?
 
@@ -75,6 +82,7 @@ final class AutomationManager {
 
     func performSetup(with appState: AppState) {
         self.appState = appState
+        scriptStore.performSetup()
         load()
         isSetUp = true
         sourcesChanged()
@@ -167,6 +175,9 @@ final class AutomationManager {
             startPathMonitor()
         case .wifi:
             wifiMonitor.start()
+        case .scripts:
+            // Scripts are checked when other events arrive, not by a timer of their own.
+            break
         }
     }
 
@@ -186,7 +197,7 @@ final class AutomationManager {
             networkKinds = nil
         case .wifi:
             storedWiFiMonitor?.stop()
-        case .lowPowerMode, .runningApps, .frontmostApp, .displays:
+        case .lowPowerMode, .runningApps, .frontmostApp, .displays, .scripts:
             break
         }
     }
@@ -331,6 +342,7 @@ final class AutomationManager {
         if needed.contains(.wifi) {
             facts.wifiName = storedWiFiMonitor?.networkName
         }
+        facts.scriptResults = scriptResults
         return facts
     }
 
@@ -371,6 +383,7 @@ final class AutomationManager {
         guard rules.contains(where: \.isEnabled) || !engineState.active.isEmpty else {
             return
         }
+        refreshScriptResults()
         let facts = currentFacts()
         followItemRules(facts: facts)
         let result = AutomationEngine.evaluate(
@@ -387,6 +400,46 @@ final class AutomationManager {
         for effect in result.effects {
             perform(effect, with: appState)
         }
+    }
+
+    // MARK: Scripts
+
+    /// Asks the approved scripts that rules use as conditions, at most every 30 seconds each:
+    /// they are checked when other events arrive and by ``checkScriptsNow()``, never by a
+    /// timer of their own.
+    private func refreshScriptResults() {
+        var names = Set<String>()
+        for clause in rules.filter(\.isEnabled).flatMap(\.clauses) {
+            if case .scriptSucceeds(let name) = clause.condition {
+                names.insert(name)
+            }
+        }
+        scriptResults = scriptResults.filter { names.contains($0.key) }
+        for name in names {
+            let isDue = lastScriptRun[name].map { Date.now.timeIntervalSince($0) >= 30 } ?? true
+            guard isDue else {
+                continue
+            }
+            lastScriptRun[name] = .now
+            Task { [weak self] in
+                guard let self else {
+                    return
+                }
+                switch await scriptRunner.run(name, event: "check", store: scriptStore) {
+                case .succeeded: scriptResults[name] = true
+                case .failed: scriptResults[name] = false
+                case .notAllowed, .rateLimited: scriptResults.removeValue(forKey: name)
+                }
+                evaluate()
+            }
+        }
+    }
+
+    /// Asks every script a rule uses now, without waiting for the next event.
+    func checkScriptsNow() {
+        lastScriptRun.removeAll()
+        scriptStore.refresh()
+        evaluate()
     }
 
     // MARK: Items that follow a condition
@@ -467,6 +520,13 @@ final class AutomationManager {
             appState.menuBarManager.setManualZenMode(isOn)
         case .setKeepAwake(let isOn):
             setKeepAwake(isOn)
+        case .runScript(let name):
+            Task { [weak self] in
+                guard let self else {
+                    return
+                }
+                _ = await scriptRunner.run(name, event: "rule-started", store: scriptStore)
+            }
         }
     }
 
