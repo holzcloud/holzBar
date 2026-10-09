@@ -23,6 +23,7 @@ import argparse
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -169,13 +170,23 @@ def filter_regex(names):
 
 
 def swift_test(directory, names, label):
+    """Runs the suites. A run that does not end within SYNC_MUTATION_TIMEOUT seconds (default 1500) is stopped, and the tests that had
+    failed by then are the kill: a mutated engine can livelock a suite (the unsorted digest does), and a gate that waits for ever
+    decides nothing."""
     command = ["swift", "test", "--filter", filter_regex(names)] + os.environ.get("SYNC_SWIFT_TEST_FLAGS", "").split()
     started = time.time()
-    result = subprocess.run(command, cwd=directory, capture_output=True, text=True)
-    output = result.stdout + result.stderr
+    process = subprocess.Popen(command, cwd=directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, start_new_session=True)
+    try:
+        output, _ = process.communicate(timeout=float(os.environ.get("SYNC_MUTATION_TIMEOUT", "1500")))
+        code = process.returncode
+    except subprocess.TimeoutExpired:
+        os.killpg(process.pid, signal.SIGKILL)
+        output, _ = process.communicate()
+        output = (output or "") + "\n(the run did not end: stopped by the gate)"
+        code = -9
     failing = re.findall(r'✘ Test "([^"]+)"', output)
     ran = re.search(r"Test run with (\d+) tests", output)
-    return result.returncode, failing, bool(ran), output, time.time() - started
+    return code, failing, bool(ran) or code == -9, output, time.time() - started
 
 
 def main():
