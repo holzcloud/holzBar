@@ -420,20 +420,23 @@ WRITER_ALLOWED = [
     (SYNC_GATEWAY, "allowed: the sync code's own apply"),
 ]
 
-# The files that may write the macOS 27 arrangement (MacOS27Layout), each of them a user path or an owner.
+# The files that may write the macOS 27 arrangement (MacOS27Layout), each with the reason. Plan 28-16 re-checked
+# in the code that these are all the paths of a user (D-04): macOS 27 cannot move an item (AccessibilityBackend27
+# .canMoveItems is false), so a Command-drag on the bar saves nothing, and every user path sends an intent.
 LAYOUT_WRITERS = [
-    "holzBar/MenuBar/MacOS27/Concealer27.swift",
-    "holzBar/MenuBar/Profiles/LayoutProfiles.swift",
-    "holzBar/Utilities/SettingsBackup.swift",
-    "holzBar/Utilities/Migration.swift",
-    SYNC_GATEWAY,
+    ("holzBar/MenuBar/MacOS27/Concealer27.swift", "the user's move in the Layout pane (setSection) sends an intent; placeNewApplications and seedLayoutIfNeeded are holzBar's own and skip protected applications"),
+    ("holzBar/MenuBar/Profiles/LayoutProfiles.swift", "a profile the user applies sends the intents of the entries it changes; a bound one sends none"),
+    ("holzBar/Utilities/SettingsBackup.swift", "Import sends the intents of the entries it changes, then finishImport"),
+    ("holzBar/Utilities/Migration.swift", "the one-time import of an earlier app's settings, not a change by the user"),
+    (SYNC_GATEWAY, "the sync code's own apply"),
 ]
 LAYOUT_KEY = "MacOS27Layout"
 LAYOUT_MESSAGE = (
     "a new writer of MacOS27Layout; the user paths of the arrangement are the move in the Layout pane "
     "(Concealer27.setSection), a profile the user applies (LayoutProfiles.apply) and Import "
-    "(SettingsBackup.apply), and each sends an intent (plan 28-16); add this writer there, or to LAYOUT_WRITERS "
-    "with its reason"
+    "(SettingsBackup.apply), and each sends an intent (the D-04 verification of plan 28-16 found no other: "
+    "macOS 27 cannot move an item, so a Command-drag on the bar saves nothing); capture the new path the same way "
+    "and add its writer to LAYOUT_WRITERS with its reason"
 )
 
 WRITE_CALL = re.compile(
@@ -513,7 +516,7 @@ def lint_writers(path, raw, synced, names):
                 if stripped[begin + quote.start()] == '"' and quote.group(1) in synced:
                     written.add(quote.group(1))
         for key in sorted(written):
-            if key == LAYOUT_KEY and path not in LAYOUT_WRITERS:
+            if key == LAYOUT_KEY and not is_allowed(path, LAYOUT_WRITERS):
                 findings.append((path, number, f"writer: {LAYOUT_MESSAGE}"))
             elif key != LAYOUT_KEY and not is_allowed(path, WRITER_ALLOWED):
                 findings.append((path, number, f"writer: a write of the synced key {key} outside the allowed sites; sync counts it as a change the user made"))
@@ -542,7 +545,7 @@ def lint_all_writers(root):
     for prefix, _ in WRITER_ALLOWED:
         if not os.path.exists(os.path.join(root, prefix)):
             findings.append((prefix, 1, "writer: an allowed site that does not exist; update WRITER_ALLOWED in sync-lint.py"))
-    for path in LAYOUT_WRITERS:
+    for path, _ in LAYOUT_WRITERS:
         if not os.path.exists(os.path.join(root, path)):
             findings.append((path, 1, "writer: a layout writer that does not exist; update LAYOUT_WRITERS in sync-lint.py"))
     return findings

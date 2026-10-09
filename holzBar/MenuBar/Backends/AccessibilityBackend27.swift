@@ -17,6 +17,12 @@ final class AccessibilityBackend27: MenuBarBackend {
     /// Notices item changes of the processes that own items.
     private let itemChangeObserver = ItemChangeObserver27()
 
+    /// Always `false`, and that is what keeps sync complete (D-04). Checked in plan 28-16:
+    /// there is no other user arrangement path on macOS 27 than a move in the Layout pane, a profile
+    /// the user applies and Import. A Command-drag on the bar moves nothing holzBar saves, because `savesUserArrangement` of
+    /// `HIDEventManager` is false here, and `saveSections`, `saveSectionsSoon` and `reconcileSections` of
+    /// `SectionRestore` return first. Should this ever become `true`, the arrangement the user makes on the
+    /// bar would be a new user path, and it has to send an intent like `Concealer27.setSection`.
     var canMoveItems: Bool { false }
 
     /// On macOS 27 the icon's window is only a placeholder, and its frame says nothing

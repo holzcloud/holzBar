@@ -845,11 +845,29 @@ final class Concealer27 {
 
     /// Moves an application to a section of the saved layout and applies it.
     ///
-    /// Only the user moves an application this way (the Layout pane, with its undo). The
-    /// sync capture of this user move is wired in plan 28-16.
+    /// Only the user moves an application this way (the Layout pane, with its undo), and this is the one
+    /// place a user move enters sync: when the section changed it sends one intent for `l27/<bundleID>`
+    /// with explicit values (visible is `0`, not an absence). A drop on the same section, or an undo to
+    /// the same value, sends nothing.
+    ///
+    /// There is no other user arrangement path on macOS 27 (checked in plan 28-16): a Command-drag on the
+    /// bar moves nothing holzBar saves (``AccessibilityBackend27/canMoveItems`` is false), and a profile
+    /// the user applies and Import send their own intents. A new path has to send one too; the sync lint
+    /// fails a new writer of the layout.
     func setSection(_ section: MacOS27Section, for bundleID: String) {
-        let updated = SectionLayout27.settingSection(section, for: bundleID, in: savedLayout)
+        let saved = savedLayout
+        let before = saved[bundleID] ?? .visible
+        let updated = SectionLayout27.settingSection(section, for: bundleID, in: saved)
         Defaults.set(updated.mapValues(\.rawValue), forKey: .macOS27Layout)
+        if
+            let intent = SyncLayout27.moveIntent(
+                bundleID: bundleID,
+                from: .integer(Int64(before.rawValue)),
+                to: .integer(Int64(section.rawValue))
+            )
+        {
+            appState?.settingsSync.recordIntent(.userSet([intent]))
+        }
         update()
         Task { [weak self] in
             await self?.appState?.itemManager.cacheItemsRegardless()
