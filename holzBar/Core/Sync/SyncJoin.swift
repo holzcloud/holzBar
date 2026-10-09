@@ -406,7 +406,10 @@ nonisolated extension SyncEngine {
         let state = draft.state
         let isFounding = read.files.isEmpty
         let knowsFolder = read.files.contains { file in
-            file.macID.map { state.replica.context[$0] > 0 || state.isOwn($0) } ?? false
+            if file.macID.map({ state.replica.context[$0] > 0 || state.isOwn($0) }) == true {
+                return true
+            }
+            return Self.claimsEntriesOfThisMac(file, state: state)
         }
         // The same group: this Mac's state is trusted, and the folder is empty (the group
         // moves with the user) or holds a Mac this state knows.
@@ -463,6 +466,16 @@ nonisolated extension SyncEngine {
         }
         commitTentative(&draft.state, pending: proposed, snapshot: snapshot, environment: environment)
         finishCommit(&draft, pending: proposed, environment: environment)
+    }
+
+    /// Whether a file of another Mac says it has seen entries of this Mac's own identities. Such a file belongs to this Mac's group even
+    /// when this Mac has not read its writer yet (its own file may be gone from the folder): a join of "another group" would take the
+    /// entries that file relays for new values of a Mac that holds none, and bring back what the user deleted while sync was off.
+    private static func claimsEntriesOfThisMac(_ file: SyncFileOutcome, state: SyncState) -> Bool {
+        guard case .contents(let contents) = file.state else {
+            return false
+        }
+        return ([state.mac] + state.previousMacIDs.sorted()).contains { contents.replica.context[$0] > 0 }
     }
 
     /// What the legacy file offers the join: its units when this Mac founds a group, and its
