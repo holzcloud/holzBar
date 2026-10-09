@@ -103,7 +103,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Rules** that apply a profile, reveal items or switch Zen mode when a Wi-Fi network, an app, the time of day, the power source, a display or a Focus matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Preview: the rules, the observers and the Automation pane are built but not yet tested on a Mac; the Wi-Fi name condition is built too, and needs your test of the Location prompt.*
 - **URL and Shortcuts for rules** (*Preview*): `holzbar://automation/enable/<name>` and `/disable/<name>` ask first, and Shortcuts can turn a rule on or off and list the rules that are active. Rules are created and edited only in the settings.
 - **Focus filter** (*Preview*): add the holzBar filter to a Focus in System Settings to apply a layout profile while that Focus is on; the previous profile comes back when it ends. Whether macOS calls the filter on your Mac is the open question of this preview.
-- **Per-item conditions**: show a single item only while a condition holds, for example while a VPN is connected.
+- **Per-item conditions** (*Preview*): a rule action "Show an item only while this is true" makes one item follow a condition, for example a VPN item that is visible only while a VPN is connected. The item moves after a hold of three seconds, so a flapping condition does not move it every second; an unknown condition leaves it where it is. On macOS 27 the rule moves all items of the item's application.
 - **Scripts** as a rule condition or action, and **hooks** that run before and after a profile is applied: only from a folder you choose, pinned by hash, run only after you confirm.
 
 **Safety and convenience**

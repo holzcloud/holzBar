@@ -17,6 +17,8 @@ nonisolated enum SnapshotReason: String, Codable, Sendable {
     case beforeRestore
     /// Before the clean-up assistant hid items.
     case beforeAssistant
+    /// Before a rule moved items.
+    case beforeRule
     /// The user asked for it.
     case manual
 }

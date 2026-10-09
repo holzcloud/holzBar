@@ -63,6 +63,9 @@ nonisolated enum AutomationEngine {
         context: Context,
         state: State
     ) -> Result {
+        // A rule of the kind "show an item only while …" follows its condition and is not
+        // acted on once; ``ItemVisibility`` handles it.
+        let rules = rules.filter { $0.action.effect != nil }
         var next = state
         var effects: [Effect] = []
         var context = context
@@ -109,7 +112,9 @@ nonisolated enum AutomationEngine {
             if !isMet && wasActive {
                 end(rule.id)
             } else if isMet && !wasActive {
-                let effect = rule.action.effect
+                guard let effect = rule.action.effect else {
+                    continue
+                }
                 if case .applyProfile = effect {
                     if profileWasChosen {
                         // An earlier rule won this pass; try again when it is free.
@@ -159,12 +164,14 @@ nonisolated enum AutomationEngine {
 }
 
 extension AutomationAction {
-    nonisolated var effect: AutomationEngine.Effect {
+    /// What the action does once, or `nil` for an action that follows its condition.
+    nonisolated var effect: AutomationEngine.Effect? {
         switch self {
         case .applyProfile(let name): .applyProfile(name)
         case .showSection(let section): .showSection(section)
         case .zen(let isOn): .setZen(isOn)
         case .keepAwake(let isOn): .setKeepAwake(isOn)
+        case .showItemOnlyWhile: nil
         }
     }
 }

@@ -188,6 +188,9 @@ nonisolated enum AutomationAction: Codable, Equatable, Sendable {
     case zen(Bool)
     /// Keeps the Mac and its display from going to sleep on their own, or lets them.
     case keepAwake(Bool)
+    /// Shows an item only while the rule holds and hides it in the given section otherwise.
+    /// Unlike the other actions it is not acted on once: the item follows the condition.
+    case showItemOnlyWhile(itemKey: String, hiding: AutomationSection)
 
     var isValid: Bool {
         switch self {
@@ -195,6 +198,8 @@ nonisolated enum AutomationAction: Codable, Equatable, Sendable {
             return !name.isEmpty && name.utf8.count <= 80
         case .showSection, .zen, .keepAwake:
             return true
+        case .showItemOnlyWhile(let key, _):
+            return !key.isEmpty && key.utf8.count <= 255
         }
     }
 }
@@ -209,6 +214,27 @@ nonisolated enum AutomationSection: String, Codable, Sendable {
 nonisolated enum AutomationMatch: String, Codable, Sendable {
     case all
     case any
+
+    /// Combines the answers of the clauses. An unknown answer (`nil`) keeps the result
+    /// unknown unless another answer decides it: one false answer makes "all" false, one true
+    /// answer makes "any" true. No answers at all is unknown.
+    func combine(_ results: [Bool?]) -> Bool? {
+        guard !results.isEmpty else {
+            return nil
+        }
+        switch self {
+        case .all:
+            if results.contains(false) {
+                return false
+            }
+            return results.contains { $0 == nil } ? nil : true
+        case .any:
+            if results.contains(true) {
+                return true
+            }
+            return results.contains { $0 == nil } ? nil : false
+        }
+    }
 }
 
 /// "When these things are true, do this."
@@ -233,6 +259,12 @@ nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
         case .all: return results.allSatisfy { $0 }
         case .any: return results.contains(true)
         }
+    }
+
+    /// Whether the rule holds, or `nil` when the facts do not tell yet. A rule without clauses
+    /// is unknown.
+    func evaluation(in facts: AutomationFacts) -> Bool? {
+        match.combine(clauses.map { $0.evaluate(in: facts) })
     }
 
     var isValid: Bool {
@@ -291,5 +323,23 @@ nonisolated enum AutomationSchedule {
                 return delta > 0 ? delta : delta + day
             }
             .min()
+    }
+}
+
+/// Where an item follows a rule of the kind "show it only while …".
+nonisolated enum ItemVisibility {
+    /// The section index the rule wants for its item now: 0 (visible) while the rule holds,
+    /// the hiding section while it does not, and `nil` when the rule is off, not of this kind
+    /// or the facts do not tell yet. The item then stays where it is: it is never hidden
+    /// because a fact is unavailable.
+    static func wantedSection(of rule: AutomationRule, facts: AutomationFacts) -> (itemKey: String, section: Int)? {
+        guard rule.isEnabled, case .showItemOnlyWhile(let key, let hiding) = rule.action else {
+            return nil
+        }
+        switch rule.evaluation(in: facts) {
+        case .some(true): return (key, 0)
+        case .some(false): return (key, hiding == .alwaysHidden ? 2 : 1)
+        case .none: return nil
+        }
     }
 }

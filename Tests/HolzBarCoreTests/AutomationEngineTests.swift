@@ -304,4 +304,46 @@ struct AutomationEngineTests {
         #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 17 * 3600) == 16.0 * 3600)
         #expect(AutomationSchedule.secondsUntilNextBoundary(of: [], from: 0) == nil)
     }
+
+    @Test("Answers combine with unknown ones staying unknown unless another decides")
+    func combine() {
+        #expect(AutomationMatch.all.combine([true, true]) == true)
+        #expect(AutomationMatch.all.combine([true, nil]) == nil)
+        #expect(AutomationMatch.all.combine([false, nil]) == false)
+        #expect(AutomationMatch.any.combine([false, nil]) == nil)
+        #expect(AutomationMatch.any.combine([true, nil]) == true)
+        #expect(AutomationMatch.any.combine([false, false]) == false)
+        #expect(AutomationMatch.all.combine([]) == nil)
+    }
+
+    @Test("An item follows its rule: visible while it holds, hidden otherwise, still when unknown")
+    func itemFollowsRule() throws {
+        let rule = rule(
+            "VPN item",
+            [.network(.vpn)],
+            action: .showItemOnlyWhile(itemKey: "com.example.vpn:VPN", hiding: .alwaysHidden)
+        )
+        let holds = try #require(ItemVisibility.wantedSection(of: rule, facts: AutomationFacts(networkKinds: [.vpn])))
+        #expect(holds.itemKey == "com.example.vpn:VPN" && holds.section == 0)
+        let fails = try #require(ItemVisibility.wantedSection(of: rule, facts: AutomationFacts(networkKinds: [.wifi])))
+        #expect(fails.section == 2)
+        #expect(ItemVisibility.wantedSection(of: rule, facts: AutomationFacts()) == nil)
+        var off = rule
+        off.isEnabled = false
+        #expect(ItemVisibility.wantedSection(of: off, facts: AutomationFacts(networkKinds: [.vpn])) == nil)
+    }
+
+    @Test("The engine leaves rules that follow a condition to the item logic")
+    func engineSkipsItemRules() {
+        let rule = rule(
+            "Item",
+            [battery],
+            action: .showItemOnlyWhile(itemKey: "com.example.app:Item", hiding: .hidden)
+        )
+        let result = run([rule], facts(power: .battery))
+        #expect(result.effects.isEmpty)
+        #expect(result.state.active.isEmpty)
+        #expect(rule.isValid)
+        #expect(!AutomationAction.showItemOnlyWhile(itemKey: "", hiding: .hidden).isValid)
+    }
 }

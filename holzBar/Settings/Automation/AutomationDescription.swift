@@ -17,6 +17,9 @@ enum AutomationDescription {
         case .all: parts.formatted(.list(type: .and))
         case .any: parts.formatted(.list(type: .or))
         }
+        if case .showItemOnlyWhile(let key, _) = rule.action {
+            return String(localized: "Show \u{201C}\(itemName(forKey: key))\u{201D} only when \(conditions).")
+        }
         return String(localized: "When \(conditions), \(text(for: rule.action)).")
     }
 
@@ -71,7 +74,22 @@ enum AutomationDescription {
             String(localized: "keep the Mac awake")
         case .keepAwake(false):
             String(localized: "let the Mac sleep")
+        case .showItemOnlyWhile(let key, _):
+            String(localized: "show \u{201C}\(itemName(forKey: key))\u{201D} and hide it otherwise")
         }
+    }
+
+    /// The name of an item from its identity key: its application, or its title.
+    static func itemName(forKey key: String) -> String {
+        let parts = key.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+        guard let namespace = parts.first.map(String.init) else {
+            return key
+        }
+        if SharedProfile.isValidBundleIdentifier(namespace),
+           NSWorkspace.shared.urlForApplication(withBundleIdentifier: namespace) != nil {
+            return applicationName(for: namespace)
+        }
+        return parts.count > 1 ? String(parts[1]) : namespace
     }
 
     private static func timeText(for window: AutomationTimeWindow) -> String {

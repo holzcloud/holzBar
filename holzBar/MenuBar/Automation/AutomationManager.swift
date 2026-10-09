@@ -53,6 +53,10 @@ final class AutomationManager {
     @ObservationIgnored private var timeTask: Task<Void, Never>?
     @ObservationIgnored private var storedWiFiMonitor: WiFiNetworkMonitor?
 
+    /// The section each item was last put in by a rule that makes it follow a condition.
+    @ObservationIgnored private var lastItemSections = [String: Int]()
+    @ObservationIgnored private var itemRuleTask: Task<Void, Never>?
+
     /// The activity that keeps the Mac awake while a rule asks for it.
     @ObservationIgnored private var keepAwakeActivity: (any NSObjectProtocol)?
 
@@ -367,9 +371,11 @@ final class AutomationManager {
         guard rules.contains(where: \.isEnabled) || !engineState.active.isEmpty else {
             return
         }
+        let facts = currentFacts()
+        followItemRules(facts: facts)
         let result = AutomationEngine.evaluate(
             rules: rules,
-            facts: currentFacts(),
+            facts: facts,
             context: AutomationEngine.Context(
                 currentProfile: appState.profiles.currentProfileName,
                 isZenOn: appState.menuBarManager.zenMode.isManual,
@@ -381,6 +387,69 @@ final class AutomationManager {
         for effect in result.effects {
             perform(effect, with: appState)
         }
+    }
+
+    // MARK: Items that follow a condition
+
+    /// The section each item wants now, by identity key, from the rules of the kind
+    /// "show it only while …".
+    private func wantedItemSections(facts: AutomationFacts) -> [String: Int] {
+        var wanted = [String: Int]()
+        for rule in rules {
+            if let item = ItemVisibility.wantedSection(of: rule, facts: facts) {
+                wanted[item.itemKey] = item.section
+            }
+        }
+        return wanted
+    }
+
+    /// Moves the items whose condition changed, after a hold of three seconds so a flapping
+    /// condition (a VPN that reconnects, Wi-Fi that roams) does not move an item every
+    /// second. The facts are read again after the hold, and nothing moves while the user
+    /// drags an item.
+    private func followItemRules(facts: AutomationFacts) {
+        let wanted = wantedItemSections(facts: facts)
+        // A pending move reads the facts again when it runs, so it is not postponed.
+        guard itemRuleTask == nil, wanted.contains(where: { lastItemSections[$0.key] != $0.value }) else {
+            return
+        }
+        itemRuleTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else {
+                return
+            }
+            self?.itemRuleTask = nil
+            self?.moveItems()
+        }
+    }
+
+    private func moveItems() {
+        guard let appState else {
+            return
+        }
+        if appState.profiles.isLayoutDragInProgress {
+            followItemRules(facts: currentFacts())
+            return
+        }
+        let changes = wantedItemSections(facts: currentFacts()).filter { lastItemSections[$0.key] != $0.value }
+        guard !changes.isEmpty else {
+            return
+        }
+        appState.snapshots.willApplyRules()
+        var applicationSections = [String: Int]()
+        for (key, section) in changes {
+            let namespace = String(key.prefix { $0 != ":" })
+            if SharedProfile.isValidBundleIdentifier(namespace) {
+                applicationSections[namespace] = section
+            }
+        }
+        logger.notice("An automation rule moves \(changes.count, privacy: .public) items")
+        appState.profiles.applyLayout(of: LayoutProfile(
+            name: "",
+            itemSections: changes,
+            applicationSections: applicationSections
+        ))
+        lastItemSections.merge(changes) { _, new in new }
     }
 
     private func perform(_ effect: AutomationEngine.Effect, with appState: AppState) {

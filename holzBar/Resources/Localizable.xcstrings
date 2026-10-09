@@ -1793,6 +1793,34 @@
         }
       }
     },
+    "Before a rule" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor einer Regel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant une règle"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima di una regola"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant ina regla"
+          }
+        }
+      }
+    },
     "Before tidying up" : {
       "localizations" : {
         "de" : {
@@ -4929,6 +4957,34 @@
         }
       }
     },
+    "Item" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objekt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Élément"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemento"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Element"
+          }
+        }
+      }
+    },
     "Items" : {
       "localizations" : {
         "de" : {
@@ -7225,6 +7281,34 @@
         }
       }
     },
+    "Otherwise hide it in" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sonst ausblenden in"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sinon le masquer dans"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altrimenti nascondilo in"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uschiglio zuppar en"
+          }
+        }
+      }
+    },
     "Permission Granted" : {
       "localizations" : {
         "de" : {
@@ -9437,6 +9521,34 @@
         }
       }
     },
+    "Show an item only while this is true" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Objekt nur anzeigen, solange das zutrifft"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher un élément seulement tant que c’est vrai"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra un elemento solo finché questo è vero"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar in element mo enfin che quai è vair"
+          }
+        }
+      }
+    },
     "Show hidden menu bar items in a separate bar below the menu bar." : {
       "localizations" : {
         "de" : {
@@ -9741,6 +9853,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mussar tes elements zuppads da la trav da menu"
+          }
+        }
+      }
+    },
+    "Show “%@” only when %@." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ nur anzeigen, wenn %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher « %@ » seulement quand %@."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra “%@” solo quando %@."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar «%@» mo cura che %@."
           }
         }
       }
@@ -13555,6 +13695,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "mussar la secziun zuppada"
+          }
+        }
+      }
+    },
+    "show “%@” and hide it otherwise" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ anzeigen und sonst ausblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "afficher « %@ » et le masquer sinon"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mostra “%@” e altrimenti nascondilo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mussar «%@» e uschiglio zuppar el"
           }
         }
       }

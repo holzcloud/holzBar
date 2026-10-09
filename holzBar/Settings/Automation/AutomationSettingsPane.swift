@@ -106,6 +106,7 @@ struct AutomationSettingsPane: View {
         case .showSection: "eye"
         case .zen: "moon"
         case .keepAwake: "cup.and.saucer"
+        case .showItemOnlyWhile: "eye.slash"
         }
     }
 
