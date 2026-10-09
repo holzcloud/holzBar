@@ -292,8 +292,10 @@ private struct RevealRulesSettings: View {
 // MARK: - SettingsSyncToggle
 
 /// Turns syncing the settings on or off, through iCloud Drive or any folder the Macs keep
-/// in sync (jordanbaird/Ice#95, SYNC-01). While sync is paused (``SettingsSyncPause``), the
-/// controls show the stored choice, disabled, with a note.
+/// in sync (jordanbaird/Ice#95, SYNC-01), and shows the quiet status of the sync: one sentence per
+/// line and at most one hint button, never a dialog (`modal-alerts-1`). The lines and the hint come
+/// from the engine's view (``SettingsSync/view``); this view reads and decides nothing. While sync is
+/// paused (``SettingsSyncPause``), the controls show the stored choice, disabled, with a note.
 private struct SettingsSyncToggle: View {
     @Bindable var sync: SettingsSync
 
@@ -301,21 +303,24 @@ private struct SettingsSyncToggle: View {
         !SettingsSyncPause.allowsChanges()
     }
 
+    /// Whether a join reads the folder or waits for its answer. Change… and Turn Off give way to Cancel.
+    private var isJoining: Bool {
+        SyncStatusText.isJoining(sync.view)
+    }
+
     var body: some View {
         LabeledContent {
             HStack {
-                if sync.isEnabled || sync.isTurnedOnWhilePaused {
-                    switch sync.hint {
-                    case .restart:
-                        Button("Restart") {
-                            sync.restartWithWaitingSettings()
-                        }
-                    case .choose, .chooseAfterJoin:
-                        Button("Choose Settings…") {
-                            sync.chooseSettings()
-                        }
-                    case nil:
-                        EmptyView()
+                if isJoining {
+                    if let hint = sync.hint {
+                        hintButton(hint)
+                    }
+                    Button("Cancel") {
+                        sync.cancelJoin()
+                    }
+                } else if sync.isEnabled || sync.isTurnedOnWhilePaused {
+                    if let hint = sync.hint {
+                        hintButton(hint)
                     }
                     Button("Change…") {
                         sync.chooseFolder()
@@ -337,20 +342,12 @@ private struct SettingsSyncToggle: View {
                     Text("Sync is paused in this beta and returns in the next one. Your sync folder and these settings stay as they are.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
-                } else if sync.isEnabled {
-                    if let folder = sync.folderDisplayName {
-                        Text("Through \(folder)")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Text("The sync folder cannot be found. Choose it again.")
-                            .font(.subheadline)
-                            .foregroundStyle(.orange)
+                } else {
+                    if sync.isEnabled, !isJoining {
+                        statusLine(SyncStatusText.folderLine(name: sync.folderDisplayName))
                     }
-                    if sync.hint != nil {
-                        Text("Settings changed on another Mac")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                    ForEach(SyncStatusText.lines(of: sync.view)) { line in
+                        statusLine(line)
                     }
                 }
             }
@@ -358,11 +355,31 @@ private struct SettingsSyncToggle: View {
         .annotation {
             // While sync is paused, the note above says so, and nothing here happens.
             if !isPaused {
-                Text("Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart.")
+                Text("Keeps your hotkeys, appearance and other settings the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The menu bar arrangement and layout profiles sync only between Macs with macOS 27; on a Mac with macOS 26 they stay on that Mac. The folder's own app carries the files; holzBar never goes online. Changes from another Mac apply after a restart.")
             }
         }
         .onAppear {
             sync.refreshFolder()
         }
+    }
+
+    /// The one button of a hint: Choose Settings… wins over Restart, which the engine has decided already.
+    private func hintButton(_ hint: SyncHint) -> some View {
+        Button(SyncStatusText.buttonTitle(for: hint)) {
+            switch hint {
+            case .restart:
+                sync.restartWithWaitingSettings()
+            case .choose, .chooseAfterJoin:
+                sync.chooseSettings()
+            }
+        }
+    }
+
+    /// One sentence of the status: plain text, secondary, or orange for the two lines that say something is wrong.
+    private func statusLine(_ line: SyncStatusText.Line) -> some View {
+        Text(line.text)
+            .font(.subheadline)
+            .foregroundStyle(line.tone == .warning ? Color.orange : Color.secondary)
+            .monospacedDigit()
     }
 }

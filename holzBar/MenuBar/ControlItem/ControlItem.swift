@@ -666,24 +666,18 @@ final class ControlItem {
 
         let menu = NSMenu(title: "holzBar")
 
-        // Settings from another Mac wait quietly here and in the sync settings; holzBar
-        // never opens a dialog for them by itself. While sync is paused, none wait.
+        // Settings from another Mac wait quietly here and in the sync settings; holzBar never opens a dialog for
+        // them by itself. Only the three hints of the UI contract show here, never a note, a warning or a
+        // conflict between other Macs. While sync is paused, none wait.
         if SettingsSyncPause.isActive(), let hint = appState.settingsSync.hint {
-            menu.addItem(.sectionHeader(title: String(localized: "Settings changed on another Mac")))
-            let hintItem = switch hint {
+            menu.addItem(.sectionHeader(title: SyncStatusText.menuText(for: hint)))
+            let action = switch hint {
             case .restart:
-                NSMenuItem(
-                    title: String(localized: "Restart"),
-                    action: #selector(restartWithWaitingSettings),
-                    keyEquivalent: ""
-                )
+                #selector(restartWithWaitingSettings)
             case .choose, .chooseAfterJoin:
-                NSMenuItem(
-                    title: String(localized: "Choose Settings…"),
-                    action: #selector(chooseSyncedSettings),
-                    keyEquivalent: ""
-                )
+                #selector(chooseSyncedSettings)
             }
+            let hintItem = NSMenuItem(title: SyncStatusText.buttonTitle(for: hint), action: action, keyEquivalent: "")
             hintItem.target = self
             menu.addItem(hintItem)
             menu.addItem(.separator())
