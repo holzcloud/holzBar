@@ -101,38 +101,57 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Control Centre's privacy indicator is hidden while items are hidden.** Its indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item, and comes back while holzBar hides no item. holzBar's dot covers the microphone and the camera, not screen recording; the small green dot beside the clock still shows the camera. See [Permissions](privacy-and-permissions.md#permissions).
 - Coming from 0.0.5 or earlier, macOS asks for Accessibility once more. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.
 
-## Planned for 0.0.8 "Automation"
+## Planned next
 
-**0.0.7 is a bugfix release.** It brings back settings sync on a new design and fixes bugs, and adds no new features. The features below move to 0.0.8.
+**None of this is available yet.** It is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
 
-**None of this is available yet.** It is the plan for 0.0.8, which is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
+### 0.0.7: bugfixes
+
+0.0.7 is a bugfix release and adds no new features.
+
+- **Settings sync** returns on a new design that cannot lose or silently overwrite a change.
+- Cooperation with macOS 27's own overflow button, so items are not shown twice.
+- Glass tint and Shelf follow Reduce Transparency (and the macOS 27 slider, if a public signal exists).
+
+### 0.0.8 "Automation"
 
 **Automation**
 - **Rules** that apply a profile, reveal items or switch Zen mode when a Wi-Fi network, an app, the time of day, the power source, a display or a Focus matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Spike first: the Focus filter.*
 - **Per-item conditions**: show a single item only while a condition holds, for example while a VPN is connected.
 - **Scripts** as a rule condition or action: only from a folder you choose, pinned by hash, run only after you confirm.
-- **Widgets**: menu bar items of your own (text from permission-free sources, a Shortcut button); script widgets come last.
-- **AppleScript dictionary** to show, hide, switch profiles and turn rules on or off.
-- **Command palette**: one hotkey opens a panel to run any holzBar action.
 
 **Safety and convenience**
 - **Layout snapshots** taken automatically, with a one-click restore.
 - **Share a profile** as a small validated file; it never contains personal data or code.
-- **First-launch assistant** that proposes an arrangement from static facts, skippable and re-runnable.
-- **Usage suggestions** (opt-in): suggests hiding items you never click; counters stay on your Mac and can be erased with one click.
 - **Touch ID or password** to show hidden items.
-- **Smooth show and hide**, respecting Reduce Motion.
 - **Copy diagnostics**: a redacted report you read before you copy it; nothing is sent.
+- **First-launch assistant** that proposes an arrangement from static facts, skippable and re-runnable.
+- **Works without Screen Recording**: every feature runs without it, and the Shelf shows app icons instead of live snapshots.
+- **System items pinned visible**: Clock, Wi-Fi and Battery stay visible when space runs short.
+- More **menu bar styles** (pills, outlines, gradients), as far as macOS 27 allows.
 
-**macOS 27 and polish**
-- Cooperation with macOS 27's own overflow button, so items are not shown twice.
-- Glass tint and Shelf follow Reduce Transparency (and the macOS 27 slider, if a public signal exists). *Spike.*
+**Polish**
 - Reordering in the Layout pane with SwiftUI's new reordering API, only if clearly better. *Spike.*
-- A Control Center control to toggle Zen mode or apply a profile. *Spike.*
 - A keyboard and VoiceOver audit of every pane.
 - Swift 6.4 clean-up without behaviour changes.
 
-The "holzBar vs. Ice and Thaw" table above marks these with 🔜.
+### 0.0.9
+
+**Automation**
+- **Widgets**: menu bar items of your own with text from permission-free sources (CPU load, memory, battery, free disk space, a countdown) and a Shortcut button; script widgets come last.
+- **AppleScript dictionary** to show, hide, switch profiles and turn rules on or off, and **App Intents** for Shortcuts and Siri.
+- **Command palette**: one hotkey opens a panel to run any holzBar action.
+- A **keep-awake** action (no permission needed) and a **focus mode** hotkey that hides everything except chosen items.
+
+**Convenience**
+- **Usage suggestions** (opt-in): suggests hiding items you never click; counters stay on your Mac and can be erased with one click.
+- **Smooth show and hide**, respecting Reduce Motion.
+- Replacement items for Apple items that macOS 27 cannot hide, and hiding system items such as Clock and Control Center.
+
+**Polish**
+- A Control Center control to toggle Zen mode or apply a profile. *Spike, optional.*
+
+The "holzBar vs. Ice and Thaw" table above marks these with 🔜 and the release.
 
 ## Gallery
 

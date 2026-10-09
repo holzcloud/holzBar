@@ -121,18 +121,28 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 
 ## 🔜 Planned next
 
-**0.0.7 is a bugfix release.** It is published as numbered betas first and brings back settings sync on a new design, which is paused in 0.0.7-beta2, together with fixes and no new features.
+**None of this is available yet.** Plans can change; *spike* = only built if a short test shows it works well.
 
-**0.0.8 "Automation" brings the new features.** None of it is available yet. Plans can change; *spike* = only built if a short test shows it works well.
+**0.0.7 is a bugfix release.** It is published as numbered betas first. It brings back settings sync on a new design (paused in 0.0.7-beta2), native macOS 27 overflow button support and glass that follows Reduce Transparency, and no new features.
+
+**0.0.8 "Automation"** brings the first set of new features:
 
 | | |
 |---|---|
-| ⚙️ **Automation** | **Rules** (Wi-Fi, app, time, power, display, Focus; *spike first: Focus*) · **per-item conditions** · **scripts** (only from a folder you choose, after you confirm) · **widgets** · **AppleScript dictionary** · **command palette** |
+| ⚙️ **Automation** | **Rules** (Wi-Fi, app, time, power, display, Focus; *spike first: Focus*) · **per-item conditions** · **scripts** (only from a folder you choose, after you confirm) |
 | 🛟 **Safety** | **Layout snapshots** with a one-click restore · **shareable profiles** · **Touch ID** to show hidden items · **copy diagnostics** (redacted, nothing is sent) |
-| 🪄 **Convenience** | **First-launch assistant** · opt-in **usage suggestions** (counters stay on your Mac) · **smooth show and hide** |
-| 🪵 **macOS 27 and polish** | Native overflow button support · Reduce Transparency · SwiftUI reordering (*spike*) · Control Center control (*spike*) · keyboard and VoiceOver audit · Swift 6.4 clean-up |
+| 🪄 **Convenience** | **First-launch assistant** · **works without Screen Recording** (app icons instead of live snapshots) · system items such as Clock, Wi-Fi and Battery **pinned visible** · more **menu bar styles** |
+| 🪵 **Polish** | SwiftUI reordering (*spike*) · keyboard and VoiceOver audit · Swift 6.4 clean-up |
 
-Details: [docs/features.md](docs/features.md#planned-for-008-automation).
+**0.0.9** brings the rest:
+
+| | |
+|---|---|
+| ⚙️ **Automation** | **Widgets** (text from permission-free sources such as CPU, memory, battery and disk, a countdown, a Shortcut button) · **AppleScript dictionary** · **App Intents** for Shortcuts and Siri · **command palette** · a keep-awake action · a "focus mode" hotkey |
+| 🪄 **Convenience** | Opt-in **usage suggestions** (counters stay on your Mac) · **smooth show and hide** · replacement items for Apple items macOS 27 cannot hide · hiding system items such as Clock and Control Center |
+| 🪵 **Polish** | Control Center control (*spike*, optional) |
+
+Details: [docs/features.md](docs/features.md#planned-next).
 
 ## 📚 More
 
