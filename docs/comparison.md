@@ -7,7 +7,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | **Compatibility** | | | |
 | macOS 14 – 26 | ✅ | macOS 26 only | ✅ |
 | **macOS 27** (new menu bar drawn by `MenuBarAgent`) | ❌ | ✅ | ✅ |
-| Launched and unit tested in CI on every supported macOS | ❌ | — | ✅ 14, 15, 26 and 27 |
+| Launched and unit tested in CI on macOS 26 and 27 | ❌ | — | ✅ 26 and 27 |
 | **Features** | | | |
 | Hidden and always-hidden sections, Ice Bar / holzBar Shelf, search, appearance | ✅ | ✅ | ✅ |
 | Layout profiles | ❌ | ✅ | ✅ |

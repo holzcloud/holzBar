@@ -71,12 +71,12 @@
  <text x="160" y="468" class="tagline" fill="#C9D2DE">ready for macOS 27.</text>
 
  <!-- tags -->
-  <rect x="160" y="520" width="278" height="72" rx="36" fill="#5EC8F2"/>
-  <text x="299" y="567" text-anchor="middle" class="tag" fill="#0A1426">macOS 14–27</text>
-  <rect x="461.5" y="521.5" width="199" height="69" rx="34.5" fill="#12283D" stroke="#336F8D" stroke-width="3"/>
-  <text x="561" y="567" text-anchor="middle" class="tag" fill="#5EC0F2">GPL-3.0</text>
-  <rect x="685.5" y="521.5" width="237" height="69" rx="34.5" fill="#12283D" stroke="#336F8D" stroke-width="3"/>
-  <text x="804" y="567" text-anchor="middle" class="tag" fill="#5EC0F2">Homebrew</text>
+  <rect x="160" y="520" width="286" height="72" rx="36" fill="#5EC8F2"/>
+  <text x="303" y="567" text-anchor="middle" class="tag" fill="#0A1426">macOS 26 · 27</text>
+  <rect x="469.5" y="521.5" width="199" height="69" rx="34.5" fill="#12283D" stroke="#336F8D" stroke-width="3"/>
+  <text x="569" y="567" text-anchor="middle" class="tag" fill="#5EC0F2">GPL-3.0</text>
+  <rect x="693.5" y="521.5" width="237" height="69" rx="34.5" fill="#12283D" stroke="#336F8D" stroke-width="3"/>
+  <text x="812" y="567" text-anchor="middle" class="tag" fill="#5EC0F2">Homebrew</text>
  <!-- principles -->
   <rect x="161.5" y="613.5" width="368" height="69" rx="34.5" fill="#0E1E31" stroke="#2A4157" stroke-width="3"/>
   <text x="345.5" y="659" text-anchor="middle" class="tag" fill="#C9D2DE">Private · no network</text>
