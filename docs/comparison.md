@@ -1,6 +1,6 @@
 # holzBar vs. Ice and Thaw
 
-What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds. — means not available or not documented. 🔜 means planned for the next release (0.0.7): it is **not available yet**.
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds. — means not available or not documented. 🔜 means planned for 0.0.8: it is **not available yet**.
 
 | | Ice 0.11.12 | Thaw 3.0 beta | holzBar |
 |---|:---:|:---:|:---:|

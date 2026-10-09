@@ -101,9 +101,11 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Control Centre's privacy indicator is hidden while items are hidden.** Its indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item, and comes back while holzBar hides no item. holzBar's dot covers the microphone and the camera, not screen recording; the small green dot beside the clock still shows the camera. See [Permissions](privacy-and-permissions.md#permissions).
 - Coming from 0.0.5 or earlier, macOS asks for Accessibility once more. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.
 
-## Planned for 0.0.7 "Automation"
+## Planned for 0.0.8 "Automation"
 
-**None of this is available yet.** It is the plan for the next release, which is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
+**0.0.7 is a bugfix release.** It brings back settings sync on a new design and fixes bugs, and adds no new features. The features below move to 0.0.8.
+
+**None of this is available yet.** It is the plan for 0.0.8, which is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
 
 **Automation**
 - **Rules** that apply a profile, reveal items or switch Zen mode when a Wi-Fi network, an app, the time of day, the power source, a display or a Focus matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Spike first: the Focus filter.*

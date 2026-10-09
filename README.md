@@ -119,9 +119,11 @@ slsa-verifier verify-artifact "holzBar-$V.zip" --provenance-path "holzBar-$V.int
 
 A zip changed after the build, or built anywhere else, fails. Older releases and more detail: [docs/signing.md](docs/signing.md). Verifying uses the network from your terminal; holzBar itself never does.
 
-## 🔜 Planned for 0.0.7 "Automation"
+## 🔜 Planned next
 
-**Not available yet.** Plans can change; *spike* = only built if a short test shows it works well.
+**0.0.7 is a bugfix release.** It is published as numbered betas first and brings back settings sync on a new design, which is paused in 0.0.7-beta2, together with fixes and no new features.
+
+**0.0.8 "Automation" brings the new features.** None of it is available yet. Plans can change; *spike* = only built if a short test shows it works well.
 
 | | |
 |---|---|
@@ -130,7 +132,7 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 | 🪄 **Convenience** | **First-launch assistant** · opt-in **usage suggestions** (counters stay on your Mac) · **smooth show and hide** |
 | 🪵 **macOS 27 and polish** | Native overflow button support · Reduce Transparency · SwiftUI reordering (*spike*) · Control Center control (*spike*) · keyboard and VoiceOver audit · Swift 6.4 clean-up |
 
-Details: [docs/features.md](docs/features.md#planned-for-007-automation).
+Details: [docs/features.md](docs/features.md#planned-for-008-automation).
 
 ## 📚 More
 
