@@ -84,7 +84,7 @@ struct SimProviderTests {
         #expect(p.drainLog().contains { $0.hasPrefix("stale B") })
     }
 
-    @Test("Without coalescing a stale delivery overwrites newer content")
+    @Test("Without coalescing a stale delivery overwrites newer content for a moment, and the provider converges to what is current")
     func staleDeliveryWithoutCoalescing() {
         var p = provider(SimFaultPolicy(medianDelayMilliseconds: 1_000, coalesceProbability: 0), macs: [.A, .B])
         _ = p.write(from: .A, path: path, data: bytes("one"))
@@ -92,8 +92,11 @@ struct SimProviderTests {
         _ = p.write(from: .A, path: path, data: bytes("two"))
         p.retime(version: 2, target: .B, to: 2_000)
         p.retime(version: 1, target: .B, to: 5_000)
-        _ = p.deliverDue(until: 10_000)
+        _ = p.deliverDue(until: 5_000)
         #expect(present(p, .B, path) == "one")
+        // The folder is eventually consistent: the newer version is delivered again (INV-F2 seed 7 of iCloud), so no Mac stays behind.
+        _ = p.deliverDue(until: 60_000)
+        #expect(present(p, .B, path) == "two")
     }
 
     @Test("Due deliveries of one path coalesce to the newest")

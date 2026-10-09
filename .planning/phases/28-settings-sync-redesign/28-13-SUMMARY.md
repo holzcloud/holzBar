@@ -108,3 +108,8 @@ Each is a class that the exploration still finds and that was not explained with
 ## Self-Check
 
 The four task commits exist (the history after f9f2e6fc), the files named above exist, and the simulator and engine suites pass at the CI budget except the timing tests that fail under load. The gate record and this summary agree on every number, and the mutation count is the one thing neither claims.
+
+
+## Update after the third pass of the gate review (2026-10-09)
+
+G1 is still **not passed**; `28-G1-GATE.md` is the authority and `28-13-ADDENDUM.md` the reasoning. Since the text above: the mutation gate is complete (**26 of 26 killed**, after a defect of the gate script was found and fixed), two more engine faults were fixed with regression tests (an earlier identity's entry competing with the Mac's newer change; an untrusted state trusted by being persisted while sync is off), three model gaps were fixed without relaxing an oracle, and the open items are listed there with what a pass would take (INV-S6 on two seeds is the one that may be a real engine fault).

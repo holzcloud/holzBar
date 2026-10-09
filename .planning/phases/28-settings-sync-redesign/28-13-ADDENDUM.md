@@ -29,3 +29,33 @@ See the gate record. In short: INV-S5 hostile seed 861; INV-C6 nextcloud 912 and
 ## Files touched outside holzBar/Core/Sync and Tests/HolzBarCoreTests/Sync
 
 None. The engine change is `holzBar/Core/Sync/SyncJoin.swift`; everything else is under `Tests/HolzBarCoreTests/Sync`.
+
+
+---
+
+# Third pass (2026-10-09, the "second and final pass" of the gate review)
+
+G1 is **still not passed**. `28-G1-GATE.md` has the exact list of what is open and what a pass would take; this section records what the pass did and the reasoning for every model change.
+
+## Engine faults found and fixed (two), each with a regression test that failed before
+
+1. **A late file brought back an earlier identity's entry beside the Mac's own newer one** (INV-C4 syncthing 88 and oneDrive 83). A copied account carries a state whose first launch re-identifies; the Mac remembers the old identity and the counter it had reached (`previousMacIDs`, `previousCeilings`). When the file of the old identity (still in the folder, written by the Mac it was copied from) arrived after the user's first change, the join put its entry next to the Mac's new one: two entries of one Mac in conflict, a sheet whose answers decided nothing (15 sheets in a row, a hint for ever). An entry of an earlier identity at or below that ceiling was made before the current identity existed, so it is older than any entry the current identity made: `SyncMerge.supersedeEarlierIdentities` drops it when the current identity holds an entry of the unit. The context keeps covering the dot, so the readers of this Mac's file see it superseded. Entries above the ceiling are another installation's and stay. Test: `MergeTests.earlierIdentityEntryDoesNotCompeteWithTheCurrentOne`.
+2. **An untrusted state became trusted by being persisted** (INV-A6 nextcloud 77). Reinstall (the defaults are gone), then Sigma comes back alone: the generation of the defaults is lower, the state is untrusted, and the launch with sync off persists it under the identity and generation it settled on. The next launch finds both equal and trusts the baselines, and turning sync on captures every setting that the reinstall took away as the user's deletion and publishes it. The launch now forgets the baselines of an untrusted state when sync is off, as a join with dot-less values would (`SyncLaunch`); the replica stays, so the join into the group still recognises its own entries and takes the group's value where the settings hold none. Test: `LaunchTests.untrustedStateWithSyncOffDoesNotBecomeTrustedAtTheNextLaunch`.
+
+## Model gaps fixed (three), none relaxes an oracle
+
+1. **INV-F7 smb 79, smb 5, hostile 71.** `SimWorld` copied `folderID` and `enabled` to a clone, a copied account and a duplicated installation, but not `pendingFolderID`, which is the folder of the waiting join and part of the sync state (it is derived from `pendingJoin.folderIdentity` at the end of every hook). The copy then ran its join against an empty, always mounted replica of its own and wrote into a folder that the provider had unmounted. A clone carries every preference, so the model now carries the waiting folder too. The restores of Sigma carry it with the backup.
+2. **INV-A1 seed 17 (pair).** The pair inserted automatic events (a new application placed by holzBar, a learned set, a flag) on every Mac, including a beta2 Mac that the trace later updates to the redesigned build. A beta2 Mac has no intent report: what it placed is in its settings like a user's move, and the redesigned build that replaces it takes everything it finds as a value from before sync, which is what the join with dot-less values is for. Decision D-04 (automatic stores create no dots) binds the builds that report intents. The pair now draws automatic events only for Macs on such a build. Justification: D-04 (CONTEXT, "Intent capture on macOS 27 only from user actions ... `placeNewApplications` ... are automatic and never create dots"), S-6 (builds before the redesign are another group). The oracle INV-A1 on redesigned Macs is unchanged and still checks every write.
+3. **INV-F2 seed 7 (pair).** An older version that arrived after a newer one replaced it for good in the simulated provider, and nothing delivered the newer one again: one Mac ended without a change that every other Mac got, for no decision of any engine. The provider is eventually consistent (A2, RC1 "an eventually consistent folder"): after a late older delivery the newer version is delivered again. The provider's unit test now expects the convergence.
+
+## Tried and removed
+
+A reset of the join bookkeeping of a replaced state in the simulator (for INV-J1 dropbox 74) did not change the result and was removed; no unexplained model change was kept.
+
+## The mutation gate found a defect of its own
+
+The copy of the sources lacked `.github/sync-synced-keys.txt`, so `UnitTableTests.syncedKeyFileMatchesTable` failed in every copy and every mutation looked killed. See `28-G1-GATE.md`; the script now copies the file and names every failing test of a kill. The unit test of "nothing is minted while a join waits" was added for `capture-during-join`, which only the simulation suites killed. `digest-unsorted` was killed by the unit tests all along (`SyncValueTests` fails under it when run alone): the mutated digest makes other suites livelock, the run never ended, and the earlier pass read that as "passed the unit suites" (the commit message of the iteration-order test repeats that misreading; the test is kept as the sharper one). The script now stops a run that does not end (`SYNC_MUTATION_TIMEOUT`) and names the tests that failed by then. Final count: 26 of 26 killed.
+
+## Tooling added
+
+`SYNC_PAIR="<automatic|delivery> <preset> <seed>"` reproduces and shrinks a metamorphic pair (`SYNC_PAIR_DUMP=1` dumps the baseline and the variants of a delivery pair); `SYNC_TRIAGE_HOOKS="A,B"` adds a trace of every hook of those Macs (reads, ingests, writes) to a triage; `SYNC_TRIAGE_SCENARIOS=a6|s6` runs the hand-kept scenarios of the open seeds. `Scripts/sync-mutation-gate.py --only a,b,c` takes several mutations in one copy.

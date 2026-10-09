@@ -363,6 +363,7 @@ struct SimProvider: Sendable {
             return nil
         }
         let path = item.path
+        var regressed = false
         switch item.mode {
         case .main, .restore:
             guard let version = versions[item.version] else { return nil }
@@ -373,6 +374,7 @@ struct SimProvider: Sendable {
                     log.append("stale \(item.target) \(path) v\(item.version) held v\(held)")
                     return nil
                 }
+                regressed = held > item.version
             }
             if case .foreign(.symbolicLink) = version.kind {
                 replica.entries[path] = .symbolicLink
@@ -403,6 +405,12 @@ struct SimProvider: Sendable {
         }
         replicas[item.target] = replica
         log.append("deliver \(item.target) \(path) v\(item.version) \(item.mode)")
+        if regressed, let latest = current[path], latest != item.version, versions[latest]?.localTo == nil {
+            // An older version that arrives after a newer one is seen for a moment, and the folder then converges to what is current: a
+            // provider is eventually consistent (A2, RC1), and one that left the older content for good would make a Mac miss a
+            // change that every other Mac got, for no decision of any engine (INV-F2 seed 7 of iCloud).
+            enqueue(version: latest, to: item.target, mode: .main, from: nil)
+        }
         return SimDeliveryNotice(mac: item.target, path: path)
     }
 

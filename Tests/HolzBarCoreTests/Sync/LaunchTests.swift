@@ -231,6 +231,24 @@ struct LaunchTests {
         #expect(applies(step).isEmpty)
     }
 
+    @Test("A state that is no evidence at a launch with sync off stays no evidence at the next launch: turning sync on does not publish what a reinstall took away as a deletion")
+    func untrustedStateWithSyncOffDoesNotBecomeTrustedAtTheNextLaunch() {
+        // The defaults were wiped (a reinstall) and Sigma came back alone: the generation of the defaults is lower. The launch with sync
+        // off persists the state under the generation it settled on, so the next launch finds the defaults and Sigma equal.
+        let state = stored(generation: 9)
+        let first = launch(input(state, values: [:], generation: nil, on: false))
+        #expect(first.state.baseline.isEmpty && first.state.applied.isEmpty && first.state.localOrigin.isEmpty)
+        #expect(first.state.replica == state.replica)
+        let second = launch(input(first.state, values: [:], generation: first.state.generation, on: false))
+        #expect(second.state.session.isTrusted, "the state is trusted at the second launch: its baselines are what was forgotten")
+        var on = second.state
+        on.session.snapshot = Fixtures.snapshot([:])
+        let started = SyncEngine.handle(.command(.turnOn(folder)), state: on, environment: environment())
+        // No deletion of the value the group holds: nothing the user did removed it.
+        #expect(started.state.replica.live(Fixtures.s1).allSatisfy { $0.payload != .deleted })
+        #expect(started.state.replica.live(Fixtures.s1).map(\.value) == [.string("base")])
+    }
+
     @Test("A state that is behind the defaults waits for its own file before it captures")
     func generationHigherWaitsForTheOwnFile() {
         let state = stored(generation: 3)

@@ -11,7 +11,7 @@
 #
 #   python3 Scripts/sync-mutation-gate.py             # baseline, then every mutation
 #   python3 Scripts/sync-mutation-gate.py --list      # the mutations, one per line, and nothing else
-#   python3 Scripts/sync-mutation-gate.py --only NAME # one mutation (after the baseline)
+#   python3 Scripts/sync-mutation-gate.py --only NAME # one mutation, or several separated by commas (after the baseline)
 #
 # The repository itself is never patched: the sources the Swift package needs are copied into a temporary directory, and
 # every mutation is applied there, tested and undone. Exit status: 0 when the baseline passes, every text is unique and every
@@ -23,6 +23,7 @@ import argparse
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -39,6 +40,9 @@ COPIED = [
     "Tests/HolzBarCoreTests",
     "Tests/HolzBarMacOS27CoreTests",
     "Tests/SharedCodeSigningTests",
+    # UnitTableTests compares the unit table with this checked-in list (found from the test file's path, so the copy needs it):
+    # without it that test fails in every copy and "kills" every mutation.
+    ".github/sync-synced-keys.txt",
 ]
 
 # (name, file under holzBar/Core/Sync, text found exactly once, its replacement, the guard it breaks)
@@ -166,19 +170,29 @@ def filter_regex(names):
 
 
 def swift_test(directory, names, label):
+    """Runs the suites. A run that does not end within SYNC_MUTATION_TIMEOUT seconds (default 1500) is stopped, and the tests that had
+    failed by then are the kill: a mutated engine can livelock a suite (the unsorted digest does), and a gate that waits for ever
+    decides nothing."""
     command = ["swift", "test", "--filter", filter_regex(names)] + os.environ.get("SYNC_SWIFT_TEST_FLAGS", "").split()
     started = time.time()
-    result = subprocess.run(command, cwd=directory, capture_output=True, text=True)
-    output = result.stdout + result.stderr
+    process = subprocess.Popen(command, cwd=directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, start_new_session=True)
+    try:
+        output, _ = process.communicate(timeout=float(os.environ.get("SYNC_MUTATION_TIMEOUT", "1500")))
+        code = process.returncode
+    except subprocess.TimeoutExpired:
+        os.killpg(process.pid, signal.SIGKILL)
+        output, _ = process.communicate()
+        output = (output or "") + "\n(the run did not end: stopped by the gate)"
+        code = -9
     failing = re.findall(r'✘ Test "([^"]+)"', output)
     ran = re.search(r"Test run with (\d+) tests", output)
-    return result.returncode, failing, bool(ran), output, time.time() - started
+    return code, failing, bool(ran) or code == -9, output, time.time() - started
 
 
 def main():
     parser = argparse.ArgumentParser(description="Mutation gate of the settings sync engine")
     parser.add_argument("--list", action="store_true", help="list the mutations and exit")
-    parser.add_argument("--only", metavar="NAME", help="run one mutation")
+    parser.add_argument("--only", metavar="NAME[,NAME...]", help="run the named mutation(s), one after the other in one copy of the sources")
     parser.add_argument("--no-baseline", action="store_true", help="skip the baseline (only to re-run a mutation whose table entry was repaired after the baseline of the same sources passed in another run)")
     parser.add_argument("--shard", metavar="K/N", help="run the mutations K, K+N, K+2N, ... (several shards run side by side)")
     arguments = parser.parse_args()
@@ -186,7 +200,8 @@ def main():
         for name, file, _, _, guard in MUTATIONS:
             print(f"{name}\t{file}\t{guard}")
         return 0
-    chosen = [m for m in MUTATIONS if arguments.only in (None, m[0])]
+    wanted = arguments.only.split(",") if arguments.only else None
+    chosen = [m for m in MUTATIONS if wanted is None or m[0] in wanted]
     if arguments.shard:
         index, count = (int(part) for part in arguments.shard.split("/"))
         chosen = chosen[index::count]
@@ -251,7 +266,8 @@ def main():
                 staled.append(name)
                 print(f"  stale mutation {name}: the mutated source does not build\n{output[-1500:]}")
             elif code != 0 and failing:
-                print(f"  killed   {name} by {failing[0]} ({stage}, {seconds:.0f} s)")
+                others = f" (and {len(failing) - 1} more: {'; '.join(failing[1:4])})" if len(failing) > 1 else ""
+                print(f"  killed   {name} by {failing[0]}{others} ({stage}, {seconds:.0f} s)")
             else:
                 survivors.append(name)
                 print(f"  SURVIVED {name}: {guard} ({seconds:.0f} s)")

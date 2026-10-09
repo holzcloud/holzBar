@@ -65,6 +65,51 @@ struct SimTriageTests {
         for line in lines { print(line) }
     }
 
+    /// Reproduces and shrinks a pair of the metamorphic tests: `SYNC_PAIR="<automatic|delivery> <preset> <seed> [invariant]"` runs the
+    /// pair exactly as `SimulationTests.metamorphicPairs` / `deliveryPairs` do (50 resp. 40 quiet steps) and prints what differs and the
+    /// shrunk trace.
+    @Test("Reproduces the pair named by SYNC_PAIR")
+    func pair() {
+        guard let spec = ProcessInfo.processInfo.environment["SYNC_PAIR"], !spec.isEmpty else { return }
+        let parts = spec.split(separator: " ").map(String.init)
+        guard parts.count >= 3, let preset = SimProviderPreset(rawValue: parts[1]), let seed = UInt64(parts[2]) else {
+            Issue.record(Comment(rawValue: "SYNC_PAIR is `<automatic|delivery> <preset> <seed>`, got \(spec)"))
+            return
+        }
+        let delivery = parts[0] == "delivery"
+        let macs = delivery ? SimExploration.mix(seed: seed, allowing: [.redesign, .redesignSkew]) : SimExploration.mix(seed: seed)
+        let events = SimExploration.events(seed: seed, preset: nil, macs: macs, steps: delivery ? 40 : 50, quiet: true)
+        let setup = SimMetaSetup(seed: seed, preset: preset, macs: macs, brainFactory: SimExploration.brain)
+        func run(_ candidate: [SimEvent]) -> [SimViolation] {
+            delivery ? SimMetamorphic.deliveryIndependence(setup, candidate) : SimMetamorphic.automaticEventsInvisible(setup, candidate, insertionSeed: seed)
+        }
+        let found = run(events)
+        print("PAIR seed \(seed) \(preset.rawValue): \(macs.map { "\($0.name)=\($0.version)" }.joined(separator: " ")); \(events.count) events")
+        for violation in found { print("PAIR \(violation.id.rawValue): \(violation.description)") }
+        guard let first = found.first else {
+            print("PAIR no violation")
+            return
+        }
+        guard ProcessInfo.processInfo.environment["SYNC_TRIAGE_NOSHRINK"] == nil else { return }
+        let shrunk = SimShrinker(maximumRuns: 400).shrink(events) { run($0).contains { $0.id == first.id } }
+        let violation = run(shrunk).first { $0.id == first.id } ?? first
+        print("PAIR shrunk to \(shrunk.count) events: \(violation.description)")
+        print(SimScenarioPrinter.a1Style(SimFailure(name: "pair \(parts[0]) seed \(seed)", seed: seed, preset: preset, macs: macs, events: shrunk, violation: violation)))
+        if delivery, ProcessInfo.processInfo.environment["SYNC_PAIR_DUMP"] != nil {
+            // The baseline and the variants of INV-F2, each settled the way the pair settles them, with what each Mac wrote and read.
+            var permuted = SimFaultPolicy(medianDelayMilliseconds: 4_000, coalesceProbability: 0.5)
+            permuted.signalsFolderChanges = true
+            for (label, policy, variantSeed) in [("ideal", SimFaultPolicy.ideal, seed), ("permuted 11", permuted, 11), ("permuted 12", permuted, 12), ("permuted 13", permuted, 13)] {
+                let run = SimMetamorphic.observe(setup, shrunk, policy: policy, seed: UInt64(variantSeed))
+                var config = SimDrainConfig()
+                config.answers = .use
+                config.fresh = nil
+                SimDrain.run(run.world, config: config)
+                print("PAIRDUMP \(label)\n\(Self.dump(run.world))")
+            }
+        }
+    }
+
     /// The writes of a world with what each file says, for reading a minimized trace.
     static func dump(_ world: SimWorld) -> String {
         var lines: [String] = []
@@ -81,6 +126,25 @@ struct SimTriageTests {
         for (name, _) in world.macs.sorted(by: { "\($0.key)" < "\($1.key)" }) {
             let defaults = world.defaults(of: name)
             lines.append("final \(name) defaults: \(defaults.keys.sorted().map { "\($0)=\(defaults[$0]?.canonical ?? "nil")" }.joined(separator: ", "))")
+        }
+        // SYNC_TRIAGE_HOOKS="A,B": every hook of those Macs, with the reads, the ingests and the writes of each.
+        if let macs = ProcessInfo.processInfo.environment["SYNC_TRIAGE_HOOKS"], !macs.isEmpty {
+            let wanted = Set(macs.split(separator: ",").map(String.init))
+            for step in world.allSteps {
+                lines.append("step \(step.index) t=\(step.time) \(step.event)")
+                for hook in step.hooks where wanted.contains("\(hook.mac)") {
+                    var parts = ["    \(hook.mac) \(hook.name.rawValue)"]
+                    for read in hook.reads {
+                        let name = read.entry.path.split(separator: "/").last.map(String.init) ?? read.entry.path
+                        parts.append("read \(name.prefix(8)) -> \(String(describing: read.entry.result).prefix(12)) v\(read.version) replicaV\(read.replicaVersion)")
+                    }
+                    if !hook.ingests.isEmpty { parts.append("ingest \(hook.ingests) dominated \(hook.dominatedIngests)") }
+                    for write in hook.writes {
+                        parts.append("write \(write.path.split(separator: "/").last.map { String($0.prefix(8)) } ?? "") v\(write.version.map(String.init) ?? "failed") prev v\(write.previousVersion) seen=\(write.previousSeenInSession) dominated=\(write.previousDominated)")
+                    }
+                    lines.append(parts.joined(separator: "; "))
+                }
+            }
         }
         for step in world.allSteps where step.hooks.contains(where: { !$0.prompts.isEmpty || $0.answered != nil }) {
             lines.append("hooks of step \(step.index) (\(step.event)) t=\(step.time)")
@@ -107,9 +171,44 @@ struct SimTriageScenarioTests {
         print("TRIAGE writes\n\(SimTriageTests.dump(world))")
     }
 
+    @Test("A6 seed 77 reduced")
+    func a6() {
+        guard ProcessInfo.processInfo.environment["SYNC_TRIAGE_SCENARIOS"] == "a6" else { return }
+        Self.show(SimScenario("A6", seed: 77, preset: .nextcloud)
+            .macs([
+                SimMacSpec(.A, .redesign, running: true),
+                SimMacSpec(.B, .beta2, generation: 27, running: true, clockOffsetMilliseconds: 7200000),
+                SimMacSpec(.C, .redesign, generation: 27, running: true),
+            ])
+            .setHotkey(.C, action: "show", combo: 0)
+            .restartApp(.C)
+            .reinstall(.C)
+            .restoreSigma(.C)
+            .launch(.C)
+            .restartApp(.C)
+            .turnOn(.C, folder: "F1"))
+    }
+
+    @Test("S6 seed 22 reduced")
+    func s6() {
+        guard ProcessInfo.processInfo.environment["SYNC_TRIAGE_SCENARIOS"] == "s6" else { return }
+        Self.show(SimScenario("S6", seed: 22, preset: .syncthing)
+            .macs([
+                SimMacSpec(.A, .redesign, generation: 27, running: true, clockOffsetMilliseconds: 3600000),
+                SimMacSpec(.B, .beta1, running: true, clockOffsetMilliseconds: -3600000),
+                SimMacSpec(.C, .redesignSkew, running: true),
+            ])
+            .edit(.A, "ItemSpacingOffset")
+            .crash(.A)
+            .launch(.A)
+            .moveApp27(.A, bundle: "com.app.b", section: 2)
+            .advance(seconds: 6)
+            .restoreHome(.A, keepCaches: false))
+    }
+
     @Test("S5 seed 230 reduced")
     func s5() {
-        guard ProcessInfo.processInfo.environment["SYNC_TRIAGE_SCENARIOS"] != nil else { return }
+        guard ProcessInfo.processInfo.environment["SYNC_TRIAGE_SCENARIOS"] == "old" else { return }
         Self.show(SimScenario("S5", seed: 230, preset: .iCloud)
             .macs([
                 SimMacSpec(.A, .redesign, generation: 27, running: true, clockOffsetMilliseconds: 3600000),
@@ -126,7 +225,7 @@ struct SimTriageScenarioTests {
 
     @Test("S5 own file gone, the group holds the value")
     func s5OwnFileGone() {
-        guard ProcessInfo.processInfo.environment["SYNC_TRIAGE_SCENARIOS"] != nil else { return }
+        guard ProcessInfo.processInfo.environment["SYNC_TRIAGE_SCENARIOS"] == "old" else { return }
         Self.show(SimScenario("S5b", seed: 230, preset: nil)
             .macs([
                 SimMacSpec(.A, .redesign, generation: 27, running: true),

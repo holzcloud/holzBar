@@ -59,6 +59,35 @@ struct MergeTests {
         #expect(merge([file(covering)], into: state).state.replica.live(Fixtures.s1).isEmpty)
     }
 
+    @Test("A late file that still holds the entry of this Mac's earlier identity does not bring it back next to the Mac's newer change: no conflict with itself")
+    func earlierIdentityEntryDoesNotCompeteWithTheCurrentOne() {
+        // A copied account carries the value of B's entry (7202) and, at its first launch, takes a new identity (macA) and remembers
+        // the old one (macB) with the counter it had reached. The user changes the unit under the new identity before B's file, which
+        // still holds the old entry, arrives (found by INV-C4 seed 88: the sheet came back after every answer).
+        var state = Fixtures.state(Fixtures.macA)
+        state.previousMacIDs = [Fixtures.macB]
+        state.previousCeilings = [Fixtures.macB: 7_202]
+        let mine = Fixtures.entry(Fixtures.macA, 7_204, .string("u2"))
+        state.replica = Fixtures.replica([Fixtures.s1: [mine]])
+        state.applied[Fixtures.s1] = [mine.dot]
+        state.baseline[Fixtures.s1] = SyncValue.string("u2").digest
+        let old = Fixtures.entry(Fixtures.macB, 7_202, .string("u1"))
+        let late = contents(Fixtures.macB, Fixtures.replica([Fixtures.s1: [old]]))
+        let merged = merge([file(late)], into: state).state
+        #expect(merged.replica.live(Fixtures.s1) == [mine])
+        // The entry stays covered, so the readers of this Mac's file see it superseded as well.
+        #expect(merged.replica.context.covers(old.dot))
+        let plan = SyncPlan.plan(state: merged, snapshot: Fixtures.snapshot([Fixtures.s1: .string("u2")]), environment: Fixtures.environment())
+        #expect(plan.outcomes[Fixtures.s1] != .conflict(mine: true))
+        // A later read of the same file brings nothing back.
+        let again = merge([file(late)], into: merged).state
+        #expect(again.replica.live(Fixtures.s1) == [mine])
+        // An entry of that identity above the counter it had reached is another installation's, which went on under it: it stays.
+        let beyond = Fixtures.entry(Fixtures.macB, 7_300, .string("other"))
+        let other = contents(Fixtures.macB, Fixtures.replica([Fixtures.s1: [beyond]]))
+        #expect(merge([file(other)], into: merged).state.replica.live(Fixtures.s1).contains(beyond))
+    }
+
     @Test("An empty read and an unreadable folder change nothing")
     func emptyAndUnavailableReadsChangeNothing() {
         var state = Fixtures.state()
