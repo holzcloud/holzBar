@@ -253,6 +253,34 @@
         }
       }
     },
+    "%@, %lld bytes, checksum starts with %@. It runs as you, with holzBar's permissions. Allow it only if you wrote it or read it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %lld Byte, Prüfsumme beginnt mit %@. Es läuft als du, mit den Berechtigungen von holzBar. Erlaube es nur, wenn du es geschrieben oder gelesen hast."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %lld octets, la somme de contrôle commence par %@. Il s’exécute comme vous, avec les autorisations de holzBar. Ne l’autorisez que si vous l’avez écrit ou lu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %lld byte, il checksum inizia con %@. Viene eseguito come te, con le autorizzazioni di holzBar. Consentilo solo se lo hai scritto o letto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, %lld bytes, la summa da controlla cumenza cun %@. El vegn exequì sco ti, cun las permissiuns da holzBar. Lubescha el mo sche ti has scrit u legì el."
+          }
+        }
+      }
+    },
     "%lld items" : {
       "localizations" : {
         "de" : {
@@ -365,6 +393,62 @@
         }
       }
     },
+    "A helper that works in the background" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Helfer, der im Hintergrund arbeitet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un assistant qui travaille en arrière-plan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un assistente che lavora in background"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In g’agid che lavura en il fund"
+          }
+        }
+      }
+    },
+    "A link, not a file" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Link, keine Datei"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un lien, pas un fichier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un collegamento, non un file"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In link, nagina datoteca"
+          }
+        }
+      }
+    },
     "A menu bar shape draws the wallpaper beside the shape. holzBar reads most wallpapers from their file; a moving wallpaper can be read only with Screen Recording." : {
       "localizations" : {
         "de" : {
@@ -417,6 +501,90 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In profil cun il medem num vegn remplazzà. Applitgescha el pli tard da qua u cun holzbar://profile/<name>."
+          }
+        }
+      }
+    },
+    "A script succeeds" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Skript ist erfolgreich"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un script réussit"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uno script riesce"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In scrip reussescha"
+          }
+        }
+      }
+    },
+    "A system extra you rarely need on the bar" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein System-Extra, das du selten in der Leiste brauchst"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un extra du système rarement utile dans la barre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un extra di sistema che serve raramente nella barra"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In extra dal sistem che ti dovras darar en la trav"
+          }
+        }
+      }
+    },
+    "A utility that works in the background" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Hilfsprogramm, das im Hintergrund arbeitet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un utilitaire qui travaille en arrière-plan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un’utility che lavora in background"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In utensil che lavura en il fund"
           }
         }
       }
@@ -813,6 +981,34 @@
         }
       }
     },
+    "Allow" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlauben"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriser"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lubir"
+          }
+        }
+      }
+    },
     "Allow Screen Recording…" : {
       "localizations" : {
         "de" : {
@@ -865,6 +1061,90 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Permetta a holzBar en ils parameters dal sistem da s'aviar a l'annunzia."
+          }
+        }
+      }
+    },
+    "Allow this script?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Skript erlauben?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriser ce script ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consentire questo script?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lubir quest scrip?"
+          }
+        }
+      }
+    },
+    "Allowed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaubt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autorisé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consentito"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lubì"
+          }
+        }
+      }
+    },
+    "Allow…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlauben …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriser…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lubir …"
           }
         }
       }
@@ -1401,6 +1681,34 @@
         }
       }
     },
+    "Ask for Touch ID or your password before showing hidden items" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor dem Anzeigen ausgeblendeter Objekte nach Touch ID oder Passwort fragen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demander Touch ID ou votre mot de passe avant d’afficher les éléments masqués"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiedi Touch ID o la password prima di mostrare gli elementi nascosti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dumandar Touch ID u il pled-clav avant che mussar ils elements zuppads"
+          }
+        }
+      }
+    },
     "Automatic moves are paused" : {
       "localizations" : {
         "de" : {
@@ -1677,6 +1985,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avant ina restauraziun"
+          }
+        }
+      }
+    },
+    "Before a rule" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor einer Regel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant une règle"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima di una regola"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant ina regla"
+          }
+        }
+      }
+    },
+    "Before tidying up" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor dem Aufräumen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant le rangement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima di riordinare"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant che rumar si"
           }
         }
       }
@@ -2153,6 +2517,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Midar la secziun"
+          }
+        }
+      }
+    },
+    "Check Now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetzt prüfen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifier maintenant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controlla ora"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controllar ussa"
           }
         }
       }
@@ -3333,6 +3725,34 @@
         }
       }
     },
+    "Downloaded: remove the quarantine first" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heruntergeladen: entferne zuerst die Quarantäne"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Téléchargé : retirez d’abord la quarantaine"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scaricato: rimuovi prima la quarantena"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telechargià: allontanescha l’emprim la quarantena"
+          }
+        }
+      }
+    },
     "Drag to arrange your menu bar items into different sections." : {
       "localizations" : {
         "de" : {
@@ -4229,6 +4649,34 @@
         }
       }
     },
+    "Hide Selected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgewählte ausblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer la sélection"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi selezionati"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuppar ils tschernids"
+          }
+        }
+      }
+    },
     "Hide app menus when showing menu bar items" : {
       "localizations" : {
         "de" : {
@@ -4761,6 +5209,34 @@
         }
       }
     },
+    "Item" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objekt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Élément"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemento"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Element"
+          }
+        }
+      }
+    },
     "Items" : {
       "localizations" : {
         "de" : {
@@ -4929,6 +5405,34 @@
         }
       }
     },
+    "Keep the clock, battery, Wi-Fi, Control Center and sound visible" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uhr, Batterie, WLAN, Kontrollzentrum und Ton sichtbar lassen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garder l’horloge, la batterie, le Wi-Fi, le Centre de contrôle et le son visibles"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantieni visibili orologio, batteria, Wi-Fi, Centro di Controllo e audio"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantegnair visibels l’ura, l’accu, WLAN, il center da controlla e il tun"
+          }
+        }
+      }
+    },
     "Launch at login" : {
       "localizations" : {
         "de" : {
@@ -5065,6 +5569,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fin sanestra"
+          }
+        }
+      }
+    },
+    "Let holzBar propose which items to hide, from what it knows of the apps. You decide, and you can undo it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lass holzBar vorschlagen, welche Objekte ausgeblendet werden sollen, anhand dessen, was es über die Apps weiss. Du entscheidest, und du kannst es rückgängig machen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laissez holzBar proposer quels éléments masquer, d’après ce qu’il sait des apps. Vous décidez, et vous pouvez annuler."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascia che holzBar proponga quali elementi nascondere, in base a ciò che sa delle app. Decidi tu e puoi annullare."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascha che holzBar propona tge elements ch’èn d’zuppar, sin basa da quai ch’el sa da las apps. Ti decidas e ti pos revocar."
           }
         }
       }
@@ -6021,6 +6553,34 @@
         }
       }
     },
+    "Needs your approval" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Braucht deine Erlaubnis"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nécessite votre autorisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiede la tua approvazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dovra tia lubientscha"
+          }
+        }
+      }
+    },
     "Network name" : {
       "localizations" : {
         "de" : {
@@ -6273,6 +6833,62 @@
         }
       }
     },
+    "Not a plain file name" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein einfacher Dateiname"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas un simple nom de fichier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è un semplice nome di file"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagin num da datoteca simpel"
+          }
+        }
+      }
+    },
+    "Not a regular file" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine normale Datei"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas un fichier ordinaire"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è un file normale"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagina datoteca usitada"
+          }
+        }
+      }
+    },
     "Not enough room to show “%@”" : {
       "localizations" : {
         "de" : {
@@ -6301,6 +6917,34 @@
         }
       }
     },
+    "Not executable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht ausführbar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non exécutable"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non eseguibile"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg exequibel"
+          }
+        }
+      }
+    },
     "Not needed on macOS 27, which folds items that do not fit behind its own overflow button." : {
       "localizations" : {
         "de" : {
@@ -6325,6 +6969,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Betg necessari sut macOS 27 che metta ils elements che n'han betg plazza davos in agen buttun da surpli."
+          }
+        }
+      }
+    },
+    "Not owned by you" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gehört nicht dir"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ne vous appartient pas"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è tuo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na tutga betg tai"
           }
         }
       }
@@ -6381,6 +7053,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nagut na vegn tramess. Legia il rapport e copiescha lu silsuenter en tia segnalaziun. El cuntegna mo versiuns e dumbers: nagins nums d’elements, d’apps, da profils u da raits e nagins paths."
+          }
+        }
+      }
+    },
+    "Nothing to propose: your menu bar is tidy already." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nichts vorzuschlagen: Deine Menüleiste ist bereits aufgeräumt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rien à proposer : votre barre des menus est déjà bien rangée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niente da proporre: la tua barra dei menu è già in ordine."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagut da propuoner: tia trav da menu è gia en uorden."
           }
         }
       }
@@ -6721,6 +7421,62 @@
         }
       }
     },
+    "Open Scripts Folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripte-Ordner öffnen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir le dossier des scripts"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri la cartella degli script"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avrir l’ordinatur dals scrips"
+          }
+        }
+      }
+    },
+    "Open System Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systemeinstellungen öffnen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir Réglages Système"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri Impostazioni di Sistema"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avrir las preferenzas dal sistem"
+          }
+        }
+      }
+    },
     "Open an Item by Letter" : {
       "localizations" : {
         "de" : {
@@ -6941,6 +7697,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ulteriurs"
+          }
+        }
+      }
+    },
+    "Others can write to it" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Andere können darin schreiben"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D’autres peuvent y écrire"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altri possono scriverci"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auters pon scriver en ella"
+          }
+        }
+      }
+    },
+    "Otherwise hide it in" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sonst ausblenden in"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sinon le masquer dans"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altrimenti nascondilo in"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uschiglio zuppar en"
           }
         }
       }
@@ -7225,6 +8037,62 @@
         }
       }
     },
+    "Profiles, restored layouts and rules leave these items where they are. You can still move them yourself." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile, wiederhergestellte Layouts und Regeln lassen diese Objekte, wo sie sind. Du kannst sie weiterhin selbst verschieben."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les profils, les dispositions restaurées et les règles laissent ces éléments où ils sont. Vous pouvez toujours les déplacer vous-même."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profili, layout ripristinati e regole lasciano questi elementi dove sono. Puoi comunque spostarli tu stesso."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profils, layouts restaurads e reglas laschan quests elements là ch’els èn. Ti pos anc adina spustar els sez."
+          }
+        }
+      }
+    },
+    "Put a script in the Scripts folder and allow it below first." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lege zuerst ein Skript in den Skripte-Ordner und erlaube es unten."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Placez d’abord un script dans le dossier des scripts et autorisez-le plus bas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metti prima uno script nella cartella degli script e consentilo qui sotto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metta l’emprim in scrip en l’ordinatur dals scrips e lubescha el sutvart."
+          }
+        }
+      }
+    },
     "Quit" : {
       "localizations" : {
         "de" : {
@@ -7501,6 +8369,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Allontanar"
+          }
+        }
+      }
+    },
+    "Remove Approval" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaubnis entziehen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer l’autorisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi l’approvazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allontanar la lubientscha"
           }
         }
       }
@@ -8065,6 +8961,90 @@
         }
       }
     },
+    "Revoke %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ widerrufen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Révoquer %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revoca %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocar %@"
+          }
+        }
+      }
+    },
+    "Revoke this permission?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Berechtigung widerrufen?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Révoquer cette autorisation ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocare questa autorizzazione?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocar questa permissiun?"
+          }
+        }
+      }
+    },
+    "Revoke…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widerrufen …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Révoquer…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revoca…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocar …"
+          }
+        }
+      }
+    },
     "Right-click in an empty area of the menu bar to display a minimal version of holzBar's menu. Disable this setting if you encounter conflicts with other apps." : {
       "localizations" : {
         "de" : {
@@ -8201,6 +9181,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Las reglas vegnan memorisadas sin quest Mac."
+          }
+        }
+      }
+    },
+    "Run a script" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Skript ausführen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exécuter un script"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegui uno script"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exequir in scrip"
           }
         }
       }
@@ -8453,6 +9461,90 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bildschirmaufnahme"
+          }
+        }
+      }
+    },
+    "Script" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skript"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Script"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Script"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrip"
+          }
+        }
+      }
+    },
+    "Scripts" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripte"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scripts"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Script"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrips"
+          }
+        }
+      }
+    },
+    "Scripts run as you, with holzBar's permissions, and only after you allowed their exact content. Put them in the Scripts folder; nothing else can run." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripte laufen als du, mit den Berechtigungen von holzBar, und erst nachdem du ihren genauen Inhalt erlaubt hast. Lege sie in den Skripte-Ordner; nichts anderes kann laufen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les scripts s’exécutent comme vous, avec les autorisations de holzBar, et seulement après que vous avez autorisé leur contenu exact. Placez-les dans le dossier des scripts ; rien d’autre ne peut s’exécuter."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli script vengono eseguiti come te, con le autorizzazioni di holzBar, e solo dopo che hai consentito il loro contenuto esatto. Mettili nella cartella degli script; nient’altro può essere eseguito."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils scrips vegnan exequids sco ti, cun las permissiuns da holzBar, e mo suenter che ti has lubì lur cuntegn exact. Metta els en l’ordinatur dals scrips; nagut auter na po vegnir exequì."
           }
         }
       }
@@ -9045,6 +10137,34 @@
         }
       }
     },
+    "Show an item only while this is true" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Objekt nur anzeigen, solange das zutrifft"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher un élément seulement tant que c’est vrai"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra un elemento solo finché questo è vero"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar in element mo enfin che quai è vair"
+          }
+        }
+      }
+    },
     "Show hidden menu bar items in a separate bar below the menu bar." : {
       "localizations" : {
         "de" : {
@@ -9321,6 +10441,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mussar per in mument la secziun zuppada"
+          }
+        }
+      }
+    },
+    "Show your hidden menu bar items" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine ausgeblendeten Menüleistenobjekte anzeigen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher vos éléments masqués de la barre des menus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra gli elementi nascosti della barra dei menu"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar tes elements zuppads da la trav da menu"
+          }
+        }
+      }
+    },
+    "Show “%@” only when %@." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ nur anzeigen, wenn %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher « %@ » seulement quand %@."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra “%@” solo quando %@."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar «%@» mo cura che %@."
           }
         }
       }
@@ -10277,6 +11453,34 @@
         }
       }
     },
+    "This keeps someone at your unlocked Mac from seeing your hidden items. Turning it off asks too. It is not protection against someone who knows your password." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das hindert jemanden an deinem entsperrten Mac daran, deine ausgeblendeten Objekte zu sehen. Auch das Ausschalten fragt nach. Es schützt nicht vor jemandem, der dein Passwort kennt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cela empêche une personne devant votre Mac déverrouillé de voir vos éléments masqués. La désactivation demande aussi une authentification. Cela ne protège pas contre quelqu’un qui connaît votre mot de passe."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impedisce a chi si trova davanti al tuo Mac sbloccato di vedere gli elementi nascosti. Anche disattivarlo richiede l’autenticazione. Non protegge da chi conosce la tua password."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quai impedescha ad insatgi vid tes Mac debloccà da vesair tes elements zuppads. Er il deactivar dumonda. Quai na protegia betg cunter insatgi che enconuscha tes pled-clav."
+          }
+        }
+      }
+    },
     "This section is turned off in holzBar's settings." : {
       "localizations" : {
         "de" : {
@@ -10301,6 +11505,90 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Questa secziun è deactivada en ils parameters da holzBar."
+          }
+        }
+      }
+    },
+    "Tidy Up" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufräumen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranger"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riordina"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rumar si"
+          }
+        }
+      }
+    },
+    "Tidy Up…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aufräumen …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranger…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riordina…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rumar si …"
+          }
+        }
+      }
+    },
+    "Tidy up your menu bar?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menüleiste aufräumen?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranger votre barre des menus ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riordinare la barra dei menu?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rumar si ta trav da menu?"
           }
         }
       }
@@ -10665,6 +11953,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mussar u zuppentar la secziun zuppada"
+          }
+        }
+      }
+    },
+    "Too large" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu gross"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trop volumineux"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Troppo grande"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memia grond"
           }
         }
       }
@@ -12103,6 +13419,34 @@
         }
       }
     },
+    "holzBar can propose which items to hide, from what it knows of your apps. Nothing leaves your Mac, you decide, and you can undo it. You can do this any time in Menu Bar Layout." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar kann vorschlagen, welche Objekte ausgeblendet werden sollen, anhand dessen, was es über deine Apps weiss. Nichts verlässt deinen Mac, du entscheidest, und du kannst es rückgängig machen. Das geht jederzeit unter «Menüleistenlayout»."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar peut proposer quels éléments masquer, d’après ce qu’il sait de vos apps. Rien ne quitte votre Mac, vous décidez, et vous pouvez annuler. Vous pouvez le faire à tout moment dans « Disposition de la barre des menus »."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar può proporre quali elementi nascondere, in base a ciò che sa delle tue app. Nulla lascia il tuo Mac, decidi tu e puoi annullare. Puoi farlo in qualsiasi momento in «Layout della barra dei menu»."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar po propuoner tge elements ch’èn d’zuppar, sin basa da quai ch’el sa da tias apps. Nagut na bandunescha tes Mac, ti decidas e ti pos revocar. Ti pos far quai a mintga mument sut «Disposiziun da la trav da menu»."
+          }
+        }
+      }
+    },
     "holzBar cannot arrange menu bar items in automatically hidden menu bars." : {
       "localizations" : {
         "de" : {
@@ -12299,6 +13643,34 @@
         }
       }
     },
+    "holzBar looked at the apps in your menu bar on this Mac. Nothing leaves your Mac and nothing is recorded. It proposes to hide what works in the background; the clock, the battery and apps with messages stay. Uncheck what should stay visible." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar hat sich die Apps in deiner Menüleiste auf diesem Mac angesehen. Nichts verlässt deinen Mac, und nichts wird aufgezeichnet. Es schlägt vor, auszublenden, was im Hintergrund arbeitet; die Uhr, die Batterie und Apps mit Nachrichten bleiben. Entferne das Häkchen bei dem, was sichtbar bleiben soll."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar a regardé les apps de votre barre des menus sur ce Mac. Rien ne quitte votre Mac et rien n’est enregistré. Il propose de masquer ce qui travaille en arrière-plan ; l’horloge, la batterie et les apps de messages restent. Décochez ce qui doit rester visible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ha esaminato le app nella barra dei menu di questo Mac. Nulla lascia il tuo Mac e nulla viene registrato. Propone di nascondere ciò che lavora in background; l’orologio, la batteria e le app con messaggi restano. Deseleziona ciò che deve rimanere visibile."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ha tschertgà las apps da tia trav da menu sin quest Mac. Nagut na bandunescha tes Mac e nagut na vegn registrà. El propona da zuppar quai che lavura en il fund; l’ura, l’accu e las apps cun messadis restan. Deactivescha quai che duai restar visibel."
+          }
+        }
+      }
+    },
     "holzBar needs this to:" : {
       "localizations" : {
         "de" : {
@@ -12379,6 +13751,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar na sa collia mai cun la rait."
+          }
+        }
+      }
+    },
+    "holzBar stops using it at once and cannot do what needs it until you allow it again. You can also remove it yourself in System Settings, in Privacy & Security." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar nutzt sie sofort nicht mehr und kann nichts tun, was sie braucht, bis du sie wieder erlaubst. Du kannst sie auch selbst in den Systemeinstellungen unter «Datenschutz & Sicherheit» entfernen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar cesse de l’utiliser immédiatement et ne peut plus faire ce qui en dépend tant que vous ne l’autorisez pas de nouveau. Vous pouvez aussi la retirer vous-même dans Réglages Système, sous Confidentialité et sécurité."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar smette subito di usarla e non può fare ciò che la richiede finché non la autorizzi di nuovo. Puoi anche rimuoverla tu stesso in Impostazioni di Sistema, in Privacy e sicurezza."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar na til duvra subit pli e na po far nagut che dovra ella enfin che ti la lubeschas puspè. Ti pos er allontanar ella sez en las preferenzas dal sistem, sut Protecziun da datas e segirezza."
           }
         }
       }
@@ -12887,6 +14287,34 @@
         }
       }
     },
+    "run the script “%@”" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "das Skript „%@“ ausführen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "exécuter le script « %@ »"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "esegui lo script “%@”"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "exequir il scrip «%@»"
+          }
+        }
+      }
+    },
     "show the always-hidden section" : {
       "localizations" : {
         "de" : {
@@ -12939,6 +14367,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "mussar la secziun zuppada"
+          }
+        }
+      }
+    },
+    "show “%@” and hide it otherwise" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ anzeigen und sonst ausblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "afficher « %@ » et le masquer sinon"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mostra “%@” e altrimenti nascondilo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mussar «%@» e uschiglio zuppar el"
           }
         }
       }
@@ -13191,6 +14647,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "il visur «%@» è collià"
+          }
+        }
+      }
+    },
+    "the script “%@” succeeds" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "das Skript „%@“ erfolgreich ist"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "le script « %@ » réussit"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "lo script “%@” riesce"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il scrip «%@» reussescha"
           }
         }
       }

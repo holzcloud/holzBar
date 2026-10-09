@@ -152,8 +152,18 @@ final class MenuBarSection {
     }
 
     /// Shows the section.
-    func show() {
+    ///
+    /// - Parameter bypassingLock: Whether the user's lock for the hidden items is not asked:
+    ///   for the safety rules and the items the user chose, which show by themselves.
+    func show(bypassingLock: Bool = false) {
         guard let menuBarManager else {
+            return
+        }
+
+        if !bypassingLock, let lock = appState?.hiddenItemsLock, lock.requiresAuthentication {
+            lock.authenticate { [weak self] in
+                self?.show(bypassingLock: true)
+            }
             return
         }
 

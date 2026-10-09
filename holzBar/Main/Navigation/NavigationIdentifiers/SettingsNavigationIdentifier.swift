@@ -13,6 +13,12 @@ nonisolated enum SettingsNavigationIdentifier: String, NavigationIdentifier {
     case advanced = "Advanced"
     case about = "About"
 
+    /// The panes about the menu bar, the first group of the sidebar.
+    static let menuBarGroup: [SettingsNavigationIdentifier] = [.menuBarLayout, .menuBarAppearance, .automation]
+
+    /// The panes about holzBar itself, the second group of the sidebar.
+    static let appGroup: [SettingsNavigationIdentifier] = [.general, .hotkeys, .advanced, .about]
+
     @MainActor var iconResource: IconResource {
         switch self {
         case .general: .systemSymbol("gearshape")

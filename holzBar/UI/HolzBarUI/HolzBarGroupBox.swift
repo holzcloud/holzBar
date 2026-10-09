@@ -157,16 +157,7 @@ struct HolzBarGroupBox<Header: View, Content: View, Footer: View>: View {
 
             contentStack
                 .padding(padding)
-                .background {
-                    backgroundShape
-                        .fill(HolzBarTheme.Palette.groundElevated)
-                        .overlay {
-                            backgroundShape.strokeBorder(
-                                HolzBarTheme.Palette.stroke,
-                                lineWidth: HolzBarTheme.Spacing.hairline
-                            )
-                        }
-                }
+                .holzBarGlass(in: backgroundShape)
                 .containerShape(backgroundShape)
 
             footer

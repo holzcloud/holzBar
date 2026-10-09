@@ -221,4 +221,35 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.knownItemTags.settingsKind == .stringArray)
         #expect(Defaults.Key.currentLayoutProfile.settingsKind == .string)
     }
+
+    @Test("The lock for hidden items and the assistant flag are local to the Mac")
+    func localKeys() {
+        #expect(Defaults.Key.localOnlyKeys.contains(.lockHiddenItems))
+        #expect(Defaults.Key.localOnlyKeys.contains(.cleanUpOffered))
+        let result = Defaults.Key.validatedSettings(["LockHiddenItems": false, "ShowOnHover": true])
+        #expect(result.ignored == ["LockHiddenItems"])
+        #expect(result.accepted["ShowOnHover"] as? Bool == true)
+    }
+
+    @Test("An imported rule list loses the rules that use a script")
+    func importedRulesLoseScripts() throws {
+        let plain = AutomationRule(
+            name: "Plain",
+            clauses: [AutomationClause(condition: .lowPowerMode)],
+            action: .zen(true)
+        )
+        let scripted = AutomationRule(
+            name: "Scripted",
+            clauses: [AutomationClause(condition: .lowPowerMode)],
+            action: .runScript("go.sh")
+        )
+        let data = try JSONEncoder().encode([plain, scripted])
+        let result = Defaults.Key.validatedSettings(["AutomationRules": data])
+        let accepted = try #require(result.accepted["AutomationRules"] as? Data)
+        let rules = try JSONDecoder().decode([AutomationRule].self, from: accepted)
+        #expect(rules == [plain])
+        let broken = Defaults.Key.validatedSettings(["AutomationRules": Data("nonsense".utf8)])
+        #expect(broken.accepted["AutomationRules"] == nil)
+        #expect(broken.ignored == ["AutomationRules"])
+    }
 }

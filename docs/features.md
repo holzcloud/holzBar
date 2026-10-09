@@ -103,18 +103,18 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Rules** that apply a profile, reveal items or switch Zen mode when a Wi-Fi network, an app, the time of day, the power source, a display or a Focus matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Preview: the rules, the observers and the Automation pane are built but not yet tested on a Mac; the Wi-Fi name condition is built too, and needs your test of the Location prompt.*
 - **URL and Shortcuts for rules** (*Preview*): `holzbar://automation/enable/<name>` and `/disable/<name>` ask first, and Shortcuts can turn a rule on or off and list the rules that are active. Rules are created and edited only in the settings.
 - **Focus filter** (*Preview*): add the holzBar filter to a Focus in System Settings to apply a layout profile while that Focus is on; the previous profile comes back when it ends. Whether macOS calls the filter on your Mac is the open question of this preview.
-- **Per-item conditions**: show a single item only while a condition holds, for example while a VPN is connected.
-- **Scripts** as a rule condition or action, and **hooks** that run before and after a profile is applied: only from a folder you choose, pinned by hash, run only after you confirm.
+- **Per-item conditions** (*Preview*): a rule action "Show an item only while this is true" makes one item follow a condition, for example a VPN item that is visible only while a VPN is connected. The item moves after a hold of three seconds, so a flapping condition does not move it every second; an unknown condition leaves it where it is. On macOS 27 the rule moves all items of the item's application.
+- **Scripts** (*Preview*) as a rule condition ("a script succeeds") or action ("run a script"): only from the Scripts folder, only after you allowed the exact content (its checksum), re-checked before every run, no arguments, no shell, a ten-second limit. Scripts never come in through an imported file or a URL. Profile hooks and a folder of your choice are not in this version.
 
 **Safety and convenience**
 - **Layout snapshots** (*Preview*) taken automatically when the bar settles, once a day and before a profile rearranges it, with a preview and a one-click restore that can be undone; kept for 30 days, on this Mac only. Not tested on a Mac yet.
 - **Share a profile** (*Preview*) as a small validated file: only the applications you leave checked and their sections, no display, Wi-Fi, hotkey or other setting, and no code. Importing adds the profile to the list and moves nothing until you apply it. Double-clicking a `.holzbarprofile` in Finder is not set up yet; use Import Profile in Menu Bar Layout.
-- **Touch ID or password** to show hidden items.
-- **Revoke permissions in Settings**: a button per permission that withdraws it again (for holzBar's own entry only) or opens the right System Settings pane, so you never have to hunt for it.
+- **Touch ID or password** to show hidden items (*Preview*), in Advanced: hover, click, hotkeys, the Shelf, the search, URLs and Shortcuts ask once, then a minute of grace; your own safety rules (low battery, offline, rules, items you chose) do not ask. Turning it off asks too. It keeps a bystander away from your hidden items; it is not protection against someone who knows your password.
+- **Revoke permissions in Settings** (*Preview*): a button per permission that withdraws it again (for holzBar's own entry only) or opens the right System Settings pane, so you never have to hunt for it.
 - **Copy diagnostics** (*Preview*): in About, a report of versions and counts you read before you copy it; no names of items, apps, profiles or networks, no paths; nothing is sent.
-- **First-launch assistant** that proposes an arrangement from static facts, skippable and re-runnable.
-- **Works without Screen Recording**: every feature runs without it, and the Shelf shows app icons instead of live snapshots.
-- **System items pinned visible**: Clock, Wi-Fi and Battery stay visible when space runs short.
+- **Tidy Up assistant** (*Preview*): proposes which visible items to hide from static facts only (system extras, the app's category, a short list of known helpers); live values, the clock, the battery and apps with messages stay. You decide item by item, the arrangement is kept as a snapshot first, and nothing is recorded. Offered once after the first launch when nothing was arranged yet, and any time from Menu Bar Layout.
+- **Works without Screen Recording** (*Preview*): the Menu Bar Layout pane, the Shelf and the search show app icons instead of live pictures, with an offer to allow Screen Recording for the pictures.
+- **System items pinned visible** (*Preview*, macOS 26 and earlier): profiles, restored layouts and rules leave the clock, battery, Wi-Fi, Control Center and sound where they are; you can still move them yourself.
 - More **menu bar styles** (pills, outlines, gradients), as far as macOS 27 allows.
 
 **Polish**

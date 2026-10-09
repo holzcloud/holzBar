@@ -9,6 +9,7 @@ struct AdvancedSettingsPane: View {
     @Environment(AppState.self) var appState
     @Bindable var settings: AdvancedSettings
     @State private var maxSliderLabelWidth: CGFloat = 0
+    @State private var revokingPermission: Permission?
 
     private var menuBarManager: MenuBarManager {
         appState.menuBarManager
@@ -49,6 +50,10 @@ struct AdvancedSettingsPane: View {
                 tempShowInterval
                 openHiddenItemsInMenuBar
                 autoZenWhileSharingScreen
+                lockHiddenItems
+                if !isMacOS27 {
+                    pinSystemItems
+                }
             }
             HolzBarSection("Show Hidden Items Automatically") {
                 RevealRulesSettings(rules: appState.revealRules)
@@ -62,6 +67,29 @@ struct AdvancedSettingsPane: View {
         }
         .onAppear {
             appState.permissions.refresh()
+        }
+        .confirmationDialog(
+            "Revoke this permission?",
+            isPresented: Binding(
+                get: { revokingPermission != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        revokingPermission = nil
+                    }
+                }
+            ),
+            titleVisibility: .visible,
+            presenting: revokingPermission
+        ) { permission in
+            Button("Revoke \(permission.title)", role: .destructive) {
+                permission.revoke()
+            }
+            Button("Open System Settings") {
+                permission.openSettings()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { _ in
+            Text("holzBar stops using it at once and cannot do what needs it until you allow it again. You can also remove it yourself in System Settings, in Privacy & Security.")
         }
     }
 
@@ -218,6 +246,28 @@ struct AdvancedSettingsPane: View {
     }
 
     @ViewBuilder
+    private var pinSystemItems: some View {
+        Toggle(
+            "Keep the clock, battery, Wi-Fi, Control Center and sound visible",
+            isOn: Binding(
+                get: { !Defaults.bool(forKey: .systemItemsMayHide) },
+                set: { Defaults.set(!$0, forKey: .systemItemsMayHide) }
+            )
+        )
+        .annotation("Profiles, restored layouts and rules leave these items where they are. You can still move them yourself.")
+    }
+
+    private var lockHiddenItems: some View {
+        Toggle(
+            "Ask for Touch ID or your password before showing hidden items",
+            isOn: Binding(
+                get: { appState.hiddenItemsLock.isEnabled },
+                set: { appState.hiddenItemsLock.setEnabled($0) }
+            )
+        )
+        .annotation("This keeps someone at your unlocked Mac from seeing your hidden items. Turning it off asks too. It is not protection against someone who knows your password.")
+    }
+
     private var autoZenWhileSharingScreen: some View {
         Toggle("Turn on Zen mode while the screen is mirrored or shared", isOn: $settings.autoZenWhileSharingScreen)
             .annotation("Uses no permission: holzBar notices a mirrored display and macOS's screen sharing agent.")
@@ -245,11 +295,18 @@ struct AdvancedSettingsPane: View {
         ForEach(appState.permissions.allPermissions) { permission in
             LabeledContent {
                 if permission.hasPermission {
-                    Label {
-                        Text("Permission Granted")
-                    } icon: {
-                        Image(systemName: "checkmark.circle")
-                            .foregroundStyle(.green)
+                    HStack {
+                        Label {
+                            Text("Permission Granted")
+                        } icon: {
+                            Image(systemName: "checkmark.circle")
+                                .foregroundStyle(.green)
+                        }
+                        if permission.canReset {
+                            Button("Revoke…") {
+                                revokingPermission = permission
+                            }
+                        }
                     }
                 } else {
                     Button("Grant Permission") {

@@ -191,6 +191,13 @@ nonisolated extension Defaults {
         case spacerCount = "SpacerCount"
         case spacerWidth = "SpacerWidth"
         case revealRules = "RevealRules"
+        /// Whether the clean-up assistant was offered once, at the first launch.
+        case cleanUpOffered = "CleanUpOffered"
+        /// Whether the pinned system items may be moved into hidden sections (they may not by default).
+        case systemItemsMayHide = "SystemItemsMayHide"
+        /// Whether showing the hidden items asks for Touch ID or the password. Local to the
+        /// Mac: never exported, imported or synced.
+        case lockHiddenItems = "LockHiddenItems"
         /// Whether the history of the layout is turned off (it is on by default).
         case layoutSnapshotsDisabled = "LayoutSnapshotsDisabled"
         /// The automation rules, as JSON (`AutomationRule`).
@@ -282,6 +289,9 @@ nonisolated extension Defaults.Key {
             .hideApplicationMenus,
             .keepsDockIconHidden,
             .layoutSnapshotsDisabled,
+            .cleanUpOffered,
+            .systemItemsMayHide,
+            .lockHiddenItems,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
             .autoZenWhileSharingScreen,
@@ -405,6 +415,8 @@ nonisolated extension Defaults.Key {
     /// never sets it. The debug defaults stay on this Mac as well.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
+        .lockHiddenItems,
+        .cleanUpOffered,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
     ]
@@ -426,7 +438,19 @@ nonisolated extension Defaults.Key {
     /// keys it ignores: only holzBar's own keys that may be imported, with a value of the
     /// expected kind, numbers within their range (``SettingsSchema``).
     static func validatedSettings(_ settings: [String: Any]) -> (accepted: [String: Any], ignored: [String]) {
-        SettingsSchema.validated(settings, kinds: importableKinds, numberRules: importableNumberRules)
+        var result = SettingsSchema.validated(settings, kinds: importableKinds, numberRules: importableNumberRules)
+        // A file never brings a rule that runs or asks a script: scripts and their approvals
+        // are local to the Mac.
+        let rulesKey = Self.automationRules.rawValue
+        if let data = result.accepted[rulesKey] as? Data {
+            if let stripped = AutomationRule.removingScriptRules(from: data) {
+                result.accepted[rulesKey] = stripped
+            } else {
+                result.accepted.removeValue(forKey: rulesKey)
+                result.ignored = (result.ignored + [rulesKey]).sorted()
+            }
+        }
+        return result
     }
 
     /// The keys of the current settings that applying `accepted` removes, sorted.

@@ -277,10 +277,18 @@ final class LayoutProfiles {
         }
         // Keys of earlier versions (`namespace:title`) match through the item identity.
         let itemManager = appState.itemManager
-        var sections = [String: MenuBarSection.Name]()
+        var wanted = [String: Int]()
         for (key, index) in profile.itemSections {
+            wanted[itemManager.storedIdentityKey(key)] = index
+        }
+        // The clock, the battery, Wi-Fi, Control Center and the sound control stay visible.
+        if !Defaults.bool(forKey: .systemItemsMayHide) {
+            wanted = PinnedSystemItems.keepingPinnedVisible(wanted)
+        }
+        var sections = [String: MenuBarSection.Name]()
+        for (key, index) in wanted {
             if let section = MenuBarSection.Name(profileIndex: index) {
-                sections[itemManager.storedIdentityKey(key)] = section
+                sections[key] = section
             }
         }
         Task {

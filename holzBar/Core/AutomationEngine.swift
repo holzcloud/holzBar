@@ -18,6 +18,7 @@ nonisolated enum AutomationEngine {
         case showSection(AutomationSection)
         case setZen(Bool)
         case setKeepAwake(Bool)
+        case runScript(String)
     }
 
     /// What the app looks like right now.
@@ -63,6 +64,9 @@ nonisolated enum AutomationEngine {
         context: Context,
         state: State
     ) -> Result {
+        // A rule of the kind "show an item only while …" follows its condition and is not
+        // acted on once; ``ItemVisibility`` handles it.
+        let rules = rules.filter { $0.action.effect != nil }
         var next = state
         var effects: [Effect] = []
         var context = context
@@ -72,7 +76,7 @@ nonisolated enum AutomationEngine {
             case .applyProfile(let name): context.currentProfile = name
             case .setZen(let isOn): context.isZenOn = isOn
             case .setKeepAwake(let isOn): context.isKeepAwakeOn = isOn
-            case .showSection: break
+            case .showSection, .runScript: break
             }
             effects.append(effect)
         }
@@ -84,7 +88,7 @@ nonisolated enum AutomationEngine {
             case .applyProfile(let name): context.currentProfile == name
             case .setZen(let isOn): context.isZenOn == isOn
             case .setKeepAwake(let isOn): context.isKeepAwakeOn == isOn
-            case .showSection: false
+            case .showSection, .runScript: false
             }
         }
 
@@ -109,7 +113,9 @@ nonisolated enum AutomationEngine {
             if !isMet && wasActive {
                 end(rule.id)
             } else if isMet && !wasActive {
-                let effect = rule.action.effect
+                guard let effect = rule.action.effect else {
+                    continue
+                }
                 if case .applyProfile = effect {
                     if profileWasChosen {
                         // An earlier rule won this pass; try again when it is free.
@@ -136,7 +142,7 @@ nonisolated enum AutomationEngine {
         case .applyProfile(let name): context.currentProfile == name
         case .setZen(let isOn): context.isZenOn == isOn
         case .setKeepAwake(let isOn): context.isKeepAwakeOn == isOn
-        case .showSection: false
+        case .showSection, .runScript: false
         }
     }
 
@@ -152,19 +158,22 @@ nonisolated enum AutomationEngine {
             return .setZen(context.isZenOn)
         case .setKeepAwake:
             return .setKeepAwake(context.isKeepAwakeOn)
-        case .showSection:
+        case .showSection, .runScript:
             return nil
         }
     }
 }
 
 extension AutomationAction {
-    nonisolated var effect: AutomationEngine.Effect {
+    /// What the action does once, or `nil` for an action that follows its condition.
+    nonisolated var effect: AutomationEngine.Effect? {
         switch self {
         case .applyProfile(let name): .applyProfile(name)
         case .showSection(let section): .showSection(section)
         case .zen(let isOn): .setZen(isOn)
         case .keepAwake(let isOn): .setKeepAwake(isOn)
+        case .showItemOnlyWhile: nil
+        case .runScript(let name): .runScript(name)
         }
     }
 }

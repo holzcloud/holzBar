@@ -78,6 +78,9 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
     case displayConnected(String)
     case network(AutomationNetworkKind)
     case wifiNetwork(String)
+    /// A script the user approved ends with status 0. The name is the file name in the scripts
+    /// folder.
+    case scriptSucceeds(String)
 
     /// Whether the condition holds, or `nil` when the facts it needs are unknown.
     func evaluate(in facts: AutomationFacts) -> Bool? {
@@ -103,6 +106,8 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
             return facts.networkKinds.map { $0.contains(kind) }
         case .wifiNetwork(let name):
             return facts.wifiName.map { $0 == name }
+        case .scriptSucceeds(let name):
+            return facts.scriptResults[name]
         }
     }
 
@@ -117,6 +122,7 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
         case .displayConnected: .displays
         case .network: .network
         case .wifiNetwork: .wifi
+        case .scriptSucceeds: .scripts
         }
     }
 
@@ -132,6 +138,8 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
             return !uuid.isEmpty && uuid.utf8.count <= 64
         case .wifiNetwork(let name):
             return !name.isEmpty && name.utf8.count <= 32
+        case .scriptSucceeds(let name):
+            return ScriptGate.isPlainName(name)
         case .power, .lowPowerMode, .network:
             return true
         }
@@ -149,6 +157,9 @@ nonisolated enum AutomationSource: CaseIterable, Hashable, Sendable {
     case displays
     case network
     case wifi
+    /// Scripts have no observer of their own: they are checked when other events arrive, and
+    /// by the user's "Check now".
+    case scripts
 }
 
 /// A condition with the choice to invert it.
@@ -179,6 +190,8 @@ nonisolated struct AutomationFacts: Equatable, Sendable {
     var connectedDisplays: Set<String>?
     var networkKinds: Set<AutomationNetworkKind>?
     var wifiName: String?
+    /// What the approved scripts answered last, by file name. A script not in it is unknown.
+    var scriptResults = [String: Bool]()
 }
 
 /// What a rule does when it becomes true.
@@ -188,6 +201,11 @@ nonisolated enum AutomationAction: Codable, Equatable, Sendable {
     case zen(Bool)
     /// Keeps the Mac and its display from going to sleep on their own, or lets them.
     case keepAwake(Bool)
+    /// Shows an item only while the rule holds and hides it in the given section otherwise.
+    /// Unlike the other actions it is not acted on once: the item follows the condition.
+    case showItemOnlyWhile(itemKey: String, hiding: AutomationSection)
+    /// Runs an approved script once when the rule starts.
+    case runScript(String)
 
     var isValid: Bool {
         switch self {
@@ -195,6 +213,10 @@ nonisolated enum AutomationAction: Codable, Equatable, Sendable {
             return !name.isEmpty && name.utf8.count <= 80
         case .showSection, .zen, .keepAwake:
             return true
+        case .showItemOnlyWhile(let key, _):
+            return !key.isEmpty && key.utf8.count <= 255
+        case .runScript(let name):
+            return ScriptGate.isPlainName(name)
         }
     }
 }
@@ -209,6 +231,27 @@ nonisolated enum AutomationSection: String, Codable, Sendable {
 nonisolated enum AutomationMatch: String, Codable, Sendable {
     case all
     case any
+
+    /// Combines the answers of the clauses. An unknown answer (`nil`) keeps the result
+    /// unknown unless another answer decides it: one false answer makes "all" false, one true
+    /// answer makes "any" true. No answers at all is unknown.
+    func combine(_ results: [Bool?]) -> Bool? {
+        guard !results.isEmpty else {
+            return nil
+        }
+        switch self {
+        case .all:
+            if results.contains(false) {
+                return false
+            }
+            return results.contains { $0 == nil } ? nil : true
+        case .any:
+            if results.contains(true) {
+                return true
+            }
+            return results.contains { $0 == nil } ? nil : false
+        }
+    }
 }
 
 /// "When these things are true, do this."
@@ -235,6 +278,12 @@ nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
         }
     }
 
+    /// Whether the rule holds, or `nil` when the facts do not tell yet. A rule without clauses
+    /// is unknown.
+    func evaluation(in facts: AutomationFacts) -> Bool? {
+        match.combine(clauses.map { $0.evaluate(in: facts) })
+    }
+
     var isValid: Bool {
         !name.isEmpty
             && name.utf8.count <= 80
@@ -242,6 +291,15 @@ nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
             && clauses.count <= 10
             && clauses.allSatisfy { $0.condition.isValid }
             && action.isValid
+    }
+
+    /// The rules of a stored list without the ones that use a script. Scripts are local to
+    /// the Mac and are never created or approved by an imported or synced file.
+    static func removingScriptRules(from data: Data) -> Data? {
+        guard let rules = try? JSONDecoder().decode([AutomationRule].self, from: data) else {
+            return nil
+        }
+        return try? JSONEncoder().encode(rules.filter { !$0.usesScript })
     }
 
     /// The kinds of event the enabled rules need to observe.
@@ -256,6 +314,19 @@ nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
                 return nil
             }
             return window
+        }
+    }
+
+    /// Whether the rule runs or asks a script.
+    var usesScript: Bool {
+        if case .runScript = action {
+            return true
+        }
+        return clauses.contains { clause in
+            if case .scriptSucceeds = clause.condition {
+                return true
+            }
+            return false
         }
     }
 
@@ -291,5 +362,23 @@ nonisolated enum AutomationSchedule {
                 return delta > 0 ? delta : delta + day
             }
             .min()
+    }
+}
+
+/// Where an item follows a rule of the kind "show it only while …".
+nonisolated enum ItemVisibility {
+    /// The section index the rule wants for its item now: 0 (visible) while the rule holds,
+    /// the hiding section while it does not, and `nil` when the rule is off, not of this kind
+    /// or the facts do not tell yet. The item then stays where it is: it is never hidden
+    /// because a fact is unavailable.
+    static func wantedSection(of rule: AutomationRule, facts: AutomationFacts) -> (itemKey: String, section: Int)? {
+        guard rule.isEnabled, case .showItemOnlyWhile(let key, let hiding) = rule.action else {
+            return nil
+        }
+        switch rule.evaluation(in: facts) {
+        case .some(true): return (key, 0)
+        case .some(false): return (key, hiding == .alwaysHidden ? 2 : 1)
+        case .none: return nil
+        }
     }
 }

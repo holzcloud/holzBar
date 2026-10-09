@@ -47,6 +47,7 @@ struct AutomationSettingsPane: View {
                 .font(HolzBarTheme.Typography.caption)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
+            ScriptsSection(store: manager.scriptStore, manager: manager)
             HStack(spacing: HolzBarTheme.Spacing.sm) {
                 Button("Add Rule", systemImage: "plus") {
                     addRule()
@@ -106,6 +107,8 @@ struct AutomationSettingsPane: View {
         case .showSection: "eye"
         case .zen: "moon"
         case .keepAwake: "cup.and.saucer"
+        case .showItemOnlyWhile: "eye.slash"
+        case .runScript: "terminal"
         }
     }
 
