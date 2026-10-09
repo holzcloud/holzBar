@@ -1,6 +1,6 @@
 # Notes on the comparison
 
-The comparison table is in the [README](../README.md). The raw answers (35 questions per app, each with a source quote and a confidence) are in [`.planning/research/alt-*.md`](../.planning/research). Check the quote there before you rely on a cell.
+The comparison table is in the [README](../README.md). The raw answers (35 questions per app, each with a source quote and a confidence) are kept in the private planning repository.
 
 ## Also seen
 

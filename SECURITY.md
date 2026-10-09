@@ -19,7 +19,7 @@ Only the latest release, and `main`, receive security fixes. holzBar is pre-1.0 
 
 ## Threat register
 
-From the security audit of 2026-10-03 (`.planning/phases/06-security-audit/06-SECURITY-AUDIT.md`) and the full bug and security audit of 2026-10-05 (`.planning/audit/FULL-AUDIT-2026-10-05.md`, IDs F-…), with their fixes. Severity follows the audits; no security, privacy or supply-chain finding was rated critical or high.
+From the security audit of 2026-10-03 (the private planning repository) and the full bug and security audit of 2026-10-05 (IDs F-…), with their fixes. Severity follows the audits; no security, privacy or supply-chain finding was rated critical or high.
 
 | ID | Threat | Component | Severity | Disposition | Status |
 |---|---|---|---|---|---|
