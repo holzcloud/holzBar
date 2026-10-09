@@ -2,8 +2,7 @@
 // it is collapsed and while it is expanded? Read-only: public Accessibility and CoreGraphics
 // calls only, no network, no private API, nothing is clicked, moved or written.
 //
-// Run it on a notched MacBook on macOS 27, twice (see
-// .planning/phases/22-native-overflow-button/22-01-SPIKE-GUIDE.md):
+// Run it on a notched MacBook on macOS 27, twice:
 //
 //   swift Scripts/macos27/overflow-state-probe.swift --label collapsed 2>&1 | tee ~/Desktop/overflow-collapsed.txt
 //   swift Scripts/macos27/overflow-state-probe.swift --label expanded  2>&1 | tee ~/Desktop/overflow-expanded.txt

@@ -2,6 +2,10 @@
 
 holzBar is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, a menu bar manager for macOS, with macOS 27 support and Homebrew distribution.
 
+## Product direction
+
+holzBar is to become an alternative to **Brow, Glow and Vorssaint**: as many of their features, as powerful, as optional modules on top of the menu bar manager (decision of 2026-10-09, `.planning/research/VISION-BROW-GLOW-VORSSAINT.md`). Every feature is agreed with the user first (whether, and in which release). One overall design concept is made first (Apple's newest Liquid Glass guidance, holzBar's logo and colours, and the design language of Brow as the model); every future screen must follow it, and a screen that needs something the concept lacks extends the concept first. The principles below still hold for every module: off means no cost, permissions only when a module is switched on, never online.
+
 ## Rules
 
 - **Everything in this repository is written in English**: code, comments, commit messages, pull requests, issues, README and other docs. This applies even when the conversation is in another language.
@@ -9,8 +13,8 @@ holzBar is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 
 ## Workflow
 
-- Work with **GSD** ([OpenGSD gsd-core](https://github.com/open-gsd/gsd-core)) whenever possible. It is installed locally in `.claude/` (commands `/gsd-*`, agents, hooks in `.claude/settings.json`), so every session has it. Planning state lives in `.planning/`. Start with `/gsd-help`; for this existing codebase, `/gsd-map-codebase` maps it and `/gsd-new-project` / `/gsd-plan-phase` / `/gsd-execute-phase` drive the work.
-- Documentation-only changes (`*.md`, `docs/`, `.planning/`, screenshots, logos) skip the macOS jobs: the `changes` job in `build.yml` detects them, and the cheap jobs (former-name, no-network, strings, workflows) still run. Never use a workflow-level `paths-ignore`: it leaves required checks pending forever. The single check to require is `ci-ok`.
+- Work with **GSD** ([OpenGSD gsd-core](https://github.com/open-gsd/gsd-core)) whenever possible. It is installed locally in `.claude/` (commands `/gsd-*`, agents, hooks in `.claude/settings.json`), so every session has it. Planning state lives in the **private** repository `holzcloud/holzBar-planning` (roadmap, requirements, phases, research, design concept, GSD tooling), linked into `.planning/` by the SessionStart hook `.claude/hooks/holzbar-planning-link.sh`; `.planning/` is in `.gitignore`. Never commit planning or research files to this public repository, and never link to them from the README or docs. Start with `/gsd-help`; for this existing codebase, `/gsd-map-codebase` maps it and `/gsd-new-project` / `/gsd-plan-phase` / `/gsd-execute-phase` drive the work.
+- Documentation-only changes (`*.md`, `docs/`, screenshots, logos) skip the macOS jobs: the `changes` job in `build.yml` detects them, and the cheap jobs (former-name, no-network, strings, workflows) still run. Never use a workflow-level `paths-ignore`: it leaves required checks pending forever. The single check to require is `ci-ok`.
 - Save CI runs and credits: run CI as rarely as possible. Group several phases into one pull request, commit locally and push only once at the end of the work (then fix until green); never push after every task or plan.
 - Ask the user every question as a multiple choice (the AskUserQuestion tool), never as free text.
 - Update GSD with `npx -y @opengsd/gsd-core@latest --claude --local` and commit the result.
