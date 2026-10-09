@@ -114,6 +114,7 @@ nonisolated enum SyncMerge {
                 joinedOwn = file
             }
         }
+        state = supersedeEarlierIdentities(state)
         // The own file is the Mac's own history: its dots are published, and the counter floor
         // rises above the highest own counter seen.
         let seen = state.replica.context[state.mac]
@@ -134,6 +135,40 @@ nonisolated enum SyncMerge {
             downloads: files.downloads,
             needsHealing: healing
         )
+    }
+
+    /// The state without the entries of this Mac's earlier identities that an entry of its current identity replaces.
+    ///
+    /// An entry of an earlier identity at a counter that identity had reached (`SyncState.isOwn`) was made before the Mac took
+    /// its current identity, so it is older than every entry the current identity made. The Mac applied the value of such an
+    /// entry as its own (a copied account carries it, and the first launch re-identifies) and its later change of the unit
+    /// replaces it. The file that holds the entry may reach the Mac only after that change, and the join then brings the entry
+    /// back next to the newer one: a conflict between two entries of this one Mac, which no answer settles (the sheet came back
+    /// after every answer, found by INV-C4 seed 88). The context already covers the dot, so the entry is superseded for the
+    /// readers of this Mac's file as well.
+    private static func supersedeEarlierIdentities(_ state: SyncState) -> SyncState {
+        guard !state.previousMacIDs.isEmpty else {
+            return state
+        }
+        var registers = state.replica.registers
+        var changed = false
+        for key in state.replica.keys {
+            let live = state.replica.live(key)
+            guard live.contains(where: { $0.dot.mac == state.mac }) else {
+                continue
+            }
+            let remaining = live.filter { $0.dot.mac == state.mac || !state.isOwn($0.dot) }
+            if remaining.count != live.count {
+                registers[key] = remaining
+                changed = true
+            }
+        }
+        guard changed else {
+            return state
+        }
+        var result = state
+        result.replica = SyncReplica(context: state.replica.context, registers: registers, sets: state.replica.sets)
+        return result
     }
 
     /// The state after this Mac gave every entry of its old identity a dot of its new one.
