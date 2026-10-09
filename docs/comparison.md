@@ -1,4 +1,4 @@
-# holzBar vs. Ice, Thaw and Bartender
+# holzBar vs. Ice, Thaw and Bartender, in detail
 
 What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. — means not available or not documented. 🔜 means planned, with the release (0.0.8, 0.0.9 or 1.0.0): it is **not available yet**.
 
@@ -67,7 +67,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | No helper process runs with holzBar's permissions | ❌ (menu bar item service) | — | — | ✅ from 0.0.7-beta2: one executable, no nested code (checked by CI) |
 | Fix for the permissions loop | ❌ | — | — | ✅ |
 | **Code and resources** | | | | |
-| Swift packages | 5 | 10 (Sparkle, AXSwift6, CompactSlider, Ifrit, LaunchAtLogin-Modern and 5 from Apple) | closed source | **none** |
+| Swift packages | 5 | 9 (Sparkle, AXSwift6, CompactSlider, Ifrit, LaunchAtLogin-Modern and others) | closed source | **none** |
 | Swift language mode | Swift 5 | Swift 6 | — | Swift 6 (data-race safety checked by the compiler), built with Swift 6.4 and Xcode 27 |
 | State management | Combine | `@Observable` and Combine | — | `@Observable`, no Combine |
 | Mouse event tap when "Show on hover" is off | always running | — | — | off |

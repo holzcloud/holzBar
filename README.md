@@ -20,7 +20,7 @@ and make the bar look the way you like — on the notch, on every display, on ma
 
 **[🌐 holzcloud.ch/holzbar](https://holzcloud.ch/holzbar)**
 
-[Install](#-install) · [Verify](#-verify-a-download) · [Features](docs/features.md) · [Comparison](docs/comparison.md) · [Privacy](docs/privacy-and-permissions.md) · [Troubleshooting](docs/build-and-troubleshooting.md) · [Credits](#-credits)
+[Install](#-install) · [Verify](#-verify-a-download) · [Features](docs/features.md) · [Comparison](#-holzbar-vs-everyone-else) · [Privacy](docs/privacy-and-permissions.md) · [Troubleshooting](docs/build-and-troubleshooting.md) · [Credits](#-credits)
 
 </div>
 
@@ -48,43 +48,80 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 | ✨ **More features** | Profiles, folders, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, a camera and microphone dot on macOS 27. |
 | 🌍 **Five languages** | English, German, French, Italian and Romansh. |
 
-## ⚖️ holzBar vs. Ice, Thaw and Bartender
+## ⚖️ holzBar vs. everyone else
 
-— means not available or not documented. 🔜 means planned: **not available yet**. Bartender 7 is the paid, closed-source app for macOS 27 (Bartender 6 covers macOS 14 – 26); its column comes from its product page. The [full comparison](docs/comparison.md) has every row.
+An honest comparison with every menu bar manager we found that is on sale or maintained, **including where holzBar loses**. Researched on 9 October 2026 from each project's own pages, repositories and listings; the raw answers with quotes are in [`.planning/research/`](.planning/research). ✅ yes · ❌ no · ❓ not found (not stated, which is not the same as no) · 🔜 planned for holzBar and **not available yet**.
 
-| | Ice 0.11.12 | Thaw 3.0 beta | Bartender 7 | holzBar |
-|---|:---:|:---:|:---:|:---:|
-| macOS 14 – 26 | ✅ | macOS 26 only | ✅ <sub>Bartender 6</sub> | ✅ |
-| macOS 27 | ❌ | ✅ | ✅ | ✅ |
-| Layout profiles, groups, spacers | ❌ | ✅ | ✅ | ✅ |
-| Zen mode, URL commands, Shortcuts actions | ❌ | ✅ | Shortcuts, Siri, AppleScript | ✅ |
-| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | — | 🔜 1.0.0 <sub>planned, not available</sub> |
-| Network connections | Sparkle update checks | Sparkle update checks | — | **none** |
-| Swift packages | 5 | 10 | closed source | **none** |
-| Price and licence | free, open source | free, open source | paid, closed source | free, open source (GPL-3.0) |
-| Swift language mode | Swift 5 | Swift 6 | — | Swift 6 |
-| One executable, no helper process with the app's permissions | ❌ | — | — | ✅ <sub>from 0.0.7-beta2</sub> |
-| Build provenance: GitHub attestation, SLSA Build Level 3 | ❌ | — | — | ✅ <sub>SLSA from 0.0.7-beta2</sub> |
-| OpenSSF Scorecard, actions pinned by commit SHA | — | — | — | ✅ <sub>except the SLSA generator (release tag)</sub> |
-| Rules (Wi-Fi, app, time, power, display, Focus) | ❌ | ✅ | ✅ | 🔜 0.0.8 |
+| | holzBar | Bartender 7 | Ice | Thaw | SaneBar | Tuck | Barbee | Hidden Bar | Dozer | Vanilla | iBar | Glow | Brow | Lounge |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| Maintenance | active (0.0.7-beta4) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) |
+| Price | free | paid, one-time <sup>1</sup> | free | free | free | free; Pro $14.99 | free + in-app (lifetime $12.99) | free | free | free; Pro $10 | free + $2.99/yr | $19.99 once | free; Pro $49/yr (AI only) | $3.99/yr |
+| Open source | ✅ GPL-3.0 | ❌ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ MIT | ❌ | ❌ | ✅ MIT | ✅ MPL-2.0 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| macOS 26 / 27 | ✅ / ✅ | ❌ / ✅ <sup>2</sup> | dev builds / ❌ | ✅ / ✅ <sup>3</sup> | ✅ / ❌ | ✅ / ✅ <sup>4</sup> | ❓ / ❓ <sup>5</sup> | ✅ / partly <sup>6</sup> | ❓ / ❓ | ✅ / ❓ | ✅ / ❓ | ✅ / ✅ <sup>13</sup> | ❓ / vendor claim | ✅ / vendor claim |
+| Apple Silicon / Intel | not yet checked | ✅ Apple Silicon (27) | ❓ | ❓ | Apple Silicon only | both | ❓ | both | Intel only (Rosetta) | both | both | both | ❓ | both |
+| Hidden + always-hidden sections | ✅ | ✅ | ✅ | ✅ | ✅ | hidden; per-icon | hidden only ❓ | ✅ | ✅ | hidden; always-hidden in Pro | ✅ | 3 sections | hide, reorder; always-hidden ❓ | visible / hidden; no always-hidden |
+| Separate bar, notch handling | ✅ Shelf | ✅ | ✅ Ice Bar | ✅ Thaw Bar | ✅ | ✅ Shelf | ✅ | ❌ | ❌ | partly | ✅ | ✅ GlowBar; notch ❓ | notch hover panel | ✅ floating panel |
+| Layout profiles | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ ❓ | ✅ (VIP) | ❌ | ❌ | ❌ | ❌ | looks only (Moods) | ❌ | ❓ |
+| Groups, spacers | ✅ | ✅ | ❌ | ✅ | groups, dividers | groups (Pro) | dividers | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ |
+| Item spacing | ✅ beta | ✅ | ✅ beta | ✅ beta | ✅ | Pro | ✅ | ❌ | own icons only | ❌ | ✅ | ✅ | ❌ | ❓ |
+| Search | ✅ | ✅ Command Bar | ✅ | ✅ | ✅ | Pro | weak | ❌ | ❌ | ❌ | ❌ | ✅ | ❓ | ❌ |
+| Rules / triggers | 🔜 0.0.8 | ✅ <sup>7</sup> | ❌ | ✅ many <sup>8</sup> | ✅ 8 types | per app (Pro) | ✅ (VIP) | timer only | timer only | timer (Pro) | timer | ❌ <sup>12</sup> | ❌ <sup>12</sup> | ❌ <sup>12</sup> |
+| Per-item conditional visibility | 🔜 0.0.8 | ✅ | ❌ | ✅ | ❌ | by active app (Pro) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Widgets / own items | 🔜 0.0.9 | ✅ | ❌ | planned | ❌ | ❌ | custom icons | ❌ | ❌ | ❌ | ❌ | ❌ | notch widgets | clipboard, agent notifications |
+| Scripts as trigger/action | 🔜 0.0.8 | as widget source | ❌ | ✅ | trigger | ❓ | VIP ❓ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | HTTP /notify endpoint |
+| AppleScript | 🔜 0.0.9 | ✅ | ❌ <sup>9</sup> | ❌ <sup>9</sup> | ✅ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❓ |
+| Shortcuts / Siri | ✅ | ✅ | ❌ | partly | via AppleScript | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❓ |
+| URL scheme / CLI | ✅ holzbar:// | ✅ URL actions | ❌ | ✅ thaw:// | ✅ sanebar:// | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❓ |
+| Hotkeys | ✅ also per profile and item | ✅ | ✅ | ✅ | ✅ per icon | ✅ | ✅ | one | ✅ | Pro | ✅ | ✅ | ✅ | ✅ |
+| Zen mode (lock reveal gestures) | ✅ | Focus filter only | ❌ | ✅ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❓ |
+| Lock behind Touch ID / password | 🔜 0.0.8 | ❌ <sup>10</sup> | ❌ | ❌ | ✅ | ❌ | ❓ | ❌ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ |
+| Show/hide animation | 🔜 0.0.9 | ❓ | ❓ | Reduce Motion only | ❓ | ❓ | ❓ | ❓ | ❓ | ✅ | ❓ | ✅ beta | ❓ | ✅ speed setting |
+| Screen Recording | optional | optional | optional | optional | not needed | optional | required | not needed | not needed | required | ❓ | likely required | for its screenshot tools | not needed |
+| Network connections | **none** | vendor: none <sup>11</sup> | Sparkle | Sparkle | Sparkle + anonymous event counts | licence + Sparkle | App Store: none | none | Sparkle | ❓ | App Store: none | check-in (versions, licence status) | none for core; AI servers (Pro) | analytics, crash reports, licence check |
+| Export / import settings | ✅ | ❓ | ❌ | ✅ | ✅ (also from Bartender, Ice) | ❓ | cloud backup (VIP) | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ |
+| Sync between Macs | 🔜 1.0.0 | ❌ | ❌ | ❌ | ❌ | ❓ | ✅ profiles (VIP) | ❌ | ❌ | ❌ | ❓ | ❌ | ❌ (planned) | ❓ |
+| Languages | 5 | 6 | ❓ | 20 | English? | >=8 | 20 | 10 | ❓ | ❓ | 15 | 4 | ❓ | English? |
+| Dependencies, Swift | none, Swift 6 | closed | 5 packages, Swift 5 | 9 packages, Swift 6 | 3 packages, Swift 6 | ❓ | closed | 1 package, Swift 5 | 5, Swift 5 | closed | closed | closed | closed, native Swift | closed |
+| Distribution | Homebrew | direct, Setapp (beta) | GitHub, Homebrew | GitHub, Homebrew | direct, Homebrew | direct, Homebrew | App Store | App Store, GitHub, Homebrew | GitHub, Homebrew | direct | App Store | direct | direct, Homebrew, App Store | direct |
+| Appearance (tint, border, shapes, black bar, corners, glass) | ✅ all | styles: Glass, Pills, Outline, Gradient, Solid | tint, shadow, border, shapes | ✅ many, wallpaper tint | tint, border, corners, Liquid Glass | shelf styles, colours | menu bar shape, Apple-logo style | ❌ | icon size only | blends dots | ❓ | ✅ Liquid Glass, corners, borders, Moods | ❓ | icon styles only |
+| Replaces or hides Apple's own items on macOS 27 | limit, replacements 🔜 0.0.9 | ❓ | ❌ | ✅ replacement icons | ❓ | system controls stay visible | ❓ | cannot (per app only) | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Signed with Developer ID and notarized | ❌ (own certificate) | ❓ | ✅ | ✅ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ✅ vendor claim |
+| Build provenance (attestation, SLSA) | ✅ SLSA 3 | ❓ | ❌ | ✅ Cosign + SLSA | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Hides desktop icons | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Clipboard history, extras beyond the menu bar | ❌ | ✅ Command Bar, Top Shelf | ❌ | ❌ | ❌ | ❌ | MCP server | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ clipboard, launcher, AI | ✅ clipboard history |
+| Imports settings from other apps | ✅ Ice | ❓ Bartender 6 profiles (experimental) | ❌ | ❌ | ✅ Bartender, Ice | ❓ | ❓ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ |
+| Keyboard / VoiceOver | ✅ / ✅ | ✅ / ❓ | ❓ / ❓ | ✅ / ✅ | ✅ / ❓ | ✅ / ❓ | ✅ / ✅ | 1 hotkey / ❓ | 1 hotkey / ❓ | ❓ | ✅ / ❌ | ✅ / ❓ | ❓ | ❓ |
 
-### All alternatives at a glance
+<sup>1</sup> Bartender 7 is a one-time purchase; Bartender Pro is yearly, Mega Supporter lifetime. The vendor's pages show no amounts; a competitor's blog names $25, $20 a year and $80 (not verified). Bartender 6 covers macOS 26 and 15.
+<sup>2</sup> Bartender 7 needs macOS 27; for macOS 26 the vendor recommends Bartender 6.
+<sup>3</sup> Thaw's stable 2.0.1 (2 Sep) runs on macOS 26; the 3.0 beta (7 Oct) is for macOS 27.
+<sup>4</sup> Tuck lists macOS 14 to 27; on macOS 27 the system controls (Wi-Fi, Sound, Control Center, clock) stay visible.
+<sup>5</sup> Barbee's listing does not say; a user report says hidden-item icons display wrongly on macOS 27.
+<sup>6</sup> Hidden Bar: the direct build works on macOS 27 with Accessibility but only hides per app; the App Store build cannot hide on macOS 27.
+<sup>7</sup> Bartender 7 lists schedule, Focus filter, battery, app, VPN, microphone and display triggers; the vendor publishes no full list and no AND/OR logic.
+<sup>8</sup> Thaw: app, network, VPN, Wi-Fi, Bluetooth, audio, display, time, Focus, battery and a script's exit code; battery and power are always on, the rest is enabled one by one.
+<sup>9</sup> No AppleScript dictionary found in the project's Info.plist or documentation (checked, not stated).
+<sup>10</sup> Not mentioned on any official Bartender page.
+<sup>11</sup> The vendor says Bartender sends nothing anywhere. Bartender 5.0.52 briefly shipped analytics (Amplitude) and removed it; Sparkle and RevenueCat appear in third-party dependency lists (inferred).
+<sup>12</sup> Glow, Brow and Lounge: ❌ means the vendor's site, changelog and privacy policy do not mention the feature (one source each, no independent test). Lounge's own blog says it lacks automation rules.
+<sup>13</sup> Glow ships two builds: 2.x for macOS 26 and 3.x for macOS 27 (stable since 10 September 2026).
 
-Researched on 9 October 2026 from each project's own pages, repositories and listings. The [full comparison](docs/alternatives.md) answers 30 questions for 11 apps.
+### Where holzBar is behind today
 
-| App | Price | Open source | macOS | Good to know |
-|---|---|:---:|---|---|
-| **holzBar** | free | ✅ GPL-3.0 | 14 – 27 | never online, no dependencies; Homebrew |
-| [**Bartender 7**](https://www.macbartender.com/Bartender7/) | paid | ❌ | 27 (Bartender 6: 26 and 15) | triggers, widgets, AppleScript, Shortcuts; Screen Recording optional |
-| [**Ice**](https://github.com/jordanbaird/Ice) | free | ✅ GPL-3.0 | 14+, not 27 | the original; last stable release October 2025, looks unmaintained |
-| [**Thaw**](https://github.com/thaw-app/Thaw) | free | ✅ GPL-3.0 | 26+ (3.0 beta: 27) | broadest triggers and scripts; 20 languages; Sparkle |
-| [**SaneBar**](https://github.com/sane-apps/SaneBar) | free | ✅ MIT | 14 – 26, Apple Silicon | **sunset on 30 June 2026**; profiles, Touch ID lock, AppleScript; sends anonymous event counts |
-| [**Tuck**](https://usetuck.com) | free; Pro $14.99 | ❌ | 14 – 27 | Shelf, rules per app; updated 6 October 2026 |
-| [**Barbee**](https://apps.apple.com/app/id1548711022) | free; lifetime $12.99 | ❌ | 11+ | profiles, cloud sync, 20 languages; needs Screen Recording |
-| [**Hidden Bar**](https://github.com/dwarvesf/hidden) | free | ✅ MIT | 13+ | tiny; hides per app on macOS 27; the App Store build cannot hide there |
-| [**Dozer**](https://github.com/Mortennn/Dozer) | free | ✅ MPL-2.0 | — | Intel-only build; no release since 2022 |
-| **Vanilla** | free; Pro $10 | ❌ | Catalina+ | simple; animations; needs Screen Recording |
-| **iBar** | free + $2.99/yr | ❌ | 10.12+ | floating bar under the notch; Mac App Store |
+- **Automation:** Thaw, SaneBar and Bartender 7 have rules, per-item conditions and scripts now. holzBar gets them in 0.0.8, with fewer trigger types than Thaw.
+- **No Developer ID signature or notarization**, unlike Thaw, SaneBar, Ice and Lounge (the vendor's claim). holzBar needs the `xattr` step or the Homebrew cask.
+- **Fewer languages** than Thaw and Barbee (20 each); our translations into French, Italian and Romansh are machine-made and unchecked.
+- **No widgets, AppleScript or animation yet** (0.0.9), no Touch ID lock yet (0.0.8). Bartender 7, SaneBar and Vanilla have them today.
+- **No settings sync** since 0.0.7-beta3; the redesigned sync comes in 1.0.0. Barbee has cloud sync of profiles.
+- **Not checked on real hardware** for several features, and one maintainer. SaneBar was sunset in June; Tuck and Glow ship updates every week or two.
+- **Apple's own items on macOS 27** (clock, Control Center, Wi-Fi) cannot be hidden; Hidden Bar and Tuck cannot either, Thaw offers replacement icons. holzBar plans replacement items for 0.0.9.
+
+### What holzBar does better
+
+- The only one that **never connects to the network**; Ice, Thaw, SaneBar (anonymous counts), Glow, Lounge and Tuck all do.
+- **No third-party packages** (Ice 5, Thaw 9, SaneBar 3), Swift 6.4 in Swift 6 mode, checked on macOS 26 and 27 on every change.
+- **Screen Recording is optional**, and permissions are listed and explained.
+- A **build provenance attestation** (SLSA Build Level 3) for every release.
 
 ## 🚀 Install
 
@@ -174,7 +211,7 @@ Details: [docs/features.md](docs/features.md#planned-next).
 
 ## 📚 More
 
-[Features and gallery](docs/features.md) · [macOS 27 notes](docs/features.md#macos-27) · [Privacy and permissions](docs/privacy-and-permissions.md) · [Troubleshooting](docs/build-and-troubleshooting.md) · [Full comparison](docs/comparison.md) · [All alternatives](docs/alternatives.md)
+[Features and gallery](docs/features.md) · [macOS 27 notes](docs/features.md#macos-27) · [Privacy and permissions](docs/privacy-and-permissions.md) · [Troubleshooting](docs/build-and-troubleshooting.md) · [More detail on Ice, Thaw and Bartender](docs/comparison.md) · [Notes on the comparison](docs/alternatives.md)
 
 ## 🙏 Credits
 
