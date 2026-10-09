@@ -725,7 +725,9 @@ nonisolated enum CatalogueJudges {
 @Suite("CatalogueJudges")
 struct CatalogueJudgesTests {
     @Test("Analysis section 5.7: the scenarios the judges added", arguments: CatalogueExtraTables.selected(CatalogueJudges.scenarios))
-    func scenario(_ scenario: CatalogueScenario) {
-        Catalogue.check(scenario)
+    func scenario(_ scenario: CatalogueScenario) async {
+        await HeavyTestGate.run {
+            Catalogue.check(scenario)
+        }
     }
 }

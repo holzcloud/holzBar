@@ -383,7 +383,9 @@ nonisolated enum CatalogueG2Infrastructure {
 @Suite("CatalogueG2Infrastructure")
 struct CatalogueG2InfrastructureTests {
     @Test("A1 G2: infrastructure", arguments: CatalogueG2Infrastructure.scenarios)
-    func scenario(_ scenario: CatalogueScenario) {
-        Catalogue.check(scenario)
+    func scenario(_ scenario: CatalogueScenario) async {
+        await HeavyTestGate.run {
+            Catalogue.check(scenario)
+        }
     }
 }

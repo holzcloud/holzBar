@@ -644,7 +644,9 @@ extension SimScenario {
 @Suite("CatalogueG6FileFaults")
 struct CatalogueG6FileFaultsTests {
     @Test("A1 G6: the file goes missing, is restored or becomes unusable", arguments: CatalogueG6FileFaults.scenarios)
-    func scenario(_ scenario: CatalogueScenario) {
-        Catalogue.check(scenario)
+    func scenario(_ scenario: CatalogueScenario) async {
+        await HeavyTestGate.run {
+            Catalogue.check(scenario)
+        }
     }
 }

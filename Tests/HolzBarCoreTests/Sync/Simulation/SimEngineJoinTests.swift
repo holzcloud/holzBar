@@ -174,31 +174,41 @@ struct SimEngineVariantTests {
     }
 
     @Test("Without the applied-context rule a change supersedes an entry its user never saw (INV-S1, INV-S7)")
-    func noAppliedContext() throws {
-        try Self.check(NoAppliedContext.self)
+    func noAppliedContext() async throws {
+        try await HeavyTestGate.run {
+            try Self.check(NoAppliedContext.self)
+        }
     }
 
     @Test("Overwriting an own file that was not read is caught (INV-S6, INV-Z6)")
-    func unreadOwnFileOverwrite() throws {
-        try Self.check(UnreadOwnFileOverwrite.self)
+    func unreadOwnFileOverwrite() async throws {
+        try await HeavyTestGate.run {
+            try Self.check(UnreadOwnFileOverwrite.self)
+        }
     }
 
     @Test("Minting at launch for a state that is no evidence is caught (INV-S2)")
-    func mintAtLaunchUntrusted() throws {
-        try Self.check(MintAtLaunchUntrusted.self)
+    func mintAtLaunchUntrusted() async throws {
+        try await HeavyTestGate.run {
+            try Self.check(MintAtLaunchUntrusted.self)
+        }
     }
 
     @Test("Absence as a value is caught (INV-A6, INV-S1)")
-    func equalToDefaultAsUnset() throws {
-        try Self.check(EqualToDefaultAsUnset.self)
+    func equalToDefaultAsUnset() async throws {
+        try await HeavyTestGate.run {
+            try Self.check(EqualToDefaultAsUnset.self)
+        }
     }
 
     @Test("The unmodified engine survives the same seeds of every scenario with no violation")
-    func realEngineSurvives() {
-        Self.survives(NoAppliedContext.self)
-        Self.survives(UnreadOwnFileOverwrite.self)
-        Self.survives(MintAtLaunchUntrusted.self)
-        Self.survives(EqualToDefaultAsUnset.self)
+    func realEngineSurvives() async {
+        await HeavyTestGate.run {
+            Self.survives(NoAppliedContext.self)
+            Self.survives(UnreadOwnFileOverwrite.self)
+            Self.survives(MintAtLaunchUntrusted.self)
+            Self.survives(EqualToDefaultAsUnset.self)
+        }
     }
 }
 

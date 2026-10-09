@@ -474,7 +474,9 @@ nonisolated enum CatalogueG4BetaPeers {
 @Suite("CatalogueG4BetaPeers")
 struct CatalogueG4BetaPeersTests {
     @Test("A1 G4: the same macOS version with a beta1 Mac", arguments: CatalogueG4BetaPeers.scenarios)
-    func scenario(_ scenario: CatalogueScenario) {
-        Catalogue.check(scenario)
+    func scenario(_ scenario: CatalogueScenario) async {
+        await HeavyTestGate.run {
+            Catalogue.check(scenario)
+        }
     }
 }

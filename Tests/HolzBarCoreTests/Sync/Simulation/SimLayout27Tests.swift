@@ -192,28 +192,30 @@ struct SimLayout27Tests {
     }
 
     @Test("Random worlds of two macOS 27 Macs and one macOS 26 Mac end with no layout-oracle violation and agree on the arrangement", arguments: chunks)
-    func randomWorlds(chunk: SimChunk) {
-        let environment = ProcessInfo.processInfo.environment
-        let limit = environment["SYNC_L27_SEEDS"].flatMap { UInt64($0) } ?? Self.defaultSeeds
-        var failures: [String] = []
-        for seed in chunk.first...chunk.last where seed <= limit {
-            let world = Self.run(seed: seed, preset: chunk.preset)
-            Self.drain(world)
-            for violation in world.oracleViolations.prefix(2) {
-                failures.append("seed \(seed): \(violation.id) \(violation.description)")
-            }
-            for difference in Self.disagreements(world).prefix(2) {
-                failures.append("seed \(seed): disagreement at \(difference)")
-            }
-            // A Mac of macOS 26 keeps its layout and profiles as they were: it never had any of the families.
-            if world.macs[.C]?.generation == 26 {
-                let held = SimUnits.units(of: world.defaults(of: .C)).filter { SimLayout27Oracles.isScoped($0.unit) }
-                if !held.isEmpty {
-                    failures.append("seed \(seed): the macOS 26 Mac holds \(held.map(\.unit))")
+    func randomWorlds(chunk: SimChunk) async {
+        await HeavyTestGate.run {
+            let environment = ProcessInfo.processInfo.environment
+            let limit = environment["SYNC_L27_SEEDS"].flatMap { UInt64($0) } ?? Self.defaultSeeds
+            var failures: [String] = []
+            for seed in chunk.first...chunk.last where seed <= limit {
+                let world = Self.run(seed: seed, preset: chunk.preset)
+                Self.drain(world)
+                for violation in world.oracleViolations.prefix(2) {
+                    failures.append("seed \(seed): \(violation.id) \(violation.description)")
+                }
+                for difference in Self.disagreements(world).prefix(2) {
+                    failures.append("seed \(seed): disagreement at \(difference)")
+                }
+                // A Mac of macOS 26 keeps its layout and profiles as they were: it never had any of the families.
+                if world.macs[.C]?.generation == 26 {
+                    let held = SimUnits.units(of: world.defaults(of: .C)).filter { SimLayout27Oracles.isScoped($0.unit) }
+                    if !held.isEmpty {
+                        failures.append("seed \(seed): the macOS 26 Mac holds \(held.map(\.unit))")
+                    }
                 }
             }
+            #expect(failures.isEmpty, "\(failures.count) violations\n\(failures.prefix(25).joined(separator: "\n"))")
         }
-        #expect(failures.isEmpty, "\(failures.count) violations\n\(failures.prefix(25).joined(separator: "\n"))")
     }
 
     /// The first seed of 1 to 60 on which a world run by `make` ends with a violation of one of `ids`.

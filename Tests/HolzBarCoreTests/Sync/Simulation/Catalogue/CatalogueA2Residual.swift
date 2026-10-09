@@ -641,7 +641,9 @@ nonisolated enum CatalogueA2Residual {
 @Suite("CatalogueA2Residual")
 struct CatalogueA2ResidualTests {
     @Test("A2 section 7: the scenarios no earlier catalogue file asserts", arguments: CatalogueExtraTables.selected(CatalogueA2Residual.scenarios))
-    func scenario(_ scenario: CatalogueScenario) {
-        Catalogue.check(scenario)
+    func scenario(_ scenario: CatalogueScenario) async {
+        await HeavyTestGate.run {
+            Catalogue.check(scenario)
+        }
     }
 }

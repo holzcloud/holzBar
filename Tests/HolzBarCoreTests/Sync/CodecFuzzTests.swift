@@ -527,21 +527,23 @@ struct CodecFuzzTests {
     }
 
     @Test("Arbitrary, damaged and hostile bytes never crash the codecs, are refused whole or accepted whole, and never apply a value outside the schema", arguments: Array(0..<CodecFuzzTests.chunks))
-    func fuzz(chunk: Int) {
-        let total = SimBudget.read().fuzzInputs
-        let perChunk = total / Self.chunks + (chunk < total % Self.chunks ? 1 : 0)
-        var generator = FuzzGenerator(seed: 0x5EED_0000 + UInt64(chunk))
-        var counts = [0, 0, 0]
-        for index in 0..<perChunk {
-            let (codec, input) = generator.input(index: index)
-            counts[codec] += 1
-            switch codec {
-            case 0: checkDeviceFile(input, chunk: chunk, index: index)
-            case 1: checkState(input, chunk: chunk, index: index)
-            default: checkLegacy(input, chunk: chunk, index: index)
+    func fuzz(chunk: Int) async {
+        await HeavyTestGate.run {
+            let total = SimBudget.read().fuzzInputs
+            let perChunk = total / Self.chunks + (chunk < total % Self.chunks ? 1 : 0)
+            var generator = FuzzGenerator(seed: 0x5EED_0000 + UInt64(chunk))
+            var counts = [0, 0, 0]
+            for index in 0..<perChunk {
+                let (codec, input) = generator.input(index: index)
+                counts[codec] += 1
+                switch codec {
+                case 0: checkDeviceFile(input, chunk: chunk, index: index)
+                case 1: checkState(input, chunk: chunk, index: index)
+                default: checkLegacy(input, chunk: chunk, index: index)
+                }
             }
+            #expect(counts.reduce(0, +) == perChunk)
         }
-        #expect(counts.reduce(0, +) == perChunk)
     }
 
     @Test("The canonical writers produce what Foundation reads back, in both formats")
@@ -571,19 +573,21 @@ struct CodecFuzzTests {
     }
 
     @Test("The generator damages every way it names, and valid files are among its inputs")
-    func generatorCoversTheDamage() {
-        var generator = FuzzGenerator(seed: 7)
-        var kinds = Set<String>()
-        var accepted = 0
-        for index in 0..<900 {
-            let (codec, input) = generator.input(index: index)
-            kinds.insert(input.kind)
-            if codec == 0, case .success = SyncDeviceFile.decode(input.data, fileName: input.fileName) { accepted += 1 }
+    func generatorCoversTheDamage() async {
+        await HeavyTestGate.run {
+            var generator = FuzzGenerator(seed: 7)
+            var kinds = Set<String>()
+            var accepted = 0
+            for index in 0..<900 {
+                let (codec, input) = generator.input(index: index)
+                kinds.insert(input.kind)
+                if codec == 0, case .success = SyncDeviceFile.decode(input.data, fileName: input.fileName) { accepted += 1 }
+            }
+            for expected in ["valid", "random bytes", "type swap", "counter at the edge", "identity", "oversize", "deep nesting", "dropped field", "unknown field", "duplicate dot", "truncation", "byte flips"] {
+                #expect(kinds.contains(expected), "the generator never made \(expected)")
+            }
+            #expect(accepted > 20, "only \(accepted) device files were accepted, so the fuzz mostly tests refusals")
         }
-        for expected in ["valid", "random bytes", "type swap", "counter at the edge", "identity", "oversize", "deep nesting", "dropped field", "unknown field", "duplicate dot", "truncation", "byte flips"] {
-            #expect(kinds.contains(expected), "the generator never made \(expected)")
-        }
-        #expect(accepted > 20, "only \(accepted) device files were accepted, so the fuzz mostly tests refusals")
     }
 
     @Test("A device file with a counter at 2^34 is accepted and one above it is refused whole")
