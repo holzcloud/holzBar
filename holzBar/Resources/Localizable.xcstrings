@@ -505,6 +505,34 @@
         }
       }
     },
+    "A profile's macOS 27 layout syncs between Macs with macOS 27. This Mac's macOS 26 layouts stay on this Mac." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das macOS-27-Layout eines Profils wird zwischen Macs mit macOS 27 abgeglichen. Die macOS-26-Layouts dieses Macs bleiben auf diesem Mac."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La disposition macOS 27 d'un profil se synchronise entre les Mac sous macOS 27. Les dispositions macOS 26 de ce Mac restent sur ce Mac."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il layout macOS 27 di un profilo si sincronizza tra Mac con macOS 27. I layout macOS 26 di questo Mac restano su questo Mac."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La disposiziun macOS 27 d'in profil vegn sincronisada tranter Macs cun macOS 27. Las disposiziuns macOS 26 da quest Mac restan sin quest Mac."
+          }
+        }
+      }
+    },
     "A setting from a newer holzBar can't be used here." : {
       "localizations" : {
         "de" : {
@@ -6357,6 +6385,34 @@
         }
       }
     },
+    "Profiles and their macOS 27 layouts sync with your other Macs with macOS 27. Display and Space bindings stay on each Mac." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile und ihre macOS-27-Layouts werden mit deinen anderen Macs mit macOS 27 abgeglichen. Bindungen an Displays und Spaces bleiben auf dem jeweiligen Mac."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les profils et leurs dispositions macOS 27 se synchronisent avec vos autres Mac sous macOS 27. Les liaisons aux écrans et aux Spaces restent sur chaque Mac."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I profili e i loro layout macOS 27 si sincronizzano con i tuoi altri Mac con macOS 27. I collegamenti a display e Space restano su ogni Mac."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils profils e lur disposiziuns macOS 27 vegnan sincronisads cun tes auters Macs cun macOS 27. Las colliaziuns cun ecrans e Spaces restan sin mintga Mac."
+          }
+        }
+      }
+    },
     "Quit" : {
       "localizations" : {
         "de" : {
@@ -10891,6 +10947,34 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "Your other Macs with macOS 27 delete it too." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine anderen Macs mit macOS 27 löschen es ebenfalls."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos autres Mac sous macOS 27 le suppriment aussi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anche i tuoi altri Mac con macOS 27 lo eliminano."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er tes auters Macs cun macOS 27 al stizzan."
           }
         }
       }
