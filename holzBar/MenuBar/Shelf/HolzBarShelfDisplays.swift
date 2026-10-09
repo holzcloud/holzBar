@@ -31,6 +31,15 @@ enum HolzBarShelfDisplays: Int, CaseIterable, Identifiable {
         }
     }
 
+    /// The text of the choice, for places that show it as a plain string (the sync sheet).
+    var title: String {
+        switch self {
+        case .all: String(localized: "All displays")
+        case .builtIn: String(localized: "Built-in display only")
+        case .notched: String(localized: "Displays with a notch only")
+        }
+    }
+
     /// Returns a Boolean value that indicates whether the holzBar Shelf is used on
     /// the given screen.
     func includes(_ screen: NSScreen?) -> Bool {

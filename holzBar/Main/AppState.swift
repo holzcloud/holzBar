@@ -196,6 +196,8 @@ final class AppState {
         imageCache.performSetup(with: self)
         itemIconStore.performSetup(with: self)
         profiles.performSetup(with: self)
+        // The sheet that asks which settings to use; it opens only from a click, never by itself.
+        settingsSync.questionPresenter = SyncQuestionSheet(appState: self)
         settingsSync.performSetup(with: self)
         itemGroups.performSetup(with: self)
         spacers.performSetup()

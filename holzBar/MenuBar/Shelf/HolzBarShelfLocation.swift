@@ -26,4 +26,13 @@ enum HolzBarShelfLocation: Int, CaseIterable, Identifiable {
         case .holzBarIcon: "holzBar icon"
         }
     }
+
+    /// The text of the choice, for places that show it as a plain string (the sync sheet).
+    var title: String {
+        switch self {
+        case .dynamic: String(localized: "Dynamic")
+        case .mousePointer: String(localized: "Mouse pointer")
+        case .holzBarIcon: String(localized: "holzBar icon")
+        }
+    }
 }

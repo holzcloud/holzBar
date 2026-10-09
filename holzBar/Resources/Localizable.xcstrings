@@ -1,6 +1,34 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ (this Mac)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (dieser Mac)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (ce Mac)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (questo Mac)"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (quest Mac)"
+          }
+        }
+      }
+    },
     "%@ is unresponsive. Until it is restarted, it cannot be moved. Movement of other menu bar items may also be affected until this is resolved." : {
       "localizations" : {
         "de" : {
@@ -165,6 +193,146 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ secundas"
+          }
+        }
+      }
+    },
+    "%@, this Mac: %@, sync folder: %@, %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, dieser Mac: %@, Abgleichordner: %@, %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, ce Mac : %@, dossier de synchronisation : %@, %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, questo Mac: %@, cartella di sincronizzazione: %@, %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, quest Mac: %@, ordinatur da sincronisaziun: %@, %@"
+          }
+        }
+      }
+    },
+    "%@: %@ (this Mac) · %@ (another Mac)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: %@ (dieser Mac) · %@ (anderer Mac)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : %@ (ce Mac) · %@ (autre Mac)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: %@ (questo Mac) · %@ (altro Mac)"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: %@ (quest Mac) · %@ (auter Mac)"
+          }
+        }
+      }
+    },
+    "%@: Show When It Changes" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: Bei Änderung einblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : Afficher quand il change"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: Mostra quando cambia"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: Mussar, cura ch'el sa mida"
+          }
+        }
+      }
+    },
+    "%@: image" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: Bild"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : image"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: immagine"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: maletg"
+          }
+        }
+      }
+    },
+    "%@: menu bar section" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: Menüleistenbereich"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : section de la barre des menus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: sezione della barra dei menu"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: secziun da la trav da menu"
           }
         }
       }
@@ -673,6 +841,34 @@
         }
       }
     },
+    "Already decided on another Mac" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereits auf einem anderen Mac entschieden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déjà décidé sur un autre Mac"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Già deciso su un altro Mac"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gia decidì sin in auter Mac"
+          }
+        }
+      }
+    },
     "Already granted in System Settings?" : {
       "localizations" : {
         "de" : {
@@ -837,6 +1033,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ina autra app ha dumandà holzBar da deactivar il modus Zen. Elements zuppads pudessan lura vegnir mussads."
+          }
+        }
+      }
+    },
+    "App icon" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App-Symbol"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icône de l'app"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icona dell'app"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simbol da l'app"
           }
         }
       }
@@ -1681,6 +1905,34 @@
         }
       }
     },
+    "Changed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geändert"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifié"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modificato"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Midà"
+          }
+        }
+      }
+    },
     "Change…" : {
       "localizations" : {
         "de" : {
@@ -1789,6 +2041,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tscherner ils parameters …"
+          }
+        }
+      }
+    },
+    "Choose a Value" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wert auswählen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir une valeur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli un valore"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tscherner ina valur"
           }
         }
       }
@@ -2269,6 +2549,34 @@
         }
       }
     },
+    "Custom icon" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigenes Symbol"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icône personnalisée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icona personalizzata"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agen simbol"
+          }
+        }
+      }
+    },
     "Custom icon uses dynamic appearance" : {
       "localizations" : {
         "de" : {
@@ -2293,6 +2601,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Agen simbol cun apparientscha dinamica"
+          }
+        }
+      }
+    },
+    "Custom image" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigenes Bild"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Image personnalisée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immagine personalizzata"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maletg persunal"
           }
         }
       }
@@ -2433,6 +2769,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stizzar il profil «%@»?"
+          }
+        }
+      }
+    },
+    "Deleted" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gelöscht"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminato"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stizzà"
           }
         }
       }
@@ -3557,6 +3921,34 @@
         }
       }
     },
+    "Hotkey: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tastenkürzel: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raccourci clavier : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbreviazione da tastiera: %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cumbinaziun da tastas: %@"
+          }
+        }
+      }
+    },
     "Hotkeys" : {
       "localizations" : {
         "de" : {
@@ -4197,6 +4589,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Posiziun"
+          }
+        }
+      }
+    },
+    "Low battery threshold" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schwelle für niedrigen Akkustand"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seuil de batterie faible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soglia di batteria scarica"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limita da batteria flaivla"
           }
         }
       }
@@ -5097,6 +5517,34 @@
         }
       }
     },
+    "Not set" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht festgelegt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non défini"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non impostato"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg definì"
+          }
+        }
+      }
+    },
     "Notch and Screen" : {
       "localizations" : {
         "de" : {
@@ -5205,6 +5653,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deactivà"
+          }
+        }
+      }
+    },
+    "On" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attivato"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activà"
           }
         }
       }
@@ -5769,6 +6245,90 @@
         }
       }
     },
+    "Profile “%@”: macOS 27 layout" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: Layout für macOS 27"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil « %@ » : disposition pour macOS 27"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilo «%@»: layout per macOS 27"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: disposiziun per macOS 27"
+          }
+        }
+      }
+    },
+    "Profile “%@”: name" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: Name"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil « %@ » : nom"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilo «%@»: nome"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: num"
+          }
+        }
+      }
+    },
+    "Profile “%@”: name and macOS 27 layout" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: Name und Layout für macOS 27"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil « %@ » : nom et disposition pour macOS 27"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilo «%@»: nome e layout per macOS 27"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: num e disposiziun per macOS 27"
+          }
+        }
+      }
+    },
     "Profiles" : {
       "localizations" : {
         "de" : {
@@ -6111,6 +6671,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Registrar ina cumbinaziun"
+          }
+        }
+      }
+    },
+    "Rehide interval" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intervall zum erneuten Ausblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Délai avant de masquer à nouveau"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intervallo prima di nascondere di nuovo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interval per zuppentar puspè"
           }
         }
       }
@@ -7123,6 +7711,34 @@
         }
       }
     },
+    "Setting" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellung"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réglage"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parameter"
+          }
+        }
+      }
+    },
     "Settings" : {
       "localizations" : {
         "de" : {
@@ -7879,6 +8495,34 @@
         }
       }
     },
+    "Spacer width" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breite der Abstandhalter"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Largeur des espaceurs"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Larghezza degli spaziatori"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ladezza dals distanziaders"
+          }
+        }
+      }
+    },
     "Spacers" : {
       "localizations" : {
         "de" : {
@@ -8043,6 +8687,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sincronisar qua"
+          }
+        }
+      }
+    },
+    "Sync folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abgleichordner"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dossier de synchronisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella di sincronizzazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordinatur da sincronisaziun"
           }
         }
       }
@@ -8523,30 +9195,58 @@
         }
       }
     },
-    "The sync folder holds settings from another Mac that differ from this Mac's. Using them restarts holzBar; keeping this Mac's settings replaces them in the sync folder." : {
+    "These settings differ between this Mac and the sync folder." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der Abgleichordner enthält Einstellungen eines anderen Macs, die von denen dieses Macs abweichen. Verwendest du sie, startet holzBar neu; behältst du die Einstellungen dieses Macs, ersetzen sie jene im Abgleichordner."
+            "value" : "Diese Einstellungen unterscheiden sich zwischen diesem Mac und dem Abgleichordner."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le dossier de synchronisation contient des réglages d'un autre Mac qui diffèrent de ceux de ce Mac. Les utiliser redémarre holzBar ; garder les réglages de ce Mac les remplace dans le dossier de synchronisation."
+            "value" : "Ces réglages diffèrent entre ce Mac et le dossier de synchronisation."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La cartella di sincronizzazione contiene impostazioni di un altro Mac diverse da quelle di questo Mac. Usarle riavvia holzBar; mantenere le impostazioni di questo Mac le sostituisce nella cartella di sincronizzazione."
+            "value" : "Queste impostazioni differiscono tra questo Mac e la cartella di sincronizzazione."
           }
         },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "L'ordinatur da sincronisaziun cuntegna parameters d'in auter Mac che sa distinguan da quels da quest Mac. Sche ti als duvras, reavia holzBar; sche ti tegnas ils parameters da quest Mac, remplazzan quels ils parameters en l'ordinatur da sincronisaziun."
+            "value" : "Quests parameters sa distinguan tranter quest Mac e l'ordinatur da sincronisaziun."
+          }
+        }
+      }
+    },
+    "This Mac" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Mac"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce Mac"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo Mac"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quest Mac"
           }
         }
       }
@@ -9391,6 +10091,34 @@
         }
       }
     },
+    "Use Chosen Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gewählte Einstellungen verwenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser les réglages choisis"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa le impostazioni scelte"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duvrar ils parameters tschernids"
+          }
+        }
+      }
+    },
     "Use Settings from Sync Folder" : {
       "localizations" : {
         "de" : {
@@ -9583,6 +10311,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Na dovra nagina permissiun: holzBar percorscha in monitur spievlà e l'agent da partiziun dal monitur da macOS."
+          }
+        }
+      }
+    },
+    "Using the sync folder's settings restarts holzBar." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwendest du die Einstellungen des Abgleichordners, startet holzBar neu."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser les réglages du dossier de synchronisation redémarre holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usare le impostazioni della cartella di sincronizzazione riavvia holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sche ti duvras ils parameters da l'ordinatur da sincronisaziun, reavia holzBar."
+          }
+        }
+      }
+    },
+    "Value to use for %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu verwendender Wert für %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valeur à utiliser pour %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valore da usare per %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valur da duvrar per %@"
           }
         }
       }
@@ -9933,6 +10717,34 @@
         }
       }
     },
+    "You changed these settings on this Mac, and they were changed differently on another Mac. Your other settings stay as they are on all your Macs." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du hast diese Einstellungen auf diesem Mac geändert, und sie wurden auf einem anderen Mac anders geändert. Deine übrigen Einstellungen bleiben auf all deinen Macs, wie sie sind."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous avez modifié ces réglages sur ce Mac, et ils ont été modifiés différemment sur un autre Mac. Vos autres réglages restent tels quels sur tous vos Mac."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hai modificato queste impostazioni su questo Mac e sono state modificate in modo diverso su un altro Mac. Le altre impostazioni restano invariate su tutti i tuoi Mac."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ti has midà quests parameters sin quest Mac, ed els èn vegnids midads differentamain sin in auter Mac. Tes auters parameters restan sco ch'els èn sin tut tes Macs."
+          }
+        }
+      }
+    },
     "Your custom holzBar icon is too large to sync." : {
       "localizations" : {
         "de" : {
@@ -9944,19 +10756,47 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Votre icône holzBar personnalisée est trop grande pour être synchronisée."
+            "value" : "Votre icône personnalisée de holzBar est trop grande pour être synchronisée."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La tua icona holzBar personalizzata è troppo grande per essere sincronizzata."
+            "value" : "La tua icona personalizzata di holzBar è troppo grande per essere sincronizzata."
           }
         },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tia icona holzBar persunala è memia gronda per vegnir sincronisada."
+            "value" : "Tes agen simbol da holzBar è memia grond per vegnir sincronisà."
+          }
+        }
+      }
+    },
+    "Your other Macs changed these settings differently. Choose which value to use on all your Macs." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine anderen Macs haben diese Einstellungen unterschiedlich geändert. Wähle, welcher Wert auf all deinen Macs gelten soll."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos autres Mac ont modifié ces réglages différemment. Choisissez la valeur à utiliser sur tous vos Mac."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tuoi altri Mac hanno modificato queste impostazioni in modo diverso. Scegli quale valore usare su tutti i tuoi Mac."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes auters Macs han midà quests parameters differentamain. Tscherna tge valur che duai valair sin tut tes Macs."
           }
         }
       }
@@ -10166,6 +11006,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "da Jordan Baird"
+          }
+        }
+      }
+    },
+    "changed on %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "geändert am %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "modifié le %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "modificato il %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "midà ils %@"
           }
         }
       }
