@@ -528,6 +528,8 @@ Plans:
 
 **Plans**: 2 planned (see `phases/27-release-0.0.7/PLAN.md`)
 
+**Wish list (chosen by the user on 2026-10-09 after the competitor analysis, not scheduled)**: more rule triggers (VPN, Bluetooth, audio, camera and microphone, Energy Mode; Thaw has them), Shelf layouts (grid, vertical; Thaw has them), script hooks before and after a profile is applied (Thaw has them). Gaps the user rejected earlier stay rejected: Developer ID notarization, hiding desktop icons, clipboard history.
+
 **Backlog (not in this milestone)**, ideas the user did not select, kept so they are not lost:
 - Hide desktop icons (Vanilla has it). The only known mechanism, a Finder preference plus a Finder restart, is unverified and against least privilege.
 - "Verify this build" button (check the running app's signature and attestation against the release).

@@ -142,6 +142,14 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Settings sync between your Macs** through any folder they sync (iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing, a network share), **redesigned from scratch**, designed not to lose or silently overwrite a change. It is not in 0.0.7; earlier releases carried a first version of it, which was withdrawn. Until 1.0.0, **Export…** and **Import…** move settings between Macs.
 - **Optional all-in-one modules**; the details follow closer to the release.
 
+### Wish list
+
+Not scheduled yet; they follow once 0.0.8 and 0.0.9 are out.
+
+- **More rule triggers**: VPN, Bluetooth, audio, camera and microphone in use, Energy Mode. Each one is checked for the permission it needs before it is built.
+- **Shelf layouts**: a grid and a vertical layout for the holzBar Shelf.
+- **Script hooks**: a script that runs before and after a profile is applied, with the same folder choice, hash pinning and confirmation as the other scripts.
+
 The "holzBar vs. Ice and Thaw" table above marks these with 🔜 and the release.
 
 ## Gallery

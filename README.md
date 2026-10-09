@@ -168,6 +168,8 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 | 🔄 **Settings sync** | Your settings kept in step between your Macs through any folder they sync, such as iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share; **redesigned from scratch** |
 | 🧩 **Modules** | The optional **all-in-one modules** |
 
+**Wish list**, not scheduled yet: **more rule triggers** (VPN, Bluetooth, audio, camera and microphone, Energy Mode), **Shelf layouts** (grid, vertical) and **script hooks** before and after a profile is applied.
+
 Details: [docs/features.md](docs/features.md#planned-next).
 
 ## 📚 More
