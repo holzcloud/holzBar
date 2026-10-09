@@ -46,7 +46,7 @@ struct ModuleGalleryView<Settings: View>: View {
     }
 
     private let columns = [
-        GridItem(.adaptive(minimum: 300), spacing: HolzBarTheme.Spacing.md, alignment: .top)
+        GridItem(.adaptive(minimum: 300), spacing: HolzBarTheme.Spacing.md, alignment: .top),
     ]
 
     var body: some View {
@@ -126,7 +126,7 @@ struct ModuleGalleryView<Settings: View>: View {
             titleKey: "Clipboard history",
             summaryKey: "Local, opt-in and erasable.",
             permission: nil
-        )
+        ),
     ]
     return ModuleGalleryView(
         modules: modules,
@@ -137,11 +137,12 @@ struct ModuleGalleryView<Settings: View>: View {
         permissionText: { Text(verbatim: "Needs \($0.rawValue)") },
         isPermissionGranted: { _ in false },
         emptyTitle: Text(verbatim: "No modules yet"),
-        emptyMessage: Text(verbatim: "Modules arrive with the next releases.")
-    ) { _ in
-        Text(verbatim: "Settings of the module.")
-            .font(HolzBarTheme.Typography.callout)
-    }
+        emptyMessage: Text(verbatim: "Modules arrive with the next releases."),
+        settings: { _ in
+            Text(verbatim: "Settings of the module.")
+                .font(HolzBarTheme.Typography.callout)
+        }
+    )
     .frame(width: 720, height: 520)
     .background(HolzBarTheme.Palette.ground)
 }
