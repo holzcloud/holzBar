@@ -40,7 +40,7 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 
 | | |
 |---|---|
-| 🪵 **macOS 14 to 27** | A dedicated backend for the redesigned macOS 27 menu bar. Every pull request launches the app on macOS 14, 15, 26 and 27 and runs the unit tests. |
+| 🪵 **macOS 14 to 27** | A dedicated backend for the redesigned macOS 27 menu bar. Every pull request launches the app on macOS 26 and 27 and runs the unit tests there; older macOS versions are not tested. |
 | 🔒 **Never online** | No update checks, telemetry or analytics. A CI check proves there is no network code in the app. |
 | 📦 **Zero dependencies, modern Swift** | Built with Swift 6.4 and Xcode 27, Swift 6 language mode, no third-party packages. |
 | 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. From 0.0.7-beta2, one executable with no helper process or nested code, and no entitlements, not even one that lets a debugger attach. |
@@ -48,24 +48,43 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 | ✨ **More features** | Profiles, folders, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, a camera and microphone dot on macOS 27. |
 | 🌍 **Five languages** | English, German, French, Italian and Romansh. |
 
-## ⚖️ holzBar vs. Ice and Thaw
+## ⚖️ holzBar vs. Ice, Thaw and Bartender
 
-— means not available or not documented. 🔜 means planned: **not available yet**. The [full comparison](docs/comparison.md) has every row.
+— means not available or not documented. 🔜 means planned: **not available yet**. Bartender 7 is the paid, closed-source app for macOS 27 (Bartender 6 covers macOS 14 – 26); its column comes from its product page. The [full comparison](docs/comparison.md) has every row.
 
-| | Ice 0.11.12 | Thaw 3.0 beta | holzBar |
-|---|:---:|:---:|:---:|
-| macOS 14 – 26 | ✅ | macOS 26 only | ✅ |
-| macOS 27 | ❌ | ✅ | ✅ |
-| Layout profiles, groups, spacers | ❌ | ✅ | ✅ |
-| Zen mode, URL commands, Shortcuts actions | ❌ | ✅ | ✅ |
-| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | 🔜 1.0.0 <sub>planned, not available</sub> |
-| Network connections | Sparkle update checks | Sparkle update checks | **none** |
-| Swift packages | 5 | 10 | **none** |
-| Swift language mode | Swift 5 | Swift 6 | Swift 6 |
-| One executable, no helper process with the app's permissions | ❌ | — | ✅ <sub>from 0.0.7-beta2</sub> |
-| Build provenance: GitHub attestation, SLSA Build Level 3 | ❌ | — | ✅ <sub>SLSA from 0.0.7-beta2</sub> |
-| OpenSSF Scorecard, actions pinned by commit SHA | — | — | ✅ <sub>except the SLSA generator (release tag)</sub> |
-| Rules (Wi-Fi, app, time, power, display, Focus) | ❌ | ✅ | 🔜 0.0.8 |
+| | Ice 0.11.12 | Thaw 3.0 beta | Bartender 7 | holzBar |
+|---|:---:|:---:|:---:|:---:|
+| macOS 14 – 26 | ✅ | macOS 26 only | ✅ <sub>Bartender 6</sub> | ✅ |
+| macOS 27 | ❌ | ✅ | ✅ | ✅ |
+| Layout profiles, groups, spacers | ❌ | ✅ | ✅ | ✅ |
+| Zen mode, URL commands, Shortcuts actions | ❌ | ✅ | Shortcuts, Siri, AppleScript | ✅ |
+| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | — | 🔜 1.0.0 <sub>planned, not available</sub> |
+| Network connections | Sparkle update checks | Sparkle update checks | — | **none** |
+| Swift packages | 5 | 10 | closed source | **none** |
+| Price and licence | free, open source | free, open source | paid, closed source | free, open source (GPL-3.0) |
+| Swift language mode | Swift 5 | Swift 6 | — | Swift 6 |
+| One executable, no helper process with the app's permissions | ❌ | — | — | ✅ <sub>from 0.0.7-beta2</sub> |
+| Build provenance: GitHub attestation, SLSA Build Level 3 | ❌ | — | — | ✅ <sub>SLSA from 0.0.7-beta2</sub> |
+| OpenSSF Scorecard, actions pinned by commit SHA | — | — | — | ✅ <sub>except the SLSA generator (release tag)</sub> |
+| Rules (Wi-Fi, app, time, power, display, Focus) | ❌ | ✅ | ✅ | 🔜 0.0.8 |
+
+### All alternatives at a glance
+
+Researched on 9 October 2026 from each project's own pages, repositories and listings. The [full comparison](docs/alternatives.md) answers 30 questions for 11 apps.
+
+| App | Price | Open source | macOS | Good to know |
+|---|---|:---:|---|---|
+| **holzBar** | free | ✅ GPL-3.0 | 14 – 27 | never online, no dependencies; Homebrew |
+| [**Bartender 7**](https://www.macbartender.com/Bartender7/) | paid | ❌ | 27 (Bartender 6: 26 and 15) | triggers, widgets, AppleScript, Shortcuts; Screen Recording optional |
+| [**Ice**](https://github.com/jordanbaird/Ice) | free | ✅ GPL-3.0 | 14+, not 27 | the original; last stable release October 2025, looks unmaintained |
+| [**Thaw**](https://github.com/thaw-app/Thaw) | free | ✅ GPL-3.0 | 26+ (3.0 beta: 27) | broadest triggers and scripts; 20 languages; Sparkle |
+| [**SaneBar**](https://github.com/sane-apps/SaneBar) | free | ✅ MIT | 14 – 26, Apple Silicon | **sunset on 30 June 2026**; profiles, Touch ID lock, AppleScript; sends anonymous event counts |
+| [**Tuck**](https://usetuck.com) | free; Pro $14.99 | ❌ | 14 – 27 | Shelf, rules per app; updated 6 October 2026 |
+| [**Barbee**](https://apps.apple.com/app/id1548711022) | free; lifetime $12.99 | ❌ | 11+ | profiles, cloud sync, 20 languages; needs Screen Recording |
+| [**Hidden Bar**](https://github.com/dwarvesf/hidden) | free | ✅ MIT | 13+ | tiny; hides per app on macOS 27; the App Store build cannot hide there |
+| [**Dozer**](https://github.com/Mortennn/Dozer) | free | ✅ MPL-2.0 | — | Intel-only build; no release since 2022 |
+| **Vanilla** | free; Pro $10 | ❌ | Catalina+ | simple; animations; needs Screen Recording |
+| **iBar** | free + $2.99/yr | ❌ | 10.12+ | floating bar under the notch; Mac App Store |
 
 ## 🚀 Install
 
@@ -130,7 +149,7 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 | | |
 |---|---|
 | ⚙️ **Automation** | **Rules** (Wi-Fi, app, time, power, display, Focus; *spike first: Focus*) · **per-item conditions** · **scripts** (only from a folder you choose, after you confirm) |
-| 🛟 **Safety** | **Layout snapshots** with a one-click restore · **shareable profiles** · **Touch ID** to show hidden items · **copy diagnostics** (redacted, nothing is sent) |
+| 🛟 **Safety** | **Layout snapshots** with a one-click restore · **shareable profiles** · **Touch ID** to show hidden items · **revoke permissions in Settings** (with a guide) · **copy diagnostics** (redacted, nothing is sent) |
 | 🪄 **Convenience** | **First-launch assistant** · **works without Screen Recording** (app icons instead of live snapshots) · system items such as Clock, Wi-Fi and Battery **pinned visible** · more **menu bar styles** |
 | 🪵 **Polish** | SwiftUI reordering (*spike*) · keyboard and VoiceOver audit · Swift 6.4 clean-up |
 
@@ -153,7 +172,7 @@ Details: [docs/features.md](docs/features.md#planned-next).
 
 ## 📚 More
 
-[Features and gallery](docs/features.md) · [macOS 27 notes](docs/features.md#macos-27) · [Privacy and permissions](docs/privacy-and-permissions.md) · [Troubleshooting](docs/build-and-troubleshooting.md) · [Full comparison](docs/comparison.md)
+[Features and gallery](docs/features.md) · [macOS 27 notes](docs/features.md#macos-27) · [Privacy and permissions](docs/privacy-and-permissions.md) · [Troubleshooting](docs/build-and-troubleshooting.md) · [Full comparison](docs/comparison.md) · [All alternatives](docs/alternatives.md)
 
 ## 🙏 Credits
 

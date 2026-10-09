@@ -109,6 +109,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Layout snapshots** taken automatically, with a one-click restore.
 - **Share a profile** as a small validated file; it never contains personal data or code.
 - **Touch ID or password** to show hidden items.
+- **Revoke permissions in Settings**: a button per permission that withdraws it again (for holzBar's own entry only) or opens the right System Settings pane, so you never have to hunt for it.
 - **Copy diagnostics**: a redacted report you read before you copy it; nothing is sent.
 - **First-launch assistant** that proposes an arrangement from static facts, skippable and re-runnable.
 - **Works without Screen Recording**: every feature runs without it, and the Shelf shows app icons instead of live snapshots.
