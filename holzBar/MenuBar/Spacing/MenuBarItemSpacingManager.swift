@@ -173,7 +173,8 @@ final class MenuBarItemSpacingManager {
 
     /// Applies the current ``offset``.
     ///
-    /// - Note: Calling this restarts all apps with a menu bar item.
+    /// - Note: Calling this restarts all apps with a menu bar item, except the system agents
+    ///   that refuse to quit (Control Center, SystemUIServer, MenuBarAgent).
     func applyOffset() async throws {
         try writeSpacingPreferences()
 
@@ -219,15 +220,9 @@ final class MenuBarItemSpacingManager {
             }
         }
 
-        try? await Task.sleep(for: .milliseconds(100))
-
-        // Control Center relaunches itself once told to quit.
-        if let app = NSRunningApplication.runningApplications(withBundleIdentifier: SpacingRelaunch.controlCenterBundleIdentifier).first {
-            let didQuit = await quit(app)
-            if !didQuit, let name = app.localizedName {
-                failedApps.append(name)
-            }
-        }
+        // Control Center and SystemUIServer are not asked to quit: they refuse, so asking them
+        // only made every apply wait the whole quit timeout and report them as failures
+        // (see `SpacingRelaunch.processesToRelaunch`).
 
         if !failedApps.isEmpty {
             throw GroupedRelaunchError(failedApps: failedApps)

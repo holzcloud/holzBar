@@ -39,14 +39,48 @@ struct SpacingRelaunchTests {
         #expect(SpacingRelaunch.processesToRelaunch(owners: owners, ownPID: 31) == [30, 50])
     }
 
-    @Test("Control Center and MenuBarAgent are never relaunched")
+    @Test("Control Center, SystemUIServer and MenuBarAgent are never relaunched")
     func systemProcessesAreNeverRelaunched() {
         let owners = [
             Owner(pid: 5, bundleIdentifier: "com.apple.MenuBarAgent"),
             Owner(pid: 6, bundleIdentifier: "com.apple.controlcenter"),
             Owner(pid: 7, bundleIdentifier: "com.apple.Spotlight"),
+            Owner(pid: 8, bundleIdentifier: "com.apple.systemuiserver"),
+            Owner(pid: 9, bundleIdentifier: "com.apple.TextInputMenuAgent"),
         ]
-        #expect(SpacingRelaunch.processesToRelaunch(owners: owners, ownPID: 1) == [7])
+        // Spotlight and TextInputMenuAgent quit when asked; SystemUIServer ignores the request
+        // and Control Center cancels it, so asking them only cost the quit timeout.
+        #expect(SpacingRelaunch.processesToRelaunch(owners: owners, ownPID: 1) == [7, 9])
+    }
+
+    @Test("The progress ends before a failure is reported")
+    func progressEndsBeforeTheFailureIsReported() async {
+        struct Failure: Error { }
+        var events = [String]()
+        await SpacingRelaunch.apply {
+            events.append("apply")
+            throw Failure()
+        } finished: {
+            events.append("finished")
+        } reportFailure: { error in
+            // The report is an alert that waits for the user, who may not see it while
+            // another app is active; the progress must not wait for it.
+            events.append(error is Failure ? "report" : "wrong error")
+        }
+        #expect(events == ["apply", "finished", "report"])
+    }
+
+    @Test("The progress ends once the spacing is applied, with nothing to report")
+    func progressEndsAfterSuccess() async {
+        var events = [String]()
+        await SpacingRelaunch.apply {
+            events.append("apply")
+        } finished: {
+            events.append("finished")
+        } reportFailure: { _ in
+            events.append("report")
+        }
+        #expect(events == ["apply", "finished"])
     }
 
     @Test("Each process is returned once, sorted by pid")

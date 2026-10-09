@@ -353,12 +353,15 @@ struct GeneralSettingsPane: View {
         isApplyingItemSpacingOffset = true
         settings.itemSpacingOffset = tempItemSpacingOffset
         Task {
-            do {
+            // The spinner stops before the alert: the alert waits for the user, who may not
+            // see it while another app is active.
+            await SpacingRelaunch.apply {
                 try await appState.spacingManager.applyOffset()
-            } catch {
+            } finished: {
+                isApplyingItemSpacingOffset = false
+            } reportFailure: { error in
                 await NSAlert(error: error).present(attachedTo: appState.navigationState.settingsWindow)
             }
-            isApplyingItemSpacingOffset = false
         }
     }
 }
