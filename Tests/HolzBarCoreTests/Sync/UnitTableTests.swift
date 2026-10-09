@@ -120,6 +120,44 @@ struct UnitTableTests {
         #expect(SyncUnitTable.isExcluded(storedKey: "NSWindow Frame Settings"))
     }
 
+    // MARK: The list of synced keys
+
+    /// The repository root, from this file's path (`Tests/HolzBarCoreTests/Sync/`).
+    private static let repositoryRoot = URL(fileURLWithPath: #filePath)
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+
+    /// The raw value of every `Defaults.Key` whose class is not local, sorted by UTF-8 bytes.
+    private static var syncedKeyList: [String] {
+        Defaults.Key.allCases
+            .filter { key in
+                if case .local = SyncUnitTable.keyClass(key) {
+                    return false
+                }
+                return true
+            }
+            .map(\.rawValue)
+            .sorted { $0.utf8.lexicographicallyPrecedes($1.utf8) }
+    }
+
+    @Test("The checked-in list of synced keys is the unit table's (SYNC_WRITE_KEYS=1 rewrites it)")
+    func syncedKeyFileMatchesTable() throws {
+        let url = Self.repositoryRoot.appendingPathComponent(".github/sync-synced-keys.txt")
+        let expected = Self.syncedKeyList
+        if ProcessInfo.processInfo.environment["SYNC_WRITE_KEYS"] == "1" {
+            try (expected.joined(separator: "\n") + "\n").write(to: url, atomically: true, encoding: .utf8)
+        }
+        let text = try String(contentsOf: url, encoding: .utf8)
+        let listed = text.split(separator: "\n", omittingEmptySubsequences: true).map(String.init)
+        let missing = Set(expected).subtracting(listed).sorted()
+        let extra = Set(listed).subtracting(expected).sorted()
+        #expect(missing.isEmpty, "Keys of the unit table that .github/sync-synced-keys.txt lacks: \(missing)")
+        #expect(extra.isEmpty, "Keys of .github/sync-synced-keys.txt that the unit table does not sync: \(extra)")
+        #expect(listed == expected, "The list is sorted, one key per line, without duplicates")
+    }
+
     @Test("The table is version 1")
     func version() {
         #expect(table.version == 1)

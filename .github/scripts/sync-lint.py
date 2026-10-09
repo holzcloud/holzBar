@@ -24,6 +24,20 @@
 #              host passes in a fresh identity.
 #   hashing    Hasher and hashValue, whose seed changes per process.
 #
+# The writer rule (analysis section 4.9, item 7), applied to every Swift file under holzBar/:
+#
+#   writer     A write of a synced key outside the allowed sites. The synced keys are
+#              listed in .github/sync-synced-keys.txt (the unit table's keys that are not
+#              local; a test keeps the list in step with the table). A write is
+#              Defaults.set, Defaults.removeObject, a set, setValue or removeObject on
+#              UserDefaults, or CFPreferencesSetValue, whose key is named by its Defaults.Key
+#              case or its raw value. Any automatic writer of a synced key would make sync
+#              publish a change no user made, so a new writer has to be reviewed and added
+#              to WRITER_ALLOWED with a reason. The sync code in holzBar/Core/Sync never
+#              writes preferences, apart from SyncDefaultsStore, its one gateway.
+#              A write of MacOS27Layout is allowed in fewer places (LAYOUT_WRITERS): a new
+#              user path of the arrangement has to send an intent (plan 28-16).
+#
 # A line that is safe on purpose carries the marker `sync-lint: ordered <reason>`
 # in a comment on that line or on the line above; the reason says why the order
 # cannot matter (a sum, a membership test, a result that is sorted afterwards).
@@ -363,6 +377,201 @@ def lint_text(path, raw, names, functions):
     return findings
 
 
+# MARK: The writer rule
+
+APP_DIR = "holzBar"
+SYNCED_KEYS_FILE = ".github/sync-synced-keys.txt"
+DEFAULTS_FILE = "holzBar/Core/Defaults.swift"
+SYNC_GATEWAY = "holzBar/Core/Sync/SyncDefaultsStore.swift"
+
+# The files that may write a synced key, each with the reason. A path ending in "/" is a directory.
+# A file is allowed when it is the setter of a setting, owns the setting, applies an explicit action of
+# the user, or is the sync code's own apply. Add a file here only after deciding which of these it is.
+WRITER_ALLOWED = [
+    ("holzBar/Settings/Models/", "allowed: the settings models write their own setting in its setter"),
+    ("holzBar/MenuBar/Spacers/MenuBarSpacers.swift", "allowed: owns SpacerCount and SpacerWidth, written by the user's choice"),
+    ("holzBar/MenuBar/Groups/MenuBarItemGroups.swift", "allowed: owns ItemGroups, written when the user edits a group"),
+    ("holzBar/MenuBar/Appearance/MenuBarAppearanceManager.swift", "allowed: owns the appearance, written when the user changes it"),
+    ("holzBar/MenuBar/RevealRules/RevealRules.swift", "allowed: owns RevealRules, written when the user edits a rule"),
+    ("holzBar/MenuBar/MenuBarItems/ItemIconStore.swift", "allowed: the setter of ItemIcons, the user's choice of an icon"),
+    ("holzBar/MenuBar/MenuBarItems/ItemChangeWatcher.swift", "allowed: the setter of RevealOnChangeItems, the user's mark"),
+    ("holzBar/MenuBar/MacOS27/Concealer27.swift", "allowed: owns the macOS 27 arrangement and the applications it knows"),
+    ("holzBar/MenuBar/Profiles/LayoutProfiles.swift", "allowed: saves, renames and deletes profiles and applies one"),
+    ("holzBar/Utilities/SettingsBackup.swift", "allowed: Import, an explicit action of the user"),
+    ("holzBar/Utilities/Migration.swift", "allowed: the one-time import of an earlier app's settings"),
+    (SYNC_GATEWAY, "allowed: the sync code's own apply"),
+]
+
+# The files that may write the macOS 27 arrangement (MacOS27Layout), each of them a user path or an owner.
+LAYOUT_WRITERS = [
+    "holzBar/MenuBar/MacOS27/Concealer27.swift",
+    "holzBar/MenuBar/Profiles/LayoutProfiles.swift",
+    "holzBar/Utilities/SettingsBackup.swift",
+    "holzBar/Utilities/Migration.swift",
+    SYNC_GATEWAY,
+]
+LAYOUT_KEY = "MacOS27Layout"
+LAYOUT_MESSAGE = (
+    "a new writer of MacOS27Layout; the user paths of the arrangement are the move in the Layout pane "
+    "(Concealer27.setSection), a profile the user applies (LayoutProfiles.apply) and Import "
+    "(SettingsBackup.apply), and each sends an intent (plan 28-16); add this writer there, or to LAYOUT_WRITERS "
+    "with its reason"
+)
+
+WRITE_CALL = re.compile(
+    r"(?:\bDefaults|\b\w*[dD]efaults\w*|\bstandard)\s*\.\s*(?:set|removeObject|setValue)\s*\("
+    r"|\bCFPreferencesSet(?:App)?Value\s*\("
+)
+CASE_DECLARATION = re.compile(r'\bcase\s+(\w+)\s*=\s*"([^"]+)"')
+
+
+def is_allowed(path, table):
+    return any(path == prefix or (prefix.endswith("/") and path.startswith(prefix)) for prefix, _ in table)
+
+
+def case_names(defaults_text, synced):
+    """The Swift case name of every synced raw key, from the declaration `case name = "Raw"` of Defaults.Key."""
+    return {name: raw for name, raw in CASE_DECLARATION.findall(defaults_text) if raw in synced}
+
+
+def matching_paren(text, start):
+    """The index of the parenthesis that closes the one at `start`, in text without strings and comments."""
+    depth = 0
+    for index in range(start, len(text)):
+        if text[index] == "(":
+            depth += 1
+        elif text[index] == ")":
+            depth -= 1
+            if depth == 0:
+                return index
+    return -1
+
+
+def top_level_arguments(text, begin, end):
+    """The (start, end) offsets of each argument of the call whose argument list is text[begin:end]."""
+    arguments = []
+    depth = 0
+    start = begin
+    for index in range(begin, end):
+        character = text[index]
+        if character in "([{":
+            depth += 1
+        elif character in ")]}":
+            depth -= 1
+        elif character == "," and depth == 0:
+            arguments.append((start, index))
+            start = index + 1
+    arguments.append((start, end))
+    return arguments
+
+
+def lint_writers(path, raw, synced, names):
+    """The findings of the writer rule for one file: `synced` is the set of raw synced keys and `names` the map from
+    the case name of a synced key to its raw value."""
+    stripped, marked = strip(raw)
+    findings = []
+    in_core = path.startswith(SYNC_DIR + "/")
+    for call in WRITE_CALL.finditer(stripped):
+        open_paren = call.end() - 1
+        close = matching_paren(stripped, open_paren)
+        if close < 0:
+            continue
+        number = stripped.count("\n", 0, call.start()) + 1
+        if number in marked:
+            continue
+        arguments = top_level_arguments(stripped, open_paren + 1, close)
+        if "CFPreferencesSet" in call.group(0):
+            key_arguments = arguments[:1]
+        else:
+            key_arguments = [(a, b) for a, b in arguments if re.match(r"\s*forKey\s*:", stripped[a:b])]
+        if in_core and path != SYNC_GATEWAY:
+            findings.append((path, number, "writer: the sync code in holzBar/Core/Sync never writes preferences; SyncDefaultsStore is its one gateway"))
+            continue
+        written = set()
+        for begin, end in key_arguments:
+            written.update(names[name] for name in re.findall(r"\.(\w+)", stripped[begin:end]) if name in names)
+            for quote in re.finditer(r'"([^"\n]*)"', raw[begin:end]):
+                # The literal counts only where the stripped text has a string, not a comment.
+                if stripped[begin + quote.start()] == '"' and quote.group(1) in synced:
+                    written.add(quote.group(1))
+        for key in sorted(written):
+            if key == LAYOUT_KEY and path not in LAYOUT_WRITERS:
+                findings.append((path, number, f"writer: {LAYOUT_MESSAGE}"))
+            elif key != LAYOUT_KEY and not is_allowed(path, WRITER_ALLOWED):
+                findings.append((path, number, f"writer: a write of the synced key {key} outside the allowed sites; sync counts it as a change the user made"))
+    return findings
+
+
+def read_synced_keys(root):
+    with open(os.path.join(root, SYNCED_KEYS_FILE), encoding="utf-8") as file:
+        return {line.strip() for line in file if line.strip()}
+
+
+def lint_all_writers(root):
+    """The findings of the writer rule over holzBar/, and the allow-list entries that name nothing."""
+    synced = read_synced_keys(root)
+    with open(os.path.join(root, DEFAULTS_FILE), encoding="utf-8") as file:
+        names = case_names(file.read(), synced)
+    findings = []
+    for directory, _, files in sorted(os.walk(os.path.join(root, APP_DIR))):
+        for name in sorted(files):
+            if not name.endswith(".swift"):
+                continue
+            full = os.path.join(directory, name)
+            relative = os.path.relpath(full, root).replace(os.sep, "/")
+            with open(full, encoding="utf-8") as file:
+                findings.extend(lint_writers(relative, file.read(), synced, names))
+    for prefix, _ in WRITER_ALLOWED:
+        if not os.path.exists(os.path.join(root, prefix)):
+            findings.append((prefix, 1, "writer: an allowed site that does not exist; update WRITER_ALLOWED in sync-lint.py"))
+    for path in LAYOUT_WRITERS:
+        if not os.path.exists(os.path.join(root, path)):
+            findings.append((path, 1, "writer: a layout writer that does not exist; update LAYOUT_WRITERS in sync-lint.py"))
+    return findings
+
+
+WRITER_SYNCED = {"ShowOnHover", "Hotkeys", "MacOS27Layout", "ItemIcons"}
+WRITER_NAMES = {"showOnHover": "ShowOnHover", "hotkeys": "Hotkeys", "macOS27Layout": "MacOS27Layout", "itemIcons": "ItemIcons"}
+SETTINGS_MODEL = "holzBar/Settings/Models/GeneralSettings.swift"
+SOME_FILE = "holzBar/MenuBar/Other.swift"
+CONCEALER = "holzBar/MenuBar/MacOS27/Concealer27.swift"
+
+WRITER_SELF_TEST = [
+    # (should be flagged, path, snippet)
+    (True, SOME_FILE, "Defaults.set(true, forKey: .showOnHover)\n"),
+    (True, SOME_FILE, "Defaults.removeObject(forKey: .hotkeys)\n"),
+    (True, SOME_FILE, "UserDefaults.standard.set(value, forKey: \"ShowOnHover\")\n"),
+    (True, SOME_FILE, "Defaults.set(\n    layout.mapValues(\\.rawValue),\n    forKey: Defaults.Key.itemIcons\n)\n"),
+    (True, SOME_FILE, "CFPreferencesSetAppValue(\"Hotkeys\" as CFString, data, kCFPreferencesCurrentApplication)\n"),
+    (True, "holzBar/Core/Sync/SyncMerge.swift", "Defaults.set(1, forKey: .somethingLocal)\n"),
+    (False, SETTINGS_MODEL, "Defaults.set(true, forKey: .showOnHover)\n"),
+    (False, "holzBar/Settings/Models/Other.swift", "Defaults.set(true, forKey: .showOnHover)\n"),
+    (False, SYNC_GATEWAY, "defaults.set(value, forKey: key)\n"),
+    (False, SOME_FILE, "Defaults.set(1, forKey: .itemSections)\n"),
+    (False, SOME_FILE, "let value = Defaults.bool(forKey: .showOnHover)\n"),
+    (False, SOME_FILE, "Defaults.set(settings.showOnHover, forKey: .knownItemTags)\n"),
+    (False, SOME_FILE, "// Defaults.set(true, forKey: .showOnHover)\nlet text = \"Defaults.set(true, forKey: .showOnHover)\"\n"),
+    (False, SOME_FILE, "// sync-lint: ordered not a user setting\nDefaults.set(true, forKey: .showOnHover)\n"),
+    # The arrangement is allowed in fewer places, and the message names the user paths.
+    (True, SETTINGS_MODEL, "Defaults.set(layout, forKey: .macOS27Layout)\n"),
+    (False, CONCEALER, "Defaults.set(layout, forKey: .macOS27Layout)\n"),
+]
+
+
+def writer_self_test():
+    failures = 0
+    for expected, path, snippet in WRITER_SELF_TEST:
+        found = lint_writers(path, snippet, WRITER_SYNCED, WRITER_NAMES)
+        if bool(found) != expected:
+            failures += 1
+            print(f"self-test failed ({'expected a finding' if expected else 'expected none'}, rule writer, {path}):\n{snippet}  found: {found}")
+    layout = lint_writers(SOME_FILE, "Defaults.set(layout, forKey: .macOS27Layout)\n", WRITER_SYNCED, WRITER_NAMES)
+    if not layout or "28-16" not in layout[0][2]:
+        failures += 1
+        print(f"self-test failed (a new writer of MacOS27Layout has to name the user paths of plan 28-16): {layout}")
+    return failures
+
+
 SELF_TEST = [
     # (should be flagged, rule, snippet)
     (True, "unsorted", "var registers: [Key: [Entry]] = [:]\nfor (key, entries) in registers {\n}\n"),
@@ -404,10 +613,11 @@ def self_test():
         if bool(found) != expected:
             failures += 1
             print(f"self-test failed ({'expected a finding' if expected else 'expected none'}, rule {rule}):\n{snippet}  found: {found}")
+    failures += writer_self_test()
     if failures:
         print(f"==> {failures} self-test case(s) failed")
         return 1
-    print(f"==> Sync lint self-test passed: {len(SELF_TEST)} fixtures")
+    print(f"==> Sync lint self-test passed: {len(SELF_TEST) + len(WRITER_SELF_TEST) + 1} fixtures")
     return 0
 
 
@@ -434,6 +644,14 @@ def main():
         for found_path, line, message in lint_text(path, sources[path], names, functions):
             annotate(found_path, line, message)
             problems += 1
+    try:
+        writer_findings = lint_all_writers(arguments.root)
+    except OSError as error:
+        annotate(SYNCED_KEYS_FILE, 1, f"Cannot read the sources for the writer rule: {error}")
+        return 1
+    for found_path, line, message in writer_findings:
+        annotate(found_path, line, message)
+        problems += 1
     if problems:
         print(f"==> {problems} Sync code rule violation(s)")
         return 1
