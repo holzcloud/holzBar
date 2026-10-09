@@ -32,7 +32,7 @@ final class WiFiNetworkMonitor: NSObject, CLLocationManagerDelegate, CWEventDele
 
     /// Whether holzBar may read the network name.
     var isAuthorized: Bool {
-        authorization == .authorizedAlways || authorization == .authorizedWhenInUse
+        authorization == .authorizedAlways
     }
 
     /// Starts following the network name and the permission.
