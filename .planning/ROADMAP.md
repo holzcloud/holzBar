@@ -585,7 +585,7 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
   5. Only user actions create synced entries; holzBar's placements, seeding, learned keys and flags never sync or cause a question
   6. `SettingsSyncPause.isPaused` is false and its test updated; docs, release notes `v0.0.7-beta3.md` and the five String Catalogs are current; CI is green
 
-**Plans:** 13/18 plans complete in 12 waves (28-01 to 28-12 and 28-14), plan 28-13 executed but gate G1 is NOT passed yet (being closed, see `28-G1-GATE.md`); gate G1 (simulator and mutation gate) is plan 28-13, and every plan that touches the app depends on it
+**Plans:** 14/18 plans complete in 12 waves (28-01 to 28-12, 28-14 and 28-15), plan 28-13 executed but gate G1 is NOT passed yet (being closed, see `28-G1-GATE.md`); gate G1 (simulator and mutation gate) is plan 28-13, and every plan that touches the app depends on it
 
 Plans:
 - [x] 28-01-PLAN.md — Wave 1: Core data model (dots, contexts, replica join, device-file and state codecs, read-only legacy reader); SYNC-R01 to SYNC-R10 recorded in REQUIREMENTS.md
@@ -602,7 +602,7 @@ Plans:
 - [x] 28-12-PLAN.md — Wave 7: D3, judge and A2 scenarios, version skew, same-ID installations, A2 mapping
 - [ ] 28-13-PLAN.md — Wave 8: gate G1: seeded and exhaustive exploration, fuzzing, determinism lint, mutation gate, recorded result (executed, G1 not yet passed: see `28-G1-GATE.md`)
 - [x] 28-14-PLAN.md — Wave 9: app adapter: defaults store and alias rule, model normalizers, one prefix list, writer lint
-- [ ] 28-15-PLAN.md — Wave 10: host: folder reader and writer, state store, launch, triggers, effects, migration from the pause; old exchange code removed
+- [x] 28-15-PLAN.md — Wave 10: host: folder reader and writer, state store, launch, triggers, effects, migration from the pause; old exchange code removed
 - [ ] 28-16-PLAN.md — Wave 11: capture wiring: Layout-pane move, profiles, Import, protected placement and seeding; D-04 re-check of other arrangement paths
 - [ ] 28-17-PLAN.md — Wave 11: UI: hint, status lines, question sheet, Profiles footnotes, strings in en, de, fr, it, rm
 - [ ] 28-18-PLAN.md — Wave 12: docs, release notes `v0.0.7-beta3.md`, UAT script, and the flip of `SettingsSyncPause.isPaused` as the last code change
