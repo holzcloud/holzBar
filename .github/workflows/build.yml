@@ -312,7 +312,7 @@ jobs:
     if: needs.changes.outputs.code != 'true'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Only documentation changed: nothing to launch on macOS 26"
+      - run: echo "Only documentation changed, nothing to launch on macOS 26"
 
   compat-docs-xcode-27:
     name: compat (xcode-27)
@@ -320,7 +320,7 @@ jobs:
     if: needs.changes.outputs.code != 'true'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Only documentation changed: nothing to launch on macOS 27"
+      - run: echo "Only documentation changed, nothing to launch on macOS 27"
 
   # The app's former name must not appear anywhere in the repository (see CLAUDE.md).
   # .planning/ and .claude/ are GSD's working state; .github/cms-version.py is a copy
