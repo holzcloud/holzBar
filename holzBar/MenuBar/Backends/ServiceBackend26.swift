@@ -59,6 +59,12 @@ final class ServiceBackend26: MenuBarBackend {
         await windowList.itemListSignature()
     }
 
+    /// Whether the source-PID cache would look up one of the windows again
+    /// (``SourcePIDCache/hasPendingLookups(in:)``).
+    func hasPendingItemLookups(in signature: [CGWindowID]) async -> Bool {
+        await SourcePIDCache.shared.hasPendingLookups(in: signature)
+    }
+
     func itemListRefreshSkipped() {
         windowList.itemListRefreshSkipped()
     }

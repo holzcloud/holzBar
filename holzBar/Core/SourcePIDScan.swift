@@ -30,6 +30,11 @@ nonisolated protocol SourcePIDScanSource {
     /// responsive.
     func isValidForAccessibility(_ app: App) -> Bool
 
+    /// Whether the app never finishes launching
+    /// (``SourcePIDLookupSchedule/neverFinishesLaunching(isFinishedLaunching:runningFor:)``),
+    /// so it can neither be asked nor waited for.
+    func neverFinishesLaunching(_ app: App) -> Bool
+
     /// The app's extras menu bar, or `nil` if it has none.
     func extrasMenuBar(of app: App) -> Element?
 
@@ -69,7 +74,8 @@ nonisolated struct SourcePIDScan<App> {
     private(set) var isFinished = false
 
     /// The apps the scan could not ask, because they were launching, unresponsive or
-    /// paused, or ran into the timeout. holzBar's own process is never one of them.
+    /// paused, or ran into the timeout. holzBar's own process is never one of them, and
+    /// neither is an app that never finishes launching: it is not waited for.
     private(set) var skippedApps = [App]()
 
     /// Whether an app signed by Apple was skipped. Its item could be at a centre that
@@ -149,6 +155,13 @@ nonisolated struct SourcePIDScan<App> {
             }
             let pid = source.pid(of: app)
             guard !doneApps.contains(pid) else {
+                continue
+            }
+            // Neither asked nor skipped: waiting for an app that never finishes launching,
+            // such as WebKit's XPC services, would keep every other app from its windows
+            // as long as it runs.
+            guard !source.neverFinishesLaunching(app) else {
+                doneApps.insert(pid)
                 continue
             }
             let isSignedByApple = source.isSignedByApple(app)

@@ -39,6 +39,11 @@ final class WindowListBackend: MenuBarBackend {
         Bridging.getMenuBarWindowList(option: [.itemsOnly, .activeSpace])
     }
 
+    /// The window list names every item's app (its owner), so nothing is looked up.
+    func hasPendingItemLookups(in signature: [CGWindowID]) async -> Bool {
+        false
+    }
+
     func itemListRefreshSkipped() { }
 
     func cacheFromLayout(

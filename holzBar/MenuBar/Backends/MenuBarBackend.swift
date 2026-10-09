@@ -43,6 +43,15 @@ protocol MenuBarBackend: AnyObject {
     /// A value that changes whenever the items on the active space change.
     func itemListSignature() async -> [CGWindowID]
 
+    /// Whether a read of the items with the given signature could now learn more about
+    /// them than the last read did, so a refresh reads them again although the signature
+    /// is unchanged.
+    ///
+    /// On macOS 26 the app behind an item is looked up through Accessibility
+    /// (``SourcePIDCache``): a lookup that did not finish, or that skipped an app that can
+    /// be asked now, is pending. A window that no app claims is not.
+    func hasPendingItemLookups(in signature: [CGWindowID]) async -> Bool
+
     /// Called when a refresh found the item list unchanged and did not rebuild the cache,
     /// so work that rides on the refreshes can run anyway.
     func itemListRefreshSkipped()

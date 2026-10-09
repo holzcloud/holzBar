@@ -42,7 +42,12 @@ import OSLog
 ///   another app's item is, such as Control Center's camera and microphone indicator.
 ///   Apps signed by Apple are asked first, and the first of them to claim a window gets
 ///   it. Any other app gets a window only when a finished scan that skipped no app
-///   signed by Apple found no other app claiming it (``SourcePIDClaims``).
+///   signed by Apple found no other app claiming it (``SourcePIDClaims``). An app that
+///   never finishes launching, such as WebKit's XPC services, is not skipped but left
+///   out: it can never be asked.
+/// - The item manager reads the bar again for an unchanged window list only while a
+///   read could find more (``hasPendingLookups(in:)``), not for a window that no app
+///   claims: that read would only repeat the scan.
 actor SourcePIDCache {
     /// An object that contains a running application and provides an
     /// interface to access relevant information, such as its process
@@ -77,6 +82,24 @@ actor SourcePIDCache {
         /// interface, and so has no items to ask about.
         var isProhibited: Bool {
             runningApp.activationPolicy == .prohibited
+        }
+
+        /// When the app's process started, read from the kernel the first time it is
+        /// needed, or `nil` if it cannot be read.
+        private lazy var processStartDate: Date? = Self.startDate(ofProcess: processIdentifier)
+
+        /// A Boolean value indicating whether the app never finishes launching
+        /// (``SourcePIDLookupSchedule/neverFinishesLaunching(isFinishedLaunching:runningFor:)``),
+        /// such as WebKit's XPC services. The start time is read only for an app that has
+        /// not finished launching.
+        var neverFinishesLaunching: Bool {
+            guard !runningApp.isFinishedLaunching else {
+                return false
+            }
+            return SourcePIDLookupSchedule.neverFinishesLaunching(
+                isFinishedLaunching: false,
+                runningFor: processStartDate.map { .seconds(Date.now.timeIntervalSince($0)) }
+            )
         }
 
         /// A Boolean value indicating whether the app is in a valid
@@ -118,6 +141,19 @@ actor SourcePIDCache {
             extrasMenuBar = bar
             return bar
         }
+
+        /// Returns when the process with the given identifier started, from the kernel's
+        /// process table, or `nil` if the process does not exist (any more).
+        private static func startDate(ofProcess pid: pid_t) -> Date? {
+            var info = kinfo_proc()
+            var size = MemoryLayout<kinfo_proc>.stride
+            var name: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, pid]
+            guard sysctl(&name, u_int(name.count), &info, &size, nil, 0) == 0, size > 0 else {
+                return nil
+            }
+            let start = info.kp_proc.p_un.__p_starttime
+            return Date(timeIntervalSince1970: TimeInterval(start.tv_sec) + TimeInterval(start.tv_usec) / 1_000_000)
+        }
     }
 
     /// A finished scan that did not find a window's source process.
@@ -151,6 +187,10 @@ actor SourcePIDCache {
 
         func isValidForAccessibility(_ app: CachedApplication) -> Bool {
             app.isValidForAccessibility
+        }
+
+        func neverFinishesLaunching(_ app: CachedApplication) -> Bool {
+            app.neverFinishesLaunching
         }
 
         func extrasMenuBar(of app: CachedApplication) -> AXUIElement? {
@@ -194,6 +234,11 @@ actor SourcePIDCache {
     /// through Accessibility (jordanbaird/Ice#911). Starts empty whenever the
     /// running applications change, as a new app may own the window.
     private var failedLookups = [CGWindowID: FailedLookup]()
+
+    /// Windows without a source process that the next read looks up again: their lookup
+    /// could not run (no permission, bounds still changing) or did not finish, or the
+    /// running applications changed since it failed.
+    private var unsettledWindows = Set<CGWindowID>()
 
     /// Which apps ran into the timeout, and until when they are not asked.
     private var schedule = SourcePIDLookupSchedule()
@@ -249,6 +294,9 @@ actor SourcePIDCache {
                 result[windowID] = pid
             }
         }
+        // A new app may own a window that a scan without it missed, so the misses are looked
+        // up again, also while the window list stays the same.
+        unsettledWindows = unsettledWindows.union(failedLookups.keys).intersection(windowIDs)
         failedLookups.removeAll()
         unfinishedScan = nil
         schedule.retain(running: runningPIDs)
@@ -287,10 +335,10 @@ actor SourcePIDCache {
 
     /// Reorders the cached apps: those signed by Apple first, then the others, and in
     /// each group those that are confirmed to have an extras menu bar first. Apps that a
-    /// scan skips anyway come last, without a signature check.
+    /// scan leaves out anyway come last, without a signature check.
     private func partitionApps() {
         func group(of app: CachedApplication) -> Int {
-            if app.isTerminated || app.isProhibited {
+            if app.isTerminated || app.isProhibited || app.neverFinishesLaunching {
                 return 4
             }
             return (app.isSignedByApple ? 0 : 2) + (app.hasExtrasMenuBar ? 0 : 1)
@@ -354,19 +402,10 @@ actor SourcePIDCache {
         let now = ContinuousClock.now
         var result = [CGWindowID: pid_t]()
         var pending = [WindowInfo]()
-
-        // Whether an app a failed scan skipped can be asked now, checked once per app.
         var readiness = [pid_t: Bool]()
-        func isReady(_ app: CachedApplication) -> Bool {
-            if let ready = readiness[app.processIdentifier] {
-                return ready
-            }
-            let ready = app.isValidForAccessibility && schedule.mayAsk(app.processIdentifier, at: now)
-            readiness[app.processIdentifier] = ready
-            return ready
-        }
 
         for window in windows {
+            unsettledWindows.remove(window.windowID)
             if let pid = pids[window.windowID] {
                 result[window.windowID] = pid
             } else if
@@ -374,7 +413,7 @@ actor SourcePIDCache {
                 !SourcePIDLookupSchedule.shouldRescan(
                     failedAt: failure.failedAt,
                     now: now,
-                    skippedAppIsReady: failure.skippedApps.contains(where: isReady)
+                    skippedAppIsReady: skippedAppIsReady(for: failure, at: now, readiness: &readiness)
                 )
             {
                 continue
@@ -383,10 +422,15 @@ actor SourcePIDCache {
             }
         }
 
-        guard !pending.isEmpty, AXHelpers.isProcessTrusted() else {
+        guard !pending.isEmpty else {
+            return result
+        }
+        guard AXHelpers.isProcessTrusted() else {
+            unsettledWindows.formUnion(pending.map(\.windowID))
             return result
         }
         let centers = stableCenters(of: pending)
+        unsettledWindows.formUnion(pending.lazy.map(\.windowID).filter { centers[$0] == nil })
         guard !centers.isEmpty else {
             return result
         }
@@ -400,8 +444,56 @@ actor SourcePIDCache {
             } else if scan.isFinished {
                 // Not found, or contested: a contested window belongs to no app.
                 failedLookups[windowID] = FailedLookup(failedAt: now, skippedApps: scan.skippedApps)
+            } else {
+                unsettledWindows.insert(windowID)
             }
         }
         return result
+    }
+
+    /// Returns whether a read of the given windows now could find a source process that
+    /// the last read did not: a lookup that could not run or did not finish, a miss that a
+    /// change of the running applications voided, or a miss whose skipped app no longer
+    /// holds it back.
+    ///
+    /// A window that a finished scan did not find, and that no skipped app holds back, is
+    /// not pending: a read that happens anyway looks it up again after
+    /// ``SourcePIDLookupSchedule/failedLookupInterval``, but no read is made for it alone.
+    /// Reading the bar again every minute for a window that no app claims would only repeat
+    /// the scan.
+    func hasPendingLookups(in windowIDs: [CGWindowID]) -> Bool {
+        let now = ContinuousClock.now
+        var readiness = [pid_t: Bool]()
+        return windowIDs.contains { windowID in
+            guard pids[windowID] == nil else {
+                return false
+            }
+            if unsettledWindows.contains(windowID) {
+                return true
+            }
+            guard let failure = failedLookups[windowID] else {
+                return false
+            }
+            return skippedAppIsReady(for: failure, at: now, readiness: &readiness)
+        }
+    }
+
+    /// Returns whether one of the apps that the given failed lookup skipped no longer holds
+    /// it back: the app can be asked now, or it never finishes launching, so scans leave it
+    /// out (it was still launching when it was skipped). Each app is checked once per
+    /// `readiness`.
+    private func skippedAppIsReady(
+        for failure: FailedLookup,
+        at now: ContinuousClock.Instant,
+        readiness: inout [pid_t: Bool]
+    ) -> Bool {
+        failure.skippedApps.contains { app in
+            if let ready = readiness[app.processIdentifier] {
+                return ready
+            }
+            let ready = (app.isValidForAccessibility && schedule.mayAsk(app.processIdentifier, at: now)) || app.neverFinishesLaunching
+            readiness[app.processIdentifier] = ready
+            return ready
+        }
     }
 }

@@ -61,6 +61,11 @@ final class AccessibilityBackend27: MenuBarBackend {
         }
     }
 
+    /// Each item comes from its own process's Accessibility elements, so nothing is looked up.
+    func hasPendingItemLookups(in signature: [CGWindowID]) async -> Bool {
+        false
+    }
+
     /// Owners whose observer registration failed are tried again once their pause is over,
     /// also while the item list stays the same.
     func itemListRefreshSkipped() {

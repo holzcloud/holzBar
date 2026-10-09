@@ -443,8 +443,10 @@ extension MenuBarItemManager {
 
         for item in items where context.isValidForCaching(item) {
             if item.sourcePID == nil {
-                logger.warning("Missing sourcePID for \(item.logString, privacy: .private(mask: .hash))")
-                context.shouldClearCachedItemWindowIDs = true
+                // On macOS 26 no app claimed the window (yet). The backend tells whether a
+                // read could still find its app (`hasPendingItemLookups`): reading the bar
+                // again for a window that no app claims repeated the whole lookup every minute.
+                logger.debug("Missing sourcePID for \(item.logString, privacy: .private(mask: .hash))")
             }
 
             if let temp = temporarilyShownItemContexts.first(where: { $0.matches(item) }) {
@@ -606,6 +608,9 @@ extension MenuBarItemManager {
     func cacheItemsIfNeeded() async {
         let signature = await backend.itemListSignature()
         if await cacheActor.cachedItemWindowIDs != signature {
+            await cacheItemsRegardless(signature)
+        } else if await backend.hasPendingItemLookups(in: signature) {
+            logger.debug("Reading the unchanged menu bar items again for pending lookups")
             await cacheItemsRegardless(signature)
         } else {
             backend.itemListRefreshSkipped()
