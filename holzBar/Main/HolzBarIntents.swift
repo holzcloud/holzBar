@@ -162,6 +162,72 @@ struct ApplyLayoutProfileIntent: AppIntent {
     }
 }
 
+// MARK: - Automation Rules
+
+/// An automation rule, identified by its identifier.
+nonisolated struct AutomationRuleEntity: AppEntity {
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Automation Rule"
+
+    static let defaultQuery = AutomationRuleQuery()
+
+    /// The rule's identifier.
+    let id: String
+
+    /// The rule's name.
+    let name: String
+
+    var displayRepresentation: DisplayRepresentation {
+        DisplayRepresentation(title: "\(name)")
+    }
+}
+
+/// Lists the automation rules for Shortcuts.
+nonisolated struct AutomationRuleQuery: EntityQuery {
+    @MainActor
+    func entities(for identifiers: [String]) async throws -> [AutomationRuleEntity] {
+        try intentAppState().automation.rules
+            .filter { identifiers.contains($0.id.uuidString) }
+            .map { AutomationRuleEntity(id: $0.id.uuidString, name: $0.name) }
+    }
+
+    @MainActor
+    func suggestedEntities() async throws -> [AutomationRuleEntity] {
+        try intentAppState().automation.rules.map { AutomationRuleEntity(id: $0.id.uuidString, name: $0.name) }
+    }
+}
+
+/// Turns an automation rule on or off. Rules are created and edited only in the settings.
+struct SetAutomationRuleIntent: AppIntent {
+    static let title: LocalizedStringResource = "Turn Automation Rule On or Off"
+
+    @Parameter(title: "Rule")
+    var rule: AutomationRuleEntity
+
+    @Parameter(title: "Turn On", default: true)
+    var isEnabled: Bool
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        let manager = try intentAppState().automation
+        guard let id = UUID(uuidString: rule.id) else {
+            return .result()
+        }
+        manager.setRule(withID: id, enabled: isEnabled)
+        return .result()
+    }
+}
+
+/// Returns the names of the automation rules that are true now.
+struct GetActiveAutomationRulesIntent: AppIntent {
+    static let title: LocalizedStringResource = "Get Active Automation Rules"
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<[String]> {
+        let manager = try intentAppState().automation
+        return .result(value: manager.activeRules.map(\.name))
+    }
+}
+
 // MARK: - Menu Bar Items
 
 /// Opens the menu of the menu bar item whose name matches best.
