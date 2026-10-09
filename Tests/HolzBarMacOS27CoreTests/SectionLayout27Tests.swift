@@ -175,3 +175,48 @@ struct SeededLayout27Tests {
         #expect(SectionLayout27.seededLayout(items: [], hiddenControlItem: hiddenDivider, alwaysHiddenControlItem: nil) == nil)
     }
 }
+
+@Suite("Seeding that respects the saved layout and intent")
+struct FillingMissing27Tests {
+    @Test("Entries of the saved layout are kept and only missing applications are added")
+    func keepsSavedAndAddsMissing() {
+        let result = SectionLayout27.fillingMissing(
+            ["com.a": .hidden, "com.b": .alwaysHidden, "com.c": .visible],
+            into: ["com.a": .alwaysHidden],
+            except: []
+        )
+        #expect(result == ["com.a": .alwaysHidden, "com.b": .alwaysHidden, "com.c": .visible])
+    }
+
+    @Test("With an empty saved layout the result is the seeded layout minus the protected applications")
+    func emptySavedTakesSeededWithoutProtected() {
+        let seeded: [String: MacOS27Section] = ["com.a": .hidden, "com.b": .alwaysHidden]
+        #expect(SectionLayout27.fillingMissing(seeded, into: [:], except: []) == seeded)
+        #expect(SectionLayout27.fillingMissing(seeded, into: [:], except: ["com.a"]) == ["com.b": .alwaysHidden])
+    }
+
+    @Test("An application the user moved to Visible has no entry and is not seeded")
+    func protectedVisibleApplicationIsNotSeeded() {
+        let result = SectionLayout27.fillingMissing(
+            ["com.visible": .hidden, "com.other": .hidden],
+            into: ["com.group": .hidden],
+            except: ["com.visible", "com.group"]
+        )
+        #expect(result == ["com.group": .hidden, "com.other": .hidden])
+    }
+
+    @Test("A present entry is never changed, protected or not")
+    func presentEntryIsNeverChanged() {
+        let saved: [String: MacOS27Section] = ["com.a": .hidden, "com.b": .alwaysHidden]
+        let result = SectionLayout27.fillingMissing(["com.a": .visible, "com.b": .visible], into: saved, except: ["com.a"])
+        #expect(result == saved)
+    }
+
+    @Test("Seeding is allowed when the saved layout is empty or every entry is protected")
+    func seedingRule() {
+        #expect(SectionLayout27.canSeed(into: [:], except: []))
+        #expect(SectionLayout27.canSeed(into: ["com.a": .hidden], except: ["com.a", "com.b"]))
+        #expect(!SectionLayout27.canSeed(into: ["com.a": .hidden, "com.c": .hidden], except: ["com.a"]))
+        #expect(!SectionLayout27.canSeed(into: ["com.a": .hidden], except: []))
+    }
+}

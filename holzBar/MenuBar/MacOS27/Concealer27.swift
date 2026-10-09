@@ -804,7 +804,8 @@ final class Concealer27 {
     /// An application missing from the saved layout is visible. holzBar remembers
     /// every application it has seen on the bar, so only new ones are placed, and
     /// the first run only records what is there. This placement is holzBar's own and does
-    /// not count as a settings change for sync.
+    /// not count as a settings change for sync, and it never overwrites intent: an application
+    /// that applied intent decides (`SettingsSync.protectedApplications`) is not placed.
     func placeNewApplications(items: [MenuBarItem]) {
         guard let appState else {
             return
@@ -817,7 +818,8 @@ final class Concealer27 {
         })
         let stored = Defaults.array(forKey: .knownApplications27) as? [String]
         let known = Set(stored ?? [])
-        let newBundleIDs = bundleIDs.subtracting(known).subtracting(savedLayout.keys)
+        let saved = savedLayout
+        let newBundleIDs = bundleIDs.subtracting(known).subtracting(saved.keys)
 
         guard stored == nil || !newBundleIDs.isEmpty else {
             return
@@ -834,8 +836,14 @@ final class Concealer27 {
         if name == .alwaysHidden && !appState.settings.advanced.enableAlwaysHiddenSection {
             name = .hidden
         }
-        var layout = savedLayout
-        for bundleID in newBundleIDs {
+        // An application the user or the group arranged, also to Visible (which has no entry), stays as it is.
+        let protectedApplications = appState.settingsSync.protectedApplications
+        let placeable = newBundleIDs.subtracting(protectedApplications)
+        guard !placeable.isEmpty else {
+            return
+        }
+        var layout = saved
+        for bundleID in placeable {
             layout = SectionLayout27.settingSection(MacOS27Section(name), for: bundleID, in: layout)
             logger.notice("Placed new application \(bundleID, privacy: .private(mask: .hash)) in \(name.logString, privacy: .public)")
         }
@@ -885,11 +893,17 @@ final class Concealer27 {
     /// The bar is read once, the first time it can be: a user who has arranged a layout of their
     /// own keeps it, and a bar whose order macOS 27 has already rearranged is left alone (see
     /// ``SectionLayout27/seededLayout(items:hiddenControlItem:alwaysHiddenControlItem:)``).
-    /// This placement is holzBar's own and does not count as a settings change for sync.
+    /// This placement is holzBar's own and does not count as a settings change for sync, and it never
+    /// overwrites intent: it fills only the applications without an entry that applied intent does not
+    /// protect (``SectionLayout27/fillingMissing(_:into:except:)``).
     func seedLayoutIfNeeded(items: [MenuBarItem]) {
+        // The saved layout may hold nothing but what the group applied at launch (entries backed by intent): seeding
+        // then fills in the applications that have no entry and leaves those alone.
+        let protectedApplications = appState?.settingsSync.protectedApplications ?? []
+        let saved = savedLayout
         guard
             !Defaults.bool(forKey: .macOS27LayoutSeeded),
-            savedLayout.isEmpty,
+            SectionLayout27.canSeed(into: saved, except: protectedApplications),
             !isConcealing,
             let hiddenControlItem = items.first(where: { $0.tag == .hiddenControlItem })
         else {
@@ -918,7 +932,8 @@ final class Concealer27 {
             logger.notice("The bar's order says nothing about sections, so the macOS 27 layout stays empty")
             return
         }
-        Defaults.set(seeded.mapValues(\.rawValue), forKey: .macOS27Layout)
+        let filled = SectionLayout27.fillingMissing(seeded, into: saved, except: protectedApplications)
+        Defaults.set(filled.mapValues(\.rawValue), forKey: .macOS27Layout)
         let described = seeded
             .sorted { $0.key < $1.key }
             .map { "\($0.key)=\($0.value.rawValue)" }

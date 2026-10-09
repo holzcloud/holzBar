@@ -12,6 +12,35 @@ nonisolated extension SectionLayout27 {
         return updated
     }
 
+    /// The saved layout with the seeded sections of the applications it has no entry for.
+    ///
+    /// Seeding is holzBar's own placement, so it never overwrites intent: an entry of `saved` stays as it
+    /// is, and an application backed by applied intent (`protected`) is left out even when it has no entry
+    /// (an application the user moved to Visible has none, and seeding would hide it again).
+    ///
+    /// - Parameters:
+    ///   - seeded: The layout read from the order on the bar.
+    ///   - saved: The saved layout.
+    ///   - protected: The applications whose arrangement sync's applied intent decides.
+    static func fillingMissing(
+        _ seeded: [String: MacOS27Section],
+        into saved: [String: MacOS27Section],
+        except protected: Set<String>
+    ) -> [String: MacOS27Section] {
+        var filled = saved
+        for (bundleID, section) in seeded where saved[bundleID] == nil && !protected.contains(bundleID) {
+            filled[bundleID] = section
+        }
+        return filled
+    }
+
+    /// Whether the bar's order may still be read into the saved layout: the layout is empty, or every
+    /// entry of it is backed by applied intent, such as the arrangement a group applied at launch. A layout
+    /// with any entry holzBar placed or the user arranged without intent is kept as it is.
+    static func canSeed(into saved: [String: MacOS27Section], except protected: Set<String>) -> Bool {
+        saved.keys.allSatisfy { protected.contains($0) }
+    }
+
     /// The saved layout after applying a layout profile.
     ///
     /// A profile holds the layout as saved, which leaves visible applications out, so the
