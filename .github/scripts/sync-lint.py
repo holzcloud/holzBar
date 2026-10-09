@@ -41,6 +41,17 @@
 #              A write of MacOS27Layout is allowed in fewer places (LAYOUT_WRITERS): a new
 #              user path of the arrangement has to send an intent (plan 28-16).
 #
+# The main-thread rule (INV-F7), applied to the files of holzBar/Utilities and holzBar/Core/Sync:
+#
+#   mainthread File access where the main thread could run it: FileManager, NSFileCoordinator,
+#              Data(contentsOf:) or contentsOfFile. In holzBar/Utilities, a file that holds a main-actor
+#              sync type (a type named Sync... or SettingsSync... that is not declared nonisolated) may not
+#              use any of them: a stalled file provider would freeze the menu bar. They belong to the types
+#              the host calls on its file queue: holzBar/Core/Sync and
+#              holzBar/Utilities/Sync/SyncFileCoordination.swift accept them only when every type and
+#              function declared at the top level of the file is declared nonisolated, so the default
+#              isolation of the app (the main actor) cannot reach them.
+#
 # A line that is safe on purpose carries the marker `sync-lint: ordered <reason>`
 # in a comment on that line or on the line above; the reason says why the order
 # cannot matter (a sum, a membership test, a result that is sorted afterwards).
@@ -537,6 +548,125 @@ def lint_all_writers(root):
     return findings
 
 
+# MARK: The main-thread rule
+
+UTILITIES_DIR = "holzBar/Utilities"
+COORDINATION_FILE = "holzBar/Utilities/Sync/SyncFileCoordination.swift"
+
+FILE_ACCESS = [
+    (r"\bFileManager\b", "FileManager"),
+    (r"\bNSFileCoordinator\b", "NSFileCoordinator"),
+    (r"\bData\s*\(\s*contentsOf\s*:", "Data(contentsOf:"),
+    (r"\bcontentsOfFile\b", "contentsOfFile"),
+]
+
+# A declaration at the left margin: its modifiers and attributes, its kind and its name.
+TOP_LEVEL = re.compile(
+    r"^(?:(?:@\w+(?:\([^)]*\))?|public|internal|private|fileprivate|final|nonisolated|open)\s+)*"
+    r"(?P<kind>class|struct|enum|actor|protocol|extension|func)\b(?:\s+(?P<name>\w+))?"
+)
+
+
+def top_level_declarations(stripped):
+    """(line number, text, kind, name) of every declaration at the left margin."""
+    found = []
+    for number, line in enumerate(stripped.splitlines(), start=1):
+        if not line or line[0] in " \t}/":
+            continue
+        match = TOP_LEVEL.match(line)
+        if match:
+            found.append((number, line, match.group("kind"), match.group("name") or ""))
+    return found
+
+
+def lint_main_thread(path, raw):
+    """The findings of the main-thread rule for one file."""
+    in_engine_zone = path.startswith(SYNC_DIR + "/") or path == COORDINATION_FILE
+    in_utilities = path.startswith(UTILITIES_DIR + "/")
+    if not (in_engine_zone or in_utilities):
+        return []
+    stripped, _ = strip(raw)
+    hits = []
+    for number, line in enumerate(stripped.splitlines(), start=1):
+        for pattern, label in FILE_ACCESS:
+            if re.search(pattern, line):
+                hits.append((number, label))
+    if not hits:
+        return []
+    declarations = top_level_declarations(stripped)
+    findings = []
+    if in_engine_zone:
+        for number, line, kind, name in declarations:
+            if "nonisolated" not in line:
+                findings.append((path, number, f"mainthread: this file does file access ({hits[0][1]} on line {hits[0][0]}), so every type and function at its top level must be declared nonisolated; {kind} {name} is not"))
+        return findings
+    for number, line, kind, name in declarations:
+        if kind != "func" and name.startswith(("Sync", "SettingsSync")) and "nonisolated" not in line:
+            for hit_number, label in hits:
+                findings.append((path, hit_number, f"mainthread: {label} in a file that holds the main-actor sync type {name}; file access runs on the host's file queue, through the nonisolated types of holzBar/Core/Sync and {COORDINATION_FILE}"))
+            break
+    return findings
+
+
+def lint_all_main_thread(root):
+    findings = []
+    for base in (UTILITIES_DIR, SYNC_DIR):
+        for directory, _, files in sorted(os.walk(os.path.join(root, base))):
+            for name in sorted(files):
+                if not name.endswith(".swift"):
+                    continue
+                full = os.path.join(directory, name)
+                relative = os.path.relpath(full, root).replace(os.sep, "/")
+                with open(full, encoding="utf-8") as file:
+                    findings.extend(lint_main_thread(relative, file.read()))
+    if not os.path.exists(os.path.join(root, COORDINATION_FILE)):
+        findings.append((COORDINATION_FILE, 1, "mainthread: the file of the coordinated access does not exist; update COORDINATION_FILE in sync-lint.py"))
+    return findings
+
+
+MAIN_THREAD_SELF_TEST = [
+    # (should be flagged, path, snippet)
+    (True, "holzBar/Utilities/SettingsSync.swift", "@MainActor\nfinal class SettingsSync {\n    func f() { _ = FileManager.default }\n}\n"),
+    (True, "holzBar/Utilities/SettingsSync.swift", "@MainActor\nfinal class SettingsSync {\n    func f() { NSFileCoordinator.addFilePresenter(p) }\n}\n"),
+    (True, "holzBar/Utilities/Sync/SyncOther.swift", "final class SyncOther {\n    func f() { _ = try? Data(contentsOf: url) }\n}\n"),
+    (True, "holzBar/Utilities/SettingsSync.swift", "struct SettingsSyncView {\n    func f() { _ = try? String(contentsOfFile: path) }\n}\n"),
+    (True, COORDINATION_FILE, "nonisolated enum SyncFileCoordination {\n    static func f() { _ = FileManager.default }\n}\nfinal class Helper {\n}\n"),
+    (True, COORDINATION_FILE, "enum SyncFileCoordination {\n    static func f() { _ = FileManager.default }\n}\n"),
+    (True, "holzBar/Core/Sync/SyncSomething.swift", "func read() { _ = FileManager.default }\n"),
+    (True, "holzBar/Core/Sync/SyncSomething.swift", "nonisolated struct Store {\n}\nstruct Other {\n    func f() { _ = FileManager.default }\n}\n"),
+    (False, COORDINATION_FILE, "nonisolated enum SyncFileCoordination {\n    static func f() { _ = FileManager.default }\n    private nonisolated final class Box {\n    }\n}\nnonisolated final class SyncFolderWatcher {\n}\n"),
+    (False, "holzBar/Core/Sync/SyncStateStore.swift", "nonisolated struct SyncStateStore {\n    func f() { _ = FileManager.default }\n}\nnonisolated func helper() {\n}\n"),
+    (False, "holzBar/Core/Sync/SyncStateStore.swift", "nonisolated extension SyncEngine {\n    func f() { _ = NSFileCoordinator() }\n}\n"),
+    # A file that holds no sync type is not the rule's business, and neither is a main-actor type that does no file access.
+    (False, "holzBar/Utilities/SettingsBackup.swift", "enum SettingsBackup {\n    static func f() { _ = FileManager.default }\n}\n"),
+    (False, "holzBar/Utilities/SettingsSync.swift", "@MainActor\nfinal class SettingsSync {\n    func f() { BlockingWork.run(on: queue) { Self.read() } }\n}\n"),
+    (False, "holzBar/Utilities/SettingsSync.swift", "@MainActor\nfinal class SettingsSync {\n    // FileManager is for the file queue\n    let text = \"Data(contentsOf: url)\"\n}\n"),
+    (False, "holzBar/MenuBar/Other.swift", "final class SettingsSyncProxy {\n    func f() { _ = FileManager.default }\n}\n"),
+]
+
+
+def io_layer_self_test():
+    """The files of the I/O layer may read the clock to bound their work; every other file of the engine may not."""
+    failures = 0
+    snippet = "let deadline = ContinuousClock.now\n"
+    for path, expected in (("holzBar/Core/Sync/SyncFolderAccess.swift", False), ("holzBar/Core/Sync/SyncStateStore.swift", False), ("holzBar/Core/Sync/SyncMerge.swift", True)):
+        found = lint_text(path, snippet, set(), set())
+        if bool(found) != expected:
+            failures += 1
+            print(f"self-test failed ({'expected a finding' if expected else 'expected none'}, rule clock, {path}): found {found}")
+    return failures
+
+
+def main_thread_self_test():
+    failures = 0
+    for expected, path, snippet in MAIN_THREAD_SELF_TEST:
+        found = lint_main_thread(path, snippet)
+        if bool(found) != expected:
+            failures += 1
+            print(f"self-test failed ({'expected a finding' if expected else 'expected none'}, rule mainthread, {path}):\n{snippet}  found: {found}")
+    return failures
+
+
 WRITER_SYNCED = {"ShowOnHover", "Hotkeys", "MacOS27Layout", "ItemIcons"}
 WRITER_NAMES = {"showOnHover": "ShowOnHover", "hotkeys": "Hotkeys", "macOS27Layout": "MacOS27Layout", "itemIcons": "ItemIcons"}
 SETTINGS_MODEL = "holzBar/Settings/Models/GeneralSettings.swift"
@@ -621,10 +751,12 @@ def self_test():
             failures += 1
             print(f"self-test failed ({'expected a finding' if expected else 'expected none'}, rule {rule}):\n{snippet}  found: {found}")
     failures += writer_self_test()
+    failures += main_thread_self_test()
+    failures += io_layer_self_test()
     if failures:
         print(f"==> {failures} self-test case(s) failed")
         return 1
-    print(f"==> Sync lint self-test passed: {len(SELF_TEST) + len(WRITER_SELF_TEST) + 1} fixtures")
+    print(f"==> Sync lint self-test passed: {len(SELF_TEST) + len(WRITER_SELF_TEST) + len(MAIN_THREAD_SELF_TEST) + 4} fixtures")
     return 0
 
 
@@ -657,6 +789,14 @@ def main():
         annotate(SYNCED_KEYS_FILE, 1, f"Cannot read the sources for the writer rule: {error}")
         return 1
     for found_path, line, message in writer_findings:
+        annotate(found_path, line, message)
+        problems += 1
+    try:
+        main_thread_findings = lint_all_main_thread(arguments.root)
+    except OSError as error:
+        annotate(UTILITIES_DIR, 1, f"Cannot read the sources for the main-thread rule: {error}")
+        return 1
+    for found_path, line, message in main_thread_findings:
         annotate(found_path, line, message)
         problems += 1
     if problems:
