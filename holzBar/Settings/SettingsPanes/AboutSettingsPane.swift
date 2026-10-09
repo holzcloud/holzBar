@@ -9,6 +9,7 @@ struct AboutSettingsPane: View {
     @Environment(AppState.self) var appState
     @Environment(\.openURL) private var openURL
     @State private var isShowingAcknowledgements = false
+    @State private var isShowingDiagnostics = false
 
     var body: some View {
         Group {
@@ -20,6 +21,9 @@ struct AboutSettingsPane: View {
         }
         .sheet(isPresented: $isShowingAcknowledgements) {
             AcknowledgementsView()
+        }
+        .sheet(isPresented: $isShowingDiagnostics) {
+            DiagnosticsSheet()
         }
     }
 
@@ -133,6 +137,9 @@ struct AboutSettingsPane: View {
             }
             Button("Contribute") {
                 openURL(Constants.repositoryURL)
+            }
+            Button("Copy Diagnostics…", systemImage: "doc.on.clipboard") {
+                isShowingDiagnostics = true
             }
             Button("Report a Bug", systemImage: "ladybug") {
                 openURL(Constants.issuesURL)

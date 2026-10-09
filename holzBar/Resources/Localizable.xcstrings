@@ -2633,6 +2633,118 @@
         }
       }
     },
+    "Copy" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopieren"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar"
+          }
+        }
+      }
+    },
+    "Copy Diagnostics" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagnose kopieren"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier le diagnostic"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia diagnostica"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar la diagnosa"
+          }
+        }
+      }
+    },
+    "Copy Diagnostics…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diagnose kopieren …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier le diagnostic…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia diagnostica…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar la diagnosa …"
+          }
+        }
+      }
+    },
+    "Copy and Open Issue Tracker" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopieren und Issue-Tracker öffnen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier et ouvrir le suivi des tickets"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia e apri il tracker"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiar ed avrir il tracker dals issues"
+          }
+        }
+      }
+    },
     "Corner radius: %lld pt" : {
       "localizations" : {
         "de" : {
@@ -6129,6 +6241,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Notch e monitur"
+          }
+        }
+      }
+    },
+    "Nothing is sent. Read the report, then copy it into your issue. It holds versions and counts only: no names of items, apps, profiles or networks, and no paths." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es wird nichts gesendet. Lies den Bericht und kopiere ihn dann in dein Issue. Er enthält nur Versionen und Zahlen: keine Namen von Objekten, Apps, Profilen oder Netzwerken und keine Pfade."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rien n’est envoyé. Lisez le rapport, puis copiez-le dans votre ticket. Il ne contient que des versions et des nombres : aucun nom d’élément, d’app, de profil ou de réseau, et aucun chemin."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non viene inviato nulla. Leggi il rapporto, poi copialo nella tua segnalazione. Contiene solo versioni e numeri: nessun nome di elementi, app, profili o reti e nessun percorso."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagut na vegn tramess. Legia il rapport e copiescha lu silsuenter en tia segnalaziun. El cuntegna mo versiuns e dumbers: nagins nums d’elements, d’apps, da profils u da raits e nagins paths."
           }
         }
       }
