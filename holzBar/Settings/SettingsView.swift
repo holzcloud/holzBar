@@ -71,6 +71,7 @@ struct SettingsView: View {
             detailView
         }
         .navigationTitle(navigationTitle)
+        .tint(HolzBarTheme.Palette.accent)
     }
 
     @ViewBuilder
@@ -135,8 +136,10 @@ struct SettingsView: View {
         if #available(macOS 26.0, *) {
             settingsPane
                 .scrollEdgeEffectStyle(.hard, for: .top)
+                .background(HolzBarTheme.Palette.ground)
         } else {
             settingsPane
+                .background(HolzBarTheme.Palette.ground)
         }
     }
 

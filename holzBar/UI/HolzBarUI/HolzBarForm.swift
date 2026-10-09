@@ -87,6 +87,7 @@ private struct HolzBarFormToggleStyle: ToggleStyle {
         Toggle(configuration)
             .toggleStyle(.switch)
             .controlSize(.mini)
+            .tint(HolzBarTheme.Palette.accent)
     }
 }
 
