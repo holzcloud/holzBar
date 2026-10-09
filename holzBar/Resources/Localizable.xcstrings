@@ -4537,6 +4537,90 @@
         }
       }
     },
+    "Import" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importieren"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar"
+          }
+        }
+      }
+    },
+    "Import Profile" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil importieren"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer un profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa profilo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar in profil"
+          }
+        }
+      }
+    },
+    "Import Profile…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil importieren …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer un profil…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importa profilo…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar in profil …"
+          }
+        }
+      }
+    },
     "Import and Restart" : {
       "localizations" : {
         "de" : {
@@ -4645,6 +4729,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Funtauna d'eveniments nunvalaivla"
+          }
+        }
+      }
+    },
+    "It could not be read, or it holds something a profile may not hold." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sie konnte nicht gelesen werden, oder sie enthält etwas, das ein Profil nicht enthalten darf."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il n’a pas pu être lu, ou il contient quelque chose qu’un profil ne doit pas contenir."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è stato possibile leggerlo, oppure contiene qualcosa che un profilo non può contenere."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ella n’ha betg pudì vegnir legida u cuntegna insatge che in profil na dastga betg cuntegnair."
           }
         }
       }
@@ -8289,6 +8401,34 @@
         }
       }
     },
+    "Save…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sichern …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memorisar …"
+          }
+        }
+      }
+    },
     "Screen Recording" : {
       "localizations" : {
         "de" : {
@@ -8621,6 +8761,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Furma"
+          }
+        }
+      }
+    },
+    "Share Profile" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil teilen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partager le profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi profilo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cundivider il profil"
+          }
+        }
+      }
+    },
+    "Share…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teilen …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partager…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Condividi…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cundivider …"
           }
         }
       }
@@ -9689,6 +9885,34 @@
         }
       }
     },
+    "The file lists the applications below and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Uncheck an application to leave it out." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Datei enthält die unten aufgeführten Apps und deren Bereich. Sie enthält keine Bildschirm-, WLAN-, Tastenkürzel- oder andere Einstellungen. Entferne das Häkchen bei einer App, um sie wegzulassen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier contient les apps ci-dessous et la section de chacune. Il ne contient aucun réglage d’écran, de Wi-Fi, de raccourci ou autre. Décochez une app pour l’exclure."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file contiene le app qui sotto e la sezione di ciascuna. Non contiene impostazioni di schermo, Wi-Fi, abbreviazioni da tastiera o altro. Deseleziona un’app per escluderla."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La datoteca cuntegna las apps sutvart e la secziun da mintgina. Ella na cuntegna naginas preferenzas da visur, WLAN, cumbinaziuns da tastas u autras. Deactivescha ina app per l’exclude."
+          }
+        }
+      }
+    },
     "The holzBar Shelf is centered below the holzBar icon." : {
       "localizations" : {
         "de" : {
@@ -9857,6 +10081,34 @@
         }
       }
     },
+    "The profile “%@” has %lld applications, %lld of them installed on this Mac. Importing adds it to your profiles; it moves nothing until you apply it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Profil „%@“ enthält %lld Apps, %lld davon sind auf diesem Mac installiert. Beim Importieren wird es zu deinen Profilen hinzugefügt; es verschiebt nichts, bis du es anwendest."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le profil « %@ » contient %lld apps, dont %lld sont installées sur ce Mac. L’importer l’ajoute à vos profils ; il ne déplace rien tant que vous ne l’appliquez pas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il profilo “%@” contiene %lld app, %lld delle quali sono installate su questo Mac. L’importazione lo aggiunge ai tuoi profili; non sposta nulla finché non lo applichi."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il profil «%@» cuntegna %lld apps, %lld da quellas èn installadas sin quest Mac. L’import al agiunta a tes profils; el na spusta nagut enfin che ti al applitgeschas."
+          }
+        }
+      }
+    },
     "The search shows pictures of your menu bar items, which macOS lets an app take only with Screen Recording. You can search by name without it." : {
       "localizations" : {
         "de" : {
@@ -9993,6 +10245,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Questa acziun na sa lascha betg revocar."
+          }
+        }
+      }
+    },
+    "This file is not a holzBar profile." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Datei ist kein holzBar-Profil."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce fichier n’est pas un profil holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo file non è un profilo holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quest datoteca n’è nagin profil holzBar."
           }
         }
       }

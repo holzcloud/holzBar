@@ -168,6 +168,39 @@ final class LayoutProfiles {
         logger.notice("Saved layout profile \(name, privacy: .private)")
     }
 
+    /// Adds a profile that someone shared. It does not move any item: the user applies it like
+    /// any other. A name that is taken gets a number.
+    func importShared(_ shared: SharedProfile) {
+        let name = SharedProfile.uniqueName(shared.name, among: profiles.map(\.name))
+        var applicationSections = [String: Int]()
+        for entry in shared.apps where entry.section != 0 {
+            applicationSections[entry.id] = entry.section
+        }
+        // Before macOS 27 the profile is by item: the items of the shared applications that
+        // are in the menu bar now.
+        var itemSections = [String: Int]()
+        if let appState {
+            let wanted = Dictionary(shared.apps.map { ($0.id, $0.section) }, uniquingKeysWith: { first, _ in first })
+            let itemManager = appState.itemManager
+            for section in MenuBarSection.Name.allCases {
+                for item in itemManager.itemCache[section] where !item.isControlItem {
+                    if let bundleID = item.sourceApplication?.bundleIdentifier, let wantedSection = wanted[bundleID] {
+                        itemSections[itemManager.identityKey(for: item)] = wantedSection
+                    }
+                }
+            }
+        }
+        registerUndo(named: String(localized: "Import Profile"))
+        profiles.append(LayoutProfile(
+            name: name,
+            itemSections: itemSections,
+            applicationSections: applicationSections,
+            knownApplications: shared.apps.map(\.id)
+        ))
+        save()
+        logger.notice("Imported a shared layout profile with \(shared.apps.count, privacy: .public) applications")
+    }
+
     /// Deletes the profile with the given name.
     func delete(named name: String) {
         registerUndo(named: String(localized: "Delete Profile"))
