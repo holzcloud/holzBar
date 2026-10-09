@@ -1,22 +1,24 @@
 //
-//  ModuleCard.swift
+//  ModuleRow.swift
 //  holzBar
 //
 
 import SwiftUI
 
-/// One module of holzBar in the settings gallery: its symbol, name and one-line description,
-/// a switch and, if it needs one, the permission it asks for when it is switched on.
+/// One module of holzBar as a row of a grouped list: a tinted symbol tile, name, one-line
+/// description, an optional quiet permission line and a switch.
 ///
 /// A module that is off costs nothing: it runs no timer, holds no memory and has asked for no
-/// permission. The settings of a module are shown below the header only while it is on.
-struct ModuleCard<Settings: View>: View {
+/// permission. The settings of a module open under its row only while it is on, indented to
+/// the title. The row is plain; the group around the rows is the glass layer.
+struct ModuleRow<Settings: View>: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let systemImage: String
     private let title: Text
     private let summary: Text
-    private let permission: PermissionPill?
+    private let permission: Text?
+    private let isPermissionGranted: Bool
     @Binding private var isOn: Bool
     private let settings: Settings
 
@@ -25,7 +27,8 @@ struct ModuleCard<Settings: View>: View {
         title: Text,
         summary: Text,
         isOn: Binding<Bool>,
-        permission: PermissionPill? = nil,
+        permission: Text? = nil,
+        isPermissionGranted: Bool = false,
         @ViewBuilder settings: () -> Settings
     ) {
         self.systemImage = systemImage
@@ -33,29 +36,29 @@ struct ModuleCard<Settings: View>: View {
         self.summary = summary
         self._isOn = isOn
         self.permission = permission
+        self.isPermissionGranted = isPermissionGranted
         self.settings = settings()
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.md) {
+        VStack(alignment: .leading, spacing: 0) {
             header
-            if let permission {
-                permission
-            }
             if isOn {
                 settings
+                    .padding(.leading, symbolSize + HolzBarTheme.Spacing.md)
+                    .padding(.trailing, HolzBarTheme.Spacing.md)
+                    .padding(.bottom, HolzBarTheme.Spacing.sm)
                     .transition(.opacity)
             }
         }
-        .padding(HolzBarTheme.Spacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            HolzBarTheme.Palette.groundElevated,
-            in: HolzBarTheme.shape(HolzBarTheme.Radius.card)
-        )
-        .overlay {
-            HolzBarTheme.shape(HolzBarTheme.Radius.card)
-                .stroke(HolzBarTheme.Palette.stroke, lineWidth: HolzBarTheme.Spacing.hairline)
+        .background(alignment: .leading) {
+            if isOn {
+                LinearGradient(
+                    colors: [HolzBarTheme.Palette.accent.opacity(0.08), .clear],
+                    startPoint: .leading,
+                    endPoint: UnitPoint(x: 0.7, y: 0.5)
+                )
+            }
         }
         .animation(
             HolzBarTheme.Motion.resolved(HolzBarTheme.Motion.smooth, reduceMotion: reduceMotion),
@@ -63,26 +66,38 @@ struct ModuleCard<Settings: View>: View {
         )
     }
 
+    private let symbolSize = CGFloat(30)
+
     private var header: some View {
-        HStack(alignment: .top, spacing: HolzBarTheme.Spacing.sm) {
+        HStack(spacing: HolzBarTheme.Spacing.md) {
             Image(systemName: systemImage)
-                .font(.system(size: 20))
+                .font(.system(size: 15))
                 .symbolRenderingMode(.hierarchical)
                 .foregroundStyle(HolzBarTheme.Palette.accent)
-                .frame(width: HolzBarTheme.Spacing.xxl, height: HolzBarTheme.Spacing.xxl)
+                .frame(width: symbolSize, height: symbolSize)
                 .background(
-                    HolzBarTheme.Palette.accent.opacity(0.12),
-                    in: HolzBarTheme.shape(HolzBarTheme.Radius.control)
+                    HolzBarTheme.Palette.accent.opacity(0.16),
+                    in: HolzBarTheme.shape(9)
                 )
                 .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs / 2) {
+            VStack(alignment: .leading, spacing: 1) {
                 title
-                    .font(HolzBarTheme.Typography.headline)
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(HolzBarTheme.Palette.text)
                 summary
                     .font(HolzBarTheme.Typography.callout)
                     .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
+                if let permission {
+                    Label {
+                        permission
+                    } icon: {
+                        Image(systemName: isPermissionGranted ? "checkmark" : "lock")
+                    }
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+                    .padding(.top, 2)
+                }
             }
             Spacer(minLength: HolzBarTheme.Spacing.sm)
             Toggle(isOn: $isOn) {
@@ -92,43 +107,46 @@ struct ModuleCard<Settings: View>: View {
             .toggleStyle(.switch)
             .tint(HolzBarTheme.Palette.accent)
         }
+        .padding(.horizontal, HolzBarTheme.Spacing.md)
+        .padding(.vertical, HolzBarTheme.Spacing.sm + 2)
         .accessibilityElement(children: .contain)
     }
 }
 
-extension ModuleCard where Settings == EmptyView {
+extension ModuleRow where Settings == EmptyView {
     init(
         systemImage: String,
         title: Text,
         summary: Text,
         isOn: Binding<Bool>,
-        permission: PermissionPill? = nil
+        permission: Text? = nil,
+        isPermissionGranted: Bool = false
     ) {
         self.init(
             systemImage: systemImage,
             title: title,
             summary: summary,
             isOn: isOn,
-            permission: permission
+            permission: permission,
+            isPermissionGranted: isPermissionGranted
         ) {
             EmptyView()
         }
     }
 }
 
-#Preview("ModuleCard") {
+#Preview("ModuleRow") {
     @Previewable @State var isOn = true
-    ModuleCard(
-        systemImage: "clock",
+    ModuleRow(
+        systemImage: "timer",
         title: Text(verbatim: "Timers"),
         summary: Text(verbatim: "Countdowns in the notch hub."),
         isOn: $isOn,
-        permission: PermissionPill(Text(verbatim: "Needs Notifications"), state: .needed)
+        permission: Text(verbatim: "Asks for Notifications when you switch it on")
     ) {
         Text(verbatim: "Settings of the module appear here.")
             .font(HolzBarTheme.Typography.callout)
     }
-    .padding()
-    .frame(width: 420)
+    .frame(width: 460)
     .background(HolzBarTheme.Palette.ground)
 }
