@@ -65,7 +65,7 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 | One executable, no helper process with the app's permissions | ❌ | — | ✅ <sub>from 0.0.7-beta2</sub> |
 | Build provenance: GitHub attestation, SLSA Build Level 3 | ❌ | — | ✅ <sub>SLSA from 0.0.7-beta2</sub> |
 | OpenSSF Scorecard, actions pinned by commit SHA | — | — | ✅ <sub>except the SLSA generator (release tag)</sub> |
-| Rules (Wi-Fi, app, time, power, display, Focus) | ❌ | ✅ | 🔜 |
+| Rules (Wi-Fi, app, time, power, display, Focus) | ❌ | ✅ | 🔜 0.0.8 |
 
 ## 🚀 Install
 
