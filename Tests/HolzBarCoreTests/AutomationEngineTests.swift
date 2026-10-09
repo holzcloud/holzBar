@@ -245,4 +245,28 @@ struct AutomationEngineTests {
         let many = (0..<60).map { rule("Rule \($0)", [.lowPowerMode], action: .zen(true)) }
         #expect(AutomationRule.validated(many).count == AutomationRule.maximumCount)
     }
+
+    @Test("The observers needed are those of the enabled rules")
+    func neededSources() {
+        var timeRule = rule(
+            "Time",
+            [.time(AutomationTimeWindow(startMinute: 60, endMinute: 120, weekdays: []))],
+            action: .zen(true)
+        )
+        let powerRule = rule("Power", [battery, .batteryBelow(20)], action: .zen(true))
+        #expect(AutomationRule.sources(of: [timeRule, powerRule]) == [.time, .power])
+        timeRule.isEnabled = false
+        #expect(AutomationRule.sources(of: [timeRule, powerRule]) == [.power])
+        #expect(AutomationRule.sources(of: []).isEmpty)
+        #expect(AutomationRule.timeWindows(of: [timeRule, powerRule]).isEmpty)
+    }
+
+    @Test("The next boundary is the nearest start or end, wrapping past midnight")
+    func nextBoundary() {
+        let windows = [AutomationTimeWindow(startMinute: 9 * 60, endMinute: 17 * 60, weekdays: [])]
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 8 * 3600) == 3600)
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 12 * 3600) == 5 * 3600)
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 17 * 3600) == 16 * 3600)
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: [], from: 0) == nil)
+    }
 }

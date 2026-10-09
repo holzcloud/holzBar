@@ -74,6 +74,9 @@ final class AppState {
     /// Rules that show hidden items when something happens.
     let revealRules = RevealRules()
 
+    /// The automation rules: "when this is true, do that".
+    let automation = AutomationManager()
+
     /// Turns Zen mode on while the screen is mirrored or shared.
     let presentationMonitor = PresentationMonitor()
 
@@ -196,6 +199,7 @@ final class AppState {
         itemGroups.performSetup(with: self)
         spacers.performSetup()
         revealRules.performSetup(with: self)
+        automation.performSetup(with: self)
         presentationMonitor.performSetup(with: self)
         if #available(macOS 27.0, *) {
             // The dot on holzBar's icon while another app records.

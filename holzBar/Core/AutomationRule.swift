@@ -104,6 +104,20 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
         }
     }
 
+    /// The kind of system event that can change the condition.
+    var source: AutomationSource {
+        switch self {
+        case .power, .batteryBelow: .power
+        case .lowPowerMode: .lowPowerMode
+        case .appRunning: .runningApps
+        case .appFrontmost: .frontmostApp
+        case .time: .time
+        case .displayConnected: .displays
+        case .network: .network
+        case .wifiNetwork: .wifi
+        }
+    }
+
     var isValid: Bool {
         switch self {
         case .batteryBelow(let percent):
@@ -122,8 +136,22 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
     }
 }
 
+/// A kind of system event. Each kind has one observer, which exists only while an enabled
+/// rule has a condition of that kind.
+nonisolated enum AutomationSource: CaseIterable, Hashable, Sendable {
+    case power
+    case lowPowerMode
+    case runningApps
+    case frontmostApp
+    case time
+    case displays
+    case network
+    case wifi
+}
+
 /// A condition with the choice to invert it.
-nonisolated struct AutomationClause: Codable, Equatable, Sendable {
+nonisolated struct AutomationClause: Codable, Equatable, Identifiable, Sendable {
+    var id = UUID()
     var condition: AutomationCondition
     var isNegated = false
 
@@ -212,6 +240,21 @@ nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
             && action.isValid
     }
 
+    /// The kinds of event the enabled rules need to observe.
+    static func sources(of rules: [AutomationRule]) -> Set<AutomationSource> {
+        Set(rules.filter(\.isEnabled).flatMap(\.clauses).map(\.condition.source))
+    }
+
+    /// The time spans of the enabled rules.
+    static func timeWindows(of rules: [AutomationRule]) -> [AutomationTimeWindow] {
+        rules.filter(\.isEnabled).flatMap(\.clauses).compactMap { clause -> AutomationTimeWindow? in
+            guard case .time(let window) = clause.condition else {
+                return nil
+            }
+            return window
+        }
+    }
+
     /// The most rules that are kept.
     static let maximumCount = 50
 
@@ -227,5 +270,22 @@ nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
             }
         }
         return result
+    }
+}
+
+/// When the next time span starts or ends.
+nonisolated enum AutomationSchedule {
+    /// The seconds from `secondsOfDay` (since midnight) to the next start or end of any of
+    /// the windows, or `nil` without a window. Weekdays are not considered: the boundary
+    /// of a day on which nothing changes only costs one wake-up.
+    static func secondsUntilNextBoundary(of windows: [AutomationTimeWindow], from secondsOfDay: Double) -> Double? {
+        let day = 86_400.0
+        let boundaries = windows.flatMap { [$0.startMinute, $0.endMinute] }.map { Double($0) * 60 }
+        return boundaries
+            .map { boundary in
+                let delta = boundary - secondsOfDay
+                return delta > 0 ? delta : delta + day
+            }
+            .min()
     }
 }

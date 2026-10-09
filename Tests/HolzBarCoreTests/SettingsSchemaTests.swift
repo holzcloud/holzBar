@@ -217,6 +217,7 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.holzBarIconShowsCaptureDot.settingsKind == .bool)
         #expect(Defaults.Key.showOnHoverDelay.settingsKind == .number)
         #expect(Defaults.Key.layoutProfiles.settingsKind == .data)
+        #expect(Defaults.Key.automationRules.settingsKind == .data)
         #expect(Defaults.Key.knownItemTags.settingsKind == .stringArray)
         #expect(Defaults.Key.currentLayoutProfile.settingsKind == .string)
     }
