@@ -78,7 +78,16 @@ struct SettingsView: View {
     private var sidebar: some View {
         List(selection: $navigationState.settingsNavigationIdentifier) {
             Section {
-                ForEach(SettingsNavigationIdentifier.allCases) { identifier in
+                ForEach(SettingsNavigationIdentifier.menuBarGroup) { identifier in
+                    sidebarItem(for: identifier)
+                }
+                // A quiet gap between the groups, without a header.
+                Color.clear
+                    .frame(height: sidebarFontSize * 0.6)
+                    .listRowSeparator(.hidden)
+                    .selectionDisabled()
+                    .accessibilityHidden(true)
+                ForEach(SettingsNavigationIdentifier.appGroup) { identifier in
                     sidebarItem(for: identifier)
                 }
             } header: {
@@ -136,10 +145,10 @@ struct SettingsView: View {
         if #available(macOS 26.0, *) {
             settingsPane
                 .scrollEdgeEffectStyle(.hard, for: .top)
-                .background(HolzBarTheme.Palette.ground)
+                .background(HolzBarGround())
         } else {
             settingsPane
-                .background(HolzBarTheme.Palette.ground)
+                .background(HolzBarGround())
         }
     }
 
