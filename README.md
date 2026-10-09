@@ -119,7 +119,7 @@ slsa-verifier verify-artifact "holzBar-$V.zip" --provenance-path "holzBar-$V.int
 
 A zip changed after the build, or built anywhere else, fails. Older releases and more detail: [docs/signing.md](docs/signing.md). Verifying uses the network from your terminal; holzBar itself never does.
 
-## 🔜 Planned for 0.0.7 "Automation"
+## 🔜 Planned for 0.0.8 "Automation"
 
 **Not available yet.** Plans can change; *spike* = only built if a short test shows it works well.
 
