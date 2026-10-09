@@ -11,7 +11,7 @@
 #
 #   python3 Scripts/sync-mutation-gate.py             # baseline, then every mutation
 #   python3 Scripts/sync-mutation-gate.py --list      # the mutations, one per line, and nothing else
-#   python3 Scripts/sync-mutation-gate.py --only NAME # one mutation (after the baseline)
+#   python3 Scripts/sync-mutation-gate.py --only NAME # one mutation, or several separated by commas (after the baseline)
 #
 # The repository itself is never patched: the sources the Swift package needs are copied into a temporary directory, and
 # every mutation is applied there, tested and undone. Exit status: 0 when the baseline passes, every text is unique and every
@@ -178,7 +178,7 @@ def swift_test(directory, names, label):
 def main():
     parser = argparse.ArgumentParser(description="Mutation gate of the settings sync engine")
     parser.add_argument("--list", action="store_true", help="list the mutations and exit")
-    parser.add_argument("--only", metavar="NAME", help="run one mutation")
+    parser.add_argument("--only", metavar="NAME[,NAME...]", help="run the named mutation(s), one after the other in one copy of the sources")
     parser.add_argument("--no-baseline", action="store_true", help="skip the baseline (only to re-run a mutation whose table entry was repaired after the baseline of the same sources passed in another run)")
     parser.add_argument("--shard", metavar="K/N", help="run the mutations K, K+N, K+2N, ... (several shards run side by side)")
     arguments = parser.parse_args()
@@ -186,7 +186,8 @@ def main():
         for name, file, _, _, guard in MUTATIONS:
             print(f"{name}\t{file}\t{guard}")
         return 0
-    chosen = [m for m in MUTATIONS if arguments.only in (None, m[0])]
+    wanted = arguments.only.split(",") if arguments.only else None
+    chosen = [m for m in MUTATIONS if wanted is None or m[0] in wanted]
     if arguments.shard:
         index, count = (int(part) for part in arguments.shard.split("/"))
         chosen = chosen[index::count]
