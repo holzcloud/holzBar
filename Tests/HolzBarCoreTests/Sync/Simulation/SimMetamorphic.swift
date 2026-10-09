@@ -142,7 +142,13 @@ enum SimMetamorphic {
         _ setup: SimMetaSetup, _ events: [SimEvent], insertionSeed: UInt64, generic: Bool = false
     ) -> [Int: [SimEvent]] {
         var random = SimRandom(seed: insertionSeed).fork("automatic-insertions")
-        let names = setup.macs.map(\.name)
+        // Only Macs on a build that reports intents have automatic stores that the engine tells from the user's changes (decision D-04: a
+        // Layout-pane move is an intent, `placeNewApplications` and the seeding are not). A 0.0.6, beta1 or beta2 Mac has no such report: what it
+        // placed by itself is in its settings like a move of the user's, and the redesigned build that replaces it takes everything it finds
+        // as the user's values of before sync (a join with dot-less values: rows, or published where the group has nothing). That Mac's
+        // placement is no automatic event of the pair, so no automatic event is drawn for it.
+        let names = setup.macs.filter { generic || $0.version == .redesign || $0.version == .redesignSkew }.map(\.name)
+        guard !names.isEmpty else { return [:] }
         var insertions: [Int: [SimEvent]] = [:]
         for index in events.indices where random.chance(0.35) {
             let mac = random.pick(names)
