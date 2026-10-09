@@ -4957,6 +4957,34 @@
         }
       }
     },
+    "Keep the clock, battery, Wi-Fi, Control Center and sound visible" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uhr, Batterie, WLAN, Kontrollzentrum und Ton sichtbar lassen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garder l’horloge, la batterie, le Wi-Fi, le Centre de contrôle et le son visibles"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantieni visibili orologio, batteria, Wi-Fi, Centro di Controllo e audio"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantegnair visibels l’ura, l’accu, WLAN, il center da controlla e il tun"
+          }
+        }
+      }
+    },
     "Launch at login" : {
       "localizations" : {
         "de" : {
@@ -6749,6 +6777,34 @@
         }
       }
     },
+    "Open System Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systemeinstellungen öffnen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir Réglages Système"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri Impostazioni di Sistema"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avrir las preferenzas dal sistem"
+          }
+        }
+      }
+    },
     "Open an Item by Letter" : {
       "localizations" : {
         "de" : {
@@ -7249,6 +7305,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Profils"
+          }
+        }
+      }
+    },
+    "Profiles, restored layouts and rules leave these items where they are. You can still move them yourself." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile, wiederhergestellte Layouts und Regeln lassen diese Objekte, wo sie sind. Du kannst sie weiterhin selbst verschieben."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les profils, les dispositions restaurées et les règles laissent ces éléments où ils sont. Vous pouvez toujours les déplacer vous-même."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profili, layout ripristinati e regole lasciano questi elementi dove sono. Puoi comunque spostarli tu stesso."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profils, layouts restaurads e reglas laschan quests elements là ch’els èn. Ti pos anc adina spustar els sez."
           }
         }
       }
@@ -8089,6 +8173,90 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Restaurar …"
+          }
+        }
+      }
+    },
+    "Revoke %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ widerrufen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Révoquer %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revoca %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocar %@"
+          }
+        }
+      }
+    },
+    "Revoke this permission?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Berechtigung widerrufen?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Révoquer cette autorisation ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocare questa autorizzazione?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocar questa permissiun?"
+          }
+        }
+      }
+    },
+    "Revoke…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widerrufen …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Révoquer…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revoca…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocar …"
           }
         }
       }
@@ -12463,6 +12631,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar na sa collia mai cun la rait."
+          }
+        }
+      }
+    },
+    "holzBar stops using it at once and cannot do what needs it until you allow it again. You can also remove it yourself in System Settings, in Privacy & Security." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar nutzt sie sofort nicht mehr und kann nichts tun, was sie braucht, bis du sie wieder erlaubst. Du kannst sie auch selbst in den Systemeinstellungen unter «Datenschutz & Sicherheit» entfernen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar cesse de l’utiliser immédiatement et ne peut plus faire ce qui en dépend tant que vous ne l’autorisez pas de nouveau. Vous pouvez aussi la retirer vous-même dans Réglages Système, sous Confidentialité et sécurité."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar smette subito di usarla e non può fare ciò che la richiede finché non la autorizzi di nuovo. Puoi anche rimuoverla tu stesso in Impostazioni di Sistema, in Privacy e sicurezza."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar na til duvra subit pli e na po far nagut che dovra ella enfin che ti la lubeschas puspè. Ti pos er allontanar ella sez en las preferenzas dal sistem, sut Protecziun da datas e segirezza."
           }
         }
       }

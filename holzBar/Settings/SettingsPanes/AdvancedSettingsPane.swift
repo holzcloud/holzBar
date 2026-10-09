@@ -9,6 +9,7 @@ struct AdvancedSettingsPane: View {
     @Environment(AppState.self) var appState
     @Bindable var settings: AdvancedSettings
     @State private var maxSliderLabelWidth: CGFloat = 0
+    @State private var revokingPermission: Permission?
 
     private var menuBarManager: MenuBarManager {
         appState.menuBarManager
@@ -50,6 +51,9 @@ struct AdvancedSettingsPane: View {
                 openHiddenItemsInMenuBar
                 autoZenWhileSharingScreen
                 lockHiddenItems
+                if !isMacOS27 {
+                    pinSystemItems
+                }
             }
             HolzBarSection("Show Hidden Items Automatically") {
                 RevealRulesSettings(rules: appState.revealRules)
@@ -63,6 +67,29 @@ struct AdvancedSettingsPane: View {
         }
         .onAppear {
             appState.permissions.refresh()
+        }
+        .confirmationDialog(
+            "Revoke this permission?",
+            isPresented: Binding(
+                get: { revokingPermission != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        revokingPermission = nil
+                    }
+                }
+            ),
+            titleVisibility: .visible,
+            presenting: revokingPermission
+        ) { permission in
+            Button("Revoke \(permission.title)", role: .destructive) {
+                permission.revoke()
+            }
+            Button("Open System Settings") {
+                permission.openSettings()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { _ in
+            Text("holzBar stops using it at once and cannot do what needs it until you allow it again. You can also remove it yourself in System Settings, in Privacy & Security.")
         }
     }
 
@@ -219,6 +246,17 @@ struct AdvancedSettingsPane: View {
     }
 
     @ViewBuilder
+    private var pinSystemItems: some View {
+        Toggle(
+            "Keep the clock, battery, Wi-Fi, Control Center and sound visible",
+            isOn: Binding(
+                get: { !Defaults.bool(forKey: .systemItemsMayHide) },
+                set: { Defaults.set(!$0, forKey: .systemItemsMayHide) }
+            )
+        )
+        .annotation("Profiles, restored layouts and rules leave these items where they are. You can still move them yourself.")
+    }
+
     private var lockHiddenItems: some View {
         Toggle(
             "Ask for Touch ID or your password before showing hidden items",
@@ -257,11 +295,18 @@ struct AdvancedSettingsPane: View {
         ForEach(appState.permissions.allPermissions) { permission in
             LabeledContent {
                 if permission.hasPermission {
-                    Label {
-                        Text("Permission Granted")
-                    } icon: {
-                        Image(systemName: "checkmark.circle")
-                            .foregroundStyle(.green)
+                    HStack {
+                        Label {
+                            Text("Permission Granted")
+                        } icon: {
+                            Image(systemName: "checkmark.circle")
+                                .foregroundStyle(.green)
+                        }
+                        if permission.canReset {
+                            Button("Revoke…") {
+                                revokingPermission = permission
+                            }
+                        }
                     }
                 } else {
                     Button("Grant Permission") {

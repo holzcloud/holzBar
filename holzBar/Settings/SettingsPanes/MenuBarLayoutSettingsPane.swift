@@ -14,13 +14,18 @@ struct MenuBarLayoutSettingsPane: View {
     }
 
     var body: some View {
-        if !ScreenRecordingAccess.isGranted(appState) {
-            missingScreenRecordingPermissions
-        } else if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
+        if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             cannotArrange
         } else {
             HolzBarForm(spacing: 20) {
                 header
+                if !ScreenRecordingAccess.isGranted(appState) {
+                    // Without Screen Recording the items show their apps' icons; the hint
+                    // offers their real pictures.
+                    HolzBarSection {
+                        ScreenRecordingHint(feature: .layoutPane, appState: appState)
+                    }
+                }
                 LayoutProfilesSection(profiles: appState.profiles)
                 LayoutHistorySection(snapshots: appState.snapshots)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
@@ -74,14 +79,6 @@ struct MenuBarLayoutSettingsPane: View {
     private var cannotArrange: some View {
         Text("holzBar cannot arrange menu bar items in automatically hidden menu bars.")
             .font(.title3)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-    }
-
-    @ViewBuilder
-    private var missingScreenRecordingPermissions: some View {
-        ScreenRecordingHint(feature: .layoutPane, appState: appState)
-            .font(.title3)
-            .frame(maxWidth: 480)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 

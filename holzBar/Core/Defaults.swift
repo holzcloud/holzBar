@@ -191,6 +191,8 @@ nonisolated extension Defaults {
         case spacerCount = "SpacerCount"
         case spacerWidth = "SpacerWidth"
         case revealRules = "RevealRules"
+        /// Whether the pinned system items may be moved into hidden sections (they may not by default).
+        case systemItemsMayHide = "SystemItemsMayHide"
         /// Whether showing the hidden items asks for Touch ID or the password. Local to the
         /// Mac: never exported, imported or synced.
         case lockHiddenItems = "LockHiddenItems"
@@ -285,6 +287,7 @@ nonisolated extension Defaults.Key {
             .hideApplicationMenus,
             .keepsDockIconHidden,
             .layoutSnapshotsDisabled,
+            .systemItemsMayHide,
             .lockHiddenItems,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
