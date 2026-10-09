@@ -1091,7 +1091,10 @@ extension SimSafetyOracles {
         let legacyTokens = SimMacBeta1().heldTokens(inFile: SimLimits.legacyPath, data: data)
         let folder = record.prompt.shown.compactMap(\.folder)
         guard !folder.isEmpty, folder.allSatisfy(legacyTokens.contains) else { return nil }
-        for earlier in world.groundTruth.prompts where earlier.mac == record.mac && earlier.prompt.id != record.prompt.id {
+        // A sheet that was open and unanswered when the app quit (a restart, a crash) is the same question when the app comes back, not a
+        // second one: the question stays pending and the user never answered the first. The gate's seeds of INV-B4 (nextcloud 410, dropbox
+        // 157) are exactly this: the drain restarts a Mac whose sheet is open, and the engine asks the pending question again.
+        for earlier in world.groundTruth.prompts where earlier.mac == record.mac && earlier.prompt.id != record.prompt.id && earlier.answer != nil {
             if earlier.prompt.shown == record.prompt.shown {
                 return "Mac \(record.mac) asks a second time about the same content of the older peer's file"
             }
