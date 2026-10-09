@@ -225,6 +225,18 @@ nonisolated extension SyncEngine {
             return draft.finish()
         }
         guard input.syncIsOn else {
+            if mode == .untrusted, trust.hasState {
+                // A state that is no evidence stays no evidence. This launch persists it with the identity and the generation it just
+                // settled on, and the next launch compares the defaults with that and trusts it: its baselines would then make the
+                // settings that a reinstall or a restore took away look like deletions by the user, and turning sync on would
+                // publish them (found by INV-A6 seed 77). What a join with dot-less values forgets is forgotten now; the replica
+                // stays, so the join into the group still knows its own entries and takes the group's values where the settings
+                // hold none.
+                draft.state.applied = [:]
+                draft.state.baseline = [:]
+                draft.state.localOnly = [:]
+                draft.state.localOrigin = [:]
+            }
             // Off: the state is kept, nothing else happens.
             return draft.finish()
         }
