@@ -94,8 +94,8 @@ struct SettingsSchemaTests {
         }
     }
 
-    @Test("A settings file cannot turn settings sync on")
-    func settingsFileCannotTurnSyncOn() {
+    @Test("A settings file cannot set the key the 0.0.7 betas used for settings sync")
+    func settingsFileCannotSetLeftoverKey() {
         #expect(Defaults.Key.localOnlyKeys.contains(.syncsSettingsWithICloud))
         #expect(Defaults.Key.importableKinds["SyncsSettingsWithICloud"] == nil)
         let result = Defaults.Key.validatedSettings(["SyncsSettingsWithICloud": true, "ShowOnHover": true])
@@ -194,22 +194,11 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.holzBarIconShowsCaptureDot.rawValue == "HolzBarIconShowsCaptureDot")
     }
 
-    @Test("Sync keeps the settings the other Mac lacks")
-    func syncKeepsMissingKeys() {
-        let removed = Defaults.Key.keysRemoved(
-            applying: ["A": 1],
-            over: ["A": 0, "B": 1],
-            removesMissingKeys: false
-        )
-        #expect(removed.isEmpty)
-    }
-
     @Test("A file import removes the settings the file lacks")
     func importRemovesMissingKeys() {
         let removed = Defaults.Key.keysRemoved(
             applying: ["A": 1],
-            over: ["C": 2, "A": 0, "B": 1],
-            removesMissingKeys: true
+            over: ["C": 2, "A": 0, "B": 1]
         )
         #expect(removed == ["B", "C"])
     }
@@ -218,8 +207,7 @@ struct SettingsSchemaTests {
     func keyInBothIsKept() {
         let current: [String: Any] = ["A": 0, "B": 1]
         let accepted: [String: Any] = ["A": 1, "B": 2]
-        #expect(Defaults.Key.keysRemoved(applying: accepted, over: current, removesMissingKeys: true).isEmpty)
-        #expect(Defaults.Key.keysRemoved(applying: accepted, over: current, removesMissingKeys: false).isEmpty)
+        #expect(Defaults.Key.keysRemoved(applying: accepted, over: current).isEmpty)
     }
 
     @Test("Settings keep their kinds")

@@ -1569,34 +1569,6 @@
         }
       }
     },
-    "Change…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ändern …"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifier…"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifica…"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Midar …"
-          }
-        }
-      }
-    },
     "Chevron" : {
       "localizations" : {
         "de" : {
@@ -1653,34 +1625,6 @@
         }
       }
     },
-    "Choose Settings…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einstellungen auswählen …"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisir les réglages…"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scegli le impostazioni…"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tscherner ils parameters …"
-          }
-        }
-      }
-    },
     "Choose a custom icon to show in the menu bar." : {
       "localizations" : {
         "de" : {
@@ -1705,34 +1649,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tscherna in agen simbol per la trav da menu."
-          }
-        }
-      }
-    },
-    "Choose a folder your Macs keep in sync, such as iCloud Drive or a Nextcloud, Dropbox, OneDrive or Syncthing folder. holzBar keeps its settings in a holzBar folder inside it." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wähle einen Ordner, den deine Macs abgleichen, etwa iCloud Drive oder einen Nextcloud-, Dropbox-, OneDrive- oder Syncthing-Ordner. holzBar legt seine Einstellungen darin in einem Ordner «holzBar» ab."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisissez un dossier que vos Mac synchronisent, par exemple iCloud Drive ou un dossier Nextcloud, Dropbox, OneDrive ou Syncthing. holzBar y range ses réglages dans un dossier « holzBar »."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scegli una cartella che i tuoi Mac sincronizzano, per esempio iCloud Drive o una cartella Nextcloud, Dropbox, OneDrive o Syncthing. holzBar vi tiene le sue impostazioni in una cartella «holzBar»."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tscherna in ordinatur che tes Macs sincroniseschan, per exempel iCloud Drive u in ordinatur da Nextcloud, Dropbox, OneDrive u Syncthing. holzBar metta ses parameters en in ordinatur «holzBar» lien."
           }
         }
       }
@@ -3725,34 +3641,6 @@
         }
       }
     },
-    "Keep This Mac's Settings" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einstellungen dieses Macs behalten"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Garder les réglages de ce Mac"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mantieni le impostazioni di questo Mac"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tegnair ils parameters da quest Mac"
-          }
-        }
-      }
-    },
     "Keep the Dock icon hidden" : {
       "localizations" : {
         "de" : {
@@ -3777,62 +3665,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Laschar zuppà il simbol dal Dock"
-          }
-        }
-      }
-    },
-    "Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hält Layout, Profile, Tastenkürzel und Erscheinungsbild auf all deinen Macs gleich, über einen Ordner, den sie abgleichen: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing oder eine Netzwerkfreigabe. Die App des Ordners überträgt die Datei; holzBar geht nie online. Änderungen von einem anderen Mac gelten nach einem Neustart."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Garde la disposition, les profils, les raccourcis et l'apparence identiques sur tous vos Mac grâce à un dossier qu'ils synchronisent : iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing ou un partage réseau. L'app du dossier transporte le fichier ; holzBar ne se connecte jamais. Les changements d'un autre Mac s'appliquent après un redémarrage."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mantiene uguali layout, profili, abbreviazioni e aspetto su tutti i tuoi Mac tramite una cartella che sincronizzano: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing o una condivisione di rete. L'app della cartella trasporta il file; holzBar non va mai online. Le modifiche da un altro Mac valgono dopo un riavvio."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tegna la disposiziun, ils profils, las cumbinaziuns da tastas e l'apparientscha uguals sin tut tes Macs tras in ordinatur ch'els sincroniseschan: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing u ina partiziun da rait. L'app da l'ordinatur porta la datoteca; holzBar na va mai online. Midadas d'in auter Mac valan suenter in reaviament."
-          }
-        }
-      }
-    },
-    "Later" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Später"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plus tard"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Più tardi"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pli tard"
           }
         }
       }
@@ -6329,34 +6161,6 @@
         }
       }
     },
-    "Restart" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Neu starten"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redémarrer"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Riavvia"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reaviar"
-          }
-        }
-      }
-    },
     "Right-click in an empty area of the menu bar to display a minimal version of holzBar's menu. Disable this setting if you encounter conflicts with other apps." : {
       "localizations" : {
         "de" : {
@@ -6885,34 +6689,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Parameters"
-          }
-        }
-      }
-    },
-    "Settings changed on another Mac" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einstellungen auf einem anderen Mac geändert"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Réglages modifiés sur un autre Mac"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impostazioni modificate su un altro Mac"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Parameters midads sin in auter Mac"
           }
         }
       }
@@ -7757,90 +7533,6 @@
         }
       }
     },
-    "Sync Here" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hier abgleichen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchroniser ici"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizza qui"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronisar qua"
-          }
-        }
-      }
-    },
-    "Sync is paused in this beta and returns in the next one. Your sync folder and these settings stay as they are." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Abgleich ist in dieser Beta pausiert und kommt in der nächsten zurück. Dein Abgleichordner und diese Einstellungen bleiben, wie sie sind."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La synchronisation est en pause dans cette bêta et reviendra dans la prochaine. Votre dossier de synchronisation et ces réglages restent tels quels."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La sincronizzazione è in pausa in questa beta e tornerà nella prossima. La tua cartella di sincronizzazione e queste impostazioni restano come sono."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La sincronisaziun è en pausa en questa beta e turna en la proxima. Tes ordinatur da sincronisaziun e quests parameters restan sco ch'els èn."
-          }
-        }
-      }
-    },
-    "Sync settings between your Macs" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einstellungen zwischen deinen Macs abgleichen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchroniser les réglages entre vos Mac"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizza le impostazioni tra i tuoi Mac"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronisar ils parameters tranter tes Macs"
-          }
-        }
-      }
-    },
     "System Glass" : {
       "localizations" : {
         "de" : {
@@ -8233,62 +7925,6 @@
         }
       }
     },
-    "The sync folder cannot be found. Choose it again." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Abgleichordner wurde nicht gefunden. Wähle ihn erneut."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le dossier de synchronisation est introuvable. Choisissez-le à nouveau."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile trovare la cartella di sincronizzazione. Sceglila di nuovo."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'ordinatur da sincronisaziun n'è betg vegnì chattà. Tscherna el danovamain."
-          }
-        }
-      }
-    },
-    "The sync folder holds settings from another Mac that differ from this Mac's. Using them restarts holzBar; keeping this Mac's settings replaces them in the sync folder." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Abgleichordner enthält Einstellungen eines anderen Macs, die von denen dieses Macs abweichen. Verwendest du sie, startet holzBar neu; behältst du die Einstellungen dieses Macs, ersetzen sie jene im Abgleichordner."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le dossier de synchronisation contient des réglages d'un autre Mac qui diffèrent de ceux de ce Mac. Les utiliser redémarre holzBar ; garder les réglages de ce Mac les remplace dans le dossier de synchronisation."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La cartella di sincronizzazione contiene impostazioni di un altro Mac diverse da quelle di questo Mac. Usarle riavvia holzBar; mantenere le impostazioni di questo Mac le sostituisce nella cartella di sincronizzazione."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'ordinatur da sincronisaziun cuntegna parameters d'in auter Mac che sa distinguan da quels da quest Mac. Sche ti als duvras, reavia holzBar; sche ti tegnas ils parameters da quest Mac, remplazzan quels ils parameters en l'ordinatur da sincronisaziun."
-          }
-        }
-      }
-    },
     "This action cannot be undone." : {
       "localizations" : {
         "de" : {
@@ -8341,34 +7977,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Questa secziun è deactivada en ils parameters da holzBar."
-          }
-        }
-      }
-    },
-    "Through %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Über %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Via %@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tramite %@"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tras %@"
           }
         }
       }
@@ -8737,34 +8345,6 @@
         }
       }
     },
-    "Turn On…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einschalten …"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activer…"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Attiva…"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activar …"
-          }
-        }
-      }
-    },
     "Turn auto-rehide on or off" : {
       "localizations" : {
         "de" : {
@@ -9097,34 +8677,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Duvrar il simbol da l'app"
-          }
-        }
-      }
-    },
-    "Use Settings from Sync Folder" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einstellungen aus dem Abgleichordner verwenden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utiliser les réglages du dossier"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usa le impostazioni della cartella"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Duvrar ils parameters da l'ordinatur"
           }
         }
       }
@@ -9489,34 +9041,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nua che macOS als metta"
-          }
-        }
-      }
-    },
-    "Which settings should holzBar use?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Welche Einstellungen soll holzBar verwenden?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quels réglages holzBar doit-il utiliser ?"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quali impostazioni deve usare holzBar?"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tge parameters duai holzBar duvrar?"
           }
         }
       }
