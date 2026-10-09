@@ -15,6 +15,9 @@ final class HolzBarShelfPanel: NSPanel {
     /// Manager for the holzBar Shelf's color, created when the Shelf is first shown.
     private var colorManager: HolzBarShelfColorManager?
 
+    /// Follows Reduce Transparency and Increase Contrast while the Shelf is open.
+    private let transparency = TransparencyObserver()
+
     /// The currently displayed section.
     private(set) var currentSection: MenuBarSection.Name?
 
@@ -239,9 +242,11 @@ final class HolzBarShelfPanel: NSPanel {
         }
 
         let colorManager = colorManagerForShowing()
+        transparency.start()
         contentView = HolzBarShelfHostingView(
             appState: appState,
             colorManager: colorManager,
+            transparency: transparency,
             screen: screen,
             section: section
         )
@@ -286,6 +291,7 @@ final class HolzBarShelfPanel: NSPanel {
 
     override func close() {
         super.close()
+        transparency.stop()
         showGeneration += 1
         contentView = nil
         currentSection = nil
@@ -303,12 +309,14 @@ private final class HolzBarShelfHostingView: NSHostingView<HolzBarShelfContentVi
     init(
         appState: AppState,
         colorManager: HolzBarShelfColorManager,
+        transparency: TransparencyObserver,
         screen: NSScreen,
         section: MenuBarSection.Name
     ) {
         let rootView = HolzBarShelfContentView(
             appState: appState,
             colorManager: colorManager,
+            transparency: transparency,
             itemManager: appState.itemManager,
             imageCache: appState.imageCache,
             menuBarManager: appState.menuBarManager,
@@ -338,6 +346,7 @@ private final class HolzBarShelfHostingView: NSHostingView<HolzBarShelfContentVi
 private struct HolzBarShelfContentView: View {
     var appState: AppState
     var colorManager: HolzBarShelfColorManager
+    var transparency: TransparencyObserver
     var itemManager: MenuBarItemManager
     var imageCache: MenuBarItemImageCache
     var menuBarManager: MenuBarManager
@@ -408,6 +417,41 @@ private struct HolzBarShelfContentView: View {
         }
     }
 
+    /// How the Shelf is drawn under the system's Reduce Transparency and Increase Contrast.
+    private var treatment: TransparencyTreatment {
+        .shelf(options: transparency.options, hasConfiguredBorder: configuration.current.hasBorder)
+    }
+
+    /// The colour of the Shelf's background.
+    ///
+    /// While Reduce Transparency or Increase Contrast is on, the same colour with its alpha
+    /// forced to 1. The Shelf's background is opaque today (a flat window background colour
+    /// on macOS 27, the average of a capture before), so this makes the guarantee explicit
+    /// and changes no look.
+    private var backgroundColorInfo: MenuBarAverageColorInfo? {
+        guard
+            treatment.fill == .opaque,
+            var info = colorManager.colorInfo,
+            let opaque = info.color.copy(alpha: 1)
+        else {
+            return colorManager.colorInfo
+        }
+        info.color = opaque
+        return info
+    }
+
+    /// The line drawn around the Shelf: the visible one the treatment asks for, else the
+    /// one the user configured, else none.
+    private var border: (width: CGFloat, color: Color)? {
+        if treatment.border == .visible {
+            return (TransparencyTreatment.visibleBorderWidth, Color.primary.opacity(treatment.borderOpacity))
+        }
+        if configuration.current.hasBorder {
+            return (configuration.current.borderWidth, Color(cgColor: configuration.current.borderColor))
+        }
+        return nil
+    }
+
     private var shadowOpacity: CGFloat {
         configuration.current.hasShadow ? 0.5 : 0.33
     }
@@ -418,16 +462,16 @@ private struct HolzBarShelfContentView: View {
                 .frame(height: contentHeight)
                 .padding(.horizontal, horizontalPadding)
                 .padding(.vertical, verticalPadding)
-                .menuBarItemContainer(appState: appState, colorInfo: colorManager.colorInfo)
+                .menuBarItemContainer(appState: appState, colorInfo: backgroundColorInfo)
                 .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
                 .clipShape(clipShape)
                 .shadow(color: .black.opacity(shadowOpacity), radius: 2.5)
 
-            if configuration.current.hasBorder {
+            if let border {
                 clipShape
-                    .inset(by: configuration.current.borderWidth / 2)
-                    .stroke(lineWidth: configuration.current.borderWidth)
-                    .foregroundStyle(Color(cgColor: configuration.current.borderColor))
+                    .inset(by: border.width / 2)
+                    .stroke(lineWidth: border.width)
+                    .foregroundStyle(border.color)
             }
         }
         .padding(5)
