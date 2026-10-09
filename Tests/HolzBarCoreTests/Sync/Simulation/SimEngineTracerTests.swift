@@ -114,6 +114,18 @@ enum SimMacRedesignProbe {
         (world.brain(of: mac) as? SimMacRedesign)?.report().deviceID
     }
 
+    /// The tokens of the values that the state in the Mac's Sigma blob has applied; `nil` when the Mac has no state.
+    static func appliedTokens(of world: SimWorld, _ mac: SimMacName) -> Set<String>? {
+        guard let state = state(of: world, mac) else { return nil }
+        var applied = Set<String>()
+        for (key, dots) in state.applied {
+            for entry in state.replica.live(key) where dots.contains(entry.dot) {
+                applied.formUnion(entry.value.flatMap { SimValue(sync: $0) }?.tokens ?? [])
+            }
+        }
+        return applied
+    }
+
     /// The state in the Mac's Sigma blob.
     static func state(of world: SimWorld, _ mac: SimMacName) -> SyncState? {
         guard let data = world.state(of: mac).sigma, case .state(let state) = SyncStateCodec.decode(data) else {

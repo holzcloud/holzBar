@@ -11,6 +11,8 @@ import Foundation
 struct SimFolderReadResult {
     var read: SyncFolderRead
     var versions: [SyncMacID: Int]
+    /// The provider version of the legacy file when this read took its settings.
+    var legacyVersion: Int?
 }
 
 /// The simulator's I/O performer for the redesigned engine. It does what the app's file actor
@@ -36,7 +38,12 @@ enum SimFolderIO {
         // The launch read is bounded: every call may block only for what is left of the budget,
         // and the coordinators are cancelled when it is used up (INV-R2).
         let originalTimeout = context.ioTimeoutMilliseconds
-        defer { context.ioTimeoutMilliseconds = originalTimeout }
+        let blockedBefore = context.blockedMilliseconds
+        defer {
+            context.ioTimeoutMilliseconds = originalTimeout
+            // Only the read at launch is on the launching thread (INV-R2); the others are the host's background work.
+            if case .launch = request.purpose {} else { context.discardBlocking(since: blockedBefore) }
+        }
         func bound() {
             if case .launch(let budget) = request.purpose {
                 context.ioTimeoutMilliseconds = max(0, min(originalTimeout, Int64(budget * 1000) - context.blockedMilliseconds))
@@ -72,8 +79,13 @@ enum SimFolderIO {
             }
         }
         bound()
-        let legacy = request.legacy == .none ? nil : readLegacy(request.legacy, &context)
-        return SimFolderReadResult(read: SyncFolderRead(availability: .available, files: files, legacy: legacy, skipped: skipped), versions: versions)
+        var legacyVersion: Int?
+        let legacy = request.legacy == .none ? nil : readLegacy(request.legacy, &context, version: &legacyVersion)
+        return SimFolderReadResult(
+            read: SyncFolderRead(availability: .available, files: files, legacy: legacy, skipped: skipped),
+            versions: versions,
+            legacyVersion: request.legacy == .settings ? legacyVersion : nil
+        )
     }
 
     private static func readFile(named name: String, _ context: inout SimMacContext) -> (file: SyncFileOutcome, version: Int?)? {
@@ -106,11 +118,12 @@ enum SimFolderIO {
         }
     }
 
-    private static func readLegacy(_ request: SyncLegacyRequest, _ context: inout SimMacContext) -> SyncLegacyOutcome {
+    private static func readLegacy(_ request: SyncLegacyRequest, _ context: inout SimMacContext, version: inout Int?) -> SyncLegacyOutcome {
         switch context.read(legacyPath, maximumBytes: SettingsSyncFile.maximumFileSize) {
-        case .data(let data, _):
+        case .data(let data, let readVersion):
             switch SyncLegacyInput.read(data) {
             case .success(let file):
+                version = readVersion > 0 ? readVersion : nil
                 if request == .metadata {
                     return .file(SyncLegacyFile(modified: file.modified, deviceID: file.deviceID, settings: [:], identityDigest: file.identityDigest))
                 }
@@ -130,6 +143,9 @@ enum SimFolderIO {
     // MARK: Write
 
     static func write(_ request: SyncWriteRequest, _ context: inout SimMacContext) -> SyncWriteResult {
+        // The host writes the own file in the background, never on the launching thread: what it waits for is no part of the launch (INV-R2).
+        let blockedBefore = context.blockedMilliseconds
+        defer { context.discardBlocking(since: blockedBefore) }
         let data: Data
         do throws(SyncRefusal) {
             data = try SyncDeviceFile.encode(request.contents)

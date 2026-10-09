@@ -155,11 +155,16 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     private var promptWasOpenAtStart = false
 
     // What the hook did, for the oracles.
+    private var leftOut: Set<String> = []
     private var joinedInHook = false
     private var inLaunch = false
+    /// The process is going away: the host opens no sheet then.
+    private var inQuit = false
     private var reidentifyReason: String?
     private var lastJoinVersions: [Int] = []
+    private var lastLegacyVersion: Int?
     private var unreadListed: Set<String> = []
+    private var unreadAtJoinCommit: Set<String> = []
     private var refusedListed: Set<String> = []
 
     init(table: SyncUnitTable = SimEngineUnits.table(), guards: SyncGuards = .all) {
@@ -173,7 +178,9 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         promptWasOpenAtStart = prompt != nil
         joinedInHook = false
         inLaunch = launching
-        reidentifyReason = nil
+        // The reason an ID changed stays until the next launch: the step that shows the change may run other hooks after the one
+        // that made it.
+        if launching { reidentifyReason = nil }
     }
 
     mutating func launch(_ context: inout SimMacContext) {
@@ -196,10 +203,28 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         guard live != nil else {
             return
         }
+        inQuit = true
         run(.quit(snapshot(context)), &context)
+        inQuit = false
         live = nil
         question = nil
         prompt = nil
+    }
+
+    mutating func stateWasReplaced() {
+        cachedHeld = []
+    }
+
+    /// An update to another redesigned build keeps what the harness records next to the Mac: which tokens each dot carried and what a
+    /// join that waits has read (the new build commits that join with what the old one read).
+    mutating func carryBookkeeping(from previous: SimMacRedesign) {
+        dotTokens = previous.dotTokens
+        promptCounter = previous.promptCounter
+        lastJoinVersions = previous.lastJoinVersions
+        lastLegacyVersion = previous.lastLegacyVersion
+        unreadListed = previous.unreadListed
+        unreadAtJoinCommit = previous.unreadAtJoinCommit
+        refusedListed = previous.refusedListed
     }
 
     mutating func processDied() {
@@ -302,6 +327,9 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
 
     var openPrompt: SimPrompt? { prompt }
 
+    /// The question the open sheet shows, with every row, for tests that look at what the engine asked.
+    var openQuestion: SyncQuestion? { question }
+
     /// The status lines the app shows in Settings.
     var statusLines: [SyncStatusLine] { cachedView.lines }
 
@@ -339,7 +367,12 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
             for version in lastJoinVersions {
                 context.reportMerge(version: version)
             }
+            // A founding takes its values from the legacy file: what the file holds is merged into this Mac's state then.
+            if let legacyVersion = lastLegacyVersion {
+                context.reportMerge(version: legacyVersion)
+            }
             joinedInHook = true
+            unreadAtJoinCommit = unreadListed
         }
         for effect in step.effects {
             guard !context.crashed else {
@@ -458,6 +491,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
     /// could not read yet or refused for good.
     private mutating func recordJoinRead(_ result: SimFolderReadResult) {
         lastJoinVersions = result.versions.values.sorted()
+        lastLegacyVersion = result.legacyVersion
         unreadListed = []
         refusedListed = []
         for file in result.read.files {
@@ -514,7 +548,9 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
             context.defaults[Self.legacyDeviceIDKey] = .string(legacyID)
         }
         if reidentifyReason == nil, cachedReport.deviceID != nil {
-            reidentifyReason = inLaunch ? "hardware" : "collision"
+            // A new ID that starts a join is one the launch took (the hardware or the account changed); one found while merging a read
+            // (the launch's own read included) is a collision with another installation, and the Mac stays in its group.
+            reidentifyReason = live?.pendingJoin != nil ? "hardware" : "collision"
         }
     }
 
@@ -670,7 +706,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
             }
             return
         }
-        guard let current, isShowing, !promptWasOpenAtStart else {
+        guard let current, isShowing, !promptWasOpenAtStart, !inQuit else {
             return
         }
         promptCounter += 1
@@ -698,7 +734,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
                 let used = token(ofPayload: chosenToUse)
                 let kept = token(ofPayload: chosenToKeep)
                 for token in tokens where token != used || token != kept {
-                    shown.append(SimPromptUnit(unit: unit, local: token == used ? nil : token, folder: token == kept ? nil : token))
+                    shown.append(SimPromptUnit(unit: unit, local: token == used ? nil : token, folder: token == kept ? nil : token, losesEitherWay: token != used && token != kept))
                 }
                 continue
             }
@@ -731,6 +767,10 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         guard let question, prompt != nil else {
             return
         }
+        // The third button of a join sheet is Cancel: there is no Later to press there.
+        if question.kind == .joining, answer == .later {
+            return
+        }
         var choices: [SyncUnitKey: Int] = [:]
         let button: SyncAnswerButton
         switch answer {
@@ -760,7 +800,17 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
             }
         }
         let before = live
+        leftOut = []
         run(.command(.answer(SyncAnswerRequest(button: button, choices: choices, question: question))), &context)
+        if button == .use || button == .keep || button == .useChosen, let after = live {
+            // A row whose dots are all still live was not decided: the setting changed while the sheet was open.
+            for row in question.rows {
+                let shown = Set(question.shown[row.unit] ?? [])
+                if !shown.isEmpty, !shown.isDisjoint(with: Set(after.replica.live(row.unit).map(\.dot))) {
+                    leftOut.insert(SimEngineUnits.unit(of: row.unit))
+                }
+            }
+        }
         // An answer the engine took changes its state (entries written, the join committed or cancelled,
         // Later recorded); the sheet is done then, whatever the engine asks next.
         if let before, let after = live, before.replica != after.replica || before.pendingJoin != after.pendingJoin
@@ -772,7 +822,8 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
 
     /// The index of the value a pop-up pick takes: the value this Mac holds for Keep, another one for Use.
     private static func index(of answer: SimAnswer, in row: SyncRow) -> Int {
-        let local = row.local?.value
+        // A Mac whose settings hold no value holds a deletion: Keep takes the deletion when the sheet lists one.
+        let local = row.local?.value ?? .deleted
         if answer == .keep {
             return row.folder.firstIndex { $0.value == local } ?? 0
         }
@@ -810,6 +861,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         var held = Set<String>()
         var applied = Set<String>()
         var waiting = Set<String>()
+        var waitingUnits = Set<String>()
         let appliedDots = Set(state.applied.values.flatMap { $0 })
         for key in state.replica.keys {
             for entry in state.replica.live(key) {
@@ -819,14 +871,17 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
                     applied.formUnion(tokens)
                 } else {
                     waiting.formUnion(tokens)
+                    waitingUnits.insert(SimEngineUnits.unit(of: key))
                 }
             }
         }
         // What a join has read but not committed is held too: nothing is lost while the question waits.
+        var tentative = Set<String>()
         if let pending = state.pendingJoin {
             for key in pending.replica.keys {
                 for entry in pending.replica.live(key) {
                     held.formUnion(Self.tokens(of: entry))
+                    tentative.formUnion(Self.tokens(of: entry))
                 }
             }
         }
@@ -837,6 +892,7 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         report.joining = state.pendingJoin != nil || joinedInHook
         report.joinCommitted = state.pendingJoin == nil && context.enabled
         report.unreadListedFiles = unreadListed
+        report.unreadAtJoinCommit = unreadAtJoinCommit
         report.refusedFiles = refusedListed
         report.reidentifyReason = reidentifyReason
         report.ownCounter = Int(clamping: state.counter)
@@ -845,15 +901,36 @@ struct SimMacRedesign: SimSyncBrain, SimBrainIntrospection {
         report.menuHint = cachedView.hint == .choose || cachedView.hint == .chooseAfterJoin
         report.sizeWarning = state.session.isTooLargeToPublish
         report.sigmaBytes = (try? SyncStateCodec.encode(state).count) ?? 0
-        report.devicesSeen = state.replica.context.macs.count
+        // A join that waits for its answer holds the folder's replica as well: its entries and devices are part of the state.
+        var devices = Set(state.replica.context.macs)
+        for replica in [state.replica] + (state.pendingJoin.map { [$0.replica] } ?? []) {
+            devices.formUnion(replica.context.macs)
+            for key in replica.keys {
+                for entry in replica.live(key) {
+                    report.liveEntries += 1
+                    report.payloadBytes += entry.value.flatMap { SimValue(sync: $0) }.map { $0.canonical.utf8.count } ?? 0
+                }
+            }
+        }
+        report.devicesSeen = devices.count
+        var bookkept = Set(state.baseline.keys)
+        bookkept.formUnion(state.applied.keys)
+        bookkept.formUnion(state.localOrigin.keys)
+        bookkept.formUnion(state.localOnly.keys)
+        bookkept.formUnion(state.replica.keys)
+        report.bookkeptUnits = bookkept.count
         report.appliedTokens = applied
         report.waitingTokens = waiting
+        report.waitingUnits = waitingUnits
+        report.pendingJoinTokens = tentative
         cachedReport = report
     }
 
     // MARK: SimBrainIntrospection
 
     func report() -> SimBrainReport { cachedReport }
+
+    func answerLeftOutUnits() -> Set<String> { leftOut }
 
     private static func contents(path: String, data: Data) -> SyncDeviceFile.Contents? {
         let name = path.split(separator: "/").last.map(String.init) ?? path

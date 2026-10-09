@@ -86,13 +86,27 @@ enum SimMetamorphic {
             }
             observation.prompts.append("\(record.mac) \(record.prompt.title) \(units.joined(separator: ","))")
         }
+        // What each device file says of the user's state once everything that was under way has arrived: its last word. When a file is
+        // written again is a matter of timing (a capture that comes a moment earlier splits one write in two), which this comparison
+        // leaves out: what the files say is what a pair must agree on.
+        SimDrain.settle(world)
+        var everSaid: [String: Set<String>] = [:]
+        var lastWord: [String: String] = [:]
         for write in world.writeLog where write.version != nil {
             var tokens = Set<String>()
             for mac in world.brains.keys.sorted() { tokens.formUnion(world.brains[mac]!.heldTokens(inFile: write.path, data: write.data)) }
             let claimed = world.brains[write.mac]?.claimedPast(ofFile: write.path, data: write.data)
-            observation.publications.append(
-                "\(write.mac) \(write.path) \(userTokens(tokens, in: world)) claimed=\(claimed.map { userTokens($0, in: world).description } ?? "-")"
-            )
+            let published = userTokens(tokens, in: world)
+            let claimedTokens = claimed.map { userTokens($0, in: world) } ?? []
+            // A file that says nothing of the user's state (an empty device file that a Mac writes when it joins with an automatic
+            // value of its own in its settings, say) is no publication of it.
+            if published.isEmpty && claimedTokens.isEmpty { continue }
+            let key = "\(write.mac) \(write.path)"
+            everSaid[key, default: []].formUnion(published)
+            lastWord[key] = "final=\(published) claimed=\(claimed.map { userTokens($0, in: world).description } ?? "-")"
+        }
+        for key in everSaid.keys.sorted() {
+            observation.publications.append("\(key) \(lastWord[key] ?? "")")
         }
         observation.finalState = world.macs.keys.sorted().map { "\($0) \(userTokens(SimUnits.tokens(in: world.macs[$0]!.defaults), in: world))" }
         observation.userChanges = world.groundTruth.changes.filter { $0.kind == .user }.count
@@ -121,25 +135,56 @@ enum SimMetamorphic {
 
     // MARK: INV-A1
 
-    /// The same trace with and without automatic events gives the same prompts, hints and user-state publications.
-    static func automaticEventsInvisible(
-        _ setup: SimMetaSetup, _ events: [SimEvent], insertionSeed: UInt64 = 1
-    ) -> [SimViolation] {
+    /// The automatic events inserted before some of the events of a trace.
+    /// - Parameter generic: Whether the engine under test is a control engine of the generic units, which stores an automatic change to
+    ///   any unit it is told of: the placement is then of a unit of its own. The real engine is judged with the stores the app makes.
+    static func automaticInsertions(
+        _ setup: SimMetaSetup, _ events: [SimEvent], insertionSeed: UInt64, generic: Bool = false
+    ) -> [Int: [SimEvent]] {
         var random = SimRandom(seed: insertionSeed).fork("automatic-insertions")
         let names = setup.macs.map(\.name)
         var insertions: [Int: [SimEvent]] = [:]
         for index in events.indices where random.chance(0.35) {
             let mac = random.pick(names)
+            // The automatic writes the app really makes (decision D-04): the placement of a new application (an automatic store, which
+            // sends no intent), a learned item tag and an internal flag. holzBar never writes a setting that a diff captures (a reveal
+            // rule, say) by itself, so an `autoPlace` of such a unit is no automatic event.
+            // An application of its own, so that no move of the user's acts on a unit that the automatic store changed.
             switch random.int(in: 0...2) {
-            // An automatic placement never overwrites an entry backed by the user's intent, so it gets a unit of its own.
-            case 0: insertions[index] = [.autoPlace(mac: mac, unit: "RevealRules/auto\(index)")]
+            case 0:
+                insertions[index] = [generic ? .autoPlace(mac: mac, unit: "RevealRules/auto\(index)") : .placeNewApp27(mac: mac, bundle: "com.auto.n\(index)")]
             case 1: insertions[index] = [.learn(mac: mac, key: "KnownItemTags")]
             default: insertions[index] = [.setFlag(mac: mac, key: "HasImportedIceSettings")]
             }
         }
-        let plain = observe(setup, events).observation
-        let noisy = observe(setup, events, insertions: insertions).observation
+        return insertions
+    }
+
+    /// The same trace with and without automatic events gives the same prompts, hints and user-state publications.
+    static func automaticEventsInvisible(
+        _ setup: SimMetaSetup, _ events: [SimEvent], insertionSeed: UInt64 = 1, generic: Bool = false
+    ) -> [SimViolation] {
+        let insertions = automaticInsertions(setup, events, insertionSeed: insertionSeed, generic: generic)
+        // The pair runs on an ideal provider. An automatic event makes the engine publish what it learned (the known applications
+        // are a set of the group's, not a user's value), and every write draws from the provider's random streams: on a provider
+        // with delays and faults, one more write shifts every later delivery, so the two runs would differ by timing alone and no
+        // decision of the engine would be compared. The faults of every provider are the business of the seeded runs.
+        var ideal = setup
+        ideal.preset = nil
+        ideal.policy = .ideal
+        let plain = observe(ideal, events).observation
+        let noisyRun = observe(ideal, events, insertions: insertions)
+        let noisy = noisyRun.observation
         var found: [SimViolation] = []
+        // No file ever says a value that no user made: an automatic change is no publication of anyone's (D-04).
+        for write in noisyRun.world.writeLog where write.version != nil && SimWorld.isRedesign(build: write.brainKind) {
+            var tokens = Set<String>()
+            for mac in noisyRun.world.brains.keys.sorted() { tokens.formUnion(noisyRun.world.brains[mac]!.heldTokens(inFile: write.path, data: write.data)) }
+            if let token = tokens.sorted().first(where: { noisyRun.world.groundTruth.origin(of: $0) == .automatic }) {
+                found.append(violation("INV-A1", setup, events, "Mac \(write.mac) published the automatic change \(token)"))
+                break
+            }
+        }
         if let difference = firstDifference(plain.prompts, noisy.prompts) {
             found.append(violation("INV-A1", setup, events, "automatic events changed the prompts: \(difference)"))
         }
@@ -225,10 +270,20 @@ enum SimMetamorphic {
         _ setup: SimMetaSetup, _ events: [SimEvent], launching extras: [SimMacName], insertionSeed: UInt64 = 1
     ) -> [SimViolation] {
         var random = SimRandom(seed: insertionSeed).fork("dot-free-launches")
+        // A launch of a Mac that is not running would start it, and the user's events after it would then happen where they
+        // happened to nothing before: the pair would compare two different traces. A Mac that was not running is quit again.
+        let probe = SimWorld(seed: setup.seed, macs: setup.macs, preset: setup.preset, policy: setup.policy, brainFactory: setup.brainFactory)
+        var runningBefore: [Int: Set<SimMacName>] = [:]
+        for (index, event) in events.enumerated() {
+            runningBefore[index] = Set(extras.filter { probe.macs[$0]?.running == true })
+            probe.step(event)
+        }
         var insertions: [Int: [SimEvent]] = [:]
         for index in events.indices where random.chance(0.4) {
             let extra = random.pick(extras)
-            insertions[index] = [.launch(mac: extra), .restartApp(mac: extra)]
+            insertions[index] = runningBefore[index]?.contains(extra) == true
+                ? [.launch(mac: extra), .restartApp(mac: extra)]
+                : [.launch(mac: extra), .restartApp(mac: extra), .quit(mac: extra)]
         }
         let plain = observe(setup, events)
         let launched = observe(setup, events, insertions: insertions)

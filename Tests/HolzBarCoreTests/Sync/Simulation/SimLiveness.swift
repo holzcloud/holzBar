@@ -96,6 +96,25 @@ enum SimDrain {
         return found
     }
 
+    /// The conflicts that exist at T0 whether or not the files that show them have been delivered: a unit where two users changed it
+    /// without knowing of each other. Each Mac that compares the unit may be asked once.
+    private static func concurrentConflicts(_ world: SimWorld) -> Int {
+        var count = 0
+        // Answers that crossed (two Macs answered one conflict without knowing of each other's answer) leave the conflict standing: it is
+        // as open as one that nobody has answered.
+        for unit in world.groundTruth.unitsWithCrossedAnswers() {
+            for mac in redesignMacs(world) where world.macs[mac]?.enabled == true && world.groundTruth.isComparable(unit: unit, on: mac) {
+                count += 1
+            }
+        }
+        for unit in world.groundTruth.unitsWithConcurrentValues() {
+            for mac in redesignMacs(world) where world.macs[mac]?.enabled == true && world.groundTruth.isComparable(unit: unit, on: mac) {
+                count += 1
+            }
+        }
+        return count
+    }
+
     private static func chooseAnswer(_ config: SimDrainConfig, random: inout SimRandom, laters: inout Int, index: inout Int) -> SimAnswer {
         switch config.answers {
         case .use: return .use
@@ -123,22 +142,26 @@ enum SimDrain {
         var facts = SimDrainFacts()
         let macs = redesignMacs(world)
         let promptsBefore = world.allSteps.flatMap(\.prompts).count
-        let conflictsAtT0 = conflicts(world).count
+        let conflictsAtT0 = max(conflicts(world).count, concurrentConflicts(world))
         var laters = 0
         var answerIndex = 0
         var quiet = 0
         var seenConflicts = Set<String>()
+        world.healProviders()
         settle(world)
         for round in 1...max(config.maximumRounds, 1) {
             facts.rounds = round
             let writesBefore = world.writeLog.count
             let promptsAtStart = world.allSteps.flatMap(\.prompts).count
+            // A Mac reads the folder at launch and when it is told of a change: a conflict that came into being while the round ran
+            // (a file written after the Macs read, on a provider that tells nothing) is shown from the next round on.
+            let conflictsAtStart = Set(conflicts(world))
             for mac in macs {
                 world.step(world.macs[mac]?.running == true ? .restartApp(mac: mac) : .launch(mac: mac))
             }
             settle(world)
             // A real conflict must be shown before anything is answered (INV-P6).
-            for conflict in conflicts(world) where seenConflicts.insert(conflict).inserted {
+            for conflict in conflicts(world) where conflictsAtStart.contains(conflict) && seenConflicts.insert(conflict).inserted {
                 let mac = SimMacName(String(conflict.prefix(while: { $0 != ":" })))
                 if world.brains[mac]?.hint == nil, world.brains[mac]?.openPrompt == nil {
                     facts.unansweredConflicts.append(conflict)
@@ -167,7 +190,7 @@ enum SimDrain {
         }
         facts.laters = laters
         facts.promptsAfterT0 = world.allSteps.flatMap(\.prompts).count - promptsBefore
-        facts.promptBound = conflictsAtT0 + macs.count + laters
+        facts.promptBound = conflictsAtT0 + macs.count + laters + 2 * world.groundTruth.crossingAnswerPairs()
         facts.disagreements = agreement(world, macs: macs)
         facts.unreached = progress(world, macs: macs)
         if let fresh = config.fresh, let reference = macs.first(where: { world.macs[$0]?.enabled == true }) {
@@ -181,6 +204,38 @@ enum SimDrain {
         return facts
     }
 
+    /// Whether two Macs hold different values of a unit in a way that counts as a disagreement. The same setting in
+    /// another encoding is no difference (`SimUnits.equivalent`), and neither is a unit one Mac holds only as
+    /// an automatic value and the other lacks or holds as one: an automatic store is no change of the user's, so it is
+    /// never synchronized and never wins (decision D-04). The same holds for a value of the macOS 27 arrangement that its Mac's sync
+    /// state lost before it left the Mac (a restore): the arrangement is captured from the user's intents only, because holzBar's own
+    /// stores write the same keys, so nothing finds the value again until the user moves the application once more.
+    static func differs(_ world: SimWorld, _ unit: String, _ left: SimValue?, _ right: SimValue?) -> Bool {
+        if SimUnits.equivalent(unit, left, right) { return false }
+        let scoped = SimUnits.generationScope(unit) == 27
+        func isAutomaticOrAbsent(_ value: SimValue?) -> Bool {
+            guard let value else { return true }
+            let tokens = value.tokens
+            return !tokens.isEmpty && tokens.allSatisfy {
+                world.groundTruth.origin(of: $0) == .automatic || world.groundTruth.wasPlacedAutomatically($0)
+                    || (scoped && world.groundTruth.lostToAmnesia(token: $0))
+            }
+        }
+        return !(isAutomaticOrAbsent(left) && isAutomaticOrAbsent(right))
+    }
+
+    /// Whether the unit is in a conflict that no Mac can answer: one of its live values was made by a Mac that lost its sync state (and
+    /// with it the identity under which the entry stands), so the entry belongs to no Mac that runs, and the Macs that remain are
+    /// bystanders of it, which the drain does not ask.
+    static func isOrphanConflict(_ world: SimWorld, _ unit: String) -> Bool {
+        guard world.groundTruth.unitsWithConcurrentValues().contains(unit) else { return false }
+        return world.groundTruth.changes.contains { change in
+            change.unit == unit && change.tokens.contains { token in
+                world.groundTruth.lostToAmnesia(token: token) && world.groundTruth.isLive(token: token, unit: unit)
+            }
+        }
+    }
+
     /// INV-C1: every pair of redesigned Macs agrees on every synced unit that is comparable between them.
     static func agreement(_ world: SimWorld, macs: [SimMacName]) -> [String] {
         let live = macs.filter { world.macs[$0]?.enabled == true }
@@ -192,11 +247,11 @@ enum SimDrain {
             }
         }
         var found: [String] = []
-        for unit in units.sorted() {
+        for unit in units.sorted() where !isOrphanConflict(world, unit) {
             let comparable = live.filter { world.groundTruth.isComparable(unit: unit, on: $0) }
             guard let first = comparable.first else { continue }
             let reference = SimUnits.value(of: unit, in: world.macs[first]!.defaults)
-            for other in comparable.dropFirst() where SimUnits.value(of: unit, in: world.macs[other]!.defaults) != reference {
+            for other in comparable.dropFirst() where differs(world, unit, SimUnits.value(of: unit, in: world.macs[other]!.defaults), reference) {
                 found.append("\(unit): \(first) and \(other) differ")
                 break
             }
@@ -210,8 +265,15 @@ enum SimDrain {
         let live = macs.filter { world.macs[$0]?.enabled == true }
         var found: [String] = []
         for change in world.groundTruth.changes where change.kind == .user && !change.tokens.isEmpty {
-            guard let unit = change.unit, live.contains(change.mac) else { continue }
-            for token in change.tokens where world.groundTruth.isLive(token: token, unit: unit) {
+            // A change that its own Mac's settings lost (a restore, a copy) before it left the Mac has nothing to reach the others.
+            guard let unit = change.unit, live.contains(change.mac), !world.groundTruth.userForgot(change) else { continue }
+            for token in change.tokens where world.groundTruth.isLive(token: token, unit: unit) && !world.groundTruth.wasDestroyedByNonSync(token)
+                && !(SimUnits.generationScope(unit) == 27 && world.groundTruth.lostToAmnesia(token: token)) {
+                // A value that a beta1 or beta2 build made, and that its Mac no longer holds (that build's own sync removed it from the
+                // settings, as a file without it does at a launch), is no change of a redesigned Mac: nothing holds it to send.
+                let holder = world.macs[change.mac]
+                let held = holder.map { SimUnits.tokens(in: $0.defaults).contains(token) } ?? false
+                if !SimWorld.isRedesign(build: change.build), !held, !(world.brains[change.mac]?.heldTokens.contains(token) ?? false) { continue }
                 for mac in live where mac != change.mac && world.groundTruth.isComparable(unit: unit, on: mac) {
                     let state = world.macs[mac]!
                     var holds = SimUnits.tokens(in: state.defaults).contains(token)
@@ -256,7 +318,8 @@ enum SimDrain {
             }
         }
         for unit in units.sorted()
-        where SimUnits.value(of: unit, in: source.defaults) != SimUnits.value(of: unit, in: freshState.defaults) {
+        where !isOrphanConflict(world, unit)
+            && differs(world, unit, SimUnits.value(of: unit, in: source.defaults), SimUnits.value(of: unit, in: freshState.defaults)) {
             facts.freshMismatches.append(unit)
         }
     }
