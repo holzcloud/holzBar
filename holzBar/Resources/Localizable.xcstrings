@@ -5461,6 +5461,34 @@
         }
       }
     },
+    "No profile" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Profil"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun profilo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagin profil"
+          }
+        }
+      }
+    },
     "No shape kind selected" : {
       "localizations" : {
         "de" : {
@@ -9293,6 +9321,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cun quest Space"
+          }
+        }
+      }
+    },
+    "To apply a layout profile with a Focus, add the holzBar filter to that Focus in System Settings." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um mit einem Fokus ein Layoutprofil anzuwenden, füge den holzBar-Filter in den Systemeinstellungen zu diesem Fokus hinzu."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour appliquer un profil de disposition avec un mode de concentration, ajoutez le filtre holzBar à ce mode dans Réglages Système."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per applicare un profilo di layout con un Focus, aggiungi il filtro holzBar a quel Focus in Impostazioni di Sistema."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per applitgar in profil da layout cun in focus, agiuntescha il filter holzBar a quest focus en las preferenzas dal sistem."
           }
         }
       }

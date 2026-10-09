@@ -162,6 +162,30 @@ struct ApplyLayoutProfileIntent: AppIntent {
     }
 }
 
+// MARK: - Focus Filter
+
+/// The Focus filter of holzBar: applies a layout profile while a Focus is on and brings the
+/// previous one back when it ends. The user adds it to a Focus in System Settings.
+struct LayoutProfileFocusFilter: SetFocusFilterIntent {
+    static let title: LocalizedStringResource = "Layout Profile"
+
+    @Parameter(title: "Profile")
+    var profile: LayoutProfileEntity?
+
+    var displayRepresentation: DisplayRepresentation {
+        guard let profile else {
+            return DisplayRepresentation(title: "No profile")
+        }
+        return DisplayRepresentation(title: "\(profile.id)")
+    }
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        try intentAppState().profiles.focusFilterChanged(to: profile?.id)
+        return .result()
+    }
+}
+
 // MARK: - Automation Rules
 
 /// An automation rule, identified by its identifier.
