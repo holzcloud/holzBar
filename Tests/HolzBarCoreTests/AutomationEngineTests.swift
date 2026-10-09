@@ -264,9 +264,9 @@ struct AutomationEngineTests {
     @Test("The next boundary is the nearest start or end, wrapping past midnight")
     func nextBoundary() {
         let windows = [AutomationTimeWindow(startMinute: 9 * 60, endMinute: 17 * 60, weekdays: [])]
-        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 8 * 3600) == 3600)
-        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 12 * 3600) == 5 * 3600)
-        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 17 * 3600) == 16 * 3600)
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 8 * 3600) == 3600.0)
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 12 * 3600) == 5.0 * 3600)
+        #expect(AutomationSchedule.secondsUntilNextBoundary(of: windows, from: 17 * 3600) == 16.0 * 3600)
         #expect(AutomationSchedule.secondsUntilNextBoundary(of: [], from: 0) == nil)
     }
 }
