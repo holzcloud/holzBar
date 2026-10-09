@@ -574,9 +574,11 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
 
 ### Phase 28: Settings sync redesign
 
-**Status 2026-10-09: ON HOLD.** Plans 28-01 to 28-17 are built and merged on `planning/sync-redesign`, but gate G1 failed (third pass, `28-G1-GATE.md`: open S6, A6, ID1, J1 and pair seeds), so sync stays paused (`SettingsSyncPause.isPaused = true`) and plan 28-18 (docs, release notes, flip) is deferred until G1 passes. The maintainer decided to ship 0.0.7-beta3 without sync and finish the sync in a later beta. ID1 is to be solved without a state-format change.
+**Status 2026-10-09: MOVED TO 1.0.0.** The maintainer withdrew the sync feature from the app and from all documents (PR `chore/withdraw-sync`); it is planned for 1.0.0 together with the optional modules, and 0.0.7 is a bugfix release without sync. The branch `sync/1.0.0` on GitHub holds all of this phase's work.
 
-**Goal**: Settings sync works again in a later 0.0.7 beta (was 0.0.7-beta3) on a design that cannot lose, revert or silently overwrite a user's change: one file per Mac (`holzBar/Macs/<MacID>.plist`), causal dots and a lattice join, questions only on real conflicts; settings sync on macOS 26 and 27, the arrangement and layout profiles only between macOS 27 Macs. Decisions: `.planning/research/sync-redesign/DECISIONS.md`; design: `SYNC-REDESIGN-ANALYSIS.md`, D1, A1–A3.
+**Status before that: ON HOLD.** Plans 28-01 to 28-17 are built and merged on `planning/sync-redesign`, but gate G1 failed (third pass, `28-G1-GATE.md`: open S6, A6, ID1, J1 and pair seeds), so sync stays paused (`SettingsSyncPause.isPaused = true`) and plan 28-18 (docs, release notes, flip) is deferred until G1 passes. The maintainer decided to ship 0.0.7-beta3 without sync and finish the sync in a later beta. ID1 is to be solved without a state-format change.
+
+**Goal**: Settings sync works in 1.0.0 (was 0.0.7-beta3, then a later 0.0.7 beta) on a design that cannot lose, revert or silently overwrite a user's change: one file per Mac (`holzBar/Macs/<MacID>.plist`), causal dots and a lattice join, questions only on real conflicts; settings sync on macOS 26 and 27, the arrangement and layout profiles only between macOS 27 Macs. Decisions: `.planning/research/sync-redesign/DECISIONS.md`; design: `SYNC-REDESIGN-ANALYSIS.md`, D1, A1–A3.
 **Requirements**: SYNC-R01 to SYNC-R10 (defined in `REQUIREMENTS.md`, section "Settings sync redesign (Phase 28)", and in this phase's `28-CONTEXT.md`)
 **Depends on**: 0.0.7-beta2 (released); independent of Phases 8 to 27
 **Success Criteria** (what must be TRUE):

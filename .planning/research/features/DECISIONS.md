@@ -2,7 +2,7 @@
 
 Decided by the maintainer, one by one, after the research in BARTENDER.md, ALTERNATIVES.md and VORSSAINT.md. 0.0.7 is the bugfix release (settings sync redesign, Phase 28); the features formerly planned for 0.0.7 "Automation" move to 0.0.8 and 0.0.9.
 
-## 0.0.7 (bugfix release, in addition to Phase 28)
+## 0.0.7 (bugfix release; the settings sync was withdrawn on 2026-10-09 and moved to 1.0.0)
 - Native macOS 27 overflow button support (was Phase 22)
 - Liquid Glass follows Reduce Transparency (was Phase 23)
 
@@ -53,3 +53,7 @@ Decided by the maintainer, one by one, after the research in BARTENDER.md, ALTER
 - Phase 26 (Swift 6.4 adoption) is technical and not in this list; place it with the 0.0.8 work.
 - Phase 27 (release `0.0.7-beta1`) becomes the release of 0.0.8; the 0.0.7 betas carry Phase 28 plus the two macOS 27 items.
 - New phases are needed for the new 0.0.8 items (no-Screen-Recording mode, pinned system items, menu bar styles).
+
+## 1.0.0 (decided 2026-10-09)
+- Settings sync between Macs (Phase 28 redesign, work on branch `sync/1.0.0`), withdrawn from the app and the docs until then
+- Optional all-in-one modules (see MODULES-DECISIONS.md)

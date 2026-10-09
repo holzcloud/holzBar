@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-10-02)
 Milestone: 0.0.7 (bugfix release): Phase 28 "Settings sync redesign", plus the macOS 27 overflow button and Reduce Transparency items. Features moved to 0.0.8 and 0.0.9 (decisions: `research/features/DECISIONS.md`); optional all-in-one modules planned for 1.0.0 (`research/features/MODULES-DECISIONS.md`).
 Phase: 28 of 28, plans 01 to 13 executed (12 complete, plan 28-13 gate G1 not yet passed and being closed), plans 28-14 to 28-17 done, plan 28-18 deferred (phase ON HOLD, G1 failed).
 Status: Settings sync stays paused (`SettingsSyncPause.isPaused = true`) until G1 passes and plan 28-18 flips it last. The simulator, the engine and the A1/A2/D3/J catalogue exist as tests; the app adapter and host are not built yet (28-14 onward).
-Last activity: 2026-10-09 — G1 third pass failed (S6, A6, ID1, J1 open); the maintainer put the sync on hold: 0.0.7-beta3 ships without sync, with phases 22 and 23.
+Last activity: 2026-10-09 — G1 third pass failed (S6, A6, ID1, J1 open); the maintainer put the sync on hold: the maintainer withdrew the sync from the app and all docs and moved it to 1.0.0; 0.0.7 is bugfix-only (phases 22 and 23, no sync).
 
 Progress: plans 16 of 18 in phase 28
 
