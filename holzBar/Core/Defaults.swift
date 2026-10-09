@@ -139,7 +139,7 @@ nonisolated extension Defaults {
     /// The keys holzBar stores its settings under.
     ///
     /// Every key declares the kind of value it holds (``settingsKind``), so an imported
-    /// or synced settings file can only set holzBar's own keys, with values of the
+    /// settings file can only set holzBar's own keys, with values of the
     /// expected kind (``SettingsSchema``).
     nonisolated enum Key: String, CaseIterable {
         // MARK: General Settings
@@ -160,6 +160,8 @@ nonisolated extension Defaults {
         case rehideStrategy = "RehideStrategy"
         case rehideInterval = "RehideInterval"
         case itemSpacingOffset = "ItemSpacingOffset"
+        /// macOS 27: a dot on holzBar's icon while another app uses the microphone or a camera.
+        case holzBarIconShowsCaptureDot = "HolzBarIconShowsCaptureDot"
 
         // MARK: Hotkeys Settings
         case hotkeys = "Hotkeys"
@@ -183,6 +185,7 @@ nonisolated extension Defaults {
         case itemIcons = "ItemIcons"
         case layoutProfiles = "LayoutProfiles"
         case currentLayoutProfile = "CurrentLayoutProfile"
+        /// Left by the 0.0.7 betas. Nothing reads or writes it any more, and the stored value stays.
         case syncsSettingsWithICloud = "SyncsSettingsWithICloud"
         case itemGroups = "ItemGroups"
         case spacerCount = "SpacerCount"
@@ -204,6 +207,20 @@ nonisolated extension Defaults {
         case macOS27LayoutSeeded = "MacOS27LayoutSeeded"
         case macOS27ClickRestoreDelay = "MacOS27ClickRestoreDelay"
         case macOS27ShelfWaitsForRefresh = "MacOS27IceBarWaitsForRefresh"
+
+        // MARK: Debugging
+        /// Loses the round trip of every move and click event barrier before macOS 27: the
+        /// entry event is dropped, so the real event never reaches the item, the exit event
+        /// never comes back and each barrier times out; shows that holzBar recovers from a
+        /// lost event. Hidden:
+        /// `defaults write com.holzcloud.holzBar DebugDropsBarrierExitEvent -bool true`.
+        /// Never exported or imported.
+        case debugDropsBarrierExitEvent = "DebugDropsBarrierExitEvent"
+        /// Blocks every item image capture before macOS 27 forever, so each one times out;
+        /// shows that holzBar recovers from a stuck capture and stops capturing after three.
+        /// Hidden: `defaults write com.holzcloud.holzBar DebugHangsItemImageCapture -bool true`.
+        /// Never exported or imported.
+        case debugHangsItemImageCapture = "DebugHangsItemImageCapture"
 
         // MARK: Migration
         case hasMigrated0_8_0 = "hasMigrated0_8_0"
@@ -244,7 +261,7 @@ nonisolated extension Defaults.Key {
     /// The kind of value stored under this key.
     ///
     /// The switch has no `default`, so a new key must declare its kind before it
-    /// can be built; imported and synced settings are checked against these kinds.
+    /// can be built; imported settings are checked against these kinds.
     var settingsKind: SettingsSchema.Kind {
         switch self {
         case .showHolzBarIcon,
@@ -255,6 +272,7 @@ nonisolated extension Defaults.Key {
             .showOnHover,
             .showOnScroll,
             .autoRehide,
+            .holzBarIconShowsCaptureDot,
             .enableAlwaysHiddenSection,
             .showAllSectionsOnUserDrag,
             .hideApplicationMenus,
@@ -266,6 +284,8 @@ nonisolated extension Defaults.Key {
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
             .macOS27ShelfWaitsForRefresh,
+            .debugDropsBarrierExitEvent,
+            .debugHangsItemImageCapture,
             .hasMigrated0_8_0,
             .hasMigrated0_10_0,
             .hasMigrated0_10_1,
@@ -327,7 +347,7 @@ nonisolated extension Defaults.Key {
     /// The values a numeric setting may take: the range of its slider, stepper or
     /// choices. `nil` for the keys that hold no number.
     ///
-    /// Imported and synced values outside it are clamped or refused
+    /// Imported values outside it are clamped or refused
     /// (``SettingsSchema/NumberRule``), and the models clamp what they read from the
     /// defaults, which any process of the user can write.
     var numberRule: SettingsSchema.NumberRule? {
@@ -363,7 +383,7 @@ nonisolated extension Defaults.Key {
     /// A number read from the defaults under this key, kept in the range of its setting
     /// (``numberRule``); `fallback` when it is not finite.
     ///
-    /// The defaults can hold anything: an imported or synced file, or any process of the
+    /// The defaults can hold anything: an imported file, or any process of the
     /// user, may have written them. A value out of range trapped where the app turns it into
     /// an `Int` or a `Duration`.
     func clamped(_ value: Double, fallback: Double) -> Double {
@@ -373,19 +393,23 @@ nonisolated extension Defaults.Key {
         return numberRule.clamp(value, fallback: fallback)
     }
 
-    /// Keys that stay on this Mac: never exported, imported or synced.
+    /// Keys that stay on this Mac: never exported or imported.
     ///
-    /// Turning settings sync on writes the settings to a folder outside this Mac, so only
-    /// the user turns it on, on each Mac; a settings file cannot.
-    static let localOnlyKeys: Set<Defaults.Key> = [.syncsSettingsWithICloud]
+    /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
+    /// never sets it. The debug defaults stay on this Mac as well.
+    static let localOnlyKeys: Set<Defaults.Key> = [
+        .syncsSettingsWithICloud,
+        .debugDropsBarrierExitEvent,
+        .debugHangsItemImageCapture,
+    ]
 
-    /// The stored key names an imported or synced settings file may set, with the
+    /// The stored key names an imported settings file may set, with the
     /// kind of value each one takes. Every key except the ``localOnlyKeys``.
     static let importableKinds: [String: SettingsSchema.Kind] = Dictionary(
         uniqueKeysWithValues: allCases.filter { !localOnlyKeys.contains($0) }.map { ($0.rawValue, $0.settingsKind) }
     )
 
-    /// The values the numeric keys an imported or synced settings file may set can take.
+    /// The values the numeric keys an imported settings file may set can take.
     static let importableNumberRules: [String: SettingsSchema.NumberRule] = Dictionary(
         uniqueKeysWithValues: allCases.compactMap { key in
             key.numberRule.map { (key.rawValue, $0) }
@@ -397,5 +421,16 @@ nonisolated extension Defaults.Key {
     /// expected kind, numbers within their range (``SettingsSchema``).
     static func validatedSettings(_ settings: [String: Any]) -> (accepted: [String: Any], ignored: [String]) {
         SettingsSchema.validated(settings, kinds: importableKinds, numberRules: importableNumberRules)
+    }
+
+    /// The keys of the current settings that applying `accepted` removes, sorted.
+    ///
+    /// A settings file replaces every setting, so it removes the keys it lacks.
+    ///
+    /// - Parameters:
+    ///   - accepted: The validated settings that are applied.
+    ///   - current: The current settings.
+    static func keysRemoved(applying accepted: [String: Any], over current: [String: Any]) -> [String] {
+        current.keys.filter { accepted[$0] == nil }.sorted()
     }
 }

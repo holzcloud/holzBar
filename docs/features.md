@@ -21,6 +21,7 @@
 - ✅ **Keyboard and VoiceOver** — arrange items in the Layout pane with the arrow keys, undo with ⌘Z, move items with VoiceOver actions
 - ✅ **Opened items stay** up to 30 s after their menu closes — or open without showing the item at all
 - ✅ **Show When It Changes** — a marked item shows for 5 s when its title or value changes
+- ✅ **Privacy indicators stay visible** — the camera and microphone indicator, the FaceTime item and the Screenshot tool's recording button can be moved, never hidden <sub>macOS 14 to 26</sub>
 - ✅ Item spacing <sub>BETA</sub>
 
 </td>
@@ -49,15 +50,15 @@
 - ✅ **Zen mode** — one hotkey, menu item, URL or Shortcuts action keeps hidden items hidden; optionally on while the screen is mirrored or shared, without any permission
 - ✅ **Shortcuts actions** — Zen mode, show or hide a section, apply a profile, open an item by name, search
 - ✅ **`holzbar://` URL commands** and [Raycast script commands](../Integrations/Raycast)
-- ✅ Hotkeys for sections, search, the holzBar Shelf, app menus, **auto-rehide**, **a quick peek**, **Zen mode**, **each layout profile** and **each menu bar item**
+- ✅ Hotkeys for sections, search, the holzBar Shelf, app menus, **auto-rehide**, **a quick peek**, **Zen mode**, **each layout profile** and **each menu bar item** — a combination another holzBar hotkey already uses moves only when you choose **Replace**
 
 </td>
 <td valign="top" width="50%">
 
 #### Settings
 - ✅ **Export and import** all settings
-- ✅ **Sync between Macs** through iCloud Drive or any folder your Macs sync (Nextcloud, Dropbox, OneDrive, Syncthing, a network share) — changes from another Mac arrive as soon as the folder delivers them, with no polling
 - ✅ **Imports your Ice settings** on first launch
+- ✅ **Alerts in Settings are sheets** on its window, so holzBar keeps working while one is open
 - ✅ Launch at login
 - ✅ **English, German, French, Italian and Romansh** — holzBar follows your Mac's language; choose another one for holzBar alone in System Settings → General → Language & Region → Applications
 
@@ -76,45 +77,72 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **A second display** works like the first: hovering and clicking items there opens their menus instead of revealing hidden items
 - **Notched MacBooks**: holzBar's icon is kept out from under the notch, and items folded beside the notch come back on a wider display
 - **No screenshots under the bar**: no screen-recording indicator when items are shown or hidden, and a click on the clock no longer flashes hidden items
+- **Split shape** that follows the icons, on every display
+- **A dot on holzBar's icon** while hidden items are concealed and an app uses the microphone (orange) or the camera (green), in place of Control Centre's indicator. On by default in Settings → General, with no permission; the icon appears for the dot even when **Show holzBar icon** is off
 
 **Known limitations on macOS 27**
 
 - Items can't be reordered on the bar itself — only assigned to sections.
 - Opening a system item (clock, battery, Wi-Fi) while hidden items are concealed adds ~150 ms.
-- **The privacy indicator is hidden while items are hidden.** Control Centre's indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item; the small green dot beside the clock still shows the camera. It comes back while holzBar hides no item. See [Permissions](privacy-and-permissions.md#permissions).
+- **Control Centre's privacy indicator is hidden while items are hidden.** Its indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item, and comes back while holzBar hides no item. holzBar's dot covers the microphone and the camera, not screen recording; the small green dot beside the clock still shows the camera. See [Permissions](privacy-and-permissions.md#permissions).
 - Coming from 0.0.5 or earlier, macOS asks for Accessibility once more. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.
 
-## Planned for 0.0.7 "Automation"
+## Planned next
 
-**None of this is available yet.** It is the plan for the next release, which is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
+**Apart from the 0.0.7 items marked as in 0.0.7-beta3, none of this is available yet.** It is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
+
+### 0.0.7: bugfixes
+
+0.0.7 is a bugfix release and adds no new features. Settings sync is removed from the app in 0.0.7-beta3; a redesigned sync is planned for 1.0.0 (Export… and Import… stay).
+
+- Cooperation with macOS 27's own overflow button, so items are not shown twice. Not in 0.0.7-beta3; it follows in a later 0.0.7 beta.
+- **In 0.0.7-beta3:** System Glass and the holzBar Shelf follow Reduce Transparency and Increase Contrast; with either on they are drawn opaque with a border, and the change applies at once, with no restart. The macOS 27 Liquid Glass slider has no public API (checked in the macOS 27.0 SDK, see [macOS 27 notes](macos27.md#liquid-glass-and-transparency)), so holzBar does not follow it. Not yet checked on real macOS 26 and 27 systems.
+
+### 0.0.8 "Automation"
 
 **Automation**
 - **Rules** that apply a profile, reveal items or switch Zen mode when a Wi-Fi network, an app, the time of day, the power source, a display or a Focus matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Spike first: the Focus filter.*
 - **Per-item conditions**: show a single item only while a condition holds, for example while a VPN is connected.
 - **Scripts** as a rule condition or action: only from a folder you choose, pinned by hash, run only after you confirm.
-- **Widgets**: menu bar items of your own (text from permission-free sources, a Shortcut button); script widgets come last.
-- **AppleScript dictionary** to show, hide, switch profiles and turn rules on or off.
-- **Command palette**: one hotkey opens a panel to run any holzBar action.
 
 **Safety and convenience**
 - **Layout snapshots** taken automatically, with a one-click restore.
 - **Share a profile** as a small validated file; it never contains personal data or code.
-- **First-launch assistant** that proposes an arrangement from static facts, skippable and re-runnable.
-- **Usage suggestions** (opt-in): suggests hiding items you never click; counters stay on your Mac and can be erased with one click.
 - **Touch ID or password** to show hidden items.
 - **Revoke permissions in Settings**: a button per permission that withdraws it again (for holzBar's own entry only) or opens the right System Settings pane, so you never have to hunt for it.
-- **Smooth show and hide**, respecting Reduce Motion.
 - **Copy diagnostics**: a redacted report you read before you copy it; nothing is sent.
+- **First-launch assistant** that proposes an arrangement from static facts, skippable and re-runnable.
+- **Works without Screen Recording**: every feature runs without it, and the Shelf shows app icons instead of live snapshots.
+- **System items pinned visible**: Clock, Wi-Fi and Battery stay visible when space runs short.
+- More **menu bar styles** (pills, outlines, gradients), as far as macOS 27 allows.
 
-**macOS 27 and polish**
-- Cooperation with macOS 27's own overflow button, so items are not shown twice.
-- Glass tint and Shelf follow Reduce Transparency (and the macOS 27 slider, if a public signal exists). *Spike.*
+**Polish**
 - Reordering in the Layout pane with SwiftUI's new reordering API, only if clearly better. *Spike.*
-- A Control Center control to toggle Zen mode or apply a profile. *Spike.*
 - A keyboard and VoiceOver audit of every pane.
 - Swift 6.4 clean-up without behaviour changes.
 
-The "holzBar vs. Ice and Thaw" table above marks these with 🔜.
+### 0.0.9
+
+**Automation**
+- **Widgets**: menu bar items of your own with text from permission-free sources (CPU load, memory, battery, free disk space, a countdown) and a Shortcut button; script widgets come last.
+- **AppleScript dictionary** to show, hide, switch profiles and turn rules on or off, and **App Intents** for Shortcuts and Siri.
+- **Command palette**: one hotkey opens a panel to run any holzBar action.
+- A **keep-awake** action (no permission needed) and a **focus mode** hotkey that hides everything except chosen items.
+
+**Convenience**
+- **Usage suggestions** (opt-in): suggests hiding items you never click; counters stay on your Mac and can be erased with one click.
+- **Smooth show and hide**, respecting Reduce Motion.
+- Replacement items for Apple items that macOS 27 cannot hide, and hiding system items such as Clock and Control Center.
+
+**Polish**
+- A Control Center control to toggle Zen mode or apply a profile. *Spike, optional.*
+
+### 1.0.0
+
+- **Settings sync between your Macs** through any folder they sync (iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing, a network share), **redesigned from scratch**, designed not to lose or silently overwrite a change. It is not in 0.0.7; earlier releases carried a first version of it, which was withdrawn. Until 1.0.0, **Export…** and **Import…** move settings between Macs.
+- **Optional all-in-one modules**; the details follow closer to the release.
+
+The "holzBar vs. Ice and Thaw" table above marks these with 🔜 and the release.
 
 ## Gallery
 
@@ -139,9 +167,5 @@ The "holzBar vs. Ice and Thaw" table above marks these with 🔜.
 <tr>
 <td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action, profile and item<br><img src="../Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys for the hidden section, the search, opening an item by letter, the layout profile home, the holzBar Shelf, app menus, auto-rehide and Zen mode, each with Record Hotkey"></td>
 <td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode, automatic reveal and settings backup<br><img src="../Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, showing hidden items when the battery is low or the network is lost, and settings Export… and Import…"></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><b>Sync and permissions</b> — settings sync through any folder your Macs sync, and the state of every permission<br><img src="../Resources/Screenshots/settings-advanced-sync.png" alt="holzBar settings, Advanced pane further down: showing hidden items automatically, Export… and Import…, Sync settings between your Macs with Turn On… through iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share, and Accessibility and Screen Recording both granted"></td>
-<td width="50%" valign="top"></td>
 </tr>
 </table>

@@ -107,8 +107,13 @@ final class MenuBarItemGroups {
         groups.append(MenuBarItemGroup(name: name, symbolName: Self.symbolNames[groups.count % Self.symbolNames.count], itemTags: []))
     }
 
+    /// Deletes the group and the image file it no longer uses.
     func deleteGroup(_ group: MenuBarItemGroup) {
+        let imageFile = groups.first { $0.id == group.id }?.imageFile
         groups.removeAll { $0.id == group.id }
+        if let imageFile {
+            appState?.itemIconStore.deleteFile(named: imageFile)
+        }
     }
 
     func toggle(_ item: MenuBarItem, in group: MenuBarItemGroup) {

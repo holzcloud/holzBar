@@ -29,8 +29,10 @@ nonisolated struct MenuBarItemTag: Hashable, CustomStringConvertible {
             // holzBar's assessment-mode assertion always keeps the numbered system items.
             return false
         }
+        // On macOS 26 an item's app is found from frames that apps report about themselves,
+        // so the capture indicators stay visible whichever app they are attributed to.
         return !MenuBarItemTag.nonHideableItems.contains(self) &&
-        !(namespace.isUUID && title == "AudioVideoModule")
+        !CaptureIndicatorItems.isIndicator(title: title)
     }
 
     /// A Boolean value that indicates whether the item identified
@@ -67,9 +69,17 @@ nonisolated struct MenuBarItemTag: Hashable, CustomStringConvertible {
 
     /// A Boolean value that indicates whether the item identified by this tag
     /// shows a Live Activity.
+    ///
+    /// The title is a hint only for system items (a UUID or an Apple namespace): any
+    /// other app could otherwise keep its item visible by naming it so.
     var isLiveActivity: Bool {
-        Self.liveActivityNamespaces.contains(namespace.description) ||
-        title.localizedCaseInsensitiveContains("LiveActivit")
+        if Self.liveActivityNamespaces.contains(namespace.description) {
+            return true
+        }
+        guard namespace.isUUID || namespace.description.hasPrefix("com.apple.") else {
+            return false
+        }
+        return title.localizedCaseInsensitiveContains("LiveActivit")
     }
 
     /// A textual representation of the tag.

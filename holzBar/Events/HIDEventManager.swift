@@ -350,7 +350,7 @@ extension HIDEventManager {
         }
 
         Task {
-            if NSEvent.modifierFlags == .control {
+            if NSEvent.heldModifierFlags == .control {
                 handleSecondaryContextMenu(appState: appState, screen: screen)
                 return
             }
@@ -358,7 +358,7 @@ extension HIDEventManager {
             let targetSection: MenuBarSection
 
             if
-                NSEvent.modifierFlags == .option,
+                NSEvent.heldModifierFlags == .option,
                 let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden),
                 alwaysHiddenSection.isEnabled
             {
@@ -428,13 +428,21 @@ extension HIDEventManager {
                 return
             }
 
-            // Get the window that was clicked.
+            // Get the window that was clicked: the topmost app window (layer 0) or Dock
+            // window under the mouse (RehideClickTarget). Not by title: macOS withholds
+            // other apps' window titles without Screen Recording, which smart rehide does
+            // not need.
+            let windows = WindowInfo.createWindows(option: .onScreen)
+            let dockPID = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dock").first?.processIdentifier
             guard
                 let mouseLocation = MouseHelpers.locationCoreGraphics,
-                let windowUnderMouse = WindowInfo.createWindows(option: .onScreen)
-                    .filter({ $0.layer < CGWindowLevelForKey(.cursorWindow) })
-                    .first(where: { $0.bounds.contains(mouseLocation) && $0.title?.isEmpty == false }),
-                let owningApplication = windowUnderMouse.owningApplication
+                let index = RehideClickTarget.clickedWindowIndex(
+                    in: windows.map { RehideClickTarget.Window(layer: $0.layer, ownerPID: $0.ownerPID, bounds: $0.bounds) },
+                    at: mouseLocation,
+                    cursorLayer: Int(CGWindowLevelForKey(.cursorWindow)),
+                    dockPID: dockPID
+                ),
+                let owningApplication = windows[index].owningApplication
             else {
                 return
             }

@@ -15,8 +15,19 @@ final class HolzBarShelfPanel: NSPanel {
     /// Manager for the holzBar Shelf's color, created when the Shelf is first shown.
     private var colorManager: HolzBarShelfColorManager?
 
+    /// Follows Reduce Transparency and Increase Contrast while the Shelf is open.
+    private let transparency = TransparencyObserver()
+
     /// The currently displayed section.
     private(set) var currentSection: MenuBarSection.Name?
+
+    /// The horizontal position the panel centres on, chosen once when it opens, so a resize
+    /// while it is open does not move it to the mouse pointer or the holzBar icon.
+    private var anchorX: CGFloat?
+
+    /// Counts the calls to `show(section:on:)` and `close()`, so a show that waited for the
+    /// caches knows whether the panel was closed or shown again meanwhile.
+    private var showGeneration = 0
 
     /// Tasks that hide the panel when the space or the screens change.
     private var observerTasks = [Task<Void, Never>]()
@@ -124,67 +135,69 @@ final class HolzBarShelfPanel: NSPanel {
         }
     }
 
-    /// Updates the panel's frame origin for display on the given screen.
-    private func updateOrigin(for screen: NSScreen) {
+    /// Returns the horizontal position to centre the panel on for the given location
+    /// setting, read from the mouse pointer and the holzBar icon as they are now.
+    private func getAnchorX(for shelfLocation: HolzBarShelfLocation, screen: NSScreen) -> CGFloat {
         guard let appState else {
+            return screen.frame.maxX
+        }
+
+        switch shelfLocation {
+        case .dynamic:
+            if appState.hidEventManager.isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) {
+                return getAnchorX(for: .mousePointer, screen: screen)
+            }
+            return getAnchorX(for: .holzBarIcon, screen: screen)
+        case .mousePointer:
+            guard let location = MouseHelpers.locationAppKit else {
+                return getAnchorX(for: .holzBarIcon, screen: screen)
+            }
+            return location.x
+        case .holzBarIcon:
+            guard
+                let controlItem = appState.itemManager.itemCache.managedItems.first(matching: .visibleControlItem),
+                // Bridging API is more reliable than controlItem.frame in some
+                // cases (like if the item is offscreen).
+                let itemBounds = Bridging.getWindowBounds(for: controlItem.windowID)
+            else {
+                // Centring on the screen's right edge puts the panel at the right of the screen.
+                return screen.frame.maxX
+            }
+            return itemBounds.midX
+        }
+    }
+
+    /// Updates the panel's frame origin for display on the given screen, centred on the
+    /// anchor chosen when it opened.
+    private func updateOrigin(for screen: NSScreen) {
+        let menuBarHeight = screen.getMenuBarHeight() ?? 0
+        let originY = ((screen.frame.maxY - 1) - menuBarHeight) - frame.height
+
+        let lowerBound = screen.frame.minX
+        let upperBound = screen.frame.maxX - frame.width
+
+        guard let anchorX, lowerBound <= upperBound else {
+            setFrameOrigin(CGPoint(x: upperBound, y: originY))
             return
         }
 
-        func getOrigin(for shelfLocation: HolzBarShelfLocation) -> CGPoint {
-            let menuBarHeight = screen.getMenuBarHeight() ?? 0
-            let originY = ((screen.frame.maxY - 1) - menuBarHeight) - frame.height
-
-            var originForRightOfScreen: CGPoint {
-                CGPoint(x: screen.frame.maxX - frame.width, y: originY)
-            }
-
-            switch shelfLocation {
-            case .dynamic:
-                if appState.hidEventManager.isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) {
-                    return getOrigin(for: .mousePointer)
-                }
-                return getOrigin(for: .holzBarIcon)
-            case .mousePointer:
-                guard let location = MouseHelpers.locationAppKit else {
-                    return getOrigin(for: .holzBarIcon)
-                }
-
-                let lowerBound = screen.frame.minX
-                let upperBound = screen.frame.maxX - frame.width
-
-                guard lowerBound <= upperBound else {
-                    return originForRightOfScreen
-                }
-
-                return CGPoint(x: (location.x - frame.width / 2).clamped(to: lowerBound...upperBound), y: originY)
-            case .holzBarIcon:
-                let lowerBound = screen.frame.minX
-                let upperBound = screen.frame.maxX - frame.width
-
-                guard
-                    lowerBound <= upperBound,
-                    let controlItem = appState.itemManager.itemCache.managedItems.first(matching: .visibleControlItem),
-                    // Bridging API is more reliable than controlItem.frame in some
-                    // cases (like if the item is offscreen).
-                    let itemBounds = Bridging.getWindowBounds(for: controlItem.windowID)
-                else {
-                    return originForRightOfScreen
-                }
-
-                return CGPoint(x: (itemBounds.midX - frame.width / 2).clamped(to: lowerBound...upperBound), y: originY)
-            }
-        }
-
-        setFrameOrigin(getOrigin(for: appState.settings.general.shelfLocation))
+        setFrameOrigin(CGPoint(x: (anchorX - frame.width / 2).clamped(to: lowerBound...upperBound), y: originY))
     }
 
     /// Shows the panel on the given screen, displaying the given
     /// menu bar section.
-    func show(section: MenuBarSection.Name, on screen: NSScreen) async {
+    ///
+    /// - Returns: Whether the panel was shown, which it is not when it was closed
+    ///   or shown again while the caches updated.
+    @discardableResult
+    func show(section: MenuBarSection.Name, on screen: NSScreen) async -> Bool {
         let requestedAt = ContinuousClock.now
         guard let appState else {
-            return
+            return false
         }
+
+        showGeneration += 1
+        let generation = showGeneration
 
         // IMPORTANT: We must set the navigation state and current section
         // before updating the caches.
@@ -203,26 +216,42 @@ final class HolzBarShelfPanel: NSPanel {
                 await appState.imageCache.updateCache()
             }
         } else {
-            let cacheTask = Task(timeout: .seconds(1)) {
+            // The refresh is its own task, so a timeout ends only the wait: the refresh still
+            // lands in the observable caches. Awaiting `.value` does not pass the cancellation on.
+            let refresh = Task {
                 await appState.itemManager.cacheItemsIfNeeded()
                 await appState.imageCache.updateCache()
+            }
+            let cacheTask = Task(timeout: .seconds(1)) {
+                await refresh.value
             }
 
             do {
                 try await cacheTask.value
+            } catch is TaskTimeoutError {
+                Logger.default.notice("holzBar Shelf shown with the cached images: the refresh took longer than 1 s")
             } catch {
                 Logger.default.error("Cache update failed when showing HolzBarShelfPanel - \(error, privacy: .private)")
             }
         }
 
+        // A close (or another show) while the caches updated wins: ordering the panel
+        // front now would leave it on screen with no section, which nothing can dismiss.
+        guard generation == showGeneration, currentSection == section else {
+            return false
+        }
+
         let colorManager = colorManagerForShowing()
+        transparency.start()
         contentView = HolzBarShelfHostingView(
             appState: appState,
             colorManager: colorManager,
+            transparency: transparency,
             screen: screen,
             section: section
         )
 
+        anchorX = getAnchorX(for: appState.settings.general.shelfLocation, screen: screen)
         updateOrigin(for: screen)
 
         // Color manager must be updated after updating the panel's origin,
@@ -231,9 +260,10 @@ final class HolzBarShelfPanel: NSPanel {
         // Color manager handles frame changes automatically, but does so on
         // the main queue, so we need to update manually once before showing
         // the panel to prevent the color from flashing.
-        colorManager.updateAllProperties(with: frame, screen: screen)
         if #available(macOS 27.0, *) {
             colorManager.setColor27()
+        } else {
+            colorManager.updateAllProperties(with: frame, screen: screen)
         }
 
         orderFrontRegardless()
@@ -245,6 +275,7 @@ final class HolzBarShelfPanel: NSPanel {
             let milliseconds = Double(elapsed.seconds) * 1000 + Double(elapsed.attoseconds) / 1e15
             Logger.default.notice("holzBar Shelf shown \(milliseconds, privacy: .public) ms after it was requested")
         }
+        return true
     }
 
     /// Hides the panel.
@@ -260,8 +291,11 @@ final class HolzBarShelfPanel: NSPanel {
 
     override func close() {
         super.close()
+        transparency.stop()
+        showGeneration += 1
         contentView = nil
         currentSection = nil
+        anchorX = nil
         acceptsKeyboard = false
         appState?.navigationState.isShelfPresented = false
     }
@@ -275,12 +309,14 @@ private final class HolzBarShelfHostingView: NSHostingView<HolzBarShelfContentVi
     init(
         appState: AppState,
         colorManager: HolzBarShelfColorManager,
+        transparency: TransparencyObserver,
         screen: NSScreen,
         section: MenuBarSection.Name
     ) {
         let rootView = HolzBarShelfContentView(
             appState: appState,
             colorManager: colorManager,
+            transparency: transparency,
             itemManager: appState.itemManager,
             imageCache: appState.imageCache,
             menuBarManager: appState.menuBarManager,
@@ -310,6 +346,7 @@ private final class HolzBarShelfHostingView: NSHostingView<HolzBarShelfContentVi
 private struct HolzBarShelfContentView: View {
     var appState: AppState
     var colorManager: HolzBarShelfColorManager
+    var transparency: TransparencyObserver
     var itemManager: MenuBarItemManager
     var imageCache: MenuBarItemImageCache
     var menuBarManager: MenuBarManager
@@ -380,6 +417,41 @@ private struct HolzBarShelfContentView: View {
         }
     }
 
+    /// How the Shelf is drawn under the system's Reduce Transparency and Increase Contrast.
+    private var treatment: TransparencyTreatment {
+        .shelf(options: transparency.options, hasConfiguredBorder: configuration.current.hasBorder)
+    }
+
+    /// The colour of the Shelf's background.
+    ///
+    /// While Reduce Transparency or Increase Contrast is on, the same colour with its alpha
+    /// forced to 1. The Shelf's background is opaque today (a flat window background colour
+    /// on macOS 27, the average of a capture before), so this makes the guarantee explicit
+    /// and changes no look.
+    private var backgroundColorInfo: MenuBarAverageColorInfo? {
+        guard
+            treatment.fill == .opaque,
+            var info = colorManager.colorInfo,
+            let opaque = info.color.copy(alpha: 1)
+        else {
+            return colorManager.colorInfo
+        }
+        info.color = opaque
+        return info
+    }
+
+    /// The line drawn around the Shelf: the visible one the treatment asks for, else the
+    /// one the user configured, else none.
+    private var border: (width: CGFloat, color: Color)? {
+        if treatment.border == .visible {
+            return (TransparencyTreatment.visibleBorderWidth, Color.primary.opacity(treatment.borderOpacity))
+        }
+        if configuration.current.hasBorder {
+            return (configuration.current.borderWidth, Color(cgColor: configuration.current.borderColor))
+        }
+        return nil
+    }
+
     private var shadowOpacity: CGFloat {
         configuration.current.hasShadow ? 0.5 : 0.33
     }
@@ -390,16 +462,16 @@ private struct HolzBarShelfContentView: View {
                 .frame(height: contentHeight)
                 .padding(.horizontal, horizontalPadding)
                 .padding(.vertical, verticalPadding)
-                .menuBarItemContainer(appState: appState, colorInfo: colorManager.colorInfo)
+                .menuBarItemContainer(appState: appState, colorInfo: backgroundColorInfo)
                 .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
                 .clipShape(clipShape)
                 .shadow(color: .black.opacity(shadowOpacity), radius: 2.5)
 
-            if configuration.current.hasBorder {
+            if let border {
                 clipShape
-                    .inset(by: configuration.current.borderWidth / 2)
-                    .stroke(lineWidth: configuration.current.borderWidth)
-                    .foregroundStyle(Color(cgColor: configuration.current.borderColor))
+                    .inset(by: border.width / 2)
+                    .stroke(lineWidth: border.width)
+                    .foregroundStyle(border.color)
             }
         }
         .padding(5)

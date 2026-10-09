@@ -1457,6 +1457,62 @@
         }
       }
     },
+    "Camera and microphone in use" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kamera und Mikrofon werden verwendet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caméra et micro en cours d'utilisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotocamera e microfono in uso"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera e microfon en diever"
+          }
+        }
+      }
+    },
+    "Camera in use" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kamera wird verwendet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caméra en cours d'utilisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotocamera in uso"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera en diever"
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "de" : {
@@ -1509,34 +1565,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Midar la secziun"
-          }
-        }
-      }
-    },
-    "Change…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ändern …"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifier…"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifica…"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Midar …"
           }
         }
       }
@@ -1621,34 +1649,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tscherna in agen simbol per la trav da menu."
-          }
-        }
-      }
-    },
-    "Choose a folder your Macs keep in sync, such as iCloud Drive or a Nextcloud, Dropbox, OneDrive or Syncthing folder. holzBar keeps its settings in a holzBar folder inside it." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wähle einen Ordner, den deine Macs abgleichen, etwa iCloud Drive oder einen Nextcloud-, Dropbox-, OneDrive- oder Syncthing-Ordner. holzBar legt seine Einstellungen darin in einem Ordner «holzBar» ab."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisissez un dossier que vos Mac synchronisent, par exemple iCloud Drive ou un dossier Nextcloud, Dropbox, OneDrive ou Syncthing. holzBar y range ses réglages dans un dossier « holzBar »."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scegli una cartella che i tuoi Mac sincronizzano, per esempio iCloud Drive o una cartella Nextcloud, Dropbox, OneDrive o Syncthing. holzBar vi tiene le sue impostazioni in una cartella «holzBar»."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tscherna in ordinatur che tes Macs sincroniseschan, per exempel iCloud Drive u in ordinatur da Nextcloud, Dropbox, OneDrive u Syncthing. holzBar metta ses parameters en in ordinatur «holzBar» lien."
           }
         }
       }
@@ -2493,34 +2493,6 @@
         }
       }
     },
-    "ERROR" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "FEHLER"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ERREUR"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ERRORE"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "SBAGL"
-          }
-        }
-      }
-    },
     "Edit Menu Bar Appearance…" : {
       "localizations" : {
         "de" : {
@@ -3277,6 +3249,62 @@
         }
       }
     },
+    "Hotkey already in use" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tastenkürzel schon belegt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raccourci déjà utilisé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbreviazione già in uso"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cumbinaziun da tastas gia en diever"
+          }
+        }
+      }
+    },
+    "Hotkey could not be registered" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tastenkürzel konnte nicht registriert werden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le raccourci n'a pas pu être enregistré"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile registrare l'abbreviazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg pussaivel da registrar la cumbinaziun da tastas"
+          }
+        }
+      }
+    },
     "Hotkey is reserved by macOS" : {
       "localizations" : {
         "de" : {
@@ -3637,62 +3665,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Laschar zuppà il simbol dal Dock"
-          }
-        }
-      }
-    },
-    "Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hält Layout, Profile, Tastenkürzel und Erscheinungsbild auf all deinen Macs gleich, über einen Ordner, den sie abgleichen: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing oder eine Netzwerkfreigabe. Die App des Ordners überträgt die Datei; holzBar geht nie online. Änderungen von einem anderen Mac gelten nach einem Neustart."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Garde la disposition, les profils, les raccourcis et l'apparence identiques sur tous vos Mac grâce à un dossier qu'ils synchronisent : iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing ou un partage réseau. L'app du dossier transporte le fichier ; holzBar ne se connecte jamais. Les changements d'un autre Mac s'appliquent après un redémarrage."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mantiene uguali layout, profili, abbreviazioni e aspetto su tutti i tuoi Mac tramite una cartella che sincronizzano: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing o una condivisione di rete. L'app della cartella trasporta il file; holzBar non va mai online. Le modifiche da un altro Mac valgono dopo un riavvio."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tegna la disposiziun, ils profils, las cumbinaziuns da tastas e l'apparientscha uguals sin tut tes Macs tras in ordinatur ch'els sincroniseschan: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing u ina partiziun da rait. L'app da l'ordinatur porta la datoteca; holzBar na va mai online. Midadas d'in auter Mac valan suenter in reaviament."
-          }
-        }
-      }
-    },
-    "Later" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Später"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plus tard"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Più tardi"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pli tard"
           }
         }
       }
@@ -4253,6 +4225,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ils elements vegnan puspè zuppentads, cura che l'app activa sa mida."
+          }
+        }
+      }
+    },
+    "Microphone in use" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mikrofon wird verwendet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Micro en cours d'utilisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microfono in uso"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microfon en diever"
           }
         }
       }
@@ -4901,30 +4901,30 @@
         }
       }
     },
-    "On macOS 27, while holzBar hides menu bar items, Control Centre does not show its indicator for the camera, the microphone or screen recording. It comes back while holzBar hides no item. The small green dot beside the clock still appears while the camera is on." : {
+    "On macOS 27, while holzBar hides menu bar items, Control Centre does not show its indicator for the camera, the microphone or screen recording. It comes back while holzBar hides no item. holzBar can mark its own icon instead, for the microphone and the camera but not for screen recording. The small green dot beside the clock still appears while the camera is on." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Unter macOS 27 zeigt das Kontrollzentrum seine Anzeige für Kamera, Mikrofon und Bildschirmaufnahme nicht, solange holzBar Menüleistenelemente ausblendet. Sie erscheint wieder, sobald holzBar kein Element ausblendet. Der kleine grüne Punkt neben der Uhr erscheint weiterhin, solange die Kamera an ist."
+            "value" : "Unter macOS 27 zeigt das Kontrollzentrum seine Anzeige für Kamera, Mikrofon und Bildschirmaufnahme nicht, solange holzBar Menüleistenelemente ausblendet. Sie erscheint wieder, sobald holzBar kein Element ausblendet. holzBar kann stattdessen sein eigenes Symbol markieren, für Mikrofon und Kamera, aber nicht für die Bildschirmaufnahme. Der kleine grüne Punkt neben der Uhr erscheint weiterhin, solange die Kamera an ist."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sous macOS 27, tant que holzBar masque des éléments de la barre des menus, le Centre de contrôle n'affiche pas son indicateur pour la caméra, le micro ou l'enregistrement de l'écran. Il réapparaît dès que holzBar ne masque plus aucun élément. Le petit point vert à côté de l'horloge apparaît toujours lorsque la caméra est active."
+            "value" : "Sous macOS 27, tant que holzBar masque des éléments de la barre des menus, le Centre de contrôle n'affiche pas son indicateur pour la caméra, le micro ou l'enregistrement de l'écran. Il réapparaît dès que holzBar ne masque plus aucun élément. holzBar peut marquer sa propre icône à la place, pour le micro et la caméra, mais pas pour l'enregistrement de l'écran. Le petit point vert à côté de l'horloge apparaît toujours lorsque la caméra est active."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Su macOS 27, finché holzBar nasconde elementi della barra dei menu, il Centro di Controllo non mostra il suo indicatore per fotocamera, microfono e registrazione schermo. Riappare quando holzBar non nasconde alcun elemento. Il piccolo punto verde accanto all'orologio appare comunque quando la fotocamera è attiva."
+            "value" : "Su macOS 27, finché holzBar nasconde elementi della barra dei menu, il Centro di Controllo non mostra il suo indicatore per fotocamera, microfono e registrazione schermo. Riappare quando holzBar non nasconde alcun elemento. holzBar può invece segnalarlo sulla propria icona, per microfono e fotocamera ma non per la registrazione schermo. Il piccolo punto verde accanto all'orologio appare comunque quando la fotocamera è attiva."
           }
         },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sin macOS 27, uschè ditg che holzBar zuppenta elements da la trav da menu, na mussa il Center da controlla betg ses indicatur per la camera, il microfon u la Bildschirmaufnahme. El cumpara puspè, uschespert che holzBar na zuppenta nagin element. Il pitschen punct verd sper l'ura cumpara vinavant, uschè ditg che la camera è activa."
+            "value" : "Sin macOS 27, uschè ditg che holzBar zuppenta elements da la trav da menu, na mussa il Center da controlla betg ses indicatur per la camera, il microfon u la Bildschirmaufnahme. El cumpara puspè, uschespert che holzBar na zuppenta nagin element. holzBar po marcar empè ses agen simbol, per il microfon e la camera, ma betg per la Bildschirmaufnahme. Il pitschen punct verd sper l'ura cumpara vinavant, uschè ditg che la camera è activa."
           }
         }
       }
@@ -5233,6 +5233,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "L'operaziun n'ha betg pudì vegnir terminada"
+          }
+        }
+      }
+    },
+    "Orange for the microphone, green for the camera. Uses no permission; holzBar cannot tell when an app records the screen." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Orange für das Mikrofon, grün für die Kamera. Braucht keine Berechtigung; dass eine App den Bildschirm aufnimmt, kann holzBar nicht erkennen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Orange pour le micro, vert pour la caméra. Aucune autorisation requise ; holzBar ne peut pas savoir quand une app enregistre l'écran."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arancione per il microfono, verde per la fotocamera. Non serve alcuna autorizzazione; holzBar non può sapere quando un'app registra lo schermo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oransch per il microfon, verd per la camera. Na dovra nagina permissiun; holzBar na po betg savair, cura ch'ina app registrescha il monitur."
           }
         }
       }
@@ -5909,6 +5937,34 @@
         }
       }
     },
+    "Replace" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersetzen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplacer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituisci"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplazzar"
+          }
+        }
+      }
+    },
     "Replace your settings?" : {
       "localizations" : {
         "de" : {
@@ -6101,34 +6157,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Resetar a la distanza da standard"
-          }
-        }
-      }
-    },
-    "Restart" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Neu starten"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Redémarrer"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Riavvia"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reaviar"
           }
         }
       }
@@ -6665,34 +6693,6 @@
         }
       }
     },
-    "Settings changed on another Mac" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einstellungen auf einem anderen Mac geändert"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Réglages modifiés sur un autre Mac"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impostazioni modificate su un altro Mac"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Parameters midads sin in auter Mac"
-          }
-        }
-      }
-    },
     "Shadow" : {
       "localizations" : {
         "de" : {
@@ -6913,6 +6913,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mussar, cura ch'el sa mida"
+          }
+        }
+      }
+    },
+    "Show a dot on the holzBar icon while the microphone or camera is in use" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkt im holzBar-Symbol zeigen, solange Mikrofon oder Kamera verwendet werden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher un point sur l'icône de holzBar pendant l'utilisation du micro ou de la caméra"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra un punto sull'icona di holzBar mentre il microfono o la fotocamera sono in uso"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar in punct sin il simbol da holzBar, uschè ditg ch'il microfon u la camera è en diever"
           }
         }
       }
@@ -7505,62 +7533,6 @@
         }
       }
     },
-    "Sync Here" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hier abgleichen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchroniser ici"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizza qui"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronisar qua"
-          }
-        }
-      }
-    },
-    "Sync settings between your Macs" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einstellungen zwischen deinen Macs abgleichen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synchroniser les réglages entre vos Mac"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronizza le impostazioni tra i tuoi Mac"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sincronisar ils parameters tranter tes Macs"
-          }
-        }
-      }
-    },
     "System Glass" : {
       "localizations" : {
         "de" : {
@@ -7953,34 +7925,6 @@
         }
       }
     },
-    "The sync folder cannot be found. Choose it again." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Abgleichordner wurde nicht gefunden. Wähle ihn erneut."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le dossier de synchronisation est introuvable. Choisissez-le à nouveau."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile trovare la cartella di sincronizzazione. Sceglila di nuovo."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'ordinatur da sincronisaziun n'è betg vegnì chattà. Tscherna el danovamain."
-          }
-        }
-      }
-    },
     "This action cannot be undone." : {
       "localizations" : {
         "de" : {
@@ -8033,34 +7977,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Questa secziun è deactivada en ils parameters da holzBar."
-          }
-        }
-      }
-    },
-    "Through %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Über %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Via %@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tramite %@"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tras %@"
           }
         }
       }
@@ -8425,34 +8341,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Activar"
-          }
-        }
-      }
-    },
-    "Turn On…" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Einschalten …"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activer…"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Attiva…"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Activar …"
           }
         }
       }
@@ -9185,6 +9073,34 @@
         }
       }
     },
+    "With Reduce Transparency or Increase Contrast on in System Settings (Accessibility, Display), System Glass is drawn opaque with a border." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn in den Systemeinstellungen (Bedienungshilfen, Anzeige) «Transparenz reduzieren» oder «Kontrast erhöhen» eingeschaltet ist, wird Systemglas undurchsichtig und mit Rahmen gezeichnet."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si « Réduire la transparence » ou « Augmenter le contraste » est activé dans Réglages Système (Accessibilité, Affichage), le verre du système est dessiné opaque avec une bordure."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se «Riduci trasparenza» o «Aumenta contrasto» è attivo in Impostazioni di Sistema (Accessibilità, Schermo), il vetro di sistema viene disegnato opaco con un bordo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sche «Transparenz reduzieren» u «Kontrast erhöhen» è activà en ils parameters dal sistem (Bedienungshilfen, Anzeige), vegn il vaider dal sistem dissegnà betg transparent e cun in rom."
+          }
+        }
+      }
+    },
     "Zen Mode" : {
       "localizations" : {
         "de" : {
@@ -9411,34 +9327,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar dumonda per quai l'emprima giada che ti duvras ina da questas funcziuns."
-          }
-        }
-      }
-    },
-    "holzBar can restart now to use the settings from the sync folder." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar kann jetzt neu starten, um die Einstellungen aus dem Abgleichordner zu verwenden."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar peut redémarrer maintenant pour utiliser les réglages du dossier de synchronisation."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar può riavviarsi ora per usare le impostazioni della cartella di sincronizzazione."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar po reaviar ussa per duvrar ils parameters da l'ordinatur da sincronisaziun."
           }
         }
       }
@@ -9807,6 +9695,34 @@
         }
       }
     },
+    "macOS did not accept this combination. Choose another one." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS hat diese Kombination nicht angenommen. Wähle eine andere."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS n'a pas accepté cette combinaison. Choisissez-en une autre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS non ha accettato questa combinazione. Scegline un'altra."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS n'ha betg acceptà questa cumbinaziun. Tscherna in'autra."
+          }
+        }
+      }
+    },
     "macOS does not allow this hotkey" : {
       "localizations" : {
         "de" : {
@@ -10027,6 +9943,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "nagin"
+          }
+        }
+      }
+    },
+    "“%@” already uses this combination. Use it here instead?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» verwendet diese Kombination schon. Stattdessen hier verwenden?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » utilise déjà cette combinaison. L'utiliser ici à la place ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» usa già questa combinazione. Usarla qui al suo posto?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» dovra gia questa cumbinaziun. La duvrar qua empè?"
           }
         }
       }

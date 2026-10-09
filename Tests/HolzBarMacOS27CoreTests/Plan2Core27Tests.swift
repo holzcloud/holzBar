@@ -396,25 +396,25 @@ struct SystemPanel27Tests {
 
     @Test("A new tall window above the menu bar means the panel opened")
     func opened() {
-        let after: [(number: Int, layer: Int, height: CGFloat)] = [(number: 10, layer: 20, height: 1080.0), (number: 42, layer: 101, height: 964.0)]
+        let after: [ItemClick27.PanelWindow] = [(number: 10, layer: 20, height: 1080.0, ownerPID: 300), (number: 42, layer: 101, height: 964.0, ownerPID: 300)]
         #expect(ItemClick27.panelOpened(before: before, windows: after))
     }
 
     @Test("The windows that were already there do not count")
     func nothingNew() {
-        let after: [(number: Int, layer: Int, height: CGFloat)] = [(number: 10, layer: 20, height: 1080.0), (number: 11, layer: 101, height: 964.0)]
+        let after: [ItemClick27.PanelWindow] = [(number: 10, layer: 20, height: 1080.0, ownerPID: 300), (number: 11, layer: 101, height: 964.0, ownerPID: 300)]
         #expect(!ItemClick27.panelOpened(before: before, windows: after))
     }
 
     @Test("A small new window is not a panel")
     func tooSmall() {
-        let after: [(number: Int, layer: Int, height: CGFloat)] = [(number: 43, layer: 101, height: 28.0)]
+        let after: [ItemClick27.PanelWindow] = [(number: 43, layer: 101, height: 28.0, ownerPID: 300)]
         #expect(!ItemClick27.panelOpened(before: before, windows: after))
     }
 
     @Test("An ordinary window opening at the same moment is not a panel")
     func ordinaryWindow() {
-        let after: [(number: Int, layer: Int, height: CGFloat)] = [(number: 44, layer: 0, height: 700.0)]
+        let after: [ItemClick27.PanelWindow] = [(number: 44, layer: 0, height: 700.0, ownerPID: 300)]
         #expect(!ItemClick27.panelOpened(before: before, windows: after))
     }
 
@@ -422,19 +422,19 @@ struct SystemPanel27Tests {
     // the display, about 166 ms after the click. It stands far below Control Centre's level.
     @Test("Notification Center counts, low as its window stands")
     func notificationCenter() {
-        let after: [(number: Int, layer: Int, height: CGFloat)] = [(number: 45, layer: 21, height: 1080.0)]
+        let after: [ItemClick27.PanelWindow] = [(number: 45, layer: 21, height: 1080.0, ownerPID: 300)]
         #expect(ItemClick27.panelWindow(before: before, windows: after) == 45)
     }
 
     @Test("A panel already on screen is the one a click would close")
     func alreadyOpen() {
-        let withPanel: [(number: Int, layer: Int, height: CGFloat)] = [
-            (number: 10, layer: 0, height: 900.0),
-            (number: 45, layer: 21, height: 1080.0),
+        let withPanel: [ItemClick27.PanelWindow] = [
+            (number: 10, layer: 0, height: 900.0, ownerPID: 300),
+            (number: 45, layer: 21, height: 1080.0, ownerPID: 300),
         ]
-        let withoutPanel: [(number: Int, layer: Int, height: CGFloat)] = [
-            (number: 10, layer: 0, height: 900.0),
-            (number: 11, layer: 25, height: 38.0),
+        let withoutPanel: [ItemClick27.PanelWindow] = [
+            (number: 10, layer: 0, height: 900.0, ownerPID: 300),
+            (number: 11, layer: 25, height: 38.0, ownerPID: 300),
         ]
         #expect(ItemClick27.openPanelWindow(windows: withPanel) == 45)
         #expect(ItemClick27.openPanelWindow(windows: withoutPanel) == nil)
@@ -442,8 +442,8 @@ struct SystemPanel27Tests {
 
     @Test("A panel is open while its window is on screen, and closed once it goes")
     func staysOnScreen() {
-        let open: [(number: Int, layer: Int, height: CGFloat)] = [(number: 45, layer: 21, height: 1080.0)]
-        let closed: [(number: Int, layer: Int, height: CGFloat)] = [(number: 10, layer: 20, height: 1080.0)]
+        let open: [ItemClick27.PanelWindow] = [(number: 45, layer: 21, height: 1080.0, ownerPID: 300)]
+        let closed: [ItemClick27.PanelWindow] = [(number: 10, layer: 20, height: 1080.0, ownerPID: 300)]
         #expect(ItemClick27.panelIsOnScreen(window: 45, windows: open))
         #expect(!ItemClick27.panelIsOnScreen(window: 45, windows: closed))
     }
@@ -609,6 +609,181 @@ struct ItemsZone27Tests {
     }
 }
 
+@Suite("Items area left edge")
+struct ItemsAreaLeftEdge27Tests {
+    let bounds = CGRect(x: 0, y: 0, width: 1920, height: 1080)
+    let items = [
+        ItemHitTest27.Item(frame: CGRect(x: 1400, y: 2, width: 30, height: 24), ownerPID: 11, isOnScreen: true),
+        ItemHitTest27.Item(frame: CGRect(x: 1500, y: 2, width: 30, height: 24), ownerPID: 12, isOnScreen: true),
+    ]
+    let clock = CGRect(x: 1700, y: 4, width: 26, height: 22)
+
+    @Test("On the active display the leftmost drawn item starts the run")
+    func activeDisplay() {
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: bounds,
+            items: items,
+            concealedPIDs: [],
+            systemFrames: [clock],
+            rememberedLeftEdge: nil
+        ) == 1400)
+    }
+
+    @Test("On the inactive display the frames MenuBarAgent draws there start the run")
+    func inactiveDisplay() {
+        // The built-in display's bar is not active: the cached items lie on the other display.
+        let display = CGRect(x: -1512, y: 0, width: 1512, height: 982)
+        let drawn = [CGRect(x: -400, y: 6, width: 30, height: 24), CGRect(x: -300, y: 6, width: 30, height: 24)]
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: display,
+            items: items,
+            concealedPIDs: [],
+            systemFrames: [clock],
+            rememberedLeftEdge: nil,
+            drawnFramesOnDisplay: drawn
+        ) == -400)
+    }
+
+    @Test("Concealed items do not widen the run")
+    func concealedExcluded() {
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: bounds,
+            items: items,
+            concealedPIDs: [11],
+            systemFrames: [clock],
+            rememberedLeftEdge: nil
+        ) == 1500)
+    }
+
+    @Test("The overflow button belongs to the run")
+    func overflowButtonIncluded() {
+        let folded = ItemHitTest27.Item(frame: CGRect(x: 1300, y: 2, width: 30, height: 24), ownerPID: 13, isOnScreen: false)
+        let overflowButton = CGRect(x: 1360, y: 4, width: 28, height: 22)
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: bounds,
+            items: items + [folded],
+            concealedPIDs: [],
+            systemFrames: [clock, overflowButton],
+            rememberedLeftEdge: nil
+        ) == 1360)
+    }
+
+    @Test("With nothing known there is no edge")
+    func nothingKnown() {
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: bounds,
+            items: [],
+            concealedPIDs: [],
+            systemFrames: [],
+            rememberedLeftEdge: nil
+        ) == nil)
+        // A remembered edge from another display does not count either.
+        #expect(ItemHitTest27.itemsAreaLeftEdge(
+            displayBounds: bounds,
+            items: [],
+            concealedPIDs: [],
+            systemFrames: [],
+            rememberedLeftEdge: -400
+        ) == nil)
+    }
+}
+
+@Suite("Split shape")
+struct SplitShape27Tests {
+    let display = CGRect(x: -1512, y: 0, width: 1512, height: 982)
+    let clock = CGRect(x: 1700, y: 4, width: 26, height: 22)
+
+    @Test("On the inactive display a stale remembered edge does not widen the trailing half")
+    func staleRememberedEdgeIgnored() {
+        // The hidden section was revealed while this display was active (edge at -600) and
+        // has been concealed again since; MenuBarAgent now draws the run from -300.
+        let drawn = [CGRect(x: -300, y: 6, width: 30, height: 24), CGRect(x: -200, y: 6, width: 30, height: 24)]
+        #expect(SplitShape27.leftEdge(
+            displayBounds: display,
+            items: [],
+            concealedPIDs: [],
+            systemFrames: [clock],
+            rememberedLeftEdge: -600,
+            drawnFramesOnDisplay: drawn
+        ) == -300)
+    }
+
+    @Test("Without drawn frames the remembered edge still counts")
+    func rememberedEdgeWithoutDrawnFrames() {
+        #expect(SplitShape27.leftEdge(
+            displayBounds: display,
+            items: [],
+            concealedPIDs: [],
+            systemFrames: [clock],
+            rememberedLeftEdge: -600,
+            drawnFramesOnDisplay: []
+        ) == -600)
+    }
+
+    @Test("On the active display the shape uses the same edge as the items area")
+    func activeDisplayMatchesItemsArea() {
+        let bounds = CGRect(x: 0, y: 0, width: 1920, height: 1080)
+        let items = [ItemHitTest27.Item(frame: CGRect(x: 1500, y: 2, width: 30, height: 24), ownerPID: 12, isOnScreen: true)]
+        #expect(SplitShape27.leftEdge(
+            displayBounds: bounds,
+            items: items,
+            concealedPIDs: [],
+            systemFrames: [clock],
+            rememberedLeftEdge: 1400,
+            drawnFramesOnDisplay: []
+        ) == 1400)
+    }
+
+    @Test("On a display stacked above the active one, the active display's frames do not count")
+    func stackedDisplay() {
+        // The built-in display is active at 0...1512 with items from 900; the external one
+        // sits above it at -524...2036, where MenuBarAgent draws the run from 1500.
+        let monitor = CGRect(x: -524, y: -1440, width: 2560, height: 1440)
+        let items = [ItemHitTest27.Item(frame: CGRect(x: 900, y: 2, width: 30, height: 24), ownerPID: 12, isOnScreen: true)]
+        let activeClock = CGRect(x: 1380, y: 0, width: 113, height: 30)
+        let drawn = [CGRect(x: 1500, y: -1438, width: 30, height: 24), CGRect(x: 1900, y: -1440, width: 113, height: 30)]
+        #expect(SplitShape27.leftEdge(
+            displayBounds: monitor,
+            items: items,
+            concealedPIDs: [],
+            systemFrames: [activeClock],
+            rememberedLeftEdge: nil,
+            drawnFramesOnDisplay: drawn
+        ) == 1500)
+    }
+
+    @Test("Without the inset the trailing half starts 7 points left of the edge")
+    func trailingBoundsWithoutInset() {
+        let rect = CGRect(x: 0, y: 0, width: 1920, height: 24)
+        #expect(SplitShape27.trailingBounds(edge: 1400, in: rect, isInset: false, insetAmount: 5)
+            == CGRect(x: 1393, y: 0, width: 527, height: 24))
+    }
+
+    @Test("With the inset the amount comes off for a round and a square trailing end cap")
+    func trailingBoundsWithInset() {
+        // A round trailing end cap narrows the rectangle by the inset; a square one does not.
+        let round = CGRect(x: 0, y: 5, width: 1915, height: 14)
+        let square = CGRect(x: 0, y: 5, width: 1920, height: 14)
+        #expect(SplitShape27.trailingBounds(edge: 1400, in: round, isInset: true, insetAmount: 5)
+            == CGRect(x: 1399, y: 5, width: 516, height: 14))
+        #expect(SplitShape27.trailingBounds(edge: 1400, in: square, isInset: true, insetAmount: 5)
+            == CGRect(x: 1399, y: 5, width: 521, height: 14))
+    }
+
+    @Test("A trailing half that does not fit falls back to the full shape")
+    func trailingBoundsThatDoNotFit() {
+        let rect = CGRect(x: 0, y: 0, width: 1920, height: 24)
+        let round = CGRect(x: 0, y: 5, width: 1915, height: 14)
+        // At the display's right edge, with and without the inset.
+        #expect(SplitShape27.trailingBounds(edge: 1920, in: round, isInset: true, insetAmount: 5) == .zero)
+        #expect(SplitShape27.trailingBounds(edge: 1920, in: rect, isInset: false, insetAmount: 5) == .zero)
+        // Narrower than it is high.
+        #expect(SplitShape27.trailingBounds(edge: 1905, in: rect, isInset: false, insetAmount: 5) == .zero)
+        // Left of the shape's rectangle.
+        #expect(SplitShape27.trailingBounds(edge: 3, in: rect, isInset: false, insetAmount: 5) == .zero)
+    }
+}
+
 @Suite("Settled item frames")
 struct SettledFrames27Tests {
     let a = CGRect(x: 100, y: 0, width: 30, height: 24)
@@ -696,5 +871,35 @@ struct SectionLayoutEditing27Tests {
     func between() {
         let updated = SectionLayout27.settingSection(.alwaysHidden, for: "ru.keepcoder.Telegram", in: saved)
         #expect(updated["ru.keepcoder.Telegram"] == .alwaysHidden)
+    }
+}
+
+@Suite("Items area inputs")
+struct ItemsAreaInputs27Tests {
+    let battery = CGRect(x: 1650, y: 0, width: 30, height: 24)
+    let wifi = CGRect(x: 1690, y: 0, width: 28, height: 24)
+    let clock = CGRect(x: 1787, y: 0, width: 113, height: 30)
+
+    private func inputs(systemFrames: [CGRect], drawn: [CGRect] = []) -> ItemsAreaInputs27 {
+        ItemsAreaInputs27(
+            leftEdges: [1: 1400],
+            drawnFramesByDisplay: [2: drawn],
+            systemItemFrames: systemFrames,
+            overflowButtonFrame: nil
+        )
+    }
+
+    @Test("Two reads of the same bar compare equal, whatever order they found the frames in")
+    func sameFramesInAnotherOrder() {
+        let other = CGRect(x: -300, y: 6, width: 30, height: 24)
+        let drawn = CGRect(x: -200, y: 6, width: 30, height: 24)
+        #expect(inputs(systemFrames: [battery, wifi, clock], drawn: [other, drawn])
+            == inputs(systemFrames: [clock, battery, wifi], drawn: [drawn, other]))
+    }
+
+    @Test("A moved system item is a change")
+    func movedFrame() {
+        #expect(inputs(systemFrames: [battery, wifi, clock])
+            != inputs(systemFrames: [battery.offsetBy(dx: -40, dy: 0), wifi, clock]))
     }
 }

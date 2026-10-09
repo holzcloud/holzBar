@@ -119,26 +119,33 @@ final class MenuBarSearchPanel: NSPanel {
         // Important that we set the navigation state before updating the cache.
         appState.navigationState.isSearchPresented = true
 
+        let hostingView = MenuBarSearchHostingView(appState: appState, model: model, displayID: screen.displayID, panel: self)
+        hostingView.setFrameSize(hostingView.intrinsicContentSize)
+        setFrame(hostingView.frame, display: true)
+
+        contentView = hostingView
+
+        // Calculate the top left position.
+        let topLeft = CGPoint(
+            x: screen.frame.midX - frame.width / 2,
+            y: screen.frame.midY + (frame.height / 2) + (screen.frame.height / 8)
+        )
+
+        cascadeTopLeft(from: topLeft)
+        makeKeyAndOrderFront(nil)
+
+        mouseDownMonitor.start()
+        keyDownMonitor.start()
+
+        // The panel shows the cached images, or the items' app icons, at once; the view
+        // observes the cache, so new images appear as the refresh lands, and a stuck
+        // capture can no longer keep the search from opening (F-13).
+        //
+        // The task is not cancelled when the panel closes: the cache update it runs is
+        // shared, and on macOS 27 cancelling it would cut short the waits that let the
+        // hidden items draw before they are photographed.
         Task {
             await appState.imageCache.updateCache()
-
-            let hostingView = MenuBarSearchHostingView(appState: appState, model: model, displayID: screen.displayID, panel: self)
-            hostingView.setFrameSize(hostingView.intrinsicContentSize)
-            setFrame(hostingView.frame, display: true)
-
-            contentView = hostingView
-
-            // Calculate the top left position.
-            let topLeft = CGPoint(
-                x: screen.frame.midX - frame.width / 2,
-                y: screen.frame.midY + (frame.height / 2) + (screen.frame.height / 8)
-            )
-
-            cascadeTopLeft(from: topLeft)
-            makeKeyAndOrderFront(nil)
-
-            mouseDownMonitor.start()
-            keyDownMonitor.start()
         }
     }
 

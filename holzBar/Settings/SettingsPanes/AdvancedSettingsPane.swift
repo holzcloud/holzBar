@@ -55,11 +55,13 @@ struct AdvancedSettingsPane: View {
             }
             HolzBarSection("Settings") {
                 settingsBackup
-                settingsSync
             }
             HolzBarSection("Permissions") {
                 allPermissions
             }
+        }
+        .onAppear {
+            appState.permissions.refresh()
         }
     }
 
@@ -226,21 +228,16 @@ struct AdvancedSettingsPane: View {
         LabeledContent {
             HStack {
                 Button("Export…") {
-                    SettingsBackup.exportToFile()
+                    SettingsBackup.exportToFile(attachedTo: appState.navigationState.settingsWindow)
                 }
                 Button("Import…") {
-                    SettingsBackup.importFromFile()
+                    SettingsBackup.importFromFile(attachedTo: appState.navigationState.settingsWindow)
                 }
             }
         } label: {
             Text("Back up or move your settings")
         }
         .annotation("Exports layout, hotkeys and appearance to a file that can be imported on another Mac.")
-    }
-
-    @ViewBuilder
-    private var settingsSync: some View {
-        SettingsSyncToggle(sync: appState.settingsSync)
     }
 
     @ViewBuilder
@@ -283,50 +280,5 @@ private struct RevealRulesSettings: View {
         }
         Toggle("When the network connection is lost", isOn: $rules.revealsWhenOffline)
             .annotation("Hidden items are shown for the time set in \u{201C}Hide opened items again after\u{201D}, then hidden again.")
-    }
-}
-
-// MARK: - SettingsSyncToggle
-
-/// Turns syncing the settings on or off, through iCloud Drive or any folder the Macs keep
-/// in sync (jordanbaird/Ice#95, SYNC-01).
-private struct SettingsSyncToggle: View {
-    @Bindable var sync: SettingsSync
-
-    var body: some View {
-        LabeledContent {
-            HStack {
-                if sync.isEnabled {
-                    Button("Change…") {
-                        sync.chooseFolder()
-                    }
-                    Button("Turn Off") {
-                        sync.isEnabled = false
-                    }
-                } else {
-                    Button("Turn On…") {
-                        sync.chooseFolder()
-                    }
-                }
-            }
-        } label: {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Sync settings between your Macs")
-                if sync.isEnabled {
-                    if let folder = sync.folderDisplayName {
-                        Text("Through \(folder)")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Text("The sync folder cannot be found. Choose it again.")
-                            .font(.subheadline)
-                            .foregroundStyle(.orange)
-                    }
-                }
-            }
-        }
-        .annotation(
-            "Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart."
-        )
     }
 }

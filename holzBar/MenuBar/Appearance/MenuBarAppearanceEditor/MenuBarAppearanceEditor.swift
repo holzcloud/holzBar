@@ -253,6 +253,11 @@ private struct UnlabeledPartialEditor: View {
             Text("Tints the menu bar with the main colors of your wallpaper, read from its file.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+        } else if configuration.tintKind == .systemGlass {
+            // A fact about the system's options; there is no switch for it.
+            Text("With Reduce Transparency or Increase Contrast on in System Settings (Accessibility, Display), System Glass is drawn opaque with a border.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
         }
     }
 

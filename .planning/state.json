@@ -6,7 +6,7 @@
     {
       "number": "1",
       "name": "CI and build",
-      "status": "complete"
+      "status": "pending"
     },
     {
       "number": "01.1",
@@ -61,118 +61,118 @@
     {
       "number": "06.1",
       "name": "Compatibility check",
-      "status": "complete"
+      "status": "pending"
     },
     {
       "number": "7",
       "name": "Release 0.0.6-beta1",
-      "status": "complete"
+      "status": "pending"
     },
     {
       "number": "8",
       "name": "Triggers",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "9",
       "name": "Layout snapshots",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "10",
       "name": "Item conditional visibility",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "11",
       "name": "Scripts",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "12",
       "name": "Widgets",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "13",
       "name": "AppleScript dictionary",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "14",
       "name": "Command palette",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "15",
       "name": "Share profiles",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "16",
       "name": "First-launch clean-up assistant",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "17",
       "name": "Local usage suggestions",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "18",
       "name": "Lock hidden items",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "19",
       "name": "Smooth show and hide",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "20",
       "name": "Copy diagnostics",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "21",
       "name": "Accessibility showcase",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "22",
       "name": "macOS 27 native overflow button",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "23",
       "name": "Liquid Glass follows transparency",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "24",
       "name": "SwiftUI reorder spike",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "25",
       "name": "Control Center control",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "26",
       "name": "Swift 6.4 adoption",
-      "status": "planned"
+      "status": "pending"
     },
     {
       "number": "27",
       "name": "Release 0.0.7-beta1",
-      "status": "planned"
+      "status": "pending"
     }
   ],
   "next": {
-    "command": "/gsd-plan-phase 8",
-    "label": "Decide, then plan Triggers",
-    "reason": "Milestone 0.0.7 Automation is planned and decided; Focus-filter spike first (release blocker)"
+    "command": "/gsd:progress --next",
+    "label": "Advance to the next step (plan phase 8)",
+    "reason": "Phase 8 of 33 — needs a plan"
   },
-  "updated_at": "2026-10-04T12:00:00.000Z"
+  "updated_at": "2026-10-07T08:39:30.427Z"
 }

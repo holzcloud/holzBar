@@ -240,7 +240,7 @@ Backlog, not planned (listed in `ROADMAP.md`): hide desktop icons (DESK-01 was d
 - [ ] **M27-01**: On macOS 27 a pure `NativeOverflowState` (none, collapsed, expanded, unknown) is derived from two agreeing facts about the system overflow button and the folded items, recomputed in the existing observer passes with no new timer; macOS 14 to 26 code is untouched
 - [ ] **M27-02**: While the state is expanded the Shelf omits the items macOS shows; in every other state, including unknown, it lists covered items as today (fail safe); the existing switch "Show items covered by the notch" keeps working
 - [ ] **M27-03**: With Reduce Transparency or Increase Contrast on, the glass tint and the Shelf become opaque with a visible border and change live (observed through `NSWorkspace.accessibilityDisplayOptionsDidChangeNotification` only while used), with no private API
-- [ ] **M27-04**: The Liquid Glass slider is followed only if the spike finds a public signal for it; otherwise the spike note records that it cannot be and the README says only Reduce Transparency is followed
+- [x] **M27-04**: The Liquid Glass slider is followed only if the spike finds a public signal for it; otherwise the spike note records that it cannot be and the README says only Reduce Transparency is followed
 - [ ] **M27-05**: The SwiftUI reordering spike checks less code, accessibility parity, behaviour parity, cost and appearance; the Layout pane changes only if the result is clearly better, behind `#available`, otherwise the phase is dropped and recorded
 - [ ] **M27-06**: A go/no-go spike decides whether a Control Widget extension works for the self-signed, non-sandboxed app with no App Group, no network, no extra entitlement besides the sandbox if macOS demands it, an unchanged XPC peer set and at most 1 MB more size; otherwise the phase is dropped and recorded
 - [ ] **M27-07**: On go: Toggle Zen Mode and Apply Profile controls (stateless buttons whose intents run in the app), gated like the hotkeys, signed inside-out in the release workflow, with the control's menu bar item classified by holzBar
@@ -255,6 +255,19 @@ Backlog, not planned (listed in `ROADMAP.md`): hide desktop icons (DESK-01 was d
 
 - [ ] **FACT-02**: README, website, comparison tables and Permissions table are re-checked and updated for what shipped (🔜 rows only for what is planned and says so)
 - [ ] **REL-02**: `0.0.7-beta1` is released **once, when the whole milestone is done** (no beta per phase), with hand-written notes (brew trust, update, quarantine); the release waits for the Focus filter (TRIG-04)
+
+### Settings sync redesign (Phase 28)
+
+- [ ] **SYNC-R01**: The sync engine and format: one device file per Mac (`holzBar/Macs/<MacID>.plist`, written only by that Mac), causal dots and contexts, multi-value registers, a commutative, associative and idempotent lattice join, pass-through of unknown units and families, and one entry point `SyncEngine.handle` through which every event reaches the pure core
+- [ ] **SYNC-R02**: Identity, counters and collisions: the MacID is bound to the Mac, counters only grow (backed by the sync state, a defaults mirror and a Caches high-water file), and a reused or doubled dot, a conflict copy or a foreign installation nonce is detected, reported and answered by re-identifying, never by silently picking a value
+- [ ] **SYNC-R03**: A deterministic simulator with 0.0.6/0.0.7-beta1 (β1) and β2 peers, provider faults and ground-truth oracles (including INV-L1 to INV-L6, restricted to macOS 27 and the KnownApplications27 union), control engines that must fail, and gate G1 passed before any app glue is written
+- [ ] **SYNC-R04**: The regression catalogue (A1, A2, D3 and J scenarios, including the macOS 27 arrangement and profile scenarios), exhaustive checks of every family, fuzzing and a mutation gate over the engine
+- [ ] **SYNC-R05**: Unit table version 1 covers every `Defaults.Key` (synced, local or excluded), settings sync between macOS 26 and 27 Macs, and capture records only changes the user made
+- [ ] **SYNC-R06**: The macOS 27 menu bar arrangement syncs between macOS 27 Macs as the family `l27/<bundleID>`; the macOS 26 arrangement stays local
+- [ ] **SYNC-R07**: Layout profiles sync as the family `prof/<profileID>` with stable profile IDs
+- [ ] **SYNC-R08**: The questions Mac to Mac (join sheet, differing values), the hint, the status lines and the strings in five languages
+- [ ] **SYNC-R09**: The β1 boundary and the migration from the pause: holzBar never writes or deletes `holzBar/Settings.plist` or `SettingsSyncLastSynced`, reads the legacy file only to found a group and for the status line, and a Mac coming from β1, β2 or the pause joins instead of overwriting
+- [ ] **SYNC-R10**: Docs, release notes `v0.0.7-beta3`, a UAT script, and sync re-enabled last, after every gate has passed
 
 ## v2 Requirements
 
@@ -423,7 +436,7 @@ Backlog, not planned (listed in `ROADMAP.md`): hide desktop icons (DESK-01 was d
 | M27-01 | Phase 22 | Planned (spike first) |
 | M27-02 | Phase 22 | Planned |
 | M27-03 | Phase 23 | Planned |
-| M27-04 | Phase 23 | Planned (only if a public signal exists) |
+| M27-04 | Phase 23 | Complete (not applicable: no public signal, see 23-01-SPIKE.md) |
 | M27-05 | Phase 24 | Planned (spike; drop if not clearly better) |
 | M27-06 | Phase 25 | Planned (go/no-go spike) |
 | M27-07 | Phase 25 | Planned (only on go) |
@@ -432,10 +445,21 @@ Backlog, not planned (listed in `ROADMAP.md`): hide desktop icons (DESK-01 was d
 | SWIFT-03 | Phase 26 | Planned |
 | FACT-02 | Phase 27 | Planned |
 | REL-02 | Phase 27 | Planned |
+| SYNC-R01 | Phase 28 | Planned |
+| SYNC-R02 | Phase 28 | Planned |
+| SYNC-R03 | Phase 28 | Planned |
+| SYNC-R04 | Phase 28 | Planned |
+| SYNC-R05 | Phase 28 | Planned |
+| SYNC-R06 | Phase 28 | Planned |
+| SYNC-R07 | Phase 28 | Planned |
+| SYNC-R08 | Phase 28 | Planned |
+| SYNC-R09 | Phase 28 | Planned |
+| SYNC-R10 | Phase 28 | Planned |
 
 **Coverage:**
 - v1 requirements: 63 total, all mapped
 - Milestone 0.0.7 "Automation": 65 requirements (TRIG 9, SCRIPT 6, WIDG 5, ASDICT 3, LOCK 1, ANIM 1, SNAP 4, VIS 4, ASSIST 3, USAGE 4, PALETTE 3, SHARE 4, DIAG 3, A11Y 3, M27 7, SWIFT 3, FACT-02, REL-02), all mapped to phases 8 to 27
+- Settings sync redesign (Phase 28): 10 requirements (SYNC-R01 to SYNC-R10), all mapped to Phase 28
 - Unmapped: 0 ✓
 
 ---

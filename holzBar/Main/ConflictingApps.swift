@@ -33,11 +33,17 @@ enum ConflictingApps {
             guard app != .current else {
                 return false
             }
-            if let bundleIdentifier = app.bundleIdentifier, bundleIdentifiers.contains(bundleIdentifier) {
+            if isIdentified(app) {
                 return true
             }
             return app.localizedName.map(names.contains) ?? false
         }
+    }
+
+    /// Whether the app is a menu bar manager by its bundle identifier, not only by a name
+    /// that any app can have.
+    private static func isIdentified(_ app: NSRunningApplication) -> Bool {
+        app.bundleIdentifier.map(bundleIdentifiers.contains) ?? false
     }
 
     /// Asks to quit any other running menu bar manager, and quits it.
@@ -70,6 +76,11 @@ enum ConflictingApps {
             RunLoop.current.run(until: .now.addingTimeInterval(0.1))
         }
         for app in apps where !app.isTerminated {
+            // An app that only has the name may be another app, perhaps with unsaved work.
+            guard isIdentified(app) else {
+                logger.warning("\(app.localizedName ?? "An app", privacy: .private(mask: .hash)) did not quit, and is known only by its name, so it is not forced")
+                continue
+            }
             logger.warning("\(app.localizedName ?? "An app", privacy: .private(mask: .hash)) did not quit, forcing it")
             app.forceTerminate()
         }

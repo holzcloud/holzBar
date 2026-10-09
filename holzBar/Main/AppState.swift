@@ -65,9 +65,6 @@ final class AppState {
     /// Saved layout profiles.
     let profiles = LayoutProfiles()
 
-    /// Keeps the settings in step with other Macs through iCloud.
-    let settingsSync = SettingsSync()
-
     /// Groups of menu bar items behind icons of their own.
     let itemGroups = MenuBarItemGroups()
 
@@ -106,6 +103,37 @@ final class AppState {
         return concealer
     }
 
+    /// Storage for ``captureActivityMonitor27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var captureActivityMonitor27Storage: AnyObject?
+
+    /// Follows whether another app uses the microphone or a camera on macOS 27.
+    @available(macOS 27.0, *)
+    var captureActivityMonitor27: CaptureActivityMonitor27 {
+        if let monitor = captureActivityMonitor27Storage as? CaptureActivityMonitor27 {
+            return monitor
+        }
+        let monitor = CaptureActivityMonitor27()
+        captureActivityMonitor27Storage = monitor
+        return monitor
+    }
+
+    /// What holzBar's icon shows while another app records on macOS 27, where Control Centre's
+    /// indicator is not drawn while holzBar hides items.
+    ///
+    /// Reads only observed state and has no early return, so an observation started before the
+    /// monitor's setup still follows every input. Follows concealment through the suspensions
+    /// of a bridged click, so the badge and the icon carrying it stay while a system item opens.
+    @available(macOS 27.0, *)
+    var captureBadge27: CaptureBadge? {
+        let activity = captureActivityMonitor27.activity
+        return CaptureIndicator.badge(
+            isEnabled: settings.general.holzBarIconShowsCaptureDot,
+            isConcealing: concealer27.concealsThroughSuspensions,
+            isMicrophoneInUse: activity.isMicrophoneInUse,
+            isCameraInUse: activity.isCameraInUse
+        )
+    }
+
     /// Storage for ``itemImageStore27``, typed loosely so the property exists on every macOS.
     @ObservationIgnored private var itemImageStore27Storage: AnyObject?
 
@@ -135,6 +163,13 @@ final class AppState {
     /// Logger for the app state.
     @ObservationIgnored private let logger = Logger(category: "AppState")
 
+    /// Whether the setup finished: before, the settings and items are not loaded yet.
+    @ObservationIgnored private(set) var isSetUp = false
+
+    /// Whether the setup was started: before, also after the permissions were granted
+    /// until the user continues, the stored settings are not loaded.
+    @ObservationIgnored private var hasStartedSetup = false
+
     /// Async setup actions, run once on first access.
     @ObservationIgnored private lazy var setupTask = Task { @MainActor in
         permissions.stopAllChecks()
@@ -144,7 +179,7 @@ final class AppState {
         applicationMenuFrames.performSetup()
         menuBarManager.performSetup(with: self)
 
-        // The item service on macOS 26, the synthetic bounds on macOS 27.
+        // The source-PID cache on macOS 26, the synthetic bounds on macOS 27.
         await MenuBarBackends.current.performSetup()
 
         appearanceManager.performSetup(with: self)
@@ -158,14 +193,18 @@ final class AppState {
         imageCache.performSetup(with: self)
         itemIconStore.performSetup(with: self)
         profiles.performSetup(with: self)
-        settingsSync.performSetup(with: self)
         itemGroups.performSetup(with: self)
         spacers.performSetup()
         revealRules.performSetup(with: self)
         presentationMonitor.performSetup(with: self)
+        if #available(macOS 27.0, *) {
+            // The dot on holzBar's icon while another app records.
+            captureActivityMonitor27.performSetup(with: self)
+        }
         itemChangeWatcher.performSetup(with: self)
 
         configureObservers()
+        isSetUp = true
     }
 
     /// Brings holzBar up to date once the bar has settled after the screen was locked, the
@@ -193,6 +232,7 @@ final class AppState {
     ///   If `false`, prompts the user to grant permissions.
     func performSetup(hasPermissions: Bool) {
         if hasPermissions {
+            hasStartedSetup = true
             Task {
                 logger.debug("Setting up app state")
                 await setupTask.value
@@ -207,6 +247,21 @@ final class AppState {
                 openWindow(.permissions)
             }
         }
+    }
+
+    /// Opens the permissions window instead of Settings until the setup starts, while
+    /// permissions are missing or granted but the user has not continued yet: the setup,
+    /// which loads the stored settings and registers the hotkeys, has not run then, so
+    /// Settings would show the defaults and write them.
+    ///
+    /// - Returns: Whether the permissions window opens instead.
+    func openPermissionsWindowIfNeeded() -> Bool {
+        guard !hasStartedSetup else {
+            return false
+        }
+        activate(for: .permissions)
+        openWindow(.permissions)
+        return true
     }
 
     /// Configures the internal observers for the app state.
@@ -383,6 +438,8 @@ final class AppState {
             activate(withPolicy: .regular)
         case .accessory:
             activate(withPolicy: .accessory)
+            // Without the regular policy, macOS shows the other app's menus again.
+            menuBarManager.applicationMenusDidReappear()
         }
         return true
     }

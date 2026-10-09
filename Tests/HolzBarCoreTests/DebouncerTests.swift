@@ -2,7 +2,7 @@ import Testing
 @testable import HolzBarCore
 
 @MainActor
-@Suite("Debouncer")
+@Suite("Debouncer", .serialized)
 struct DebouncerTests {
     /// The actions that ran, in order.
     @MainActor
@@ -29,6 +29,58 @@ struct DebouncerTests {
         debouncer.cancel()
         try await Task.sleep(for: .milliseconds(400))
         #expect(runs.values.isEmpty)
+    }
+
+    /// Holds the main actor past the debouncer's delay once its task sleeps, so the sleep
+    /// finishes while the task waits to resume, as when an event is queued just before the
+    /// timer fires.
+    private func blockAfterSleepStarts(for duration: Duration) async {
+        await Task.yield()
+        let end = ContinuousClock.now + duration
+        while ContinuousClock.now < end {}
+    }
+
+    @Test("A call after the sleep finished still supersedes the pending action")
+    func scheduleAfterFinishedSleepSupersedes() async throws {
+        let debouncer = Debouncer(delay: .milliseconds(10))
+        let runs = Recorder()
+        debouncer.schedule { runs.values.append(1) }
+        await blockAfterSleepStarts(for: .milliseconds(100))
+        debouncer.schedule { runs.values.append(2) }
+        try await Task.sleep(for: .milliseconds(400))
+        #expect(runs.values == [2])
+    }
+
+    @Test("Cancelling after the sleep finished still drops the action")
+    func cancelAfterFinishedSleepDropsAction() async throws {
+        let debouncer = Debouncer(delay: .milliseconds(10))
+        let runs = Recorder()
+        debouncer.schedule { runs.values.append(1) }
+        await blockAfterSleepStarts(for: .milliseconds(100))
+        debouncer.cancel()
+        try await Task.sleep(for: .milliseconds(400))
+        #expect(runs.values.isEmpty)
+    }
+
+    @Test("A cancelled throttle task does not take a newer pending action")
+    func cancelledThrottleTaskIsStale() async throws {
+        let debouncer = Debouncer(delay: .milliseconds(300))
+        let runs = Recorder()
+        debouncer.throttle { runs.values.append(1) }
+        debouncer.throttle { runs.values.append(2) }
+        await blockAfterSleepStarts(for: .milliseconds(400))
+        debouncer.cancel()
+        debouncer.throttle { runs.values.append(3) }
+        debouncer.throttle { runs.values.append(4) }
+        // The last call waits the delay; only the stale task would run it now. Its sleep has
+        // finished, so it runs as soon as the main actor is free: yielding lets it run without
+        // waiting on a clock, which a busy CI runner overshoots.
+        for _ in 0..<10 {
+            await Task.yield()
+        }
+        #expect(runs.values == [1, 3])
+        try await Task.sleep(for: .milliseconds(1000))
+        #expect(runs.values == [1, 3, 4])
     }
 
     @Test("A throttled call runs at once, the next ones once after the delay")

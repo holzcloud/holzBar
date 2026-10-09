@@ -114,6 +114,10 @@ struct ConcealmentController27Tests {
         }
         #expect(backend.concealed == ["hidden.app", "always.app"])
         #expect(backend.liveTokens.count == 1)
+        // What is live, not what was asked for.
+        #expect(controller.liveConcealed == ["hidden.app", "always.app"])
+        controller.releaseAll()
+        #expect(controller.liveConcealed.isEmpty)
     }
 
     @Test("Releasing restores every item")

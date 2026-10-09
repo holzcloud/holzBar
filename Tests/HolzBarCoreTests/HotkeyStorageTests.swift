@@ -89,4 +89,29 @@ struct HotkeyStorageTests {
             #expect(HotkeyStorage.loadRejection(modifiers: modifiers.rawValue, refusesOptionOnly: true) == nil)
         }
     }
+
+    @Test("A stored hotkey whose combination an earlier one uses is not loaded")
+    func duplicateCombinationsLoseToTheFirst() {
+        let command = Modifiers.command.rawValue
+        let control = Modifiers.control.rawValue
+        let duplicates = HotkeyStorage.duplicateStorageKeys(inLoadOrder: [
+            ("SearchMenuBarItems", 40, command),
+            ("ToggleZenMode", 40, control),
+            ("ApplyProfile:Work", 40, command),
+            ("OpenItem:com.example.Clock", 40, command),
+            ("ApplyProfile:Home", 41, command),
+        ])
+        #expect(duplicates == ["ApplyProfile:Work", "OpenItem:com.example.Clock"])
+    }
+
+    @Test("Stored hotkeys with different combinations are all loaded")
+    func distinctCombinationsAllLoad() {
+        let command = Modifiers.command.rawValue
+        #expect(HotkeyStorage.duplicateStorageKeys(inLoadOrder: []).isEmpty)
+        #expect(HotkeyStorage.duplicateStorageKeys(inLoadOrder: [
+            ("ToggleHiddenSection", 1, command),
+            ("ToggleAlwaysHiddenSection", 2, command),
+            ("ApplyProfile:Work", 1, Modifiers([.command, .shift]).rawValue),
+        ]).isEmpty)
+    }
 }

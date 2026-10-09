@@ -269,7 +269,6 @@ Plans:
 
 **Plans:** 1/1 executed (FACT-01 and notes done; the release went out as 0.0.6, stable)
 
-
 ## Milestone 0.0.7 "Automation" - phase details
 
 Principles for every phase below (`CLAUDE.md`): never online, no polling where an event exists, least privilege (ask only when the user adds the feature, say why), pure logic in `holzBar/Core` with Swift Testing tests, five languages, private logs, nothing claimed in the README before it is true. One pull request for the whole milestone, pushed once at the end; one beta (`0.0.7-beta1`) when every phase is done. Outlines: `.planning/phases/NN-name/PLAN.md`; `/gsd-plan-phase` turns each into numbered plans.
@@ -286,6 +285,7 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
   4. Existing low-battery and offline settings behave as before
   5. Rules are in the pane in five languages, exported, imported and synced with validation (Wi-Fi names and chosen apps included, logs private), and listed, enabled and disabled (not created or edited) by URL and Shortcuts
   6. A layout profile can be applied by a Focus filter on macOS 26 and 27; the spike that proves it runs first, and **the milestone waits for it** (if the system does not call the intent on the user's macOS, nothing is released)
+
 **Plans**: 6 planned (see `phases/08-triggers/PLAN.md`; the Focus-filter spike is plan 1)
 
 ### Phase 9: Layout snapshots
@@ -325,6 +325,7 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
   3. A script that was never confirmed, or whose content changed, does not run until the user confirms it
   4. No export, import, sync, URL command or Shortcut can create, change, approve or run a script binding
   5. Script output is only ever displayed as bounded plain text
+
 **Plans**: 4 planned (see `phases/11-scripts/PLAN.md`)
 
 ### Phase 12: Widgets (riskiest and largest)
@@ -337,6 +338,7 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
   2. A widget refreshes on a timer only while it is visible and the screen is awake; hidden, asleep or locked it costs nothing
   3. A widget can run a named Shortcut when clicked
   4. Widgets appear in the layout editor, search, profiles and settings export, and have VoiceOver labels
+
 **Plans**: 4 planned (stage 1: 3 plans, stage 2: 1 plan after Phase 11; see `phases/12-widgets/PLAN.md`)
 
 ### Phase 13: AppleScript dictionary
@@ -349,6 +351,7 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
   2. No command can create, change or delete a script binding, a rule, a profile or a setting, or approve a script
   3. Lasting changes and Zen-off ask first, and are refused while the screen is shared, exactly like URL commands; the lock of Phase 18 applies to reveals
   4. holzBar needs no new entitlement and sends no Apple events of its own
+
 **Plans**: 2 planned (see `phases/13-applescript-dictionary/PLAN.md`)
 
 ### Phase 14: Command palette
@@ -411,6 +414,7 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
   1. With the lock on, a click, hover, scroll, hotkey, rule or AppleScript command that would reveal hidden items asks the Mac's owner first and reveals nothing on failure
   2. No permission is requested and nothing leaves the Mac
   3. Settings states what the lock does and does not protect
+
 **Plans**: 1 planned (see `phases/18-lock-hidden-items/PLAN.md`)
 
 ### Phase 19: Smooth show and hide
@@ -422,6 +426,7 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
   1. The animation runs only during the change and ends in the same state as before
   2. With Reduce Motion on, nothing animates
   3. No timer or display link exists while nothing changes
+
 **Plans**: 1 planned (see `phases/19-smooth-animation/PLAN.md`)
 
 ### Phase 20: Copy diagnostics
@@ -470,7 +475,12 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
   2. The Liquid Glass slider is followed only if the spike finds a public signal; otherwise the phase records that it cannot be and the README says so
   3. No private API and no preference-file reading
 
-**Plans**: 3 planned (spike first; see `phases/23-liquid-glass-transparency/PLAN.md`)
+**Plans:** 0/3 plans executed in 2 waves (outline and decisions: `phases/23-liquid-glass-transparency/PLAN.md`; the visual checks are the UAT script in 23-03, to be run by the user on macOS 26 and 27)
+
+Plans:
+- [ ] 23-01-PLAN.md — Wave 1: spike for the Liquid Glass slider: SDK scan (`Scripts/macos27/scan-glass-api.sh`), runtime probe (`Scripts/macos27/glass-signals.swift`), `23-01-SPIKE.md` with the Decision line (M27-04)
+- [ ] 23-02-PLAN.md — Wave 1: pure `TransparencyTreatment`, `TransparencyObserver`, the Shelf and System Glass follow Reduce Transparency and Increase Contrast live, hint in five languages, `Scripts/typecheck-app.sh` (M27-03)
+- [ ] 23-03-PLAN.md — Wave 2: README and docs claim only what is true (the slider has no public API), M27-04 closed, UAT script `23-UAT.md` for macOS 26 and 27 (M27-03, M27-04)
 
 ### Phase 24: SwiftUI reorder spike
 
@@ -515,6 +525,7 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
 **Success Criteria** (what must be TRUE):
   1. Every README, website and comparison-table claim was re-checked against code and sources, and every 🔜 row that shipped is now a ✅ row
   2. `docs/release-notes/v0.0.7-beta1.md` has brew trust, update and quarantine steps; the release is a pre-release
+
 **Plans**: 2 planned (see `phases/27-release-0.0.7/PLAN.md`)
 
 **Backlog (not in this milestone)**, ideas the user did not select, kept so they are not lost:
@@ -564,3 +575,43 @@ Phases execute in numeric order: 1 -> 01.1 -> 2 -> 3 -> 4 -> 5 -> 05.1 -> 05.1.1
 | 25. Control Center control | 0/3 | Planned (optional; go/no-go spike) | - |
 | 26. Swift 6.4 adoption | 0/3 | Planned | - |
 | 27. Release 0.0.7-beta1 | 0/2 | Planned | - |
+| 28. Settings sync redesign | 13/18 | In Progress|  |
+
+### Phase 28: Settings sync redesign
+
+**Status 2026-10-09: MOVED TO 1.0.0.** The maintainer withdrew the sync feature from the app and from all documents (PR `chore/withdraw-sync`); it is planned for 1.0.0 together with the optional modules, and 0.0.7 is a bugfix release without sync. The branch `sync/1.0.0` on GitHub holds all of this phase's work.
+
+**Status before that: ON HOLD.** Plans 28-01 to 28-17 are built and merged on `planning/sync-redesign`, but gate G1 failed (third pass, `28-G1-GATE.md`: open S6, A6, ID1, J1 and pair seeds), so sync stays paused (`SettingsSyncPause.isPaused = true`) and plan 28-18 (docs, release notes, flip) is deferred until G1 passes. The maintainer decided to ship 0.0.7-beta3 without sync and finish the sync in a later beta. ID1 is to be solved without a state-format change.
+
+**Goal**: Settings sync works in 1.0.0 (was 0.0.7-beta3, then a later 0.0.7 beta) on a design that cannot lose, revert or silently overwrite a user's change: one file per Mac (`holzBar/Macs/<MacID>.plist`), causal dots and a lattice join, questions only on real conflicts; settings sync on macOS 26 and 27, the arrangement and layout profiles only between macOS 27 Macs. Decisions: `.planning/research/sync-redesign/DECISIONS.md`; design: `SYNC-REDESIGN-ANALYSIS.md`, D1, A1–A3.
+**Requirements**: SYNC-R01 to SYNC-R10 (defined in `REQUIREMENTS.md`, section "Settings sync redesign (Phase 28)", and in this phase's `28-CONTEXT.md`)
+**Depends on**: 0.0.7-beta2 (released); independent of Phases 8 to 27
+**Success Criteria** (what must be TRUE):
+  1. A deterministic multi-Mac simulator in the Core tests drives the real sync engine with seeded random interleavings, exact 0.0.7-beta1 and beta2 peers and provider faults, and checks the A2 invariants; it passes before any app code uses the engine
+  2. Every applicable A1 regression scenario runs as a fixed test and passes; a mutation check shows the tests catch seeded defects
+  3. holzBar never writes `holzBar/Settings.plist`; 0.0.6/0.0.7-beta1 Macs form a separate group, explained in Settings → Advanced
+  4. Different settings changed on two Macs merge without a question; the same setting changed differently asks, and an answer supersedes exactly what it showed
+  5. Only user actions create synced entries; holzBar's placements, seeding, learned keys and flags never sync or cause a question
+  6. `SettingsSyncPause.isPaused` is false and its test updated; docs, release notes `v0.0.7-beta3.md` and the five String Catalogs are current; CI is green
+
+**Plans:** 16/18 plans complete in 12 waves (28-01 to 28-12 and 28-14 to 28-17), plan 28-13 executed but gate G1 is NOT passed yet (being closed, see `28-G1-GATE.md`); gate G1 (simulator and mutation gate) is plan 28-13, and every plan that touches the app depends on it
+
+Plans:
+- [x] 28-01-PLAN.md — Wave 1: Core data model (dots, contexts, replica join, device-file and state codecs, read-only legacy reader); SYNC-R01 to SYNC-R10 recorded in REQUIREMENTS.md
+- [x] 28-02-PLAN.md — Wave 1: simulation world (seeded randomness, virtual clock, hostile file provider with presets, beta1 and beta2 peers, ground truth)
+- [x] 28-03-PLAN.md — Wave 1: stable profile IDs, profile hotkeys by ID, no hotkey write-back at load, generation-split profile save, `apply(byUser:)`, `Scripts/typecheck-app.sh`
+- [x] 28-04-PLAN.md — Wave 2: unit table version 1 with the macOS 27 families, projections, identity, counters, reuse check
+- [x] 28-05-PLAN.md — Wave 2: no model writes a synced key at load; the old layout-edit hook removed; seeded-flag repair on macOS 26
+- [x] 28-06-PLAN.md — Wave 2: oracles, liveness drain, metamorphic pairs, generator, shrinker, scenario DSL, two control engines
+- [x] 28-07-PLAN.md — Wave 3: engine core: `SyncEngine.handle`, capture by normalized diff, plan, merge, publish; the real engine in the simulator
+- [x] 28-08-PLAN.md — Wave 4: engine lifecycle: launch trust checks, join and founding, question and answers, Turn Off and On, four engine-variant control engines
+- [x] 28-09-PLAN.md — Wave 5: macOS 27 families in the engine (`l27`, `prof`, known applications), intent capture, layout oracles
+- [x] 28-10-PLAN.md — Wave 6: A1 catalogue S-01 to S-33 as fixed tests, with macOS 27 arrangement forms and the beta1 boundary
+- [x] 28-11-PLAN.md — Wave 7: A1 catalogue S-34 to S-70 as fixed tests, and the coverage test
+- [x] 28-12-PLAN.md — Wave 7: D3, judge and A2 scenarios, version skew, same-ID installations, A2 mapping
+- [ ] 28-13-PLAN.md — Wave 8: gate G1: seeded and exhaustive exploration, fuzzing, determinism lint, mutation gate, recorded result (executed, G1 not yet passed: see `28-G1-GATE.md`)
+- [x] 28-14-PLAN.md — Wave 9: app adapter: defaults store and alias rule, model normalizers, one prefix list, writer lint
+- [x] 28-15-PLAN.md — Wave 10: host: folder reader and writer, state store, launch, triggers, effects, migration from the pause; old exchange code removed
+- [x] 28-16-PLAN.md — Wave 11: capture wiring: Layout-pane move, profiles, Import, protected placement and seeding; D-04 re-check of other arrangement paths
+- [x] 28-17-PLAN.md — Wave 11: UI: hint, status lines, question sheet, Profiles footnotes, strings in en, de, fr, it, rm
+- [ ] 28-18-PLAN.md — Wave 12: docs, release notes `v0.0.7-beta3.md`, UAT script, and the flip of `SettingsSyncPause.isPaused` as the last code change

@@ -1,0 +1,20 @@
+# One grouped pull request per week for every action the workflows and the composite
+# action use. It keeps the commit SHA pins and their "# vX.Y.Z" comments current. The
+# actionlint and SwiftLint images are pinned by digest and bumped by hand.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directories:
+      - "/"
+      - "/.github/actions/*"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: Europe/Zurich
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: ci

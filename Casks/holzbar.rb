@@ -1,7 +1,7 @@
 # Updated by .github/workflows/release.yml for every release.
 cask "holzbar" do
-  version "0.0.6"
-  sha256 "3a1a4f8eedbe27c076fd0ebca5feeb525f557bcec57a8a175d3043c5d3c6c6a2"
+  version "0.0.7-beta4"
+  sha256 "d14fb0031852da3b7bec9781037aa690be95ad500f99bc58d2d680798521b54c"
 
   url "https://github.com/holzcloud/holzBar/releases/download/v#{version}/holzBar-#{version}.zip"
   name "holzBar"

@@ -5,8 +5,8 @@
 
 import Foundation
 
-/// Checks settings that come from outside the app (a settings file, the iCloud Drive
-/// file or Ice's defaults) before holzBar writes them.
+/// Checks settings that come from outside the app (a settings file or Ice's defaults)
+/// before holzBar writes them.
 ///
 /// Only keys holzBar stores (`Defaults.Key`) are applied, and only with a value of the
 /// kind each key holds, so a crafted file cannot set a key that the app or AppKit reads

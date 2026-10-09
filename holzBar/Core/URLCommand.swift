@@ -37,18 +37,22 @@ nonisolated struct URLCommand: Equatable, Sendable {
         /// Any app can open a `holzbar://` URL without the user knowing, and a web page can
         /// once the browser has asked. So:
         ///
-        /// - Showing, hiding and the search change nothing lasting and run at once. Zen mode
-        ///   refuses `show` and `toggle` of a hidden section where they are performed.
+        /// - Showing and hiding change nothing lasting and run at once. Zen mode refuses
+        ///   `show` and `toggle` of a hidden section where they are performed.
+        /// - The search and Settings change nothing lasting either, but list or reveal the
+        ///   hidden items, so Zen mode refuses them.
         /// - Applying a profile rearranges the menu bar, and the Shelf and auto-rehide
-        ///   toggles change settings that last and sync to the user's other Macs: holzBar
+        ///   toggles change settings that last: holzBar
         ///   asks first, and refuses them while Zen mode is on.
         /// - Another app may always turn Zen mode on; it only hides. Turning it off needs
         ///   the user's answer, and is refused while the screen is shared (the automatic
         ///   part, ``ZenMode/isAutomatic``), which only the user ends.
         func decision(zenMode: ZenMode) -> Decision {
             switch self {
-            case .toggle, .show, .hide, .search, .settings, .toggleApplicationMenus, .unknown:
+            case .toggle, .show, .hide, .toggleApplicationMenus, .unknown:
                 return .perform
+            case .search, .settings:
+                return zenMode.isActive ? .refuse : .perform
             case .toggleShelf, .toggleAutoRehide, .applyProfile:
                 return zenMode.isActive ? .refuse : .ask
             case .zenMode(let request):

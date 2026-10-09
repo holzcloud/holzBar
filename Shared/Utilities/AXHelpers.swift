@@ -6,8 +6,7 @@
 import ApplicationServices
 import Cocoa
 
-/// Accessibility calls for the app and the XPC service, made directly through the
-/// `AXUIElement` C API.
+/// Accessibility calls for the app, made directly through the `AXUIElement` C API.
 ///
 /// Every value read from another process is checked for its type before it is converted,
 /// and every failure gives `nil` (or an empty array, or `false`), never a crash.
@@ -61,8 +60,7 @@ nonisolated enum AXHelpers {
     /// - Parameters:
     ///   - runningApp: The application.
     ///   - messagingTimeout: How long calls to the element wait for the application to
-    ///     answer, or `nil` for the default timeout (6 s). The XPC service keeps the
-    ///     default: it runs off the app's main thread and must not lose slow applications.
+    ///     answer, or `nil` for the default timeout (6 s).
     static func application(for runningApp: NSRunningApplication, messagingTimeout: Float? = nil) -> AXUIElement? {
         queue.sync {
             guard !runningApp.isTerminated else {

@@ -12,10 +12,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let appState: AppState
 
     override init() {
-        // Must come before the iCloud pull, which reads the copied sync file,
-        // and before the app state, which reads the settings.
+        // Must come before the app state, which reads the settings.
         MigrationManager.importPreviousSettingsIfNeeded()
-        SettingsSync.pullIfNeeded()
         let appState = AppState()
         AppState.current = appState
         self.appState = appState
@@ -136,7 +134,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             appState.navigationState.isAppFrontmost
         {
             Logger.default.debug("All windows closed - deactivating with accessory activation policy")
-            appState.deactivate(withPolicy: .accessory)
+            if appState.menuBarManager.isHidingApplicationMenus {
+                // Deactivates the same way, and records that the menus are shown again.
+                appState.menuBarManager.showApplicationMenus()
+            } else {
+                appState.deactivate(withPolicy: .accessory)
+            }
         }
         return false
     }
@@ -154,11 +157,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: Other Methods
 
-    /// Opens the settings window and activates the app.
+    /// Opens the settings window and activates the app, or the permissions window while
+    /// permissions are missing.
     @objc func openSettingsWindow() {
         // Delay makes this more reliable for some reason.
         Task { [appState] in
             try? await Task.sleep(for: .milliseconds(100))
+            guard !appState.openPermissionsWindowIfNeeded() else {
+                return
+            }
             appState.activate(for: .settings)
             appState.openWindow(.settings)
         }

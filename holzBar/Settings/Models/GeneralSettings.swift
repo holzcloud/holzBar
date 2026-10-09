@@ -21,6 +21,15 @@ final class GeneralSettings {
         }
     }
 
+    /// A Boolean value that indicates whether holzBar's icon shows a dot while
+    /// another app uses the microphone or a camera, on macOS 27, where Control
+    /// Centre's indicator is not drawn while holzBar hides items.
+    var holzBarIconShowsCaptureDot = true {
+        didSet {
+            Defaults.set(holzBarIconShowsCaptureDot, forKey: .holzBarIconShowsCaptureDot)
+        }
+    }
+
     /// An icon to show in the menu bar, with a different image
     /// for when items are visible or hidden.
     var holzBarIcon: ControlItemImageSet = .defaultHolzBarIcon {
@@ -121,7 +130,7 @@ final class GeneralSettings {
     }
 
     /// ``itemSpacingOffset`` as whole points, kept in the slider's range. `Int(_:)` traps on
-    /// a value out of `Int`'s range or not finite, which an imported or synced file, or any
+    /// a value out of `Int`'s range or not finite, which an imported file, or any
     /// process writing holzBar's defaults, could store.
     private var spacingOffsetPoints: Int {
         Int(Defaults.Key.itemSpacingOffset.clamped(itemSpacingOffset, fallback: 0).rounded())
@@ -171,6 +180,7 @@ final class GeneralSettings {
     /// Loads the model's initial state.
     private func loadInitialState() {
         Defaults.ifPresent(key: .showHolzBarIcon, assign: &showHolzBarIcon)
+        Defaults.ifPresent(key: .holzBarIconShowsCaptureDot, assign: &holzBarIconShowsCaptureDot)
         Defaults.ifPresent(key: .customHolzBarIconIsTemplate, assign: &customHolzBarIconIsTemplate)
         Defaults.ifPresent(key: .useShelf, assign: &useShelf)
         Defaults.ifPresent(key: .showOnClick, assign: &showOnClick)

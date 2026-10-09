@@ -1,0 +1,6 @@
+# actionlint configuration (the workflows job in .github/workflows/build.yml).
+self-hosted-runner:
+  # xcode-27 is GitHub's public preview image with Xcode 27 (actions/runner-images#14404),
+  # a GitHub-hosted label that actionlint does not know yet.
+  labels:
+    - xcode-27

@@ -35,17 +35,22 @@ echo "==> Building"
 # jordanbaird/Ice#1006 by @Theralley), and `codesign --verify` would not notice. holzBar
 # embeds no framework and links no package, and the system framework it opens at runtime is
 # a platform binary, so everything it needs loads.
+#
+# CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO keeps Xcode from adding get-task-allow, which would
+# let any process of yours attach a debugger to holzBar and use its permissions (as in CI).
 xcodebuild -project "$ROOT/holzBar.xcodeproj" -scheme holzBar -configuration Release \
     -destination 'platform=macOS' -derivedDataPath "$DERIVED" build \
     CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
+    CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
     | tail -3
 
 APP="$DERIVED/Build/Products/Release/holzBar.app"
 [ -d "$APP" ] || { echo "error: no product at $APP" >&2; exit 1; }
 
 echo "==> Verifying the signature before installing"
-# The whole point: never install something that will not launch.
-codesign --verify --deep --strict "$APP"
+# The whole point: never install something that will not launch. The check also fails on
+# any entitlement or a missing hardened runtime.
+"$ROOT/Scripts/check-signature.sh" "$APP"
 codesign -dv "$APP" 2>&1 | grep -E 'Identifier=|TeamIdentifier=|^CodeDirectory' | sed 's/^/    /'
 
 echo "==> Installing to $DEST"
@@ -70,7 +75,12 @@ codesign --verify --deep --strict "$DEST/holzBar.app"
 # granted to the previous one: System Settings shows them as on while holzBar is denied,
 # and holzBar never gets past its permissions window (jordanbaird/Ice#1004). Clear them
 # so that the new build is asked for them afresh.
-if codesign -dv "$DEST/holzBar.app" 2>&1 | grep -q 'Signature=adhoc'; then
+#
+# The details are captured first and grepped from a here-string: piped straight into
+# `grep -q`, codesign usually got SIGPIPE once grep had matched, and under pipefail the
+# reset was then skipped without a word.
+SIGNATURE_DETAILS="$(codesign -dv "$DEST/holzBar.app" 2>&1)"
+if grep -q 'Signature=adhoc' <<< "$SIGNATURE_DETAILS"; then
     BUNDLE_ID="$(defaults read "$DEST/holzBar.app/Contents/Info" CFBundleIdentifier)"
     echo "==> Ad hoc signature: resetting the permissions of the previous build"
     tccutil reset Accessibility "$BUNDLE_ID" >/dev/null 2>&1 || true

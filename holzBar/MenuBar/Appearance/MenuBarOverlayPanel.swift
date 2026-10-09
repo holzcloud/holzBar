@@ -325,6 +325,17 @@ final class MenuBarOverlayPanel: NSPanel {
             panel.contentView?.needsDisplay = true
         }
 
+        // On macOS 27 the split shape starts its trailing half where the run of items starts,
+        // and a read can move that edge without changing the item cache: a concealed item
+        // keeps its old frame, and the items right of it stay where they are. No other shape
+        // depends on that edge.
+        observeNotifications(named: .menuBarItemsAreaDidChange27, in: NotificationCenter.default) { panel in
+            guard panel.appState?.appearanceManager.configuration.shapeKind == .split else {
+                return
+            }
+            panel.contentView?.needsDisplay = true
+        }
+
         // The panel steps aside while the system hides the menu bar and on a fullscreen
         // space, and comes back when that ends.
         if let appState {
@@ -604,9 +615,58 @@ private final class MenuBarOverlayPanelContentView: NSView {
     /// The shape the glass is masked to, set while drawing.
     private let glassMask = CAShapeLayer()
 
-    /// Adds or removes the system glass with the tint kind.
+    /// Follows Reduce Transparency and Increase Contrast, while the System Glass tint is in use.
+    private let transparency = TransparencyObserver()
+
+    /// Whether the tint in use is System Glass (macOS 26 and later).
+    private var usesSystemGlass: Bool {
+        if #available(macOS 26.0, *) {
+            return configuration.tintKind == .systemGlass
+        }
+        return false
+    }
+
+    /// How the overlay is drawn under the system's Reduce Transparency and Increase Contrast.
+    ///
+    /// The overlay already draws opaque pixels for the black menu bar, so an opaque fill is
+    /// nothing new here. That the fill keeps the application menu and the items visible is
+    /// checked by hand (UAT item U-02 of plan 23-03).
+    private var treatment: TransparencyTreatment {
+        .menuBar(isGlass: usesSystemGlass, options: transparency.options, hasConfiguredBorder: configuration.hasBorder)
+    }
+
+    /// A line the overlay draws around or under the bar.
+    private struct BorderLine {
+        var color: NSColor
+        var width: CGFloat
+        var style: BorderStyle
+    }
+
+    /// The line to draw: the visible one the treatment asks for, else the one the user
+    /// configured, else none.
+    private var border: BorderLine? {
+        if treatment.border == .visible {
+            return BorderLine(
+                color: NSColor.labelColor.withAlphaComponent(treatment.borderOpacity),
+                width: TransparencyTreatment.visibleBorderWidth,
+                style: .solid
+            )
+        }
+        guard configuration.hasBorder, let color = NSColor(cgColor: configuration.borderColor) else {
+            return nil
+        }
+        return BorderLine(color: color, width: configuration.borderWidth, style: configuration.borderStyle)
+    }
+
+    /// Adds or removes the system glass with the tint kind, and follows the system's
+    /// transparency options only while System Glass is the tint in use.
     private func updateGlassView() {
-        if #available(macOS 26.0, *), configuration.tintKind == .systemGlass {
+        if usesSystemGlass {
+            transparency.start()
+        } else {
+            transparency.stop()
+        }
+        if #available(macOS 26.0, *), usesSystemGlass, treatment.fill == .asDesigned {
             guard glassView == nil else {
                 return
             }
@@ -640,6 +700,14 @@ private final class MenuBarOverlayPanelContentView: NSView {
         configureObservers()
     }
 
+    /// A dynamic appearance switches its configuration with light/dark mode, which
+    /// changes neither stored configuration: add or remove the glass and redraw here.
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        needsDisplay = true
+        updateGlassView()
+    }
+
     private func configureObservers() {
         observers.removeAll()
 
@@ -658,6 +726,16 @@ private final class MenuBarOverlayPanelContentView: NSView {
         observers.append(
             ObservationLoop.observe { appearanceManager.previewConfiguration } onChange: { [weak self] configuration in
                 self?.previewConfiguration = configuration
+            }
+        )
+
+        // Swap the glass and the opaque fill as soon as Reduce Transparency or Increase
+        // Contrast changes.
+        let transparency = transparency
+        observers.append(
+            ObservationLoop.observe { transparency.options } onChange: { [weak self] _ in
+                self?.needsDisplay = true
+                self?.updateGlassView()
             }
         )
 
@@ -714,7 +792,8 @@ private final class MenuBarOverlayPanelContentView: NSView {
             )
         }
 
-        // The application menu frame and the wallpaper redraw the view from the panel.
+        // The application menu frame, the wallpaper and, on macOS 27, the edge of the items
+        // area redraw the view from the panel.
     }
 
     /// Returns a path in the given rectangle, with the given end caps,
@@ -796,9 +875,10 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
     /// Returns a path for the ``MenuBarShapeKind/split`` shape kind.
     private func pathForSplitShape(in rect: CGRect, info: MenuBarSplitShapeInfo, isInset: Bool, screen: NSScreen) -> NSBezierPath {
-        guard let appearanceManager = overlayPanel?.appState?.appearanceManager else {
+        guard let appState = overlayPanel?.appState else {
             return NSBezierPath()
         }
+        let appearanceManager = appState.appearanceManager
         var rect = rect
         let shouldInset = isInset && screen.hasNotch
         if shouldInset {
@@ -829,6 +909,17 @@ private final class MenuBarOverlayPanelContentView: NSView {
             return CGRect(x: rect.minX, y: rect.minY, width: maxX, height: rect.height)
         }()
         let trailingPathBounds: CGRect = {
+            // On macOS 27 there are no item windows: the backend knows where the run of
+            // items starts, from values it already read.
+            if let leftEdge = appState.itemManager.backend.itemsAreaLeftEdge(on: screen, appState: appState) {
+                // x is the same in CoreGraphics and Cocoa coordinates.
+                return SplitShape27.trailingBounds(
+                    edge: leftEdge - screen.frame.minX,
+                    in: rect,
+                    isInset: shouldInset,
+                    insetAmount: appearanceManager.menuBarInsetAmount
+                )
+            }
             let itemWindows = MenuBarItem.getMenuBarItemWindows(on: screen.displayID, option: .onScreen)
             guard !itemWindows.isEmpty else {
                 return .zero
@@ -888,9 +979,17 @@ private final class MenuBarOverlayPanelContentView: NSView {
     /// Draws the tint defined by the given configuration in the given rectangle.
     private func drawTint(in rect: CGRect) {
         switch configuration.tintKind {
-        case .noTint, .systemGlass:
-            // The system glass is a view of its own (`updateGlassView()`).
+        case .noTint:
             break
+        case .systemGlass:
+            // The glass is a view of its own (`updateGlassView()`). While Reduce Transparency
+            // or Increase Contrast is on, the tint is an opaque fill in window background
+            // colour instead: the colour macOS gives opaque window backgrounds, which follows
+            // light, dark and Increase Contrast by itself (the Shelf uses it on macOS 27 too).
+            if treatment.fill == .opaque {
+                NSColor.windowBackgroundColor.setFill()
+                rect.fill()
+            }
         case .solid:
             let baseColor: NSColor? = configuration.tintFollowsAccentColor
                 ? NSColor.controlAccentColor
@@ -919,16 +1018,16 @@ private final class MenuBarOverlayPanelContentView: NSView {
         }
     }
 
-    /// Strokes a border path with the configured style: solid, dashed or dotted.
+    /// Strokes a border path with the given style: solid, dashed or dotted.
     ///
     /// - Parameter drawnWidth: The width the path is stroked with.
-    private func strokeBorder(_ path: NSBezierPath, color: NSColor, drawnWidth: CGFloat) {
+    private func strokeBorder(_ path: NSBezierPath, color: NSColor, style: BorderStyle, drawnWidth: CGFloat) {
         path.lineWidth = drawnWidth
-        if let dashes = BorderPattern.dashes(for: configuration.borderStyle, width: drawnWidth) {
+        if let dashes = BorderPattern.dashes(for: style, width: drawnWidth) {
             let pattern = dashes.map { CGFloat($0) }
             path.setLineDash(pattern, count: pattern.count, phase: 0)
         }
-        if BorderPattern.usesRoundCaps(configuration.borderStyle) {
+        if BorderPattern.usesRoundCaps(style) {
             path.lineCapStyle = .round
         }
         color.setStroke()
@@ -982,7 +1081,7 @@ private final class MenuBarOverlayPanelContentView: NSView {
             glassMask.path = shapePath.cgPath
         }
 
-        var hasBorder = false
+        let border = border
 
         switch fullConfiguration.shapeKind {
         case .noShape:
@@ -1004,23 +1103,23 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
             drawTint(in: drawableBounds)
 
-            if configuration.hasBorder, let borderColor = NSColor(cgColor: configuration.borderColor) {
-                if configuration.borderStyle == .solid {
+            if let border {
+                if border.style == .solid {
                     let borderBounds = CGRect(
                         x: bounds.minX,
                         y: bounds.minY + 5,
                         width: bounds.width,
-                        height: configuration.borderWidth
+                        height: border.width
                     )
-                    borderColor.setFill()
+                    border.color.setFill()
                     NSBezierPath(rect: borderBounds).fill()
                 } else {
                     // A line along the bottom of the bar, dashed or dotted.
-                    let lineY = bounds.minY + 5 + configuration.borderWidth / 2
+                    let lineY = bounds.minY + 5 + border.width / 2
                     let line = NSBezierPath()
                     line.move(to: CGPoint(x: bounds.minX, y: lineY))
                     line.line(to: CGPoint(x: bounds.maxX, y: lineY))
-                    strokeBorder(line, color: borderColor, drawnWidth: configuration.borderWidth)
+                    strokeBorder(line, color: border.color, style: border.style, drawnWidth: border.width)
                 }
             }
         case .full, .split:
@@ -1050,10 +1149,6 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 shapePath.drawShadow(color: .black.withAlphaComponent(0.5), radius: 5)
             }
 
-            if configuration.hasBorder {
-                hasBorder = true
-            }
-
             do {
                 context.saveGraphicsState()
                 defer {
@@ -1065,10 +1160,7 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 drawTint(in: drawableBounds)
             }
 
-            if
-                hasBorder,
-                let borderColor = NSColor(cgColor: configuration.borderColor)
-            {
+            if let border {
                 context.saveGraphicsState()
                 defer {
                     context.restoreGraphicsState()
@@ -1097,7 +1189,7 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 // difficult. We can fake the correct line width by doubling it, as
                 // anything outside the shape path will be clipped.
                 borderPath.setClip()
-                strokeBorder(borderPath, color: borderColor, drawnWidth: configuration.borderWidth * 2)
+                strokeBorder(borderPath, color: border.color, style: border.style, drawnWidth: border.width * 2)
             }
         }
     }

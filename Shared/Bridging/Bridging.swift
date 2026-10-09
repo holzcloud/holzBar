@@ -89,7 +89,8 @@ nonisolated extension Bridging {
         return count
     }
 
-    private static func getActiveDisplayList() -> [CGDirectDisplayID] {
+    /// Returns the identifiers of the active displays.
+    static func getActiveDisplayList() -> [CGDirectDisplayID] {
         guard let count = getActiveDisplayCount() else {
             return []
         }
@@ -250,7 +251,7 @@ nonisolated extension Bridging {
     ///
     /// - Parameter spaceID: An identifier for a space.
     static func isSpaceFullscreen(_ spaceID: CGSSpaceID) -> Bool {
-        let type = CGSSpaceGetType(getMainConnection(), spaceID)
+        let type = CGSSpaceType(rawValue: CGSSpaceGetType(getMainConnection(), spaceID))
         return type == .fullscreen
     }
 }

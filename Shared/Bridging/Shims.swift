@@ -98,11 +98,13 @@ nonisolated func CGSManagedDisplayGetCurrentSpace(
 @_silgen_name("CGSCopyManagedDisplaySpaces")
 nonisolated func CGSCopyManagedDisplaySpaces(_ cid: CGSConnectionID) -> Unmanaged<CFArray>?
 
+/// Returns the raw space type; map it with `CGSSpaceType(rawValue:)`. A Swift enum is
+/// passed as a case index rather than its raw value, so it must never appear in a C signature.
 @_silgen_name("CGSSpaceGetType")
 nonisolated func CGSSpaceGetType(
     _ cid: CGSConnectionID,
     _ sid: CGSSpaceID
-) -> CGSSpaceType
+) -> UInt32
 
 // MARK: - CGSWindow
 

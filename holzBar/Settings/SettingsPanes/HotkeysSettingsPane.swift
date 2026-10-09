@@ -71,7 +71,7 @@ struct HotkeysSettingsPane: View {
         } else {
             ForEach(profileNames, id: \.self) { name in
                 if let hotkey = settings.existingHotkey(for: .applyProfile(name)) {
-                    HotkeyRecorder(hotkey: hotkey) {
+                    HotkeyRecorder(hotkey: hotkey, settings: settings) {
                         Text(name)
                     }
                 }
@@ -83,8 +83,8 @@ struct HotkeysSettingsPane: View {
     private var itemHotkeyRows: some View {
         ForEach(itemHotkeys) { entry in
             HStack {
-                HotkeyRecorder(hotkey: entry.hotkey) {
-                    Text(itemName(forKey: entry.key))
+                HotkeyRecorder(hotkey: entry.hotkey, settings: settings) {
+                    Text(settings.name(of: entry.hotkey.target))
                 }
                 Button {
                     settings.removeHotkey(for: .openItem(entry.key))
@@ -102,36 +102,11 @@ struct HotkeysSettingsPane: View {
         }
     }
 
-    /// The name of the item stored under the given key, or the key when the item is not in
-    /// the menu bar now.
-    private func itemName(forKey key: String) -> String {
-        appState.itemManager.item(withIdentityKey: key)?.displayName ?? key
-    }
-
     @ViewBuilder
     private func hotkeyRecorder(forAction action: HotkeyAction) -> some View {
         if let hotkey = settings.hotkey(withAction: action) {
-            HotkeyRecorder(hotkey: hotkey) {
-                switch action {
-                case .toggleHiddenSection:
-                    Text("Toggle the hidden section")
-                case .toggleAlwaysHiddenSection:
-                    Text("Toggle the always-hidden section")
-                case .searchMenuBarItems:
-                    Text("Search menu bar items")
-                case .enableShelf:
-                    Text("Enable the holzBar Shelf")
-                case .toggleApplicationMenus:
-                    Text("Toggle application menus")
-                case .showHiddenSectionTemporarily:
-                    Text("Show the hidden section for a moment")
-                case .toggleAutoRehide:
-                    Text("Turn auto-rehide on or off")
-                case .toggleZenMode:
-                    Text("Zen mode")
-                case .showItemHints:
-                    Text("Open an item by letter")
-                }
+            HotkeyRecorder(hotkey: hotkey, settings: settings) {
+                Text(action.title)
             }
         }
     }

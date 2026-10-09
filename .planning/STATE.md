@@ -4,11 +4,11 @@ milestone: v0.0.7
 current_phase: 8
 current_phase_name: Triggers
 status: planned
-stopped_at: Milestone 0.0.7 "Automation" planned and the user's 11 decisions recorded; next is /gsd-plan-phase 8 (Focus-filter spike first)
-last_updated: "2026-10-04T12:00:00.000Z"
-last_activity: 2026-10-04
-last_activity_desc: Milestone 0.0.7 Automation planned (phases 8 to 14); 0.0.6 is released
-state_head: e1c8ed8884e1f0f5c5686f87b63ca7ad64189f6f
+stopped_at: Completed 28-13-PLAN.md (G1 not passed)
+last_updated: "2026-10-09T04:23:45.109Z"
+last_activity: 2026-10-07
+last_activity_desc: 0.0.7-beta2 released; sync redesign analysis finished and the maintainer's decisions recorded
+state_head: 74893795f0cba1848e9c7b5b1c5bbf71562da02c
 progress:
   total_phases: 33
   completed_phases: 13
@@ -27,12 +27,12 @@ See: .planning/PROJECT.md (updated 2026-10-02)
 
 ## Current Position
 
-Milestone: 0.0.7 "Automation" (planned, not started); 0.0.6 is released (stable)
-Phase: 8 of 14 (Triggers), next to plan
-Status: Competitor research (`research/COMPETITORS.md`), 65 requirements, roadmap phases 8 to 27, phase outlines and the user's first 11 decisions are written. Phase list: 8 Triggers (Focus-filter spike first; the milestone is held if it fails), 9 Layout snapshots, 10 Item conditional visibility, 11 Scripts, 12 Widgets, 13 AppleScript dictionary, 14 Command palette, 15 Share profiles, 16 First-launch clean-up assistant, 17 Local usage suggestions, 18 Lock hidden items, 19 Smooth show and hide, 20 Copy diagnostics, 21 Accessibility showcase, 22 macOS 27 native overflow button, 23 Liquid Glass follows transparency, 24 SwiftUI reorder spike, 25 Control Center control (optional), 26 Swift 6.4 adoption, 27 Release 0.0.7-beta1 (one beta at the end). Open design questions 12 to 35 are indexed in `research/AUTOMATION-QUESTIONS.md`. Next: `/gsd-plan-phase 8`, starting with the Focus-filter spike on the user's macOS 26 and 27.
-Last activity: 2026-10-04 — Automation milestone planned
+Milestone: 0.0.7 (bugfix release): Phase 28 "Settings sync redesign", plus the macOS 27 overflow button and Reduce Transparency items. Features moved to 0.0.8 and 0.0.9 (decisions: `research/features/DECISIONS.md`); optional all-in-one modules planned for 1.0.0 (`research/features/MODULES-DECISIONS.md`).
+Phase: 28 of 28, plans 01 to 13 executed (12 complete, plan 28-13 gate G1 not yet passed and being closed), plans 28-14 to 28-17 done, plan 28-18 deferred (phase ON HOLD, G1 failed).
+Status: Settings sync stays paused (`SettingsSyncPause.isPaused = true`) until G1 passes and plan 28-18 flips it last. The simulator, the engine and the A1/A2/D3/J catalogue exist as tests; the app adapter and host are not built yet (28-14 onward).
+Last activity: 2026-10-09 — G1 third pass failed (S6, A6, ID1, J1 open); the maintainer put the sync on hold: the maintainer withdrew the sync from the app and all docs and moved it to 1.0.0; 0.0.7 is bugfix-only (phases 22 and 23, no sync).
 
-Progress: [█████████████░░░░░░░░░░░░░░░] 13 of 33 phases (milestone 0.0.7: 0 of 20)
+Progress: plans 16 of 18 in phase 28
 
 ## Performance Metrics
 
@@ -85,6 +85,19 @@ Progress: [█████████████░░░░░░░░░░
 | Phase 05.1.1.1 P02 | 150min | 3 tasks | 32 files |
 | Phase 05.1.1.1 P03 | 240min | 4 tasks | 50 files |
 | Phase 05.1.1.1.1 P01 | 73min | 5 tasks | 19 files |
+| Phase 28 P03 | 35min | 3 tasks | 13 files |
+| Phase 28 P01 | 60min | 3 tasks | 13 files |
+| Phase 28 P02 | 35min | 3 tasks | 15 files |
+| Phase 28 P05 | 25min | 3 tasks | 12 files |
+| Phase 28 P04 | 45min | 3 tasks | 10 files |
+| Phase 28 P06 | 3h | 3 tasks | 16 files |
+| Phase 28 P07 | 120min | 3 tasks | 15 files |
+| Phase 28 P08 | 4h | 3 tasks | 23 files |
+| Phase 28 P09 | not measured | 3 tasks | 20 files |
+| Phase 28 P10 | one run | 3 tasks | 11 files |
+| Phase 28 P11 | one run | 3 tasks | 10 files |
+| Phase 28 P12 | one run | 3 tasks | 24 files |
+| Phase 28 P13 | several sessions | 3 tasks | 45 files |
 
 ## Accumulated Context
 
@@ -163,14 +176,37 @@ Recent decisions affecting current work:
 - [Phase 06.1]: macOS 14 launch crash (openWindow inside the scene update) found by the compat job and fixed before any release
 - [Phase 07]: README and website keep the stable signature and attestation at 🔜 until the first release signed with holzBar's own certificate
 - [Phase 07]: 0.0.5 was a different cask and bundle id; the release notes tell its users to export, uninstall it, install holzbar and import (no automatic migration)
+- [Phase 28]: Legacy profile ID is a version-8 UUID from SHA-256 of 'com.holzcloud.holzBar.LayoutProfile:' + name (one-way, D-05); duplicate names derive from name#2, #3
+- [Phase 28]: Profile hotkey registration checks stored profile IDs because hotkeys load before LayoutProfiles.performSetup
+- [Phase 28]: Sync join keeps an entry when the other replica holds the same dot (any payload) or has not seen it; same-dot different-payload entries both stay and are reported as collisions
+- [Phase 28]: Device files are compared by SyncReplica.digest, never by raw bytes (binary plist key order is not canonical across processes)
+- [Phase 28]: Sets are capped in the replica initializer (2,000 smallest SHA-256), so the cap is part of the lattice
+- [Phase 28]: 28-02: simulator hooks record ordered actions in an inout SimMacContext and the world feeds the ground truth in that order; provider version IDs are unique across folders
+- [Phase 28]: 28-02: INV-S1g exclusion is implemented per holder: a loss is excluded only when every holder that ever held the token was destroyed by a non-sync event
+- [Phase 28]: 28-04: a missing or uid-less identity hash rotates the Mac ID once (legacy ID kept); known27 is addressable as .whole(known27) only to answer scope; l27 absent is 0 and applying 0 removes the entry
+- [Phase 28]: 28-06: oracles read per-step observation records and the ground truth; the engine is asked only through the optional SimBrainIntrospection hooks, and violations are charged to redesigned Macs only
+- [Phase 28]: 28-06: control engines run in the redesigned slot; LastWriterWinsByClock and SharedFileBeta1StyleEngine are caught, oracles extend per family with SimOracleSet.adding
+- [Phase 28]: 28-07: the host passes a fresh identity (SyncFreshIdentity) in SyncEnvironment; the engine uses no randomness and leaves a file that calls for re-identification out of the join without one
+- [Phase 28]: 28-07: SyncState carries a never-persisted SyncSession (trust flag, own-file status, snapshot, folder status); family items with no baseline count as unset, whole units with no baseline are never captured
+- [Phase 28]: 28-08: capture is a no-op while a join waits, and a pending join remembers whether the state was trusted when it began
+- [Phase 28]: 28-09: l27 and prof are captured from user intents only; an applied entry is never overridden by holzBar's own stores, and an applied deletion makes no party of a conflict
+- [Phase 28]: 28-09: known27 is a silent union (learned timer of one hour, applied at launch and Restart only); the upgrade from macOS 26 to 27 marks seeded entries automatic via SyncState.systemGeneration
+- [Phase 28]: 28-10: an intent of the macOS 27 families that arrives while sync is off marks the unit as the user's present value, so the next join asks about it
+- [Phase 28]: 28-10: a catalogue BOUNDARY scenario counts only the legacy-file writes of the redesigned build and runs on generation-26 and generation-27 Macs inside one scenario id
+- [Phase 28]: 28-11: the answer takes in every non-conflicting entry at once, so the generation-27 forms of S-45 to S-49 assert B's arrangement on A after the answer; a drag after it is a newer change
+- [Phase 28]: 28-11: a unit whose only live entries are this Mac's own and whose local value moved on from its baseline is pending (SyncUnitOutcome.pendingLocal): no hint, no apply, no settle
+- [Phase 28]: 28-12: a lost state is a new installation of one ID, so the engine re-identifies and keeps every entry; D3-S10 asserts the counter only for a state restored alone
+- [Phase 28]: 28-12: every A2 id of section 7 is mapped to the scenario that asserts it (A2Mapping); SC-04 maps to SC-33
+- [Phase 28]: 28-13: G1 not passed. Clean worlds leave out eleven open exclusions (SimExploration.openExclusions) at 400 steps; the gate ran at a bounded budget; the mutation gate did not end
+
+### Roadmap Evolution
+
+- Phase 28 added: Settings sync redesign (per-Mac causal replicas; settings on macOS 26 and 27, arrangement and profiles on macOS 27), for 0.0.7-beta3
 
 ### Pending Todos
 
-- Phase 8, first: the Focus-filter spike on macOS 26.x and 27 (release blocker; hold the milestone if it fails)
-- Phase 8 spikes that need a Mac: Wi-Fi name with Location (accessory app, self-signed), `ssidDidChange` without the entitlement, `SetFocusFilterIntent` on macOS 26 and 27
-- Phase 11 spikes: TCC identity of a child process, `NSUserUnixTask` against `Process`, Keychain seal
-- Phase 12 spike: holzBar's own extra status items on macOS 14, 26 and 27
-- Earlier todos from 0.0.6 (CMS rows, signing secrets, private vulnerability reporting) are in `docs/signing.md` and `research/WEBSITE-UPDATE.md`
+- [2026-10-05] [release] Move the signing secrets into the release environment (F-10) — [todo file](.planning/todos/pending/2026-10-05-move-the-signing-secrets-into-the-release-environment-f-10.md)
+- [2026-10-07] [sync] Redesign settings sync (paused in 0.0.7-beta2) — [todo file](.planning/todos/pending/2026-10-07-redesign-settings-sync-paused-in-0-0-7-beta2.md)
 
 ### Blockers/Concerns
 
@@ -186,6 +222,6 @@ Items acknowledged and deferred at milestone close, most recent first:
 
 ## Session Continuity
 
-Last session: 2026-10-04T12:00:00.000Z
-Stopped at: Automation milestone planned, decisions recorded
+Last session: 2026-10-09T04:23:45.083Z
+Stopped at: Completed 28-13-PLAN.md (G1 not passed)
 Resume file: None

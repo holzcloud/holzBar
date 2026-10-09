@@ -9,7 +9,7 @@ import Foundation
 ///
 /// The `Hotkeys` setting maps each hotkey action's raw value to its key combination,
 /// stored as the JSON array `[key, modifiers]` (what `KeyCombination` encodes). Ice stored
-/// them the same way, so imported and synced hotkeys keep working.
+/// them the same way, so imported hotkeys keep working.
 nonisolated enum HotkeyStorage {
     /// The signature of holzBar's hotkey events.
     ///
@@ -57,12 +57,29 @@ nonisolated enum HotkeyStorage {
     /// The same rule as the hotkey recorder (`Modifiers.rejection(refusesOptionOnly:)`):
     /// a stored combination with no modifier, or Shift alone, would take that key from
     /// every app, system-wide, on every press. Anything can write holzBar's settings (an
-    /// imported or synced file, or any process of the user), so the rule is applied again
+    /// imported file, or any process of the user), so the rule is applied again
     /// when the hotkeys are loaded.
     ///
     /// - Parameter refusesOptionOnly: Whether the system refuses Option-only hotkeys
     ///   (macOS 15 and later).
     static func loadRejection(modifiers: Int, refusesOptionOnly: Bool) -> Modifiers.Rejection? {
         Modifiers(rawValue: modifiers).rejection(refusesOptionOnly: refusesOptionOnly)
+    }
+
+    /// Returns the storage keys of the stored hotkeys that are not loaded because a hotkey
+    /// loaded before them has the same key combination.
+    ///
+    /// The system registers a combination only once per app, so the later hotkey never
+    /// worked; the first one in load order keeps the combination.
+    ///
+    /// - Parameter loadOrder: The stored hotkeys in the order they are loaded: the actions,
+    ///   then the profiles and items by storage key.
+    static func duplicateStorageKeys(inLoadOrder loadOrder: [(storageKey: String, key: Int, modifiers: Int)]) -> Set<String> {
+        var used = Set<[Int]>()
+        var duplicates = Set<String>()
+        for entry in loadOrder where !used.insert([entry.key, entry.modifiers]).inserted {
+            duplicates.insert(entry.storageKey)
+        }
+        return duplicates
     }
 }

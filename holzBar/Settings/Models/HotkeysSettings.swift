@@ -60,13 +60,16 @@ final class HotkeysSettings {
         else {
             return
         }
+        // The stored hotkeys in load order: the actions, then the profiles and items.
+        var loaded = [(target: HotkeyTarget, keyCombination: KeyCombination)]()
         for hotkey in hotkeys {
-            guard let data = dictionary[hotkey.target.storageKey] else {
+            guard
+                let data = dictionary[hotkey.target.storageKey],
+                let keyCombination = decodeKeyCombination(data, for: hotkey.target)
+            else {
                 continue
             }
-            if let keyCombination = decodeKeyCombination(data, for: hotkey.target) {
-                hotkey.keyCombination = keyCombination
-            }
+            loaded.append((hotkey.target, keyCombination))
         }
         for key in dictionary.keys.sorted() {
             guard
@@ -77,12 +80,36 @@ final class HotkeysSettings {
             else {
                 continue
             }
+            loaded.append((target, keyCombination))
+        }
+        // The system registers a combination only once per app, so a hotkey with the
+        // combination of one loaded before it never worked. It loses its combination.
+        let duplicates = HotkeyStorage.duplicateStorageKeys(inLoadOrder: loaded.map { entry in
+            (entry.target.storageKey, entry.keyCombination.key.rawValue, entry.keyCombination.modifiers.rawValue)
+        })
+        for (target, keyCombination) in loaded {
+            guard !duplicates.contains(target.storageKey) else {
+                Logger.hotkeys.error("Ignoring stored hotkey of \(target.logDescription, privacy: .public): another hotkey uses its combination")
+                continue
+            }
+            if case .action(let action) = target {
+                hotkey(withAction: action)?.keyCombination = keyCombination
+                continue
+            }
             let hotkey = Hotkey(target: target)
             if let appState {
                 hotkey.performSetup(with: appState)
             }
             hotkey.keyCombination = keyCombination
             dynamicHotkeys.append(hotkey)
+        }
+        if !duplicates.isEmpty {
+            withMutableCopy(of: dictionary) { dictionary in
+                for key in duplicates {
+                    dictionary[key] = nil
+                }
+                Defaults.set(dictionary, forKey: .hotkeys)
+            }
         }
     }
 
@@ -95,7 +122,7 @@ final class HotkeysSettings {
                 return nil
             }
             // The recorder's rule: no hotkey without a modifier, or with Shift alone, which
-            // would take the key from every app (an imported or synced file can store one).
+            // would take the key from every app (an imported file can store one).
             let refusesOptionOnly = if #available(macOS 15.0, *) { true } else { false }
             let modifiers = keyCombination.modifiers.rawValue
             if let rejection = HotkeyStorage.loadRejection(modifiers: modifiers, refusesOptionOnly: refusesOptionOnly) {
@@ -138,6 +165,31 @@ final class HotkeysSettings {
             }
         } catch {
             Logger.serialization.error("Error encoding hotkey: \(error, privacy: .private)")
+        }
+    }
+
+    /// Returns the hotkey that has the given key combination, other than the hotkey for
+    /// the given target.
+    ///
+    /// The system registers a combination only once per app. This compares the stored
+    /// combinations, not the registrations: the always-hidden section's hotkey keeps its
+    /// combination while the section is off, but is not registered.
+    func hotkey(using keyCombination: KeyCombination, except target: HotkeyTarget) -> Hotkey? {
+        (hotkeys + dynamicHotkeys).first { hotkey in
+            hotkey.target != target && hotkey.keyCombination == keyCombination
+        }
+    }
+
+    /// The name of a hotkey's target as the Hotkeys settings show it.
+    func name(of target: HotkeyTarget) -> String {
+        switch target {
+        case .action(let action):
+            action.title
+        case .applyProfile(let name):
+            name
+        case .openItem(let key):
+            // The key, when the item is not in the menu bar now.
+            appState?.itemManager.item(withIdentityKey: key)?.displayName ?? key
         }
     }
 
@@ -202,6 +254,34 @@ final class HotkeysSettings {
         removeHotkey(for: oldTarget)
         if let keyCombination {
             setKeyCombination(keyCombination, for: newTarget)
+        }
+    }
+}
+
+// MARK: - HotkeyAction Title
+
+extension HotkeyAction {
+    /// The action's name in the Hotkeys settings.
+    var title: String {
+        switch self {
+        case .toggleHiddenSection:
+            String(localized: "Toggle the hidden section")
+        case .toggleAlwaysHiddenSection:
+            String(localized: "Toggle the always-hidden section")
+        case .searchMenuBarItems:
+            String(localized: "Search menu bar items")
+        case .enableShelf:
+            String(localized: "Enable the holzBar Shelf")
+        case .toggleApplicationMenus:
+            String(localized: "Toggle application menus")
+        case .showHiddenSectionTemporarily:
+            String(localized: "Show the hidden section for a moment")
+        case .toggleAutoRehide:
+            String(localized: "Turn auto-rehide on or off")
+        case .toggleZenMode:
+            String(localized: "Zen mode")
+        case .showItemHints:
+            String(localized: "Open an item by letter")
         }
     }
 }
