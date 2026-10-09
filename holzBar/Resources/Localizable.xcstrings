@@ -9073,6 +9073,34 @@
         }
       }
     },
+    "With Reduce Transparency or Increase Contrast on in System Settings (Accessibility, Display), System Glass is drawn opaque with a border." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn in den Systemeinstellungen (Bedienungshilfen, Anzeige) «Transparenz reduzieren» oder «Kontrast erhöhen» eingeschaltet ist, wird Systemglas undurchsichtig und mit Rahmen gezeichnet."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si « Réduire la transparence » ou « Augmenter le contraste » est activé dans Réglages Système (Accessibilité, Affichage), le verre du système est dessiné opaque avec une bordure."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se «Riduci trasparenza» o «Aumenta contrasto» è attivo in Impostazioni di Sistema (Accessibilità, Schermo), il vetro di sistema viene disegnato opaco con un bordo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sche «Transparenz reduzieren» u «Kontrast erhöhen» è activà en ils parameters dal sistem (Bedienungshilfen, Anzeige), vegn il vaider dal sistem dissegnà betg transparent e cun in rom."
+          }
+        }
+      }
+    },
     "Zen Mode" : {
       "localizations" : {
         "de" : {
