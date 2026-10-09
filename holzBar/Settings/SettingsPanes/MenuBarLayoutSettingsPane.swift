@@ -22,6 +22,7 @@ struct MenuBarLayoutSettingsPane: View {
             HolzBarForm(spacing: 20) {
                 header
                 LayoutProfilesSection(profiles: appState.profiles)
+                LayoutHistorySection(snapshots: appState.snapshots)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
                 SpacersSection(spacers: appState.spacers)
                 if #available(macOS 27.0, *) {

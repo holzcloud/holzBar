@@ -105,15 +105,10 @@ final class LayoutProfiles {
         Defaults.set(currentProfileName, forKey: .currentLayoutProfile)
     }
 
-    /// Saves the current layout under the given name, replacing a profile of
-    /// the same name.
-    func saveCurrentLayout(as name: String) {
+    /// The arrangement of the items now, as a profile without a name or bindings.
+    func currentLayout() -> LayoutProfile {
         guard let appState else {
-            return
-        }
-        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !name.isEmpty else {
-            return
+            return LayoutProfile(name: "", itemSections: [:], applicationSections: [:])
         }
         let itemManager = appState.itemManager
         let cache = itemManager.itemCache
@@ -136,13 +131,32 @@ final class LayoutProfiles {
             let known = Defaults.array(forKey: .knownApplications27) as? [String] ?? []
             knownApplications = itemApplications.union(known).union(applicationSections.keys).sorted()
         }
+        return LayoutProfile(
+            name: "",
+            itemSections: itemSections,
+            applicationSections: applicationSections,
+            knownApplications: knownApplications
+        )
+    }
+
+    /// Saves the current layout under the given name, replacing a profile of
+    /// the same name.
+    func saveCurrentLayout(as name: String) {
+        guard appState != nil else {
+            return
+        }
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else {
+            return
+        }
+        let layout = currentLayout()
         // A profile saved again under its name keeps its bindings.
         let previous = profiles.first { $0.name == name }
         let profile = LayoutProfile(
             name: name,
-            itemSections: itemSections,
-            applicationSections: applicationSections,
-            knownApplications: knownApplications,
+            itemSections: layout.itemSections,
+            applicationSections: layout.applicationSections,
+            knownApplications: layout.knownApplications,
             displayUUID: previous?.displayUUID,
             spaceUUID: previous?.spaceUUID
         )
@@ -198,11 +212,21 @@ final class LayoutProfiles {
         currentProfileName = profile.name
         save()
         logger.notice("Applying layout profile \(profile.name, privacy: .private)")
+        appState.snapshots.willApplyProfile()
+        applyLayout(of: profile)
+    }
+
+    /// Moves the items to the sections the layout names, without changing which profile is
+    /// the current one. Items it does not know stay where they are.
+    func applyLayout(of profile: LayoutProfile) {
+        guard let appState else {
+            return
+        }
         if #available(macOS 27.0, *) {
             // Merged into the saved layout, so applications the profile does not know keep
             // their section. A profile saved before macOS 27 knows none and changes nothing.
             if profile.knownApplications == nil, profile.applicationSections.isEmpty {
-                logger.notice("Layout profile \(profile.name, privacy: .private) has no macOS 27 layout, so the current one stays")
+                logger.notice("The layout has no macOS 27 part, so the current one stays")
             } else {
                 let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
                 let layout = SectionLayout27.applyingProfile(

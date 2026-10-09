@@ -107,7 +107,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Scripts** as a rule condition or action, and **hooks** that run before and after a profile is applied: only from a folder you choose, pinned by hash, run only after you confirm.
 
 **Safety and convenience**
-- **Layout snapshots** taken automatically, with a one-click restore.
+- **Layout snapshots** (*Preview*) taken automatically when the bar settles, once a day and before a profile rearranges it, with a preview and a one-click restore that can be undone; kept for 30 days, on this Mac only. Not tested on a Mac yet.
 - **Share a profile** as a small validated file; it never contains personal data or code.
 - **Touch ID or password** to show hidden items.
 - **Revoke permissions in Settings**: a button per permission that withdraws it again (for holzBar's own entry only) or opens the right System Settings pane, so you never have to hunt for it.

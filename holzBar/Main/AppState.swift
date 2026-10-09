@@ -74,6 +74,9 @@ final class AppState {
     /// Rules that show hidden items when something happens.
     let revealRules = RevealRules()
 
+    /// The history of the layout: snapshots to go back to.
+    let snapshots = LayoutSnapshots()
+
     /// The automation rules: "when this is true, do that".
     let automation = AutomationManager()
 
@@ -196,6 +199,7 @@ final class AppState {
         imageCache.performSetup(with: self)
         itemIconStore.performSetup(with: self)
         profiles.performSetup(with: self)
+        snapshots.performSetup(with: self)
         itemGroups.performSetup(with: self)
         spacers.performSetup()
         revealRules.performSetup(with: self)
