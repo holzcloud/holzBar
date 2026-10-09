@@ -16,12 +16,12 @@ scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 
 sources=(
-  AutomationEngine AutomationRule DesignTokens DiagnosticsReport FocusFilterBinding
-  ItemClassifier ItemIdentity LayoutSnapshot ModuleCatalog PinnedSystemItems RevealGate ScriptGate SharedProfile URLCommand ZenMode
+  AutomationEngine AutomationRule Defaults DesignTokens DiagnosticsReport FocusFilterBinding
+  ItemClassifier ItemIdentity LayoutSnapshot ModuleCatalog PinnedSystemItems RevealGate ScriptGate SettingsSchema SharedProfile URLCommand ZenMode
 )
 tests=(
   AutomationEngineTests DesignTokensTests DiagnosticsReportTests FocusFilterBindingTests
-  ItemClassifierTests LayoutSnapshotTests ModuleCatalogTests PinnedSystemItemsTests RevealGateTests ScriptGateTests SharedProfileTests URLCommandTests
+  ItemClassifierTests LayoutSnapshotTests ModuleCatalogTests PinnedSystemItemsTests RevealGateTests ScriptGateTests SettingsSchemaTests SharedProfileTests URLCommandTests
 )
 
 mkdir -p "$scratch/Sources/HolzBarCore" "$scratch/Tests/HolzBarCoreTests"
@@ -31,6 +31,23 @@ done
 for name in "${tests[@]}"; do
   ln -s "$root/Tests/HolzBarCoreTests/$name.swift" "$scratch/Tests/HolzBarCoreTests/$name.swift"
 done
+
+# swift-corelibs-foundation has no Core Foundation type identifiers; SettingsSchema uses them to
+# tell a Boolean from a number.
+cat > "$scratch/Sources/HolzBarCore/LinuxShim.swift" <<'SWIFT'
+import Foundation
+
+typealias CFTypeID = UInt
+
+nonisolated func CFBooleanGetTypeID() -> CFTypeID { 1 }
+
+nonisolated func CFGetTypeID(_ object: AnyObject) -> CFTypeID {
+    if let number = object as? NSNumber, String(cString: number.objCType) == "c" {
+        return 1
+    }
+    return 0
+}
+SWIFT
 
 cat > "$scratch/Package.swift" <<'SWIFT'
 // swift-tools-version:6.2

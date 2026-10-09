@@ -441,7 +441,7 @@ nonisolated extension Defaults.Key {
         var result = SettingsSchema.validated(settings, kinds: importableKinds, numberRules: importableNumberRules)
         // A file never brings a rule that runs or asks a script: scripts and their approvals
         // are local to the Mac.
-        let rulesKey = Key.automationRules.rawValue
+        let rulesKey = Self.automationRules.rawValue
         if let data = result.accepted[rulesKey] as? Data {
             if let stripped = AutomationRule.removingScriptRules(from: data) {
                 result.accepted[rulesKey] = stripped
