@@ -152,6 +152,7 @@ nonisolated enum SyncMerge {
         }
         var registers = state.replica.registers
         var changed = false
+        // sync-lint: ordered the keys of a replica come sorted and every unit is assigned its own list
         for key in state.replica.keys {
             let live = state.replica.live(key)
             guard live.contains(where: { $0.dot.mac == state.mac }) else {
