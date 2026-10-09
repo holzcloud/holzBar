@@ -191,6 +191,8 @@ nonisolated extension Defaults {
         case spacerCount = "SpacerCount"
         case spacerWidth = "SpacerWidth"
         case revealRules = "RevealRules"
+        /// The automation rules, as JSON (`AutomationRule`).
+        case automationRules = "AutomationRules"
         case knownItemTags = "KnownItemTags"
         case knownApplications27 = "KnownApplications27"
         /// The section of each item before macOS 27, keyed by its identity (`ItemIdentity`):
@@ -315,6 +317,7 @@ nonisolated extension Defaults.Key {
             .number
         case .holzBarIcon,
             .layoutProfiles,
+            .automationRules,
             .itemGroups,
             .menuBarAppearanceConfigurationV2,
             .menuBarBorderColor,

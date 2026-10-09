@@ -270,10 +270,12 @@ final class RevealRules {
 
     // MARK: Revealing
 
-    private func reveal(because reason: String) {
+    /// Shows a section for the "temporarily shown item" interval, then hides it again,
+    /// unless Zen mode is on. The automation rules use it too.
+    func reveal(_ name: MenuBarSection.Name = .hidden, because reason: String) {
         guard
             let appState,
-            let section = appState.menuBarManager.section(withName: .hidden),
+            let section = appState.menuBarManager.section(withName: name),
             section.isHidden
         else {
             return

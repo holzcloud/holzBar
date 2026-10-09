@@ -191,11 +191,11 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 
 **0.0.7 is out** (see the [release notes](docs/release-notes/v0.0.7.md)): a bugfix release with no new features. Settings sync is removed from the app (a redesigned sync is planned for 1.0.0; Export… and Import… stay), and System Glass and the holzBar Shelf follow Reduce Transparency and Increase Contrast. macOS has no public API for the macOS 27 Liquid Glass slider, so holzBar cannot follow that. The Reduce Transparency treatment has not yet been checked on real macOS 26 and 27 systems. **Native macOS 27 overflow button support** did not make it into 0.0.7 and is planned for a later release.
 
-**0.0.8 "Automation"** brings the first set of new features:
+**0.0.8 "Automation"** brings the first set of new features. A feature that is built but not yet tested on a Mac carries a **Preview** badge in the app and is marked *Preview* here:
 
 | | |
 |---|---|
-| ⚙️ **Automation** | **Rules** (Wi-Fi, app, time, power, display, Focus; *spike first: Focus*) · **per-item conditions** · **scripts** (only from a folder you choose, after you confirm) |
+| ⚙️ **Automation** | **Rules** (app, time, power, display, network are built — *Preview*; Wi-Fi name and Focus: *spike first*) · **per-item conditions** · **scripts** (only from a folder you choose, after you confirm) |
 | 🛟 **Safety** | **Layout snapshots** with a one-click restore · **shareable profiles** · **Touch ID** to show hidden items · **revoke permissions in Settings** (with a guide) · **copy diagnostics** (redacted, nothing is sent) |
 | 🪄 **Convenience** | **First-launch assistant** · **works without Screen Recording** (app icons instead of live snapshots) · system items such as Clock, Wi-Fi and Battery **pinned visible** · more **menu bar styles** |
 | 🪵 **Polish** | SwiftUI reordering (*spike*) · keyboard and VoiceOver audit · Swift 6.4 clean-up |

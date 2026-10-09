@@ -19,6 +19,8 @@ struct ModuleRow<Settings: View>: View {
     private let summary: Text
     private let permission: Text?
     private let isPermissionGranted: Bool
+    private let showsSettings: Bool?
+    private let onSelect: (() -> Void)?
     @Binding private var isOn: Bool
     private let settings: Settings
 
@@ -29,6 +31,8 @@ struct ModuleRow<Settings: View>: View {
         isOn: Binding<Bool>,
         permission: Text? = nil,
         isPermissionGranted: Bool = false,
+        showsSettings: Bool? = nil,
+        onSelect: (() -> Void)? = nil,
         @ViewBuilder settings: () -> Settings
     ) {
         self.systemImage = systemImage
@@ -37,13 +41,15 @@ struct ModuleRow<Settings: View>: View {
         self._isOn = isOn
         self.permission = permission
         self.isPermissionGranted = isPermissionGranted
+        self.showsSettings = showsSettings
+        self.onSelect = onSelect
         self.settings = settings()
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-            if isOn {
+            if showsSettings ?? isOn {
                 settings
                     .padding(.leading, symbolSize + HolzBarTheme.Spacing.md)
                     .padding(.trailing, HolzBarTheme.Spacing.md)
@@ -62,7 +68,7 @@ struct ModuleRow<Settings: View>: View {
         }
         .animation(
             HolzBarTheme.Motion.resolved(HolzBarTheme.Motion.smooth, reduceMotion: reduceMotion),
-            value: isOn
+            value: showsSettings ?? isOn
         )
     }
 
@@ -100,6 +106,16 @@ struct ModuleRow<Settings: View>: View {
                 }
             }
             Spacer(minLength: HolzBarTheme.Spacing.sm)
+            if let onSelect {
+                Button(action: onSelect) {
+                    Image(systemName: showsSettings == true ? "chevron.up" : "chevron.down")
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                        .frame(width: HolzBarTheme.minimumTargetSize, height: HolzBarTheme.minimumTargetSize)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text("Edit"))
+            }
             Toggle(isOn: $isOn) {
                 title
             }
@@ -120,7 +136,9 @@ extension ModuleRow where Settings == EmptyView {
         summary: Text,
         isOn: Binding<Bool>,
         permission: Text? = nil,
-        isPermissionGranted: Bool = false
+        isPermissionGranted: Bool = false,
+        showsSettings: Bool? = nil,
+        onSelect: (() -> Void)? = nil
     ) {
         self.init(
             systemImage: systemImage,
@@ -128,7 +146,9 @@ extension ModuleRow where Settings == EmptyView {
             summary: summary,
             isOn: isOn,
             permission: permission,
-            isPermissionGranted: isPermissionGranted
+            isPermissionGranted: isPermissionGranted,
+            showsSettings: showsSettings,
+            onSelect: onSelect
         ) {
             EmptyView()
         }

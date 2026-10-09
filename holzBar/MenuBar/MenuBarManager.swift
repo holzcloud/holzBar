@@ -485,6 +485,17 @@ final class MenuBarManager {
         setZenMode(zenMode.toggled(), cause: "manual")
     }
 
+    /// Turns the user's part of Zen mode on or off for an automation rule. The automatic part
+    /// (a shared screen) is not touched.
+    func setManualZenMode(_ isOn: Bool) {
+        guard zenMode.isManual != isOn else {
+            return
+        }
+        var updated = zenMode
+        updated.isManual = isOn
+        setZenMode(updated, cause: "automation")
+    }
+
     /// Sets Zen mode as a `holzbar://zen` URL from another app asked
     /// (`ZenMode.requested(byURL:)`, which never ends the automatic part).
     func setZenModeFromURL(_ newValue: ZenMode) {
