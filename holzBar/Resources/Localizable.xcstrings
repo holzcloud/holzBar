@@ -925,6 +925,34 @@
         }
       }
     },
+    "Another app asked holzBar to change what it does by itself." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine andere App hat holzBar gebeten, zu ändern, was es von selbst tut."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une autre app a demandé à holzBar de modifier ce qu’il fait de lui-même."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un’altra app ha chiesto a holzBar di cambiare ciò che fa da solo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autra app ha dumandà a holzBar da midar tge ch’el fa sez."
+          }
+        }
+      }
+    },
     "Another app asked holzBar to rearrange your menu bar." : {
       "localizations" : {
         "de" : {
@@ -1341,6 +1369,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Automatisaziun"
+          }
+        }
+      }
+    },
+    "Automation Rule" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisierungsregel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle d’automatisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regola di automazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regla d’automatisaziun"
           }
         }
       }
@@ -3469,6 +3525,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "General"
+          }
+        }
+      }
+    },
+    "Get Active Automation Rules" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktive Automatisierungsregeln abrufen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtenir les règles d’automatisation actives"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ottieni le regole di automazione attive"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtegnair las reglas d’automatisaziun activas"
           }
         }
       }
@@ -7113,6 +7197,34 @@
         }
       }
     },
+    "Rule" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regola"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regla"
+          }
+        }
+      }
+    },
     "Rules are stored on this Mac." : {
       "localizations" : {
         "de" : {
@@ -9353,6 +9465,34 @@
         }
       }
     },
+    "Turn Automation Rule On or Off" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisierungsregel ein- oder ausschalten"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activer ou désactiver une règle d’automatisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attiva o disattiva una regola di automazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar u deactivar ina regla d’automatisaziun"
+          }
+        }
+      }
+    },
     "Turn Off" : {
       "localizations" : {
         "de" : {
@@ -9549,6 +9689,34 @@
         }
       }
     },
+    "Turn off the automation rule “%@”?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisierungsregel „%@“ ausschalten?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactiver la règle d’automatisation « %@ » ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivare la regola di automazione “%@”?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deactivar la regla d’automatisaziun «%@»?"
+          }
+        }
+      }
+    },
     "Turn off the holzBar Shelf?" : {
       "localizations" : {
         "de" : {
@@ -9629,6 +9797,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Activar il zuppentar automatic?"
+          }
+        }
+      }
+    },
+    "Turn on the automation rule “%@”?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisierungsregel „%@“ einschalten?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activer la règle d’automatisation « %@ » ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attivare la regola di automazione “%@”?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar la regla d’automatisaziun «%@»?"
           }
         }
       }

@@ -25,6 +25,9 @@ import OSLog
 ///   it on only hides, turning it off asks first, and while the screen is shared it stays on
 /// - `holzbar://profile/<name>` – apply a saved layout profile; rearranges items, so
 ///   holzBar asks first
+/// - `holzbar://automation/enable/<name>`, `holzbar://automation/disable/<name>` – turn an
+///   automation rule on or off; it changes what holzBar does by itself, so holzBar asks first
+///   (rules are created and edited only in the settings)
 ///
 /// Any app can open these URLs without the user knowing, and a web page can once the
 /// browser has asked, so `URLCommand.Action.decision(zenMode:)` decides what runs at once,
@@ -134,7 +137,7 @@ enum URLCommands {
         case .zenMode(let request):
             // Turns Zen mode on, or leaves it off; turning it off is asked first.
             manager.setZenModeFromURL(manager.zenMode.requested(byURL: request))
-        case .toggleShelf, .toggleAutoRehide, .applyProfile:
+        case .toggleShelf, .toggleAutoRehide, .applyProfile, .automationRule:
             // Never performed without the user's answer (`confirmation(for:appState:)`).
             logger.error("Ignored: a command that needs the user's answer")
         case .unknown:
@@ -167,6 +170,23 @@ enum URLCommands {
                 confirmTitle: String(localized: "Apply"),
                 perform: {
                     appState.profiles.apply(named: storedName)
+                }
+            )
+        case .automationRule(let name, let isEnabled):
+            guard let rule = appState.automation.rule(named: name) else {
+                logger.notice("Ignored: no automation rule with that name")
+                return nil
+            }
+            let ruleID = rule.id
+            let displayName = URLPrompt.displayName(rule.name)
+            return Confirmation(
+                message: isEnabled
+                    ? String(localized: "Turn on the automation rule \u{201C}\(displayName)\u{201D}?")
+                    : String(localized: "Turn off the automation rule \u{201C}\(displayName)\u{201D}?"),
+                detail: String(localized: "Another app asked holzBar to change what it does by itself."),
+                confirmTitle: isEnabled ? String(localized: "Turn On") : String(localized: "Turn Off"),
+                perform: {
+                    appState.automation.setRule(withID: ruleID, enabled: isEnabled)
                 }
             )
         case .toggleShelf:

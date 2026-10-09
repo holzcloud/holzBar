@@ -388,6 +388,26 @@ final class AutomationManager {
         return rule.id
     }
 
+    /// The rule with the given name: an exact match first, then one that differs only in
+    /// case and accents.
+    func rule(named name: String) -> AutomationRule? {
+        rules.first { $0.name == name }
+            ?? rules.first { $0.name.compare(name, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedSame }
+    }
+
+    /// The rules that are true now and have acted.
+    var activeRules: [AutomationRule] {
+        rules.filter { engineState.active.contains($0.id) }
+    }
+
+    /// Turns a rule on or off.
+    func setRule(withID id: UUID, enabled: Bool) {
+        guard let index = rules.firstIndex(where: { $0.id == id }), rules[index].isEnabled != enabled else {
+            return
+        }
+        rules[index].isEnabled = enabled
+    }
+
     func removeRule(withID id: UUID) {
         rules.removeAll { $0.id == id }
     }
