@@ -19,7 +19,10 @@
 #   clock      The real clock: Date(), Date.now, .now (the environment's `now`
 #              is the injected one and passes), DispatchTime.now, systemUptime,
 #              mach_absolute_time, ContinuousClock, SuspendingClock, Task.sleep.
-#   random     Randomness: .random, UUID(), arc4random, SystemRandomNumberGenerator,
+#              The files of the I/O layer (IO_LAYER: the folder reader and writer and
+#              the state store) are not the engine: the reader bounds its work with a
+#              deadline of the host's clock, so they are exempt from this rule alone.
+#   random    Randomness: .random, UUID(), arc4random, SystemRandomNumberGenerator,
 #              .shuffled, .shuffle, randomElement. The engine draws nothing: the
 #              host passes in a fresh identity.
 #   hashing    Hasher and hashValue, whose seed changes per process.
@@ -56,6 +59,8 @@ import re
 import sys
 
 SYNC_DIR = "holzBar/Core/Sync"
+# The files of holzBar/Core/Sync that do file I/O for the host and are not part of the pure engine.
+IO_LAYER = {"holzBar/Core/Sync/SyncFolderAccess.swift", "holzBar/Core/Sync/SyncStateStore.swift"}
 MARKER = re.compile(r"sync-lint:\s*ordered\s+(\S.*)")
 
 CLOCK = [
@@ -356,6 +361,8 @@ def lint_text(path, raw, names, functions):
 
     for number, line in enumerate(lines, start=1):
         for rule, table in (("clock", CLOCK), ("random", RANDOM), ("hashing", HASHING)):
+            if rule == "clock" and path in IO_LAYER:
+                continue
             for pattern, label in table:
                 if re.search(pattern, line):
                     report(number, rule, f"{label} makes the engine depend on something other than its inputs")
