@@ -48,24 +48,25 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 | ✨ **More features** | Profiles, folders, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, a camera and microphone dot on macOS 27. |
 | 🌍 **Five languages** | English, German, French, Italian and Romansh. |
 
-## ⚖️ holzBar vs. Ice and Thaw
+## ⚖️ holzBar vs. Ice, Thaw and Bartender
 
-— means not available or not documented. 🔜 means planned: **not available yet**. The [full comparison](docs/comparison.md) has every row.
+— means not available or not documented. 🔜 means planned: **not available yet**. Bartender 7 is the paid, closed-source app for macOS 27 (Bartender 6 covers macOS 14 – 26); its column comes from its product page. The [full comparison](docs/comparison.md) has every row.
 
-| | Ice 0.11.12 | Thaw 3.0 beta | holzBar |
-|---|:---:|:---:|:---:|
-| macOS 14 – 26 | ✅ | macOS 26 only | ✅ |
-| macOS 27 | ❌ | ✅ | ✅ |
-| Layout profiles, groups, spacers | ❌ | ✅ | ✅ |
-| Zen mode, URL commands, Shortcuts actions | ❌ | ✅ | ✅ |
-| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | 🔜 1.0.0 <sub>planned, not available</sub> |
-| Network connections | Sparkle update checks | Sparkle update checks | **none** |
-| Swift packages | 5 | 10 | **none** |
-| Swift language mode | Swift 5 | Swift 6 | Swift 6 |
-| One executable, no helper process with the app's permissions | ❌ | — | ✅ <sub>from 0.0.7-beta2</sub> |
-| Build provenance: GitHub attestation, SLSA Build Level 3 | ❌ | — | ✅ <sub>SLSA from 0.0.7-beta2</sub> |
-| OpenSSF Scorecard, actions pinned by commit SHA | — | — | ✅ <sub>except the SLSA generator (release tag)</sub> |
-| Rules (Wi-Fi, app, time, power, display, Focus) | ❌ | ✅ | 🔜 0.0.8 |
+| | Ice 0.11.12 | Thaw 3.0 beta | Bartender 7 | holzBar |
+|---|:---:|:---:|:---:|:---:|
+| macOS 14 – 26 | ✅ | macOS 26 only | ✅ <sub>Bartender 6</sub> | ✅ |
+| macOS 27 | ❌ | ✅ | ✅ | ✅ |
+| Layout profiles, groups, spacers | ❌ | ✅ | ✅ | ✅ |
+| Zen mode, URL commands, Shortcuts actions | ❌ | ✅ | Shortcuts, Siri, AppleScript | ✅ |
+| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | — | 🔜 1.0.0 <sub>planned, not available</sub> |
+| Network connections | Sparkle update checks | Sparkle update checks | — | **none** |
+| Swift packages | 5 | 10 | closed source | **none** |
+| Price and licence | free, open source | free, open source | paid, closed source | free, open source (GPL-3.0) |
+| Swift language mode | Swift 5 | Swift 6 | — | Swift 6 |
+| One executable, no helper process with the app's permissions | ❌ | — | — | ✅ <sub>from 0.0.7-beta2</sub> |
+| Build provenance: GitHub attestation, SLSA Build Level 3 | ❌ | — | — | ✅ <sub>SLSA from 0.0.7-beta2</sub> |
+| OpenSSF Scorecard, actions pinned by commit SHA | — | — | — | ✅ <sub>except the SLSA generator (release tag)</sub> |
+| Rules (Wi-Fi, app, time, power, display, Focus) | ❌ | ✅ | ✅ | 🔜 0.0.8 |
 
 ## 🚀 Install
 
