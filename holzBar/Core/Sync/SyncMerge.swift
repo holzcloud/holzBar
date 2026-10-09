@@ -99,7 +99,7 @@ nonisolated enum SyncMerge {
         var own = ownStatusBeforeJoin(files)
         if signalled, let fresh = environment.freshIdentity {
             let oldMac = state.mac
-            state = SyncIdentity.reidentified(state, newMac: fresh.mac, newNonce: fresh.nonce, suspect: suspects.sorted())
+            state = SyncIdentity.reidentified(state, newMac: fresh.mac, newNonce: fresh.nonce, suspect: suspects.sorted(), floors: environment.counterFloors)
             state = mintAgain(entriesOf: oldMac, in: state, environment: environment)
             reidentified = true
             blocked = []

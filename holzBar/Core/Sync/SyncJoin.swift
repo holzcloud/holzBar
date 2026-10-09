@@ -114,6 +114,24 @@ nonisolated enum SyncJoin {
         }
     }
 
+    /// The digest of this Mac's value of every unit a join decides about, `unset` for a unit without one.
+    static func localDigests(
+        snapshot: SyncSnapshot,
+        replica: SyncReplica,
+        legacy: SyncPendingLegacy?,
+        environment: SyncEnvironment
+    ) -> [SyncUnitKey: SyncDigest] {
+        let table = environment.table
+        var digests: [SyncUnitKey: SyncDigest] = [:]
+        for key in table.wholeUnitKeys where table.isAuthoredHere(key, generation: environment.generation) {
+            digests[key] = SyncProjection.localValue(key, in: snapshot.values, table: table)?.digest ?? .unset
+        }
+        for key in candidateKeys(replica: replica, snapshot: snapshot, legacy: legacy, environment: environment) {
+            digests[key] = SyncProjection.localValue(key, in: snapshot.values, table: table)?.digest ?? .unset
+        }
+        return digests
+    }
+
     /// Why this Mac's value cannot be published, if it cannot.
     static func localOnlyReason(_ local: SyncValue?, key: SyncUnitKey, table: SyncUnitTable) -> SyncLocalOnlyReason? {
         guard let local, let descriptor = table.descriptor(for: key) else {
@@ -137,6 +155,7 @@ nonisolated enum SyncJoin {
     static func usableLegacyUnits(_ settings: [String: SyncValue], environment: SyncEnvironment) -> [SyncUnitKey: SyncValue] {
         var units: [SyncUnitKey: SyncValue] = [:]
         let table = environment.table
+        // sync-lint: ordered every unit is assigned to its own key of a dictionary
         for (key, value) in SyncProjection.units(fromLegacySettings: settings, table: table) {
             guard
                 let descriptor = table.descriptor(for: key), !descriptor.isSet,
@@ -218,6 +237,7 @@ nonisolated enum SyncJoin {
             }
         }
         for clash in SyncPlan.clashes(fastForwards: incoming, snapshot: snapshot) {
+            // sync-lint: ordered the units of a clash are an array in key order
             for unit in clash.units where incoming[unit] != nil {
                 guard let partner = clash.units.first(where: { $0 != unit }) else {
                     continue
@@ -238,6 +258,7 @@ nonisolated enum SyncJoin {
         snapshot: SyncSnapshot,
         legacy: SyncPendingLegacy?,
         skipping: Set<SyncUnitKey>,
+        decided: [SyncUnitKey: SyncDigest] = [:],
         environment: SyncEnvironment
     ) {
         let table = environment.table
@@ -250,12 +271,17 @@ nonisolated enum SyncJoin {
         state.localOrigin = [:]
         // A whole unit that holds no value has the baseline "unset", so a value the user sets
         // later is captured as a change.
+        // What the settings held when the join decided is what an answer decides about; a change since is the user's (a baseline
+        // that is not the value now makes the capture after the commit find it).
+        func baseline(_ key: SyncUnitKey, _ local: SyncValue?) -> SyncDigest {
+            decided.isEmpty ? (local?.digest ?? .unset) : (decided[key] ?? .unset)
+        }
         for key in table.wholeUnitKeys where table.isAuthoredHere(key, generation: environment.generation) {
-            state.baseline[key] = SyncProjection.localValue(key, in: snapshot.values, table: table)?.digest ?? .unset
+            state.baseline[key] = baseline(key, SyncProjection.localValue(key, in: snapshot.values, table: table))
         }
         for key in candidateKeys(replica: state.replica, snapshot: snapshot, legacy: legacy, environment: environment) {
             let local = SyncProjection.localValue(key, in: snapshot.values, table: table)
-            state.baseline[key] = local?.digest ?? .unset
+            state.baseline[key] = baseline(key, local)
             if let reason = localOnlyReason(local, key: key, table: table) {
                 state.localOnly[key] = reason
                 continue
@@ -335,6 +361,11 @@ nonisolated extension SyncEngine {
             isChange: isChange
         )
         pending.wasTrusted = draft.state.session.isTrusted
+        // What the settings hold now is what the join starts from; anything the user changes before it commits (the folder may take a while
+        // to read, and a sheet may wait for an answer) is a change that the commit must still find.
+        pending.localAtDecision = SyncJoin.localDigests(
+            snapshot: draft.state.session.snapshot ?? SyncSnapshot(), replica: .empty, legacy: nil, environment: environment
+        )
         draft.state.pendingJoin = pending
         draft.effects.append(.readFolder(readRequest(.join, draft.state)))
     }
@@ -391,6 +422,7 @@ nonisolated extension SyncEngine {
             tentative.localOrigin = [:]
         }
         let merged = SyncMerge.merge(read, into: tentative, environment: environment)
+        // sync-lint: ordered only the count of the refusals is used
         let unreadable = merged.state.refusals.values.filter { $0.reason == SyncRefusal.unreadable.code }.count
         let waiting = merged.state.session.waitingFiles + unreadable
         if case .waiting? = SyncJoin.overall(of: read, waiting: waiting) {
@@ -464,7 +496,14 @@ nonisolated extension SyncEngine {
             let plan = SyncPlan.plan(state: state, snapshot: snapshot, environment: environment)
             state = SyncCapture.settle(plan, snapshot: snapshot, state: state, environment: environment)
         } else {
-            SyncJoin.settleDotless(&state, snapshot: snapshot, legacy: pending.legacy, skipping: Set(pending.shown.keys), environment: environment)
+            SyncJoin.settleDotless(
+                &state,
+                snapshot: snapshot,
+                legacy: pending.legacy,
+                skipping: Set(pending.shown.keys),
+                decided: pending.localAtDecision,
+                environment: environment
+            )
         }
     }
 
@@ -488,6 +527,21 @@ nonisolated extension SyncEngine {
         // What the user changed while the join waited is captured now.
         capture(&draft, environment: environment)
         publish(&draft, trigger: .ownChange, environment: environment)
+    }
+
+    /// A join that asks, whose question is gone: the user changed the settings after the sheet showed them (a deletion, an import) so
+    /// that no unit differs from the group's any more, or every row was decided elsewhere. Nothing is left to ask, so the join
+    /// commits as it would have if the first read had found no row; waiting for an answer that no sheet can take would keep the Mac
+    /// out of its group for good.
+    static func resolveAskingJoin(_ draft: inout SyncDraft, environment: SyncEnvironment) {
+        guard let pending = draft.state.pendingJoin, pending.phase == .asking,
+              SyncEngine.question(for: draft.state, scope: .mine, environment: environment) == nil
+        else {
+            return
+        }
+        let snapshot = draft.state.session.snapshot ?? SyncSnapshot()
+        commitTentative(&draft.state, pending: pending, snapshot: snapshot, environment: environment)
+        finishCommit(&draft, pending: pending, environment: environment)
     }
 
     /// Use or Keep at a join: the commit and the answer in one step.

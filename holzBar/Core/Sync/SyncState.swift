@@ -62,6 +62,10 @@ nonisolated struct SyncPendingJoin: Hashable, Sendable {
     /// join, not a trust check, decides what the state is worth. A state that is no evidence mints nothing
     /// while the join waits.
     var wasTrusted = false
+    /// What this Mac's own value of each unit was when the join started. The commit keeps them as the baselines of the units, so that a
+    /// change the user made while the join waited (a deletion included) is captured afterwards, and asked about again where it differs
+    /// from the group's, instead of being taken for what the settings always held.
+    var localAtDecision: [SyncUnitKey: SyncDigest] = [:]
     /// The legacy file's units when this Mac founds the group from it.
     var legacy: SyncPendingLegacy?
 }
@@ -176,10 +180,6 @@ nonisolated struct SyncSession: Hashable, Sendable {
     var skippedFiles = 0
     /// Whether the replica is too large to write, so the previous own file stays.
     var isTooLargeToPublish = false
-    /// The user changes of the macOS 27 families that wait until the state can mint again: a join
-    /// is pending, the state is not trusted or capture is deferred. They are never lost, because an
-    /// intent cannot be found again by comparing the defaults.
-    var queuedIntents: [SyncUnitIntent] = []
     /// Whether the timer that publishes learned applications is running.
     var isLearnedTimerPending = false
 
@@ -234,6 +234,15 @@ nonisolated struct SyncState: Hashable, Sendable {
     var refusals: [String: SyncRefusalRecord]
     /// The identities this Mac had before it re-identified.
     var previousMacIDs: [SyncMacID]
+    /// The highest counter this Mac had of each earlier identity when it left it: its own entries under that identity
+    /// are no higher. A copy of this Mac that goes on under the old identity (a clone, a copied account) mints
+    /// higher dots, and those are another Mac's. An identity without an entry here is trusted without a limit, as
+    /// every earlier state did.
+    var previousCeilings: [SyncMacID: UInt64] = [:]
+    /// The user changes of the macOS 27 families that wait until the state can mint: a join is pending, the state is not trusted or
+    /// capture is deferred. They are part of the state because nothing else finds them again: an intent cannot be found by comparing
+    /// the defaults, so a relaunch that dropped them would lose a deletion for good (a removed profile would come back).
+    var queuedIntents: [SyncUnitIntent] = []
     /// Whether sync is turned on.
     var isEnabled: Bool
     /// Whether capture waits until the own file was read and joined: Sigma was behind the
@@ -305,6 +314,21 @@ nonisolated enum SyncStateCodec {
         root["applied"] = state.applied.keys.sorted().map { key -> [String: Any] in
             ["unit": unitFields(key), "dots": (state.applied[key] ?? []).sorted().map(dotFields)]
         }
+        if !state.queuedIntents.isEmpty {
+            root["queuedIntents"] = state.queuedIntents.map { intent -> [String: Any] in
+                var fields: [String: Any] = ["unit": unitFields(intent.unit)]
+                if let from = intent.from {
+                    fields["from"] = from.propertyList
+                }
+                switch intent.to {
+                case .value(let value):
+                    fields["to"] = value.propertyList
+                case .deleted:
+                    fields["deleted"] = true
+                }
+                return fields
+            }
+        }
         root["baseline"] = state.baseline.keys.sorted().map { key -> [String: Any] in
             ["unit": unitFields(key), "digest": state.baseline[key]?.hex ?? ""]
         }
@@ -325,6 +349,9 @@ nonisolated enum SyncStateCodec {
                 "isChange": pending.isChange,
                 "isSameGroup": pending.isSameGroup,
                 "wasTrusted": pending.wasTrusted,
+                "localAtDecision": pending.localAtDecision.keys.sorted().map { key -> [String: Any] in
+                    ["unit": unitFields(key), "digest": pending.localAtDecision[key]?.hex ?? ""]
+                },
             ]
             fields["folderIdentity"] = pending.folderIdentity
             if let legacy = pending.legacy {
@@ -362,6 +389,11 @@ nonisolated enum SyncStateCodec {
         }
         root["refusals"] = refusals
         root["previousMacIDs"] = state.previousMacIDs.map(\.rawValue)
+        if !state.previousCeilings.isEmpty {
+            root["previousCeilings"] = state.previousCeilings.keys.sorted().map { mac -> [String: Any] in
+                ["mac": mac.rawValue, "n": Int64(clamping: state.previousCeilings[mac] ?? 0)]
+            }
+        }
         root["isEnabled"] = state.isEnabled
         if state.captureDeferred {
             root["captureDeferred"] = true
@@ -428,6 +460,20 @@ nonisolated enum SyncStateCodec {
             let fields = try record(element)
             state.applied[try unit(fields)] = try dots(fields)
         }
+        if top["queuedIntents"] != nil {
+            for element in try list(top, "queuedIntents") {
+                let fields = try record(element)
+                let to: SyncPayload
+                if try optionalBool(fields, "deleted") == true {
+                    to = .deleted
+                } else if let value = fields["to"] {
+                    to = .value(value)
+                } else {
+                    throw .wrongStructure("queuedIntents")
+                }
+                state.queuedIntents.append(SyncUnitIntent(unit: try unit(fields), from: fields["from"], to: to))
+            }
+        }
         for element in try list(top, "baseline") {
             let fields = try record(element)
             state.baseline[try unit(fields)] = SyncDigest(hex: try string(fields, "digest"))
@@ -472,6 +518,12 @@ nonisolated enum SyncStateCodec {
             pendingJoin.isChange = try optionalBool(fields, "isChange") ?? false
             pendingJoin.isSameGroup = try optionalBool(fields, "isSameGroup") ?? false
             pendingJoin.wasTrusted = try optionalBool(fields, "wasTrusted") ?? false
+            if fields["localAtDecision"] != nil {
+                for element in try list(fields, "localAtDecision") {
+                    let entry = try record(element)
+                    pendingJoin.localAtDecision[try unit(entry)] = SyncDigest(hex: try string(entry, "digest"))
+                }
+            }
             if let legacy = fields["legacy"] {
                 let legacyFields = try record(legacy)
                 var units: [SyncUnitKey: SyncValue] = [:]
@@ -524,6 +576,15 @@ nonisolated enum SyncStateCodec {
                 throw .wrongStructure("previousMacIDs")
             }
             return id
+        }
+        if top["previousCeilings"] != nil {
+            for element in try list(top, "previousCeilings") {
+                let fields = try record(element)
+                guard let id = fields["mac"]?.stringValue.flatMap({ SyncMacID($0) }) else {
+                    throw .wrongStructure("previousCeilings")
+                }
+                state.previousCeilings[id] = UInt64(clamping: try integer(fields, "n"))
+            }
         }
         state.isEnabled = try bool(top, "isEnabled")
         state.captureDeferred = try optionalBool(top, "captureDeferred") ?? false
@@ -625,13 +686,15 @@ nonisolated enum SyncStateCodec {
         throw .wrongStructure("unit")
     }
 
+    /// The dots of a record, sorted and without repeats: the order Sigma writes them in, so a state read and written again is the same state.
     private static func dots(_ fields: [String: SyncValue]) throws(SyncRefusal) -> [SyncDot] {
-        try list(fields, "dots").map { element throws(SyncRefusal) in
+        let read = try list(fields, "dots").map { element throws(SyncRefusal) in
             let dot = try record(element)
             guard let mac = SyncMacID(try string(dot, "mac")) else {
                 throw .wrongStructure("dots")
             }
             return SyncDot(mac: mac, n: try unsigned(dot, "n"))
         }
+        return Set(read).sorted()
     }
 }

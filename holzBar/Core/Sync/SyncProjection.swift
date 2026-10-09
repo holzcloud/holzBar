@@ -452,6 +452,7 @@ nonisolated enum SyncProjection {
     static func units(fromLegacySettings settings: [String: SyncValue], table: SyncUnitTable) -> [SyncUnitKey: SyncValue] {
         let defaults = settings.mapValues(\.propertyList)
         var units = snapshot(defaults: defaults, table: table, generation: .g26)
+        // sync-lint: ordered every key is removed on its own
         for key in units.keys {
             if case .split(let family, let item) = key, family == Defaults.Key.hotkeys.rawValue, item.hasPrefix(SyncUnitTable.applyProfilePrefix) {
                 units[key] = nil

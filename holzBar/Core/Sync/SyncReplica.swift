@@ -67,6 +67,7 @@ nonisolated struct SyncReplica: Hashable, Sendable {
     init(context: SyncContext = .empty, registers: [SyncUnitKey: [SyncEntry]] = [:], sets: [String: [String]] = [:]) {
         self.context = context
         var normalized: [SyncUnitKey: [SyncEntry]] = [:]
+        // sync-lint: ordered every key is assigned its own normalized list
         for (key, entries) in registers {
             let sorted = Self.normalize(entries)
             if !sorted.isEmpty {

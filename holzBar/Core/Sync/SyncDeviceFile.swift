@@ -133,6 +133,7 @@ nonisolated enum SyncDeviceFile {
         root["mac"] = contents.mac.rawValue
         root["installation"] = contents.installation
         root["written"] = contents.written
+        // sync-lint: ordered every item is assigned to its own key of a dictionary
         for (name, value) in replicaFields(contents.replica) {
             root[name] = value
         }
@@ -157,6 +158,7 @@ nonisolated enum SyncDeviceFile {
         }
         var units: [String: Any] = [:]
         var entries: [String: [String: Any]] = [:]
+        // sync-lint: ordered every unit is assigned to its own key of a dictionary
         for key in replica.keys {
             let list = replica.live(key).map(entryFields)
             switch key {

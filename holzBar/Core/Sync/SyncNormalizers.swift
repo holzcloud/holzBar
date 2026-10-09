@@ -65,6 +65,7 @@ nonisolated struct SyncNormalizers: Sendable {
         guard let fields = value.dictionaryValue, !fields.isEmpty else {
             return nil
         }
+        // sync-lint: ordered every field has to be valid, so the order cannot change the result
         for (name, field) in fields {
             switch (name, field) {
             case (iconField, .data(let data)) where !data.isEmpty:

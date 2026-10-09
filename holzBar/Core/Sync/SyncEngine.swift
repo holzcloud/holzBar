@@ -449,6 +449,9 @@ nonisolated enum SyncEngine {
         case .defaultsChanged(let snapshot):
             let previous = draft.state.session.snapshot
             draft.state.session.snapshot = snapshot
+            if state.pendingJoin?.phase == .asking, previous?.values != snapshot.values {
+                resolveAskingJoin(&draft, environment: environment)
+            }
             if state.isEnabled {
                 // A change that only learned applications waits for the hour; a change of a key that does not
                 // sync (a learned list, a flag, a window frame) has nothing to capture and must not postpone the
@@ -495,6 +498,7 @@ nonisolated enum SyncEngine {
             if pending.phase == .reading, timer == .check || timer == .periodic {
                 draft.effects.append(.readFolder(readRequest(.join, draft.state)))
             }
+            resolveAskingJoin(&draft, environment: environment)
             return
         }
         guard draft.state.isEnabled else {
@@ -645,6 +649,10 @@ nonisolated enum SyncEngine {
             answer(request, &draft, environment: environment)
         case .importFinished(let snapshot):
             draft.state.session.snapshot = snapshot
+            if draft.state.pendingJoin?.phase == .asking {
+                resolveAskingJoin(&draft, environment: environment)
+                return
+            }
             guard draft.state.isEnabled, draft.state.pendingJoin == nil else {
                 return
             }
@@ -759,5 +767,17 @@ nonisolated extension SyncState {
     /// Whether `mac` is this Mac's current identity or one it had before.
     func isOwn(_ mac: SyncMacID) -> Bool {
         mac == self.mac || previousMacIDs.contains(mac)
+    }
+
+    /// Whether this Mac minted `dot`: under its current identity, or under an earlier one at a counter it had reached
+    /// when it left that identity. A higher dot of an earlier identity is another installation's, which went on under it.
+    func isOwn(_ dot: SyncDot) -> Bool {
+        if dot.mac == mac {
+            return true
+        }
+        guard previousMacIDs.contains(dot.mac) else {
+            return false
+        }
+        return dot.n <= (previousCeilings[dot.mac] ?? UInt64.max)
     }
 }

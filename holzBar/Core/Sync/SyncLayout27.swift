@@ -130,6 +130,7 @@ nonisolated enum SyncLayout27 {
     /// applications that are not in this set (INV-A1 to INV-A3).
     static func protectedApplications(in state: SyncState) -> Set<String> {
         var applications: Set<String> = []
+        // sync-lint: ordered applications go into a set
         for (key, dots) in state.applied where !dots.isEmpty {
             if case .split(let family, let item) = key, family == SyncUnitTable.layout27Family {
                 applications.insert(item)
@@ -179,21 +180,42 @@ nonisolated extension SyncEngine {
             // next join. The join asks about it where the group differs and publishes it where the group has none
             // (D-10); without the mark a group that moved on meanwhile would replace it silently at Restart.
             for change in intents where !change.isNoChange && environment.table.isAuthoredHere(change.unit, generation: environment.generation) {
-                if case .value = change.to {
+                if isValueOfTheUser(change.to) {
                     draft.state.localOrigin[change.unit] = .preexisting
+                }
+            }
+            // The state keeps what it knew when sync went off: what the user did since (a removed profile, a moved application) is
+            // minted when sync is on again, as one change per unit: the first value the unit had and the last the user set.
+            for change in intents where environment.table.isAuthoredHere(change.unit, generation: environment.generation) {
+                var merged = change
+                // A join that waited queued each change of its own, so a unit can have several waiting: they all become this one.
+                if let earlier = draft.state.queuedIntents.firstIndex(where: { $0.unit == change.unit }) {
+                    merged = SyncUnitIntent(unit: change.unit, from: draft.state.queuedIntents[earlier].from, to: change.to)
+                    draft.state.queuedIntents.removeAll { $0.unit == change.unit }
+                }
+                if !merged.isNoChange {
+                    draft.state.queuedIntents.append(merged)
+                }
+                // A change that leaves the unit as it was or deletes it leaves no value of the user's there to mark: the mark of the change it replaces would otherwise stay and make a value that holzBar places later look
+                // like the user's.
+                if merged.isNoChange || !isValueOfTheUser(merged.to), draft.state.localOrigin[change.unit] == .preexisting {
+                    draft.state.localOrigin[change.unit] = nil
                 }
             }
             return
         }
-        draft.state.session.queuedIntents += intents
+        draft.state.queuedIntents += intents
         drainIntents(&draft, environment: environment)
         // An intent that cannot be minted yet waits in the session, which a crash loses, and an intent cannot be found
         // again by comparing the defaults. What the user set stays a value of theirs in the state, which survives: once
         // the state can mint, the entry replaces the mark; if the session is lost first, the value is asked about where
         // the group differs and published where it has none.
-        for change in draft.state.session.queuedIntents where !change.isNoChange && environment.table.isAuthoredHere(change.unit, generation: environment.generation) {
-            if case .value = change.to {
+        for change in draft.state.queuedIntents where !change.isNoChange && environment.table.isAuthoredHere(change.unit, generation: environment.generation) {
+            if isValueOfTheUser(change.to) {
                 draft.state.localOrigin[change.unit] = .preexisting
+            } else if draft.state.localOrigin[change.unit] == .preexisting {
+                // The last word of the user about the unit is a deletion, or the visible section: no value of theirs is left to mark.
+                draft.state.localOrigin[change.unit] = nil
             }
         }
         if draft.state.isEnabled {
@@ -201,16 +223,25 @@ nonisolated extension SyncEngine {
         }
     }
 
+    /// Whether an intent's new state of a unit is a value of the user's to protect: a value (the visible section included, which the
+    /// user chose), not a deletion.
+    private static func isValueOfTheUser(_ payload: SyncPayload) -> Bool {
+        if case .value = payload {
+            return true
+        }
+        return false
+    }
+
     /// Mints the queued intents when the state can mint.
     static func drainIntents(_ draft: inout SyncDraft, environment: SyncEnvironment) {
-        guard !draft.state.session.queuedIntents.isEmpty, draft.state.isEnabled, draft.state.pendingJoin == nil else {
+        guard !draft.state.queuedIntents.isEmpty, draft.state.isEnabled, draft.state.pendingJoin == nil else {
             return
         }
         if !draft.state.session.isTrusted, environment.guards.contains(.trustedState) {
             return
         }
-        let queued = draft.state.session.queuedIntents
-        draft.state.session.queuedIntents = []
+        let queued = draft.state.queuedIntents
+        draft.state.queuedIntents = []
         SyncCapture.capture(intents: queued, state: &draft.state, environment: environment)
     }
 

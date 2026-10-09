@@ -20,8 +20,16 @@ nonisolated struct SyncDigest: Hashable, Comparable, Sendable {
 
     /// The digest of `bytes`.
     static func hash(_ bytes: [UInt8]) -> SyncDigest {
-        SyncDigest(hex: SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined())
+        var characters: [UInt8] = []
+        characters.reserveCapacity(2 * SHA256.byteCount)
+        for byte in SHA256.hash(data: bytes) {
+            characters.append(hexDigits[Int(byte >> 4)])
+            characters.append(hexDigits[Int(byte & 0x0F)])
+        }
+        return SyncDigest(hex: String(bytes: characters, encoding: .utf8) ?? "")
     }
+
+    private static let hexDigits = Array("0123456789abcdef".utf8)
 
     static func < (lhs: SyncDigest, rhs: SyncDigest) -> Bool {
         lhs.hex.utf8.lexicographicallyPrecedes(rhs.hex.utf8)
@@ -80,6 +88,7 @@ nonisolated enum SyncValue: Hashable, Sendable {
         } else if let dictionary = object as? [String: Any] {
             var values: [String: SyncValue] = [:]
             values.reserveCapacity(dictionary.count)
+            // sync-lint: ordered every key is assigned to its own key of a dictionary, and any invalid item gives nil
             for (key, element) in dictionary {
                 guard let value = SyncValue(propertyList: element, depth: depth + 1) else {
                     return nil
