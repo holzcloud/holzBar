@@ -303,6 +303,25 @@ jobs:
           swift --version
           swift test
 
+  # Documentation-only pull requests skip the real compat matrix, so the two compat checks
+  # that the ruleset for main requires would never appear. These stand-ins carry the same
+  # names and report success at once; when code changed, the real matrix reports instead.
+  compat-docs-macos-26:
+    name: compat (macos-26)
+    needs: changes
+    if: needs.changes.outputs.code != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Only documentation changed, nothing to launch on macOS 26"
+
+  compat-docs-xcode-27:
+    name: compat (xcode-27)
+    needs: changes
+    if: needs.changes.outputs.code != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Only documentation changed, nothing to launch on macOS 27"
+
   # The app's former name must not appear anywhere in the repository (see CLAUDE.md).
   # .planning/ and .claude/ are GSD's working state; .github/cms-version.py is a copy
   # of a tool maintained in holzcloud-design. The pattern is written so that it does
@@ -411,7 +430,7 @@ jobs:
   # when the macOS jobs were skipped because only documentation changed.
   ci-ok:
     if: always()
-    needs: [changes, build, compat, former-name, no-network, strings, workflows, test]
+    needs: [changes, build, compat, compat-docs-macos-26, compat-docs-xcode-27, former-name, no-network, strings, workflows, test]
     runs-on: ubuntu-latest
     steps:
       - name: Check the results of all jobs
