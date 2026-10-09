@@ -285,7 +285,7 @@ final class RevealRules {
             return
         }
         logger.notice("Showing hidden items because \(reason, privacy: .public)")
-        section.show()
+        section.show(bypassingLock: true)
         appState.menuBarManager.showOnHoverAllowed = false
         let interval = appState.settings.advanced.tempShowInterval
         Task {

@@ -49,6 +49,7 @@ struct AdvancedSettingsPane: View {
                 tempShowInterval
                 openHiddenItemsInMenuBar
                 autoZenWhileSharingScreen
+                lockHiddenItems
             }
             HolzBarSection("Show Hidden Items Automatically") {
                 RevealRulesSettings(rules: appState.revealRules)
@@ -218,6 +219,17 @@ struct AdvancedSettingsPane: View {
     }
 
     @ViewBuilder
+    private var lockHiddenItems: some View {
+        Toggle(
+            "Ask for Touch ID or your password before showing hidden items",
+            isOn: Binding(
+                get: { appState.hiddenItemsLock.isEnabled },
+                set: { appState.hiddenItemsLock.setEnabled($0) }
+            )
+        )
+        .annotation("This keeps someone at your unlocked Mac from seeing your hidden items. Turning it off asks too. It is not protection against someone who knows your password.")
+    }
+
     private var autoZenWhileSharingScreen: some View {
         Toggle("Turn on Zen mode while the screen is mirrored or shared", isOn: $settings.autoZenWhileSharingScreen)
             .annotation("Uses no permission: holzBar notices a mirrored display and macOS's screen sharing agent.")

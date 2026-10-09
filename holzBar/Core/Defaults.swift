@@ -191,6 +191,9 @@ nonisolated extension Defaults {
         case spacerCount = "SpacerCount"
         case spacerWidth = "SpacerWidth"
         case revealRules = "RevealRules"
+        /// Whether showing the hidden items asks for Touch ID or the password. Local to the
+        /// Mac: never exported, imported or synced.
+        case lockHiddenItems = "LockHiddenItems"
         /// Whether the history of the layout is turned off (it is on by default).
         case layoutSnapshotsDisabled = "LayoutSnapshotsDisabled"
         /// The automation rules, as JSON (`AutomationRule`).
@@ -282,6 +285,7 @@ nonisolated extension Defaults.Key {
             .hideApplicationMenus,
             .keepsDockIconHidden,
             .layoutSnapshotsDisabled,
+            .lockHiddenItems,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
             .autoZenWhileSharingScreen,
@@ -405,6 +409,7 @@ nonisolated extension Defaults.Key {
     /// never sets it. The debug defaults stay on this Mac as well.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
+        .lockHiddenItems,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
     ]

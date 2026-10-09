@@ -1401,6 +1401,34 @@
         }
       }
     },
+    "Ask for Touch ID or your password before showing hidden items" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor dem Anzeigen ausgeblendeter Objekte nach Touch ID oder Passwort fragen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demander Touch ID ou votre mot de passe avant d’afficher les éléments masqués"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiedi Touch ID o la password prima di mostrare gli elementi nascosti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dumandar Touch ID u il pled-clav avant che mussar ils elements zuppads"
+          }
+        }
+      }
+    },
     "Automatic moves are paused" : {
       "localizations" : {
         "de" : {
@@ -9325,6 +9353,34 @@
         }
       }
     },
+    "Show your hidden menu bar items" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine ausgeblendeten Menüleistenobjekte anzeigen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher vos éléments masqués de la barre des menus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra gli elementi nascosti della barra dei menu"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar tes elements zuppads da la trav da menu"
+          }
+        }
+      }
+    },
     "Shows a hidden item in the menu bar and opens its menu under it. Off, the menu opens without showing the item." : {
       "localizations" : {
         "de" : {
@@ -10273,6 +10329,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quest datoteca n’è nagin profil holzBar."
+          }
+        }
+      }
+    },
+    "This keeps someone at your unlocked Mac from seeing your hidden items. Turning it off asks too. It is not protection against someone who knows your password." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das hindert jemanden an deinem entsperrten Mac daran, deine ausgeblendeten Objekte zu sehen. Auch das Ausschalten fragt nach. Es schützt nicht vor jemandem, der dein Passwort kennt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cela empêche une personne devant votre Mac déverrouillé de voir vos éléments masqués. La désactivation demande aussi une authentification. Cela ne protège pas contre quelqu’un qui connaît votre mot de passe."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impedisce a chi si trova davanti al tuo Mac sbloccato di vedere gli elementi nascosti. Anche disattivarlo richiede l’autenticazione. Non protegge da chi conosce la tua password."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quai impedescha ad insatgi vid tes Mac debloccà da vesair tes elements zuppads. Er il deactivar dumonda. Quai na protegia betg cunter insatgi che enconuscha tes pled-clav."
           }
         }
       }

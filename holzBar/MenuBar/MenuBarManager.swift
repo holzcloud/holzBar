@@ -566,7 +566,7 @@ final class MenuBarManager {
         else {
             return
         }
-        section.show()
+        section.show(bypassingLock: true)
         Task { [weak self] in
             try? await Task.sleep(for: .seconds(5))
             guard let self, let appState = self.appState, !section.isHidden else {

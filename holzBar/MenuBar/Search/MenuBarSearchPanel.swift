@@ -111,6 +111,14 @@ final class MenuBarSearchPanel: NSPanel {
             return
         }
 
+        // The search lists the hidden items, so it asks as showing them does.
+        if appState.hiddenItemsLock.requiresAuthentication {
+            appState.hiddenItemsLock.authenticate { [weak self] in
+                self?.show(on: screen)
+            }
+            return
+        }
+
         guard let screen = screen ?? defaultScreen else {
             Logger.default.error("Missing screen for search panel")
             return

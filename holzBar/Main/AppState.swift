@@ -74,6 +74,9 @@ final class AppState {
     /// Rules that show hidden items when something happens.
     let revealRules = RevealRules()
 
+    /// The lock that asks for Touch ID or the password before hidden items are shown.
+    let hiddenItemsLock = HiddenItemsLock()
+
     /// The history of the layout: snapshots to go back to.
     let snapshots = LayoutSnapshots()
 
@@ -200,6 +203,7 @@ final class AppState {
         itemIconStore.performSetup(with: self)
         profiles.performSetup(with: self)
         snapshots.performSetup(with: self)
+        hiddenItemsLock.performSetup(with: self)
         itemGroups.performSetup(with: self)
         spacers.performSetup()
         revealRules.performSetup(with: self)
