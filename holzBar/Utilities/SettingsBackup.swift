@@ -146,12 +146,44 @@ enum SettingsBackup {
                 guard await alert.present(attachedTo: window) == .alertFirstButtonReturn else {
                     return
                 }
+                let arrangementBefore = arrangement()
                 apply(settings, removesMissingKeys: true)
                 logger.notice("Imported settings from \(url.path(percentEncoded: false), privacy: .private)")
+                // The imported arrangement and profiles are the user's change, recorded as intents for the entries
+                // that differ (what the file removes becomes the explicit visible section, or a deletion); every
+                // other imported setting is captured by diff. Both are persisted before the relaunch (D-04).
+                recordArrangementChange(from: arrangementBefore, to: arrangement())
+                AppState.current?.settingsSync.finishImport()
                 relaunch()
             } catch {
                 await show(error, message: String(localized: "The settings could not be imported."), attachedTo: window)
             }
+        }
+    }
+
+    /// The macOS 27 arrangement and the synced values of the stored profiles, as the units `l27` and `prof` hold
+    /// them; `nil` before macOS 27, which neither authors nor changes them.
+    private static func arrangement() -> (layout: [String: SyncValue], profiles: [String: SyncValue])? {
+        guard #available(macOS 27.0, *) else {
+            return nil
+        }
+        let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
+        return (LayoutProfiles.syncSections(stored), LayoutProfiles.syncValues(from: Defaults.data(forKey: .layoutProfiles)))
+    }
+
+    /// Sends the intents of what an import changed in the arrangement and in the profiles. With no host, nothing
+    /// is recorded.
+    private static func recordArrangementChange(
+        from before: (layout: [String: SyncValue], profiles: [String: SyncValue])?,
+        to after: (layout: [String: SyncValue], profiles: [String: SyncValue])?
+    ) {
+        guard let before, let after, let sync = AppState.current?.settingsSync else {
+            return
+        }
+        let intents = SyncLayout27.layoutIntents(old: before.layout, new: after.layout)
+            + SyncLayout27.profileIntents(old: before.profiles, new: after.profiles)
+        if !intents.isEmpty {
+            sync.recordIntent(.userSet(intents))
         }
     }
 

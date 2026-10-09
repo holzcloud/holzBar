@@ -105,6 +105,11 @@ final class LayoutProfiles {
     /// Receives the changes of the active Space.
     @ObservationIgnored private var spaceTask: Task<Void, Never>?
 
+    /// The synced values of the profiles (`prof/<profileID>`) as of the last load or save, by profile ID. A save
+    /// compares its new values with these, so what changed becomes one intent for exactly those profiles (D-05).
+    /// Empty before macOS 27, which neither authors nor changes a profile's synced fields.
+    @ObservationIgnored private var syncedValues: [String: SyncValue] = [:]
+
     func performSetup(with appState: AppState) {
         self.appState = appState
         load()
@@ -172,15 +177,56 @@ final class LayoutProfiles {
             profiles = decoded.sorted(by: Self.areInOrder)
         }
         currentProfileName = Defaults.string(forKey: .currentLayoutProfile)
+        // What is stored at launch is the baseline: a launch records no intent.
+        syncedValues = Self.syncValues(from: Defaults.data(forKey: .layoutProfiles))
     }
 
+    /// The `prof` unit value of each stored profile, by profile ID: its name and its macOS 27 part, which are
+    /// the fields of a profile that sync (D-05). Empty before macOS 27 and for data that holds no profiles.
+    static func syncValues(from data: Data?) -> [String: SyncValue] {
+        guard
+            #available(macOS 27.0, *),
+            let data,
+            let decoded = try? JSONDecoder().decode([LayoutProfile].self, from: data)
+        else {
+            return [:]
+        }
+        return syncValues(of: decoded)
+    }
+
+    /// The `prof` unit value of each of the profiles, by profile ID; the first of two profiles with one ID counts,
+    /// as in the snapshot of the defaults.
+    private static func syncValues(of profiles: [LayoutProfile]) -> [String: SyncValue] {
+        var values: [String: SyncValue] = [:]
+        for profile in profiles where values[profile.profileID] == nil {
+            values[profile.profileID] = SyncLayout27.profileValue(
+                name: profile.name,
+                applicationSections: profile.applicationSections,
+                knownApplications: profile.knownApplications
+            )
+        }
+        return values
+    }
+
+    /// Stores the profiles and the current one. On macOS 27 it sends the user's change of the profiles' synced
+    /// fields as one intent, so saving, renaming, deleting and undoing a profile follow one rule; a bind, an
+    /// unbind, a change of the current profile and any save on macOS 26 change no synced field and send nothing.
     private func save() {
         profiles.sort(by: Self.areInOrder)
-        if let data = try? JSONEncoder().encode(profiles) {
-            Defaults.set(data, forKey: .layoutProfiles)
+        let encoded = try? JSONEncoder().encode(profiles)
+        if let encoded {
+            Defaults.set(encoded, forKey: .layoutProfiles)
         }
         Defaults.set(currentProfileName, forKey: .currentLayoutProfile)
-        // Profiles are part of what iCloud sync carries.
+        if #available(macOS 27.0, *), encoded != nil {
+            let values = Self.syncValues(of: profiles)
+            let intents = SyncLayout27.profileIntents(old: syncedValues, new: values)
+            syncedValues = values
+            if !intents.isEmpty {
+                appState?.settingsSync.recordIntent(.userSet(intents))
+            }
+        }
+        // The defaults changed; the engine looks at everything but the profiles, which it learns of by intent.
         appState?.settingsSync.settingsDidChange()
     }
 
@@ -324,7 +370,16 @@ final class LayoutProfiles {
                     knownApplications: profile.knownApplications.map(Set.init),
                     to: stored.compactMapValues(MacOS27Section.init(rawValue:))
                 )
-                Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
+                let applied = layout.mapValues(\.rawValue)
+                Defaults.set(applied, forKey: .macOS27Layout)
+                // A profile the user applies is the user's arrangement: one intent for each application whose
+                // section it changes, as explicit values. One a Space or a display applied is not (D-04).
+                if byUser {
+                    let intents = SyncLayout27.layoutIntents(old: Self.syncSections(stored), new: Self.syncSections(applied))
+                    if !intents.isEmpty {
+                        appState.settingsSync.recordIntent(.userSet(intents))
+                    }
+                }
             }
             appState.concealer27.update()
             Task {
@@ -345,10 +400,10 @@ final class LayoutProfiles {
         }
     }
 
-    /// Replaces all profiles, for example with the ones from another Mac.
-    func replaceProfiles(with profiles: [LayoutProfile]) {
-        self.profiles = profiles
-        save()
+    /// The stored sections as the values of the units `l27/<bundleID>`; an application without an entry is not in it,
+    /// which the intent helpers read as visible.
+    static func syncSections(_ stored: [String: Int]) -> [String: SyncValue] {
+        stored.mapValues { .integer(Int64($0)) }
     }
 
     /// Renames a profile. Its ID, and with it its hotkey and bindings, stay. A name that
