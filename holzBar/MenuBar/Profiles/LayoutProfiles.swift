@@ -219,12 +219,6 @@ final class LayoutProfiles {
         }
     }
 
-    /// Replaces all profiles, for example with the ones from another Mac.
-    func replaceProfiles(with profiles: [LayoutProfile]) {
-        self.profiles = profiles
-        save()
-    }
-
     /// Renames a profile; its hotkey moves with it. A name that another profile has is
     /// refused.
     func rename(_ profile: LayoutProfile, to newName: String) {
