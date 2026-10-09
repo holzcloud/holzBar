@@ -27,12 +27,12 @@ See: .planning/PROJECT.md (updated 2026-10-02)
 
 ## Current Position
 
-Milestone: 0.0.7 "Automation" (planned, not started); 0.0.6 is released (stable)
-Phase: 8 of 14 (Triggers), next to plan
-Status: Competitor research (`research/COMPETITORS.md`), 65 requirements, roadmap phases 8 to 27, phase outlines and the user's first 11 decisions are written. Phase list: 8 Triggers (Focus-filter spike first; the milestone is held if it fails), 9 Layout snapshots, 10 Item conditional visibility, 11 Scripts, 12 Widgets, 13 AppleScript dictionary, 14 Command palette, 15 Share profiles, 16 First-launch clean-up assistant, 17 Local usage suggestions, 18 Lock hidden items, 19 Smooth show and hide, 20 Copy diagnostics, 21 Accessibility showcase, 22 macOS 27 native overflow button, 23 Liquid Glass follows transparency, 24 SwiftUI reorder spike, 25 Control Center control (optional), 26 Swift 6.4 adoption, 27 Release 0.0.7-beta1 (one beta at the end). Open design questions 12 to 35 are indexed in `research/AUTOMATION-QUESTIONS.md`. Next: `/gsd-plan-phase 8`, starting with the Focus-filter spike on the user's macOS 26 and 27.
-Last activity: 2026-10-04 — Automation milestone planned
+Milestone: 0.0.7 (bugfix release): Phase 28 "Settings sync redesign", plus the macOS 27 overflow button and Reduce Transparency items. Features moved to 0.0.8 and 0.0.9 (decisions: `research/features/DECISIONS.md`); optional all-in-one modules planned for 1.0.0 (`research/features/MODULES-DECISIONS.md`).
+Phase: 28 of 28, plans 01 to 13 executed (12 complete, plan 28-13 gate G1 not yet passed and being closed), plans 28-14 to 28-18 open.
+Status: Settings sync stays paused (`SettingsSyncPause.isPaused = true`) until G1 passes and plan 28-18 flips it last. The simulator, the engine and the A1/A2/D3/J catalogue exist as tests; the app adapter and host are not built yet (28-14 onward).
+Last activity: 2026-10-09 — plan 28-13 closed with G1 open; 28-14 (app adapter) and the G1 closure run in parallel.
 
-Progress: [█████████████░░░░░░░░░░░░░░░] 13 of 33 phases (milestone 0.0.7: 0 of 20)
+Progress: plans 12 of 18 in phase 28
 
 ## Performance Metrics
 
