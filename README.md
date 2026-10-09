@@ -121,9 +121,9 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 
 ## 🔜 Planned next
 
-**None of this is available yet.** Plans can change; *spike* = only built if a short test shows it works well.
+**Apart from the 0.0.7 parts marked as in 0.0.7-beta3, none of this is available yet.** Plans can change; *spike* = only built if a short test shows it works well.
 
-**0.0.7 is a bugfix release.** It is published as numbered betas first. It brings native macOS 27 overflow button support and glass that follows Reduce Transparency, and no new features. It has no settings sync; that is planned for 1.0.0.
+**0.0.7 is a bugfix release** and adds no new features. It is published as numbered betas first. **In 0.0.7-beta3** (a pre-release): settings sync is removed from the app (a redesigned sync is planned for 1.0.0; Export… and Import… stay), and System Glass and the holzBar Shelf follow Reduce Transparency and Increase Contrast, drawn opaque with a border while either is on. macOS has no public API for the macOS 27 Liquid Glass slider, so holzBar cannot follow that. The Reduce Transparency treatment has not yet been checked on real macOS 26 and 27 systems. **Native macOS 27 overflow button support** is not in beta 3 and follows in a later 0.0.7 beta.
 
 **0.0.8 "Automation"** brings the first set of new features:
 

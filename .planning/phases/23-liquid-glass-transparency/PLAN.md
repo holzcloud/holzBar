@@ -1,6 +1,6 @@
 ---
 phase: 23-liquid-glass-transparency
-status: planned (outline; spike first; run /gsd-plan-phase 23)
+status: planned (3 plans: 23-01 spike, 23-02 Reduce Transparency and Increase Contrast, 23-03 docs and UAT; this file is the outline and decision record)
 requirements: [M27-03, M27-04]
 depends_on: Phase 7; feeds Phase 21 (Reduce Transparency checks)
 ---
