@@ -5,6 +5,7 @@ on:
     paths-ignore:
       - "**/*.md"
       - "docs/**"
+      - ".planning/**"
       - "Resources/Screenshots/**"
       - "Resources/Logo/**"
       - "LICENSE"

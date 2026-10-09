@@ -70,20 +70,21 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 
 ### All alternatives at a glance
 
-Facts from each project's own page or repository (October 2026). — means not stated there.
+Researched on 9 October 2026 from each project's own pages, repositories and listings. The [full comparison](docs/alternatives.md) answers 30 questions for 11 apps.
 
 | App | Price | Open source | macOS | Good to know |
 |---|---|:---:|---|---|
 | **holzBar** | free | ✅ GPL-3.0 | 14 – 27 | never online, no dependencies; Homebrew |
-| [**Bartender 7**](https://www.macbartender.com/Bartender7/) | paid (one-time; Pro yearly; Mega Supporter lifetime) | ❌ | 27 (Bartender 6: 14 – 26) | triggers, widgets, AppleScript, Shortcuts; works without Screen Recording; sold to another company in 2024 |
-| [**Ice**](https://github.com/jordanbaird/Ice) | free | ✅ GPL-3.0 | 14+, not 27 | the original; Sparkle update checks |
-| [**Thaw**](https://github.com/thaw-app/Thaw) | free | ✅ GPL-3.0 | 26+ | broadest triggers and scripts; 20 languages; Sparkle |
-| [**SaneBar**](https://github.com/sane-apps/SaneBar) | free | ✅ MIT | 14+, Apple Silicon only | profiles, schedules, Touch ID lock, AppleScript; update checks and anonymous counts |
-| [**Vanilla**](https://matthewpalmer.net/vanilla) | free; Pro $10 once | ❌ | Catalina+ | simple, fluid animations, can hide desktop icons |
-| [**Hidden Bar**](https://github.com/dwarvesf/hidden) | free | ✅ MIT | 13+ | tiny and simple; no groups or spacing; Mac App Store |
-| [**Dozer**](https://github.com/Mortennn/Dozer) | free | ✅ MPL-2.0 | — | simple hider; macOS 26 support not stated |
-| [**Barbee**](https://apps.apple.com/app/id1548711022) | free; lifetime $12.99 or $4.99/year | ❌ | 11+ | 20 languages; a reviewer found its permission requests broad |
-| **iBar** | paid (in-app) | ❌ | — | floating bar below the notch |
+| [**Bartender 7**](https://www.macbartender.com/Bartender7/) | paid | ❌ | 27 (Bartender 6: 26 and 15) | triggers, widgets, AppleScript, Shortcuts; Screen Recording optional |
+| [**Ice**](https://github.com/jordanbaird/Ice) | free | ✅ GPL-3.0 | 14+, not 27 | the original; last stable release October 2025, looks unmaintained |
+| [**Thaw**](https://github.com/thaw-app/Thaw) | free | ✅ GPL-3.0 | 26+ (3.0 beta: 27) | broadest triggers and scripts; 20 languages; Sparkle |
+| [**SaneBar**](https://github.com/sane-apps/SaneBar) | free | ✅ MIT | 14 – 26, Apple Silicon | **sunset on 30 June 2026**; profiles, Touch ID lock, AppleScript; sends anonymous event counts |
+| [**Tuck**](https://usetuck.com) | free; Pro $14.99 | ❌ | 14 – 27 | Shelf, rules per app; updated 6 October 2026 |
+| [**Barbee**](https://apps.apple.com/app/id1548711022) | free; lifetime $12.99 | ❌ | 11+ | profiles, cloud sync, 20 languages; needs Screen Recording |
+| [**Hidden Bar**](https://github.com/dwarvesf/hidden) | free | ✅ MIT | 13+ | tiny; hides per app on macOS 27; the App Store build cannot hide there |
+| [**Dozer**](https://github.com/Mortennn/Dozer) | free | ✅ MPL-2.0 | — | Intel-only build; no release since 2022 |
+| **Vanilla** | free; Pro $10 | ❌ | Catalina+ | simple; animations; needs Screen Recording |
+| **iBar** | free + $2.99/yr | ❌ | 10.12+ | floating bar under the notch; Mac App Store |
 
 ## 🚀 Install
 
@@ -171,7 +172,7 @@ Details: [docs/features.md](docs/features.md#planned-next).
 
 ## 📚 More
 
-[Features and gallery](docs/features.md) · [macOS 27 notes](docs/features.md#macos-27) · [Privacy and permissions](docs/privacy-and-permissions.md) · [Troubleshooting](docs/build-and-troubleshooting.md) · [Full comparison](docs/comparison.md)
+[Features and gallery](docs/features.md) · [macOS 27 notes](docs/features.md#macos-27) · [Privacy and permissions](docs/privacy-and-permissions.md) · [Troubleshooting](docs/build-and-troubleshooting.md) · [Full comparison](docs/comparison.md) · [All alternatives](docs/alternatives.md)
 
 ## 🙏 Credits
 
