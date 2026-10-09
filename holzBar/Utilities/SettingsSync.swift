@@ -10,7 +10,7 @@ import Observation
 import os
 import OSLog
 
-/// Shows the question of the sync sheet and returns the user's answer. The sheet is plan 28-17's.
+/// Shows the question of the sync sheet and returns the user's answer (``SyncQuestionSheet``).
 @MainActor
 protocol SyncQuestionPresenting: AnyObject {
     /// Shows `question` as a sheet on `window`.
@@ -119,6 +119,10 @@ final class SettingsSync {
     /// The hint and the status lines of the sync, as the engine computes them from its state.
     private(set) var view = SyncView(hint: nil, lines: [])
 
+    /// Counts the steps of the engine, so an open question sheet can look again at whether its rows are still undecided
+    /// (``currentQuestion(of:)``) without polling: every step changes it, and nothing else does.
+    private(set) var questionRevision = 0
+
     /// What holzBar offers for settings that wait, shown in the sync settings and the holzBar menu.
     var hint: SyncHint? {
         view.hint
@@ -129,7 +133,7 @@ final class SettingsSync {
         state.map(SyncLayout27.protectedApplications(in:)) ?? []
     }
 
-    /// The sheet that shows the question; plan 28-17 sets it.
+    /// The sheet that shows the question; the app state sets it (``SyncQuestionSheet``).
     @ObservationIgnored var questionPresenter: (any SyncQuestionPresenting)?
 
     // MARK: Private state
@@ -405,6 +409,7 @@ final class SettingsSync {
         guard let state else {
             return
         }
+        questionRevision &+= 1
         let refreshed = SyncEngine.view(of: state, environment: environment())
         if view != refreshed {
             view = refreshed
@@ -1195,6 +1200,16 @@ final class SettingsSync {
         let environment = environment()
         return SyncEngine.question(for: state, scope: .mine, environment: environment)
             ?? SyncEngine.question(for: state, scope: .bystander, environment: environment)
+    }
+
+    /// The question of the kind the sheet shows, as the engine computes it from the state now; `nil` when there is none. An open
+    /// sheet compares it with its rows to see which are decided meanwhile.
+    func currentQuestion(of kind: SyncQuestionKind) -> SyncQuestion? {
+        guard let state else {
+            return nil
+        }
+        let scope: SyncQuestionScope = kind == .bystander ? .bystander : .mine
+        return SyncEngine.question(for: state, scope: scope, environment: environment())
     }
 
     /// Gives the engine the user's answer to the question.

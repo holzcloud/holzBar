@@ -167,6 +167,14 @@ enum SectionDividerStyle: Int, CaseIterable, Identifiable {
         case .chevron: "Chevron"
         }
     }
+
+    /// The text of the choice, for places that show it as a plain string (the sync sheet).
+    var title: String {
+        switch self {
+        case .noDivider: String(localized: "None")
+        case .chevron: String(localized: "Chevron")
+        }
+    }
 }
 
 // MARK: - NewItemsPlacement
@@ -201,6 +209,16 @@ enum NewItemsPlacement: Int, CaseIterable, Identifiable {
         case .visible: "Visible"
         case .hidden: "Hidden"
         case .alwaysHidden: "Always-Hidden"
+        }
+    }
+
+    /// The text of the choice, for places that show it as a plain string (the sync sheet).
+    var title: String {
+        switch self {
+        case .systemDefault: String(localized: "Where macOS puts them")
+        case .visible: String(localized: "Visible")
+        case .hidden: String(localized: "Hidden")
+        case .alwaysHidden: String(localized: "Always-Hidden")
         }
     }
 }

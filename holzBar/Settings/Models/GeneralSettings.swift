@@ -286,4 +286,13 @@ enum RehideStrategy: Int, CaseIterable, Identifiable {
         case .focusedApp: "Focused app"
         }
     }
+
+    /// The text of the choice, for places that show it as a plain string (the sync sheet).
+    var title: String {
+        switch self {
+        case .smart: String(localized: "Smart")
+        case .timed: String(localized: "Timed")
+        case .focusedApp: String(localized: "Focused app")
+        }
+    }
 }

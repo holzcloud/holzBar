@@ -21,7 +21,7 @@ struct MenuBarLayoutSettingsPane: View {
         } else {
             HolzBarForm(spacing: 20) {
                 header
-                LayoutProfilesSection(profiles: appState.profiles)
+                LayoutProfilesSection(profiles: appState.profiles, sync: appState.settingsSync)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
                 SpacersSection(spacers: appState.spacers)
                 if #available(macOS 27.0, *) {
@@ -146,10 +146,20 @@ private struct StuckOverflowWarning: View {
 /// (jordanbaird/Ice#26).
 private struct LayoutProfilesSection: View {
     var profiles: LayoutProfiles
+    var sync: SettingsSync
     @State private var isNamingProfile = false
     @State private var newProfileName = ""
     @State private var renamedProfile: LayoutProfile?
     @State private var renamedName = ""
+
+    /// Whether this Mac runs macOS 27, whose profiles and layouts sync.
+    private static var isMacOS27: Bool {
+        if #available(macOS 27.0, *) {
+            true
+        } else {
+            false
+        }
+    }
 
     /// Whether the rename alert is shown.
     private var isRenaming: Binding<Bool> {
@@ -164,18 +174,20 @@ private struct LayoutProfilesSection: View {
 
     var body: some View {
         HolzBarSection("Profiles") {
-            ForEach(profiles.profiles) { profile in
+            // The profiles this Mac can apply: before macOS 27, one that only has a macOS 27 layout would change nothing.
+            ForEach(profiles.applicableProfiles) { profile in
                 LayoutProfileRow(
                     profiles: profiles,
                     profile: profile,
-                    isCurrent: profile.name == profiles.currentProfileName
+                    isCurrent: profile.name == profiles.currentProfileName,
+                    deletesOnOtherMacs: Self.isMacOS27 && sync.isEnabled
                 ) {
                     renamedName = profile.name
                     renamedProfile = profile
                 }
             }
             HStack {
-                if profiles.profiles.isEmpty {
+                if profiles.applicableProfiles.isEmpty {
                     Text("Save the current layout as a profile, for example \u{201C}Work\u{201D} or \u{201C}Home\u{201D}.")
                         .foregroundStyle(.secondary)
                 } else {
@@ -186,6 +198,16 @@ private struct LayoutProfilesSection: View {
                 Button("Save Current Layout…") {
                     newProfileName = profiles.currentProfileName ?? ""
                     isNamingProfile = true
+                }
+            }
+            .annotation {
+                // What syncs and what stays on each Mac, once under the list and only while sync is on.
+                if sync.isEnabled {
+                    if Self.isMacOS27 {
+                        Text("Profiles and their macOS 27 layouts sync with your other Macs with macOS 27. Display and Space bindings stay on each Mac.")
+                    } else {
+                        Text("A profile's macOS 27 layout syncs between Macs with macOS 27. This Mac's macOS 26 layouts stay on this Mac.")
+                    }
                 }
             }
             .alert("Save Layout as Profile", isPresented: $isNamingProfile) {
@@ -217,6 +239,8 @@ private struct LayoutProfileRow: View {
     var profiles: LayoutProfiles
     let profile: LayoutProfile
     let isCurrent: Bool
+    /// Whether deleting the profile deletes it on the other Macs with macOS 27 too: on macOS 27 with sync on.
+    let deletesOnOtherMacs: Bool
     let rename: () -> Void
     @State private var isConfirmingDelete = false
 
@@ -247,6 +271,15 @@ private struct LayoutProfileRow: View {
         case (nil, nil):
             return nil
         }
+    }
+
+    /// The message of the delete confirmation, with one more sentence when the delete reaches the other Macs.
+    private var deleteMessage: String {
+        let message = String(localized: "The menu bar stays as it is. You can undo this with \u{2318}Z.")
+        guard deletesOnOtherMacs else {
+            return message
+        }
+        return message + " " + String(localized: "Your other Macs with macOS 27 delete it too.")
     }
 
     var body: some View {
@@ -308,7 +341,7 @@ private struct LayoutProfileRow: View {
             }
             Button("Cancel", role: .cancel) { }
         } message: {
-            Text("The menu bar stays as it is. You can undo this with \u{2318}Z.")
+            Text(deleteMessage)
         }
     }
 }

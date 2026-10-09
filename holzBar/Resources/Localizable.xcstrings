@@ -1,6 +1,34 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ (this Mac)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (dieser Mac)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (ce Mac)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (questo Mac)"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (quest Mac)"
+          }
+        }
+      }
+    },
     "%@ is unresponsive. Until it is restarted, it cannot be moved. Movement of other menu bar items may also be affected until this is resolved." : {
       "localizations" : {
         "de" : {
@@ -169,6 +197,146 @@
         }
       }
     },
+    "%@, this Mac: %@, sync folder: %@, %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, dieser Mac: %@, Abgleichordner: %@, %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, ce Mac : %@, dossier de synchronisation : %@, %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, questo Mac: %@, cartella di sincronizzazione: %@, %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, quest Mac: %@, ordinatur da sincronisaziun: %@, %@"
+          }
+        }
+      }
+    },
+    "%@: %@ (this Mac) · %@ (another Mac)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: %@ (dieser Mac) · %@ (anderer Mac)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : %@ (ce Mac) · %@ (autre Mac)"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: %@ (questo Mac) · %@ (altro Mac)"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: %@ (quest Mac) · %@ (auter Mac)"
+          }
+        }
+      }
+    },
+    "%@: Show When It Changes" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: Bei Änderung einblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : Afficher quand il change"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: Mostra quando cambia"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: Mussar, cura ch'el sa mida"
+          }
+        }
+      }
+    },
+    "%@: image" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: Bild"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : image"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: immagine"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: maletg"
+          }
+        }
+      }
+    },
+    "%@: menu bar section" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: Menüleistenbereich"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : section de la barre des menus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: sezione della barra dei menu"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: secziun da la trav da menu"
+          }
+        }
+      }
+    },
     "%lld items" : {
       "localizations" : {
         "de" : {
@@ -193,6 +361,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld elements"
+          }
+        }
+      }
+    },
+    "A Mac uses a newer holzBar. Update holzBar to sync with it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Mac verwendet ein neueres holzBar. Aktualisiere holzBar, um mit ihm abzugleichen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un Mac utilise un holzBar plus récent. Mettez holzBar à jour pour le synchroniser."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un Mac usa un holzBar più recente. Aggiorna holzBar per sincronizzarlo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Mac duvra in holzBar pli nov. Actualisescha holzBar per sincronisar cun el."
+          }
+        }
+      }
+    },
+    "A Mac with an older holzBar still uses this folder. Update holzBar there to sync with it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Mac mit einem älteren holzBar verwendet diesen Ordner noch. Aktualisiere dort holzBar, um mit ihm abzugleichen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un Mac avec un holzBar plus ancien utilise encore ce dossier. Mettez-y holzBar à jour pour le synchroniser."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un Mac con un holzBar più vecchio usa ancora questa cartella. Aggiorna lì holzBar per sincronizzarlo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Mac cun in holzBar pli vegl duvra anc quest ordinatur. Actualisescha là holzBar per sincronisar cun el."
           }
         }
       }
@@ -277,6 +501,90 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In profil cun il medem num vegn remplazzà. Applitgescha el pli tard da qua u cun holzbar://profile/<name>."
+          }
+        }
+      }
+    },
+    "A profile's macOS 27 layout syncs between Macs with macOS 27. This Mac's macOS 26 layouts stay on this Mac." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das macOS-27-Layout eines Profils wird zwischen Macs mit macOS 27 abgeglichen. Die macOS-26-Layouts dieses Macs bleiben auf diesem Mac."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La disposition macOS 27 d'un profil se synchronise entre les Mac sous macOS 27. Les dispositions macOS 26 de ce Mac restent sur ce Mac."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il layout macOS 27 di un profilo si sincronizza tra Mac con macOS 27. I layout macOS 26 di questo Mac restano su questo Mac."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La disposiziun macOS 27 d'in profil vegn sincronisada tranter Macs cun macOS 27. Las disposiziuns macOS 26 da quest Mac restan sin quest Mac."
+          }
+        }
+      }
+    },
+    "A setting from a newer holzBar can't be used here." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Einstellung aus einem neueren holzBar kann hier nicht verwendet werden."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un réglage d'un holzBar plus récent ne peut pas être utilisé ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un'impostazione di un holzBar più recente non può essere usata qui."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In parameter d'in holzBar pli nov na po betg vegnir duvrà qua."
+          }
+        }
+      }
+    },
+    "A sync file in the folder can't be read." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Abgleichdatei im Ordner kann nicht gelesen werden."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un fichier de synchronisation du dossier est illisible."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un file di sincronizzazione nella cartella non può essere letto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In datoteca da sincronisaziun en l'ordinatur na po betg vegnir legida."
           }
         }
       }
@@ -561,6 +869,34 @@
         }
       }
     },
+    "Already decided on another Mac" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereits auf einem anderen Mac entschieden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déjà décidé sur un autre Mac"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Già deciso su un altro Mac"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gia decidì sin in auter Mac"
+          }
+        }
+      }
+    },
     "Already granted in System Settings?" : {
       "localizations" : {
         "de" : {
@@ -725,6 +1061,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ina autra app ha dumandà holzBar da deactivar il modus Zen. Elements zuppads pudessan lura vegnir mussads."
+          }
+        }
+      }
+    },
+    "App icon" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App-Symbol"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icône de l'app"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icona dell'app"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simbol da l'app"
           }
         }
       }
@@ -1569,6 +1933,34 @@
         }
       }
     },
+    "Changed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geändert"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifié"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modificato"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Midà"
+          }
+        }
+      }
+    },
     "Change…" : {
       "localizations" : {
         "de" : {
@@ -1677,6 +2069,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tscherner ils parameters …"
+          }
+        }
+      }
+    },
+    "Choose a Value" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wert auswählen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir une valeur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli un valore"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tscherner ina valur"
           }
         }
       }
@@ -1817,6 +2237,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tscherner in maletg …"
+          }
+        }
+      }
+    },
+    "Choose which settings this Mac uses" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle, welche Einstellungen dieser Mac verwendet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez les réglages que ce Mac utilise"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli quali impostazioni usa questo Mac"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tscherna, tge parameters che quest Mac duvra"
           }
         }
       }
@@ -2129,6 +2577,34 @@
         }
       }
     },
+    "Custom icon" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigenes Symbol"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icône personnalisée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Icona personalizzata"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agen simbol"
+          }
+        }
+      }
+    },
     "Custom icon uses dynamic appearance" : {
       "localizations" : {
         "de" : {
@@ -2153,6 +2629,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Agen simbol cun apparientscha dinamica"
+          }
+        }
+      }
+    },
+    "Custom image" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigenes Bild"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Image personnalisée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immagine personalizzata"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maletg persunal"
           }
         }
       }
@@ -2293,6 +2797,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stizzar il profil «%@»?"
+          }
+        }
+      }
+    },
+    "Deleted" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gelöscht"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminato"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stizzà"
           }
         }
       }
@@ -3417,6 +3949,34 @@
         }
       }
     },
+    "Hotkey: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tastenkürzel: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raccourci clavier : %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbreviazione da tastiera: %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cumbinaziun da tastas: %@"
+          }
+        }
+      }
+    },
     "Hotkeys" : {
       "localizations" : {
         "de" : {
@@ -3781,30 +4341,30 @@
         }
       }
     },
-    "Keeps layout, profiles, hotkeys and appearance the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The folder's own app carries the file; holzBar never goes online. Changes from another Mac apply after a restart." : {
+    "Keeps your hotkeys, appearance and other settings the same on all your Macs through a folder they sync: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share. The menu bar arrangement and layout profiles sync only between Macs with macOS 27; on a Mac with macOS 26 they stay on that Mac. The folder's own app carries the files; holzBar never goes online. Changes from another Mac apply after a restart." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hält Layout, Profile, Tastenkürzel und Erscheinungsbild auf all deinen Macs gleich, über einen Ordner, den sie abgleichen: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing oder eine Netzwerkfreigabe. Die App des Ordners überträgt die Datei; holzBar geht nie online. Änderungen von einem anderen Mac gelten nach einem Neustart."
+            "value" : "Hält deine Tastenkürzel, das Erscheinungsbild und weitere Einstellungen auf all deinen Macs gleich, über einen Ordner, den sie abgleichen: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing oder eine Netzwerkfreigabe. Die Anordnung der Menüleiste und die Layoutprofile werden nur zwischen Macs mit macOS 27 abgeglichen; auf einem Mac mit macOS 26 bleiben sie auf diesem Mac. Die App des Ordners überträgt die Dateien; holzBar geht nie online. Änderungen von einem anderen Mac gelten nach einem Neustart."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Garde la disposition, les profils, les raccourcis et l'apparence identiques sur tous vos Mac grâce à un dossier qu'ils synchronisent : iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing ou un partage réseau. L'app du dossier transporte le fichier ; holzBar ne se connecte jamais. Les changements d'un autre Mac s'appliquent après un redémarrage."
+            "value" : "Garde vos raccourcis, l'apparence et d'autres réglages identiques sur tous vos Mac grâce à un dossier qu'ils synchronisent : iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing ou un partage réseau. La disposition de la barre des menus et les profils de disposition ne se synchronisent qu'entre des Mac avec macOS 27 ; sur un Mac avec macOS 26, ils restent sur ce Mac. L'app du dossier transporte les fichiers ; holzBar ne se connecte jamais. Les changements d'un autre Mac s'appliquent après un redémarrage."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mantiene uguali layout, profili, abbreviazioni e aspetto su tutti i tuoi Mac tramite una cartella che sincronizzano: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing o una condivisione di rete. L'app della cartella trasporta il file; holzBar non va mai online. Le modifiche da un altro Mac valgono dopo un riavvio."
+            "value" : "Mantiene uguali abbreviazioni, aspetto e altre impostazioni su tutti i tuoi Mac tramite una cartella che sincronizzano: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing o una condivisione di rete. La disposizione della barra dei menu e i profili di layout si sincronizzano solo tra Mac con macOS 27; su un Mac con macOS 26 restano su quel Mac. L'app della cartella trasporta i file; holzBar non va mai online. Le modifiche da un altro Mac valgono dopo un riavvio."
           }
         },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tegna la disposiziun, ils profils, las cumbinaziuns da tastas e l'apparientscha uguals sin tut tes Macs tras in ordinatur ch'els sincroniseschan: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing u ina partiziun da rait. L'app da l'ordinatur porta la datoteca; holzBar na va mai online. Midadas d'in auter Mac valan suenter in reaviament."
+            "value" : "Tegna tias cumbinaziuns da tastas, l'apparientscha ed ulteriurs parameters uguals sin tut tes Macs tras in ordinatur ch'els sincroniseschan: iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing u ina partiziun da rait. La disposiziun da la trav da menu e ils profils da disposiziun vegnan sincronisads mo tranter Macs cun macOS 27; sin in Mac cun macOS 26 restan els sin quest Mac. L'app da l'ordinatur porta las datotecas; holzBar na va mai online. Midadas d'in auter Mac valan suenter in reaviament."
           }
         }
       }
@@ -4057,6 +4617,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Posiziun"
+          }
+        }
+      }
+    },
+    "Low battery threshold" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schwelle für niedrigen Akkustand"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seuil de batterie faible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soglia di batteria scarica"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limita da batteria flaivla"
           }
         }
       }
@@ -4957,6 +5545,34 @@
         }
       }
     },
+    "Not set" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht festgelegt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non défini"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non impostato"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg definì"
+          }
+        }
+      }
+    },
     "Notch and Screen" : {
       "localizations" : {
         "de" : {
@@ -5065,6 +5681,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deactivà"
+          }
+        }
+      }
+    },
+    "On" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attivato"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activà"
           }
         }
       }
@@ -5629,6 +6273,90 @@
         }
       }
     },
+    "Profile “%@”: macOS 27 layout" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: Layout für macOS 27"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil « %@ » : disposition pour macOS 27"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilo «%@»: layout per macOS 27"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: disposiziun per macOS 27"
+          }
+        }
+      }
+    },
+    "Profile “%@”: name" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: Name"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil « %@ » : nom"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilo «%@»: nome"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: num"
+          }
+        }
+      }
+    },
+    "Profile “%@”: name and macOS 27 layout" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: Name und Layout für macOS 27"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil « %@ » : nom et disposition pour macOS 27"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilo «%@»: nome e layout per macOS 27"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil «%@»: num e disposiziun per macOS 27"
+          }
+        }
+      }
+    },
     "Profiles" : {
       "localizations" : {
         "de" : {
@@ -5653,6 +6381,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Profils"
+          }
+        }
+      }
+    },
+    "Profiles and their macOS 27 layouts sync with your other Macs with macOS 27. Display and Space bindings stay on each Mac." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile und ihre macOS-27-Layouts werden mit deinen anderen Macs mit macOS 27 abgeglichen. Bindungen an Displays und Spaces bleiben auf dem jeweiligen Mac."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les profils et leurs dispositions macOS 27 se synchronisent avec vos autres Mac sous macOS 27. Les liaisons aux écrans et aux Spaces restent sur chaque Mac."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I profili e i loro layout macOS 27 si sincronizzano con i tuoi altri Mac con macOS 27. I collegamenti a display e Space restano su ogni Mac."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils profils e lur disposiziuns macOS 27 vegnan sincronisads cun tes auters Macs cun macOS 27. Las colliaziuns cun ecrans e Spaces restan sin mintga Mac."
           }
         }
       }
@@ -5797,6 +6553,128 @@
         }
       }
     },
+    "Reading the sync folder…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abgleichordner wird gelesen …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lecture du dossier de synchronisation…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lettura della cartella di sincronizzazione…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesair l'ordinatur da sincronisaziun …"
+          }
+        }
+      }
+    },
+    "Reading the sync folder… (%lld files not downloaded yet)" : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Abgleichordner wird gelesen … (%lld Datei noch nicht geladen)"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Abgleichordner wird gelesen … (%lld Dateien noch nicht geladen)"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Reading the sync folder… (%lld file not downloaded yet)"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Reading the sync folder… (%lld files not downloaded yet)"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Lecture du dossier de synchronisation… (%lld fichier pas encore téléchargé)"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Lecture du dossier de synchronisation… (%lld fichiers pas encore téléchargés)"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Lettura della cartella di sincronizzazione… (%lld file non ancora scaricato)"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Lettura della cartella di sincronizzazione… (%lld file non ancora scaricati)"
+                }
+              }
+            }
+          }
+        },
+        "rm" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Lesair l'ordinatur da sincronisaziun … (%lld datoteca anc betg chargiada giu)"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Lesair l'ordinatur da sincronisaziun … (%lld datotecas anc betg chargiadas giu)"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Record" : {
       "localizations" : {
         "de" : {
@@ -5849,6 +6727,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Registrar ina cumbinaziun"
+          }
+        }
+      }
+    },
+    "Rehide interval" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intervall zum erneuten Ausblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Délai avant de masquer à nouveau"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intervallo prima di nascondere di nuovo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interval per zuppentar puspè"
           }
         }
       }
@@ -6861,6 +7767,34 @@
         }
       }
     },
+    "Setting" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellung"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réglage"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parameter"
+          }
+        }
+      }
+    },
     "Settings" : {
       "localizations" : {
         "de" : {
@@ -7617,6 +8551,34 @@
         }
       }
     },
+    "Spacer width" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breite der Abstandhalter"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Largeur des espaceurs"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Larghezza degli spaziatori"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ladezza dals distanziaders"
+          }
+        }
+      }
+    },
     "Spacers" : {
       "localizations" : {
         "de" : {
@@ -7781,6 +8743,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sincronisar qua"
+          }
+        }
+      }
+    },
+    "Sync folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abgleichordner"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dossier de synchronisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella di sincronizzazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordinatur da sincronisaziun"
           }
         }
       }
@@ -8261,30 +9251,86 @@
         }
       }
     },
-    "The sync folder holds settings from another Mac that differ from this Mac's. Using them restarts holzBar; keeping this Mac's settings replaces them in the sync folder." : {
+    "These settings differ between this Mac and the sync folder." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Der Abgleichordner enthält Einstellungen eines anderen Macs, die von denen dieses Macs abweichen. Verwendest du sie, startet holzBar neu; behältst du die Einstellungen dieses Macs, ersetzen sie jene im Abgleichordner."
+            "value" : "Diese Einstellungen unterscheiden sich zwischen diesem Mac und dem Abgleichordner."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le dossier de synchronisation contient des réglages d'un autre Mac qui diffèrent de ceux de ce Mac. Les utiliser redémarre holzBar ; garder les réglages de ce Mac les remplace dans le dossier de synchronisation."
+            "value" : "Ces réglages diffèrent entre ce Mac et le dossier de synchronisation."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La cartella di sincronizzazione contiene impostazioni di un altro Mac diverse da quelle di questo Mac. Usarle riavvia holzBar; mantenere le impostazioni di questo Mac le sostituisce nella cartella di sincronizzazione."
+            "value" : "Queste impostazioni differiscono tra questo Mac e la cartella di sincronizzazione."
           }
         },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "L'ordinatur da sincronisaziun cuntegna parameters d'in auter Mac che sa distinguan da quels da quest Mac. Sche ti als duvras, reavia holzBar; sche ti tegnas ils parameters da quest Mac, remplazzan quels ils parameters en l'ordinatur da sincronisaziun."
+            "value" : "Quests parameters sa distinguan tranter quest Mac e l'ordinatur da sincronisaziun."
+          }
+        }
+      }
+    },
+    "This Mac" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Mac"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce Mac"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo Mac"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quest Mac"
+          }
+        }
+      }
+    },
+    "This Mac's settings are too large to sync. The folder keeps the previous ones." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Einstellungen dieses Macs sind zu gross zum Abgleichen. Der Ordner behält die bisherigen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les réglages de ce Mac sont trop volumineux pour être synchronisés. Le dossier garde les précédents."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le impostazioni di questo Mac sono troppo grandi per essere sincronizzate. La cartella conserva le precedenti."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils parameters da quest Mac èn memia grands per vegnir sincronisads. L'ordinatur tegna ils precedents."
           }
         }
       }
@@ -9101,6 +10147,34 @@
         }
       }
     },
+    "Use Chosen Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gewählte Einstellungen verwenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser les réglages choisis"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa le impostazioni scelte"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duvrar ils parameters tschernids"
+          }
+        }
+      }
+    },
     "Use Settings from Sync Folder" : {
       "localizations" : {
         "de" : {
@@ -9297,6 +10371,62 @@
         }
       }
     },
+    "Using the sync folder's settings restarts holzBar." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwendest du die Einstellungen des Abgleichordners, startet holzBar neu."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser les réglages du dossier de synchronisation redémarre holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usare le impostazioni della cartella di sincronizzazione riavvia holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sche ti duvras ils parameters da l'ordinatur da sincronisaziun, reavia holzBar."
+          }
+        }
+      }
+    },
+    "Value to use for %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu verwendender Wert für %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valeur à utiliser pour %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valore da usare per %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valur da duvrar per %@"
+          }
+        }
+      }
+    },
     "Version %@" : {
       "localizations" : {
         "de" : {
@@ -9377,6 +10507,100 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Elements visibels che la notch cuvra, per exempel davos in lung menu d'app, cumparan era en il holzBar Shelf."
+          }
+        }
+      }
+    },
+    "Waiting for %lld files in the sync folder to download." : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Warte darauf, dass %lld Datei im Abgleichordner geladen wird."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Warte darauf, dass %lld Dateien im Abgleichordner geladen werden."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Waiting for %lld file in the sync folder to download."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Waiting for %lld files in the sync folder to download."
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "En attente du téléchargement de %lld fichier du dossier de synchronisation."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "En attente du téléchargement de %lld fichiers du dossier de synchronisation."
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "In attesa del download di %lld file nella cartella di sincronizzazione."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "In attesa del download di %lld file nella cartella di sincronizzazione."
+                }
+              }
+            }
+          }
+        },
+        "rm" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Spetgar che %lld datoteca da l'ordinatur da sincronisaziun vegnia chargiada giu."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Spetgar che %lld datotecas da l'ordinatur da sincronisaziun vegnian chargiadas giu."
+                }
+              }
+            }
           }
         }
       }
@@ -9549,6 +10773,212 @@
         }
       }
     },
+    "You changed these settings on this Mac, and they were changed differently on another Mac. Your other settings stay as they are on all your Macs." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du hast diese Einstellungen auf diesem Mac geändert, und sie wurden auf einem anderen Mac anders geändert. Deine übrigen Einstellungen bleiben auf all deinen Macs, wie sie sind."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous avez modifié ces réglages sur ce Mac, et ils ont été modifiés différemment sur un autre Mac. Vos autres réglages restent tels quels sur tous vos Mac."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hai modificato queste impostazioni su questo Mac e sono state modificate in modo diverso su un altro Mac. Le altre impostazioni restano invariate su tutti i tuoi Mac."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ti has midà quests parameters sin quest Mac, ed els èn vegnids midads differentamain sin in auter Mac. Tes auters parameters restan sco ch'els èn sin tut tes Macs."
+          }
+        }
+      }
+    },
+    "Your custom holzBar icon is too large to sync." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein eigenes holzBar-Symbol ist zu gross zum Abgleichen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre icône personnalisée de holzBar est trop grande pour être synchronisée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tua icona personalizzata di holzBar è troppo grande per essere sincronizzata."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes agen simbol da holzBar è memia grond per vegnir sincronisà."
+          }
+        }
+      }
+    },
+    "Your other Macs changed these settings differently. Choose which value to use on all your Macs." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine anderen Macs haben diese Einstellungen unterschiedlich geändert. Wähle, welcher Wert auf all deinen Macs gelten soll."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos autres Mac ont modifié ces réglages différemment. Choisissez la valeur à utiliser sur tous vos Mac."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tuoi altri Mac hanno modificato queste impostazioni in modo diverso. Scegli quale valore usare su tutti i tuoi Mac."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes auters Macs han midà quests parameters differentamain. Tscherna tge valur che duai valair sin tut tes Macs."
+          }
+        }
+      }
+    },
+    "Your other Macs differ on %lld settings" : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Deine anderen Macs unterscheiden sich bei %lld Einstellung"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Deine anderen Macs unterscheiden sich bei %lld Einstellungen"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Your other Macs differ on %lld setting"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Your other Macs differ on %lld settings"
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Vos autres Mac diffèrent sur %lld réglage"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Vos autres Mac diffèrent sur %lld réglages"
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "I tuoi altri Mac differiscono per %lld impostazione"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "I tuoi altri Mac differiscono per %lld impostazioni"
+                }
+              }
+            }
+          }
+        },
+        "rm" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Tes auters Macs sa distinguan tar %lld parameter"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Tes auters Macs sa distinguan tar %lld parameters"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Your other Macs with macOS 27 delete it too." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine anderen Macs mit macOS 27 löschen es ebenfalls."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos autres Mac sous macOS 27 le suppriment aussi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anche i tuoi altri Mac con macOS 27 lo eliminano."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er tes auters Macs cun macOS 27 al stizzan."
+          }
+        }
+      }
+    },
     "Zen Mode" : {
       "localizations" : {
         "de" : {
@@ -9660,6 +11090,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "da Jordan Baird"
+          }
+        }
+      }
+    },
+    "changed on %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "geändert am %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "modifié le %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "modificato il %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "midà ils %@"
           }
         }
       }
@@ -10055,6 +11513,100 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar na sa collia mai cun la rait."
+          }
+        }
+      }
+    },
+    "holzBar skipped %lld sync files in the folder because there are too many." : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar hat %lld Abgleichdatei im Ordner übersprungen, weil es zu viele sind."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar hat %lld Abgleichdateien im Ordner übersprungen, weil es zu viele sind."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar skipped %lld sync file in the folder because there are too many."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar skipped %lld sync files in the folder because there are too many."
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar a ignoré %lld fichier de synchronisation du dossier, car il y en a trop."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar a ignoré %lld fichiers de synchronisation du dossier, car il y en a trop."
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar ha saltato %lld file di sincronizzazione nella cartella perché sono troppi."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar ha saltato %lld file di sincronizzazione nella cartella perché sono troppi."
+                }
+              }
+            }
+          }
+        },
+        "rm" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar ha ignorà %lld datoteca da sincronisaziun en l'ordinatur, perquai ch'i dat memia blers."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "holzBar ha ignorà %lld datotecas da sincronisaziun en l'ordinatur, perquai ch'i dat memia blers."
+                }
+              }
+            }
           }
         }
       }
