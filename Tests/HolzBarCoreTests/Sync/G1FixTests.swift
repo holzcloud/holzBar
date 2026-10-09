@@ -252,6 +252,31 @@ struct G1FixTests {
         #expect(after.outcomes[Fixtures.s1] == .conflict(mine: true))
     }
 
+    @Test("Nothing is minted while a join waits: a quit with a changed setting leaves the replica, the counter and the file as they were")
+    func nothingIsMintedWhileAJoinWaits() throws {
+        // An enabled Mac that moves to another folder is joining it: the join decides against the state as it is, and what the user
+        // changes meanwhile is captured once the join is decided (the diff against the baseline loses nothing). A capture before that
+        // would mint an entry that the join's own decision (a founding, a fast-forward, a question) does not know of.
+        var state = Fixtures.state()
+        state.baseline[Fixtures.s1] = SyncValue.string("old").digest
+        state.session.isTrusted = true
+        state.session.ownFile = .absent
+        state.session.snapshot = Fixtures.snapshot([Fixtures.s1: .string("old")])
+        let started = SyncEngine.handle(.command(.changeFolder("F2")), state: state, environment: Fixtures.environment())
+        try #require(started.state.pendingJoin != nil)
+        let step = SyncEngine.handle(.quit(Fixtures.snapshot([Fixtures.s1: .string("new")])), state: started.state, environment: Fixtures.environment())
+        #expect(step.state.replica == started.state.replica)
+        #expect(step.state.replica.live(Fixtures.s1).isEmpty)
+        #expect(step.state.counter == started.state.counter)
+        #expect(step.state.baseline[Fixtures.s1] == SyncValue.string("old").digest)
+        #expect(!step.effects.contains { if case .writeOwnFile = $0 { true } else { false } })
+        // After the join is decided the change is still there to be captured.
+        var decided = step.state
+        decided.pendingJoin = nil
+        let captured = SyncCapture.capture(Fixtures.snapshot([Fixtures.s1: .string("new")]), state: decided, environment: Fixtures.environment())
+        #expect(captured.replica.live(Fixtures.s1).contains { $0.payload == .value(.string("new")) && $0.dot.mac == macA })
+    }
+
     // MARK: Intents
 
     @Test("A change of the macOS 27 arrangement made while sync is off waits in the state, one change per unit")

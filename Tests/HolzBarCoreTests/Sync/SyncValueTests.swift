@@ -23,6 +23,21 @@ struct SyncValueTests {
         #expect(SyncValue.dictionary(forward).digest == SyncValue.dictionary(backward).digest)
     }
 
+    @Test("Dictionaries digest equal whatever order they iterate in: the same keys at another capacity iterate in another order")
+    func digestIgnoresIterationOrder() {
+        // The order a dictionary iterates in follows the hash of each key modulo its capacity, so the same keys held at another capacity
+        // come out in another order (and every process hashes with its own seed). Equal digests need the sort of the keys.
+        let keys = (0..<64).map { "key\($0)" }
+        var small: [String: SyncValue] = [:]
+        var large = [String: SyncValue](minimumCapacity: 8_192)
+        for key in keys {
+            small[key] = .integer(Int64(key.count))
+            large[key] = .integer(Int64(key.count))
+        }
+        #expect(Array(small.keys) != Array(large.keys), "the two dictionaries iterate in different orders")
+        #expect(SyncValue.dictionary(small).digest == SyncValue.dictionary(large).digest)
+    }
+
     @Test("An integer, a real number and a boolean digest differently")
     func digestSeparatesTypes() {
         let digests: Set<SyncDigest> = [
