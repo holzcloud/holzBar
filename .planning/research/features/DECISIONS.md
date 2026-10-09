@@ -20,6 +20,7 @@ Decided by the maintainer, one by one, after the research in BARTENDER.md, ALTER
 - New: works without Screen Recording (app icons instead of live snapshots, Bartender 7)
 - New: keep system items (Clock, Wi-Fi, Battery) pinned visible (OverflowBar)
 - New: more menu bar styles, pills, outlines, gradients (limited on macOS 27)
+- New (added 2026-10-09): move icons directly in the menu bar by drag and drop, without Command, across the divider and to reorder visible items (todo `2026-10-09-drag-icons-in-the-menu-bar.md`; spike on macOS 26 and 27 first)
 
 ## 0.0.9
 - Widgets: text from permission-free sources, Shortcut button (Phase 12)
