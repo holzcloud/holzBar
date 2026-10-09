@@ -12,19 +12,7 @@ struct HolzBarGroupBox<Header: View, Content: View, Footer: View>: View {
     private let padding: EdgeInsets
 
     private var backgroundShape: some InsettableShape {
-        if #available(macOS 26.0, *) {
-            RoundedRectangle(cornerRadius: 11, style: .continuous)
-        } else {
-            RoundedRectangle(cornerRadius: 7, style: .circular)
-        }
-    }
-
-    private var borderStyle: some ShapeStyle {
-        if #available(macOS 26.0, *) {
-            AnyShapeStyle(Color.clear)
-        } else {
-            AnyShapeStyle(Color.primary.quaternary)
-        }
+        HolzBarTheme.shape(HolzBarTheme.Radius.card)
     }
 
     init(
@@ -171,8 +159,13 @@ struct HolzBarGroupBox<Header: View, Content: View, Footer: View>: View {
                 .padding(padding)
                 .background {
                     backgroundShape
-                        .fill(Color.primary.quinary)
-                        .strokeBorder(borderStyle)
+                        .fill(HolzBarTheme.Palette.groundElevated)
+                        .overlay {
+                            backgroundShape.strokeBorder(
+                                HolzBarTheme.Palette.stroke,
+                                lineWidth: HolzBarTheme.Spacing.hairline
+                            )
+                        }
                 }
                 .containerShape(backgroundShape)
 
