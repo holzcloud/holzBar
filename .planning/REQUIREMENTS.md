@@ -240,7 +240,7 @@ Backlog, not planned (listed in `ROADMAP.md`): hide desktop icons (DESK-01 was d
 - [ ] **M27-01**: On macOS 27 a pure `NativeOverflowState` (none, collapsed, expanded, unknown) is derived from two agreeing facts about the system overflow button and the folded items, recomputed in the existing observer passes with no new timer; macOS 14 to 26 code is untouched
 - [ ] **M27-02**: While the state is expanded the Shelf omits the items macOS shows; in every other state, including unknown, it lists covered items as today (fail safe); the existing switch "Show items covered by the notch" keeps working
 - [ ] **M27-03**: With Reduce Transparency or Increase Contrast on, the glass tint and the Shelf become opaque with a visible border and change live (observed through `NSWorkspace.accessibilityDisplayOptionsDidChangeNotification` only while used), with no private API
-- [ ] **M27-04**: The Liquid Glass slider is followed only if the spike finds a public signal for it; otherwise the spike note records that it cannot be and the README says only Reduce Transparency is followed
+- [x] **M27-04**: The Liquid Glass slider is followed only if the spike finds a public signal for it; otherwise the spike note records that it cannot be and the README says only Reduce Transparency is followed
 - [ ] **M27-05**: The SwiftUI reordering spike checks less code, accessibility parity, behaviour parity, cost and appearance; the Layout pane changes only if the result is clearly better, behind `#available`, otherwise the phase is dropped and recorded
 - [ ] **M27-06**: A go/no-go spike decides whether a Control Widget extension works for the self-signed, non-sandboxed app with no App Group, no network, no extra entitlement besides the sandbox if macOS demands it, an unchanged XPC peer set and at most 1 MB more size; otherwise the phase is dropped and recorded
 - [ ] **M27-07**: On go: Toggle Zen Mode and Apply Profile controls (stateless buttons whose intents run in the app), gated like the hotkeys, signed inside-out in the release workflow, with the control's menu bar item classified by holzBar
@@ -436,7 +436,7 @@ Backlog, not planned (listed in `ROADMAP.md`): hide desktop icons (DESK-01 was d
 | M27-01 | Phase 22 | Planned (spike first) |
 | M27-02 | Phase 22 | Planned |
 | M27-03 | Phase 23 | Planned |
-| M27-04 | Phase 23 | Planned (only if a public signal exists) |
+| M27-04 | Phase 23 | Complete (not applicable: no public signal, see 23-01-SPIKE.md) |
 | M27-05 | Phase 24 | Planned (spike; drop if not clearly better) |
 | M27-06 | Phase 25 | Planned (go/no-go spike) |
 | M27-07 | Phase 25 | Planned (only on go) |
