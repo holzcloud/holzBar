@@ -1,15 +1,15 @@
 //
-//  ModuleGalleryView.swift
+//  ModuleListView.swift
 //  holzBar
 //
 
 import SwiftUI
 
-/// The gallery of optional modules: a grid of cards, one per module, grouped by area.
+/// The list of optional modules: one glass group per area with a row per module.
 ///
-/// The view knows no module by name. What a card says comes from the closures, and the
-/// settings of a module are shown below its card only while the module is on.
-struct ModuleGalleryView<Settings: View>: View {
+/// The view knows no module by name. What a row says comes from the closures, and the
+/// settings of a module open under its row only while the module is on.
+struct ModuleListView<Settings: View>: View {
     private let modules: [ModuleDescriptor]
     private let store: ModuleStore
     private let areaTitle: (ModuleArea) -> Text
@@ -45,10 +45,6 @@ struct ModuleGalleryView<Settings: View>: View {
         self.settings = settings
     }
 
-    private let columns = [
-        GridItem(.adaptive(minimum: 300), spacing: HolzBarTheme.Spacing.md, alignment: .top),
-    ]
-
     var body: some View {
         ScrollView {
             if modules.isEmpty {
@@ -72,16 +68,23 @@ struct ModuleGalleryView<Settings: View>: View {
                 .font(HolzBarTheme.Typography.headline)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .accessibilityAddTraits(.isHeader)
-            LazyVGrid(columns: columns, spacing: HolzBarTheme.Spacing.md) {
-                ForEach(ModuleCatalog.modules(in: area, of: modules)) { module in
-                    card(for: module)
+            VStack(spacing: 0) {
+                let rows = ModuleCatalog.modules(in: area, of: modules)
+                ForEach(rows) { module in
+                    row(for: module)
+                    if module.id != rows.last?.id {
+                        Divider()
+                            .overlay(HolzBarTheme.Palette.stroke)
+                    }
                 }
             }
+            .clipShape(HolzBarTheme.shape(HolzBarTheme.Radius.card))
+            .holzBarGlass(in: HolzBarTheme.shape(HolzBarTheme.Radius.card))
         }
     }
 
-    private func card(for module: ModuleDescriptor) -> some View {
-        ModuleCard(
+    private func row(for module: ModuleDescriptor) -> some View {
+        ModuleRow(
             systemImage: module.symbol,
             title: title(module),
             summary: summary(module),
@@ -89,19 +92,15 @@ struct ModuleGalleryView<Settings: View>: View {
                 get: { store.isEnabled(module.id) },
                 set: { store.setEnabled(module.id, $0) }
             ),
-            permission: module.permission.map { permission in
-                PermissionPill(
-                    permissionText(permission),
-                    state: isPermissionGranted(permission) ? .granted : .needed
-                )
-            }
+            permission: module.permission.map(permissionText),
+            isPermissionGranted: module.permission.map(isPermissionGranted) ?? false
         ) {
             settings(module)
         }
     }
 }
 
-#Preview("ModuleGalleryView") {
+#Preview("ModuleListView") {
     let modules = [
         ModuleDescriptor(
             id: "timers",
@@ -128,7 +127,7 @@ struct ModuleGalleryView<Settings: View>: View {
             permission: nil
         ),
     ]
-    return ModuleGalleryView(
+    return ModuleListView(
         modules: modules,
         store: ModuleStore(defaults: UserDefaults(suiteName: "holzBar.preview") ?? .standard, catalog: modules),
         areaTitle: { Text(verbatim: $0.rawValue.capitalized) },
