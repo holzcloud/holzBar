@@ -378,12 +378,31 @@ extension SimSafetyOracles {
                 // A value of another Mac is out there when that Mac ran a redesigned build when it set it: what a beta1 or beta2 Mac set
                 // is in the legacy file, which holzBar reads only to found a group, so it is no value of the group's.
                 return (earlier.mac != change.mac && SimWorld.isRedesign(build: earlier.build)) || earlierWrites.contains { earlierWrite in
-                    !(world.brains[write.mac]?.heldTokens(inFile: earlierWrite.path, data: earlierWrite.data) ?? []).isDisjoint(with: earlier.tokens)
+                    guard !(world.brains[write.mac]?.heldTokens(inFile: earlierWrite.path, data: earlierWrite.data) ?? []).isDisjoint(with: earlier.tokens) else {
+                        return false
+                    }
+                    // A value that this Mac published is out there only while a file that holds it can still be read: another Mac read that
+                    // version, or the version is still what the file this write replaces holds. A file that was lost with its folder before
+                    // any Mac read it leaves nothing to delete (a join into a folder of another group, where this Mac's earlier entries are
+                    // no evidence of anything: INV-S5, seeds of the gate record).
+                    return canStillBeRead(world, earlierWrite, before: write)
                 }
             }
             if outThere { return "Mac \(write.mac) published \(write.path) without the explicit deletion of \(unit)" }
         }
         return nil
+    }
+
+    /// Whether the version `earlier` wrote is still out there when `write` is made: the file `write` replaces is that version, or a Mac
+    /// other than the writer read it.
+    private static func canStillBeRead(_ world: SimWorld, _ earlier: SimWriteRecord, before write: SimWriteRecord) -> Bool {
+        if earlier.version == write.previousVersion { return true }
+        for step in world.allSteps {
+            for hook in step.hooks {
+                for read in hook.reads where read.mac != write.mac && read.version == earlier.version { return true }
+            }
+        }
+        return false
     }
 
     // MARK: INV-S6, INV-S7

@@ -229,11 +229,30 @@ enum SimDrain {
     /// bystanders of it, which the drain does not ask.
     static func isOrphanConflict(_ world: SimWorld, _ unit: String) -> Bool {
         guard world.groundTruth.unitsWithConcurrentValues().contains(unit) else { return false }
+        if hasNoPartyThatRuns(world, unit) { return true }
         return world.groundTruth.changes.contains { change in
             change.unit == unit && change.tokens.contains { token in
                 world.groundTruth.lostToAmnesia(token: token) && world.groundTruth.isLive(token: token, unit: unit)
             }
         }
+    }
+
+    /// Whether no Mac that synchronizes made a live value of the unit's conflict. The Macs that stopped sync (Turn Off) are not asked any
+    /// more, and the Macs that remain are bystanders: they get a Settings line, not a hint or a sheet (D-10, INV-P7), and answer it only
+    /// by choosing in Settings, which the drain does not do. Until someone does, they hold what they held, which the conflict allows (a
+    /// bystander applies neither value).
+    static func hasNoPartyThatRuns(_ world: SimWorld, _ unit: String) -> Bool {
+        let truth = world.groundTruth
+        for change in truth.changes where change.unit == unit && change.kind == .user && world.macs[change.mac]?.enabled == true
+            && SimWorld.isRedesign(build: change.build) {
+            if change.tokens.contains(where: { truth.isLive(token: $0, unit: unit) }) { return false }
+            // A deletion of a Mac that still synchronizes stands until a later change that knew of it.
+            if change.tokens.isEmpty, !truth.changes.contains(where: { $0.unit == unit && $0.id > change.id && truth.knew($0, of: change) }) { return false }
+        }
+        for change in truth.changes where change.unit == unit && change.kind == .answer && world.macs[change.mac]?.enabled == true {
+            if !change.retainedTokens.isEmpty { return false }
+        }
+        return true
     }
 
     /// INV-C1: every pair of redesigned Macs agrees on every synced unit that is comparable between them.
