@@ -57,7 +57,6 @@
 
 #### Settings
 - ✅ **Export and import** all settings
-- ⏸️ **Sync between Macs** through iCloud Drive or any folder your Macs sync (Nextcloud, Dropbox, OneDrive, Syncthing, a network share) — paused in 0.0.7-beta2, returns after a redesign in the next beta ([details](#settings-sync))
 - ✅ **Imports your Ice settings** on first launch
 - ✅ **Alerts in Settings are sheets** on its window, so holzBar keeps working while one is open
 - ✅ Launch at login
@@ -66,19 +65,6 @@
 </td>
 </tr>
 </table>
-
-## Settings sync
-
-> [!NOTE]
-> **Settings sync is paused in 0.0.7-beta2.** Even reworked, it could still lose a menu bar arrangement between Macs in rare cases, so it returns after a redesign in the next beta. In 0.0.7-beta2 holzBar does not read, write, watch or mount anything in the sync folder, shows no sync question or hint, and **Settings → Advanced** shows the sync controls greyed out. The sync folder, whether sync is on and the other sync settings stay as they are, so sync can resume later. **Export…** and **Import…** still move settings between Macs. The rest of this section describes sync as it was built for 0.0.7-beta2 before the pause; the redesign may change it.
-
-- **A quiet hint, never a dialog.** Changes from another Mac wait as **Settings changed on another Mac** with **Restart**, in Settings → Advanced and at the top of holzBar's menu.
-- **holzBar asks before it replaces settings.** When both Macs changed their settings, or a Mac joins a folder that holds another Mac's different settings, the hint reads **Choose Settings…** and holzBar asks which settings to use, in a sheet on the Settings window. It never overwrites another Mac's settings unasked.
-- **The launch never waits for the cloud.** holzBar waits at most a second for the sync file and checks a file that is not on this Mac yet after launch.
-- **Each macOS version keeps its own layout.** A Mac on macOS 26 and one on macOS 27 never compare their layouts or ask about them; each passes the other's on unchanged, and settings a Mac lacks are kept.
-- **A network share is used only while it is mounted**; holzBar never mounts it itself. Until it is, Settings → Advanced shows "The sync folder cannot be found", and syncing picks up again by itself once the share is mounted.
-- **Only your changes count.** holzBar's own placement of new menu bar items never turns **Restart** into **Choose Settings…** and never shows a hint on another Mac. It is not synced by itself: it goes along with your next layout change, or with any other change of yours when no other Mac has seen the item yet. Layout changes you make (in the Layout pane, by Command-dragging, by applying a profile or by importing settings) count.
-- **A Mac that joins takes the folder's layout** for its macOS version, unless you rearranged its items since it last synced; then holzBar asks if the layouts differ. While holzBar runs, the layout arrives with a restart the hint offers.
 
 ## macOS 27
 
@@ -107,9 +93,8 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ### 0.0.7: bugfixes
 
-0.0.7 is a bugfix release and adds no new features.
+0.0.7 is a bugfix release and adds no new features. It has no settings sync; that is planned for 1.0.0.
 
-- **Settings sync** returns on a new design that cannot lose or silently overwrite a change.
 - Cooperation with macOS 27's own overflow button, so items are not shown twice.
 - Glass tint and Shelf follow Reduce Transparency (and the macOS 27 slider, if a public signal exists).
 
@@ -151,6 +136,11 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 **Polish**
 - A Control Center control to toggle Zen mode or apply a profile. *Spike, optional.*
 
+### 1.0.0
+
+- **Settings sync between your Macs** through any folder they sync (iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing, a network share), **redesigned from scratch**, designed not to lose or silently overwrite a change. It is not in 0.0.7; earlier releases carried a first version of it, which was withdrawn. Until 1.0.0, **Export…** and **Import…** move settings between Macs.
+- **Optional all-in-one modules**; the details follow closer to the release.
+
 The "holzBar vs. Ice and Thaw" table above marks these with 🔜 and the release.
 
 ## Gallery
@@ -176,9 +166,5 @@ The "holzBar vs. Ice and Thaw" table above marks these with 🔜 and the release
 <tr>
 <td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action, profile and item<br><img src="../Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys for the hidden section, the search, opening an item by letter, the layout profile home, the holzBar Shelf, app menus, auto-rehide and Zen mode, each with Record Hotkey"></td>
 <td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode, automatic reveal and settings backup<br><img src="../Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, showing hidden items when the battery is low or the network is lost, and settings Export… and Import…"></td>
-</tr>
-<tr>
-<td width="50%" valign="top"><b>Sync and permissions</b> — settings sync through any folder your Macs sync, and the state of every permission (taken before the pause: in 0.0.7-beta2 the sync controls are greyed out)<br><img src="../Resources/Screenshots/settings-advanced-sync.png" alt="holzBar settings, Advanced pane further down: showing hidden items automatically, Export… and Import…, Sync settings between your Macs with Turn On… through iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share, and Accessibility and Screen Recording both granted"></td>
-<td width="50%" valign="top"></td>
 </tr>
 </table>

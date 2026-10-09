@@ -45,7 +45,7 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 | 📦 **Zero dependencies, modern Swift** | Built with Swift 6.4 and Xcode 27, Swift 6 language mode, no third-party packages. |
 | 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. From 0.0.7-beta2, one executable with no helper process or nested code, and no entitlements, not even one that lets a debugger attach. |
 | 🔏 **Verifiable releases** | Signed with holzBar's own certificate, with GitHub build provenance and, from 0.0.7-beta2, SLSA Build Level 3 provenance. Actions pinned by commit SHA (except the SLSA generator, which must be referenced by its release tag), rated by OpenSSF Scorecard. |
-| ✨ **More features** | Profiles, folders, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, settings sync through any folder (paused in 0.0.7-beta2), a camera and microphone dot on macOS 27. |
+| ✨ **More features** | Profiles, folders, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, a camera and microphone dot on macOS 27. |
 | 🌍 **Five languages** | English, German, French, Italian and Romansh. |
 
 ## ⚖️ holzBar vs. Ice and Thaw
@@ -58,7 +58,7 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 | macOS 27 | ❌ | ✅ | ✅ |
 | Layout profiles, groups, spacers | ❌ | ✅ | ✅ |
 | Zen mode, URL commands, Shortcuts actions | ❌ | ✅ | ✅ |
-| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | ✅ <sub>paused in 0.0.7-beta2</sub> |
+| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | 🔜 1.0.0 <sub>planned, not available</sub> |
 | Network connections | Sparkle update checks | Sparkle update checks | **none** |
 | Swift packages | 5 | 10 | **none** |
 | Swift language mode | Swift 5 | Swift 6 | Swift 6 |
@@ -123,7 +123,7 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 
 **None of this is available yet.** Plans can change; *spike* = only built if a short test shows it works well.
 
-**0.0.7 is a bugfix release.** It is published as numbered betas first. It brings back settings sync on a new design (paused in 0.0.7-beta2), native macOS 27 overflow button support and glass that follows Reduce Transparency, and no new features.
+**0.0.7 is a bugfix release.** It is published as numbered betas first. It brings native macOS 27 overflow button support and glass that follows Reduce Transparency, and no new features. It has no settings sync; that is planned for 1.0.0.
 
 **0.0.8 "Automation"** brings the first set of new features:
 
@@ -141,6 +141,13 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 | ⚙️ **Automation** | **Widgets** (text from permission-free sources such as CPU, memory, battery and disk, a countdown, a Shortcut button) · **AppleScript dictionary** · **App Intents** for Shortcuts and Siri · **command palette** · a keep-awake action · a "focus mode" hotkey |
 | 🪄 **Convenience** | Opt-in **usage suggestions** (counters stay on your Mac) · **smooth show and hide** · replacement items for Apple items macOS 27 cannot hide · hiding system items such as Clock and Control Center |
 | 🪵 **Polish** | Control Center control (*spike*, optional) |
+
+**1.0.0** brings settings sync and the optional modules:
+
+| | |
+|---|---|
+| 🔄 **Settings sync** | Your settings kept in step between your Macs through any folder they sync, such as iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing or a network share; **redesigned from scratch** |
+| 🧩 **Modules** | The optional **all-in-one modules** |
 
 Details: [docs/features.md](docs/features.md#planned-next).
 

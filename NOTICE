@@ -46,7 +46,7 @@ Changes made in holzBar since forking on 2026-10-01 include:
   - Distribution through Homebrew; the Sparkle updater is removed.
   - New features: layout profiles, groups, spacers, placement of new items,
     per-display holzBar Shelf, notch overflow, black menu bar, rounded screen
-    corners, reveal rules, URL commands, settings export, import and sync.
+    corners, reveal rules, URL commands, settings export and import.
   - A new name (holzBar, bundle identifier com.holzcloud.holzBar), logo, app
     icon and menu bar icon; settings of Ice are imported on first launch.
 

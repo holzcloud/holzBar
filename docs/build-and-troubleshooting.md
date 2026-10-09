@@ -10,8 +10,6 @@
 
 **An item is listed as "Menu Bar Item" (macOS 26).** On macOS 26 every item window belongs to Control Center, so holzBar asks the running apps, off the main thread and with time limits, which item is theirs. An app that does not answer in time is asked again at a later read. Apps signed by Apple are asked first, and the first of them to claim an item gets it. An item that two other apps claim stays "Menu Bar Item", and holzBar never moves it by itself.
 
-**"The sync folder cannot be found."** If the sync folder is on a network share, holzBar uses it only while the share is mounted and never mounts it itself. Mount the share (for example in the Finder) and syncing picks up again by itself; otherwise click **Change…** and choose the folder again. In 0.0.7-beta2 settings sync is paused, so this message does not appear and **Change…** is greyed out; see [Settings sync](features.md#settings-sync).
-
 ## Build from source
 
 Use Xcode 27 (macOS 27 SDK), as CI does; holzBar itself runs on macOS 14 or later. Every pull request launches the built app on macOS 14, 15, 26 and 27 and runs the unit tests on each, so a missing symbol or a crash at launch on an older macOS fails the build. CI builds with Xcode 27.0 for the SDK and the official Swift 6.4 toolchain from [swift.org](https://www.swift.org/install/macos/) as the compiler (both pinned in `.github/actions/select-xcode`).

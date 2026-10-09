@@ -1,6 +1,6 @@
 # holzBar vs. Ice and Thaw
 
-What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds. — means not available or not documented. 🔜 means planned, with the release (0.0.8 or 0.0.9): it is **not available yet**.
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds. — means not available or not documented. 🔜 means planned, with the release (0.0.8, 0.0.9 or 1.0.0): it is **not available yet**.
 
 | | Ice 0.11.12 | Thaw 3.0 beta | holzBar |
 |---|:---:|:---:|:---:|
@@ -42,7 +42,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Opened items stay up to 30 s, or open without showing the item | ❌ | ✅ | ✅ |
 | Show an item briefly when it changes | ❌ | ✅ | ✅ <sub>opt-in per item</sub> |
 | Export and import settings | ❌ | ✅ | ✅ |
-| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | ✅ <sub>paused in 0.0.7-beta2</sub> |
+| Settings sync: iCloud Drive or any synced folder | ❌ | ❌ | 🔜 1.0.0 <sub>planned, not available</sub> |
 | Languages | English | many, through Crowdin | English, German, French, Italian, Romansh |
 | Keep Live Activities visible | ❌ | — | ✅ <sub>experimental</sub> |
 | Show on scroll with a mouse wheel | ❌ | — | ✅ |
@@ -56,7 +56,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Hover and click on a second display (macOS 27) | — | ✅ | ✅ |
 | Dot on its icon while the microphone or camera is in use and Control Centre's indicator is not drawn (macOS 27) | — | — | ✅ |
 | URL commands ask before they change anything lasting; no URL shows hidden items while Zen mode is on or ends it during a screen share | — | — | ✅ |
-| Validated hotkeys, colours and numbers in imported and synced settings (no crash loop from bad settings) | ❌ | — | ✅ |
+| Validated hotkeys, colours and numbers in imported settings (no crash loop from bad settings) | ❌ | — | ✅ |
 | **Privacy and permissions** | | | |
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | — | private, enforced by CI |
@@ -64,7 +64,6 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Hardened runtime (no injected code or libraries) | ✅ | ✅ | ✅ (checked by CI) |
 | No entitlements, not even `get-task-allow` | — | — | ✅ from 0.0.7-beta2 (checked by CI and the release) |
 | Settings import accepts only known keys of the right type, in range | — (no import) | — | ✅ |
-| Settings import and sync can't turn sync on; the sync file carries no computer name | — (no sync) | — | ✅ |
 | No helper process runs with holzBar's permissions | ❌ (menu bar item service) | — | ✅ from 0.0.7-beta2: one executable, no nested code (checked by CI) |
 | Fix for the permissions loop | ❌ | — | ✅ |
 | **Code and resources** | | | |
@@ -73,11 +72,10 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | State management | Combine | `@Observable` and Combine | `@Observable`, no Combine |
 | Mouse event tap when "Show on hover" is off | always running | — | off |
 | Timers and polling while nothing is shown | yes | — | only while needed |
-| Settings sync checks for changes | — (no sync) | — (no sync) | when the synced folder delivers them, no polling <sub>paused in 0.0.7-beta2</sub> |
 | Settings migration | 6 version steps at every launch | — | once, while importing Ice settings |
 | Runtime patching of AppKit (method swizzling) | yes | yes | none |
 | Item images in memory | kept | — | released when unused |
-| Unit tests run on every change | none | ✅ | ✅ 610 |
+| Unit tests run on every change | none | ✅ | ✅ 546 |
 | App size | — | — | 16.7 MB |
 | **Distribution and maintenance** | | | |
 | Install and update with Homebrew | ✅ | ✅ | ✅ |
