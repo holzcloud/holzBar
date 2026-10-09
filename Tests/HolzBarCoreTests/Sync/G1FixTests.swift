@@ -193,6 +193,42 @@ struct G1FixTests {
         #expect(captured.replica.live(Fixtures.s1).contains { $0.payload == .deleted && $0.dot.mac == macA })
     }
 
+    @Test("A folder whose file claims this Mac's own entry is this Mac's group, though this Mac never read that file: a deletion made while sync was off is published, not undone")
+    func folderThatHoldsTheMacsOwnEntriesIsItsGroup() throws {
+        // Mac A published S1, Mac B read it and wrote a file that relays it; A's own file is gone (the folder was emptied and B's file
+        // came back, or A's file was deleted). A turned sync off and deleted the setting, then turns sync on in the folder. A has never
+        // read B's file, so the file's writer is unknown to A: only what the file says of A's own dot shows that this is A's group.
+        let mine = Fixtures.entry(macA, 4, .string("mine"))
+        var state = Fixtures.state()
+        state.isEnabled = false
+        state.replica = Fixtures.replica([Fixtures.s1: [mine]])
+        state.applied[Fixtures.s1] = [mine.dot]
+        state.baseline[Fixtures.s1] = SyncValue.string("mine").digest
+        state.counter = 4
+        state.publishedCounter = 4
+        state.session.isTrusted = true
+        state.session.ownFile = .absent
+        state.session.snapshot = Fixtures.snapshot([:])
+        let other = Fixtures.entry(macB, 5, .string("two"))
+        let relay = SyncDeviceFile.Contents(
+            unitTable: 1, mac: macB, installation: "nonce-B", written: Fixtures.now,
+            replica: Fixtures.replica([Fixtures.s1: [mine], Fixtures.s2: [other]])
+        )
+        let read = SyncFolderRead(files: [SyncFileOutcome(macID: macB, size: 200, modified: Fixtures.now, state: .contents(relay))])
+        let env = Fixtures.environment()
+        let started = SyncEngine.handle(.command(.turnOn("F1")), state: state, environment: env)
+        let step = SyncEngine.handle(.folderRead(read, purpose: .join), state: started.state, environment: env)
+        #expect(step.state.isEnabled)
+        #expect(SyncEngine.question(for: step.state, scope: .mine, environment: env) == nil)
+        // The deletion is this Mac's entry in the group; the old value is not back, nor waiting to be applied.
+        let live = step.state.replica.live(Fixtures.s1)
+        #expect(live.map(\.payload) == [.deleted])
+        #expect(live.first?.dot.mac == macA)
+        #expect(step.state.replica.live(Fixtures.s2).map(\.value) == [.string("two")])
+        #expect(!applied(step).keys.contains(Fixtures.s1))
+        #expect(step.effects.contains { if case .writeOwnFile = $0 { true } else { false } })
+    }
+
     // MARK: Plan and settle
 
     @Test("A Mac whose applied entry was replaced by another's of the same value is a party to the conflict that value is in")

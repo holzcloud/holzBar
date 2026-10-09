@@ -93,7 +93,7 @@ MUTATIONS = [
      "an own file that holds what the state does not is never overwritten"),
     ("answer-without-fresh-dot", "SyncAnswer.swift",
      "guard SyncCapture.mint(target.unit, payload: target.payload, digest: digest, state: &state, environment: environment, superseding: shown) else {",
-     "guard { state.baseline[target.unit] = digest; return true }() else {",
+     "state.baseline[target.unit] = digest\n        guard true else {",
      "an answer is one fresh entry that the group sees"),
     ("answer-supersedes-everything", "SyncAnswer.swift",
      "let shown = Set(question.shown[target.unit] ?? [])\n                let local",
@@ -179,6 +179,7 @@ def main():
     parser = argparse.ArgumentParser(description="Mutation gate of the settings sync engine")
     parser.add_argument("--list", action="store_true", help="list the mutations and exit")
     parser.add_argument("--only", metavar="NAME", help="run one mutation")
+    parser.add_argument("--no-baseline", action="store_true", help="skip the baseline (only to re-run a mutation whose table entry was repaired after the baseline of the same sources passed in another run)")
     parser.add_argument("--shard", metavar="K/N", help="run the mutations K, K+N, K+2N, ... (several shards run side by side)")
     arguments = parser.parse_args()
     if arguments.list:
@@ -217,13 +218,16 @@ def main():
                 shutil.copytree(source, target, symlinks=True)
             else:
                 shutil.copy2(source, target)
-        print(f"==> Baseline: {len(names)} suites")
-        code, failing, ran, output, seconds = swift_test(work, names, "baseline")
-        if code != 0 or failing or not ran:
-            print(output[-4000:])
-            print("==> The baseline fails: no mutation can be judged")
-            return 1
-        print(f"    the baseline passes ({seconds:.0f} s)")
+        if arguments.no_baseline:
+            print("==> Baseline skipped (--no-baseline)")
+        else:
+            print(f"==> Baseline: {len(names)} suites")
+            code, failing, ran, output, seconds = swift_test(work, names, "baseline")
+            if code != 0 or failing or not ran:
+                print(output[-4000:])
+                print("==> The baseline fails: no mutation can be judged")
+                return 1
+            print(f"    the baseline passes ({seconds:.0f} s)")
         survivors = []
         staled = []
         for name, file, find, replace, guard in chosen:
