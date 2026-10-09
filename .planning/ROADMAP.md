@@ -475,7 +475,12 @@ Principles for every phase below (`CLAUDE.md`): never online, no polling where a
   2. The Liquid Glass slider is followed only if the spike finds a public signal; otherwise the phase records that it cannot be and the README says so
   3. No private API and no preference-file reading
 
-**Plans**: 3 planned (spike first; see `phases/23-liquid-glass-transparency/PLAN.md`)
+**Plans:** 0/3 plans executed in 2 waves (outline and decisions: `phases/23-liquid-glass-transparency/PLAN.md`; the visual checks are the UAT script in 23-03, to be run by the user on macOS 26 and 27)
+
+Plans:
+- [ ] 23-01-PLAN.md — Wave 1: spike for the Liquid Glass slider: SDK scan (`Scripts/macos27/scan-glass-api.sh`), runtime probe (`Scripts/macos27/glass-signals.swift`), `23-01-SPIKE.md` with the Decision line (M27-04)
+- [ ] 23-02-PLAN.md — Wave 1: pure `TransparencyTreatment`, `TransparencyObserver`, the Shelf and System Glass follow Reduce Transparency and Increase Contrast live, hint in five languages, `Scripts/typecheck-app.sh` (M27-03)
+- [ ] 23-03-PLAN.md — Wave 2: README and docs claim only what is true (the slider has no public API), M27-04 closed, UAT script `23-UAT.md` for macOS 26 and 27 (M27-03, M27-04)
 
 ### Phase 24: SwiftUI reorder spike
 
