@@ -114,16 +114,35 @@ final class AutomationManager {
 
     // MARK: Storage
 
+    /// Loads the rules: the ones of the settings and, from this Mac's script store, the ones that
+    /// use a script (D-05). A rule that uses a script found in the settings is left out, and the
+    /// settings are saved once without it; the first time, the script rules and approvals of
+    /// 0.0.8-beta1 and beta2 move into the store (D-14).
     private func load() {
         isLoading = true
         defer {
             isLoading = false
         }
+        var decoded = [AutomationRule]()
         if
             let data = Defaults.data(forKey: .automationRules),
-            let decoded = try? JSONDecoder().decode([AutomationRule].self, from: data)
+            let stored = try? JSONDecoder().decode([AutomationRule].self, from: data)
         {
-            rules = AutomationRule.validated(decoded)
+            decoded = AutomationRule.validated(stored)
+        }
+        scriptStore.adoptLegacyData(rules: decoded.filter(\.usesScript), order: decoded.map(\.id))
+        rules = AutomationRuleStorage.merge(
+            settings: decoded,
+            local: scriptStore.scriptRules,
+            order: scriptStore.ruleOrder
+        )
+        let leftOut = AutomationRuleStorage.droppedScriptRuleCount(settings: decoded)
+        if leftOut > 0 {
+            logger.notice(
+                "Left out \(leftOut, privacy: .public) rules that use a script from the settings; scripts are set up only on this Mac"
+            )
+            // The settings no longer hold them.
+            save()
         }
         migrateLegacyRevealRules()
     }
@@ -147,10 +166,15 @@ final class AutomationManager {
         Defaults.removeObject(forKey: .revealRules)
     }
 
+    /// Saves the rules in two places: the ones that use no script in the settings, and the ones
+    /// that do, with the order of all of them, in the script store of this Mac. The settings,
+    /// and so every export, never hold a rule that uses a script (T-11-H1).
     private func save() {
-        if let data = try? JSONEncoder().encode(rules) {
+        let parts = AutomationRuleStorage.split(rules)
+        if let data = try? JSONEncoder().encode(parts.settings) {
             Defaults.set(data, forKey: .automationRules)
         }
+        scriptStore.setScriptRules(parts.local, order: parts.order)
     }
 
     // MARK: Observers
@@ -540,8 +564,8 @@ final class AutomationManager {
                 let report = await scriptRunner.run(
                     name,
                     event: .check,
-                    timeLimit: ScriptLimits.defaultTimeLimit,
-                    folder: ScriptStore.folder,
+                    timeLimit: scriptStore.timeLimit(for: name),
+                    folder: scriptStore.folderURL,
                     store: scriptStore
                 )
                 if let record = report.record {
@@ -565,6 +589,38 @@ final class AutomationManager {
         lastScriptRun.removeAll()
         scriptStore.refresh()
         evaluate()
+    }
+
+    /// Runs the scripts one after another, each with its own time limit, and keeps what each
+    /// left behind. The runner decides for each one whether it may run; one that is busy, not
+    /// approved or over the rate limit is skipped. It stops starting scripts when the calling
+    /// task is cancelled.
+    func runScripts(_ names: [String], event: ScriptEvent) async {
+        for name in names {
+            guard !Task.isCancelled else {
+                return
+            }
+            let report = await scriptRunner.run(
+                name,
+                event: event,
+                timeLimit: scriptStore.timeLimit(for: name),
+                folder: scriptStore.folderURL,
+                store: scriptStore
+            )
+            if let record = report.record {
+                lastScriptRuns[name] = record
+            }
+        }
+    }
+
+    /// Starts the scripts in a task of their own and does not wait for them.
+    func startScripts(_ names: [String], event: ScriptEvent) {
+        guard !names.isEmpty else {
+            return
+        }
+        Task { [weak self] in
+            await self?.runScripts(names, event: event)
+        }
     }
 
     // MARK: Items that follow a condition
@@ -643,21 +699,7 @@ final class AutomationManager {
         case .setKeepAwake(let isOn):
             setKeepAwake(isOn)
         case .runScript(let name, let event):
-            Task { [weak self] in
-                guard let self else {
-                    return
-                }
-                let report = await scriptRunner.run(
-                    name,
-                    event: event,
-                    timeLimit: ScriptLimits.defaultTimeLimit,
-                    folder: ScriptStore.folder,
-                    store: scriptStore
-                )
-                if let record = report.record {
-                    lastScriptRuns[name] = record
-                }
-            }
+            startScripts([name], event: event)
         }
     }
 
