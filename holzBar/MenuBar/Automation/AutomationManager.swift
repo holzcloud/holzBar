@@ -139,10 +139,19 @@ final class AutomationManager {
             order: scriptStore.ruleOrder
         )
         let leftOut = AutomationRuleStorage.droppedScriptRuleCount(settings: decoded)
+        let collisions = AutomationRuleStorage.collidingRuleCount(settings: decoded, local: scriptStore.scriptRules)
         if leftOut > 0 {
             logger.notice(
                 "Left out \(leftOut, privacy: .public) rules that use a script from the settings; scripts are set up only on this Mac"
             )
+        }
+        if collisions > 0 {
+            // The rule of this Mac wins; the settings copy goes (T-11-H1).
+            logger.notice(
+                "Kept \(collisions, privacy: .public) script rules of this Mac over rules of the settings with the same identifier"
+            )
+        }
+        if leftOut > 0 || collisions > 0 {
             // The settings no longer hold them.
             save()
         }

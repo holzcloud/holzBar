@@ -210,6 +210,39 @@ struct ScriptStorageTests {
         #expect(AutomationRuleStorage.droppedScriptRuleCount(settings: [plain1]) == 0)
     }
 
+    @Test("A rule of the settings with the id of a script rule of this Mac never replaces it (G-1, WR-02)")
+    func localScriptRuleWinsAnIdCollision() {
+        let script = running("a.sh")
+        var crafted = plain("Crafted")
+        crafted.id = script.id
+        let other = plain("Other")
+        let merged = AutomationRuleStorage.merge(
+            settings: [crafted, other],
+            local: [script],
+            order: [script.id, other.id]
+        )
+        #expect(merged == [script, other])
+        #expect(AutomationRuleStorage.collidingRuleCount(settings: [crafted, other], local: [script]) == 1)
+        // The next save writes the script rule back to the store: nothing was deleted.
+        #expect(AutomationRuleStorage.split(merged).local == [script])
+        #expect(AutomationRuleStorage.collidingRuleCount(settings: [other], local: [script]) == 0)
+        // A script rule of the settings with that id is left out, as before.
+        var imported = running("evil.sh", name: "Imported")
+        imported.id = script.id
+        #expect(AutomationRuleStorage.merge(settings: [imported], local: [script], order: []) == [script])
+    }
+
+    @Test("The rules of this Mac are never cut by the limit, even without an order")
+    func localRulesAreNeverCut() {
+        let scripts = (0..<3).map { running("a.sh", name: "Script \($0)") }
+        let plains = (0..<AutomationRule.maximumCount).map { plain("Plain \($0)") }
+        let merged = AutomationRuleStorage.merge(settings: plains, local: scripts, order: [])
+        #expect(merged.count == AutomationRule.maximumCount)
+        #expect(scripts.allSatisfy { merged.contains($0) })
+        #expect(merged.prefix(AutomationRule.maximumCount - 3).map(\.name) == plains.prefix(AutomationRule.maximumCount - 3).map(\.name))
+        #expect(AutomationRuleStorage.split(merged).local == scripts)
+    }
+
     @Test("Rules missing from the order follow the ordered ones; a repeated id is kept once")
     func mergeOrder() {
         let first = plain("First")

@@ -285,13 +285,22 @@ nonisolated enum AutomationRuleStorage {
 
     /// The rules of the settings and of the store together, by `order`.
     ///
-    /// A rule of the settings that uses a script is left out: it came from a file, not from
-    /// this Mac's store. The rules the order does not name follow the ordered ones, in their own
-    /// order. A repeated identifier is kept once.
+    /// The rules of this Mac's store always win: a rule of the settings that uses a script is
+    /// left out (it came from a file, not from this Mac's store), and so is a rule of the
+    /// settings whose identifier a rule of the store has (an old export of a rule that was a plain
+    /// rule then, or a crafted file), so a file never replaces a script rule and the next save
+    /// never deletes one (T-11-H1). The store's rules are never cut by the limit; the settings'
+    /// rules take what room is left. The rules the order does not name follow the ordered ones, in
+    /// their own order. A repeated identifier is kept once.
     static func merge(settings: [AutomationRule], local: [AutomationRule], order: [UUID]) -> [AutomationRule] {
-        let all = settings.filter { !$0.usesScript } + local
+        let own = AutomationRule.validated(local)
+        let ownIDs = Set(own.map(\.id))
+        let room = max(0, AutomationRule.maximumCount - own.count)
+        let others = AutomationRule.validated(settings.filter { !$0.usesScript && !ownIDs.contains($0.id) })
+            .prefix(room)
+        let all = others + own
         var byID = [UUID: AutomationRule]()
-        for rule in all where byID[rule.id] == nil {
+        for rule in all {
             byID[rule.id] = rule
         }
         var used = Set<UUID>()
@@ -304,7 +313,14 @@ nonisolated enum AutomationRuleStorage {
         for rule in all where used.insert(rule.id).inserted {
             result.append(rule)
         }
-        return AutomationRule.validated(result)
+        return result
+    }
+
+    /// How many rules of the settings that use no script have the identifier of a rule of the
+    /// store, and so lose against it in ``merge``.
+    static func collidingRuleCount(settings: [AutomationRule], local: [AutomationRule]) -> Int {
+        let ownIDs = Set(local.map(\.id))
+        return settings.filter { !$0.usesScript && ownIDs.contains($0.id) }.count
     }
 
     /// How many rules of the settings use a script and so are left out by ``merge``.
