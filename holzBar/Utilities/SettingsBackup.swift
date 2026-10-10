@@ -128,9 +128,18 @@ enum SettingsBackup {
                 guard let settings = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
                     throw CocoaError(.fileReadCorruptFile)
                 }
+                var informativeText = String(localized: "holzBar will replace its current settings with the ones from “\(url.lastPathComponent)” and restart.")
+                // Scripts are set up only on this Mac, so the file's rules that use one are left
+                // out (T-11-H1). The question says how many, so nothing is dropped silently.
+                let leftOut = (settings[Defaults.Key.automationRules.rawValue] as? Data)
+                    .map(AutomationRule.scriptRuleCount(in:)) ?? 0
+                if leftOut > 0 {
+                    informativeText += "\n\n" + String(localized: "\(leftOut) rules that use a script will not be imported. Scripts are set up only on this Mac.")
+                    logger.notice("The import leaves out \(leftOut, privacy: .public) rules that use a script")
+                }
                 let alert = NSAlert()
                 alert.messageText = String(localized: "Replace your settings?")
-                alert.informativeText = String(localized: "holzBar will replace its current settings with the ones from “\(url.lastPathComponent)” and restart.")
+                alert.informativeText = informativeText
                 let importButton = alert.addButton(withTitle: String(localized: "Import and Restart"))
                 let cancel = alert.addButton(withTitle: String(localized: "Cancel"))
                 // Replacing the settings cannot be undone: the button says so (HIG).

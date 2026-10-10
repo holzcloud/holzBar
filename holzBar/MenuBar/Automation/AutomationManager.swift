@@ -811,9 +811,16 @@ final class AutomationManager {
     /// Turns a rule on or off. This is the entry point of the `holzbar://` URL commands and of
     /// Shortcuts; the pane changes rules through its bindings instead. A change made here runs
     /// no script: no end script runs, no script condition is asked, and a rule that runs a
-    /// script waits for the next event of the system (D-12).
+    /// script waits for the next event of the system. A rule that uses a script is never turned
+    /// on from here (D-12).
     func setRule(withID id: UUID, enabled: Bool) {
         guard let index = rules.firstIndex(where: { $0.id == id }), rules[index].isEnabled != enabled else {
+            return
+        }
+        // Whatever the caller checked, nothing from outside turns on a rule that uses a script:
+        // the rule may have changed while a question was open (D-12, T-11-M5).
+        guard !(enabled && rules[index].usesScript) else {
+            logger.notice("Ignored: a rule that uses a script is turned on only in the settings")
             return
         }
         changeComesFromOutside = true

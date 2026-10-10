@@ -169,12 +169,20 @@ enum URLCommands {
                 detail: String(localized: "Another app asked holzBar to rearrange your menu bar."),
                 confirmTitle: String(localized: "Apply"),
                 perform: {
-                    appState.profiles.apply(named: storedName)
+                    // From outside holzBar: no hook runs, and it is no profile-change event
+                    // (D-12, T-11-M5).
+                    appState.profiles.apply(named: storedName, runsHooks: false)
                 }
             )
         case .automationRule(let name, let isEnabled):
             guard let rule = appState.automation.rule(named: name) else {
                 logger.notice("Ignored: no automation rule with that name")
+                return nil
+            }
+            // A rule that uses a script is turned on only in the settings (D-12, T-11-M5). It can
+            // be turned off from here, which runs no end script.
+            if isEnabled, rule.usesScript {
+                logger.notice("Ignored: a rule that uses a script is turned on only in the settings")
                 return nil
             }
             let ruleID = rule.id

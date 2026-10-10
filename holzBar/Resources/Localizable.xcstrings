@@ -337,6 +337,100 @@
         }
       }
     },
+    "%lld rules that use a script will not be imported. Scripts are set up only on this Mac." : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Eine Regel, die ein Skript verwendet, wird nicht importiert. Skripte werden nur auf diesem Mac eingerichtet."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Regeln, die ein Skript verwenden, werden nicht importiert. Skripte werden nur auf diesem Mac eingerichtet."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "One rule that uses a script will not be imported. Scripts are set up only on this Mac."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld rules that use a script will not be imported. Scripts are set up only on this Mac."
+                }
+              }
+            }
+          }
+        },
+        "fr" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Une règle qui utilise un script ne sera pas importée. Les scripts se configurent uniquement sur ce Mac."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld règles qui utilisent un script ne seront pas importées. Les scripts se configurent uniquement sur ce Mac."
+                }
+              }
+            }
+          }
+        },
+        "it" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Una regola che usa uno script non verrà importata. Gli script si impostano solo su questo Mac."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld regole che usano uno script non verranno importate. Gli script si impostano solo su questo Mac."
+                }
+              }
+            }
+          }
+        },
+        "rm" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ina regla che duvra in scrip na vegn betg importada. Ils scrips vegnan configurads mo sin quest Mac."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld reglas che duvran in scrip na vegnan betg importadas. Ils scrips vegnan configurads mo sin quest Mac."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "A display is connected" : {
       "localizations" : {
         "de" : {
@@ -9125,6 +9219,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Las reglas vegnan memorisadas sin quest Mac."
+          }
+        }
+      }
+    },
+    "Rules that use a script can be turned on only in holzBar's settings." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regeln, die ein Skript verwenden, lassen sich nur in den Einstellungen von holzBar einschalten."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les règles qui utilisent un script ne peuvent être activées que dans les réglages de holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le regole che usano uno script si possono attivare solo nelle impostazioni di holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reglas che duvran in scrip na pon vegnir activadas mo en ils parameters da holzBar."
           }
         }
       }
