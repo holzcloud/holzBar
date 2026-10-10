@@ -66,26 +66,60 @@ final class ScriptRunner {
 
     /// One output stream of the script: a pipe that is always drained, into a buffer that keeps
     /// at most 64 KB.
-    private final class OutputCapture {
+    ///
+    /// A dispatch source reads a duplicate of the pipe's read end and closes it in its cancel
+    /// handler, which runs only after the last read. Closing the end while a read handler may
+    /// still be running would make `FileHandle.availableData` raise an Objective-C exception,
+    /// which Swift cannot catch, when an approved script leaves a background child that keeps
+    /// writing past the grace period (WR-06).
+    private nonisolated final class OutputCapture: Sendable {
+        /// The pipe whose write end goes to the process.
         let pipe = Pipe()
         private let buffer = OSAllocatedUnfairLock(
             initialState: ScriptOutputBuffer(limit: ScriptLimits.maximumOutputBytes)
         )
         private let reachedEnd = OSAllocatedUnfairLock(initialState: false)
+        private let source: (any DispatchSourceRead)?
 
         init() {
+            // The source's own descriptor: the pipe's file handle closes its descriptor when it
+            // goes away, and a descriptor closed twice may close another file.
+            let descriptor = fcntl(pipe.fileHandleForReading.fileDescriptor, F_DUPFD_CLOEXEC, 0)
             let buffer = buffer
             let reachedEnd = reachedEnd
-            pipe.fileHandleForReading.readabilityHandler = { handle in
-                let chunk = handle.availableData
-                if chunk.isEmpty {
-                    // End of file: nothing more will come, and the handler must not spin.
-                    handle.readabilityHandler = nil
-                    reachedEnd.withLock { $0 = true }
-                } else {
-                    buffer.withLock { $0.append(chunk) }
+            guard descriptor >= 0 else {
+                source = nil
+                reachedEnd.withLock { $0 = true }
+                return
+            }
+            _ = fcntl(descriptor, F_SETFL, fcntl(descriptor, F_GETFL) | O_NONBLOCK)
+            let source = DispatchSource.makeReadSource(fileDescriptor: descriptor, queue: .global(qos: .utility))
+            source.setEventHandler {
+                var chunk = [UInt8](repeating: 0, count: 65_536)
+                while true {
+                    let count = read(descriptor, &chunk, chunk.count)
+                    if count > 0 {
+                        let received = Data(chunk[0..<count])
+                        buffer.withLock { $0.append(received) }
+                    } else if count < 0, errno == EINTR {
+                        continue
+                    } else if count < 0, errno == EAGAIN {
+                        // Everything that was there is read; the source fires again.
+                        return
+                    } else {
+                        // End of file or an error: nothing more will come. The cancel handler
+                        // closes the descriptor.
+                        reachedEnd.withLock { $0 = true }
+                        source.cancel()
+                        return
+                    }
                 }
             }
+            source.setCancelHandler {
+                close(descriptor)
+            }
+            source.resume()
+            self.source = source
         }
 
         /// Whether the script closed the stream.
@@ -95,7 +129,7 @@ final class ScriptRunner {
 
         /// Stops reading and returns what was kept.
         func finish() -> Data {
-            pipe.fileHandleForReading.readabilityHandler = nil
+            source?.cancel()
             try? pipe.fileHandleForReading.close()
             return buffer.withLock { $0.data }
         }
