@@ -54,7 +54,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 
 | | holzBar | Bartender 7 | Ice | Thaw | SaneBar | Tuck | Barbee | Hidden Bar | Dozer | Vanilla | iBar | Glow | Brow | Lounge | Vorssaint |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Maintenance | active (0.0.8-beta1) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) |
+| Maintenance | active (0.0.8-beta2) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) |
 | Price | free | paid, one-time <sup>1</sup> | free | free | free | free; Pro $14.99 | free + in-app (lifetime $12.99) | free | free | free; Pro $10 | free + $2.99/yr | $19.99 once | free; Pro $49/yr (AI only) | $3.99/yr | free |
 | Open source | ✅ GPL-3.0 | ❌ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ MIT | ❌ | ❌ | ✅ MIT | ✅ MPL-2.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ GPL-3.0+ |
 | macOS 26 / 27 | ✅ / ✅ | ❌ / ✅ <sup>2</sup> | dev builds / ❌ | ✅ / ✅ <sup>3</sup> | ✅ / ❌ | ✅ / ✅ <sup>4</sup> | ❓ / ❓ <sup>5</sup> | ✅ / partly <sup>6</sup> | ❓ / ❓ | ✅ / ❓ | ✅ / ❓ | ✅ / ✅ <sup>13</sup> | ❓ / vendor claim | ✅ / vendor claim | ✅ / ✅ |
@@ -113,11 +113,11 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 <sup>11</sup> The vendor says Bartender sends nothing anywhere. Bartender 5.0.52 briefly shipped analytics (Amplitude) and removed it; Sparkle and RevenueCat appear in third-party dependency lists (inferred).
 <sup>12</sup> Glow, Brow and Lounge: ❌ means the vendor's site, changelog and privacy policy do not mention the feature (one source each, no independent test). Lounge's own blog says it lacks automation rules.
 <sup>13</sup> Glow ships two builds: 2.x for macOS 26 and 3.x for macOS 27 (stable since 10 September 2026).
-<sup>14</sup> **Preview**: built in 0.0.8-beta1 and marked with a Preview badge in the app, but not yet tested on a real Mac by the maintainer. Rules have fewer trigger types than Thaw: power, Low Power Mode, apps, time, displays, network, VPN, the Wi-Fi name and a Focus filter.
+<sup>14</sup> **Preview**: built in the 0.0.8 betas and marked with a Preview badge in the app, but not yet tested on a real Mac by the maintainer. Rules have fewer trigger types than Thaw: power, Low Power Mode, apps, time, displays, network, VPN, the Wi-Fi name, camera and microphone in use, and a Focus filter.
 
 ### Where holzBar is behind today
 
-- **Automation:** Thaw, SaneBar and Bartender 7 have rules, per-item conditions and scripts. holzBar has them since 0.0.8-beta1, as a *Preview* that is not yet tested on a Mac, with fewer trigger types than Thaw.
+- **Automation:** Thaw, SaneBar and Bartender 7 have rules, per-item conditions and scripts. holzBar has them since the 0.0.8 betas, as a *Preview* that is not yet tested on a Mac, with fewer trigger types than Thaw.
 - **No Developer ID signature or notarization**, unlike Thaw, SaneBar, Ice and Lounge (the vendor's claim). holzBar needs the `xattr` step or the Homebrew cask.
 - **Fewer languages** than Thaw and Barbee (20 each); our translations into French, Italian and Romansh are machine-made and unchecked.
 - **No widgets, AppleScript or animation yet** (0.0.9). Bartender 7, SaneBar and Vanilla have them today.
@@ -192,11 +192,11 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 
 **0.0.7 is out** (see the [release notes](docs/release-notes/v0.0.7.md)): a bugfix release with no new features. Settings sync is removed from the app (a redesigned sync is planned for 1.0.0; Export… and Import… stay), and System Glass and the holzBar Shelf follow Reduce Transparency and Increase Contrast. macOS has no public API for the macOS 27 Liquid Glass slider, so holzBar cannot follow that. The Reduce Transparency treatment has not yet been checked on real macOS 26 and 27 systems. **Native macOS 27 overflow button support** did not make it into 0.0.7 and is planned for a later release.
 
-**0.0.8-beta1 is out** (see the [release notes](docs/release-notes/v0.0.8-beta1.md)): the first set of new features, all built but **not yet tested on a Mac**. Each carries a **Preview** badge in the app and is marked *Preview* here. Report what does not work.
+**0.0.8-beta2 is out** (see the [release notes](docs/release-notes/v0.0.8-beta2.md); the first beta is in [its notes](docs/release-notes/v0.0.8-beta1.md)): the 0.0.8 feature set is complete, all built but **not yet tested on a Mac**. Each feature carries a **Preview** badge in the app and is marked *Preview* here. Report what does not work.
 
 | | |
 |---|---|
-| ⚙️ **Automation** | **Rules** (app, time, power, display, network are built — *Preview*; Focus filter and Wi-Fi name: *Preview*) · **per-item conditions** (*Preview*) · **scripts** (*Preview*; only from the Scripts folder, after you allowed the exact content) |
+| ⚙️ **Automation** | **Rules** (app, time, power, display, network, camera and microphone in use; Focus filter and Wi-Fi name — all *Preview*; the old "low battery" and "offline" settings are rules now) · **per-item conditions** (*Preview*) · **scripts** (*Preview*; only from the Scripts folder, after you allowed the exact content) |
 | 🛟 **Safety** | **Layout snapshots** with a one-click restore (*Preview*) · **shareable profiles** (*Preview*) · **Touch ID** to show hidden items (*Preview*) · **revoke permissions in Settings** (*Preview*) (with a guide) · **copy diagnostics** (*Preview*) (redacted, nothing is sent) |
 | 🪄 **Convenience** | **Tidy Up assistant** (*Preview*) · **works without Screen Recording** (*Preview*) (app icons instead of live snapshots) · system items such as Clock, Wi-Fi and Battery **pinned visible** (*Preview*) |
 | 🪵 **Polish** | A [keyboard and VoiceOver checklist](docs/accessibility-checklist.md) to run on a Mac (no accessibility claim until it was run) |
@@ -205,7 +205,7 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 
 | | |
 |---|---|
-| ⚙️ **Automation** | **Widgets** (text from permission-free sources such as CPU, memory, battery and disk, a countdown, a Shortcut button) · **AppleScript dictionary** · **App Intents** for Shortcuts and Siri · **command palette** · a "focus mode" hotkey · **more rule triggers** (Bluetooth, audio, camera and microphone, Energy Mode) |
+| ⚙️ **Automation** | **Widgets** (text from permission-free sources such as CPU, memory, battery and disk, a countdown, a Shortcut button) · **AppleScript dictionary** · **App Intents** for Shortcuts and Siri · **command palette** · a "focus mode" hotkey · **more rule triggers** (Bluetooth, audio, Energy Mode) |
 | 🪄 **Convenience** | Opt-in **usage suggestions** (counters stay on your Mac) · **smooth show and hide** · replacement items for Apple items macOS 27 cannot hide · hiding system items such as Clock and Control Center · scripts as profile hooks |
 | 🎨 **Look** | **Shelf layouts** (grid, vertical) · **Moods** (saved looks per display or time) · more **menu bar styles** |
 | 🪵 **Polish** | Control Center control (*spike*, optional) |

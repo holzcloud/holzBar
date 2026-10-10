@@ -16,12 +16,12 @@ scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 
 sources=(
-  AutomationEngine AutomationRule Defaults DesignTokens DiagnosticsReport FocusFilterBinding
-  ItemClassifier ItemIdentity LayoutSnapshot ModuleCatalog PinnedSystemItems RevealGate ScriptGate SettingsSchema SharedProfile URLCommand ZenMode
+  AutomationEngine AutomationRule BatteryLevel Defaults DesignTokens DiagnosticsReport FocusFilterBinding
+  ItemClassifier ItemIdentity LayoutSnapshot LegacyRevealRules ModuleCatalog PinnedSystemItems RevealGate ScriptGate SettingsSchema SharedProfile URLCommand ZenMode
 )
 tests=(
-  AutomationEngineTests DesignTokensTests DiagnosticsReportTests FocusFilterBindingTests
-  ItemClassifierTests LayoutSnapshotTests ModuleCatalogTests PinnedSystemItemsTests RevealGateTests ScriptGateTests SettingsSchemaTests SharedProfileTests URLCommandTests
+  AutomationEngineTests BatteryLevelTests DesignTokensTests DiagnosticsReportTests FocusFilterBindingTests
+  ItemClassifierTests LayoutSnapshotTests LegacyRevealRulesTests ModuleCatalogTests PinnedSystemItemsTests RevealGateTests ScriptGateTests SettingsSchemaTests SharedProfileTests URLCommandTests
 )
 
 mkdir -p "$scratch/Sources/HolzBarCore" "$scratch/Tests/HolzBarCoreTests"

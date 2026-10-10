@@ -166,6 +166,13 @@ struct AutomationRuleEditor: View {
             Button("Expensive connection (hotspot)") {
                 add(.network(.expensive))
             }
+            Divider()
+            Button("Camera in use") {
+                add(.cameraInUse)
+            }
+            Button("Microphone in use") {
+                add(.microphoneInUse)
+            }
         }
         .menuStyle(.borderlessButton)
         .fixedSize()
@@ -414,7 +421,8 @@ private struct AutomationConditionRow: View {
             }
         case .time(let window):
             timeSettings(window)
-        case .power, .lowPowerMode, .appRunning, .appFrontmost, .displayConnected, .network, .wifiNetwork, .scriptSucceeds:
+        case .power, .lowPowerMode, .appRunning, .appFrontmost, .displayConnected, .network, .wifiNetwork,
+            .cameraInUse, .microphoneInUse, .scriptSucceeds:
             EmptyView()
         }
     }

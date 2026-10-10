@@ -55,9 +55,6 @@ struct AdvancedSettingsPane: View {
                     pinSystemItems
                 }
             }
-            HolzBarSection("Show Hidden Items Automatically") {
-                RevealRulesSettings(rules: appState.revealRules)
-            }
             HolzBarSection("Settings") {
                 settingsBackup
             }
@@ -318,24 +315,5 @@ struct AdvancedSettingsPane: View {
             }
             .frame(height: 22)
         }
-    }
-}
-
-// MARK: - RevealRulesSettings
-
-/// Settings for showing hidden items when something needs attention
-/// (jordanbaird/Ice#62).
-private struct RevealRulesSettings: View {
-    @Bindable var rules: RevealRules
-
-    var body: some View {
-        Toggle("When the battery is low", isOn: $rules.revealsOnLowBattery)
-        if rules.revealsOnLowBattery {
-            Stepper(value: $rules.lowBatteryThreshold, in: 5...50, step: 5) {
-                Text("Below \((Double(rules.lowBatteryThreshold) / 100).formatted(.percent))")
-            }
-        }
-        Toggle("When the network connection is lost", isOn: $rules.revealsWhenOffline)
-            .annotation("Hidden items are shown for the time set in \u{201C}Hide opened items again after\u{201D}, then hidden again.")
     }
 }

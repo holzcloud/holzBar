@@ -152,6 +152,20 @@ struct AutomationEngineTests {
         #expect(vpn.evaluate(in: AutomationFacts()) == nil)
     }
 
+    @Test("The camera and microphone conditions read their own facts and one observer")
+    func captureConditions() {
+        let facts = AutomationFacts(isCameraInUse: true, isMicrophoneInUse: false)
+        #expect(AutomationCondition.cameraInUse.evaluate(in: facts) == true)
+        #expect(AutomationCondition.microphoneInUse.evaluate(in: facts) == false)
+        #expect(AutomationCondition.cameraInUse.evaluate(in: AutomationFacts()) == nil)
+        #expect(AutomationCondition.microphoneInUse.evaluate(in: AutomationFacts()) == nil)
+        #expect(AutomationCondition.cameraInUse.source == .capture)
+        #expect(AutomationCondition.microphoneInUse.source == .capture)
+        #expect(AutomationCondition.cameraInUse.isValid)
+        let call = rule("Call", [.cameraInUse], action: .zen(true))
+        #expect(AutomationRule.sources(of: [call]) == [.capture])
+    }
+
     @Test("The first rule that applies a profile wins; the other waits")
     func firstProfileWins() {
         let rules = [

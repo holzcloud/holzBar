@@ -46,7 +46,7 @@
 <td valign="top" width="50%">
 
 #### Automation
-- ✅ **Show hidden items when the battery is low or the network drops**
+- ✅ **Show hidden items when the battery is low or the network drops** — since 0.0.8-beta2 these are ordinary rules in the Automation pane (the old settings are moved there once)
 - ✅ **Zen mode** — one hotkey, menu item, URL or Shortcuts action keeps hidden items hidden; optionally on while the screen is mirrored or shared, without any permission
 - ✅ **Shortcuts actions** — Zen mode, show or hide a section, apply a profile, open an item by name, search
 - ✅ **`holzbar://` URL commands** and [Raycast script commands](../Integrations/Raycast)
@@ -100,8 +100,10 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 ### 0.0.8 "Automation"
 
 **Automation**
-- **Rules** that apply a profile, reveal items or switch Zen mode when a Wi-Fi network, an app, the time of day, the power source, a display or a Focus matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Preview: the rules, the observers and the Automation pane are built but not yet tested on a Mac; the Wi-Fi name condition is built too, and needs your test of the Location prompt.*
+- **Rules** that apply a profile, reveal items or switch Zen mode when a Wi-Fi network, an app, the time of day, the power source, a display, a camera or the microphone in use or a Focus matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Preview: the rules, the observers and the Automation pane are built but not yet tested on a Mac; the Wi-Fi name condition is built too, and needs your test of the Location prompt.*
 - **URL and Shortcuts for rules** (*Preview*): `holzbar://automation/enable/<name>` and `/disable/<name>` ask first, and Shortcuts can turn a rule on or off and list the rules that are active. Rules are created and edited only in the settings.
+- **Camera and microphone in use** (*Preview*) as rule conditions, for example to switch Zen mode on during a call. holzBar reads only whether another app records or a camera runs, with no permission and no polling (macOS 14.2 and later).
+- **Low battery and offline are rules now**: the two fixed settings of earlier versions moved from Advanced into the Automation pane; if you had them on, holzBar turned them into two rules the first time 0.0.8-beta2 started. Unlike before, unplugging a low battery shows the items again.
 - **Focus filter** (*Preview*): add the holzBar filter to a Focus in System Settings to apply a layout profile while that Focus is on; the previous profile comes back when it ends. Whether macOS calls the filter on your Mac is the open question of this preview.
 - **Per-item conditions** (*Preview*): a rule action "Show an item only while this is true" makes one item follow a condition, for example a VPN item that is visible only while a VPN is connected. The item moves after a hold of three seconds, so a flapping condition does not move it every second; an unknown condition leaves it where it is. On macOS 27 the rule moves all items of the item's application.
 - **Scripts** (*Preview*) as a rule condition ("a script succeeds") or action ("run a script"): only from the Scripts folder, only after you allowed the exact content (its checksum), re-checked before every run, no arguments, no shell, a ten-second limit. Scripts never come in through an imported file or a URL. Profile hooks and a folder of your choice are not in this version.
@@ -115,12 +117,9 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Tidy Up assistant** (*Preview*): proposes which visible items to hide from static facts only (system extras, the app's category, a short list of known helpers); live values, the clock, the battery and apps with messages stay. You decide item by item, the arrangement is kept as a snapshot first, and nothing is recorded. Offered once after the first launch when nothing was arranged yet, and any time from Menu Bar Layout.
 - **Works without Screen Recording** (*Preview*): the Menu Bar Layout pane, the Shelf and the search show app icons instead of live pictures, with an offer to allow Screen Recording for the pictures.
 - **System items pinned visible** (*Preview*, macOS 26 and earlier): profiles, restored layouts and rules leave the clock, battery, Wi-Fi, Control Center and sound where they are; you can still move them yourself.
-- More **menu bar styles** (pills, outlines, gradients), as far as macOS 27 allows.
 
 **Polish**
-- Reordering in the Layout pane with SwiftUI's new reordering API, only if clearly better. *Spike.*
-- A keyboard and VoiceOver audit of every pane.
-- Swift 6.4 clean-up without behaviour changes.
+- A [keyboard and VoiceOver checklist](accessibility-checklist.md) to run on a Mac; holzBar makes no accessibility claim until it was run.
 
 ### 0.0.9
 
@@ -131,7 +130,7 @@ The release starts with the **design system**: one Liquid Glass look (holzBar's 
 - **AppleScript dictionary** to show, hide, switch profiles and turn rules on or off, and **App Intents** for Shortcuts and Siri.
 - **Command palette**: one hotkey opens a panel to run any holzBar action.
 - A **keep-awake** action (no permission needed) and a **focus mode** hotkey that hides everything except chosen items.
-- **More rule triggers**: VPN, Bluetooth, audio, camera and microphone in use, Energy Mode. Each one asks only for the permission it needs, when you use it.
+- **More rule triggers**: Bluetooth, audio, Energy Mode. Each one asks only for the permission it needs, when you use it.
 
 **Convenience**
 - **Usage suggestions** (opt-in): suggests hiding items you never click; counters stay on your Mac and can be erased with one click.
@@ -199,6 +198,6 @@ The "holzBar vs. Ice and Thaw" table above marks these with 🔜 and the release
 </tr>
 <tr>
 <td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action, profile and item<br><img src="../Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys for the hidden section, the search, opening an item by letter, the layout profile home, the holzBar Shelf, app menus, auto-rehide and Zen mode, each with Record Hotkey"></td>
-<td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode, automatic reveal and settings backup<br><img src="../Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, showing hidden items when the battery is low or the network is lost, and settings Export… and Import…"></td>
+<td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode and settings backup<br><img src="../Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, showing hidden items when the battery is low or the network is lost, and settings Export… and Import…"></td>
 </tr>
 </table>
