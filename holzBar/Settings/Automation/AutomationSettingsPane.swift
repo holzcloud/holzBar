@@ -30,12 +30,7 @@ struct AutomationSettingsPane: View {
 
     var body: some View {
         HolzBarForm(alignment: .leading, spacing: HolzBarTheme.Spacing.md) {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                PreviewBadge()
-                Text("Preview: not tested on a Mac yet. Please report problems.")
-                    .font(HolzBarTheme.Typography.caption)
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-            }
+            PreviewBadge()
             Text("When something happens, holzBar changes the menu bar for you. With no rules, nothing is observed.")
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
