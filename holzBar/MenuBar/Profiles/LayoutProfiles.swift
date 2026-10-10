@@ -253,8 +253,9 @@ final class LayoutProfiles {
 
     /// Applies the given profile.
     ///
-    /// With `runsHooks`, the profile's before hooks run first and holzBar waits for them, each
-    /// at most its time limit, then applies the profile whatever their outcome; its after hooks
+    /// With `runsHooks`, the profile's before hooks run first (at most five) and holzBar waits
+    /// for them, each at most its time limit and all together at most a minute, then applies the
+    /// profile whatever their outcome; its after hooks
     /// start once the items moved and are not awaited. A newer apply cancels one that still
     /// waits (D-13). Without hooks the profile is applied at once. The profile's name is never
     /// given to a script (D-06).
@@ -280,7 +281,11 @@ final class LayoutProfiles {
         }
         logger.notice("Waiting for \(before.count, privacy: .public) script hooks before applying a profile")
         pendingApply = Task { [weak self] in
-            await automation.runScripts(before, event: .profileWillApply)
+            await automation.runScripts(
+                before,
+                event: .profileWillApply,
+                totalSeconds: ProfileHooks.beforeWaitSeconds
+            )
             guard !Task.isCancelled, let self, let appState = self.appState else {
                 return
             }

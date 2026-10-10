@@ -376,6 +376,28 @@ struct ScriptStorageTests {
         #expect(ProfileHooks.scriptNames(for: "Work", timing: .beforeApplying, in: []).isEmpty)
     }
 
+    @Test("At most five before hooks run for one apply, after hooks are not cut (WR-07)")
+    func beforeHooksAreCapped() {
+        let hooks = (0..<8).map { hook(nil, .beforeApplying, "before\($0).sh") }
+            + [hook("Work", .beforeApplying, "own.sh")]
+            + (0..<8).map { hook(nil, .afterApplying, "after\($0).sh") }
+        let before = ProfileHooks.scriptNames(for: "Work", timing: .beforeApplying, in: hooks)
+        #expect(before.count == ProfileHooks.maximumBeforeHooksPerApply)
+        // The profile's own hook is first, so the cap never drops it for those of every profile.
+        #expect(before.first == "own.sh")
+        #expect(ProfileHooks.scriptNames(for: "Work", timing: .afterApplying, in: hooks).count == 8)
+    }
+
+    @Test("A before hook gets its own limit or what is left of the overall wait, and none when it is used up")
+    func beforeHookTimeLimits() {
+        #expect(ProfileHooks.beforeWaitSeconds == 60)
+        #expect(ProfileHooks.timeLimit(ownLimit: 10, remainingSeconds: 60) == 10)
+        #expect(ProfileHooks.timeLimit(ownLimit: 60, remainingSeconds: 25) == 25)
+        #expect(ProfileHooks.timeLimit(ownLimit: 30, remainingSeconds: 1) == 1)
+        #expect(ProfileHooks.timeLimit(ownLimit: 30, remainingSeconds: 0) == nil)
+        #expect(ProfileHooks.timeLimit(ownLimit: 30, remainingSeconds: -3) == nil)
+    }
+
     @Test("Hooks follow a renamed profile and go with a deleted one")
     func hooksFollowTheProfile() {
         let hooks = [

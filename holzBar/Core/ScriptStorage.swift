@@ -53,8 +53,17 @@ nonisolated enum ProfileHooks {
     /// The most hooks that are kept.
     static let maximumCount = 50
 
+    /// The most before hooks that run for one apply, the profile's own and those for every
+    /// profile together. holzBar waits for them, so the number is bounded (WR-07).
+    static let maximumBeforeHooksPerApply = 5
+
+    /// The longest holzBar waits for all before hooks of one apply together, in seconds. Each
+    /// hook also keeps its own time limit; the sum never goes past this.
+    static let beforeWaitSeconds = 60
+
     /// The scripts to run for a profile at one time: the hooks for that profile first, then
-    /// those for every profile, each name once, in the order the hooks were made.
+    /// those for every profile, each name once, in the order the hooks were made. At most
+    /// ``maximumBeforeHooksPerApply`` before hooks run.
     static func scriptNames(for profileName: String, timing: ProfileHookTiming, in hooks: [ProfileHook]) -> [String] {
         let matching = hooks.filter { $0.timing == timing }
         let own = matching.filter { $0.profileName == profileName }
@@ -64,7 +73,23 @@ nonisolated enum ProfileHooks {
         for hook in own + everyProfile where seen.insert(hook.scriptName).inserted {
             names.append(hook.scriptName)
         }
-        return names
+        guard timing == .beforeApplying else {
+            return names
+        }
+        return Array(names.prefix(maximumBeforeHooksPerApply))
+    }
+
+    /// The time limit a before hook gets: its own, or what is left of the overall wait when that
+    /// is less; `nil` when less than the shortest time limit is left, so the hook is skipped.
+    ///
+    /// - Parameters:
+    ///   - ownLimit: The hook's own time limit in seconds.
+    ///   - remainingSeconds: The whole seconds left of ``beforeWaitSeconds``.
+    static func timeLimit(ownLimit: Int, remainingSeconds: Int) -> Int? {
+        guard remainingSeconds >= ScriptLimits.minimumTimeLimit else {
+            return nil
+        }
+        return min(ownLimit, remainingSeconds)
     }
 
     /// The hooks with the ones of a renamed profile moved to its new name.

@@ -610,15 +610,36 @@ final class AutomationManager {
     /// approved is skipped (its row says it needs approval), and one that is busy or over the
     /// rate limit is skipped and shown as such, so a dropped start or end script is not
     /// silent. It stops starting scripts when the calling task is cancelled.
-    func runScripts(_ names: [String], event: ScriptEvent) async {
+    ///
+    /// - Parameters:
+    ///   - names: The script file names, in order.
+    ///   - event: What happened.
+    ///   - totalSeconds: The most time all of them may take together, or `nil` for no overall
+    ///     limit. Each script gets its own limit or what is left, and scripts that find no time
+    ///     left are not started (profile hooks, WR-07).
+    func runScripts(_ names: [String], event: ScriptEvent, totalSeconds: Int? = nil) async {
+        let clock = ContinuousClock()
+        let start = clock.now
         for name in names {
             guard !Task.isCancelled else {
                 return
             }
+            var timeLimit = scriptStore.timeLimit(for: name)
+            if let totalSeconds {
+                let left = Duration.seconds(totalSeconds) - (clock.now - start)
+                guard let allowed = ProfileHooks.timeLimit(
+                    ownLimit: timeLimit,
+                    remainingSeconds: Int(left.components.seconds)
+                ) else {
+                    logger.notice("The time for script hooks is used up; the rest are skipped")
+                    return
+                }
+                timeLimit = allowed
+            }
             let report = await scriptRunner.run(
                 name,
                 event: event,
-                timeLimit: scriptStore.timeLimit(for: name),
+                timeLimit: timeLimit,
                 folder: scriptStore.folderURL,
                 store: scriptStore
             )
