@@ -50,7 +50,9 @@ nonisolated enum ScriptOutput {
     /// with an ellipsis. It is empty when the output has no text. Bytes that are not UTF-8
     /// become the replacement character.
     static func displayLine(_ data: Data) -> String {
-        let text = String(decoding: data, as: UTF8.self)
+        // Lenient on purpose: bytes that are not UTF-8 become U+FFFD, so a script cannot make the line
+        // disappear (the failable initializer would return nil for the whole output).
+        let text = String(decoding: data, as: UTF8.self) // swiftlint:disable:this optional_data_string_conversion
         var line = String.UnicodeScalarView()
         var lastWasSpace = true
         // The text is cut at "\n" and "\r" first; the first line with text wins.
