@@ -70,6 +70,9 @@ final class LayoutProfiles {
     /// Receives the changes of the active Space.
     @ObservationIgnored private var spaceTask: Task<Void, Never>?
 
+    /// The apply that waits for its before hooks. A newer apply cancels it (D-13).
+    @ObservationIgnored private var pendingApply: Task<Void, Never>?
+
     func performSetup(with appState: AppState) {
         self.appState = appState
         load()
@@ -201,7 +204,8 @@ final class LayoutProfiles {
         logger.notice("Imported a shared layout profile with \(shared.apps.count, privacy: .public) applications")
     }
 
-    /// Deletes the profile with the given name.
+    /// Deletes the profile with the given name. Its script hooks go with it; undoing the
+    /// deletion brings the profile back without them.
     func delete(named name: String) {
         registerUndo(named: String(localized: "Delete Profile"))
         profiles.removeAll { $0.name == name }
@@ -210,6 +214,7 @@ final class LayoutProfiles {
         }
         save()
         appState?.settings.hotkeys.removeHotkey(for: .applyProfile(name))
+        appState?.automation.scriptStore.removeProfileHooks(named: name)
     }
 
     /// The profile with the given name. An exact match wins, since names may differ only in
@@ -220,40 +225,113 @@ final class LayoutProfiles {
     }
 
     /// Applies the profile with the given name, matched as in ``profile(named:)``.
-    func apply(named name: String) {
+    ///
+    /// - Parameters:
+    ///   - name: The profile's name.
+    ///   - runsHooks: Whether the profile's script hooks run and the apply counts as a
+    ///     profile-change event for script conditions. A change from a URL command, a Shortcut or
+    ///     the Focus filter passes `false` (D-12, T-11-M5).
+    func apply(named name: String, runsHooks: Bool = true) {
         guard let profile = self.profile(named: name) else {
             logger.warning("No layout profile named \(name, privacy: .private)")
             return
         }
-        apply(profile)
+        apply(profile, runsHooks: runsHooks)
     }
 
     /// A Focus filter turned on with a profile, or off (`nil`): applies the profile, and
     /// brings the one from before back when the Focus ends.
+    ///
+    /// A Shortcut's Set Focus action can switch a Focus and so this filter, so the apply is one
+    /// from outside holzBar: it runs no hooks and is no profile-change event (D-12).
     func focusFilterChanged(to name: String?) {
         guard let target = focusBinding.profileToApply(requested: name, current: currentProfileName) else {
             return
         }
-        apply(named: target)
+        apply(named: target, runsHooks: false)
     }
 
     /// Applies the given profile.
-    func apply(_ profile: LayoutProfile) {
+    ///
+    /// With `runsHooks`, the profile's before hooks run first and holzBar waits for them, each
+    /// at most its time limit, then applies the profile whatever their outcome; its after hooks
+    /// start once the items moved and are not awaited. A newer apply cancels one that still
+    /// waits (D-13). Without hooks the profile is applied at once. The profile's name is never
+    /// given to a script (D-06).
+    func apply(_ profile: LayoutProfile, runsHooks: Bool = true) {
         guard let appState else {
             return
         }
+        pendingApply?.cancel()
+        pendingApply = nil
+        guard runsHooks else {
+            applyNow(profile, with: appState)
+            return
+        }
+        let automation = appState.automation
+        let before = ProfileHooks.scriptNames(
+            for: profile.name,
+            timing: .beforeApplying,
+            in: automation.scriptStore.profileHooks
+        )
+        guard !before.isEmpty else {
+            applyAndRunAfterHooks(profile, with: appState)
+            return
+        }
+        logger.notice("Waiting for \(before.count, privacy: .public) script hooks before applying a profile")
+        pendingApply = Task { [weak self] in
+            await automation.runScripts(before, event: .profileWillApply)
+            guard !Task.isCancelled, let self, let appState = self.appState else {
+                return
+            }
+            pendingApply = nil
+            // The profile may have been renamed or deleted while the hooks ran.
+            guard let current = self.profile(named: profile.name) else {
+                logger.notice("The layout profile is gone; it is not applied")
+                return
+            }
+            applyAndRunAfterHooks(current, with: appState)
+        }
+    }
+
+    /// Applies the profile, then starts its after hooks once the items moved, and tells the
+    /// automation that a profile changed.
+    private func applyAndRunAfterHooks(_ profile: LayoutProfile, with appState: AppState) {
+        let moved = applyNow(profile, with: appState)
+        let automation = appState.automation
+        let after = ProfileHooks.scriptNames(
+            for: profile.name,
+            timing: .afterApplying,
+            in: automation.scriptStore.profileHooks
+        )
+        if !after.isEmpty {
+            Task {
+                await moved?.value
+                automation.startScripts(after, event: .profileDidApply)
+            }
+        }
+        automation.profileDidChange()
+    }
+
+    /// Makes the profile the current one and moves the items.
+    @discardableResult
+    private func applyNow(_ profile: LayoutProfile, with appState: AppState) -> Task<Void, Never>? {
         currentProfileName = profile.name
         save()
         logger.notice("Applying layout profile \(profile.name, privacy: .private)")
         appState.snapshots.willApplyProfile()
-        applyLayout(of: profile)
+        return applyLayout(of: profile)
     }
 
     /// Moves the items to the sections the layout names, without changing which profile is
     /// the current one. Items it does not know stay where they are.
-    func applyLayout(of profile: LayoutProfile) {
+    ///
+    /// - Returns: The task that finishes the move, so a caller can wait for it; `nil` when
+    ///   nothing was started.
+    @discardableResult
+    func applyLayout(of profile: LayoutProfile) -> Task<Void, Never>? {
         guard let appState else {
-            return
+            return nil
         }
         if #available(macOS 27.0, *) {
             // Merged into the saved layout, so applications the profile does not know keep
@@ -270,10 +348,9 @@ final class LayoutProfiles {
                 Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
             }
             appState.concealer27.update()
-            Task {
+            return Task {
                 await appState.itemManager.cacheItemsRegardless()
             }
-            return
         }
         // Keys of earlier versions (`namespace:title`) match through the item identity.
         let itemManager = appState.itemManager
@@ -291,7 +368,7 @@ final class LayoutProfiles {
                 sections[key] = section
             }
         }
-        Task {
+        return Task {
             await itemManager.reconcileSections(wanted: sections, trigger: .profile)
         }
     }
@@ -315,6 +392,7 @@ final class LayoutProfiles {
         }
         save()
         appState?.settings.hotkeys.moveHotkey(from: .applyProfile(profile.name), to: .applyProfile(newName))
+        appState?.automation.scriptStore.renameProfileHooks(from: profile.name, to: newName)
     }
 
     // MARK: Undo
@@ -346,6 +424,11 @@ final class LayoutProfiles {
     ) {
         registerUndo(named: actionName)
         let removedNames = Set(profiles.map(\.name)).subtracting(restored.map(\.name))
+        let addedNames = Set(restored.map(\.name)).subtracting(profiles.map(\.name))
+        // An undone or redone rename: the hooks follow the profile back.
+        if removedNames.count == 1, addedNames.count == 1, let removed = removedNames.first, let added = addedNames.first {
+            appState?.automation.scriptStore.renameProfileHooks(from: removed, to: added)
+        }
         profiles = restored
         currentProfileName = restoredCurrent
         save()

@@ -83,6 +83,8 @@ final class AutomationManager {
     /// a change the user makes in the pane. While held, a pass asks no script condition and
     /// starts no script, and a rule that would start waits for that event (D-12, T-11-M5).
     @ObservationIgnored private var scriptsAreHeld = false
+    /// The one deferred pass that a profile change asks for; see ``profileDidChange()``.
+    @ObservationIgnored private var profileChangeTask: Task<Void, Never>?
     /// The Wi-Fi name last reported, to tell a change from the report that follows a start.
     @ObservationIgnored private var lastWiFiName: String?
     @ObservationIgnored private var hasWiFiReport = false
@@ -534,7 +536,7 @@ final class AutomationManager {
         )
         engineState = result.state
         for effect in result.effects {
-            perform(effect, with: appState)
+            perform(effect, with: appState, allowsScripts: allowsScripts)
         }
     }
 
@@ -623,6 +625,29 @@ final class AutomationManager {
         }
     }
 
+    /// A profile was applied by the user, a hotkey, a rule or a display or Space binding: the
+    /// profile-change event of D-04. It asks the script conditions once, on the next turn of the
+    /// main actor, and only when a rule has one. The turn keeps an apply that the engine itself
+    /// performed from re-entering ``evaluate()`` while its effects are carried out (T-11-L1).
+    /// An apply from a URL command, a Shortcut or the Focus filter never calls this (D-12).
+    func profileDidChange() {
+        guard
+            isSetUp,
+            profileChangeTask == nil,
+            AutomationRule.observedSources(of: rules).contains(.scripts)
+        else {
+            return
+        }
+        profileChangeTask = Task { [weak self] in
+            await Task.yield()
+            guard let self, !Task.isCancelled else {
+                return
+            }
+            profileChangeTask = nil
+            evaluate()
+        }
+    }
+
     // MARK: Items that follow a condition
 
     /// The section each item wants now, by identity key, from the rules of the kind
@@ -686,11 +711,18 @@ final class AutomationManager {
         lastItemSections.merge(changes) { _, new in new }
     }
 
-    private func perform(_ effect: AutomationEngine.Effect, with appState: AppState) {
+    /// Carries out one effect of the engine. `allowsScripts` is false for a pass that a change
+    /// from outside caused: a profile such a pass applies runs no hooks (D-12, T-11-M5).
+    private func perform(_ effect: AutomationEngine.Effect, with appState: AppState, allowsScripts: Bool) {
         switch effect {
         case .applyProfile(let name):
             logger.notice("An automation rule applies a profile")
-            appState.profiles.apply(named: name)
+            if allowsScripts {
+                appState.profiles.apply(named: name)
+            } else {
+                // A pass that a URL command or a Shortcut caused: no hook runs for its profile.
+                appState.profiles.apply(named: name, runsHooks: false)
+            }
         case .showSection(let section):
             reveal(section == .alwaysHidden ? .alwaysHidden : .hidden)
         case .setZen(let isOn):
