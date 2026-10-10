@@ -8,6 +8,10 @@
 # file defines them. Everything happens in a temporary copy; nothing is written inside the
 # repository.
 #
+# The Command Line Tools ship no `PreviewsMacros` plugin, so every `#Preview` block would be an
+# error, and a macro error stops the compiler before its SIL diagnostics (region-based
+# isolation and others). The temporary copy therefore drops the `#Preview` blocks.
+#
 # The 26.5 SDK is the default because the Command Line Tools lack the SwiftUI macro plugin
 # for the 27 SDK, so the 27 SDK cannot expand `@Observable` and friends. Override it with
 # `SDK=/path/to/MacOSX.sdk`.
@@ -23,6 +27,12 @@ trap 'rm -rf "$work"' EXIT
 mkdir "$work/src"
 cp -R "$root/holzBar" "$work/src/holzBar"
 cp -R "$root/Shared" "$work/src/Shared"
+
+# The Command Line Tools have no PreviewsMacros plugin ("plugin for module 'PreviewsMacros' not
+# found"), and macro errors would hide the compiler's SIL diagnostics. Drop every top-level
+# `#Preview` block, from its line up to and including the next line that is exactly `}`, from
+# the copy only. A file may continue after its preview (an extension), so it is not truncated.
+find "$work/src" -name '*.swift' -exec perl -0777 -pi -e 's/^#Preview.*?^\}(?:\n|\z)//gms' {} +
 
 cat > "$work/AssetStubs.swift" <<'EOF'
 import AppKit
