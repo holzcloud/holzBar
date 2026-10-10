@@ -18,7 +18,8 @@ nonisolated enum AutomationEngine {
         case showSection(AutomationSection)
         case setZen(Bool)
         case setKeepAwake(Bool)
-        case runScript(String)
+        /// Runs an approved script with this event as its only context.
+        case runScript(String, ScriptEvent)
     }
 
     /// What the app looks like right now.
@@ -58,11 +59,16 @@ nonisolated enum AutomationEngine {
     ///   - facts: The current facts.
     ///   - context: The current profile and Zen mode.
     ///   - state: The state returned by the last pass.
+    ///   - allowsScripts: Whether this pass may run scripts. A pass that a URL command or a
+    ///     Shortcut caused passes `false`, so nothing from outside holzBar runs a script (D-12,
+    ///     T-11-M5): a rule that runs a script does not start, and the end script of one that
+    ///     ends is dropped, not remembered. Every other kind of rule is unaffected.
     static func evaluate(
         rules: [AutomationRule],
         facts: AutomationFacts,
         context: Context,
-        state: State
+        state: State,
+        allowsScripts: Bool = true
     ) -> Result {
         // A rule of the kind "show an item only while …" follows its condition and is not
         // acted on once; ``ItemVisibility`` handles it.
@@ -88,13 +94,20 @@ nonisolated enum AutomationEngine {
             case .applyProfile(let name): context.currentProfile == name
             case .setZen(let isOn): context.isZenOn == isOn
             case .setKeepAwake(let isOn): context.isKeepAwakeOn == isOn
-            case .showSection, .runScript: false
+            case .showSection: false
+            // A script ran once; ending the rule runs it again when the rule asked for that.
+            case .runScript: true
             }
         }
 
         func end(_ id: UUID) {
             next.active.remove(id)
             guard let undo = next.undo.removeValue(forKey: id), holds(undo.applied) else {
+                return
+            }
+            // A change from outside runs no end script, and the entry is gone: a later pass
+            // does not run it either.
+            if !allowsScripts, case .runScript = undo.applied {
                 return
             }
             apply(undo.restore)
@@ -114,6 +127,10 @@ nonisolated enum AutomationEngine {
                 end(rule.id)
             } else if isMet && !wasActive {
                 guard let effect = rule.action.effect else {
+                    continue
+                }
+                if !allowsScripts, case .runScript = effect {
+                    // It starts at the next pass that allows scripts.
                     continue
                 }
                 if case .applyProfile = effect {
@@ -158,8 +175,10 @@ nonisolated enum AutomationEngine {
             return .setZen(context.isZenOn)
         case .setKeepAwake:
             return .setKeepAwake(context.isKeepAwakeOn)
-        case .showSection, .runScript:
+        case .showSection:
             return nil
+        case .runScript(let name, _):
+            return .runScript(name, .ruleEnded)
         }
     }
 }
@@ -173,7 +192,7 @@ extension AutomationAction {
         case .zen(let isOn): .setZen(isOn)
         case .keepAwake(let isOn): .setKeepAwake(isOn)
         case .showItemOnlyWhile: nil
-        case .runScript(let name): .runScript(name)
+        case .runScript(let name): .runScript(name, .ruleStarted)
         }
     }
 }

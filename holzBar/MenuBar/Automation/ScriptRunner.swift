@@ -5,17 +5,29 @@
 
 import Foundation
 import OSLog
+import os
 
 /// What came of a run.
 enum ScriptOutcome: Equatable {
     /// The script ended with status 0.
     case succeeded
-    /// It ended with another status, or did not end in time.
+    /// It ended with another status, was ended by a signal, or could not start.
     case failed
+    /// It did not end within its time limit and was signalled.
+    case timedOut
+    /// The script is already running; this run was not started.
+    case busy
     /// The gate refused it, or it needs the user's approval first.
     case notAllowed
     /// Too many runs in the last minute.
     case rateLimited
+}
+
+/// The result of one call of ``ScriptRunner/run(_:event:timeLimit:folder:store:)``.
+struct ScriptRunReport: Equatable {
+    let outcome: ScriptOutcome
+    /// What the run left behind, for every run that started; `nil` when none did.
+    let record: ScriptRunRecord?
 }
 
 /// Runs the scripts the user approved.
@@ -25,7 +37,9 @@ enum ScriptOutcome: Equatable {
 /// beyond the name of the event. A run ends after its time limit (10 seconds unless set, at
 /// most 60): the script gets SIGTERM, and SIGKILL two seconds later, sent to the script's
 /// whole process group when it leads its own, so what it forked goes too. At most ten runs
-/// start a minute, and the script's input and output are discarded.
+/// start a minute. Its input is `/dev/null`; each of its two output streams is read to the
+/// end and kept up to 64 KB, the rest is dropped, and only one cleaned line of at most 80
+/// characters is kept, in memory, never logged.
 /// It runs as the user, with holzBar's permissions; macOS asks separately before a script
 /// controls another app.
 @MainActor
@@ -34,9 +48,57 @@ final class ScriptRunner {
     private var limiter = ScriptRateLimiter()
     private var runningNames = Set<String>()
 
+    /// How long the runner waits for the end of the output after the script ended, in
+    /// 50 millisecond steps (one second). A background child that keeps a pipe open cannot keep
+    /// the run alive longer.
+    private static let outputGraceSteps = 20
+
     /// What the time-limit task tells the run: it fired and signalled the script.
     private final class RunState {
         var didTimeOut = false
+    }
+
+    /// How the process ended, as the termination handler saw it.
+    private struct ProcessExit: Sendable {
+        let status: Int32
+        let wasSignaled: Bool
+    }
+
+    /// One output stream of the script: a pipe that is always drained, into a buffer that keeps
+    /// at most 64 KB.
+    private final class OutputCapture {
+        let pipe = Pipe()
+        private let buffer = OSAllocatedUnfairLock(
+            initialState: ScriptOutputBuffer(limit: ScriptLimits.maximumOutputBytes)
+        )
+        private let reachedEnd = OSAllocatedUnfairLock(initialState: false)
+
+        init() {
+            let buffer = buffer
+            let reachedEnd = reachedEnd
+            pipe.fileHandleForReading.readabilityHandler = { handle in
+                let chunk = handle.availableData
+                if chunk.isEmpty {
+                    // End of file: nothing more will come, and the handler must not spin.
+                    handle.readabilityHandler = nil
+                    reachedEnd.withLock { $0 = true }
+                } else {
+                    buffer.withLock { $0.append(chunk) }
+                }
+            }
+        }
+
+        /// Whether the script closed the stream.
+        var isAtEnd: Bool {
+            reachedEnd.withLock { $0 }
+        }
+
+        /// Stops reading and returns what was kept.
+        func finish() -> Data {
+            pipe.fileHandleForReading.readabilityHandler = nil
+            try? pipe.fileHandleForReading.close()
+            return buffer.withLock { $0.data }
+        }
     }
 
     /// Runs the script with the given name once.
@@ -53,20 +115,20 @@ final class ScriptRunner {
         timeLimit: Int,
         folder: URL,
         store: ScriptStore
-    ) async -> ScriptOutcome {
+    ) async -> ScriptRunReport {
         guard !runningNames.contains(name) else {
-            return .failed
+            return ScriptRunReport(outcome: .busy, record: nil)
         }
         guard
             let info = store.fileInfo(for: name),
             case .allowed(let kind) = ScriptGate.decide(info, approvedHash: store.approvedHash(for: name))
         else {
             logger.notice("A script is not allowed to run")
-            return .notAllowed
+            return ScriptRunReport(outcome: .notAllowed, record: nil)
         }
         guard limiter.allowRun(at: .now) else {
             logger.notice("Too many script runs; one was skipped")
-            return .rateLimited
+            return ScriptRunReport(outcome: .rateLimited, record: nil)
         }
         guard
             let plan = ScriptLaunchPlan.make(
@@ -78,7 +140,7 @@ final class ScriptRunner {
             )
         else {
             logger.notice("A script is not allowed to run")
-            return .notAllowed
+            return ScriptRunReport(outcome: .notAllowed, record: nil)
         }
         runningNames.insert(name)
         defer {
@@ -90,21 +152,29 @@ final class ScriptRunner {
         process.arguments = plan.arguments
         process.environment = plan.environment
         process.currentDirectoryURL = URL(filePath: plan.workingDirectoryPath, directoryHint: .isDirectory)
+        let standardOutput = OutputCapture()
+        let standardError = OutputCapture()
         process.standardInput = FileHandle.nullDevice
-        process.standardOutput = FileHandle.nullDevice
-        process.standardError = FileHandle.nullDevice
+        process.standardOutput = standardOutput.pipe
+        process.standardError = standardError.pipe
 
         let state = RunState()
         let seconds = ScriptLimits.timeLimit(timeLimit)
-        let status: Int32 = await withCheckedContinuation { continuation in
+        var watchdog: Task<Void, Never>?
+        let exit: ProcessExit? = await withCheckedContinuation { continuation in
             process.terminationHandler = { finished in
-                continuation.resume(returning: finished.terminationStatus)
+                continuation.resume(
+                    returning: ProcessExit(
+                        status: finished.terminationStatus,
+                        wasSignaled: finished.terminationReason == .uncaughtSignal
+                    )
+                )
             }
             do {
                 try process.run()
             } catch {
                 process.terminationHandler = nil
-                continuation.resume(returning: -1)
+                continuation.resume(returning: nil)
                 return
             }
             // The child leads its own process group, so the group's signals reach what it
@@ -113,9 +183,9 @@ final class ScriptRunner {
             let group = getpgid(pid)
             let leadsOwnGroup = group == pid && group != getpgrp()
             // After the time limit the script gets SIGTERM, and SIGKILL two seconds later.
-            Task { @MainActor in
+            watchdog = Task { @MainActor in
                 try? await Task.sleep(for: .seconds(seconds))
-                guard process.isRunning else {
+                guard !Task.isCancelled, process.isRunning else {
                     return
                 }
                 state.didTimeOut = true
@@ -133,8 +203,47 @@ final class ScriptRunner {
                 }
             }
         }
-        logger.notice("A script ended with status \(status, privacy: .public)")
-        // A script that ends with status 0 after it was signalled still timed out.
-        return status == 0 && !state.didTimeOut ? .succeeded : .failed
+        if !state.didTimeOut {
+            // It ended before its time limit: nothing is left to signal.
+            watchdog?.cancel()
+        }
+        guard let exit else {
+            _ = standardOutput.finish()
+            _ = standardError.finish()
+            logger.notice("A script could not be started")
+            let record = ScriptRunRecord(date: .now, termination: .notLaunched, displayLine: "")
+            return ScriptRunReport(outcome: .failed, record: record)
+        }
+
+        // The pipes are read to their end, but a background child that keeps one open does not
+        // keep the run alive: after a second they are closed with what was read.
+        for _ in 0..<Self.outputGraceSteps where !(standardOutput.isAtEnd && standardError.isAtEnd) {
+            try? await Task.sleep(for: .milliseconds(50))
+        }
+        let output = standardOutput.finish()
+        let errors = standardError.finish()
+        var line = ScriptOutput.displayLine(output)
+        if line.isEmpty {
+            line = ScriptOutput.displayLine(errors)
+        }
+
+        let termination: ScriptTermination
+        let outcome: ScriptOutcome
+        if state.didTimeOut {
+            // A script that ends with status 0 after it was signalled still timed out.
+            termination = .timedOut
+            outcome = .timedOut
+            logger.notice("A script exceeded its time limit")
+        } else if exit.wasSignaled {
+            termination = .signaled(exit.status)
+            outcome = .failed
+            logger.notice("A script was ended by signal \(exit.status, privacy: .public)")
+        } else {
+            termination = .exited(exit.status)
+            outcome = termination.succeeded ? .succeeded : .failed
+            logger.notice("A script ended with status \(exit.status, privacy: .public)")
+        }
+        let record = ScriptRunRecord(date: .now, termination: termination, displayLine: line)
+        return ScriptRunReport(outcome: outcome, record: record)
     }
 }

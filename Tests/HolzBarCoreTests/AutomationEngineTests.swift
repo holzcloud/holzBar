@@ -37,13 +37,15 @@ struct AutomationEngineTests {
         _ facts: AutomationFacts,
         profile: String? = "Home",
         zen: Bool = false,
-        state: Engine.State = Engine.State()
+        state: Engine.State = Engine.State(),
+        allowsScripts: Bool = true
     ) -> Engine.Result {
         Engine.evaluate(
             rules: rules,
             facts: facts,
             context: Engine.Context(currentProfile: profile, isZenOn: zen),
-            state: state
+            state: state,
+            allowsScripts: allowsScripts
         )
     }
 
@@ -361,15 +363,108 @@ struct AutomationEngineTests {
         #expect(!AutomationAction.showItemOnlyWhile(itemKey: "", hiding: .hidden).isValid)
     }
 
-    @Test("A script runs once when its rule starts")
+    @Test("A script runs once when its rule starts, and not again when it ends unless asked")
     func scriptAction() {
-        let rules = [rule("Backup", [battery], action: .runScript("backup.sh"))]
+        let rules = [rule("Backup", [battery], action: .runScript("backup.sh"), restores: false)]
         let started = run(rules, facts(power: .battery))
-        #expect(started.effects == [.runScript("backup.sh")])
+        #expect(started.effects == [.runScript("backup.sh", .ruleStarted)])
         let again = run(rules, facts(power: .battery), state: started.state)
         #expect(again.effects.isEmpty)
         let ended = run(rules, facts(), state: again.state)
         #expect(ended.effects.isEmpty)
+    }
+
+    @Test("A script runs again with rule-ended when its rule ends and the end option is on")
+    func scriptEndRun() {
+        let rules = [rule("Backup", [battery], action: .runScript("backup.sh"), restores: true)]
+        let started = run(rules, facts(power: .battery))
+        #expect(started.effects == [.runScript("backup.sh", .ruleStarted)])
+        #expect(started.state.undo[rules[0].id]?.restore == .runScript("backup.sh", .ruleEnded))
+        let again = run(rules, facts(power: .battery), state: started.state)
+        #expect(again.effects.isEmpty)
+        let ended = run(rules, facts(), state: again.state)
+        #expect(ended.effects == [.runScript("backup.sh", .ruleEnded)])
+        #expect(ended.state.active.isEmpty)
+        #expect(ended.state.undo.isEmpty)
+        let afterwards = run(rules, facts(), state: ended.state)
+        #expect(afterwards.effects.isEmpty)
+    }
+
+    @Test("Disabling or removing an active script rule runs its end script")
+    func scriptEndOnDisable() {
+        var rules = [rule("Backup", [battery], action: .runScript("backup.sh"), restores: true)]
+        let started = run(rules, facts(power: .battery))
+        rules[0].isEnabled = false
+        let disabled = run(rules, facts(power: .battery), state: started.state)
+        #expect(disabled.effects == [.runScript("backup.sh", .ruleEnded)])
+        let removed = run([], facts(power: .battery), state: started.state)
+        #expect(removed.effects == [.runScript("backup.sh", .ruleEnded)])
+    }
+
+    @Test("A script runs when its rule starts again after it ended")
+    func scriptRunsAgainAfterEnd() {
+        let rules = [rule("Backup", [battery], action: .runScript("backup.sh"), restores: true)]
+        let started = run(rules, facts(power: .battery))
+        let ended = run(rules, facts(), state: started.state)
+        let restarted = run(rules, facts(power: .battery), state: ended.state)
+        #expect(restarted.effects == [.runScript("backup.sh", .ruleStarted)])
+    }
+
+    @Test("A change from outside runs no end script and keeps no undo entry for it")
+    func outsideChangeRunsNoEndScript() {
+        var rules = [rule("Backup", [battery], action: .runScript("backup.sh"), restores: true)]
+        let started = run(rules, facts(power: .battery))
+        rules[0].isEnabled = false
+        let outside = run(rules, facts(power: .battery), state: started.state, allowsScripts: false)
+        #expect(outside.effects.isEmpty)
+        #expect(outside.state.active.isEmpty)
+        #expect(outside.state.undo.isEmpty)
+        let later = run(rules, facts(power: .battery), state: outside.state, allowsScripts: true)
+        #expect(later.effects.isEmpty)
+    }
+
+    @Test("A script rule does not start in a pass from outside and starts in the next pass that allows it")
+    func outsideChangeStartsNoScript() {
+        let rules = [rule("Backup", [battery], action: .runScript("backup.sh"), restores: true)]
+        let held = run(rules, facts(power: .battery), allowsScripts: false)
+        #expect(held.effects.isEmpty)
+        #expect(held.state.active.isEmpty)
+        let later = run(rules, facts(power: .battery), state: held.state)
+        #expect(later.effects == [.runScript("backup.sh", .ruleStarted)])
+    }
+
+    @Test("A pass from outside still starts and ends every other kind of rule")
+    func outsideChangeLeavesOtherRules() {
+        let rules = [
+            rule("Profile", [office], action: .applyProfile("Office")),
+            rule("Zen", [battery], action: .zen(true)),
+            rule("Awake", [battery], action: .keepAwake(true)),
+        ]
+        let on = facts(displays: ["DISPLAY-1"], power: .battery)
+        let held = run(rules, on, allowsScripts: false)
+        let normal = run(rules, on)
+        #expect(held == normal)
+        #expect(held.effects == [.applyProfile("Office"), .setZen(true), .setKeepAwake(true)])
+        let endedHeld = run(rules, facts(), profile: "Office", zen: true, state: held.state, allowsScripts: false)
+        let endedNormal = run(rules, facts(), profile: "Office", zen: true, state: normal.state)
+        #expect(endedHeld == endedNormal)
+        #expect(endedHeld.effects.contains(.applyProfile("Home")))
+    }
+
+    @Test("Script conditions are asked on the events of power, network, apps and displays, never a timer")
+    func scriptEventSources() {
+        let condition = rule("Check", [.scriptSucceeds("check.sh")], action: .zen(true))
+        #expect(AutomationRule.sources(of: [condition]) == [.scripts])
+        #expect(AutomationRule.observedSources(of: [condition]) == [.scripts, .power, .network, .runningApps, .displays])
+        #expect(!AutomationRule.observedSources(of: [condition]).contains(.time))
+        var disabled = condition
+        disabled.isEnabled = false
+        #expect(AutomationRule.observedSources(of: [disabled]).isEmpty)
+        let plain = rule("Power", [battery], action: .zen(true))
+        #expect(AutomationRule.observedSources(of: [plain]) == AutomationRule.sources(of: [plain]))
+        // A script action alone asks no condition and needs no extra observer.
+        let action = rule("Go", [battery], action: .runScript("go.sh"))
+        #expect(AutomationRule.observedSources(of: [action]) == [.power])
     }
 
     @Test("A script condition reads the last answer and is unknown without one")
@@ -396,5 +491,7 @@ struct AutomationEngineTests {
         #expect(rules == [plain])
         #expect(AutomationRule.removingScriptRules(from: Data("nonsense".utf8)) == nil)
         #expect(withCondition.usesScript && withAction.usesScript && !plain.usesScript)
+        #expect(AutomationRule.scriptRuleCount(in: data) == 2)
+        #expect(AutomationRule.scriptRuleCount(in: Data("nonsense".utf8)) == 0)
     }
 }
