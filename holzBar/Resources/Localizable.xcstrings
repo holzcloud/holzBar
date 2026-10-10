@@ -253,34 +253,6 @@
         }
       }
     },
-    "%@, %lld bytes, checksum starts with %@. It runs as you, with holzBar's permissions. Allow it only if you wrote it or read it." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, %lld Byte, Prüfsumme beginnt mit %@. Es läuft als du, mit den Berechtigungen von holzBar. Erlaube es nur, wenn du es geschrieben oder gelesen hast."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, %lld octets, la somme de contrôle commence par %@. Il s’exécute comme vous, avec les autorisations de holzBar. Ne l’autorisez que si vous l’avez écrit ou lu."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, %lld byte, il checksum inizia con %@. Viene eseguito come te, con le autorizzazioni di holzBar. Consentilo solo se lo hai scritto o letto."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, %lld bytes, la summa da controlla cumenza cun %@. El vegn exequì sco ti, cun las permissiuns da holzBar. Lubescha el mo sche ti has scrit u legì el."
-          }
-        }
-      }
-    },
     "%lld items" : {
       "localizations" : {
         "de" : {
@@ -2643,6 +2615,62 @@
         }
       }
     },
+    "Choose" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auswählen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tscherner"
+          }
+        }
+      }
+    },
+    "Choose Folder…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner auswählen…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir un dossier…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli cartella…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tscherner l’ordinatur…"
+          }
+        }
+      }
+    },
     "Choose Image…" : {
       "localizations" : {
         "de" : {
@@ -4127,6 +4155,34 @@
         }
       }
     },
+    "Every approval is removed. Each script in the new folder needs your approval again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jede Erlaubnis wird entfernt. Jedes Skript im neuen Ordner braucht erneut deine Erlaubnis."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toutes les autorisations sont retirées. Chaque script du nouveau dossier a de nouveau besoin de votre autorisation."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni approvazione viene rimossa. Ogni script nella nuova cartella richiede di nuovo la tua approvazione."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tut las lubientschas vegnan allontanadas. Mintga scrip en il nov ordinatur dovra puspè tia lubientscha."
+          }
+        }
+      }
+    },
     "Expensive connection (hotspot)" : {
       "localizations" : {
         "de" : {
@@ -5467,6 +5523,146 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mantegnair visibels l’ura, l’accu, WLAN, il center da controlla e il tun"
+          }
+        }
+      }
+    },
+    "Last run: could not start" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzter Lauf: konnte nicht starten"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernière exécution : n’a pas pu démarrer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima esecuzione: impossibile avviare"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima execuziun: n’ha betg pudì partir"
+          }
+        }
+      }
+    },
+    "Last run: failed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzter Lauf: fehlgeschlagen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernière exécution : échec"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima esecuzione: non riuscita"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima execuziun: betg reussida"
+          }
+        }
+      }
+    },
+    "Last run: stopped by a signal" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzter Lauf: durch ein Signal beendet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernière exécution : arrêtée par un signal"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima esecuzione: interrotta da un segnale"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima execuziun: fermada tras in signal"
+          }
+        }
+      }
+    },
+    "Last run: succeeded" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzter Lauf: erfolgreich"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernière exécution : réussie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima esecuzione: riuscita"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima execuziun: reussida"
+          }
+        }
+      }
+    },
+    "Last run: timed out" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzter Lauf: Zeitlimit überschritten"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernière exécution : délai dépassé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima esecuzione: tempo scaduto"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima execuziun: temp surpassà"
           }
         }
       }
@@ -7767,6 +7963,34 @@
         }
       }
     },
+    "Others can write to this folder, so no script in it runs." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Andere können in diesen Ordner schreiben, deshalb läuft kein Skript darin."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "D’autres peuvent écrire dans ce dossier, donc aucun script qu’il contient ne s’exécute."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altri possono scrivere in questa cartella, quindi nessuno script al suo interno viene eseguito."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auters pon scriver en quest ordinatur, perquai na vegn exequì nagin scrip a l’intern."
+          }
+        }
+      }
+    },
     "Otherwise hide it in" : {
       "localizations" : {
         "de" : {
@@ -9587,30 +9811,30 @@
         }
       }
     },
-    "Scripts run as you, with holzBar's permissions, and only after you allowed their exact content. Put them in the Scripts folder; nothing else can run." : {
+    "Scripts run as you, with holzBar's permissions. macOS asks separately before a script controls another app. Only scripts in the folder you chose run, and only after you allowed their exact content." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Skripte laufen als du, mit den Berechtigungen von holzBar, und erst nachdem du ihren genauen Inhalt erlaubt hast. Lege sie in den Skripte-Ordner; nichts anderes kann laufen."
+            "value" : "Skripte laufen als du, mit den Berechtigungen von holzBar. macOS fragt separat nach, bevor ein Skript eine andere App steuert. Nur Skripte im gewählten Ordner laufen, und nur nachdem du ihren genauen Inhalt erlaubt hast."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les scripts s’exécutent comme vous, avec les autorisations de holzBar, et seulement après que vous avez autorisé leur contenu exact. Placez-les dans le dossier des scripts ; rien d’autre ne peut s’exécuter."
+            "value" : "Les scripts s’exécutent comme vous, avec les autorisations de holzBar. macOS demande séparément avant qu’un script contrôle une autre app. Seuls les scripts du dossier que vous avez choisi s’exécutent, et seulement après que vous avez autorisé leur contenu exact."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gli script vengono eseguiti come te, con le autorizzazioni di holzBar, e solo dopo che hai consentito il loro contenuto esatto. Mettili nella cartella degli script; nient’altro può essere eseguito."
+            "value" : "Gli script vengono eseguiti come te, con le autorizzazioni di holzBar. macOS chiede separatamente prima che uno script controlli un’altra app. Vengono eseguiti solo gli script nella cartella che hai scelto, e solo dopo che hai consentito il loro contenuto esatto."
           }
         },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ils scrips vegnan exequids sco ti, cun las permissiuns da holzBar, e mo suenter che ti has lubì lur cuntegn exact. Metta els en l’ordinatur dals scrips; nagut auter na po vegnir exequì."
+            "value" : "Ils scrips vegnan exequids sco ti, cun las permissiuns da holzBar. macOS dumonda separadamain, avant che in scrip controllescha in’autra app. Mo ils scrips en l’ordinatur tschernì vegnan exequids, e mo suenter che ti has lubì lur cuntegn exact."
           }
         }
       }
@@ -11323,6 +11547,34 @@
         }
       }
     },
+    "The scripts file could not be read and was set aside. Allow your scripts again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Skriptdatei konnte nicht gelesen werden und wurde beiseitegelegt. Erlaube deine Skripte erneut."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier des scripts n’a pas pu être lu et a été mis de côté. Autorisez de nouveau vos scripts."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file degli script non ha potuto essere letto ed è stato messo da parte. Consenti di nuovo i tuoi script."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il fid dals scrips n’ha betg pudì vegnir legì ed è vegnì missà da vart. Lubescha puspè tes scrips."
+          }
+        }
+      }
+    },
     "The search shows pictures of your menu bar items, which macOS lets an app take only with Screen Recording. You can search by name without it." : {
       "localizations" : {
         "de" : {
@@ -11491,6 +11743,90 @@
         }
       }
     },
+    "This folder is a link, so no script in it runs." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Ordner ist ein Link, deshalb läuft kein Skript darin."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce dossier est un lien, donc aucun script qu’il contient ne s’exécute."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa cartella è un link, quindi nessuno script al suo interno viene eseguito."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quest ordinatur è ina colliaziun, perquai na vegn exequì nagin scrip a l’intern."
+          }
+        }
+      }
+    },
+    "This folder is not yours, so no script in it runs." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Ordner gehört dir nicht, deshalb läuft kein Skript darin."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce dossier n’est pas le vôtre, donc aucun script qu’il contient ne s’exécute."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa cartella non è tua, quindi nessuno script al suo interno viene eseguito."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quest ordinatur n’è betg tes, perquai na vegn exequì nagin scrip a l’intern."
+          }
+        }
+      }
+    },
+    "This is not a folder, so no script runs." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das ist kein Ordner, deshalb läuft kein Skript."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce n’est pas un dossier, donc aucun script ne s’exécute."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa non è una cartella, quindi nessuno script viene eseguito."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quai n’è nagin ordinatur, perquai na vegn exequì nagin scrip."
+          }
+        }
+      }
+    },
     "This keeps someone at your unlocked Mac from seeing your hidden items. Turning it off asks too. It is not protection against someone who knows your password." : {
       "localizations" : {
         "de" : {
@@ -11627,6 +11963,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rumar si ta trav da menu?"
+          }
+        }
+      }
+    },
+    "Time limit: %lld s" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeitlimit: %lld s"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limite de temps : %lld s"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limite di tempo: %lld s"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cunfin da temp: %lld s"
           }
         }
       }
@@ -12583,6 +12947,34 @@
         }
       }
     },
+    "Use Folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner verwenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser le dossier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa cartella"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duvrar l’ordinatur"
+          }
+        }
+      }
+    },
     "Use Symbol" : {
       "localizations" : {
         "de" : {
@@ -12719,6 +13111,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Duvrar sin"
+          }
+        }
+      }
+    },
+    "Use this folder for scripts?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diesen Ordner für Skripte verwenden?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser ce dossier pour les scripts ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usare questa cartella per gli script?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duvrar quest ordinatur per ils scrips?"
           }
         }
       }
@@ -13195,6 +13615,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tes layout para reinizialisà."
+          }
+        }
+      }
+    },
+    "Your scripts were set up by a newer holzBar. Nothing runs until you update holzBar." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Skripte wurden von einer neueren holzBar-Version eingerichtet. Nichts läuft, bis du holzBar aktualisierst."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos scripts ont été configurés par une version plus récente de holzBar. Rien ne s’exécute tant que vous n’avez pas mis à jour holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I tuoi script sono stati configurati da una versione più recente di holzBar. Non viene eseguito nulla finché non aggiorni holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes scrips èn vegnids configurads dad ina versiun pli nova da holzBar. Nagut vegn exequì, fin che ti actualiseschas holzBar."
           }
         }
       }
@@ -14881,6 +15329,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "«%@» dovra gia questa cumbinaziun. La duvrar qua empè?"
+          }
+        }
+      }
+    },
+    "“%@” in the folder “%@”, %lld bytes, checksum starts with %@. It runs as you, with holzBar's permissions, including Accessibility. macOS asks separately before it controls another app. Allow it only if you wrote it or read it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ im Ordner „%@“, %lld Byte, die Prüfsumme beginnt mit %@. Es läuft als du, mit den Berechtigungen von holzBar, einschließlich der Bedienungshilfen. macOS fragt separat nach, bevor es eine andere App steuert. Erlaube es nur, wenn du es selbst geschrieben oder gelesen hast."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » dans le dossier « %@ », %lld octets, la somme de contrôle commence par %@. Il s’exécute comme vous, avec les autorisations de holzBar, y compris l’accessibilité. macOS demande séparément avant qu’il contrôle une autre app. Ne l’autorisez que si vous l’avez écrit ou lu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” nella cartella “%@”, %lld byte, il checksum inizia con %@. Viene eseguito come te, con le autorizzazioni di holzBar, compresa l’accessibilità. macOS chiede separatamente prima che controlli un’altra app. Consentilo solo se lo hai scritto o letto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» en l’ordinatur «%@», %lld bytes, la summa da controlla cumenza cun %@. Vegn exequì sco ti, cun las permissiuns da holzBar, inclusiv Bedienungshilfen. macOS dumonda separadamain, avant che controllescha in’autra app. Lubescha mo sche ti has scrit u legì el sez."
           }
         }
       }
