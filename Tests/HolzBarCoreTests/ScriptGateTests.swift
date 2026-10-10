@@ -131,6 +131,68 @@ struct ScriptGateTests {
         #expect(ScriptGate.folderRefusal(notOwnedAndWritable) == .notOwnedByUser)
     }
 
+    // MARK: The folder on disk
+
+    /// A scratch folder with a real folder `real` and a symbolic link `link` to it.
+    private func withLinkedFolders(_ body: (_ real: URL, _ link: URL) throws -> Void) throws {
+        let manager = FileManager.default
+        let root = manager.temporaryDirectory.appending(path: "holzbar-gate-\(UUID().uuidString)", directoryHint: .isDirectory)
+        try manager.createDirectory(at: root, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+        defer {
+            try? manager.removeItem(at: root)
+        }
+        let real = root.appending(path: "real", directoryHint: .isDirectory)
+        try manager.createDirectory(at: real, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        let link = root.appending(path: "link", directoryHint: .notDirectory)
+        try manager.createSymbolicLink(at: link, withDestinationURL: real)
+        try body(real, link)
+    }
+
+    @Test("Trailing slashes are cut for lstat, the root stays")
+    func linkCheckPath() {
+        #expect(ScriptGate.pathForLinkCheck("/a/b/") == "/a/b")
+        #expect(ScriptGate.pathForLinkCheck("/a/b///") == "/a/b")
+        #expect(ScriptGate.pathForLinkCheck("/a/b") == "/a/b")
+        #expect(ScriptGate.pathForLinkCheck("/") == "/")
+        #expect(ScriptGate.pathForLinkCheck("") == "")
+    }
+
+    @Test("A link is seen as a link, also when its path ends in a slash (T-11-M6)")
+    func linkOnDisk() throws {
+        try withLinkedFolders { real, link in
+            // What the store has: the path of a URL made as a directory, which ends in "/".
+            let asDirectoryURL = URL(filePath: link.path(percentEncoded: false), directoryHint: .isDirectory)
+            let withSlash = asDirectoryURL.path(percentEncoded: false)
+            #expect(withSlash.hasSuffix("/"))
+            for path in [link.path(percentEncoded: false), withSlash] {
+                let found = try #require(ScriptGate.folderInfo(atPath: path))
+                #expect(found.isSymbolicLink)
+                #expect(ScriptGate.folderRefusal(found) == .symbolicLink)
+            }
+            let folder = try #require(ScriptGate.folderInfo(atPath: URL(filePath: real.path(percentEncoded: false), directoryHint: .isDirectory).path(percentEncoded: false)))
+            #expect(folder.isDirectory)
+            #expect(!folder.isSymbolicLink)
+            #expect(folder.isOwnedByCurrentUser)
+            #expect(folder.mode == 0o700)
+            #expect(ScriptGate.folderRefusal(folder) == nil)
+        }
+    }
+
+    @Test("A folder that others can write and a file in the folder's place are refused on disk")
+    func unsafeOnDisk() throws {
+        try withLinkedFolders { real, _ in
+            let path = real.path(percentEncoded: false)
+            #expect(chmod(path, 0o777) == 0)
+            let open = try #require(ScriptGate.folderInfo(atPath: path + "/"))
+            #expect(ScriptGate.folderRefusal(open) == .writableByOthers)
+            let file = real.appending(path: "plain.txt", directoryHint: .notDirectory)
+            #expect(FileManager.default.createFile(atPath: file.path(percentEncoded: false), contents: Data()))
+            let notFolder = try #require(ScriptGate.folderInfo(atPath: file.path(percentEncoded: false)))
+            #expect(ScriptGate.folderRefusal(notFolder) == .notDirectory)
+            #expect(ScriptGate.folderInfo(atPath: path + "/missing") == nil)
+        }
+    }
+
     @Test("At most ten runs a minute")
     func rateLimit() {
         var limiter = ScriptRateLimiter()

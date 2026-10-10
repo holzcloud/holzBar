@@ -179,6 +179,35 @@ nonisolated extension ScriptGate {
         }
         return nil
     }
+
+    /// The path to give `lstat` for a folder: the same path without trailing slashes.
+    ///
+    /// POSIX follows a symbolic link when the path ends in `/`, so `lstat` of `Scripts/` reports
+    /// the link's target and never the link. A folder URL made with `directoryHint:
+    /// .isDirectory` has such a slash in `path(percentEncoded:)`; without this cut the folder
+    /// check could never see a link (T-11-M6). The root path stays `/`.
+    static func pathForLinkCheck(_ path: String) -> String {
+        var trimmed = Substring(path)
+        while trimmed.count > 1, trimmed.hasSuffix("/") {
+            trimmed = trimmed.dropLast()
+        }
+        return String(trimmed)
+    }
+
+    /// The facts of the folder at `path`, read with `lstat` so a link is reported as a link and
+    /// not as the folder it leads to, or `nil` when nothing can be read there.
+    static func folderInfo(atPath path: String) -> ScriptFolderInfo? {
+        var status = stat()
+        guard lstat(pathForLinkCheck(path), &status) == 0 else {
+            return nil
+        }
+        return ScriptFolderInfo(
+            isDirectory: status.st_mode & S_IFMT == S_IFDIR,
+            isSymbolicLink: status.st_mode & S_IFMT == S_IFLNK,
+            isOwnedByCurrentUser: status.st_uid == getuid(),
+            mode: UInt16(status.st_mode & 0o7777)
+        )
+    }
 }
 
 /// Limits how often scripts run, over all of them.

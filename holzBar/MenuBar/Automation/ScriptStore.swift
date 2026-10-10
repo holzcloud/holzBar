@@ -196,18 +196,11 @@ final class ScriptStore {
 
     /// Why the folder is refused right now, read from the file system without following a link.
     private func currentFolderRefusal() -> ScriptGate.FolderRefusal? {
-        var status = stat()
-        guard lstat(folderURL.path(percentEncoded: false), &status) == 0 else {
+        // `lstat` gets the path without its trailing slash, or it would follow a link (CR-01).
+        guard let info = ScriptGate.folderInfo(atPath: folderURL.path(percentEncoded: false)) else {
             return .notDirectory
         }
-        return ScriptGate.folderRefusal(
-            ScriptFolderInfo(
-                isDirectory: status.st_mode & S_IFMT == S_IFDIR,
-                isSymbolicLink: status.st_mode & S_IFMT == S_IFLNK,
-                isOwnedByCurrentUser: status.st_uid == getuid(),
-                mode: UInt16(status.st_mode & 0o7777)
-            )
-        )
+        return ScriptGate.folderRefusal(info)
     }
 
     /// Creates the default folder when it does not exist. A folder the user chose is never
@@ -216,7 +209,8 @@ final class ScriptStore {
         guard folderURL == Self.defaultFolder else {
             return
         }
-        let path = Self.defaultFolder.path(percentEncoded: false)
+        // Without a trailing slash, a link in the folder's place is seen as the link it is.
+        let path = ScriptGate.pathForLinkCheck(Self.defaultFolder.path(percentEncoded: false))
         var status = stat()
         guard lstat(path, &status) != 0, errno == ENOENT else {
             return
