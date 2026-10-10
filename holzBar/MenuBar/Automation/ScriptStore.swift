@@ -66,6 +66,10 @@ final class ScriptStore {
     private(set) var folderRefusal: ScriptGate.FolderRefusal?
     private(set) var problem: Problem?
     private(set) var profileHooks = [ProfileHook]()
+    /// Whether the last write of `Scripts.json` failed (disk full, folder not writable). The
+    /// changes are kept in memory and written again at the next change; while this is `true`
+    /// the rules that use a script also stay in the settings, so a failed write loses nothing.
+    private(set) var saveFailed = false
 
     @ObservationIgnored private let logger = Logger(category: "ScriptStore")
     @ObservationIgnored private var file = ScriptStoreFile()
@@ -204,17 +208,21 @@ final class ScriptStore {
     }
 
     /// Stores the rules that use a script and the order of all rules. Nothing is written when
-    /// nothing changed.
-    func setScriptRules(_ rules: [AutomationRule], order: [UUID]) {
+    /// nothing changed, unless an earlier write failed: then it is tried again.
+    ///
+    /// - Returns: Whether this Mac's store now holds the rules on disk. `false` when the write
+    ///   failed or the store is read-only; the caller keeps its own copy until it is `true`.
+    @discardableResult
+    func setScriptRules(_ rules: [AutomationRule], order: [UUID]) -> Bool {
         var candidate = file
         candidate.rules = rules
         candidate.ruleOrder = order
         candidate = candidate.validated()
         guard candidate != file else {
-            return
+            return saveFailed ? save() : !isReadOnly
         }
         file = candidate
-        save()
+        return save()
     }
 
     // MARK: The folder
@@ -542,13 +550,18 @@ final class ScriptStore {
     /// holzBar folder (mode 0700), then moved over the old file with `rename`, so the store is
     /// never half written and never readable by others, not even for a moment (T-11-L3). Never
     /// while the store is read-only.
-    private func save() {
+    ///
+    /// - Returns: `true` when the file on disk now holds the store; `false` when the store is
+    ///   read-only or the write failed (``saveFailed``).
+    @discardableResult
+    private func save() -> Bool {
         guard !isReadOnly else {
-            return
+            return false
         }
         guard let data = file.encoded() else {
             logger.error("The script store is too large to save")
-            return
+            saveFailed = true
+            return false
         }
         let folder = Self.storeFile.deletingLastPathComponent()
         do {
@@ -588,8 +601,12 @@ final class ScriptStore {
                 throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
             }
             isComplete = true
+            saveFailed = false
+            return true
         } catch {
             logger.error("Could not save the script store: \(error.localizedDescription, privacy: .private)")
+            saveFailed = true
+            return false
         }
     }
 }

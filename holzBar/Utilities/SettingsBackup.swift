@@ -42,9 +42,20 @@ enum SettingsBackup {
             return [:]
         }
         let domain = UserDefaults.standard.persistentDomain(forName: bundleIdentifier) ?? [:]
-        return domain.filter { key, _ in
+        var settings = domain.filter { key, _ in
             Defaults.Key.importableKinds[key] != nil && !isExcluded(key)
         }
+        // Rules that use a script never leave this Mac, even while a failed write of the script
+        // store keeps them in the settings for now (T-11-H1).
+        let rulesKey = Defaults.Key.automationRules.rawValue
+        if let data = settings[rulesKey] as? Data {
+            if let stripped = AutomationRule.removingScriptRules(from: data) {
+                settings[rulesKey] = stripped
+            } else {
+                settings.removeValue(forKey: rulesKey)
+            }
+        }
+        return settings
     }
 
     /// Applies the settings of an imported file and removes the settings the file lacks.

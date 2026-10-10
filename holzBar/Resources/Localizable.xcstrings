@@ -13927,6 +13927,34 @@
         }
       }
     },
+    "Your script settings could not be saved on this Mac. holzBar tries again at the next change." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Skript-Einstellungen konnten auf diesem Mac nicht gespeichert werden. holzBar versucht es bei der nächsten Änderung erneut."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos réglages de scripts n’ont pas pu être enregistrés sur ce Mac. holzBar réessaie à la prochaine modification."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le impostazioni degli script non hanno potuto essere salvate su questo Mac. holzBar riprova alla prossima modifica."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las parameters dals scrips n’han betg pudì vegnir memorisadas sin quest Mac. holzBar emprova puspè cun la proxima midada."
+          }
+        }
+      }
+    },
     "Your scripts were set up by a newer holzBar. Nothing runs until you update holzBar." : {
       "localizations" : {
         "de" : {

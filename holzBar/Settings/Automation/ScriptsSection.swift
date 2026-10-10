@@ -76,6 +76,9 @@ struct ScriptsSection: View {
             if let problem = store.problem {
                 notice(problemText(problem))
             }
+            if store.saveFailed {
+                notice(Text("Your script settings could not be saved on this Mac. holzBar tries again at the next change."))
+            }
             HStack {
                 Button("Choose Folder…") {
                     chooseFolder()

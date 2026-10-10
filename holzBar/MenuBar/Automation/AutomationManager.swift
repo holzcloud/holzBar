@@ -177,15 +177,18 @@ final class AutomationManager {
         Defaults.removeObject(forKey: .revealRules)
     }
 
-    /// Saves the rules in two places: the ones that use no script in the settings, and the ones
-    /// that do, with the order of all of them, in the script store of this Mac. The settings,
-    /// and so every export, never hold a rule that uses a script (T-11-H1).
+    /// Saves the rules in two places: the ones that use a script, with the order of all of them,
+    /// in the script store of this Mac, and the others in the settings. The store is written
+    /// first, and the settings drop the rules that use a script only once the store holds them
+    /// on disk: a failed write, or a crash between the two writes, loses no rule. Until then the
+    /// settings keep them, and an export and an import still carry none (T-11-H1).
     private func save() {
         let parts = AutomationRuleStorage.split(rules)
-        if let data = try? JSONEncoder().encode(parts.settings) {
+        let isStored = scriptStore.setScriptRules(parts.local, order: parts.order)
+        let forSettings = isStored ? parts.settings : rules
+        if let data = try? JSONEncoder().encode(forSettings) {
             Defaults.set(data, forKey: .automationRules)
         }
-        scriptStore.setScriptRules(parts.local, order: parts.order)
     }
 
     // MARK: Observers
