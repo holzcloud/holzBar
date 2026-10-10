@@ -211,17 +211,21 @@ nonisolated extension ScriptGate {
 }
 
 /// Limits how often scripts run, over all of them.
+///
+/// Time is a monotonic instant, not the wall clock: setting the clock back (by hand, by NTP or
+/// after a virtual machine resumed) must neither block every script until the clock catches up
+/// nor free the limit early (WR-09).
 nonisolated struct ScriptRateLimiter: Equatable, Sendable {
     /// The most runs in the window.
     static let maximumRuns = 10
     /// The length of the window, in seconds.
     static let window: TimeInterval = 60
 
-    private var runs: [Date] = []
+    private var runs: [ContinuousClock.Instant] = []
 
     /// Records a run and returns `true`, or returns `false` when the limit is reached.
-    mutating func allowRun(at now: Date) -> Bool {
-        runs.removeAll { now.timeIntervalSince($0) >= Self.window }
+    mutating func allowRun(at now: ContinuousClock.Instant) -> Bool {
+        runs.removeAll { now - $0 >= .seconds(Self.window) }
         guard runs.count < Self.maximumRuns else {
             return false
         }

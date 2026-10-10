@@ -106,6 +106,18 @@ nonisolated enum ScriptLimits {
     /// The most bytes kept of each of stdout and stderr; the rest is read and dropped.
     static let maximumOutputBytes = 65_536
 
+    /// The least time between two asks of one script condition, in seconds.
+    static let conditionInterval = 30
+
+    /// Whether a script condition may be asked again: it was never asked, or at least
+    /// ``conditionInterval`` seconds of monotonic time passed (WR-09).
+    static func isConditionDue(lastAsked: ContinuousClock.Instant?, now: ContinuousClock.Instant) -> Bool {
+        guard let lastAsked else {
+            return true
+        }
+        return now - lastAsked >= .seconds(conditionInterval)
+    }
+
     /// The time limit to use for a stored value: the default when none is stored, otherwise the
     /// value clamped to ``minimumTimeLimit`` through ``maximumTimeLimit``.
     static func timeLimit(_ stored: Int?) -> Int {

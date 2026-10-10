@@ -70,7 +70,7 @@ final class AutomationManager {
     @ObservationIgnored private let scriptRunner = ScriptRunner()
     /// What the approved scripts answered last, by file name. A script not here is unknown.
     @ObservationIgnored private var scriptResults = [String: Bool]()
-    @ObservationIgnored private var lastScriptRun = [String: Date]()
+    @ObservationIgnored private var lastScriptRun = [String: ContinuousClock.Instant]()
     /// What the last run of each script left behind, by file name: one cleaned line of its
     /// output, how it ended and when. In memory only: never persisted, logged or exported.
     private(set) var lastScriptRuns = [String: ScriptRunRecord]()
@@ -566,11 +566,11 @@ final class AutomationManager {
         }
         scriptResults = scriptResults.filter { names.contains($0.key) }
         for name in names {
-            let isDue = lastScriptRun[name].map { Date.now.timeIntervalSince($0) >= 30 } ?? true
-            guard isDue else {
+            let now = ContinuousClock.now
+            guard ScriptLimits.isConditionDue(lastAsked: lastScriptRun[name], now: now) else {
                 continue
             }
-            lastScriptRun[name] = .now
+            lastScriptRun[name] = now
             Task { [weak self] in
                 guard let self else {
                     return

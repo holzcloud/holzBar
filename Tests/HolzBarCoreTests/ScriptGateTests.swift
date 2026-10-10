@@ -193,17 +193,28 @@ struct ScriptGateTests {
         }
     }
 
-    @Test("At most ten runs a minute")
+    @Test("At most ten runs a minute, counted on a monotonic clock")
     func rateLimit() {
         var limiter = ScriptRateLimiter()
-        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        let start = ContinuousClock.now
         for index in 0..<ScriptRateLimiter.maximumRuns {
-            let allowed = limiter.allowRun(at: start.addingTimeInterval(Double(index)))
+            let allowed = limiter.allowRun(at: start + .seconds(index))
             #expect(allowed)
         }
-        let blocked = limiter.allowRun(at: start.addingTimeInterval(30))
+        let blocked = limiter.allowRun(at: start + .seconds(30))
         #expect(!blocked)
-        let later = limiter.allowRun(at: start.addingTimeInterval(ScriptRateLimiter.window + 1))
+        let stillBlocked = limiter.allowRun(at: start + .seconds(Int(ScriptRateLimiter.window) - 1))
+        #expect(!stillBlocked)
+        let later = limiter.allowRun(at: start + .seconds(Int(ScriptRateLimiter.window) + 1))
         #expect(later)
+    }
+
+    @Test("A script condition is asked again after 30 seconds, never sooner (WR-09)")
+    func conditionInterval() {
+        let asked = ContinuousClock.now
+        #expect(ScriptLimits.isConditionDue(lastAsked: nil, now: asked))
+        #expect(!ScriptLimits.isConditionDue(lastAsked: asked, now: asked))
+        #expect(!ScriptLimits.isConditionDue(lastAsked: asked, now: asked + .seconds(29)))
+        #expect(ScriptLimits.isConditionDue(lastAsked: asked, now: asked + .seconds(30)))
     }
 }

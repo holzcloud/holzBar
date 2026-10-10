@@ -160,7 +160,7 @@ final class ScriptRunner {
             logger.notice("A script is not allowed to run")
             return ScriptRunReport(outcome: .notAllowed, record: nil)
         }
-        guard limiter.allowRun(at: .now) else {
+        guard limiter.allowRun(at: ContinuousClock.now) else {
             logger.notice("Too many script runs; one was skipped")
             return ScriptRunReport(outcome: .rateLimited, record: nil)
         }
