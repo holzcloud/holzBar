@@ -43,9 +43,18 @@ final class ScriptStore {
         /// `Scripts.json` was written by a newer holzBar. It is not read and not overwritten, and
         /// no script runs until that version is back.
         case newerVersion
-        /// `Scripts.json` could not be read. It was moved to `Scripts-unreadable.json` and the
-        /// store started empty.
+        /// `Scripts.json` was read and is not a store. It was moved to `Scripts-unreadable.json`
+        /// (or a numbered name when that exists) and the store started empty.
         case setAside
+        /// `Scripts.json` could not be opened or read just now (too many open files, no
+        /// permission, an I/O error), or a file that is not a store could not be moved away. It
+        /// is left as it is: nothing runs and nothing is written until holzBar starts again.
+        case unavailable
+    }
+
+    /// Whether the store is only read: nothing is written and no script runs.
+    private var isReadOnly: Bool {
+        problem == .newerVersion || problem == .unavailable
     }
 
     /// The scripts, sorted by name. Empty while the folder is refused.
@@ -93,7 +102,12 @@ final class ScriptStore {
         switch Self.readRegularFile(at: Self.storeFile, maximumSize: ScriptStoreFile.maximumSize) {
         case .missing:
             file = ScriptStoreFile()
-        case .unreadable:
+        case .unavailable:
+            // The file may be fine: it is not moved, not read and not overwritten (WR-03).
+            file = ScriptStoreFile()
+            problem = .unavailable
+            logger.error("Scripts.json could not be opened or read; scripts are off until holzBar starts again")
+        case .notAStore:
             setStoreAside()
         case .data(let data):
             switch ScriptStoreFile.decode(data) {
@@ -109,14 +123,28 @@ final class ScriptStore {
         }
     }
 
-    /// Moves a store that cannot be read out of the way, so it is never overwritten by accident
-    /// and nothing runs from it. A fresh empty store starts.
+    /// Moves a store that was read and is not a store out of the way, so it is never overwritten
+    /// by accident and nothing runs from it. A fresh empty store starts. An earlier set-aside file
+    /// is kept: the new one gets a name with the time. When the file cannot be moved, nothing is
+    /// written, so the file stays as it is.
     private func setStoreAside() {
         file = ScriptStoreFile()
         problem = .setAside
         let path = Self.storeFile.path(percentEncoded: false)
-        unlink(Self.unreadableFile.path(percentEncoded: false))
-        if rename(path, Self.unreadableFile.path(percentEncoded: false)) != 0 {
+        var target = Self.unreadableFile.path(percentEncoded: false)
+        var status = stat()
+        if lstat(target, &status) == 0 {
+            let name = "Scripts-unreadable-\(Int(Date.now.timeIntervalSince1970)).json"
+            target = Self.supportFolder.appending(path: name, directoryHint: .notDirectory).path(percentEncoded: false)
+            if lstat(target, &status) == 0 {
+                // Nothing may be replaced: not even a file of the same second.
+                problem = .unavailable
+                logger.error("Could not set the unreadable Scripts.json aside")
+                return
+            }
+        }
+        if rename(path, target) != 0 {
+            problem = .unavailable
             logger.error("Could not set the unreadable Scripts.json aside")
         } else {
             logger.notice("Set an unreadable Scripts.json aside")
@@ -132,7 +160,7 @@ final class ScriptStore {
     ///   - rules: The rules of the settings that use a script.
     ///   - order: The order of every rule of the settings, so the rules keep their place.
     func adoptLegacyData(rules: [AutomationRule], order: [UUID]) {
-        guard problem != .newerVersion, !file.hasMigratedLegacyData else {
+        guard !isReadOnly, !file.hasMigratedLegacyData else {
             return
         }
         var approvals = [String: String]()
@@ -180,7 +208,7 @@ final class ScriptStore {
     /// Uses the folder the user chose. The approvals and time limits of the old folder are
     /// cleared: a name in another folder is another file.
     func setFolder(_ url: URL) {
-        guard problem != .newerVersion else {
+        guard !isReadOnly else {
             return
         }
         let path = url.standardizedFileURL.path(percentEncoded: false)
@@ -228,7 +256,7 @@ final class ScriptStore {
     func refresh() {
         createDefaultFolderIfNeeded()
         folderRefusal = currentFolderRefusal()
-        guard folderRefusal == nil, problem != .newerVersion else {
+        guard folderRefusal == nil, !isReadOnly else {
             scripts = []
             return
         }
@@ -256,7 +284,7 @@ final class ScriptStore {
     /// before each run. The window between this read and the start of the process stays; it is
     /// documented in SECURITY.md.
     func fileInfo(for name: String) -> ScriptFileInfo? {
-        guard problem != .newerVersion, ScriptGate.isPlainName(name), currentFolderRefusal() == nil else {
+        guard !isReadOnly, ScriptGate.isPlainName(name), currentFolderRefusal() == nil else {
             return nil
         }
         let path = folderURL.appending(path: name, directoryHint: .notDirectory).path(percentEncoded: false)
@@ -322,7 +350,7 @@ final class ScriptStore {
     /// Called only after the user confirmed.
     func approve(_ entry: Entry) {
         guard
-            problem != .newerVersion,
+            !isReadOnly,
             ScriptStoreFile.isValidHash(entry.sha256),
             let info = fileInfo(for: entry.name),
             info.sha256 == entry.sha256,
@@ -340,7 +368,7 @@ final class ScriptStore {
     }
 
     func revokeApproval(_ entry: Entry) {
-        guard problem != .newerVersion, file.approvals.removeValue(forKey: entry.name) != nil else {
+        guard !isReadOnly, file.approvals.removeValue(forKey: entry.name) != nil else {
             return
         }
         save()
@@ -357,7 +385,7 @@ final class ScriptStore {
     /// Stores the time limit of a script, from 1 through 60 seconds.
     func setTimeLimit(_ seconds: Int, for name: String) {
         guard
-            problem != .newerVersion,
+            !isReadOnly,
             ScriptGate.isPlainName(name),
             file.timeLimits[name] != nil || file.timeLimits.count < ScriptStoreFile.maximumEntries
         else {
@@ -371,7 +399,7 @@ final class ScriptStore {
 
     func addProfileHook(_ hook: ProfileHook) {
         guard
-            problem != .newerVersion,
+            !isReadOnly,
             hook.isValid,
             file.profileHooks.count < ProfileHooks.maximumCount,
             !file.profileHooks.contains(where: { $0.id == hook.id })
@@ -384,7 +412,7 @@ final class ScriptStore {
 
     func updateProfileHook(_ hook: ProfileHook) {
         guard
-            problem != .newerVersion,
+            !isReadOnly,
             hook.isValid,
             let index = file.profileHooks.firstIndex(where: { $0.id == hook.id })
         else {
@@ -395,7 +423,7 @@ final class ScriptStore {
     }
 
     func removeProfileHook(id: UUID) {
-        guard problem != .newerVersion, file.profileHooks.contains(where: { $0.id == id }) else {
+        guard !isReadOnly, file.profileHooks.contains(where: { $0.id == id }) else {
             return
         }
         file.profileHooks.removeAll { $0.id == id }
@@ -404,7 +432,7 @@ final class ScriptStore {
 
     /// The hooks of a renamed profile follow it.
     func renameProfileHooks(from oldName: String, to newName: String) {
-        guard problem != .newerVersion, file.profileHooks.contains(where: { $0.profileName == oldName }) else {
+        guard !isReadOnly, file.profileHooks.contains(where: { $0.profileName == oldName }) else {
             return
         }
         file.profileHooks = ProfileHooks.renaming(file.profileHooks, from: oldName, to: newName)
@@ -413,7 +441,7 @@ final class ScriptStore {
 
     /// The hooks of a deleted profile go with it.
     func removeProfileHooks(named name: String) {
-        guard problem != .newerVersion, file.profileHooks.contains(where: { $0.profileName == name }) else {
+        guard !isReadOnly, file.profileHooks.contains(where: { $0.profileName == name }) else {
             return
         }
         file.profileHooks = ProfileHooks.removing(file.profileHooks, profileName: name)
@@ -437,32 +465,42 @@ final class ScriptStore {
 
     /// What reading a small file found.
     private enum ReadResult {
+        /// Nothing is there.
         case missing
-        case unreadable
+        /// It was read (or its type or size looked at) and it is not a store: a link, a pipe, a
+        /// folder or a file that is too large.
+        case notAStore
+        /// It could not be opened or read for a reason that may pass.
+        case unavailable
         case data(Data)
     }
 
     /// Reads a regular file of at most `maximumSize` bytes through one descriptor opened without
-    /// following a link. A link, a pipe, a folder or a larger file is unreadable.
+    /// following a link. A link, a pipe, a folder or a larger file is not a store; a failure to
+    /// open or to read is only unavailable.
     private static func readRegularFile(at url: URL, maximumSize: Int) -> ReadResult {
         let descriptor = open(url.path(percentEncoded: false), O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
         guard descriptor >= 0 else {
-            return errno == ENOENT ? .missing : .unreadable
+            switch ScriptFileOpenFailure(errno: errno) {
+            case .missing: return .missing
+            case .notAStore: return .notAStore
+            case .unavailable: return .unavailable
+            }
         }
         defer {
             close(descriptor)
         }
         var status = stat()
-        guard
-            fstat(descriptor, &status) == 0,
-            status.st_mode & S_IFMT == S_IFREG,
-            Int(status.st_size) <= maximumSize,
-            let data = read(from: descriptor, upTo: maximumSize + 1),
-            data.count <= maximumSize
-        else {
-            return .unreadable
+        guard fstat(descriptor, &status) == 0 else {
+            return .unavailable
         }
-        return .data(data)
+        guard status.st_mode & S_IFMT == S_IFREG, Int(status.st_size) <= maximumSize else {
+            return .notAStore
+        }
+        guard let data = read(from: descriptor, upTo: maximumSize + 1) else {
+            return .unavailable
+        }
+        return data.count <= maximumSize ? .data(data) : .notAStore
     }
 
     /// Reads up to `limit` bytes from a descriptor, or `nil` on an error.
@@ -491,7 +529,7 @@ final class ScriptStore {
     /// never half written and never readable by others, not even for a moment (T-11-L3). Never
     /// while the store is read-only.
     private func save() {
-        guard problem != .newerVersion else {
+        guard !isReadOnly else {
             return
         }
         guard let data = file.encoded() else {

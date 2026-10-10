@@ -11827,6 +11827,34 @@
         }
       }
     },
+    "The scripts file could not be opened just now. Nothing runs and nothing is saved until holzBar starts again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Skriptdatei konnte gerade nicht geöffnet werden. Nichts läuft und nichts wird gespeichert, bis holzBar neu gestartet wird."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier des scripts n’a pas pu être ouvert pour le moment. Rien ne s’exécute et rien n’est enregistré tant que holzBar n’a pas redémarré."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il file degli script non ha potuto essere aperto in questo momento. Nulla viene eseguito e nulla viene salvato finché holzBar non viene riavviato."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il fid dals scrips n’ha betg pudì vegnir avert ussa. Nagut na vegn exequì e nagut na vegn memorisà, fin che holzBar vegn puspè lantschà."
+          }
+        }
+      }
+    },
     "The scripts file could not be read and was set aside. Allow your scripts again." : {
       "localizations" : {
         "de" : {

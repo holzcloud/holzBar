@@ -290,6 +290,27 @@ nonisolated extension ScriptStoreFile {
     }
 }
 
+/// What a failed `open` of a store file means (WR-03). Only a file that was read and is not a
+/// store may be set aside; a file that could not be opened for a passing reason is left alone.
+nonisolated enum ScriptFileOpenFailure: Equatable, Sendable {
+    /// Nothing is there: the first start.
+    case missing
+    /// A link is in the file's place (the file is opened without following links), so it is not
+    /// a store.
+    case notAStore
+    /// Too many open files, an interrupted call, no permission, an I/O error: the file may be
+    /// fine. It is neither read nor moved nor overwritten for this session.
+    case unavailable
+
+    init(errno code: Int32) {
+        switch code {
+        case ENOENT: self = .missing
+        case ELOOP: self = .notAStore
+        default: self = .unavailable
+        }
+    }
+}
+
 /// Splits the rules between the settings and `Scripts.json`, and puts them back together.
 ///
 /// A rule that uses a script lives only in the store of this Mac (D-05, T-11-H1): the copy in

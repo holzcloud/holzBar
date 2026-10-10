@@ -110,6 +110,15 @@ struct ScriptStorageTests {
         #expect(ScriptStoreFile.decode(Data(#"{"version":1,"approvals":[1]}"#.utf8)) == .unreadable)
     }
 
+    @Test("Only a missing file or a link is classified as such; every other open error leaves the file alone (WR-03)")
+    func openFailures() {
+        #expect(ScriptFileOpenFailure(errno: ENOENT) == .missing)
+        #expect(ScriptFileOpenFailure(errno: ELOOP) == .notAStore)
+        for code in [EMFILE, ENFILE, EINTR, EAGAIN, EACCES, EPERM, EIO, ENOMEM, ENOTDIR] {
+            #expect(ScriptFileOpenFailure(errno: code) == .unavailable)
+        }
+    }
+
     // MARK: Validation
 
     @Test("Approvals need a plain name and a full lowercase SHA-256")

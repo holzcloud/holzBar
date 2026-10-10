@@ -150,6 +150,8 @@ struct ScriptsSection: View {
         switch problem {
         case .newerVersion: Text("Your scripts were set up by a newer holzBar. Nothing runs until you update holzBar.")
         case .setAside: Text("The scripts file could not be read and was set aside. Allow your scripts again.")
+        case .unavailable:
+            Text("The scripts file could not be opened just now. Nothing runs and nothing is saved until holzBar starts again.")
         }
     }
 
