@@ -156,6 +156,13 @@ Then open it again. The release is signed with holzBar's own certificate, SHA-25
 
 <p align="center"><img src="Resources/Screenshots/shelf.png" alt="The menu bar with the holzBar Shelf open below it, showing the hidden items" width="560"></p>
 
+<p align="center">
+<img src="Resources/Mockups/design-general-dark.png" alt="Illustration: holzBar settings in the dark design, General pane with the sidebar, glass cards and switches" width="360">
+<img src="Resources/Mockups/design-automation-light.png" alt="Illustration: holzBar settings in the light design, Automation pane with rules and the Preview badge" width="360">
+</p>
+
+<p align="center"><sub>The new design in dark and light (illustrations drawn from holzBar's design tokens; real screenshots of 0.0.8 follow once it is tested on a Mac). Older screenshots of every pane are in the <a href="docs/features.md">feature guide</a>.</sub></p>
+
 > [!WARNING]
 > **macOS 27:** while holzBar hides menu bar items, Control Centre does not show its camera, microphone and screen recording indicator (the green dot beside the clock still shows the camera). holzBar cannot prevent this; it comes back while no item is hidden. Instead, holzBar puts a dot on its own icon while the microphone (orange) or the camera (green) is in use; it needs no permission, is on by default (**Settings → General**) and does not cover screen recording. [Details](docs/features.md#macos-27)
 
