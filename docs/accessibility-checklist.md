@@ -20,7 +20,8 @@ Screens: Menu Bar Layout (items, profiles, Layout History, Tidy Up), Automation 
 - **Automation rule row**: the chevron button is read as "Edit"; the switch is read with the rule's name; the editor's condition rows have a "Remove Condition" button.
 - **Layout History**: the star button reads "Star" or "Remove Star"; restore asks first.
 - **Tidy Up**: every proposal is a switch that reads the app name.
-- **Script approval**: the sheet reads the file name, size and checksum.
+- **Script approval**: the sheet reads the file name, its folder, the size and the start of the checksum, and the Cancel button is the default.
+- **Profile hooks**: each row has Profile, When and Script pickers and a "Remove Hook" button that read their names and values.
 - **Lock hidden items**: the system's Touch ID or password sheet appears in front.
 
 ## Result
