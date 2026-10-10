@@ -56,21 +56,44 @@ nonisolated enum ScriptGate {
         case allowed(ScriptKind)
     }
 
-    /// Whether the name is a plain file name: no path, nothing hidden, no control characters.
+    /// Whether the name is a plain file name: no path, nothing hidden, and no character that can
+    /// fake an extension or hide itself.
+    ///
+    /// Besides the control characters, a name may hold no format character (a right-to-left
+    /// override turns `x\u{202E}hs.txt` into `xtxt.sh` on screen, a zero-width space is invisible), no
+    /// line or paragraph separator, no private-use, surrogate or unassigned scalar. These are the
+    /// general categories ``URLPrompt/displayName(_:)`` drops (T-11-L2).
     static func isPlainName(_ name: String) -> Bool {
         guard
             !name.isEmpty,
             name.utf8.count <= 255,
             !name.hasPrefix("."),
             !name.contains("/"),
-            !name.unicodeScalars.contains(where: { $0.value < 0x20 || $0.value == 0x7F })
+            !name.unicodeScalars.contains(where: isHiddenOrControl)
         else {
             return false
         }
         return true
     }
 
+    /// Whether a scalar is one a file name must not hold.
+    private static func isHiddenOrControl(_ scalar: Unicode.Scalar) -> Bool {
+        if scalar.value < 0x20 || scalar.value == 0x7F {
+            return true
+        }
+        switch scalar.properties.generalCategory {
+        case .control, .format, .lineSeparator, .paragraphSeparator, .privateUse, .surrogate, .unassigned:
+            return true
+        default:
+            return false
+        }
+    }
+
     /// How the file is run, from its name.
+    ///
+    /// `.scpt` and `.applescript` files run through `/usr/bin/osascript` (SCRIPT-06). A `.scptd`
+    /// bundle is a folder, so ``decide(_:approvedHash:)`` refuses it as not a regular file:
+    /// no single hash pins the contents of a bundle.
     static func kind(forName name: String) -> ScriptKind {
         let lowercased = name.lowercased()
         if lowercased.hasSuffix(".scpt") || lowercased.hasSuffix(".applescript") {
@@ -114,6 +137,47 @@ nonisolated enum ScriptGate {
             return .needsApproval
         }
         return .allowed(kind)
+    }
+}
+
+/// What holzBar knows of the scripts folder before it lists or runs anything in it. The facts
+/// are read from the folder by the caller, without following a link.
+nonisolated struct ScriptFolderInfo: Equatable, Sendable {
+    var isDirectory: Bool
+    var isSymbolicLink: Bool
+    var isOwnedByCurrentUser: Bool
+    /// The permission bits of the folder, such as `0o700`.
+    var mode: UInt16
+}
+
+nonisolated extension ScriptGate {
+    /// Why the scripts folder itself is refused (T-11-M6).
+    enum FolderRefusal: Equatable, Sendable {
+        /// The folder is a symbolic link, so it may lead anywhere.
+        case symbolicLink
+        case notDirectory
+        case notOwnedByUser
+        /// Group or others can write to the folder, so they can plant or replace files.
+        case writableByOthers
+    }
+
+    /// Why the scripts folder is refused, or `nil` when it is a folder the user owns that nobody
+    /// else can write to. The checks run in the order of the cases above; a link is refused
+    /// first, whatever else is true of it.
+    static func folderRefusal(_ folder: ScriptFolderInfo) -> FolderRefusal? {
+        guard !folder.isSymbolicLink else {
+            return .symbolicLink
+        }
+        guard folder.isDirectory else {
+            return .notDirectory
+        }
+        guard folder.isOwnedByCurrentUser else {
+            return .notOwnedByUser
+        }
+        guard folder.mode & 0o022 == 0 else {
+            return .writableByOthers
+        }
+        return nil
     }
 }
 

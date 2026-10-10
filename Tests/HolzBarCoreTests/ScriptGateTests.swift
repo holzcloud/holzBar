@@ -56,9 +56,79 @@ struct ScriptGateTests {
     func names() {
         #expect(ScriptGate.isPlainName("backup.sh"))
         #expect(!ScriptGate.isPlainName(""))
+        #expect(!ScriptGate.isPlainName(".x"))
         #expect(!ScriptGate.isPlainName("a/b.sh"))
         #expect(!ScriptGate.isPlainName("a\nb.sh"))
         #expect(!ScriptGate.isPlainName(String(repeating: "a", count: 300)))
+        #expect(!ScriptGate.isPlainName(String(repeating: "a", count: 256)))
+        #expect(ScriptGate.isPlainName(String(repeating: "a", count: 255)))
+    }
+
+    @Test("Names with spaces, accents and common punctuation are accepted")
+    func ordinaryNames() {
+        #expect(ScriptGate.isPlainName("Caf\u{E9} 2.sh"))
+        #expect(ScriptGate.isPlainName("Mail-Check.applescript"))
+        #expect(ScriptGate.isPlainName("backup (daily).sh"))
+        #expect(ScriptGate.isPlainName("e\u{301}.sh"))
+    }
+
+    @Test("Names that can fake an extension or hide characters are refused")
+    func deceptiveNames() {
+        // A right-to-left override makes "x\u{202E}hs.txt" display as "xtxt.sh".
+        #expect(!ScriptGate.isPlainName("x\u{202E}hs.txt"))
+        // A zero-width space is invisible.
+        #expect(!ScriptGate.isPlainName("backup\u{200B}.sh"))
+        // A line separator and a next line break the pane's line.
+        #expect(!ScriptGate.isPlainName("backup\u{2028}.sh"))
+        #expect(!ScriptGate.isPlainName("backup\u{2029}.sh"))
+        #expect(!ScriptGate.isPlainName("backup\u{85}.sh"))
+        // Private use characters have no meaning.
+        #expect(!ScriptGate.isPlainName("backup\u{E000}.sh"))
+        // The delete character and other C0 and C1 controls.
+        #expect(!ScriptGate.isPlainName("backup\u{7F}.sh"))
+        #expect(!ScriptGate.isPlainName("backup\u{9B}.sh"))
+        #expect(!ScriptGate.isPlainName("\u{FEFF}backup.sh"))
+    }
+
+    @Test("A scptd bundle is a folder, so it is refused even when approved")
+    func bundleIsRefused() {
+        #expect(ScriptGate.kind(forName: "x.scptd") == .executable)
+        #expect(
+            ScriptGate.decide(info(name: "x.scptd", regular: false, mode: 0o755), approvedHash: "abc")
+                == .refused(.notRegularFile)
+        )
+    }
+
+    private func folder(
+        directory: Bool = true,
+        symlink: Bool = false,
+        owned: Bool = true,
+        mode: UInt16 = 0o700
+    ) -> ScriptFolderInfo {
+        ScriptFolderInfo(isDirectory: directory, isSymbolicLink: symlink, isOwnedByCurrentUser: owned, mode: mode)
+    }
+
+    @Test("A folder the user owns and nobody else can write is fine")
+    func safeFolder() {
+        #expect(ScriptGate.folderRefusal(folder(mode: 0o700)) == nil)
+        #expect(ScriptGate.folderRefusal(folder(mode: 0o755)) == nil)
+    }
+
+    @Test("A folder that others can write, that is not the user's, or that is not a folder is refused")
+    func unsafeFolder() {
+        #expect(ScriptGate.folderRefusal(folder(mode: 0o775)) == .writableByOthers)
+        #expect(ScriptGate.folderRefusal(folder(mode: 0o757)) == .writableByOthers)
+        #expect(ScriptGate.folderRefusal(folder(owned: false)) == .notOwnedByUser)
+        #expect(ScriptGate.folderRefusal(folder(directory: false)) == .notDirectory)
+        #expect(ScriptGate.folderRefusal(folder(symlink: true)) == .symbolicLink)
+    }
+
+    @Test("A link is refused first, even when it also fails the other rules")
+    func linkFirst() {
+        let everythingWrong = folder(directory: false, symlink: true, owned: false, mode: 0o777)
+        #expect(ScriptGate.folderRefusal(everythingWrong) == .symbolicLink)
+        let notOwnedAndWritable = folder(owned: false, mode: 0o777)
+        #expect(ScriptGate.folderRefusal(notOwnedAndWritable) == .notOwnedByUser)
     }
 
     @Test("At most ten runs a minute")
