@@ -481,7 +481,14 @@ final class AutomationManager {
                 guard let self else {
                     return
                 }
-                switch await scriptRunner.run(name, event: "check", store: scriptStore) {
+                let outcome = await scriptRunner.run(
+                    name,
+                    event: .check,
+                    timeLimit: ScriptLimits.defaultTimeLimit,
+                    folder: ScriptStore.folder,
+                    store: scriptStore
+                )
+                switch outcome {
                 case .succeeded: scriptResults[name] = true
                 case .failed: scriptResults[name] = false
                 case .notAllowed, .rateLimited: scriptResults.removeValue(forKey: name)
@@ -578,7 +585,13 @@ final class AutomationManager {
                 guard let self else {
                     return
                 }
-                _ = await scriptRunner.run(name, event: "rule-started", store: scriptStore)
+                _ = await scriptRunner.run(
+                    name,
+                    event: .ruleStarted,
+                    timeLimit: ScriptLimits.defaultTimeLimit,
+                    folder: ScriptStore.folder,
+                    store: scriptStore
+                )
             }
         }
     }
