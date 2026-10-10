@@ -2045,34 +2045,6 @@
         }
       }
     },
-    "Below %@" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unter %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sous %@"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sotto %@"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sut %@"
-          }
-        }
-      }
-    },
     "Bind" : {
       "localizations" : {
         "de" : {
@@ -2442,13 +2414,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kamera wird verwendet"
+            "value" : "Kamera in Verwendung"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Caméra en cours d'utilisation"
+            "value" : "Caméra utilisée"
           }
         },
         "it" : {
@@ -2460,7 +2432,7 @@
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Camera en diever"
+            "value" : "Camera en funcziun"
           }
         }
       }
@@ -4537,34 +4509,6 @@
         }
       }
     },
-    "Hidden items are shown for the time set in “Hide opened items again after”, then hidden again." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgeblendete Elemente werden für die unter «Geöffnete Elemente wieder ausblenden nach» eingestellte Zeit eingeblendet und dann wieder ausgeblendet."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les éléments masqués s'affichent pendant la durée définie dans « Masquer à nouveau les éléments ouverts après », puis sont de nouveau masqués."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli elementi nascosti vengono mostrati per il tempo impostato in «Nascondi di nuovo gli elementi aperti dopo», poi nascosti di nuovo."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ils elements zuppads vegnan mussads per il temp definì en «Zuppentar puspè elements averts suenter» e lura puspè zuppentads."
-          }
-        }
-      }
-    },
     "Hide" : {
       "localizations" : {
         "de" : {
@@ -6166,13 +6110,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mikrofon wird verwendet"
+            "value" : "Mikrofon in Verwendung"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Micro en cours d'utilisation"
+            "value" : "Microphone utilisé"
           }
         },
         "it" : {
@@ -6184,7 +6128,7 @@
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Microfon en diever"
+            "value" : "Microfon en funcziun"
           }
         }
       }
@@ -9969,34 +9913,6 @@
         }
       }
     },
-    "Show Hidden Items Automatically" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgeblendete Elemente automatisch einblenden"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher automatiquement les éléments masqués"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra automaticamente gli elementi nascosti"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mussar automaticamain ils elements zuppads"
-          }
-        }
-      }
-    },
     "Show Hidden Section" : {
       "localizations" : {
         "de" : {
@@ -13241,6 +13157,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "in monitur betg collià"
+          }
+        }
+      }
+    },
+    "another app records from the microphone" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "eine andere App das Mikrofon aufnimmt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "une autre app enregistre depuis le microphone"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "un'altra app registra dal microfono"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "in'autra app registrescha dal microfon"
+          }
+        }
+      }
+    },
+    "another app uses a camera" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "eine andere App eine Kamera verwendet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "une autre app utilise une caméra"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "un'altra app usa una fotocamera"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "in'autra app utilisescha ina camera"
           }
         }
       }

@@ -78,6 +78,10 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
     case displayConnected(String)
     case network(AutomationNetworkKind)
     case wifiNetwork(String)
+    /// Another app uses a camera.
+    case cameraInUse
+    /// Another app records from the microphone.
+    case microphoneInUse
     /// A script the user approved ends with status 0. The name is the file name in the scripts
     /// folder.
     case scriptSucceeds(String)
@@ -106,6 +110,10 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
             return facts.networkKinds.map { $0.contains(kind) }
         case .wifiNetwork(let name):
             return facts.wifiName.map { $0 == name }
+        case .cameraInUse:
+            return facts.isCameraInUse
+        case .microphoneInUse:
+            return facts.isMicrophoneInUse
         case .scriptSucceeds(let name):
             return facts.scriptResults[name]
         }
@@ -122,6 +130,7 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
         case .displayConnected: .displays
         case .network: .network
         case .wifiNetwork: .wifi
+        case .cameraInUse, .microphoneInUse: .capture
         case .scriptSucceeds: .scripts
         }
     }
@@ -140,7 +149,7 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
             return !name.isEmpty && name.utf8.count <= 32
         case .scriptSucceeds(let name):
             return ScriptGate.isPlainName(name)
-        case .power, .lowPowerMode, .network:
+        case .power, .lowPowerMode, .network, .cameraInUse, .microphoneInUse:
             return true
         }
     }
@@ -157,6 +166,8 @@ nonisolated enum AutomationSource: CaseIterable, Hashable, Sendable {
     case displays
     case network
     case wifi
+    /// Whether another app uses a camera or the microphone.
+    case capture
     /// Scripts have no observer of their own: they are checked when other events arrive, and
     /// by the user's "Check now".
     case scripts
@@ -190,6 +201,8 @@ nonisolated struct AutomationFacts: Equatable, Sendable {
     var connectedDisplays: Set<String>?
     var networkKinds: Set<AutomationNetworkKind>?
     var wifiName: String?
+    var isCameraInUse: Bool?
+    var isMicrophoneInUse: Bool?
     /// What the approved scripts answered last, by file name. A script not in it is unknown.
     var scriptResults = [String: Bool]()
 }

@@ -52,6 +52,11 @@ final class AutomationManager {
     @ObservationIgnored private var networkKinds: Set<AutomationNetworkKind>?
     @ObservationIgnored private var timeTask: Task<Void, Never>?
     @ObservationIgnored private var storedWiFiMonitor: WiFiNetworkMonitor?
+    /// The observer of camera and microphone use, typed loosely so the property exists on every
+    /// macOS (it needs 14.2).
+    @ObservationIgnored private var captureObserverStorage: AnyObject?
+    /// Whether a camera and the microphone are in use, while the observer runs.
+    @ObservationIgnored private var captureActivity: (camera: Bool, microphone: Bool)?
 
     /// The section each item was last put in by a rule that makes it follow a condition.
     @ObservationIgnored private var lastItemSections = [String: Int]()
@@ -96,13 +101,32 @@ final class AutomationManager {
         defer {
             isLoading = false
         }
-        guard
+        if
             let data = Defaults.data(forKey: .automationRules),
             let decoded = try? JSONDecoder().decode([AutomationRule].self, from: data)
-        else {
+        {
+            rules = AutomationRule.validated(decoded)
+        }
+        migrateLegacyRevealRules()
+    }
+
+    /// Takes over the two fixed rules of 0.0.7 and earlier (low battery, offline) as rules of
+    /// the engine, once, and forgets the old setting.
+    private func migrateLegacyRevealRules() {
+        guard let stored = Defaults.dictionary(forKey: .revealRules) else {
             return
         }
-        rules = AutomationRule.validated(decoded)
+        let migrated = LegacyRevealRules.rules(
+            from: stored,
+            batteryName: String(localized: "When the battery is low"),
+            offlineName: String(localized: "When the network connection is lost")
+        )
+        if !migrated.isEmpty {
+            rules = AutomationRule.validated(rules + migrated)
+            save()
+            logger.notice("Moved \(migrated.count, privacy: .public) old reveal rules into the automation rules")
+        }
+        Defaults.removeObject(forKey: .revealRules)
     }
 
     private func save() {
@@ -175,6 +199,8 @@ final class AutomationManager {
             startPathMonitor()
         case .wifi:
             wifiMonitor.start()
+        case .capture:
+            startCaptureObserver()
         case .scripts:
             // Scripts are checked when other events arrive, not by a timer of their own.
             break
@@ -197,6 +223,8 @@ final class AutomationManager {
             networkKinds = nil
         case .wifi:
             storedWiFiMonitor?.stop()
+        case .capture:
+            stopCaptureObserver()
         case .lowPowerMode, .runningApps, .frontmostApp, .displays, .scripts:
             break
         }
@@ -283,6 +311,30 @@ final class AutomationManager {
         evaluate()
     }
 
+    /// Starts following camera and microphone use. Before macOS 14.2 the facts stay unknown, so
+    /// the conditions never hold.
+    private func startCaptureObserver() {
+        guard #available(macOS 14.2, *), captureObserverStorage == nil else {
+            return
+        }
+        let observer = AutomationCaptureObserver()
+        observer.onChange = { [weak self] isCameraInUse, isMicrophoneInUse in
+            self?.captureActivity = (isCameraInUse, isMicrophoneInUse)
+            self?.evaluate()
+        }
+        captureObserverStorage = observer
+        captureActivity = (false, false)
+        observer.start()
+    }
+
+    private func stopCaptureObserver() {
+        if #available(macOS 14.2, *), let observer = captureObserverStorage as? AutomationCaptureObserver {
+            observer.stop()
+        }
+        captureObserverStorage = nil
+        captureActivity = nil
+    }
+
     /// Arms one timer for the next start or end of a time span; nothing runs in between.
     private func restartTimeTask() {
         timeTask?.cancel()
@@ -342,6 +394,10 @@ final class AutomationManager {
         if needed.contains(.wifi) {
             facts.wifiName = storedWiFiMonitor?.networkName
         }
+        if needed.contains(.capture), let captureActivity {
+            facts.isCameraInUse = captureActivity.camera
+            facts.isMicrophoneInUse = captureActivity.microphone
+        }
         facts.scriptResults = scriptResults
         return facts
     }
@@ -365,7 +421,7 @@ final class AutomationManager {
             let isOnBattery = description[kIOPSPowerSourceStateKey] as? String == kIOPSBatteryPowerValue
             var percent: Int?
             if let current = description[kIOPSCurrentCapacityKey] as? Int, let maximum = description[kIOPSMaxCapacityKey] as? Int {
-                percent = RevealTrigger.percent(current: current, maximum: maximum)
+                percent = BatteryLevel.percent(current: current, maximum: maximum)
             }
             return (isOnBattery ? .battery : .adapter, percent)
         }
@@ -511,10 +567,7 @@ final class AutomationManager {
             logger.notice("An automation rule applies a profile")
             appState.profiles.apply(named: name)
         case .showSection(let section):
-            appState.revealRules.reveal(
-                section == .alwaysHidden ? .alwaysHidden : .hidden,
-                because: "an automation rule asked for it"
-            )
+            reveal(section == .alwaysHidden ? .alwaysHidden : .hidden)
         case .setZen(let isOn):
             logger.notice("An automation rule turns Zen mode \(isOn ? "on" : "off", privacy: .public)")
             appState.menuBarManager.setManualZenMode(isOn)
@@ -526,6 +579,32 @@ final class AutomationManager {
                     return
                 }
                 _ = await scriptRunner.run(name, event: "rule-started", store: scriptStore)
+            }
+        }
+    }
+
+    /// Shows a section for the "temporarily shown item" interval, then hides it again, unless
+    /// Zen mode is on.
+    private func reveal(_ name: MenuBarSection.Name) {
+        guard
+            let appState,
+            let section = appState.menuBarManager.section(withName: name),
+            section.isHidden
+        else {
+            return
+        }
+        guard appState.menuBarManager.zenMode.allows(.revealRule) else {
+            logger.notice("An automation rule does not show hidden items: Zen mode")
+            return
+        }
+        logger.notice("An automation rule shows hidden items")
+        section.show(bypassingLock: true)
+        appState.menuBarManager.showOnHoverAllowed = false
+        let interval = appState.settings.advanced.tempShowInterval
+        Task {
+            try? await Task.sleep(for: .seconds(interval))
+            if !section.isHidden {
+                section.hide()
             }
         }
     }

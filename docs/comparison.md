@@ -2,7 +2,7 @@
 
 What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. — means not available or not documented. 🔜 means planned, with the release (0.0.8, 0.0.9 or 1.0.0): it is **not available yet**.
 
-✅ Preview = built in 0.0.8-beta1 and marked with a Preview badge in the app, but not yet tested on a real Mac.
+✅ Preview = built in the 0.0.8 betas and marked with a Preview badge in the app, but not yet tested on a real Mac.
 
 | | Ice 0.11.12 | Thaw 3.0 beta | Bartender 7 | holzBar |
 |---|:---:|:---:|:---:|:---:|

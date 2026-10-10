@@ -54,6 +54,10 @@ enum AutomationDescription {
             String(localized: "the connection is expensive, for example a hotspot")
         case .wifiNetwork(let name):
             String(localized: "the Wi-Fi network is “\(name)”")
+        case .cameraInUse:
+            String(localized: "another app uses a camera")
+        case .microphoneInUse:
+            String(localized: "another app records from the microphone")
         case .scriptSucceeds(let name):
             String(localized: "the script “\(name)” succeeds")
         }

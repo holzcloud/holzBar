@@ -71,9 +71,6 @@ final class AppState {
     /// Empty menu bar items that add space between others.
     let spacers = MenuBarSpacers()
 
-    /// Rules that show hidden items when something happens.
-    let revealRules = RevealRules()
-
     /// The lock that asks for Touch ID or the password before hidden items are shown.
     let hiddenItemsLock = HiddenItemsLock()
 
@@ -206,7 +203,6 @@ final class AppState {
         hiddenItemsLock.performSetup(with: self)
         itemGroups.performSetup(with: self)
         spacers.performSetup()
-        revealRules.performSetup(with: self)
         automation.performSetup(with: self)
         presentationMonitor.performSetup(with: self)
         if #available(macOS 27.0, *) {

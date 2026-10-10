@@ -4,7 +4,5 @@
 # NWPathMonitor only observes whether a network path exists (for the "Reveal when
 # offline" rule and the automation rules' network condition); it opens no connection and
 # sends nothing.
-holzBar/MenuBar/RevealRules/RevealRules.swift: import Network
-holzBar/MenuBar/RevealRules/RevealRules.swift: NWPathMonitor
 holzBar/MenuBar/Automation/AutomationManager.swift: import Network
 holzBar/MenuBar/Automation/AutomationManager.swift: NWPathMonitor
