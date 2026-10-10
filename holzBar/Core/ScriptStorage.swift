@@ -95,6 +95,9 @@ nonisolated enum ProfileHooks {
 /// holds is validated and capped (T-11-L3).
 nonisolated struct ScriptStoreFile: Codable, Equatable, Sendable {
     /// The format of this build. A file with a higher version is read-only and never overwritten.
+    /// Raise it whenever an enum of the file gains a case that an older build cannot decode: an
+    /// older build skips such an element (and drops it at its next save), so only the version
+    /// protects it.
     static let currentVersion = 1
     /// The largest file that is read, in bytes.
     static let maximumSize = 1_000_000
@@ -252,18 +255,37 @@ nonisolated struct ScriptStoreFile: Codable, Equatable, Sendable {
     }
 }
 
+/// One element of a list or a dictionary that is skipped when it cannot be decoded, instead of
+/// making the whole file unreadable.
+nonisolated private struct Lossy<Value: Decodable>: Decodable {
+    let value: Value?
+
+    init(from decoder: any Decoder) {
+        value = try? Value(from: decoder)
+    }
+}
+
 nonisolated extension ScriptStoreFile {
     /// Every key is optional, so a later version can add keys and this one still reads the
-    /// file.
+    /// file. An element that cannot be decoded (a rule with a condition kind a later build
+    /// added, a hook with an unknown timing, a value of the wrong type) is skipped and the rest
+    /// of the file is kept: one such element must not take the approvals, the folder and every
+    /// other rule with it (WR-05). A key that is not a list or a dictionary of the right kind
+    /// still makes the file unreadable.
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         version = try container.decodeIfPresent(Int.self, forKey: .version) ?? Self.currentVersion
         folderPath = try container.decodeIfPresent(String.self, forKey: .folderPath)
-        approvals = try container.decodeIfPresent([String: String].self, forKey: .approvals) ?? [:]
-        timeLimits = try container.decodeIfPresent([String: Int].self, forKey: .timeLimits) ?? [:]
-        rules = try container.decodeIfPresent([AutomationRule].self, forKey: .rules) ?? []
-        ruleOrder = try container.decodeIfPresent([UUID].self, forKey: .ruleOrder) ?? []
-        profileHooks = try container.decodeIfPresent([ProfileHook].self, forKey: .profileHooks) ?? []
+        approvals = try container.decodeIfPresent([String: Lossy<String>].self, forKey: .approvals)?
+            .compactMapValues(\.value) ?? [:]
+        timeLimits = try container.decodeIfPresent([String: Lossy<Int>].self, forKey: .timeLimits)?
+            .compactMapValues(\.value) ?? [:]
+        rules = try container.decodeIfPresent([Lossy<AutomationRule>].self, forKey: .rules)?
+            .compactMap(\.value) ?? []
+        ruleOrder = try container.decodeIfPresent([Lossy<UUID>].self, forKey: .ruleOrder)?
+            .compactMap(\.value) ?? []
+        profileHooks = try container.decodeIfPresent([Lossy<ProfileHook>].self, forKey: .profileHooks)?
+            .compactMap(\.value) ?? []
         hasMigratedLegacyData = try container.decodeIfPresent(Bool.self, forKey: .hasMigratedLegacyData) ?? false
     }
 }

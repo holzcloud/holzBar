@@ -83,6 +83,33 @@ struct ScriptStorageTests {
         #expect(file.profileHooks.isEmpty)
     }
 
+    @Test("An element that cannot be decoded is skipped; the rest of the file is kept (WR-05)")
+    func undecodableElementsAreSkipped() throws {
+        var file = ScriptStoreFile()
+        file.folderPath = "/Users/me/Scripts"
+        file.approvals = ["a.sh": goodHash]
+        file.timeLimits = ["a.sh": 20]
+        file.rules = [running("a.sh"), asking("b.sh")]
+        file.ruleOrder = file.rules.map(\.id)
+        file.profileHooks = [hook("Work", .beforeApplying)]
+        file.hasMigratedLegacyData = true
+        var object = try #require(JSONSerialization.jsonObject(with: encoded(file)) as? [String: Any])
+        object["rules"] = try #require(object["rules"] as? [Any]) + [["future": true] as [String: Any], "junk"]
+        object["ruleOrder"] = try #require(object["ruleOrder"] as? [Any]) + [42, "not-a-uuid"]
+        object["profileHooks"] = try #require(object["profileHooks"] as? [Any])
+            + [["id": UUID().uuidString, "timing": "whenever", "scriptName": "x.sh"] as [String: Any]]
+        object["approvals"] = ["a.sh": goodHash, "b.sh": 5]
+        object["timeLimits"] = ["a.sh": 20, "b.sh": "soon"]
+        let data = try JSONSerialization.data(withJSONObject: object)
+        #expect(ScriptStoreFile.decode(data) == .file(file))
+    }
+
+    @Test("A key of the wrong kind still makes the file unreadable")
+    func wrongKindIsUnreadable() {
+        #expect(ScriptStoreFile.decode(Data(#"{"version":1,"rules":"nope"}"#.utf8)) == .unreadable)
+        #expect(ScriptStoreFile.decode(Data(#"{"version":1,"approvals":[1]}"#.utf8)) == .unreadable)
+    }
+
     // MARK: Validation
 
     @Test("Approvals need a plain name and a full lowercase SHA-256")
