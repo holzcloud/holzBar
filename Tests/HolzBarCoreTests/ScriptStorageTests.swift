@@ -312,6 +312,14 @@ struct ScriptStorageTests {
         #expect(migrated.rules.last?.restoresWhenEnded == asks.restoresWhenEnded)
     }
 
+    @Test("A migration with nothing to move still marks the file as migrated (WR-04)")
+    func adoptingNothingStillMarks() throws {
+        let result = ScriptStoreFile().adoptingLegacy(rules: [], approvals: [:])
+        #expect(result.hasMigratedLegacyData)
+        #expect(result.rules.isEmpty)
+        #expect(ScriptStoreFile.decode(try encoded(result)) == .file(result))
+    }
+
     @Test("A file that already migrated comes back unchanged")
     func adoptingLegacyOnlyOnce() {
         var file = ScriptStoreFile()

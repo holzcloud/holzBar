@@ -69,6 +69,9 @@ final class ScriptStore {
 
     @ObservationIgnored private let logger = Logger(category: "ScriptStore")
     @ObservationIgnored private var file = ScriptStoreFile()
+    /// Whether `Scripts.json` was not there when it was loaded: the only time the data of the
+    /// betas may move in (D-14).
+    @ObservationIgnored private var storeWasMissing = false
 
     private static let supportFolder: URL = URL.applicationSupportDirectory
         .appending(path: "holzBar", directoryHint: .isDirectory)
@@ -102,6 +105,7 @@ final class ScriptStore {
         switch Self.readRegularFile(at: Self.storeFile, maximumSize: ScriptStoreFile.maximumSize) {
         case .missing:
             file = ScriptStoreFile()
+            storeWasMissing = true
         case .unavailable:
             // The file may be fine: it is not moved, not read and not overwritten (WR-03).
             file = ScriptStoreFile()
@@ -148,10 +152,20 @@ final class ScriptStore {
             logger.error("Could not set the unreadable Scripts.json aside")
         } else {
             logger.notice("Set an unreadable Scripts.json aside")
+            // The fresh store says at once that the betas' data is not to move in again: the
+            // approvals file of the betas never learns about a revocation (WR-04).
+            file.hasMigratedLegacyData = true
+            save()
         }
     }
 
     /// Moves the script rules and approvals of 0.0.8-beta1 and beta2 into the store, once (D-14).
+    ///
+    /// It happens only when `Scripts.json` was not there at all, and the store is saved with the
+    /// "moved" flag at once, even when there was nothing to move, so a later launch never takes
+    /// rules from the settings or approvals from the old file again (WR-04). A store that was
+    /// set aside or cannot be read takes nothing: a rule of the settings that uses a script is
+    /// left out and reported like one from an import.
     ///
     /// `ScriptApprovals.json` is not changed or deleted: it is never read again once the store
     /// has migrated, and a downgrade to beta 2 still finds it.
@@ -160,7 +174,7 @@ final class ScriptStore {
     ///   - rules: The rules of the settings that use a script.
     ///   - order: The order of every rule of the settings, so the rules keep their place.
     func adoptLegacyData(rules: [AutomationRule], order: [UUID]) {
-        guard !isReadOnly, !file.hasMigratedLegacyData else {
+        guard !isReadOnly, problem == nil, storeWasMissing, !file.hasMigratedLegacyData else {
             return
         }
         var approvals = [String: String]()
@@ -168,8 +182,8 @@ final class ScriptStore {
             approvals = (try? JSONDecoder().decode([String: String].self, from: data)) ?? [:]
         }
         file = file.adoptingLegacy(rules: rules, approvals: approvals, order: order)
+        save()
         if !rules.isEmpty || !approvals.isEmpty {
-            save()
             logger.notice(
                 "Moved \(rules.count, privacy: .public) script rules and \(approvals.count, privacy: .public) approvals into the local store"
             )
