@@ -359,7 +359,10 @@ jobs:
   # holzBar never connects to the network and keeps personal data out of public logs
   # (CLAUDE.md, "Private"). Fails every pull request that adds networking code or a
   # Swift package, or a log interpolation that does not name its privacy or makes
-  # personal data public. Runs locally too: python3 .github/scripts/privacy-check.py network|logs
+  # personal data public. It also fails every pull request that starts a process
+  # anywhere but in the script runner and the permission reset (.github/process-allowlist.txt),
+  # so a new way to run a program cannot slip in. Runs locally too:
+  # python3 .github/scripts/privacy-check.py network|logs|processes
   no-network:
     runs-on: ubuntu-latest
     steps:
@@ -372,6 +375,9 @@ jobs:
 
       - name: Logs keep personal data private
         run: python3 .github/scripts/privacy-check.py logs
+
+      - name: Only the script runner and the permission reset start processes
+        run: python3 .github/scripts/privacy-check.py processes
 
   # holzBar speaks English, German, French, Italian and Romansh. Fails every pull
   # request that adds a text without its translations, or a translation that is
