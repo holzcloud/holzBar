@@ -113,7 +113,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 <sup>11</sup> The vendor says Bartender sends nothing anywhere. Bartender 5.0.52 briefly shipped analytics (Amplitude) and removed it; Sparkle and RevenueCat appear in third-party dependency lists (inferred).
 <sup>12</sup> Glow, Brow and Lounge: ❌ means the vendor's site, changelog and privacy policy do not mention the feature (one source each, no independent test). Lounge's own blog says it lacks automation rules.
 <sup>13</sup> Glow ships two builds: 2.x for macOS 26 and 3.x for macOS 27 (stable since 10 September 2026).
-<sup>14</sup> **Preview**: built in the 0.0.8 betas and marked with a Preview badge in the app, but not yet tested on a real Mac by the maintainer. Rules have fewer trigger types than Thaw: power, Low Power Mode, apps, time, displays, network, VPN, the Wi-Fi name, camera and microphone in use, and a Focus filter.
+<sup>14</sup> **Preview**: built in the 0.0.8 betas and marked with a Preview badge in the app, but not yet tested on a real Mac by the maintainer. Rules have fewer trigger types than Thaw: power, Low Power Mode, apps, time, displays, network, VPN, the Wi-Fi name, camera and microphone in use, and a Focus filter. Scripts run as you with holzBar's permissions, only from the folder you chose and only after you allowed their exact content; nothing about them is exported, imported or synced, and no URL command or Shortcut can turn on a rule that uses one.
 
 ### Where holzBar is behind today
 
@@ -196,7 +196,7 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 
 | | |
 |---|---|
-| ⚙️ **Automation** | **Rules** (app, time, power, display, network, camera and microphone in use; Focus filter and Wi-Fi name — all *Preview*; the old "low battery" and "offline" settings are rules now) · **per-item conditions** (*Preview*) · **scripts** (*Preview*; only from the Scripts folder, after you allowed the exact content) |
+| ⚙️ **Automation** | **Rules** (app, time, power, display, network, camera and microphone in use; Focus filter and Wi-Fi name — all *Preview*; the old "low battery" and "offline" settings are rules now) · **per-item conditions** (*Preview*) · **scripts** (*Preview*; a rule condition or a rule action, run at the start and, if you choose, when the rule ends; only from a folder you choose, only after you allowed the exact content, with no arguments and no shell, a time limit of 10 seconds by default, and they run as you with holzBar's permissions) · **profile hooks** (*Preview*; a script before or after a profile is applied). Beta 2 runs scripts from the Scripts folder only; the folder of your choice, the run when a rule ends, the output line, the time limit and the profile hooks come with 0.0.8-beta3 |
 | 🛟 **Safety** | **Layout snapshots** with a one-click restore (*Preview*) · **shareable profiles** (*Preview*) · **Touch ID** to show hidden items (*Preview*) · **revoke permissions in Settings** (*Preview*) (with a guide) · **copy diagnostics** (*Preview*) (redacted, nothing is sent) |
 | 🪄 **Convenience** | **Tidy Up assistant** (*Preview*) · **works without Screen Recording** (*Preview*) (app icons instead of live snapshots) · system items such as Clock, Wi-Fi and Battery **pinned visible** (*Preview*) |
 | 🪵 **Polish** | A [keyboard and VoiceOver checklist](docs/accessibility-checklist.md) to run on a Mac (no accessibility claim until it was run) |
@@ -206,7 +206,7 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 | | |
 |---|---|
 | ⚙️ **Automation** | **Widgets** (text from permission-free sources such as CPU, memory, battery and disk, a countdown, a Shortcut button) · **AppleScript dictionary** · **App Intents** for Shortcuts and Siri · **command palette** · a "focus mode" hotkey · **more rule triggers** (Bluetooth, audio, Energy Mode) |
-| 🪄 **Convenience** | Opt-in **usage suggestions** (counters stay on your Mac) · **smooth show and hide** · replacement items for Apple items macOS 27 cannot hide · hiding system items such as Clock and Control Center · scripts as profile hooks |
+| 🪄 **Convenience** | Opt-in **usage suggestions** (counters stay on your Mac) · **smooth show and hide** · replacement items for Apple items macOS 27 cannot hide · hiding system items such as Clock and Control Center |
 | 🎨 **Look** | **Shelf layouts** (grid, vertical) · **Moods** (saved looks per display or time) · more **menu bar styles** |
 | 🪵 **Polish** | Control Center control (*spike*, optional) |
 

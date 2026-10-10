@@ -22,7 +22,8 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Show hidden items on low battery or when offline | ❌ | — | — | ✅ |
 | Rules that apply a profile or show items when a Wi-Fi network, an app, the time of day, the power source or a display matches (all or any) | ❌ | ✅ | ✅ | ✅ Preview |
 | Profile applied by a Focus filter | ❌ | ✅ | — | ✅ Preview |
-| Scripts as a rule condition or action | ❌ | ✅ | — | ✅ Preview <sub>only from the Scripts folder, after you allowed the exact content</sub> |
+| Scripts as a rule condition or action | ❌ | ✅ | — | ✅ Preview <sub>from a folder you choose, after you allowed the exact content</sub> |
+| Script hooks before or after a profile | ❌ | ✅ | — | ✅ Preview |
 | Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | ✅ | 🔜 0.0.9 |
 | AppleScript dictionary | — | — | ✅ | 🔜 0.0.9 |
 | Touch ID or password to show hidden items | — | — | — | ✅ Preview |

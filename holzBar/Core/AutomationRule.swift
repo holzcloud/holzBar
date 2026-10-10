@@ -168,8 +168,9 @@ nonisolated enum AutomationSource: CaseIterable, Hashable, Sendable {
     case wifi
     /// Whether another app uses a camera or the microphone.
     case capture
-    /// Scripts have no observer of their own: they are checked when other events arrive, and
-    /// by the user's "Check now".
+    /// Scripts are asked when the events of power, network, running apps, displays and wake
+    /// arrive (``AutomationRule/observedSources(of:)``), and by the user's "Check now"; they
+    /// have no timer of their own.
     case scripts
 }
 
@@ -275,7 +276,9 @@ nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
     var match = AutomationMatch.all
     var clauses: [AutomationClause]
     var action: AutomationAction
-    /// Whether the previous profile or Zen mode comes back when the rule stops being true.
+    /// Whether the previous profile or Zen mode comes back when the rule stops being true. For a
+    /// rule that runs a script it means: run the script again when the rule ends, with
+    /// `HOLZBAR_EVENT=rule-ended`.
     var restoresWhenEnded = true
 
     /// Whether the rule holds. A rule without clauses never holds; an unknown clause counts
@@ -318,6 +321,27 @@ nonisolated struct AutomationRule: Codable, Equatable, Identifiable, Sendable {
     /// The kinds of event the enabled rules need to observe.
     static func sources(of rules: [AutomationRule]) -> Set<AutomationSource> {
         Set(rules.filter(\.isEnabled).flatMap(\.clauses).map(\.condition.source))
+    }
+
+    /// The kinds of event to observe for the enabled rules: ``sources(of:)`` and, when a rule asks
+    /// a script, the events that make the engine ask it again: a change of power, of the
+    /// network, of the running apps or of the displays (the observer of the scripts source adds
+    /// the wake from sleep). A script condition has no timer of its own (D-04, T-11-L1); "Check
+    /// now" asks it by hand.
+    static func observedSources(of rules: [AutomationRule]) -> Set<AutomationSource> {
+        var sources = sources(of: rules)
+        if sources.contains(.scripts) {
+            sources.formUnion([.power, .network, .runningApps, .displays])
+        }
+        return sources
+    }
+
+    /// How many rules of a stored list run or ask a script; 0 when the list cannot be decoded.
+    static func scriptRuleCount(in data: Data) -> Int {
+        guard let rules = try? JSONDecoder().decode([AutomationRule].self, from: data) else {
+            return 0
+        }
+        return rules.filter(\.usesScript).count
     }
 
     /// The time spans of the enabled rules.

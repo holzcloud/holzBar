@@ -56,22 +56,190 @@ struct ScriptGateTests {
     func names() {
         #expect(ScriptGate.isPlainName("backup.sh"))
         #expect(!ScriptGate.isPlainName(""))
+        #expect(!ScriptGate.isPlainName(".x"))
         #expect(!ScriptGate.isPlainName("a/b.sh"))
         #expect(!ScriptGate.isPlainName("a\nb.sh"))
         #expect(!ScriptGate.isPlainName(String(repeating: "a", count: 300)))
+        #expect(!ScriptGate.isPlainName(String(repeating: "a", count: 256)))
+        #expect(ScriptGate.isPlainName(String(repeating: "a", count: 255)))
     }
 
-    @Test("At most ten runs a minute")
+    @Test("Names with spaces, accents and common punctuation are accepted")
+    func ordinaryNames() {
+        #expect(ScriptGate.isPlainName("Caf\u{E9} 2.sh"))
+        #expect(ScriptGate.isPlainName("Mail-Check.applescript"))
+        #expect(ScriptGate.isPlainName("backup (daily).sh"))
+        #expect(ScriptGate.isPlainName("e\u{301}.sh"))
+    }
+
+    @Test("Names that can fake an extension or hide characters are refused")
+    func deceptiveNames() {
+        // A right-to-left override makes "x\u{202E}hs.txt" display as "xtxt.sh".
+        #expect(!ScriptGate.isPlainName("x\u{202E}hs.txt"))
+        // A zero-width space is invisible.
+        #expect(!ScriptGate.isPlainName("backup\u{200B}.sh"))
+        // A line separator and a next line break the pane's line.
+        #expect(!ScriptGate.isPlainName("backup\u{2028}.sh"))
+        #expect(!ScriptGate.isPlainName("backup\u{2029}.sh"))
+        #expect(!ScriptGate.isPlainName("backup\u{85}.sh"))
+        // Private use characters have no meaning.
+        #expect(!ScriptGate.isPlainName("backup\u{E000}.sh"))
+        // The delete character and other C0 and C1 controls.
+        #expect(!ScriptGate.isPlainName("backup\u{7F}.sh"))
+        #expect(!ScriptGate.isPlainName("backup\u{9B}.sh"))
+        #expect(!ScriptGate.isPlainName("\u{FEFF}backup.sh"))
+    }
+
+    @Test("A scptd bundle is a folder, so it is refused even when approved")
+    func bundleIsRefused() {
+        #expect(ScriptGate.kind(forName: "x.scptd") == .executable)
+        #expect(
+            ScriptGate.decide(info(name: "x.scptd", regular: false, mode: 0o755), approvedHash: "abc")
+                == .refused(.notRegularFile)
+        )
+    }
+
+    private func folder(
+        directory: Bool = true,
+        symlink: Bool = false,
+        owned: Bool = true,
+        mode: UInt16 = 0o700
+    ) -> ScriptFolderInfo {
+        ScriptFolderInfo(isDirectory: directory, isSymbolicLink: symlink, isOwnedByCurrentUser: owned, mode: mode)
+    }
+
+    @Test("A folder the user owns and nobody else can write is fine")
+    func safeFolder() {
+        #expect(ScriptGate.folderRefusal(folder(mode: 0o700)) == nil)
+        #expect(ScriptGate.folderRefusal(folder(mode: 0o755)) == nil)
+    }
+
+    @Test("A folder that others can write, that is not the user's, or that is not a folder is refused")
+    func unsafeFolder() {
+        #expect(ScriptGate.folderRefusal(folder(mode: 0o775)) == .writableByOthers)
+        #expect(ScriptGate.folderRefusal(folder(mode: 0o757)) == .writableByOthers)
+        #expect(ScriptGate.folderRefusal(folder(owned: false)) == .notOwnedByUser)
+        #expect(ScriptGate.folderRefusal(folder(directory: false)) == .notDirectory)
+        #expect(ScriptGate.folderRefusal(folder(symlink: true)) == .symbolicLink)
+    }
+
+    @Test("A link is refused first, even when it also fails the other rules")
+    func linkFirst() {
+        let everythingWrong = folder(directory: false, symlink: true, owned: false, mode: 0o777)
+        #expect(ScriptGate.folderRefusal(everythingWrong) == .symbolicLink)
+        let notOwnedAndWritable = folder(owned: false, mode: 0o777)
+        #expect(ScriptGate.folderRefusal(notOwnedAndWritable) == .notOwnedByUser)
+    }
+
+    // MARK: The folder on disk
+
+    /// A scratch folder with a real folder `real` and a symbolic link `link` to it.
+    private func withLinkedFolders(_ body: (_ real: URL, _ link: URL) throws -> Void) throws {
+        let manager = FileManager.default
+        let root = manager.temporaryDirectory.appending(path: "holzbar-gate-\(UUID().uuidString)", directoryHint: .isDirectory)
+        try manager.createDirectory(at: root, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+        defer {
+            try? manager.removeItem(at: root)
+        }
+        let real = root.appending(path: "real", directoryHint: .isDirectory)
+        try manager.createDirectory(at: real, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        let link = root.appending(path: "link", directoryHint: .notDirectory)
+        try manager.createSymbolicLink(at: link, withDestinationURL: real)
+        try body(real, link)
+    }
+
+    @Test("Trailing slashes are cut for lstat, the root stays")
+    func linkCheckPath() {
+        #expect(ScriptGate.pathForLinkCheck("/a/b/") == "/a/b")
+        #expect(ScriptGate.pathForLinkCheck("/a/b///") == "/a/b")
+        #expect(ScriptGate.pathForLinkCheck("/a/b") == "/a/b")
+        #expect(ScriptGate.pathForLinkCheck("/") == "/")
+        #expect(ScriptGate.pathForLinkCheck("") == "")
+    }
+
+    @Test("A link is seen as a link, also when its path ends in a slash (T-11-M6)")
+    func linkOnDisk() throws {
+        try withLinkedFolders { real, link in
+            // What the store has: the path of a URL made as a directory, which ends in "/".
+            let asDirectoryURL = URL(filePath: link.path(percentEncoded: false), directoryHint: .isDirectory)
+            let withSlash = asDirectoryURL.path(percentEncoded: false)
+            #expect(withSlash.hasSuffix("/"))
+            for path in [link.path(percentEncoded: false), withSlash] {
+                let found = try #require(ScriptGate.folderInfo(atPath: path))
+                #expect(found.isSymbolicLink)
+                #expect(ScriptGate.folderRefusal(found) == .symbolicLink)
+            }
+            let folder = try #require(ScriptGate.folderInfo(atPath: URL(filePath: real.path(percentEncoded: false), directoryHint: .isDirectory).path(percentEncoded: false)))
+            #expect(folder.isDirectory)
+            #expect(!folder.isSymbolicLink)
+            #expect(folder.isOwnedByCurrentUser)
+            #expect(folder.mode == 0o700)
+            #expect(ScriptGate.folderRefusal(folder) == nil)
+        }
+    }
+
+    @Test("A folder that others can write and a file in the folder's place are refused on disk")
+    func unsafeOnDisk() throws {
+        try withLinkedFolders { real, _ in
+            let path = real.path(percentEncoded: false)
+            #expect(chmod(path, 0o777) == 0)
+            let open = try #require(ScriptGate.folderInfo(atPath: path + "/"))
+            #expect(ScriptGate.folderRefusal(open) == .writableByOthers)
+            let file = real.appending(path: "plain.txt", directoryHint: .notDirectory)
+            #expect(FileManager.default.createFile(atPath: file.path(percentEncoded: false), contents: Data()))
+            let notFolder = try #require(ScriptGate.folderInfo(atPath: file.path(percentEncoded: false)))
+            #expect(ScriptGate.folderRefusal(notFolder) == .notDirectory)
+            #expect(ScriptGate.folderInfo(atPath: path + "/missing") == nil)
+        }
+    }
+
+    @Test("At most ten runs a minute, counted on a monotonic clock")
     func rateLimit() {
         var limiter = ScriptRateLimiter()
-        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        let start = ContinuousClock.now
         for index in 0..<ScriptRateLimiter.maximumRuns {
-            let allowed = limiter.allowRun(at: start.addingTimeInterval(Double(index)))
+            let allowed = limiter.allowRun(at: start + .seconds(index))
             #expect(allowed)
         }
-        let blocked = limiter.allowRun(at: start.addingTimeInterval(30))
+        let blocked = limiter.allowRun(at: start + .seconds(30))
         #expect(!blocked)
-        let later = limiter.allowRun(at: start.addingTimeInterval(ScriptRateLimiter.window + 1))
+        let stillBlocked = limiter.allowRun(at: start + .seconds(Int(ScriptRateLimiter.window) - 1))
+        #expect(!stillBlocked)
+        let later = limiter.allowRun(at: start + .seconds(Int(ScriptRateLimiter.window) + 1))
         #expect(later)
+    }
+
+    @Test("Condition checks and other runs have a limit each, so a burst of checks cannot starve a start script (WR-08)")
+    func separateLimits() {
+        var limiter = ScriptRunLimiter()
+        let now = ContinuousClock.now
+        for _ in 0..<ScriptRateLimiter.maximumRuns {
+            let allowed = limiter.allowRun(for: .check, at: now)
+            #expect(allowed)
+        }
+        let checkBlocked = limiter.allowRun(for: .check, at: now)
+        #expect(!checkBlocked)
+        // The four other events share one limit of their own.
+        let others: [ScriptEvent] = [.ruleStarted, .ruleEnded, .profileWillApply, .profileDidApply]
+        for index in 0..<ScriptRateLimiter.maximumRuns {
+            let allowed = limiter.allowRun(for: others[index % others.count], at: now)
+            #expect(allowed)
+        }
+        let actionBlocked = limiter.allowRun(for: .ruleStarted, at: now)
+        #expect(!actionBlocked)
+        // A minute later both have room again.
+        let actionLater = limiter.allowRun(for: .ruleStarted, at: now + .seconds(61))
+        let checkLater = limiter.allowRun(for: .check, at: now + .seconds(61))
+        #expect(actionLater)
+        #expect(checkLater)
+    }
+
+    @Test("A script condition is asked again after 30 seconds, never sooner (WR-09)")
+    func conditionInterval() {
+        let asked = ContinuousClock.now
+        #expect(ScriptLimits.isConditionDue(lastAsked: nil, now: asked))
+        #expect(!ScriptLimits.isConditionDue(lastAsked: asked, now: asked))
+        #expect(!ScriptLimits.isConditionDue(lastAsked: asked, now: asked + .seconds(29)))
+        #expect(ScriptLimits.isConditionDue(lastAsked: asked, now: asked + .seconds(30)))
     }
 }

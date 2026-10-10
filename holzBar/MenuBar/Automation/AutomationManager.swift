@@ -33,6 +33,9 @@ final class AutomationManager {
             guard !isLoading else {
                 return
             }
+            // A change from outside holds every script until a real event arrives; a change
+            // the user makes in holzBar's own pane releases the hold (D-12).
+            scriptsAreHeld = changeComesFromOutside
             save()
             sourcesChanged()
             evaluate()
@@ -67,7 +70,24 @@ final class AutomationManager {
     @ObservationIgnored private let scriptRunner = ScriptRunner()
     /// What the approved scripts answered last, by file name. A script not here is unknown.
     @ObservationIgnored private var scriptResults = [String: Bool]()
-    @ObservationIgnored private var lastScriptRun = [String: Date]()
+    @ObservationIgnored private var lastScriptRun = [String: ContinuousClock.Instant]()
+    /// What the last run of each script left behind, by file name: one cleaned line of its
+    /// output, how it ended and when. In memory only: never persisted, logged or exported.
+    private(set) var lastScriptRuns = [String: ScriptRunRecord]()
+
+    /// Whether the rule change in progress comes from outside holzBar: from a URL command or a
+    /// Shortcut, through ``setRule(withID:enabled:)``.
+    @ObservationIgnored private var changeComesFromOutside = false
+    /// Whether scripts are held: set by a change from outside, released by the next event of the
+    /// system (a notification, a real change of a fact, a time boundary), by "Check now" and by
+    /// a change the user makes in the pane. While held, a pass asks no script condition and
+    /// starts no script, and a rule that would start waits for that event (D-12, T-11-M5).
+    @ObservationIgnored private var scriptsAreHeld = false
+    /// The one deferred pass that a profile change asks for; see ``profileDidChange()``.
+    @ObservationIgnored private var profileChangeTask: Task<Void, Never>?
+    /// The Wi-Fi name last reported, to tell a change from the report that follows a start.
+    @ObservationIgnored private var lastWiFiName: String?
+    @ObservationIgnored private var hasWiFiReport = false
 
     /// The activity that keeps the Mac awake while a rule asks for it.
     @ObservationIgnored private var keepAwakeActivity: (any NSObjectProtocol)?
@@ -79,7 +99,7 @@ final class AutomationManager {
         }
         let monitor = WiFiNetworkMonitor()
         monitor.onChange = { [weak self] in
-            self?.evaluate()
+            self?.wifiReported()
         }
         storedWiFiMonitor = monitor
         return monitor
@@ -96,16 +116,44 @@ final class AutomationManager {
 
     // MARK: Storage
 
+    /// Loads the rules: the ones of the settings and, from this Mac's script store, the ones that
+    /// use a script (D-05). A rule that uses a script found in the settings is left out, and the
+    /// settings are saved once without it; the first time, the script rules and approvals of
+    /// 0.0.8-beta1 and beta2 move into the store (D-14).
     private func load() {
         isLoading = true
         defer {
             isLoading = false
         }
+        var decoded = [AutomationRule]()
         if
             let data = Defaults.data(forKey: .automationRules),
-            let decoded = try? JSONDecoder().decode([AutomationRule].self, from: data)
+            let stored = try? JSONDecoder().decode([AutomationRule].self, from: data)
         {
-            rules = AutomationRule.validated(decoded)
+            decoded = AutomationRule.validated(stored)
+        }
+        scriptStore.adoptLegacyData(rules: decoded.filter(\.usesScript), order: decoded.map(\.id))
+        rules = AutomationRuleStorage.merge(
+            settings: decoded,
+            local: scriptStore.scriptRules,
+            order: scriptStore.ruleOrder
+        )
+        let leftOut = AutomationRuleStorage.droppedScriptRuleCount(settings: decoded)
+        let collisions = AutomationRuleStorage.collidingRuleCount(settings: decoded, local: scriptStore.scriptRules)
+        if leftOut > 0 {
+            logger.notice(
+                "Left out \(leftOut, privacy: .public) rules that use a script from the settings; scripts are set up only on this Mac"
+            )
+        }
+        if collisions > 0 {
+            // The rule of this Mac wins; the settings copy goes (T-11-H1).
+            logger.notice(
+                "Kept \(collisions, privacy: .public) script rules of this Mac over rules of the settings with the same identifier"
+            )
+        }
+        if leftOut > 0 || collisions > 0 {
+            // The settings no longer hold them.
+            save()
         }
         migrateLegacyRevealRules()
     }
@@ -129,8 +177,16 @@ final class AutomationManager {
         Defaults.removeObject(forKey: .revealRules)
     }
 
+    /// Saves the rules in two places: the ones that use a script, with the order of all of them,
+    /// in the script store of this Mac, and the others in the settings. The store is written
+    /// first, and the settings drop the rules that use a script only once the store holds them
+    /// on disk: a failed write, or a crash between the two writes, loses no rule. Until then the
+    /// settings keep them, and an export and an import still carry none (T-11-H1).
     private func save() {
-        if let data = try? JSONEncoder().encode(rules) {
+        let parts = AutomationRuleStorage.split(rules)
+        let isStored = scriptStore.setScriptRules(parts.local, order: parts.order)
+        let forSettings = isStored ? parts.settings : rules
+        if let data = try? JSONEncoder().encode(forSettings) {
             Defaults.set(data, forKey: .automationRules)
         }
     }
@@ -142,7 +198,7 @@ final class AutomationManager {
         guard isSetUp else {
             return
         }
-        let needed = AutomationRule.sources(of: rules)
+        let needed = AutomationRule.observedSources(of: rules)
         for source in AutomationSource.allCases {
             if needed.contains(source) {
                 start(source)
@@ -202,8 +258,13 @@ final class AutomationManager {
         case .capture:
             startCaptureObserver()
         case .scripts:
-            // Scripts are checked when other events arrive, not by a timer of their own.
-            break
+            // A script condition is asked when the events of power, network, apps and displays
+            // arrive (``AutomationRule/observedSources(of:)``) and after the Mac wakes; never
+            // by a timer of its own.
+            observe(
+                source,
+                notifications: [(NSWorkspace.shared.notificationCenter, NSWorkspace.didWakeNotification)]
+            )
         }
     }
 
@@ -223,6 +284,8 @@ final class AutomationManager {
             networkKinds = nil
         case .wifi:
             storedWiFiMonitor?.stop()
+            hasWiFiReport = false
+            lastWiFiName = nil
         case .capture:
             stopCaptureObserver()
         case .lowPowerMode, .runningApps, .frontmostApp, .displays, .scripts:
@@ -242,6 +305,8 @@ final class AutomationManager {
                     if restartsTime {
                         self?.restartTimeTask()
                     }
+                    // A notification is an event of the system: scripts are no longer held.
+                    self?.scriptsAreHeld = false
                     self?.evaluate()
                 }
             }
@@ -307,7 +372,23 @@ final class AutomationManager {
         guard monitor === pathMonitor else {
             return
         }
+        // The first report after a start is the state, not an event.
+        if let networkKinds, networkKinds != kinds {
+            scriptsAreHeld = false
+        }
         networkKinds = kinds
+        evaluate()
+    }
+
+    /// The Wi-Fi monitor reported. It does so once when it starts and again for a change of the
+    /// name or of the permission; only a changed name is an event.
+    private func wifiReported() {
+        let name = storedWiFiMonitor?.networkName
+        if hasWiFiReport, name != lastWiFiName {
+            scriptsAreHeld = false
+        }
+        hasWiFiReport = true
+        lastWiFiName = name
         evaluate()
     }
 
@@ -319,8 +400,14 @@ final class AutomationManager {
         }
         let observer = AutomationCaptureObserver()
         observer.onChange = { [weak self] isCameraInUse, isMicrophoneInUse in
-            self?.captureActivity = (isCameraInUse, isMicrophoneInUse)
-            self?.evaluate()
+            guard let self else {
+                return
+            }
+            if let previous = captureActivity, previous != (isCameraInUse, isMicrophoneInUse) {
+                scriptsAreHeld = false
+            }
+            captureActivity = (isCameraInUse, isMicrophoneInUse)
+            evaluate()
         }
         captureObserverStorage = observer
         captureActivity = (false, false)
@@ -355,6 +442,7 @@ final class AutomationManager {
                 guard !Task.isCancelled else {
                     return
                 }
+                self?.scriptsAreHeld = false
                 self?.evaluate()
             }
         }
@@ -430,7 +518,9 @@ final class AutomationManager {
 
     // MARK: Evaluating
 
-    /// Checks the rules against the current facts and carries out what changed.
+    /// Checks the rules against the current facts and carries out what changed. While scripts
+    /// are held (after a change from a URL command or a Shortcut), no script condition is asked
+    /// and no script starts: the stored answers are used, and the engine is told so.
     private func evaluate() {
         guard isSetUp, let appState else {
             return
@@ -439,7 +529,10 @@ final class AutomationManager {
         guard rules.contains(where: \.isEnabled) || !engineState.active.isEmpty else {
             return
         }
-        refreshScriptResults()
+        let allowsScripts = !scriptsAreHeld
+        if allowsScripts {
+            refreshScriptResults()
+        }
         let facts = currentFacts()
         followItemRules(facts: facts)
         let result = AutomationEngine.evaluate(
@@ -450,11 +543,12 @@ final class AutomationManager {
                 isZenOn: appState.menuBarManager.zenMode.isManual,
                 isKeepAwakeOn: keepAwakeActivity != nil
             ),
-            state: engineState
+            state: engineState,
+            allowsScripts: allowsScripts
         )
         engineState = result.state
         for effect in result.effects {
-            perform(effect, with: appState)
+            perform(effect, with: appState, allowsScripts: allowsScripts)
         }
     }
 
@@ -472,30 +566,122 @@ final class AutomationManager {
         }
         scriptResults = scriptResults.filter { names.contains($0.key) }
         for name in names {
-            let isDue = lastScriptRun[name].map { Date.now.timeIntervalSince($0) >= 30 } ?? true
-            guard isDue else {
+            let now = ContinuousClock.now
+            guard ScriptLimits.isConditionDue(lastAsked: lastScriptRun[name], now: now) else {
                 continue
             }
-            lastScriptRun[name] = .now
+            lastScriptRun[name] = now
             Task { [weak self] in
                 guard let self else {
                     return
                 }
-                switch await scriptRunner.run(name, event: "check", store: scriptStore) {
+                let report = await scriptRunner.run(
+                    name,
+                    event: .check,
+                    timeLimit: scriptStore.timeLimit(for: name),
+                    folder: scriptStore.folderURL,
+                    store: scriptStore
+                )
+                if let record = report.record {
+                    lastScriptRuns[name] = record
+                }
+                switch report.outcome {
                 case .succeeded: scriptResults[name] = true
-                case .failed: scriptResults[name] = false
+                case .failed, .timedOut: scriptResults[name] = false
                 case .notAllowed, .rateLimited: scriptResults.removeValue(forKey: name)
+                case .busy: break // the script still runs: its last answer stands
                 }
                 evaluate()
             }
         }
     }
 
-    /// Asks every script a rule uses now, without waiting for the next event.
+    /// Asks every script a rule uses now, without waiting for the next event. This is the
+    /// user's own action in holzBar, so it also releases the hold of a change from outside.
     func checkScriptsNow() {
+        scriptsAreHeld = false
         lastScriptRun.removeAll()
         scriptStore.refresh()
         evaluate()
+    }
+
+    /// Runs the scripts one after another, each with its own time limit, and keeps what each
+    /// left behind. The runner decides for each one whether it may run; one that is not
+    /// approved is skipped (its row says it needs approval), and one that is busy or over the
+    /// rate limit is skipped and shown as such, so a dropped start or end script is not
+    /// silent. It stops starting scripts when the calling task is cancelled.
+    ///
+    /// - Parameters:
+    ///   - names: The script file names, in order.
+    ///   - event: What happened.
+    ///   - totalSeconds: The most time all of them may take together, or `nil` for no overall
+    ///     limit. Each script gets its own limit or what is left, and scripts that find no time
+    ///     left are not started (profile hooks, WR-07).
+    func runScripts(_ names: [String], event: ScriptEvent, totalSeconds: Int? = nil) async {
+        let clock = ContinuousClock()
+        let start = clock.now
+        for name in names {
+            guard !Task.isCancelled else {
+                return
+            }
+            var timeLimit = scriptStore.timeLimit(for: name)
+            if let totalSeconds {
+                let left = Duration.seconds(totalSeconds) - (clock.now - start)
+                guard let allowed = ProfileHooks.timeLimit(
+                    ownLimit: timeLimit,
+                    remainingSeconds: Int(left.components.seconds)
+                ) else {
+                    logger.notice("The time for script hooks is used up; the rest are skipped")
+                    return
+                }
+                timeLimit = allowed
+            }
+            let report = await scriptRunner.run(
+                name,
+                event: event,
+                timeLimit: timeLimit,
+                folder: scriptStore.folderURL,
+                store: scriptStore
+            )
+            if let record = report.record {
+                lastScriptRuns[name] = record
+            } else if let reason = ScriptSkipReason(outcome: report.outcome) {
+                lastScriptRuns[name] = ScriptRunRecord(date: .now, termination: .skipped(reason), displayLine: "")
+            }
+        }
+    }
+
+    /// Starts the scripts in a task of their own and does not wait for them.
+    func startScripts(_ names: [String], event: ScriptEvent) {
+        guard !names.isEmpty else {
+            return
+        }
+        Task { [weak self] in
+            await self?.runScripts(names, event: event)
+        }
+    }
+
+    /// A profile was applied by the user, a hotkey, a rule or a display or Space binding: the
+    /// profile-change event of D-04. It asks the script conditions once, on the next turn of the
+    /// main actor, and only when a rule has one. The turn keeps an apply that the engine itself
+    /// performed from re-entering ``evaluate()`` while its effects are carried out (T-11-L1).
+    /// An apply from a URL command, a Shortcut or the Focus filter never calls this (D-12).
+    func profileDidChange() {
+        guard
+            isSetUp,
+            profileChangeTask == nil,
+            AutomationRule.observedSources(of: rules).contains(.scripts)
+        else {
+            return
+        }
+        profileChangeTask = Task { [weak self] in
+            await Task.yield()
+            guard let self, !Task.isCancelled else {
+                return
+            }
+            profileChangeTask = nil
+            evaluate()
+        }
     }
 
     // MARK: Items that follow a condition
@@ -561,11 +747,18 @@ final class AutomationManager {
         lastItemSections.merge(changes) { _, new in new }
     }
 
-    private func perform(_ effect: AutomationEngine.Effect, with appState: AppState) {
+    /// Carries out one effect of the engine. `allowsScripts` is false for a pass that a change
+    /// from outside caused: a profile such a pass applies runs no hooks (D-12, T-11-M5).
+    private func perform(_ effect: AutomationEngine.Effect, with appState: AppState, allowsScripts: Bool) {
         switch effect {
         case .applyProfile(let name):
             logger.notice("An automation rule applies a profile")
-            appState.profiles.apply(named: name)
+            if allowsScripts {
+                appState.profiles.apply(named: name)
+            } else {
+                // A pass that a URL command or a Shortcut caused: no hook runs for its profile.
+                appState.profiles.apply(named: name, runsHooks: false)
+            }
         case .showSection(let section):
             reveal(section == .alwaysHidden ? .alwaysHidden : .hidden)
         case .setZen(let isOn):
@@ -573,13 +766,8 @@ final class AutomationManager {
             appState.menuBarManager.setManualZenMode(isOn)
         case .setKeepAwake(let isOn):
             setKeepAwake(isOn)
-        case .runScript(let name):
-            Task { [weak self] in
-                guard let self else {
-                    return
-                }
-                _ = await scriptRunner.run(name, event: "rule-started", store: scriptStore)
-            }
+        case .runScript(let name, let event):
+            startScripts([name], event: event)
         }
     }
 
@@ -656,10 +844,24 @@ final class AutomationManager {
         rules.filter { engineState.active.contains($0.id) }
     }
 
-    /// Turns a rule on or off.
+    /// Turns a rule on or off. This is the entry point of the `holzbar://` URL commands and of
+    /// Shortcuts; the pane changes rules through its bindings instead. A change made here runs
+    /// no script: no end script runs, no script condition is asked, and a rule that runs a
+    /// script waits for the next event of the system. A rule that uses a script is never turned
+    /// on from here (D-12).
     func setRule(withID id: UUID, enabled: Bool) {
         guard let index = rules.firstIndex(where: { $0.id == id }), rules[index].isEnabled != enabled else {
             return
+        }
+        // Whatever the caller checked, nothing from outside turns on a rule that uses a script:
+        // the rule may have changed while a question was open (D-12, T-11-M5).
+        guard !(enabled && rules[index].usesScript) else {
+            logger.notice("Ignored: a rule that uses a script is turned on only in the settings")
+            return
+        }
+        changeComesFromOutside = true
+        defer {
+            changeComesFromOutside = false
         }
         rules[index].isEnabled = enabled
     }

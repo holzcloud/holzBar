@@ -56,10 +56,17 @@ struct AutomationRuleEditor: View {
                 itemPicker(key: key, hiding: hiding)
             }
             if case .runScript(let name) = rule.action {
-                scriptPicker(name: name)
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    scriptPicker(name: name)
+                    PreviewBadge()
+                }
             }
             if restoresApply {
-                Toggle("When it stops being true, go back", isOn: $rule.restoresWhenEnded)
+                if case .runScript = rule.action {
+                    Toggle("Also run it when the rule stops being true", isOn: $rule.restoresWhenEnded)
+                } else {
+                    Toggle("When it stops being true, go back", isOn: $rule.restoresWhenEnded)
+                }
             }
             Button("Delete Rule", role: .destructive, action: onDelete)
                 .padding(.top, HolzBarTheme.Spacing.xs)
@@ -141,7 +148,7 @@ struct AutomationRuleEditor: View {
             }
             Menu("A script succeeds") {
                 ForEach(approvedScripts) { script in
-                    Button(script.name) {
+                    Button(URLPrompt.displayName(script.name)) {
                         add(.scriptSucceeds(script.name))
                     }
                 }
@@ -221,6 +228,16 @@ struct AutomationRuleEditor: View {
                 }
             },
             set: { choice in
+                let wasScript = if case .runScript = rule.action { true } else { false }
+                defer {
+                    // A script runs again at the end only when the user asks for it; the other
+                    // actions go back by default.
+                    if choice == .runScript, !wasScript {
+                        rule.restoresWhenEnded = false
+                    } else if choice != .runScript, wasScript {
+                        rule.restoresWhenEnded = true
+                    }
+                }
                 switch choice {
                 case .profile:
                     rule.action = .applyProfile(profileNames.first ?? "")
@@ -294,7 +311,7 @@ struct AutomationRuleEditor: View {
     private func scriptPicker(name: String) -> some View {
         let scripts = approvedScripts
         if scripts.isEmpty && name.isEmpty {
-            Text("Put a script in the Scripts folder and allow it below first.")
+            Text("Put a script in your scripts folder and allow it below first.")
                 .font(HolzBarTheme.Typography.caption)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
         } else {
@@ -306,10 +323,10 @@ struct AutomationRuleEditor: View {
                 )
             ) {
                 ForEach(scripts) { script in
-                    Text(verbatim: script.name).tag(script.name)
+                    Text(verbatim: URLPrompt.displayName(script.name)).tag(script.name)
                 }
                 if !name.isEmpty, !scripts.contains(where: { $0.name == name }) {
-                    Text(verbatim: name).tag(name)
+                    Text(verbatim: URLPrompt.displayName(name)).tag(name)
                 }
             }
         }
@@ -364,11 +381,12 @@ struct AutomationRuleEditor: View {
         }
     }
 
-    /// Whether the action is one that can be undone when the rule ends.
+    /// Whether the action has something to do when the rule ends: undo what it did, or, for a
+    /// script, run it again with `HOLZBAR_EVENT=rule-ended`.
     private var restoresApply: Bool {
         switch rule.action {
-        case .applyProfile, .zen, .keepAwake: true
-        case .showSection, .showItemOnlyWhile, .runScript: false
+        case .applyProfile, .zen, .keepAwake, .runScript: true
+        case .showSection, .showItemOnlyWhile: false
         }
     }
 }
@@ -385,6 +403,9 @@ private struct AutomationConditionRow: View {
                 Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst)
                     .font(HolzBarTheme.Typography.body)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                if case .scriptSucceeds = condition {
+                    PreviewBadge()
+                }
                 Button(action: onRemove) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(HolzBarTheme.Palette.textTertiary)
