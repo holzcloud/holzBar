@@ -5779,6 +5779,62 @@
         }
       }
     },
+    "Last run: skipped, it was still running" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzter Lauf: übersprungen, er lief noch"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernière exécution : ignorée, elle était encore en cours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima esecuzione: saltata, era ancora in corso"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima execuziun: sursaltada, ella è anc currida"
+          }
+        }
+      }
+    },
+    "Last run: skipped, too many runs in a minute" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzter Lauf: übersprungen, zu viele Läufe in einer Minute"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dernière exécution : ignorée, trop d’exécutions en une minute"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima esecuzione: saltata, troppe esecuzioni in un minuto"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ultima execuziun: sursaltada, memia bleras execuziuns en ina minuta"
+          }
+        }
+      }
+    },
     "Last run: stopped by a signal" : {
       "localizations" : {
         "de" : {

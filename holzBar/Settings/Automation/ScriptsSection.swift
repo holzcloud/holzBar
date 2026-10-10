@@ -269,6 +269,8 @@ struct ScriptsSection: View {
         case .signaled: Text("Last run: stopped by a signal")
         case .timedOut: Text("Last run: timed out")
         case .notLaunched: Text("Last run: could not start")
+        case .skipped(.busy): Text("Last run: skipped, it was still running")
+        case .skipped(.rateLimited): Text("Last run: skipped, too many runs in a minute")
         }
     }
 

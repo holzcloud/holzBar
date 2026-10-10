@@ -209,6 +209,31 @@ struct ScriptGateTests {
         #expect(later)
     }
 
+    @Test("Condition checks and other runs have a limit each, so a burst of checks cannot starve a start script (WR-08)")
+    func separateLimits() {
+        var limiter = ScriptRunLimiter()
+        let now = ContinuousClock.now
+        for _ in 0..<ScriptRateLimiter.maximumRuns {
+            let allowed = limiter.allowRun(for: .check, at: now)
+            #expect(allowed)
+        }
+        let checkBlocked = limiter.allowRun(for: .check, at: now)
+        #expect(!checkBlocked)
+        // The four other events share one limit of their own.
+        let others: [ScriptEvent] = [.ruleStarted, .ruleEnded, .profileWillApply, .profileDidApply]
+        for index in 0..<ScriptRateLimiter.maximumRuns {
+            let allowed = limiter.allowRun(for: others[index % others.count], at: now)
+            #expect(allowed)
+        }
+        let actionBlocked = limiter.allowRun(for: .ruleStarted, at: now)
+        #expect(!actionBlocked)
+        // A minute later both have room again.
+        let actionLater = limiter.allowRun(for: .ruleStarted, at: now + .seconds(61))
+        let checkLater = limiter.allowRun(for: .check, at: now + .seconds(61))
+        #expect(actionLater)
+        #expect(checkLater)
+    }
+
     @Test("A script condition is asked again after 30 seconds, never sooner (WR-09)")
     func conditionInterval() {
         let asked = ContinuousClock.now

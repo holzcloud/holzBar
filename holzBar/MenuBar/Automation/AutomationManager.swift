@@ -606,9 +606,10 @@ final class AutomationManager {
     }
 
     /// Runs the scripts one after another, each with its own time limit, and keeps what each
-    /// left behind. The runner decides for each one whether it may run; one that is busy, not
-    /// approved or over the rate limit is skipped. It stops starting scripts when the calling
-    /// task is cancelled.
+    /// left behind. The runner decides for each one whether it may run; one that is not
+    /// approved is skipped (its row says it needs approval), and one that is busy or over the
+    /// rate limit is skipped and shown as such, so a dropped start or end script is not
+    /// silent. It stops starting scripts when the calling task is cancelled.
     func runScripts(_ names: [String], event: ScriptEvent) async {
         for name in names {
             guard !Task.isCancelled else {
@@ -623,6 +624,8 @@ final class AutomationManager {
             )
             if let record = report.record {
                 lastScriptRuns[name] = record
+            } else if let reason = ScriptSkipReason(outcome: report.outcome) {
+                lastScriptRuns[name] = ScriptRunRecord(date: .now, termination: .skipped(reason), displayLine: "")
             }
         }
     }

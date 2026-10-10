@@ -23,6 +23,17 @@ enum ScriptOutcome: Equatable {
     case rateLimited
 }
 
+extension ScriptSkipReason {
+    /// The reason a run did not start, or `nil` when the outcome is not a skipped run.
+    init?(outcome: ScriptOutcome) {
+        switch outcome {
+        case .busy: self = .busy
+        case .rateLimited: self = .rateLimited
+        case .succeeded, .failed, .timedOut, .notAllowed: return nil
+        }
+    }
+}
+
 /// The result of one call of ``ScriptRunner/run(_:event:timeLimit:folder:store:)``.
 struct ScriptRunReport: Equatable {
     let outcome: ScriptOutcome
@@ -36,16 +47,16 @@ struct ScriptRunReport: Equatable {
 /// each run, from the Scripts folder only, with no shell, no arguments and no data from holzBar
 /// beyond the name of the event. A run ends after its time limit (10 seconds unless set, at
 /// most 60): the script gets SIGTERM, and SIGKILL two seconds later, sent to the script's
-/// whole process group when it leads its own, so what it forked goes too. At most ten runs
-/// start a minute. Its input is `/dev/null`; each of its two output streams is read to the
-/// end and kept up to 64 KB, the rest is dropped, and only one cleaned line of at most 80
-/// characters is kept, in memory, never logged.
+/// whole process group when it leads its own, so what it forked goes too. At most ten condition
+/// checks and ten other runs start a minute. Its input is `/dev/null`; each of its two output
+/// streams is read to the end and kept up to 64 KB, the rest is dropped, and only one cleaned
+/// line of at most 80 characters is kept, in memory, never logged.
 /// It runs as the user, with holzBar's permissions; macOS asks separately before a script
 /// controls another app.
 @MainActor
 final class ScriptRunner {
     private let logger = Logger(category: "ScriptRunner")
-    private var limiter = ScriptRateLimiter()
+    private var limiter = ScriptRunLimiter()
     private var runningNames = Set<String>()
 
     /// How long the runner waits for the end of the output after the script ended, in
@@ -160,7 +171,7 @@ final class ScriptRunner {
             logger.notice("A script is not allowed to run")
             return ScriptRunReport(outcome: .notAllowed, record: nil)
         }
-        guard limiter.allowRun(at: ContinuousClock.now) else {
+        guard limiter.allowRun(for: event, at: ContinuousClock.now) else {
             logger.notice("Too many script runs; one was skipped")
             return ScriptRunReport(outcome: .rateLimited, record: nil)
         }

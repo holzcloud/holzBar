@@ -106,5 +106,8 @@ struct ScriptLaunchTests {
         #expect(!ScriptTermination.signaled(15).succeeded)
         #expect(!ScriptTermination.timedOut.succeeded)
         #expect(!ScriptTermination.notLaunched.succeeded)
+        #expect(!ScriptTermination.skipped(.busy).succeeded)
+        #expect(!ScriptTermination.skipped(.rateLimited).succeeded)
+        #expect(ScriptTermination.skipped(.busy) != .skipped(.rateLimited))
     }
 }

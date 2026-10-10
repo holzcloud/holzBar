@@ -128,6 +128,14 @@ nonisolated enum ScriptLimits {
     }
 }
 
+/// Why a run did not start although the script is allowed.
+nonisolated enum ScriptSkipReason: Equatable, Sendable {
+    /// The script was still running.
+    case busy
+    /// Too many runs in the last minute.
+    case rateLimited
+}
+
 /// How a run ended.
 ///
 /// A timeout, a signal or a script that did not start is never success: a condition is never
@@ -141,6 +149,9 @@ nonisolated enum ScriptTermination: Equatable, Sendable {
     case timedOut
     /// The process could not be started.
     case notLaunched
+    /// The run did not start: another run of the script was still going, or the limit of runs
+    /// a minute was reached. Shown, so a start or end script that was dropped is not silent.
+    case skipped(ScriptSkipReason)
 
     /// Whether the script ended by itself with status 0.
     var succeeded: Bool {
