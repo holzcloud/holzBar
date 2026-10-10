@@ -20,7 +20,7 @@ enum AutomationDescription {
         if case .showItemOnlyWhile(let key, _) = rule.action {
             return String(localized: "Show \u{201C}\(itemName(forKey: key))\u{201D} only when \(conditions).")
         }
-        return String(localized: "When \(conditions), \(text(for: rule.action)).")
+        return String(localized: "When \(conditions), \(text(for: rule.action, restoresWhenEnded: rule.restoresWhenEnded)).")
     }
 
     /// A condition as the part of a sentence that follows "When".
@@ -59,12 +59,15 @@ enum AutomationDescription {
         case .microphoneInUse:
             String(localized: "another app records from the microphone")
         case .scriptSucceeds(let name):
-            String(localized: "the script “\(name)” succeeds")
+            String(localized: "the script “\(URLPrompt.displayName(name))” succeeds")
         }
     }
 
     /// An action as the part of a sentence that follows the comma.
-    static func text(for action: AutomationAction) -> String {
+    ///
+    /// - Parameter restoresWhenEnded: Whether the rule also does something when it ends. It
+    ///   changes the sentence of a script, which then runs at the start and at the end.
+    static func text(for action: AutomationAction, restoresWhenEnded: Bool = false) -> String {
         switch action {
         case .applyProfile(let name):
             String(localized: "apply the profile “\(name)”")
@@ -81,7 +84,11 @@ enum AutomationDescription {
         case .keepAwake(false):
             String(localized: "let the Mac sleep")
         case .runScript(let name):
-            String(localized: "run the script \u{201C}\(name)\u{201D}")
+            if restoresWhenEnded {
+                String(localized: "run the script \u{201C}\(URLPrompt.displayName(name))\u{201D} when this starts and when it ends")
+            } else {
+                String(localized: "run the script \u{201C}\(URLPrompt.displayName(name))\u{201D}")
+            }
         case .showItemOnlyWhile(let key, _):
             String(localized: "show \u{201C}\(itemName(forKey: key))\u{201D} and hide it otherwise")
         }

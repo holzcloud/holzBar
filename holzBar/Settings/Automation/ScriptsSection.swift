@@ -49,6 +49,7 @@ struct ScriptsSection: View {
                 }
                 Spacer()
             }
+            ProfileHooksSection(store: store)
         }
         .onAppear {
             store.refresh()

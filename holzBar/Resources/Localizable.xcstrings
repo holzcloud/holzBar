@@ -543,6 +543,34 @@
         }
       }
     },
+    "A profile applied by a URL, a Shortcut or a Focus runs no hooks." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Profil, das durch eine URL, einen Kurzbefehl oder einen Fokus angewendet wird, führt keine Hooks aus."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un profil appliqué par une URL, un raccourci ou un mode de concentration n’exécute aucun hook."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un profilo applicato da un URL, un comando rapido o un Focus non esegue alcun hook."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In profil applitgà tras ina URL, in Shortcut u in focus n’exequescha nagins hooks."
+          }
+        }
+      }
+    },
     "A profile with the same name is replaced. Apply it later from here, or with holzbar://profile/<name>." : {
       "localizations" : {
         "de" : {
@@ -851,6 +879,34 @@
         }
       }
     },
+    "Add Hook" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hook hinzufügen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter un hook"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi hook"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agiuntar in hook"
+          }
+        }
+      }
+    },
     "Add Rule" : {
       "localizations" : {
         "de" : {
@@ -959,6 +1015,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avanzà"
+          }
+        }
+      }
+    },
+    "After Applying" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach dem Anwenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Après l’application"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo l’applicazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suenter l’applicaziun"
           }
         }
       }
@@ -1103,6 +1187,34 @@
         }
       }
     },
+    "Allow a script above first." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaube oben zuerst ein Skript."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autorisez d’abord un script plus haut."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti prima uno script qui sopra."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lubescha l’emprim in scrip survart."
+          }
+        }
+      }
+    },
     "Allow holzBar in System Settings to launch it at login." : {
       "localizations" : {
         "de" : {
@@ -1239,6 +1351,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Gia permess en ils parameters dal sistem?"
+          }
+        }
+      }
+    },
+    "Also run it when the rule stops being true" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auch ausführen, wenn die Regel nicht mehr zutrifft"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’exécuter aussi quand la règle n’est plus vraie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eseguilo anche quando la regola non è più vera"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exequir el era cura che la regla n’è betg pli vaira"
           }
         }
       }
@@ -1995,6 +2135,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nivel da l’accu"
+          }
+        }
+      }
+    },
+    "Before Applying" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor dem Anwenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant l’application"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima dell’applicazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avant l’applicaziun"
           }
         }
       }
@@ -4151,6 +4319,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Il temp è scadì per l'eveniment da «%@»"
+          }
+        }
+      }
+    },
+    "Every Profile" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedes Profil"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaque profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ogni profilo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mintga profil"
           }
         }
       }
@@ -8271,6 +8467,34 @@
         }
       }
     },
+    "Profile Hooks" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil-Hooks"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hooks de profil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hook dei profili"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hooks da profil"
+          }
+        }
+      }
+    },
     "Profiles" : {
       "localizations" : {
         "de" : {
@@ -8327,30 +8551,30 @@
         }
       }
     },
-    "Put a script in the Scripts folder and allow it below first." : {
+    "Put a script in your scripts folder and allow it below first." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lege zuerst ein Skript in den Skripte-Ordner und erlaube es unten."
+            "value" : "Lege zuerst ein Skript in deinen Skripte-Ordner und erlaube es unten."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Placez d’abord un script dans le dossier des scripts et autorisez-le plus bas."
+            "value" : "Placez d’abord un script dans votre dossier des scripts et autorisez-le plus bas."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Metti prima uno script nella cartella degli script e consentilo qui sotto."
+            "value" : "Metti prima uno script nella tua cartella degli script e consentilo qui sotto."
           }
         },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Metta l’emprim in scrip en l’ordinatur dals scrips e lubescha el sutvart."
+            "value" : "Metta l’emprim in scrip en tes ordinatur dals scrips e lubescha el sutvart."
           }
         }
       }
@@ -8715,6 +8939,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Allontanar la cundiziun"
+          }
+        }
+      }
+    },
+    "Remove Hook" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hook entfernen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer le hook"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi hook"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allontanar il hook"
           }
         }
       }
@@ -9499,6 +9751,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Exequir in scrip"
+          }
+        }
+      }
+    },
+    "Run a script you allowed before or after a layout profile is applied." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Führe ein Skript, das du erlaubt hast, vor oder nach dem Anwenden eines Layoutprofils aus."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exécutez un script que vous avez autorisé avant ou après l’application d’un profil de disposition."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esegui uno script che hai consentito prima o dopo l’applicazione di un profilo di layout."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exequescha in scrip che ti has lubì avant u suenter ch’in profil da layout vegn applitgà."
           }
         }
       }
@@ -14325,6 +14605,34 @@
         }
       }
     },
+    "holzBar waits for scripts that run before a profile, up to their time limit." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar wartet auf Skripte, die vor einem Profil laufen, höchstens bis zu ihrem Zeitlimit."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar attend les scripts qui s’exécutent avant un profil, jusqu’à leur limite de temps."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar attende gli script che vengono eseguiti prima di un profilo, fino al loro limite di tempo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar spetga ils scrips che vegnan exequids avant in profil, maximalmain fin a lur cunfin da temp."
+          }
+        }
+      }
+    },
     "holzBar will replace its current settings with the ones from “%@” and restart." : {
       "localizations" : {
         "de" : {
@@ -14853,6 +15161,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "exequir il scrip «%@»"
+          }
+        }
+      }
+    },
+    "run the script “%@” when this starts and when it ends" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "das Skript „%@“ ausführen, wenn dies beginnt und wenn es endet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "exécuter le script « %@ » quand cela commence et quand cela se termine"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "esegui lo script “%@” quando questo inizia e quando finisce"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "exequir il scrip «%@» cura che quai cumenza e cura che quai finescha"
           }
         }
       }
