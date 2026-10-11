@@ -66,6 +66,9 @@ final class AutomationManager {
     /// What the last run of each script left behind, by file name: one cleaned line of its
     /// output, how it ended and when. In memory only: never persisted, logged or exported.
     private(set) var lastScriptRuns = [String: ScriptRunRecord]()
+    /// What the script widgets want to hear when a real event of the system arrives (D-23). Set
+    /// only while the widgets module is on.
+    @ObservationIgnored private var systemEventHandler: (@MainActor () -> Void)?
 
     /// Whether the rule change in progress comes from outside holzBar: from a URL command or a
     /// Shortcut, through ``setRule(withID:enabled:)``.
@@ -300,6 +303,7 @@ final class AutomationManager {
                     // A notification is an event of the system: scripts are no longer held.
                     self?.scriptsAreHeld = false
                     self?.evaluate()
+                    self?.systemEventHandler?()
                 }
             }
         }
@@ -363,23 +367,31 @@ final class AutomationManager {
             return
         }
         // The first report after a start is the state, not an event.
-        if let networkKinds, networkKinds != kinds {
+        let isEvent = networkKinds.map { $0 != kinds } ?? false
+        if isEvent {
             scriptsAreHeld = false
         }
         networkKinds = kinds
         evaluate()
+        if isEvent {
+            systemEventHandler?()
+        }
     }
 
     /// The Wi-Fi monitor reported. It does so once when it starts and again for a change of the
     /// name or of the permission; only a changed name is an event.
     private func wifiReported() {
         let name = storedWiFiMonitor?.networkName
-        if hasWiFiReport, name != lastWiFiName {
+        let isEvent = hasWiFiReport && name != lastWiFiName
+        if isEvent {
             scriptsAreHeld = false
         }
         hasWiFiReport = true
         lastWiFiName = name
         evaluate()
+        if isEvent {
+            systemEventHandler?()
+        }
     }
 
     /// Starts following camera and microphone use. Before macOS 14.2 the facts stay unknown, so
@@ -393,11 +405,16 @@ final class AutomationManager {
             guard let self else {
                 return
             }
+            var isEvent = false
             if let previous = captureActivity, previous != (isCameraInUse, isMicrophoneInUse) {
                 scriptsAreHeld = false
+                isEvent = true
             }
             captureActivity = (isCameraInUse, isMicrophoneInUse)
             evaluate()
+            if isEvent {
+                systemEventHandler?()
+            }
         }
         captureObserverStorage = observer
         captureActivity = (false, false)
@@ -626,6 +643,44 @@ final class AutomationManager {
                 lastScriptRuns[name] = ScriptRunRecord(date: .now, termination: .skipped(reason), displayLine: "")
             }
         }
+    }
+
+    /// Runs the script of a script widget once, with the event `widget-refresh`, under the same
+    /// runner and gate as every script: the file is checked again, its full SHA-256 must be the
+    /// one the user approved, the time limit and one run at a time apply, and widget runs have a
+    /// limit of ten a minute of their own (D-23).
+    ///
+    /// What the run left behind is kept like that of any script, so the Scripts section shows it,
+    /// skipped runs included.
+    ///
+    /// - Parameter name: The file name in the scripts folder, as bound in the script store.
+    /// - Returns: How the run ended, and the line it printed when it started.
+    func runWidgetScript(named name: String) async -> ScriptRunReport {
+        let report = await scriptRunner.run(
+            name,
+            event: .widgetRefresh,
+            timeLimit: scriptStore.timeLimit(for: name),
+            folder: scriptStore.folderURL,
+            store: scriptStore
+        )
+        if let record = report.record {
+            lastScriptRuns[name] = record
+        } else if let reason = ScriptSkipReason(outcome: report.outcome) {
+            lastScriptRuns[name] = ScriptRunRecord(date: .now, termination: .skipped(reason), displayLine: "")
+        }
+        return report
+    }
+
+    /// Sets what runs after each engine pass that a real event of the system caused: a
+    /// notification (power source, wake, apps, displays, the clock), a changed network or Wi-Fi
+    /// name, or camera and microphone use. It never runs for a change from outside holzBar (a URL
+    /// command or a Shortcut), which holds scripts and is no event (D-12, T-12-28).
+    ///
+    /// The engine follows only the facts that an enabled rule needs, so with no such rule it has
+    /// no events to give; the widgets then run on a reveal and on a click only. Pass `nil` to
+    /// stop.
+    func onSystemEvent(_ handler: (@MainActor () -> Void)?) {
+        systemEventHandler = handler
     }
 
     /// Starts the scripts in a task of their own and does not wait for them.

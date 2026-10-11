@@ -22,6 +22,13 @@ import OSLog
 /// A button widget runs a Shortcut of the user's when it is clicked, in the menu bar or from the
 /// holzBar Shelf, the search, a group or a hint; a text widget has no action (D-20). The
 /// Shortcut's name is chosen by typing it and stays on this Mac (D-21, D-25).
+///
+/// A script widget shows the first line of an approved script's output, in a fixed width. It
+/// asks the script when it becomes visible, on the system events the automation engine follows
+/// while it is visible (at most every 30 seconds) and on a click, never on a timer and never
+/// while hidden, asleep or locked. This class starts no process: the run goes through
+/// ``AutomationManager/runWidgetScript(named:)``, the runner and the gate of the scripts (D-23).
+/// The script it runs is bound in `Scripts.json` on this Mac, never in its definition (D-25).
 @MainActor
 @Observable
 final class MenuBarWidgets {
@@ -60,6 +67,10 @@ final class MenuBarWidgets {
     /// The task that follows power source events, while a battery widget is visible.
     @ObservationIgnored private var batteryTask: Task<Void, Never>?
 
+    /// Waits for the script store to be read at start-up, so that script widgets that were
+    /// revealed before it was ready ask their script then. It ends itself.
+    @ObservationIgnored private var scriptStoreLoop: ObservationLoop?
+
     // MARK: Setup
 
     /// Loads the widgets and follows the module switch. With the module off, nothing else is
@@ -95,6 +106,8 @@ final class MenuBarWidgets {
         else {
             return false
         }
+        // Bindings of widgets that are gone (a replaced list) would take places of the six.
+        appState?.automation.scriptStore.keepWidgetScripts(for: Set(definitions.map(\.id)))
         definitions.append(valid)
         save()
         if isActive {
@@ -110,6 +123,8 @@ final class MenuBarWidgets {
         }
         let definition = definitions.remove(at: index)
         save()
+        // The script a script widget was bound to goes with it (D-25).
+        appState?.automation.scriptStore.keepWidgetScripts(for: Set(definitions.map(\.id)))
         if shortcutNames.removeValue(forKey: id) != nil {
             saveShortcutNames()
         }
@@ -275,8 +290,9 @@ final class MenuBarWidgets {
     }
 
     /// Whether the item is one of the widgets, which then runs its own action instead of a click
-    /// on the bar: a left click on a button runs its Shortcut, a text widget does nothing
-    /// (D-20). Any other item is left to the caller.
+    /// on the bar: a left click on a button runs its Shortcut, a left click on a script widget
+    /// asks its script again, a text widget does nothing (D-20, D-23). Any other item is left to
+    /// the caller.
     ///
     /// The surfaces that open items ask the hidden-items lock before they show anything, so
     /// this adds no way around it.
@@ -289,8 +305,12 @@ final class MenuBarWidgets {
         else {
             return false
         }
-        if definition.kind == .button, mouseButton == .left {
-            runShortcut(for: id)
+        if mouseButton == .left {
+            switch definition.kind {
+            case .button: runShortcut(for: id)
+            case .script: refreshScriptWidget(id: id)
+            case .text: break
+            }
         }
         return true
     }
@@ -322,6 +342,12 @@ final class MenuBarWidgets {
             makeRuntime(for: definition)
         }
         startObservers()
+        followScriptStore()
+        // The system events of the automation engine refresh the script widgets that are seen
+        // (D-23). Nothing is registered while the module is off.
+        appState?.automation.onSystemEvent { [weak self] in
+            self?.systemEventArrived()
+        }
         visibilityLoop = ObservationLoop.observe { [weak self] in
             self?.visibilityInputs() ?? VisibilityInputs()
         } onChange: { [weak self] inputs in
@@ -338,6 +364,9 @@ final class MenuBarWidgets {
     private func deactivate() {
         visibilityLoop?.cancel()
         visibilityLoop = nil
+        scriptStoreLoop?.cancel()
+        scriptStoreLoop = nil
+        appState?.automation.onSystemEvent(nil)
         for task in observerTasks {
             task.cancel()
         }
@@ -496,6 +525,18 @@ final class MenuBarWidgets {
         /// Whether the widget is collapsed to nothing, because its section is not drawn
         /// (macOS 27).
         var isCollapsed = false
+        /// The widest width its text may take, from the widest sample of its format.
+        var textWidth = CGFloat.zero
+        /// A script widget's last result: the line its script printed, or nothing. Kept apart
+        /// from ``reading`` so a reveal inside the 30 seconds shows it again without a new run.
+        var scriptReading = WidgetReading.unavailable
+        /// When the script was last started, on the monotonic clock (the 30 seconds between two
+        /// runs of one widget).
+        var lastScriptStart: ContinuousClock.Instant?
+        /// Whether a run is going. A widget runs its script one at a time.
+        var isScriptRunning = false
+        /// Whether the gate refused the script at its last run: not allowed, or changed since.
+        var isScriptRefused = false
 
         init(definition: WidgetDefinition, statusItem: NSStatusItem) {
             self.definition = definition
@@ -573,8 +614,9 @@ final class MenuBarWidgets {
             return
         }
         let definition = runtime.definition
-        if definition.kind == .text, definition.showsSymbol {
-            let image = NSImage(systemSymbolName: definition.source.symbolName, accessibilityDescription: nil)
+        if definition.kind != .button, definition.showsSymbol {
+            // A text widget's source symbol, or a script widget's terminal symbol (D-11).
+            let image = NSImage(systemSymbolName: definition.symbolName, accessibilityDescription: nil)
             image?.isTemplate = true
             button.image = image
             button.imagePosition = .imageLeading
@@ -596,6 +638,17 @@ final class MenuBarWidgets {
             runtime.clickTarget = target
             button.target = target
             button.action = #selector(ClickTarget.clicked(_:))
+        } else if definition.kind == .script {
+            // A click asks the script again (D-23). A line wider than the fixed width is cut
+            // with an ellipsis at its end (D-12).
+            let id = definition.id
+            let target = runtime.clickTarget ?? ClickTarget { [weak self] _ in
+                self?.refreshScriptWidget(id: id)
+            }
+            runtime.clickTarget = target
+            button.target = target
+            button.action = #selector(ClickTarget.clicked(_:))
+            button.lineBreakMode = .byTruncatingTail
         } else {
             runtime.clickTarget = nil
             button.target = nil
@@ -652,6 +705,8 @@ final class MenuBarWidgets {
                 Self.attributedTitle(for: first).size().width < Self.attributedTitle(for: second).size().width
             } ?? measured
         }
+        // The picture of a script widget is cut at the same width as its text.
+        runtime.textWidth = widestWidth
         // Ask the button itself what the widest text needs, with its symbol.
         let previous = button.attributedTitle
         let title = Self.attributedTitle(for: measured)
@@ -690,9 +745,15 @@ final class MenuBarWidgets {
     }
 
     /// The text of a widget in the menu bar font, muted when it is a passed countdown, with the
-    /// battery's state as a template symbol after it.
-    private static func attributedTitle(for text: WidgetText) -> NSAttributedString {
+    /// battery's state as a template symbol after it, and cut at its end when it asks for it.
+    private static func attributedTitle(for text: WidgetText, truncates: Bool = false) -> NSAttributedString {
         var attributes: [NSAttributedString.Key: Any] = [.font: font]
+        if truncates {
+            // A script's line can be wider than the fixed width: it is cut with an ellipsis.
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.lineBreakMode = .byTruncatingTail
+            attributes[.paragraphStyle] = paragraph
+        }
         if text.isMuted {
             attributes[.foregroundColor] = NSColor.secondaryLabelColor
         }
@@ -729,18 +790,29 @@ final class MenuBarWidgets {
         }
         if text != runtime.text {
             runtime.text = text
-            button.attributedTitle = Self.attributedTitle(for: text)
+            let isScript = runtime.definition.kind == .script
+            button.attributedTitle = Self.attributedTitle(for: text, truncates: isScript)
             // The same text as a picture, for the surfaces that show items elsewhere (D-24).
-            images[runtime.definition.autosaveName] = Self.picture(for: runtime.definition, text: text)
+            images[runtime.definition.autosaveName] = Self.picture(
+                for: runtime.definition,
+                text: text,
+                maximumTextWidth: isScript && runtime.textWidth > 0 ? runtime.textWidth : nil
+            )
         }
         // VoiceOver reads the reading in full, not the short text (D-27). A button has no
-        // reading: it says its label and its hint.
-        let spoken = WidgetSpeech.value(
-            for: reading,
-            definition: runtime.definition,
-            locale: Self.locale,
-            calendar: Self.calendar
-        )
+        // reading: it says its label and its hint. A script widget says its line, or what is
+        // missing.
+        let spoken: String
+        if runtime.definition.kind == .script {
+            spoken = scriptSpeech(for: runtime, reading: reading)
+        } else {
+            spoken = WidgetSpeech.value(
+                for: reading,
+                definition: runtime.definition,
+                locale: Self.locale,
+                calendar: Self.calendar
+            )
+        }
         if spoken != runtime.spoken {
             runtime.spoken = spoken
             button.setAccessibilityValue(spoken.isEmpty ? nil : spoken)
@@ -752,7 +824,11 @@ final class MenuBarWidgets {
     /// The widget as an image of its own: the leading symbol, the text and the battery's state
     /// symbol, in the font of the menu bar, as a template at the height of a menu bar item. A
     /// widget that cannot be read is the en dash, like its status item (D-13).
-    private static func picture(for definition: WidgetDefinition, text: WidgetText) -> NSImage? {
+    private static func picture(
+        for definition: WidgetDefinition,
+        text: WidgetText,
+        maximumTextWidth: CGFloat?
+    ) -> NSImage? {
         var symbolName: String?
         var string = text.string
         switch definition.kind {
@@ -772,7 +848,8 @@ final class MenuBarWidgets {
             isMuted: text.isMuted,
             stateSymbolName: stateSymbolName(for: text.batteryState),
             fontSize: font.pointSize,
-            height: ItemIconStore.drawnHeight
+            height: ItemIconStore.drawnHeight,
+            maximumTextWidth: maximumTextWidth
         )
     }
 
@@ -784,7 +861,8 @@ final class MenuBarWidgets {
         isMuted: Bool,
         stateSymbolName: String?,
         fontSize: CGFloat,
-        height: CGFloat
+        height: CGFloat,
+        maximumTextWidth: CGFloat?
     ) -> NSImage? {
         let gap = CGFloat(4)
         let font = NSFont.monospacedDigitSystemFont(ofSize: fontSize, weight: .regular)
@@ -802,7 +880,20 @@ final class MenuBarWidgets {
         ]
         let text = NSAttributedString(string: string, attributes: attributes)
         let textSize = text.size()
-        var width = textSize.width
+        // A script's line is cut with an ellipsis at the width of the widget's format.
+        let textWidth = min(textSize.width, maximumTextWidth ?? textSize.width)
+        let isCut = textWidth < textSize.width
+        let cutText: NSAttributedString = {
+            guard isCut else {
+                return text
+            }
+            let paragraph = NSMutableParagraphStyle()
+            paragraph.lineBreakMode = .byTruncatingTail
+            var cutAttributes = attributes
+            cutAttributes[.paragraphStyle] = paragraph
+            return NSAttributedString(string: string, attributes: cutAttributes)
+        }()
+        var width = textWidth
         if let leading {
             width += leading.size.width + (string.isEmpty ? 0 : gap)
         }
@@ -820,8 +911,13 @@ final class MenuBarWidgets {
                 x += size.width + (string.isEmpty ? 0 : gap)
             }
             if !string.isEmpty {
-                text.draw(at: NSPoint(x: x, y: (bounds.height - textSize.height) / 2))
-                x += textSize.width
+                if isCut {
+                    let rect = NSRect(x: x, y: (bounds.height - textSize.height) / 2, width: textWidth, height: textSize.height)
+                    cutText.draw(with: rect, options: [.usesLineFragmentOrigin, .truncatesLastVisibleLine], context: nil)
+                } else {
+                    text.draw(at: NSPoint(x: x, y: (bounds.height - textSize.height) / 2))
+                }
+                x += textWidth
             }
             if let trailing {
                 let size = trailing.size
@@ -863,8 +959,13 @@ final class MenuBarWidgets {
         updatePowerSourceEvents()
     }
 
-    /// Reads the widget's source once and draws the text.
+    /// Reads the widget's source once and draws the text. A script widget asks its script
+    /// instead, and draws the line when the run ends.
     private func refresh(_ runtime: Runtime) {
+        if runtime.definition.kind == .script {
+            runScript(runtime, isUserAction: false)
+            return
+        }
         render(runtime, reading: sample(runtime))
     }
 
@@ -959,6 +1060,123 @@ final class MenuBarWidgets {
         }
         runtime.timer = nil
         send(.timerFired, to: runtime)
+    }
+
+    // MARK: Script widgets
+
+    /// What a script widget says to VoiceOver: its line, "Choose a script" while none is chosen,
+    /// "Allow this script in Automation, Scripts" while the gate refuses it (D-27).
+    private func scriptSpeech(for runtime: Runtime, reading: WidgetReading) -> String {
+        let store = appState?.automation.scriptStore
+        // Until the store is read nothing is known, so nothing is said to be missing.
+        let hasScript = store.map { !$0.isLoaded || $0.widgetScript(for: runtime.definition.id) != nil } ?? false
+        return WidgetSpeech.scriptValue(for: reading, hasScript: hasScript, isRefused: runtime.isScriptRefused)
+    }
+
+    /// A click on a script widget, or the user's own request in holzBar's pane: asks the script
+    /// again at once. It skips only the 30 seconds between two runs, never the gate, the run
+    /// limit or the check that the script is not already running (D-23).
+    func refreshScriptWidget(id: UUID) {
+        guard let runtime = runtimes[id], runtime.definition.kind == .script else {
+            return
+        }
+        runScript(runtime, isUserAction: true)
+    }
+
+    /// A real event of the system arrived: every script widget that is seen asks its script,
+    /// at most every 30 seconds each (D-23).
+    private func systemEventArrived() {
+        for runtime in runtimes.values where runtime.definition.kind == .script && runtime.policy.isVisible {
+            runScript(runtime, isUserAction: false)
+        }
+    }
+
+    /// Waits for the script store to be read, once, so that script widgets that were revealed
+    /// during start-up ask their script when it is ready. No polling: the store tells.
+    private func followScriptStore() {
+        guard let store = appState?.automation.scriptStore, !store.isLoaded else {
+            return
+        }
+        scriptStoreLoop = ObservationLoop.observe { [weak store] in
+            store?.isLoaded ?? true
+        } onChange: { [weak self] isLoaded in
+            guard isLoaded else {
+                return
+            }
+            self?.scriptStoreLoop?.cancel()
+            self?.scriptStoreLoop = nil
+            self?.systemEventArrived()
+        }
+    }
+
+    /// Asks the widget's script once and shows the line it printed.
+    ///
+    /// Nothing runs while the widget is not visible (hidden, asleep, locked), while a run of it
+    /// is going, or when no script is chosen. Unless it is the user's own action, a widget is
+    /// asked at most every 30 seconds; a request inside that time shows the line of the run
+    /// before. The process is started by the runner and the gate of the scripts only.
+    private func runScript(_ runtime: Runtime, isUserAction: Bool) {
+        guard isActive, runtime.policy.isVisible, let automation = appState?.automation else {
+            return
+        }
+        let store = automation.scriptStore
+        // Until the store is read its bindings are not known; the end of the wait asks again.
+        guard store.isLoaded else {
+            return
+        }
+        guard let name = store.widgetScript(for: runtime.definition.id) else {
+            runtime.scriptReading = .unavailable
+            runtime.isScriptRefused = false
+            render(runtime, reading: .unavailable)
+            return
+        }
+        guard !runtime.isScriptRunning else {
+            return
+        }
+        let now = ContinuousClock.now
+        guard isUserAction || ScriptLimits.isConditionDue(lastAsked: runtime.lastScriptStart, now: now) else {
+            render(runtime, reading: runtime.scriptReading)
+            return
+        }
+        runtime.lastScriptStart = now
+        runtime.isScriptRunning = true
+        let id = runtime.definition.id
+        Task { [weak self] in
+            let report = await automation.runWidgetScript(named: name)
+            self?.scriptRunEnded(id: id, name: name, report: report)
+        }
+    }
+
+    /// Takes in what a run left behind: the cleaned first line when it succeeded, an en dash
+    /// when it failed, timed out or was refused (D-13). A run that did not start (busy, over the
+    /// limit) changes nothing.
+    private func scriptRunEnded(id: UUID, name: String, report: ScriptRunReport) {
+        guard let runtime = runtimes[id] else {
+            return
+        }
+        runtime.isScriptRunning = false
+        // Only the outcome is logged, as a private value: never the line or the script's name.
+        logger.debug("A script widget ran: \(String(describing: report.outcome), privacy: .private)")
+        // The binding was changed or removed while the script ran: this is not its line.
+        let isStillBound = appState?.automation.scriptStore.widgetScript(for: id) == name
+        let outcome: ScriptOutcome = isStillBound ? report.outcome : .failed
+        switch outcome {
+        case .succeeded:
+            runtime.scriptReading = .line(report.record?.displayLine ?? "")
+            runtime.isScriptRefused = false
+        case .failed, .timedOut:
+            runtime.scriptReading = .unavailable
+            runtime.isScriptRefused = false
+        case .notAllowed:
+            runtime.scriptReading = .unavailable
+            runtime.isScriptRefused = true
+        case .busy, .rateLimited:
+            break
+        }
+        // A result that arrives while the widget is hidden is kept and shown at the next reveal.
+        if runtime.policy.isVisible {
+            render(runtime, reading: runtime.scriptReading)
+        }
     }
 
     // MARK: Observers
