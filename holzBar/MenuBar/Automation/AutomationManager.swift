@@ -763,11 +763,23 @@ final class AutomationManager {
             return
         }
         appState.snapshots.willApplyRules()
+        // On macOS 27 the layout is keyed by application, and a widget by its autosave name. The
+        // key comes from the item itself (`layoutKey27`); the part of the rule's key before the
+        // colon is only the fallback, and holzBar's own bundle never becomes a key: it would
+        // conceal holzBar's own icon and dividers.
+        let itemManager = appState.itemManager
+        let items = Dictionary(
+            itemManager.itemCache.managedItems.map { (itemManager.identityKey(for: $0), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
         var applicationSections = [String: Int]()
         for (key, section) in changes {
-            let namespace = String(key.prefix { $0 != ":" })
-            if SharedProfile.isValidBundleIdentifier(namespace) {
-                applicationSections[namespace] = section
+            if let layoutKey = OwnBundle.layoutKey(
+                forItemKey: key,
+                itemLayoutKey: items[key]?.layoutKey27,
+                bundleIdentifier: Constants.bundleIdentifier
+            ) {
+                applicationSections[layoutKey] = section
             }
         }
         logger.notice("An automation rule moves \(changes.count, privacy: .public) items")

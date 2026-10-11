@@ -43,4 +43,18 @@ struct OwnBundleTests {
         // A malformed identifier is no autosave name.
         #expect(OwnBundle.widgetAutosaveName(inItemKey: "\(own):holzBar.Widget.nope", bundleIdentifier: own) == nil)
     }
+
+    @Test("The item's own layout key is used, unless it is holzBar's bundle (CR-02)")
+    func itemLayoutKey() {
+        let widgetKey = "\(own):\(autosave)"
+        // The item says better than the key's namespace which application owns it.
+        #expect(OwnBundle.layoutKey(forItemKey: "com.apple.controlcenter:Item-0", itemLayoutKey: "com.example.real", bundleIdentifier: own) == "com.example.real")
+        // A widget item's layout key is its autosave name.
+        #expect(OwnBundle.layoutKey(forItemKey: widgetKey, itemLayoutKey: autosave, bundleIdentifier: own) == autosave)
+        // An item that reports holzBar's bundle never gives an application key, whatever its
+        // identity key says.
+        #expect(OwnBundle.layoutKey(forItemKey: "com.example.app:Thing", itemLayoutKey: own, bundleIdentifier: own) == nil)
+        // Without the item, the key itself decides: the widget by its autosave name.
+        #expect(OwnBundle.layoutKey(forItemKey: widgetKey, itemLayoutKey: nil, bundleIdentifier: own) == autosave)
+    }
 }
