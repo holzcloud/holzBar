@@ -54,7 +54,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 
 | | holzBar | Bartender 7 | Ice | Thaw | SaneBar | Tuck | Barbee | Hidden Bar | Dozer | Vanilla | iBar | Glow | Brow | Lounge | Vorssaint |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Maintenance | active (0.0.8-beta2) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) |
+| Maintenance | active (0.0.8-beta3) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) |
 | Price | free | paid, one-time <sup>1</sup> | free | free | free | free; Pro $14.99 | free + in-app (lifetime $12.99) | free | free | free; Pro $10 | free + $2.99/yr | $19.99 once | free; Pro $49/yr (AI only) | $3.99/yr | free |
 | Open source | ✅ GPL-3.0 | ❌ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ MIT | ❌ | ❌ | ✅ MIT | ✅ MPL-2.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ GPL-3.0+ |
 | macOS 26 / 27 | ✅ / ✅ | ❌ / ✅ <sup>2</sup> | dev builds / ❌ | ✅ / ✅ <sup>3</sup> | ✅ / ❌ | ✅ / ✅ <sup>4</sup> | ❓ / ❓ <sup>5</sup> | ✅ / partly <sup>6</sup> | ❓ / ❓ | ✅ / ❓ | ✅ / ❓ | ✅ / ✅ <sup>13</sup> | ❓ / vendor claim | ✅ / vendor claim | ✅ / ✅ |
@@ -192,7 +192,7 @@ A zip changed after the build, or built anywhere else, fails. Older releases and
 
 **0.0.7 is out** (see the [release notes](docs/release-notes/v0.0.7.md)): a bugfix release with no new features. Settings sync is removed from the app (a redesigned sync is planned for 1.0.0; Export… and Import… stay), and System Glass and the holzBar Shelf follow Reduce Transparency and Increase Contrast. macOS has no public API for the macOS 27 Liquid Glass slider, so holzBar cannot follow that. The Reduce Transparency treatment has not yet been checked on real macOS 26 and 27 systems. **Native macOS 27 overflow button support** did not make it into 0.0.7 and is planned for a later release.
 
-**0.0.8-beta2 is out** (see the [release notes](docs/release-notes/v0.0.8-beta2.md); the first beta is in [its notes](docs/release-notes/v0.0.8-beta1.md)): the 0.0.8 feature set is complete, all built but **not yet tested on a Mac**. Each feature carries a **Preview** badge in the app and is marked *Preview* here. Report what does not work.
+**0.0.8-beta3 is out** (see the [release notes](docs/release-notes/v0.0.8-beta3.md); the earlier betas are in [beta 2](docs/release-notes/v0.0.8-beta2.md) and [beta 1](docs/release-notes/v0.0.8-beta1.md)): the 0.0.8 feature set is complete, with widgets added in this beta, all built but **not yet tested on a Mac**. Each feature carries a **Preview** badge in the app and is marked *Preview* here. Report what does not work.
 
 | | |
 |---|---|
