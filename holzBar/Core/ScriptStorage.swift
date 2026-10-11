@@ -143,6 +143,16 @@ nonisolated struct ScriptStoreFile: Codable, Equatable, Sendable {
     /// The identifier of every rule, in the order the user sees them.
     var ruleOrder = [UUID]()
     var profileHooks = [ProfileHook]()
+    /// The script each script widget runs, as the file name in the scripts folder, by the
+    /// widget's identifier (the uppercase UUID string). Like every script binding it is on this
+    /// Mac only: the widget's definition holds no script name, so no export, import, shared
+    /// profile, URL command or Shortcut carries or sets one (D-25, SCRIPT-04).
+    ///
+    /// The key is new in stage 2 of the widgets and the version stays 1: a build that does not
+    /// know the key reads the file and drops the key at its next save, so a downgrade loses the
+    /// bindings and the widgets say "Choose a script"; raising the version would make that
+    /// build read the whole store as read-only and run no script at all.
+    var widgetScripts = [String: String]()
     /// Whether the script rules and approvals of 0.0.8-beta1 and beta2 were moved here.
     var hasMigratedLegacyData = false
 
@@ -154,6 +164,7 @@ nonisolated struct ScriptStoreFile: Codable, Equatable, Sendable {
         case rules
         case ruleOrder
         case profileHooks
+        case widgetScripts
         case hasMigratedLegacyData
     }
 
@@ -182,7 +193,17 @@ nonisolated struct ScriptStoreFile: Codable, Equatable, Sendable {
         result.profileHooks = Array(
             profileHooks.filter { $0.isValid && seenHooks.insert($0.id).inserted }.prefix(ProfileHooks.maximumCount)
         )
+        result.widgetScripts = Self.validatedWidgetScripts(widgetScripts)
         return result
+    }
+
+    /// The widget bindings that have a widget identifier (the uppercase UUID string) and a plain
+    /// script name, at most ``WidgetDefinition/maximumCount`` of them, the first by identifier.
+    private static func validatedWidgetScripts(_ bindings: [String: String]) -> [String: String] {
+        let valid = bindings.filter { key, name in
+            UUID(uuidString: key)?.uuidString == key && ScriptGate.isPlainName(name)
+        }
+        return capped(valid, to: WidgetDefinition.maximumCount)
     }
 
     private static func isValidFolderPath(_ path: String) -> Bool {
@@ -193,10 +214,15 @@ nonisolated struct ScriptStoreFile: Codable, Equatable, Sendable {
 
     /// At most ``maximumEntries`` entries, the first by name.
     private static func capped<Value>(_ dictionary: [String: Value]) -> [String: Value] {
-        guard dictionary.count > maximumEntries else {
+        capped(dictionary, to: maximumEntries)
+    }
+
+    /// At most `limit` entries, the first by key.
+    private static func capped<Value>(_ dictionary: [String: Value], to limit: Int) -> [String: Value] {
+        guard dictionary.count > limit else {
             return dictionary
         }
-        return Dictionary(uniqueKeysWithValues: dictionary.sorted { $0.key < $1.key }.prefix(maximumEntries).map { $0 })
+        return Dictionary(uniqueKeysWithValues: dictionary.sorted { $0.key < $1.key }.prefix(limit).map { $0 })
     }
 
     /// The file with the script rules and approvals of 0.0.8-beta1 and beta2 added, once.
@@ -311,6 +337,8 @@ nonisolated extension ScriptStoreFile {
             .compactMap(\.value) ?? []
         profileHooks = try container.decodeIfPresent([Lossy<ProfileHook>].self, forKey: .profileHooks)?
             .compactMap(\.value) ?? []
+        widgetScripts = try container.decodeIfPresent([String: Lossy<String>].self, forKey: .widgetScripts)?
+            .compactMapValues(\.value) ?? [:]
         hasMigratedLegacyData = try container.decodeIfPresent(Bool.self, forKey: .hasMigratedLegacyData) ?? false
     }
 }
