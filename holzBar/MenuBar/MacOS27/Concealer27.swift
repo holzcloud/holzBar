@@ -809,7 +809,9 @@ final class Concealer27 {
             return
         }
         let bundleIDs = Set(items.compactMap { item -> String? in
-            guard item.canBeHidden, !item.isSystemClone, !item.isControlItem else {
+            // A widget has no bundle to place (its key is ``MenuBarItem/layoutKey27``): a new
+            // one has no entry in the layout and is therefore visible.
+            guard item.canBeHidden, !item.isSystemClone, !item.isControlItem, !item.isWidget else {
                 return nil
             }
             return item.sourceApplication?.bundleIdentifier
@@ -881,6 +883,7 @@ final class Concealer27 {
                 item.canBeHidden,
                 !item.isSystemClone,
                 !item.isControlItem,
+                !item.isWidget,
                 let bundleID = item.sourceApplication?.bundleIdentifier
             else {
                 return nil
@@ -915,7 +918,8 @@ final class Concealer27 {
                 }
                 continue
             }
-            switch layout[item.sourceApplication?.bundleIdentifier ?? ""] ?? .visible {
+            // A widget is looked up under its own key, an application under its bundle.
+            switch layout[item.layoutKey27 ?? ""] ?? .visible {
             case .visible: cache[.visible].append(item)
             case .hidden: cache[.hidden].append(item)
             case .alwaysHidden: cache[.alwaysHidden].append(item)

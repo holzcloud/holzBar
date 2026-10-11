@@ -270,8 +270,8 @@ enum LayoutBarMoves {
 
     // MARK: Sections
 
-    /// Moves an item to another section: on macOS 27 its application, before next to the
-    /// section's control item.
+    /// Moves an item to another section: on macOS 27 its application (a widget, which is
+    /// holzBar's own item, under its own key), before next to the section's control item.
     ///
     /// - Returns: `false` if the section cannot be set (on macOS 27 an item without an
     ///   application); a move that fails later is reported then.
@@ -280,11 +280,11 @@ enum LayoutBarMoves {
         let actionName = String(localized: "Change Section")
         let announcement = String(localized: "\(item.displayName) moved to \(section.displayString)")
         if #available(macOS 27.0, *) {
-            guard let bundleID = item.sourceApplication?.bundleIdentifier else {
+            guard let key = item.layoutKey27 else {
                 NSSound.beep()
                 return false
             }
-            setSection27(section, for: bundleID, appState: appState, actionName: actionName)
+            setSection27(section, for: key, appState: appState, actionName: actionName)
             LayoutBarItemView.announce(announcement)
             return true
         }

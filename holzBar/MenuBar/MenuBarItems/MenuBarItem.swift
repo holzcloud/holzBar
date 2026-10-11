@@ -45,6 +45,27 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
         tag.isControlItem
     }
 
+    /// A Boolean value that indicates whether this item is one of holzBar's
+    /// widgets (Phase 12): an item of holzBar's own namespace whose title is
+    /// a widget's autosave name.
+    var isWidget: Bool {
+        tag.namespace == .holzBar && WidgetDefinition.isAutosaveName(tag.title)
+    }
+
+    /// The key of the item in the saved macOS 27 layout (`Defaults.Key.macOS27Layout`).
+    ///
+    /// macOS 27 hides whole applications, so an application's items share its bundle
+    /// identifier. A widget is holzBar's own item and has a key of its own, its autosave
+    /// name: that is never a running bundle, so no concealment assertion names it, and never
+    /// holzBar's bundle, so holzBar's icon is never concealed. holzBar hides a widget itself
+    /// (`MenuBarWidgets`). `nil` when the item's application is unknown.
+    var layoutKey27: String? {
+        if isWidget {
+            return tag.title
+        }
+        return sourceApplication?.bundleIdentifier
+    }
+
     /// A Boolean value that indicates whether this item is a "BentoBox"
     /// item owned by the Control Center.
     var isBentoBox: Bool {

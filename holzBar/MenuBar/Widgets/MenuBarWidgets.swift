@@ -459,6 +459,10 @@ final class MenuBarWidgets {
         statusItem.autosaveName = definition.autosaveName
         // On macOS 26, holzBar recognises its own items' windows by their frames (D-17, D-24).
         OwnStatusItemWindows.register(statusItem, forAutosaveName: definition.autosaveName)
+        // On macOS 27, holzBar finds its own items through Accessibility by this identifier, as
+        // it does the dividers; a plain status item reports an empty one, and so it would not
+        // be listed (12-SPIKE.md, A1).
+        statusItem.button?.setAccessibilityIdentifier(definition.autosaveName)
         let runtime = Runtime(definition: definition, statusItem: statusItem)
         runtimes[definition.id] = runtime
         configure(runtime)
