@@ -132,6 +132,21 @@ struct WidgetFormatTests {
         #expect(WidgetFormat.prefers24HourClock(locale: german))
     }
 
+    @Test("The 24-hour preference is right for locales with digits that are not Latin (WR-05)")
+    func prefers24HourClockWithOtherDigits() {
+        // These show "۱۵:۰۰", "१५:००" and "၁၅:၀၀": no ASCII "15" in the text.
+        for identifier in ["fa_IR", "fa_AF", "ne_NP", "my_MM"] {
+            #expect(WidgetFormat.prefers24HourClock(locale: Locale(identifier: identifier)), "\(identifier)")
+        }
+        // 12-hour locales stay 12-hour, whatever their digits.
+        for identifier in ["ar_SA", "ar_EG", "bn_BD", "en_US@numbers=arab"] {
+            #expect(!WidgetFormat.prefers24HourClock(locale: Locale(identifier: identifier)), "\(identifier)")
+        }
+        // A locale's own hour cycle can be forced in its identifier.
+        #expect(WidgetFormat.prefers24HourClock(locale: Locale(identifier: "en_US@hours=h23")))
+        #expect(!WidgetFormat.prefers24HourClock(locale: Locale(identifier: "de_DE@hours=h12")))
+    }
+
     @Test("Battery gives the locale's percent and carries the state only when the preset shows it")
     func battery() {
         let reading = WidgetReading.battery(percent: 80, state: .charging)

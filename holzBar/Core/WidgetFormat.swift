@@ -198,23 +198,21 @@ nonisolated enum WidgetFormat {
         }
     }
 
-    /// Whether the locale shows the time on a 24-hour clock, told by whether 15:00 formatted
-    /// with the shortened time style contains "15".
+    /// Whether the locale shows the time on a 24-hour clock, told by its hour cycle.
+    ///
+    /// The locale is asked, not its output: a 24-hour locale whose digits are not Latin (Persian,
+    /// Nepali, Burmese) shows "۱۵:۰۰", which holds no "15" to look for (WR-05). The hour cycle
+    /// follows the locale's identifier and, for the current locale, the user's choice of a
+    /// 24-hour time in System Settings.
     static func prefers24HourClock(locale: Locale) -> Bool {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? calendar.timeZone
-        let components = DateComponents(year: 2001, month: 1, day: 1, hour: 15)
-        guard let date = calendar.date(from: components) else {
-            return false
+        switch locale.hourCycle {
+        case .zeroToTwentyThree, .oneToTwentyFour:
+            true
+        case .zeroToEleven, .oneToTwelve:
+            false
+        @unknown default:
+            false
         }
-        let style = Date.FormatStyle(
-            date: .omitted,
-            time: .shortened,
-            locale: locale,
-            calendar: calendar,
-            timeZone: calendar.timeZone
-        )
-        return date.formatted(style).contains("15")
     }
 
     // MARK: Parts
