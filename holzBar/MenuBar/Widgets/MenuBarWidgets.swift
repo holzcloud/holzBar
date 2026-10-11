@@ -300,6 +300,8 @@ final class MenuBarWidgets {
     private func makeRuntime(for definition: WidgetDefinition) {
         let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.autosaveName = definition.autosaveName
+        // On macOS 26, holzBar recognises its own items' windows by their frames (D-17, D-24).
+        OwnStatusItemWindows.register(statusItem, forAutosaveName: definition.autosaveName)
         let runtime = Runtime(definition: definition, statusItem: statusItem)
         runtimes[definition.id] = runtime
         configure(runtime)
@@ -325,6 +327,7 @@ final class MenuBarWidgets {
         // control items do.
         let position = ControlItemDefaults[.preferredPosition, name]
         NSStatusBar.system.removeStatusItem(runtime.statusItem)
+        OwnStatusItemWindows.unregister(autosaveName: name)
         if keepingPosition {
             ControlItemDefaults[.preferredPosition, name] = position
         } else {

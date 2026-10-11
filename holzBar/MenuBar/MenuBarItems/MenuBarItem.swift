@@ -207,6 +207,24 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
         self.title = itemWindow.title
         self.isOnScreen = itemWindow.isOnScreen
     }
+
+    /// Creates the menu bar item of one of holzBar's own autosaved status items, a widget,
+    /// drawn in the given window (macOS 26).
+    ///
+    /// This initializer does not perform validity checks on its parameters.
+    /// Only call it if you are certain the window draws the status item with this
+    /// autosave name (see `OwnStatusItemWindows`). The tag is holzBar's namespace and
+    /// the autosave name, which is also the window's title on macOS 14 to 25.
+    @available(macOS 26.0, *)
+    init(uncheckedItemWindow itemWindow: WindowInfo, ownStatusItemNamed name: String) {
+        self.tag = MenuBarItemTag(namespace: .holzBar, title: name)
+        self.windowID = itemWindow.windowID
+        self.ownerPID = itemWindow.ownerPID
+        self.sourcePID = ProcessInfo.processInfo.processIdentifier
+        self.bounds = itemWindow.bounds
+        self.title = itemWindow.title
+        self.isOnScreen = itemWindow.isOnScreen
+    }
 }
 
 // MARK: - MenuBarItem List
