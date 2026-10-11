@@ -541,6 +541,9 @@ final class MenuBarWidgets {
         var isScriptRunning = false
         /// Whether the gate refused the script at its last run: not allowed, or changed since.
         var isScriptRefused = false
+        /// Whether the script was busy when this widget asked: another widget (or a rule) was
+        /// running it. The widget takes over the result of the run that ends (WR-03).
+        var isWaitingForScript = false
 
         init(definition: WidgetDefinition, statusItem: NSStatusItem) {
             self.definition = definition
@@ -1147,6 +1150,7 @@ final class MenuBarWidgets {
         }
         runtime.lastScriptStart = now
         runtime.isScriptRunning = true
+        runtime.isWaitingForScript = false
         let id = runtime.definition.id
         Task { [weak self] in
             let report = await automation.runWidgetScript(named: name)
@@ -1156,7 +1160,9 @@ final class MenuBarWidgets {
 
     /// Takes in what a run left behind: the cleaned first line when it succeeded, an en dash
     /// when it failed, timed out or was refused (D-13). A run that did not start (busy, over the
-    /// limit) changes nothing.
+    /// limit) changes nothing, except that a widget turned away because its script was busy does
+    /// not wait the 30 seconds for its next ask: it takes over the result of the run that has the
+    /// script, when that ends (WR-03).
     private func scriptRunEnded(id: UUID, name: String, report: ScriptRunReport) {
         guard let runtime = runtimes[id] else {
             return
@@ -1164,8 +1170,14 @@ final class MenuBarWidgets {
         runtime.isScriptRunning = false
         // Only the outcome is logged, as a private value: never the line or the script's name.
         logger.debug("A script widget ran: \(String(describing: report.outcome), privacy: .private)")
+        takeIn(report, script: name, into: runtime)
+        shareResult(of: report, from: id, script: name)
+    }
+
+    /// Shows what a run of the widget's script said, unless the binding changed meanwhile.
+    private func takeIn(_ report: ScriptRunReport, script name: String, into runtime: Runtime) {
         // The binding was changed or removed while the script ran: this is not its line.
-        let isStillBound = appState?.automation.scriptStore.widgetScript(for: id) == name
+        let isStillBound = appState?.automation.scriptStore.widgetScript(for: runtime.definition.id) == name
         let outcome: ScriptOutcome = isStillBound ? report.outcome : .failed
         switch outcome {
         case .succeeded:
@@ -1177,12 +1189,41 @@ final class MenuBarWidgets {
         case .notAllowed:
             runtime.scriptReading = .unavailable
             runtime.isScriptRefused = true
-        case .busy, .rateLimited:
+        case .busy:
+            // Another widget or a rule has the script. The 30 seconds are not spent: the widget
+            // takes over the result of the run that ends, or asks again on the next event.
+            runtime.lastScriptStart = nil
+            runtime.isWaitingForScript = true
+        case .rateLimited:
             break
         }
         // A result that arrives while the widget is hidden is kept and shown at the next reveal.
         if runtime.policy.isVisible {
             render(runtime, reading: runtime.scriptReading)
+        }
+    }
+
+    /// Gives the result of a run to the widgets that were turned away because its script was
+    /// busy and are still bound to it (WR-03). A run that did not start has no result to give.
+    private func shareResult(of report: ScriptRunReport, from id: UUID, script name: String) {
+        switch report.outcome {
+        case .busy, .rateLimited:
+            return
+        case .succeeded, .failed, .timedOut, .notAllowed:
+            break
+        }
+        var waiting = [UUID: String]()
+        for (otherID, runtime) in runtimes where runtime.isWaitingForScript {
+            if let bound = appState?.automation.scriptStore.widgetScript(for: otherID) {
+                waiting[otherID] = bound
+            }
+        }
+        for otherID in WidgetScriptSharing.takingOver(script: name, finished: id, waiting: waiting) {
+            guard let other = runtimes[otherID] else {
+                continue
+            }
+            other.isWaitingForScript = false
+            takeIn(report, script: name, into: other)
         }
     }
 
