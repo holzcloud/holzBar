@@ -10,7 +10,8 @@ import SwiftUI
 ///
 /// A module that is off costs nothing: it runs no timer, holds no memory and has asked for no
 /// permission. The settings of a module open under its row only while it is on, indented to
-/// the title. The row is plain; the group around the rows is the glass layer.
+/// the title. The row is plain; the group around the rows is the glass layer. A module that is
+/// built but not yet tested on a Mac carries the Preview badge right after its title.
 struct ModuleRow<Settings: View>: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -21,6 +22,7 @@ struct ModuleRow<Settings: View>: View {
     private let isPermissionGranted: Bool
     private let showsSettings: Bool?
     private let onSelect: (() -> Void)?
+    private let isPreview: Bool
     @Binding private var isOn: Bool
     private let settings: Settings
 
@@ -33,6 +35,7 @@ struct ModuleRow<Settings: View>: View {
         isPermissionGranted: Bool = false,
         showsSettings: Bool? = nil,
         onSelect: (() -> Void)? = nil,
+        isPreview: Bool = false,
         @ViewBuilder settings: () -> Settings
     ) {
         self.systemImage = systemImage
@@ -43,6 +46,7 @@ struct ModuleRow<Settings: View>: View {
         self.isPermissionGranted = isPermissionGranted
         self.showsSettings = showsSettings
         self.onSelect = onSelect
+        self.isPreview = isPreview
         self.settings = settings()
     }
 
@@ -87,9 +91,14 @@ struct ModuleRow<Settings: View>: View {
                 )
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 1) {
-                title
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(HolzBarTheme.Palette.text)
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    title
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(HolzBarTheme.Palette.text)
+                    if isPreview {
+                        PreviewBadge()
+                    }
+                }
                 summary
                     .font(HolzBarTheme.Typography.callout)
                     .foregroundStyle(HolzBarTheme.Palette.textSecondary)
@@ -138,7 +147,8 @@ extension ModuleRow where Settings == EmptyView {
         permission: Text? = nil,
         isPermissionGranted: Bool = false,
         showsSettings: Bool? = nil,
-        onSelect: (() -> Void)? = nil
+        onSelect: (() -> Void)? = nil,
+        isPreview: Bool = false
     ) {
         self.init(
             systemImage: systemImage,
@@ -148,7 +158,8 @@ extension ModuleRow where Settings == EmptyView {
             permission: permission,
             isPermissionGranted: isPermissionGranted,
             showsSettings: showsSettings,
-            onSelect: onSelect
+            onSelect: onSelect,
+            isPreview: isPreview
         ) {
             EmptyView()
         }

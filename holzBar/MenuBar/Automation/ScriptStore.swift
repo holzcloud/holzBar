@@ -66,6 +66,13 @@ final class ScriptStore {
     private(set) var folderRefusal: ScriptGate.FolderRefusal?
     private(set) var problem: Problem?
     private(set) var profileHooks = [ProfileHook]()
+    /// The script each script widget runs, by the widget's identifier (the uppercase UUID
+    /// string). Observable, so a pane that shows the choice follows a change. Kept on this Mac
+    /// only, like every script binding (D-25).
+    private(set) var widgetScripts = [String: String]()
+    /// Whether ``performSetup()`` has read `Scripts.json`: before it, no binding and no approval
+    /// is known, so nothing that asks for them says "not allowed".
+    private(set) var isLoaded = false
     /// Whether the last write of `Scripts.json` failed (disk full, folder not writable). The
     /// changes are kept in memory and written again at the next change; while this is `true`
     /// the rules that use a script also stay in the settings, so a failed write loses nothing.
@@ -102,7 +109,9 @@ final class ScriptStore {
         loadStoreFile()
         folderURL = file.folderPath.map { URL(filePath: $0, directoryHint: .isDirectory) } ?? Self.defaultFolder
         profileHooks = file.profileHooks
+        widgetScripts = file.widgetScripts
         refresh()
+        isLoaded = true
     }
 
     private func loadStoreFile() {
@@ -473,6 +482,62 @@ final class ScriptStore {
     private func hooksChanged() {
         file = file.validated()
         profileHooks = file.profileHooks
+        save()
+    }
+
+    // MARK: Script widgets
+
+    /// The script a script widget runs, or `nil` while none is chosen (D-23).
+    func widgetScript(for id: UUID) -> String? {
+        widgetScripts[id.uuidString]
+    }
+
+    /// Binds a script widget to a script of the scripts folder, or removes the binding with
+    /// `nil`. Only a name that is listed in the folder is bound, and at most
+    /// ``WidgetDefinition/maximumCount`` widgets are. The binding is stored here, in the store of
+    /// this Mac, and nowhere else: nothing from outside holzBar's own pane calls this, so no URL
+    /// command, intent, import or shared profile sets one (D-25, T-12-27, T-12-28).
+    ///
+    /// Binding a script does not allow it: the gate still needs the user's approval of its exact
+    /// content before it runs (T-12-29).
+    ///
+    /// - Parameters:
+    ///   - name: The script's file name, or `nil` to remove the binding.
+    ///   - id: The widget.
+    ///   - liveWidgets: The widgets that exist, when the caller knows them. The bindings of other
+    ///     widgets (a list that an import replaced) are dropped first, so a full store of stale
+    ///     bindings never refuses the choice (WR-06).
+    func setWidgetScript(_ name: String?, for id: UUID, liveWidgets: Set<UUID>? = nil) {
+        guard !isReadOnly else {
+            return
+        }
+        if let name, !scripts.contains(where: { $0.name == name }) {
+            return
+        }
+        guard let bindings = ScriptStoreFile.bindingWidgetScript(
+            name,
+            for: id,
+            in: file.widgetScripts,
+            liveWidgets: liveWidgets
+        ) else {
+            return
+        }
+        guard bindings != file.widgetScripts else {
+            return
+        }
+        file.widgetScripts = bindings
+        widgetScripts = bindings
+        save()
+    }
+
+    /// Drops the bindings of widgets that are gone: only the widgets named here keep theirs.
+    func keepWidgetScripts(for ids: Set<UUID>) {
+        let kept = ScriptStoreFile.widgetScripts(file.widgetScripts, keeping: ids)
+        guard !isReadOnly, kept.count != file.widgetScripts.count else {
+            return
+        }
+        file.widgetScripts = kept
+        widgetScripts = kept
         save()
     }
 

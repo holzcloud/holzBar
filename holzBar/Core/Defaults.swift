@@ -188,6 +188,12 @@ nonisolated extension Defaults {
         /// Left by the 0.0.7 betas. Nothing reads or writes it any more, and the stored value stays.
         case syncsSettingsWithICloud = "SyncsSettingsWithICloud"
         case itemGroups = "ItemGroups"
+        /// The widgets of the menu bar, as JSON (`WidgetDefinition`): kind, source, format and
+        /// order. Exported and imported as one unit (D-25, D-26).
+        case widgets = "Widgets"
+        /// The name of each button widget's Shortcut, by widget identifier. Local to the Mac:
+        /// never exported, imported or synced (D-25).
+        case widgetShortcutNames = "WidgetShortcutNames"
         case spacerCount = "SpacerCount"
         case spacerWidth = "SpacerWidth"
         case revealRules = "RevealRules"
@@ -332,6 +338,7 @@ nonisolated extension Defaults.Key {
             .layoutProfiles,
             .automationRules,
             .itemGroups,
+            .widgets,
             .menuBarAppearanceConfigurationV2,
             .menuBarBorderColor,
             .menuBarTintColor,
@@ -353,7 +360,8 @@ nonisolated extension Defaults.Key {
             .revealRules,
             .macOS27Layout,
             .itemSections,
-            .itemIcons:
+            .itemIcons,
+            .widgetShortcutNames:
             // Their readers cast the contents themselves, so the kind is checked
             // only at the top level.
             .dictionary
@@ -412,11 +420,13 @@ nonisolated extension Defaults.Key {
     /// Keys that stay on this Mac: never exported or imported.
     ///
     /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
-    /// never sets it. The debug defaults stay on this Mac as well.
+    /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
+    /// Shortcuts the widget buttons run (D-25).
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
         .lockHiddenItems,
         .cleanUpOffered,
+        .widgetShortcutNames,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
     ]
@@ -437,7 +447,15 @@ nonisolated extension Defaults.Key {
     /// Splits settings read from outside the app into the values holzBar applies and the
     /// keys it ignores: only holzBar's own keys that may be imported, with a value of the
     /// expected kind, numbers within their range (``SettingsSchema``).
-    static func validatedSettings(_ settings: [String: Any]) -> (accepted: [String: Any], ignored: [String]) {
+    ///
+    /// - Parameters:
+    ///   - settings: The settings read from outside the app.
+    ///   - ownBundleIdentifier: holzBar's own bundle identifier (`Constants.bundleIdentifier`),
+    ///     which the macOS 27 layout of a file never names (WR-01).
+    static func validatedSettings(
+        _ settings: [String: Any],
+        ownBundleIdentifier: String
+    ) -> (accepted: [String: Any], ignored: [String]) {
         var result = SettingsSchema.validated(settings, kinds: importableKinds, numberRules: importableNumberRules)
         // A file never brings a rule that runs or asks a script: scripts and their approvals
         // are local to the Mac.
@@ -449,6 +467,23 @@ nonisolated extension Defaults.Key {
                 result.accepted.removeValue(forKey: rulesKey)
                 result.ignored = (result.ignored + [rulesKey]).sorted()
             }
+        }
+        // A file never brings more than six widgets, a kind or a source this build does not know,
+        // or a field of its own (D-25, T-12-04): the list is decoded, validated and encoded again.
+        let widgetsKey = Self.widgets.rawValue
+        if let data = result.accepted[widgetsKey] as? Data {
+            if let normalized = WidgetList.normalized(data) {
+                result.accepted[widgetsKey] = normalized
+            } else {
+                result.accepted.removeValue(forKey: widgetsKey)
+                result.ignored = (result.ignored + [widgetsKey]).sorted()
+            }
+        }
+        // A file never conceals holzBar itself: an entry for holzBar's own bundle in the macOS 27
+        // layout would hide its icon and dividers. Widgets are keyed by their autosave names.
+        let layoutKey = Self.macOS27Layout.rawValue
+        if let layout = result.accepted[layoutKey] as? [String: Any] {
+            result.accepted[layoutKey] = OwnBundle.removing(from: layout, bundleIdentifier: ownBundleIdentifier)
         }
         return result
     }

@@ -55,6 +55,17 @@ enum SettingsBackup {
                 settings.removeValue(forKey: rulesKey)
             }
         }
+        // Widgets travel as normalised definitions (kind, source, format, order) and never carry
+        // a Shortcut name: the names are a local-only key. A widget's place in the menu bar
+        // stays on this Mac too: its NSStatusItem keys are excluded by the prefixes above (D-25).
+        let widgetsKey = Defaults.Key.widgets.rawValue
+        if let data = settings[widgetsKey] as? Data {
+            if let normalized = WidgetList.normalized(data) {
+                settings[widgetsKey] = normalized
+            } else {
+                settings.removeValue(forKey: widgetsKey)
+            }
+        }
         return settings
     }
 
@@ -69,7 +80,7 @@ enum SettingsBackup {
     static func apply(_ settings: [String: Any]) -> [String] {
         let defaults = UserDefaults.standard
         let incoming = settings.filter { key, _ in !isExcluded(key) }
-        let (accepted, ignored) = Defaults.Key.validatedSettings(incoming)
+        let (accepted, ignored) = Defaults.Key.validatedSettings(incoming, ownBundleIdentifier: Constants.bundleIdentifier)
         let removed = Defaults.Key.keysRemoved(
             applying: accepted,
             over: currentSettings()

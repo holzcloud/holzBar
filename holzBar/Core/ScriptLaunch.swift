@@ -5,7 +5,7 @@
 
 import Foundation
 
-/// The only context a script gets: what happened, as one of five fixed names in the
+/// The only context a script gets: what happened, as one of six fixed names in the
 /// `HOLZBAR_EVENT` environment variable.
 ///
 /// No value from a rule, a profile, an app, a Wi-Fi network or an item ever reaches a script
@@ -22,6 +22,9 @@ nonisolated enum ScriptEvent: String, CaseIterable, Sendable {
     case profileWillApply = "profile-will-apply"
     /// A profile was applied and the items moved (the script is an after hook).
     case profileDidApply = "profile-did-apply"
+    /// A script widget asks its script for the line it shows (the widget appeared, a system
+    /// event arrived or the widget was clicked, D-23).
+    case widgetRefresh = "widget-refresh"
 }
 
 /// Everything needed to start a script, and nothing else: the program, its arguments, its
@@ -116,6 +119,12 @@ nonisolated enum ScriptLimits {
             return true
         }
         return now - lastAsked >= .seconds(conditionInterval)
+    }
+
+    /// Whether a script widget may ask its script now: always for the user's own click, otherwise
+    /// when its condition interval has passed (D-23, WR-02).
+    static func isWidgetAskDue(isUserAction: Bool, lastAsked: ContinuousClock.Instant?, now: ContinuousClock.Instant) -> Bool {
+        isUserAction || isConditionDue(lastAsked: lastAsked, now: now)
     }
 
     /// The time limit to use for a stored value: the default when none is stored, otherwise the

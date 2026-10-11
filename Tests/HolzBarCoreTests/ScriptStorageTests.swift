@@ -209,6 +209,131 @@ struct ScriptStorageTests {
         #expect(file.validated().folderPath == "/Users/me/Scripts")
     }
 
+    // MARK: Widget scripts (D-23, D-25)
+
+    private let widgetID = "0A1B2C3D-0000-4000-8000-000000000001"
+    private let otherWidgetID = "0A1B2C3D-0000-4000-8000-000000000002"
+
+    @Test("A script widget's script is bound by widget identifier and round-trips; the version stays 1")
+    func widgetScriptsRoundTrip() throws {
+        var file = ScriptStoreFile()
+        file.approvals = ["clock.sh": goodHash]
+        file.widgetScripts = [widgetID: "clock.sh", otherWidgetID: "load.sh"]
+        let data = try encoded(file)
+        #expect(ScriptStoreFile.decode(data) == .file(file))
+        #expect(ScriptStoreFile.currentVersion == 1)
+        let object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        #expect(object["version"] as? Int == 1)
+        #expect(object["widgetScripts"] as? [String: String] == [widgetID: "clock.sh", otherWidgetID: "load.sh"])
+    }
+
+    @Test("A store file without widgetScripts decodes with an empty binding and the rest unchanged (D-23)")
+    func fileWithoutWidgetScripts() throws {
+        var file = ScriptStoreFile()
+        file.folderPath = "/Users/me/Scripts"
+        file.approvals = ["a.sh": goodHash]
+        file.timeLimits = ["a.sh": 20]
+        file.rules = [running("a.sh")]
+        file.ruleOrder = file.rules.map(\.id)
+        file.profileHooks = [hook("Work", .beforeApplying)]
+        file.hasMigratedLegacyData = true
+        var object = try #require(JSONSerialization.jsonObject(with: encoded(file)) as? [String: Any])
+        object.removeValue(forKey: "widgetScripts")
+        let data = try JSONSerialization.data(withJSONObject: object)
+        guard case .file(let decoded) = ScriptStoreFile.decode(data) else {
+            Issue.record("A store of 11-05 must decode")
+            return
+        }
+        #expect(decoded.widgetScripts.isEmpty)
+        #expect(decoded == file)
+    }
+
+    @Test("A widget binding needs a widget identifier and a plain script name")
+    func widgetScriptsAreValidated() {
+        var file = ScriptStoreFile()
+        file.widgetScripts = [
+            widgetID: "ok.sh",
+            "not-a-uuid": "ok.sh",
+            "": "ok.sh",
+            widgetID.lowercased(): "ok.sh",
+            otherWidgetID: "../evil.sh",
+            "0A1B2C3D-0000-4000-8000-000000000003": ".hidden.sh",
+            "0A1B2C3D-0000-4000-8000-000000000004": "",
+            "0A1B2C3D-0000-4000-8000-000000000005": "a/b.sh",
+        ]
+        #expect(file.validated().widgetScripts == [widgetID: "ok.sh"])
+    }
+
+    @Test("At most six widget bindings are kept, the first by identifier (D-05)")
+    func widgetScriptsAreCapped() {
+        var file = ScriptStoreFile()
+        let ids = (1...9).map { String(format: "0A1B2C3D-0000-4000-8000-%012d", $0) }
+        file.widgetScripts = Dictionary(uniqueKeysWithValues: ids.map { ($0, "s.sh") })
+        let kept = file.validated().widgetScripts
+        #expect(kept.count == WidgetDefinition.maximumCount)
+        #expect(Set(kept.keys) == Set(ids.prefix(WidgetDefinition.maximumCount)))
+    }
+
+    @Test("Only the bindings of widgets that exist are kept (WR-06)")
+    func bindingsOfWidgetsThatAreGoneAreDropped() throws {
+        let live = try #require(UUID(uuidString: widgetID))
+        let bindings = [widgetID: "a.sh", otherWidgetID: "b.sh"]
+        #expect(ScriptStoreFile.widgetScripts(bindings, keeping: [live]) == [widgetID: "a.sh"])
+        #expect(ScriptStoreFile.widgetScripts(bindings, keeping: []).isEmpty)
+        #expect(ScriptStoreFile.widgetScripts([:], keeping: [live]).isEmpty)
+    }
+
+    @Test("A full store of stale bindings does not refuse a new choice; a full store of live ones does (WR-06)")
+    func staleBindingsDoNotCountAgainstTheCap() throws {
+        let staleIDs = (1...WidgetDefinition.maximumCount).map { String(format: "0A1B2C3D-0000-4000-8000-%012d", $0 + 100) }
+        let stale = Dictionary(uniqueKeysWithValues: staleIDs.map { ($0, "old.sh") })
+        let live = try #require(UUID(uuidString: widgetID))
+
+        // Without the list of widgets that exist, the store is full and refuses (the old way).
+        #expect(ScriptStoreFile.bindingWidgetScript("new.sh", for: live, in: stale, liveWidgets: nil) == nil)
+        // With it, the stale bindings go and the choice is stored.
+        let bound = ScriptStoreFile.bindingWidgetScript("new.sh", for: live, in: stale, liveWidgets: [live])
+        #expect(bound == [widgetID: "new.sh"])
+
+        // Six live widgets: a seventh cannot exist, but the widget that has a binding may change it.
+        let liveIDs = try staleIDs.map { try #require(UUID(uuidString: $0)) }
+        #expect(ScriptStoreFile.bindingWidgetScript("new.sh", for: live, in: stale, liveWidgets: Set(liveIDs)) == nil)
+        let changed = ScriptStoreFile.bindingWidgetScript("new.sh", for: liveIDs[0], in: stale, liveWidgets: Set(liveIDs))
+        #expect(changed?[staleIDs[0]] == "new.sh")
+        #expect(changed?.count == WidgetDefinition.maximumCount)
+    }
+
+    @Test("Removing a binding removes only that one")
+    func unbinding() throws {
+        let live = try #require(UUID(uuidString: widgetID))
+        let other = try #require(UUID(uuidString: otherWidgetID))
+        let bindings = [widgetID: "a.sh", otherWidgetID: "b.sh"]
+        let result = ScriptStoreFile.bindingWidgetScript(nil, for: live, in: bindings, liveWidgets: [live, other])
+        #expect(result == [otherWidgetID: "b.sh"])
+    }
+
+    @Test("A binding that cannot be decoded is skipped and the rest of the file is kept (WR-05)")
+    func undecodableWidgetBindingIsSkipped() throws {
+        var file = ScriptStoreFile()
+        file.approvals = ["a.sh": goodHash]
+        file.widgetScripts = [widgetID: "a.sh"]
+        var object = try #require(JSONSerialization.jsonObject(with: encoded(file)) as? [String: Any])
+        object["widgetScripts"] = [widgetID: "a.sh", otherWidgetID: 5, "0A1B2C3D-0000-4000-8000-000000000003": ["x": 1]]
+        let data = try JSONSerialization.data(withJSONObject: object)
+        #expect(ScriptStoreFile.decode(data) == .file(file))
+        // A key that is not a dictionary still makes the file unreadable, like every other key.
+        #expect(ScriptStoreFile.decode(Data(#"{"version":1,"widgetScripts":["a.sh"]}"#.utf8)) == .unreadable)
+    }
+
+    @Test("The betas' migration keeps the widget bindings of the store")
+    func migrationKeepsWidgetBindings() {
+        var file = ScriptStoreFile()
+        file.widgetScripts = [widgetID: "clock.sh"]
+        let migrated = file.adoptingLegacy(rules: [], approvals: ["a.sh": goodHash])
+        #expect(migrated.widgetScripts == [widgetID: "clock.sh"])
+        #expect(migrated.approvals == ["a.sh": goodHash])
+    }
+
     // MARK: Split and merge
 
     @Test("Rules that use a script go to the Mac's own file, in their order")

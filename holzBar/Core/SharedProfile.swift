@@ -9,7 +9,7 @@ import Foundation
 /// application is in. It is data only and never runs anything.
 ///
 /// It carries nothing of the Mac it came from: no display or Space bindings, no Wi-Fi names,
-/// no rules, hotkeys, groups, paths or user names. Applications are matched by bundle
+/// no rules, hotkeys, groups, widgets, paths or user names. Applications are matched by bundle
 /// identifier. A file is untrusted input: ``decode(_:)`` rejects the whole file when anything
 /// in it is outside the limits.
 nonisolated struct SharedProfile: Codable, Equatable, Sendable {
@@ -44,7 +44,12 @@ nonisolated struct SharedProfile: Codable, Equatable, Sendable {
     }
 
     /// Reads and checks a file.
-    static func decode(_ data: Data) -> Result<SharedProfile, Failure> {
+    ///
+    /// - Parameters:
+    ///   - data: The file's bytes.
+    ///   - ownBundleIdentifier: holzBar's own bundle identifier (`Constants.bundleIdentifier`),
+    ///     whose entry a file loses.
+    static func decode(_ data: Data, ownBundleIdentifier: String) -> Result<SharedProfile, Failure> {
         guard data.count <= maximumSize else {
             return .failure(.tooLarge)
         }
@@ -69,6 +74,11 @@ nonisolated struct SharedProfile: Codable, Equatable, Sendable {
             }
             guard (0...2).contains(entry.section) else {
                 return .failure(.invalidSection)
+            }
+            // A widget and holzBar itself are never part of a shared profile (D-25); a file
+            // that has them, which this version never writes, loses those entries.
+            guard !isOwn(entry.id, bundleIdentifier: ownBundleIdentifier) else {
+                continue
             }
             if seen.insert(entry.id).inserted {
                 apps.append(entry)
@@ -104,29 +114,49 @@ nonisolated struct SharedProfile: Codable, Equatable, Sendable {
         }
     }
 
+    /// Whether an identifier is holzBar's own and not an application of the user's: holzBar's
+    /// bundle, and the autosave name of one of its widgets (D-25). On macOS 27 the layout keys a
+    /// widget by that name, which is a valid bundle identifier; applying a profile that named
+    /// holzBar's bundle would conceal holzBar's own icon.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier.
+    ///   - bundleIdentifier: holzBar's own bundle identifier (`Constants.bundleIdentifier`).
+    static func isOwn(_ id: String, bundleIdentifier: String) -> Bool {
+        OwnBundle.matches(id, bundleIdentifier: bundleIdentifier) || WidgetDefinition.isAutosaveName(id)
+    }
+
     /// The applications of an arrangement, for export. The namespace of an item (the part of
     /// its key before the first colon) is the bundle identifier of its app; an application
     /// with items in several sections takes the most visible one. Namespaces that are not
-    /// identifiers, such as the UUIDs of system items, are left out.
+    /// identifiers, such as the UUIDs of system items, are left out, and so are holzBar itself
+    /// and its widgets, whichever way their keys come (see ``isOwn(_:bundleIdentifier:)``).
     ///
     /// - Parameters:
     ///   - itemSections: The section of each item by key (macOS 14 to 26).
     ///   - applicationSections: The section of each application (macOS 27).
     ///   - knownApplications: The applications known on macOS 27; those missing from
     ///     `applicationSections` are visible.
+    ///   - ownBundleIdentifier: holzBar's own bundle identifier (`Constants.bundleIdentifier`).
     static func applications(
         itemSections: [String: Int],
         applicationSections: [String: Int],
-        knownApplications: [String]?
+        knownApplications: [String]?,
+        ownBundleIdentifier: String
     ) -> [Entry] {
         var sections = [String: Int]()
         func note(_ id: String, _ section: Int) {
-            guard isValidBundleIdentifier(id), (0...2).contains(section) else {
+            guard isValidBundleIdentifier(id), !isOwn(id, bundleIdentifier: ownBundleIdentifier), (0...2).contains(section) else {
                 return
             }
             sections[id] = min(sections[id] ?? section, section)
         }
         for (key, section) in itemSections {
+            // A widget's key is its own namespace and its autosave name; the part before the
+            // colon is holzBar, which `note` leaves out as well.
+            if let colon = key.firstIndex(of: ":"), WidgetDefinition.isAutosaveName(String(key[key.index(after: colon)...])) {
+                continue
+            }
             if let namespace = key.split(separator: ":", maxSplits: 1).first {
                 note(String(namespace), section)
             }

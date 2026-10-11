@@ -72,4 +72,24 @@ struct ItemClassifierTests {
         let items = [item("com.apple.controlcenter", "Battery"), item("com.example.other", "Other")]
         #expect(ItemClassifier.proposals(for: items).isEmpty)
     }
+
+    @Test("An item of holzBar's own is never proposed, whatever its application's category")
+    func ownItemsAreNeverProposed() {
+        // A widget reads the category of holzBar itself, which is a utility (CR-01).
+        let widget = ClassifiableItem(
+            key: "com.holzcloud.holzBar:holzBar.Widget.6F1D2E3A-7B4C-4D5E-8F90-A1B2C3D4E5F6",
+            namespace: "com.holzcloud.holzBar",
+            title: "holzBar.Widget.6F1D2E3A-7B4C-4D5E-8F90-A1B2C3D4E5F6",
+            applicationCategory: "public.app-category.utilities",
+            section: 0,
+            isOwnItem: true
+        )
+        #expect(ItemClassifier.classify(widget) == .unknown)
+        #expect(ItemClassifier.proposals(for: [widget]).isEmpty)
+
+        // The same facts for an application that is not holzBar's are proposed.
+        var other = widget
+        other.isOwnItem = false
+        #expect(ItemClassifier.proposals(for: [other]).map(\.item.key) == [other.key])
+    }
 }

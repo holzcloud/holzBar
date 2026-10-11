@@ -23,6 +23,19 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
     }
 
+    @Test("Widgets is an optional menu bar module without a permission (D-06)")
+    func widgetsModule() throws {
+        let widgets = try #require(ModuleCatalog.all.first { $0.id == "widgets" })
+        #expect(widgets.area == .menuBar)
+        #expect(widgets.permission == nil)
+        #expect(widgets.symbol == "clock")
+        #expect(widgets.titleKey == "Widgets")
+        #expect(ModuleCatalog.modules(in: .menuBar) == [widgets])
+        // Off until the user switches it on; a switch that was turned on survives a relaunch.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["widgets"], knownTo: ModuleCatalog.all) == ["widgets"])
+    }
+
     @Test("Identifiers are lowercase words joined by single hyphens")
     func identifierForm() {
         #expect(ModuleCatalog.isValidIdentifier("notch-hub"))

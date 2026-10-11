@@ -380,7 +380,10 @@ nonisolated enum MenuBarItemProvider27 {
                 // holzBar's own items are collapsed to nothing on macOS 27 and report a frame at
                 // the origin, which would drag the edge to the left of the whole bar and make
                 // every spot count as occupied, so hovering would never reveal anything again.
-                return item.isOnScreen && item.ownerPID != ownPID && !item.isControlItem && item.bounds.width > 4
+                // A widget counts like any application's item, with the same width test: a
+                // collapsed one is 2 points wide and never moves the edge.
+                let isOwnItem = item.ownerPID == ownPID && !item.isWidget
+                return item.isOnScreen && !isOwnItem && !item.isControlItem && item.bounds.width > 4
             }
             .map(\.bounds.minX)
             .min()
@@ -399,8 +402,18 @@ nonisolated enum MenuBarItemProvider27 {
 
     private static func tag(for raw: RawItem, ownPID: pid_t) -> MenuBarItemTag? {
         if raw.pid == ownPID {
-            // Only holzBar's control items, identified by `ControlItem`.
-            return MenuBarItemTag.controlItems.first { $0.title == raw.identifier }
+            // holzBar's control items, identified by `ControlItem`, and its widgets, whose
+            // button carries the autosave name as its identifier (`MenuBarWidgets`). A widget
+            // has the tag the other backends give it, so the layout editor, the Shelf and the
+            // search treat it like any item. Another application's item with such an
+            // identifier never gets here: it is not holzBar's process.
+            if let controlItem = MenuBarItemTag.controlItems.first(where: { $0.title == raw.identifier }) {
+                return controlItem
+            }
+            if WidgetDefinition.isAutosaveName(raw.identifier) {
+                return MenuBarItemTag(namespace: .holzBar, title: raw.identifier)
+            }
+            return nil
         }
         let title = raw.identifier.isEmpty ? "Item-\(raw.index)" : raw.identifier
         return MenuBarItemTag(namespace: .string(raw.bundleID), title: title)

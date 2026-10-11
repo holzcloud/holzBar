@@ -45,6 +45,27 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
         tag.isControlItem
     }
 
+    /// A Boolean value that indicates whether this item is one of holzBar's
+    /// widgets (Phase 12): an item of holzBar's own namespace whose title is
+    /// a widget's autosave name.
+    var isWidget: Bool {
+        tag.namespace == .holzBar && WidgetDefinition.isAutosaveName(tag.title)
+    }
+
+    /// The key of the item in the saved macOS 27 layout (`Defaults.Key.macOS27Layout`).
+    ///
+    /// macOS 27 hides whole applications, so an application's items share its bundle
+    /// identifier. A widget is holzBar's own item and has a key of its own, its autosave
+    /// name: that is never a running bundle, so no concealment assertion names it, and never
+    /// holzBar's bundle, so holzBar's icon is never concealed. holzBar hides a widget itself
+    /// (`MenuBarWidgets`). `nil` when the item's application is unknown.
+    var layoutKey27: String? {
+        if isWidget {
+            return tag.title
+        }
+        return sourceApplication?.bundleIdentifier
+    }
+
     /// A Boolean value that indicates whether this item is a "BentoBox"
     /// item owned by the Control Center.
     var isBentoBox: Bool {
@@ -87,6 +108,12 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
         /// precedes an uppercase letter (i.e. "WiFi").
         func toTitleCase<S: StringProtocol>(_ s: S) -> String {
             String(s).replacing(/([a-z]{2})([A-Z])/) { $0.output.1 + " " + $0.output.2 }
+        }
+
+        // A widget of holzBar's is named by what it shows, on every backend: its window title
+        // is its autosave name, and its source application is holzBar itself.
+        if tag.namespace == .holzBar, let name = OwnStatusItemNames.name(forAutosaveName: tag.title) {
+            return name
         }
 
         guard !isControlItem else {
@@ -200,6 +227,24 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
     @available(macOS 26.0, *)
     init(uncheckedItemWindow itemWindow: WindowInfo, controlItem identifier: ControlItem.Identifier) {
         self.tag = identifier.tag
+        self.windowID = itemWindow.windowID
+        self.ownerPID = itemWindow.ownerPID
+        self.sourcePID = ProcessInfo.processInfo.processIdentifier
+        self.bounds = itemWindow.bounds
+        self.title = itemWindow.title
+        self.isOnScreen = itemWindow.isOnScreen
+    }
+
+    /// Creates the menu bar item of one of holzBar's own autosaved status items, a widget,
+    /// drawn in the given window (macOS 26).
+    ///
+    /// This initializer does not perform validity checks on its parameters.
+    /// Only call it if you are certain the window draws the status item with this
+    /// autosave name (see `OwnStatusItemWindows`). The tag is holzBar's namespace and
+    /// the autosave name, which is also the window's title on macOS 14 to 25.
+    @available(macOS 26.0, *)
+    init(uncheckedItemWindow itemWindow: WindowInfo, ownStatusItemNamed name: String) {
+        self.tag = MenuBarItemTag(namespace: .holzBar, title: name)
         self.windowID = itemWindow.windowID
         self.ownerPID = itemWindow.ownerPID
         self.sourcePID = ProcessInfo.processInfo.processIdentifier

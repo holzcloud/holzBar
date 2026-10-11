@@ -6,7 +6,7 @@ Accessibility *support* (this page) is not the Accessibility *permission* holzBa
 
 ## For every screen
 
-Screens: Menu Bar Layout (items, profiles, Layout History, Tidy Up), Automation (rules, scripts), Appearance, General, Hotkeys, Advanced, About (Copy Diagnostics), the permissions window, the holzBar Shelf and the search.
+Screens: Menu Bar Layout (items, profiles, Layout History, Tidy Up, Widgets), Automation (rules, scripts), Appearance, General, Hotkeys, Advanced, About (Copy Diagnostics), the permissions window, the holzBar Shelf and the search.
 
 1. **VoiceOver** (⌘F5): every control is read with a name and its role; buttons that show only an icon (star, delete, remove condition, edit) have a name; lists are read as lists; a switch tells its state; nothing is conveyed by colour alone.
 2. **Keyboard**: with Full Keyboard Access on (System Settings, Keyboard), every control can be reached with Tab and used with Space or Return; Escape closes a sheet or panel; the focus is visible.
@@ -23,6 +23,7 @@ Screens: Menu Bar Layout (items, profiles, Layout History, Tidy Up), Automation 
 - **Script approval**: the sheet reads the file name, its folder, the size and the start of the checksum, and the Cancel button is the default.
 - **Profile hooks**: each row has Profile, When and Script pickers and a "Remove Hook" button that read their names and values.
 - **Lock hidden items**: the system's Touch ID or password sheet appears in front.
+- **Widgets** (*Preview*): each widget in the menu bar is read with its source name and its value in full ("Battery, 80 percent, charging", "unavailable" when it cannot be read); a Shortcut button is read as a button with the Shortcut's name as its hint; a script widget is read as "Script" with its line, "Choose a script" while none is chosen and "Allow this script in Automation, Scripts" while the script is not allowed; in Menu Bar Layout the Widgets switch, Edit, Remove, Move Up and Move Down are reachable by keyboard and read their names, and a widget can be moved with the VoiceOver actions Move Up and Move Down.
 
 ## Result
 

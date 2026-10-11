@@ -234,6 +234,47 @@ struct ScriptGateTests {
         #expect(checkLater)
     }
 
+    @Test("Widget runs have a limit of their own: they starve nothing and nothing starves them (WR-08, D-23)")
+    func widgetRunsHaveTheirOwnLimit() {
+        var limiter = ScriptRunLimiter()
+        let now = ContinuousClock.now
+        for _ in 0..<ScriptRateLimiter.maximumRuns {
+            let allowed = limiter.allowRun(for: .widgetRefresh, at: now)
+            #expect(allowed)
+        }
+        let widgetBlocked = limiter.allowRun(for: .widgetRefresh, at: now)
+        #expect(!widgetBlocked)
+        // The ten widget runs used up none of the checks and none of the other runs.
+        for _ in 0..<ScriptRateLimiter.maximumRuns {
+            let check = limiter.allowRun(for: .check, at: now)
+            let action = limiter.allowRun(for: .ruleStarted, at: now)
+            #expect(check)
+            #expect(action)
+        }
+        let checkBlocked = limiter.allowRun(for: .check, at: now)
+        let actionBlocked = limiter.allowRun(for: .profileDidApply, at: now)
+        #expect(!checkBlocked)
+        #expect(!actionBlocked)
+        // A minute later all three have room again.
+        let later = now + .seconds(61)
+        let widgetLater = limiter.allowRun(for: .widgetRefresh, at: later)
+        #expect(widgetLater)
+    }
+
+    @Test("A burst of checks and of other runs leaves the widget runs their ten a minute (D-23)")
+    func burstsDoNotStarveWidgets() {
+        var limiter = ScriptRunLimiter()
+        let now = ContinuousClock.now
+        for _ in 0..<(ScriptRateLimiter.maximumRuns * 2) {
+            _ = limiter.allowRun(for: .check, at: now)
+            _ = limiter.allowRun(for: .ruleEnded, at: now)
+        }
+        for _ in 0..<ScriptRateLimiter.maximumRuns {
+            let allowed = limiter.allowRun(for: .widgetRefresh, at: now)
+            #expect(allowed)
+        }
+    }
+
     @Test("A script condition is asked again after 30 seconds, never sooner (WR-09)")
     func conditionInterval() {
         let asked = ContinuousClock.now
@@ -241,5 +282,20 @@ struct ScriptGateTests {
         #expect(!ScriptLimits.isConditionDue(lastAsked: asked, now: asked))
         #expect(!ScriptLimits.isConditionDue(lastAsked: asked, now: asked + .seconds(29)))
         #expect(ScriptLimits.isConditionDue(lastAsked: asked, now: asked + .seconds(30)))
+    }
+
+    @Test("Only the user's own click skips the 30 seconds of a script widget; every other open keeps them (WR-02)")
+    func widgetAskSpacing() {
+        let asked = ContinuousClock.now
+        let soon = asked + .seconds(5)
+        #expect(ItemOpenOrigin.click.isUserClick)
+        #expect(!ItemOpenOrigin.command.isUserClick)
+        // A click asks again at once.
+        #expect(ScriptLimits.isWidgetAskDue(isUserAction: ItemOpenOrigin.click.isUserClick, lastAsked: asked, now: soon))
+        // A hotkey, a hint, a group or a Shortcut waits for the interval, and then runs.
+        #expect(!ScriptLimits.isWidgetAskDue(isUserAction: ItemOpenOrigin.command.isUserClick, lastAsked: asked, now: soon))
+        #expect(!ScriptLimits.isWidgetAskDue(isUserAction: ItemOpenOrigin.command.isUserClick, lastAsked: asked, now: asked + .seconds(29)))
+        #expect(ScriptLimits.isWidgetAskDue(isUserAction: ItemOpenOrigin.command.isUserClick, lastAsked: asked, now: asked + .seconds(30)))
+        #expect(ScriptLimits.isWidgetAskDue(isUserAction: ItemOpenOrigin.command.isUserClick, lastAsked: nil, now: asked))
     }
 }

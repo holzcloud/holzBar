@@ -34,24 +34,29 @@ final class ServiceBackend26: MenuBarBackend {
 
     /// The item windows, each with the source process that Accessibility names for it.
     ///
-    /// holzBar's own control items are recognised by their frames instead
-    /// (``OwnStatusItemWindows``), all of them before the one lookup for the other
-    /// windows suspends, so holzBar's frames cannot change while the windows are
-    /// matched. Control Center may lag behind them, updating its windows only a moment
-    /// after an item changes its length or moves to another display, so a list read in
-    /// between may not match until the next read.
+    /// holzBar's own items are recognised by their frames instead
+    /// (``OwnStatusItemWindows``): its widgets are matched like its dividers, in the same
+    /// assignment, so a widget has a stable identity and is never attributed to another app.
+    /// All of them are matched before the one lookup for the other windows suspends, so
+    /// holzBar's frames cannot change while the windows are matched. Control Center may lag
+    /// behind them, updating its windows only a moment after an item changes its length or
+    /// moves to another display, so a list read in between may not match until the next read.
     func items(on display: CGDirectDisplayID?, option: MenuBarItem.ListOption) async -> [MenuBarItem] {
         let windows = MenuBarItem.getMenuBarItemWindows(on: display, option: option)
-        let controlItems = OwnStatusItemWindows.controlItems(forWindowBounds: windows.map(\.bounds))
-        let lookups = zip(windows, controlItems).compactMap { window, controlItem in
-            controlItem == nil ? window : nil
+        let ownItems = OwnStatusItemWindows.ownItems(forWindowBounds: windows.map(\.bounds))
+        let lookups = zip(windows, ownItems).compactMap { window, ownItem in
+            ownItem == nil ? window : nil
         }
         let sourcePIDs = lookups.isEmpty ? [:] : await SourcePIDCache.shared.pids(for: lookups)
-        return zip(windows, controlItems).map { window, controlItem in
-            if let controlItem {
-                return MenuBarItem(uncheckedItemWindow: window, controlItem: controlItem)
+        return zip(windows, ownItems).map { window, ownItem in
+            switch ownItem {
+            case .control(let identifier):
+                MenuBarItem(uncheckedItemWindow: window, controlItem: identifier)
+            case .autosaved(let name):
+                MenuBarItem(uncheckedItemWindow: window, ownStatusItemNamed: name)
+            case nil:
+                MenuBarItem(uncheckedItemWindow: window, sourcePID: sourcePIDs[window.windowID])
             }
-            return MenuBarItem(uncheckedItemWindow: window, sourcePID: sourcePIDs[window.windowID])
         }
     }
 

@@ -49,6 +49,7 @@ struct MenuBarLayoutSettingsPane: View {
                 LayoutHistorySection(snapshots: appState.snapshots)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
                 SpacersSection(spacers: appState.spacers)
+                WidgetsModuleSection()
                 if #available(macOS 27.0, *) {
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }
@@ -205,7 +206,7 @@ private struct LayoutProfilesSection: View {
         guard
             size <= SharedProfile.maximumSize,
             let data = try? Data(contentsOf: url),
-            case .success(let shared) = SharedProfile.decode(data)
+            case .success(let shared) = SharedProfile.decode(data, ownBundleIdentifier: Constants.bundleIdentifier)
         else {
             isShowingImportError = true
             return

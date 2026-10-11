@@ -121,12 +121,19 @@ final class LayoutProfiles {
             for item in cache[section] where !item.isControlItem {
                 // Stored under the item's identity, which survives a changing title.
                 itemSections[itemManager.identityKey(for: item)] = section.profileIndex
-                if let bundleID = item.sourceApplication?.bundleIdentifier {
-                    itemApplications.insert(bundleID)
+                // On macOS 27 this is the key of the saved layout: an application's bundle, or a
+                // widget's autosave name, so a profile knows every widget and applying it puts
+                // each back in its section (D-24).
+                if let key = item.layoutKey27 {
+                    itemApplications.insert(key)
                 }
             }
         }
-        let applicationSections = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
+        // Never with holzBar's own bundle: applying it would conceal holzBar's own icon.
+        let applicationSections = OwnBundle.removing(
+            from: Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:],
+            bundleIdentifier: Constants.bundleIdentifier
+        )
         // The layout leaves visible applications out, so the profile records which ones it
         // knew; applying it makes those visible unless it has them in another section.
         var knownApplications: [String]?
@@ -344,13 +351,22 @@ final class LayoutProfiles {
             if profile.knownApplications == nil, profile.applicationSections.isEmpty {
                 logger.notice("The layout has no macOS 27 part, so the current one stays")
             } else {
+                // A profile is data from a settings file as well: holzBar's own bundle is
+                // dropped from what it names and from the result, never concealed.
+                let ownBundleIdentifier = Constants.bundleIdentifier
                 let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
                 let layout = SectionLayout27.applyingProfile(
-                    profile.applicationSections.compactMapValues(MacOS27Section.init(rawValue:)),
+                    OwnBundle.removing(
+                        from: profile.applicationSections.compactMapValues(MacOS27Section.init(rawValue:)),
+                        bundleIdentifier: ownBundleIdentifier
+                    ),
                     knownApplications: profile.knownApplications.map(Set.init),
                     to: stored.compactMapValues(MacOS27Section.init(rawValue:))
                 )
-                Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
+                Defaults.set(
+                    OwnBundle.removing(from: layout, bundleIdentifier: ownBundleIdentifier).mapValues(\.rawValue),
+                    forKey: .macOS27Layout
+                )
             }
             appState.concealer27.update()
             return Task {

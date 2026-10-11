@@ -380,7 +380,7 @@ private struct MenuBarSearchContentView: View {
         Task {
             try? await Task.sleep(for: .milliseconds(25))
             // The same path as the Shelf, groups, hotkeys and hints (`ItemOpener.swift`).
-            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil)
+            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil, origin: .click)
         }
     }
 }

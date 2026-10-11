@@ -94,8 +94,13 @@ enum AutomationDescription {
         }
     }
 
-    /// The name of an item from its identity key: its application, or its title.
+    /// The name of an item from its identity key: its application, or its title. A widget is
+    /// named by what it shows, never by holzBar, whose bundle its key carries.
     static func itemName(forKey key: String) -> String {
+        if let autosaveName = OwnBundle.widgetAutosaveName(inItemKey: key, bundleIdentifier: Constants.bundleIdentifier) {
+            // The name is registered while the widget exists; a rule can outlive it.
+            return OwnStatusItemNames.name(forAutosaveName: autosaveName) ?? String(localized: "Widget")
+        }
         let parts = key.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
         guard let namespace = parts.first.map(String.init) else {
             return key

@@ -4,18 +4,9 @@
 //
 
 import AppKit
-import IOKit.ps
 import Network
 import Observation
 import OSLog
-
-/// Posted on the main thread when IOKit reports a change of a power source. IOKit's callback
-/// is a C function that cannot capture the manager, so it posts this notification instead.
-nonisolated private let automationPowerDidChange = Notification.Name("AutomationPowerDidChange")
-
-nonisolated private func postAutomationPowerDidChange(_ context: UnsafeMutableRawPointer?) {
-    NotificationCenter.default.post(name: automationPowerDidChange, object: nil)
-}
 
 /// Runs the automation rules (Phase 8): "when this is true, apply this profile, show these
 /// items or turn Zen mode on".
@@ -50,7 +41,8 @@ final class AutomationManager {
 
     /// The observers, by the kind of fact they follow.
     @ObservationIgnored private var observers = [AutomationSource: [Task<Void, Never>]]()
-    @ObservationIgnored private var powerSource: CFRunLoopSource?
+    /// Whether this manager has asked ``PowerSourceEvents`` for power source events.
+    @ObservationIgnored private var isFollowingPowerSource = false
     @ObservationIgnored private var pathMonitor: NWPathMonitor?
     @ObservationIgnored private var networkKinds: Set<AutomationNetworkKind>?
     @ObservationIgnored private var timeTask: Task<Void, Never>?
@@ -74,6 +66,9 @@ final class AutomationManager {
     /// What the last run of each script left behind, by file name: one cleaned line of its
     /// output, how it ended and when. In memory only: never persisted, logged or exported.
     private(set) var lastScriptRuns = [String: ScriptRunRecord]()
+    /// What the script widgets want to hear when a real event of the system arrives (D-23). Set
+    /// only while the widgets module is on.
+    @ObservationIgnored private var systemEventHandler: (@MainActor () -> Void)?
 
     /// Whether the rule change in progress comes from outside holzBar: from a URL command or a
     /// Shortcut, through ``setRule(withID:enabled:)``.
@@ -219,7 +214,7 @@ final class AutomationManager {
         switch source {
         case .power:
             startPowerSource()
-            observe(source, notifications: [(NotificationCenter.default, automationPowerDidChange)])
+            observe(source, notifications: [(NotificationCenter.default, .powerSourcesDidChange)])
         case .lowPowerMode:
             observe(source, notifications: [(NotificationCenter.default, .NSProcessInfoPowerStateDidChange)])
         case .runningApps:
@@ -308,29 +303,28 @@ final class AutomationManager {
                     // A notification is an event of the system: scripts are no longer held.
                     self?.scriptsAreHeld = false
                     self?.evaluate()
+                    self?.systemEventHandler?()
                 }
             }
         }
     }
 
+    /// The power source events are one run loop source for the whole app, shared with the
+    /// widgets; this manager holds one use of it while a rule needs the power source.
     private func startPowerSource() {
-        guard powerSource == nil else {
+        guard !isFollowingPowerSource else {
             return
         }
-        if let source = IOPSNotificationCreateRunLoopSource(postAutomationPowerDidChange, nil)?.takeRetainedValue() {
-            CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
-            powerSource = source
-        } else {
-            logger.error("Could not observe power source changes")
-        }
+        isFollowingPowerSource = true
+        PowerSourceEvents.shared.begin()
     }
 
     private func stopPowerSource() {
-        guard let source = powerSource else {
+        guard isFollowingPowerSource else {
             return
         }
-        CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes)
-        powerSource = nil
+        isFollowingPowerSource = false
+        PowerSourceEvents.shared.end()
     }
 
     /// `NWPathMonitor` only watches the state of the network paths; it never opens a
@@ -373,23 +367,31 @@ final class AutomationManager {
             return
         }
         // The first report after a start is the state, not an event.
-        if let networkKinds, networkKinds != kinds {
+        let isEvent = networkKinds.map { $0 != kinds } ?? false
+        if isEvent {
             scriptsAreHeld = false
         }
         networkKinds = kinds
         evaluate()
+        if isEvent {
+            systemEventHandler?()
+        }
     }
 
     /// The Wi-Fi monitor reported. It does so once when it starts and again for a change of the
     /// name or of the permission; only a changed name is an event.
     private func wifiReported() {
         let name = storedWiFiMonitor?.networkName
-        if hasWiFiReport, name != lastWiFiName {
+        let isEvent = hasWiFiReport && name != lastWiFiName
+        if isEvent {
             scriptsAreHeld = false
         }
         hasWiFiReport = true
         lastWiFiName = name
         evaluate()
+        if isEvent {
+            systemEventHandler?()
+        }
     }
 
     /// Starts following camera and microphone use. Before macOS 14.2 the facts stay unknown, so
@@ -403,11 +405,16 @@ final class AutomationManager {
             guard let self else {
                 return
             }
+            var isEvent = false
             if let previous = captureActivity, previous != (isCameraInUse, isMicrophoneInUse) {
                 scriptsAreHeld = false
+                isEvent = true
             }
             captureActivity = (isCameraInUse, isMicrophoneInUse)
             evaluate()
+            if isEvent {
+                systemEventHandler?()
+            }
         }
         captureObserverStorage = observer
         captureActivity = (false, false)
@@ -491,29 +498,16 @@ final class AutomationManager {
     }
 
     /// The power source and the level of the internal battery. A Mac without a battery runs
-    /// on its adapter and has no level.
+    /// on its adapter and has no level. The reading is shared with the widgets.
     private static func powerFacts() -> (source: AutomationPowerSource?, percent: Int?) {
-        guard
-            let info = IOPSCopyPowerSourcesInfo()?.takeRetainedValue(),
-            let sources = IOPSCopyPowerSourcesList(info)?.takeRetainedValue() as? [CFTypeRef]
-        else {
+        switch PowerSources.read() {
+        case .unreadable:
             return (nil, nil)
+        case .noBattery:
+            return (.adapter, nil)
+        case .battery(let battery):
+            return (battery.isOnBattery ? .battery : .adapter, battery.percent)
         }
-        for source in sources {
-            guard
-                let description = IOPSGetPowerSourceDescription(info, source)?.takeUnretainedValue() as? [String: Any],
-                description[kIOPSTypeKey] as? String == kIOPSInternalBatteryType
-            else {
-                continue
-            }
-            let isOnBattery = description[kIOPSPowerSourceStateKey] as? String == kIOPSBatteryPowerValue
-            var percent: Int?
-            if let current = description[kIOPSCurrentCapacityKey] as? Int, let maximum = description[kIOPSMaxCapacityKey] as? Int {
-                percent = BatteryLevel.percent(current: current, maximum: maximum)
-            }
-            return (isOnBattery ? .battery : .adapter, percent)
-        }
-        return (.adapter, nil)
     }
 
     // MARK: Evaluating
@@ -651,6 +645,44 @@ final class AutomationManager {
         }
     }
 
+    /// Runs the script of a script widget once, with the event `widget-refresh`, under the same
+    /// runner and gate as every script: the file is checked again, its full SHA-256 must be the
+    /// one the user approved, the time limit and one run at a time apply, and widget runs have a
+    /// limit of ten a minute of their own (D-23).
+    ///
+    /// What the run left behind is kept like that of any script, so the Scripts section shows it,
+    /// skipped runs included.
+    ///
+    /// - Parameter name: The file name in the scripts folder, as bound in the script store.
+    /// - Returns: How the run ended, and the line it printed when it started.
+    func runWidgetScript(named name: String) async -> ScriptRunReport {
+        let report = await scriptRunner.run(
+            name,
+            event: .widgetRefresh,
+            timeLimit: scriptStore.timeLimit(for: name),
+            folder: scriptStore.folderURL,
+            store: scriptStore
+        )
+        if let record = report.record {
+            lastScriptRuns[name] = record
+        } else if let reason = ScriptSkipReason(outcome: report.outcome) {
+            lastScriptRuns[name] = ScriptRunRecord(date: .now, termination: .skipped(reason), displayLine: "")
+        }
+        return report
+    }
+
+    /// Sets what runs after each engine pass that a real event of the system caused: a
+    /// notification (power source, wake, apps, displays, the clock), a changed network or Wi-Fi
+    /// name, or camera and microphone use. It never runs for a change from outside holzBar (a URL
+    /// command or a Shortcut), which holds scripts and is no event (D-12, T-12-28).
+    ///
+    /// The engine follows only the facts that an enabled rule needs, so with no such rule it has
+    /// no events to give; the widgets then run on a reveal and on a click only. Pass `nil` to
+    /// stop.
+    func onSystemEvent(_ handler: (@MainActor () -> Void)?) {
+        systemEventHandler = handler
+    }
+
     /// Starts the scripts in a task of their own and does not wait for them.
     func startScripts(_ names: [String], event: ScriptEvent) {
         guard !names.isEmpty else {
@@ -731,11 +763,23 @@ final class AutomationManager {
             return
         }
         appState.snapshots.willApplyRules()
+        // On macOS 27 the layout is keyed by application, and a widget by its autosave name. The
+        // key comes from the item itself (`layoutKey27`); the part of the rule's key before the
+        // colon is only the fallback, and holzBar's own bundle never becomes a key: it would
+        // conceal holzBar's own icon and dividers.
+        let itemManager = appState.itemManager
+        let items = Dictionary(
+            itemManager.itemCache.managedItems.map { (itemManager.identityKey(for: $0), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
         var applicationSections = [String: Int]()
         for (key, section) in changes {
-            let namespace = String(key.prefix { $0 != ":" })
-            if SharedProfile.isValidBundleIdentifier(namespace) {
-                applicationSections[namespace] = section
+            if let layoutKey = OwnBundle.layoutKey(
+                forItemKey: key,
+                itemLayoutKey: items[key]?.layoutKey27,
+                bundleIdentifier: Constants.bundleIdentifier
+            ) {
+                applicationSections[layoutKey] = section
             }
         }
         logger.notice("An automation rule moves \(changes.count, privacy: .public) items")

@@ -51,7 +51,8 @@ struct ShareProfileSheet: View {
             entries = SharedProfile.applications(
                 itemSections: profile.itemSections,
                 applicationSections: profile.applicationSections,
-                knownApplications: profile.knownApplications
+                knownApplications: profile.knownApplications,
+                ownBundleIdentifier: Constants.bundleIdentifier
             )
         }
     }

@@ -284,7 +284,7 @@ struct OpenMenuBarItemIntent: AppIntent {
         }
         // The shortcut goes on while the menu is open; the item is hidden again later.
         Task {
-            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil)
+            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil, origin: .command)
         }
         return .result()
     }

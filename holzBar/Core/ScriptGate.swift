@@ -234,19 +234,23 @@ nonisolated struct ScriptRateLimiter: Equatable, Sendable {
     }
 }
 
-/// The limits on how often scripts run: ten condition checks a minute and, separately, ten
-/// runs a minute for everything else (start and end scripts, profile hooks). Checks run on
-/// every power, network, app and display event, so with one shared limit a burst of checks
-/// could silently starve the start or end script of a rule (WR-08).
+/// The limits on how often scripts run: ten condition checks a minute, ten widget runs a minute
+/// and, separately, ten runs a minute for everything else (start and end scripts, profile
+/// hooks). Checks run on every power, network, app and display event, so with one shared limit a
+/// burst of checks could silently starve the start or end script of a rule (WR-08). Script
+/// widgets run on reveals, system events and clicks, so they get a limit of their own too: they
+/// can neither starve the scripts of rules nor be starved by them (D-23).
 nonisolated struct ScriptRunLimiter: Equatable, Sendable {
     private var checks = ScriptRateLimiter()
     private var actions = ScriptRateLimiter()
+    private var widgets = ScriptRateLimiter()
 
     /// Records a run of the event's kind and returns `true`, or `false` when that kind has
     /// reached its limit.
     mutating func allowRun(for event: ScriptEvent, at now: ContinuousClock.Instant) -> Bool {
         switch event {
         case .check: checks.allowRun(at: now)
+        case .widgetRefresh: widgets.allowRun(at: now)
         case .ruleStarted, .ruleEnded, .profileWillApply, .profileDidApply: actions.allowRun(at: now)
         }
     }
