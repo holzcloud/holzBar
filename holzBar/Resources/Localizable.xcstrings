@@ -403,6 +403,34 @@
         }
       }
     },
+    "A clock, the battery and other readouts of your own in the menu bar." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Uhr, der Akku und weitere eigene Anzeigen in der Menüleiste."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une horloge, la batterie et d’autres affichages de votre choix dans la barre des menus."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un orologio, la batteria e altre letture a tua scelta nella barra dei menu."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina ura, la batteria ed autras indicaziuns persunalas en la trav da menu."
+          }
+        }
+      }
+    },
     "A display is connected" : {
       "localizations" : {
         "de" : {
@@ -931,6 +959,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Agiuntar ina regla"
+          }
+        }
+      }
+    },
+    "Add Widget" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget hinzufügen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter un widget"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi widget"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agiuntar in widget"
           }
         }
       }
@@ -2111,6 +2167,34 @@
         }
       }
     },
+    "Battery" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akku"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batterie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batteria"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Batteria"
+          }
+        }
+      }
+    },
     "Battery level" : {
       "localizations" : {
         "de" : {
@@ -2611,6 +2695,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mo il monitur integrà"
+          }
+        }
+      }
+    },
+    "CPU Load" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU-Auslastung"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charge du processeur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carico della CPU"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargia da la CPU"
           }
         }
       }
@@ -3455,6 +3567,34 @@
         }
       }
     },
+    "Countdown" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Countdown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte à rebours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conto alla rovescia"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Countdown"
+          }
+        }
+      }
+    },
     "Counted from when the item's menu closes. 0 hides it right away." : {
       "localizations" : {
         "de" : {
@@ -3591,6 +3731,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stritgà"
+          }
+        }
+      }
+    },
+    "Date and Time" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum und Uhrzeit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date et heure"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data e ora"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data ed ura"
           }
         }
       }
@@ -4599,6 +4767,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Suonda la colur d'accent tschernida en ils parameters dal sistem sut «Apparientscha»."
+          }
+        }
+      }
+    },
+    "Free Disk Space" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freier Speicherplatz"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espace disque libre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spazio libero su disco"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spazi liber sin il disc"
           }
         }
       }
@@ -6335,6 +6531,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fa plazza en la trav da menu cun zuppentar sche necessari ils menus da l'app actuala. macOS pretenda che holzBar cumparia durant quel temp en il Dock."
+          }
+        }
+      }
+    },
+    "Memory" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arbeitsspeicher"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mémoire"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memoria"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memoria"
           }
         }
       }
@@ -9107,6 +9331,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Allontanar la cumbinaziun da quest element"
+          }
+        }
+      }
+    },
+    "Remove this widget?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Widget entfernen?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer ce widget ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovere questo widget?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allontanar quest widget?"
           }
         }
       }
@@ -13255,6 +13507,34 @@
         }
       }
     },
+    "Uptime" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laufzeit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temps de fonctionnement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo di attività"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temp d’funcziun"
+          }
+        }
+      }
+    },
     "Use Accent Color" : {
       "localizations" : {
         "de" : {
@@ -13899,6 +14179,34 @@
         }
       }
     },
+    "Widgets" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets"
+          }
+        }
+      }
+    },
     "Width: %lld pt" : {
       "localizations" : {
         "de" : {
@@ -13951,6 +14259,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sche «Transparenz reduzieren» u «Kontrast erhöhen» è activà en ils parameters dal sistem (Bedienungshilfen, Anzeige), vegn il vaider dal sistem dissegnà betg transparent e cun in rom."
+          }
+        }
+      }
+    },
+    "You can add up to six widgets." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kannst bis zu sechs Widgets hinzufügen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous pouvez ajouter jusqu’à six widgets."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puoi aggiungere fino a sei widget."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ti pos agiuntar fin a sis widgets."
           }
         }
       }

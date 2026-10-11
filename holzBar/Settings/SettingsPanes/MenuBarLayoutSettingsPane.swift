@@ -49,6 +49,7 @@ struct MenuBarLayoutSettingsPane: View {
                 LayoutHistorySection(snapshots: appState.snapshots)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
                 SpacersSection(spacers: appState.spacers)
+                WidgetsModuleSection()
                 if #available(macOS 27.0, *) {
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }

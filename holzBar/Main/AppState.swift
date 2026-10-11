@@ -71,6 +71,12 @@ final class AppState {
     /// Empty menu bar items that add space between others.
     let spacers = MenuBarSpacers()
 
+    /// Which optional modules the user has switched on.
+    let modules = ModuleStore()
+
+    /// Menu bar items of the user's own: text from built-in sources and Shortcut buttons (Phase 12).
+    let widgets = MenuBarWidgets()
+
     /// The lock that asks for Touch ID or the password before hidden items are shown.
     let hiddenItemsLock = HiddenItemsLock()
 
@@ -203,6 +209,7 @@ final class AppState {
         hiddenItemsLock.performSetup(with: self)
         itemGroups.performSetup(with: self)
         spacers.performSetup()
+        widgets.performSetup(with: self)
         automation.performSetup(with: self)
         presentationMonitor.performSetup(with: self)
         if #available(macOS 27.0, *) {
