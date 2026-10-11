@@ -17,12 +17,12 @@ trap 'rm -rf "$scratch"' EXIT
 
 sources=(
   AutomationEngine AutomationRule BatteryLevel Defaults DesignTokens DiagnosticsReport FocusFilterBinding
-  ItemClassifier ItemIdentity LayoutSnapshot LegacyRevealRules ModuleCatalog PinnedSystemItems RevealGate ScriptGate ScriptLaunch ScriptOutput ScriptStorage SettingsSchema SharedProfile ShortcutLink
+  ItemClassifier ItemIdentity LayoutSnapshot LegacyRevealRules ModuleCatalog OwnBundle PinnedSystemItems RevealGate ScriptGate ScriptLaunch ScriptOutput ScriptStorage SettingsSchema SharedProfile ShortcutLink
   SystemActivity URLCommand WidgetDefinition WidgetFormat WidgetReadings WidgetRefreshPolicy ZenMode
 )
 tests=(
   AutomationEngineTests BatteryLevelTests DesignTokensTests DiagnosticsReportTests FocusFilterBindingTests
-  ItemClassifierTests LayoutSnapshotTests LegacyRevealRulesTests ModuleCatalogTests PinnedSystemItemsTests RevealGateTests ScriptGateTests ScriptLaunchTests ScriptOutputTests ScriptStorageTests SettingsSchemaTests SharedProfileTests ShortcutLinkTests
+  ItemClassifierTests LayoutSnapshotTests LegacyRevealRulesTests ModuleCatalogTests OwnBundleTests PinnedSystemItemsTests RevealGateTests ScriptGateTests ScriptLaunchTests ScriptOutputTests ScriptStorageTests SettingsSchemaTests SharedProfileTests ShortcutLinkTests
   SystemActivityTests URLCommandTests WidgetDefinitionTests WidgetFormatTests WidgetReadingsTests WidgetRefreshPolicyTests
 )
 

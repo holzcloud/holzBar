@@ -16,6 +16,10 @@ nonisolated struct ClassifiableItem: Equatable, Sendable {
     var applicationCategory: String?
     /// The section the item is in now: 0 visible, 1 hidden, 2 always hidden.
     var section: Int
+    /// Whether the item is holzBar's own: a widget or any other item of its process. Such an
+    /// item reads the application category of holzBar itself, which says nothing about it, and
+    /// is never proposed (D-25).
+    var isOwnItem = false
 }
 
 /// What kind of item it is, for the clean-up assistant.
@@ -84,6 +88,9 @@ nonisolated enum ItemClassifier {
 
     /// The class of an item.
     static func classify(_ item: ClassifiableItem) -> ItemClass {
+        if item.isOwnItem {
+            return .unknown
+        }
         if PinnedSystemItems.isPinned(key: item.key) {
             return .essential
         }

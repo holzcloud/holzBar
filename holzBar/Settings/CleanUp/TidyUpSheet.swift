@@ -96,8 +96,10 @@ struct TidyUpSheet: View {
         var applicationSections = layout.applicationSections
         for entry in chosen {
             itemSections[entry.proposal.item.key] = 1
-            if SharedProfile.isValidBundleIdentifier(entry.proposal.item.namespace) {
-                applicationSections[entry.proposal.item.namespace] = 1
+            // On macOS 27 the layout is keyed by application. holzBar's own bundle never becomes
+            // a key: it would conceal holzBar's own icon and dividers.
+            if let key = OwnBundle.layoutKey(forItemKey: entry.proposal.item.key, bundleIdentifier: Constants.bundleIdentifier) {
+                applicationSections[key] = 1
             }
         }
         appState.profiles.applyLayout(of: LayoutProfile(
@@ -140,7 +142,9 @@ struct TidyUpEntry: Identifiable {
                     namespace: item.tag.namespace.description,
                     title: item.tag.title,
                     applicationCategory: applicationCategory(of: item),
-                    section: section.profileIndex
+                    section: section.profileIndex,
+                    // A widget is holzBar's own item: never proposed (D-25).
+                    isOwnItem: item.tag.namespace == .holzBar
                 ))
             }
         }
