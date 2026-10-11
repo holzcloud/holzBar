@@ -206,7 +206,7 @@ private struct LayoutProfilesSection: View {
         guard
             size <= SharedProfile.maximumSize,
             let data = try? Data(contentsOf: url),
-            case .success(let shared) = SharedProfile.decode(data)
+            case .success(let shared) = SharedProfile.decode(data, ownBundleIdentifier: Constants.bundleIdentifier)
         else {
             isShowingImportError = true
             return

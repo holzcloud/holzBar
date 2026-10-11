@@ -80,7 +80,7 @@ enum SettingsBackup {
     static func apply(_ settings: [String: Any]) -> [String] {
         let defaults = UserDefaults.standard
         let incoming = settings.filter { key, _ in !isExcluded(key) }
-        let (accepted, ignored) = Defaults.Key.validatedSettings(incoming)
+        let (accepted, ignored) = Defaults.Key.validatedSettings(incoming, ownBundleIdentifier: Constants.bundleIdentifier)
         let removed = Defaults.Key.keysRemoved(
             applying: accepted,
             over: currentSettings()

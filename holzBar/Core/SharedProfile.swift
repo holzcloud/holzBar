@@ -28,9 +28,6 @@ nonisolated struct SharedProfile: Codable, Equatable, Sendable {
         var section: Int
     }
 
-    /// holzBar's own bundle identifier (`PRODUCT_BUNDLE_IDENTIFIER`).
-    private static let ownBundleIdentifier = "com.holzcloud.holzBar"
-
     var format = SharedProfile.currentFormat
     var name: String
     var apps: [Entry]
@@ -47,7 +44,12 @@ nonisolated struct SharedProfile: Codable, Equatable, Sendable {
     }
 
     /// Reads and checks a file.
-    static func decode(_ data: Data) -> Result<SharedProfile, Failure> {
+    ///
+    /// - Parameters:
+    ///   - data: The file's bytes.
+    ///   - ownBundleIdentifier: holzBar's own bundle identifier (`Constants.bundleIdentifier`),
+    ///     whose entry a file loses.
+    static func decode(_ data: Data, ownBundleIdentifier: String) -> Result<SharedProfile, Failure> {
         guard data.count <= maximumSize else {
             return .failure(.tooLarge)
         }
@@ -75,7 +77,7 @@ nonisolated struct SharedProfile: Codable, Equatable, Sendable {
             }
             // A widget and holzBar itself are never part of a shared profile (D-25); a file
             // that has them, which this version never writes, loses those entries.
-            guard !isOwn(entry.id) else {
+            guard !isOwn(entry.id, bundleIdentifier: ownBundleIdentifier) else {
                 continue
             }
             if seen.insert(entry.id).inserted {
@@ -116,29 +118,35 @@ nonisolated struct SharedProfile: Codable, Equatable, Sendable {
     /// bundle, and the autosave name of one of its widgets (D-25). On macOS 27 the layout keys a
     /// widget by that name, which is a valid bundle identifier; applying a profile that named
     /// holzBar's bundle would conceal holzBar's own icon.
-    static func isOwn(_ id: String) -> Bool {
-        id.caseInsensitiveCompare(ownBundleIdentifier) == .orderedSame || WidgetDefinition.isAutosaveName(id)
+    ///
+    /// - Parameters:
+    ///   - id: The identifier.
+    ///   - bundleIdentifier: holzBar's own bundle identifier (`Constants.bundleIdentifier`).
+    static func isOwn(_ id: String, bundleIdentifier: String) -> Bool {
+        OwnBundle.matches(id, bundleIdentifier: bundleIdentifier) || WidgetDefinition.isAutosaveName(id)
     }
 
     /// The applications of an arrangement, for export. The namespace of an item (the part of
     /// its key before the first colon) is the bundle identifier of its app; an application
     /// with items in several sections takes the most visible one. Namespaces that are not
     /// identifiers, such as the UUIDs of system items, are left out, and so are holzBar itself
-    /// and its widgets, whichever way their keys come (see ``isOwn(_:)``).
+    /// and its widgets, whichever way their keys come (see ``isOwn(_:bundleIdentifier:)``).
     ///
     /// - Parameters:
     ///   - itemSections: The section of each item by key (macOS 14 to 26).
     ///   - applicationSections: The section of each application (macOS 27).
     ///   - knownApplications: The applications known on macOS 27; those missing from
     ///     `applicationSections` are visible.
+    ///   - ownBundleIdentifier: holzBar's own bundle identifier (`Constants.bundleIdentifier`).
     static func applications(
         itemSections: [String: Int],
         applicationSections: [String: Int],
-        knownApplications: [String]?
+        knownApplications: [String]?,
+        ownBundleIdentifier: String
     ) -> [Entry] {
         var sections = [String: Int]()
         func note(_ id: String, _ section: Int) {
-            guard isValidBundleIdentifier(id), !isOwn(id), (0...2).contains(section) else {
+            guard isValidBundleIdentifier(id), !isOwn(id, bundleIdentifier: ownBundleIdentifier), (0...2).contains(section) else {
                 return
             }
             sections[id] = min(sections[id] ?? section, section)

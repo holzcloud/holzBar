@@ -4,12 +4,15 @@ import Testing
 
 @Suite("SharedProfile")
 struct SharedProfileTests {
+    /// holzBar's bundle identifier, which the app passes as `Constants.bundleIdentifier`.
+    private let own = "com.holzcloud.holzBar"
+
     private func data(_ json: String) -> Data {
         Data(json.utf8)
     }
 
     private func decode(_ json: String) -> Result<SharedProfile, SharedProfile.Failure> {
-        SharedProfile.decode(data(json))
+        SharedProfile.decode(data(json), ownBundleIdentifier: own)
     }
 
     @Test("A profile survives encoding and decoding")
@@ -19,7 +22,7 @@ struct SharedProfileTests {
             .init(id: "com.example.tool", section: 2),
         ])
         let bytes = try #require(profile.encoded())
-        #expect(SharedProfile.decode(bytes) == .success(profile))
+        #expect(SharedProfile.decode(bytes, ownBundleIdentifier: own) == .success(profile))
     }
 
     @Test("A file that is not a profile is refused")
@@ -75,7 +78,7 @@ struct SharedProfileTests {
     @Test("Too large or too many entries are refused")
     func limits() {
         let big = Data(repeating: 0x20, count: SharedProfile.maximumSize + 1)
-        #expect(SharedProfile.decode(big) == .failure(.tooLarge))
+        #expect(SharedProfile.decode(big, ownBundleIdentifier: own) == .failure(.tooLarge))
         let entries = (0...SharedProfile.maximumEntries).map { #"{"id":"com.a.app\#($0)","section":0}"# }
         let json = #"{"format":1,"name":"A","apps":["# + entries.joined(separator: ",") + "]}"
         #expect(decode(json) == .failure(.tooManyApps))
@@ -91,7 +94,8 @@ struct SharedProfileTests {
                 "com.example.tool:Tool": 2,
             ],
             applicationSections: ["com.example.other": 1],
-            knownApplications: ["com.example.other", "com.example.visible"]
+            knownApplications: ["com.example.other", "com.example.visible"],
+            ownBundleIdentifier: own
         )
         #expect(entries == [
             .init(id: "com.apple.Safari", section: 1),
@@ -105,7 +109,6 @@ struct SharedProfileTests {
     func neverCarriesAWidget() throws {
         let widget = "holzBar.Widget.0A1B2C3D-0000-4000-8000-000000000001"
         let otherWidget = "holzBar.Widget.0A1B2C3D-0000-4000-8000-000000000002"
-        let own = "com.holzcloud.holzBar"
 
         // Building one: a widget's item key (macOS 14 to 26) would export holzBar itself, and a
         // widget's layout key and known entry (macOS 27) are valid bundle identifiers.
@@ -116,7 +119,8 @@ struct SharedProfileTests {
                 "com.apple.Safari:Safari": 1,
             ],
             applicationSections: [widget: 2, otherWidget: 1, "com.example.other": 1],
-            knownApplications: [widget, own, "com.example.visible"]
+            knownApplications: [widget, own, "com.example.visible"],
+            ownBundleIdentifier: own
         )
         #expect(entries == [
             .init(id: "com.apple.Safari", section: 1),
@@ -141,6 +145,17 @@ struct SharedProfileTests {
         ])
         // A section outside 0 to 2 still refuses the file, whoever the entry names.
         #expect(decode(#"{"format":1,"name":"A","apps":[{"id":"\#(widget)","section":9}]}"#) == .failure(.invalidSection))
+    }
+
+    @Test("holzBar's bundle is the one the caller names, not a copy kept here (WR-01)")
+    func ownBundleIsTheCallers() throws {
+        let fork = "com.example.fork"
+        #expect(SharedProfile.isOwn(fork, bundleIdentifier: fork))
+        #expect(!SharedProfile.isOwn(own, bundleIdentifier: fork))
+        #expect(SharedProfile.isOwn(own, bundleIdentifier: own))
+        let json = #"{"format":1,"name":"A","apps":[{"id":"com.example.fork","section":2},{"id":"com.a.b","section":1}]}"#
+        let profile = try #require(try? SharedProfile.decode(data(json), ownBundleIdentifier: fork).get())
+        #expect(profile.apps == [.init(id: "com.a.b", section: 1)])
     }
 
     @Test("A name clash gets a number")

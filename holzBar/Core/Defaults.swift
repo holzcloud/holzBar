@@ -447,7 +447,15 @@ nonisolated extension Defaults.Key {
     /// Splits settings read from outside the app into the values holzBar applies and the
     /// keys it ignores: only holzBar's own keys that may be imported, with a value of the
     /// expected kind, numbers within their range (``SettingsSchema``).
-    static func validatedSettings(_ settings: [String: Any]) -> (accepted: [String: Any], ignored: [String]) {
+    ///
+    /// - Parameters:
+    ///   - settings: The settings read from outside the app.
+    ///   - ownBundleIdentifier: holzBar's own bundle identifier (`Constants.bundleIdentifier`),
+    ///     which the macOS 27 layout of a file never names (WR-01).
+    static func validatedSettings(
+        _ settings: [String: Any],
+        ownBundleIdentifier: String
+    ) -> (accepted: [String: Any], ignored: [String]) {
         var result = SettingsSchema.validated(settings, kinds: importableKinds, numberRules: importableNumberRules)
         // A file never brings a rule that runs or asks a script: scripts and their approvals
         // are local to the Mac.
@@ -470,6 +478,12 @@ nonisolated extension Defaults.Key {
                 result.accepted.removeValue(forKey: widgetsKey)
                 result.ignored = (result.ignored + [widgetsKey]).sorted()
             }
+        }
+        // A file never conceals holzBar itself: an entry for holzBar's own bundle in the macOS 27
+        // layout would hide its icon and dividers. Widgets are keyed by their autosave names.
+        let layoutKey = Self.macOS27Layout.rawValue
+        if let layout = result.accepted[layoutKey] as? [String: Any] {
+            result.accepted[layoutKey] = OwnBundle.removing(from: layout, bundleIdentifier: ownBundleIdentifier)
         }
         return result
     }

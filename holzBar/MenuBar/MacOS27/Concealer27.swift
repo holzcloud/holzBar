@@ -120,9 +120,21 @@ final class Concealer27 {
     @ObservationIgnored private var didReinsertIcon = false
 
     /// The section of each application. Applications missing from it are visible.
+    ///
+    /// holzBar's own bundle is never in it, whatever the stored layout says: an entry for it
+    /// would conceal holzBar's own icon and dividers. A widget is keyed by its autosave name.
     private var savedLayout: [String: MacOS27Section] {
         let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
-        return stored.compactMapValues(MacOS27Section.init(rawValue:))
+        return OwnBundle.removing(
+            from: stored.compactMapValues(MacOS27Section.init(rawValue:)),
+            bundleIdentifier: Constants.bundleIdentifier
+        )
+    }
+
+    /// Writes the layout, without holzBar's own bundle (see ``savedLayout``).
+    private func store(_ layout: [String: MacOS27Section]) {
+        let guarded = OwnBundle.removing(from: layout, bundleIdentifier: Constants.bundleIdentifier)
+        Defaults.set(guarded.mapValues(\.rawValue), forKey: .macOS27Layout)
     }
 
     func performSetup(with appState: AppState) {
@@ -840,7 +852,7 @@ final class Concealer27 {
             layout = SectionLayout27.settingSection(MacOS27Section(name), for: bundleID, in: layout)
             logger.notice("Placed new application \(bundleID, privacy: .private(mask: .hash)) in \(name.logString, privacy: .public)")
         }
-        Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
+        store(layout)
         update()
     }
 
@@ -873,8 +885,12 @@ final class Concealer27 {
 
     /// Moves an application to a section of the saved layout and applies it.
     func setSection(_ section: MacOS27Section, for bundleID: String) {
+        // holzBar's own bundle has no section: it would conceal holzBar's own icon and dividers.
+        guard !OwnBundle.matches(bundleID, bundleIdentifier: Constants.bundleIdentifier) else {
+            return
+        }
         let updated = SectionLayout27.settingSection(section, for: bundleID, in: savedLayout)
-        Defaults.set(updated.mapValues(\.rawValue), forKey: .macOS27Layout)
+        store(updated)
         update()
         Task { [weak self] in
             await self?.appState?.itemManager.cacheItemsRegardless()
@@ -925,7 +941,7 @@ final class Concealer27 {
             logger.notice("The bar's order says nothing about sections, so the macOS 27 layout stays empty")
             return
         }
-        Defaults.set(seeded.mapValues(\.rawValue), forKey: .macOS27Layout)
+        store(seeded)
         let described = seeded
             .sorted { $0.key < $1.key }
             .map { "\($0.key)=\($0.value.rawValue)" }
