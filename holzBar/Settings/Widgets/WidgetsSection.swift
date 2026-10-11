@@ -40,6 +40,7 @@ struct WidgetsModuleSection: View {
 /// settings export carries; rows are moved with the editor's buttons and, for VoiceOver, with
 /// the "Move Up" and "Move Down" actions of every row (D-07).
 struct WidgetsSection: View {
+    @Environment(AppState.self) private var appState
     var widgets: MenuBarWidgets
     @State private var removalID: UUID?
     @State private var editingID: UUID?
@@ -85,6 +86,11 @@ struct WidgetsSection: View {
                         addButton()
                     } label: {
                         Text("Shortcut Button")
+                    }
+                    Button {
+                        addScript()
+                    } label: {
+                        Text("Script")
                     }
                 }
                 .fixedSize()
@@ -175,12 +181,19 @@ struct WidgetsSection: View {
         }
     }
 
-    /// The format of a text widget, the width of a script widget, or the state of a button's
-    /// Shortcut (D-25).
+    /// The format of a text widget, the cleaned name of a script widget's script, or the state of
+    /// a button's Shortcut (D-23, D-25). A name from the scripts folder is shown through
+    /// ``URLPrompt/displayName(_:)``, as everywhere else (T-12-32).
     private func summary(for definition: WidgetDefinition) -> Text {
         switch definition.kind {
-        case .text, .script:
+        case .text:
             WidgetEditor.presetTitle(definition.preset)
+        case .script:
+            if let name = appState.automation.scriptStore.widgetScript(for: definition.id) {
+                Text(verbatim: URLPrompt.displayName(name))
+            } else {
+                Text("Choose a script")
+            }
         case .button:
             if let name = widgets.shortcutNames[definition.id] {
                 Text(verbatim: name)
@@ -194,6 +207,15 @@ struct WidgetsSection: View {
     /// its editor, which opens at once.
     private func addButton() {
         let definition = WidgetDefinition.button(title: String(localized: "Shortcut"))
+        if widgets.addWidget(definition) {
+            editingID = definition.id
+        }
+    }
+
+    /// Adds a script widget, medium wide and without a symbol, unless there are six (D-05). The
+    /// script is chosen in its editor, which opens at once (D-23).
+    private func addScript() {
+        let definition = WidgetDefinition.script()
         if widgets.addWidget(definition) {
             editingID = definition.id
         }

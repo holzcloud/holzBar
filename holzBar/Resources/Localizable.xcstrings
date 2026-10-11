@@ -1495,6 +1495,34 @@
         }
       }
     },
+    "Allow this script first in Automation, Scripts." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaube dieses Skript zuerst unter Automatisierung, Skripte."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autorisez d’abord ce script dans Automatisation, Scripts."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consenti prima questo script in Automazione, Script."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lubescha l’emprim quest scrip en Automatisaziun, Scrips."
+          }
+        }
+      }
+    },
     "Allow this script in Automation, Scripts" : {
       "localizations" : {
         "de" : {
@@ -8691,6 +8719,34 @@
         }
       }
     },
+    "Open Scripts" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skripte öffnen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir les scripts"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri gli script"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avrir ils scrips"
+          }
+        }
+      }
+    },
     "Open Scripts Folder" : {
       "localizations" : {
         "de" : {
@@ -13171,6 +13227,34 @@
         }
       }
     },
+    "The widget shows the first line of the script's output. It runs when the widget appears and when you click it, and on the system events your automation rules follow, never on a timer." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Widget zeigt die erste Zeile der Ausgabe des Skripts. Es läuft, wenn das Widget erscheint und wenn du darauf klickst, und bei den Systemereignissen, denen deine Automatisierungsregeln folgen, nie nach einem Zeitgeber."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le widget affiche la première ligne de la sortie du script. Il s’exécute quand le widget apparaît et quand vous cliquez dessus, ainsi que lors des événements système que suivent vos règles d’automatisation, jamais selon une minuterie."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il widget mostra la prima riga dell’output dello script. Viene eseguito quando il widget appare e quando lo clicchi, e agli eventi di sistema che le tue regole di automazione seguono, mai a intervalli di tempo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il widget mussa l’emprima lingia da l’output dal scrip. El vegn exequì cur ch’il widget cumpara e cur che ti cliccas sin el, e tar ils eveniments dal sistem che tias reglas d’automatisaziun suondan, mai periodicamain."
+          }
+        }
+      }
+    },
     "Then" : {
       "localizations" : {
         "de" : {
@@ -15323,6 +15407,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Widgets"
+          }
+        }
+      }
+    },
+    "Width" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Breite"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Largeur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Larghezza"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ladezza"
           }
         }
       }

@@ -11,8 +11,10 @@ import SwiftUI
 /// A text widget offers its source, its format (a fixed preset, no template language), the
 /// leading symbol, and the options of its source: the clock's hour cycle and seconds, the
 /// countdown's moment, and the refresh interval of CPU and memory (D-02, D-09, D-10, D-11,
-/// D-15). A button offers its title or symbol and the name of its Shortcut (D-20, D-21).
-/// Every change goes through ``MenuBarWidgets/update(_:)``, so the menu bar follows at once.
+/// D-15). A button offers its title or symbol and the name of its Shortcut (D-20, D-21). A
+/// script widget offers one of the scripts of the scripts folder, a fixed width and the symbol
+/// (D-23). Every change goes through ``MenuBarWidgets/update(_:)``, so the menu bar follows at
+/// once.
 struct WidgetEditor: View {
     var widgets: MenuBarWidgets
     let id: UUID
@@ -33,8 +35,7 @@ struct WidgetEditor: View {
                 case .button:
                     ShortcutButtonFields(widgets: widgets, id: id)
                 case .script:
-                    // The script, the width and the symbol are chosen in the script pane (12-10).
-                    EmptyView()
+                    ScriptWidgetFields(widgets: widgets, definition: definition)
                 }
                 HStack(spacing: HolzBarTheme.Spacing.sm) {
                     Button("Move Up", systemImage: "arrow.up") {
@@ -170,6 +171,114 @@ private struct TextWidgetFields: View {
                 var updated = definition
                 updated.countdownTarget = Calendar.current.dateInterval(of: .minute, for: date)?.start ?? date
                 widgets.update(updated)
+            }
+        )
+    }
+
+    private func binding<Value>(_ keyPath: WritableKeyPath<WidgetDefinition, Value>) -> Binding<Value> {
+        Binding(
+            get: { definition[keyPath: keyPath] },
+            set: { value in
+                var updated = definition
+                updated[keyPath: keyPath] = value
+                widgets.update(updated)
+            }
+        )
+    }
+}
+
+// MARK: - Script widgets
+
+/// The options of a script widget: the script it runs, its fixed width and the symbol (D-23).
+///
+/// The script is one of the scripts of the scripts folder, listed by its cleaned name
+/// (T-12-32). The choice is stored by ``ScriptStore/setWidgetScript(_:for:)`` on this Mac only;
+/// the definition holds no script name, so nothing that exports, imports or shares widgets
+/// carries it (D-25). Choosing a script does not allow it: a script that is not allowed, or
+/// that changed since, says so here and sends the user to Automation, Scripts.
+private struct ScriptWidgetFields: View {
+    @Environment(AppState.self) private var appState
+    var widgets: MenuBarWidgets
+    let definition: WidgetDefinition
+
+    private var store: ScriptStore {
+        appState.automation.scriptStore
+    }
+
+    private var chosenName: String? {
+        store.widgetScript(for: definition.id)
+    }
+
+    /// The scripts to choose from: those the gate can ever allow, and the chosen one when it is
+    /// not among them (deleted, or refused since), so the row keeps saying what it is for.
+    private var scriptNames: [String] {
+        var names = store.scripts.compactMap { entry -> String? in
+            if case .refused = entry.decision {
+                return nil
+            }
+            return entry.name
+        }
+        if let chosenName, !names.contains(chosenName) {
+            names.append(chosenName)
+        }
+        return names
+    }
+
+    /// Whether the chosen script does not run now: not allowed, changed since, refused or gone.
+    /// The widget shows an en dash then (D-13), and the widget's VoiceOver value says the same.
+    private var isNotAllowed: Bool {
+        guard let chosenName else {
+            return false
+        }
+        guard let entry = store.scripts.first(where: { $0.name == chosenName }) else {
+            return true
+        }
+        if case .allowed = entry.decision {
+            return false
+        }
+        return true
+    }
+
+    var body: some View {
+        Picker("Script", selection: scriptBinding) {
+            Text("None").tag(String?.none)
+            ForEach(scriptNames, id: \.self) { name in
+                Text(verbatim: URLPrompt.displayName(name)).tag(String?.some(name))
+            }
+        }
+        if isNotAllowed {
+            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
+                Text("Allow this script first in Automation, Scripts.")
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Palette.warning)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("Open Scripts") {
+                    appState.navigationState.settingsNavigationIdentifier = .automation
+                }
+            }
+        }
+        Picker("Width", selection: binding(\.preset)) {
+            ForEach(WidgetKind.scriptPresets, id: \.self) { preset in
+                WidgetEditor.presetTitle(preset)
+                    .tag(preset)
+            }
+        }
+        Toggle("Show symbol", isOn: binding(\.showsSymbol))
+        Text("The widget shows the first line of the script's output. It runs when the widget appears and when you click it, and on the system events your automation rules follow, never on a timer.")
+            .font(HolzBarTheme.Typography.caption)
+            .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// The chosen script, read from the store and written to it. A new choice asks the script
+    /// at once, so the widget shows its line without waiting for a click (the user's own action
+    /// skips only the 30 seconds between two runs; the gate and the run limit still apply).
+    private var scriptBinding: Binding<String?> {
+        Binding(
+            get: { chosenName },
+            set: { name in
+                store.setWidgetScript(name, for: definition.id)
+                widgets.refreshScriptWidget(id: definition.id)
             }
         )
     }
