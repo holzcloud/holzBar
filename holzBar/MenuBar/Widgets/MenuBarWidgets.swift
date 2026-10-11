@@ -1104,8 +1104,16 @@ final class MenuBarWidgets {
 
     /// Waits for the script store to be read, once, so that script widgets that were revealed
     /// during start-up ask their script when it is ready. No polling: the store tells.
+    ///
+    /// Once the store is read, the bindings of widgets that are gone are dropped: a settings
+    /// import replaces the list, and the new widgets have new identifiers, so the old bindings
+    /// would take places of the six (WR-06). The module being on is the only time they matter.
     private func followScriptStore() {
-        guard let store = appState?.automation.scriptStore, !store.isLoaded else {
+        guard let store = appState?.automation.scriptStore else {
+            return
+        }
+        guard !store.isLoaded else {
+            store.keepWidgetScripts(for: Set(definitions.map(\.id)))
             return
         }
         scriptStoreLoop = ObservationLoop.observe { [weak store] in
@@ -1116,6 +1124,9 @@ final class MenuBarWidgets {
             }
             self?.scriptStoreLoop?.cancel()
             self?.scriptStoreLoop = nil
+            if let self, let store = self.appState?.automation.scriptStore {
+                store.keepWidgetScripts(for: Set(self.definitions.map(\.id)))
+            }
             self?.systemEventArrived()
         }
     }

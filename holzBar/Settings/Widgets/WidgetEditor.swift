@@ -277,7 +277,7 @@ private struct ScriptWidgetFields: View {
         Binding(
             get: { chosenName },
             set: { name in
-                store.setWidgetScript(name, for: definition.id)
+                store.setWidgetScript(name, for: definition.id, liveWidgets: Set(widgets.definitions.map(\.id)))
                 widgets.refreshScriptWidget(id: definition.id)
             }
         )

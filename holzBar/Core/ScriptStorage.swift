@@ -197,6 +197,44 @@ nonisolated struct ScriptStoreFile: Codable, Equatable, Sendable {
         return result
     }
 
+    /// The bindings of the widgets in `live` only: a widget that is gone (a list that an import
+    /// replaced, a widget that was removed) keeps none, so it takes no place of the six (WR-06).
+    static func widgetScripts(_ bindings: [String: String], keeping live: Set<UUID>) -> [String: String] {
+        let wanted = Set(live.map(\.uuidString))
+        return bindings.filter { wanted.contains($0.key) }
+    }
+
+    /// The bindings after binding a widget to a script, or unbinding it with `nil`; `nil` when
+    /// the binding is refused because ``WidgetDefinition/maximumCount`` widgets have one already.
+    ///
+    /// - Parameters:
+    ///   - name: The script's file name, or `nil` to remove the binding.
+    ///   - id: The widget.
+    ///   - bindings: The bindings now.
+    ///   - liveWidgets: The widgets that exist. Bindings of other widgets are dropped first, so
+    ///     only live widgets count against the cap (WR-06). `nil` leaves every binding in place.
+    static func bindingWidgetScript(
+        _ name: String?,
+        for id: UUID,
+        in bindings: [String: String],
+        liveWidgets: Set<UUID>?
+    ) -> [String: String]? {
+        var result = bindings
+        if let liveWidgets {
+            result = widgetScripts(bindings, keeping: liveWidgets.union([id]))
+        }
+        let key = id.uuidString
+        guard let name else {
+            result.removeValue(forKey: key)
+            return result
+        }
+        guard result[key] != nil || result.count < WidgetDefinition.maximumCount else {
+            return nil
+        }
+        result[key] = name
+        return result
+    }
+
     /// The widget bindings that have a widget identifier (the uppercase UUID string) and a plain
     /// script name, at most ``WidgetDefinition/maximumCount`` of them, the first by identifier.
     private static func validatedWidgetScripts(_ bindings: [String: String]) -> [String: String] {

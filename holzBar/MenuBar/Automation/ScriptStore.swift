@@ -500,22 +500,27 @@ final class ScriptStore {
     ///
     /// Binding a script does not allow it: the gate still needs the user's approval of its exact
     /// content before it runs (T-12-29).
-    func setWidgetScript(_ name: String?, for id: UUID) {
+    ///
+    /// - Parameters:
+    ///   - name: The script's file name, or `nil` to remove the binding.
+    ///   - id: The widget.
+    ///   - liveWidgets: The widgets that exist, when the caller knows them. The bindings of other
+    ///     widgets (a list that an import replaced) are dropped first, so a full store of stale
+    ///     bindings never refuses the choice (WR-06).
+    func setWidgetScript(_ name: String?, for id: UUID, liveWidgets: Set<UUID>? = nil) {
         guard !isReadOnly else {
             return
         }
-        let key = id.uuidString
-        var bindings = file.widgetScripts
-        if let name {
-            guard
-                scripts.contains(where: { $0.name == name }),
-                bindings[key] != nil || bindings.count < WidgetDefinition.maximumCount
-            else {
-                return
-            }
-            bindings[key] = name
-        } else {
-            bindings.removeValue(forKey: key)
+        if let name, !scripts.contains(where: { $0.name == name }) {
+            return
+        }
+        guard let bindings = ScriptStoreFile.bindingWidgetScript(
+            name,
+            for: id,
+            in: file.widgetScripts,
+            liveWidgets: liveWidgets
+        ) else {
+            return
         }
         guard bindings != file.widgetScripts else {
             return
@@ -527,8 +532,7 @@ final class ScriptStore {
 
     /// Drops the bindings of widgets that are gone: only the widgets named here keep theirs.
     func keepWidgetScripts(for ids: Set<UUID>) {
-        let wanted = Set(ids.map(\.uuidString))
-        let kept = file.widgetScripts.filter { wanted.contains($0.key) }
+        let kept = ScriptStoreFile.widgetScripts(file.widgetScripts, keeping: ids)
         guard !isReadOnly, kept.count != file.widgetScripts.count else {
             return
         }

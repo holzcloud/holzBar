@@ -274,6 +274,44 @@ struct ScriptStorageTests {
         #expect(Set(kept.keys) == Set(ids.prefix(WidgetDefinition.maximumCount)))
     }
 
+    @Test("Only the bindings of widgets that exist are kept (WR-06)")
+    func bindingsOfWidgetsThatAreGoneAreDropped() throws {
+        let live = try #require(UUID(uuidString: widgetID))
+        let bindings = [widgetID: "a.sh", otherWidgetID: "b.sh"]
+        #expect(ScriptStoreFile.widgetScripts(bindings, keeping: [live]) == [widgetID: "a.sh"])
+        #expect(ScriptStoreFile.widgetScripts(bindings, keeping: []).isEmpty)
+        #expect(ScriptStoreFile.widgetScripts([:], keeping: [live]).isEmpty)
+    }
+
+    @Test("A full store of stale bindings does not refuse a new choice; a full store of live ones does (WR-06)")
+    func staleBindingsDoNotCountAgainstTheCap() throws {
+        let staleIDs = (1...WidgetDefinition.maximumCount).map { String(format: "0A1B2C3D-0000-4000-8000-%012d", $0 + 100) }
+        let stale = Dictionary(uniqueKeysWithValues: staleIDs.map { ($0, "old.sh") })
+        let live = try #require(UUID(uuidString: widgetID))
+
+        // Without the list of widgets that exist, the store is full and refuses (the old way).
+        #expect(ScriptStoreFile.bindingWidgetScript("new.sh", for: live, in: stale, liveWidgets: nil) == nil)
+        // With it, the stale bindings go and the choice is stored.
+        let bound = ScriptStoreFile.bindingWidgetScript("new.sh", for: live, in: stale, liveWidgets: [live])
+        #expect(bound == [widgetID: "new.sh"])
+
+        // Six live widgets: a seventh cannot exist, but the widget that has a binding may change it.
+        let liveIDs = try staleIDs.map { try #require(UUID(uuidString: $0)) }
+        #expect(ScriptStoreFile.bindingWidgetScript("new.sh", for: live, in: stale, liveWidgets: Set(liveIDs)) == nil)
+        let changed = ScriptStoreFile.bindingWidgetScript("new.sh", for: liveIDs[0], in: stale, liveWidgets: Set(liveIDs))
+        #expect(changed?[staleIDs[0]] == "new.sh")
+        #expect(changed?.count == WidgetDefinition.maximumCount)
+    }
+
+    @Test("Removing a binding removes only that one")
+    func unbinding() throws {
+        let live = try #require(UUID(uuidString: widgetID))
+        let other = try #require(UUID(uuidString: otherWidgetID))
+        let bindings = [widgetID: "a.sh", otherWidgetID: "b.sh"]
+        let result = ScriptStoreFile.bindingWidgetScript(nil, for: live, in: bindings, liveWidgets: [live, other])
+        #expect(result == [otherWidgetID: "b.sh"])
+    }
+
     @Test("A binding that cannot be decoded is skipped and the rest of the file is kept (WR-05)")
     func undecodableWidgetBindingIsSkipped() throws {
         var file = ScriptStoreFile()
