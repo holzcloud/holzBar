@@ -127,7 +127,13 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 The release starts with the **design system**: one Liquid Glass look (holzBar's blue, dark and light equally designed) and a new Settings window with a sidebar and a gallery of module cards. Every later screen follows it.
 
 **Automation**
-- **Widgets**: menu bar items of your own with text from permission-free sources (CPU load, memory, battery, free disk space, a countdown) and a Shortcut button
+- **Widgets** (*Preview*: built, not yet released and not yet tested on a Mac): menu bar items of your own, an optional module in Menu Bar Layout that is off until you switch it on and costs nothing while it is off. On macOS 14 to 27.
+  - **Seven sources, none needs a permission**: date and time, battery (percent, with or without the charging state), CPU load, memory (percent used or gigabytes used), uptime, free disk space (gigabytes or percent) and a countdown that only shows the time left until a moment you pick (no alarm, no sound, no pause). At most six widgets.
+  - **Formats are presets**, written in your language and region, with an optional symbol in front. Seconds exist for the clock only and the pane says what they cost: "Wakes the Mac every second while visible." A widget keeps one fixed width for its format, so the text never moves the items beside it; a value that cannot be read shows an en dash and VoiceOver says "unavailable".
+  - **A Shortcut button** shows a title or a symbol and runs a Shortcut chosen by typing its name, through the Shortcuts app. holzBar shows nothing of its own, and a Shortcut that does not exist shows only the Shortcuts app's own error. A text widget has no click action.
+  - **Energy**: a widget refreshes only while it is visible, never while it is hidden, or while the Mac is asleep or locked; it refreshes once when it is shown again. The battery is read from power events, not by a timer, and Low Power Mode doubles the polling intervals (CPU load 5 s, memory 10 s, uptime 1 min, free disk space 5 min by default).
+  - **Part of the bar like any item**: widgets can be moved between sections in Menu Bar Layout, are kept in layout profiles, and appear in the holzBar Shelf, the search, groups and hints (a Shortcut button runs from there too). On macOS 27 holzBar hides a widget itself, by collapsing it; "Show When It Changes" does nothing for a widget there.
+  - **Settings export** carries the widgets without Shortcut names, so an imported button says "Choose a Shortcut"; shared profiles never carry a widget. Each widget has a VoiceOver label and value.
 - **AppleScript dictionary** to show, hide, switch profiles and turn rules on or off, and **App Intents** for Shortcuts and Siri.
 - **Command palette**: one hotkey opens a panel to run any holzBar action.
 - A **keep-awake** action (no permission needed) and a **focus mode** hotkey that hides everything except chosen items.
