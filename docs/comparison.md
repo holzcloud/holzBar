@@ -24,7 +24,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Profile applied by a Focus filter | ❌ | ✅ | — | ✅ Preview |
 | Scripts as a rule condition or action | ❌ | ✅ | — | ✅ Preview <sub>from a folder you choose, after you allowed the exact content</sub> |
 | Script hooks before or after a profile | ❌ | ✅ | — | ✅ Preview |
-| Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | ✅ | 🔜 0.0.9 |
+| Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | ✅ | ✅ Preview |
 | AppleScript dictionary | — | — | ✅ | 🔜 0.0.9 |
 | Touch ID or password to show hidden items | — | — | — | ✅ Preview |
 | Smooth show and hide | — | — | — | 🔜 0.0.9 |
