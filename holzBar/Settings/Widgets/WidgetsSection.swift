@@ -36,7 +36,9 @@ struct WidgetsModuleSection: View {
 }
 
 /// The widgets of the menu bar: one row each, an editor under the row that was chosen, a way
-/// to add one, at most six (D-05).
+/// to add one, at most six (D-05). The order of the rows is the order of the list, which a
+/// settings export carries; rows are moved with the editor's buttons and, for VoiceOver, with
+/// the "Move Up" and "Move Down" actions of every row (D-07).
 struct WidgetsSection: View {
     var widgets: MenuBarWidgets
     @State private var removalID: UUID?
@@ -140,10 +142,22 @@ struct WidgetsSection: View {
         }
         .padding(.vertical, HolzBarTheme.Spacing.xs)
         .accessibilityElement(children: .contain)
+        .accessibilityAction(named: "Move Up") {
+            widgets.moveWidget(id: definition.id, by: -1)
+        }
+        .accessibilityAction(named: "Move Down") {
+            widgets.moveWidget(id: definition.id, by: 1)
+        }
     }
 
     private func editor(for definition: WidgetDefinition) -> some View {
-        WidgetEditor(widgets: widgets, id: definition.id) {
+        let index = widgets.definitions.firstIndex { $0.id == definition.id } ?? 0
+        return WidgetEditor(
+            widgets: widgets,
+            id: definition.id,
+            canMoveUp: index > 0,
+            canMoveDown: index < widgets.definitions.count - 1
+        ) {
             removalID = definition.id
         }
         .padding(.leading, HolzBarTheme.Spacing.xl + HolzBarTheme.Spacing.sm)
@@ -165,7 +179,7 @@ struct WidgetsSection: View {
     private func summary(for definition: WidgetDefinition) -> Text {
         switch definition.kind {
         case .text:
-            Text(verbatim: "")
+            WidgetEditor.presetTitle(definition.preset)
         case .button:
             if let name = widgets.shortcutNames[definition.id] {
                 Text(verbatim: name)

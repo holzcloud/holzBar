@@ -152,6 +152,21 @@ final class MenuBarWidgets {
         }
     }
 
+    /// Moves a widget up (a negative offset) or down in the list, which is the order a settings
+    /// export carries (D-25). Nothing happens at the ends.
+    func moveWidget(id: UUID, by offset: Int) {
+        guard
+            let index = definitions.firstIndex(where: { $0.id == id }),
+            definitions.indices.contains(index + offset),
+            offset != 0
+        else {
+            return
+        }
+        let definition = definitions.remove(at: index)
+        definitions.insert(definition, at: index + offset)
+        save()
+    }
+
     private func save() {
         if let data = WidgetList.encoded(definitions) {
             Defaults.set(data, forKey: .widgets)
