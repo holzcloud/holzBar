@@ -32,6 +32,9 @@ struct WidgetEditor: View {
                     TextWidgetFields(widgets: widgets, definition: definition)
                 case .button:
                     ShortcutButtonFields(widgets: widgets, id: id)
+                case .script:
+                    // The script, the width and the symbol are chosen in the script pane (12-10).
+                    EmptyView()
                 }
                 HStack(spacing: HolzBarTheme.Spacing.sm) {
                     Button("Move Up", systemImage: "arrow.up") {
@@ -65,6 +68,9 @@ struct WidgetEditor: View {
         case .percentFree: Text("Percent Free")
         case .duration: Text("Duration")
         case .compactDuration: Text("Compact Duration")
+        case .narrowText: Text("Narrow")
+        case .mediumText: Text("Medium")
+        case .wideText: Text("Wide")
         }
     }
 }

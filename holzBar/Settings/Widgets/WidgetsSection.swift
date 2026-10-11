@@ -115,7 +115,7 @@ struct WidgetsSection: View {
     private func row(for definition: WidgetDefinition) -> some View {
         let isEditing = editingID == definition.id
         return HStack(spacing: HolzBarTheme.Spacing.sm) {
-            Image(systemName: definition.kind == .button ? WidgetDefinition.buttonSymbolName : definition.source.symbolName)
+            Image(systemName: definition.symbolName)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .frame(width: HolzBarTheme.Spacing.xl)
                 .accessibilityHidden(true)
@@ -164,21 +164,22 @@ struct WidgetsSection: View {
         .padding(.bottom, HolzBarTheme.Spacing.xs)
     }
 
-    /// The name of a widget: its source, or its button's title.
+    /// The name of a widget: its source, its button's title, or "Script".
     private func title(for definition: WidgetDefinition) -> Text {
         switch definition.kind {
         case .text:
             Self.sourceTitle(definition.source)
-        case .button:
+        case .button, .script:
             // A title the user typed is shown as it is, never looked up as a string key.
             Text(verbatim: WidgetSpeech.label(for: definition))
         }
     }
 
-    /// The format of a text widget, or the state of a button's Shortcut (D-25).
+    /// The format of a text widget, the width of a script widget, or the state of a button's
+    /// Shortcut (D-25).
     private func summary(for definition: WidgetDefinition) -> Text {
         switch definition.kind {
-        case .text:
+        case .text, .script:
             WidgetEditor.presetTitle(definition.preset)
         case .button:
             if let name = widgets.shortcutNames[definition.id] {

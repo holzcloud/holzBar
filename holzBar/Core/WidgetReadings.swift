@@ -70,6 +70,10 @@ nonisolated enum WidgetReading: Equatable, Sendable {
     case bytes(UInt64)
     case duration(Duration)
     case countdown(remaining: Duration, isPassed: Bool)
+    /// The first line of an approved script's output, already cleaned and cut to
+    /// ``ScriptOutput/maximumDisplayLength`` characters by ``ScriptOutput/displayLine(_:)``. It
+    /// is plain text: never parsed, opened or interpreted (D-23, T-12-25).
+    case line(String)
     case unavailable
 }
 

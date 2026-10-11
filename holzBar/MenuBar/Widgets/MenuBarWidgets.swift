@@ -763,6 +763,8 @@ final class MenuBarWidgets {
                 symbolName = WidgetDefinition.buttonSymbolName
                 string = ""
             }
+        case .script:
+            symbolName = definition.showsSymbol ? WidgetDefinition.scriptSymbolName : nil
         }
         return drawnPicture(
             symbolName: symbolName,

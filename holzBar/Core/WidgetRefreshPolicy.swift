@@ -7,7 +7,8 @@ import Foundation
 
 /// How often the text of a widget changes, which decides what arms its timer (D-15).
 nonisolated enum WidgetCadence: Equatable, Sendable {
-    /// The text changes on an event only: a battery reading, or a button. No timer is ever armed.
+    /// The text changes on an event only: a battery reading, a button or a script widget. No
+    /// timer is ever armed.
     case eventOnly
     /// The text changes with the clock: at the next whole minute, or at the next whole second
     /// when it shows seconds.
@@ -25,8 +26,9 @@ nonisolated enum WidgetCadence: Equatable, Sendable {
 
     /// The cadence of a widget: its kind and source, and the interval the user tuned.
     ///
-    /// A button never changes its text, a countdown without a moment has nothing to count, and
-    /// the tuned interval of CPU and memory is kept inside its range even when the definition was
+    /// A button never changes its text, a script widget changes it only when the host runs the
+    /// script (on a reveal, a system event or a click, D-23), a countdown without a moment has
+    /// nothing to count, and the tuned interval of CPU and memory is kept inside its range even when the definition was
     /// not validated.
     init(definition: WidgetDefinition) {
         guard definition.kind == .text else {

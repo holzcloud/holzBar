@@ -5,11 +5,23 @@
 
 import Foundation
 
-/// What a widget is: a line of text from a built-in source, or a button that runs a Shortcut
-/// (D-20). A text widget has no click action and a button has no data source.
+/// What a widget is: a line of text from a built-in source, a button that runs a Shortcut
+/// (D-20), or the first line of an approved script's output (stage 2, D-23). A text widget has
+/// no click action and a button has no data source; a script widget shows a line a script wrote
+/// and runs that script again when it is clicked.
+///
+/// The raw values are stored in the settings and never change.
 nonisolated enum WidgetKind: String, Codable, Sendable {
     case text
     case button
+    case script
+
+    /// The fixed widths a script widget offers, narrow to wide (D-12, D-23). The width is part
+    /// of the format, so the status item never changes length with the script's line.
+    static let scriptPresets: [WidgetPreset] = [.narrowText, .mediumText, .wideText]
+
+    /// The width a new script widget starts with.
+    static let defaultScriptPreset = WidgetPreset.mediumText
 }
 
 /// The built-in source of a text widget. Every one reads without a permission (D-01); the
@@ -117,13 +129,19 @@ nonisolated enum WidgetPreset: String, Codable, CaseIterable, Sendable {
     // Free disk space
     case gigabytesFree
     case percentFree
+    // A script widget's fixed width, in the kind's own set (``WidgetKind/scriptPresets``)
+    case narrowText
+    case mediumText
+    case wideText
 }
 
 /// One widget of the menu bar, as it is stored and exported (D-25).
 ///
 /// The definition holds the kind, the source, the format and a few options, and nothing that
 /// stays on this Mac: the name of a button's Shortcut lives under its own local-only key
-/// (`Defaults.Key.widgetShortcutNames`), so no export, import or shared profile carries it.
+/// (`Defaults.Key.widgetShortcutNames`) and the script a script widget runs lives in
+/// `Scripts.json` (``ScriptStoreFile/widgetScripts``), so no export, import or shared profile
+/// carries either (D-25).
 /// The settings are written by any process of the user, so every value that is read back goes
 /// through ``validated(now:)``.
 nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable {
@@ -133,6 +151,8 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
     static let maximumTitleLength = 24
     /// The symbol of a button that shows one.
     static let buttonSymbolName = "play.circle"
+    /// The symbol before a script widget's line, when it shows one.
+    static let scriptSymbolName = "terminal"
     /// The autosave name of a widget's status item is this prefix and the widget's identifier
     /// (D-17), the pattern of `holzBar.Group.<uuid>`.
     static let autosaveNamePrefix = "holzBar.Widget."
@@ -163,6 +183,15 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
     /// The name of the widget's status item (D-17).
     var autosaveName: String {
         Self.autosaveNamePrefix + id.uuidString
+    }
+
+    /// The SF Symbol that stands for the widget: its source's, a button's or a script's.
+    var symbolName: String {
+        switch kind {
+        case .text: source.symbolName
+        case .button: Self.buttonSymbolName
+        case .script: Self.scriptSymbolName
+        }
     }
 
     /// Whether a button shows only ``buttonSymbolName``: it asks for the symbol, or it has no
@@ -215,6 +244,18 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
         )
     }
 
+    /// A new script widget, medium wide and without a symbol. The script it shows is chosen by
+    /// name and kept in `Scripts.json`, apart from the definition (D-25).
+    static func script() -> WidgetDefinition {
+        WidgetDefinition(
+            id: UUID(),
+            kind: .script,
+            source: .dateTime,
+            preset: WidgetKind.defaultScriptPreset,
+            showsSymbol: false
+        )
+    }
+
     /// A new button. The Shortcut it runs is chosen by name and kept apart from the definition.
     static func button(title: String) -> WidgetDefinition {
         WidgetDefinition(
@@ -231,8 +272,9 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
     ///
     /// A format that does not belong to the source becomes the source's default, seconds exist
     /// only for the clock, an interval is kept within ``WidgetSource/refreshRange``, and a
-    /// button's title is cleaned. Values that belong to the other kind are reset, so a stored
-    /// definition has one shape.
+    /// button's title is cleaned. A script widget keeps one of the widths of
+    /// ``WidgetKind/scriptPresets`` and its symbol option, and no source-specific value. Values
+    /// that belong to the other kind are reset, so a stored definition has one shape.
     ///
     /// - Parameter now: The moment a countdown's distance is measured from.
     func validated(now: Date = Date()) -> WidgetDefinition? {
@@ -245,6 +287,16 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
             result.refreshSeconds = nil
             result.countdownTarget = nil
             result.buttonTitle = Self.cleanedTitle(buttonTitle)
+        case .script:
+            result.source = .dateTime
+            if !WidgetKind.scriptPresets.contains(preset) {
+                result.preset = WidgetKind.defaultScriptPreset
+            }
+            result.showsSeconds = false
+            result.refreshSeconds = nil
+            result.countdownTarget = nil
+            result.buttonTitle = ""
+            result.buttonShowsSymbol = true
         case .text:
             if !source.presets.contains(preset) {
                 result.preset = source.defaultPreset

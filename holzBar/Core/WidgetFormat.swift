@@ -43,6 +43,14 @@ nonisolated enum WidgetFormat {
         if definition.kind == .button {
             return WidgetText(string: definition.buttonTitle)
         }
+        if definition.kind == .script {
+            // The script's line as it is: plain text, never parsed. The app cuts a line that is
+            // wider than the fixed width with an ellipsis (D-12).
+            guard case .line(let line) = reading, !line.isEmpty else {
+                return WidgetText(string: unavailable)
+            }
+            return WidgetText(string: line)
+        }
         let preset = definition.preset
         switch (definition.source, reading) {
         case (.dateTime, .date(let date)):
@@ -85,6 +93,8 @@ nonisolated enum WidgetFormat {
     /// - A duration: 0 min, 1 min, 59 min, 1 h 1 min, 23 h 59 min, 1 day 1 h, 1 day 1 min,
     ///   99 days 23 h, 99 days 59 min, 999 days 23 h and 999 days 59 min.
     /// - A button: its title.
+    /// - A script widget: 8, 16 or 32 zeros for its width (``scriptWidthDigits(for:)``). Digits
+    ///   are as wide as each other in the widget font, so the width is fixed per format.
     ///
     /// - Parameter capacityBytes: The memory or the volume the count is a part of, when known.
     static func widthSamples(
@@ -105,6 +115,9 @@ nonisolated enum WidgetFormat {
                 add(definition.buttonTitle)
             }
             return samples
+        }
+        if definition.kind == .script {
+            return [String(repeating: "0", count: scriptWidthDigits(for: definition.preset))]
         }
         let preset = definition.preset
         switch definition.source {
@@ -156,6 +169,16 @@ nonisolated enum WidgetFormat {
             }
         }
         return samples
+    }
+
+    /// How many digits wide a script widget's text is for a width (D-12, D-23): 8 narrow, 16
+    /// medium and 32 wide. A format that is not a width gets the medium one.
+    static func scriptWidthDigits(for preset: WidgetPreset) -> Int {
+        switch preset {
+        case .narrowText: 8
+        case .wideText: 32
+        default: 16
+        }
     }
 
     /// Whether the locale shows the time on a 24-hour clock, told by whether 15:00 formatted

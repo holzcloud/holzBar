@@ -12,12 +12,16 @@ import Foundation
 /// words. Everything is built with `String(localized:)`, so it follows the language of the app.
 nonisolated enum WidgetSpeech {
     /// The label of a widget: the name of its source, or a button's title, or "Shortcut" for a
-    /// button that has none.
+    /// button that has none, or "Script" for a script widget.
     static func label(for definition: WidgetDefinition) -> String {
-        if definition.kind == .button {
+        switch definition.kind {
+        case .button:
             return definition.buttonTitle.isEmpty ? String(localized: "Shortcut") : definition.buttonTitle
+        case .script:
+            return String(localized: "Script")
+        case .text:
+            return label(for: definition.source)
         }
-        return label(for: definition.source)
     }
 
     /// The hint of a button: the name of its Shortcut, or "Choose a Shortcut" while it has none
@@ -46,6 +50,27 @@ nonisolated enum WidgetSpeech {
         }
     }
 
+    /// The value of a script widget: its line as the script wrote it, or what is missing: "Choose
+    /// a script" while no script is chosen, "Allow this script in Automation, Scripts" while the
+    /// gate refuses the one that is, and "unavailable" otherwise (D-13, D-23, D-27).
+    ///
+    /// - Parameters:
+    ///   - reading: The last reading, a line or nothing.
+    ///   - hasScript: Whether a script is chosen for the widget on this Mac.
+    ///   - isRefused: Whether the gate refused the chosen script: not allowed, or changed since.
+    static func scriptValue(for reading: WidgetReading, hasScript: Bool, isRefused: Bool) -> String {
+        guard hasScript else {
+            return String(localized: "Choose a script")
+        }
+        if isRefused {
+            return String(localized: "Allow this script in Automation, Scripts")
+        }
+        if case .line(let line) = reading, !line.isEmpty {
+            return line
+        }
+        return String(localized: "unavailable")
+    }
+
     /// The value of a widget in full: "80 percent, charging", "16 gigabytes", "3 days, 5 hours".
     ///
     /// - Parameters:
@@ -62,6 +87,9 @@ nonisolated enum WidgetSpeech {
         if definition.kind == .button {
             // A button has no reading: VoiceOver says its label and its hint.
             return ""
+        }
+        if definition.kind == .script {
+            return scriptValue(for: reading, hasScript: true, isRefused: false)
         }
         let unavailable = String(localized: "unavailable")
         switch (definition.source, reading) {
