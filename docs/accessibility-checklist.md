@@ -23,7 +23,7 @@ Screens: Menu Bar Layout (items, profiles, Layout History, Tidy Up, Widgets), Au
 - **Script approval**: the sheet reads the file name, its folder, the size and the start of the checksum, and the Cancel button is the default.
 - **Profile hooks**: each row has Profile, When and Script pickers and a "Remove Hook" button that read their names and values.
 - **Lock hidden items**: the system's Touch ID or password sheet appears in front.
-- **Widgets** (*Preview*): each widget in the menu bar is read with its source name and its value in full ("Battery, 80 percent, charging", "unavailable" when it cannot be read); a Shortcut button is read as a button with the Shortcut's name as its hint; in Menu Bar Layout the Widgets switch, Edit, Remove, Move Up and Move Down are reachable by keyboard and read their names, and a widget can be moved with the VoiceOver actions Move Up and Move Down.
+- **Widgets** (*Preview*): each widget in the menu bar is read with its source name and its value in full ("Battery, 80 percent, charging", "unavailable" when it cannot be read); a Shortcut button is read as a button with the Shortcut's name as its hint; a script widget is read as "Script" with its line, "Choose a script" while none is chosen and "Allow this script in Automation, Scripts" while the script is not allowed; in Menu Bar Layout the Widgets switch, Edit, Remove, Move Up and Move Down are reachable by keyboard and read their names, and a widget can be moved with the VoiceOver actions Move Up and Move Down.
 
 ## Result
 
