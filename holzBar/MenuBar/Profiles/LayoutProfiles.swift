@@ -121,8 +121,11 @@ final class LayoutProfiles {
             for item in cache[section] where !item.isControlItem {
                 // Stored under the item's identity, which survives a changing title.
                 itemSections[itemManager.identityKey(for: item)] = section.profileIndex
-                if let bundleID = item.sourceApplication?.bundleIdentifier {
-                    itemApplications.insert(bundleID)
+                // On macOS 27 this is the key of the saved layout: an application's bundle, or a
+                // widget's autosave name, so a profile knows every widget and applying it puts
+                // each back in its section (D-24).
+                if let key = item.layoutKey27 {
+                    itemApplications.insert(key)
                 }
             }
         }

@@ -844,6 +844,33 @@ final class Concealer27 {
         update()
     }
 
+    /// Whether the bar draws the items of a section right now: the visible section always, the
+    /// hidden one while it is revealed, the always-hidden one while everything is.
+    ///
+    /// It is the state the concealment follows (`revealState`), so a widget, which holzBar hides
+    /// itself because it cannot conceal its own items, is drawn exactly when the items beside it
+    /// are. It reads only observable state, so a loop can observe it.
+    func reveals(_ section: MacOS27Section) -> Bool {
+        guard let appState else {
+            return true
+        }
+        let state = revealState(appState)
+        switch section {
+        case .visible: return true
+        case .hidden: return state != .allHidden
+        case .alwaysHidden: return state == .allRevealed
+        }
+    }
+
+    /// Takes a key out of the saved layout, for a widget that is deleted: its key is no
+    /// application's, so nothing else would ever remove it.
+    func removeSection(forKey key: String) {
+        guard savedLayout[key] != nil else {
+            return
+        }
+        setSection(.visible, for: key)
+    }
+
     /// Moves an application to a section of the saved layout and applies it.
     func setSection(_ section: MacOS27Section, for bundleID: String) {
         let updated = SectionLayout27.settingSection(section, for: bundleID, in: savedLayout)

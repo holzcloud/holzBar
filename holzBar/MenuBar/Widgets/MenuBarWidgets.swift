@@ -113,6 +113,11 @@ final class MenuBarWidgets {
         if shortcutNames.removeValue(forKey: id) != nil {
             saveShortcutNames()
         }
+        if #available(macOS 27.0, *), let appState {
+            // A widget's key is no application's, so nothing else would take it out of the
+            // layout macOS 27 saves.
+            appState.concealer27.removeSection(forKey: definition.autosaveName)
+        }
         if let runtime = runtimes.removeValue(forKey: id) {
             stop(runtime, keepingPosition: false)
             updatePowerSourceEvents()
@@ -346,10 +351,13 @@ final class MenuBarWidgets {
 
     // MARK: Visibility
 
-    /// What decides whether the widgets are read: which of them are in a section that is
-    /// shown, and whether the Mac is not in use.
+    /// What decides whether the widgets are read, and on macOS 27 whether they are drawn: which
+    /// of them are in a section that is shown, which of them are in a section the bar does not
+    /// draw, and whether the Mac is not in use.
     nonisolated private struct VisibilityInputs: Equatable, Sendable {
         var shown = Set<UUID>()
+        /// The widgets that are collapsed to nothing (macOS 27 only).
+        var collapsed = Set<UUID>()
         var isPaused = false
     }
 
@@ -362,36 +370,82 @@ final class MenuBarWidgets {
         for definition in definitions where isShown(definition, in: appState) {
             inputs.shown.insert(definition.id)
         }
+        if #available(macOS 27.0, *) {
+            for definition in definitions where !isDrawn(definition, in: appState) {
+                inputs.collapsed.insert(definition.id)
+            }
+        }
         return inputs
+    }
+
+    /// The section of the item cache that holds the widget, `nil` while the cache has not got
+    /// it yet.
+    private func cachedSection(of definition: WidgetDefinition, in appState: AppState) -> MenuBarSection.Name? {
+        let cache = appState.itemManager.itemCache
+        let name = definition.autosaveName
+        return MenuBarSection.Name.allCases.first { section in
+            cache[section].contains { item in
+                item.tag.namespace == .holzBar && item.tag.title == name
+            }
+        }
     }
 
     /// Whether the section of the widget's item is shown. The visible section always counts as
     /// shown while the Mac is in use (D-14); the hidden and always-hidden sections count when
     /// they are not hidden; an item the cache does not hold yet counts as shown.
     private func isShown(_ definition: WidgetDefinition, in appState: AppState) -> Bool {
-        let cache = appState.itemManager.itemCache
-        let name = definition.autosaveName
-        for section in MenuBarSection.Name.allCases {
-            let holdsWidget = cache[section].contains { item in
-                item.tag.namespace == .holzBar && item.tag.title == name
-            }
-            guard holdsWidget else {
-                continue
-            }
-            switch section {
-            case .visible:
-                return true
-            case .hidden, .alwaysHidden:
-                return appState.menuBarManager.section(withName: section)?.isHidden == false
-            }
+        guard let section = cachedSection(of: definition, in: appState), section != .visible else {
+            return true
         }
-        return true
+        return appState.menuBarManager.section(withName: section)?.isHidden == false
+    }
+
+    /// Whether the bar draws the widget on macOS 27, where holzBar cannot conceal its own item
+    /// and collapses it instead (12-SPIKE.md 5.2). It follows the state the concealment of the
+    /// items beside it follows, which is not the same as ``isShown(_:in:)``: with the holzBar
+    /// Shelf the bar stays concealed while the Shelf shows the section, and the widget is read
+    /// for the Shelf's picture all the same. An item the cache does not hold yet is drawn.
+    @available(macOS 27.0, *)
+    private func isDrawn(_ definition: WidgetDefinition, in appState: AppState) -> Bool {
+        guard let section = cachedSection(of: definition, in: appState) else {
+            return true
+        }
+        return appState.concealer27.reveals(MacOS27Section(section))
     }
 
     private func visibilityChanged(_ inputs: VisibilityInputs) {
         for runtime in runtimes.values {
+            setCollapsed(inputs.collapsed.contains(runtime.definition.id), runtime)
             send(.paused(inputs.isPaused), to: runtime)
             send(.shown(inputs.shown.contains(runtime.definition.id)), to: runtime)
+        }
+    }
+
+    /// Collapses the widget to nothing, or gives it its fixed length again. The item keeps its
+    /// element while collapsed, so it stays in the item list, the Shelf and the search; its
+    /// picture is the one holzBar draws itself (12-SPIKE.md A3).
+    private func setCollapsed(_ isCollapsed: Bool, _ runtime: Runtime) {
+        guard runtime.isCollapsed != isCollapsed else {
+            return
+        }
+        runtime.isCollapsed = isCollapsed
+        applyLength(of: runtime)
+    }
+
+    /// Sets the status item's length: the fixed one, or none while the widget is collapsed. As
+    /// `ControlItem.updateStatusItemVisibility` collapses a divider, the item's window is made
+    /// one point wide as well.
+    private func applyLength(of runtime: Runtime) {
+        let statusItem = runtime.statusItem
+        guard runtime.isCollapsed else {
+            statusItem.length = runtime.fixedLength
+            return
+        }
+        statusItem.length = 0
+        if let window = statusItem.button?.window {
+            var size = window.frame.size
+            size.width = 1
+            window.setContentSize(size)
         }
     }
 
@@ -437,6 +491,11 @@ final class MenuBarWidgets {
         var cpuBaseline: CPUTicks?
         /// Forwards a button's click; the status item's button holds its target weakly.
         var clickTarget: ClickTarget?
+        /// The one length of the status item, measured from the widest text (D-12).
+        var fixedLength = NSStatusItem.variableLength
+        /// Whether the widget is collapsed to nothing, because its section is not drawn
+        /// (macOS 27).
+        var isCollapsed = false
 
         init(definition: WidgetDefinition, statusItem: NSStatusItem) {
             self.definition = definition
@@ -472,6 +531,7 @@ final class MenuBarWidgets {
     /// Feeds a new policy what it needs to know. It starts hidden, and shows its first text
     /// once the Mac is in use and its section is shown.
     private func begin(_ runtime: Runtime, with inputs: VisibilityInputs) {
+        setCollapsed(inputs.collapsed.contains(runtime.definition.id), runtime)
         send(.lowPowerMode(ProcessInfo.processInfo.isLowPowerModeEnabled), to: runtime)
         send(.paused(inputs.isPaused), to: runtime)
         send(.shown(inputs.shown.contains(runtime.definition.id)), to: runtime)
@@ -552,7 +612,8 @@ final class MenuBarWidgets {
         // (D-24).
         OwnStatusItemNames.set(label, forAutosaveName: definition.autosaveName)
         button.setAccessibilityRole(definition.kind == .text ? .staticText : .button)
-        runtime.statusItem.length = measuredLength(for: runtime)
+        runtime.fixedLength = measuredLength(for: runtime)
+        applyLength(of: runtime)
         // The measure changed the title and the value may change with the language; draw both
         // again.
         runtime.text = nil
