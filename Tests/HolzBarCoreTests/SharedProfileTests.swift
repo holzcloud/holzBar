@@ -101,6 +101,48 @@ struct SharedProfileTests {
         ])
     }
 
+    @Test("A shared profile never carries a widget (D-25)")
+    func neverCarriesAWidget() throws {
+        let widget = "holzBar.Widget.0A1B2C3D-0000-4000-8000-000000000001"
+        let otherWidget = "holzBar.Widget.0A1B2C3D-0000-4000-8000-000000000002"
+        let own = "com.holzcloud.holzBar"
+
+        // Building one: a widget's item key (macOS 14 to 26) would export holzBar itself, and a
+        // widget's layout key and known entry (macOS 27) are valid bundle identifiers.
+        let entries = SharedProfile.applications(
+            itemSections: [
+                "\(own):\(widget)": 1,
+                "\(own):\(otherWidget)": 2,
+                "com.apple.Safari:Safari": 1,
+            ],
+            applicationSections: [widget: 2, otherWidget: 1, "com.example.other": 1],
+            knownApplications: [widget, own, "com.example.visible"]
+        )
+        #expect(entries == [
+            .init(id: "com.apple.Safari", section: 1),
+            .init(id: "com.example.other", section: 1),
+            .init(id: "com.example.visible", section: 0),
+        ])
+
+        // Reading one: a file that carries a widget, or holzBar itself, loses those entries and
+        // keeps the others. Another name that merely starts like a widget's is an application.
+        let json = """
+        {"format":1,"name":"A","apps":[
+        {"id":"\(widget)","section":1},
+        {"id":"\(own)","section":2},
+        {"id":"com.holzcloud.holzbar","section":1},
+        {"id":"com.a.b","section":2},
+        {"id":"holzBar.Widget.not-a-uuid","section":1}]}
+        """
+        let profile = try #require(try? decode(json).get())
+        #expect(profile.apps == [
+            .init(id: "com.a.b", section: 2),
+            .init(id: "holzBar.Widget.not-a-uuid", section: 1),
+        ])
+        // A section outside 0 to 2 still refuses the file, whoever the entry names.
+        #expect(decode(#"{"format":1,"name":"A","apps":[{"id":"\#(widget)","section":9}]}"#) == .failure(.invalidSection))
+    }
+
     @Test("A name clash gets a number")
     func uniqueNames() {
         #expect(SharedProfile.uniqueName("Work", among: ["Home"]) == "Work")
