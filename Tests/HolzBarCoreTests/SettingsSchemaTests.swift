@@ -192,6 +192,8 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.hotkeys.rawValue == "Hotkeys")
         #expect(Defaults.Key.menuBarAppearanceConfigurationV2.rawValue == "MenuBarAppearanceConfigurationV2")
         #expect(Defaults.Key.holzBarIconShowsCaptureDot.rawValue == "HolzBarIconShowsCaptureDot")
+        #expect(Defaults.Key.widgets.rawValue == "Widgets")
+        #expect(Defaults.Key.widgetShortcutNames.rawValue == "WidgetShortcutNames")
     }
 
     @Test("A file import removes the settings the file lacks")
@@ -251,5 +253,46 @@ struct SettingsSchemaTests {
         let broken = Defaults.Key.validatedSettings(["AutomationRules": Data("nonsense".utf8)])
         #expect(broken.accepted["AutomationRules"] == nil)
         #expect(broken.ignored == ["AutomationRules"])
+    }
+
+    @Test("The widgets travel, their Shortcut names stay (D-25)")
+    func widgetsTravelShortcutNamesStay() {
+        #expect(Defaults.Key.widgets.settingsKind == .data)
+        #expect(Defaults.Key.widgetShortcutNames.settingsKind == .dictionary)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.widgets))
+        #expect(Defaults.Key.localOnlyKeys.contains(.widgetShortcutNames))
+        #expect(Defaults.Key.importableKinds["Widgets"] == .data)
+        #expect(Defaults.Key.importableKinds["WidgetShortcutNames"] == nil)
+        let result = Defaults.Key.validatedSettings([
+            "WidgetShortcutNames": ["0A1B2C3D-0000-4000-8000-000000000001": "Focus"],
+            "ShowOnHover": true,
+        ])
+        #expect(result.ignored == ["WidgetShortcutNames"])
+        #expect(result.accepted["ShowOnHover"] as? Bool == true)
+    }
+
+    @Test("An imported widget list is normalised before it is applied (D-25, T-12-04)")
+    func importedWidgetsAreNormalised() throws {
+        let elements: [[String: Any]] = (0..<7).map { index in
+            [
+                "id": UUID().uuidString,
+                "kind": "text",
+                "source": "cpu",
+                "preset": "percent",
+                "refreshSeconds": 5,
+                "shortcutName": "Secret \(index)",
+            ]
+        }
+        let data = try JSONSerialization.data(withJSONObject: elements)
+        let result = Defaults.Key.validatedSettings(["Widgets": data])
+        let accepted = try #require(result.accepted["Widgets"] as? Data)
+        #expect(result.ignored.isEmpty)
+        let objects = try #require(try JSONSerialization.jsonObject(with: accepted) as? [[String: Any]])
+        #expect(objects.count == 6)
+        #expect(objects.allSatisfy { $0["shortcutName"] == nil })
+        #expect(WidgetList.decode(accepted).count == 6)
+        let broken = Defaults.Key.validatedSettings(["Widgets": Data(#"{"kind": "text"}"#.utf8)])
+        #expect(broken.accepted["Widgets"] == nil)
+        #expect(broken.ignored == ["Widgets"])
     }
 }
