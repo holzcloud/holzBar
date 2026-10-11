@@ -89,6 +89,12 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
             String(s).replacing(/([a-z]{2})([A-Z])/) { $0.output.1 + " " + $0.output.2 }
         }
 
+        // A widget of holzBar's is named by what it shows, on every backend: its window title
+        // is its autosave name, and its source application is holzBar itself.
+        if tag.namespace == .holzBar, let name = OwnStatusItemNames.name(forAutosaveName: tag.title) {
+            return name
+        }
+
         guard !isControlItem else {
             return Constants.displayName
         }

@@ -240,7 +240,9 @@ extension MenuBarItemManager {
             } else if trigger.restoresSavedSections, let section = saved[key] {
                 target = section
             } else if isNew {
-                target = newItemsSection
+                // A widget the user just added starts where they can see it (D-24).
+                let isWidget = item.tag.namespace == .holzBar && WidgetDefinition.isAutosaveName(item.tag.title)
+                target = isWidget ? .visible : newItemsSection
             }
             guard var target else {
                 continue

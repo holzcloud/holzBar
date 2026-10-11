@@ -122,3 +122,27 @@ enum OwnStatusItemWindows {
         return frame
     }
 }
+
+/// The names of holzBar's autosaved status items, by autosave name (a widget's name).
+///
+/// The item model is not isolated to the main actor and reads a name wherever an item list is
+/// used, so the names live behind a lock and not in the main-actor registry above. A widget
+/// registers its name when its status item is created or renamed and clears it when the item
+/// is removed, so nothing stays here while the module is off (D-06).
+nonisolated enum OwnStatusItemNames {
+    private static let names = OSAllocatedUnfairLock<[String: String]>(initialState: [:])
+
+    /// Sets the name of the status item with the given autosave name, or clears it with `nil`.
+    static func set(_ name: String?, forAutosaveName autosaveName: String) {
+        names.withLock { state in
+            state[autosaveName] = name
+        }
+    }
+
+    /// Returns the name registered for the status item with the given autosave name.
+    static func name(forAutosaveName autosaveName: String) -> String? {
+        names.withLock { state in
+            state[autosaveName]
+        }
+    }
+}

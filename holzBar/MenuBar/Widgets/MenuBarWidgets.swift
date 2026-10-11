@@ -328,6 +328,7 @@ final class MenuBarWidgets {
         let position = ControlItemDefaults[.preferredPosition, name]
         NSStatusBar.system.removeStatusItem(runtime.statusItem)
         OwnStatusItemWindows.unregister(autosaveName: name)
+        OwnStatusItemNames.set(nil, forAutosaveName: name)
         if keepingPosition {
             ControlItemDefaults[.preferredPosition, name] = position
         } else {
@@ -364,6 +365,9 @@ final class MenuBarWidgets {
         let label = WidgetSpeech.label(for: definition)
         button.toolTip = label
         button.setAccessibilityLabel(label)
+        // The layout editor and search name the widget by the same label, on every backend
+        // (D-24).
+        OwnStatusItemNames.set(label, forAutosaveName: definition.autosaveName)
         button.setAccessibilityRole(definition.kind == .text ? .staticText : .button)
         runtime.statusItem.length = measuredLength(for: runtime)
         // The measure changed the title and the value may change with the language; draw both
