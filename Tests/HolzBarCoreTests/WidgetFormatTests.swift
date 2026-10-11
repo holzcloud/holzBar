@@ -255,6 +255,51 @@ struct WidgetFormatTests {
         #expect(memory.map(plain).contains("16 GB"))
     }
 
+    @Test("A countdown more than 999 days away has samples as wide as its own text (WR-04)")
+    func farCountdownFitsItsWidth() {
+        let day = 86_400.0
+        // 4 years, 40 years and the farthest moment a countdown may have (126 years).
+        for days in [1_000.0, 1_461.0, 14_610.0, 45_990.0] {
+            for locale in [english, swiss, german] {
+                for preset in WidgetSource.countdown.presets {
+                    var widget = definition(.countdown, preset: preset)
+                    widget.countdownTarget = moment.addingTimeInterval(days * day + 3_600)
+                    let samples = WidgetFormat.widthSamples(
+                        for: widget, locale: locale, calendar: calendar, capacityBytes: nil, now: moment
+                    )
+                    #expect(Set(samples).count == samples.count)
+                    let widest = samples.map(\.count).max() ?? 0
+                    // The remaining time at the measure, then a day, an hour and a minute later.
+                    var longest = 0
+                    for offset in [0.0, 59.0, 3_599.0, day - 1, day] {
+                        let remaining = Duration.seconds(days * day + 3_600 - offset)
+                        let shown = text(.countdown(remaining: remaining, isPassed: false), widget, locale: locale)
+                        longest = max(longest, shown.string.count)
+                    }
+                    #expect(widest >= longest, "\(days) \(locale.identifier) \(preset)")
+                }
+            }
+        }
+    }
+
+    @Test("A countdown within 999 days gets no extra sample, and a passed or missing moment none either")
+    func nearCountdownKeepsItsSamples() {
+        let plainSamples = WidgetFormat.widthSamples(
+            for: definition(.countdown), locale: english, calendar: calendar, capacityBytes: nil, now: moment
+        )
+        var near = definition(.countdown)
+        near.countdownTarget = moment.addingTimeInterval(500 * 86_400)
+        #expect(WidgetFormat.widthSamples(for: near, locale: english, calendar: calendar, capacityBytes: nil, now: moment) == plainSamples)
+        var passed = definition(.countdown)
+        passed.countdownTarget = moment.addingTimeInterval(-5_000 * 86_400)
+        #expect(WidgetFormat.widthSamples(for: passed, locale: english, calendar: calendar, capacityBytes: nil, now: moment) == plainSamples)
+        var far = definition(.countdown)
+        far.countdownTarget = moment.addingTimeInterval(1_461 * 86_400)
+        let farSamples = WidgetFormat.widthSamples(for: far, locale: english, calendar: calendar, capacityBytes: nil, now: moment)
+        #expect(farSamples.count > plainSamples.count)
+        #expect(farSamples.map(plain).contains { $0.contains("1,462") || $0.contains("1,46") })
+    }
+
     // MARK: Script widgets (D-12, D-23)
 
     private var script: WidgetDefinition {

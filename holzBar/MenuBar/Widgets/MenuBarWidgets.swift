@@ -690,7 +690,8 @@ final class MenuBarWidgets {
             for: definition,
             locale: Self.locale,
             calendar: Self.calendar,
-            capacityBytes: capacityBytes(for: definition)
+            capacityBytes: capacityBytes(for: definition),
+            now: .now
         )
         guard let button = runtime.statusItem.button, var widest = samples.first else {
             return NSStatusItem.squareLength

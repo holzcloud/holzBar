@@ -91,17 +91,23 @@ nonisolated enum WidgetFormat {
     /// - A percent: 100 percent.
     /// - A byte count: the capacity, 9.9 GB and 999.9 GB.
     /// - A duration: 0 min, 1 min, 59 min, 1 h 1 min, 23 h 59 min, 1 day 1 h, 1 day 1 min,
-    ///   99 days 23 h, 99 days 59 min, 999 days 23 h and 999 days 59 min.
+    ///   99 days 23 h, 99 days 59 min, 999 days 23 h and 999 days 59 min. A countdown whose moment
+    ///   lies more than 999 days away also gets its own widest texts, with a day count that
+    ///   has one digit more than it can reach (WR-04): its moment may lie 126 years away.
     /// - A button: its title.
     /// - A script widget: 8, 16 or 32 zeros for its width (``scriptWidthDigits(for:)``). Digits
     ///   are as wide as each other in the widget font, so the width is fixed per format.
     ///
-    /// - Parameter capacityBytes: The memory or the volume the count is a part of, when known.
+    /// - Parameters:
+    ///   - capacityBytes: The memory or the volume the count is a part of, when known.
+    ///   - now: The moment a countdown's remaining time is measured from. The remaining time only
+    ///     shrinks, so the width measured now holds for as long as the widget exists.
     static func widthSamples(
         for definition: WidgetDefinition,
         locale: Locale,
         calendar: Calendar,
-        capacityBytes: UInt64?
+        capacityBytes: UInt64?,
+        now: Date = .now
     ) -> [String] {
         var samples = [String]()
         var seen = Set<String>()
@@ -153,10 +159,21 @@ nonisolated enum WidgetFormat {
             let hour = 60 * minute
             let day = 24 * hour
             // A zero unit is left out, so days can come with minutes ("999 days, 59 min").
-            let durations = [
+            var durations = [
                 0, minute, 59 * minute, hour + minute, 23 * hour + 59 * minute, day + hour, day + minute,
                 99 * day + 23 * hour, 99 * day + 59 * minute, 999 * day + 23 * hour, 999 * day + 59 * minute,
             ]
+            // A countdown's moment may lie up to 126 years away, where the day count has four or
+            // five digits (and a grouping separator): wider than every sample above. The day
+            // count is measured from the actual moment, plus one because the last unit rounds up.
+            if definition.source == .countdown, let target = definition.countdownTarget {
+                let remaining = min(target.timeIntervalSince(now), WidgetDefinition.maximumCountdownDistance)
+                if remaining.isFinite, remaining >= 1_000 * day {
+                    let days = (remaining / day).rounded(.down) + 1
+                    durations.append(days * day + 23 * hour)
+                    durations.append(days * day + 59 * minute)
+                }
+            }
             for seconds in durations {
                 add(
                     durationText(
