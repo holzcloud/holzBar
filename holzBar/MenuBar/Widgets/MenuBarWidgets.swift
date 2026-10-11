@@ -38,6 +38,10 @@ final class MenuBarWidgets {
     /// it is neither exported, imported nor shared (D-25).
     private(set) var shortcutNames = [UUID: String]()
 
+    /// The picture of each widget that is in the menu bar, by autosave name, drawn by holzBar
+    /// itself so the Shelf, the search, groups and hints need no screen recording (D-24).
+    private(set) var images = [String: NSImage]()
+
     @ObservationIgnored private let logger = Logger(category: "MenuBarWidgets")
     @ObservationIgnored private weak var appState: AppState?
 
@@ -265,6 +269,33 @@ final class MenuBarWidgets {
         }
     }
 
+    /// Whether the item is one of the widgets, which then runs its own action instead of a click
+    /// on the bar: a left click on a button runs its Shortcut, a text widget does nothing
+    /// (D-20). Any other item is left to the caller.
+    ///
+    /// The surfaces that open items ask the hidden-items lock before they show anything, so
+    /// this adds no way around it.
+    func handlesOpen(of item: MenuBarItem, mouseButton: CGMouseButton) -> Bool {
+        guard
+            isActive,
+            item.tag.namespace == .holzBar,
+            let id = WidgetDefinition.id(fromAutosaveName: item.tag.title),
+            let definition = definitions.first(where: { $0.id == id })
+        else {
+            return false
+        }
+        if definition.kind == .button, mouseButton == .left {
+            runShortcut(for: id)
+        }
+        return true
+    }
+
+    /// The picture of the widget with the given autosave name, or `nil` when it is not in the
+    /// menu bar.
+    func image(forAutosaveName name: String) -> NSImage? {
+        images[name]
+    }
+
     // MARK: Module switch
 
     private func setActive(_ isOn: Bool) {
@@ -455,6 +486,7 @@ final class MenuBarWidgets {
         NSStatusBar.system.removeStatusItem(runtime.statusItem)
         OwnStatusItemWindows.unregister(autosaveName: name)
         OwnStatusItemNames.set(nil, forAutosaveName: name)
+        images[name] = nil
         if keepingPosition {
             ControlItemDefaults[.preferredPosition, name] = position
         } else {
@@ -633,6 +665,8 @@ final class MenuBarWidgets {
         if text != runtime.text {
             runtime.text = text
             button.attributedTitle = Self.attributedTitle(for: text)
+            // The same text as a picture, for the surfaces that show items elsewhere (D-24).
+            images[runtime.definition.autosaveName] = Self.picture(for: runtime.definition, text: text)
         }
         // VoiceOver reads the reading in full, not the short text (D-27). A button has no
         // reading: it says its label and its hint.
@@ -646,6 +680,92 @@ final class MenuBarWidgets {
             runtime.spoken = spoken
             button.setAccessibilityValue(spoken.isEmpty ? nil : spoken)
         }
+    }
+
+    // MARK: Pictures
+
+    /// The widget as an image of its own: the leading symbol, the text and the battery's state
+    /// symbol, in the font of the menu bar, as a template at the height of a menu bar item. A
+    /// widget that cannot be read is the en dash, like its status item (D-13).
+    private static func picture(for definition: WidgetDefinition, text: WidgetText) -> NSImage? {
+        var symbolName: String?
+        var string = text.string
+        switch definition.kind {
+        case .text:
+            symbolName = definition.showsSymbol ? definition.source.symbolName : nil
+        case .button:
+            if definition.showsButtonSymbolOnly {
+                symbolName = WidgetDefinition.buttonSymbolName
+                string = ""
+            }
+        }
+        return drawnPicture(
+            symbolName: symbolName,
+            string: string,
+            isMuted: text.isMuted,
+            stateSymbolName: stateSymbolName(for: text.batteryState),
+            fontSize: font.pointSize,
+            height: ItemIconStore.drawnHeight
+        )
+    }
+
+    /// Draws the parts side by side. It takes plain values only: the image's drawing block runs
+    /// whenever and wherever the image is drawn, so it holds nothing of the main actor.
+    nonisolated private static func drawnPicture(
+        symbolName: String?,
+        string: String,
+        isMuted: Bool,
+        stateSymbolName: String?,
+        fontSize: CGFloat,
+        height: CGFloat
+    ) -> NSImage? {
+        let gap = CGFloat(4)
+        let font = NSFont.monospacedDigitSystemFont(ofSize: fontSize, weight: .regular)
+        let configuration = NSImage.SymbolConfiguration(pointSize: fontSize, weight: .regular)
+        func symbol(_ name: String?) -> NSImage? {
+            name.flatMap { NSImage(systemSymbolName: $0, accessibilityDescription: nil) }?
+                .withSymbolConfiguration(configuration)
+        }
+        let leading = symbol(symbolName)
+        let trailing = symbol(stateSymbolName)
+        // A template image keeps only its shape, so a muted text is a lighter one.
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: font,
+            .foregroundColor: NSColor.black.withAlphaComponent(isMuted ? 0.55 : 1),
+        ]
+        let text = NSAttributedString(string: string, attributes: attributes)
+        let textSize = text.size()
+        var width = textSize.width
+        if let leading {
+            width += leading.size.width + (string.isEmpty ? 0 : gap)
+        }
+        if let trailing {
+            width += gap + trailing.size.width
+        }
+        guard width > 0, height > 0 else {
+            return nil
+        }
+        let image = NSImage(size: NSSize(width: width.rounded(.up), height: height), flipped: false) { bounds in
+            var x = CGFloat.zero
+            if let leading {
+                let size = leading.size
+                leading.draw(in: NSRect(x: x, y: (bounds.height - size.height) / 2, width: size.width, height: size.height))
+                x += size.width + (string.isEmpty ? 0 : gap)
+            }
+            if !string.isEmpty {
+                text.draw(at: NSPoint(x: x, y: (bounds.height - textSize.height) / 2))
+                x += textSize.width
+            }
+            if let trailing {
+                let size = trailing.size
+                trailing.draw(
+                    in: NSRect(x: x + gap, y: (bounds.height - size.height) / 2, width: size.width, height: size.height)
+                )
+            }
+            return true
+        }
+        image.isTemplate = true
+        return image
     }
 
     // MARK: Refreshing

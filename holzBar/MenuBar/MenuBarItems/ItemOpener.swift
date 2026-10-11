@@ -24,6 +24,11 @@ extension MenuBarItemManager {
     ///   - mouseButton: `.left` for the item's menu, `.right` for its secondary menu.
     ///   - shelfDisplayID: The display of the holzBar Shelf the item was clicked in, if any.
     func openItem(_ item: MenuBarItem, mouseButton: CGMouseButton, shelfDisplayID: CGDirectDisplayID?) async {
+        // holzBar runs its own widget's action instead of clicking the bar. The surfaces ask the
+        // hidden-items lock before they show anything, so this adds no way around it.
+        if let appState, appState.widgets.handlesOpen(of: item, mouseButton: mouseButton) {
+            return
+        }
         if
             let appState,
             !appState.settings.advanced.openHiddenItemsInMenuBar,
