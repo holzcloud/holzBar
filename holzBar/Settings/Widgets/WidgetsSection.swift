@@ -66,9 +66,16 @@ struct WidgetsSection: View {
                 }
             }
             HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Button("Add Widget", systemImage: "plus") {
-                    addClock()
+                Menu("Add Widget", systemImage: "plus") {
+                    ForEach(WidgetSource.allCases, id: \.self) { source in
+                        Button {
+                            add(source)
+                        } label: {
+                            Self.sourceTitle(source)
+                        }
+                    }
                 }
+                .fixedSize()
                 .disabled(isFull)
                 if isFull {
                     Text("You can add up to six widgets.")
@@ -108,16 +115,17 @@ struct WidgetsSection: View {
         .accessibilityElement(children: .contain)
     }
 
-    private func addClock() {
+    /// Adds a widget of the source with its default format, unless there are six (D-05).
+    private func add(_ source: WidgetSource) {
         let definition = WidgetDefinition.text(
-            source: .dateTime,
+            source: source,
             uses24HourClock: WidgetFormat.prefers24HourClock(locale: .current),
             now: .now
         )
         widgets.addWidget(definition)
     }
 
-    /// The name of a source, as the user reads it. `WidgetSpeech` speaks the same names.
+    /// The name of a source, as the user reads it. ``WidgetSpeech`` says the same names.
     static func sourceTitle(_ source: WidgetSource) -> Text {
         switch source {
         case .dateTime: Text("Date and Time")

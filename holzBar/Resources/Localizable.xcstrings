@@ -309,6 +309,146 @@
         }
       }
     },
+    "%lld percent" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Prozent"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pour cent"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld per cento"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pertschient"
+          }
+        }
+      }
+    },
+    "%lld percent, charged" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Prozent, geladen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pour cent, chargée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld per cento, carica"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pertschient, chargà"
+          }
+        }
+      }
+    },
+    "%lld percent, charging" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Prozent, wird geladen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pour cent, en charge"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld per cento, in carica"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pertschient, charga"
+          }
+        }
+      }
+    },
+    "%lld percent, on battery" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Prozent, im Akkubetrieb"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pour cent, sur batterie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld per cento, a batteria"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pertschient, cun accu"
+          }
+        }
+      }
+    },
+    "%lld percent, on power adapter" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Prozent, am Netzteil"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pour cent, sur secteur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld per cento, con alimentatore"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld pertschient, cun adapter da current"
+          }
+        }
+      }
+    },
     "%lld rules that use a script will not be imported. Scripts are set up only on this Mac." : {
       "localizations" : {
         "de" : {
@@ -426,7 +566,7 @@
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ina ura, la batteria ed autras indicaziuns persunalas en la trav da menu."
+            "value" : "Ina ura, l’accu ed autras indicaziuns persunalas en la trav da menu."
           }
         }
       }
@@ -2190,7 +2330,7 @@
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Batteria"
+            "value" : "Accu"
           }
         }
       }
@@ -16085,6 +16225,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "activar il modus Zen"
+          }
+        }
+      }
+    },
+    "unavailable" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nicht verfügbar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "indisponible"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "non disponibile"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "betg disponibel"
           }
         }
       }

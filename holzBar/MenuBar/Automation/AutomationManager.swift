@@ -4,18 +4,9 @@
 //
 
 import AppKit
-import IOKit.ps
 import Network
 import Observation
 import OSLog
-
-/// Posted on the main thread when IOKit reports a change of a power source. IOKit's callback
-/// is a C function that cannot capture the manager, so it posts this notification instead.
-nonisolated private let automationPowerDidChange = Notification.Name("AutomationPowerDidChange")
-
-nonisolated private func postAutomationPowerDidChange(_ context: UnsafeMutableRawPointer?) {
-    NotificationCenter.default.post(name: automationPowerDidChange, object: nil)
-}
 
 /// Runs the automation rules (Phase 8): "when this is true, apply this profile, show these
 /// items or turn Zen mode on".
@@ -50,7 +41,8 @@ final class AutomationManager {
 
     /// The observers, by the kind of fact they follow.
     @ObservationIgnored private var observers = [AutomationSource: [Task<Void, Never>]]()
-    @ObservationIgnored private var powerSource: CFRunLoopSource?
+    /// Whether this manager has asked ``PowerSourceEvents`` for power source events.
+    @ObservationIgnored private var isFollowingPowerSource = false
     @ObservationIgnored private var pathMonitor: NWPathMonitor?
     @ObservationIgnored private var networkKinds: Set<AutomationNetworkKind>?
     @ObservationIgnored private var timeTask: Task<Void, Never>?
@@ -219,7 +211,7 @@ final class AutomationManager {
         switch source {
         case .power:
             startPowerSource()
-            observe(source, notifications: [(NotificationCenter.default, automationPowerDidChange)])
+            observe(source, notifications: [(NotificationCenter.default, .powerSourcesDidChange)])
         case .lowPowerMode:
             observe(source, notifications: [(NotificationCenter.default, .NSProcessInfoPowerStateDidChange)])
         case .runningApps:
@@ -313,24 +305,22 @@ final class AutomationManager {
         }
     }
 
+    /// The power source events are one run loop source for the whole app, shared with the
+    /// widgets; this manager holds one use of it while a rule needs the power source.
     private func startPowerSource() {
-        guard powerSource == nil else {
+        guard !isFollowingPowerSource else {
             return
         }
-        if let source = IOPSNotificationCreateRunLoopSource(postAutomationPowerDidChange, nil)?.takeRetainedValue() {
-            CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
-            powerSource = source
-        } else {
-            logger.error("Could not observe power source changes")
-        }
+        isFollowingPowerSource = true
+        PowerSourceEvents.shared.begin()
     }
 
     private func stopPowerSource() {
-        guard let source = powerSource else {
+        guard isFollowingPowerSource else {
             return
         }
-        CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes)
-        powerSource = nil
+        isFollowingPowerSource = false
+        PowerSourceEvents.shared.end()
     }
 
     /// `NWPathMonitor` only watches the state of the network paths; it never opens a
@@ -491,29 +481,16 @@ final class AutomationManager {
     }
 
     /// The power source and the level of the internal battery. A Mac without a battery runs
-    /// on its adapter and has no level.
+    /// on its adapter and has no level. The reading is shared with the widgets.
     private static func powerFacts() -> (source: AutomationPowerSource?, percent: Int?) {
-        guard
-            let info = IOPSCopyPowerSourcesInfo()?.takeRetainedValue(),
-            let sources = IOPSCopyPowerSourcesList(info)?.takeRetainedValue() as? [CFTypeRef]
-        else {
+        switch PowerSources.read() {
+        case .unreadable:
             return (nil, nil)
+        case .noBattery:
+            return (.adapter, nil)
+        case .battery(let battery):
+            return (battery.isOnBattery ? .battery : .adapter, battery.percent)
         }
-        for source in sources {
-            guard
-                let description = IOPSGetPowerSourceDescription(info, source)?.takeUnretainedValue() as? [String: Any],
-                description[kIOPSTypeKey] as? String == kIOPSInternalBatteryType
-            else {
-                continue
-            }
-            let isOnBattery = description[kIOPSPowerSourceStateKey] as? String == kIOPSBatteryPowerValue
-            var percent: Int?
-            if let current = description[kIOPSCurrentCapacityKey] as? Int, let maximum = description[kIOPSMaxCapacityKey] as? Int {
-                percent = BatteryLevel.percent(current: current, maximum: maximum)
-            }
-            return (isOnBattery ? .battery : .adapter, percent)
-        }
-        return (.adapter, nil)
     }
 
     // MARK: Evaluating
