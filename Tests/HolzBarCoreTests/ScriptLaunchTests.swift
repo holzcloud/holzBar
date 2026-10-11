@@ -22,14 +22,25 @@ struct ScriptLaunchTests {
         )
     }
 
-    @Test("There are exactly five events, with fixed names")
+    @Test("There are exactly six events, with fixed names")
     func eventNames() {
-        #expect(ScriptEvent.allCases.count == 5)
+        #expect(ScriptEvent.allCases.count == 6)
         #expect(ScriptEvent.ruleStarted.rawValue == "rule-started")
         #expect(ScriptEvent.ruleEnded.rawValue == "rule-ended")
         #expect(ScriptEvent.check.rawValue == "check")
         #expect(ScriptEvent.profileWillApply.rawValue == "profile-will-apply")
         #expect(ScriptEvent.profileDidApply.rawValue == "profile-did-apply")
+        #expect(ScriptEvent.widgetRefresh.rawValue == "widget-refresh")
+        #expect(Set(ScriptEvent.allCases.map(\.rawValue)).count == 6)
+    }
+
+    @Test("A script widget's run tells the script its event and nothing else (D-23)")
+    func widgetRefreshPlan() {
+        for kind in [ScriptKind.executable, .appleScript] {
+            let environment = plan(name: "clock.sh", kind: kind, event: .widgetRefresh)?.environment
+            #expect(environment?["HOLZBAR_EVENT"] == "widget-refresh")
+            #expect(environment?.keys.sorted() == ["HOLZBAR_EVENT", "HOME", "LANG", "PATH"])
+        }
     }
 
     @Test("An executable runs itself with no arguments, in the folder, with four environment names")
