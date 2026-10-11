@@ -58,7 +58,20 @@ nonisolated struct ModuleDescriptor: Equatable, Sendable, Identifiable {
 /// The list of modules and the rules it must keep.
 nonisolated enum ModuleCatalog {
     /// Every module holzBar ships. Modules are added with the release that brings them.
-    static let all: [ModuleDescriptor] = []
+    ///
+    /// Widgets are off until the user switches them on, ask for no permission and cost nothing
+    /// while off: no status item, no timer and no sampler (D-06). The title and the summary are
+    /// the English strings the settings show; their keys are those strings.
+    static let all: [ModuleDescriptor] = [
+        ModuleDescriptor(
+            id: "widgets",
+            area: .menuBar,
+            symbol: "clock",
+            titleKey: "Widgets",
+            summaryKey: "A clock, the battery and other readouts of your own in the menu bar.",
+            permission: nil
+        ),
+    ]
 
     /// The modules of an area, in catalog order.
     static func modules(in area: ModuleArea, of list: [ModuleDescriptor] = all) -> [ModuleDescriptor] {
