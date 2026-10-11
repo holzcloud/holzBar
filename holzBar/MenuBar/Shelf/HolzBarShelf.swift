@@ -527,7 +527,7 @@ private struct HolzBarShelfContentView: View {
         menuBarManager.section(withName: section)?.hide()
         Task {
             try? await Task.sleep(for: .milliseconds(25))
-            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: shelfDisplayID)
+            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: shelfDisplayID, origin: .click)
         }
         return .handled
     }
@@ -609,7 +609,7 @@ private struct HolzBarShelfItemView: View {
             menuBarManager.section(withName: section)?.hide()
             Task {
                 try? await Task.sleep(for: .milliseconds(25))
-                await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: shelfDisplayID)
+                await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: shelfDisplayID, origin: .click)
             }
         }
     }
@@ -623,7 +623,7 @@ private struct HolzBarShelfItemView: View {
             menuBarManager.section(withName: section)?.hide()
             Task {
                 try? await Task.sleep(for: .milliseconds(25))
-                await itemManager.openItem(item, mouseButton: .right, shelfDisplayID: shelfDisplayID)
+                await itemManager.openItem(item, mouseButton: .right, shelfDisplayID: shelfDisplayID, origin: .click)
             }
         }
     }

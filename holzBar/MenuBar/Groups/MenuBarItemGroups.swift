@@ -331,7 +331,7 @@ private struct MenuBarItemGroupPanel: View {
                             close()
                             Task {
                                 try? await Task.sleep(for: .milliseconds(25))
-                                await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil)
+                                await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil, origin: .command)
                             }
                         } label: {
                             if let image = itemManager.appState?.itemIconStore.image(for: item) ?? imageCache.images[item.tag]?.nsImage {

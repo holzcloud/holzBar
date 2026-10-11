@@ -294,9 +294,13 @@ final class MenuBarWidgets {
     /// asks its script again, a text widget does nothing (D-20, D-23). Any other item is left to
     /// the caller.
     ///
-    /// The surfaces that open items ask the hidden-items lock before they show anything, so
-    /// this adds no way around it.
-    func handlesOpen(of item: MenuBarItem, mouseButton: CGMouseButton) -> Bool {
+    /// - Parameters:
+    ///   - item: The item that is opened.
+    ///   - mouseButton: The button of the click.
+    ///   - origin: How the open started. Only the user's own click skips the 30 seconds between
+    ///     two asks of a script widget; a hotkey, a hint, a group or a Shortcut keeps them, so a
+    ///     repeat cannot run the script faster than a system event could (WR-02).
+    func handlesOpen(of item: MenuBarItem, mouseButton: CGMouseButton, origin: ItemOpenOrigin) -> Bool {
         guard
             isActive,
             item.tag.namespace == .holzBar,
@@ -308,7 +312,7 @@ final class MenuBarWidgets {
         if mouseButton == .left {
             switch definition.kind {
             case .button: runShortcut(for: id)
-            case .script: refreshScriptWidget(id: id)
+            case .script: refreshScriptWidget(id: id, isUserAction: origin.isUserClick)
             case .text: break
             }
         }
@@ -1076,11 +1080,14 @@ final class MenuBarWidgets {
     /// A click on a script widget, or the user's own request in holzBar's pane: asks the script
     /// again at once. It skips only the 30 seconds between two runs, never the gate, the run
     /// limit or the check that the script is not already running (D-23).
-    func refreshScriptWidget(id: UUID) {
+    ///
+    /// - Parameter isUserAction: `false` for an open that was not the user's click (a hotkey, a
+    ///   hint, a group or a Shortcut), which keeps the 30 seconds (WR-02).
+    func refreshScriptWidget(id: UUID, isUserAction: Bool = true) {
         guard let runtime = runtimes[id], runtime.definition.kind == .script else {
             return
         }
-        runScript(runtime, isUserAction: true)
+        runScript(runtime, isUserAction: isUserAction)
     }
 
     /// A real event of the system arrived: every script widget that is seen asks its script,
@@ -1134,7 +1141,7 @@ final class MenuBarWidgets {
             return
         }
         let now = ContinuousClock.now
-        guard isUserAction || ScriptLimits.isConditionDue(lastAsked: runtime.lastScriptStart, now: now) else {
+        guard ScriptLimits.isWidgetAskDue(isUserAction: isUserAction, lastAsked: runtime.lastScriptStart, now: now) else {
             render(runtime, reading: runtime.scriptReading)
             return
         }

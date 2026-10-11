@@ -121,6 +121,12 @@ nonisolated enum ScriptLimits {
         return now - lastAsked >= .seconds(conditionInterval)
     }
 
+    /// Whether a script widget may ask its script now: always for the user's own click, otherwise
+    /// when its condition interval has passed (D-23, WR-02).
+    static func isWidgetAskDue(isUserAction: Bool, lastAsked: ContinuousClock.Instant?, now: ContinuousClock.Instant) -> Bool {
+        isUserAction || isConditionDue(lastAsked: lastAsked, now: now)
+    }
+
     /// The time limit to use for a stored value: the default when none is stored, otherwise the
     /// value clamped to ``minimumTimeLimit`` through ``maximumTimeLimit``.
     static func timeLimit(_ stored: Int?) -> Int {

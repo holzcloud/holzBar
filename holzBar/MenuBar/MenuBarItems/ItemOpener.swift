@@ -9,7 +9,7 @@ import OSLog
 
 /// The one way holzBar opens a menu bar item's menu for the user: the holzBar Shelf, the
 /// search, groups, item hotkeys, the item hints and the Shortcuts action all call
-/// ``MenuBarItemManager/openItem(_:mouseButton:shelfDisplayID:)``.
+/// ``MenuBarItemManager/openItem(_:mouseButton:shelfDisplayID:origin:)``.
 extension MenuBarItemManager {
     /// Opens the menu of the given item.
     ///
@@ -23,10 +23,20 @@ extension MenuBarItemManager {
     ///   - item: The item to open.
     ///   - mouseButton: `.left` for the item's menu, `.right` for its secondary menu.
     ///   - shelfDisplayID: The display of the holzBar Shelf the item was clicked in, if any.
-    func openItem(_ item: MenuBarItem, mouseButton: CGMouseButton, shelfDisplayID: CGDirectDisplayID?) async {
-        // holzBar runs its own widget's action instead of clicking the bar. The surfaces ask the
-        // hidden-items lock before they show anything, so this adds no way around it.
-        if let appState, appState.widgets.handlesOpen(of: item, mouseButton: mouseButton) {
+    ///   - origin: How the open started: the user's own click (the Shelf, the search) or a
+    ///     command (a hotkey, a hint, a group, a Shortcut). A widget keeps the spacing of its
+    ///     script for a command.
+    func openItem(
+        _ item: MenuBarItem,
+        mouseButton: CGMouseButton,
+        shelfDisplayID: CGDirectDisplayID?,
+        origin: ItemOpenOrigin
+    ) async {
+        // holzBar runs its own widget's action instead of clicking the bar. Only a section's
+        // reveal and the search ask the hidden-items lock; item hotkeys, hints, groups and the
+        // Shortcuts action do not, so a script widget keeps the 30 seconds between two asks for
+        // every open that is not the user's own click (`origin`).
+        if let appState, appState.widgets.handlesOpen(of: item, mouseButton: mouseButton, origin: origin) {
             return
         }
         if
@@ -147,7 +157,7 @@ extension MenuBarItemManager {
             return
         }
         Task {
-            await openItem(item, mouseButton: .left, shelfDisplayID: nil)
+            await openItem(item, mouseButton: .left, shelfDisplayID: nil, origin: .command)
         }
     }
 }

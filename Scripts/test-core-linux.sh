@@ -17,7 +17,7 @@ trap 'rm -rf "$scratch"' EXIT
 
 sources=(
   AutomationEngine AutomationRule BatteryLevel Defaults DesignTokens DiagnosticsReport FocusFilterBinding
-  ItemClassifier ItemIdentity LayoutSnapshot LegacyRevealRules ModuleCatalog OwnBundle PinnedSystemItems RevealGate ScriptGate ScriptLaunch ScriptOutput ScriptStorage SettingsSchema SharedProfile ShortcutLink
+  ItemClassifier ItemIdentity ItemOpenOrigin LayoutSnapshot LegacyRevealRules ModuleCatalog OwnBundle PinnedSystemItems RevealGate ScriptGate ScriptLaunch ScriptOutput ScriptStorage SettingsSchema SharedProfile ShortcutLink
   SystemActivity URLCommand WidgetDefinition WidgetFormat WidgetReadings WidgetRefreshPolicy ZenMode
 )
 tests=(

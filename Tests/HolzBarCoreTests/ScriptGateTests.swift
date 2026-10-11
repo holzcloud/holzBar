@@ -283,4 +283,19 @@ struct ScriptGateTests {
         #expect(!ScriptLimits.isConditionDue(lastAsked: asked, now: asked + .seconds(29)))
         #expect(ScriptLimits.isConditionDue(lastAsked: asked, now: asked + .seconds(30)))
     }
+
+    @Test("Only the user's own click skips the 30 seconds of a script widget; every other open keeps them (WR-02)")
+    func widgetAskSpacing() {
+        let asked = ContinuousClock.now
+        let soon = asked + .seconds(5)
+        #expect(ItemOpenOrigin.click.isUserClick)
+        #expect(!ItemOpenOrigin.command.isUserClick)
+        // A click asks again at once.
+        #expect(ScriptLimits.isWidgetAskDue(isUserAction: ItemOpenOrigin.click.isUserClick, lastAsked: asked, now: soon))
+        // A hotkey, a hint, a group or a Shortcut waits for the interval, and then runs.
+        #expect(!ScriptLimits.isWidgetAskDue(isUserAction: ItemOpenOrigin.command.isUserClick, lastAsked: asked, now: soon))
+        #expect(!ScriptLimits.isWidgetAskDue(isUserAction: ItemOpenOrigin.command.isUserClick, lastAsked: asked, now: asked + .seconds(29)))
+        #expect(ScriptLimits.isWidgetAskDue(isUserAction: ItemOpenOrigin.command.isUserClick, lastAsked: asked, now: asked + .seconds(30)))
+        #expect(ScriptLimits.isWidgetAskDue(isUserAction: ItemOpenOrigin.command.isUserClick, lastAsked: nil, now: asked))
+    }
 }
