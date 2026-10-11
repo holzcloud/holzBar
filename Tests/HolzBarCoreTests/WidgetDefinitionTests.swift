@@ -48,7 +48,8 @@ struct WidgetDefinitionTests {
         )
         #expect(WidgetKind(rawValue: "text") == .text)
         #expect(WidgetKind(rawValue: "button") == .button)
-        #expect(WidgetKind(rawValue: "script") == nil)
+        #expect(WidgetKind(rawValue: "script") == .script)
+        #expect(WidgetKind(rawValue: "chart") == nil)
         #expect(WidgetSource(rawValue: "network") == nil)
         #expect(WidgetSource(rawValue: "wifi") == nil)
         #expect(
@@ -66,8 +67,15 @@ struct WidgetDefinitionTests {
         #expect(WidgetSource.uptime.presets == [.duration, .compactDuration])
         #expect(WidgetSource.countdown.presets == [.duration, .compactDuration])
         #expect(WidgetSource.freeDisk.presets == [.gigabytesFree, .percentFree])
-        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == WidgetPreset.allCases.count)
-        #expect(WidgetPreset.allCases.count == 12)
+        // The twelve formats of the sources, and the three widths that belong to the script kind
+        // alone (D-23).
+        #expect(Set(WidgetSource.allCases.flatMap(\.presets)).count == 12)
+        #expect(WidgetKind.scriptPresets == [.narrowText, .mediumText, .wideText])
+        #expect(WidgetPreset.allCases.count == 15)
+        let sourcePresets = Set(WidgetSource.allCases.flatMap(\.presets))
+        #expect(sourcePresets.isDisjoint(with: WidgetKind.scriptPresets))
+        #expect(sourcePresets.union(WidgetKind.scriptPresets).count == WidgetPreset.allCases.count)
+        #expect(WidgetKind.defaultScriptPreset == .mediumText)
         for source in WidgetSource.allCases {
             #expect(source.presets.contains(source.defaultPreset))
         }
@@ -129,7 +137,7 @@ struct WidgetDefinitionTests {
         let third = element(source: "cpu")
         let json = try data([
             first,
-            element(kind: "script"),
+            element(kind: "chart"),
             third,
             element(source: "weather"),
             ["kind": "text", "source": "cpu"],
@@ -303,5 +311,124 @@ struct WidgetDefinitionTests {
         #expect(objects.allSatisfy { $0["extra"] == nil })
         #expect(objects.allSatisfy { ($0["refreshSeconds"] as? Int) == 2 })
         #expect(WidgetList.normalized(normalized, now: now) == normalized)
+    }
+
+    // MARK: Script widgets (D-12, D-23, D-25)
+
+    @Test("A list written by stage 1 decodes unchanged (D-23)")
+    func stageOneListDecodesUnchanged() throws {
+        let clock = element(source: "dateTime", ["preset": "weekdayAndTime", "showsSymbol": false, "uses24HourClock": true])
+        let cpu = element(source: "cpu", ["preset": "percent", "refreshSeconds": 10])
+        let button = element(kind: "button", ["buttonTitle": "Focus", "buttonShowsSymbol": false])
+        let list = WidgetList.decode(try data([clock, cpu, button]), now: now)
+        #expect(list.map(\.kind) == [.text, .text, .button])
+        #expect(list.map(\.preset) == [.weekdayAndTime, .percent, .time])
+        #expect(list[1].refreshSeconds == 10)
+        #expect(list[2].buttonTitle == "Focus")
+        #expect(!list[2].buttonShowsSymbol)
+    }
+
+    @Test("A script definition round-trips and its JSON holds no script name (D-25)")
+    func scriptRoundTripWithoutName() throws {
+        var script = WidgetDefinition.script()
+        script.preset = .wideText
+        script.showsSymbol = true
+        let clock = text(.dateTime)
+        let encoded = try #require(WidgetList.encoded([clock, script]))
+        let decoded = WidgetList.decode(encoded, now: now)
+        #expect(decoded == [clock, script])
+        #expect(WidgetList.encoded(decoded) == encoded)
+        let objects = try #require(try JSONSerialization.jsonObject(with: encoded) as? [[String: Any]])
+        let keys = try #require(objects.last).keys.sorted()
+        #expect(keys.allSatisfy { !$0.lowercased().contains("script") })
+        #expect(
+            keys == [
+                "buttonShowsSymbol", "buttonTitle", "id", "kind", "preset", "showsSeconds", "showsSymbol",
+                "source", "uses24HourClock",
+            ]
+        )
+        #expect(objects.last?["kind"] as? String == "script")
+        #expect(objects.last?["preset"] as? String == "wideText")
+        let labels = Mirror(reflecting: script).children.compactMap(\.label)
+        #expect(labels.allSatisfy { !$0.lowercased().contains("script") })
+    }
+
+    @Test("A new script widget is medium wide with no symbol and is valid without anything else")
+    func newScriptWidget() {
+        let script = WidgetDefinition.script()
+        #expect(script.kind == .script)
+        #expect(script.preset == .mediumText)
+        #expect(!script.showsSymbol)
+        #expect(script.symbolName == "terminal")
+        #expect(WidgetDefinition.scriptSymbolName == "terminal")
+        #expect(script.validated(now: now) == script)
+        #expect(script.autosaveName == "holzBar.Widget.\(script.id.uuidString)")
+        #expect(WidgetDefinition.script().id != script.id)
+    }
+
+    @Test("A script widget keeps a width and its symbol; a width of another kind is not kept (D-12)")
+    func scriptPresetValidation() {
+        for width in WidgetKind.scriptPresets {
+            var script = WidgetDefinition.script()
+            script.preset = width
+            script.showsSymbol = true
+            let valid = script.validated(now: now)
+            #expect(valid?.preset == width)
+            #expect(valid?.showsSymbol == true)
+        }
+        var foreign = WidgetDefinition.script()
+        foreign.preset = .gigabytesFree
+        #expect(foreign.validated(now: now)?.preset == .mediumText)
+        // A text widget or a button with a script width goes back to its own default.
+        #expect(text(.cpu, preset: .wideText).validated(now: now)?.preset == .percent)
+        #expect(text(.dateTime, preset: .narrowText).validated(now: now)?.preset == .time)
+        var button = WidgetDefinition.button(title: "Go")
+        button.preset = .wideText
+        #expect(button.validated(now: now)?.preset == WidgetSource.dateTime.defaultPreset)
+    }
+
+    @Test("A script widget has no source-specific option (D-23)")
+    func scriptKeepsNoSourceOption() {
+        let script = WidgetDefinition(
+            id: UUID(),
+            kind: .script,
+            source: .countdown,
+            preset: .wideText,
+            showsSeconds: true,
+            refreshSeconds: 3,
+            countdownTarget: now.addingTimeInterval(60),
+            buttonTitle: "Leftover"
+        )
+        let valid = script.validated(now: now)
+        #expect(valid?.source == .dateTime)
+        #expect(valid?.showsSeconds == false)
+        #expect(valid?.refreshSeconds == nil)
+        #expect(valid?.countdownTarget == nil)
+        #expect(valid?.buttonTitle == "")
+        #expect(valid?.preset == .wideText)
+    }
+
+    @Test("A script widget reads on events only, never on a timer (D-14, D-23)")
+    func scriptCadenceIsEventOnly() {
+        #expect(WidgetCadence(definition: WidgetDefinition.script()) == .eventOnly)
+        var wide = WidgetDefinition.script()
+        wide.preset = .wideText
+        #expect(WidgetCadence(definition: wide) == .eventOnly)
+        #expect(WidgetRefreshPolicy.nextFire(for: .eventOnly, date: now, calendar: Calendar(identifier: .gregorian), isLowPowerMode: false) == nil)
+    }
+
+    @Test("Scripts count towards the six widgets (D-05)")
+    func scriptsCountTowardsTheCap() throws {
+        let scripts = (0..<7).map { _ in element(kind: "script", ["preset": "narrowText"]) }
+        let list = WidgetList.decode(try data(scripts), now: now)
+        #expect(list.count == WidgetDefinition.maximumCount)
+        #expect(list.allSatisfy { $0.kind == .script && $0.preset == .narrowText })
+    }
+
+    @Test("Each kind has its symbol in lists and pictures")
+    func symbolNames() {
+        #expect(text(.battery).symbolName == "battery.75percent")
+        #expect(WidgetDefinition.button(title: "Go").symbolName == WidgetDefinition.buttonSymbolName)
+        #expect(WidgetDefinition.script().symbolName == WidgetDefinition.scriptSymbolName)
     }
 }

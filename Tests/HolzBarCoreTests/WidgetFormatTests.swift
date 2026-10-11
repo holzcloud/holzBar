@@ -254,4 +254,67 @@ struct WidgetFormatTests {
         )
         #expect(memory.map(plain).contains("16 GB"))
     }
+
+    // MARK: Script widgets (D-12, D-23)
+
+    private var script: WidgetDefinition {
+        WidgetDefinition.script()
+    }
+
+    @Test("A script widget shows its line as given, never parsed (T-12-25)")
+    func scriptLineIsShownAsGiven() {
+        let lines = [
+            "Up 3 d, 4 h",
+            "100%",
+            "<b>bold</b> <a href=\"https://example.org\">link</a>",
+            "https://example.org/?a=1&b=2",
+            "%@ %d \\(1) {time} ${HOME}",
+            "\u{2013} \u{1F50B} 80",
+        ]
+        for line in lines {
+            let result = text(.line(line), script)
+            #expect(result.string == line)
+            #expect(!result.isUnavailable)
+            #expect(!result.isMuted)
+            #expect(result.batteryState == nil)
+        }
+        // The same in every locale: the line is the script's, not formatted.
+        #expect(text(.line("1,5 GB"), script, locale: german).string == "1,5 GB")
+    }
+
+    @Test("An empty line, an unavailable reading or a reading of another source is an en dash (D-13)")
+    func scriptUnavailableIsEnDash() {
+        for reading in [
+            WidgetReading.line(""),
+            .unavailable,
+            .date(moment),
+            .fraction(0.5),
+            .bytes(10),
+            .duration(.seconds(5)),
+        ] {
+            let result = text(reading, script)
+            #expect(result.string == "\u{2013}")
+            #expect(result.isUnavailable)
+        }
+    }
+
+    @Test("A script widget has one fixed width sample of 8, 16 or 32 digits (D-12)")
+    func scriptWidthSamples() {
+        let expected: [(WidgetPreset, Int)] = [(.narrowText, 8), (.mediumText, 16), (.wideText, 32)]
+        for (preset, count) in expected {
+            var widget = script
+            widget.preset = preset
+            for locale in [english, swiss, german] {
+                let samples = WidgetFormat.widthSamples(
+                    for: widget, locale: locale, calendar: calendar, capacityBytes: 1_000_000
+                )
+                #expect(samples == [String(repeating: "0", count: count)])
+            }
+        }
+        #expect(WidgetFormat.scriptWidthDigits(for: .narrowText) == 8)
+        #expect(WidgetFormat.scriptWidthDigits(for: .mediumText) == 16)
+        #expect(WidgetFormat.scriptWidthDigits(for: .wideText) == 32)
+        // A format that is not a width falls back to the medium one.
+        #expect(WidgetFormat.scriptWidthDigits(for: .percent) == 16)
+    }
 }
