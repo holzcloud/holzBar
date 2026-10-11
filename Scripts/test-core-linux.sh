@@ -17,11 +17,13 @@ trap 'rm -rf "$scratch"' EXIT
 
 sources=(
   AutomationEngine AutomationRule BatteryLevel Defaults DesignTokens DiagnosticsReport FocusFilterBinding
-  ItemClassifier ItemIdentity LayoutSnapshot LegacyRevealRules ModuleCatalog PinnedSystemItems RevealGate ScriptGate ScriptLaunch ScriptOutput ScriptStorage SettingsSchema SharedProfile URLCommand WidgetDefinition WidgetFormat WidgetReadings ZenMode
+  ItemClassifier ItemIdentity LayoutSnapshot LegacyRevealRules ModuleCatalog PinnedSystemItems RevealGate ScriptGate ScriptLaunch ScriptOutput ScriptStorage SettingsSchema SharedProfile ShortcutLink
+  SystemActivity URLCommand WidgetDefinition WidgetFormat WidgetReadings WidgetRefreshPolicy ZenMode
 )
 tests=(
   AutomationEngineTests BatteryLevelTests DesignTokensTests DiagnosticsReportTests FocusFilterBindingTests
-  ItemClassifierTests LayoutSnapshotTests LegacyRevealRulesTests ModuleCatalogTests PinnedSystemItemsTests RevealGateTests ScriptGateTests ScriptLaunchTests ScriptOutputTests ScriptStorageTests SettingsSchemaTests SharedProfileTests URLCommandTests WidgetDefinitionTests WidgetFormatTests WidgetReadingsTests
+  ItemClassifierTests LayoutSnapshotTests LegacyRevealRulesTests ModuleCatalogTests PinnedSystemItemsTests RevealGateTests ScriptGateTests ScriptLaunchTests ScriptOutputTests ScriptStorageTests SettingsSchemaTests SharedProfileTests ShortcutLinkTests
+  SystemActivityTests URLCommandTests WidgetDefinitionTests WidgetFormatTests WidgetReadingsTests WidgetRefreshPolicyTests
 )
 
 mkdir -p "$scratch/Sources/HolzBarCore" "$scratch/Tests/HolzBarCoreTests"

@@ -116,6 +116,8 @@ struct ShortcutLinkTests {
             #expect(ShortcutLink.cleanedName(inside) == nil, "U+\(String(value, radix: 16)) inside")
             let leading = "\(Character(scalar))Morning"
             #expect(ShortcutLink.cleanedName(leading) == nil, "U+\(String(value, radix: 16)) leading")
+            let trailing = "Morning\(Character(scalar))"
+            #expect(ShortcutLink.cleanedName(trailing) == nil, "U+\(String(value, radix: 16)) trailing")
             #expect(ShortcutLink.runURL(forShortcutNamed: inside) == nil)
         }
         // A line break inside a name is a control character; at the ends it is only trimmed.
