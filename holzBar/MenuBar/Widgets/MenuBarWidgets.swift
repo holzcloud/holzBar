@@ -18,6 +18,10 @@ import OSLog
 /// While it is on, every widget has a ``WidgetRefreshPolicy`` that decides when its source is
 /// read. This class feeds the policy events and does what the returned command says; every
 /// wait is a one-shot task the policy armed, never a repeating timer (D-14, D-15).
+///
+/// A button widget runs a Shortcut of the user's when it is clicked, in the menu bar or from the
+/// holzBar Shelf, the search, a group or a hint; a text widget has no action (D-20). The
+/// Shortcut's name is chosen by typing it and stays on this Mac (D-21, D-25).
 @MainActor
 @Observable
 final class MenuBarWidgets {
@@ -29,6 +33,10 @@ final class MenuBarWidgets {
 
     /// Whether the module is on, and the widgets exist in the menu bar.
     private(set) var isActive = false
+
+    /// The name of the Shortcut each button runs, by widget identifier. Kept on this Mac only:
+    /// it is neither exported, imported nor shared (D-25).
+    private(set) var shortcutNames = [UUID: String]()
 
     @ObservationIgnored private let logger = Logger(category: "MenuBarWidgets")
     @ObservationIgnored private weak var appState: AppState?
@@ -55,6 +63,12 @@ final class MenuBarWidgets {
     func performSetup(with appState: AppState) {
         self.appState = appState
         definitions = WidgetList.decode(Defaults.data(forKey: .widgets) ?? Data())
+        let storedNames = Defaults.dictionary(forKey: .widgetShortcutNames)
+        shortcutNames = ShortcutLink.storedNames(storedNames, keeping: Set(definitions.map(\.id)))
+        if (storedNames?.count ?? 0) != shortcutNames.count {
+            // Names of widgets that are gone, and anything that is not a name, are dropped.
+            saveShortcutNames()
+        }
         moduleLoop = ObservationLoop.observe { [weak appState] in
             appState?.modules.isEnabled(Self.moduleID) ?? false
         } onChange: { [weak self] isOn in
@@ -92,6 +106,9 @@ final class MenuBarWidgets {
         }
         let definition = definitions.remove(at: index)
         save()
+        if shortcutNames.removeValue(forKey: id) != nil {
+            saveShortcutNames()
+        }
         if let runtime = runtimes.removeValue(forKey: id) {
             stop(runtime, keepingPosition: false)
             updatePowerSourceEvents()
@@ -138,6 +155,98 @@ final class MenuBarWidgets {
     private func save() {
         if let data = WidgetList.encoded(definitions) {
             Defaults.set(data, forKey: .widgets)
+        }
+    }
+
+    // MARK: Shortcut names
+
+    /// Stores the name of the Shortcut a button runs, cleaned (``ShortcutLink/cleanedName(_:)``).
+    /// A text that is empty removes the name.
+    ///
+    /// - Returns: `false`, storing nothing, when the name cannot be used.
+    @discardableResult
+    func setShortcutName(_ text: String, for id: UUID) -> Bool {
+        guard definitions.contains(where: { $0.id == id && $0.kind == .button }) else {
+            return false
+        }
+        if text.allSatisfy(\.isWhitespace) {
+            if shortcutNames.removeValue(forKey: id) != nil {
+                saveShortcutNames()
+                refreshHint(of: id)
+            }
+            return true
+        }
+        guard let name = ShortcutLink.cleanedName(text) else {
+            return false
+        }
+        if shortcutNames[id] != name {
+            shortcutNames[id] = name
+            saveShortcutNames()
+            refreshHint(of: id)
+        }
+        return true
+    }
+
+    private func saveShortcutNames() {
+        var stored = [String: String]()
+        for (id, name) in shortcutNames {
+            stored[id.uuidString] = name
+        }
+        Defaults.set(stored, forKey: .widgetShortcutNames)
+    }
+
+    private func refreshHint(of id: UUID) {
+        guard let runtime = runtimes[id] else {
+            return
+        }
+        runtime.statusItem.button?.setAccessibilityHelp(
+            WidgetSpeech.hint(for: runtime.definition, shortcutName: shortcutNames[id])
+        )
+    }
+
+    // MARK: Clicks
+
+    /// Runs the button's Shortcut by opening its link, and nothing else: holzBar asks for no
+    /// permission, shows no confirmation and gives no feedback of its own when the Shortcut
+    /// does not exist, because the Shortcuts app says so itself (D-21, D-22). The name is never
+    /// logged.
+    ///
+    /// A button without a name opens the settings, where the name is chosen (D-25).
+    func runShortcut(for id: UUID) {
+        guard
+            isActive,
+            let name = shortcutNames[id],
+            let url = ShortcutLink.runURL(forShortcutNamed: name)
+        else {
+            openLayoutSettings()
+            return
+        }
+        let configuration = NSWorkspace.OpenConfiguration()
+        // Ask the system not to bring the Shortcuts app forward.
+        configuration.activates = false
+        NSWorkspace.shared.open(url, configuration: configuration, completionHandler: nil)
+    }
+
+    private func openLayoutSettings() {
+        guard let appState else {
+            return
+        }
+        appState.navigationState.settingsNavigationIdentifier = .menuBarLayout
+        appState.activate(for: .settings)
+        appState.openWindow(.settings)
+    }
+
+    /// Forwards a status item button's click to a closure (the class of the same name in
+    /// `MenuBarItemGroups` is the first copy; a third user lifts it into a shared file).
+    private final class ClickTarget: NSObject {
+        let action: (NSStatusBarButton) -> Void
+
+        init(action: @escaping (NSStatusBarButton) -> Void) {
+            self.action = action
+        }
+
+        @objc func clicked(_ sender: NSStatusBarButton) {
+            action(sender)
         }
     }
 
@@ -280,6 +389,8 @@ final class MenuBarWidgets {
         /// so it is dropped whenever the widget stops being visible: a reveal never shows an
         /// average over the hidden time.
         var cpuBaseline: CPUTicks?
+        /// Forwards a button's click; the status item's button holds its target weakly.
+        var clickTarget: ClickTarget?
 
         init(definition: WidgetDefinition, statusItem: NSStatusItem) {
             self.definition = definition
@@ -356,15 +467,36 @@ final class MenuBarWidgets {
             image?.isTemplate = true
             button.image = image
             button.imagePosition = .imageLeading
+        } else if definition.showsButtonSymbolOnly {
+            let image = NSImage(systemSymbolName: WidgetDefinition.buttonSymbolName, accessibilityDescription: nil)
+            image?.isTemplate = true
+            button.image = image
+            button.imagePosition = .imageOnly
         } else {
             button.image = nil
             button.imagePosition = .noImage
         }
-        // The tooltip repeats the label; a text widget has no action, so it is static text
-        // (D-27). The value is set with every text.
+        // A button runs its Shortcut when it is clicked; a text widget has no action (D-20).
+        if definition.kind == .button {
+            let id = definition.id
+            let target = runtime.clickTarget ?? ClickTarget { [weak self] _ in
+                self?.runShortcut(for: id)
+            }
+            runtime.clickTarget = target
+            button.target = target
+            button.action = #selector(ClickTarget.clicked(_:))
+        } else {
+            runtime.clickTarget = nil
+            button.target = nil
+            button.action = nil
+        }
+        // The tooltip repeats the label; a text widget has no action, so it is static text and
+        // a button is a button with the Shortcut's name as its hint (D-27). The value is set
+        // with every text.
         let label = WidgetSpeech.label(for: definition)
         button.toolTip = label
         button.setAccessibilityLabel(label)
+        button.setAccessibilityHelp(WidgetSpeech.hint(for: definition, shortcutName: shortcutNames[definition.id]))
         // The layout editor and search name the widget by the same label, on every backend
         // (D-24).
         OwnStatusItemNames.set(label, forAutosaveName: definition.autosaveName)
@@ -381,7 +513,8 @@ final class MenuBarWidgets {
     /// when its definition or the locale changes, never on a refresh.
     private func measuredLength(for runtime: Runtime) -> CGFloat {
         let definition = runtime.definition
-        let samples = WidgetFormat.widthSamples(
+        // A button that shows its symbol has no text; the symbol and the padding are measured.
+        let samples = definition.showsButtonSymbolOnly ? [""] : WidgetFormat.widthSamples(
             for: definition,
             locale: Self.locale,
             calendar: Self.calendar,
@@ -469,12 +602,16 @@ final class MenuBarWidgets {
     /// Draws the text of a reading, unless it is the text already drawn.
     private func render(_ runtime: Runtime, reading: WidgetReading) {
         runtime.reading = reading
-        let text = WidgetFormat.text(
+        var text = WidgetFormat.text(
             for: reading,
             definition: runtime.definition,
             locale: Self.locale,
             calendar: Self.calendar
         )
+        if runtime.definition.showsButtonSymbolOnly {
+            // The symbol is the button's image; its title is not drawn.
+            text = WidgetText(string: "")
+        }
         guard let button = runtime.statusItem.button else {
             return
         }
@@ -482,7 +619,8 @@ final class MenuBarWidgets {
             runtime.text = text
             button.attributedTitle = Self.attributedTitle(for: text)
         }
-        // VoiceOver reads the reading in full, not the short text (D-27).
+        // VoiceOver reads the reading in full, not the short text (D-27). A button has no
+        // reading: it says its label and its hint.
         let spoken = WidgetSpeech.value(
             for: reading,
             definition: runtime.definition,
@@ -491,7 +629,7 @@ final class MenuBarWidgets {
         )
         if spoken != runtime.spoken {
             runtime.spoken = spoken
-            button.setAccessibilityValue(spoken)
+            button.setAccessibilityValue(spoken.isEmpty ? nil : spoken)
         }
     }
 

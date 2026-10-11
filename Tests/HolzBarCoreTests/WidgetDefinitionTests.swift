@@ -237,6 +237,18 @@ struct WidgetDefinitionTests {
         #expect(button.buttonShowsSymbol)
     }
 
+    @Test("A button shows its symbol when it asks for it or has no title (D-20)")
+    func buttonShowsSymbolOnly() {
+        var button = WidgetDefinition.button(title: "Go")
+        #expect(button.showsButtonSymbolOnly)
+        button.buttonShowsSymbol = false
+        #expect(!button.showsButtonSymbolOnly)
+        button.buttonTitle = ""
+        #expect(button.showsButtonSymbolOnly)
+        let text = WidgetDefinition.text(source: .cpu, uses24HourClock: false, now: now)
+        #expect(!text.showsButtonSymbolOnly)
+    }
+
     @Test("Autosave names are holzBar.Widget.<uuid> (D-17)")
     func autosaveNames() throws {
         let id = try #require(UUID(uuidString: "0A1B2C3D-0000-4000-8000-000000000001"))

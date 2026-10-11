@@ -157,12 +157,18 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
     var countdownTarget: Date?
     /// The text of a button.
     var buttonTitle = ""
-    /// Whether a button shows ``buttonSymbolName`` before its title.
+    /// Whether a button shows ``buttonSymbolName`` instead of its title (D-20).
     var buttonShowsSymbol = true
 
     /// The name of the widget's status item (D-17).
     var autosaveName: String {
         Self.autosaveNamePrefix + id.uuidString
+    }
+
+    /// Whether a button shows only ``buttonSymbolName``: it asks for the symbol, or it has no
+    /// title to show, so the menu bar item is never empty.
+    var showsButtonSymbolOnly: Bool {
+        kind == .button && (buttonShowsSymbol || buttonTitle.isEmpty)
     }
 
     /// The identifier a widget's autosave name holds, or `nil` when the name is not exactly

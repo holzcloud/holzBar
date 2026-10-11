@@ -35,11 +35,12 @@ struct WidgetsModuleSection: View {
     }
 }
 
-/// The widgets of the menu bar: one row each, a way to remove one and a way to add one, at
-/// most six (D-05).
+/// The widgets of the menu bar: one row each, an editor under the row that was chosen, a way
+/// to add one, at most six (D-05).
 struct WidgetsSection: View {
     var widgets: MenuBarWidgets
     @State private var removalID: UUID?
+    @State private var editingID: UUID?
 
     private var isConfirmingRemoval: Binding<Bool> {
         Binding(
@@ -60,6 +61,9 @@ struct WidgetsSection: View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
             ForEach(widgets.definitions) { definition in
                 row(for: definition)
+                if editingID == definition.id {
+                    editor(for: definition)
+                }
                 if definition.id != widgets.definitions.last?.id {
                     Divider()
                         .overlay(HolzBarTheme.Palette.stroke)
@@ -74,6 +78,12 @@ struct WidgetsSection: View {
                             Self.sourceTitle(source)
                         }
                     }
+                    Divider()
+                    Button {
+                        addButton()
+                    } label: {
+                        Text("Shortcut Button")
+                    }
                 }
                 .fixedSize()
                 .disabled(isFull)
@@ -87,6 +97,9 @@ struct WidgetsSection: View {
         .confirmationDialog("Remove this widget?", isPresented: isConfirmingRemoval, titleVisibility: .visible) {
             Button("Remove", role: .destructive) {
                 if let id = removalID {
+                    if editingID == id {
+                        editingID = nil
+                    }
                     widgets.removeWidget(id: id)
                 }
                 removalID = nil
@@ -98,21 +111,77 @@ struct WidgetsSection: View {
     }
 
     private func row(for definition: WidgetDefinition) -> some View {
-        HStack(spacing: HolzBarTheme.Spacing.sm) {
-            Image(systemName: definition.source.symbolName)
+        let isEditing = editingID == definition.id
+        return HStack(spacing: HolzBarTheme.Spacing.sm) {
+            Image(systemName: definition.kind == .button ? WidgetDefinition.buttonSymbolName : definition.source.symbolName)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .frame(width: HolzBarTheme.Spacing.xl)
                 .accessibilityHidden(true)
-            Self.sourceTitle(definition.source)
-                .font(HolzBarTheme.Typography.body)
-                .foregroundStyle(HolzBarTheme.Palette.text)
-            Spacer(minLength: HolzBarTheme.Spacing.sm)
-            Button("Remove", role: .destructive) {
-                removalID = definition.id
+            VStack(alignment: .leading, spacing: 1) {
+                title(for: definition)
+                    .font(HolzBarTheme.Typography.body)
+                    .foregroundStyle(HolzBarTheme.Palette.text)
+                summary(for: definition)
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
             }
+            Spacer(minLength: HolzBarTheme.Spacing.sm)
+            Button {
+                editingID = isEditing ? nil : definition.id
+            } label: {
+                Image(systemName: isEditing ? "chevron.up" : "chevron.down")
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    .frame(width: HolzBarTheme.minimumTargetSize, height: HolzBarTheme.minimumTargetSize)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Edit"))
+            .help("Edit")
         }
         .padding(.vertical, HolzBarTheme.Spacing.xs)
         .accessibilityElement(children: .contain)
+    }
+
+    private func editor(for definition: WidgetDefinition) -> some View {
+        WidgetEditor(widgets: widgets, id: definition.id) {
+            removalID = definition.id
+        }
+        .padding(.leading, HolzBarTheme.Spacing.xl + HolzBarTheme.Spacing.sm)
+        .padding(.bottom, HolzBarTheme.Spacing.xs)
+    }
+
+    /// The name of a widget: its source, or its button's title.
+    private func title(for definition: WidgetDefinition) -> Text {
+        switch definition.kind {
+        case .text:
+            Self.sourceTitle(definition.source)
+        case .button:
+            // A title the user typed is shown as it is, never looked up as a string key.
+            Text(verbatim: WidgetSpeech.label(for: definition))
+        }
+    }
+
+    /// The format of a text widget, or the state of a button's Shortcut (D-25).
+    private func summary(for definition: WidgetDefinition) -> Text {
+        switch definition.kind {
+        case .text:
+            Text(verbatim: "")
+        case .button:
+            if let name = widgets.shortcutNames[definition.id] {
+                Text(verbatim: name)
+            } else {
+                Text("Choose a Shortcut")
+            }
+        }
+    }
+
+    /// Adds a button that runs a Shortcut, unless there are six (D-05). Its name is chosen in
+    /// its editor, which opens at once.
+    private func addButton() {
+        let definition = WidgetDefinition.button(title: String(localized: "Shortcut"))
+        if widgets.addWidget(definition) {
+            editingID = definition.id
+        }
     }
 
     /// Adds a widget of the source with its default format, unless there are six (D-05).

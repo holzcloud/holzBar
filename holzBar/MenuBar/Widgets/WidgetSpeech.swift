@@ -11,12 +11,26 @@ import Foundation
 /// The text in the menu bar is short ("80%", "3 d, 5 hr"); the value is the same reading in
 /// words. Everything is built with `String(localized:)`, so it follows the language of the app.
 nonisolated enum WidgetSpeech {
-    /// The label of a widget: the name of its source, or a button's title.
+    /// The label of a widget: the name of its source, or a button's title, or "Shortcut" for a
+    /// button that has none.
     static func label(for definition: WidgetDefinition) -> String {
         if definition.kind == .button {
-            return definition.buttonTitle.isEmpty ? String(localized: "Widgets") : definition.buttonTitle
+            return definition.buttonTitle.isEmpty ? String(localized: "Shortcut") : definition.buttonTitle
         }
         return label(for: definition.source)
+    }
+
+    /// The hint of a button: the name of its Shortcut, or "Choose a Shortcut" while it has none
+    /// (D-27). A text widget has no action and no hint.
+    ///
+    /// - Parameters:
+    ///   - definition: The widget.
+    ///   - shortcutName: The Shortcut the button runs, kept on this Mac.
+    static func hint(for definition: WidgetDefinition, shortcutName: String?) -> String? {
+        guard definition.kind == .button else {
+            return nil
+        }
+        return shortcutName ?? String(localized: "Choose a Shortcut")
     }
 
     /// The name of a source. The same names are the titles in the settings.
@@ -46,7 +60,8 @@ nonisolated enum WidgetSpeech {
         calendar: Calendar
     ) -> String {
         if definition.kind == .button {
-            return label(for: definition)
+            // A button has no reading: VoiceOver says its label and its hint.
+            return ""
         }
         let unavailable = String(localized: "unavailable")
         switch (definition.source, reading) {
