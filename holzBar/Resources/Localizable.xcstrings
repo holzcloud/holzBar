@@ -8523,6 +8523,34 @@
         }
       }
     },
+    "On macOS 27, items that macOS shows in its own expanded overflow are not listed a second time." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 werden Elemente, die macOS in seinem eigenen aufgeklappten Überlauf zeigt, nicht ein zweites Mal aufgeführt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sur macOS 27, les éléments que macOS affiche dans son propre débordement déployé ne sont pas listés une seconde fois."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, gli elementi che macOS mostra nel proprio overflow espanso non vengono elencati una seconda volta."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 na vegnan ils elements che macOS mussa en ses agen overflow avert betg mussads ina segunda giada."
+          }
+        }
+      }
+    },
     "On macOS 27, while holzBar hides menu bar items, Control Centre does not show its indicator for the camera, the microphone or screen recording. It comes back while holzBar hides no item. holzBar can mark its own icon instead, for the microphone and the camera but not for screen recording. The small green dot beside the clock still appears while the camera is on." : {
       "localizations" : {
         "de" : {

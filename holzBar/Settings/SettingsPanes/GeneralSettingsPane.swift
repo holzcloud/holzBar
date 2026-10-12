@@ -193,8 +193,21 @@ struct GeneralSettingsPane: View {
         if settings.useShelf {
             shelfLocationPicker
             shelfDisplaysPicker
-            Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInShelf)
-                .annotation("Visible items that the notch hides, for example behind a long application menu, also appear in the holzBar Shelf.")
+            if #available(macOS 27.0, *) {
+                Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInShelf)
+                    .annotation {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Visible items that the notch hides, for example behind a long application menu, also appear in the holzBar Shelf.")
+                            HStack(alignment: .firstTextBaseline, spacing: HolzBarTheme.Spacing.sm) {
+                                Text("On macOS 27, items that macOS shows in its own expanded overflow are not listed a second time.")
+                                PreviewBadge()
+                            }
+                        }
+                    }
+            } else {
+                Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInShelf)
+                    .annotation("Visible items that the notch hides, for example behind a long application menu, also appear in the holzBar Shelf.")
+            }
         }
     }
 
