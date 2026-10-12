@@ -46,9 +46,9 @@ jobs:
             exit 1
           fi
           VERSION="${GITHUB_REF_NAME#v}"
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta[0-9]+)?$ ]]; then
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta)[0-9]+)?$ ]]; then
             # Do not echo the rejected value: it could carry workflow commands.
-            echo "::error::The version must look like 0.0.6 or 0.0.6-beta1."
+            echo "::error::The version must look like 0.1.0, 0.1.0-alpha1 or 0.1.0-beta1."
             exit 1
           fi
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
@@ -410,10 +410,10 @@ jobs:
           set -euo pipefail
           TAG="v$VERSION"
           NOTES="docs/release-notes/$TAG.md"
-          # holzBar is in beta until 1.0: every 0.x release, and every tag with a
-          # suffix such as -beta1, is published as a pre-release.
+          # Before 0.1.0 every release is a pre-release. From 0.1.0 on only a tag
+          # with a suffix (-alpha1, -beta1) is one; a plain 0.1.0 or 1.0.0 is not.
           IS_PRERELEASE=false
-          if [[ "$TAG" == v0.* || "$TAG" == *-* ]]; then
+          if [[ "$TAG" == v0.0.* || "$TAG" == *-* ]]; then
             IS_PRERELEASE=true
           fi
           if gh release view "$TAG" > /dev/null 2>&1; then
@@ -489,7 +489,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta[0-9]+)?$ ]] || [[ ! "$SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta)[0-9]+)?$ ]] || [[ ! "$SHA256" =~ ^[0-9a-f]{64}$ ]]; then
             echo "::error::The version or the checksum from the sign job is malformed."
             exit 1
           fi
@@ -509,13 +509,16 @@ jobs:
           brew update --quiet
           SRC="$RUNNER_TEMP/tap-src"
           EXPECTED_NUMSTAT=$(printf '2\t2\tCasks/holzbar.rb')
-          # A key that sorts like the version: 0.0.7-beta1 before 0.0.7, before 0.0.8. The
-          # release list cannot tell which release is newest: GitHub orders it by the date
-          # of the tagged commit, not by when a release was published.
+          # A key that sorts like the version: 0.0.7-alpha1 before 0.0.7-beta1, before 0.0.7,
+          # before 0.0.8. The release list cannot tell which release is newest: GitHub orders
+          # it by the date of the tagged commit, not by when a release was published.
           version_key() {
-            [[ "$1" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-beta([0-9]+))?$ ]] || return 1
-            printf '%06d.%06d.%06d.%06d' "$((10#${BASH_REMATCH[1]}))" "$((10#${BASH_REMATCH[2]}))" \
-              "$((10#${BASH_REMATCH[3]}))" "$((10#${BASH_REMATCH[5]:-999999}))"
+            [[ "$1" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-(alpha|beta)([0-9]+))?$ ]] || return 1
+            # Stage: alpha 1, beta 2, plain release 3.
+            local STAGE=3
+            case "${BASH_REMATCH[5]}" in alpha) STAGE=1 ;; beta) STAGE=2 ;; esac
+            printf '%06d.%06d.%06d.%d.%06d' "$((10#${BASH_REMATCH[1]}))" "$((10#${BASH_REMATCH[2]}))" \
+              "$((10#${BASH_REMATCH[3]}))" "$STAGE" "$((10#${BASH_REMATCH[6]:-0}))"
           }
           NEW_KEY=$(version_key "$VERSION")
           for ATTEMPT in 1 2 3; do
