@@ -36,8 +36,17 @@ enum DiagnosticsCollector {
             groupCount: appState.itemGroups.groups.count,
             spacerCount: appState.spacers.count,
             automationRuleCount: appState.automation.rules.count,
-            snapshotCount: appState.snapshots.snapshots.count
+            snapshotCount: appState.snapshots.snapshots.count,
+            nativeOverflow: nativeOverflowWord(appState)
         )
+    }
+
+    /// The state of macOS 27's own overflow control from the last read; nothing before macOS 27.
+    private static func nativeOverflowWord(_ appState: AppState) -> String {
+        guard #available(macOS 27.0, *) else {
+            return ""
+        }
+        return appState.concealer27.nativeOverflow.state.rawValue
     }
 
     private static var architecture: String {

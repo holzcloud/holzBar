@@ -54,6 +54,12 @@ struct DiagnosticsSheet: View {
         }
         .padding(HolzBarTheme.Spacing.lg)
         .frame(width: 520)
+        .task {
+            // Opening the sheet is the event: derive the overflow state from a fresh read.
+            if #available(macOS 27.0, *) {
+                await appState.concealer27.refreshNativeOverflow()
+            }
+        }
     }
 
     private func copy(_ text: String) {
