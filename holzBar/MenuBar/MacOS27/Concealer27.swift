@@ -120,9 +120,21 @@ final class Concealer27 {
     @ObservationIgnored private var didReinsertIcon = false
 
     /// The section of each application. Applications missing from it are visible.
+    ///
+    /// holzBar's own bundle is never in it, whatever the stored layout says: an entry for it
+    /// would conceal holzBar's own icon and dividers. A widget is keyed by its autosave name.
     private var savedLayout: [String: MacOS27Section] {
         let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
-        return stored.compactMapValues(MacOS27Section.init(rawValue:))
+        return OwnBundle.removing(
+            from: stored.compactMapValues(MacOS27Section.init(rawValue:)),
+            bundleIdentifier: Constants.bundleIdentifier
+        )
+    }
+
+    /// Writes the layout, without holzBar's own bundle (see ``savedLayout``).
+    private func store(_ layout: [String: MacOS27Section]) {
+        let guarded = OwnBundle.removing(from: layout, bundleIdentifier: Constants.bundleIdentifier)
+        Defaults.set(guarded.mapValues(\.rawValue), forKey: .macOS27Layout)
     }
 
     func performSetup(with appState: AppState) {
@@ -809,7 +821,9 @@ final class Concealer27 {
             return
         }
         let bundleIDs = Set(items.compactMap { item -> String? in
-            guard item.canBeHidden, !item.isSystemClone, !item.isControlItem else {
+            // A widget has no bundle to place (its key is ``MenuBarItem/layoutKey27``): a new
+            // one has no entry in the layout and is therefore visible.
+            guard item.canBeHidden, !item.isSystemClone, !item.isControlItem, !item.isWidget else {
                 return nil
             }
             return item.sourceApplication?.bundleIdentifier
@@ -838,14 +852,45 @@ final class Concealer27 {
             layout = SectionLayout27.settingSection(MacOS27Section(name), for: bundleID, in: layout)
             logger.notice("Placed new application \(bundleID, privacy: .private(mask: .hash)) in \(name.logString, privacy: .public)")
         }
-        Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
+        store(layout)
         update()
+    }
+
+    /// Whether the bar draws the items of a section right now: the visible section always, the
+    /// hidden one while it is revealed, the always-hidden one while everything is.
+    ///
+    /// It is the state the concealment follows (`revealState`), so a widget, which holzBar hides
+    /// itself because it cannot conceal its own items, is drawn exactly when the items beside it
+    /// are. It reads only observable state, so a loop can observe it.
+    func reveals(_ section: MacOS27Section) -> Bool {
+        guard let appState else {
+            return true
+        }
+        let state = revealState(appState)
+        switch section {
+        case .visible: return true
+        case .hidden: return state != .allHidden
+        case .alwaysHidden: return state == .allRevealed
+        }
+    }
+
+    /// Takes a key out of the saved layout, for a widget that is deleted: its key is no
+    /// application's, so nothing else would ever remove it.
+    func removeSection(forKey key: String) {
+        guard savedLayout[key] != nil else {
+            return
+        }
+        setSection(.visible, for: key)
     }
 
     /// Moves an application to a section of the saved layout and applies it.
     func setSection(_ section: MacOS27Section, for bundleID: String) {
+        // holzBar's own bundle has no section: it would conceal holzBar's own icon and dividers.
+        guard !OwnBundle.matches(bundleID, bundleIdentifier: Constants.bundleIdentifier) else {
+            return
+        }
         let updated = SectionLayout27.settingSection(section, for: bundleID, in: savedLayout)
-        Defaults.set(updated.mapValues(\.rawValue), forKey: .macOS27Layout)
+        store(updated)
         update()
         Task { [weak self] in
             await self?.appState?.itemManager.cacheItemsRegardless()
@@ -881,6 +926,7 @@ final class Concealer27 {
                 item.canBeHidden,
                 !item.isSystemClone,
                 !item.isControlItem,
+                !item.isWidget,
                 let bundleID = item.sourceApplication?.bundleIdentifier
             else {
                 return nil
@@ -895,7 +941,7 @@ final class Concealer27 {
             logger.notice("The bar's order says nothing about sections, so the macOS 27 layout stays empty")
             return
         }
-        Defaults.set(seeded.mapValues(\.rawValue), forKey: .macOS27Layout)
+        store(seeded)
         let described = seeded
             .sorted { $0.key < $1.key }
             .map { "\($0.key)=\($0.value.rawValue)" }
@@ -915,7 +961,8 @@ final class Concealer27 {
                 }
                 continue
             }
-            switch layout[item.sourceApplication?.bundleIdentifier ?? ""] ?? .visible {
+            // A widget is looked up under its own key, an application under its bundle.
+            switch layout[item.layoutKey27 ?? ""] ?? .visible {
             case .visible: cache[.visible].append(item)
             case .hidden: cache[.hidden].append(item)
             case .alwaysHidden: cache[.alwaysHidden].append(item)

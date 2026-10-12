@@ -4,6 +4,9 @@ import Testing
 
 @Suite("SettingsSchema")
 struct SettingsSchemaTests {
+    /// holzBar's bundle identifier, which the app passes as `Constants.bundleIdentifier`.
+    private let ownBundle = "com.holzcloud.holzBar"
+
     @Test("Unknown keys are ignored")
     func unknownKeysAreIgnored() {
         let result = SettingsSchema.validated(
@@ -98,7 +101,7 @@ struct SettingsSchemaTests {
     func settingsFileCannotSetLeftoverKey() {
         #expect(Defaults.Key.localOnlyKeys.contains(.syncsSettingsWithICloud))
         #expect(Defaults.Key.importableKinds["SyncsSettingsWithICloud"] == nil)
-        let result = Defaults.Key.validatedSettings(["SyncsSettingsWithICloud": true, "ShowOnHover": true])
+        let result = Defaults.Key.validatedSettings(["SyncsSettingsWithICloud": true, "ShowOnHover": true], ownBundleIdentifier: ownBundle)
         #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
         #expect(result.ignored == ["SyncsSettingsWithICloud"])
     }
@@ -107,7 +110,7 @@ struct SettingsSchemaTests {
     func settingsFileCannotDropBarrierExits() {
         #expect(Defaults.Key.localOnlyKeys.contains(.debugDropsBarrierExitEvent))
         #expect(Defaults.Key.importableKinds["DebugDropsBarrierExitEvent"] == nil)
-        let result = Defaults.Key.validatedSettings(["DebugDropsBarrierExitEvent": true, "ShowOnHover": true])
+        let result = Defaults.Key.validatedSettings(["DebugDropsBarrierExitEvent": true, "ShowOnHover": true], ownBundleIdentifier: ownBundle)
         #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
         #expect(result.ignored == ["DebugDropsBarrierExitEvent"])
     }
@@ -116,7 +119,7 @@ struct SettingsSchemaTests {
     func settingsFileCannotHangItemCaptures() {
         #expect(Defaults.Key.localOnlyKeys.contains(.debugHangsItemImageCapture))
         #expect(Defaults.Key.importableKinds["DebugHangsItemImageCapture"] == nil)
-        let result = Defaults.Key.validatedSettings(["DebugHangsItemImageCapture": true, "ShowOnHover": true])
+        let result = Defaults.Key.validatedSettings(["DebugHangsItemImageCapture": true, "ShowOnHover": true], ownBundleIdentifier: ownBundle)
         #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
         #expect(result.ignored == ["DebugHangsItemImageCapture"])
     }
@@ -129,7 +132,7 @@ struct SettingsSchemaTests {
             "ShowOnHoverDelay": Double.nan,
             "TempShowInterval": Double.infinity,
             "SpacerWidth": 30.0,
-        ])
+        ], ownBundleIdentifier: ownBundle)
         #expect((result.accepted["ItemSpacingOffset"] as? Double) == 16)
         #expect((result.accepted["RehideInterval"] as? Double) == 0)
         #expect((result.accepted["SpacerWidth"] as? Double) == 30)
@@ -144,7 +147,7 @@ struct SettingsSchemaTests {
             "RehideStrategy": -1,
             "NewItemsPlacement": 2,
             "SectionDividerStyle": 1.0,
-        ])
+        ], ownBundleIdentifier: ownBundle)
         #expect(result.accepted.keys.sorted() == ["NewItemsPlacement", "SectionDividerStyle"])
         #expect(result.ignored == ["IceBarLocation", "RehideStrategy", "SpacerCount"])
     }
@@ -192,6 +195,8 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.hotkeys.rawValue == "Hotkeys")
         #expect(Defaults.Key.menuBarAppearanceConfigurationV2.rawValue == "MenuBarAppearanceConfigurationV2")
         #expect(Defaults.Key.holzBarIconShowsCaptureDot.rawValue == "HolzBarIconShowsCaptureDot")
+        #expect(Defaults.Key.widgets.rawValue == "Widgets")
+        #expect(Defaults.Key.widgetShortcutNames.rawValue == "WidgetShortcutNames")
     }
 
     @Test("A file import removes the settings the file lacks")
@@ -217,7 +222,99 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.holzBarIconShowsCaptureDot.settingsKind == .bool)
         #expect(Defaults.Key.showOnHoverDelay.settingsKind == .number)
         #expect(Defaults.Key.layoutProfiles.settingsKind == .data)
+        #expect(Defaults.Key.automationRules.settingsKind == .data)
         #expect(Defaults.Key.knownItemTags.settingsKind == .stringArray)
         #expect(Defaults.Key.currentLayoutProfile.settingsKind == .string)
+    }
+
+    @Test("The lock for hidden items and the assistant flag are local to the Mac")
+    func localKeys() {
+        #expect(Defaults.Key.localOnlyKeys.contains(.lockHiddenItems))
+        #expect(Defaults.Key.localOnlyKeys.contains(.cleanUpOffered))
+        let result = Defaults.Key.validatedSettings(["LockHiddenItems": false, "ShowOnHover": true], ownBundleIdentifier: ownBundle)
+        #expect(result.ignored == ["LockHiddenItems"])
+        #expect(result.accepted["ShowOnHover"] as? Bool == true)
+    }
+
+    @Test("An imported rule list loses the rules that use a script")
+    func importedRulesLoseScripts() throws {
+        let plain = AutomationRule(
+            name: "Plain",
+            clauses: [AutomationClause(condition: .lowPowerMode)],
+            action: .zen(true)
+        )
+        let scripted = AutomationRule(
+            name: "Scripted",
+            clauses: [AutomationClause(condition: .lowPowerMode)],
+            action: .runScript("go.sh")
+        )
+        let data = try JSONEncoder().encode([plain, scripted])
+        let result = Defaults.Key.validatedSettings(["AutomationRules": data], ownBundleIdentifier: ownBundle)
+        let accepted = try #require(result.accepted["AutomationRules"] as? Data)
+        let rules = try JSONDecoder().decode([AutomationRule].self, from: accepted)
+        #expect(rules == [plain])
+        let broken = Defaults.Key.validatedSettings(["AutomationRules": Data("nonsense".utf8)], ownBundleIdentifier: ownBundle)
+        #expect(broken.accepted["AutomationRules"] == nil)
+        #expect(broken.ignored == ["AutomationRules"])
+    }
+
+    @Test("The widgets travel, their Shortcut names stay (D-25)")
+    func widgetsTravelShortcutNamesStay() {
+        #expect(Defaults.Key.widgets.settingsKind == .data)
+        #expect(Defaults.Key.widgetShortcutNames.settingsKind == .dictionary)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.widgets))
+        #expect(Defaults.Key.localOnlyKeys.contains(.widgetShortcutNames))
+        #expect(Defaults.Key.importableKinds["Widgets"] == .data)
+        #expect(Defaults.Key.importableKinds["WidgetShortcutNames"] == nil)
+        let result = Defaults.Key.validatedSettings([
+            "WidgetShortcutNames": ["0A1B2C3D-0000-4000-8000-000000000001": "Focus"],
+            "ShowOnHover": true,
+        ], ownBundleIdentifier: ownBundle)
+        #expect(result.ignored == ["WidgetShortcutNames"])
+        #expect(result.accepted["ShowOnHover"] as? Bool == true)
+    }
+
+    @Test("An imported widget list is normalised before it is applied (D-25, T-12-04)")
+    func importedWidgetsAreNormalised() throws {
+        let elements: [[String: Any]] = (0..<7).map { index in
+            [
+                "id": UUID().uuidString,
+                "kind": "text",
+                "source": "cpu",
+                "preset": "percent",
+                "refreshSeconds": 5,
+                "shortcutName": "Secret \(index)",
+            ]
+        }
+        let data = try JSONSerialization.data(withJSONObject: elements)
+        let result = Defaults.Key.validatedSettings(["Widgets": data], ownBundleIdentifier: ownBundle)
+        let accepted = try #require(result.accepted["Widgets"] as? Data)
+        #expect(result.ignored.isEmpty)
+        let objects = try #require(try JSONSerialization.jsonObject(with: accepted) as? [[String: Any]])
+        #expect(objects.count == 6)
+        #expect(objects.allSatisfy { $0["shortcutName"] == nil })
+        #expect(WidgetList.decode(accepted).count == 6)
+        let broken = Defaults.Key.validatedSettings(["Widgets": Data(#"{"kind": "text"}"#.utf8)], ownBundleIdentifier: ownBundle)
+        #expect(broken.accepted["Widgets"] == nil)
+        #expect(broken.ignored == ["Widgets"])
+    }
+
+    @Test("A settings file never conceals holzBar itself in the macOS 27 layout (WR-01)")
+    func settingsFileCannotConcealHolzBar() throws {
+        let widget = "holzBar.Widget.0A1B2C3D-0000-4000-8000-000000000001"
+        let result = Defaults.Key.validatedSettings(
+            ["MacOS27Layout": ["com.holzcloud.holzBar": 2, "com.holzcloud.holzbar": 1, "com.example.tool": 1, widget: 1]],
+            ownBundleIdentifier: ownBundle
+        )
+        let layout = try #require(result.accepted["MacOS27Layout"] as? [String: Int])
+        #expect(layout == ["com.example.tool": 1, widget: 1])
+        #expect(result.ignored.isEmpty)
+
+        // The identifier is the caller's: another build's own bundle is the one refused.
+        let fork = Defaults.Key.validatedSettings(
+            ["MacOS27Layout": ["com.example.fork": 2, "com.holzcloud.holzBar": 1]],
+            ownBundleIdentifier: "com.example.fork"
+        )
+        #expect(fork.accepted["MacOS27Layout"] as? [String: Int] == ["com.holzcloud.holzBar": 1])
     }
 }

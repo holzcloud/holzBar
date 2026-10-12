@@ -158,7 +158,7 @@ final class ItemHintsPanel: NSPanel {
         Task {
             // Lets the panel go away before the click.
             try? await Task.sleep(for: .milliseconds(25))
-            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil)
+            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil, origin: .command)
         }
     }
 

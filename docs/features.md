@@ -46,7 +46,7 @@
 <td valign="top" width="50%">
 
 #### Automation
-- ✅ **Show hidden items when the battery is low or the network drops**
+- ✅ **Show hidden items when the battery is low or the network drops** — since 0.0.8-beta2 these are ordinary rules in the Automation pane (the old settings are moved there once)
 - ✅ **Zen mode** — one hotkey, menu item, URL or Shortcuts action keeps hidden items hidden; optionally on while the screen is mirrored or shared, without any permission
 - ✅ **Shortcuts actions** — Zen mode, show or hide a section, apply a profile, open an item by name, search
 - ✅ **`holzbar://` URL commands** and [Raycast script commands](../Integrations/Raycast)
@@ -100,46 +100,87 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 ### 0.0.8 "Automation"
 
 **Automation**
-- **Rules** that apply a profile, reveal items or switch Zen mode when a Wi-Fi network, an app, the time of day, the power source, a display or a Focus matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Spike first: the Focus filter.*
-- **Per-item conditions**: show a single item only while a condition holds, for example while a VPN is connected.
-- **Scripts** as a rule condition or action: only from a folder you choose, pinned by hash, run only after you confirm.
+- **Rules** that apply a profile, reveal items or switch Zen mode when a Wi-Fi network, an app, the time of day, the power source, a display, a camera or the microphone in use or a Focus matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Preview: the rules, the observers and the Automation pane are built but not yet tested on a Mac; the Wi-Fi name condition is built too, and needs your test of the Location prompt.*
+- **URL and Shortcuts for rules** (*Preview*): `holzbar://automation/enable/<name>` and `/disable/<name>` ask first, and Shortcuts can turn a rule on or off and list the rules that are active; a rule that uses a script can be turned off this way but never on. Rules are created and edited only in the settings.
+- **Camera and microphone in use** (*Preview*) as rule conditions, for example to switch Zen mode on during a call. holzBar reads only whether another app records or a camera runs, with no permission and no polling (macOS 14.2 and later).
+- **Low battery and offline are rules now**: the two fixed settings of earlier versions moved from Advanced into the Automation pane; if you had them on, holzBar turned them into two rules the first time 0.0.8-beta2 started. Unlike before, unplugging a low battery shows the items again.
+- **Focus filter** (*Preview*): add the holzBar filter to a Focus in System Settings to apply a layout profile while that Focus is on; the previous profile comes back when it ends. Whether macOS calls the filter on your Mac is the open question of this preview.
+- **Per-item conditions** (*Preview*): a rule action "Show an item only while this is true" makes one item follow a condition, for example a VPN item that is visible only while a VPN is connected. The item moves after a hold of three seconds, so a flapping condition does not move it every second; an unknown condition leaves it where it is. On macOS 27 the rule moves all items of the item's application.
+- **Scripts** (*Preview*) as a rule condition ("a script succeeds") or a rule action ("run a script", at the start and, if you choose "Also run it when the rule stops being true", when the rule ends). A script runs only from the folder you choose (by default `~/Library/Application Support/holzBar/Scripts`, which is a real folder that only you can write to) and only after you allowed its exact content on a sheet that names the file, its folder, its size and the start of its checksum; the content is checked again before every run, so a changed file needs a new approval. There are no arguments and no shell, and the only thing a script is told is the event, in `HOLZBAR_EVENT`, which is one of six fixed values: `rule-started`, `rule-ended`, `check`, `profile-will-apply`, `profile-did-apply` and `widget-refresh` (a script widget's refresh). A script gets 10 seconds by default (1 to 60 in the pane), then it is stopped together with what it started; at most ten condition checks and ten other runs a minute (a run that is dropped for that, or because the script still runs, is shown as skipped), and a condition is asked at most every 30 seconds. The first line of its output is shown in the pane as plain text, in memory only. A script runs as you with holzBar's permissions, and macOS asks separately before a script controls another app. Whether an allowed script can use holzBar's Accessibility and Screen Recording itself has **not been measured on a Mac yet**, so treat an allowed script as being as powerful as holzBar. Scripts, their approvals and the rules that use them stay on this Mac in a file only you can read: they are never exported, imported or synced, and an import says how many rules it left out. No URL command or Shortcut can turn on a rule that uses a script. *Beta 2 has scripts from the Scripts folder only; 0.0.8-beta3 adds the folder of your choice, the run when a rule ends, the output line and the time limit.*
+- **Profile hooks** (*Preview*, 0.0.8-beta3): a script that runs before or after a profile is applied, for one profile or for every profile. Before hooks run first (at most five) and holzBar waits for them, each at most its time limit and all together at most a minute, then applies the profile whatever their outcome; after hooks start once the items have moved and are not waited for; applying another profile cancels one that is still waiting. A profile applied by a URL command, a Shortcut or the Focus filter runs no hooks. A hook needs an allowed script like any other, and a hook follows a renamed profile and goes with a deleted one (undoing a deletion brings the profile back without its hooks).
+- **Widgets** (*Preview*, 0.0.8-beta3: built, not yet tested on a Mac): menu bar items of your own, an optional module in Menu Bar Layout that is off until you switch it on and costs nothing while it is off. On macOS 14 to 27.
+  - **Seven sources, none needs a permission**: date and time, battery (percent, with or without the charging state), CPU load, memory (percent used or gigabytes used), uptime, free disk space (gigabytes or percent) and a countdown that only shows the time left until a moment you pick (no alarm, no sound, no pause). At most six widgets.
+  - **Formats are presets**, written in your language and region, with an optional symbol in front. Seconds exist for the clock only and the pane says what they cost: "Wakes the Mac every second while visible." A widget keeps one fixed width for its format, so the text never moves the items beside it; a value that cannot be read shows an en dash and VoiceOver says "unavailable".
+  - **A Shortcut button** shows a title or a symbol and runs a Shortcut chosen by typing its name, through the Shortcuts app. holzBar shows nothing of its own, and a Shortcut that does not exist shows only the Shortcuts app's own error. A text widget has no click action.
+  - **A script widget** (*Preview*) shows the first line of the output of a script you allowed, cleaned to plain text (at most 80 characters) in a narrow, medium or wide fixed width with an optional symbol; a longer line is cut with an ellipsis, and a script that fails, times out, is empty or is not allowed shows an en dash. You choose the script by its name from your scripts folder, and it must be allowed in Automation, Scripts first: the pane says so and takes you there. It runs when the widget appears (a reveal, an unlock, the start of holzBar) and when you click it, and again on the system events that an enabled automation rule follows (such as power, apps, displays, the network, the Wi-Fi name, or camera and microphone use); with no such rule it runs only when it appears and on a click. It never runs on a timer and never while the widget is hidden, or while the Mac is asleep or locked, and at most every 30 seconds per widget (your own click or a new choice skips that wait) and ten widget runs a minute. The script is told `HOLZBAR_EVENT=widget-refresh` and nothing else, and runs under every rule of Scripts above. Which script a widget runs is kept on this Mac only: it is never exported, imported or shared, so an imported script widget says "Choose a script".
+  - **Energy**: a widget refreshes only while it is visible, never while it is hidden, or while the Mac is asleep or locked; it refreshes once when it is shown again. The battery is read from power events, not by a timer, and Low Power Mode doubles the polling intervals (CPU load 5 s, memory 10 s, uptime 1 min, free disk space 5 min by default).
+  - **Part of the bar like any item**: widgets can be moved between sections in Menu Bar Layout, are kept in layout profiles, and appear in the holzBar Shelf, the search, groups and hints (a Shortcut button runs from there too). On macOS 27 holzBar hides a widget itself, by collapsing it; "Show When It Changes" does nothing for a widget there.
+  - **Settings export** carries the widgets without Shortcut names or scripts, so an imported button says "Choose a Shortcut" and an imported script widget says "Choose a script"; shared profiles never carry a widget. Each widget has a VoiceOver label and value.
 
 **Safety and convenience**
-- **Layout snapshots** taken automatically, with a one-click restore.
-- **Share a profile** as a small validated file; it never contains personal data or code.
-- **Touch ID or password** to show hidden items.
-- **Revoke permissions in Settings**: a button per permission that withdraws it again (for holzBar's own entry only) or opens the right System Settings pane, so you never have to hunt for it.
-- **Copy diagnostics**: a redacted report you read before you copy it; nothing is sent.
-- **First-launch assistant** that proposes an arrangement from static facts, skippable and re-runnable.
-- **Works without Screen Recording**: every feature runs without it, and the Shelf shows app icons instead of live snapshots.
-- **System items pinned visible**: Clock, Wi-Fi and Battery stay visible when space runs short.
-- More **menu bar styles** (pills, outlines, gradients), as far as macOS 27 allows.
+- **Layout snapshots** (*Preview*) taken automatically when the bar settles, once a day and before a profile rearranges it, with a preview and a one-click restore that can be undone; kept for 30 days, on this Mac only. Not tested on a Mac yet.
+- **Share a profile** (*Preview*) as a small validated file: only the applications you leave checked and their sections, no display, Wi-Fi, hotkey or other setting, and no code. Importing adds the profile to the list and moves nothing until you apply it. Double-clicking a `.holzbarprofile` in Finder is not set up yet; use Import Profile in Menu Bar Layout.
+- **Touch ID or password** to show hidden items (*Preview*), in Advanced: hover, click, hotkeys, the Shelf, the search, URLs and Shortcuts ask once, then a minute of grace; your own safety rules (low battery, offline, rules, items you chose) do not ask. Turning it off asks too. It keeps a bystander away from your hidden items; it is not protection against someone who knows your password.
+- **Revoke permissions in Settings** (*Preview*): a button per permission that withdraws it again (for holzBar's own entry only) or opens the right System Settings pane, so you never have to hunt for it.
+- **Copy diagnostics** (*Preview*): in About, a report of versions and counts you read before you copy it; no names of items, apps, profiles or networks, no paths; nothing is sent.
+- **Tidy Up assistant** (*Preview*): proposes which visible items to hide from static facts only (system extras, the app's category, a short list of known helpers); live values, the clock, the battery and apps with messages stay. You decide item by item, the arrangement is kept as a snapshot first, and nothing is recorded. Offered once after the first launch when nothing was arranged yet, and any time from Menu Bar Layout.
+- **Works without Screen Recording** (*Preview*): the Menu Bar Layout pane, the Shelf and the search show app icons instead of live pictures, with an offer to allow Screen Recording for the pictures.
+- **System items pinned visible** (*Preview*, macOS 26 and earlier): profiles, restored layouts and rules leave the clock, battery, Wi-Fi, Control Center and sound where they are; you can still move them yourself.
 
 **Polish**
-- Reordering in the Layout pane with SwiftUI's new reordering API, only if clearly better. *Spike.*
-- A keyboard and VoiceOver audit of every pane.
-- Swift 6.4 clean-up without behaviour changes.
+- A [keyboard and VoiceOver checklist](accessibility-checklist.md) to run on a Mac; holzBar makes no accessibility claim until it was run.
 
 ### 0.0.9
 
+The release starts with the **design system**: one Liquid Glass look (holzBar's blue, dark and light equally designed) and a new Settings window with a sidebar and a gallery of module cards. Every later screen follows it.
+
 **Automation**
-- **Widgets**: menu bar items of your own with text from permission-free sources (CPU load, memory, battery, free disk space, a countdown) and a Shortcut button; script widgets come last.
 - **AppleScript dictionary** to show, hide, switch profiles and turn rules on or off, and **App Intents** for Shortcuts and Siri.
 - **Command palette**: one hotkey opens a panel to run any holzBar action.
 - A **keep-awake** action (no permission needed) and a **focus mode** hotkey that hides everything except chosen items.
+- **More rule triggers**: Bluetooth, audio, Energy Mode. Each one asks only for the permission it needs, when you use it.
 
 **Convenience**
 - **Usage suggestions** (opt-in): suggests hiding items you never click; counters stay on your Mac and can be erased with one click.
 - **Smooth show and hide**, respecting Reduce Motion.
 - Replacement items for Apple items that macOS 27 cannot hide, and hiding system items such as Clock and Control Center.
 
+**Look**
+- **Shelf layouts**: a grid and a vertical layout for the holzBar Shelf.
+- **Moods**: saved looks (appearance) that switch per display or time.
+- More **menu bar styles** (single, paired, sections, Apple-logo style) as far as macOS 27 allows.
+
 **Polish**
 - A Control Center control to toggle Zen mode or apply a profile. *Spike, optional.*
 
-### 1.0.0
+### 1.0.0 (first stable release)
 
-- **Settings sync between your Macs** through any folder they sync (iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing, a network share), **redesigned from scratch**, designed not to lose or silently overwrite a change. It is not in 0.0.7; earlier releases carried a first version of it, which was withdrawn. Until 1.0.0, **Export…** and **Import…** move settings between Macs.
-- **Optional all-in-one modules**; the details follow closer to the release.
+- **Settings sync between your Macs** through any folder they sync (iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing, a network share), **redesigned from scratch**, designed not to lose or silently overwrite a change.
+- **Notch hub**: a panel at the notch (at the top centre on Macs without one) with Now Playing and lyrics, calendar and meetings (Calendar access asked when you switch it on), live activities, timers, a file drop, display controls and AirPods and accessory alerts. Notifications in the hub only if a feasibility test shows it can be done; macOS has no public API for it.
+- **Floating bar** for hidden items, at an icon, at the screen edge or under the cursor.
+- **Smart Categories**: items sorted by static facts such as system, network or media.
+- **Count badges**: the number of hidden items on the holzBar icon.
+- Up to **20 languages**, with a review process for the translations.
+
+### 1.1.0: system monitor
+
+CPU, GPU, memory, network, disk and power readouts in the menu bar and in the hub, connected devices with battery levels, and alerts when CPU, temperature or disk cross a limit.
+
+### 1.2.0: launcher and tools
+
+An app launcher and search panel, file search through Spotlight, a calculator and unit converter (no currencies, because that needs the network), an emoji picker (no GIFs), text snippets, quick actions for system commands and Shortcuts, a radial menu, a scratchpad, and a tool to end a process or the one using a port.
+
+### 1.3.0: clipboard
+
+Clipboard history (opt-in, local, password managers excluded, erasable), paste as plain text, cut and paste in Finder, and clean URLs without tracking parameters.
+
+### 1.4.0 and later (order open)
+
+Window management (app switcher, Dock previews, layouts), mouse and keyboard tweaks (scroll direction, smooth scrolling, no acceleration, mouse button shortcuts, trackpad middle click, shortcut management), sound (per-app volume, output switcher, microphone mute, music app blocker), energy and display (extra brightness, display tools, cleaning mode), capture (screenshots, text from the screen, screen and GIF recording, colour picker, measure, QR, camera preview), system tools (cleanup scan, app uninstaller, Homebrew manager, wallpaper tools, focus timer) and text tools with on-device AI (translation, dictation, grammar fix, agent and workflows).
+
+### Principles for every module
+
+Each module is optional and costs nothing while it is off. It asks for its permission only when you switch it on, and says why. No module uses the network. **All AI features run on your Mac with Apple's own on-device models.** Cloud features, weather, speed tests, fan control, a charge limit and a hosts-file blocker are not planned.
 
 The "holzBar vs. Ice and Thaw" table above marks these with 🔜 and the release.
 
@@ -165,6 +206,6 @@ The "holzBar vs. Ice and Thaw" table above marks these with 🔜 and the release
 </tr>
 <tr>
 <td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action, profile and item<br><img src="../Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys for the hidden section, the search, opening an item by letter, the layout profile home, the holzBar Shelf, app menus, auto-rehide and Zen mode, each with Record Hotkey"></td>
-<td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode, automatic reveal and settings backup<br><img src="../Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, showing hidden items when the battery is low or the network is lost, and settings Export… and Import…"></td>
+<td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode and settings backup<br><img src="../Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: the always-hidden section, where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, showing hidden items when the battery is low or the network is lost, and settings Export… and Import…"></td>
 </tr>
 </table>

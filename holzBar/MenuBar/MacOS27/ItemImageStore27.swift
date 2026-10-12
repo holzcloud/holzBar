@@ -274,7 +274,8 @@ final class ItemImageStore27 {
         // for the whole strip, rather than tile by tile, keeps a dark patch of wallpaper behind
         // one item from passing for its glyph (see `ItemImages27.toneVotes`).
         var votes = (light: 0, dark: 0)
-        for item in items where item.isOnScreen && !item.isControlItem && !concealedPIDs.contains(item.ownerPID) {
+        // A widget is drawn by holzBar itself (`MenuBarWidgets`), so it is never photographed.
+        for item in items where item.isOnScreen && !item.isControlItem && !item.isWidget && !concealedPIDs.contains(item.ownerPID) {
             guard
                 settled.contains(item.tag.description),
                 let rect = ItemImages27.cropRect(itemFrame: item.bounds, stripFrame: stripFrame, scale: scale),
@@ -288,7 +289,7 @@ final class ItemImageStore27 {
             votes.dark += tileVotes.dark
         }
         let tone: ItemImages27.GlyphTone? = votes.light + votes.dark == 0 ? nil : (votes.light >= votes.dark ? .light : .dark)
-        for item in items where item.isOnScreen && !item.isControlItem && !concealedPIDs.contains(item.ownerPID) {
+        for item in items where item.isOnScreen && !item.isControlItem && !item.isWidget && !concealedPIDs.contains(item.ownerPID) {
             guard settled.contains(item.tag.description) else {
                 skipped += 1
                 continue
@@ -314,7 +315,7 @@ final class ItemImageStore27 {
         }
         let now = ProcessInfo.processInfo.systemUptime
         let bundleIDs = Set(items.compactMap { item -> String? in
-            guard !item.isControlItem, image(for: item) == nil else {
+            guard !item.isControlItem, !item.isWidget, image(for: item) == nil else {
                 return nil
             }
             return item.sourceApplication?.bundleIdentifier

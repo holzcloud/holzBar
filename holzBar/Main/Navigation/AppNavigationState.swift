@@ -17,6 +17,8 @@ final class AppNavigationState {
     /// Whether the panel of a menu bar item group is shown.
     var isItemGroupPanelPresented = false
     var settingsNavigationIdentifier: SettingsNavigationIdentifier = .general
+    /// Whether the Menu Bar Layout pane shows the clean-up assistant.
+    var isTidyUpPresented = false
 
     /// The Settings window, while it exists. Its visibility is ``isSettingsPresented``.
     @ObservationIgnored weak var settingsWindow: NSWindow?

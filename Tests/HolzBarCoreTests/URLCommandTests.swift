@@ -85,6 +85,16 @@ struct URLCommandTests {
         #expect(action("holzbar://profile/Work") == .applyProfile("Work"))
     }
 
+    @Test("An automation rule is turned on or off by name")
+    func automationRules() {
+        #expect(action("holzbar://automation/enable/Office") == .automationRule(name: "Office", isEnabled: true))
+        #expect(action("holzbar://automation/DISABLE/Night%20shift") == .automationRule(name: "Night shift", isEnabled: false))
+        #expect(action("holzbar://automation") == .unknown)
+        #expect(action("holzbar://automation/enable") == .unknown)
+        #expect(action("holzbar://automation/list") == .unknown)
+        #expect(action("holzbar://automation/create/Office") == .unknown)
+    }
+
     @Test("Unknown commands are recognised")
     func unknownCommands() {
         #expect(action("holzbar://launch-rockets") == .unknown)
@@ -121,13 +131,19 @@ struct URLCommandTests {
         .zenMode(.turnOff),
         .zenMode(.toggle),
         .applyProfile("Work"),
+        .automationRule(name: "Office", isEnabled: true),
         .unknown,
     ]
 
     @Test("Without Zen mode, only lasting changes ask first")
     func withoutZenModeLastingChangesAsk() {
         let off = ZenMode()
-        let asking: [URLCommand.Action] = [.applyProfile("Work"), .toggleShelf, .toggleAutoRehide]
+        let asking: [URLCommand.Action] = [
+            .applyProfile("Work"),
+            .automationRule(name: "Office", isEnabled: true),
+            .toggleShelf,
+            .toggleAutoRehide,
+        ]
         for action in allActions {
             let expected: URLCommand.Decision = asking.contains(action) ? .ask : .perform
             #expect(action.decision(zenMode: off) == expected)
@@ -140,6 +156,7 @@ struct URLCommandTests {
             #expect(URLCommand.Action.applyProfile("Work").decision(zenMode: zen) == .refuse)
             #expect(URLCommand.Action.toggleShelf.decision(zenMode: zen) == .refuse)
             #expect(URLCommand.Action.toggleAutoRehide.decision(zenMode: zen) == .refuse)
+            #expect(URLCommand.Action.automationRule(name: "Office", isEnabled: true).decision(zenMode: zen) == .refuse)
             // Hiding stays possible; showing is refused where the section is known.
             #expect(URLCommand.Action.hide(.hidden).decision(zenMode: zen) == .perform)
         }

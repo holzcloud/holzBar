@@ -1,0 +1,147 @@
+//
+//  AutomationDescription.swift
+//  holzBar
+//
+
+import AppKit
+
+/// Says in words what a rule does, in the user's language.
+enum AutomationDescription {
+    /// The rule as one sentence.
+    static func sentence(for rule: AutomationRule) -> String {
+        guard !rule.clauses.isEmpty else {
+            return String(localized: "Add a condition to this rule.")
+        }
+        let parts = rule.clauses.map { text(for: $0.condition) }
+        let conditions = switch rule.match {
+        case .all: parts.formatted(.list(type: .and))
+        case .any: parts.formatted(.list(type: .or))
+        }
+        if case .showItemOnlyWhile(let key, _) = rule.action {
+            return String(localized: "Show \u{201C}\(itemName(forKey: key))\u{201D} only when \(conditions).")
+        }
+        return String(localized: "When \(conditions), \(text(for: rule.action, restoresWhenEnded: rule.restoresWhenEnded)).")
+    }
+
+    /// A condition as the part of a sentence that follows "When".
+    static func text(for condition: AutomationCondition) -> String {
+        switch condition {
+        case .power(.battery):
+            String(localized: "the Mac runs on battery")
+        case .power(.adapter):
+            String(localized: "the Mac is plugged in")
+        case .batteryBelow(let percent):
+            String(localized: "the battery is below \((Double(percent) / 100).formatted(.percent))")
+        case .lowPowerMode:
+            String(localized: "Low Power Mode is on")
+        case .appRunning(let bundleID):
+            String(localized: "\(applicationName(for: bundleID)) is running")
+        case .appFrontmost(let bundleID):
+            String(localized: "\(applicationName(for: bundleID)) is in front")
+        case .time(let window):
+            timeText(for: window)
+        case .displayConnected(let uuid):
+            String(localized: "the display “\(displayName(for: uuid))” is connected")
+        case .network(.wifi):
+            String(localized: "the Mac is connected through Wi-Fi")
+        case .network(.ethernet):
+            String(localized: "the Mac is connected through Ethernet")
+        case .network(.offline):
+            String(localized: "the Mac is offline")
+        case .network(.vpn):
+            String(localized: "the traffic goes through a VPN")
+        case .network(.expensive):
+            String(localized: "the connection is expensive, for example a hotspot")
+        case .wifiNetwork(let name):
+            String(localized: "the Wi-Fi network is “\(name)”")
+        case .cameraInUse:
+            String(localized: "another app uses a camera")
+        case .microphoneInUse:
+            String(localized: "another app records from the microphone")
+        case .scriptSucceeds(let name):
+            String(localized: "the script “\(URLPrompt.displayName(name))” succeeds")
+        }
+    }
+
+    /// An action as the part of a sentence that follows the comma.
+    ///
+    /// - Parameter restoresWhenEnded: Whether the rule also does something when it ends. It
+    ///   changes the sentence of a script, which then runs at the start and at the end.
+    static func text(for action: AutomationAction, restoresWhenEnded: Bool = false) -> String {
+        switch action {
+        case .applyProfile(let name):
+            String(localized: "apply the profile “\(name)”")
+        case .showSection(.hidden):
+            String(localized: "show the hidden section")
+        case .showSection(.alwaysHidden):
+            String(localized: "show the always-hidden section")
+        case .zen(true):
+            String(localized: "turn Zen mode on")
+        case .zen(false):
+            String(localized: "turn Zen mode off")
+        case .keepAwake(true):
+            String(localized: "keep the Mac awake")
+        case .keepAwake(false):
+            String(localized: "let the Mac sleep")
+        case .runScript(let name):
+            if restoresWhenEnded {
+                String(localized: "run the script \u{201C}\(URLPrompt.displayName(name))\u{201D} when this starts and when it ends")
+            } else {
+                String(localized: "run the script \u{201C}\(URLPrompt.displayName(name))\u{201D}")
+            }
+        case .showItemOnlyWhile(let key, _):
+            String(localized: "show \u{201C}\(itemName(forKey: key))\u{201D} and hide it otherwise")
+        }
+    }
+
+    /// The name of an item from its identity key: its application, or its title. A widget is
+    /// named by what it shows, never by holzBar, whose bundle its key carries.
+    static func itemName(forKey key: String) -> String {
+        if let autosaveName = OwnBundle.widgetAutosaveName(inItemKey: key, bundleIdentifier: Constants.bundleIdentifier) {
+            // The name is registered while the widget exists; a rule can outlive it.
+            return OwnStatusItemNames.name(forAutosaveName: autosaveName) ?? String(localized: "Widget")
+        }
+        let parts = key.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)
+        guard let namespace = parts.first.map(String.init) else {
+            return key
+        }
+        if SharedProfile.isValidBundleIdentifier(namespace),
+           NSWorkspace.shared.urlForApplication(withBundleIdentifier: namespace) != nil {
+            return applicationName(for: namespace)
+        }
+        return parts.count > 1 ? String(parts[1]) : namespace
+    }
+
+    private static func timeText(for window: AutomationTimeWindow) -> String {
+        let start = time(minutes: window.startMinute).formatted(date: .omitted, time: .shortened)
+        let end = time(minutes: window.endMinute).formatted(date: .omitted, time: .shortened)
+        if window.weekdays.isEmpty {
+            return String(localized: "it is between \(start) and \(end)")
+        }
+        let symbols = Calendar.current.shortWeekdaySymbols
+        let days = window.weekdays.sorted().compactMap { day in
+            symbols.indices.contains(day - 1) ? symbols[day - 1] : nil
+        }
+        return String(localized: "it is between \(start) and \(end) on \(days.formatted(.list(type: .and)))")
+    }
+
+    /// A moment today at the given minute of the day, for formatting.
+    static func time(minutes: Int) -> Date {
+        let start = Calendar.current.startOfDay(for: .now)
+        return Calendar.current.date(byAdding: .minute, value: minutes, to: start) ?? start
+    }
+
+    /// The name of an application, or its bundle identifier when it is not installed.
+    static func applicationName(for bundleID: String) -> String {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) else {
+            return bundleID
+        }
+        return FileManager.default.displayName(atPath: url.path)
+    }
+
+    /// The name of a display, or a note when it is not connected now.
+    static func displayName(for uuid: String) -> String {
+        let screen = NSScreen.screens.first { Bridging.getDisplayUUIDString(for: $0.displayID) == uuid }
+        return screen?.localizedName ?? String(localized: "not connected")
+    }
+}

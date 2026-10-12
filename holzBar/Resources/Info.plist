@@ -13,5 +13,9 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSLocationUsageDescription</key>
+	<string>holzBar reads the name of the Wi-Fi network you are connected to, so an automation rule can react to it. It does not read your location.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>holzBar reads the name of the Wi-Fi network you are connected to, so an automation rule can react to it. It does not read your location.</string>
 </dict>
 </plist>

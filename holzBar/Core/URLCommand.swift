@@ -30,6 +30,8 @@ nonisolated struct URLCommand: Equatable, Sendable {
         case zenMode(ZenMode.Request)
         /// Apply the layout profile with the given name.
         case applyProfile(String)
+        /// Turn the automation rule with the given name on or off.
+        case automationRule(name: String, isEnabled: Bool)
         case unknown
 
         /// What holzBar does with the action, given Zen mode now.
@@ -41,8 +43,9 @@ nonisolated struct URLCommand: Equatable, Sendable {
         ///   `show` and `toggle` of a hidden section where they are performed.
         /// - The search and Settings change nothing lasting either, but list or reveal the
         ///   hidden items, so Zen mode refuses them.
-        /// - Applying a profile rearranges the menu bar, and the Shelf and auto-rehide
-        ///   toggles change settings that last: holzBar
+        /// - Applying a profile rearranges the menu bar, the Shelf and auto-rehide
+        ///   toggles change settings that last, and turning an automation rule on or off
+        ///   changes what holzBar does by itself: holzBar
         ///   asks first, and refuses them while Zen mode is on.
         /// - Another app may always turn Zen mode on; it only hides. Turning it off needs
         ///   the user's answer, and is refused while the screen is shared (the automatic
@@ -53,7 +56,7 @@ nonisolated struct URLCommand: Equatable, Sendable {
                 return .perform
             case .search, .settings:
                 return zenMode.isActive ? .refuse : .perform
-            case .toggleShelf, .toggleAutoRehide, .applyProfile:
+            case .toggleShelf, .toggleAutoRehide, .applyProfile, .automationRule:
                 return zenMode.isActive ? .refuse : .ask
             case .zenMode(let request):
                 guard zenMode.isActive, request != .turnOn else {
@@ -132,8 +135,26 @@ nonisolated struct URLCommand: Equatable, Sendable {
             .zenMode(zenRequest)
         case "profile":
             arguments.first.map(Action.applyProfile) ?? .unknown
+        case "automation":
+            automationAction
         default:
             .unknown
+        }
+    }
+
+    /// `automation/enable/<name>` or `automation/disable/<name>`. Creating, editing and
+    /// listing rules are not possible by URL: a URL has no way to answer.
+    private var automationAction: Action {
+        guard arguments.count >= 2, !arguments[1].isEmpty else {
+            return .unknown
+        }
+        switch arguments[0].lowercased() {
+        case "enable":
+            return .automationRule(name: arguments[1], isEnabled: true)
+        case "disable":
+            return .automationRule(name: arguments[1], isEnabled: false)
+        default:
+            return .unknown
         }
     }
 

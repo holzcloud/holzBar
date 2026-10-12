@@ -20,6 +20,9 @@ nonisolated enum HolzBarIntentError: Error, CustomLocalizedStringResourceConvert
     case sectionUnavailable
     /// No menu bar item's name matches what the shortcut asked for.
     case noMatchingItem(String)
+    /// A shortcut asked to turn on a rule that uses a script. That is done only in the settings,
+    /// so nothing outside holzBar makes a script run (D-12).
+    case scriptRuleNeedsSettings
 
     var localizedStringResource: LocalizedStringResource {
         switch self {
@@ -29,6 +32,8 @@ nonisolated enum HolzBarIntentError: Error, CustomLocalizedStringResourceConvert
             "This section is turned off in holzBar's settings."
         case .noMatchingItem(let name):
             "No menu bar item matches \u{201C}\(name)\u{201D}."
+        case .scriptRuleNeedsSettings:
+            "Rules that use a script can be turned on only in holzBar's settings."
         }
     }
 }
@@ -157,8 +162,104 @@ struct ApplyLayoutProfileIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        try intentAppState().profiles.apply(named: profile.id)
+        // A Shortcut is outside holzBar: no profile hook runs for it (D-12).
+        try intentAppState().profiles.apply(named: profile.id, runsHooks: false)
         return .result()
+    }
+}
+
+// MARK: - Focus Filter
+
+/// The Focus filter of holzBar: applies a layout profile while a Focus is on and brings the
+/// previous one back when it ends. The user adds it to a Focus in System Settings.
+struct LayoutProfileFocusFilter: SetFocusFilterIntent {
+    static let title: LocalizedStringResource = "Layout Profile"
+
+    @Parameter(title: "Profile")
+    var profile: LayoutProfileEntity?
+
+    var displayRepresentation: DisplayRepresentation {
+        guard let profile else {
+            return DisplayRepresentation(title: "No profile")
+        }
+        return DisplayRepresentation(title: "\(profile.id)")
+    }
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        try intentAppState().profiles.focusFilterChanged(to: profile?.id)
+        return .result()
+    }
+}
+
+// MARK: - Automation Rules
+
+/// An automation rule, identified by its identifier.
+nonisolated struct AutomationRuleEntity: AppEntity {
+    static let typeDisplayRepresentation: TypeDisplayRepresentation = "Automation Rule"
+
+    static let defaultQuery = AutomationRuleQuery()
+
+    /// The rule's identifier.
+    let id: String
+
+    /// The rule's name.
+    let name: String
+
+    var displayRepresentation: DisplayRepresentation {
+        DisplayRepresentation(title: "\(name)")
+    }
+}
+
+/// Lists the automation rules for Shortcuts.
+nonisolated struct AutomationRuleQuery: EntityQuery {
+    @MainActor
+    func entities(for identifiers: [String]) async throws -> [AutomationRuleEntity] {
+        try intentAppState().automation.rules
+            .filter { identifiers.contains($0.id.uuidString) }
+            .map { AutomationRuleEntity(id: $0.id.uuidString, name: $0.name) }
+    }
+
+    @MainActor
+    func suggestedEntities() async throws -> [AutomationRuleEntity] {
+        try intentAppState().automation.rules.map { AutomationRuleEntity(id: $0.id.uuidString, name: $0.name) }
+    }
+}
+
+/// Turns an automation rule on or off. Rules are created and edited only in the settings, and a
+/// rule that uses a script is turned on only there.
+struct SetAutomationRuleIntent: AppIntent {
+    static let title: LocalizedStringResource = "Turn Automation Rule On or Off"
+
+    @Parameter(title: "Rule")
+    var rule: AutomationRuleEntity
+
+    @Parameter(title: "Turn On", default: true)
+    var isEnabled: Bool
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        let manager = try intentAppState().automation
+        guard let id = UUID(uuidString: rule.id) else {
+            return .result()
+        }
+        // A Shortcut can turn a rule that uses a script off, never on (D-12, T-11-M5).
+        if isEnabled, manager.rules.first(where: { $0.id == id })?.usesScript == true {
+            throw HolzBarIntentError.scriptRuleNeedsSettings
+        }
+        manager.setRule(withID: id, enabled: isEnabled)
+        return .result()
+    }
+}
+
+/// Returns the names of the automation rules that are true now.
+struct GetActiveAutomationRulesIntent: AppIntent {
+    static let title: LocalizedStringResource = "Get Active Automation Rules"
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<[String]> {
+        let manager = try intentAppState().automation
+        return .result(value: manager.activeRules.map(\.name))
     }
 }
 
@@ -183,7 +284,7 @@ struct OpenMenuBarItemIntent: AppIntent {
         }
         // The shortcut goes on while the menu is open; the item is hidden again later.
         Task {
-            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil)
+            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: nil, origin: .command)
         }
         return .result()
     }

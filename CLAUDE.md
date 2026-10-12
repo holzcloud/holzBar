@@ -2,6 +2,10 @@
 
 holzBar is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, a menu bar manager for macOS, with macOS 27 support and Homebrew distribution.
 
+## Product direction
+
+holzBar is to become an alternative to **Brow, Glow and Vorssaint**: as many of their features, as powerful, as optional modules on top of the menu bar manager (decision of 2026-10-09, `.planning/research/VISION-BROW-GLOW-VORSSAINT.md`). Every feature is agreed with the user first (whether, and in which release). One overall design concept is made first (Apple's newest Liquid Glass guidance, holzBar's logo and colours, and the design language of Brow as the model); every future screen must follow it, and a screen that needs something the concept lacks extends the concept first. All AI features run on the device with Apple's local models, never over the network. The principles below still hold for every module: off means no cost, permissions only when a module is switched on, never online.
+
 ## Rules
 
 - **Everything in this repository is written in English**: code, comments, commit messages, pull requests, issues, README and other docs. This applies even when the conversation is in another language.
@@ -9,9 +13,11 @@ holzBar is a fork of [Ice](https://github.com/jordanbaird/Ice) by Jordan Baird, 
 
 ## Workflow
 
-- Work with **GSD** ([OpenGSD gsd-core](https://github.com/open-gsd/gsd-core)) whenever possible. It is installed locally in `.claude/` (commands `/gsd-*`, agents, hooks in `.claude/settings.json`), so every session has it. Planning state lives in `.planning/`. Start with `/gsd-help`; for this existing codebase, `/gsd-map-codebase` maps it and `/gsd-new-project` / `/gsd-plan-phase` / `/gsd-execute-phase` drive the work.
-- Documentation-only changes (`*.md`, `docs/`, `.planning/`, screenshots, logos) run no CI: `build.yml` ignores those paths. Check by hand that the former name does not appear in them.
+- Work with **GSD** ([OpenGSD gsd-core](https://github.com/open-gsd/gsd-core)) whenever possible. It is installed locally in `.claude/` (commands `/gsd-*`, agents, hooks in `.claude/settings.json`), so every session has it. Planning state lives in the **private** repository `holzcloud/holzBar-planning` (roadmap, requirements, phases, research, design concept, GSD tooling), linked into `.planning/` by the SessionStart hook `.claude/hooks/holzbar-planning-link.sh`; `.planning/` is in `.gitignore`. Never commit planning or research files to this public repository, and never link to them from the README or docs. Start with `/gsd-help`; for this existing codebase, `/gsd-map-codebase` maps it and `/gsd-new-project` / `/gsd-plan-phase` / `/gsd-execute-phase` drive the work.
+- Documentation-only changes (`*.md`, `docs/`, screenshots, logos) skip the macOS jobs: the `changes` job in `build.yml` detects them, and the cheap jobs (former-name, no-network, strings, workflows) still run. Never use a workflow-level `paths-ignore`: it leaves required checks pending forever. The single check to require is `ci-ok`.
+- **Compile on GitHub as rarely as possible**: the CI minutes and credits are limited. Read and re-read new code carefully before it is pushed (types, isolation, availability, lint rules), group as much work as possible into one push, never push to try something, and never open a pull request for a small step; push only when a whole slice is done. A push that touches `.github/` or code starts the full macOS CI; a documentation-only push does not.
 - Save CI runs and credits: run CI as rarely as possible. Group several phases into one pull request, commit locally and push only once at the end of the work (then fix until green); never push after every task or plan.
+- **Build what you cannot test yourself, and mark it Preview** (decision of 2026-10-09): features that need a real Mac, a permission or hardware the development environment lacks are built anyway, never skipped. Each one shows a **Preview** badge (`PreviewBadge`) in the app, and nothing else (no explanatory text next to it; its tooltip says the rest), and is listed as Preview in the README, `docs/features.md` and the release notes until the user has tested it on a Mac. Then the badge goes.
 - Ask the user every question as a multiple choice (the AskUserQuestion tool), never as free text.
 - Update GSD with `npx -y @opengsd/gsd-core@latest --claude --local` and commit the result.
 
@@ -43,7 +49,7 @@ These hold for every change, always, without taking a feature away:
 ## Releases
 
 - Every release gets clean, hand-written release notes in `docs/release-notes/v<version>.md` (English; sections such as Highlights, New, Fixed, Changed, Known issues, Install). The release workflow publishes that file as the release body and fails without it. Write it in the same pull request as the version's last change.
-- Releases before 1.0 are pre-releases (beta).
+- Releases before 0.1.0 are pre-releases (beta). From 0.1.0 on a release is a pre-release only when its version carries an `-alpha` or `-beta` suffix (`0.1.0-beta1`); a plain `0.1.0` is a regular release (`IS_PRERELEASE` in `release.yml`).
 - `main` takes only pull requests with green checks (build, test, former-name, no-network, strings, workflows, compat (macos-26), compat (xcode-27)); never push to it directly.
 - A release starts with an annotated `v*` tag pushed on `main` after its release-notes pull request is merged; there is no Run workflow button. Never create a release or tag in the web UI, and never push a `v*` tag to test: every one publishes. After a failed run use "Re-run failed jobs", never "Re-run all jobs" (a rebuild makes a different zip, which publish refuses); a defect in the workflow needs a fix pull request and a new tag.
 - Releases are signed with holzBar's own certificate (SHA-256 `e55f0df15060b8c06c6842ccee85e6bc9f86cbbda3bd408abf991457840b1d95`), so permissions survive updates. The release fails without the signing secrets or with any other certificate; never change it. The secrets are still repository secrets (todo: move them into the environment `release`); the sign and cask jobs run in `release`, which only `v*` tags may use, and the cask job pushes the cask to `main` with the deploy key `CASK_DEPLOY_KEY`.
@@ -70,6 +76,8 @@ These hold for every change, always, without taking a feature away:
 ## Building
 
 macOS only (the Xcode pinned in `.github/actions/select-xcode/action.yml`, currently 27.0 on GitHub's `xcode-27` runner image, a public preview that the user approved on 2026-10-03): `Scripts/install.sh` builds `holzBar.xcodeproj` (scheme `holzBar`) without `get-task-allow`, runs `Scripts/check-signature.sh` and installs `holzBar.app` to `~/Applications`. There is no Linux build; CI builds, runs `swift test` and runs SwiftLint (official image pinned in `lint.yml`, `.swiftlint.yml`, `--strict`).
+
+**Test the pure logic on Linux before every push**: `Scripts/test-core-linux.sh` runs the unit tests of the Foundation-only files of `holzBar/Core` with a Swift 6.4 toolchain for Linux (download it from swift.org; `download.swift.org` is reachable from the cloud sessions). Add a new Core file and its tests to the lists in the script when they need only Foundation. `Scripts/lint-linux.sh` runs SwiftLint the same way (the portable `swiftlint_linux_amd64.zip` of the pinned version from GitHub's releases, which are reachable, plus the Linux toolchain's `usr/lib` on `LD_LIBRARY_PATH`). Run both before every push. Only the app itself needs CI.
 
 CI compiles with Swift 6.4 from swift.org, not with Xcode's own Swift: the select-xcode action selects Xcode 27.0 (SDK and build system; build, test and release run on the `xcode-27` runner), downloads `swift-6.4.0-RELEASE-osx.pkg`, checks its SHA-256 and Developer ID signature, installs it for the runner user and exports `TOOLCHAINS`, which `xcodebuild`, `swift test` and `xcrun` honor. The build job fails if xcodebuild did not use that toolchain. To do the same on a Mac (optional): `installer -pkg swift-6.4.0-RELEASE-osx.pkg -target CurrentUserHomeDirectory`, then `TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw -o - ~/Library/Developer/Toolchains/swift-6.4.0-RELEASE.xctoolchain/Info.plist) Scripts/install.sh`.
 

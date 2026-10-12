@@ -71,13 +71,23 @@ struct SettingsView: View {
             detailView
         }
         .navigationTitle(navigationTitle)
+        .tint(HolzBarTheme.Palette.accent)
     }
 
     @ViewBuilder
     private var sidebar: some View {
         List(selection: $navigationState.settingsNavigationIdentifier) {
             Section {
-                ForEach(SettingsNavigationIdentifier.allCases) { identifier in
+                ForEach(SettingsNavigationIdentifier.menuBarGroup) { identifier in
+                    sidebarItem(for: identifier)
+                }
+                // A quiet gap between the groups, without a header.
+                Color.clear
+                    .frame(height: sidebarFontSize * 0.6)
+                    .listRowSeparator(.hidden)
+                    .selectionDisabled()
+                    .accessibilityHidden(true)
+                ForEach(SettingsNavigationIdentifier.appGroup) { identifier in
                     sidebarItem(for: identifier)
                 }
             } header: {
@@ -135,8 +145,10 @@ struct SettingsView: View {
         if #available(macOS 26.0, *) {
             settingsPane
                 .scrollEdgeEffectStyle(.hard, for: .top)
+                .background(HolzBarGround())
         } else {
             settingsPane
+                .background(HolzBarGround())
         }
     }
 
@@ -149,6 +161,8 @@ struct SettingsView: View {
             MenuBarLayoutSettingsPane(itemManager: appState.itemManager)
         case .menuBarAppearance:
             MenuBarAppearanceSettingsPane(appearanceManager: appState.appearanceManager)
+        case .automation:
+            AutomationSettingsPane(manager: appState.automation)
         case .hotkeys:
             HotkeysSettingsPane(settings: appState.settings.hotkeys)
         case .advanced:

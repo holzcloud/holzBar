@@ -204,6 +204,33 @@ class Permission: Identifiable {
         }
     }
 
+    /// Removes the app's entry for this permission from the privacy database and checks again.
+    ///
+    /// holzBar stops using the permission at once and does not ask for it again; the user
+    /// grants it afresh when they want to. This is what the user can also do by hand in
+    /// System Settings, in Privacy & Security.
+    func revoke() {
+        guard let tccService, let bundleIdentifier = Bundle.main.bundleIdentifier else {
+            return
+        }
+        let process = Process()
+        process.executableURL = URL(filePath: "/usr/bin/tccutil")
+        process.arguments = ["reset", tccService, bundleIdentifier]
+        process.terminationHandler = { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.refresh()
+            }
+        }
+        try? process.run()
+    }
+
+    /// Opens the pane of System Settings where the user can remove the permission by hand.
+    func openSettings() {
+        if let settingsURL {
+            NSWorkspace.shared.open(settingsURL)
+        }
+    }
+
     /// Waits for the app to be granted this permission.
     ///
     /// Every call waits on its own stream, so any number of waits can run at the

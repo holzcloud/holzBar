@@ -212,11 +212,17 @@ final class ItemIconStore {
     }
 
     /// What the item shows, in the order of ``ItemIconChoice``: its chosen image, its
-    /// picture, its app's icon, or `nil` for its name.
+    /// picture, its app's icon, or `nil` for its name. A widget shows the picture holzBar
+    /// draws of it.
     ///
     /// - Parameter captured: The item's picture, if the caller has one; by default the one
     ///   in the image cache.
     func image(for item: MenuBarItem, captured: NSImage? = nil) -> NSImage? {
+        // A widget is drawn by holzBar itself, at the height of a menu bar item: it needs no
+        // picture of the screen, and a widget that is not visible shows the en dash (D-13, D-24).
+        if item.tag.namespace == .holzBar, WidgetDefinition.isAutosaveName(item.tag.title) {
+            return appState?.widgets.image(forAutosaveName: item.tag.title)
+        }
         let captured = captured ?? appState?.imageCache.images[item.tag]?.nsImage
         let stored = choice(for: item)
         var custom: NSImage?

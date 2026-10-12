@@ -64,8 +64,14 @@ final class LayoutProfiles {
     /// The UUIDs of the displays connected at the last check.
     @ObservationIgnored private var connectedDisplays = Set<String>()
 
+    /// What the Focus filter changed, so it can be undone.
+    @ObservationIgnored private var focusBinding = FocusFilterBinding()
+
     /// Receives the changes of the active Space.
     @ObservationIgnored private var spaceTask: Task<Void, Never>?
+
+    /// The apply that waits for its before hooks. A newer apply cancels it (D-13).
+    @ObservationIgnored private var pendingApply: Task<Void, Never>?
 
     func performSetup(with appState: AppState) {
         self.appState = appState
@@ -102,15 +108,10 @@ final class LayoutProfiles {
         Defaults.set(currentProfileName, forKey: .currentLayoutProfile)
     }
 
-    /// Saves the current layout under the given name, replacing a profile of
-    /// the same name.
-    func saveCurrentLayout(as name: String) {
+    /// The arrangement of the items now, as a profile without a name or bindings.
+    func currentLayout() -> LayoutProfile {
         guard let appState else {
-            return
-        }
-        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !name.isEmpty else {
-            return
+            return LayoutProfile(name: "", itemSections: [:], applicationSections: [:])
         }
         let itemManager = appState.itemManager
         let cache = itemManager.itemCache
@@ -120,12 +121,19 @@ final class LayoutProfiles {
             for item in cache[section] where !item.isControlItem {
                 // Stored under the item's identity, which survives a changing title.
                 itemSections[itemManager.identityKey(for: item)] = section.profileIndex
-                if let bundleID = item.sourceApplication?.bundleIdentifier {
-                    itemApplications.insert(bundleID)
+                // On macOS 27 this is the key of the saved layout: an application's bundle, or a
+                // widget's autosave name, so a profile knows every widget and applying it puts
+                // each back in its section (D-24).
+                if let key = item.layoutKey27 {
+                    itemApplications.insert(key)
                 }
             }
         }
-        let applicationSections = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
+        // Never with holzBar's own bundle: applying it would conceal holzBar's own icon.
+        let applicationSections = OwnBundle.removing(
+            from: Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:],
+            bundleIdentifier: Constants.bundleIdentifier
+        )
         // The layout leaves visible applications out, so the profile records which ones it
         // knew; applying it makes those visible unless it has them in another section.
         var knownApplications: [String]?
@@ -133,13 +141,32 @@ final class LayoutProfiles {
             let known = Defaults.array(forKey: .knownApplications27) as? [String] ?? []
             knownApplications = itemApplications.union(known).union(applicationSections.keys).sorted()
         }
+        return LayoutProfile(
+            name: "",
+            itemSections: itemSections,
+            applicationSections: applicationSections,
+            knownApplications: knownApplications
+        )
+    }
+
+    /// Saves the current layout under the given name, replacing a profile of
+    /// the same name.
+    func saveCurrentLayout(as name: String) {
+        guard appState != nil else {
+            return
+        }
+        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else {
+            return
+        }
+        let layout = currentLayout()
         // A profile saved again under its name keeps its bindings.
         let previous = profiles.first { $0.name == name }
         let profile = LayoutProfile(
             name: name,
-            itemSections: itemSections,
-            applicationSections: applicationSections,
-            knownApplications: knownApplications,
+            itemSections: layout.itemSections,
+            applicationSections: layout.applicationSections,
+            knownApplications: layout.knownApplications,
             displayUUID: previous?.displayUUID,
             spaceUUID: previous?.spaceUUID
         )
@@ -151,7 +178,41 @@ final class LayoutProfiles {
         logger.notice("Saved layout profile \(name, privacy: .private)")
     }
 
-    /// Deletes the profile with the given name.
+    /// Adds a profile that someone shared. It does not move any item: the user applies it like
+    /// any other. A name that is taken gets a number.
+    func importShared(_ shared: SharedProfile) {
+        let name = SharedProfile.uniqueName(shared.name, among: profiles.map(\.name))
+        var applicationSections = [String: Int]()
+        for entry in shared.apps where entry.section != 0 {
+            applicationSections[entry.id] = entry.section
+        }
+        // Before macOS 27 the profile is by item: the items of the shared applications that
+        // are in the menu bar now.
+        var itemSections = [String: Int]()
+        if let appState {
+            let wanted = Dictionary(shared.apps.map { ($0.id, $0.section) }, uniquingKeysWith: { first, _ in first })
+            let itemManager = appState.itemManager
+            for section in MenuBarSection.Name.allCases {
+                for item in itemManager.itemCache[section] where !item.isControlItem {
+                    if let bundleID = item.sourceApplication?.bundleIdentifier, let wantedSection = wanted[bundleID] {
+                        itemSections[itemManager.identityKey(for: item)] = wantedSection
+                    }
+                }
+            }
+        }
+        registerUndo(named: String(localized: "Import Profile"))
+        profiles.append(LayoutProfile(
+            name: name,
+            itemSections: itemSections,
+            applicationSections: applicationSections,
+            knownApplications: shared.apps.map(\.id)
+        ))
+        save()
+        logger.notice("Imported a shared layout profile with \(shared.apps.count, privacy: .public) applications")
+    }
+
+    /// Deletes the profile with the given name. Its script hooks go with it; undoing the
+    /// deletion brings the profile back without them.
     func delete(named name: String) {
         registerUndo(named: String(localized: "Delete Profile"))
         profiles.removeAll { $0.name == name }
@@ -160,6 +221,7 @@ final class LayoutProfiles {
         }
         save()
         appState?.settings.hotkeys.removeHotkey(for: .applyProfile(name))
+        appState?.automation.scriptStore.removeProfileHooks(named: name)
     }
 
     /// The profile with the given name. An exact match wins, since names may differ only in
@@ -170,51 +232,164 @@ final class LayoutProfiles {
     }
 
     /// Applies the profile with the given name, matched as in ``profile(named:)``.
-    func apply(named name: String) {
+    ///
+    /// - Parameters:
+    ///   - name: The profile's name.
+    ///   - runsHooks: Whether the profile's script hooks run and the apply counts as a
+    ///     profile-change event for script conditions. A change from a URL command, a Shortcut or
+    ///     the Focus filter passes `false` (D-12, T-11-M5).
+    func apply(named name: String, runsHooks: Bool = true) {
         guard let profile = self.profile(named: name) else {
             logger.warning("No layout profile named \(name, privacy: .private)")
             return
         }
-        apply(profile)
+        apply(profile, runsHooks: runsHooks)
+    }
+
+    /// A Focus filter turned on with a profile, or off (`nil`): applies the profile, and
+    /// brings the one from before back when the Focus ends.
+    ///
+    /// A Shortcut's Set Focus action can switch a Focus and so this filter, so the apply is one
+    /// from outside holzBar: it runs no hooks and is no profile-change event (D-12).
+    func focusFilterChanged(to name: String?) {
+        guard let target = focusBinding.profileToApply(requested: name, current: currentProfileName) else {
+            return
+        }
+        apply(named: target, runsHooks: false)
     }
 
     /// Applies the given profile.
-    func apply(_ profile: LayoutProfile) {
+    ///
+    /// With `runsHooks`, the profile's before hooks run first (at most five) and holzBar waits
+    /// for them, each at most its time limit and all together at most a minute, then applies the
+    /// profile whatever their outcome; its after hooks
+    /// start once the items moved and are not awaited. A newer apply cancels one that still
+    /// waits (D-13). Without hooks the profile is applied at once. The profile's name is never
+    /// given to a script (D-06).
+    func apply(_ profile: LayoutProfile, runsHooks: Bool = true) {
         guard let appState else {
             return
         }
+        pendingApply?.cancel()
+        pendingApply = nil
+        guard runsHooks else {
+            applyNow(profile, with: appState)
+            return
+        }
+        let automation = appState.automation
+        let before = ProfileHooks.scriptNames(
+            for: profile.name,
+            timing: .beforeApplying,
+            in: automation.scriptStore.profileHooks
+        )
+        guard !before.isEmpty else {
+            applyAndRunAfterHooks(profile, with: appState)
+            return
+        }
+        logger.notice("Waiting for \(before.count, privacy: .public) script hooks before applying a profile")
+        pendingApply = Task { [weak self] in
+            await automation.runScripts(
+                before,
+                event: .profileWillApply,
+                totalSeconds: ProfileHooks.beforeWaitSeconds
+            )
+            guard !Task.isCancelled, let self, let appState = self.appState else {
+                return
+            }
+            pendingApply = nil
+            // The profile may have been renamed or deleted while the hooks ran.
+            guard let current = self.profile(named: profile.name) else {
+                logger.notice("The layout profile is gone; it is not applied")
+                return
+            }
+            applyAndRunAfterHooks(current, with: appState)
+        }
+    }
+
+    /// Applies the profile, then starts its after hooks once the items moved, and tells the
+    /// automation that a profile changed.
+    private func applyAndRunAfterHooks(_ profile: LayoutProfile, with appState: AppState) {
+        let moved = applyNow(profile, with: appState)
+        let automation = appState.automation
+        let after = ProfileHooks.scriptNames(
+            for: profile.name,
+            timing: .afterApplying,
+            in: automation.scriptStore.profileHooks
+        )
+        if !after.isEmpty {
+            Task {
+                await moved?.value
+                automation.startScripts(after, event: .profileDidApply)
+            }
+        }
+        automation.profileDidChange()
+    }
+
+    /// Makes the profile the current one and moves the items.
+    @discardableResult
+    private func applyNow(_ profile: LayoutProfile, with appState: AppState) -> Task<Void, Never>? {
         currentProfileName = profile.name
         save()
         logger.notice("Applying layout profile \(profile.name, privacy: .private)")
+        appState.snapshots.willApplyProfile()
+        return applyLayout(of: profile)
+    }
+
+    /// Moves the items to the sections the layout names, without changing which profile is
+    /// the current one. Items it does not know stay where they are.
+    ///
+    /// - Returns: The task that finishes the move, so a caller can wait for it; `nil` when
+    ///   nothing was started.
+    @discardableResult
+    func applyLayout(of profile: LayoutProfile) -> Task<Void, Never>? {
+        guard let appState else {
+            return nil
+        }
         if #available(macOS 27.0, *) {
             // Merged into the saved layout, so applications the profile does not know keep
             // their section. A profile saved before macOS 27 knows none and changes nothing.
             if profile.knownApplications == nil, profile.applicationSections.isEmpty {
-                logger.notice("Layout profile \(profile.name, privacy: .private) has no macOS 27 layout, so the current one stays")
+                logger.notice("The layout has no macOS 27 part, so the current one stays")
             } else {
+                // A profile is data from a settings file as well: holzBar's own bundle is
+                // dropped from what it names and from the result, never concealed.
+                let ownBundleIdentifier = Constants.bundleIdentifier
                 let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
                 let layout = SectionLayout27.applyingProfile(
-                    profile.applicationSections.compactMapValues(MacOS27Section.init(rawValue:)),
+                    OwnBundle.removing(
+                        from: profile.applicationSections.compactMapValues(MacOS27Section.init(rawValue:)),
+                        bundleIdentifier: ownBundleIdentifier
+                    ),
                     knownApplications: profile.knownApplications.map(Set.init),
                     to: stored.compactMapValues(MacOS27Section.init(rawValue:))
                 )
-                Defaults.set(layout.mapValues(\.rawValue), forKey: .macOS27Layout)
+                Defaults.set(
+                    OwnBundle.removing(from: layout, bundleIdentifier: ownBundleIdentifier).mapValues(\.rawValue),
+                    forKey: .macOS27Layout
+                )
             }
             appState.concealer27.update()
-            Task {
+            return Task {
                 await appState.itemManager.cacheItemsRegardless()
             }
-            return
         }
         // Keys of earlier versions (`namespace:title`) match through the item identity.
         let itemManager = appState.itemManager
-        var sections = [String: MenuBarSection.Name]()
+        var wanted = [String: Int]()
         for (key, index) in profile.itemSections {
+            wanted[itemManager.storedIdentityKey(key)] = index
+        }
+        // The clock, the battery, Wi-Fi, Control Center and the sound control stay visible.
+        if !Defaults.bool(forKey: .systemItemsMayHide) {
+            wanted = PinnedSystemItems.keepingPinnedVisible(wanted)
+        }
+        var sections = [String: MenuBarSection.Name]()
+        for (key, index) in wanted {
             if let section = MenuBarSection.Name(profileIndex: index) {
-                sections[itemManager.storedIdentityKey(key)] = section
+                sections[key] = section
             }
         }
-        Task {
+        return Task {
             await itemManager.reconcileSections(wanted: sections, trigger: .profile)
         }
     }
@@ -238,6 +413,7 @@ final class LayoutProfiles {
         }
         save()
         appState?.settings.hotkeys.moveHotkey(from: .applyProfile(profile.name), to: .applyProfile(newName))
+        appState?.automation.scriptStore.renameProfileHooks(from: profile.name, to: newName)
     }
 
     // MARK: Undo
@@ -269,6 +445,11 @@ final class LayoutProfiles {
     ) {
         registerUndo(named: actionName)
         let removedNames = Set(profiles.map(\.name)).subtracting(restored.map(\.name))
+        let addedNames = Set(restored.map(\.name)).subtracting(profiles.map(\.name))
+        // An undone or redone rename: the hooks follow the profile back.
+        if removedNames.count == 1, addedNames.count == 1, let removed = removedNames.first, let added = addedNames.first {
+            appState?.automation.scriptStore.renameProfileHooks(from: removed, to: added)
+        }
         profiles = restored
         currentProfileName = restoredCurrent
         save()

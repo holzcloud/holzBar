@@ -49,7 +49,7 @@ enum MigrationManager {
         }
         // Only the settings holzBar stores, with the kind of value it expects, are taken
         // over; anything else in Ice's domain stays there.
-        let accepted = Defaults.Key.validatedSettings(candidates).accepted
+        let accepted = Defaults.Key.validatedSettings(candidates, ownBundleIdentifier: Constants.bundleIdentifier).accepted
 
         var migrated = LegacySettingsMigration.migrate(accepted)
         if LegacySettingsMigration.needsAppearanceConversion(accepted) {
@@ -59,7 +59,7 @@ enum MigrationManager {
         migrated.removeValue(forKey: LegacySettingsMigration.appearanceV1Key)
 
         // The migration writes only holzBar's own keys; checked again all the same.
-        let imported = Defaults.Key.validatedSettings(migrated).accepted
+        let imported = Defaults.Key.validatedSettings(migrated, ownBundleIdentifier: Constants.bundleIdentifier).accepted
         for (key, value) in imported {
             defaults.set(value, forKey: key)
         }

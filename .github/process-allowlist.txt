@@ -1,0 +1,11 @@
+# Lines that start a process or name a script interpreter, which privacy-check.py processes
+# allows, as `<path>: <token>`. A hit is allowed when its file equals <path> and the line
+# contains <token>. Only two files may start a process, and one more may name osascript.
+#
+# The permission reset runs /usr/bin/tccutil to reset holzBar's own grants.
+holzBar/Permissions/Permission.swift: Process()
+# The script runner starts the one file the user approved, configured only from the launch
+# plan (no shell, no arguments, a fixed environment); see SECURITY.md, T-11-H3 and T-11-H4.
+holzBar/MenuBar/Automation/ScriptRunner.swift: Process()
+# The launch plan names /usr/bin/osascript to run an AppleScript file with its own path.
+holzBar/Core/ScriptLaunch.swift: "/usr/bin/osascript"

@@ -2,7 +2,7 @@
 #
 # privacy-check.py
 #
-# Proves two of holzBar's privacy promises (see CLAUDE.md, "Private") on the
+# Proves three of holzBar's promises (see CLAUDE.md, "Private", and SECURITY.md) on the
 # source tree:
 #
 #   network  No networking API appears in holzBar/, Shared/ or Package.swift
@@ -13,11 +13,16 @@
 #   logs     Every interpolation in a Logger call names its privacy, and no
 #            interpolation makes personal data (item tags, bundle identifiers,
 #            app and profile names, errors) public.
+#   processes  Only the script runner and the permission reset start a process:
+#            no process-launching API, shell path or osascript path appears in
+#            holzBar/ or Shared/ except the lines .github/process-allowlist.txt
+#            allows (threats T-11-H3 and T-11-H4 of SECURITY.md).
 #
 # It runs in the no-network job of .github/workflows/build.yml and locally:
 #
 #   python3 .github/scripts/privacy-check.py network
 #   python3 .github/scripts/privacy-check.py logs [--root DIR]
+#   python3 .github/scripts/privacy-check.py processes [--root DIR]
 #
 # It walks the file system (not git), so it also works on an extracted copy of
 # the repository. Every violation is printed as a GitHub annotation and makes
@@ -33,6 +38,7 @@ import sys
 
 SOURCE_DIRS = ("holzBar", "Shared")
 NETWORK_ALLOWLIST = ".github/network-allowlist.txt"
+PROCESS_ALLOWLIST = ".github/process-allowlist.txt"
 ALLOWED_PACKAGES = ".github/allowed-packages.txt"
 PACKAGE_RESOLVED = "holzBar.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
 PROJECT = "holzBar.xcodeproj/project.pbxproj"
@@ -69,6 +75,28 @@ NETWORK_PATTERNS = [
     ("connect()", re.compile(r"\bconnect\(")),
     ("AsyncImage", re.compile(r"\bAsyncImage\b")),
     ("import Network", re.compile(r"\bimport\s+Network\b")),
+]
+
+# APIs that start a process or run a script, each with a short name for the message. The C
+# calls system(, popen(, fork( and vfork( count only as a bare call: `Font.system(` and a
+# name that ends in them are not process APIs.
+PROCESS_PATTERNS = [
+    ("Process()", re.compile(r"\bProcess\(\s*\)")),
+    ("NSTask", re.compile(r"\bNSTask\b")),
+    ("NSUserScriptTask", re.compile(r"\bNSUserScriptTask\b")),
+    ("NSUserUnixTask", re.compile(r"\bNSUserUnixTask\b")),
+    ("NSUserAppleScriptTask", re.compile(r"\bNSUserAppleScriptTask\b")),
+    ("NSUserAutomatorTask", re.compile(r"\bNSUserAutomatorTask\b")),
+    ("NSAppleScript", re.compile(r"\bNSAppleScript\b")),
+    ("OSAScript", re.compile(r"\bOSAScript\b")),
+    ("posix_spawn", re.compile(r"\bposix_spawnp?\b")),
+    ("exec family", re.compile(r"\bexec(?:v|ve|vp|vP|l|le|lp)\s*\(")),
+    ("system()", re.compile(r"(?<![.\w])system\s*\(")),
+    ("popen()", re.compile(r"(?<![.\w])popen\s*\(")),
+    ("fork()", re.compile(r"(?<![.\w])fork\s*\(")),
+    ("vfork()", re.compile(r"(?<![.\w])vfork\s*\(")),
+    ("shell path", re.compile(r'"/(?:usr/)?bin/(?:sh|bash|zsh|dash|ksh|csh|tcsh)"')),
+    ("osascript path", re.compile(r'"/usr/bin/osascript"')),
 ]
 
 LOG_LEVELS = r"(?:log|trace|debug|info|notice|warning|error|critical|fault)"
@@ -425,6 +453,44 @@ def check_network(root):
     return 0
 
 
+def check_processes(root):
+    """Fails on a process-launching API outside the lines process-allowlist.txt allows."""
+    allowlist = []
+    for entry in read_list(root, PROCESS_ALLOWLIST):
+        path, separator, token = entry.partition(":")
+        if separator:
+            allowlist.append((path.strip(), token.strip()))
+
+    violations = 0
+    for path in swift_files(root):
+        text = read_text(root, path)
+        for number, line in enumerate(text.splitlines(), start=1):
+            # A line that is only a comment starts nothing; prose such as "the system (a
+            # notification ...)" must not read as a call.
+            if line.lstrip().startswith("//"):
+                continue
+            for name, pattern in PROCESS_PATTERNS:
+                if not pattern.search(line):
+                    continue
+                allowed = any(
+                    path == allowed_path and token in line
+                    for allowed_path, token in allowlist
+                )
+                if not allowed:
+                    annotate(
+                        path,
+                        number,
+                        f"Process API ({name}); only the script runner and the permission reset may start a process",
+                    )
+                    violations += 1
+
+    if violations:
+        print(f"==> {violations} process violation(s)")
+        return 1
+    print("==> Only the allowed files start processes")
+    return 0
+
+
 def skip_nested_string(text, index):
     """Returns the index after the plain string literal that starts at `index`."""
     if text.startswith('"""', index):
@@ -518,13 +584,15 @@ def check_logs(root):
 
 def main():
     default_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    parser = argparse.ArgumentParser(description="holzBar's network and log privacy checks.")
-    parser.add_argument("check", choices=("network", "logs"))
+    parser = argparse.ArgumentParser(description="holzBar's network, log and process checks.")
+    parser.add_argument("check", choices=("network", "logs", "processes"))
     parser.add_argument("--root", default=default_root, help="repository root (default: %(default)s)")
     arguments = parser.parse_args()
     root = os.path.abspath(arguments.root)
     if arguments.check == "network":
         return check_network(root)
+    if arguments.check == "processes":
+        return check_processes(root)
     return check_logs(root)
 
 

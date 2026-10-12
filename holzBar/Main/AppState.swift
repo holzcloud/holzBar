@@ -71,8 +71,20 @@ final class AppState {
     /// Empty menu bar items that add space between others.
     let spacers = MenuBarSpacers()
 
-    /// Rules that show hidden items when something happens.
-    let revealRules = RevealRules()
+    /// Which optional modules the user has switched on.
+    let modules = ModuleStore()
+
+    /// Menu bar items of the user's own: text from built-in sources and Shortcut buttons (Phase 12).
+    let widgets = MenuBarWidgets()
+
+    /// The lock that asks for Touch ID or the password before hidden items are shown.
+    let hiddenItemsLock = HiddenItemsLock()
+
+    /// The history of the layout: snapshots to go back to.
+    let snapshots = LayoutSnapshots()
+
+    /// The automation rules: "when this is true, do that".
+    let automation = AutomationManager()
 
     /// Turns Zen mode on while the screen is mirrored or shared.
     let presentationMonitor = PresentationMonitor()
@@ -193,9 +205,12 @@ final class AppState {
         imageCache.performSetup(with: self)
         itemIconStore.performSetup(with: self)
         profiles.performSetup(with: self)
+        snapshots.performSetup(with: self)
+        hiddenItemsLock.performSetup(with: self)
         itemGroups.performSetup(with: self)
         spacers.performSetup()
-        revealRules.performSetup(with: self)
+        widgets.performSetup(with: self)
+        automation.performSetup(with: self)
         presentationMonitor.performSetup(with: self)
         if #available(macOS 27.0, *) {
             // The dot on holzBar's icon while another app records.
@@ -205,6 +220,9 @@ final class AppState {
 
         configureObservers()
         isSetUp = true
+        Task {
+            await TidyUpOffer.offerIfFirstLaunch(appState: self)
+        }
     }
 
     /// Brings holzBar up to date once the bar has settled after the screen was locked, the

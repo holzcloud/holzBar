@@ -1,6 +1,8 @@
-# holzBar vs. Ice, Thaw and Bartender
+# holzBar vs. Ice, Thaw and Bartender, in detail
 
 What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. — means not available or not documented. 🔜 means planned, with the release (0.0.8, 0.0.9 or 1.0.0): it is **not available yet**.
+
+✅ Preview = built in the 0.0.8 betas and marked with a Preview badge in the app, but not yet tested on a real Mac.
 
 | | Ice 0.11.12 | Thaw 3.0 beta | Bartender 7 | holzBar |
 |---|:---:|:---:|:---:|:---:|
@@ -18,20 +20,21 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Black menu bar, rounded screen corners | ❌ | corners only | — | ✅ |
 | Dashed and dotted borders, wallpaper, accent and glass tints | ❌ | ✅ | — | ✅ |
 | Show hidden items on low battery or when offline | ❌ | — | — | ✅ |
-| Rules that apply a profile or show items when a Wi-Fi network, an app, the time of day, the power source or a display matches (all or any) | ❌ | ✅ | ✅ | 🔜 0.0.8 |
-| Profile applied by a Focus filter | ❌ | ✅ | — | 🔜 0.0.8 |
-| Scripts as a rule condition or action | ❌ | ✅ | — | 🔜 0.0.8 <sub>only from a folder you choose, after you confirm</sub> |
-| Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | ✅ | 🔜 0.0.9 |
+| Rules that apply a profile or show items when a Wi-Fi network, an app, the time of day, the power source or a display matches (all or any) | ❌ | ✅ | ✅ | ✅ Preview |
+| Profile applied by a Focus filter | ❌ | ✅ | — | ✅ Preview |
+| Scripts as a rule condition or action | ❌ | ✅ | — | ✅ Preview <sub>from a folder you choose, after you allowed the exact content</sub> |
+| Script hooks before or after a profile | ❌ | ✅ | — | ✅ Preview |
+| Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | ✅ | ✅ Preview |
 | AppleScript dictionary | — | — | ✅ | 🔜 0.0.9 |
-| Touch ID or password to show hidden items | — | — | — | 🔜 0.0.8 |
+| Touch ID or password to show hidden items | — | — | — | ✅ Preview |
 | Smooth show and hide | — | — | — | 🔜 0.0.9 |
-| Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | — | 🔜 0.0.8 |
-| Automatic layout snapshots with a one-click restore | — | — | — | 🔜 0.0.8 |
+| Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | — | ✅ Preview |
+| Automatic layout snapshots with a one-click restore | — | — | — | ✅ Preview |
 | Command palette for holzBar's own actions | — | — | — | 🔜 0.0.9 |
-| Share one profile as a file | ❌ | ✅ | — | 🔜 0.0.8 |
-| First-launch assistant that proposes an arrangement | — | — | — | 🔜 0.0.8 |
+| Share one profile as a file | ❌ | ✅ | — | ✅ Preview |
+| First-launch assistant that proposes an arrangement | — | — | — | ✅ Preview |
 | Suggests hiding items you never click (opt-in, counters stay on your Mac) | — | — | — | 🔜 0.0.9 |
-| Redacted diagnostics report you read before you copy it | — | — | — | 🔜 0.0.8 |
+| Redacted diagnostics report you read before you copy it | — | — | — | ✅ Preview |
 | URL commands and Raycast | ❌ | ✅ | — | ✅ |
 | Zen mode (also while presenting) | ❌ | ✅ | — | ✅ |
 | Hotkeys per profile and per item | ❌ | ✅ | — | ✅ |
@@ -67,7 +70,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | No helper process runs with holzBar's permissions | ❌ (menu bar item service) | — | — | ✅ from 0.0.7-beta2: one executable, no nested code (checked by CI) |
 | Fix for the permissions loop | ❌ | — | — | ✅ |
 | **Code and resources** | | | | |
-| Swift packages | 5 | 10 (Sparkle, AXSwift6, CompactSlider, Ifrit, LaunchAtLogin-Modern and 5 from Apple) | closed source | **none** |
+| Swift packages | 5 | 9 (Sparkle, AXSwift6, CompactSlider, Ifrit, LaunchAtLogin-Modern and others) | closed source | **none** |
 | Swift language mode | Swift 5 | Swift 6 | — | Swift 6 (data-race safety checked by the compiler), built with Swift 6.4 and Xcode 27 |
 | State management | Combine | `@Observable` and Combine | — | `@Observable`, no Combine |
 | Mouse event tap when "Show on hover" is off | always running | — | — | off |

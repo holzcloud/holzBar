@@ -147,13 +147,15 @@ final class CaptureActivityMonitor27 {
     }
 }
 
-/// Follows the microphone and the cameras for ``CaptureActivityMonitor27`` on a private serial
-/// queue, the actor's executor, which also runs every listener.
+/// Follows the microphone and the cameras for ``CaptureActivityMonitor27`` and
+/// ``AutomationCaptureObserver`` on a private serial queue, the actor's executor, which also
+/// runs every listener.
 ///
 /// The listeners are added on that queue, so each runs isolated to the actor. Every change of
-/// the activity is reported to the main actor through the stream it was created with.
-@available(macOS 27.0, *)
-private actor CaptureWatcher27 {
+/// the activity is reported to the main actor through the stream it was created with. The
+/// process objects it reads from CoreAudio exist from macOS 14.2.
+@available(macOS 14.2, *)
+actor CaptureWatcher27 {
     /// The queue the listeners run on and the actor executes on.
     private nonisolated let queue = DispatchSerialQueue(label: "com.holzcloud.holzBar.CaptureActivityMonitor27", qos: .utility)
 

@@ -1,0 +1,167 @@
+import Foundation
+import Testing
+@testable import HolzBarCore
+
+@Suite("SharedProfile")
+struct SharedProfileTests {
+    /// holzBar's bundle identifier, which the app passes as `Constants.bundleIdentifier`.
+    private let own = "com.holzcloud.holzBar"
+
+    private func data(_ json: String) -> Data {
+        Data(json.utf8)
+    }
+
+    private func decode(_ json: String) -> Result<SharedProfile, SharedProfile.Failure> {
+        SharedProfile.decode(data(json), ownBundleIdentifier: own)
+    }
+
+    @Test("A profile survives encoding and decoding")
+    func roundTrip() throws {
+        let profile = SharedProfile(name: "Work", apps: [
+            .init(id: "com.apple.Safari", section: 0),
+            .init(id: "com.example.tool", section: 2),
+        ])
+        let bytes = try #require(profile.encoded())
+        #expect(SharedProfile.decode(bytes, ownBundleIdentifier: own) == .success(profile))
+    }
+
+    @Test("A file that is not a profile is refused")
+    func notAProfile() {
+        #expect(decode("[]") == .failure(.notAProfile))
+        #expect(decode("not json") == .failure(.notAProfile))
+        #expect(decode(#"{"format":1,"name":5,"apps":[]}"#) == .failure(.notAProfile))
+        #expect(decode(#"{"format":1,"name":"A","apps":[{"id":"com.a.b","section":"x"}]}"#) == .failure(.notAProfile))
+        #expect(decode(#"{"format":1,"name":"A","apps":[{"id":"com.a.b","section":1e300}]}"#) == .failure(.notAProfile))
+    }
+
+    @Test("An unknown format is refused")
+    func unknownFormat() {
+        #expect(decode(#"{"format":2,"name":"A","apps":[]}"#) == .failure(.unknownFormat))
+    }
+
+    @Test("The name is cleaned and must not be empty")
+    func names() throws {
+        let result = try #require(try? decode("{\"format\":1,\"name\":\"  Wo\\u0007rk\\n \",\"apps\":[]}").get())
+        #expect(result.name == "Work")
+        #expect(decode(#"{"format":1,"name":"  ","apps":[]}"#) == .failure(.invalidName))
+        let long = String(repeating: "a", count: 200)
+        let shortened = try #require(try? decode("{\"format\":1,\"name\":\"\(long)\",\"apps\":[]}").get())
+        #expect(shortened.name.count == SharedProfile.maximumNameLength)
+    }
+
+    @Test("Bundle identifiers are checked")
+    func bundleIdentifiers() {
+        #expect(SharedProfile.isValidBundleIdentifier("com.apple.Safari"))
+        #expect(SharedProfile.isValidBundleIdentifier("org.example.my-app_2"))
+        #expect(!SharedProfile.isValidBundleIdentifier("nodots"))
+        #expect(!SharedProfile.isValidBundleIdentifier("com.example/../etc"))
+        #expect(!SharedProfile.isValidBundleIdentifier("com.exämple.app"))
+        #expect(!SharedProfile.isValidBundleIdentifier("com.a b.c"))
+        #expect(!SharedProfile.isValidBundleIdentifier(""))
+        #expect(!SharedProfile.isValidBundleIdentifier(String(repeating: "a", count: 300) + ".b"))
+        #expect(decode(#"{"format":1,"name":"A","apps":[{"id":"../x","section":0}]}"#) == .failure(.invalidApp))
+    }
+
+    @Test("A section outside 0 to 2 is refused")
+    func sections() {
+        #expect(decode(#"{"format":1,"name":"A","apps":[{"id":"com.a.b","section":3}]}"#) == .failure(.invalidSection))
+        #expect(decode(#"{"format":1,"name":"A","apps":[{"id":"com.a.b","section":-1}]}"#) == .failure(.invalidSection))
+    }
+
+    @Test("Duplicates keep the first, and extra keys are ignored")
+    func duplicates() throws {
+        let json = #"{"format":1,"name":"A","extra":{"deep":[1,2]},"apps":[{"id":"com.a.b","section":1},{"id":"com.a.b","section":2}]}"#
+        let profile = try #require(try? decode(json).get())
+        #expect(profile.apps == [.init(id: "com.a.b", section: 1)])
+    }
+
+    @Test("Too large or too many entries are refused")
+    func limits() {
+        let big = Data(repeating: 0x20, count: SharedProfile.maximumSize + 1)
+        #expect(SharedProfile.decode(big, ownBundleIdentifier: own) == .failure(.tooLarge))
+        let entries = (0...SharedProfile.maximumEntries).map { #"{"id":"com.a.app\#($0)","section":0}"# }
+        let json = #"{"format":1,"name":"A","apps":["# + entries.joined(separator: ",") + "]}"
+        #expect(decode(json) == .failure(.tooManyApps))
+    }
+
+    @Test("The applications of an arrangement come from item keys, application sections and known applications")
+    func applications() {
+        let entries = SharedProfile.applications(
+            itemSections: [
+                "com.apple.Safari:Safari": 1,
+                "com.apple.Safari:Safari 2": 2,
+                "7E1A3C52-0000-0000-0000-000000000000:Item-0": 1,
+                "com.example.tool:Tool": 2,
+            ],
+            applicationSections: ["com.example.other": 1],
+            knownApplications: ["com.example.other", "com.example.visible"],
+            ownBundleIdentifier: own
+        )
+        #expect(entries == [
+            .init(id: "com.apple.Safari", section: 1),
+            .init(id: "com.example.other", section: 1),
+            .init(id: "com.example.tool", section: 2),
+            .init(id: "com.example.visible", section: 0),
+        ])
+    }
+
+    @Test("A shared profile never carries a widget (D-25)")
+    func neverCarriesAWidget() throws {
+        let widget = "holzBar.Widget.0A1B2C3D-0000-4000-8000-000000000001"
+        let otherWidget = "holzBar.Widget.0A1B2C3D-0000-4000-8000-000000000002"
+
+        // Building one: a widget's item key (macOS 14 to 26) would export holzBar itself, and a
+        // widget's layout key and known entry (macOS 27) are valid bundle identifiers.
+        let entries = SharedProfile.applications(
+            itemSections: [
+                "\(own):\(widget)": 1,
+                "\(own):\(otherWidget)": 2,
+                "com.apple.Safari:Safari": 1,
+            ],
+            applicationSections: [widget: 2, otherWidget: 1, "com.example.other": 1],
+            knownApplications: [widget, own, "com.example.visible"],
+            ownBundleIdentifier: own
+        )
+        #expect(entries == [
+            .init(id: "com.apple.Safari", section: 1),
+            .init(id: "com.example.other", section: 1),
+            .init(id: "com.example.visible", section: 0),
+        ])
+
+        // Reading one: a file that carries a widget, or holzBar itself, loses those entries and
+        // keeps the others. Another name that merely starts like a widget's is an application.
+        let json = """
+        {"format":1,"name":"A","apps":[
+        {"id":"\(widget)","section":1},
+        {"id":"\(own)","section":2},
+        {"id":"com.holzcloud.holzbar","section":1},
+        {"id":"com.a.b","section":2},
+        {"id":"holzBar.Widget.not-a-uuid","section":1}]}
+        """
+        let profile = try #require(try? decode(json).get())
+        #expect(profile.apps == [
+            .init(id: "com.a.b", section: 2),
+            .init(id: "holzBar.Widget.not-a-uuid", section: 1),
+        ])
+        // A section outside 0 to 2 still refuses the file, whoever the entry names.
+        #expect(decode(#"{"format":1,"name":"A","apps":[{"id":"\#(widget)","section":9}]}"#) == .failure(.invalidSection))
+    }
+
+    @Test("holzBar's bundle is the one the caller names, not a copy kept here (WR-01)")
+    func ownBundleIsTheCallers() throws {
+        let fork = "com.example.fork"
+        #expect(SharedProfile.isOwn(fork, bundleIdentifier: fork))
+        #expect(!SharedProfile.isOwn(own, bundleIdentifier: fork))
+        #expect(SharedProfile.isOwn(own, bundleIdentifier: own))
+        let json = #"{"format":1,"name":"A","apps":[{"id":"com.example.fork","section":2},{"id":"com.a.b","section":1}]}"#
+        let profile = try #require(try? SharedProfile.decode(data(json), ownBundleIdentifier: fork).get())
+        #expect(profile.apps == [.init(id: "com.a.b", section: 1)])
+    }
+
+    @Test("A name clash gets a number")
+    func uniqueNames() {
+        #expect(SharedProfile.uniqueName("Work", among: ["Home"]) == "Work")
+        #expect(SharedProfile.uniqueName("Work", among: ["Work"]) == "Work 2")
+        #expect(SharedProfile.uniqueName("Work", among: ["Work", "Work 2"]) == "Work 3")
+    }
+}
