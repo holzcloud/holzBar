@@ -97,6 +97,15 @@ final class Session {
         print(line.text)
     }
 
+    /// An intent as the report shows it, with ids and owners through the redactor.
+    private func shown(_ intent: DropIntent) -> String {
+        intent.rendered(
+            generation: generation,
+            shownID: { redactor.shownID($0) },
+            shownOwner: { redactor.shownOwner($0) }
+        )
+    }
+
     /// Writes the RESULT line of one measured drag and counts it.
     func record(_ record: GestureRecord) {
         count += 1
@@ -107,11 +116,14 @@ final class Session {
             result: record.result,
             drop: record.dropX,
             commandHeld: record.commandHeld,
-            executed: "native",
+            intent: shown(record.intent),
+            landed: record.landed,
+            executed: record.executed,
+            retried: record.retried,
             tapMaxUs: record.tapMaxUs
         )
         write(line)
-        summary.add(record.result, landed: nil, refused: false)
+        summary.add(record.result, landed: record.landed, refused: record.intent.isRefused)
         finishIfDone()
     }
 

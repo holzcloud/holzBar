@@ -287,7 +287,10 @@ enum ProbeOutput {
         result: SettleResult,
         drop: CGFloat,
         commandHeld: Bool,
+        intent: String,
+        landed: Bool?,
         executed: String,
+        retried: Bool?,
         tapMaxUs: Int?
     ) -> ReportLine {
         var line = ReportLine("RESULT")
@@ -304,10 +307,10 @@ enum ProbeOutput {
         line.add("bounces", result.bounces)
         line.add("vanished", result.vanished)
         line.add("persisted", result.persisted)
-        line.add("intent", "-")
-        line.add("landed", "-")
+        line.add("intent", intent)
+        line.add("landed", landed)
         line.add("executed", executed)
-        line.add("retried", "-")
+        line.add("retried", retried)
         line.add("tapMaxUs", tapMaxUs)
         return line
     }
@@ -370,24 +373,46 @@ func runSelftest(_ options: Options) -> Int32 {
     }
     let dragged = "com.example.b#0"
     let result = SettleSeries.evaluate(before: before, draggedID: dragged, samples: samples)
+    // The release at x 485 is resolved against the read at 50 ms, where `b` has not moved yet.
+    let release = CGPoint(x: 485, y: 12)
+    let target = DropResolver.target(
+        forDropAt: release,
+        draggedID: dragged,
+        in: samples[0].snapshot,
+        zones: []
+    )
+    let draggedItem = before.item(withID: dragged) ?? item("com.example.b", .app, x: 420)
+    let intent = DropResolver.intent(for: target, dragged: draggedItem, in: before, currentSection: .visible)
+    let landed = target.flatMap { DropResolver.landed($0, draggedID: dragged, in: samples[samples.count - 1].snapshot) }
     let line = ProbeOutput.resultLine(
         mech: "selftest",
         n: 1,
         dragged: dragged,
         result: result,
-        drop: 485,
+        drop: release.x,
         commandHeld: false,
+        intent: intent.rendered(generation: .before27, shownID: { $0 }, shownOwner: { $0 }),
+        landed: landed,
         executed: "none",
+        retried: nil,
         tapMaxUs: nil
     )
     print(line.text)
     var summary = RunSummary()
-    summary.add(result, landed: nil, refused: false)
+    summary.add(result, landed: landed, refused: intent.isRefused)
     let summaryLine = summary.line(mechanism: "selftest", generation: .before27)
     print(summaryLine.text)
     let checks: [(String, Bool)] = [
         ("summary drags", summaryLine.text.contains(" drags=1 ")),
         ("summary moved", summaryLine.text.contains(" moved=1 ")),
+        ("summary landed", summaryLine.text.contains(" landed=1/1 ")),
+        ("landed", line.text.contains(" landed=yes ")),
+        (
+            "intent",
+            line.text.contains(
+                "intent=\"LayoutBarMoves.move(com.example.b#0, to: .rightOfItem(com.example.c#0))\""
+            )
+        ),
         ("moved", result.moved),
         ("scope", result.scope == .reorder),
         ("settleMs", result.settleMs == 100),

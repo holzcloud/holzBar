@@ -28,8 +28,21 @@ struct GestureRecord: Sendable {
 
     let result: SettleResult
 
-    /// The longest callback of the tap so far, in microseconds.
-    let tapMaxUs: Int
+    /// The call holzBar would make for this drop (DropResolver), as the Layout pane would.
+    let intent: DropIntent
+
+    /// Whether macOS put the item where the intent says: `nil` when that cannot be told.
+    let landed: Bool?
+
+    /// What was done to move the item: `native` when macOS did it, for b `posted-fast`,
+    /// `posted-slow` or `intent-only`, or `none`.
+    let executed: String
+
+    /// Whether a drop was posted a second time, at the slow pace (b only).
+    let retried: Bool?
+
+    /// The longest callback of the tap so far, in microseconds; `nil` for b.
+    let tapMaxUs: Int?
 }
 
 /// What the probe measured for one press that a2 held back and then replayed as a click or as
@@ -300,7 +313,7 @@ final class CommandDragTap {
                 addCommandInsideBar(event)
             }
             self.gesture = nil
-            beginReads(for: gesture, dropX: event.location.x, releasePoint: event.location)
+            beginReads(for: gesture, releasePoint: event.location)
         default:
             break
         }
@@ -359,7 +372,7 @@ final class CommandDragTap {
         case .leftMouseUp:
             if let gesture, gesture.userHeldCommand {
                 self.gesture = nil
-                beginReads(for: gesture, dropX: event.location.x, releasePoint: event.location)
+                beginReads(for: gesture, releasePoint: event.location)
                 return true
             }
             return held(up: event, now: now)
@@ -421,7 +434,7 @@ final class CommandDragTap {
             addCommandInsideBar(event)
             gesture = nil
             if let finished {
-                beginReads(for: finished, dropX: event.location.x, releasePoint: event.location)
+                beginReads(for: finished, releasePoint: event.location)
             }
             return true
         default:
@@ -453,7 +466,7 @@ final class CommandDragTap {
 
     /// Reads the bar at `SettleSeries.offsetsMs` after the release, then evaluates the series.
     /// Nothing is read before the next drop.
-    private func beginReads(for gesture: Gesture, dropX: CGFloat, releasePoint: CGPoint) {
+    private func beginReads(for gesture: Gesture, releasePoint: CGPoint) {
         measuring = true
         let release = ContinuousClock.now
         let heights = barHeights
@@ -471,12 +484,38 @@ final class CommandDragTap {
                 }.value
                 samples.append(SettleSeries.Sample(offsetMs: offset, snapshot: read))
             }
-            finishReads(for: gesture, dropX: dropX, samples: samples)
+            finishReads(for: gesture, releasePoint: releasePoint, samples: samples)
         }
     }
 
-    private func finishReads(for gesture: Gesture, dropX: CGFloat, samples: [SettleSeries.Sample]) {
+    private func finishReads(for gesture: Gesture, releasePoint: CGPoint, samples: [SettleSeries.Sample]) {
         let result = SettleSeries.evaluate(before: gesture.before, draggedID: gesture.dragged.id, samples: samples)
+        let draggedID = gesture.dragged.id
+        // On macOS 27 holzBar's icon is resolved against the bar as it was at the press: macOS moves
+        // items aside while dragging. Anything else is resolved against the first read after the
+        // release, where macOS has placed the item.
+        var target = DropResolver.target(forDropAt: releasePoint, draggedID: draggedID, in: gesture.before, zones: [])
+        if case .section = target {
+            // The icon, as the user saw it at the press.
+        } else {
+            target = DropResolver.target(
+                forDropAt: releasePoint,
+                draggedID: draggedID,
+                in: samples.first?.snapshot ?? gesture.before,
+                zones: []
+            )
+        }
+        let currentSection = generation == .before27 ? gesture.before.positionalSection(of: gesture.dragged) : nil
+        let intent = DropResolver.intent(
+            for: target,
+            dragged: gesture.dragged,
+            in: gesture.before,
+            currentSection: currentSection
+        )
+        var landed: Bool?
+        if let target, let final = samples.last?.snapshot {
+            landed = DropResolver.landed(target, draggedID: draggedID, in: final)
+        }
         if let last = samples.last {
             snapshot = last.snapshot
         }
@@ -486,10 +525,14 @@ final class CommandDragTap {
             mechanism: mode.mechanism,
             dragged: gesture.dragged,
             commandHeld: gesture.userHeldCommand,
-            dropX: dropX,
+            dropX: releasePoint.x,
             before: gesture.before,
             firstSample: samples.first?.snapshot,
             result: result,
+            intent: intent,
+            landed: landed,
+            executed: "native",
+            retried: nil,
             tapMaxUs: tapMaxUs
         ))
     }
