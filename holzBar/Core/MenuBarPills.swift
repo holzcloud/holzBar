@@ -83,4 +83,41 @@ nonisolated enum MenuBarPills {
         }
         return spans.isEmpty ? nil : spans
     }
+
+    /// The span of the capsule the Apple-logo style draws behind the Apple menu.
+    ///
+    /// The capsule is at least as wide as it is high (a circle at the least) and centred on the
+    /// Apple menu. It is shifted right when it would start left of `bounds`. Without a positive
+    /// finite Apple menu width, or when the capsule does not fit into `bounds`, the result is
+    /// `nil` and nothing is drawn.
+    ///
+    /// - Parameters:
+    ///   - appleMenu: The x span of the Apple menu, relative to the left edge of its display.
+    ///   - height: The height of the shapes.
+    ///   - bounds: The x range of the overlay's rectangle.
+    static func appleLogoSpan(
+        appleMenu: ClosedRange<Double>,
+        height: Double,
+        within bounds: ClosedRange<Double>
+    ) -> ClosedRange<Double>? {
+        let menuWidth = appleMenu.upperBound - appleMenu.lowerBound
+        guard menuWidth.isFinite, menuWidth > 0, height.isFinite, height > 0 else {
+            return nil
+        }
+        let width = max(menuWidth, height)
+        var lower = (appleMenu.lowerBound + appleMenu.upperBound) / 2 - width / 2
+        if lower < bounds.lowerBound {
+            lower = bounds.lowerBound
+        }
+        let upper = lower + width
+        guard lower.isFinite, upper <= bounds.upperBound else {
+            return nil
+        }
+        return lower...upper
+    }
+
+    /// Where the shapes start when the Apple-logo capsule is drawn: one `gap` right of it.
+    static func leadingStart(after appleLogo: ClosedRange<Double>) -> Double {
+        appleLogo.upperBound + gap
+    }
 }

@@ -95,4 +95,42 @@ struct MenuBarPillsTests {
     func gapIsFourPoints() {
         #expect(MenuBarPills.gap == 4)
     }
+
+    private func appleLogo(
+        _ appleMenu: ClosedRange<Double>,
+        height: Double = 24,
+        within bounds: ClosedRange<Double> = 0...1500
+    ) -> ClosedRange<Double>? {
+        MenuBarPills.appleLogoSpan(appleMenu: appleMenu, height: height, within: bounds)
+    }
+
+    @Test("An Apple menu wider than the bar is high keeps its own span")
+    func wideAppleMenuKeepsItsSpan() {
+        #expect(appleLogo(10...44) == 10...44)
+    }
+
+    @Test("An Apple menu narrower than the bar is high becomes a circle centred on it")
+    func narrowAppleMenuBecomesACircle() {
+        #expect(appleLogo(10...26) == 6...30)
+    }
+
+    @Test("A capsule that would start left of the bounds is shifted right")
+    func capsuleLeftOfTheBoundsIsShifted() {
+        #expect(appleLogo(0...16, within: 8...1000) == 8...32)
+    }
+
+    @Test("An Apple menu without a width gives no capsule")
+    func emptyAppleMenuGivesNil() {
+        #expect(appleLogo(20...20) == nil)
+    }
+
+    @Test("A capsule that does not fit into the bounds gives no capsule")
+    func capsuleBeyondTheBoundsGivesNil() {
+        #expect(appleLogo(10...44, within: 0...20) == nil)
+    }
+
+    @Test("The shapes start one gap right of the capsule")
+    func shapesStartOneGapRightOfTheCapsule() {
+        #expect(MenuBarPills.leadingStart(after: 10...44) == 48)
+    }
 }

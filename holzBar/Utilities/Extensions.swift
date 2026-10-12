@@ -634,7 +634,7 @@ nonisolated struct ApplicationMenuQuery: Sendable {
     /// Returns whether the element at the origin of the display's menu bar window is a
     /// menu bar.
     ///
-    /// - Important: This asks Accessibility and blocks; like ``getApplicationMenuFrame()``
+    /// - Important: This asks Accessibility and blocks; like ``readApplicationMenu()``
     ///   it must stay off the main thread.
     func hasValidMenuBar() -> Bool {
         guard let menuBarOrigin, let element = AXHelpers.element(at: menuBarOrigin) else {
@@ -644,36 +644,73 @@ nonisolated struct ApplicationMenuQuery: Sendable {
         return AXHelpers.role(for: element) == kAXMenuBarRole
     }
 
-    /// Returns the frame of the application menu on the display.
+    /// Reads the application menu on the display: its frame and the Apple menu's span.
+    ///
+    /// The Apple menu is the leftmost enabled menu among the children of the menu bar this
+    /// read already asks for; it sits at the same distance from every display's left edge, so
+    /// its span is relative to the left edge of the display that contains it. These are the
+    /// Accessibility calls the read made before, there is no further request.
     ///
     /// - Important: This asks another application through Accessibility and blocks until it
     ///   answers or its messaging timeout (0.25 s) passes. It must stay off the main thread:
     ///   only `ApplicationMenuFrames` calls it, on its own queue, and everything else reads
     ///   that cache.
-    func getApplicationMenuFrame() -> CGRect? {
+    func readApplicationMenu() -> ApplicationMenuRead {
         let displayBounds = CGDisplayBounds(displayID)
 
         guard let menuBar = AXHelpers.applicationMenuBar(in: displayBounds, menuBarHeight: menuBarHeight) else {
-            return nil
+            return ApplicationMenuRead()
         }
 
-        let applicationMenuFrame = AXHelpers.children(for: menuBar).reduce(into: CGRect.null) { result, child in
+        var applicationMenuFrame = CGRect.null
+        var appleMenuFrame: CGRect?
+        for child in AXHelpers.children(for: menuBar) {
             AXHelpers.setMessagingTimeout(AXHelpers.applicationMenuTimeout, for: child)
             if AXHelpers.isEnabled(child), let childFrame = AXHelpers.frame(for: child) {
-                result = result.union(childFrame)
+                applicationMenuFrame = applicationMenuFrame.union(childFrame)
+                if appleMenuFrame.map({ childFrame.minX < $0.minX }) ?? true {
+                    appleMenuFrame = childFrame
+                }
             }
         }
 
+        var read = ApplicationMenuRead()
+        if let appleMenuFrame, appleMenuFrame.width > 0 {
+            read.appleMenuSpan = Self.span(of: appleMenuFrame, onDisplay: displayID)
+        }
+
         if applicationMenuFrame.isNull || applicationMenuFrame.width <= 0 {
-            return nil
+            return read
         }
 
         if let notchLimit, applicationMenuFrame.width >= notchLimit {
-            return nil
+            return read
         }
 
-        return applicationMenuFrame
+        read.frame = applicationMenuFrame
+        return read
     }
+
+    /// The x span of the frame relative to the left edge of the display that contains its
+    /// middle (the given display when none does).
+    private static func span(of frame: CGRect, onDisplay displayID: CGDirectDisplayID) -> ClosedRange<Double> {
+        var containing = CGDirectDisplayID()
+        var count: UInt32 = 0
+        let middle = CGPoint(x: frame.midX, y: frame.midY)
+        let status = CGGetDisplaysWithPoint(middle, 1, &containing, &count)
+        let left = (status == .success && count > 0 ? CGDisplayBounds(containing) : CGDisplayBounds(displayID)).minX
+        return Double(frame.minX - left)...Double(frame.maxX - left)
+    }
+}
+
+/// What one read of the application menu found on a display.
+nonisolated struct ApplicationMenuRead: Sendable {
+    /// The frame of the application menu, or `nil` when there is none (or it reaches a notch).
+    var frame: CGRect?
+
+    /// The Apple menu's x span relative to the left edge of its display, or `nil` when the
+    /// read found no Apple menu.
+    var appleMenuSpan: ClosedRange<Double>?
 }
 
 // MARK: - NSStatusItem

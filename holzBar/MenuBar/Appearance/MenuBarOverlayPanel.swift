@@ -104,6 +104,14 @@ final class MenuBarOverlayPanel: NSPanel {
         }
     }
 
+    /// The Apple menu's x span on this display, relative to its left edge, for the Apple-logo
+    /// style; `nil` while no read has seen it.
+    private(set) var appleMenuSpan: ClosedRange<Double>? {
+        didSet {
+            contentView?.needsDisplay = true
+        }
+    }
+
     /// The current desktop wallpaper, clipped to the bounds of the menu bar.
     private(set) var desktopWallpaper: CGImage? {
         didSet {
@@ -148,6 +156,9 @@ final class MenuBarOverlayPanel: NSPanel {
 
     /// Observes the application menu frames read by `ApplicationMenuFrames`.
     private var applicationMenuFrameObserver: ObservationLoop?
+
+    /// Observes the Apple menu's span, which can arrive without the menu frames changing.
+    private var appleMenuSpanObserver: ObservationLoop?
 
     /// Observes whether the owning screen's menu bar is valid (see `ApplicationMenuFrames`).
     private var menuBarValidityObserver: ObservationLoop?
@@ -255,9 +266,14 @@ final class MenuBarOverlayPanel: NSPanel {
             } onChange: { [weak self] _ in
                 self?.insertUpdateFlag(.applicationMenuFrame)
             }
+            let displayID = owningScreen.displayID
+            appleMenuSpanObserver = ObservationLoop.observe {
+                applicationMenuFrames.appleMenuSpans[displayID]
+            } onChange: { [weak self] _ in
+                self?.insertUpdateFlag(.applicationMenuFrame)
+            }
             // The first read can finish after the panel first tried to update, and a menu bar
             // can appear later (at login): update the panel once its menu bar is valid.
-            let displayID = owningScreen.displayID
             menuBarValidityObserver = ObservationLoop.observe {
                 applicationMenuFrames.hasValidMenuBar(on: displayID)
             } onChange: { [weak self] isValid in
@@ -436,6 +452,10 @@ final class MenuBarOverlayPanel: NSPanel {
             return
         }
         applicationMenuFrame = appState?.applicationMenuFrames.frame(for: screen)
+        let span = appState?.applicationMenuFrames.appleMenuSpan(for: screen)
+        if span != appleMenuSpan {
+            appleMenuSpan = span
+        }
     }
 
     /// Stores the area of the desktop wallpaper that is under the menu bar
@@ -848,8 +868,31 @@ private final class MenuBarOverlayPanelContentView: NSView {
         return path
     }
 
+    /// Returns the rectangle with its left edge moved right to `leadingStart`, unchanged when
+    /// it starts there or further right already.
+    private func shapeRect(_ rect: CGRect, startingAt leadingStart: CGFloat) -> CGRect {
+        guard leadingStart > rect.minX else {
+            return rect
+        }
+        return CGRect(
+            x: leadingStart,
+            y: rect.minY,
+            width: max(rect.maxX - leadingStart, 0),
+            height: rect.height
+        )
+    }
+
     /// Returns the path of the ``MenuBarShapeKind/full`` shape kind: one piece.
-    private func pathForFullShape(in rect: CGRect, info: MenuBarFullShapeInfo, isInset: Bool, screen: NSScreen) -> [NSBezierPath] {
+    ///
+    /// - Parameter leadingStart: Where the shape starts when the Apple-logo capsule is drawn
+    ///   before it, or `nil` to start at the left edge.
+    private func pathForFullShape(
+        in rect: CGRect,
+        info: MenuBarFullShapeInfo,
+        isInset: Bool,
+        screen: NSScreen,
+        leadingStart: CGFloat?
+    ) -> [NSBezierPath] {
         guard let appearanceManager = overlayPanel?.appState?.appearanceManager else {
             return []
         }
@@ -863,6 +906,12 @@ private final class MenuBarOverlayPanelContentView: NSView {
             }
             if info.trailingEndCap == .round {
                 rect.size.width -= appearanceManager.menuBarInsetAmount
+            }
+        }
+        if let leadingStart {
+            rect = shapeRect(rect, startingAt: leadingStart)
+            guard rect.width >= rect.height else {
+                return []
             }
         }
         return [
@@ -903,7 +952,16 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
     /// Returns the bounds of the leading shape, the one of the application menus, or `.zero`
     /// when the width of the application menus is not known.
-    private func leadingShapeBounds(in rect: CGRect, info: MenuBarSplitShapeInfo, shouldInset: Bool) -> CGRect {
+    ///
+    /// With a `leadingStart` (the Apple-logo capsule is drawn before it) the shape starts there
+    /// and ends where it did, and is `.zero` when what is left is narrower than the rectangle
+    /// is high.
+    private func leadingShapeBounds(
+        in rect: CGRect,
+        info: MenuBarSplitShapeInfo,
+        shouldInset: Bool,
+        leadingStart: CGFloat?
+    ) -> CGRect {
         guard
             let appearanceManager = overlayPanel?.appState?.appearanceManager,
             var maxX = overlayPanel?.applicationMenuFrame?.width,
@@ -919,7 +977,15 @@ private final class MenuBarOverlayPanelContentView: NSView {
         } else {
             maxX += 20
         }
-        return CGRect(x: rect.minX, y: rect.minY, width: maxX, height: rect.height)
+        guard let leadingStart else {
+            return CGRect(x: rect.minX, y: rect.minY, width: maxX, height: rect.height)
+        }
+        let start = max(rect.minX, leadingStart)
+        let width = rect.minX + maxX - start
+        guard width >= rect.height else {
+            return .zero
+        }
+        return CGRect(x: start, y: rect.minY, width: width, height: rect.height)
     }
 
     /// Returns the bounds of the trailing shape, the one of the items, or `.zero` when they
@@ -964,12 +1030,18 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
     /// Returns the path of the ``MenuBarShapeKind/split`` shape kind: the leading and the
     /// trailing shape, or the one full shape when they do not fit.
-    private func pathForSplitShape(in rect: CGRect, info: MenuBarSplitShapeInfo, isInset: Bool, screen: NSScreen) -> [NSBezierPath] {
+    private func pathForSplitShape(
+        in rect: CGRect,
+        info: MenuBarSplitShapeInfo,
+        isInset: Bool,
+        screen: NSScreen,
+        leadingStart: CGFloat?
+    ) -> [NSBezierPath] {
         guard let appState = overlayPanel?.appState else {
             return []
         }
         let (rect, shouldInset) = insetShapeRect(rect, info: info, isInset: isInset, screen: screen)
-        let leadingPathBounds = leadingShapeBounds(in: rect, info: info, shouldInset: shouldInset)
+        let leadingPathBounds = leadingShapeBounds(in: rect, info: info, shouldInset: shouldInset, leadingStart: leadingStart)
         let trailingPathBounds = trailingShapeBounds(
             in: rect,
             info: info,
@@ -979,9 +1051,13 @@ private final class MenuBarOverlayPanelContentView: NSView {
         )
 
         if leadingPathBounds == .zero || trailingPathBounds == .zero || leadingPathBounds.intersects(trailingPathBounds) {
+            let fullRect = leadingStart.map { shapeRect(rect, startingAt: $0) } ?? rect
+            guard leadingStart == nil || fullRect.width >= fullRect.height else {
+                return []
+            }
             return [
                 shapePath(
-                    in: rect,
+                    in: fullRect,
                     leadingEndCap: info.leading.leadingEndCap,
                     trailingEndCap: info.trailing.trailingEndCap,
                     screen: screen
@@ -1009,12 +1085,18 @@ private final class MenuBarOverlayPanelContentView: NSView {
     ///
     /// It is Paired wherever the sections are not known: no hidden divider on this display, or
     /// no items area.
-    private func pathForSectionsShape(in rect: CGRect, info: MenuBarSplitShapeInfo, isInset: Bool, screen: NSScreen) -> [NSBezierPath] {
+    private func pathForSectionsShape(
+        in rect: CGRect,
+        info: MenuBarSplitShapeInfo,
+        isInset: Bool,
+        screen: NSScreen,
+        leadingStart: CGFloat?
+    ) -> [NSBezierPath] {
         guard let appState = overlayPanel?.appState else {
             return []
         }
         let (insetRect, shouldInset) = insetShapeRect(rect, info: info, isInset: isInset, screen: screen)
-        let leadingPathBounds = leadingShapeBounds(in: insetRect, info: info, shouldInset: shouldInset)
+        let leadingPathBounds = leadingShapeBounds(in: insetRect, info: info, shouldInset: shouldInset, leadingStart: leadingStart)
         let trailingPathBounds = trailingShapeBounds(
             in: insetRect,
             info: info,
@@ -1023,7 +1105,7 @@ private final class MenuBarOverlayPanelContentView: NSView {
             appState: appState
         )
         guard trailingPathBounds != .zero, trailingPathBounds.width > 0 else {
-            return pathForSplitShape(in: rect, info: info, isInset: isInset, screen: screen)
+            return pathForSplitShape(in: rect, info: info, isInset: isInset, screen: screen, leadingStart: leadingStart)
         }
 
         func divider(of name: MenuBarSection.Name) -> MenuBarPills.Divider? {
@@ -1047,7 +1129,7 @@ private final class MenuBarOverlayPanelContentView: NSView {
             alwaysHiddenDivider: divider(of: .alwaysHidden),
             minimumWidth: Double(insetRect.height)
         ) else {
-            return pathForSplitShape(in: rect, info: info, isInset: isInset, screen: screen)
+            return pathForSplitShape(in: rect, info: info, isInset: isInset, screen: screen, leadingStart: leadingStart)
         }
 
         var paths: [NSBezierPath] = []
@@ -1084,39 +1166,91 @@ private final class MenuBarOverlayPanelContentView: NSView {
         return paths
     }
 
+    /// The capsule the Apple-logo style draws behind the Apple menu, and its x span.
+    private struct AppleLogo {
+        var path: NSBezierPath
+        var span: ClosedRange<Double>
+    }
+
+    /// Returns the capsule behind the Apple menu in the given bounds, or `nil` unless the
+    /// Apple-logo style is on and the Apple menu's position is known.
+    private func appleLogoPath(in bounds: CGRect, screen: NSScreen) -> AppleLogo? {
+        guard
+            fullConfiguration.appleLogoStyle == .capsule,
+            let appleMenuSpan = overlayPanel?.appleMenuSpan
+        else {
+            return nil
+        }
+        var rect = bounds
+        if
+            fullConfiguration.isInset,
+            screen.hasNotch,
+            let appearanceManager = overlayPanel?.appState?.appearanceManager
+        {
+            rect = rect.insetBy(dx: 0, dy: appearanceManager.menuBarInsetAmount)
+        }
+        guard let span = MenuBarPills.appleLogoSpan(
+            appleMenu: appleMenuSpan,
+            height: Double(rect.height),
+            within: Double(rect.minX)...Double(rect.maxX)
+        ) else {
+            return nil
+        }
+        let capsuleRect = CGRect(
+            x: CGFloat(span.lowerBound),
+            y: rect.minY,
+            width: CGFloat(span.upperBound - span.lowerBound),
+            height: rect.height
+        )
+        let path = shapePath(in: capsuleRect, leadingEndCap: .round, trailingEndCap: .round, screen: screen)
+        return AppleLogo(path: path, span: span)
+    }
+
     /// Returns the pieces of the configuration's shape in the given bounds, left to right.
     ///
-    /// Sections is drawn as Paired where the running macOS cannot draw it.
+    /// Sections is drawn as Paired where the running macOS cannot draw it. With the Apple-logo
+    /// capsule the capsule is the first piece and the shapes start one gap right of it; with no
+    /// shape the capsule is not a piece, it is drawn on its own.
     private func shapePieces(
         for configuration: MenuBarAppearanceConfigurationV2,
         in bounds: CGRect,
-        screen: NSScreen
+        screen: NSScreen,
+        appleLogo: AppleLogo?
     ) -> [NSBezierPath] {
+        let leadingStart = appleLogo.map { CGFloat(MenuBarPills.leadingStart(after: $0.span)) }
+        let shapes: [NSBezierPath]
         switch configuration.shapeKind.drawnKind {
         case .noShape:
-            [NSBezierPath(rect: bounds)]
+            return [NSBezierPath(rect: bounds)]
         case .full:
-            pathForFullShape(
+            shapes = pathForFullShape(
                 in: bounds,
                 info: configuration.fullShapeInfo,
                 isInset: configuration.isInset,
-                screen: screen
+                screen: screen,
+                leadingStart: leadingStart
             )
         case .split:
-            pathForSplitShape(
+            shapes = pathForSplitShape(
                 in: bounds,
                 info: configuration.splitShapeInfo,
                 isInset: configuration.isInset,
-                screen: screen
+                screen: screen,
+                leadingStart: leadingStart
             )
         case .sections:
-            pathForSectionsShape(
+            shapes = pathForSectionsShape(
                 in: bounds,
                 info: configuration.splitShapeInfo,
                 isInset: configuration.isInset,
-                screen: screen
+                screen: screen,
+                leadingStart: leadingStart
             )
         }
+        guard let appleLogo else {
+            return shapes
+        }
+        return [appleLogo.path] + shapes
     }
 
     /// Returns one path made of all the given pieces.
@@ -1180,6 +1314,55 @@ private final class MenuBarOverlayPanelContentView: NSView {
         }
     }
 
+    /// The colour that fills the Apple-logo capsule at the tint strength, or `nil` when the
+    /// fill is the bar's tint, which the capsule already carries as one of the shapes.
+    private func appleLogoFillColor() -> NSColor? {
+        let base: NSColor
+        switch configuration.style.appleLogoFill {
+        case .barTint:
+            return nil
+        case .accentColor:
+            base = NSColor.controlAccentColor
+        case .wallpaper:
+            // The label colour stands in while the palette is not read yet.
+            if let primary = overlayPanel?.wallpaperPalette?.primary {
+                base = NSColor(srgbRed: primary.red, green: primary.green, blue: primary.blue, alpha: 1)
+            } else {
+                base = NSColor.labelColor
+            }
+        case .color:
+            guard let color = NSColor(cgColor: configuration.appleLogoColor) else {
+                return nil
+            }
+            base = color
+        }
+        return base.withAlphaComponent(configuration.style.tintStrength)
+    }
+
+    /// Draws the Apple-logo capsule on a bar with no shape, after the bar's tint.
+    ///
+    /// The bar's tint is drawn once more inside the capsule. With no tint, or System Glass
+    /// (which is a view of its own), the label colour fills it, so the capsule is always visible.
+    private func drawAppleLogoOnBareBar(_ capsule: NSBezierPath, drawableBounds: CGRect, context: NSGraphicsContext) {
+        if let fill = appleLogoFillColor() {
+            fill.setFill()
+            capsule.fill()
+            return
+        }
+        switch configuration.tintKind {
+        case .noTint, .systemGlass:
+            NSColor.labelColor.withAlphaComponent(configuration.style.tintStrength).setFill()
+            capsule.fill()
+        case .solid, .gradient, .adaptive:
+            context.saveGraphicsState()
+            defer {
+                context.restoreGraphicsState()
+            }
+            capsule.setClip()
+            drawTint(in: drawableBounds)
+        }
+    }
+
     /// Strokes a border path with the given style: solid, dashed or dotted.
     ///
     /// - Parameter drawnWidth: The width the path is stroked with.
@@ -1219,8 +1402,9 @@ private final class MenuBarOverlayPanelContentView: NSView {
             return
         }
 
+        let appleLogo = appleLogoPath(in: drawableBounds, screen: overlayPanel.owningScreen)
         let shapePath = combinedPath(
-            shapePieces(for: fullConfiguration, in: drawableBounds, screen: overlayPanel.owningScreen)
+            shapePieces(for: fullConfiguration, in: drawableBounds, screen: overlayPanel.owningScreen, appleLogo: appleLogo)
         )
 
         if glassView != nil {
@@ -1249,6 +1433,10 @@ private final class MenuBarOverlayPanelContentView: NSView {
             }
 
             drawTint(in: drawableBounds)
+
+            if let appleLogo {
+                drawAppleLogoOnBareBar(appleLogo.path, drawableBounds: drawableBounds, context: context)
+            }
 
             if let border {
                 if border.style == .solid {
@@ -1307,6 +1495,11 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 drawTint(in: drawableBounds)
             }
 
+            if let appleLogo, let fill = appleLogoFillColor() {
+                fill.setFill()
+                appleLogo.path.fill()
+            }
+
             if let border {
                 context.saveGraphicsState()
                 defer {
@@ -1315,7 +1508,7 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
                 // Stroking sets the path's width and dashes, so it gets a path of its own.
                 let borderPath = combinedPath(
-                    shapePieces(for: fullConfiguration, in: drawableBounds, screen: overlayPanel.owningScreen)
+                    shapePieces(for: fullConfiguration, in: drawableBounds, screen: overlayPanel.owningScreen, appleLogo: appleLogo)
                 )
 
                 // HACK: Insetting a path to get an "inside" stroke is surprisingly
