@@ -9139,6 +9139,34 @@
         }
       }
     },
+    "Paired" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paarweise"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Par paire"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In coppia"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A pèr"
+          }
+        }
+      }
+    },
     "Percent" : {
       "localizations" : {
         "de" : {
@@ -11407,6 +11435,34 @@
         }
       }
     },
+    "Sections" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereiche"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sections"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sezioni"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Secziuns"
+          }
+        }
+      }
+    },
     "Set Hotkey…" : {
       "localizations" : {
         "de" : {
@@ -12355,6 +12411,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dapi macOS 15 na sa lascha nagina cumbinaziun pli registrar che ha sco unicas tastas da modificaziun Option u Option e Shift. Agiunta Command u Control."
+          }
+        }
+      }
+    },
+    "Single" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einzeln"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unique"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Singola"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Singula"
           }
         }
       }
