@@ -374,9 +374,21 @@ private struct HolzBarShelfContentView: View {
         let covered = itemManager.itemCache[.visible].filter { item in
             !item.isControlItem &&
             item.bounds.maxX > notch.minX &&
-            item.bounds.minX < notch.maxX
+            item.bounds.minX < notch.maxX &&
+            !isShownByNativeOverflow(item)
         }
         return covered + sectionItems
+    }
+
+    /// Whether macOS 27 shows the item itself, in its own expanded overflow, so the Shelf would
+    /// list it twice (Phase 22); never on earlier macOS and never in doubt.
+    private func isShownByNativeOverflow(_ item: MenuBarItem) -> Bool {
+        guard #available(macOS 27.0, *) else {
+            return false
+        }
+        return appState.concealer27.nativeOverflow.shelfOmits(
+            itemFrame: item.bounds, isDrawn: item.isOnScreen, onDisplay: screen.displayID
+        )
     }
 
     private var configuration: MenuBarAppearanceConfigurationV2 {
