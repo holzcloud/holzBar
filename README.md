@@ -6,7 +6,7 @@
 
 [![Release](https://img.shields.io/github/v/release/holzcloud/holzBar?include_prereleases&style=for-the-badge&label=release&color=2A86E0)](https://github.com/holzcloud/holzBar/releases)
 [![Homebrew](https://img.shields.io/badge/brew-holzbar-D58C4A?style=for-the-badge&logo=homebrew&logoColor=white)](#-install)
-[![macOS](https://img.shields.io/badge/macOS-14%20→%2027-111827?style=for-the-badge&logo=apple&logoColor=white)](docs/features.md#macos-27)
+[![macOS](https://img.shields.io/badge/macOS-26%20%C2%B7%2027-111827?style=for-the-badge&logo=apple&logoColor=white)](docs/features.md#macos-27)
 [![Privacy](https://img.shields.io/badge/privacy-no%20network%20connections-0E7C66?style=for-the-badge)](docs/privacy-and-permissions.md)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/holzcloud/holzBar/badge)](https://scorecard.dev/viewer/?uri=github.com/holzcloud/holzBar)
 [![SLSA 3](https://slsa.dev/images/gh-badge-level3.svg)](https://slsa.dev)
@@ -40,7 +40,7 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 
 | | |
 |---|---|
-| 🪵 **macOS 14 to 27** | A dedicated backend for the redesigned macOS 27 menu bar. Every pull request launches the app on macOS 26 and 27 and runs the unit tests there; older macOS versions are not tested. |
+| 🪵 **Tested on macOS 26 and 27** | A dedicated backend for the redesigned macOS 27 menu bar. Every pull request launches the app on macOS 26 and 27 and runs the unit tests there; older macOS versions are not tested. Requires macOS 14 or later. |
 | 🔒 **Never online** | No update checks, telemetry or analytics. A CI check proves there is no network code in the app. |
 | 📦 **Zero dependencies, modern Swift** | Built with Swift 6.4 and Xcode 27, Swift 6 language mode, no third-party packages. |
 | 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. From 0.0.7-beta2, one executable with no helper process or nested code, and no entitlements, not even one that lets a debugger attach. |
