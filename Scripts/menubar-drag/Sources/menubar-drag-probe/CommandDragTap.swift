@@ -32,18 +32,55 @@ struct GestureRecord: Sendable {
     let tapMaxUs: Int
 }
 
+/// What the probe measured for one press that a2 held back and then replayed as a click or as
+/// a press that tracks a menu.
+struct ClickRecord: Sendable {
+    /// What the press turned out to be.
+    enum Kind: String, Sendable {
+        /// The button went up where it went down: a plain click.
+        case click
+
+        /// The pointer left the bar downward: a press that tracks a menu.
+        case menuDrag
+    }
+
+    let mechanism: String
+    let item: BarItem
+
+    /// How long the press was held back, in milliseconds.
+    let replayDelayMs: Int
+
+    let kind: Kind
+}
+
 /// An event tap that turns plain drags on app items into Command-drags and measures what the bar
 /// does afterwards.
 ///
 /// Only the three left-button event types are tapped, nothing else is read, and the tap exists
-/// only while a1 runs. In rewrite mode it only changes the flags and the location of the user's
-/// own events; it never posts an event. It writes no output: records go to the callbacks.
+/// only while a1 or a2 runs. In rewrite mode (a1) it only changes the flags and the location of
+/// the user's own events and never posts an event. In hold-and-decide mode (a2) it holds a press
+/// back and posts marked replays, which it recognises by their marker. It writes no output:
+/// records go to the callbacks.
 final class CommandDragTap {
     /// What the tap does with a press on an app item.
     enum Mode {
         /// Adds Command to the user's own events of the drag (a1).
         case rewrite
+
+        /// Holds a press on an app item back and decides what it was (a2).
+        case holdAndDecide
+
+        /// The mechanism's name in the report.
+        var mechanism: String {
+            switch self {
+            case .rewrite: "a1"
+            case .holdAndDecide: "a2"
+            }
+        }
     }
+
+    /// Set on every event the tap posts, so the tap lets its own replays through.
+    static let replayMarker: Int64 = 0x77D2A6
 
     /// The drag that is going on.
     private struct Gesture {
@@ -57,7 +94,10 @@ final class CommandDragTap {
     private let mode: Mode
     private let generation: Generation
     private let onGesture: (GestureRecord) -> Void
+    private let onClick: (ClickRecord) -> Void
     private let onSkip: (String) -> Void
+    private var decider = GestureDecider()
+    private let source = CGEventSource(stateID: .hidSystemState)
 
     private var machPort: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
@@ -82,12 +122,14 @@ final class CommandDragTap {
         generation: Generation,
         snapshot: BarSnapshot,
         onGesture: @escaping (GestureRecord) -> Void,
+        onClick: @escaping (ClickRecord) -> Void,
         onSkip: @escaping (String) -> Void
     ) {
         self.mode = mode
         self.generation = generation
         self.snapshot = snapshot
         self.onGesture = onGesture
+        self.onClick = onClick
         self.onSkip = onSkip
     }
 
@@ -207,19 +249,24 @@ final class CommandDragTap {
             return false
         }
         let started = ContinuousClock.now
-        let decision = decide(type: type, event: event)
+        let passes = decide(type: type, event: event)
         let elapsed = started.duration(to: .now).components
         let microseconds = Int(elapsed.seconds) * 1_000_000 + Int(elapsed.attoseconds / 1_000_000_000_000)
         tapMaxUs = max(tapMaxUs, microseconds)
-        return decision
+        return passes
     }
 
     private func decide(type: CGEventType, event: CGEvent) -> Bool {
+        if event.getIntegerValueField(.eventSourceUserData) == Self.replayMarker {
+            return true
+        }
         switch mode {
         case .rewrite:
             rewrite(type: type, event: event)
+            return true
+        case .holdAndDecide:
+            return holdAndDecide(type: type, event: event)
         }
-        return true
     }
 
     // MARK: - Rewrite mode (a1)
@@ -263,11 +310,12 @@ final class CommandDragTap {
     /// bar removes an item that allows removal.
     private func addCommandInsideBar(_ event: CGEvent) {
         event.flags.insert(.maskCommand)
-        let location = event.location
-        let limit = snapshot.barMaxY - 2
-        if location.y > limit {
-            event.location = CGPoint(x: location.x, y: limit)
-        }
+        event.location = insideBar(event.location)
+    }
+
+    /// The point itself, or the nearest point inside the bar strip.
+    private func insideBar(_ point: CGPoint) -> CGPoint {
+        CGPoint(x: point.x, y: min(point.y, snapshot.barMaxY - 2))
     }
 
     private func reportBusyOnce() {
@@ -276,6 +324,129 @@ final class CommandDragTap {
         }
         busyReported = true
         onSkip("busy")
+    }
+
+    // MARK: - Hold and decide mode (a2)
+
+    /// Returns whether the event goes on; a press on an app item that is held back is dropped.
+    private func holdAndDecide(type: CGEventType, event: CGEvent) -> Bool {
+        let now = ProcessInfo.processInfo.systemUptime
+        switch type {
+        case .leftMouseDown:
+            gesture = nil
+            guard let item = snapshot.item(at: event.location), item.kind == .app else {
+                _ = decider.mouseDown(at: event.location, time: now, onItem: false)
+                return true
+            }
+            guard !measuring else {
+                _ = decider.mouseDown(at: event.location, time: now, onItem: false)
+                reportBusyOnce()
+                return true
+            }
+            if event.flags.contains(.maskCommand) {
+                // The native baseline: a press that already holds Command passes unchanged.
+                _ = decider.mouseDown(at: event.location, time: now, onItem: false)
+                gesture = Gesture(dragged: item, before: snapshot, userHeldCommand: true)
+                return true
+            }
+            gesture = Gesture(dragged: item, before: snapshot, userHeldCommand: false)
+            return decider.mouseDown(at: event.location, time: now, onItem: true) == .pass
+        case .leftMouseDragged:
+            if let gesture, gesture.userHeldCommand {
+                return true
+            }
+            return held(dragged: event, now: now)
+        case .leftMouseUp:
+            if let gesture, gesture.userHeldCommand {
+                self.gesture = nil
+                beginReads(for: gesture, dropX: event.location.x, releasePoint: event.location)
+                return true
+            }
+            return held(up: event, now: now)
+        default:
+            return true
+        }
+    }
+
+    private func held(dragged event: CGEvent, now: Double) -> Bool {
+        let pressedAt = decider.heldSince
+        switch decider.mouseDragged(to: event.location, time: now, barMaxY: snapshot.barMaxY) {
+        case .pass:
+            return true
+        case .swallow:
+            return false
+        case .rewriteWithCommand:
+            addCommandInsideBar(event)
+            return true
+        case .replayCommandDown(let down):
+            post(.leftMouseDown, at: down, flags: event.flags.union(.maskCommand))
+            post(.leftMouseDragged, at: insideBar(event.location), flags: event.flags.union(.maskCommand))
+            return false
+        case .replayPlainDown(let down):
+            post(.leftMouseDown, at: down, flags: event.flags)
+            post(.leftMouseDragged, at: event.location, flags: event.flags)
+            if let gesture, let pressedAt {
+                onClick(ClickRecord(
+                    mechanism: mode.mechanism,
+                    item: gesture.dragged,
+                    replayDelayMs: Int(((now - pressedAt) * 1000).rounded()),
+                    kind: .menuDrag
+                ))
+            }
+            gesture = nil
+            return false
+        case .replayClick:
+            return true
+        }
+    }
+
+    private func held(up event: CGEvent, now: Double) -> Bool {
+        let pressedAt = decider.heldSince
+        let finished = gesture
+        switch decider.mouseUp(at: event.location, time: now) {
+        case .replayClick(let down, let up):
+            post(.leftMouseDown, at: down, flags: event.flags)
+            post(.leftMouseUp, at: up, flags: event.flags)
+            if let finished, let pressedAt {
+                onClick(ClickRecord(
+                    mechanism: mode.mechanism,
+                    item: finished.dragged,
+                    replayDelayMs: Int(((now - pressedAt) * 1000).rounded()),
+                    kind: .click
+                ))
+            }
+            gesture = nil
+            return false
+        case .rewriteWithCommand:
+            addCommandInsideBar(event)
+            gesture = nil
+            if let finished {
+                beginReads(for: finished, dropX: event.location.x, releasePoint: event.location)
+            }
+            return true
+        default:
+            gesture = nil
+            return true
+        }
+    }
+
+    /// Posts a marked left-button event, so the tap lets it through and the replay is told apart
+    /// from the user's own events.
+    private func post(_ type: CGEventType, at point: CGPoint, flags: CGEventFlags) {
+        guard let event = CGEvent(
+            mouseEventSource: source,
+            mouseType: type,
+            mouseCursorPosition: point,
+            mouseButton: .left
+        ) else {
+            return
+        }
+        event.flags = flags
+        event.setIntegerValueField(.eventSourceUserData, value: Self.replayMarker)
+        if type != .leftMouseDragged {
+            event.setIntegerValueField(.mouseEventClickState, value: 1)
+        }
+        event.post(tap: .cghidEventTap)
     }
 
     // MARK: - The bounded reads after a drop
@@ -312,7 +483,7 @@ final class CommandDragTap {
         measuring = false
         busyReported = false
         onGesture(GestureRecord(
-            mechanism: "a1",
+            mechanism: mode.mechanism,
             dragged: gesture.dragged,
             commandHeld: gesture.userHeldCommand,
             dropX: dropX,

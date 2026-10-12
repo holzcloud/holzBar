@@ -11,10 +11,13 @@
 //   bar       read the menu bar once and write what was found (read-only)
 //   selftest  run the measurement on built-in data; needs no permission
 //   a1        mechanism A, rewrite: while it runs, every drag that starts on an app item gets the
-//             Command flag added to the user's own events (Task 3 adds a2 and the options)
+//             Command flag added to the user's own events
+//   a2        mechanism A, hold and decide: a press on an app item waits; moving it sideways makes
+//             a Command-drag, releasing it makes a normal click
 //
-// `a1` changes how the menu bar reacts to drags while it runs (clicks on app items do not open
-// their menus) and ends by itself, after --seconds, after --gestures drags or at Ctrl-C. The
+// `a1` and `a2` change how the menu bar reacts to the mouse while they run (a1: clicks on app
+// items do not open their menus; a2: a press on an app item waits for the move or the release)
+// and end by themselves, after --seconds, after --gestures drags or at Ctrl-C. The
 // terminal needs Accessibility (System Settings > Privacy & Security > Accessibility). The probe
 // has no network code and writes nothing to disk; every line goes to standard output.
 //
@@ -40,6 +43,8 @@ struct Options {
         "  bar       read the menu bar once and write the items found",
         "  selftest  run the measurement on built-in data (no permission needed)",
         "  a1        mechanism A, rewrite: drags on app items get the Command flag added",
+        "  a2        mechanism A, hold and decide: a press on an app item waits; moving it sideways makes a "
+            + "Command-drag, releasing makes a normal click",
         "",
         "options:",
         "  --label <text>   what this run is, written to the report (default: unlabelled)",
@@ -57,7 +62,7 @@ struct Options {
             print(usage)
             exit(0)
         }
-        guard let command = rest.first, ["bar", "selftest", "a1"].contains(command) else {
+        guard let command = rest.first, ["bar", "selftest", "a1", "a2"].contains(command) else {
             fail("unknown or missing command")
         }
         options.command = command
@@ -304,6 +309,18 @@ enum ProbeOutput {
     }
 }
 
+extension ProbeOutput {
+    static func clickLine(mech: String, n: Int, item: String, record: ClickRecord) -> ReportLine {
+        var line = ReportLine("CLICK")
+        line.add("mech", mech)
+        line.add("n", n)
+        line.add("item", item)
+        line.add("replayDelayMs", record.replayDelayMs)
+        line.add("kind", record.kind.rawValue)
+        return line
+    }
+}
+
 let endLine = "=== end of report ==="
 
 func requireAccessibility() {
@@ -394,7 +411,7 @@ func runBar(_ options: Options) -> Int32 {
     return snapshot.items.isEmpty ? 5 : 0
 }
 
-// MARK: - a1
+// MARK: - a1 and a2
 
 func runLive(_ options: Options) -> Never {
     let generation = ProbeOutput.generation
@@ -405,9 +422,17 @@ func runLive(_ options: Options) -> Never {
         barHeights: BarReader.barHeights(),
         generation: generation
     )
-    print("a1: while this runs, every drag that starts on an app item in the menu bar becomes a Command-drag, "
-        + "and clicks on app items do not open their menus. It ends after \(options.seconds) seconds or "
-        + "\(options.gestures) drags; Ctrl-C ends it now.")
+    let mode: CommandDragTap.Mode = options.command == "a2" ? .holdAndDecide : .rewrite
+    switch mode {
+    case .rewrite:
+        print("a1: while this runs, every drag that starts on an app item in the menu bar becomes a Command-drag, "
+            + "and clicks on app items do not open their menus. It ends after \(options.seconds) seconds or "
+            + "\(options.gestures) drags; Ctrl-C ends it now.")
+    case .holdAndDecide:
+        print("a2: while this runs, a press on an app item in the menu bar waits until you move or release it; "
+            + "menus open on release. It ends after \(options.seconds) seconds or "
+            + "\(options.gestures) drags and clicks; Ctrl-C ends it now.")
+    }
 
     var count = 0
     var tap: CommandDragTap?
@@ -417,7 +442,7 @@ func runLive(_ options: Options) -> Never {
         exit(0)
     }
     tap = CommandDragTap(
-        mode: .rewrite,
+        mode: mode,
         generation: generation,
         snapshot: snapshot,
         onGesture: { record in
@@ -432,6 +457,13 @@ func runLive(_ options: Options) -> Never {
                 executed: "native",
                 tapMaxUs: record.tapMaxUs
             ).text)
+            if count >= options.gestures {
+                end()
+            }
+        },
+        onClick: { record in
+            count += 1
+            print(ProbeOutput.clickLine(mech: record.mechanism, n: count, item: record.item.id, record: record).text)
             if count >= options.gestures {
                 end()
             }
