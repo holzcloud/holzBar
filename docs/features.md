@@ -34,11 +34,12 @@
 - ✅ **Works from the keyboard** — open it with its hotkey, then the arrow keys, Return and Escape
 
 #### Appearance
-- ✅ Tint, shadow, border, rounded and split shapes
+- ✅ Tint, shadow, border; Single and Paired shapes with round or square ends
 - ✅ **Black menu bar that hides the notch**
 - ✅ **Rounded screen corners**
 - ✅ **Dashed and dotted borders**
 - ✅ **Tints from the wallpaper or the accent colour, and the system's glass** <sub>glass on macOS 26 and later</sub>
+- ✅ **Menu bar styles** (*Preview*): a **Sections** shape, one shape per section on the bar (macOS 14 to 26; macOS 27 draws Paired), a **shape of its own for the Apple logo** (bar tint, accent colour, wallpaper or a colour), **outlines** in the accent colour or a gradient, **vertical gradients**, one gradient per shape and the **tint strength**
 
 </td>
 </tr>
@@ -77,7 +78,8 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **A second display** works like the first: hovering and clicking items there opens their menus instead of revealing hidden items
 - **Notched MacBooks**: holzBar's icon is kept out from under the notch, and items folded beside the notch come back on a wider display
 - **No screenshots under the bar**: no screen-recording indicator when items are shown or hidden, and a click on the clock no longer flashes hidden items
-- **Split shape** that follows the icons, on every display
+- **Paired shape** (the former split shape) that follows the icons, on every display
+- **Menu bar styles** (*Preview*): Single, Paired, the Apple-logo shape, outlines and gradients as on macOS 26; Sections is not offered. See [macOS 27 notes](macos27.md#menu-bar-styles)
 - **macOS 27's own overflow button** (*Preview*): while macOS shows its folded items expanded beside the notch, the holzBar Shelf does not list them a second time; in any doubt it lists them as before. See [macOS 27 notes](macos27.md#macos-27s-own-overflow-button)
 - **A dot on holzBar's icon** while hidden items are concealed and an app uses the microphone (orange) or the camera (green), in place of Control Centre's indicator. On by default in Settings → General, with no permission; the icon appears for the dot even when **Show holzBar icon** is off
 
@@ -149,7 +151,6 @@ The release starts with the **design system**: one Liquid Glass look (holzBar's 
 **Look**
 - **Shelf layouts**: a grid and a vertical layout for the holzBar Shelf.
 - **Moods**: saved looks (appearance) that switch per display or time.
-- More **menu bar styles** (single, paired, sections, Apple-logo style) as far as macOS 27 allows.
 
 **Polish**
 - A Control Center control to toggle Zen mode or apply a profile. *Spike, optional.*

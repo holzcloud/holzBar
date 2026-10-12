@@ -20,6 +20,9 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Shelf and macOS 27's own overflow button: no item listed twice | ❌ | — | — | ✅ Preview |
 | Black menu bar, rounded screen corners | ❌ | corners only | — | ✅ |
 | Dashed and dotted borders, wallpaper, accent and glass tints | ❌ | ✅ | — | ✅ |
+| One shape per section of the bar (Sections) | ❌ | — | — | ✅ Preview <sub>macOS 14 – 26</sub> |
+| A shape of its own for the Apple logo | ❌ | — | — | ✅ Preview |
+| Outlines in the accent colour or a gradient; vertical gradients, one gradient per shape, tint strength | ❌ | gradient at any angle | outline and gradient styles | ✅ Preview |
 | Show hidden items on low battery or when offline | ❌ | — | — | ✅ |
 | Rules that apply a profile or show items when a Wi-Fi network, an app, the time of day, the power source or a display matches (all or any) | ❌ | ✅ | ✅ | ✅ Preview |
 | Profile applied by a Focus filter | ❌ | ✅ | — | ✅ Preview |
