@@ -655,9 +655,22 @@ private final class MenuBarOverlayPanelContentView: NSView {
         .menuBar(isGlass: usesSystemGlass, options: transparency.options, hasConfiguredBorder: configuration.hasBorder)
     }
 
+    /// What a border line is painted with.
+    private enum BorderPaint {
+        case color(NSColor)
+        case gradient(NSGradient)
+
+        var isGradient: Bool {
+            if case .gradient = self {
+                return true
+            }
+            return false
+        }
+    }
+
     /// A line the overlay draws around or under the bar.
     private struct BorderLine {
-        var color: NSColor
+        var paint: BorderPaint
         var width: CGFloat
         var style: BorderStyle
     }
@@ -667,7 +680,7 @@ private final class MenuBarOverlayPanelContentView: NSView {
     private var border: BorderLine? {
         if treatment.border == .visible {
             return BorderLine(
-                color: NSColor.labelColor.withAlphaComponent(treatment.borderOpacity),
+                paint: .color(NSColor.labelColor.withAlphaComponent(treatment.borderOpacity)),
                 width: TransparencyTreatment.visibleBorderWidth,
                 style: .solid
             )
@@ -675,7 +688,21 @@ private final class MenuBarOverlayPanelContentView: NSView {
         guard configuration.hasBorder, let color = NSColor(cgColor: configuration.borderColor) else {
             return nil
         }
-        return BorderLine(color: color, width: configuration.borderWidth, style: configuration.borderStyle)
+        let paint: BorderPaint
+        switch configuration.style.borderFill {
+        case .color:
+            paint = .color(color)
+        case .accentColor:
+            paint = .color(NSColor.controlAccentColor)
+        case .gradient:
+            // A gradient without stops falls back to the border colour.
+            if let gradient = configuration.borderGradient.nsGradient(using: .displayP3) {
+                paint = .gradient(gradient)
+            } else {
+                paint = .color(color)
+            }
+        }
+        return BorderLine(paint: paint, width: configuration.borderWidth, style: configuration.borderStyle)
     }
 
     /// Adds or removes the system glass with the tint kind, and follows the system's
@@ -1274,6 +1301,8 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
     /// Draws the tint defined by the given configuration in the given rectangle.
     private func drawTint(in rect: CGRect) {
+        let strength = CGFloat(configuration.style.tintStrength)
+        let angle = CGFloat(configuration.style.gradientDirection.angle)
         switch configuration.tintKind {
         case .noTint:
             break
@@ -1290,13 +1319,13 @@ private final class MenuBarOverlayPanelContentView: NSView {
             let baseColor: NSColor? = configuration.tintFollowsAccentColor
                 ? NSColor.controlAccentColor
                 : NSColor(cgColor: configuration.tintColor)
-            if let tintColor = baseColor?.withAlphaComponent(0.2) {
+            if let tintColor = baseColor?.withAlphaComponent(strength) {
                 tintColor.setFill()
                 rect.fill()
             }
         case .gradient:
-            if let tintGradient = configuration.tintGradient.withAlpha(0.2).nsGradient(using: .displayP3) {
-                tintGradient.draw(in: rect, angle: 0)
+            if let tintGradient = configuration.tintGradient.withAlpha(strength).nsGradient(using: .displayP3) {
+                tintGradient.draw(in: rect, angle: angle)
             }
         case .adaptive:
             // A gradient from the wallpaper's two dominant colors; one color is solid.
@@ -1308,9 +1337,9 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 return
             }
             let colors = [primary, secondary].map { swatch in
-                NSColor(srgbRed: swatch.red, green: swatch.green, blue: swatch.blue, alpha: 0.2)
+                NSColor(srgbRed: swatch.red, green: swatch.green, blue: swatch.blue, alpha: strength)
             }
-            NSGradient(colors: colors)?.draw(in: rect, angle: 0)
+            NSGradient(colors: colors)?.draw(in: rect, angle: angle)
         }
     }
 
@@ -1366,17 +1395,36 @@ private final class MenuBarOverlayPanelContentView: NSView {
     /// Strokes a border path with the given style: solid, dashed or dotted.
     ///
     /// - Parameter drawnWidth: The width the path is stroked with.
-    private func strokeBorder(_ path: NSBezierPath, color: NSColor, style: BorderStyle, drawnWidth: CGFloat) {
-        path.lineWidth = drawnWidth
-        if let dashes = BorderPattern.dashes(for: style, width: drawnWidth) {
-            let pattern = dashes.map { CGFloat($0) }
-            path.setLineDash(pattern, count: pattern.count, phase: 0)
+    ///
+    /// A colour strokes the path. A gradient is painted over the path's outline (the dashes and
+    /// the width turned into a shape), at the configured direction.
+    private func strokeBorder(_ path: NSBezierPath, paint: BorderPaint, style: BorderStyle, drawnWidth: CGFloat) {
+        switch paint {
+        case .color(let color):
+            path.lineWidth = drawnWidth
+            if let dashes = BorderPattern.dashes(for: style, width: drawnWidth) {
+                let pattern = dashes.map { CGFloat($0) }
+                path.setLineDash(pattern, count: pattern.count, phase: 0)
+            }
+            if BorderPattern.usesRoundCaps(style) {
+                path.lineCapStyle = .round
+            }
+            color.setStroke()
+            path.stroke()
+        case .gradient(let gradient):
+            var line = path.cgPath
+            if let dashes = BorderPattern.dashes(for: style, width: drawnWidth) {
+                line = line.copy(dashingWithPhase: 0, lengths: dashes.map { CGFloat($0) })
+            }
+            let lineCap: CGLineCap = BorderPattern.usesRoundCaps(style) ? .round : .butt
+            let outline = line.copy(strokingWithWidth: drawnWidth, lineCap: lineCap, lineJoin: .miter, miterLimit: 10)
+            NSGraphicsContext.saveGraphicsState()
+            defer {
+                NSGraphicsContext.restoreGraphicsState()
+            }
+            NSBezierPath(cgPath: outline).setClip()
+            gradient.draw(in: outline.boundingBoxOfPath, angle: CGFloat(configuration.style.gradientDirection.angle))
         }
-        if BorderPattern.usesRoundCaps(style) {
-            path.lineCapStyle = .round
-        }
-        color.setStroke()
-        path.stroke()
     }
 
     override func layout() {
@@ -1403,9 +1451,13 @@ private final class MenuBarOverlayPanelContentView: NSView {
         }
 
         let appleLogo = appleLogoPath(in: drawableBounds, screen: overlayPanel.owningScreen)
-        let shapePath = combinedPath(
-            shapePieces(for: fullConfiguration, in: drawableBounds, screen: overlayPanel.owningScreen, appleLogo: appleLogo)
+        let pieces = shapePieces(
+            for: fullConfiguration,
+            in: drawableBounds,
+            screen: overlayPanel.owningScreen,
+            appleLogo: appleLogo
         )
+        let shapePath = combinedPath(pieces)
 
         if glassView != nil {
             glassMask.frame = bounds
@@ -1446,15 +1498,20 @@ private final class MenuBarOverlayPanelContentView: NSView {
                         width: bounds.width,
                         height: border.width
                     )
-                    border.color.setFill()
-                    NSBezierPath(rect: borderBounds).fill()
+                    switch border.paint {
+                    case .color(let color):
+                        color.setFill()
+                        NSBezierPath(rect: borderBounds).fill()
+                    case .gradient(let gradient):
+                        gradient.draw(in: borderBounds, angle: CGFloat(configuration.style.gradientDirection.angle))
+                    }
                 } else {
                     // A line along the bottom of the bar, dashed or dotted.
                     let lineY = bounds.minY + 5 + border.width / 2
                     let line = NSBezierPath()
                     line.move(to: CGPoint(x: bounds.minX, y: lineY))
                     line.line(to: CGPoint(x: bounds.maxX, y: lineY))
-                    strokeBorder(line, color: border.color, style: border.style, drawnWidth: border.width)
+                    strokeBorder(line, paint: border.paint, style: border.style, drawnWidth: border.width)
                 }
             }
         case .full, .split, .sections:
@@ -1490,9 +1547,18 @@ private final class MenuBarOverlayPanelContentView: NSView {
                     context.restoreGraphicsState()
                 }
 
-                shapePath.setClip()
-
-                drawTint(in: drawableBounds)
+                if configuration.style.gradientSpan == .eachShape {
+                    // Each shape gets the whole gradient.
+                    for piece in pieces {
+                        context.saveGraphicsState()
+                        piece.setClip()
+                        drawTint(in: piece.bounds)
+                        context.restoreGraphicsState()
+                    }
+                } else {
+                    shapePath.setClip()
+                    drawTint(in: drawableBounds)
+                }
             }
 
             if let appleLogo, let fill = appleLogoFillColor() {
@@ -1507,15 +1573,29 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 }
 
                 // Stroking sets the path's width and dashes, so it gets a path of its own.
-                let borderPath = combinedPath(
-                    shapePieces(for: fullConfiguration, in: drawableBounds, screen: overlayPanel.owningScreen, appleLogo: appleLogo)
+                let borderPieces = shapePieces(
+                    for: fullConfiguration,
+                    in: drawableBounds,
+                    screen: overlayPanel.owningScreen,
+                    appleLogo: appleLogo
                 )
 
                 // HACK: Insetting a path to get an "inside" stroke is surprisingly
                 // difficult. We can fake the correct line width by doubling it, as
                 // anything outside the shape path will be clipped.
-                borderPath.setClip()
-                strokeBorder(borderPath, color: border.color, style: border.style, drawnWidth: border.width * 2)
+                if border.paint.isGradient, configuration.style.gradientSpan == .eachShape {
+                    // Each shape's outline gets the whole gradient.
+                    for piece in borderPieces {
+                        context.saveGraphicsState()
+                        piece.setClip()
+                        strokeBorder(piece, paint: border.paint, style: border.style, drawnWidth: border.width * 2)
+                        context.restoreGraphicsState()
+                    }
+                } else {
+                    let borderPath = combinedPath(borderPieces)
+                    borderPath.setClip()
+                    strokeBorder(borderPath, paint: border.paint, style: border.style, drawnWidth: border.width * 2)
+                }
             }
         }
     }

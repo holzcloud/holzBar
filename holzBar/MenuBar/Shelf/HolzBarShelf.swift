@@ -460,14 +460,40 @@ private struct HolzBarShelfContentView: View {
 
     /// The line drawn around the Shelf: the visible one the treatment asks for, else the
     /// one the user configured, else none.
-    private var border: (width: CGFloat, color: Color)? {
+    ///
+    /// A configured border follows the fill the appearance chose (`borderFill`): its colour,
+    /// the accent colour or a gradient, from leading to trailing or from top to bottom.
+    private var border: (width: CGFloat, style: AnyShapeStyle)? {
         if treatment.border == .visible {
-            return (TransparencyTreatment.visibleBorderWidth, Color.primary.opacity(treatment.borderOpacity))
+            return (TransparencyTreatment.visibleBorderWidth, AnyShapeStyle(Color.primary.opacity(treatment.borderOpacity)))
         }
-        if configuration.current.hasBorder {
-            return (configuration.current.borderWidth, Color(cgColor: configuration.current.borderColor))
+        guard configuration.current.hasBorder else {
+            return nil
         }
-        return nil
+        let width = configuration.current.borderWidth
+        let borderColor = Color(cgColor: configuration.current.borderColor)
+        switch configuration.current.style.borderFill {
+        case .color:
+            return (width, AnyShapeStyle(borderColor))
+        case .accentColor:
+            return (width, AnyShapeStyle(Color.accentColor))
+        case .gradient:
+            let gradient = configuration.current.borderGradient
+            guard !gradient.stops.isEmpty else {
+                return (width, AnyShapeStyle(borderColor))
+            }
+            let isVertical = configuration.current.style.gradientDirection == .vertical
+            return (
+                width,
+                AnyShapeStyle(
+                    LinearGradient(
+                        gradient: gradient.swiftUIGradient,
+                        startPoint: isVertical ? .top : .leading,
+                        endPoint: isVertical ? .bottom : .trailing
+                    )
+                )
+            )
+        }
     }
 
     private var shadowOpacity: CGFloat {
@@ -489,7 +515,7 @@ private struct HolzBarShelfContentView: View {
                 clipShape
                     .inset(by: border.width / 2)
                     .stroke(lineWidth: border.width)
-                    .foregroundStyle(border.color)
+                    .foregroundStyle(border.style)
             }
         }
         .padding(5)
