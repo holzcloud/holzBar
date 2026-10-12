@@ -562,10 +562,11 @@ func runOverlay(_ options: Options) -> Never {
             overlay.close()
             return nil
         },
-        drain: {}
+        drain: { await overlay.waitForReads() }
     )
     print("b (Preview): while this runs, holzBar's panel covers the menu bar of the display with the pointer; "
-        + "clicks on the bar reach its handles, not the items. It ends after \(options.seconds) seconds or "
+        + "clicks on the bar reach its handles, not the items. Keep your hands off the mouse while a drop is "
+        + "carried out (about a second). It ends after \(options.seconds) seconds or "
         + "\(options.gestures) drops; Escape or Ctrl-C ends it now.")
     signal(SIGINT, SIG_IGN)
     let interrupt = DispatchSource.makeSignalSource(signal: SIGINT, queue: .main)
