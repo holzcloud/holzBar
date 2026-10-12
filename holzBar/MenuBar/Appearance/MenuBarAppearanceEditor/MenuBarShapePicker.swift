@@ -24,21 +24,33 @@ struct MenuBarShapePicker: View {
 
     @ViewBuilder
     private var shapeKindPicker: some View {
-        HolzBarPicker("Shape Kind", selection: $configuration.shapeKind) {
-            ForEach(MenuBarShapeKind.allCases) { shapeKind in
-                Text(shapeKind.localized).tag(shapeKind)
+        // A stored Sections shows as Paired where macOS cannot draw it, and stays stored until
+        // another kind is picked.
+        let selection = Binding(
+            get: { configuration.shapeKind.drawnKind },
+            set: { configuration.shapeKind = $0 }
+        )
+        HStack(spacing: HolzBarTheme.Spacing.sm) {
+            HolzBarPicker("Shape Kind", selection: selection) {
+                ForEach(MenuBarShapeKind.allCases.filter(\.isAvailable)) { shapeKind in
+                    Text(shapeKind.localized).tag(shapeKind)
+                }
+            }
+            if configuration.shapeKind.drawnKind == .sections {
+                PreviewBadge()
             }
         }
     }
 
     @ViewBuilder
     private var shapePicker: some View {
-        switch configuration.shapeKind {
+        switch configuration.shapeKind.drawnKind {
         case .noShape:
             EmptyView()
         case .full:
             MenuBarFullShapePicker(info: $configuration.fullShapeInfo).equatable()
-        case .split:
+        case .split, .sections:
+            // Sections shares the end caps of Paired.
             MenuBarSplitShapePicker(info: $configuration.splitShapeInfo).equatable()
         }
     }

@@ -325,12 +325,12 @@ final class MenuBarOverlayPanel: NSPanel {
             panel.contentView?.needsDisplay = true
         }
 
-        // On macOS 27 the split shape starts its trailing half where the run of items starts,
-        // and a read can move that edge without changing the item cache: a concealed item
-        // keeps its old frame, and the items right of it stay where they are. No other shape
-        // depends on that edge.
+        // On macOS 27 the split shape starts its trailing half where the run of items starts
+        // (a stored Sections is drawn as split there), and a read can move that edge without
+        // changing the item cache: a concealed item keeps its old frame, and the items right
+        // of it stay where they are. No other shape depends on that edge.
         observeNotifications(named: .menuBarItemsAreaDidChange27, in: NotificationCenter.default) { panel in
-            guard panel.appState?.appearanceManager.configuration.shapeKind == .split else {
+            guard panel.appState?.appearanceManager.configuration.shapeKind.drawnKind == .split else {
                 return
             }
             panel.contentView?.needsDisplay = true
@@ -848,10 +848,10 @@ private final class MenuBarOverlayPanelContentView: NSView {
         return path
     }
 
-    /// Returns a path for the ``MenuBarShapeKind/full`` shape kind.
-    private func pathForFullShape(in rect: CGRect, info: MenuBarFullShapeInfo, isInset: Bool, screen: NSScreen) -> NSBezierPath {
+    /// Returns the path of the ``MenuBarShapeKind/full`` shape kind: one piece.
+    private func pathForFullShape(in rect: CGRect, info: MenuBarFullShapeInfo, isInset: Bool, screen: NSScreen) -> [NSBezierPath] {
         guard let appearanceManager = overlayPanel?.appState?.appearanceManager else {
-            return NSBezierPath()
+            return []
         }
         var rect = rect
         let shouldInset = isInset && screen.hasNotch
@@ -865,20 +865,27 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 rect.size.width -= appearanceManager.menuBarInsetAmount
             }
         }
-        return shapePath(
-            in: rect,
-            leadingEndCap: info.leadingEndCap,
-            trailingEndCap: info.trailingEndCap,
-            screen: screen
-        )
+        return [
+            shapePath(
+                in: rect,
+                leadingEndCap: info.leadingEndCap,
+                trailingEndCap: info.trailingEndCap,
+                screen: screen
+            ),
+        ]
     }
 
-    /// Returns a path for the ``MenuBarShapeKind/split`` shape kind.
-    private func pathForSplitShape(in rect: CGRect, info: MenuBarSplitShapeInfo, isInset: Bool, screen: NSScreen) -> NSBezierPath {
-        guard let appState = overlayPanel?.appState else {
-            return NSBezierPath()
+    /// Returns the rectangle of the ``MenuBarShapeKind/split`` and ``MenuBarShapeKind/sections``
+    /// shape kinds inset for a notch, and whether it was inset.
+    private func insetShapeRect(
+        _ rect: CGRect,
+        info: MenuBarSplitShapeInfo,
+        isInset: Bool,
+        screen: NSScreen
+    ) -> (rect: CGRect, shouldInset: Bool) {
+        guard let appearanceManager = overlayPanel?.appState?.appearanceManager else {
+            return (rect, false)
         }
-        let appearanceManager = appState.appearanceManager
         var rect = rect
         let shouldInset = isInset && screen.hasNotch
         if shouldInset {
@@ -891,61 +898,95 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 rect.size.width -= appearanceManager.menuBarInsetAmount
             }
         }
-        let leadingPathBounds: CGRect = {
-            guard
-                var maxX = overlayPanel?.applicationMenuFrame?.width,
-                maxX > 0
-            else {
-                return .zero
+        return (rect, shouldInset)
+    }
+
+    /// Returns the bounds of the leading shape, the one of the application menus, or `.zero`
+    /// when the width of the application menus is not known.
+    private func leadingShapeBounds(in rect: CGRect, info: MenuBarSplitShapeInfo, shouldInset: Bool) -> CGRect {
+        guard
+            let appearanceManager = overlayPanel?.appState?.appearanceManager,
+            var maxX = overlayPanel?.applicationMenuFrame?.width,
+            maxX > 0
+        else {
+            return .zero
+        }
+        if shouldInset {
+            maxX += 10
+            if info.leading.leadingEndCap == .square {
+                maxX += appearanceManager.menuBarInsetAmount
             }
-            if shouldInset {
-                maxX += 10
-                if info.leading.leadingEndCap == .square {
-                    maxX += appearanceManager.menuBarInsetAmount
-                }
-            } else {
-                maxX += 20
+        } else {
+            maxX += 20
+        }
+        return CGRect(x: rect.minX, y: rect.minY, width: maxX, height: rect.height)
+    }
+
+    /// Returns the bounds of the trailing shape, the one of the items, or `.zero` when they
+    /// are not known.
+    private func trailingShapeBounds(
+        in rect: CGRect,
+        info: MenuBarSplitShapeInfo,
+        shouldInset: Bool,
+        screen: NSScreen,
+        appState: AppState
+    ) -> CGRect {
+        let appearanceManager = appState.appearanceManager
+        // On macOS 27 there are no item windows: the backend knows where the run of
+        // items starts, from values it already read.
+        if let leftEdge = appState.itemManager.backend.itemsAreaLeftEdge(on: screen, appState: appState) {
+            // x is the same in CoreGraphics and Cocoa coordinates.
+            return SplitShape27.trailingBounds(
+                edge: leftEdge - screen.frame.minX,
+                in: rect,
+                isInset: shouldInset,
+                insetAmount: appearanceManager.menuBarInsetAmount
+            )
+        }
+        let itemWindows = MenuBarItem.getMenuBarItemWindows(on: screen.displayID, option: .onScreen)
+        guard !itemWindows.isEmpty else {
+            return .zero
+        }
+        let totalWidth = itemWindows.reduce(into: 0) { width, item in
+            width += item.bounds.width
+        }
+        var position = rect.maxX - totalWidth
+        if shouldInset {
+            position += 4
+            if info.trailing.trailingEndCap == .square {
+                position -= appearanceManager.menuBarInsetAmount
             }
-            return CGRect(x: rect.minX, y: rect.minY, width: maxX, height: rect.height)
-        }()
-        let trailingPathBounds: CGRect = {
-            // On macOS 27 there are no item windows: the backend knows where the run of
-            // items starts, from values it already read.
-            if let leftEdge = appState.itemManager.backend.itemsAreaLeftEdge(on: screen, appState: appState) {
-                // x is the same in CoreGraphics and Cocoa coordinates.
-                return SplitShape27.trailingBounds(
-                    edge: leftEdge - screen.frame.minX,
-                    in: rect,
-                    isInset: shouldInset,
-                    insetAmount: appearanceManager.menuBarInsetAmount
-                )
-            }
-            let itemWindows = MenuBarItem.getMenuBarItemWindows(on: screen.displayID, option: .onScreen)
-            guard !itemWindows.isEmpty else {
-                return .zero
-            }
-            let totalWidth = itemWindows.reduce(into: 0) { width, item in
-                width += item.bounds.width
-            }
-            var position = rect.maxX - totalWidth
-            if shouldInset {
-                position += 4
-                if info.trailing.trailingEndCap == .square {
-                    position -= appearanceManager.menuBarInsetAmount
-                }
-            } else {
-                position -= 7
-            }
-            return CGRect(x: position, y: rect.minY, width: rect.maxX - position, height: rect.height)
-        }()
+        } else {
+            position -= 7
+        }
+        return CGRect(x: position, y: rect.minY, width: rect.maxX - position, height: rect.height)
+    }
+
+    /// Returns the path of the ``MenuBarShapeKind/split`` shape kind: the leading and the
+    /// trailing shape, or the one full shape when they do not fit.
+    private func pathForSplitShape(in rect: CGRect, info: MenuBarSplitShapeInfo, isInset: Bool, screen: NSScreen) -> [NSBezierPath] {
+        guard let appState = overlayPanel?.appState else {
+            return []
+        }
+        let (rect, shouldInset) = insetShapeRect(rect, info: info, isInset: isInset, screen: screen)
+        let leadingPathBounds = leadingShapeBounds(in: rect, info: info, shouldInset: shouldInset)
+        let trailingPathBounds = trailingShapeBounds(
+            in: rect,
+            info: info,
+            shouldInset: shouldInset,
+            screen: screen,
+            appState: appState
+        )
 
         if leadingPathBounds == .zero || trailingPathBounds == .zero || leadingPathBounds.intersects(trailingPathBounds) {
-            return shapePath(
-                in: rect,
-                leadingEndCap: info.leading.leadingEndCap,
-                trailingEndCap: info.trailing.trailingEndCap,
-                screen: screen
-            )
+            return [
+                shapePath(
+                    in: rect,
+                    leadingEndCap: info.leading.leadingEndCap,
+                    trailingEndCap: info.trailing.trailingEndCap,
+                    screen: screen
+                ),
+            ]
         } else {
             let leadingPath = shapePath(
                 in: leadingPathBounds,
@@ -959,11 +1000,132 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 trailingEndCap: info.trailing.trailingEndCap,
                 screen: screen
             )
-            let path = NSBezierPath()
-            path.append(leadingPath)
-            path.append(trailingPath)
-            return path
+            return [leadingPath, trailingPath]
         }
+    }
+
+    /// Returns the path of the ``MenuBarShapeKind/sections`` shape kind: the shape of the
+    /// application menus and one shape for each section the bar shows, left to right.
+    ///
+    /// It is Paired wherever the sections are not known: no hidden divider on this display, or
+    /// no items area.
+    private func pathForSectionsShape(in rect: CGRect, info: MenuBarSplitShapeInfo, isInset: Bool, screen: NSScreen) -> [NSBezierPath] {
+        guard let appState = overlayPanel?.appState else {
+            return []
+        }
+        let (insetRect, shouldInset) = insetShapeRect(rect, info: info, isInset: isInset, screen: screen)
+        let leadingPathBounds = leadingShapeBounds(in: insetRect, info: info, shouldInset: shouldInset)
+        let trailingPathBounds = trailingShapeBounds(
+            in: insetRect,
+            info: info,
+            shouldInset: shouldInset,
+            screen: screen,
+            appState: appState
+        )
+        guard trailingPathBounds != .zero, trailingPathBounds.width > 0 else {
+            return pathForSplitShape(in: rect, info: info, isInset: isInset, screen: screen)
+        }
+
+        func divider(of name: MenuBarSection.Name) -> MenuBarPills.Divider? {
+            guard
+                let section = appState.menuBarManager.section(withName: name),
+                section.isEnabled,
+                section.controlItem.screen?.displayID == screen.displayID,
+                let frame = section.controlItem.onScreenFrame
+            else {
+                return nil
+            }
+            return MenuBarPills.Divider(
+                span: Double(frame.minX - screen.frame.minX)...Double(frame.maxX - screen.frame.minX),
+                showsSection: section.controlItem.state == .showSection
+            )
+        }
+
+        guard let spans = MenuBarPills.sectionSpans(
+            itemsArea: Double(trailingPathBounds.minX)...Double(trailingPathBounds.maxX),
+            hiddenDivider: divider(of: .hidden),
+            alwaysHiddenDivider: divider(of: .alwaysHidden),
+            minimumWidth: Double(insetRect.height)
+        ) else {
+            return pathForSplitShape(in: rect, info: info, isInset: isInset, screen: screen)
+        }
+
+        var paths: [NSBezierPath] = []
+        if
+            leadingPathBounds != .zero,
+            let firstSpan = spans.first,
+            leadingPathBounds.maxX + CGFloat(MenuBarPills.gap) <= CGFloat(firstSpan.lowerBound)
+        {
+            paths.append(
+                shapePath(
+                    in: leadingPathBounds,
+                    leadingEndCap: info.leading.leadingEndCap,
+                    trailingEndCap: info.leading.trailingEndCap,
+                    screen: screen
+                )
+            )
+        }
+        for span in spans {
+            let spanBounds = CGRect(
+                x: CGFloat(span.lowerBound),
+                y: insetRect.minY,
+                width: CGFloat(span.upperBound - span.lowerBound),
+                height: insetRect.height
+            )
+            paths.append(
+                shapePath(
+                    in: spanBounds,
+                    leadingEndCap: info.trailing.leadingEndCap,
+                    trailingEndCap: info.trailing.trailingEndCap,
+                    screen: screen
+                )
+            )
+        }
+        return paths
+    }
+
+    /// Returns the pieces of the configuration's shape in the given bounds, left to right.
+    ///
+    /// Sections is drawn as Paired where the running macOS cannot draw it.
+    private func shapePieces(
+        for configuration: MenuBarAppearanceConfigurationV2,
+        in bounds: CGRect,
+        screen: NSScreen
+    ) -> [NSBezierPath] {
+        switch configuration.shapeKind.drawnKind {
+        case .noShape:
+            [NSBezierPath(rect: bounds)]
+        case .full:
+            pathForFullShape(
+                in: bounds,
+                info: configuration.fullShapeInfo,
+                isInset: configuration.isInset,
+                screen: screen
+            )
+        case .split:
+            pathForSplitShape(
+                in: bounds,
+                info: configuration.splitShapeInfo,
+                isInset: configuration.isInset,
+                screen: screen
+            )
+        case .sections:
+            pathForSectionsShape(
+                in: bounds,
+                info: configuration.splitShapeInfo,
+                isInset: configuration.isInset,
+                screen: screen
+            )
+        }
+    }
+
+    /// Returns one path made of all the given pieces.
+    private func combinedPath(_ pieces: [NSBezierPath]) -> NSBezierPath {
+        let path = NSBezierPath()
+        for piece in pieces {
+            path.append(piece)
+        }
+        return path
     }
 
     /// Returns the bounds that the view's drawn content can occupy.
@@ -1057,24 +1219,9 @@ private final class MenuBarOverlayPanelContentView: NSView {
             return
         }
 
-        let shapePath = switch fullConfiguration.shapeKind {
-        case .noShape:
-            NSBezierPath(rect: drawableBounds)
-        case .full:
-            pathForFullShape(
-                in: drawableBounds,
-                info: fullConfiguration.fullShapeInfo,
-                isInset: fullConfiguration.isInset,
-                screen: overlayPanel.owningScreen
-            )
-        case .split:
-            pathForSplitShape(
-                in: drawableBounds,
-                info: fullConfiguration.splitShapeInfo,
-                isInset: fullConfiguration.isInset,
-                screen: overlayPanel.owningScreen
-            )
-        }
+        let shapePath = combinedPath(
+            shapePieces(for: fullConfiguration, in: drawableBounds, screen: overlayPanel.owningScreen)
+        )
 
         if glassView != nil {
             glassMask.frame = bounds
@@ -1083,7 +1230,7 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
         let border = border
 
-        switch fullConfiguration.shapeKind {
+        switch fullConfiguration.shapeKind.drawnKind {
         case .noShape:
             if configuration.hasShadow {
                 let gradient = NSGradient(
@@ -1122,7 +1269,7 @@ private final class MenuBarOverlayPanelContentView: NSView {
                     strokeBorder(line, color: border.color, style: border.style, drawnWidth: border.width)
                 }
             }
-        case .full, .split:
+        case .full, .split, .sections:
             if let desktopWallpaper = overlayPanel.desktopWallpaper {
                 context.saveGraphicsState()
                 defer {
@@ -1166,24 +1313,10 @@ private final class MenuBarOverlayPanelContentView: NSView {
                     context.restoreGraphicsState()
                 }
 
-                let borderPath = switch fullConfiguration.shapeKind {
-                case .noShape:
-                    NSBezierPath(rect: drawableBounds)
-                case .full:
-                    pathForFullShape(
-                        in: drawableBounds,
-                        info: fullConfiguration.fullShapeInfo,
-                        isInset: fullConfiguration.isInset,
-                        screen: overlayPanel.owningScreen
-                    )
-                case .split:
-                    pathForSplitShape(
-                        in: drawableBounds,
-                        info: fullConfiguration.splitShapeInfo,
-                        isInset: fullConfiguration.isInset,
-                        screen: overlayPanel.owningScreen
-                    )
-                }
+                // Stroking sets the path's width and dashes, so it gets a path of its own.
+                let borderPath = combinedPath(
+                    shapePieces(for: fullConfiguration, in: drawableBounds, screen: overlayPanel.owningScreen)
+                )
 
                 // HACK: Insetting a path to get an "inside" stroke is surprisingly
                 // difficult. We can fake the correct line width by doubling it, as
