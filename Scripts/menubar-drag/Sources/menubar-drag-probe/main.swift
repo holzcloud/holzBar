@@ -14,10 +14,12 @@
 //             Command flag added to the user's own events
 //   a2        mechanism A, hold and decide: a press on an app item waits; moving it sideways makes
 //             a Command-drag, releasing it makes a normal click
+//   b         mechanism B: holzBar-drawn handles over the items and two drop zones (Hidden, Always
+//             Hidden) in one borderless panel over the bar; drag a handle, Escape ends it
 //
-// `a1` and `a2` change how the menu bar reacts to the mouse while they run (a1: clicks on app
-// items do not open their menus; a2: a press on an app item waits for the move or the release)
-// and end by themselves, after --seconds, after --gestures drags or at Ctrl-C. The
+// `a1`, `a2` and `b` change how the menu bar reacts to the mouse while they run (a1: clicks on app
+// items do not open their menus; a2: a press on an app item waits for the move or the release;
+// b: a panel covers the bar of one display) and end by themselves, after --seconds, after --gestures drags or at Ctrl-C. The
 // terminal needs Accessibility (System Settings > Privacy & Security > Accessibility). The probe
 // has no network code and writes nothing to disk; every line goes to standard output.
 //
@@ -36,6 +38,8 @@ struct Options {
     var seconds = 180
     var gestures = 12
     var redact = false
+    var level = 26
+    var levelGiven = false
 
     static let usage = [
         "usage: menubar-drag-probe <command> [options]",
@@ -46,11 +50,13 @@ struct Options {
         "  a1        mechanism A, rewrite: drags on app items get the Command flag added",
         "  a2        mechanism A, hold and decide: a press on an app item waits; moving it sideways makes a "
             + "Command-drag, releasing makes a normal click",
+        "  b         mechanism B: holzBar-drawn handles over the items and two zones; drag a handle, Escape ends",
         "",
         "options:",
         "  --label <text>   what this run is, written to the report (default: unlabelled)",
         "  --seconds <n>    end a live command after n seconds (default: 180)",
         "  --gestures <n>   end a live command after n drags (default: 12)",
+        "  --level <n>      b only: window level of the handles (default 26; try 101 if the handles do not react)",
         "  --redact         write non-Apple apps other than holzBar as app1, app2, ...",
         "  --help           write this text",
     ].joined(separator: "\n")
@@ -64,7 +70,7 @@ struct Options {
             print(usage)
             exit(0)
         }
-        guard let command = rest.first, ["bar", "selftest", "a1", "a2"].contains(command) else {
+        guard let command = rest.first, ["bar", "selftest", "a1", "a2", "b"].contains(command) else {
             fail("unknown or missing command")
         }
         options.command = command
@@ -78,11 +84,17 @@ struct Options {
                 options.seconds = max(1, number(of: option, in: &rest))
             case "--gestures":
                 options.gestures = max(1, number(of: option, in: &rest))
+            case "--level":
+                options.level = number(of: option, in: &rest)
+                options.levelGiven = true
             case "--redact":
                 options.redact = true
             default:
                 fail("unknown option \(option)")
             }
+        }
+        if options.levelGiven, command != "b" {
+            fail("--level is only for b")
         }
         return options
     }
@@ -316,7 +328,34 @@ enum ProbeOutput {
     }
 }
 
+extension Duration {
+    /// Whole milliseconds, rounded down.
+    var wholeMilliseconds: Int {
+        Int(components.seconds) * 1000 + Int(components.attoseconds / 1_000_000_000_000_000)
+    }
+}
+
 extension ProbeOutput {
+    static func overlayLine(showMs: Int, level: Int, handles: Int, zones: String, display: Int) -> ReportLine {
+        var line = ReportLine("OVERLAY")
+        line.add("showMs", showMs)
+        line.add("level", level)
+        line.add("handles", handles)
+        line.add("zones", zones)
+        line.add("display", display)
+        return line
+    }
+
+    static func trackLine(event: String, items: Int, shifted: Int, maxShift: CGFloat, redrawMs: Int) -> ReportLine {
+        var line = ReportLine("TRACK")
+        line.add("event", event)
+        line.add("items", items)
+        line.add("shifted", shifted)
+        line.add("maxShiftPt", maxShift)
+        line.add("redrawMs", redrawMs)
+        return line
+    }
+
     static func clickLine(mech: String, n: Int, item: String, record: ClickRecord) -> ReportLine {
         var line = ReportLine("CLICK")
         line.add("mech", mech)
@@ -505,6 +544,46 @@ func runLive(_ options: Options) -> Never {
     exit(0)
 }
 
+// MARK: - b
+
+func runOverlay(_ options: Options) -> Never {
+    let generation = ProbeOutput.generation
+    let snapshot = BarReader.snapshot(
+        near: CGEvent(source: nil)?.location,
+        barHeights: BarReader.barHeights(),
+        generation: generation
+    )
+    let session = Session(options: options, generation: generation)
+    let overlay = HandleOverlay(level: options.level, generation: generation, session: session)
+    session.start(
+        mode: options.command,
+        snapshot: snapshot,
+        stop: {
+            overlay.close()
+            return nil
+        },
+        drain: {}
+    )
+    print("b (Preview): while this runs, holzBar's panel covers the menu bar of the display with the pointer; "
+        + "clicks on the bar reach its handles, not the items. It ends after \(options.seconds) seconds or "
+        + "\(options.gestures) drops; Escape or Ctrl-C ends it now.")
+    signal(SIGINT, SIG_IGN)
+    let interrupt = DispatchSource.makeSignalSource(signal: SIGINT, queue: .main)
+    interrupt.setEventHandler {
+        session.finish()
+    }
+    interrupt.resume()
+    Task {
+        try? await Task.sleep(for: .seconds(options.seconds))
+        await session.finishAfterTimeLimit()
+    }
+    NSApplication.shared.setActivationPolicy(.accessory)
+    let geometry = HandleOverlay.screenGeometry(for: snapshot)
+    overlay.show(snapshot: snapshot, primaryDisplayHeight: geometry.primaryHeight, notchSpan: geometry.notchSpan)
+    NSApplication.shared.run()
+    exit(0)
+}
+
 // MARK: - Start
 
 setvbuf(stdout, nil, _IOLBF, 0)
@@ -515,6 +594,9 @@ case "selftest":
 case "bar":
     requireAccessibility()
     exit(runBar(options))
+case "b":
+    requireAccessibility()
+    runOverlay(options)
 default:
     requireAccessibility()
     runLive(options)

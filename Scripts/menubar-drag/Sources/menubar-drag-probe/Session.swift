@@ -6,7 +6,7 @@
 import AppKit
 import MenuBarDragCore
 
-/// One live run of a1 or a2: it tells the maintainer what to do, writes every line through the
+/// One live run of a1, a2 or b: it tells the maintainer what to do, writes every line through the
 /// redactor, counts the gestures and ends the run the same way whatever ends it.
 final class Session {
     private let options: Options
@@ -18,7 +18,10 @@ final class Session {
     private var stop: () -> Int? = { nil }
     private var drain: () async -> Void = {}
 
-    /// The mechanism that runs, `a1` or `a2`.
+    /// When the command started, which the OVERLAY line measures from.
+    private let startedAt = ContinuousClock.now
+
+    /// The mechanism that runs, `a1`, `a2` or `b`.
     private var mechanism: String {
         options.command
     }
@@ -63,6 +66,9 @@ final class Session {
     }
 
     private func steps(first: String, second: String, snapshot: BarSnapshot) -> [String] {
+        if mechanism == "b" {
+            return overlaySteps(first: first, second: second)
+        }
         var steps = [
             "S0 once, as a baseline: drag \(first) while holding Command, as macOS allows today",
             "S1+S3 three times: drag \(first) to the right of \(second) without holding Command, then back",
@@ -91,6 +97,19 @@ final class Session {
         }
         steps.append("afterwards: put the items back in holzBar's Settings > Menu Bar Layout")
         return steps
+    }
+
+    private func overlaySteps(first: String, second: String) -> [String] {
+        [
+            "S1+S3 three times: drag the handle of \(first) to the right of \(second) (no Command needed), then back",
+            "S2 three times: drag the handle of \(first) onto the Hidden zone",
+            "S2b once: drag it onto the Always Hidden zone",
+            "T once each while this runs: change the display arrangement or resolution (System Settings > Displays); "
+                + "open and quit an app that has a menu bar item; switch to a full-screen app and back. "
+                + "Watch whether the handles stay on the icons",
+            "end: press Escape",
+            "afterwards: put the items back in holzBar's Settings > Menu Bar Layout",
+        ]
     }
 
     private func write(_ line: ReportLine) {
@@ -127,6 +146,29 @@ final class Session {
         finishIfDone()
     }
 
+    /// Writes the OVERLAY line once the overlay's first display is done.
+    func recordOverlay(level: Int, handles: Int, zones: Int, display: UInt32) {
+        write(ProbeOutput.overlayLine(
+            showMs: startedAt.duration(to: .now).wholeMilliseconds,
+            level: level,
+            handles: handles,
+            zones: zones == 0 ? "none" : String(zones),
+            display: Int(display)
+        ))
+    }
+
+    /// Writes the TRACK line of one check of the overlay against the bar and counts it.
+    func recordTrack(event: String, items: Int, shifted: Int, maxShift: CGFloat, redrawMs: Int) {
+        write(ProbeOutput.trackLine(
+            event: event,
+            items: items,
+            shifted: shifted,
+            maxShift: maxShift,
+            redrawMs: redrawMs
+        ))
+        summary.addTrack(shifted: shifted, maxShift: maxShift)
+    }
+
     /// Writes the CLICK line of one replayed press and counts it.
     func recordClick(_ record: ClickRecord) {
         count += 1
@@ -155,6 +197,12 @@ final class Session {
     /// Ends the run after the time limit: no new press is taken, the reads of the last drop are
     /// waited for, then the run ends as always.
     func finishAfterTimeLimit() async {
+        await finishAfterReads()
+    }
+
+    /// Ends the run the same way, when the maintainer asked for it (Escape in b): the reads of the
+    /// last drop are waited for first.
+    func finishAfterReads() async {
         _ = stop()
         await drain()
         finish()
