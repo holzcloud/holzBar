@@ -17,6 +17,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Folders with their own icon and colour; item images of your choice | ❌ | ✅ | — | ✅ |
 | Choose where new items appear | ❌ | — | — | ✅ |
 | Bar only on some displays, notch overflow | ❌ | — | — | ✅ |
+| Shelf and macOS 27's own overflow button: no item listed twice | ❌ | — | — | ✅ Preview |
 | Black menu bar, rounded screen corners | ❌ | corners only | — | ✅ |
 | Dashed and dotted borders, wallpaper, accent and glass tints | ❌ | ✅ | — | ✅ |
 | Show hidden items on low battery or when offline | ❌ | — | — | ✅ |

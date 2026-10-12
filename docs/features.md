@@ -78,6 +78,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Notched MacBooks**: holzBar's icon is kept out from under the notch, and items folded beside the notch come back on a wider display
 - **No screenshots under the bar**: no screen-recording indicator when items are shown or hidden, and a click on the clock no longer flashes hidden items
 - **Split shape** that follows the icons, on every display
+- **macOS 27's own overflow button** (*Preview*): while macOS shows its folded items expanded beside the notch, the holzBar Shelf does not list them a second time; in any doubt it lists them as before. See [macOS 27 notes](macos27.md#macos-27s-own-overflow-button)
 - **A dot on holzBar's icon** while hidden items are concealed and an app uses the microphone (orange) or the camera (green), in place of Control Centre's indicator. On by default in Settings → General, with no permission; the icon appears for the dot even when **Show holzBar icon** is off
 
 **Known limitations on macOS 27**
@@ -95,7 +96,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 0.0.7 is a bugfix release and adds no new features; see its [release notes](release-notes/v0.0.7.md). Settings sync is removed from the app; a redesigned sync is planned for 1.0.0 (Export… and Import… stay). System Glass and the holzBar Shelf follow Reduce Transparency and Increase Contrast; with either on they are drawn opaque with a border, and the change applies at once, with no restart. The macOS 27 Liquid Glass slider has no public API (checked in the macOS 27.0 SDK, see [macOS 27 notes](macos27.md#liquid-glass-and-transparency)), so holzBar does not follow it. Not yet checked on real macOS 26 and 27 systems.
 
-- Cooperation with macOS 27's own overflow button, so items are not shown twice, is not in 0.0.7 and is planned for a later release.
+- Cooperation with macOS 27's own overflow button, so items are not shown twice, is not in 0.0.7; it comes with 0.0.8-beta4 as a Preview (see the macOS 27 section above).
 
 ### 0.0.8 "Automation"
 
@@ -122,7 +123,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Share a profile** (*Preview*) as a small validated file: only the applications you leave checked and their sections, no display, Wi-Fi, hotkey or other setting, and no code. Importing adds the profile to the list and moves nothing until you apply it. Double-clicking a `.holzbarprofile` in Finder is not set up yet; use Import Profile in Menu Bar Layout.
 - **Touch ID or password** to show hidden items (*Preview*), in Advanced: hover, click, hotkeys, the Shelf, the search, URLs and Shortcuts ask once, then a minute of grace; your own safety rules (low battery, offline, rules, items you chose) do not ask. Turning it off asks too. It keeps a bystander away from your hidden items; it is not protection against someone who knows your password.
 - **Revoke permissions in Settings** (*Preview*): a button per permission that withdraws it again (for holzBar's own entry only) or opens the right System Settings pane, so you never have to hunt for it.
-- **Copy diagnostics** (*Preview*): in About, a report of versions and counts you read before you copy it; no names of items, apps, profiles or networks, no paths; nothing is sent.
+- **Copy diagnostics** (*Preview*): in About, a report of versions and counts (and, on macOS 27, the state of its overflow button) you read before you copy it; no names of items, apps, profiles or networks, no paths; nothing is sent.
 - **Tidy Up assistant** (*Preview*): proposes which visible items to hide from static facts only (system extras, the app's category, a short list of known helpers); live values, the clock, the battery and apps with messages stay. You decide item by item, the arrangement is kept as a snapshot first, and nothing is recorded. Offered once after the first launch when nothing was arranged yet, and any time from Menu Bar Layout.
 - **Works without Screen Recording** (*Preview*): the Menu Bar Layout pane, the Shelf and the search show app icons instead of live pictures, with an offer to allow Screen Recording for the pictures.
 - **System items pinned visible** (*Preview*, macOS 26 and earlier): profiles, restored layouts and rules leave the clock, battery, Wi-Fi, Control Center and sound where they are; you can still move them yourself.
