@@ -35,6 +35,7 @@ struct Options {
     var label = "unlabelled"
     var seconds = 180
     var gestures = 12
+    var redact = false
 
     static let usage = [
         "usage: menubar-drag-probe <command> [options]",
@@ -50,6 +51,7 @@ struct Options {
         "  --label <text>   what this run is, written to the report (default: unlabelled)",
         "  --seconds <n>    end a live command after n seconds (default: 180)",
         "  --gestures <n>   end a live command after n drags (default: 12)",
+        "  --redact         write non-Apple apps other than holzBar as app1, app2, ...",
         "  --help           write this text",
     ].joined(separator: "\n")
 
@@ -76,6 +78,8 @@ struct Options {
                 options.seconds = max(1, number(of: option, in: &rest))
             case "--gestures":
                 options.gestures = max(1, number(of: option, in: &rest))
+            case "--redact":
+                options.redact = true
             default:
                 fail("unknown option \(option)")
             }
@@ -377,7 +381,13 @@ func runSelftest(_ options: Options) -> Int32 {
         tapMaxUs: nil
     )
     print(line.text)
+    var summary = RunSummary()
+    summary.add(result, landed: nil, refused: false)
+    let summaryLine = summary.line(mechanism: "selftest", generation: .before27)
+    print(summaryLine.text)
     let checks: [(String, Bool)] = [
+        ("summary drags", summaryLine.text.contains(" drags=1 ")),
+        ("summary moved", summaryLine.text.contains(" moved=1 ")),
         ("moved", result.moved),
         ("scope", result.scope == .reorder),
         ("settleMs", result.settleMs == 100),
@@ -404,8 +414,9 @@ func runBar(_ options: Options) -> Int32 {
         generation: generation
     )
     print(ProbeOutput.barLine(snapshot).text)
+    var redactor = Redactor(enabled: options.redact)
     for (index, item) in snapshot.items.filter(\.counts).enumerated() {
-        print(ProbeOutput.itemLine(index: index, item: item, in: snapshot, shownID: item.id).text)
+        print(ProbeOutput.itemLine(index: index, item: item, in: snapshot, shownID: redactor.shownID(item.id)).text)
     }
     print(endLine)
     return snapshot.items.isEmpty ? 5 : 0
@@ -415,14 +426,30 @@ func runBar(_ options: Options) -> Int32 {
 
 func runLive(_ options: Options) -> Never {
     let generation = ProbeOutput.generation
-    print(ProbeOutput.probeLine(mode: options.command, label: options.label).text)
-    print(ProbeOutput.systemLine(generation: generation).text)
     let snapshot = BarReader.snapshot(
         near: CGEvent(source: nil)?.location,
         barHeights: BarReader.barHeights(),
         generation: generation
     )
     let mode: CommandDragTap.Mode = options.command == "a2" ? .holdAndDecide : .rewrite
+    let session = Session(options: options, generation: generation)
+    let tap = CommandDragTap(
+        mode: mode,
+        generation: generation,
+        snapshot: snapshot,
+        onGesture: { session.record($0) },
+        onClick: { session.recordClick($0) },
+        onSkip: { session.recordSkip($0) }
+    )
+    session.start(
+        mode: options.command,
+        snapshot: snapshot,
+        stop: {
+            tap.stop()
+            return tap.tapMaxUs
+        },
+        drain: { await tap.waitForReads() }
+    )
     switch mode {
     case .rewrite:
         print("a1: while this runs, every drag that starts on an app item in the menu bar becomes a Command-drag, "
@@ -433,48 +460,7 @@ func runLive(_ options: Options) -> Never {
             + "menus open on release. It ends after \(options.seconds) seconds or "
             + "\(options.gestures) drags and clicks; Ctrl-C ends it now.")
     }
-
-    var count = 0
-    var tap: CommandDragTap?
-    func end() -> Never {
-        tap?.stop()
-        print(endLine)
-        exit(0)
-    }
-    tap = CommandDragTap(
-        mode: mode,
-        generation: generation,
-        snapshot: snapshot,
-        onGesture: { record in
-            count += 1
-            print(ProbeOutput.resultLine(
-                mech: record.mechanism,
-                n: count,
-                dragged: record.dragged.id,
-                result: record.result,
-                drop: record.dropX,
-                commandHeld: record.commandHeld,
-                executed: "native",
-                tapMaxUs: record.tapMaxUs
-            ).text)
-            if count >= options.gestures {
-                end()
-            }
-        },
-        onClick: { record in
-            count += 1
-            print(ProbeOutput.clickLine(mech: record.mechanism, n: count, item: record.item.id, record: record).text)
-            if count >= options.gestures {
-                end()
-            }
-        },
-        onSkip: { reason in
-            var line = ReportLine("SKIP")
-            line.add("reason", reason)
-            print(line.text)
-        }
-    )
-    guard tap?.start() == true else {
+    guard tap.start() else {
         FileHandle.standardError.write(Data("macOS refused the event tap.\n".utf8))
         exit(3)
     }
@@ -482,12 +468,12 @@ func runLive(_ options: Options) -> Never {
     signal(SIGINT, SIG_IGN)
     let interrupt = DispatchSource.makeSignalSource(signal: SIGINT, queue: .main)
     interrupt.setEventHandler {
-        end()
+        session.finish()
     }
     interrupt.resume()
     Task {
         try? await Task.sleep(for: .seconds(options.seconds))
-        end()
+        await session.finishAfterTimeLimit()
     }
     NSApplication.shared.setActivationPolicy(.accessory)
     NSApplication.shared.run()
