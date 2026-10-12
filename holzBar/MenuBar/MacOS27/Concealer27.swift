@@ -367,6 +367,9 @@ final class Concealer27 {
             await task.value
             try? await Task.sleep(for: .milliseconds(400))
             await self?.appState?.itemManager.cacheItemsIfNeeded()
+            // The settled read derives the overflow state again, which also covers a click on
+            // the overflow control that the click bridge lifted concealment for (Phase 22).
+            await self?.refreshNativeOverflow()
             await self?.checkStuckOverflow()
             await self?.checkNotchCover()
             await self?.checkOwnIcon()

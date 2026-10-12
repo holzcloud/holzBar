@@ -213,6 +213,9 @@ final class HolzBarShelfPanel: NSPanel {
             // The `Defaults.Key.macOS27ShelfWaitsForRefresh` default brings the wait back, for measuring.
             Task {
                 await appState.itemManager.cacheItemsIfNeeded()
+                // Derived again whether or not the item cache rebuilt, so the Shelf never
+                // decides on a state older than its opening (Phase 22).
+                await appState.concealer27.refreshNativeOverflow()
                 await appState.imageCache.updateCache()
             }
         } else {
@@ -220,6 +223,9 @@ final class HolzBarShelfPanel: NSPanel {
             // lands in the observable caches. Awaiting `.value` does not pass the cancellation on.
             let refresh = Task {
                 await appState.itemManager.cacheItemsIfNeeded()
+                if #available(macOS 27.0, *) {
+                    await appState.concealer27.refreshNativeOverflow()
+                }
                 await appState.imageCache.updateCache()
             }
             let cacheTask = Task(timeout: .seconds(1)) {
