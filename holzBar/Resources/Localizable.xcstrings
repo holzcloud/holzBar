@@ -963,6 +963,34 @@
         }
       }
     },
+    "Accent Color" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akzentfarbe"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couleur d'accentuation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colore di contrasto"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colur d'accent"
+          }
+        }
+      }
+    },
     "Accessibility" : {
       "localizations" : {
         "de" : {
@@ -1943,6 +1971,34 @@
         }
       }
     },
+    "Apple Logo" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple-Logo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logo Apple"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logo Apple"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logo dad Apple"
+          }
+        }
+      }
+    },
     "Applied" : {
       "localizations" : {
         "de" : {
@@ -2391,6 +2447,34 @@
         }
       }
     },
+    "Bar Tint" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tönung der Leiste"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Teinte de la barre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tinta della barra"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tinta da la trav"
+          }
+        }
+      }
+    },
     "Based on" : {
       "localizations" : {
         "de" : {
@@ -2779,6 +2863,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Colur dal rom"
+          }
+        }
+      }
+    },
+    "Border Fill" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rahmenfüllung"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplissage de la bordure"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riempimento del bordo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emplenida dal rom"
           }
         }
       }
@@ -5443,6 +5555,34 @@
         }
       }
     },
+    "Gradient Direction" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richtung des Verlaufs"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direction du dégradé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direzione della sfumatura"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direcziun da la sfumadira"
+          }
+        }
+      }
+    },
     "Grant Permission" : {
       "localizations" : {
         "de" : {
@@ -5719,6 +5859,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tegnair smatgà per la prevista"
+          }
+        }
+      }
+    },
+    "Horizontal" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waagrecht"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Horizontale"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Orizzontale"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Orizontala"
           }
         }
       }
@@ -8607,6 +8775,34 @@
         }
       }
     },
+    "One gradient per shape" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Verlauf pro Form"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un dégradé par forme"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una sfumatura per forma"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina sfumadira per furma"
+          }
+        }
+      }
+    },
     "Open" : {
       "localizations" : {
         "de" : {
@@ -9135,6 +9331,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uschiglio zuppar en"
+          }
+        }
+      }
+    },
+    "Own shape for the Apple logo" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigene Form für das Apple-Logo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forme à part pour le logo Apple"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forma separata per il logo Apple"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atgna furma per il logo dad Apple"
           }
         }
       }
@@ -13843,6 +14067,34 @@
         }
       }
     },
+    "Tint Strength" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stärke der Tönung"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intensité de la teinte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intensità della tinta"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intensitad da la tinta"
+          }
+        }
+      }
+    },
     "Tints the menu bar with the main colors of your wallpaper, read from its file." : {
       "localizations" : {
         "de" : {
@@ -15043,6 +15295,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Versiun %@"
+          }
+        }
+      }
+    },
+    "Vertical" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senkrecht"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verticale"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verticale"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verticala"
           }
         }
       }
