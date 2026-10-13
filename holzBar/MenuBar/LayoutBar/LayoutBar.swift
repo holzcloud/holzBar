@@ -37,11 +37,17 @@ struct LayoutBar: View {
     /// Whether an item is being dragged over the strip.
     @State private var isDropTarget = false
 
-    /// The strip's height: the menu bar's, which the items' pictures are as tall as.
+    /// The strip's height, empty or not.
     private static let stripHeight: CGFloat = 40
 
-    private var stripShape: some InsettableShape {
-        HolzBarTheme.shape(HolzBarTheme.Radius.control)
+    /// Concentric to the card from macOS 26 on (the card gives its shape as the container
+    /// shape); the `control` radius before.
+    private var stripShape: AnyShape {
+        if #available(macOS 26.0, *) {
+            AnyShape(ConcentricRectangle())
+        } else {
+            AnyShape(HolzBarTheme.shape(HolzBarTheme.Radius.control))
+        }
     }
 
     /// Whether the section holds no items.
@@ -51,7 +57,8 @@ struct LayoutBar: View {
 
     var body: some View {
         mainContent
-            .frame(maxWidth: .infinity, minHeight: Self.stripHeight)
+            .frame(maxWidth: .infinity)
+            .frame(height: Self.stripHeight)
             .modifier(StripBackground(appState: appState, isEmpty: isEmpty))
             .overlay {
                 stripShape
@@ -59,34 +66,18 @@ struct LayoutBar: View {
                     .allowsHitTesting(false)
             }
             .overlay {
+                // Twice the width: the clip below cuts away the outer half, which leaves the
+                // border inside the shape.
                 stripShape
-                    .strokeBorder(
+                    .stroke(
                         isDropTarget ? HolzBarTheme.Palette.accent : HolzBarTheme.Palette.stroke,
-                        style: StrokeStyle(
-                            lineWidth: isDropTarget ? 2 : HolzBarTheme.Spacing.hairline,
-                            dash: isEmpty && !isDropTarget ? [4, 3] : []
-                        )
+                        lineWidth: 2 * (isDropTarget ? 2 : HolzBarTheme.Spacing.hairline)
                     )
                     .allowsHitTesting(false)
             }
-            .containerShape(stripShape)
             .clipShape(stripShape)
             .contentShape([.interaction, .focusEffect], stripShape)
             .animation(HolzBarTheme.Motion.resolved(HolzBarTheme.Motion.smooth, reduceMotion: reduceMotion), value: isDropTarget)
-    }
-
-    /// Sizes the strip: the empty hint when the section holds no items, else a bare strip.
-    @ViewBuilder
-    private var placeholder: some View {
-        if isEmpty {
-            EmptyState(
-                systemImage: "tray",
-                title: Text("No items in this section"),
-                message: Text("Drag an item here to move it to this section.")
-            )
-        } else {
-            Color.clear.frame(height: Self.stripHeight)
-        }
     }
 
     @ViewBuilder
@@ -97,13 +88,13 @@ struct LayoutBar: View {
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .padding(HolzBarTheme.Spacing.sm)
         } else {
-            // The strip is the placeholder's background, so its identity (and the drag
-            // state of its views) stays the same whether the hint shows or not. The hint
-            // lets every pointer event through to the strip.
-            placeholder
-                .allowsHitTesting(false)
-                .background {
-                    Representable(appState: appState, section: section, isDropTarget: $isDropTarget)
+            // The hint lets every pointer event through to the strip.
+            Representable(appState: appState, section: section, isDropTarget: $isDropTarget)
+                .overlay {
+                    if isEmpty {
+                        CompactEmptyState(message: Text("Drag an item here to move it to this section."))
+                            .allowsHitTesting(false)
+                    }
                 }
         }
     }

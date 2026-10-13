@@ -35,9 +35,8 @@ final class LayoutBarPaddingView: NSView {
 
         NSLayoutConstraint.activate([
             container.centerYAnchor.constraint(equalTo: centerYAnchor),
-            // The items read from the left, like the other cards of the pane.
-            container.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 7.5),
-            trailingAnchor.constraint(greaterThanOrEqualTo: container.trailingAnchor, constant: 7.5),
+            trailingAnchor.constraint(equalTo: container.trailingAnchor, constant: 7.5),
+            leadingAnchor.constraint(lessThanOrEqualTo: container.leadingAnchor, constant: -7.5),
         ])
 
         registerForDraggedTypes([.layoutBarItem])

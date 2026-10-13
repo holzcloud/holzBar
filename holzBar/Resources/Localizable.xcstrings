@@ -8019,34 +8019,6 @@
         }
       }
     },
-    "No items in this section" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine Objekte in diesem Bereich"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucun élément dans cette section"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nessun elemento in questa sezione"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nagins elements en questa secziun"
-          }
-        }
-      }
-    },
     "No menu bar item matches “%@”." : {
       "localizations" : {
         "de" : {

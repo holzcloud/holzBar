@@ -45,7 +45,7 @@ final class LayoutBarScrollView: NSScrollView {
         NSLayoutConstraint.activate([
             paddingView.heightAnchor.constraint(equalTo: contentView.heightAnchor),
             paddingView.widthAnchor.constraint(greaterThanOrEqualTo: contentView.widthAnchor),
-            paddingView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            paddingView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
         ])
     }
 
