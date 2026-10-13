@@ -2279,6 +2279,34 @@
         }
       }
     },
+    "Apps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps"
+          }
+        }
+      }
+    },
     "Ask for Touch ID or your password before showing hidden items" : {
       "localizations" : {
         "de" : {
@@ -3647,6 +3675,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clicca per mussar ils elements zuppads. Clic dretg per ils parameters da holzBar."
+          }
+        }
+      }
+    },
+    "Cloud" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloud"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuage"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cloud"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nivel"
           }
         }
       }
@@ -5275,6 +5331,34 @@
         }
       }
     },
+    "Favorites" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favoriten"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favoris"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preferiti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favurits"
+          }
+        }
+      }
+    },
     "First check of the day" : {
       "localizations" : {
         "de" : {
@@ -5327,6 +5411,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "App activa"
+          }
+        }
+      }
+    },
+    "Folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordner"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dossier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartella"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordinatur"
           }
         }
       }
@@ -5495,6 +5607,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entira"
+          }
+        }
+      }
+    },
+    "Games" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiele"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeux"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giochi"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gieus"
           }
         }
       }
@@ -5971,6 +6111,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tegnair smatgà per la prevista"
+          }
+        }
+      }
+    },
+    "Home" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuhause"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maison"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Casa"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chasa"
           }
         }
       }
@@ -8075,6 +8243,34 @@
         }
       }
     },
+    "Music" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Musik"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Musique"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Musica"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Musica"
+          }
+        }
+      }
+    },
     "Name" : {
       "localizations" : {
         "de" : {
@@ -8183,6 +8379,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dovra tia lubientscha"
+          }
+        }
+      }
+    },
+    "Network" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Netzwerk"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réseau"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rete"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rait"
           }
         }
       }
@@ -9807,6 +10031,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Al current"
+          }
+        }
+      }
+    },
+    "Power" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Energie"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Énergie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Energia"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Energia"
           }
         }
       }
@@ -13199,6 +13451,34 @@
         }
       }
     },
+    "Symbol" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbol"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbole"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simbolo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Simbol"
+          }
+        }
+      }
+    },
     "System Glass" : {
       "localizations" : {
         "de" : {
@@ -14627,6 +14907,34 @@
         }
       }
     },
+    "Tools" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Werkzeuge"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Outils"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strumenti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utensils"
+          }
+        }
+      }
+    },
     "Trailing End Cap" : {
       "localizations" : {
         "de" : {
@@ -14651,6 +14959,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fin dretga"
+          }
+        }
+      }
+    },
+    "Tray" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ablage"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bac"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vassoio"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaschetta"
           }
         }
       }
@@ -16107,6 +16443,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sche «Transparenz reduzieren» u «Kontrast erhöhen» è activà en ils parameters dal sistem (Bedienungshilfen, Anzeige), vegn il vaider dal sistem dissegnà betg transparent e cun in rom."
+          }
+        }
+      }
+    },
+    "Work" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arbeit"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Travail"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lavoro"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lavur"
           }
         }
       }
