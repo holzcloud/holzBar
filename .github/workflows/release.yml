@@ -456,7 +456,7 @@ jobs:
       provenance-name: holzBar-${{ needs.build.outputs.version }}.intoto.jsonl
       upload-assets: true
 
-  # The Homebrew cask that every user installs from. main takes only pull requests with
+  # The Homebrew casks that every user installs from. main takes only pull requests with
   # green checks; this job alone may push to it, with a deploy key.
   cask:
     name: Update the Homebrew cask
@@ -499,16 +499,24 @@ jobs:
             exit 1
           fi
 
-      # Changes exactly the version and sha256 lines on the newest main, style-checks the
-      # cask the way cask.yml does, and pushes. If main moved in between, the edit is made
-      # again on the new main, so no merge conflict can occur.
+      # Two channels, one cask each: holzbar (stable, plain versions only) and holzbar@beta
+      # (the newest alpha, beta or plain release). A plain tag updates both, an -alphaN or
+      # -betaN tag only holzbar@beta. Changes exactly the version and sha256 lines of each
+      # file on the newest main, style-checks the casks the way cask.yml does, and pushes.
+      # If main moved in between, the edit is made again on the new main, so no merge
+      # conflict can occur.
       - name: Update the cask on main
         run: |
           set -euo pipefail
           # Users run a current Homebrew; the runner image may be older.
           brew update --quiet
           SRC="$RUNNER_TEMP/tap-src"
-          EXPECTED_NUMSTAT=$(printf '2\t2\tCasks/holzbar.rb')
+          # In path order, which is the order git diff lists them in.
+          if [[ "$VERSION" == *-* ]]; then
+            TARGETS=(Casks/holzbar@beta.rb)
+          else
+            TARGETS=(Casks/holzbar.rb Casks/holzbar@beta.rb)
+          fi
           # A key that sorts like the version: 0.0.7-alpha1 before 0.0.7-beta1, before 0.0.7,
           # before 0.0.8. The release list cannot tell which release is newest: GitHub orders
           # it by the date of the tagged commit, not by when a release was published.
@@ -524,44 +532,63 @@ jobs:
           for ATTEMPT in 1 2 3; do
             git fetch --quiet origin main
             git checkout --quiet -B main origin/main
-            if grep -qxF "  version \"$VERSION\"" Casks/holzbar.rb && grep -qxF "  sha256 \"$SHA256\"" Casks/holzbar.rb; then
-              echo "::notice::Casks/holzbar.rb is already at $VERSION."
+            CHANGED=()
+            NEWER=0
+            EXPECTED_NUMSTAT=""
+            for CASK in "${TARGETS[@]}"; do
+              if grep -qxF "  version \"$VERSION\"" "$CASK" && grep -qxF "  sha256 \"$SHA256\"" "$CASK"; then
+                echo "::notice::$CASK is already at $VERSION."
+                continue
+              fi
+              # A re-run of an older release must never move a cask back.
+              CURRENT=$(sed -n -E 's/^  version "(.*)"$/\1/p' "$CASK")
+              if ! CURRENT_KEY=$(version_key "$CURRENT"); then
+                echo "::error::$CASK on main has no version line this job can read."
+                exit 1
+              fi
+              if [[ ! "$CURRENT_KEY" < "$NEW_KEY" ]]; then
+                echo "::warning::$CASK is at $CURRENT, which is not older than $VERSION; it stays as it is."
+                NEWER=1
+                continue
+              fi
+              sed -i '' -E \
+                -e "s/^  version \".*\"/  version \"$VERSION\"/" \
+                -e "s/^  sha256 .*/  sha256 \"$SHA256\"/" \
+                "$CASK"
+              CHANGED+=("$CASK")
+              EXPECTED_NUMSTAT+=$(printf '2\t2\t%s' "$CASK")$'\n'
+            done
+            if [ "${#CHANGED[@]}" -eq 0 ]; then
+              if [ "$NEWER" -eq 1 ]; then
+                echo "::error::No cask is older than $VERSION; the casks stay as they are."
+                exit 1
+              fi
+              echo "==> Every cask is already at $VERSION."
               exit 0
             fi
-            # A re-run of an older release must never move the cask back.
-            CURRENT=$(sed -n -E 's/^  version "(.*)"$/\1/p' Casks/holzbar.rb)
-            if ! CURRENT_KEY=$(version_key "$CURRENT"); then
-              echo "::error::Casks/holzbar.rb on main has no version line this job can read."
-              exit 1
-            fi
-            if [[ ! "$CURRENT_KEY" < "$NEW_KEY" ]]; then
-              echo "::error::Casks/holzbar.rb is at $CURRENT, which is not older than $VERSION; the cask stays as it is."
-              exit 1
-            fi
-            sed -i '' -E \
-              -e "s/^  version \".*\"/  version \"$VERSION\"/" \
-              -e "s/^  sha256 .*/  sha256 \"$SHA256\"/" \
-              Casks/holzbar.rb
             NUMSTAT=$(git diff --numstat)
-            # git diff lists every changed tracked file: exactly two lines of the cask, nothing else.
-            if [ "$NUMSTAT" != "$EXPECTED_NUMSTAT" ]; then
+            # git diff lists every changed tracked file: exactly two lines of each changed cask, nothing else.
+            if [ "$NUMSTAT" != "${EXPECTED_NUMSTAT%$'\n'}" ]; then
               git diff
-              echo "::error::The cask update must change exactly the version and the sha256 line of Casks/holzbar.rb."
+              echo "::error::The cask update must change exactly the version and the sha256 line of ${CHANGED[*]}."
               exit 1
             fi
             git -c user.name="github-actions[bot]" \
               -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
               commit -qam "holzbar $VERSION"
-            # The committed cask, loaded from a local copy as the tap.
+            # The committed casks, loaded from a local copy as the tap.
             rm -rf "$SRC"
             git clone --quiet "$GITHUB_WORKSPACE" "$SRC"
             git -C "$SRC" checkout --quiet -B main "$(git rev-parse HEAD)"
             brew untap holzcloud/holzbar > /dev/null 2>&1 || true
             brew tap holzcloud/holzbar "$SRC"
-            brew trust --cask holzcloud/holzbar/holzbar
-            brew style --cask holzcloud/holzbar/holzbar
+            for CASK in "${CHANGED[@]}"; do
+              TOKEN=$(basename "$CASK" .rb)
+              brew trust --cask "holzcloud/holzbar/$TOKEN"
+              brew style --cask "holzcloud/holzbar/$TOKEN"
+            done
             if git push origin HEAD:main; then
-              echo "==> Casks/holzbar.rb is at $VERSION on main."
+              echo "==> ${CHANGED[*]} moved to $VERSION on main."
               exit 0
             fi
             sleep $((15 * ATTEMPT))
