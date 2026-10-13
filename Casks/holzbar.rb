@@ -1,21 +1,25 @@
-# Updated by .github/workflows/release.yml for every release.
+# The stable channel: the newest plain release (no -alpha or -beta suffix). Updated by
+# .github/workflows/release.yml for every plain release.
 cask "holzbar" do
-  version "0.0.8-beta3"
-  sha256 "7c391014fd9cecdd1d07ae8d4ab35557f5f294f619d6da2ad66a424b568a5897"
+  version "0.0.7"
+  sha256 "9a9f38382d00e767a404f2277cfc5cb4e54c6fe7e90a63be9ce687221fe6d769"
 
   url "https://github.com/holzcloud/holzBar/releases/download/v#{version}/holzBar-#{version}.zip"
   name "holzBar"
-  desc "Menu bar manager forked from Ice"
+  desc "Menu bar manager: hide, reveal and style menu bar items (fork of Ice)"
   homepage "https://holzcloud.ch/holzbar"
 
-  # Releases before 1.0 are pre-releases, which :github_latest skips.
+  # Releases before 1.0 are pre-releases, which :github_latest skips. Plain versions only.
   livecheck do
     url "https://github.com/holzcloud/holzBar.git"
     strategy :git
-    regex(/^v?(\d+(?:\.\d+)+(?:-[\w.]+)?)$/i)
+    regex(/^v?(\d+(?:\.\d+)+)$/i)
   end
 
-  conflicts_with cask: "jordanbaird-ice"
+  conflicts_with cask: [
+    "holzbar@beta",
+    "jordanbaird-ice",
+  ]
   depends_on macos: :sonoma
 
   app "holzBar.app"

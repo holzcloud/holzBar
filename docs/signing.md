@@ -112,7 +112,7 @@ A fresh `.p12` exported from Keychain Access with a new password works too, as l
 2. **Sign with holzBar's certificate**: the only job that sees the signing secrets. It has no token permissions and checks out no code from the repository. It checks that the build is exactly the zip the build job made, imports the certificate into a temporary keychain with a random password, and signs only with the certificate whose SHA-256 is pinned, with empty entitlements and `codesign --options runtime` (inside out, without `--deep`). It then fails unless every piece of code carries that certificate, the hardened runtime and no entitlement, the bundle has no code besides `Contents/MacOS/holzBar`, and the designated requirement is exactly the identifier and the certificate. The keychain is deleted, also when a step failed. The key is never in a keychain while the project builds.
 3. **Publish the release**: checks the signed zip's SHA-256, creates the GitHub attestation and publishes the release with its notes. It completes a release that already exists, but never replaces a zip it already carries.
 4. **SLSA provenance**: the slsa-github-generator attaches `holzBar-<version>.intoto.jsonl` to the release.
-5. **Update the Homebrew cask**: runs in the environment `release` and pushes `Casks/holzbar.rb` to `main` with its deploy key, only after both provenances exist, only when the published zip has the signed zip's SHA-256, and only to a version newer than the cask's (0.0.7-beta1 < 0.0.7 < 0.0.8).
+5. **Update the Homebrew cask**: runs in the environment `release` and pushes the casks to `main` with its deploy key, only after both provenances exist, only when the published zip has the signed zip's SHA-256, and only to a version newer than a cask's own (0.0.7-beta1 < 0.0.7 < 0.0.8). A plain release moves `Casks/holzbar.rb` (stable) and `Casks/holzbar@beta.rb`; an alpha or beta release moves only `Casks/holzbar@beta.rb`.
 6. **Show the version on holzcloud.ch**.
 
 ### If the certificate is lost or leaks
@@ -132,7 +132,7 @@ Create a new one, replace both secrets, and change `EXPECTED_CERT_SHA256` in `.g
    git push origin v<version>
    ```
 
-3. The workflow signs, publishes, attaches the provenance and updates the cask with its deploy key.
+3. The workflow signs, publishes, attaches the provenance and updates the casks with its deploy key.
 
 Never create the release or the tag in the web UI first, and never push a `v*` tag as a test: every one publishes. If a run fails, use **Re-run failed jobs** in the Actions tab, never **Re-run all jobs**: once publish has run, a rebuild makes a different zip, which publish refuses. The ad hoc build is kept for 7 days, so the sign job can be re-run within a week. A defect in the workflow needs a fix pull request and a new tag.
 
@@ -171,6 +171,7 @@ gh attestation verify holzBar-<version>.zip -R holzcloud/holzBar \
 For the zip Homebrew downloaded:
 
 ```sh
+# For the beta channel, use holzbar@beta instead of holzbar.
 V=$(brew list --cask --versions holzbar | awk '{print $2}')
 gh attestation verify "$(brew --cache --cask holzbar)" -R holzcloud/holzBar \
   --signer-workflow holzcloud/holzBar/.github/workflows/release.yml \

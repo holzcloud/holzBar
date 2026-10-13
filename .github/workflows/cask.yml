@@ -1,5 +1,6 @@
-# Checks the cask with `brew style` and `brew audit`, loaded from this repository as
-# the tap. Nothing is downloaded or installed. It runs only when the cask changes.
+# Checks both casks (holzbar and holzbar@beta) with `brew style` and `brew audit`, loaded
+# from this repository as the tap. Nothing is downloaded or installed. It runs only when
+# a cask changes.
 name: Cask
 on:
   pull_request:
@@ -19,7 +20,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Style and audit the cask
+      - name: Style and audit the casks
         env:
           HOMEBREW_NO_AUTO_UPDATE: "1"
           HOMEBREW_NO_ENV_HINTS: "1"
@@ -36,6 +37,8 @@ jobs:
           git -C "$SRC" checkout --quiet -B main "$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD)"
 
           brew tap holzcloud/holzbar "$SRC"
-          brew trust --cask holzcloud/holzbar/holzbar
-          brew style --cask holzcloud/holzbar/holzbar
-          brew audit --cask --strict holzcloud/holzbar/holzbar
+          for TOKEN in holzbar holzbar@beta; do
+            brew trust --cask "holzcloud/holzbar/$TOKEN"
+            brew style --cask "holzcloud/holzbar/$TOKEN"
+            brew audit --cask --strict "holzcloud/holzbar/$TOKEN"
+          done

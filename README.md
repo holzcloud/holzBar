@@ -136,15 +136,38 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 
 ## 🚀 Install
 
+Two Homebrew channels from the same tap:
+
+- **Stable** (`holzbar`): the newest plain release, such as 0.0.7.
+- **Beta** (`holzbar@beta`): the newest alpha, beta or plain release, whichever is newest, such as 0.0.8-beta3.
+
 ```sh
 brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
 brew trust --cask holzcloud/holzbar/holzbar
-brew install --cask holzbar
+brew install --cask holzcloud/holzbar/holzbar
 ```
 
-`brew trust` is needed once: Homebrew only installs casks from third-party taps that you have trusted. Quit Ice, Thaw, Bartender or Hidden Bar first; your Ice settings are imported on the first launch.
+For the beta channel, use the token `holzbar@beta` instead:
 
-**Update:** `brew update && brew upgrade --cask holzbar`. Coming from 0.0.5? It was a different app and cask; the [0.0.6 release notes](docs/release-notes/v0.0.6.md) list the steps.
+```sh
+brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
+brew trust --cask holzcloud/holzbar/holzbar@beta
+brew install --cask holzcloud/holzbar/holzbar@beta
+```
+
+`brew trust` is needed once per cask: Homebrew only installs casks from third-party taps that you have trusted. Quit Ice, Thaw, Bartender or Hidden Bar first; your Ice settings are imported on the first launch.
+
+**Update:** `brew update && brew upgrade --cask holzbar` (or `holzbar@beta`). Coming from 0.0.5? It was a different app and cask; the [0.0.6 release notes](docs/release-notes/v0.0.6.md) list the steps.
+
+**Switch channel:** both casks install the same `holzBar.app`, so they conflict. Uninstall one and install the other; your settings stay:
+
+```sh
+brew uninstall --cask holzbar
+brew trust --cask holzcloud/holzbar/holzbar@beta
+brew install --cask holzcloud/holzbar/holzbar@beta
+```
+
+(The other way round: `brew uninstall --cask holzbar@beta`, then install `holzcloud/holzbar/holzbar`.)
 
 **If macOS says holzBar "can't be opened":**
 
@@ -170,6 +193,7 @@ codesign -d --extract-certificates=/tmp/holzbar-certificate /Applications/holzBa
 The build provenance of the zip Homebrew downloaded, pinned to the release workflow and the version's tag ([GitHub CLI](https://cli.github.com): `brew install gh`, then `gh auth login`):
 
 ```sh
+# For the beta channel, use holzbar@beta instead of holzbar.
 V=$(brew list --cask --versions holzbar | awk '{print $2}')
 gh attestation verify "$(brew --cache --cask holzbar)" -R holzcloud/holzBar \
   --signer-workflow holzcloud/holzBar/.github/workflows/release.yml \
