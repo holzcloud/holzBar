@@ -1103,6 +1103,34 @@
         }
       }
     },
+    "Add Color Stop" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farbpunkt hinzufügen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter un point de couleur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi punto di colore"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agiuntar in punct da colur"
+          }
+        }
+      }
+    },
     "Add Condition" : {
       "localizations" : {
         "de" : {
@@ -3675,6 +3703,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Colur"
+          }
+        }
+      }
+    },
+    "Color Stop %lld of %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farbpunkt %1$lld von %2$lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Point de couleur %1$lld sur %2$lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punto di colore %1$lld di %2$lld"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punct da colur %1$lld da %2$lld"
           }
         }
       }
@@ -10311,6 +10367,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Allontanar l'associaziun"
+          }
+        }
+      }
+    },
+    "Remove Color Stop" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Farbpunkt entfernen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer le point de couleur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi punto di colore"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allontanar il punct da colur"
           }
         }
       }
