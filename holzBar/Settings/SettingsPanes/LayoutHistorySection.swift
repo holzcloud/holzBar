@@ -25,7 +25,13 @@ struct LayoutHistorySection: View {
     }
 
     var body: some View {
-        HolzBarSection("Layout History") {
+        HolzBarSection {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Layout History")
+                    .font(.headline)
+                PreviewBadge()
+            }
+        } content: {
             Toggle("Keep a history of the layout", isOn: $snapshots.isEnabled)
             if !isDismissed, let suggested = snapshots.snapshotToSuggest {
                 suggestion(for: suggested)

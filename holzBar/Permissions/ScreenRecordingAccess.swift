@@ -73,6 +73,7 @@ struct ScreenRecordingHint: View {
             HStack {
                 Text(feature.reason.localizedFromCatalog)
                     .lineLimit(1)
+                PreviewBadge()
                 allowButton
                     .buttonStyle(.plain)
                     .foregroundStyle(.link)
@@ -80,8 +81,11 @@ struct ScreenRecordingHint: View {
             .help(reopenNote)
         } else {
             VStack(spacing: 8) {
-                Text(feature.reason.localizedFromCatalog)
-                    .multilineTextAlignment(.center)
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text(feature.reason.localizedFromCatalog)
+                        .multilineTextAlignment(.center)
+                    PreviewBadge()
+                }
                 allowButton
                 Text(reopenNote)
                     .font(.callout)

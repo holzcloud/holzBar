@@ -140,8 +140,11 @@ struct AboutSettingsPane: View {
             Button("Contribute") {
                 openURL(Constants.repositoryURL)
             }
-            Button("Copy Diagnostics…", systemImage: "doc.on.clipboard") {
-                isShowingDiagnostics = true
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                Button("Copy Diagnostics…", systemImage: "doc.on.clipboard") {
+                    isShowingDiagnostics = true
+                }
+                PreviewBadge()
             }
             Button("Report a Bug", systemImage: "ladybug") {
                 openURL(Constants.issuesURL)
