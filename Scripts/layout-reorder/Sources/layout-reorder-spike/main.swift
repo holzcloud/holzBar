@@ -10,6 +10,8 @@
 // Commands:
 //   check     write whether SwiftUI reordering exists on this Mac; no window
 //   selftest  run the move rules on built-in data; no window and no permission
+//   count     the C1 desk check: the AppKit Layout bar's code against the code a SwiftUI path
+//             would carry (reads source files under --repo, writes numbers)
 //   run       open one window with the three rows of fake items (macOS 27 only; stops with
 //             exit 7 below it)
 //
@@ -31,6 +33,7 @@ setvbuf(stdout, nil, _IOLBF, 0)
 struct Options {
     var command = ""
     var label = "unlabelled"
+    var repo = "."
 
     static let usage = [
         "usage: layout-reorder-spike <command> [options]",
@@ -38,10 +41,12 @@ struct Options {
         "commands:",
         "  check     whether SwiftUI reordering exists on this Mac (no window)",
         "  selftest  run the move rules on built-in data (no window, no permission)",
+        "  count     the C1 desk check: AppKit Layout bar code against the SwiftUI path's carried code",
         "  run       open the window with three reorderable rows (macOS 27 only)",
         "",
         "options:",
         "  --label <text>   what this run is, written to the report (default: unlabelled)",
+        "  --repo <dir>     count only: the repository to read (default: .)",
         "  --help           write this text",
     ].joined(separator: "\n")
 
@@ -54,7 +59,7 @@ struct Options {
             print(usage)
             exit(0)
         }
-        guard let command = rest.first, ["check", "selftest", "run"].contains(command) else {
+        guard let command = rest.first, ["check", "selftest", "count", "run"].contains(command) else {
             fail("unknown or missing command")
         }
         options.command = command
@@ -67,6 +72,14 @@ struct Options {
                     fail("\(option) needs a value")
                 }
                 options.label = rest.removeFirst()
+            case "--repo":
+                guard command == "count" else {
+                    fail("--repo is only for count")
+                }
+                guard !rest.isEmpty else {
+                    fail("\(option) needs a value")
+                }
+                options.repo = rest.removeFirst()
             default:
                 fail("unknown option \(option)")
             }
@@ -231,6 +244,62 @@ func selftest(label: String) -> Never {
     exit(4)
 }
 
+// MARK: - count
+
+/// One file of the C1 count: `appkit` for the Layout bar, `carried` for what a replacement brings.
+struct CountedFile {
+    let role: String
+    let path: String
+    let text: String
+}
+
+func count(repo: String) -> Never {
+    let root = URL(fileURLWithPath: repo, isDirectory: true)
+    let barDirectory = "holzBar/MenuBar/LayoutBar"
+    let names = ((try? FileManager.default.contentsOfDirectory(atPath: root.appendingPathComponent(barDirectory).path)) ?? [])
+        .filter { $0.hasSuffix(".swift") }
+        .sorted()
+    if names.isEmpty {
+        FileHandle.standardError.write(Data("no Swift file in \(barDirectory) under \(repo)\n".utf8))
+        exit(6)
+    }
+    let carriedPaths = [
+        "Scripts/layout-reorder/Sources/LayoutReorderCore/ReorderIntent.swift",
+        "Scripts/layout-reorder/Sources/layout-reorder-spike/ReorderSectionsView.swift",
+    ]
+    let wanted = names.map { ("appkit", "\(barDirectory)/\($0)") } + carriedPaths.map { ("carried", $0) }
+    var files = [CountedFile]()
+    for (role, path) in wanted {
+        guard let text = try? String(contentsOf: root.appendingPathComponent(path), encoding: .utf8) else {
+            FileHandle.standardError.write(Data("cannot read \(path) under \(repo)\n".utf8))
+            exit(6)
+        }
+        files.append(CountedFile(role: role, path: path, text: text))
+    }
+    for file in files {
+        var line = ReportLine("COUNTFILE")
+        line.add("role", file.role)
+        line.add("path", file.path)
+        line.add("code", CodeCount.codeLines(file.text))
+        line.add("scoped27", CodeCount.scopedLines(file.text))
+        print(line.text)
+    }
+    let report = CodeCount.report(
+        appKit: files.filter { $0.role == "appkit" }.map(\.text),
+        carried: files.filter { $0.role == "carried" }.map(\.text)
+    )
+    var line = ReportLine("COUNT")
+    line.add("appKitCode", report.appKitCode)
+    line.add("deletableMax", report.deletableMax)
+    line.add("newMin", report.newMin)
+    line.add("ratio", report.ratio, decimals: 2)
+    line.add("threshold", report.threshold, decimals: 2)
+    line.add("meets", report.meets)
+    print(line.text)
+    print(endLine)
+    exit(0)
+}
+
 // MARK: - run
 
 /// The state of the window: the fake bar, which asks the rules for every drop.
@@ -300,6 +369,8 @@ case "check":
     exit(0)
 case "selftest":
     selftest(label: options.label)
+case "count":
+    count(repo: options.repo)
 default:
     run(label: options.label)
 }
