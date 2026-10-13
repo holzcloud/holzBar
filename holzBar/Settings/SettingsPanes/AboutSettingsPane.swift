@@ -64,6 +64,7 @@ struct AboutSettingsPane: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 230)
+                        .accessibilityHidden(true)
                 }
 
                 VStack(alignment: .leading) {
@@ -93,6 +94,7 @@ struct AboutSettingsPane: View {
         HStack(spacing: 4) {
             Image(systemName: "heart.fill")
                 .foregroundStyle(.pink)
+                .accessibilityHidden(true)
             Text("Based on")
             Link("Ice", destination: Constants.originalIceURL)
             Text("by Jordan Baird")

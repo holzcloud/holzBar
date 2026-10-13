@@ -95,6 +95,7 @@ private struct MenuBarFullShapePicker: View, Equatable {
                 context.fill(Path(context.clipBoundingRect), with: .foreground)
             }
             .resizable()
+            .accessibilityLabel(Text("Square Cap"))
             .help("Square Cap")
             .tag(endCap)
         case .round:
@@ -107,6 +108,7 @@ private struct MenuBarFullShapePicker: View, Equatable {
                 context.fill(path1.union(path2), with: .foreground)
             }
             .resizable()
+            .accessibilityLabel(Text("Round Cap"))
             .help("Round Cap")
             .tag(endCap)
         }

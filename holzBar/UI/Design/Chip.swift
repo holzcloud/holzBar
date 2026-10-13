@@ -32,6 +32,7 @@ struct Chip: View {
                 if let systemImage {
                     Image(systemName: systemImage)
                         .symbolRenderingMode(.hierarchical)
+                        .accessibilityHidden(true)
                 }
                 Text(title)
             }
