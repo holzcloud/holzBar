@@ -1,6 +1,6 @@
 # Accessibility checklist
 
-holzBar's screens use system controls with names and keyboard access. 0.0.8 beta 4 adds names, headings and values for VoiceOver to the newer screens, Escape in every sheet, Increase Contrast and Reduce Motion handling in Settings and the Layout pane, a focus ring in the holzBar Shelf and keyboard access to the colour stops of a gradient. All of it is a **Preview**: **nobody has yet run this checklist with VoiceOver on a Mac**, and until it was run holzBar adds no new accessibility claim. Run it on macOS 26 and 27, then report what fails in an [issue](https://github.com/holzcloud/holzBar/issues).
+holzBar's screens use system controls with names and keyboard access. 0.0.8 adds names, headings and values for VoiceOver to the newer screens, Escape in every sheet, Increase Contrast and Reduce Motion handling in Settings and the Layout pane, a focus ring in the holzBar Shelf and keyboard access to the colour stops of a gradient. All of it is a **Preview**: **nobody has yet run this checklist with VoiceOver on a Mac**, and until it was run holzBar adds no new accessibility claim. Run it on macOS 26 and 27, then report what fails in an [issue](https://github.com/holzcloud/holzBar/issues).
 
 Accessibility *support* (this page) is not the Accessibility *permission* holzBar asks for; see [Permissions](privacy-and-permissions.md#permissions).
 
