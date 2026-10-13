@@ -154,7 +154,7 @@ final class LayoutBarContainer: NSView {
             // be a newly added view
             view.setFrameOrigin(
                 CGPoint(
-                    x: previous.map { $0.frame.maxX } ?? 0,
+                    x: previous.map { $0.frame.maxX + HolzBarTheme.Spacing.xxs } ?? 0,
                     y: (maxHeight / 2) - view.bounds.midY
                 )
             )
