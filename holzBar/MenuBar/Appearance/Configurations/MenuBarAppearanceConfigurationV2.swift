@@ -17,7 +17,7 @@ struct MenuBarAppearanceConfigurationV2: Hashable {
     var blackBackground: MenuBarBlackBackground = .off
     var roundsScreenCorners = false
     var screenCornerRadius: Double = 10
-    /// How the Apple menu end of the bar is styled (0.0.8-beta4).
+    /// How the Apple menu end of the bar is styled (0.0.8).
     var appleLogoStyle: MenuBarAppleLogoStyle = .standard
 
     var hasRoundedShape: Bool {
@@ -135,7 +135,7 @@ struct MenuBarAppearancePartialConfiguration: Hashable {
     var borderStyle: BorderStyle = .solid
     /// Whether the solid tint uses the system accent color instead of ``tintColor``.
     var tintFollowsAccentColor = false
-    /// The look values added in 0.0.8-beta4: tint strength, gradient direction and span, border
+    /// The look values added in 0.0.8: tint strength, gradient direction and span, border
     /// fill and Apple menu fill.
     var style = MenuBarPartialStyle.default
     /// The border's own gradient, drawn when ``MenuBarPartialStyle/borderFill`` is a gradient.

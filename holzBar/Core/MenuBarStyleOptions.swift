@@ -105,7 +105,7 @@ nonisolated enum MenuBarGradientSpan: Int, Codable, CaseIterable, Sendable {
     }
 }
 
-/// The look values of one appearance (light, dark or static), added in 0.0.8-beta4.
+/// The look values of one appearance (light, dark or static), added in 0.0.8.
 ///
 /// Every default draws what 0.0.8-beta3 drew. It is stored nested under the key `style` of
 /// the partial configuration; a field that is absent or cannot be read takes its default
