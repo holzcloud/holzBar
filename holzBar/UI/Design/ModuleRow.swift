@@ -124,6 +124,8 @@ struct ModuleRow<Settings: View>: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Edit"))
+                .accessibilityValue(showsSettings == true ? Text("Expanded") : Text("Collapsed"))
+                .help("Edit")
             }
             Toggle(isOn: $isOn) {
                 title
@@ -135,6 +137,7 @@ struct ModuleRow<Settings: View>: View {
         .padding(.horizontal, HolzBarTheme.Spacing.md)
         .padding(.vertical, HolzBarTheme.Spacing.sm + 2)
         .accessibilityElement(children: .contain)
+        .accessibilityLabel(title)
     }
 }
 
