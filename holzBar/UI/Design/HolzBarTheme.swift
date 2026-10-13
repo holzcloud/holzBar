@@ -24,22 +24,30 @@ enum HolzBarTheme {
             light: DesignTokens.Light.groundElevated,
             dark: DesignTokens.Dark.groundElevated
         )
-        /// Hairline borders.
+        /// Hairline borders; stronger while Increase Contrast is on.
         static let stroke = Color(
             light: DesignTokens.Light.stroke,
-            dark: DesignTokens.Dark.stroke
+            dark: DesignTokens.Dark.stroke,
+            increasedLight: DesignTokens.IncreasedContrast.Light.stroke,
+            increasedDark: DesignTokens.IncreasedContrast.Dark.stroke
         )
         static let text = Color(
             light: DesignTokens.Light.text,
             dark: DesignTokens.Dark.text
         )
+        /// Secondary text; stronger while Increase Contrast is on.
         static let textSecondary = Color(
             light: DesignTokens.Light.textSecondary,
-            dark: DesignTokens.Dark.textSecondary
+            dark: DesignTokens.Dark.textSecondary,
+            increasedLight: DesignTokens.IncreasedContrast.Light.textSecondary,
+            increasedDark: DesignTokens.IncreasedContrast.Dark.textSecondary
         )
+        /// Tertiary text; stronger while Increase Contrast is on.
         static let textTertiary = Color(
             light: DesignTokens.Light.textTertiary,
-            dark: DesignTokens.Dark.textTertiary
+            dark: DesignTokens.Dark.textTertiary,
+            increasedLight: DesignTokens.IncreasedContrast.Light.textTertiary,
+            increasedDark: DesignTokens.IncreasedContrast.Dark.textTertiary
         )
         /// The one accent: tints, links and the glow of active elements.
         static let accent = Color(
@@ -111,6 +119,9 @@ enum HolzBarTheme {
     /// The smallest size of anything that can be clicked.
     static let minimumTargetSize = CGFloat(DesignTokens.minimumTargetSize)
 
+    /// The opacity of the Preview badge's tint behind its text.
+    static let badgeFillOpacity = DesignTokens.badgeFillAlpha
+
     /// A continuous (squircle) rounded rectangle with a token radius.
     static func shape(_ radius: CGFloat) -> RoundedRectangle {
         RoundedRectangle(cornerRadius: radius, style: .continuous)
@@ -161,6 +172,29 @@ private extension Color {
         self.init(nsColor: NSColor(name: nil) { @Sendable appearance in
             let isDark = appearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua
             let tint = isDark ? dark : light
+            return NSColor(rgb: tint.color, alpha: tint.alpha)
+        })
+    }
+
+    /// A colour with an opacity that follows the appearance of the view it is drawn in and
+    /// takes stronger values while Increase Contrast is on. macOS draws with one of the two
+    /// high-contrast appearances then, which is how a custom colour learns about the setting.
+    init(
+        light: DesignTokens.Tint,
+        dark: DesignTokens.Tint,
+        increasedLight: DesignTokens.Tint,
+        increasedDark: DesignTokens.Tint
+    ) {
+        self.init(nsColor: NSColor(name: nil) { @Sendable appearance in
+            let match = appearance.bestMatch(from: [
+                .aqua, .darkAqua, .accessibilityHighContrastAqua, .accessibilityHighContrastDarkAqua
+            ])
+            let tint = switch match {
+            case .darkAqua: dark
+            case .accessibilityHighContrastAqua: increasedLight
+            case .accessibilityHighContrastDarkAqua: increasedDark
+            default: light
+            }
             return NSColor(rgb: tint.color, alpha: tint.alpha)
         })
     }

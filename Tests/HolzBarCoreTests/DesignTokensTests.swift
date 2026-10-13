@@ -73,6 +73,68 @@ struct DesignTokensTests {
         }
     }
 
+    @Test("Increase Contrast: borders reach 3:1 over every ground")
+    func increasedContrastBorders() {
+        let darkGrounds = [Tokens.Dark.ground, Tokens.Dark.groundBottom, Tokens.Dark.groundElevated]
+        for ground in darkGrounds {
+            let stroke = Tokens.IncreasedContrast.Dark.stroke.over(ground)
+            #expect(Tokens.contrastRatio(stroke, ground) >= Tokens.RequiredContrast.component)
+        }
+        let lightGrounds = [Tokens.Light.ground, Tokens.Light.groundElevated]
+        for ground in lightGrounds {
+            let stroke = Tokens.IncreasedContrast.Light.stroke.over(ground)
+            #expect(Tokens.contrastRatio(stroke, ground) >= Tokens.RequiredContrast.component)
+        }
+    }
+
+    @Test("Increase Contrast: secondary and tertiary text reach 7:1 and are stronger than without it")
+    func increasedContrastText() {
+        func check(ground: Tokens.RGB, normal: [Tokens.Tint], increased: [Tokens.Tint]) {
+            for (normalTint, increasedTint) in zip(normal, increased) {
+                let before = Tokens.contrastRatio(normalTint.over(ground), ground)
+                let after = Tokens.contrastRatio(increasedTint.over(ground), ground)
+                #expect(after >= 7)
+                #expect(after > before)
+            }
+        }
+        let darkGrounds = [Tokens.Dark.ground, Tokens.Dark.groundBottom, Tokens.Dark.groundElevated]
+        for ground in darkGrounds {
+            check(
+                ground: ground,
+                normal: [Tokens.Dark.textSecondary, Tokens.Dark.textTertiary],
+                increased: [
+                    Tokens.IncreasedContrast.Dark.textSecondary,
+                    Tokens.IncreasedContrast.Dark.textTertiary
+                ]
+            )
+        }
+        let lightGrounds = [Tokens.Light.ground, Tokens.Light.groundElevated]
+        for ground in lightGrounds {
+            check(
+                ground: ground,
+                normal: [Tokens.Light.textSecondary, Tokens.Light.textTertiary],
+                increased: [
+                    Tokens.IncreasedContrast.Light.textSecondary,
+                    Tokens.IncreasedContrast.Light.textTertiary
+                ]
+            )
+        }
+    }
+
+    @Test("The Preview badge's text keeps 4.5:1 over its own tint")
+    func previewBadgeContrast() {
+        let darkGrounds = [Tokens.Dark.ground, Tokens.Dark.groundBottom, Tokens.Dark.groundElevated]
+        for ground in darkGrounds {
+            let fill = Tokens.Dark.warning.blended(over: ground, alpha: Tokens.badgeFillAlpha)
+            #expect(Tokens.contrastRatio(Tokens.Dark.warning, fill) >= Tokens.RequiredContrast.text)
+        }
+        let lightGrounds = [Tokens.Light.ground, Tokens.Light.groundElevated]
+        for ground in lightGrounds {
+            let fill = Tokens.Light.warning.blended(over: ground, alpha: Tokens.badgeFillAlpha)
+            #expect(Tokens.contrastRatio(Tokens.Light.warning, fill) >= Tokens.RequiredContrast.text)
+        }
+    }
+
     @Test("White text stays readable on the whole fill gradient")
     func fillGradientCarriesWhiteText() {
         #expect(Tokens.contrastRatio(Tokens.Fill.label, Tokens.Fill.start) >= Tokens.RequiredContrast.text)
