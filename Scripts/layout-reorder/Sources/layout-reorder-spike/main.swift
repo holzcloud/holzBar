@@ -1,0 +1,249 @@
+//
+//  main.swift
+//  holzBar
+//
+
+// Phase 24 spike (Preview, throwaway, not part of holzBar.app): can SwiftUI's reordering API
+// (macOS 27) carry the Menu Bar Layout pane's three rows, and what would a replacement bring
+// along?
+//
+// Commands:
+//   check     write whether SwiftUI reordering exists on this Mac; no window
+//   selftest  run the move rules on built-in data; no window and no permission
+//   run       open one window with the three rows of fake items (macOS 27 only; stops with
+//             exit 7 below it)
+//
+// The spike asks for no permission, reads nothing of other apps, has no network code and writes
+// nothing to disk; every line goes to standard output.
+//
+// Build and run:
+//   swift build -c release --package-path Scripts/layout-reorder
+//   Scripts/layout-reorder/.build/release/layout-reorder-spike --help
+import AppKit
+import LayoutReorderCore
+import Observation
+import SwiftUI
+
+setvbuf(stdout, nil, _IOLBF, 0)
+
+// MARK: - Options
+
+struct Options {
+    var command = ""
+    var label = "unlabelled"
+
+    static let usage = [
+        "usage: layout-reorder-spike <command> [options]",
+        "",
+        "commands:",
+        "  check     whether SwiftUI reordering exists on this Mac (no window)",
+        "  selftest  run the move rules on built-in data (no window, no permission)",
+        "  run       open the window with three reorderable rows (macOS 27 only)",
+        "",
+        "options:",
+        "  --label <text>   what this run is, written to the report (default: unlabelled)",
+        "  --help           write this text",
+    ].joined(separator: "\n")
+
+    /// Reads the arguments; `--help` exits 0, anything unknown writes the usage to standard error
+    /// and exits 2.
+    static func parse(_ arguments: [String]) -> Options {
+        var options = Options()
+        var rest = Array(arguments.dropFirst())
+        if rest.contains("--help") || rest.contains("-h") {
+            print(usage)
+            exit(0)
+        }
+        guard let command = rest.first, ["check", "selftest", "run"].contains(command) else {
+            fail("unknown or missing command")
+        }
+        options.command = command
+        rest.removeFirst()
+        while !rest.isEmpty {
+            let option = rest.removeFirst()
+            switch option {
+            case "--label":
+                guard !rest.isEmpty else {
+                    fail("\(option) needs a value")
+                }
+                options.label = rest.removeFirst()
+            default:
+                fail("unknown option \(option)")
+            }
+        }
+        return options
+    }
+
+    private static func fail(_ message: String) -> Never {
+        FileHandle.standardError.write(Data("\(message)\n\(usage)\n".utf8))
+        exit(2)
+    }
+}
+
+// MARK: - Report lines
+
+let endLine = "=== end of report ==="
+
+/// Whether this Mac has SwiftUI reordering.
+var reorderAvailable: Bool {
+    if #available(macOS 27.0, *) {
+        return true
+    }
+    return false
+}
+
+func displayCount() -> Int {
+    var count: UInt32 = 0
+    guard CGGetActiveDisplayList(0, nil, &count) == .success else {
+        return 0
+    }
+    return Int(count)
+}
+
+func spikeLine(mode: String, label: String) -> String {
+    var line = ReportLine("SPIKE")
+    line.add("mode", mode)
+    line.add("label", label)
+    return line.text
+}
+
+func systemLine() -> String {
+    var line = ReportLine("SYSTEM")
+    line.add("macos", ProcessInfo.processInfo.operatingSystemVersionString)
+    line.add("reorder", reorderAvailable ? "available" : "unavailable")
+    line.add("displays", displayCount())
+    return line.text
+}
+
+func rowsLine(_ bar: FakeBar) -> String {
+    var line = ReportLine("ROWS")
+    line.add("items", bar.itemCount)
+    for section in SpikeSection.allCases {
+        line.add(section.rawValue, bar.rows[section]?.count ?? 0)
+    }
+    return line.text
+}
+
+/// The MOVE line of one request, written by `selftest` and `run` alike.
+func moveLine(n: Int, via: String, request: ReorderRequest, outcome: ReorderOutcome, bar: FakeBar) -> String {
+    var line = ReportLine("MOVE")
+    line.add("n", n)
+    line.add("via", via)
+    line.add("sources", request.sources.joined(separator: ","))
+    line.add("from", request.sources.map { bar.section(of: $0)?.rawValue ?? "-" }.joined(separator: ","))
+    line.add("to", request.target.rawValue)
+    line.add("position", request.positionText)
+    line.add("accepted", outcome.moves.count)
+    line.add("reason", outcome.refusals.map(\.reason.rawValue).joined(separator: ","))
+    line.add("intent", outcome.intents.joined(separator: ";"))
+    return line.text
+}
+
+// MARK: - selftest
+
+func selftest(label: String) -> Never {
+    var bar = FakeBar.make(itemCount: 12)
+    print(spikeLine(mode: "selftest", label: label))
+    print(rowsLine(bar))
+    let requests = [
+        ReorderRequest(sources: ["app.1"], target: .hidden, position: .end),
+        ReorderRequest(sources: ["app.2"], target: .visible, position: .end),
+    ]
+    var problems = [String]()
+    for (index, request) in requests.enumerated() {
+        let outcome = ReorderIntent.outcome(for: request, in: bar)
+        print(moveLine(n: index + 1, via: "selftest", request: request, outcome: outcome, bar: bar))
+        if index == 0 {
+            if outcome.moves.count != 1 || outcome.intents != ["LayoutBarMoves.setSection(com.example.app1,.hidden)"] {
+                problems.append("request 1 gave \(outcome.intents)")
+            }
+        } else if !outcome.moves.isEmpty || outcome.refusals.map(\.reason) != [.sameSection] {
+            problems.append("request 2 was not refused as sameSection")
+        }
+        bar = bar.applying(outcome)
+    }
+    if bar.rows[.hidden]?.last?.id != "app.1" {
+        problems.append("app.1 is not last in Hidden")
+    }
+    print(rowsLine(bar))
+    print(endLine)
+    if problems.isEmpty {
+        print("selftest ok")
+        exit(0)
+    }
+    print("selftest FAILED: \(problems.joined(separator: "; "))")
+    exit(4)
+}
+
+// MARK: - run
+
+/// The state of the window: the fake bar, which asks the rules for every drop.
+@MainActor @Observable
+final class SpikeModel {
+    var bar: FakeBar
+    private(set) var moveCount = 0
+
+    init(bar: FakeBar) {
+        self.bar = bar
+    }
+
+    func handle(_ request: ReorderRequest, via: String) {
+        let outcome = ReorderIntent.outcome(for: request, in: bar)
+        moveCount += 1
+        print(moveLine(n: moveCount, via: via, request: request, outcome: outcome, bar: bar))
+        bar = bar.applying(outcome)
+    }
+}
+
+func run(label: String) -> Never {
+    print(spikeLine(mode: "run", label: label))
+    print(systemLine())
+    guard #available(macOS 27.0, *) else {
+        var skip = ReportLine("SKIP")
+        skip.add("reason", "SwiftUI reordering needs macOS 27")
+        print(skip.text)
+        print(endLine)
+        exit(7)
+    }
+    let model = SpikeModel(bar: FakeBar.make(itemCount: 12))
+    print(rowsLine(model.bar))
+    let application = NSApplication.shared
+    application.setActivationPolicy(.regular)
+    let window = NSWindow(
+        contentRect: NSRect(x: 0, y: 0, width: 900, height: 420),
+        styleMask: [.titled, .closable, .resizable],
+        backing: .buffered,
+        defer: false
+    )
+    window.title = "Layout reorder spike (Preview)"
+    window.contentView = NSHostingView(rootView: ReorderSectionsView(model: model))
+    window.center()
+    window.isReleasedWhenClosed = false
+    NotificationCenter.default.addObserver(
+        forName: NSWindow.willCloseNotification,
+        object: window,
+        queue: .main
+    ) { _ in
+        print(endLine)
+        exit(0)
+    }
+    window.makeKeyAndOrderFront(nil)
+    application.activate()
+    application.run()
+    exit(0)
+}
+
+// MARK: - main
+
+let options = Options.parse(CommandLine.arguments)
+switch options.command {
+case "check":
+    print(spikeLine(mode: "check", label: options.label))
+    print(systemLine())
+    print(endLine)
+    exit(0)
+case "selftest":
+    selftest(label: options.label)
+default:
+    run(label: options.label)
+}
