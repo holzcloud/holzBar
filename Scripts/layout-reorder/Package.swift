@@ -35,5 +35,11 @@ let package = Package(
             path: "Sources/layout-reorder-spike",
             swiftSettings: spikeSettings + [.defaultIsolation(MainActor.self)]
         ),
+        .testTarget(
+            name: "LayoutReorderCoreTests",
+            dependencies: ["LayoutReorderCore"],
+            path: "Tests/LayoutReorderCoreTests",
+            swiftSettings: spikeSettings
+        ),
     ]
 )

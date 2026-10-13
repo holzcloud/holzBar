@@ -141,29 +141,85 @@ func moveLine(n: Int, via: String, request: ReorderRequest, outcome: ReorderOutc
 
 // MARK: - selftest
 
+/// One request of `selftest` with what the rules must answer.
+struct SelftestCase {
+    let request: ReorderRequest
+    let accepted: Int
+    let reason: String
+    let intent: String?
+}
+
 func selftest(label: String) -> Never {
     var bar = FakeBar.make(itemCount: 12)
     print(spikeLine(mode: "selftest", label: label))
     print(rowsLine(bar))
-    let requests = [
-        ReorderRequest(sources: ["app.1"], target: .hidden, position: .end),
-        ReorderRequest(sources: ["app.2"], target: .visible, position: .end),
+    let cases = [
+        SelftestCase(
+            request: ReorderRequest(sources: ["app.1"], target: .hidden, position: .end),
+            accepted: 1,
+            reason: "-",
+            intent: "LayoutBarMoves.setSection(com.example.app1,.hidden)"
+        ),
+        SelftestCase(
+            request: ReorderRequest(sources: ["twoitems.0"], target: .alwaysHidden, position: .before("spacer.0")),
+            accepted: 1,
+            reason: "-",
+            intent: "LayoutBarMoves.setSection(com.example.twoitems,.alwaysHidden)"
+        ),
+        SelftestCase(
+            request: ReorderRequest(sources: ["app.2"], target: .visible, position: .end),
+            accepted: 0,
+            reason: "sameSection",
+            intent: nil
+        ),
+        SelftestCase(
+            request: ReorderRequest(sources: ["system.clock"], target: .hidden, position: .end),
+            accepted: 0,
+            reason: "notMovable",
+            intent: nil
+        ),
+        SelftestCase(
+            request: ReorderRequest(sources: ["holzbar.icon"], target: .hidden, position: .end),
+            accepted: 0,
+            reason: "controlItem",
+            intent: nil
+        ),
+        SelftestCase(
+            request: ReorderRequest(sources: ["unknown.0"], target: .visible, position: .end),
+            accepted: 0,
+            reason: "noApp",
+            intent: nil
+        ),
+        SelftestCase(
+            request: ReorderRequest(sources: ["busy.0"], target: .visible, position: .end),
+            accepted: 0,
+            reason: "unresponsive",
+            intent: nil
+        ),
     ]
     var problems = [String]()
-    for (index, request) in requests.enumerated() {
-        let outcome = ReorderIntent.outcome(for: request, in: bar)
-        print(moveLine(n: index + 1, via: "selftest", request: request, outcome: outcome, bar: bar))
-        if index == 0 {
-            if outcome.moves.count != 1 || outcome.intents != ["LayoutBarMoves.setSection(com.example.app1,.hidden)"] {
-                problems.append("request 1 gave \(outcome.intents)")
-            }
-        } else if !outcome.moves.isEmpty || outcome.refusals.map(\.reason) != [.sameSection] {
-            problems.append("request 2 was not refused as sameSection")
+    for (index, expected) in cases.enumerated() {
+        let outcome = ReorderIntent.outcome(for: expected.request, in: bar)
+        print(moveLine(n: index + 1, via: "selftest", request: expected.request, outcome: outcome, bar: bar))
+        let reason = outcome.refusals.map(\.reason.rawValue).joined(separator: ",")
+        if outcome.moves.count != expected.accepted {
+            problems.append("request \(index + 1) accepted \(outcome.moves.count), not \(expected.accepted)")
+        }
+        if (reason.isEmpty ? "-" : reason) != expected.reason {
+            problems.append("request \(index + 1) reason \(reason), not \(expected.reason)")
+        }
+        if let intent = expected.intent, outcome.intents != [intent] {
+            problems.append("request \(index + 1) intent \(outcome.intents)")
         }
         bar = bar.applying(outcome)
     }
-    if bar.rows[.hidden]?.last?.id != "app.1" {
-        problems.append("app.1 is not last in Hidden")
+    let expectedRows: [SpikeSection: [String]] = [
+        .visible: ["holzbar.icon", "system.clock", "app.2", "app.3"],
+        .hidden: ["unknown.0", "busy.0", "widget.battery", "group.work", "app.1"],
+        .alwaysHidden: ["twoitems.0", "twoitems.1", "spacer.0"],
+    ]
+    for section in SpikeSection.allCases where bar.rows[section]?.map(\.id) != expectedRows[section] {
+        problems.append("row \(section.rawValue) is \(bar.rows[section]?.map(\.id) ?? [])")
     }
     print(rowsLine(bar))
     print(endLine)

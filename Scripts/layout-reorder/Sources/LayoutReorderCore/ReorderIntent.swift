@@ -110,25 +110,61 @@ public struct ReorderOutcome: Equatable, Sendable {
 /// not mirrored.
 public enum ReorderIntent {
     /// What dropping the request's items on the bar does.
+    ///
+    /// For each source, in order, the first matching rule decides: the bar does not have it,
+    /// `unknownItem`; a control item, `controlItem`; not movable, `notMovable`; no app, `noApp`;
+    /// unresponsive app, `unresponsive`; already in the target row, `sameSection`. Every other
+    /// source is accepted, and the accepted ones make one move per app: all items of the bar with
+    /// that key change the row.
     public static func outcome(for request: ReorderRequest, in bar: FakeBar) -> ReorderOutcome {
         var outcome = ReorderOutcome()
+        var keys = [String]()
+        var origins = [String: SpikeSection]()
         for id in request.sources {
             guard let item = bar.item(withID: id), let row = bar.section(of: id) else {
                 outcome.refusals.append(.init(itemID: id, reason: .unknownItem))
                 continue
             }
-            if row == request.target {
-                outcome.refusals.append(.init(itemID: id, reason: .sameSection))
+            if let reason = refusal(of: item, in: row, target: request.target) {
+                outcome.refusals.append(.init(itemID: id, reason: reason))
+                continue
+            }
+            if let key = item.key, origins[key] == nil {
+                keys.append(key)
+                origins[key] = row
+            }
+        }
+        for key in keys {
+            guard let origin = origins[key] else {
                 continue
             }
             outcome.moves.append(.init(
-                key: item.key ?? item.id,
-                itemIDs: [id],
-                from: row,
+                key: key,
+                itemIDs: bar.allItems.filter { $0.key == key }.map(\.id),
+                from: origin,
                 to: request.target,
                 position: request.position
             ))
         }
         return outcome
+    }
+
+    private static func refusal(of item: FakeItem, in row: SpikeSection, target: SpikeSection) -> Refusal? {
+        if item.kind == .controlItem {
+            return .controlItem
+        }
+        if !item.isMovable {
+            return .notMovable
+        }
+        if item.key == nil {
+            return .noApp
+        }
+        if item.isUnresponsive {
+            return .unresponsive
+        }
+        if row == target {
+            return .sameSection
+        }
+        return nil
     }
 }

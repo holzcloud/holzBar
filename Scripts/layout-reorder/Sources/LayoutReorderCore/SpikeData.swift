@@ -121,6 +121,34 @@ public struct FakeBar: Equatable, Sendable {
         return bar
     }
 
+    /// Where the focus goes for a focus command (`dx` along a row, `dy` between rows).
+    ///
+    /// A mirror of holzBar's `LayoutKeys.focusTarget`, which a replacement would use directly.
+    /// Within a row the focus stops at either end. Between rows it skips empty rows and lands on
+    /// the item nearest the same index; at the first or last row it stays.
+    public func focusTarget(fromRow row: Int, index: Int, dx: Int, dy: Int) -> (row: Int, index: Int) {
+        let counts = SpikeSection.allCases.map { rows[$0]?.count ?? 0 }
+        guard counts.indices.contains(row) else {
+            return (row, index)
+        }
+        if dy == 0 {
+            let count = counts[row]
+            guard count > 0 else {
+                return (row, index)
+            }
+            return (row, min(max(index + dx, 0), count - 1))
+        }
+        let step = dy > 0 ? 1 : -1
+        var next = row + step
+        while counts.indices.contains(next) {
+            if counts[next] > 0 {
+                return (next, min(max(index, 0), counts[next] - 1))
+            }
+            next += step
+        }
+        return (row, index)
+    }
+
     /// The fixed items, the first nine of every bar.
     private static let fixed: [SpikeSection: [FakeItem]] = [
         .visible: [
