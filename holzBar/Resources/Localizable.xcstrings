@@ -4547,6 +4547,34 @@
         }
       }
     },
+    "Drag an item here to move it to this section." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ziehe ein Objekt hierher, um es in diesen Bereich zu verschieben."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faites glisser un élément ici pour le déplacer dans cette section."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trascina qui un elemento per spostarlo in questa sezione."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tira in element qua per al spustar en questa secziun."
+          }
+        }
+      }
+    },
     "Drag to arrange your menu bar items into different sections." : {
       "localizations" : {
         "de" : {
@@ -7987,6 +8015,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nova regla"
+          }
+        }
+      }
+    },
+    "No items in this section" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Objekte in diesem Bereich"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun élément dans cette section"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun elemento in questa sezione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagins elements en questa secziun"
           }
         }
       }
