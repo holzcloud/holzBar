@@ -22,6 +22,7 @@ struct DiagnosticsSheet: View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.md) {
             Text("Copy Diagnostics")
                 .font(HolzBarTheme.Typography.title)
+                .accessibilityAddTraits(.isHeader)
             Text("Nothing is sent. Read the report, then copy it into your issue. It holds versions and counts only: no names of items, apps, profiles or networks, and no paths.")
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
@@ -39,6 +40,7 @@ struct DiagnosticsSheet: View {
                 Button("Cancel", role: .cancel) {
                     dismiss()
                 }
+                .keyboardShortcut(.cancelAction)
                 Spacer()
                 Button("Copy") {
                     copy(text)

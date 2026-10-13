@@ -9,7 +9,7 @@ import SwiftUI
 /// lasting or that run code the user chose.
 ///
 /// The safe choice is the default button; the confirming button is never the default for a
-/// destructive action.
+/// destructive action. Escape always cancels.
 struct ConfirmSheet: View {
     private let title: Text
     private let message: Text
@@ -68,6 +68,7 @@ struct ConfirmSheet: View {
         .padding(HolzBarTheme.Spacing.lg)
         .frame(width: 420)
         .background(HolzBarTheme.Palette.ground)
+        .onExitCommand(perform: isDestructive ? onCancel : nil)
     }
 }
 
