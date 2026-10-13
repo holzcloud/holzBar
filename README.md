@@ -40,12 +40,12 @@ An independent fork of [Ice](https://github.com/jordanbaird/Ice), kept alive for
 
 | | |
 |---|---|
-| 🪵 **Tested on macOS 26 and 27** | A dedicated backend for the redesigned macOS 27 menu bar. Every pull request launches the app on macOS 26 and 27 and runs the unit tests there; older macOS versions are not tested. Requires macOS 14 or later. |
+| 🪵 **Tested on macOS 26 and 27** | A dedicated backend for the redesigned macOS 27 menu bar. Every pull request that changes code launches the app on macOS 26 and 27 and runs the unit tests there; older macOS versions are not tested. Requires macOS 14 or later. |
 | 🔒 **Never online** | No update checks, telemetry or analytics. A CI check proves there is no network code in the app. |
 | 📦 **Zero dependencies, modern Swift** | Built with Swift 6.4 and Xcode 27, Swift 6 language mode, no third-party packages. |
-| 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it. From 0.0.7-beta2, one executable with no helper process or nested code, and no entitlements, not even one that lets a debugger attach. |
+| 🛡️ **Least privilege** | Only Accessibility at first launch; Screen Recording only when a feature needs it; Location Services only when you add a Wi-Fi-name condition to a rule. From 0.0.7-beta2, one executable with no helper process or nested code, and no entitlements, not even one that lets a debugger attach. |
 | 🔏 **Verifiable releases** | Signed with holzBar's own certificate, with GitHub build provenance and, from 0.0.7-beta2, SLSA Build Level 3 provenance. Actions pinned by commit SHA (except the SLSA generator, which must be referenced by its release tag), rated by OpenSSF Scorecard. |
-| ✨ **More features** | Profiles, folders, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, a camera and microphone dot on macOS 27. |
+| ✨ **More features** | Rules, scripts and widgets (Preview), profiles, folders, spacers, Zen mode, Shortcuts actions, a black menu bar, URL commands, a camera and microphone dot on macOS 27. |
 | 🌍 **Five languages** | English, German, French, Italian and Romansh. |
 
 ## ⚖️ holzBar vs. everyone else
@@ -54,11 +54,11 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 
 | | holzBar | Bartender 7 | Ice | Thaw | SaneBar | Tuck | Barbee | Hidden Bar | Dozer | Vanilla | iBar | Glow | Brow | Lounge | Vorssaint |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Maintenance | active (0.0.8-beta3) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) |
+| Maintenance | active (0.0.8) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) |
 | Price | free | paid, one-time <sup>1</sup> | free | free | free | free; Pro $14.99 | free + in-app (lifetime $12.99) | free | free | free; Pro $10 | free + $2.99/yr | $19.99 once | free; Pro $49/yr (AI only) | $3.99/yr | free |
 | Open source | ✅ GPL-3.0 | ❌ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ MIT | ❌ | ❌ | ✅ MIT | ✅ MPL-2.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ GPL-3.0+ |
 | macOS 26 / 27 | ✅ / ✅ | ❌ / ✅ <sup>2</sup> | dev builds / ❌ | ✅ / ✅ <sup>3</sup> | ✅ / ❌ | ✅ / ✅ <sup>4</sup> | ❓ / ❓ <sup>5</sup> | ✅ / partly <sup>6</sup> | ❓ / ❓ | ✅ / ❓ | ✅ / ❓ | ✅ / ✅ <sup>13</sup> | ❓ / vendor claim | ✅ / vendor claim | ✅ / ✅ |
-| Apple Silicon / Intel | not yet checked | ✅ Apple Silicon (27) | ❓ | ❓ | Apple Silicon only | both | ❓ | both | Intel only (Rosetta) | both | both | both | ❓ | both | Apple Silicon only |
+| Apple Silicon / Intel | both (one universal app) | ✅ Apple Silicon (27) | ❓ | ❓ | Apple Silicon only | both | ❓ | both | Intel only (Rosetta) | both | both | both | ❓ | both | Apple Silicon only |
 | Hidden + always-hidden sections | ✅ | ✅ | ✅ | ✅ | ✅ | hidden; per-icon | hidden only ❓ | ✅ | ✅ | hidden; always-hidden in Pro | ✅ | 3 sections | hide, reorder; always-hidden ❓ | visible / hidden; no always-hidden | ❓ |
 | Separate bar, notch handling | ✅ Shelf; no duplicates with the macOS 27 overflow (Preview <sup>14</sup>) | ✅ | ✅ Ice Bar | ✅ Thaw Bar | ✅ | ✅ Shelf | ✅ | ❌ | ❌ | partly | ✅ | ✅ GlowBar; notch ❓ | notch hover panel | ✅ floating panel | ❓ |
 | Layout profiles | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ ❓ | ✅ (VIP) | ❌ | ❌ | ❌ | ❌ | looks only (Moods) | ❌ | ❓ | ❓ |
@@ -113,11 +113,11 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 <sup>11</sup> The vendor says Bartender sends nothing anywhere. Bartender 5.0.52 briefly shipped analytics (Amplitude) and removed it; Sparkle and RevenueCat appear in third-party dependency lists (inferred).
 <sup>12</sup> Glow, Brow and Lounge: ❌ means the vendor's site, changelog and privacy policy do not mention the feature (one source each, no independent test). Lounge's own blog says it lacks automation rules.
 <sup>13</sup> Glow ships two builds: 2.x for macOS 26 and 3.x for macOS 27 (stable since 10 September 2026).
-<sup>14</sup> **Preview**: built (in the 0.0.8 betas, widgets in 0.0.8-beta3, the cooperation with the macOS 27 overflow button and the menu bar styles in 0.0.8-beta4) and marked with a Preview badge in the app, but not yet tested on a real Mac by the maintainer. Rules have fewer trigger types than Thaw: power, Low Power Mode, apps, time, displays, network, VPN, the Wi-Fi name, camera and microphone in use, and a Focus filter. Scripts run as you with holzBar's permissions, only from the folder you chose and only after you allowed their exact content; nothing about them is exported, imported or synced, and no URL command or Shortcut can turn on a rule that uses one. Widgets (macOS 14 to 27) show text from seven permission-free sources (date and time, battery, CPU load, memory, uptime, free disk space, a countdown) run a Shortcut you name, or show the first line of the output of a script you allowed (a script widget); at most six, their timers run only while a widget is visible, a script widget never runs on a timer, nothing runs while the module is off, and Shortcut names and the choice of a script never leave your Mac.
+<sup>14</sup> **Preview**: built in 0.0.8 and marked with a Preview badge in the app, but not yet tested on a real Mac by the maintainer. Rules have fewer trigger types than Thaw: they react to power, Low Power Mode, apps, time, displays, the network, a VPN, the Wi-Fi name, camera and microphone in use and a script's result; a Focus filter applies a profile on its own. Scripts run as you with holzBar's permissions, only from the folder you chose and only after you allowed their exact content; nothing about them is exported, imported or synced, and no URL command or Shortcut can turn on a rule that uses one. Widgets (macOS 14 to 27) show text from seven permission-free sources (date and time, battery, CPU load, memory, uptime, free disk space, a countdown), run a Shortcut you name, or show the first line of the output of a script you allowed (a script widget); at most six, their timers run only while a widget is visible, a script widget never runs on a timer, nothing runs while the module is off, and Shortcut names and the choice of a script never leave your Mac (the widgets' basic steps were checked on macOS 27).
 
 ### Where holzBar is behind today
 
-- **Automation:** Thaw, SaneBar and Bartender 7 have rules, per-item conditions and scripts. holzBar has them since the 0.0.8 betas, as a *Preview* that is not yet tested on a Mac, with fewer trigger types than Thaw.
+- **Automation:** Thaw, SaneBar and Bartender 7 have rules, per-item conditions and scripts. holzBar has them since 0.0.8, as a *Preview* that is not yet tested on a Mac, with fewer trigger types than Thaw.
 - **No Developer ID signature or notarization**, unlike Thaw, SaneBar, Ice and Lounge (the vendor's claim). holzBar needs the `xattr` step or the Homebrew cask.
 - **Fewer languages** than Thaw and Barbee (20 each); our translations into French, Italian and Romansh are machine-made and unchecked.
 - **No AppleScript or animation yet** (0.0.9); Bartender 7, SaneBar and Vanilla have them today.
@@ -129,17 +129,17 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 
 ### What holzBar does better
 
-- The only one that **never connects to the network**; Ice, Thaw, SaneBar (anonymous counts), Glow, Lounge and Tuck all do.
-- **No third-party packages** (Ice 5, Thaw 9, SaneBar 3), Swift 6.4 in Swift 6 mode, checked on macOS 26 and 27 on every change.
+- **Never connects to the network**, and a CI check proves it on every pull request; Ice, Thaw, SaneBar (anonymous counts), Glow, Lounge and Tuck all do.
+- **No third-party packages** (Ice 5, Thaw 9, SaneBar 3), Swift 6.4 in Swift 6 mode, checked on macOS 26 and 27 on every code change.
 - **Screen Recording is optional**, and permissions are listed and explained.
-- A **build provenance attestation** (SLSA Build Level 3) for every release.
+- A **build provenance attestation** for every release since 0.0.6, and SLSA Build Level 3 provenance since 0.0.7-beta2.
 
 ## 🚀 Install
 
 Two Homebrew channels from the same tap:
 
-- **Stable** (`holzbar`): the newest plain release, such as 0.0.7.
-- **Beta** (`holzbar@beta`): the newest alpha, beta or plain release, whichever is newest, such as 0.0.8-beta3.
+- **Stable** (`holzbar`): the newest plain release, such as 0.0.8.
+- **Beta** (`holzbar@beta`): the newest alpha, beta or plain release, whichever is newest.
 
 ```sh
 brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
@@ -210,32 +210,32 @@ slsa-verifier verify-artifact "holzBar-$V.zip" --provenance-path "holzBar-$V.int
 
 A zip changed after the build, or built anywhere else, fails. Older releases and more detail: [docs/signing.md](docs/signing.md). Verifying uses the network from your terminal; holzBar itself never does.
 
-## 🔜 Planned next
+## 🆕 New in 0.0.8
 
-**Except the 0.0.8 Preview features below, none of this is available yet.** Plans can change; *spike* = only built if a short test shows it works well.
-
-**0.0.7 is out** (see the [release notes](docs/release-notes/v0.0.7.md)): a bugfix release with no new features. Settings sync is removed from the app (a redesigned sync is planned for 1.0.0; Export… and Import… stay), and System Glass and the holzBar Shelf follow Reduce Transparency and Increase Contrast. macOS has no public API for the macOS 27 Liquid Glass slider, so holzBar cannot follow that. The Reduce Transparency treatment has not yet been checked on real macOS 26 and 27 systems. **Native macOS 27 overflow button support** did not make it into 0.0.7; it comes with 0.0.8-beta4 as a *Preview*: the holzBar Shelf does not list items twice while macOS shows its own overflow expanded.
-
-**0.0.8-beta3 is out** (see the [release notes](docs/release-notes/v0.0.8-beta3.md); the earlier betas are in [beta 2](docs/release-notes/v0.0.8-beta2.md) and [beta 1](docs/release-notes/v0.0.8-beta1.md)): the 0.0.8 feature set is complete, with widgets added in this beta, all built but **not yet tested on a Mac**. Each feature carries a **Preview** badge in the app and is marked *Preview* here. Report what does not work.
+**0.0.8 is out** (see the [release notes](docs/release-notes/v0.0.8.md)). Features marked *Preview* are built but not yet tested on a Mac, and each carries a **Preview** badge in the app (the Focus filter, which you set up in System Settings, is marked *Preview* here only). Report what does not work.
 
 | | |
 |---|---|
-| ⚙️ **Automation** | **Rules** (app, time, power, display, network, camera and microphone in use; Focus filter and Wi-Fi name — all *Preview*; the old "low battery" and "offline" settings are rules now) · **per-item conditions** (*Preview*) · **scripts** (*Preview*; a rule condition or a rule action, run at the start and, if you choose, when the rule ends; only from a folder you choose, only after you allowed the exact content, with no arguments and no shell, a time limit of 10 seconds by default, and they run as you with holzBar's permissions) · **profile hooks** (*Preview*; a script before or after a profile is applied) · **widgets** (*Preview*; macOS 14 to 27: text from permission-free sources such as CPU, memory, battery and disk, a countdown, a Shortcut button, script widgets). Beta 2 runs scripts from the Scripts folder only; the folder of your choice, the run when a rule ends, the output line, the time limit and the profile hooks and the widgets come with 0.0.8-beta3 |
+| ⚙️ **Automation** | **Rules** (app, time, power, display, network, camera and microphone in use, a script's result and the Wi-Fi name — all *Preview*; the old "low battery" and "offline" settings are rules now) · a **Focus filter** that applies a profile (*Preview*) · **per-item conditions** (*Preview*) · **scripts** (*Preview*; a rule condition or a rule action, run at the start and, if you choose, when the rule ends; only from a folder you choose, only after you allowed the exact content, with no arguments and no shell, a time limit of 10 seconds by default, and they run as you with holzBar's permissions) · **profile hooks** (*Preview*; a script before or after a profile is applied) · **widgets** (*Preview*; macOS 14 to 27: text from permission-free sources such as CPU, memory, battery and disk, a countdown, a Shortcut button, script widgets) |
 | 🛟 **Safety** | **Layout snapshots** with a one-click restore (*Preview*) · **shareable profiles** (*Preview*) · **Touch ID** to show hidden items (*Preview*) · **revoke permissions in Settings** (*Preview*) (with a guide) · **copy diagnostics** (*Preview*) (redacted, nothing is sent) |
-| 🪄 **Convenience** | **Tidy Up assistant** (*Preview*) · **works without Screen Recording** (*Preview*) (app icons instead of live snapshots) · system items such as Clock, Wi-Fi and Battery **pinned visible** (*Preview*) |
-| 🎨 **Look** | **Menu bar styles** (*Preview*, from 0.0.8-beta4): Single, Paired and **Sections** shapes (Sections on macOS 14 to 26), a **shape of its own for the Apple logo**, **outlines** in the accent colour or a gradient, **vertical gradients**, one gradient per shape and the **tint strength** |
+| 🪄 **Convenience** | **Tidy Up assistant** (*Preview*) · **works without Screen Recording** (*Preview*) (app icons instead of live snapshots) · system items such as Clock, Wi-Fi and Battery **pinned visible** (*Preview*) · **macOS 27's own overflow button** (*Preview*): the holzBar Shelf does not list items twice while macOS shows its folded items expanded |
+| 🎨 **Look** | **Menu bar styles** (*Preview*): Single, Paired and **Sections** shapes (Sections on macOS 14 to 26), a **shape of its own for the Apple logo**, **outlines** in the accent colour or a gradient, **vertical gradients**, one gradient per shape and the **tint strength** |
 | 🪵 **Polish** | A [keyboard and VoiceOver checklist](docs/accessibility-checklist.md) to run on a Mac (no accessibility claim until it was run) |
+
+## 🔜 Planned next
+
+**None of this is available yet.** Plans can change; *spike* = only built if a short test shows it works well.
 
 **0.0.9** starts with a new design system (Liquid Glass, one look for every screen), then brings the rest of the automation and more ways to arrange the bar:
 
 | | |
 |---|---|
-| ⚙️ **Automation** | **AppleScript dictionary** · **App Intents** for Shortcuts and Siri · **command palette** · a "focus mode" hotkey · **more rule triggers** (Bluetooth, audio, Energy Mode) |
+| ⚙️ **Automation** | **AppleScript dictionary** · more **App Intents** for Shortcuts and Siri · **command palette** · a "focus mode" hotkey · **more rule triggers** (Bluetooth, audio, Energy Mode) |
 | 🪄 **Convenience** | Opt-in **usage suggestions** (counters stay on your Mac) · **smooth show and hide** · replacement items for Apple items macOS 27 cannot hide · hiding system items such as Clock and Control Center |
 | 🎨 **Look** | **Shelf layouts** (grid, vertical) · **Moods** (saved looks per display or time) |
 | 🪵 **Polish** | Control Center control (*spike*, optional) |
 
-**1.0.0**, the first stable release, brings the redesigned settings sync and the first optional modules:
+**1.0.0** brings the redesigned settings sync and the first optional modules:
 
 | | |
 |---|---|

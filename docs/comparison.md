@@ -1,8 +1,8 @@
 # holzBar vs. Ice, Thaw and Bartender, in detail
 
-What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. — means not available or not documented. 🔜 means planned, with the release (0.0.8, 0.0.9 or 1.0.0): it is **not available yet**.
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. — means not available or not documented. 🔜 means planned, with the release (0.0.9 or 1.0.0): it is **not available yet**.
 
-✅ Preview = built in the 0.0.8 betas and marked with a Preview badge in the app, but not yet tested on a real Mac.
+✅ Preview = built in 0.0.8 and marked with a Preview badge in the app (the Focus filter, which you set up in System Settings, is marked here only), but not yet tested on a real Mac by the maintainer.
 
 | | Ice 0.11.12 | Thaw 3.0 beta | Bartender 7 | holzBar |
 |---|:---:|:---:|:---:|:---:|
@@ -23,7 +23,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | One shape per section of the bar (Sections) | ❌ | — | — | ✅ Preview <sub>macOS 14 – 26</sub> |
 | A shape of its own for the Apple logo | ❌ | — | — | ✅ Preview |
 | Outlines in the accent colour or a gradient; vertical gradients, one gradient per shape, tint strength | ❌ | gradient at any angle | outline and gradient styles | ✅ Preview |
-| Show hidden items on low battery or when offline | ❌ | — | — | ✅ |
+| Show hidden items on low battery or when offline | ❌ | — | — | ✅ Preview <sub>as rules since 0.0.8</sub> |
 | Rules that apply a profile or show items when a Wi-Fi network, an app, the time of day, the power source or a display matches (all or any) | ❌ | ✅ | ✅ | ✅ Preview |
 | Profile applied by a Focus filter | ❌ | ✅ | — | ✅ Preview |
 | Scripts as a rule condition or action | ❌ | ✅ | — | ✅ Preview <sub>from a folder you choose, after you allowed the exact content</sub> |
@@ -68,6 +68,8 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | — | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | — | — | private, enforced by CI |
 | Asks for Screen Recording only when a feature needs it | ❌ | — | ✅ <sub>not required</sub> | ✅ |
+| Asks for Location Services only when you add a Wi-Fi-name condition | — | — | — | ✅ Preview |
+| Scripts run only from a folder you chose and only after you allowed their exact content; never from a URL command, an import or sync | — | — | — | ✅ Preview |
 | Hardened runtime (no injected code or libraries) | ✅ | ✅ | — | ✅ (checked by CI) |
 | No entitlements, not even `get-task-allow` | — | — | — | ✅ from 0.0.7-beta2 (checked by CI and the release) |
 | Settings import accepts only known keys of the right type, in range | — (no import) | — | — | ✅ |
@@ -77,18 +79,19 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Swift packages | 5 | 9 (Sparkle, AXSwift6, CompactSlider, Ifrit, LaunchAtLogin-Modern and others) | closed source | **none** |
 | Swift language mode | Swift 5 | Swift 6 | — | Swift 6 (data-race safety checked by the compiler), built with Swift 6.4 and Xcode 27 |
 | State management | Combine | `@Observable` and Combine | — | `@Observable`, no Combine |
-| Mouse event tap when "Show on hover" is off | always running | — | — | off |
+| Mouse event tap when "Show on hover" is off | always running | — | — | off <sub>macOS 27 keeps a click tap so clicks reach the system items</sub> |
 | Timers and polling while nothing is shown | yes | — | — | only while needed |
-| Settings migration | 6 version steps at every launch | — | — | once, while importing Ice settings |
+| Settings migration | 6 version steps at every launch | — | — | once each: Ice settings while they are imported, holzBar's own older settings at the first launch that needs it |
 | Runtime patching of AppKit (method swizzling) | yes | yes | — | none |
 | Item images in memory | kept | — | — | released when unused |
-| Unit tests run on every change | none | ✅ | — | ✅ 546 |
-| App size | — | — | — | 16.7 MB |
+| Unit tests run on every code change | none | ✅ | — | ✅ 887 |
+| App size | — | — | — | 22.9 MB <sub>CI build of 13 Oct 2026</sub> |
+| Widgets do nothing while hidden: no timer, no refresh | — | — | — | ✅ Preview |
 | **Distribution and maintenance** | | | | |
 | Price and licence | free, open source | free, open source | paid (one-time; Pro yearly; Mega Supporter lifetime), closed source | free, open source (GPL-3.0) |
 | Install and update with Homebrew | ✅ | ✅ | — | ✅ |
 | Updates | Sparkle (dialog can hang on macOS 26) | Sparkle | — | Homebrew |
-| Every bug group of Ice's 282 open reports solved | — | — | — | ✅ confirmed on a Mac in 0.0.6, [see the list](upstream-bugs.md) |
+| Every bug group of Ice's 282 open reports solved | — | — | — | ✅ <sub>all but one group confirmed on a Mac in 0.0.6</sub>, [see the list](upstream-bugs.md) |
 | Signed with a Developer ID | ✅ | — | — | ❌ (own certificate instead; the cask handles quarantine) |
 | Stable signature, so Accessibility survives updates | ✅ | — | — | ✅ (own certificate, [docs/signing.md](signing.md)) |
 | Build provenance attestation (`gh attestation verify`) | ❌ | — | — | ✅, and SLSA Build Level 3 provenance from 0.0.7-beta2 |

@@ -12,4 +12,4 @@ The comparison table is in the [README](../README.md). The raw answers (35 quest
 
 ## How reliable is this?
 
-Most cells are read from the vendor's page, the README or the source. Cells from a single search snippet or a competitor's blog are marked ❓ rather than guessed. holzBar's own architecture (Apple Silicon or universal) is not yet checked.
+Most cells are read from the vendor's page, the README or the source. Cells from a single search snippet or a competitor's blog are marked ❓ rather than guessed. holzBar ships one universal app for Apple Silicon and Intel (the CI build of 13 October 2026 carries arm64 and x86_64).
