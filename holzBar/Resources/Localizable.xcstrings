@@ -6927,6 +6927,34 @@
         }
       }
     },
+    "Layout restored. The layout before it is kept in Layout History." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layout wiederhergestellt. Das Layout davor bleibt im Layoutverlauf."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposition restaurée. La disposition précédente reste dans l'historique de la disposition."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layout ripristinato. Il layout precedente resta nella cronologia del layout."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Layout restaurà. Il layout da avant resta en l'istorgia dal layout."
+          }
+        }
+      }
+    },
     "Leading End Cap" : {
       "localizations" : {
         "de" : {

@@ -33,6 +33,7 @@ struct ProfileHooksSection: View {
                     .font(HolzBarTheme.Typography.caption)
                     .textCase(.uppercase)
                     .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+                    .accessibilityAddTraits(.isHeader)
                 PreviewBadge()
             }
             VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
@@ -107,6 +108,8 @@ struct ProfileHooksSection: View {
             HolzBarTheme.Palette.text.opacity(0.05),
             in: HolzBarTheme.shape(HolzBarTheme.Radius.control)
         )
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text(verbatim: URLPrompt.displayName(hook.scriptName)))
     }
 
     /// The profiles to choose from. A profile the hook names that no longer exists stays in the

@@ -48,6 +48,9 @@ struct LayoutHistorySection: View {
         .confirmationDialog("Restore this layout?", isPresented: isConfirmingRestore, titleVisibility: .visible, presenting: restoreTarget) { target in
             Button("Restore") {
                 snapshots.restore(target)
+                AccessibilityNotification.Announcement(
+                    String(localized: "Layout restored. The layout before it is kept in Layout History.")
+                ).post()
             }
             Button("Cancel", role: .cancel) {}
         } message: { target in
@@ -100,6 +103,8 @@ struct LayoutHistorySection: View {
             .labelStyle(.iconOnly)
             .buttonStyle(.borderless)
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text(verbatim: snapshot.date.formatted(date: .abbreviated, time: .shortened)))
     }
 
     private func reasonText(_ reason: SnapshotReason) -> String {
