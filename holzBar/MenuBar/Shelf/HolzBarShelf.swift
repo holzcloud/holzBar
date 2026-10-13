@@ -704,9 +704,14 @@ private struct HolzBarShelfItemView: View {
             if isHighlighted {
                 RoundedRectangle(cornerRadius: 5, style: .continuous)
                     .fill(Color.primary.opacity(0.2))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+                            .strokeBorder(Color(nsColor: .keyboardFocusIndicatorColor), lineWidth: 2)
+                    }
             }
         }
         .accessibilityAddTraits(.isButton)
+        .accessibilityAddTraits(isHighlighted ? .isSelected : [])
         .accessibilityLabel(item.displayName)
         .accessibilityAction(.default, leftClickAction)
         .accessibilityAction(named: "Open", leftClickAction)
