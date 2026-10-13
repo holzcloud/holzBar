@@ -117,11 +117,7 @@ struct MenuBarLayoutSettingsPane: View {
             let section = appState.menuBarManager.section(withName: name),
             section.isEnabled
         {
-            VStack(alignment: .leading) {
-                Text(name.localized)
-                    .font(.headline)
-                    .padding(.leading, 8)
-
+            HolzBarSection(name.localized) {
                 LayoutBar(imageCache: appState.imageCache, section: name)
             }
         }

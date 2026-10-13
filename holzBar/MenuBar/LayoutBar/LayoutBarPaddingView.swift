@@ -16,6 +16,10 @@ final class LayoutBarPaddingView: NSView {
         set { container.arrangedViews = newValue }
     }
 
+    /// Called with `true` when an item is dragged over the bar and with `false` when the drag
+    /// leaves it or ends. Only the look of the bar follows it.
+    var onDropTargetChange: ((Bool) -> Void)?
+
     /// Creates a layout bar view with the given app state, section, and spacing.
     ///
     /// - Parameters:
@@ -44,10 +48,14 @@ final class LayoutBarPaddingView: NSView {
     }
 
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-        container.updateArrangedViewsForDrag(with: sender, phase: .entered)
+        if sender.draggingSource is LayoutBarItemView {
+            onDropTargetChange?(true)
+        }
+        return container.updateArrangedViewsForDrag(with: sender, phase: .entered)
     }
 
     override func draggingExited(_ sender: NSDraggingInfo?) {
+        onDropTargetChange?(false)
         if let sender {
             container.updateArrangedViewsForDrag(with: sender, phase: .exited)
         }
@@ -58,11 +66,13 @@ final class LayoutBarPaddingView: NSView {
     }
 
     override func draggingEnded(_ sender: NSDraggingInfo) {
+        onDropTargetChange?(false)
         container.updateArrangedViewsForDrag(with: sender, phase: .ended)
     }
 
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         defer {
+            onDropTargetChange?(false)
             Task {
                 self.container.canSetArrangedViews = true
             }

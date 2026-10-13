@@ -54,6 +54,25 @@ struct EmptyState: View {
     }
 }
 
+/// The quiet one-line variant of ``EmptyState`` for a strip that is only a few points tall,
+/// such as a section of the menu bar layout: secondary text, no symbol, no button.
+struct CompactEmptyState: View {
+    private let message: Text
+
+    init(message: Text) {
+        self.message = message
+    }
+
+    var body: some View {
+        message
+            .font(HolzBarTheme.Typography.callout)
+            .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .padding(.horizontal, HolzBarTheme.Spacing.sm)
+    }
+}
+
 #Preview("EmptyState") {
     EmptyState(
         systemImage: "tray",
