@@ -18,6 +18,12 @@ final class LayoutBarScrollView: NSScrollView {
         set { paddingView.arrangedViews = newValue }
     }
 
+    /// Called when an item is dragged over the bar or leaves it again.
+    var onDropTargetChange: ((Bool) -> Void)? {
+        get { paddingView.onDropTargetChange }
+        set { paddingView.onDropTargetChange = newValue }
+    }
+
     /// Creates a layout bar scroll view with the given app state, section, and spacing.
     ///
     /// - Parameters:
@@ -39,7 +45,7 @@ final class LayoutBarScrollView: NSScrollView {
         NSLayoutConstraint.activate([
             paddingView.heightAnchor.constraint(equalTo: contentView.heightAnchor),
             paddingView.widthAnchor.constraint(greaterThanOrEqualTo: contentView.widthAnchor),
-            paddingView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            paddingView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
         ])
     }
 
