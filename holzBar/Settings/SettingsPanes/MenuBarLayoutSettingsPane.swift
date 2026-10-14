@@ -51,6 +51,9 @@ struct MenuBarLayoutSettingsPane: View {
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
                 SpacersSection(spacers: appState.spacers)
                 WidgetsModuleSection()
+                if MenuBarDragController.isSupported {
+                    MenuBarDragModuleSection()
+                }
                 if #available(macOS 27.0, *) {
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }

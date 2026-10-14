@@ -4827,6 +4827,34 @@
         }
       }
     },
+    "Drag in the Menu Bar" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ziehen in der Menüleiste"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glisser dans la barre des menus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trascinare nella barra dei menu"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tirar en la trav da menu"
+          }
+        }
+      }
+    },
     "Drag to arrange your menu bar items into different sections." : {
       "localizations" : {
         "de" : {
@@ -4907,6 +4935,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dissegna la trav da menu tut naira, uschia che la notch svanescha en ella. Il meglier en il modus stgir, nua ch'il text da la trav è cler."
+          }
+        }
+      }
+    },
+    "Drop an item on the holzBar icon to hide its app." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lege ein Element auf dem holzBar-Symbol ab, um seine App auszublenden."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déposez un élément sur l'icône de holzBar pour masquer son app."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rilascia un elemento sull'icona di holzBar per nasconderne l'app."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascha crudar in element sin il simbol da holzBar per zuppentar sia app."
           }
         }
       }
@@ -8155,6 +8211,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Spustar si"
+          }
+        }
+      }
+    },
+    "Move menu bar items by dragging them, without holding ⌘ Command." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verschiebe Menüleistenelemente durch Ziehen, ohne die ⌘ Befehlstaste zu halten."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacez les éléments de la barre des menus en les faisant glisser, sans maintenir ⌘ Commande."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sposta gli elementi della barra dei menu trascinandoli, senza tenere premuto ⌘ Comando."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spusta ils elements da la trav da menu cun tirar, senza tegnair ⌘ Command."
           }
         }
       }

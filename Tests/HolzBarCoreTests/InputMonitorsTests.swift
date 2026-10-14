@@ -96,6 +96,16 @@ struct InputMonitorsTests {
         #expect(!kinds.contains(.mouseDragged))
     }
 
+    @Test("Drag in the Menu Bar needs its tap only while the module is on")
+    func dragInTheMenuBarNeedsItsTapOnlyWhileOn() {
+        #expect(!InputMonitors.needed(for: Self.defaults).contains(.menuBarDrag))
+        #expect(!InputMonitors.needed(for: InputMonitors.Settings()).contains(.menuBarDrag))
+        #expect(InputMonitors.needed(for: InputMonitors.Settings(dragsWithoutCommand: true)) == [.menuBarDrag])
+        var settings = Self.defaults
+        settings.dragsWithoutCommand = true
+        #expect(InputMonitors.needed(for: settings).contains(.menuBarDrag))
+    }
+
     @Test("The space click monitor runs only where a click can change the space")
     func spaceClickMonitorRunsOnlyWhereNeeded() {
         #expect(!InputMonitors.needsSpaceClickMonitor(isFullscreenSpace: false, screenCount: 1))
