@@ -30,10 +30,23 @@ struct ModuleCatalogTests {
         #expect(widgets.permission == nil)
         #expect(widgets.symbol == "clock")
         #expect(widgets.titleKey == "Widgets")
-        #expect(ModuleCatalog.modules(in: .menuBar) == [widgets])
+        #expect(ModuleCatalog.modules(in: .menuBar).first == widgets)
         // Off until the user switches it on; a switch that was turned on survives a relaunch.
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.enabledIdentifiers(["widgets"], knownTo: ModuleCatalog.all) == ["widgets"])
+    }
+
+    @Test("Drag in the Menu Bar is an optional menu bar module without a permission")
+    func menuBarDragModule() throws {
+        let drag = try #require(ModuleCatalog.all.first { $0.id == "menu-bar-drag" })
+        #expect(drag.area == .menuBar)
+        #expect(drag.permission == nil)
+        #expect(drag.symbol == "arrow.left.arrow.right")
+        #expect(drag.titleKey == "Drag in the Menu Bar")
+        #expect(ModuleCatalog.modules(in: .menuBar).map(\.id) == ["widgets", "menu-bar-drag"])
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["menu-bar-drag"], knownTo: ModuleCatalog.all) == ["menu-bar-drag"])
     }
 
     @Test("Identifiers are lowercase words joined by single hyphens")

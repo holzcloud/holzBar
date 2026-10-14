@@ -25,6 +25,9 @@ nonisolated enum InputMonitors {
         case mouseMoved
         /// Scroll wheel: show on scroll.
         case scrollWheel
+        /// Left mouse-down, dragged and up as an active tap: a plain drag of an app's menu bar
+        /// item moves it (Drag in the Menu Bar, macOS 26 and later).
+        case menuBarDrag
     }
 
     /// The settings that decide which monitors run.
@@ -45,6 +48,8 @@ nonisolated enum InputMonitors {
         /// Whether a custom menu bar appearance draws overlay panels, which fade while
         /// an item is dragged.
         var hasCustomAppearance = false
+        /// Whether the Drag in the Menu Bar module is on and the macOS supports it.
+        var dragsWithoutCommand = false
     }
 
     /// The monitors the given settings need.
@@ -69,6 +74,9 @@ nonisolated enum InputMonitors {
         // Only the mouse-up, one event per click: a Command-drag on the bar ends with it.
         if settings.savesUserArrangement {
             kinds.insert(.mouseUp)
+        }
+        if settings.dragsWithoutCommand {
+            kinds.insert(.menuBarDrag)
         }
         return kinds
     }
