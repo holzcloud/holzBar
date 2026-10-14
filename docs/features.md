@@ -184,7 +184,7 @@ Window management (app switcher, Dock previews, layouts), mouse and keyboard twe
 
 Each module is optional and costs nothing while it is off. It asks for its permission only when you switch it on, and says why. No module uses the network. **All AI features run on your Mac with Apple's own on-device models.** Cloud features, weather, speed tests, fan control, a charge limit and a hosts-file blocker are not planned.
 
-The comparison tables in the [README](../README.md#-holzbar-vs-everyone-else) and in [comparison.md](comparison.md) mark these with 🔜 and the release.
+The comparison tables in [comparison.md](comparison.md) mark these with 🔜 and the release.
 
 ## Gallery
 

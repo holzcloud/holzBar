@@ -1,5 +1,23 @@
 # Build and troubleshooting
 
+## Install, update and switch channel
+
+Both Homebrew channels come from the same tap and install the same `holzBar.app`, so they conflict. `brew trust` is needed once per cask, because Homebrew only installs casks from third-party taps that you have trusted. Quit Ice, Thaw, Bartender or Hidden Bar first; your Ice settings are imported on the first launch.
+
+**Update:** `brew update && brew upgrade --cask holzbar` (or `holzbar@beta`). Without `brew update` Homebrew may not have fetched the tap yet. Coming from 0.0.5? It was a different app and cask; the [0.0.6 release notes](release-notes/v0.0.6.md) list the steps.
+
+**Switch channel:** uninstall one cask and install the other; your settings stay.
+
+```sh
+brew uninstall --cask holzbar
+brew trust --cask holzcloud/holzbar/holzbar@beta
+brew install --cask holzcloud/holzbar/holzbar@beta
+```
+
+The other way round: `brew uninstall --cask holzbar@beta`, then trust and install `holzcloud/holzbar/holzbar`.
+
+**If macOS says holzBar "can't be opened":** `xattr -dr com.apple.quarantine /Applications/holzBar.app`, then open it again. The release is signed with holzBar's own certificate (SHA-256 `e55f0df15060b8c06c6842ccee85e6bc9f86cbbda3bd408abf991457840b1d95`) rather than a Developer ID.
+
 ## Troubleshooting
 
 **"holzBar cannot arrange menu bar items in automatically hidden menu bars."** holzBar can only arrange the items while the menu bar stays visible. Open **System Settings → Control Center**, set **Automatically hide and show the menu bar** to **Never**, arrange your items in holzBar, then set the option back to what you had.

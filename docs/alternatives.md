@@ -1,6 +1,6 @@
 # Notes on the comparison
 
-The comparison table is in the [README](../README.md). The raw answers (35 questions per app, each with a source quote and a confidence) are kept in the private planning repository.
+The full comparison table is in [comparison.md](comparison.md#against-every-other-menu-bar-manager); the README has a short version. The raw answers (35 questions per app, each with a source quote and a confidence) are kept in the private planning repository.
 
 ## Also seen
 
