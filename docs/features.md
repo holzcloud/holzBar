@@ -9,6 +9,7 @@
 - ✅ Show on hover, click or scroll (trackpad **and mouse wheel**)
 - ✅ Automatic rehide
 - ✅ Drag-and-drop layout editor
+- ✅ **Drag items in the menu bar without ⌘ Command** (*Preview*, macOS 26 and 27) — an optional module in Menu Bar Layout, off until you switch it on
 - ✅ **Layout profiles** — "Work", "Home", … one click, hotkey or URL away
 - ✅ **Profiles bound to a display or a Space** — applied when you connect the display or switch to the Space
 - ✅ **Groups** (folders) — several items behind an icon of their own, in a colour and with a symbol or image of your choice
@@ -99,6 +100,7 @@
 - **Tidy Up assistant** (*Preview*): proposes which visible items to hide from static facts only (system extras, the app's category, a short list of known helpers); live values, the clock, the battery and apps with messages stay. You decide item by item, the arrangement is kept as a snapshot first, and nothing is recorded. Offered once after the first launch when nothing was arranged yet, and any time from Menu Bar Layout.
 - **Works without Screen Recording** (*Preview*): the Menu Bar Layout pane, the Shelf and the search show app icons instead of live pictures, with an offer to allow Screen Recording for the pictures.
 - **System items pinned visible** (*Preview*, macOS 26 and earlier): profiles, restored layouts and rules leave the clock, battery, Wi-Fi, Control Center and sound where they are; you can still move them yourself.
+- **Drag in the menu bar** (*Preview*, macOS 26 and 27): an optional module in Menu Bar Layout, off until you switch it on. Drag an app's item sideways to move it, with no ⌘ Command; on macOS 26 drag it past holzBar's divider into the hidden or always-hidden section. On macOS 27 drop it on the holzBar icon to hide its app, or drag a hidden app's item elsewhere while it shows to make the app visible again; the order within a section is up to macOS. On macOS 26 every drop is kept like a move in Menu Bar Layout; on macOS 27 only a drop that hides or shows an app is, and a plain reorder is macOS's own. A click opens the item's menu when you release it; Apple's own items, holzBar's items, ⌘, ⌃ and ⌥ clicks and double-clicks work as before. holzBar watches only the left mouse button, only while the module is on, with no permission beyond Accessibility.
 
 **Polish**
 - A [keyboard and VoiceOver checklist](accessibility-checklist.md) to run on a Mac; holzBar makes no accessibility claim until it was run.
@@ -117,11 +119,12 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Paired shape** (the former split shape) that follows the icons, on every display
 - **Menu bar styles** (*Preview*): Single, Paired, the Apple-logo shape, outlines and gradients as on macOS 26; Sections is not offered. See [macOS 27 notes](macos27.md#menu-bar-styles)
 - **macOS 27's own overflow button** (*Preview*): while macOS shows its folded items expanded beside the notch, the holzBar Shelf does not list them a second time; in any doubt it lists them as before. See [macOS 27 notes](macos27.md#macos-27s-own-overflow-button)
+- **Drag in the menu bar** (*Preview*): with the optional module on, drag an item without ⌘ to move it as macOS allows, or drop it on the holzBar icon to hide its app. See [macOS 27 notes](macos27.md#drag-items-in-the-menu-bar)
 - **A dot on holzBar's icon** while hidden items are concealed and an app uses the microphone (orange) or the camera (green), in place of Control Centre's indicator. On by default in Settings → General, with no permission; the icon appears for the dot even when **Show holzBar icon** is off
 
 **Known limitations on macOS 27**
 
-- Items can't be reordered on the bar itself — only assigned to sections.
+- holzBar cannot reorder items on the bar by itself: Menu Bar Layout, profiles and rules only assign sections. Dragging an item yourself (with ⌘, or without it while **Drag in the Menu Bar** is on, *Preview*) places it where macOS lets it go.
 - Opening a system item (clock, battery, Wi-Fi) while hidden items are concealed adds ~150 ms.
 - **Control Centre's privacy indicator is hidden while items are hidden.** Its indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item, and comes back while holzBar hides no item. holzBar's dot covers the microphone and the camera, not screen recording; the small green dot beside the clock still shows the camera. See [Permissions](privacy-and-permissions.md#permissions).
 - Coming from 0.0.5 or earlier, macOS asks for Accessibility once more. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.

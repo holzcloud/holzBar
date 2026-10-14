@@ -16,6 +16,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Groups and spacers | ❌ | ✅ | — | ✅ |
 | Folders with their own icon and colour; item images of your choice | ❌ | ✅ | — | ✅ |
 | Choose where new items appear | ❌ | — | — | ✅ |
+| Move items in the menu bar by dragging, without ⌘ Command | ❌ | — | — | ✅ Preview <sub>macOS 26 and 27</sub> |
 | Bar only on some displays, notch overflow | ❌ | — | — | ✅ |
 | Shelf and macOS 27's own overflow button: no item listed twice | ❌ | — | — | ✅ Preview |
 | Black menu bar, rounded screen corners | ❌ | corners only | — | ✅ |
