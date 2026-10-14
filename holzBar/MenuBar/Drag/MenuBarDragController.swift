@@ -56,6 +56,9 @@ final class MenuBarDragController {
     /// test reads the bar as the drop left it.
     private var isHandlingDrop = false
 
+    /// The longest callback of this run, written to the log when the tap stops.
+    private var longestCallback = Duration.zero
+
     private let eventSource = CGEventSource(stateID: .hidSystemState)
     private let logger = Logger(category: "MenuBarDrag")
     private let generation: MenuBarDrop.Generation
@@ -99,6 +102,9 @@ final class MenuBarDragController {
         tap = nil
         decider.reset()
         gesture = nil
+        let longest = Self.microseconds(of: longestCallback)
+        logger.debug("The longest tap callback of this run took \(longest, privacy: .public) µs")
+        longestCallback = .zero
     }
 
     /// Creates the tap's port again if it is missing or invalid.
@@ -117,6 +123,10 @@ final class MenuBarDragController {
 
     /// Handles an event of the tap; returns `nil` for an event that is held back.
     private func handle(_ event: CGEvent) -> CGEvent? {
+        let start = ContinuousClock.now
+        defer {
+            noteDuration(of: start)
+        }
         guard event.getIntegerValueField(.eventSourceUserData) != Self.replayMarker else {
             return event
         }
@@ -132,21 +142,47 @@ final class MenuBarDragController {
         }
     }
 
+    /// Keeps the longest callback of the run and logs one that takes more than a millisecond.
+    private func noteDuration(of start: ContinuousClock.Instant) {
+        let duration = ContinuousClock.now - start
+        longestCallback = max(longestCallback, duration)
+        if duration > .milliseconds(1) {
+            logger.debug("A tap callback took \(Self.microseconds(of: duration), privacy: .public) µs")
+        }
+    }
+
+    private static func microseconds(of duration: Duration) -> Int64 {
+        let parts = duration.components
+        return parts.seconds * 1_000_000 + parts.attoseconds / 1_000_000_000_000
+    }
+
     private func handleDown(_ event: CGEvent) -> CGEvent? {
         decider.reset()
         gesture = nil
         let location = event.location
         guard
-            !isHandlingDrop,
             let appState,
-            !appState.activeSpace.isFullscreen,
-            !appState.menuBarManager.isMenuBarHiddenBySystem,
-            !event.flags.contains(.maskCommand),
             let displayID = Self.displayID(at: location),
             location.y - CGDisplayBounds(displayID).minY <= Self.barStripHeight,
-            let bar = pressBar(on: displayID),
-            let hit = bar.item(at: location),
-            hit.kind == .app,
+            let bar = pressBar(on: displayID)
+        else {
+            return event
+        }
+        let hit = bar.item(at: location)
+        let flags = event.flags
+        let press = MenuBarDragPress(
+            isOnAppItem: hit?.kind == .app,
+            isBarShown: !appState.activeSpace.isFullscreen && !appState.menuBarManager.isMenuBarHiddenBySystem,
+            isHandlingDrop: isHandlingDrop,
+            isPostedByHolzBar: Self.isPostedByHolzBar(event),
+            hasCommand: flags.contains(.maskCommand),
+            hasControl: flags.contains(.maskControl),
+            hasOption: flags.contains(.maskAlternate),
+            clickCount: Int(event.getIntegerValueField(.mouseEventClickState))
+        )
+        guard
+            press.isHeld,
+            let hit,
             let item = appState.itemManager.itemCache.managedItems.first(where: { $0.windowID == hit.id })
         else {
             return event
@@ -156,11 +192,18 @@ final class MenuBarDragController {
             dragged: item,
             draggedID: hit.id,
             pressBar: bar,
-            pressFlags: event.flags,
+            pressFlags: flags,
             currentSection: appState.itemManager.itemCache.address(for: item.tag).map { Self.section($0.section) },
             displayID: displayID
         )
         return nil
+    }
+
+    /// Whether holzBar posted the event: from its own process, or the click that makes a display's
+    /// menu bar active.
+    private static func isPostedByHolzBar(_ event: CGEvent) -> Bool {
+        event.getIntegerValueField(.eventSourceUnixProcessID) == Int64(ProcessInfo.processInfo.processIdentifier)
+            || event.getIntegerValueField(.eventSourceUserData) == HIDEventManager.menuBarActivationMarker
     }
 
     private func handleDragged(_ event: CGEvent) -> CGEvent? {

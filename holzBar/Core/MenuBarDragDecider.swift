@@ -120,3 +120,46 @@ nonisolated struct MenuBarDragDecider: Equatable, Sendable {
         return action
     }
 }
+
+/// The presses the drag tap holds back.
+///
+/// Everything else reaches its target unchanged, so ⌘-drags, ⌥ Option menus, ⌃ Control clicks and
+/// double-clicks behave as without the module.
+nonisolated struct MenuBarDragPress: Equatable, Sendable {
+    /// Whether the press is on an app's item.
+    var isOnAppItem: Bool
+
+    /// Whether the menu bar is shown: not on a full-screen Space and not hidden by macOS.
+    var isBarShown: Bool
+
+    /// Whether a drop is being handled.
+    var isHandlingDrop: Bool
+
+    /// Whether holzBar itself posted the press.
+    var isPostedByHolzBar: Bool
+
+    /// Whether ⌘ Command is held.
+    var hasCommand: Bool
+
+    /// Whether ⌃ Control is held.
+    var hasControl: Bool
+
+    /// Whether ⌥ Option is held.
+    var hasOption: Bool
+
+    /// The click count of the press; 0 for an event that carries none.
+    var clickCount: Int
+
+    /// Whether the tap holds the press back: a plain single press on an app's item that the user
+    /// made while the bar is shown and no drop is handled.
+    var isHeld: Bool {
+        isOnAppItem
+            && isBarShown
+            && !isHandlingDrop
+            && !isPostedByHolzBar
+            && !hasCommand
+            && !hasControl
+            && !hasOption
+            && clickCount <= 1
+    }
+}

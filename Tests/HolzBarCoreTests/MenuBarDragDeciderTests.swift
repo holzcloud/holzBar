@@ -96,3 +96,88 @@ struct MenuBarDragDeciderTests {
         #expect(decider.mouseUp(at: press, time: 1.1) == .pass)
     }
 }
+
+@Suite("MenuBarDragPress")
+struct MenuBarDragPressTests {
+    /// A plain single press on an app item of a shown bar that the user made.
+    private let plain = MenuBarDragPress(
+        isOnAppItem: true,
+        isBarShown: true,
+        isHandlingDrop: false,
+        isPostedByHolzBar: false,
+        hasCommand: false,
+        hasControl: false,
+        hasOption: false,
+        clickCount: 1
+    )
+
+    @Test("A plain single press on an app item of a shown bar is held")
+    func plainPress() {
+        #expect(plain.isHeld)
+    }
+
+    @Test("A press with Command is not held")
+    func command() {
+        var press = plain
+        press.hasCommand = true
+        #expect(!press.isHeld)
+    }
+
+    @Test("A press with Control is not held")
+    func control() {
+        var press = plain
+        press.hasControl = true
+        #expect(!press.isHeld)
+    }
+
+    @Test("A press with Option is not held")
+    func option() {
+        var press = plain
+        press.hasOption = true
+        #expect(!press.isHeld)
+    }
+
+    @Test("The second and the third press of a multiple click are not held")
+    func multipleClicks() {
+        var press = plain
+        press.clickCount = 2
+        #expect(!press.isHeld)
+        press.clickCount = 3
+        #expect(!press.isHeld)
+    }
+
+    @Test("An event without a click count is held")
+    func noClickCount() {
+        var press = plain
+        press.clickCount = 0
+        #expect(press.isHeld)
+    }
+
+    @Test("A press that holzBar posted is not held")
+    func postedByHolzBar() {
+        var press = plain
+        press.isPostedByHolzBar = true
+        #expect(!press.isHeld)
+    }
+
+    @Test("A press that is not on an app item is not held")
+    func notOnAnAppItem() {
+        var press = plain
+        press.isOnAppItem = false
+        #expect(!press.isHeld)
+    }
+
+    @Test("A press while the bar is not shown is not held")
+    func barNotShown() {
+        var press = plain
+        press.isBarShown = false
+        #expect(!press.isHeld)
+    }
+
+    @Test("A press while a drop is handled is not held")
+    func handlingDrop() {
+        var press = plain
+        press.isHandlingDrop = true
+        #expect(!press.isHeld)
+    }
+}
