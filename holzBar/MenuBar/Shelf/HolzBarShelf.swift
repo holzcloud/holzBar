@@ -276,6 +276,14 @@ final class HolzBarShelfPanel: NSPanel {
         if acceptsKeyboard {
             makeKey()
         }
+        if ScreenRecordingAccess.shouldOfferOnce(appState) {
+            // The first time the Shelf opens, a window offers Screen Recording. The Shelf closes
+            // first: it would cover the window, and a click on its icon opens it again.
+            Task {
+                hide()
+                ScreenRecordingAccess.offerOnce(for: .shelf, appState: appState)
+            }
+        }
         if #available(macOS 27.0, *) {
             let elapsed = (ContinuousClock.now - requestedAt).components
             let milliseconds = Double(elapsed.seconds) * 1000 + Double(elapsed.attoseconds) / 1e15
@@ -593,14 +601,8 @@ private struct HolzBarShelfContentView: View {
                 .padding(.horizontal, 10)
         } else {
             // Without Screen Recording the items show their apps' icons (or the images chosen
-            // for them); the first time the Shelf opens, a window offers their real pictures.
+            // for them); the first time the Shelf opens, a window offers their real pictures (see `show(section:on:)`).
             itemsScrollView
-                .task {
-                    ScreenRecordingAccess.offerOnce(for: .shelf, appState: appState) {
-                        // The Shelf would cover the window.
-                        menuBarManager.section(withName: section)?.hide()
-                    }
-                }
         }
     }
 

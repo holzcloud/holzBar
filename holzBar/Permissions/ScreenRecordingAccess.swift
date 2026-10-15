@@ -20,6 +20,11 @@ enum ScreenRecordingAccess {
         appState.permissions.screenRecording.hasPermission
     }
 
+    /// Whether the offer in ``offerOnce(for:appState:willRequest:)`` is still due.
+    static func shouldOfferOnce(_ appState: AppState) -> Bool {
+        !isGranted(appState) && !Defaults.bool(forKey: .screenRecordingOffered)
+    }
+
     /// Asks once, in a window, whether holzBar may use Screen Recording for the pictures in the
     /// holzBar Shelf, and remembers that it asked. Without the permission the Shelf shows the
     /// apps' icons; the Permissions window can still allow or revoke it later.
@@ -27,7 +32,7 @@ enum ScreenRecordingAccess {
     /// - Parameter willRequest: Runs before the window, for example to hide a panel that would
     ///   cover it.
     static func offerOnce(for feature: ScreenRecordingFeature, appState: AppState, willRequest: () -> Void = {}) {
-        guard !isGranted(appState), !Defaults.bool(forKey: .screenRecordingOffered) else {
+        guard shouldOfferOnce(appState) else {
             return
         }
         Defaults.set(true, forKey: .screenRecordingOffered)
