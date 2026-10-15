@@ -685,6 +685,11 @@ private struct HolzBarShelfItemView: View {
         Group {
             if let image {
                 Image(nsImage: image)
+            } else if item.displayName == MenuBarItem.fallbackDisplayName {
+                // An item of an unknown app: a quiet symbol instead of the same words many times.
+                Image(systemName: "app.dashed")
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
             } else {
                 Text(item.displayName)
                     .font(.caption)

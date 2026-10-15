@@ -99,6 +99,9 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
         return NSRunningApplication(processIdentifier: sourcePID)
     }
 
+    /// The name of an item whose app is unknown.
+    static let fallbackDisplayName = "Menu Bar Item"
+
     // TODO: Generate this once, during initialization.
     /// A name associated with the item, suited for display.
     var displayName: String {
@@ -120,7 +123,7 @@ nonisolated struct MenuBarItem: CustomStringConvertible {
             return Constants.displayName
         }
 
-        lazy var fallbackName = "Menu Bar Item"
+        lazy var fallbackName = Self.fallbackDisplayName
 
         guard let sourceApplication else {
             return fallbackName
