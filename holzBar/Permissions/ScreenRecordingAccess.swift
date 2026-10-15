@@ -57,7 +57,7 @@ struct ScreenRecordingHint: View {
     /// The shared app state.
     let appState: AppState
 
-    /// Whether the hint fits on one line, as in the holzBar Shelf.
+    /// Whether the hint is only the badge and the link, as in the holzBar Shelf; the tooltip says the rest.
     var isCompact = false
 
     /// Runs before the request, for example to hide a panel that would cover the prompt.
@@ -71,14 +71,12 @@ struct ScreenRecordingHint: View {
     var body: some View {
         if isCompact {
             HStack {
-                Text(feature.reason.localizedFromCatalog)
-                    .lineLimit(1)
                 PreviewBadge()
                 allowButton
                     .buttonStyle(.plain)
                     .foregroundStyle(.link)
             }
-            .help(reopenNote)
+            .help("\(feature.reason.localizedFromCatalog) \(reopenNote)")
         } else {
             VStack(spacing: 8) {
                 HStack(spacing: HolzBarTheme.Spacing.sm) {
