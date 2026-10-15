@@ -199,6 +199,9 @@ nonisolated extension Defaults {
         case revealRules = "RevealRules"
         /// Whether the clean-up assistant was offered once, at the first launch.
         case cleanUpOffered = "CleanUpOffered"
+        /// Whether the holzBar Shelf asked once whether it may use Screen Recording; the answer is
+        /// kept, so it never asks again. Local to the Mac.
+        case screenRecordingOffered = "ScreenRecordingOffered"
         /// Whether the pinned system items may be moved into hidden sections (they may not by default).
         case systemItemsMayHide = "SystemItemsMayHide"
         /// Whether showing the hidden items asks for Touch ID or the password. Local to the
@@ -296,6 +299,7 @@ nonisolated extension Defaults.Key {
             .keepsDockIconHidden,
             .layoutSnapshotsDisabled,
             .cleanUpOffered,
+            .screenRecordingOffered,
             .systemItemsMayHide,
             .lockHiddenItems,
             .enableSecondaryContextMenu,
@@ -426,6 +430,7 @@ nonisolated extension Defaults.Key {
         .syncsSettingsWithICloud,
         .lockHiddenItems,
         .cleanUpOffered,
+        .screenRecordingOffered,
         .widgetShortcutNames,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,

@@ -592,18 +592,15 @@ private struct HolzBarShelfContentView: View {
             Text("Unable to display menu bar items")
                 .padding(.horizontal, 10)
         } else {
-            HStack(spacing: 0) {
-                if !ScreenRecordingAccess.isGranted(appState) {
-                    // Without Screen Recording the items show their apps' icons (or the
-                    // images chosen for them); the hint offers their real pictures.
-                    ScreenRecordingHint(feature: .shelf, appState: appState, isCompact: true) {
-                        // The Shelf would cover the system prompt.
+            // Without Screen Recording the items show their apps' icons (or the images chosen
+            // for them); the first time the Shelf opens, a window offers their real pictures.
+            itemsScrollView
+                .task {
+                    ScreenRecordingAccess.offerOnce(for: .shelf, appState: appState) {
+                        // The Shelf would cover the window.
                         menuBarManager.section(withName: section)?.hide()
                     }
-                    .padding(.horizontal, 10)
                 }
-                itemsScrollView
-            }
         }
     }
 

@@ -36,7 +36,7 @@ If you looked for an Ice fork that runs on macOS 27, or a free Bartender alterna
 - **Works on macOS 26 and 27.** A dedicated backend for the redesigned macOS 27 menu bar. Every pull request that changes code launches the app on both and runs the unit tests there. It needs macOS 14 or later; older versions are not tested.
 - **Never online.** No update checks, telemetry or analytics, and a CI check proves the app contains no network code.
 - **No dependencies, modern Swift.** Swift 6 language mode, built with Swift 6.4 and Xcode 27, no third-party packages.
-- **Least privilege.** Accessibility at first launch, Screen Recording only when a feature needs it, Location Services only when you add a Wi-Fi-name condition to a rule. Since 0.0.7-beta2: one executable, no helper process, no entitlements.
+- **Least privilege.** Accessibility at first launch, Screen Recording optional, for pictures of your items, Location Services only when you add a Wi-Fi-name condition to a rule. Since 0.0.7-beta2: one executable, no helper process, no entitlements.
 - **Verifiable releases.** Signed with holzBar's own certificate, with GitHub build provenance and, since 0.0.7-beta2, SLSA Build Level 3 provenance.
 - **More than Ice.** Rules, scripts and widgets (Preview), profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a black menu bar, and a camera and microphone dot on macOS 27. Available in English, German, French, Italian and Romansh.
 

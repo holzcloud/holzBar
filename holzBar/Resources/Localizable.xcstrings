@@ -16985,34 +16985,6 @@
         }
       }
     },
-    "holzBar asks for it the first time you use one of these." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar fragt danach, wenn du eine dieser Funktionen zum ersten Mal verwendest."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar la demande la première fois que vous utilisez l'une de ces fonctions."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar la chiede la prima volta che usi una di queste funzioni."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar dumonda per quai l'emprima giada che ti duvras ina da questas funcziuns."
-          }
-        }
-      }
-    },
     "holzBar can propose which items to hide, from what it knows of your apps. Nothing leaves your Mac, you decide, and you can undo it. You can do this any time in Menu Bar Layout." : {
       "localizations" : {
         "de" : {
@@ -18549,6 +18521,118 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "«%@» ha dovrà memia ditg per respunder"
+          }
+        }
+      }
+    },
+    "Show real pictures of your menu bar items?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Echte Bilder deiner Menüleisten-Symbole zeigen?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher les vraies images de vos éléments de la barre des menus ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrare le immagini reali degli elementi della barra dei menu?"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar las vairas maletgs da tes elements da la bara da menus?"
+          }
+        }
+      }
+    },
+    "Without it holzBar shows the apps' icons. You can change this any time in Permissions." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ohne sie zeigt holzBar die Symbole der Apps. Du kannst das jederzeit unter Berechtigungen ändern."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sans elle, holzBar affiche les icônes des apps. Vous pouvez le modifier à tout moment dans Autorisations."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senza, holzBar mostra le icone delle app. Puoi cambiarlo in qualsiasi momento in Autorizzazioni."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senza mussa holzBar las icònas da las apps. Ti pos midar quai mintga mument sut Permissiuns."
+          }
+        }
+      }
+    },
+    "Optional. Without it holzBar shows the apps' icons." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional. Ohne sie zeigt holzBar die Symbole der Apps."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Facultatif. Sans elle, holzBar affiche les icônes des apps."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Facoltativo. Senza, holzBar mostra le icone delle app."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opziunal. Senza mussa holzBar las icònas da las apps."
+          }
+        }
+      }
+    },
+    "Revoke Permission" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Berechtigung widerrufen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Révoquer l’autorisation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revoca l’autorizzazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocar la permissiun"
           }
         }
       }

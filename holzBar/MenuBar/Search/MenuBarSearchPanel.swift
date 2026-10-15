@@ -225,14 +225,6 @@ private struct MenuBarSearchContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             searchField
-            if !ScreenRecordingAccess.isGranted(appState) {
-                // Names stay searchable without pictures.
-                ScreenRecordingHint(feature: .search, appState: appState, isCompact: true, willRequest: closePanel)
-                    .font(.callout)
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 10)
-                Divider()
-            }
             mainContent
             bottomBar
         }
