@@ -58,6 +58,31 @@ struct DiagnosticsReportTests {
         #expect(text.split(separator: "\n").count == 11)
     }
 
+    @Test("Without an overflow state the report has no overflow line")
+    func noOverflowLine() {
+        let text = DiagnosticsReport.make(sample)
+        #expect(text.split(separator: "\n").count == 11)
+        #expect(!text.contains("overflow"))
+    }
+
+    @Test("The overflow state of macOS 27 is one last line")
+    func overflowLine() {
+        var input = sample
+        input.nativeOverflow = "expanded"
+        let lines = DiagnosticsReport.make(input).split(separator: "\n")
+        #expect(lines.count == 12)
+        #expect(lines.last == "macOS 27 overflow: expanded")
+    }
+
+    @Test("A hostile overflow state stays on one clean line")
+    func hostileOverflowState() {
+        var input = sample
+        input.nativeOverflow = "expanded\n/Users/anna"
+        let text = DiagnosticsReport.make(input)
+        #expect(text.split(separator: "\n").count == 12)
+        #expect(!text.contains("/"))
+    }
+
     @Test("The report holds no path separators or quotes from a field")
     func noPathsFromFields() {
         var input = sample

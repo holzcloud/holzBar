@@ -12,6 +12,8 @@ struct AutomationSettingsPane: View {
     @Bindable var manager: AutomationManager
     @State private var editingID: UUID?
     @State private var deletionID: UUID?
+    /// The rule added last: its editor puts the keyboard focus into the Name field.
+    @State private var focusedNewRuleID: UUID?
 
     private var profileNames: [String] {
         appState.profiles.profiles.map(\.name)
@@ -47,6 +49,7 @@ struct AutomationSettingsPane: View {
                 Button("Add Rule", systemImage: "plus") {
                     addRule()
                 }
+                .disabled(manager.rules.count >= AutomationRule.maximumCount)
                 Text("Rules are stored on this Mac.")
                     .font(HolzBarTheme.Typography.caption)
                     .foregroundStyle(HolzBarTheme.Palette.textTertiary)
@@ -78,10 +81,15 @@ struct AutomationSettingsPane: View {
                     isOn: $rule.isEnabled,
                     showsSettings: editingID == rule.id,
                     onSelect: {
+                        focusedNewRuleID = nil
                         editingID = editingID == rule.id ? nil : rule.id
                     },
                     settings: {
-                        AutomationRuleEditor(rule: $rule, profileNames: profileNames) {
+                        AutomationRuleEditor(
+                            rule: $rule,
+                            profileNames: profileNames,
+                            focusesName: rule.id == focusedNewRuleID
+                        ) {
                             deletionID = rule.id
                         }
                     }
@@ -94,6 +102,8 @@ struct AutomationSettingsPane: View {
         }
         .clipShape(HolzBarTheme.shape(HolzBarTheme.Radius.card))
         .holzBarGlass(in: HolzBarTheme.shape(HolzBarTheme.Radius.card))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text("Rules"))
     }
 
     private func symbol(for action: AutomationAction) -> String {
@@ -112,6 +122,8 @@ struct AutomationSettingsPane: View {
             return
         }
         let name = String(localized: "New Rule")
-        editingID = manager.addRule(named: name, profileName: profileNames.first)
+        let id = manager.addRule(named: name, profileName: profileNames.first)
+        editingID = id
+        focusedNewRuleID = id
     }
 }

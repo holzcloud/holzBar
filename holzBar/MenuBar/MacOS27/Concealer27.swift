@@ -367,6 +367,9 @@ final class Concealer27 {
             await task.value
             try? await Task.sleep(for: .milliseconds(400))
             await self?.appState?.itemManager.cacheItemsIfNeeded()
+            // The settled read derives the overflow state again, which also covers a click on
+            // the overflow control that the click bridge lifted concealment for (Phase 22).
+            await self?.refreshNativeOverflow()
             await self?.checkStuckOverflow()
             await self?.checkNotchCover()
             await self?.checkOwnIcon()
@@ -633,6 +636,64 @@ final class Concealer27 {
             logger.notice("The notched bar looks stuck: items folded away with no overflow button")
         } else {
             logger.notice("The notched bar lays its items out again")
+        }
+    }
+
+    /// What macOS 27's own overflow control does on the active bar, from the last read of the
+    /// items. Read only: concealment never acts on it (Phase 22).
+    private(set) var nativeOverflow = NativeOverflowReading27.unknown
+
+    /// Works out the state of macOS 27's own overflow control from a read of the bar and keeps
+    /// it, logging a change of the state.
+    ///
+    /// Makes no Accessibility call: the frames come from the read that is passed in and from
+    /// the overflow button frame of the provider's last read.
+    func noteNativeOverflow(items: [MenuBarItem], displayID: CGDirectDisplayID?) {
+        guard
+            let displayID,
+            let screen = NSScreen.screens.first(where: { $0.displayID == displayID })
+        else {
+            store(nativeOverflow: .unknown)
+            return
+        }
+        let displayBounds = CGDisplayBounds(displayID)
+        let ownPID = ProcessInfo.processInfo.processIdentifier
+        let frames = items
+            .filter { !concealedPIDs.contains($0.ownerPID) && $0.ownerPID != ownPID && displayBounds.intersects($0.bounds) }
+            .map(\.bounds)
+        let notchSpan = screen.hasNotch
+            ? StuckOverflow27.notchSpan(
+                displayBounds: displayBounds,
+                leftAreaWidth: screen.auxiliaryTopLeftArea?.width,
+                rightAreaWidth: screen.auxiliaryTopRightArea?.width
+            )
+            : nil
+        let chevronFrame = MenuBarItemProvider27.overflowButtonFrame().flatMap { displayBounds.intersects($0) ? $0 : nil }
+        store(nativeOverflow: NativeOverflowReading27(
+            state: NativeOverflowState27.derive(chevronFrame: chevronFrame, itemFrames: frames, notchSpan: notchSpan),
+            displayID: displayID,
+            notchSpan: notchSpan
+        ))
+    }
+
+    /// Derives the state again from a fresh read, for the places that show or use it, at their
+    /// own event (Copy Diagnostics and the Shelf opening, the concealer's settled read). The
+    /// provider answers from a read finished under 120 ms ago or reads the bar on its own
+    /// queue. No timer and no delay.
+    func refreshNativeOverflow() async {
+        let displayID = Bridging.getActiveMenuBarDisplayID()
+        noteNativeOverflow(items: await MenuBarItemProvider27.items(), displayID: displayID)
+    }
+
+    /// Keeps a reading when it differs from the current one, and logs a change of the state.
+    private func store(nativeOverflow reading: NativeOverflowReading27) {
+        guard reading != nativeOverflow else {
+            return
+        }
+        let changed = reading.state != nativeOverflow.state
+        nativeOverflow = reading
+        if changed {
+            logger.info("macOS 27 overflow: \(reading.state.rawValue, privacy: .public)")
         }
     }
 

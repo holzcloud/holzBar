@@ -25,6 +25,7 @@ struct ImportProfileSheet: View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.md) {
             Text("Import Profile")
                 .font(HolzBarTheme.Typography.title)
+                .accessibilityAddTraits(.isHeader)
             Text("The profile \u{201C}\(finalName)\u{201D} has \(shared.apps.count) applications, \(installedCount) of them installed on this Mac. Importing adds it to your profiles; it moves nothing until you apply it.")
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
@@ -42,6 +43,7 @@ struct ImportProfileSheet: View {
                 Button("Cancel", role: .cancel) {
                     dismiss()
                 }
+                .keyboardShortcut(.cancelAction)
                 Spacer()
                 Button("Import") {
                     profiles.importShared(shared)

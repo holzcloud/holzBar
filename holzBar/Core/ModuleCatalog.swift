@@ -60,8 +60,10 @@ nonisolated enum ModuleCatalog {
     /// Every module holzBar ships. Modules are added with the release that brings them.
     ///
     /// Widgets are off until the user switches them on, ask for no permission and cost nothing
-    /// while off: no status item, no timer and no sampler (D-06). The title and the summary are
-    /// the English strings the settings show; their keys are those strings.
+    /// while off: no status item, no timer and no sampler (D-06). Drag in the Menu Bar is off
+    /// until the user switches it on, asks for no permission beyond holzBar's Accessibility and
+    /// runs no tap while off. The title and the summary are the English strings the settings
+    /// show; their keys are those strings.
     static let all: [ModuleDescriptor] = [
         ModuleDescriptor(
             id: "widgets",
@@ -69,6 +71,14 @@ nonisolated enum ModuleCatalog {
             symbol: "clock",
             titleKey: "Widgets",
             summaryKey: "A clock, the battery and other readouts of your own in the menu bar.",
+            permission: nil
+        ),
+        ModuleDescriptor(
+            id: "menu-bar-drag",
+            area: .menuBar,
+            symbol: "arrow.left.arrow.right",
+            titleKey: "Drag in the Menu Bar",
+            summaryKey: "Move menu bar items by dragging them, without holding ⌘ Command.",
             permission: nil
         ),
     ]

@@ -241,6 +241,8 @@ struct ScriptsSection: View {
                 }
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text(verbatim: URLPrompt.displayName(entry.name)))
     }
 
     /// How the script last ran in this session, and the first line it printed. The line is

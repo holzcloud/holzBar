@@ -29,6 +29,9 @@ enum MenuBarShapeKind: Int, CaseIterable, Codable, Identifiable {
     /// A custom shape that splits the menu bar between its leading
     /// and trailing sides.
     case split = 2
+    /// One shape for the application menus and one for each section the bar shows
+    /// (macOS 14 to 26).
+    case sections = 3
 
     var id: Int { rawValue }
 
@@ -39,12 +42,33 @@ enum MenuBarShapeKind: Int, CaseIterable, Codable, Identifiable {
         self = MenuBarShapeKind(rawValue: rawValue) ?? .noShape
     }
 
+    /// Whether the running macOS can draw the shape: Sections needs holzBar's own section
+    /// dividers, which only macOS 14 to 26 lays out (macOS 27 decides the order of the items).
+    var isAvailable: Bool {
+        guard self == .sections else {
+            return true
+        }
+        if #available(macOS 27.0, *) {
+            return false
+        }
+        return true
+    }
+
+    /// The shape the overlay draws: a stored Sections is drawn as Paired where it is not
+    /// available, because a section is no contiguous run of the bar on macOS 27.
+    var drawnKind: MenuBarShapeKind {
+        isAvailable ? self : .split
+    }
+
     /// Localized string key representation.
+    ///
+    /// Full and Split read as Single and Paired; their stored values are unchanged.
     var localized: LocalizedStringKey {
         switch self {
         case .noShape: "None"
-        case .full: "Full"
-        case .split: "Split"
+        case .full: "Single"
+        case .split: "Paired"
+        case .sections: "Sections"
         }
     }
 }

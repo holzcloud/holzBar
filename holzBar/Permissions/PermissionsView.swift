@@ -145,13 +145,29 @@ struct PermissionsView: View {
                     .multilineTextAlignment(.center)
                     .fontWeight(.medium)
 
-                Text("holzBar asks for it the first time you use one of these.")
+                Text("Optional. Without it holzBar shows the apps' icons.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
 
                 if permission.hasPermission {
                     Text("Permission Granted")
                         .foregroundStyle(.green)
+                    if permission.canReset {
+                        Button("Revoke Permission") {
+                            permission.revoke()
+                        }
+                    }
+                } else {
+                    Button("Grant Permission") {
+                        permission.performRequest()
+                        Task {
+                            guard await permission.waitForPermission() else {
+                                return
+                            }
+                            appState.activate(for: .permissions)
+                            appState.openWindow(.permissions)
+                        }
+                    }
                 }
             }
             .padding(10)

@@ -36,8 +36,17 @@ enum DiagnosticsCollector {
             groupCount: appState.itemGroups.groups.count,
             spacerCount: appState.spacers.count,
             automationRuleCount: appState.automation.rules.count,
-            snapshotCount: appState.snapshots.snapshots.count
+            snapshotCount: appState.snapshots.snapshots.count,
+            nativeOverflow: nativeOverflowWord(appState)
         )
+    }
+
+    /// The state of macOS 27's own overflow control from the last read; nothing before macOS 27.
+    private static func nativeOverflowWord(_ appState: AppState) -> String {
+        guard #available(macOS 27.0, *) else {
+            return ""
+        }
+        return appState.concealer27.nativeOverflow.state.rawValue
     }
 
     private static var architecture: String {
@@ -64,10 +73,10 @@ enum DiagnosticsCollector {
         guard sysctlbyname(name, nil, &size, nil, 0) == 0, size > 0 else {
             return ""
         }
-        var buffer = [CChar](repeating: 0, count: size)
+        var buffer = [UInt8](repeating: 0, count: size)
         guard sysctlbyname(name, &buffer, &size, nil, 0) == 0 else {
             return ""
         }
-        return String(cString: buffer)
+        return String(decoding: buffer.prefix { $0 != 0 }, as: UTF8.self) // swiftlint:disable:this optional_data_string_conversion
     }
 }

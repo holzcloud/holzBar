@@ -73,6 +73,7 @@ enum ScreenCapture {
     ///   - screenBounds: The bounds to capture, specified in screen coordinates.
     ///     Pass `nil` to capture the minimum rectangle that encloses the windows.
     ///   - option: Options that specify which parts of the windows are captured.
+    @diagnose(DeprecatedDeclaration, as: ignored, reason: "ScreenCaptureKit cannot capture the off-screen windows of hidden items (APPLE-02)")
     nonisolated static func captureWindows(with windowIDs: [CGWindowID], screenBounds: CGRect? = nil, option: CGWindowImageOption = []) -> CGImage? {
         guard let array = Bridging.createCGWindowArray(with: windowIDs) else {
             return nil
@@ -82,7 +83,8 @@ enum ScreenCapture {
         // ScreenCaptureKit, captures only what is on a display, and the items holzBar
         // hides sit off screen, so the Shelf, the search and the Layout pane could not
         // show their images. CGWindowList capture is deprecated since macOS 14 but still
-        // captures off-screen windows.
+        // captures off-screen windows. `@diagnose` keeps this one known deprecation out of
+        // every build log, so a new warning stands out.
         return CGImage(windowListFromArrayScreenBounds: bounds, windowArray: array, imageOption: option)
     }
 

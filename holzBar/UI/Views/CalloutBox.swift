@@ -97,6 +97,7 @@ struct CalloutBox<Content: View, Icon: View, ForegroundStyle: ShapeStyle>: View 
     ) where Icon == Image {
         self.init(
             content: content(),
+            // swiftlint:disable:next accessibility_label_for_image - the body shows it as the icon of a Label, which VoiceOver does not read on its own
             icon: Image(systemName: systemImage),
             alignment: alignment,
             font: font,
@@ -113,6 +114,7 @@ struct CalloutBox<Content: View, Icon: View, ForegroundStyle: ShapeStyle>: View 
     ) where Content == Text, Icon == Image {
         self.init(
             content: Text(titleKey),
+            // swiftlint:disable:next accessibility_label_for_image - the body shows it as the icon of a Label, which VoiceOver does not read on its own
             icon: Image(systemName: systemImage),
             alignment: alignment,
             font: font,

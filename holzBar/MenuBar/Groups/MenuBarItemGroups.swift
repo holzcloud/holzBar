@@ -336,6 +336,7 @@ private struct MenuBarItemGroupPanel: View {
                         } label: {
                             if let image = itemManager.appState?.itemIconStore.image(for: item) ?? imageCache.images[item.tag]?.nsImage {
                                 Image(nsImage: image)
+                                    .accessibilityLabel(Text(verbatim: item.displayName))
                             } else {
                                 Text(item.displayName)
                             }

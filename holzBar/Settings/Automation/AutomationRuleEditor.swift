@@ -12,8 +12,11 @@ struct AutomationRuleEditor: View {
     @Environment(AppState.self) private var appState
     @Binding var rule: AutomationRule
     let profileNames: [String]
+    /// Puts the keyboard focus into the Name field, for a rule that was just added.
+    let focusesName: Bool
     let onDelete: () -> Void
 
+    @FocusState private var isNameFocused: Bool
     @State private var isAskingForWiFiName = false
     @State private var wifiName = ""
 
@@ -34,6 +37,7 @@ struct AutomationRuleEditor: View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
             TextField("Name", text: $rule.name)
                 .textFieldStyle(.roundedBorder)
+                .focused($isNameFocused)
             heading("When")
             Picker("Conditions", selection: $rule.match) {
                 Text("All of these are true").tag(AutomationMatch.all)
@@ -71,6 +75,11 @@ struct AutomationRuleEditor: View {
             Button("Delete Rule", role: .destructive, action: onDelete)
                 .padding(.top, HolzBarTheme.Spacing.xs)
         }
+        .task {
+            if focusesName {
+                isNameFocused = true
+            }
+        }
         .alert("Wi-Fi Network", isPresented: $isAskingForWiFiName) {
             TextField("Network name", text: $wifiName)
             Button("Add") {
@@ -99,6 +108,7 @@ struct AutomationRuleEditor: View {
             .textCase(.uppercase)
             .foregroundStyle(HolzBarTheme.Palette.textTertiary)
             .padding(.top, HolzBarTheme.Spacing.xs)
+            .accessibilityAddTraits(.isHeader)
     }
 
     // MARK: Conditions
@@ -424,6 +434,8 @@ private struct AutomationConditionRow: View {
             HolzBarTheme.Palette.text.opacity(0.05),
             in: HolzBarTheme.shape(HolzBarTheme.Radius.control)
         )
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst))
     }
 
     @ViewBuilder
@@ -440,6 +452,7 @@ private struct AutomationConditionRow: View {
             ) {
                 Text("Level")
             }
+            .accessibilityValue(Text("\(percent) percent"))
         case .time(let window):
             timeSettings(window)
         case .power, .lowPowerMode, .appRunning, .appFrontmost, .displayConnected, .network, .wifiNetwork,
@@ -481,6 +494,10 @@ private struct AutomationConditionRow: View {
                 )
                 .toggleStyle(.button)
                 .accessibilityLabel(Text(verbatim: Calendar.current.weekdaySymbols[day - 1]))
+                .accessibilityInputLabels([
+                    Text(verbatim: Calendar.current.weekdaySymbols[day - 1]),
+                    Text(verbatim: Calendar.current.veryShortWeekdaySymbols[day - 1]),
+                ])
             }
         }
     }

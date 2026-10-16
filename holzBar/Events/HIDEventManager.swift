@@ -144,6 +144,10 @@ final class HIDEventManager {
         return event
     }
 
+    /// The tap of the Drag in the Menu Bar module. It is created when the module is first on and
+    /// holds nothing until it is started.
+    @ObservationIgnored private lazy var menuBarDragController = MenuBarDragController(appState: appState)
+
     /// Logger for the event manager.
     @ObservationIgnored private let logger = Logger(category: "HIDEventManager")
 
@@ -167,6 +171,8 @@ final class HIDEventManager {
             return mouseMovedTap
         case .scrollWheel:
             return scrollWheelMonitor
+        case .menuBarDrag:
+            return menuBarDragController
         }
     }
 
@@ -188,7 +194,8 @@ final class HIDEventManager {
             usesShelf: usesShelfEverywhere,
             showAllSectionsOnUserDrag: advanced.showAllSectionsOnUserDrag,
             savesUserArrangement: MenuBarBackends.current.canMoveItems,
-            hasCustomAppearance: appState.appearanceManager.needsOverlayPanels(for: appState.appearanceManager.configuration)
+            hasCustomAppearance: appState.appearanceManager.needsOverlayPanels(for: appState.appearanceManager.configuration),
+            dragsWithoutCommand: MenuBarDragController.isSupported && appState.modules.isEnabled(MenuBarDragController.moduleID)
         )
     }
 
@@ -733,3 +740,5 @@ extension EventTap: EventMonitorProtocol {
         return !wasHealthy
     }
 }
+
+extension MenuBarDragController: EventMonitorProtocol {}

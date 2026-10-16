@@ -33,18 +33,22 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     var spacerCount = 0
     var automationRuleCount = 0
     var snapshotCount = 0
+    /// The state of macOS 27's own overflow control at the last read (none, collapsed, expanded
+    /// or unknown). Empty before macOS 27, so the report of earlier versions stays as it was.
+    var nativeOverflow = ""
 }
 
 /// Writes the text a user can copy into a bug report. It holds an allowlist of facts and
 /// nothing else: no item or application names, no profile, rule or network names, no paths,
-/// no user or computer name.
+/// no user or computer name. It also names the state of macOS 27's overflow button (a fixed
+/// word, still no names).
 nonisolated enum DiagnosticsReport {
     /// The longest text kept for a field.
     static let maximumFieldLength = 40
 
     /// The report as plain text, in English: it is meant for an issue.
     static func make(_ input: DiagnosticsInput) -> String {
-        let lines = [
+        var lines = [
             "holzBar: \(field(input.appVersion)) (\(field(input.appBuild)))",
             "macOS: \(field(input.macOSVersion)) (\(field(input.macOSBuild)))",
             "Mac: \(field(input.modelIdentifier)), \(field(input.architecture))",
@@ -57,6 +61,9 @@ nonisolated enum DiagnosticsReport {
             "Profiles: \(input.profileCount), groups: \(input.groupCount), spacers: \(input.spacerCount)",
             "Automation rules: \(input.automationRuleCount), snapshots: \(input.snapshotCount)",
         ]
+        if !input.nativeOverflow.isEmpty {
+            lines.append("macOS 27 overflow: \(field(input.nativeOverflow))")
+        }
         return lines.joined(separator: "\n")
     }
 

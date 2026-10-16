@@ -225,14 +225,6 @@ private struct MenuBarSearchContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             searchField
-            if !ScreenRecordingAccess.isGranted(appState) {
-                // Names stay searchable without pictures.
-                ScreenRecordingHint(feature: .search, appState: appState, isCompact: true, willRequest: closePanel)
-                    .font(.callout)
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 10)
-                Divider()
-            }
             mainContent
             bottomBar
         }
@@ -395,7 +387,9 @@ private struct SettingsButton: View {
                 .scaledToFit()
                 .foregroundStyle(.secondary)
                 .padding(2)
+                .accessibilityLabel(Text("holzBar Settings…"))
         }
+        .help("holzBar Settings…")
     }
 }
 
@@ -429,6 +423,7 @@ private struct ShowItemButton: View {
                     .frame(width: 11, height: 11)
                     .foregroundStyle(.secondary)
                     .fontWeight(.bold)
+                    .accessibilityHidden(true)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 5)
                     .background {
@@ -558,6 +553,7 @@ private struct MenuBarSearchItemView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: dimension, height: dimension)
+                .accessibilityHidden(true)
         } else {
             RoundedRectangle(cornerRadius: 5)
                 .fill(Color.accentColor.gradient)
@@ -569,6 +565,7 @@ private struct MenuBarSearchItemView: View {
                         .foregroundStyle(.white)
                         .padding(3)
                         .shadow(radius: 2)
+                        .accessibilityHidden(true)
                 }
                 .padding(2.5)
                 .shadow(color: .black.opacity(0.1), radius: 2)
@@ -579,6 +576,7 @@ private struct MenuBarSearchItemView: View {
     @ViewBuilder
     private var itemView: some View {
         Image(nsImage: itemImage)
+            .accessibilityHidden(true)
             .frame(
                 width: item.bounds.width,
                 height: dimension

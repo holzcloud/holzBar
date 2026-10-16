@@ -260,6 +260,8 @@ private struct SectionedListItemView<ItemID: Hashable>: View {
         .onTapGesture {
             selection = item.id
         }
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAddTraits(selection == item.id ? .isSelected : [])
         .simultaneousGesture(
             TapGesture(count: 2).onEnded {
                 item.action?()

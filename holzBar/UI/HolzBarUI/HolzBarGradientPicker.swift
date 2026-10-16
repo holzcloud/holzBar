@@ -161,6 +161,10 @@ private struct HolzBarGradientPickerRoot: View {
                     selection = nil
                 }
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityAction(named: "Add Color Stop") {
+                insertStop(at: 0.5, select: true)
+            }
             .compositingGroup()
             .allowsHitTesting(isEnabled)
             .opacity(isEnabled ? 1 : 0.5)
@@ -189,6 +193,8 @@ private struct HolzBarGradientPickerRoot: View {
             .onTapGesture { location in
                 insertStop(at: (location.x / geometry.size.width), select: true)
             }
+            // The strip's Add Color Stop action replaces the tap for VoiceOver.
+            .accessibilityHidden(true)
     }
 
     @ViewBuilder
@@ -350,6 +356,9 @@ private struct HolzBarGradientPickerHandle: View {
     let geometry: GeometryProxy
     let width: CGFloat
 
+    /// How far a stop moves with an arrow key or a VoiceOver adjustment.
+    private static let keyboardStep: CGFloat = 0.05
+
     private var isSelected: Bool {
         index == selection
     }
@@ -383,14 +392,44 @@ private struct HolzBarGradientPickerHandle: View {
             .onTapGesture {
                 selection = isSelected ? nil : index
             }
+            .focusable()
             .onKeyPress(.space) {
                 selection = isSelected ? nil : index
+                return .handled
+            }
+            .onKeyPress(.leftArrow) {
+                move(by: -Self.keyboardStep)
+                return .handled
+            }
+            .onKeyPress(.rightArrow) {
+                move(by: Self.keyboardStep)
                 return .handled
             }
             .onChange(of: isSelected) { _, newValue in
                 if newValue {
                     lastUpdated = index
                 }
+            }
+            .accessibilityElement()
+            .accessibilityLabel(Text("Color Stop \(index + 1) of \(gradient.stops.count)"))
+            .accessibilityValue(stop.map { Text(Double($0.location), format: .percent.precision(.fractionLength(0))) } ?? Text(verbatim: ""))
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
+            .accessibilityAction {
+                selection = isSelected ? nil : index
+            }
+            .accessibilityAdjustableAction { direction in
+                switch direction {
+                case .increment:
+                    move(by: Self.keyboardStep)
+                case .decrement:
+                    move(by: -Self.keyboardStep)
+                @unknown default:
+                    break
+                }
+            }
+            .accessibilityAction(named: "Remove Color Stop") {
+                remove()
             }
     }
 
@@ -410,6 +449,29 @@ private struct HolzBarGradientPickerHandle: View {
                 .zIndex(isLastUpdated ? 2 : stop.location)
                 .compositingGroup()
         }
+    }
+
+    private func move(by delta: CGFloat) {
+        guard let stop else {
+            return
+        }
+        gradient.stops[index].location = (stop.location + delta).clamped(to: 0...1)
+        lastUpdated = index
+    }
+
+    /// Removes the stop, never the last one.
+    private func remove() {
+        guard gradient.stops.count > 1, gradient.stops.indices.contains(index) else {
+            return
+        }
+        if let current = selection {
+            if current == index {
+                selection = nil
+            } else if current > index {
+                selection = current - 1
+            }
+        }
+        gradient.stops.remove(at: index)
     }
 
     private func update(with value: DragGesture.Value) {

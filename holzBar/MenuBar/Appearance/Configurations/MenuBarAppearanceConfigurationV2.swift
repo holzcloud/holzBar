@@ -17,19 +17,24 @@ struct MenuBarAppearanceConfigurationV2: Hashable {
     var blackBackground: MenuBarBlackBackground = .off
     var roundsScreenCorners = false
     var screenCornerRadius: Double = 10
+    /// How the Apple menu end of the bar is styled (0.0.8).
+    var appleLogoStyle: MenuBarAppleLogoStyle = .standard
 
     var hasRoundedShape: Bool {
         switch shapeKind {
         case .noShape: false
         case .full: fullShapeInfo.hasRoundedShape
-        case .split: splitShapeInfo.hasRoundedShape
+        case .split, .sections: splitShapeInfo.hasRoundedShape
         }
     }
 
-    /// Whether a tint follows the wallpaper in any of the configurations, so its palette
-    /// is read.
+    /// Whether a tint, or the Apple menu's capsule, follows the wallpaper in any of the
+    /// configurations, so its palette is read.
     var usesWallpaperTint: Bool {
-        [lightModeConfiguration, darkModeConfiguration, staticConfiguration].contains { $0.tintKind == .adaptive }
+        [lightModeConfiguration, darkModeConfiguration, staticConfiguration].contains { configuration in
+            configuration.tintKind == .adaptive
+                || (appleLogoStyle == .capsule && configuration.style.appleLogoFill == .wallpaper)
+        }
     }
 
     var current: MenuBarAppearancePartialConfiguration {
@@ -71,6 +76,7 @@ extension MenuBarAppearanceConfigurationV2: Codable {
         case blackBackground
         case roundsScreenCorners
         case screenCornerRadius
+        case appleLogoStyle
     }
 
     init(from decoder: any Decoder) throws {
@@ -91,7 +97,10 @@ extension MenuBarAppearanceConfigurationV2: Codable {
             screenCornerRadius: SettingsSchema.NumberRule.clamped(4...24).clamp(
                 container.decodeIfPresent(Double.self, forKey: .screenCornerRadius) ?? Self.defaultConfiguration.screenCornerRadius,
                 fallback: Self.defaultConfiguration.screenCornerRadius
-            )
+            ),
+            // A value this version cannot read never drops the rest of the appearance.
+            appleLogoStyle: (try? container.decodeIfPresent(MenuBarAppleLogoStyle.self, forKey: .appleLogoStyle))
+                ?? Self.defaultConfiguration.appleLogoStyle
         )
     }
 
@@ -108,6 +117,7 @@ extension MenuBarAppearanceConfigurationV2: Codable {
         try container.encode(blackBackground, forKey: .blackBackground)
         try container.encode(roundsScreenCorners, forKey: .roundsScreenCorners)
         try container.encode(screenCornerRadius, forKey: .screenCornerRadius)
+        try container.encode(appleLogoStyle, forKey: .appleLogoStyle)
     }
 }
 
@@ -125,6 +135,14 @@ struct MenuBarAppearancePartialConfiguration: Hashable {
     var borderStyle: BorderStyle = .solid
     /// Whether the solid tint uses the system accent color instead of ``tintColor``.
     var tintFollowsAccentColor = false
+    /// The look values added in 0.0.8: tint strength, gradient direction and span, border
+    /// fill and Apple menu fill.
+    var style = MenuBarPartialStyle.default
+    /// The border's own gradient, drawn when ``MenuBarPartialStyle/borderFill`` is a gradient.
+    var borderGradient = HolzBarGradient.defaultMenuBarTint
+    /// The color of the Apple menu's capsule, drawn when ``MenuBarPartialStyle/appleLogoFill``
+    /// is a color.
+    var appleLogoColor: CGColor = .black
 }
 
 // MARK: Default Partial Configuration
@@ -155,6 +173,9 @@ extension MenuBarAppearancePartialConfiguration: Codable {
         case tintGradient
         case borderStyle
         case tintFollowsAccentColor
+        case style
+        case borderGradient
+        case appleLogoColor
     }
 
     init(from decoder: Decoder) throws {
@@ -173,7 +194,11 @@ extension MenuBarAppearancePartialConfiguration: Codable {
             tintGradient: container.decodeIfPresent(HolzBarGradient.self, forKey: .tintGradient) ?? Self.defaultConfiguration.tintGradient,
             // An unknown style reads as solid, as a missing one does.
             borderStyle: (try? container.decodeIfPresent(BorderStyle.self, forKey: .borderStyle)) ?? Self.defaultConfiguration.borderStyle,
-            tintFollowsAccentColor: container.decodeIfPresent(Bool.self, forKey: .tintFollowsAccentColor) ?? Self.defaultConfiguration.tintFollowsAccentColor
+            tintFollowsAccentColor: container.decodeIfPresent(Bool.self, forKey: .tintFollowsAccentColor) ?? Self.defaultConfiguration.tintFollowsAccentColor,
+            // A value this version cannot read never drops the rest of the appearance.
+            style: (try? container.decodeIfPresent(MenuBarPartialStyle.self, forKey: .style)) ?? Self.defaultConfiguration.style,
+            borderGradient: (try? container.decodeIfPresent(HolzBarGradient.self, forKey: .borderGradient)) ?? Self.defaultConfiguration.borderGradient,
+            appleLogoColor: (try? container.decodeIfPresent(HolzBarColor.self, forKey: .appleLogoColor))?.cgColor ?? Self.defaultConfiguration.appleLogoColor
         )
     }
 
@@ -188,6 +213,9 @@ extension MenuBarAppearancePartialConfiguration: Codable {
         try container.encode(tintGradient, forKey: .tintGradient)
         try container.encode(borderStyle, forKey: .borderStyle)
         try container.encode(tintFollowsAccentColor, forKey: .tintFollowsAccentColor)
+        try container.encode(style, forKey: .style)
+        try container.encode(borderGradient, forKey: .borderGradient)
+        try container.encode(HolzBarColor(cgColor: appleLogoColor), forKey: .appleLogoColor)
     }
 }
 

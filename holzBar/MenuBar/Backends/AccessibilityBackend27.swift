@@ -89,6 +89,8 @@ final class AccessibilityBackend27: MenuBarBackend {
         appState.concealer27.itemsAppeared(bundleIDs: Set(items.map { $0.tag.namespace.description }))
         appState.concealer27.seedLayoutIfNeeded(items: items)
         appState.concealer27.placeNewApplications(items: items)
+        // The state of the system's overflow control comes from the same read that becomes the item cache (Phase 22).
+        appState.concealer27.noteNativeOverflow(items: items, displayID: displayID)
         return appState.concealer27.cacheFromSavedLayout(items: items, displayID: displayID)
     }
 

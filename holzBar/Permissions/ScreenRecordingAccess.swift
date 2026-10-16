@@ -20,6 +20,39 @@ enum ScreenRecordingAccess {
         appState.permissions.screenRecording.hasPermission
     }
 
+    /// Whether the offer in ``offerOnce(for:appState:willRequest:)`` is still due.
+    static func shouldOfferOnce(_ appState: AppState) -> Bool {
+        !isGranted(appState) && !Defaults.bool(forKey: .screenRecordingOffered)
+    }
+
+    /// Asks once, in a window, whether holzBar may use Screen Recording for the pictures in the
+    /// holzBar Shelf, and remembers that it asked. Without the permission the Shelf shows the
+    /// apps' icons; the Permissions window can still allow or revoke it later.
+    ///
+    /// - Parameter willRequest: Runs before the window, for example to hide a panel that would
+    ///   cover it.
+    static func offerOnce(for feature: ScreenRecordingFeature, appState: AppState, willRequest: () -> Void = {}) {
+        guard shouldOfferOnce(appState) else {
+            return
+        }
+        Defaults.set(true, forKey: .screenRecordingOffered)
+        willRequest()
+        _ = appState.activate(for: .settings)
+        let alert = NSAlert()
+        alert.messageText = String(localized: "Show real pictures of your menu bar items?")
+        alert.informativeText = feature.reason.localizedFromCatalog + "\n\n"
+            + String(localized: "Without it holzBar shows the apps' icons. You can change this any time in Settings → Advanced.")
+            + "\n\n" + String(localized: "If macOS offers to quit and reopen holzBar after you allow it, choose Quit & Reopen.")
+        alert.addButton(withTitle: String(localized: "Allow Screen Recording…"))
+        alert.addButton(withTitle: String(localized: "Not Now"))
+        guard alert.runModal() == .alertFirstButtonReturn else {
+            return
+        }
+        Task {
+            await request(for: feature, appState: appState)
+        }
+    }
+
     /// Asks for Screen Recording for the given feature.
     ///
     /// Shows the system prompt and opens the Screen Recording pane of System Settings, then
@@ -57,9 +90,6 @@ struct ScreenRecordingHint: View {
     /// The shared app state.
     let appState: AppState
 
-    /// Whether the hint fits on one line, as in the holzBar Shelf.
-    var isCompact = false
-
     /// Runs before the request, for example to hide a panel that would cover the prompt.
     var willRequest: () -> Void = {}
 
@@ -69,27 +99,19 @@ struct ScreenRecordingHint: View {
     }
 
     var body: some View {
-        if isCompact {
-            HStack {
-                Text(feature.reason.localizedFromCatalog)
-                    .lineLimit(1)
-                allowButton
-                    .buttonStyle(.plain)
-                    .foregroundStyle(.link)
-            }
-            .help(reopenNote)
-        } else {
-            VStack(spacing: 8) {
+        VStack(spacing: 8) {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
                 Text(feature.reason.localizedFromCatalog)
                     .multilineTextAlignment(.center)
-                allowButton
-                Text(reopenNote)
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center)
+                PreviewBadge()
             }
-            .padding(10)
+            allowButton
+            Text(reopenNote)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
         }
+        .padding(10)
     }
 
     @ViewBuilder
