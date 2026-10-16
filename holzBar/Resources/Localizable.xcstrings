@@ -18553,34 +18553,6 @@
         }
       }
     },
-    "Without it holzBar shows the apps' icons. You can change this any time in Permissions." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ohne sie zeigt holzBar die Symbole der Apps. Du kannst das jederzeit unter Berechtigungen ändern."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sans elle, holzBar affiche les icônes des apps. Vous pouvez le modifier à tout moment dans Autorisations."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Senza, holzBar mostra le icone delle app. Puoi cambiarlo in qualsiasi momento in Autorizzazioni."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Senza mussa holzBar las icònas da las apps. Ti pos midar quai mintga mument sut Permissiuns."
-          }
-        }
-      }
-    },
     "Optional. Without it holzBar shows the apps' icons." : {
       "localizations" : {
         "de" : {
@@ -18633,6 +18605,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Revocar la permissiun"
+          }
+        }
+      }
+    },
+    "Without it holzBar shows the apps' icons. You can change this any time in Settings → Advanced." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ohne sie zeigt holzBar die Symbole der Apps. Du kannst das jederzeit unter Einstellungen → Erweitert ändern."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sans elle, holzBar affiche les icônes des apps. Vous pouvez le modifier à tout moment dans Réglages → Avancé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senza, holzBar mostra le icone delle app. Puoi cambiarlo in qualsiasi momento in Impostazioni → Avanzate."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senza mussa holzBar las icònas da las apps. Ti pos midar quai mintga mument sut Parameters → Avanzà."
           }
         }
       }

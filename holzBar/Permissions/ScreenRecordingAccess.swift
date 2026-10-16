@@ -41,7 +41,7 @@ enum ScreenRecordingAccess {
         let alert = NSAlert()
         alert.messageText = String(localized: "Show real pictures of your menu bar items?")
         alert.informativeText = feature.reason.localizedFromCatalog + "\n\n"
-            + String(localized: "Without it holzBar shows the apps' icons. You can change this any time in Permissions.")
+            + String(localized: "Without it holzBar shows the apps' icons. You can change this any time in Settings → Advanced.")
             + "\n\n" + String(localized: "If macOS offers to quit and reopen holzBar after you allow it, choose Quit & Reopen.")
         alert.addButton(withTitle: String(localized: "Allow Screen Recording…"))
         alert.addButton(withTitle: String(localized: "Not Now"))
