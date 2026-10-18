@@ -71,7 +71,7 @@
 
 ## New in 0.0.8
 
-0.0.8 is out; see its [release notes](release-notes/v0.0.8.md). Features marked *Preview* are built but not yet tested on a Mac, and each carries a Preview badge in the app (the Focus filter, which you set up in System Settings, is marked here only).
+0.0.8 beta 4 is out on the beta channel (the stable 0.0.8 follows after testing); see its [release notes](release-notes/v0.0.8-beta4.md). Features marked *Preview* are built but not yet tested on a Mac, and each carries a Preview badge in the app (the Focus filter, which you set up in System Settings, is marked here only).
 
 **Automation**
 - **Rules** that apply a profile, reveal items, switch Zen mode or keep the Mac awake when a Wi-Fi network, an app, the time of day, the power source or Low Power Mode, a display, the network or a VPN, a camera or the microphone in use, or a script's result matches (all or any). The Wi-Fi name needs Location access, asked for only when you use it. *Preview: the rules, the observers and the Automation pane are built but not yet tested on a Mac; the Wi-Fi name condition is built too, and needs your test of the Location prompt.*
