@@ -75,6 +75,7 @@ struct MenuBarAppearanceEditor: View {
             HolzBarSection("Menu Bar Shape") {
                 shapePicker
                 isInset
+                appleLogoShape
                 shapeScreenRecordingHint
             }
             HolzBarSection("Notch and Screen") {
@@ -189,19 +190,48 @@ struct MenuBarAppearanceEditor: View {
             )
         }
     }
+
+    /// Switches the capsule behind the Apple menu on or off. It is offered with every shape
+    /// kind, None included, on every supported macOS.
+    @ViewBuilder
+    private var appleLogoShape: some View {
+        Toggle(isOn: appleLogoShapeBinding) {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Own shape for the Apple logo")
+                PreviewBadge()
+            }
+        }
+    }
+
+    private var appleLogoShapeBinding: Binding<Bool> {
+        Binding(
+            get: { appearanceManager.configuration.appleLogoStyle == .capsule },
+            set: { appearanceManager.configuration.appleLogoStyle = $0 ? .capsule : .standard }
+        )
+    }
 }
 
 private struct UnlabeledPartialEditor: View {
     @Binding var configuration: MenuBarAppearancePartialConfiguration
 
+    /// Whether the bar draws a shape (Single, Paired or Sections), so a gradient can run over
+    /// each shape.
+    let drawsShape: Bool
+    /// Whether the Apple menu has a capsule of its own, so its fill can be chosen.
+    let drawsAppleLogo: Bool
+
     var body: some View {
         HolzBarSection {
             tintPicker
             accentColorToggle
+            tintStrength
+            gradientOptions
+            appleLogoFill
             shadowToggle
         }
         HolzBarSection {
             borderToggle
+            borderFill
             borderColor
             borderWidth
             borderStyle
@@ -261,6 +291,108 @@ private struct UnlabeledPartialEditor: View {
         }
     }
 
+    /// Whether the tint is one that has a strength and, for the last two, a direction.
+    private var tintHasStrength: Bool {
+        switch configuration.tintKind {
+        case .solid, .gradient, .adaptive: true
+        case .noTint, .systemGlass: false
+        }
+    }
+
+    private var tintHasDirection: Bool {
+        switch configuration.tintKind {
+        case .gradient, .adaptive: true
+        case .noTint, .solid, .systemGlass: false
+        }
+    }
+
+    @ViewBuilder
+    private var tintStrength: some View {
+        if tintHasStrength {
+            LabeledContent {
+                Slider(
+                    value: $configuration.style.tintStrength,
+                    in: MenuBarPartialStyle.tintStrengthRange,
+                    step: 0.05
+                ) {
+                    Text("Tint Strength")
+                }
+                .labelsHidden()
+                .frame(maxWidth: 200)
+                .accessibilityValue(
+                    Text(configuration.style.tintStrength, format: .percent.precision(.fractionLength(0)))
+                )
+            } label: {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Tint Strength")
+                    PreviewBadge()
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var gradientOptions: some View {
+        if tintHasDirection {
+            HolzBarPicker(selection: $configuration.style.gradientDirection) {
+                Text("Horizontal").tag(MenuBarGradientDirection.horizontal)
+                Text("Vertical").tag(MenuBarGradientDirection.vertical)
+            } label: {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Gradient Direction")
+                    PreviewBadge()
+                }
+            }
+            if drawsShape {
+                Toggle(isOn: gradientPerShape) {
+                    HStack(spacing: HolzBarTheme.Spacing.sm) {
+                        Text("One gradient per shape")
+                        PreviewBadge()
+                    }
+                }
+            }
+        }
+    }
+
+    private var gradientPerShape: Binding<Bool> {
+        Binding(
+            get: { configuration.style.gradientSpan == .eachShape },
+            set: { configuration.style.gradientSpan = $0 ? .eachShape : .acrossBar }
+        )
+    }
+
+    @ViewBuilder
+    private var appleLogoFill: some View {
+        if drawsAppleLogo {
+            LabeledContent {
+                HStack {
+                    HolzBarPicker("Apple Logo", selection: $configuration.style.appleLogoFill) {
+                        Text("Bar Tint").tag(MenuBarAppleLogoFill.barTint)
+                        Text("Accent Color").tag(MenuBarAppleLogoFill.accentColor)
+                        Text("Follow Wallpaper").tag(MenuBarAppleLogoFill.wallpaper)
+                        Text("Color").tag(MenuBarAppleLogoFill.color)
+                    }
+                    .labelsHidden()
+
+                    if configuration.style.appleLogoFill == .color {
+                        ColorPicker(
+                            "Apple Logo",
+                            selection: $configuration.appleLogoColor,
+                            supportsOpacity: false
+                        )
+                        .labelsHidden()
+                    }
+                }
+                .frame(height: 24)
+            } label: {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Apple Logo")
+                    PreviewBadge()
+                }
+            }
+        }
+    }
+
     @ViewBuilder
     private var shadowToggle: some View {
         Toggle("Shadow", isOn: $configuration.hasShadow)
@@ -272,8 +404,39 @@ private struct UnlabeledPartialEditor: View {
     }
 
     @ViewBuilder
-    private var borderColor: some View {
+    private var borderFill: some View {
         if configuration.hasBorder {
+            LabeledContent {
+                HStack {
+                    HolzBarPicker("Border Fill", selection: $configuration.style.borderFill) {
+                        Text("Color").tag(MenuBarBorderFill.color)
+                        Text("Accent Color").tag(MenuBarBorderFill.accentColor)
+                        Text("Gradient").tag(MenuBarBorderFill.gradient)
+                    }
+                    .labelsHidden()
+
+                    if configuration.style.borderFill == .gradient {
+                        HolzBarGradientPicker(
+                            "Border Fill",
+                            gradient: $configuration.borderGradient,
+                            supportsOpacity: true
+                        )
+                        .labelsHidden()
+                    }
+                }
+                .frame(height: 24)
+            } label: {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Border Fill")
+                    PreviewBadge()
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var borderColor: some View {
+        if configuration.hasBorder, configuration.style.borderFill == .color {
             ColorPicker(
                 "Border Color",
                 selection: $configuration.borderColor,
@@ -346,9 +509,17 @@ private struct LabeledPartialEditor: View {
     private var partialEditor: some View {
         switch appearance {
         case .light:
-            UnlabeledPartialEditor(configuration: $configuration.lightModeConfiguration)
+            UnlabeledPartialEditor(
+                configuration: $configuration.lightModeConfiguration,
+                drawsShape: configuration.shapeKind.drawnKind != .noShape,
+                drawsAppleLogo: configuration.appleLogoStyle == .capsule
+            )
         case .dark:
-            UnlabeledPartialEditor(configuration: $configuration.darkModeConfiguration)
+            UnlabeledPartialEditor(
+                configuration: $configuration.darkModeConfiguration,
+                drawsShape: configuration.shapeKind.drawnKind != .noShape,
+                drawsAppleLogo: configuration.appleLogoStyle == .capsule
+            )
         }
     }
 }
@@ -357,7 +528,11 @@ private struct StaticPartialEditor: View {
     @Binding var configuration: MenuBarAppearanceConfigurationV2
 
     var body: some View {
-        UnlabeledPartialEditor(configuration: $configuration.staticConfiguration)
+        UnlabeledPartialEditor(
+            configuration: $configuration.staticConfiguration,
+            drawsShape: configuration.shapeKind.drawnKind != .noShape,
+            drawsAppleLogo: configuration.appleLogoStyle == .capsule
+        )
     }
 }
 

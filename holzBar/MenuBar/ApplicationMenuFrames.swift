@@ -23,6 +23,12 @@ final class ApplicationMenuFrames {
     /// The frame of the application menu on each display; a missing entry means there is none.
     private(set) var frames = [CGDirectDisplayID: CGRect]()
 
+    /// The Apple menu's x span on each display, relative to the display's left edge, for the
+    /// Apple-logo style. Kept from the last read that saw one: the Apple menu does not depend
+    /// on the application in front, and a read that finds no menu bar (on macOS 27 while
+    /// holzBar's own menus are in front) says nothing about it.
+    private(set) var appleMenuSpans = [CGDirectDisplayID: ClosedRange<Double>]()
+
     /// The displays whose menu bar window is a menu bar Accessibility can reach. The menu
     /// bar overlay draws only there (see `MenuBarManager.hasValidMenuBar(in:for:)`).
     private(set) var validMenuBars = Set<CGDirectDisplayID>()
@@ -51,6 +57,7 @@ final class ApplicationMenuFrames {
     /// What one read found on every display.
     private nonisolated struct ReadResult: Sendable {
         var frames = [CGDirectDisplayID: CGRect]()
+        var appleMenuSpans = [CGDirectDisplayID: ClosedRange<Double>]()
         var validMenuBars = Set<CGDirectDisplayID>()
     }
 
@@ -101,6 +108,14 @@ final class ApplicationMenuFrames {
     /// It never asks another application, so it is safe on any input path.
     func frame(for screen: NSScreen) -> CGRect? {
         frames[screen.displayID]
+    }
+
+    /// The Apple menu's x span on the given screen, relative to its left edge, from the last
+    /// read that saw one.
+    ///
+    /// It never asks another application, so it is safe on any input path.
+    func appleMenuSpan(for screen: NSScreen) -> ClosedRange<Double>? {
+        appleMenuSpans[screen.displayID]
     }
 
     /// Whether the menu bar window of the given display was a menu bar at the last read.
@@ -177,8 +192,12 @@ final class ApplicationMenuFrames {
                     if query.hasValidMenuBar() {
                         result.validMenuBars.insert(query.displayID)
                     }
-                    if let frame = query.getApplicationMenuFrame() {
+                    let read = query.readApplicationMenu()
+                    if let frame = read.frame {
                         result.frames[query.displayID] = frame
+                    }
+                    if let span = read.appleMenuSpan {
+                        result.appleMenuSpans[query.displayID] = span
                     }
                 }
                 continuation.resume(returning: result)
@@ -194,6 +213,10 @@ final class ApplicationMenuFrames {
         // Stored only when they change: observers redraw on every assignment.
         if result.frames != frames {
             frames = result.frames
+        }
+        // The Apple menu's span is only ever replaced, never removed.
+        for (displayID, span) in result.appleMenuSpans where appleMenuSpans[displayID] != span {
+            appleMenuSpans[displayID] = span
         }
         if result.validMenuBars != validMenuBars {
             validMenuBars = result.validMenuBars

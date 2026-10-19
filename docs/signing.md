@@ -92,12 +92,12 @@ Then:
 - Keep `holzbar-signing.p12` and its password in your password manager, and delete other copies. Whoever has both can sign code that macOS treats as holzBar.
 - Write the fingerprint into the README, next to the comparison row "Stable signature", and into `EXPECTED_CERT_SHA256` in `.github/workflows/release.yml`. The release job prints it in its summary ("Signature: holzBar's certificate, SHA-256 …").
 
-**The secrets are still repository secrets**, by the maintainer's decision of 2026-10-05; they move into the environment `release` for the beta after 0.0.7-beta2. Until then a residual risk remains ([SECURITY.md](../SECURITY.md), T-06-L7): a workflow file pushed to any branch by a credential with the `workflow` scope can read them. Keep that scope out of agent and automation tokens. The sign job already runs in the environment `release`, which only `v*` tag runs may use, and an environment secret takes precedence over a repository secret of the same name, so the move needs no workflow change:
+**The secrets are still repository secrets**, by the maintainer's decision of 2026-10-05; moving them into the environment `release` is still an open task. Until then a residual risk remains ([SECURITY.md](../SECURITY.md), T-06-L7): a workflow file pushed to any branch by a credential with the `workflow` scope can read them. Keep that scope out of agent and automation tokens. The sign job already runs in the environment `release`, which only `v*` tag runs may use, and an environment secret takes precedence over a repository secret of the same name, so the move needs no workflow change:
 
 ```sh
 base64 -i holzbar-signing.p12 | gh secret set SIGNING_CERTIFICATE_P12 --env release -R holzcloud/holzBar
 gh secret set SIGNING_CERTIFICATE_PASSWORD --env release -R holzcloud/holzBar
-# After the next beta was signed with them:
+# After the next release was signed with them:
 gh secret delete SIGNING_CERTIFICATE_P12 -R holzcloud/holzBar
 gh secret delete SIGNING_CERTIFICATE_PASSWORD -R holzcloud/holzBar
 ```

@@ -2,9 +2,9 @@
 
 Two comparisons live here: the detailed one against Ice, Thaw and Bartender, and [the wider one against 14 apps](#against-every-other-menu-bar-manager) further down. The README carries a short version.
 
-What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. — means not available or not documented. 🔜 means planned, with the release (0.0.8, 0.0.9 or 1.0.0): it is **not available yet**.
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. — means not available or not documented. 🔜 means planned, with the release (0.0.9 or 1.0.0): it is **not available yet**.
 
-✅ Preview = built in the 0.0.8 betas and marked with a Preview badge in the app, but not yet tested on a real Mac.
+✅ Preview = built in 0.0.8 and marked with a Preview badge in the app (the Focus filter, which you set up in System Settings, is marked here only), but not yet tested on a real Mac by the maintainer.
 
 | | Ice 0.11.12 | Thaw 3.0 beta | Bartender 7 | holzBar |
 |---|:---:|:---:|:---:|:---:|
@@ -18,10 +18,15 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Groups and spacers | ❌ | ✅ | — | ✅ |
 | Folders with their own icon and colour; item images of your choice | ❌ | ✅ | — | ✅ |
 | Choose where new items appear | ❌ | — | — | ✅ |
+| Move items in the menu bar by dragging, without ⌘ Command | ❌ | — | — | ✅ Preview <sub>macOS 26 and 27</sub> |
 | Bar only on some displays, notch overflow | ❌ | — | — | ✅ |
+| Shelf and macOS 27's own overflow button: no item listed twice | ❌ | — | — | ✅ Preview |
 | Black menu bar, rounded screen corners | ❌ | corners only | — | ✅ |
 | Dashed and dotted borders, wallpaper, accent and glass tints | ❌ | ✅ | — | ✅ |
-| Show hidden items on low battery or when offline | ❌ | — | — | ✅ |
+| One shape per section of the bar (Sections) | ❌ | — | — | ✅ Preview <sub>macOS 14 – 26</sub> |
+| A shape of its own for the Apple logo | ❌ | — | — | ✅ Preview |
+| Outlines in the accent colour or a gradient; vertical gradients, one gradient per shape, tint strength | ❌ | gradient at any angle | outline and gradient styles | ✅ Preview |
+| Show hidden items on low battery or when offline | ❌ | — | — | ✅ Preview <sub>as rules since 0.0.8</sub> |
 | Rules that apply a profile or show items when a Wi-Fi network, an app, the time of day, the power source or a display matches (all or any) | ❌ | ✅ | ✅ | ✅ Preview |
 | Profile applied by a Focus filter | ❌ | ✅ | — | ✅ Preview |
 | Scripts as a rule condition or action | ❌ | ✅ | — | ✅ Preview <sub>from a folder you choose, after you allowed the exact content</sub> |
@@ -66,6 +71,8 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Network connections (update checks, telemetry, analytics) | Sparkle update checks | Sparkle update checks | — | **none** — enforced by CI |
 | Personal data (app names, item titles, paths) in logs | partly public | — | — | private, enforced by CI |
 | Asks for Screen Recording only when a feature needs it | ❌ | — | ✅ <sub>not required</sub> | ✅ |
+| Asks for Location Services only when you add a Wi-Fi-name condition | — | — | — | ✅ Preview |
+| Scripts run only from a folder you chose and only after you allowed their exact content; never from a URL command, an import or sync | — | — | — | ✅ Preview |
 | Hardened runtime (no injected code or libraries) | ✅ | ✅ | — | ✅ (checked by CI) |
 | No entitlements, not even `get-task-allow` | — | — | — | ✅ from 0.0.7-beta2 (checked by CI and the release) |
 | Settings import accepts only known keys of the right type, in range | — (no import) | — | — | ✅ |
@@ -75,18 +82,19 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Swift packages | 5 | 9 (Sparkle, AXSwift6, CompactSlider, Ifrit, LaunchAtLogin-Modern and others) | closed source | **none** |
 | Swift language mode | Swift 5 | Swift 6 | — | Swift 6 (data-race safety checked by the compiler), built with Swift 6.4 and Xcode 27 |
 | State management | Combine | `@Observable` and Combine | — | `@Observable`, no Combine |
-| Mouse event tap when "Show on hover" is off | always running | — | — | off |
+| Mouse event tap when "Show on hover" is off | always running | — | — | off <sub>macOS 27 keeps a click tap so clicks reach the system items</sub> |
 | Timers and polling while nothing is shown | yes | — | — | only while needed |
-| Settings migration | 6 version steps at every launch | — | — | once, while importing Ice settings |
+| Settings migration | 6 version steps at every launch | — | — | once each: Ice settings while they are imported, holzBar's own older settings at the first launch that needs it |
 | Runtime patching of AppKit (method swizzling) | yes | yes | — | none |
 | Item images in memory | kept | — | — | released when unused |
-| Unit tests run on every change | none | ✅ | — | ✅ 546 |
-| App size | — | — | — | 16.7 MB |
+| Unit tests run on every code change | none | ✅ | — | ✅ 925 |
+| App size | — | — | — | 22.9 MB <sub>CI build of 13 Oct 2026</sub> |
+| Widgets do nothing while hidden: no timer, no refresh | — | — | — | ✅ Preview |
 | **Distribution and maintenance** | | | | |
 | Price and licence | free, open source | free, open source | paid (one-time; Pro yearly; Mega Supporter lifetime), closed source | free, open source (GPL-3.0) |
 | Install and update with Homebrew | ✅ | ✅ | — | ✅ |
 | Updates | Sparkle (dialog can hang on macOS 26) | Sparkle | — | Homebrew |
-| Every bug group of Ice's 282 open reports solved | — | — | — | ✅ confirmed on a Mac in 0.0.6, [see the list](upstream-bugs.md) |
+| Every bug group of Ice's 282 open reports solved | — | — | — | ✅ <sub>all but one group confirmed on a Mac in 0.0.6</sub>, [see the list](upstream-bugs.md) |
 | Signed with a Developer ID | ✅ | — | — | ❌ (own certificate instead; the cask handles quarantine) |
 | Stable signature, so Accessibility survives updates | ✅ | — | — | ✅ (own certificate, [docs/signing.md](signing.md)) |
 | Build provenance attestation (`gh attestation verify`) | ❌ | — | — | ✅, and SLSA Build Level 3 provenance from 0.0.7-beta2 |
@@ -100,13 +108,14 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 
 | | holzBar | Bartender 7 | Ice | Thaw | SaneBar | Tuck | Barbee | Hidden Bar | Dozer | Vanilla | iBar | Glow | Brow | Lounge | Vorssaint |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Maintenance | active (0.0.8-beta3) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) |
+| Maintenance | active (0.0.8) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) |
 | Price | free | paid, one-time <sup>1</sup> | free | free | free | free; Pro $14.99 | free + in-app (lifetime $12.99) | free | free | free; Pro $10 | free + $2.99/yr | $19.99 once | free; Pro $49/yr (AI only) | $3.99/yr | free |
 | Open source | ✅ GPL-3.0 | ❌ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ MIT | ❌ | ❌ | ✅ MIT | ✅ MPL-2.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ GPL-3.0+ |
 | macOS 26 / 27 | ✅ / ✅ | ❌ / ✅ <sup>2</sup> | dev builds / ❌ | ✅ / ✅ <sup>3</sup> | ✅ / ❌ | ✅ / ✅ <sup>4</sup> | ❓ / ❓ <sup>5</sup> | ✅ / partly <sup>6</sup> | ❓ / ❓ | ✅ / ❓ | ✅ / ❓ | ✅ / ✅ <sup>13</sup> | ❓ / vendor claim | ✅ / vendor claim | ✅ / ✅ |
-| Apple Silicon / Intel | not yet checked | ✅ Apple Silicon (27) | ❓ | ❓ | Apple Silicon only | both | ❓ | both | Intel only (Rosetta) | both | both | both | ❓ | both | Apple Silicon only |
+| Apple Silicon / Intel | both (one universal app) | ✅ Apple Silicon (27) | ❓ | ❓ | Apple Silicon only | both | ❓ | both | Intel only (Rosetta) | both | both | both | ❓ | both | Apple Silicon only |
 | Hidden + always-hidden sections | ✅ | ✅ | ✅ | ✅ | ✅ | hidden; per-icon | hidden only ❓ | ✅ | ✅ | hidden; always-hidden in Pro | ✅ | 3 sections | hide, reorder; always-hidden ❓ | visible / hidden; no always-hidden | ❓ |
-| Separate bar, notch handling | ✅ Shelf | ✅ | ✅ Ice Bar | ✅ Thaw Bar | ✅ | ✅ Shelf | ✅ | ❌ | ❌ | partly | ✅ | ✅ GlowBar; notch ❓ | notch hover panel | ✅ floating panel | ❓ |
+| Separate bar, notch handling | ✅ Shelf; no duplicates with the macOS 27 overflow (Preview <sup>14</sup>) | ✅ | ✅ Ice Bar | ✅ Thaw Bar | ✅ | ✅ Shelf | ✅ | ❌ | ❌ | partly | ✅ | ✅ GlowBar; notch ❓ | notch hover panel | ✅ floating panel | ❓ |
+| Move items in the menu bar by dragging, without ⌘ | ✅ Preview <sup>14</sup> <sub>macOS 26, 27</sub> | ❓ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Layout profiles | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ ❓ | ✅ (VIP) | ❌ | ❌ | ❌ | ❌ | looks only (Moods) | ❌ | ❓ | ❓ |
 | Groups, spacers | ✅ | ✅ | ❌ | ✅ | groups, dividers | groups (Pro) | dividers | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ |
 | Item spacing | ✅ beta | ✅ | ✅ beta | ✅ beta | ✅ | Pro | ✅ | ❌ | own icons only | ❌ | ✅ | ✅ | ❌ | ❓ | ❓ |
@@ -129,7 +138,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Languages | 5 | 6 | ❓ | 20 | English? | >=8 | 20 | 10 | ❓ | ❓ | 15 | 4 | ❓ | English? | 12+ |
 | Dependencies, Swift | none, Swift 6 | closed | 5 packages, Swift 5 | 9 packages, Swift 6 | 3 packages, Swift 6 | ❓ | closed | 1 package, Swift 5 | 5, Swift 5 | closed | closed | closed | closed, native Swift | closed | none, Swift |
 | Distribution | Homebrew | direct, Setapp (beta) | GitHub, Homebrew | GitHub, Homebrew | direct, Homebrew | direct, Homebrew | App Store | App Store, GitHub, Homebrew | GitHub, Homebrew | direct | App Store | direct | direct, Homebrew, App Store | direct | Homebrew, direct |
-| Appearance (tint, border, shapes, black bar, corners, glass) | ✅ all | styles: Glass, Pills, Outline, Gradient, Solid | tint, shadow, border, shapes | ✅ many, wallpaper tint | tint, border, corners, Liquid Glass | shelf styles, colours | menu bar shape, Apple-logo style | ❌ | icon size only | blends dots | ❓ | ✅ Liquid Glass, corners, borders, Moods | ❓ | icon styles only | ❓ |
+| Appearance (tint, border, shapes, black bar, corners, glass) | ✅ all; Sections and Apple-logo shapes, accent and gradient outlines (Preview <sup>14</sup>) | styles: Glass, Pills, Outline, Gradient, Solid | tint, shadow, border, shapes | ✅ many, wallpaper tint | tint, border, corners, Liquid Glass | shelf styles, colours | menu bar shape, Apple-logo style | ❌ | icon size only | blends dots | ❓ | ✅ Liquid Glass, corners, borders, Moods, Single/Paired/Sections styles, Apple logo | ❓ | icon styles only | ❓ |
 | Replaces or hides Apple's own items on macOS 27 | limit, replacements 🔜 0.0.9 | ❓ | ❌ | ✅ replacement icons | ❓ | system controls stay visible | ❓ | cannot (per app only) | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Signed with Developer ID and notarized | ❌ (own certificate) | ❓ | ✅ | ✅ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ✅ vendor claim | ✅ |
 | Build provenance (attestation, SLSA) | ✅ SLSA 3 | ❓ | ❌ | ✅ Cosign + SLSA | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
@@ -159,11 +168,11 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 <sup>11</sup> The vendor says Bartender sends nothing anywhere. Bartender 5.0.52 briefly shipped analytics (Amplitude) and removed it; Sparkle and RevenueCat appear in third-party dependency lists (inferred).
 <sup>12</sup> Glow, Brow and Lounge: ❌ means the vendor's site, changelog and privacy policy do not mention the feature (one source each, no independent test). Lounge's own blog says it lacks automation rules.
 <sup>13</sup> Glow ships two builds: 2.x for macOS 26 and 3.x for macOS 27 (stable since 10 September 2026).
-<sup>14</sup> **Preview**: built (in the 0.0.8 betas, widgets in 0.0.8-beta3) and marked with a Preview badge in the app, but not yet tested on a real Mac by the maintainer. Rules have fewer trigger types than Thaw: power, Low Power Mode, apps, time, displays, network, VPN, the Wi-Fi name, camera and microphone in use, and a Focus filter. Scripts run as you with holzBar's permissions, only from the folder you chose and only after you allowed their exact content; nothing about them is exported, imported or synced, and no URL command or Shortcut can turn on a rule that uses one. Widgets (macOS 14 to 27) show text from seven permission-free sources (date and time, battery, CPU load, memory, uptime, free disk space, a countdown) run a Shortcut you name, or show the first line of the output of a script you allowed (a script widget); at most six, their timers run only while a widget is visible, a script widget never runs on a timer, nothing runs while the module is off, and Shortcut names and the choice of a script never leave your Mac.
+<sup>14</sup> **Preview**: built in 0.0.8 and marked with a Preview badge in the app, but not yet tested on a real Mac by the maintainer. Rules have fewer trigger types than Thaw: they react to power, Low Power Mode, apps, time, displays, the network, a VPN, the Wi-Fi name, camera and microphone in use and a script's result; a Focus filter applies a profile on its own. Scripts run as you with holzBar's permissions, only from the folder you chose and only after you allowed their exact content; nothing about them is exported, imported or synced, and no URL command or Shortcut can turn on a rule that uses one. Widgets (macOS 14 to 27) show text from seven permission-free sources (date and time, battery, CPU load, memory, uptime, free disk space, a countdown), run a Shortcut you name, or show the first line of the output of a script you allowed (a script widget); at most six, their timers run only while a widget is visible, a script widget never runs on a timer, nothing runs while the module is off, and Shortcut names and the choice of a script never leave your Mac (the widgets' basic steps were checked on macOS 27). Dragging items without ⌘ (macOS 26 and 27) is an optional module that is off until you switch it on; it moves apps' items, not Apple's own, and on macOS 27 hides an app when you drop one of its items on the holzBar icon.
 
 ### Where holzBar is behind today
 
-- **Automation:** Thaw, SaneBar and Bartender 7 have rules, per-item conditions and scripts. holzBar has them since the 0.0.8 betas, as a *Preview* that is not yet tested on a Mac, with fewer trigger types than Thaw.
+- **Automation:** Thaw, SaneBar and Bartender 7 have rules, per-item conditions and scripts. holzBar has them since 0.0.8, as a *Preview* that is not yet tested on a Mac, with fewer trigger types than Thaw.
 - **No Developer ID signature or notarization**, unlike Thaw, SaneBar, Ice and Lounge (the vendor's claim). holzBar needs the `xattr` step or the Homebrew cask.
 - **Fewer languages** than Thaw and Barbee (20 each); our translations into French, Italian and Romansh are machine-made and unchecked.
 - **No AppleScript or animation yet** (0.0.9); Bartender 7, SaneBar and Vanilla have them today.
@@ -175,7 +184,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 
 ### What holzBar does better
 
-- The only one that **never connects to the network**; Ice, Thaw, SaneBar (anonymous counts), Glow, Lounge and Tuck all do.
-- **No third-party packages** (Ice 5, Thaw 9, SaneBar 3), Swift 6.4 in Swift 6 mode, checked on macOS 26 and 27 on every change.
+- **Never connects to the network**, and a CI check proves it on every pull request; Ice, Thaw, SaneBar (anonymous counts), Glow, Lounge and Tuck all do.
+- **No third-party packages** (Ice 5, Thaw 9, SaneBar 3), Swift 6.4 in Swift 6 mode, checked on macOS 26 and 27 on every code change.
 - **Screen Recording is optional**, and permissions are listed and explained.
-- A **build provenance attestation** (SLSA Build Level 3) for every release.
+- A **build provenance attestation** for every release since 0.0.6, and SLSA Build Level 3 provenance since 0.0.7-beta2.

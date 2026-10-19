@@ -14,6 +14,7 @@ import SwiftUI
 /// built but not yet tested on a Mac carries the Preview badge right after its title.
 struct ModuleRow<Settings: View>: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorSchemeContrast) private var contrast
 
     private let systemImage: String
     private let title: Text
@@ -62,7 +63,7 @@ struct ModuleRow<Settings: View>: View {
             }
         }
         .background(alignment: .leading) {
-            if isOn {
+            if isOn && contrast != .increased {
                 LinearGradient(
                     colors: [HolzBarTheme.Palette.accent.opacity(0.08), .clear],
                     startPoint: .leading,
@@ -124,6 +125,8 @@ struct ModuleRow<Settings: View>: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(Text("Edit"))
+                .accessibilityValue(showsSettings == true ? Text("Expanded") : Text("Collapsed"))
+                .help("Edit")
             }
             Toggle(isOn: $isOn) {
                 title
@@ -135,6 +138,7 @@ struct ModuleRow<Settings: View>: View {
         .padding(.horizontal, HolzBarTheme.Spacing.md)
         .padding(.vertical, HolzBarTheme.Spacing.sm + 2)
         .accessibilityElement(children: .contain)
+        .accessibilityLabel(title)
     }
 }
 

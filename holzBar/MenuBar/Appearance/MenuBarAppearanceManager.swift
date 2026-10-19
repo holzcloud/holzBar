@@ -181,6 +181,9 @@ final class MenuBarAppearanceManager {
         if configuration.blackBackground != .off {
             return true
         }
+        if configuration.appleLogoStyle == .capsule {
+            return true
+        }
         return false
     }
 

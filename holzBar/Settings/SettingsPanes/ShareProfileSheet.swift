@@ -18,6 +18,7 @@ struct ShareProfileSheet: View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.md) {
             Text("Share Profile")
                 .font(HolzBarTheme.Typography.title)
+                .accessibilityAddTraits(.isHeader)
             Text("The file lists the applications below and the section of each. It holds no display, Wi-Fi, hotkey or other setting. Uncheck an application to leave it out.")
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
@@ -37,6 +38,7 @@ struct ShareProfileSheet: View {
                 Button("Cancel", role: .cancel) {
                     dismiss()
                 }
+                .keyboardShortcut(.cancelAction)
                 Spacer()
                 Button("Save…") {
                     save()

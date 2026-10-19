@@ -14,7 +14,7 @@ struct PreviewBadge: View {
             .foregroundStyle(HolzBarTheme.Palette.warning)
             .padding(.horizontal, HolzBarTheme.Spacing.xs + 2)
             .padding(.vertical, 2)
-            .background(HolzBarTheme.Palette.warning.opacity(0.15), in: Capsule())
+            .background(HolzBarTheme.Palette.warning.opacity(HolzBarTheme.badgeFillOpacity), in: Capsule())
             .help("Preview: not tested on a Mac yet. Please report problems.")
     }
 }

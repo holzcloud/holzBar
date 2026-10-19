@@ -48,6 +48,14 @@ struct HolzBarGradient: Codable, Hashable {
         return NSGradient(colors: colors, atLocations: &locations, colorSpace: colorSpace)
     }
 
+    /// The gradient as a SwiftUI `Gradient`, for SwiftUI shapes such as the border of the
+    /// holzBar Shelf.
+    var swiftUIGradient: Gradient {
+        Gradient(stops: stops.map { stop in
+            Gradient.Stop(color: Color(cgColor: stop.color), location: stop.location)
+        })
+    }
+
     /// Returns a SwiftUI representation of the gradient, converted to the
     /// given color space.
     ///

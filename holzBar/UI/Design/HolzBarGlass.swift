@@ -20,7 +20,8 @@ extension View {
     ///
     /// - macOS 26 and later: Apple's Liquid Glass.
     /// - Earlier macOS: a system material with the same shape.
-    /// - Reduce Transparency: an opaque elevated ground with a hairline border.
+    /// - Reduce Transparency or Increase Contrast: an opaque elevated ground with a hairline
+    ///   border.
     ///
     /// Glass is for the layer that floats above content (bars, panels, popovers), never for
     /// the content itself and never on top of other glass.
@@ -40,13 +41,18 @@ extension View {
 
 private struct HolzBarGlassModifier<S: Shape>: ViewModifier {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorSchemeContrast) private var contrast
 
     let style: HolzBarGlassStyle
     let shape: S
     let interactive: Bool
 
     func body(content: Content) -> some View {
-        if reduceTransparency {
+        let options = TransparencyOptions(
+            reduceTransparency: reduceTransparency,
+            increaseContrast: contrast == .increased
+        )
+        if options.prefersOpaque {
             content
                 .background(HolzBarTheme.Palette.groundElevated, in: shape)
                 .overlay {

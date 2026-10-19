@@ -144,10 +144,12 @@ struct WidgetsSection: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("Edit"))
+            .accessibilityValue(isEditing ? Text("Expanded") : Text("Collapsed"))
             .help("Edit")
         }
         .padding(.vertical, HolzBarTheme.Spacing.xs)
         .accessibilityElement(children: .contain)
+        .accessibilityLabel(title(for: definition))
         .accessibilityAction(named: "Move Up") {
             widgets.moveWidget(id: definition.id, by: -1)
         }

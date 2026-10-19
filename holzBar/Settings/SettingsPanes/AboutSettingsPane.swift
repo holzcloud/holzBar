@@ -64,6 +64,7 @@ struct AboutSettingsPane: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 230)
+                        .accessibilityHidden(true)
                 }
 
                 VStack(alignment: .leading) {
@@ -93,6 +94,7 @@ struct AboutSettingsPane: View {
         HStack(spacing: 4) {
             Image(systemName: "heart.fill")
                 .foregroundStyle(.pink)
+                .accessibilityHidden(true)
             Text("Based on")
             Link("Ice", destination: Constants.originalIceURL)
             Text("by Jordan Baird")
@@ -138,8 +140,11 @@ struct AboutSettingsPane: View {
             Button("Contribute") {
                 openURL(Constants.repositoryURL)
             }
-            Button("Copy Diagnostics…", systemImage: "doc.on.clipboard") {
-                isShowingDiagnostics = true
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                Button("Copy Diagnostics…", systemImage: "doc.on.clipboard") {
+                    isShowingDiagnostics = true
+                }
+                PreviewBadge()
             }
             Button("Report a Bug", systemImage: "ladybug") {
                 openURL(Constants.issuesURL)

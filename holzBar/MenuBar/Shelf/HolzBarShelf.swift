@@ -213,6 +213,9 @@ final class HolzBarShelfPanel: NSPanel {
             // The `Defaults.Key.macOS27ShelfWaitsForRefresh` default brings the wait back, for measuring.
             Task {
                 await appState.itemManager.cacheItemsIfNeeded()
+                // Derived again whether or not the item cache rebuilt, so the Shelf never
+                // decides on a state older than its opening (Phase 22).
+                await appState.concealer27.refreshNativeOverflow()
                 await appState.imageCache.updateCache()
             }
         } else {
@@ -220,6 +223,9 @@ final class HolzBarShelfPanel: NSPanel {
             // lands in the observable caches. Awaiting `.value` does not pass the cancellation on.
             let refresh = Task {
                 await appState.itemManager.cacheItemsIfNeeded()
+                if #available(macOS 27.0, *) {
+                    await appState.concealer27.refreshNativeOverflow()
+                }
                 await appState.imageCache.updateCache()
             }
             let cacheTask = Task(timeout: .seconds(1)) {
@@ -269,6 +275,14 @@ final class HolzBarShelfPanel: NSPanel {
         orderFrontRegardless()
         if acceptsKeyboard {
             makeKey()
+        }
+        if ScreenRecordingAccess.shouldOfferOnce(appState) {
+            // The first time the Shelf opens, a window offers Screen Recording. The Shelf closes
+            // first: it would cover the window, and a click on its icon opens it again.
+            Task {
+                hide()
+                ScreenRecordingAccess.offerOnce(for: .shelf, appState: appState)
+            }
         }
         if #available(macOS 27.0, *) {
             let elapsed = (ContinuousClock.now - requestedAt).components
@@ -374,9 +388,21 @@ private struct HolzBarShelfContentView: View {
         let covered = itemManager.itemCache[.visible].filter { item in
             !item.isControlItem &&
             item.bounds.maxX > notch.minX &&
-            item.bounds.minX < notch.maxX
+            item.bounds.minX < notch.maxX &&
+            !isShownByNativeOverflow(item)
         }
         return covered + sectionItems
+    }
+
+    /// Whether macOS 27 shows the item itself, in its own expanded overflow, so the Shelf would
+    /// list it twice (Phase 22); never on earlier macOS and never in doubt.
+    private func isShownByNativeOverflow(_ item: MenuBarItem) -> Bool {
+        guard #available(macOS 27.0, *) else {
+            return false
+        }
+        return appState.concealer27.nativeOverflow.shelfOmits(
+            itemFrame: item.bounds, isDrawn: item.isOnScreen, onDisplay: screen.displayID
+        )
     }
 
     private var configuration: MenuBarAppearanceConfigurationV2 {
@@ -442,14 +468,40 @@ private struct HolzBarShelfContentView: View {
 
     /// The line drawn around the Shelf: the visible one the treatment asks for, else the
     /// one the user configured, else none.
-    private var border: (width: CGFloat, color: Color)? {
+    ///
+    /// A configured border follows the fill the appearance chose (`borderFill`): its colour,
+    /// the accent colour or a gradient, from leading to trailing or from top to bottom.
+    private var border: (width: CGFloat, style: AnyShapeStyle)? {
         if treatment.border == .visible {
-            return (TransparencyTreatment.visibleBorderWidth, Color.primary.opacity(treatment.borderOpacity))
+            return (TransparencyTreatment.visibleBorderWidth, AnyShapeStyle(Color.primary.opacity(treatment.borderOpacity)))
         }
-        if configuration.current.hasBorder {
-            return (configuration.current.borderWidth, Color(cgColor: configuration.current.borderColor))
+        guard configuration.current.hasBorder else {
+            return nil
         }
-        return nil
+        let width = configuration.current.borderWidth
+        let borderColor = Color(cgColor: configuration.current.borderColor)
+        switch configuration.current.style.borderFill {
+        case .color:
+            return (width, AnyShapeStyle(borderColor))
+        case .accentColor:
+            return (width, AnyShapeStyle(Color.accentColor))
+        case .gradient:
+            let gradient = configuration.current.borderGradient
+            guard !gradient.stops.isEmpty else {
+                return (width, AnyShapeStyle(borderColor))
+            }
+            let isVertical = configuration.current.style.gradientDirection == .vertical
+            return (
+                width,
+                AnyShapeStyle(
+                    LinearGradient(
+                        gradient: gradient.swiftUIGradient,
+                        startPoint: isVertical ? .top : .leading,
+                        endPoint: isVertical ? .bottom : .trailing
+                    )
+                )
+            )
+        }
     }
 
     private var shadowOpacity: CGFloat {
@@ -471,7 +523,7 @@ private struct HolzBarShelfContentView: View {
                 clipShape
                     .inset(by: border.width / 2)
                     .stroke(lineWidth: border.width)
-                    .foregroundStyle(border.color)
+                    .foregroundStyle(border.style)
             }
         }
         .padding(5)
@@ -548,18 +600,9 @@ private struct HolzBarShelfContentView: View {
             Text("Unable to display menu bar items")
                 .padding(.horizontal, 10)
         } else {
-            HStack(spacing: 0) {
-                if !ScreenRecordingAccess.isGranted(appState) {
-                    // Without Screen Recording the items show their apps' icons (or the
-                    // images chosen for them); the hint offers their real pictures.
-                    ScreenRecordingHint(feature: .shelf, appState: appState, isCompact: true) {
-                        // The Shelf would cover the system prompt.
-                        menuBarManager.section(withName: section)?.hide()
-                    }
-                    .padding(.horizontal, 10)
-                }
-                itemsScrollView
-            }
+            // Without Screen Recording the items show their apps' icons (or the images chosen
+            // for them); the first time the Shelf opens, a window offers their real pictures (see `show(section:on:)`).
+            itemsScrollView
         }
     }
 
@@ -641,6 +684,11 @@ private struct HolzBarShelfItemView: View {
         Group {
             if let image {
                 Image(nsImage: image)
+            } else if item.displayName == MenuBarItem.fallbackDisplayName {
+                // An item of an unknown app: a quiet symbol instead of the same words many times.
+                Image(systemName: "app.dashed")
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
             } else {
                 Text(item.displayName)
                     .font(.caption)
@@ -660,9 +708,14 @@ private struct HolzBarShelfItemView: View {
             if isHighlighted {
                 RoundedRectangle(cornerRadius: 5, style: .continuous)
                     .fill(Color.primary.opacity(0.2))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+                            .strokeBorder(Color(nsColor: .keyboardFocusIndicatorColor), lineWidth: 2)
+                    }
             }
         }
         .accessibilityAddTraits(.isButton)
+        .accessibilityAddTraits(isHighlighted ? .isSelected : [])
         .accessibilityLabel(item.displayName)
         .accessibilityAction(.default, leftClickAction)
         .accessibilityAction(named: "Open", leftClickAction)

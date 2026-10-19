@@ -35,6 +35,7 @@ struct MenuBarLayoutSettingsPane: View {
                         Button("Tidy Up…") {
                             appState.navigationState.isTidyUpPresented = true
                         }
+                        PreviewBadge()
                     }
                     .padding(10)
                 }
@@ -50,6 +51,9 @@ struct MenuBarLayoutSettingsPane: View {
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
                 SpacersSection(spacers: appState.spacers)
                 WidgetsModuleSection()
+                if MenuBarDragController.isSupported {
+                    MenuBarDragModuleSection()
+                }
                 if #available(macOS 27.0, *) {
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }
@@ -234,6 +238,7 @@ private struct LayoutProfilesSection: View {
                 Button("Import Profile…") {
                     chooseProfileFile()
                 }
+                PreviewBadge()
                 Button("Save Current Layout…") {
                     newProfileName = profiles.currentProfileName ?? ""
                     isNamingProfile = true
@@ -403,6 +408,25 @@ private struct ItemGroupsSection: View {
         }
     }
 
+    /// The name of one of the group symbols, for the symbol menu and VoiceOver.
+    private func symbolTitle(_ symbolName: String) -> Text {
+        switch symbolName {
+        case "square.grid.2x2": Text("Apps")
+        case "folder": Text("Folder")
+        case "tray": Text("Tray")
+        case "briefcase": Text("Work")
+        case "house": Text("Home")
+        case "gamecontroller": Text("Games")
+        case "music.note": Text("Music")
+        case "network": Text("Network")
+        case "bolt": Text("Power")
+        case "cloud": Text("Cloud")
+        case "wrench.and.screwdriver": Text("Tools")
+        case "star": Text("Favorites")
+        default: Text(verbatim: symbolName)
+        }
+    }
+
     var body: some View {
         HolzBarSection("Groups") {
             ForEach(groups.groups) { group in
@@ -412,7 +436,11 @@ private struct ItemGroupsSection: View {
                             Button {
                                 groups.setSymbol(symbol, for: group)
                             } label: {
-                                Image(systemName: symbol)
+                                Label {
+                                    symbolTitle(symbol)
+                                } icon: {
+                                    Image(systemName: symbol)
+                                }
                             }
                         }
                         Divider()
@@ -425,8 +453,11 @@ private struct ItemGroupsSection: View {
                         .disabled(group.imageFile == nil)
                     } label: {
                         Image(systemName: group.symbolName)
+                            .accessibilityLabel(Text("Symbol"))
+                            .accessibilityValue(symbolTitle(group.symbolName))
                     }
                     .fixedSize()
+                    .help("Symbol")
                     ColorPicker("Color", selection: colorBinding(for: group), supportsOpacity: false)
                         .labelsHidden()
                         .help("The color of the group's icon and name")

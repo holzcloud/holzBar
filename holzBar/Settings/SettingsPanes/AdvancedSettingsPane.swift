@@ -245,23 +245,31 @@ struct AdvancedSettingsPane: View {
     @ViewBuilder
     private var pinSystemItems: some View {
         Toggle(
-            "Keep the clock, battery, Wi-Fi, Control Center and sound visible",
             isOn: Binding(
                 get: { !Defaults.bool(forKey: .systemItemsMayHide) },
                 set: { Defaults.set(!$0, forKey: .systemItemsMayHide) }
             )
-        )
+        ) {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Keep the clock, battery, Wi-Fi, Control Center and sound visible")
+                PreviewBadge()
+            }
+        }
         .annotation("Profiles, restored layouts and rules leave these items where they are. You can still move them yourself.")
     }
 
     private var lockHiddenItems: some View {
         Toggle(
-            "Ask for Touch ID or your password before showing hidden items",
             isOn: Binding(
                 get: { appState.hiddenItemsLock.isEnabled },
                 set: { appState.hiddenItemsLock.setEnabled($0) }
             )
-        )
+        ) {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Ask for Touch ID or your password before showing hidden items")
+                PreviewBadge()
+            }
+        }
         .annotation("This keeps someone at your unlocked Mac from seeing your hidden items. Turning it off asks too. It is not protection against someone who knows your password.")
     }
 
@@ -303,6 +311,7 @@ struct AdvancedSettingsPane: View {
                             Button("Revoke…") {
                                 revokingPermission = permission
                             }
+                            PreviewBadge()
                         }
                     }
                 } else {

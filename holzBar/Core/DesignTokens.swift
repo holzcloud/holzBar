@@ -101,11 +101,30 @@ nonisolated enum DesignTokens {
         static let textTertiary = Tint(color: .black, alpha: 0.58)
         static let accent = RGB(hex: 0x1A6FA2)
         static let success = RGB(hex: 0x15803D)
-        static let warning = RGB(hex: 0xB45309)
+        static let warning = RGB(hex: 0x92400E)
         static let danger = RGB(hex: 0xDC2626)
         static let permission = RGB(hex: 0x6D28D9)
         static let wood = RGB(hex: 0xA66F3A)
     }
+
+    /// The values that replace their counterparts in `Dark` and `Light` while Increase
+    /// Contrast is on: a stronger border and stronger secondary and tertiary text.
+    nonisolated enum IncreasedContrast {
+        nonisolated enum Dark {
+            static let stroke = Tint(color: .white, alpha: 0.50)
+            static let textSecondary = Tint(color: .white, alpha: 0.85)
+            static let textTertiary = Tint(color: .white, alpha: 0.75)
+        }
+
+        nonisolated enum Light {
+            static let stroke = Tint(color: .black, alpha: 0.50)
+            static let textSecondary = Tint(color: .black, alpha: 0.80)
+            static let textTertiary = Tint(color: .black, alpha: 0.75)
+        }
+    }
+
+    /// The opacity of the Preview badge's tint behind its text.
+    static let badgeFillAlpha: Double = 0.15
 
     /// The gradient of fills that carry white text, the same in both appearances.
     nonisolated enum Fill {
