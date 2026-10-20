@@ -69,6 +69,25 @@
 </tr>
 </table>
 
+## New in 0.0.9 beta 1
+
+0.0.9 beta 1 is out on the beta channel; see its [release notes](release-notes/v0.0.9-beta1.md). Everything here is a **Preview**: built and unit tested, not yet tested on a Mac, and each carries a Preview badge in the app.
+
+**Automation**
+- **Command palette**: a hotkey (set it in Settings → Hotkeys) opens a Spotlight-like panel. Type to find an action, a layout profile, a mood, a rule or a menu bar item; Return runs it, Escape closes it. Abbreviations and typos work as in the item search, and starting with `>` leaves out the menu bar items. It keeps no history and needs no permission; with the Touch ID lock on it asks first, because it lists hidden items.
+- **AppleScript dictionary**: `show section`, `hide section`, `toggle section`, `apply profile`, `enable rule`, `disable rule`, `enable zen mode` and `disable zen mode`, and the read-only properties `profile names`, `current profile`, `rule names`, `enabled rule names`, `zen mode` and `hidden section is shown`. Every command goes through the same decision as a `holzbar://` URL command: lasting changes ask first, nothing reveals hidden items while Zen mode is on, and Zen mode does not end while the screen is shared. A script cannot create, change or delete a rule, a profile, a script or a setting, and a rule that uses a script is never turned on this way. macOS asks the calling app (Script Editor, a Shortcut) for permission to control holzBar; holzBar sends no Apple events itself.
+- **Keep the Mac awake** from a hotkey and from the command palette, as well as from a rule. Sound output and Bluetooth are new rule conditions (below).
+- **Sound output and Bluetooth as rule conditions**: "the Mac plays sound through …" follows the default output device with one Core Audio listener and needs no permission. "A Bluetooth device is connected" reads which of your paired devices are connected and asks macOS for the Bluetooth permission only when you add such a condition. Energy Mode has no public API on the Mac, so only Low Power Mode, which exists since 0.0.8, is a condition.
+- **Moods**: save the current look of the menu bar (colours, shape, border, corners) under a name in Menu Bar Appearance, switch to it in one click, from the command palette, or with a rule ("switch to a mood"), for example by time of day or when a display is connected. At most twelve.
+
+**The holzBar Shelf**
+- **Layouts**: a row (as before), a grid of six per row, or a column; a grid and a column grow downwards and scroll after ten rows, and the arrow keys move up and down.
+- **Fade in**: the holzBar Shelf appears in 0.15 seconds instead of at once; it never fades while Reduce Motion is on, and closing is never delayed. The bar itself does not animate yet.
+
+**Convenience**
+- **Usage suggestions** (off by default): count how often you open each item, once a day at most per click, for 30 days. After 14 days holzBar suggests hiding visible items you did not open for 14 days, never the clock, the battery, Control Center, items that show a live value, apps that carry badges, holzBar's own items or items a rule controls. The counts are one file on this Mac (mode 0600, excluded from backups); they are in no export, snapshot, diagnostic or log, **View Data** shows all of it, and **Forget Everything** and turning it off delete it. A suggestion moves nothing until you click **Move to Hidden**, and a snapshot of the layout is taken first.
+- **Item rules**: a manual move of an item that a rule controls is undone at the next evaluation.
+
 ## New in 0.0.8
 
 0.0.8 is out; see its [release notes](release-notes/v0.0.8.md).
@@ -133,24 +152,16 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 **None of this is available yet.** It is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
 
-### 0.0.9
+### 0.0.9 (more betas)
 
-The release starts with the **design system**: one Liquid Glass look (holzBar's blue, dark and light equally designed) and a new Settings window with a sidebar and a gallery of module cards. Every later screen follows it.
+The release starts with the **design system**: one Liquid Glass look (holzBar's blue, dark and light equally designed) and a new Settings window with a sidebar and a gallery of module cards. Every later screen follows it; its building blocks exist, the new Settings window is still to come.
 
 **Automation**
-- **AppleScript dictionary** to show, hide, switch profiles and turn rules on or off, and more **App Intents** for Shortcuts and Siri.
-- **Command palette**: one hotkey opens a panel to run any holzBar action.
-- Keep the Mac awake from the command palette and a hotkey (a rule action since 0.0.8; no permission needed), and a **focus mode** hotkey that hides everything except chosen items.
-- **More rule triggers**: Bluetooth, audio, Energy Mode. Each one asks only for the permission it needs, when you use it.
+- More **App Intents** for Shortcuts and Siri, and a **focus mode** hotkey that hides everything except chosen items.
 
 **Convenience**
-- **Usage suggestions** (opt-in): suggests hiding items you never click; counters stay on your Mac and can be erased with one click.
-- **Smooth show and hide**, respecting Reduce Motion.
+- **Smooth show and hide** of the bar itself, respecting Reduce Motion (the holzBar Shelf fades in since 0.0.9 beta 1).
 - Replacement items for Apple items that macOS 27 cannot hide, and hiding system items such as Clock and Control Center.
-
-**Look**
-- **Shelf layouts**: a grid and a vertical layout for the holzBar Shelf.
-- **Moods**: saved looks (appearance) that switch per display or time.
 
 **Polish**
 - A Control Center control to toggle Zen mode or apply a profile. *Spike, optional.*
