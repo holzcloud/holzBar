@@ -137,24 +137,26 @@
     <path d="M2430 156 v-2 M2430 194 v-2 M2412 174 h-2 M2450 174 h-2 M2417 161 l-1 -1 M2444 188 l-1 -1 M2417 187 l-1 1 M2444 160 l-1 1" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
    </g>
    <!-- the holzBar menu -->
-   <g filter="url(#menu-shadow)">
-    <rect x="2218" y="248" width="628" height="468" rx="34" fill="#3E8BC2" opacity="0.55"/>
-    <rect x="2232" y="262" width="600" height="440" rx="26" fill="#0B4268"/>
+    <g filter="url(#menu-shadow)">
+    <rect x="2218" y="248" width="628" height="446" rx="34" fill="#3E8BC2" opacity="0.55"/>
+    <rect x="2232" y="262" width="600" height="418" rx="26" fill="#0B4268"/>
    </g>
-   <rect x="2233.5" y="263.5" width="597" height="437" rx="24.5" fill="none" stroke="#4E9BD0" stroke-width="3" opacity="0.6"/>
-   <text x="2272" y="333" class="item">holzBar Settings…</text>
-   <text x="2792" y="333" text-anchor="end" class="key">⌘ ,</text>
-   <rect x="2262" y="361" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
-   <text x="2272" y="413" class="item">Search Menu Bar Items</text>
-   <rect x="2262" y="441" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
-   <text x="2272" y="493" class="item">Show Hidden Section</text>
-   <rect x="2262" y="521" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
-   <text x="2272" y="573" class="item">How to Update…</text>
-   <rect x="2262" y="601" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
-   <rect x="2273" y="629" width="26" height="26" rx="6" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.85"/>
-   <path d="M2281 637 l10 10 M2291 637 l-10 10" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
-   <text x="2314" y="653" class="item">Quit holzBar</text>
-   <text x="2792" y="653" text-anchor="end" class="key">⌘ Q</text>
+   <rect x="2233.5" y="263.5" width="597" height="415" rx="24.5" fill="none" stroke="#4E9BD0" stroke-width="3" opacity="0.6"/>
+   <text x="2272" y="311" class="item">holzBar Settings…</text>
+   <text x="2792" y="311" text-anchor="end" class="key">⌘ ,</text>
+   <rect x="2262" y="335" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
+   <text x="2272" y="375" class="item">Search Menu Bar Items</text>
+   <rect x="2262" y="399" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
+   <text x="2272" y="439" class="item">Show Hidden Section</text>
+   <rect x="2262" y="463" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
+   <text x="2272" y="503" class="item">Zen Mode</text>
+   <rect x="2262" y="527" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
+   <text x="2272" y="567" class="item">How to Update…</text>
+   <rect x="2262" y="591" width="540" height="2" fill="#FFFFFF" opacity="0.14"/>
+   <rect x="2273" y="607" width="26" height="26" rx="6" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.85"/>
+   <path d="M2281 615 l10 10 M2291 615 l-10 10" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
+   <text x="2314" y="631" class="item">Quit holzBar</text>
+   <text x="2792" y="631" text-anchor="end" class="key">⌘ Q</text>
   </g>
  </g>
 </svg>
