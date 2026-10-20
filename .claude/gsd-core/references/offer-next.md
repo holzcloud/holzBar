@@ -34,7 +34,7 @@ STOP. Do not proceed to auto-advance or transition.
 1. Parse `--auto` flag from $ARGUMENTS
 2. Read consolidated auto-mode (`active` = chain flag OR user preference; chain flag already synced in init step):
    ```bash
-   AUTO_MODE=$(gsd_run query check auto-mode --pick active 2>/dev/null || echo "false")
+   AUTO_MODE=$(gsd_run query check auto-mode --pick active 2>/dev/null) || AUTO_MODE="false"
    ```
 
 **If `--auto` flag present OR `AUTO_MODE` is true (AND verification passed with no gaps):**
@@ -47,7 +47,7 @@ Phase {X} verified, continuing chain
 
 Execute the transition workflow inline (do NOT use Agent — orchestrator context is ~10-15%, transition needs phase completion data already in context):
 
-Read and follow `/home/user/holzIce/.claude/gsd-core/workflows/transition.md`, passing through the `--auto` flag so it propagates to the next phase invocation.
+Read and follow `/Users/holz/Projects/holzBar/.claude/gsd-core/workflows/transition.md`, passing through the `--auto` flag so it propagates to the next phase invocation.
 
 **If neither `--auto` nor `AUTO_MODE` is true:**
 

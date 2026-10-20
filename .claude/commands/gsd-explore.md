@@ -19,7 +19,7 @@ Accepts an optional topic argument: `/gsd-explore authentication strategy`
 </objective>
 
 <execution_context>
-@/home/user/holzIce/.claude/gsd-core/workflows/explore.md
+@/Users/holz/Projects/holzBar/.claude/gsd-core/workflows/explore.md
 </execution_context>
 
 <process>

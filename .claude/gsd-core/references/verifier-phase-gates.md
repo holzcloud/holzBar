@@ -34,18 +34,28 @@ no `<decisions>` block.
 GATE_CFG=$(gsd_run query config-get workflow.context_coverage_gate 2>/dev/null || echo "true")
 if [ "$GATE_CFG" != "false" ]; then
   CONTEXT_PATH=$(ls "${PHASE_DIR}"/*-CONTEXT.md 2>/dev/null | head -1)  # #2962: not a for-glob (zsh aborts)
-  DECISION_RESULT=$(gsd_run query check.decision-coverage-verify "${PHASE_DIR}" "${CONTEXT_PATH}")
+  DECISION_RESULT=$(gsd_run query check.decision-coverage-verify "${PHASE_DIR}" "${CONTEXT_PATH}") && DECISION_EXIT=0 || DECISION_EXIT=$?
 fi
 ```
 
 The handler returns JSON `{ skipped, blocking: false, total, honored,
-not_honored: [...], message }`.
+not_honored: [...], message }`, plus `reason` on a skip or a caller error. On a
+caller error about the phase directory (`reason` is `'phase directory not found'`,
+`'phase path is not a directory'`, `'phase directory unreadable'` or
+`'phase directory holds no plans'`), `total` and `honored` are `null` and
+`not_honored` is `[]`; nothing was checked, so there is no count to report.
+A non-zero `DECISION_EXIT` (`69` `UNAVAILABLE`: the gate
+could not read CONTEXT.md or the phase artifacts, #5170) is **not** "no decisions": record
+`Decision coverage: not evaluated (the gate could not read its evidence)` in VERIFICATION.md
+and do not report counts.
 
 **Reporting:** Append the handler's `message` (a `### Decision Coverage`
 section) to VERIFICATION.md regardless of outcome — even when all
 decisions are honored, recording the count helps reviewers spot drift over
 time. Set `decision_coverage` in the verification result to
 `{honored, total, not_honored: [...]}` so downstream tooling can read it.
+On a caller error that is `{honored: null, total: null, not_honored: []}`;
+pass the nulls through rather than coercing them to `0`.
 
 **Status impact:** none. The decision gate does NOT influence the
 `gaps_found` / `human_needed` / `passed` decision tree in Step 9. Its
@@ -188,5 +198,5 @@ Full protocol and rationale: `gsd-core/references/honest-verifier.md`.
 
 ## Lazy references
 
-- **Per-stack verification patterns:** before Step 4 (artifact verification) on an unfamiliar stack, Read `/home/user/holzIce/.claude/gsd-core/references/verification-patterns.md` — the grep catalog for React/Next.js components, API routes, database schema, and the universal stub patterns. Read it lazily (only the sections for the stack under verification); it is too large to load wholesale on every run.
-- **Canonical report shape:** the emitted VERIFICATION.md follows `@/home/user/holzIce/.claude/gsd-core/templates/verification-report.md` — the template whose Guidelines and row shapes `src/uat.cts` treats as canonical when consuming verification output.
+- **Per-stack verification patterns:** before Step 4 (artifact verification) on an unfamiliar stack, Read `/Users/holz/Projects/holzBar/.claude/gsd-core/references/verification-patterns.md` — the grep catalog for React/Next.js components, API routes, database schema, and the universal stub patterns. Read it lazily (only the sections for the stack under verification); it is too large to load wholesale on every run.
+- **Canonical report shape:** the emitted VERIFICATION.md follows `@/Users/holz/Projects/holzBar/.claude/gsd-core/templates/verification-report.md` — the template whose Guidelines and row shapes `src/uat.cts` treats as canonical when consuming verification output.
