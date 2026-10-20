@@ -349,6 +349,18 @@ struct AutomationEngineTests {
         #expect(ItemVisibility.wantedSection(of: off, facts: AutomationFacts(networkKinds: [.vpn])) == nil)
     }
 
+    @Test("An item the user moved by hand goes back; an item in place stays")
+    func movedItemGoesBack() {
+        let wanted = ["a": 0, "b": 2, "c": 1]
+        let applied = ["a": 0, "b": 2]
+        let actual = ["a": 1, "b": 2]
+        let moves = ItemVisibility.itemsToMove(wanted: wanted, applied: applied, actual: actual)
+        #expect(moves == ["a": 0, "c": 1])
+        #expect(ItemVisibility.itemsToMove(wanted: wanted, applied: wanted, actual: wanted).isEmpty)
+        // An unknown real section is judged by the applied one alone.
+        #expect(ItemVisibility.itemsToMove(wanted: wanted, applied: wanted, actual: [:]).isEmpty)
+    }
+
     @Test("An item has one rule, and only the rules that are on control it")
     func itemRules() throws {
         let first = rule("A", [battery], action: .showItemOnlyWhile(itemKey: "a:A", hiding: .hidden))

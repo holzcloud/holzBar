@@ -737,7 +737,7 @@ final class AutomationManager {
     private func followItemRules(facts: AutomationFacts) {
         let wanted = wantedItemSections(facts: facts)
         // A pending move reads the facts again when it runs, so it is not postponed.
-        guard itemRuleTask == nil, wanted.contains(where: { lastItemSections[$0.key] != $0.value }) else {
+        guard itemRuleTask == nil, !pendingItemMoves(wanted: wanted).isEmpty else {
             return
         }
         itemRuleTask = Task { [weak self] in
@@ -750,6 +750,16 @@ final class AutomationManager {
         }
     }
 
+    /// The items to move now: a changed condition, and an item the user moved by hand away
+    /// from the section its rule wants (it goes back at the next evaluation).
+    private func pendingItemMoves(wanted: [String: Int]) -> [String: Int] {
+        guard let appState else {
+            return [:]
+        }
+        let actual = lastItemSections.isEmpty ? [:] : appState.profiles.currentLayout().itemSections
+        return ItemVisibility.itemsToMove(wanted: wanted, applied: lastItemSections, actual: actual)
+    }
+
     private func moveItems() {
         guard let appState else {
             return
@@ -758,7 +768,7 @@ final class AutomationManager {
             followItemRules(facts: currentFacts())
             return
         }
-        let changes = wantedItemSections(facts: currentFacts()).filter { lastItemSections[$0.key] != $0.value }
+        let changes = pendingItemMoves(wanted: wantedItemSections(facts: currentFacts()))
         guard !changes.isEmpty else {
             return
         }

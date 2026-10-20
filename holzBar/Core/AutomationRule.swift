@@ -419,6 +419,16 @@ nonisolated enum ItemVisibility {
         }
     }
 
+    /// The items that have to move: those whose wanted section differs from the one holzBar
+    /// last applied, and those that sit elsewhere than wanted because the user moved them by
+    /// hand since. An item whose real section is unknown (`actual` has no entry) is judged by
+    /// the last applied section alone.
+    static func itemsToMove(wanted: [String: Int], applied: [String: Int], actual: [String: Int]) -> [String: Int] {
+        wanted.filter { key, section in
+            applied[key] != section || actual[key].map { $0 != section } == true
+        }
+    }
+
     /// The item of a rule of this kind, whether the rule is on or not.
     static func itemKey(of rule: AutomationRule) -> String? {
         if case .showItemOnlyWhile(let key, _) = rule.action {
