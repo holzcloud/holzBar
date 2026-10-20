@@ -1,8 +1,8 @@
 # The stable channel: the newest plain release (no -alpha or -beta suffix). Updated by
 # .github/workflows/release.yml for every plain release.
 cask "holzbar" do
-  version "0.0.7"
-  sha256 "9a9f38382d00e767a404f2277cfc5cb4e54c6fe7e90a63be9ce687221fe6d769"
+  version "0.0.8"
+  sha256 "cf82bd9d1e681f4a8e2246100aad46082ece26d02569a29ef7d41835b6093ce2"
 
   url "https://github.com/holzcloud/holzBar/releases/download/v#{version}/holzBar-#{version}.zip"
   name "holzBar"
