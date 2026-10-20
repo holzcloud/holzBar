@@ -40,6 +40,13 @@ enum CommandPaletteCommands {
                 title: String(localized: "Apply profile \(URLPrompt.displayName(profile.name))")
             ))
         }
+        for mood in appState.appearanceManager.moods {
+            commands.append(PaletteCommand(
+                kind: .applyMood(mood.name),
+                title: String(localized: "Apply mood \(mood.name)"),
+                keywords: [String(localized: "look"), String(localized: "appearance")]
+            ))
+        }
         for rule in appState.automation.rules {
             let name = URLPrompt.displayName(rule.name)
             if rule.isEnabled {
@@ -66,6 +73,8 @@ enum CommandPaletteCommands {
             action.perform(appState: appState)
         case .applyProfile(let name):
             appState.profiles.apply(named: name)
+        case .applyMood(let name):
+            appState.appearanceManager.applyMood(named: name)
         case .setRule(let id, let isEnabled):
             appState.automation.setRule(withID: id, enabled: isEnabled)
         case .openItem(let key):
@@ -83,6 +92,7 @@ enum CommandPaletteCommands {
         case .action(.searchMenuBarItems): "magnifyingglass"
         case .action: "slider.horizontal.3"
         case .applyProfile: "rectangle.3.group"
+        case .applyMood: "paintpalette"
         case .setRule: "wand.and.stars"
         case .openItem: "menubar.rectangle"
         case .openSettings: "gearshape"
@@ -93,6 +103,7 @@ enum CommandPaletteCommands {
         switch command.kind {
         case .action, .openSettings: Text("Action")
         case .applyProfile: Text("Profile")
+        case .applyMood: Text("Mood")
         case .setRule: Text("Rule")
         case .openItem: Text("Menu Bar Item")
         }

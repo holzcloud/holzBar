@@ -215,6 +215,8 @@ nonisolated extension Defaults {
         case layoutSnapshotsDisabled = "LayoutSnapshotsDisabled"
         /// How many snapshots of the layout are kept, not counting starred ones.
         case layoutSnapshotsLimit = "LayoutSnapshotsLimit"
+        /// The saved looks of the menu bar (moods), as JSON.
+        case appearanceMoods = "AppearanceMoods"
         /// The automation rules, as JSON (`AutomationRule`).
         case automationRules = "AutomationRules"
         case knownItemTags = "KnownItemTags"
@@ -349,6 +351,7 @@ nonisolated extension Defaults.Key {
             .number
         case .holzBarIcon,
             .layoutProfiles,
+            .appearanceMoods,
             .automationRules,
             .itemGroups,
             .widgets,

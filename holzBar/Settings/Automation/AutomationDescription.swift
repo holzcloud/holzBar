@@ -75,6 +75,8 @@ enum AutomationDescription {
         switch action {
         case .applyProfile(let name):
             String(localized: "apply the profile “\(name)”")
+        case .applyMood(let name):
+            String(localized: "switch the menu bar to the mood “\(name)”")
         case .showSection(.hidden):
             String(localized: "show the hidden section")
         case .showSection(.alwaysHidden):

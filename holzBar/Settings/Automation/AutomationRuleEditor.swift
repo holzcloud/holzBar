@@ -29,6 +29,7 @@ struct AutomationRuleEditor: View {
     /// What a rule can do, as the choices of one menu.
     private enum ActionChoice: Hashable {
         case profile
+        case mood
         case hiddenSection
         case alwaysHiddenSection
         case zenOn
@@ -70,6 +71,9 @@ struct AutomationRuleEditor: View {
             }
             if itemName == nil, case .applyProfile(let name) = rule.action {
                 profilePicker(selection: name)
+            }
+            if itemName == nil, case .applyMood(let name) = rule.action {
+                moodPicker(selection: name)
             }
             if itemName == nil, case .showItemOnlyWhile(let key, let hiding) = rule.action {
                 itemPicker(key: key, hiding: hiding)
@@ -271,6 +275,7 @@ struct AutomationRuleEditor: View {
             get: {
                 switch rule.action {
                 case .applyProfile: .profile
+                case .applyMood: .mood
                 case .showSection(.hidden): .hiddenSection
                 case .showSection(.alwaysHidden): .alwaysHiddenSection
                 case .zen(true): .zenOn
@@ -295,6 +300,8 @@ struct AutomationRuleEditor: View {
                 switch choice {
                 case .profile:
                     rule.action = .applyProfile(profileNames.first ?? "")
+                case .mood:
+                    rule.action = .applyMood(appState.appearanceManager.moods.first?.name ?? "")
                 case .hiddenSection:
                     rule.action = .showSection(.hidden)
                 case .alwaysHiddenSection:
@@ -319,6 +326,7 @@ struct AutomationRuleEditor: View {
     private var actionPicker: some View {
         Picker("Action", selection: actionChoice) {
             Text("Apply a layout profile").tag(ActionChoice.profile)
+            Text("Switch to a mood").tag(ActionChoice.mood)
             Text("Show the hidden section").tag(ActionChoice.hiddenSection)
             Text("Show the always-hidden section").tag(ActionChoice.alwaysHiddenSection)
             Text("Turn Zen mode on").tag(ActionChoice.zenOn)
@@ -346,6 +354,30 @@ struct AutomationRuleEditor: View {
             ) {
                 ForEach(profileNames, id: \.self) { profileName in
                     Text(verbatim: profileName).tag(profileName)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func moodPicker(selection name: String) -> some View {
+        let moods = appState.appearanceManager.moods
+        if moods.isEmpty && name.isEmpty {
+            Text("Save a mood in Menu Bar Appearance first.")
+                .font(HolzBarTheme.Typography.caption)
+                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+        } else {
+            Picker(
+                "Mood",
+                selection: Binding(
+                    get: { name },
+                    set: { rule.action = .applyMood($0) }
+                )
+            ) {
+                // A mood the rule names that was deleted stays in the list, so the row says what
+                // it was for.
+                ForEach(moods.map(\.name).contains(name) || name.isEmpty ? moods.map(\.name) : moods.map(\.name) + [name], id: \.self) { moodName in
+                    Text(verbatim: moodName).tag(moodName)
                 }
             }
         }
@@ -443,7 +475,7 @@ struct AutomationRuleEditor: View {
     /// script, run it again with `HOLZBAR_EVENT=rule-ended`.
     private var restoresApply: Bool {
         switch rule.action {
-        case .applyProfile, .zen, .keepAwake, .runScript: true
+        case .applyProfile, .applyMood, .zen, .keepAwake, .runScript: true
         case .showSection, .showItemOnlyWhile: false
         }
     }

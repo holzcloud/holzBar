@@ -108,6 +108,7 @@ struct AutomationSettingsPane: View {
     private func symbol(for action: AutomationAction) -> String {
         switch action {
         case .applyProfile: "rectangle.stack"
+        case .applyMood: "paintpalette"
         case .showSection: "eye"
         case .zen: "moon"
         case .keepAwake: "cup.and.saucer"

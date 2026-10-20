@@ -256,3 +256,10 @@ enum MenuBarBlackBackground: Int, Codable, CaseIterable, Identifiable {
         }
     }
 }
+
+/// A saved look of the menu bar: a name and the whole appearance configuration.
+struct AppearanceMood: Codable, Identifiable, Equatable {
+    var id = UUID()
+    var name: String
+    var configuration: MenuBarAppearanceConfigurationV2
+}

@@ -14,6 +14,9 @@ final class MenuBarAppearanceManager {
     /// The current menu bar appearance configuration.
     var configuration: MenuBarAppearanceConfigurationV2 = .defaultConfiguration {
         didSet {
+            if !isApplyingMood {
+                currentMoodName = nil
+            }
             do {
                 let data = try encoder.encode(configuration)
                 Defaults.set(data, forKey: .menuBarAppearanceConfigurationV2)
@@ -31,6 +34,15 @@ final class MenuBarAppearanceManager {
             }
         }
     }
+
+    /// The saved looks of the menu bar.
+    private(set) var moods = [AppearanceMood]()
+
+    /// The name of the mood whose look is on now; `nil` once the look is changed by hand.
+    private(set) var currentMoodName: String?
+
+    /// Whether the configuration is being set by a mood, which keeps its name.
+    @ObservationIgnored private var isApplyingMood = false
 
     /// The currently previewed partial configuration.
     var previewConfiguration: MenuBarAppearancePartialConfiguration?
@@ -107,8 +119,56 @@ final class MenuBarAppearanceManager {
         }
     }
 
+    /// Saves the look that is on now as a mood. Returns its name, or `nil` when the name is
+    /// empty or there are too many moods.
+    @discardableResult
+    func saveCurrentLook(named name: String) -> String? {
+        guard moods.count < MoodNaming.maximumCount, let cleaned = MoodNaming.cleaned(name) else {
+            return nil
+        }
+        let unique = MoodNaming.unique(cleaned, among: moods.map(\.name))
+        moods.append(AppearanceMood(name: unique, configuration: configuration))
+        currentMoodName = unique
+        saveMoods()
+        return unique
+    }
+
+    /// Switches the menu bar to the mood with this name; does nothing when there is none.
+    func applyMood(named name: String) {
+        guard let mood = moods.first(where: { $0.name == name }) else {
+            return
+        }
+        isApplyingMood = true
+        configuration = mood.configuration
+        isApplyingMood = false
+        currentMoodName = mood.name
+    }
+
+    func removeMood(withID id: UUID) {
+        guard let index = moods.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+        if moods[index].name == currentMoodName {
+            currentMoodName = nil
+        }
+        moods.remove(at: index)
+        saveMoods()
+    }
+
+    private func saveMoods() {
+        if let data = try? encoder.encode(moods) {
+            Defaults.set(data, forKey: .appearanceMoods)
+        }
+    }
+
     /// Loads the initial values for the configuration.
     private func loadInitialState() {
+        if
+            let data = Defaults.data(forKey: .appearanceMoods),
+            let decoded = try? decoder.decode([AppearanceMood].self, from: data)
+        {
+            moods = Array(decoded.prefix(MoodNaming.maximumCount))
+        }
         do {
             if let data = Defaults.data(forKey: .menuBarAppearanceConfigurationV2) {
                 configuration = try decoder.decode(MenuBarAppearanceConfigurationV2.self, from: data)

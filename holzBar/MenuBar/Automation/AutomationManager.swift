@@ -567,6 +567,7 @@ final class AutomationManager {
             facts: facts,
             context: AutomationEngine.Context(
                 currentProfile: appState.profiles.currentProfileName,
+                currentMood: appState.appearanceManager.currentMoodName,
                 isZenOn: appState.menuBarManager.zenMode.isManual,
                 isKeepAwakeOn: keepAwakeActivity != nil
             ),
@@ -836,6 +837,9 @@ final class AutomationManager {
                 // A pass that a URL command or a Shortcut caused: no hook runs for its profile.
                 appState.profiles.apply(named: name, runsHooks: false)
             }
+        case .applyMood(let name):
+            logger.notice("An automation rule applies a mood")
+            appState.appearanceManager.applyMood(named: name)
         case .showSection(let section):
             reveal(section == .alwaysHidden ? .alwaysHidden : .hidden)
         case .setZen(let isOn):

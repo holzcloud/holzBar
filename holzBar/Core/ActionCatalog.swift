@@ -17,6 +17,8 @@ nonisolated struct PaletteCommand: Hashable, Sendable, Identifiable {
         case action(HotkeyAction)
         /// Applies the layout profile with this name.
         case applyProfile(String)
+        /// Switches the menu bar to the mood with this name.
+        case applyMood(String)
         /// Turns an automation rule on or off.
         case setRule(UUID, isEnabled: Bool)
         /// Opens the menu of the item with this identity key.
@@ -37,6 +39,8 @@ nonisolated struct PaletteCommand: Hashable, Sendable, Identifiable {
             "action:\(action.rawValue)"
         case .applyProfile(let name):
             "profile:\(name)"
+        case .applyMood(let name):
+            "mood:\(name)"
         case .setRule(let ruleID, let isEnabled):
             "rule:\(ruleID.uuidString):\(isEnabled)"
         case .openItem(let key):

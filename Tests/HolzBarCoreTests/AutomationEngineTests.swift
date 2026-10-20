@@ -58,6 +58,27 @@ struct AutomationEngineTests {
         #expect(second.effects.isEmpty)
     }
 
+    @Test("A mood is applied once, and the one before comes back when the rule ends")
+    func moodRule() {
+        let rules = [rule("Office look", [office], action: .applyMood("Day"))]
+        let context = Engine.Context(currentProfile: nil, currentMood: "Night", isZenOn: false)
+        let started = Engine.evaluate(rules: rules, facts: facts(displays: ["DISPLAY-1"]), context: context, state: Engine.State())
+        #expect(started.effects == [.applyMood("Day")])
+        let after = Engine.Context(currentProfile: nil, currentMood: "Day", isZenOn: false)
+        let ended = Engine.evaluate(rules: rules, facts: facts(), context: after, state: started.state)
+        #expect(ended.effects == [.applyMood("Night")])
+    }
+
+    @Test("A look changed by hand has no mood to go back to")
+    func moodWithoutPrevious() {
+        let rules = [rule("Office look", [office], action: .applyMood("Day"))]
+        let context = Engine.Context(currentProfile: nil, currentMood: nil, isZenOn: false)
+        let started = Engine.evaluate(rules: rules, facts: facts(displays: ["DISPLAY-1"]), context: context, state: Engine.State())
+        let after = Engine.Context(currentProfile: nil, currentMood: "Day", isZenOn: false)
+        let ended = Engine.evaluate(rules: rules, facts: facts(), context: after, state: started.state)
+        #expect(ended.effects.isEmpty)
+    }
+
     @Test("A rule that is not true does nothing")
     func staysQuiet() {
         let rules = [rule("Office", [office], action: .applyProfile("Office"))]
