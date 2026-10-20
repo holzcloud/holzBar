@@ -765,20 +765,10 @@ final class AutomationManager {
         appState.snapshots.willApplyRules()
         // On macOS 27 the layout is keyed by application, and a widget by its autosave name. The
         // key comes from the item itself (`layoutKey27`); the part of the rule's key before the
-        // colon is only the fallback, and holzBar's own bundle never becomes a key: it would
-        // conceal holzBar's own icon and dividers.
-        let itemManager = appState.itemManager
-        let items = Dictionary(
-            itemManager.itemCache.managedItems.map { (itemManager.identityKey(for: $0), $0) },
-            uniquingKeysWith: { first, _ in first }
-        )
+        // colon is only the fallback, and holzBar's own bundle never becomes a key.
         var applicationSections = [String: Int]()
         for (key, section) in changes {
-            if let layoutKey = OwnBundle.layoutKey(
-                forItemKey: key,
-                itemLayoutKey: items[key]?.layoutKey27,
-                bundleIdentifier: Constants.bundleIdentifier
-            ) {
+            if let layoutKey = layoutKeys(forItemKeys: [key]).first {
                 applicationSections[layoutKey] = section
             }
         }
@@ -911,6 +901,90 @@ final class AutomationManager {
     }
 
     func removeRule(withID id: UUID) {
+        if let rule = rules.first(where: { $0.id == id }), let key = ItemVisibility.itemKey(of: rule) {
+            // The next rule for the item moves it again, whatever the last move was.
+            lastItemSections.removeValue(forKey: key)
+        }
         rules.removeAll { $0.id == id }
+    }
+
+    // MARK: Item rules
+
+    /// The identity keys of the items that rules control now.
+    var controlledItemKeys: Set<String> {
+        ItemVisibility.controlledKeys(in: rules)
+    }
+
+    /// The rule that shows the item with the given identity key only while a condition holds.
+    func itemRule(forKey key: String) -> AutomationRule? {
+        ItemVisibility.rule(forItemKey: key, in: rules)
+    }
+
+    /// A new rule for the item, on, that holds while the Mac is on battery until the user
+    /// changes the condition. Not stored until ``saveItemRule(_:)``.
+    func newItemRule(forKey key: String, itemName: String) -> AutomationRule {
+        AutomationRule(
+            name: String(localized: "Show \(itemName) only when…"),
+            clauses: [AutomationClause(condition: .power(.battery))],
+            action: .showItemOnlyWhile(itemKey: key, hiding: .hidden)
+        )
+    }
+
+    /// Stores the rule of an item. An item has one rule, so an earlier one for the same item
+    /// is replaced.
+    func saveItemRule(_ rule: AutomationRule) {
+        if let key = ItemVisibility.itemKey(of: rule), let old = itemRule(forKey: key), old.id != rule.id {
+            lastItemSections.removeValue(forKey: key)
+        }
+        rules = ItemVisibility.saving(rule, in: rules)
+    }
+
+    /// Removes the rule of the item with the given identity key, if it has one. The item stays
+    /// where the rule put it.
+    func removeItemRule(forKey key: String) {
+        if let rule = itemRule(forKey: key) {
+            removeRule(withID: rule.id)
+        }
+    }
+
+    /// The profile without the items that rules control: a profile leaves them where their
+    /// rule puts them (item rules win). Keys of earlier versions match through the item
+    /// identity; on macOS 27 the applications of the controlled items are left out as well.
+    func removingControlledItems(from profile: LayoutProfile) -> LayoutProfile {
+        let controlled = controlledItemKeys
+        guard !controlled.isEmpty, let appState else {
+            return profile
+        }
+        let itemManager = appState.itemManager
+        var result = profile
+        result.itemSections = ItemVisibility.removingControlled(from: profile.itemSections) {
+            controlled.contains(itemManager.storedIdentityKey($0))
+        }
+        let layoutKeys = layoutKeys(forItemKeys: controlled)
+        result.applicationSections = ItemVisibility.removingControlled(from: profile.applicationSections) {
+            layoutKeys.contains($0)
+        }
+        return result
+    }
+
+    /// The macOS 27 layout keys of the items with the given identity keys, which are the
+    /// applications of the items. holzBar's own bundle never becomes a key: it would conceal
+    /// holzBar's own icon and dividers.
+    private func layoutKeys(forItemKeys keys: Set<String>) -> Set<String> {
+        guard let appState else {
+            return []
+        }
+        let itemManager = appState.itemManager
+        let items = Dictionary(
+            itemManager.itemCache.managedItems.map { (itemManager.identityKey(for: $0), $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        return Set(keys.compactMap { key in
+            OwnBundle.layoutKey(
+                forItemKey: key,
+                itemLayoutKey: items[key]?.layoutKey27,
+                bundleIdentifier: Constants.bundleIdentifier
+            )
+        })
     }
 }

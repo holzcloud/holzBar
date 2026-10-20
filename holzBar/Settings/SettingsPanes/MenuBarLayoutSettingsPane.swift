@@ -18,6 +18,9 @@ struct MenuBarLayoutSettingsPane: View {
             .sheet(isPresented: Bindable(appState.navigationState).isTidyUpPresented) {
                 TidyUpSheet()
             }
+            .sheet(item: Bindable(appState.navigationState).itemRuleTarget) { target in
+                ItemRuleSheet(target: target)
+            }
     }
 
     @ViewBuilder
@@ -163,6 +166,7 @@ private struct StuckOverflowWarning: View {
 /// Saves the current layout as a profile and applies saved ones
 /// (jordanbaird/Ice#26).
 private struct LayoutProfilesSection: View {
+    @Environment(AppState.self) private var appState
     var profiles: LayoutProfiles
     @State private var isNamingProfile = false
     @State private var newProfileName = ""
@@ -225,6 +229,11 @@ private struct LayoutProfilesSection: View {
                     renamedName = profile.name
                     renamedProfile = profile
                 }
+            }
+            let controlledCount = appState.automation.controlledItemKeys.count
+            if controlledCount > 0 {
+                Text("\(controlledCount) items are controlled by rules. A profile leaves them where their rule puts them.")
+                    .foregroundStyle(.secondary)
             }
             HStack {
                 if profiles.profiles.isEmpty {

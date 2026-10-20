@@ -332,7 +332,8 @@ final class LayoutProfiles {
         save()
         logger.notice("Applying layout profile \(profile.name, privacy: .private)")
         appState.snapshots.willApplyProfile()
-        return applyLayout(of: profile)
+        // Item rules win: the items a rule controls stay where their rule puts them.
+        return applyLayout(of: appState.automation.removingControlledItems(from: profile))
     }
 
     /// Moves the items to the sections the layout names, without changing which profile is

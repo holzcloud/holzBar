@@ -418,4 +418,47 @@ nonisolated enum ItemVisibility {
         case .none: return nil
         }
     }
+
+    /// The item of a rule of this kind, whether the rule is on or not.
+    static func itemKey(of rule: AutomationRule) -> String? {
+        if case .showItemOnlyWhile(let key, _) = rule.action {
+            return key
+        }
+        return nil
+    }
+
+    /// The identity keys of the items that rules control now: the items of the rules that are on.
+    static func controlledKeys(in rules: [AutomationRule]) -> Set<String> {
+        Set(rules.filter(\.isEnabled).compactMap(itemKey(of:)))
+    }
+
+    /// The rule of the item with the given key, on or off. An item has one rule.
+    static func rule(forItemKey key: String, in rules: [AutomationRule]) -> AutomationRule? {
+        rules.first { itemKey(of: $0) == key }
+    }
+
+    /// The rules with `rule` saved: it replaces the rule of the same identifier, or is added;
+    /// every other rule of the same item is dropped, since an item has one rule. A rule that
+    /// is not valid, or one that would pass ``AutomationRule/maximumCount``, changes nothing.
+    static func saving(_ rule: AutomationRule, in rules: [AutomationRule]) -> [AutomationRule] {
+        guard let key = itemKey(of: rule), rule.isValid else {
+            return rules
+        }
+        var result = rules.filter { $0.id == rule.id || itemKey(of: $0) != key }
+        if let index = result.firstIndex(where: { $0.id == rule.id }) {
+            result[index] = rule
+        } else if result.count < AutomationRule.maximumCount {
+            result.append(rule)
+        } else {
+            return rules
+        }
+        return result
+    }
+
+    /// The sections of a layout without the items that rules control: a profile leaves them
+    /// where their rule puts them. `isControlled` tells whether a key of the layout is one of
+    /// them, since a stored layout may spell a key the way an earlier version did.
+    static func removingControlled(from sections: [String: Int], where isControlled: (String) -> Bool) -> [String: Int] {
+        sections.filter { !isControlled($0.key) }
+    }
 }
