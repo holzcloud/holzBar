@@ -53,6 +53,9 @@ final class AutomationManager {
     /// Whether a camera and the microphone are in use, while the observer runs.
     @ObservationIgnored private var captureActivity: (camera: Bool, microphone: Bool)?
 
+    @ObservationIgnored private var audioObserver: AutomationAudioObserver?
+    @ObservationIgnored private var bluetoothObserver: AutomationBluetoothObserver?
+
     /// The section each item was last put in by a rule that makes it follow a condition.
     @ObservationIgnored private var lastItemSections = [String: Int]()
     @ObservationIgnored private var itemRuleTask: Task<Void, Never>?
@@ -252,6 +255,24 @@ final class AutomationManager {
             wifiMonitor.start()
         case .capture:
             startCaptureObserver()
+        case .audioOutput:
+            let observer = AutomationAudioObserver()
+            observer.onChange = { [weak self] in
+                self?.scriptsAreHeld = false
+                self?.evaluate()
+                self?.systemEventHandler?()
+            }
+            audioObserver = observer
+            observer.start()
+        case .bluetooth:
+            let observer = AutomationBluetoothObserver()
+            observer.onChange = { [weak self] in
+                self?.scriptsAreHeld = false
+                self?.evaluate()
+                self?.systemEventHandler?()
+            }
+            bluetoothObserver = observer
+            observer.start()
         case .scripts:
             // A script condition is asked when the events of power, network, apps and displays
             // arrive (``AutomationRule/observedSources(of:)``) and after the Mac wakes; never
@@ -283,6 +304,12 @@ final class AutomationManager {
             lastWiFiName = nil
         case .capture:
             stopCaptureObserver()
+        case .audioOutput:
+            audioObserver?.stop()
+            audioObserver = nil
+        case .bluetooth:
+            bluetoothObserver?.stop()
+            bluetoothObserver = nil
         case .lowPowerMode, .runningApps, .frontmostApp, .displays, .scripts:
             break
         }
@@ -492,6 +519,12 @@ final class AutomationManager {
         if needed.contains(.capture), let captureActivity {
             facts.isCameraInUse = captureActivity.camera
             facts.isMicrophoneInUse = captureActivity.microphone
+        }
+        if needed.contains(.audioOutput) {
+            facts.audioOutputName = AudioOutputDevices.defaultOutputName()
+        }
+        if needed.contains(.bluetooth) {
+            facts.connectedBluetoothDevices = AutomationBluetoothObserver.connectedNames()
         }
         facts.scriptResults = scriptResults
         return facts

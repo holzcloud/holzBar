@@ -19532,6 +19532,174 @@
           }
         }
       }
+    },
+    "the Mac plays sound through “%@”" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "der Mac Ton über «%@» ausgibt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "le Mac joue le son via « %@ »"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il Mac riproduce l’audio tramite «%@»"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il Mac dat ora tun tras «%@»"
+          }
+        }
+      }
+    },
+    "the Bluetooth device “%@” is connected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "das Bluetooth-Gerät «%@» verbunden ist"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "l’appareil Bluetooth « %@ » est connecté"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "il dispositivo Bluetooth «%@» è connesso"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "l’apparat Bluetooth «%@» è collià"
+          }
+        }
+      }
+    },
+    "Bluetooth Device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth-Gerät"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appareil Bluetooth"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dispositivo Bluetooth"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparat Bluetooth"
+          }
+        }
+      }
+    },
+    "macOS lets an app see which Bluetooth devices are connected only with your permission. holzBar reads the names of your paired devices and whether they are connected, nothing else. macOS asks for your permission next." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS lässt eine App nur mit deiner Erlaubnis sehen, welche Bluetooth-Geräte verbunden sind. holzBar liest die Namen deiner gekoppelten Geräte und ob sie verbunden sind, sonst nichts. Als Nächstes fragt macOS nach deiner Erlaubnis."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ne permet à une app de voir quels appareils Bluetooth sont connectés qu’avec votre autorisation. holzBar lit les noms de vos appareils appairés et s’ils sont connectés, rien d’autre. macOS demande ensuite votre autorisation."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS permette a un’app di vedere quali dispositivi Bluetooth sono connessi solo con il tuo permesso. holzBar legge i nomi dei dispositivi associati e se sono connessi, nient’altro. Subito dopo macOS chiede il tuo permesso."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS lascha vesair ina app tge apparats Bluetooth che èn colliads mo cun tia permissiun. holzBar legia ils noms da tes apparats associads e sch’els èn colliads, nagut auter. Silsuenter dumonda macOS tia permissiun."
+          }
+        }
+      }
+    },
+    "Sound plays through" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton wird ausgegeben über"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le son est joué via"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’audio passa da"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tun vegn emess via"
+          }
+        }
+      }
+    },
+    "A Bluetooth device is connected…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Bluetooth-Gerät ist verbunden …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un appareil Bluetooth est connecté…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un dispositivo Bluetooth è connesso…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ün apparat Bluetooth è collià …"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

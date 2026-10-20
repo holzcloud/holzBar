@@ -82,6 +82,10 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
     case cameraInUse
     /// Another app records from the microphone.
     case microphoneInUse
+    /// The Mac plays sound through the output device with this name.
+    case audioOutput(String)
+    /// The paired Bluetooth device with this name is connected.
+    case bluetoothConnected(String)
     /// A script the user approved ends with status 0. The name is the file name in the scripts
     /// folder.
     case scriptSucceeds(String)
@@ -114,6 +118,10 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
             return facts.isCameraInUse
         case .microphoneInUse:
             return facts.isMicrophoneInUse
+        case .audioOutput(let name):
+            return facts.audioOutputName.map { $0 == name }
+        case .bluetoothConnected(let name):
+            return facts.connectedBluetoothDevices.map { $0.contains(name) }
         case .scriptSucceeds(let name):
             return facts.scriptResults[name]
         }
@@ -131,7 +139,17 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
         case .network: .network
         case .wifiNetwork: .wifi
         case .cameraInUse, .microphoneInUse: .capture
+        case .audioOutput: .audioOutput
+        case .bluetoothConnected: .bluetooth
         case .scriptSucceeds: .scripts
+        }
+    }
+
+    /// Whether the condition is new and not yet tested on a Mac (the Preview badge).
+    var isPreview: Bool {
+        switch self {
+        case .audioOutput, .bluetoothConnected: true
+        default: false
         }
     }
 
@@ -147,6 +165,8 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
             return !uuid.isEmpty && uuid.utf8.count <= 64
         case .wifiNetwork(let name):
             return !name.isEmpty && name.utf8.count <= 32
+        case .audioOutput(let name), .bluetoothConnected(let name):
+            return !name.isEmpty && name.utf8.count <= 255
         case .scriptSucceeds(let name):
             return ScriptGate.isPlainName(name)
         case .power, .lowPowerMode, .network, .cameraInUse, .microphoneInUse:
@@ -168,6 +188,11 @@ nonisolated enum AutomationSource: CaseIterable, Hashable, Sendable {
     case wifi
     /// Whether another app uses a camera or the microphone.
     case capture
+    /// The Mac's default sound output device.
+    case audioOutput
+    /// Which paired Bluetooth devices are connected. The only source that makes macOS ask for
+    /// the Bluetooth permission, and only while a rule uses it.
+    case bluetooth
     /// Scripts are asked when the events of power, network, running apps, displays and wake
     /// arrive (``AutomationRule/observedSources(of:)``), and by the user's "Check now"; they
     /// have no timer of their own.
@@ -204,6 +229,10 @@ nonisolated struct AutomationFacts: Equatable, Sendable {
     var wifiName: String?
     var isCameraInUse: Bool?
     var isMicrophoneInUse: Bool?
+    /// The name of the default sound output device.
+    var audioOutputName: String?
+    /// The names of the paired Bluetooth devices that are connected now.
+    var connectedBluetoothDevices: Set<String>?
     /// What the approved scripts answered last, by file name. A script not in it is unknown.
     var scriptResults = [String: Bool]()
 }

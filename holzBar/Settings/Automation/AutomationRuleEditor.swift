@@ -23,6 +23,8 @@ struct AutomationRuleEditor: View {
     @FocusState private var isNameFocused: Bool
     @State private var isAskingForWiFiName = false
     @State private var wifiName = ""
+    @State private var isAskingForBluetooth = false
+    @State private var bluetoothNames: [String]?
 
     /// What a rule can do, as the choices of one menu.
     private enum ActionChoice: Hashable {
@@ -98,6 +100,27 @@ struct AutomationRuleEditor: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("macOS shares the Wi-Fi network name only with apps that may use Location Services. holzBar uses it only to read that name and never reads your location. macOS asks for your permission next.")
+        }
+        .alert("Bluetooth Device", isPresented: $isAskingForBluetooth) {
+            Button("Continue") {
+                // The list of paired devices is read only now, after the reason was shown.
+                appState.activate(for: .settings)
+                bluetoothNames = AutomationBluetoothObserver.pairedNames()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("macOS lets an app see which Bluetooth devices are connected only with your permission. holzBar reads the names of your paired devices and whether they are connected, nothing else. macOS asks for your permission next.")
+        }
+        .confirmationDialog(
+            "Bluetooth Device",
+            isPresented: Binding(get: { bluetoothNames != nil }, set: { if !$0 { bluetoothNames = nil } })
+        ) {
+            ForEach(bluetoothNames ?? [], id: \.self) { name in
+                Button(name) {
+                    add(.bluetoothConnected(name))
+                }
+            }
+            Button("Cancel", role: .cancel) {}
         }
     }
 
@@ -199,6 +222,17 @@ struct AutomationRuleEditor: View {
             }
             Button("Microphone in use") {
                 add(.microphoneInUse)
+            }
+            Divider()
+            Menu("Sound plays through") {
+                ForEach(AudioOutputDevices.outputNames(), id: \.self) { name in
+                    Button(name) {
+                        add(.audioOutput(name))
+                    }
+                }
+            }
+            Button("A Bluetooth device is connected…") {
+                isAskingForBluetooth = true
             }
         }
         .menuStyle(.borderlessButton)
@@ -427,6 +461,9 @@ private struct AutomationConditionRow: View {
                 Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst)
                     .font(HolzBarTheme.Typography.body)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                if condition.isPreview {
+                    PreviewBadge()
+                }
                 Button(action: onRemove) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(HolzBarTheme.Palette.textTertiary)
@@ -467,7 +504,7 @@ private struct AutomationConditionRow: View {
         case .time(let window):
             timeSettings(window)
         case .power, .lowPowerMode, .appRunning, .appFrontmost, .displayConnected, .network, .wifiNetwork,
-            .cameraInUse, .microphoneInUse, .scriptSucceeds:
+            .cameraInUse, .microphoneInUse, .audioOutput, .bluetoothConnected, .scriptSucceeds:
             EmptyView()
         }
     }

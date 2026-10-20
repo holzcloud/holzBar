@@ -154,6 +154,31 @@ struct AutomationEngineTests {
         #expect(vpn.evaluate(in: AutomationFacts()) == nil)
     }
 
+    @Test("The sound output and Bluetooth conditions read their own facts and observers")
+    func audioAndBluetoothConditions() {
+        let headphones = AutomationCondition.audioOutput("Headphones")
+        let pods = AutomationCondition.bluetoothConnected("Pods")
+        let onHeadphones = AutomationFacts(audioOutputName: "Headphones")
+        let onSpeakers = AutomationFacts(audioOutputName: "Speakers")
+        let podsOn = AutomationFacts(connectedBluetoothDevices: ["Pods", "Mouse"])
+        let podsOff = AutomationFacts(connectedBluetoothDevices: ["Mouse"])
+        let unknown = AutomationFacts()
+        #expect(headphones.evaluate(in: onHeadphones) == true)
+        #expect(headphones.evaluate(in: onSpeakers) == false)
+        #expect(headphones.evaluate(in: unknown) == nil)
+        #expect(pods.evaluate(in: podsOn) == true)
+        #expect(pods.evaluate(in: podsOff) == false)
+        #expect(pods.evaluate(in: unknown) == nil)
+        #expect(headphones.source == .audioOutput)
+        #expect(pods.source == .bluetooth)
+        #expect(headphones.isValid)
+        #expect(pods.isValid)
+        #expect(AutomationCondition.audioOutput("").isValid == false)
+        #expect(headphones.isPreview)
+        #expect(pods.isPreview)
+        #expect(AutomationCondition.cameraInUse.isPreview == false)
+    }
+
     @Test("The camera and microphone conditions read their own facts and one observer")
     func captureConditions() {
         let facts = AutomationFacts(isCameraInUse: true, isMicrophoneInUse: false)
