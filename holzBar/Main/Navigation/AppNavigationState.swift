@@ -19,7 +19,18 @@ final class AppNavigationState {
     var settingsNavigationIdentifier: SettingsNavigationIdentifier = .general
     /// Whether the Menu Bar Layout pane shows the clean-up assistant.
     var isTidyUpPresented = false
+    /// The item whose rule ("Show Only When…") the Menu Bar Layout pane edits, if any.
+    var itemRuleTarget: ItemRuleTarget?
 
     /// The Settings window, while it exists. Its visibility is ``isSettingsPresented``.
     @ObservationIgnored weak var settingsWindow: NSWindow?
+}
+
+/// The menu bar item that a rule is made or edited for.
+struct ItemRuleTarget: Identifiable, Equatable {
+    /// The item's identity key.
+    let key: String
+    let name: String
+
+    var id: String { key }
 }

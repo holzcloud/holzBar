@@ -86,7 +86,7 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's next
 
-**0.0.8 beta 4 is out** on the beta channel; the stable 0.0.8 follows once the Preview features have been tested (see the [release notes](docs/release-notes/v0.0.8-beta4.md) and [what is new](docs/features.md#new-in-008)): rules, scripts, per-item conditions, widgets, layout snapshots, a Touch ID lock, menu bar styles, dragging items without ⌘ and support for macOS 27's own overflow button. All of it is marked **Preview**: built, **not yet tested on a Mac**, and each feature carries a Preview badge in the app (the Focus filter, which you set up in System Settings, is marked Preview here only). Report what does not work.
+**0.0.8 beta 5 is out** on the beta channel; the stable 0.0.8 follows once the Preview features have been tested (see the [release notes](docs/release-notes/v0.0.8-beta5.md) and [what is new](docs/features.md#new-in-008)): rules, scripts, per-item conditions, widgets, layout snapshots, a Touch ID lock, menu bar styles, dragging items without ⌘ and support for macOS 27's own overflow button. All of it is marked **Preview**: built, **not yet tested on a Mac**, and each feature carries a Preview badge in the app (the Focus filter, which you set up in System Settings, is marked Preview here only). Report what does not work.
 
 **Planned, not available yet:** an AppleScript dictionary, a command palette and smooth show and hide in 0.0.9, then settings sync and a notch hub in 1.0.0. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
 

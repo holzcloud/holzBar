@@ -14,6 +14,10 @@ struct AutomationRuleEditor: View {
     let profileNames: [String]
     /// Puts the keyboard focus into the Name field, for a rule that was just added.
     let focusesName: Bool
+    /// The name of the item when the rule is the rule of one item (made from the item's menu in
+    /// Menu Bar Layout). The editor then has no action to choose: the rule shows that item only
+    /// while its conditions hold.
+    var itemName: String?
     let onDelete: () -> Void
 
     @FocusState private var isNameFocused: Bool
@@ -52,27 +56,36 @@ struct AutomationRuleEditor: View {
             }
             addConditionMenu
             heading("Then")
-            actionPicker
-            if case .applyProfile(let name) = rule.action {
+            if let itemName {
+                Text("\(itemName) is shown only while this is true.")
+                    .font(HolzBarTheme.Typography.callout)
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                if case .showItemOnlyWhile(let key, let hiding) = rule.action {
+                    hidingPicker(key: key, hiding: hiding)
+                }
+            } else {
+                actionPicker
+            }
+            if itemName == nil, case .applyProfile(let name) = rule.action {
                 profilePicker(selection: name)
             }
-            if case .showItemOnlyWhile(let key, let hiding) = rule.action {
+            if itemName == nil, case .showItemOnlyWhile(let key, let hiding) = rule.action {
                 itemPicker(key: key, hiding: hiding)
             }
-            if case .runScript(let name) = rule.action {
+            if itemName == nil, case .runScript(let name) = rule.action {
                 HStack(spacing: HolzBarTheme.Spacing.sm) {
                     scriptPicker(name: name)
                     PreviewBadge()
                 }
             }
-            if restoresApply {
+            if itemName == nil, restoresApply {
                 if case .runScript = rule.action {
                     Toggle("Also run it when the rule stops being true", isOn: $rule.restoresWhenEnded)
                 } else {
                     Toggle("When it stops being true, go back", isOn: $rule.restoresWhenEnded)
                 }
             }
-            Button("Delete Rule", role: .destructive, action: onDelete)
+            Button(itemName == nil ? "Delete Rule" : "Remove Rule", role: .destructive, action: onDelete)
                 .padding(.top, HolzBarTheme.Spacing.xs)
         }
         .task {
@@ -379,6 +392,10 @@ struct AutomationRuleEditor: View {
                 Text(verbatim: AutomationDescription.itemName(forKey: key)).tag(key)
             }
         }
+        hidingPicker(key: key, hiding: hiding)
+    }
+
+    private func hidingPicker(key: String, hiding: AutomationSection) -> some View {
         Picker(
             "Otherwise hide it in",
             selection: Binding(

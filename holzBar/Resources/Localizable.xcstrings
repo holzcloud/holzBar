@@ -18720,6 +18720,230 @@
           }
         }
       }
+    },
+    "Show %@ only when…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ nur zeigen, wenn …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher %@ seulement si…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra %@ solo quando…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar %@ mo cura che…"
+          }
+        }
+      }
+    },
+    "Show Only When…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur zeigen, wenn …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher seulement si…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra solo quando…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar mo cura che…"
+          }
+        }
+      }
+    },
+    "Edit Rule…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regel bearbeiten …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier la règle…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifica regola…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifitgar la regla…"
+          }
+        }
+      }
+    },
+    "Remove Rule" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regel entfernen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer la règle"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi regola"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allontanar la regla"
+          }
+        }
+      }
+    },
+    "%@\nShown only while the rule “%@” holds" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\nNur sichtbar, solange die Regel «%@» gilt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\nVisible seulement tant que la règle « %@ » est vraie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\nVisibile solo finché la regola «%@» è vera"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@\nVisibel mo uschè ditg che la regla «%@» vala"
+          }
+        }
+      }
+    },
+    "%@ is shown only while this is true." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ wird nur gezeigt, solange das gilt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ n’est affiché que tant que cela est vrai."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ viene mostrato solo finché questo è vero."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ vegn mussà mo uschè ditg che quai vala."
+          }
+        }
+      }
+    },
+    "%@ is moved into a hidden section while the conditions do not hold, and back to the visible bar while they do. Nothing happens while a condition cannot be read. A profile leaves this item where its rule puts it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ wird in einen versteckten Bereich verschoben, solange die Bedingungen nicht gelten, und zurück in die sichtbare Leiste, solange sie gelten. Es passiert nichts, solange sich eine Bedingung nicht lesen lässt. Ein Profil lässt dieses Element dort, wo seine Regel es hinstellt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ passe dans une section masquée tant que les conditions ne sont pas remplies, et revient dans la barre visible tant qu’elles le sont. Rien ne se passe tant qu’une condition ne peut pas être lue. Un profil laisse cet élément là où sa règle le met."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ viene spostato in una sezione nascosta finché le condizioni non sono vere, e torna nella barra visibile finché lo sono. Non succede nulla finché una condizione non può essere letta. Un profilo lascia questo elemento dove lo mette la sua regola."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ vegn mess en ina secziun zuppada uschè ditg che las cundiziuns na valan betg, e turna en la trav visibla uschè ditg ch’ellas valan. Nagut na capita uschè ditg che ina cundiziun na po betg vegnir legida. In profil lascha quest element là nua che sia regla til metta."
+          }
+        }
+      }
+    },
+    "%lld items are controlled by rules. A profile leaves them where their rule puts them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Elemente werden von Regeln gesteuert. Ein Profil lässt sie dort, wo ihre Regel sie hinstellt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld éléments sont pilotés par des règles. Un profil les laisse là où leur règle les met."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld elementi sono controllati da regole. Un profilo li lascia dove li mette la loro regola."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld elements vegnan controllads da reglas. In profil als lascha là nua che lur regla als metta."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

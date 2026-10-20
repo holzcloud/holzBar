@@ -349,6 +349,47 @@ struct AutomationEngineTests {
         #expect(ItemVisibility.wantedSection(of: off, facts: AutomationFacts(networkKinds: [.vpn])) == nil)
     }
 
+    @Test("An item has one rule, and only the rules that are on control it")
+    func itemRules() throws {
+        let first = rule("A", [battery], action: .showItemOnlyWhile(itemKey: "a:A", hiding: .hidden))
+        var second = rule("B", [battery], action: .showItemOnlyWhile(itemKey: "b:B", hiding: .hidden))
+        second.isEnabled = false
+        let other = rule("Zen", [battery], action: .zen(true))
+        let rules = [first, second, other]
+        #expect(ItemVisibility.controlledKeys(in: rules) == ["a:A"])
+        #expect(ItemVisibility.rule(forItemKey: "b:B", in: rules)?.id == second.id)
+        #expect(ItemVisibility.rule(forItemKey: "c:C", in: rules) == nil)
+
+        // A new rule for an item that has one replaces it; the other rules stay.
+        let replacement = rule("A again", [battery], action: .showItemOnlyWhile(itemKey: "a:A", hiding: .alwaysHidden))
+        let saved = ItemVisibility.saving(replacement, in: rules)
+        #expect(saved.map(\.name) == ["B", "Zen", "A again"])
+        // Saving the same rule again edits it in place.
+        var edited = replacement
+        edited.name = "Edited"
+        #expect(ItemVisibility.saving(edited, in: saved).map(\.name) == ["B", "Zen", "Edited"])
+        // A rule that is not valid, or not of this kind, changes nothing.
+        var invalid = replacement
+        invalid.clauses = []
+        #expect(ItemVisibility.saving(invalid, in: rules) == rules)
+        #expect(ItemVisibility.saving(other, in: rules) == rules)
+    }
+
+    @Test("A full list takes no new item rule")
+    func itemRuleLimit() {
+        let full = (0..<AutomationRule.maximumCount).map { rule("R\($0)", [battery], action: .zen(true)) }
+        let added = rule("New", [battery], action: .showItemOnlyWhile(itemKey: "a:A", hiding: .hidden))
+        #expect(ItemVisibility.saving(added, in: full) == full)
+    }
+
+    @Test("A profile leaves the items that rules control where they are")
+    func controlledItemsAreRemoved() {
+        let sections = ["a:A": 1, "b:B": 2, "c:C": 0]
+        let kept = ItemVisibility.removingControlled(from: sections) { $0 == "a:A" }
+        #expect(kept == ["b:B": 2, "c:C": 0])
+        #expect(ItemVisibility.removingControlled(from: sections) { _ in false } == sections)
+    }
+
     @Test("The engine leaves rules that follow a condition to the item logic")
     func engineSkipsItemRules() {
         let rule = rule(

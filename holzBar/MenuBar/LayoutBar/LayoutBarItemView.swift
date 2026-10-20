@@ -15,6 +15,25 @@ final class LayoutBarItemView: NSView {
     /// Observes the item's image.
     private var imageObserver: ObservationLoop?
 
+    /// Observes the item's rule ("Show Only When…").
+    private var ruleObserver: ObservationLoop?
+
+    /// The rule that shows this item only while a condition holds, on or off.
+    private var itemRule: AutomationRule? {
+        didSet {
+            guard itemRule != oldValue else {
+                return
+            }
+            updateRuleToolTip()
+            needsDisplay = true
+        }
+    }
+
+    /// Whether a rule that is on controls the item now.
+    private var isControlledByRule: Bool {
+        itemRule?.isEnabled == true
+    }
+
     /// The item that the view represents.
     let item: MenuBarItem
 
@@ -93,6 +112,7 @@ final class LayoutBarItemView: NSView {
         }
 
         configureObservers()
+        configureRuleObserver()
     }
 
     @available(*, unavailable)
@@ -114,6 +134,32 @@ final class LayoutBarItemView: NSView {
                 return
             }
             displayImage = image
+        }
+    }
+
+    /// Follows the item's rule, so the badge and the menu are right when a rule is made,
+    /// changed, switched or removed, here or in the Automation pane.
+    private func configureRuleObserver() {
+        guard let appState, !item.isControlItem else {
+            return
+        }
+        let automation = appState.automation
+        let key = appState.itemManager.identityKey(for: item)
+        itemRule = automation.itemRule(forKey: key)
+        ruleObserver = ObservationLoop.observe { automation.itemRule(forKey: key) } onChange: { [weak self] rule in
+            self?.itemRule = rule
+        }
+    }
+
+    /// Adds the rule to the tooltip of a movable item.
+    private func updateRuleToolTip() {
+        guard isEnabled else {
+            return
+        }
+        if isControlledByRule, let name = itemRule?.name {
+            toolTip = String(localized: "\(item.displayName)\nShown only while the rule \u{201C}\(name)\u{201D} holds")
+        } else {
+            toolTip = item.displayName
         }
     }
 
@@ -170,9 +216,34 @@ final class LayoutBarItemView: NSView {
         tinted.draw(in: bounds, from: .zero, operation: .sourceOver, fraction: fraction)
     }
 
+    /// A small eye with a slash at the item's corner: a rule shows this item only sometimes.
+    private func drawRuleBadge() {
+        let configuration = NSImage.SymbolConfiguration(pointSize: 9, weight: .bold)
+            .applying(.init(paletteColors: [.white]))
+        guard let symbol = NSImage(systemSymbolName: "eye.slash.fill", accessibilityDescription: nil)?
+            .withSymbolConfiguration(configuration)
+        else {
+            return
+        }
+        let diameter: CGFloat = 12
+        let circle = NSRect(x: bounds.maxX - diameter, y: bounds.maxY - diameter, width: diameter, height: diameter)
+        NSColor.controlAccentColor.setFill()
+        NSBezierPath(ovalIn: circle).fill()
+        let size = symbol.size
+        symbol.draw(in: NSRect(
+            x: circle.midX - size.width / 2,
+            y: circle.midY - size.height / 2,
+            width: size.width,
+            height: size.height
+        ))
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         if !isDraggingPlaceholder {
             drawDisplayImage()
+            if isControlledByRule {
+                drawRuleBadge()
+            }
             if Bridging.isProcessUnresponsive(responsivenessPID) {
                 let warningImage = NSImage.warning
                 let width: CGFloat = 15
@@ -237,6 +308,26 @@ final class LayoutBarItemView: NSView {
             menu.autoenablesItems = false
             menu.addItem(.separator())
         }
+        if appState != nil, !item.isControlItem {
+            let ruleItem = NSMenuItem(
+                title: itemRule == nil
+                    ? String(localized: "Show Only When…")
+                    : String(localized: "Edit Rule…"),
+                action: #selector(editItemRule),
+                keyEquivalent: ""
+            )
+            ruleItem.target = self
+            menu.addItem(ruleItem)
+            if itemRule != nil {
+                let removeItem = NSMenuItem(
+                    title: String(localized: "Remove Rule"),
+                    action: #selector(removeItemRule),
+                    keyEquivalent: ""
+                )
+                removeItem.target = self
+                menu.addItem(removeItem)
+            }
+        }
         if let watcher = appState?.itemChangeWatcher, !item.isControlItem {
             let changeItem = NSMenuItem(
                 title: String(localized: "Show When It Changes"),
@@ -263,6 +354,25 @@ final class LayoutBarItemView: NSView {
     /// Goes back to the item's own picture.
     @objc private func resetImage() {
         appState?.itemIconStore.reset(for: item)
+    }
+
+    /// Opens the item's rule in the Menu Bar Layout pane: a new one, or the one it has.
+    @objc private func editItemRule() {
+        guard let appState else {
+            return
+        }
+        appState.navigationState.itemRuleTarget = ItemRuleTarget(
+            key: appState.itemManager.identityKey(for: item),
+            name: item.displayName
+        )
+    }
+
+    /// Removes the item's rule. The item stays where the rule put it.
+    @objc private func removeItemRule() {
+        guard let appState else {
+            return
+        }
+        appState.automation.removeItemRule(forKey: appState.itemManager.identityKey(for: item))
     }
 
     /// Marks or unmarks the item "Show When It Changes".
@@ -452,8 +562,32 @@ final class LayoutBarItemView: NSView {
                 actions.append(NSAccessibilityCustomAction(name: String(localized: "Move Right"), target: self, selector: #selector(accessibilityMoveRight)))
             }
         }
+        if appState != nil, !item.isControlItem {
+            actions.append(NSAccessibilityCustomAction(
+                name: itemRule == nil ? String(localized: "Show Only When…") : String(localized: "Edit Rule…"),
+                target: self,
+                selector: #selector(accessibilityEditItemRule)
+            ))
+            if itemRule != nil {
+                actions.append(NSAccessibilityCustomAction(
+                    name: String(localized: "Remove Rule"),
+                    target: self,
+                    selector: #selector(accessibilityRemoveItemRule)
+                ))
+            }
+        }
         actions.append(NSAccessibilityCustomAction(name: String(localized: "Set Hotkey…"), target: self, selector: #selector(accessibilitySetHotkey)))
         return actions
+    }
+
+    @objc private func accessibilityEditItemRule() -> Bool {
+        editItemRule()
+        return true
+    }
+
+    @objc private func accessibilityRemoveItemRule() -> Bool {
+        removeItemRule()
+        return true
     }
 
     @objc private func accessibilityMoveToVisible() -> Bool {
