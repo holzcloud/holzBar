@@ -32,7 +32,6 @@ struct AutomationSettingsPane: View {
 
     var body: some View {
         HolzBarForm(alignment: .leading, spacing: HolzBarTheme.Spacing.md) {
-            PreviewBadge()
             Text("When something happens, holzBar changes the menu bar for you. With no rules, nothing is observed.")
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)

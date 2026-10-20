@@ -36,9 +36,6 @@ struct MenuBarShapePicker: View {
                     Text(shapeKind.localized).tag(shapeKind)
                 }
             }
-            if configuration.shapeKind.drawnKind == .sections {
-                PreviewBadge()
-            }
         }
     }
 

@@ -24,7 +24,7 @@ The Liquid Glass slider of macOS 27 (System Settings, Appearance; three steps ac
 
 ## macOS 27's own overflow button
 
-Preview, from 0.0.8: built and unit tested, not yet tested on a Mac. On a crowded bar beside the notch, macOS 27 folds the items that do not fit behind its own « control and shows them left of the notch when it is clicked. The only public description of that control is a press article; there is no API, and apps cannot control it.
+From 0.0.8. On a crowded bar beside the notch, macOS 27 folds the items that do not fit behind its own « control and shows them left of the notch when it is clicked. The only public description of that control is a press article; there is no API, and apps cannot control it.
 
 holzBar tells four states from the frames it already reads through Accessibility (no new permission, no new data): none, collapsed, expanded and unknown. Expanded needs two agreeing facts: nothing is stacked on the control, and items are drawn left of the notch. While it is expanded, the holzBar Shelf leaves out a covered item that macOS draws beside the notch, so nothing is listed twice. In every other state, including unknown, and on another display, the Shelf lists covered items as before, because hiding an item that is not on screen would make it unreachable. The state is read again when the Shelf or Copy Diagnostics opens and after holzBar's own concealment settles (which includes a click on the control while items are concealed), with no timer. holzBar never clicks the control and conceals exactly as before.
 
@@ -32,11 +32,11 @@ The last line of Settings → About → Copy Diagnostics names the state on macO
 
 ## Menu bar styles
 
-Preview, from 0.0.8: built and unit tested, not yet tested on a Mac. Single, Paired, the shape of its own for the Apple logo, the outlines and the gradients work on macOS 27 as on macOS 26. Sections is not offered on macOS 27: macOS decides the order of the items and holzBar hides whole applications, so the items of one section do not stand together and holzBar's dividers mark no boundary on the bar; a Sections choice that comes from another Mac or a settings file is drawn as Paired. The Apple-logo shape takes the Apple menu's position from the application-menu read holzBar already makes (no new permission); on macOS 27 that read skips holzBar's own menus, so the last position is kept while holzBar is in front.
+From 0.0.8. Single, Paired, the shape of its own for the Apple logo, the outlines and the gradients work on macOS 27 as on macOS 26. Sections is not offered on macOS 27: macOS decides the order of the items and holzBar hides whole applications, so the items of one section do not stand together and holzBar's dividers mark no boundary on the bar; a Sections choice that comes from another Mac or a settings file is drawn as Paired. The Apple-logo shape takes the Apple menu's position from the application-menu read holzBar already makes (no new permission); on macOS 27 that read skips holzBar's own menus, so the last position is kept while holzBar is in front.
 
 ## Drag items in the menu bar
 
-Preview, from 0.0.8: built and unit tested, not yet tested on a Mac. An optional module in Settings → Menu Bar Layout, on macOS 26 and 27, off until you switch it on. While it is on, holzBar holds back a plain click on an app's menu bar item: moving it sideways turns it into the ⌘ Command-drag macOS performs, and releasing it opens the item's menu as a normal click (so the menu opens on release).
+From 0.0.8. An optional module in Settings → Menu Bar Layout, on macOS 26 and 27, off until you switch it on. While it is on, holzBar holds back a plain click on an app's menu bar item: moving it sideways turns it into the ⌘ Command-drag macOS performs, and releasing it opens the item's menu as a normal click (so the menu opens on release).
 
 macOS 27 draws no holzBar dividers and decides the order of the items itself, so sections are reached through the holzBar icon: drop an item on the holzBar icon and its app moves to Hidden, as in Menu Bar Layout; drag an item of a hidden app elsewhere while the hidden items show and its app becomes visible again. Every other drop is macOS's own reorder, which holzBar does not record, because Menu Bar Layout cannot reorder items on macOS 27 either.
 

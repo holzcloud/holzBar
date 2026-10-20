@@ -198,10 +198,7 @@ struct GeneralSettingsPane: View {
                     .annotation {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Visible items that the notch hides, for example behind a long application menu, also appear in the holzBar Shelf.")
-                            HStack(alignment: .firstTextBaseline, spacing: HolzBarTheme.Spacing.sm) {
-                                Text("On macOS 27, items that macOS shows in its own expanded overflow are not listed a second time.")
-                                PreviewBadge()
-                            }
+                            Text("On macOS 27, items that macOS shows in its own expanded overflow are not listed a second time.")
                         }
                     }
             } else {

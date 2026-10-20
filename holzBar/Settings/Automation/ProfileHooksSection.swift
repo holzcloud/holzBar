@@ -28,14 +28,11 @@ struct ProfileHooksSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text("Profile Hooks")
-                    .font(HolzBarTheme.Typography.caption)
-                    .textCase(.uppercase)
-                    .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-                    .accessibilityAddTraits(.isHeader)
-                PreviewBadge()
-            }
+            Text("Profile Hooks")
+                .font(HolzBarTheme.Typography.caption)
+                .textCase(.uppercase)
+                .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+                .accessibilityAddTraits(.isHeader)
             VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
                 Text("Run a script you allowed before or after a layout profile is applied.")
                 Text("holzBar waits for scripts that run before a profile, up to their time limit.")

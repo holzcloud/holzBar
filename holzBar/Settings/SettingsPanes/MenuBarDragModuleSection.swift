@@ -23,8 +23,7 @@ struct MenuBarDragModuleSection: View {
                     set: { isOn in
                         appState.modules.setEnabled(MenuBarDragController.moduleID, isOn)
                     }
-                ),
-                isPreview: true
+                )
             ) {
                 if #available(macOS 27.0, *) {
                     Text("Drop an item on the holzBar icon to hide its app.")

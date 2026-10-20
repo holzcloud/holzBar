@@ -250,10 +250,7 @@ struct AdvancedSettingsPane: View {
                 set: { Defaults.set(!$0, forKey: .systemItemsMayHide) }
             )
         ) {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text("Keep the clock, battery, Wi-Fi, Control Center and sound visible")
-                PreviewBadge()
-            }
+            Text("Keep the clock, battery, Wi-Fi, Control Center and sound visible")
         }
         .annotation("Profiles, restored layouts and rules leave these items where they are. You can still move them yourself.")
     }
@@ -265,10 +262,7 @@ struct AdvancedSettingsPane: View {
                 set: { appState.hiddenItemsLock.setEnabled($0) }
             )
         ) {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text("Ask for Touch ID or your password before showing hidden items")
-                PreviewBadge()
-            }
+            Text("Ask for Touch ID or your password before showing hidden items")
         }
         .annotation("This keeps someone at your unlocked Mac from seeing your hidden items. Turning it off asks too. It is not protection against someone who knows your password.")
     }
@@ -311,7 +305,6 @@ struct AdvancedSettingsPane: View {
                             Button("Revoke…") {
                                 revokingPermission = permission
                             }
-                            PreviewBadge()
                         }
                     }
                 } else {

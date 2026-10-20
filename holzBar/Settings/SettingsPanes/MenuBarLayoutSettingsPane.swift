@@ -42,7 +42,6 @@ struct MenuBarLayoutSettingsPane: View {
                         Button("Tidy Up…") {
                             appState.navigationState.isTidyUpPresented = true
                         }
-                        PreviewBadge()
                     }
                     .padding(10)
                 }
@@ -247,7 +246,6 @@ private struct LayoutProfilesSection: View {
                 Button("Import Profile…") {
                     chooseProfileFile()
                 }
-                PreviewBadge()
                 Button("Save Current Layout…") {
                     newProfileName = profiles.currentProfileName ?? ""
                     isNamingProfile = true

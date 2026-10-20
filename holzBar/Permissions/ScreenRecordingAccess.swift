@@ -100,11 +100,8 @@ struct ScreenRecordingHint: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text(feature.reason.localizedFromCatalog)
-                    .multilineTextAlignment(.center)
-                PreviewBadge()
-            }
+            Text(feature.reason.localizedFromCatalog)
+                .multilineTextAlignment(.center)
             allowButton
             Text(reopenNote)
                 .font(.callout)
