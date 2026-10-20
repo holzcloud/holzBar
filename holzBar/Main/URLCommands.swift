@@ -65,6 +65,13 @@ enum URLCommands {
             logger.warning("Ignoring a URL that is not a holzBar command")
             return
         }
+        perform(command, appState: appState)
+    }
+
+    /// Performs a command from another app: a URL, or an Apple event of the AppleScript
+    /// dictionary. Both go through the same decision, the same questions and the same Zen
+    /// mode rules (T-13-M1).
+    static func perform(_ command: URLCommand, appState: AppState) {
         let manager = appState.menuBarManager
         // Only the command is logged, never the URL or its arguments (profile names).
         logger.notice("Performing \(command.name, privacy: .public)")
