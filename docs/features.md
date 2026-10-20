@@ -71,7 +71,7 @@
 
 ## New in 0.0.9 beta 1
 
-0.0.9 beta 1 is out on the beta channel; see its [release notes](release-notes/v0.0.9-beta1.md). Everything here is a **Preview**: built and unit tested, not yet tested on a Mac, and each carries a Preview badge in the app.
+0.0.9 beta 2 is out on the beta channel; see its [release notes](release-notes/v0.0.9-beta2.md). Everything here is a **Preview**: built and unit tested, not yet tested on a Mac, and each carries a Preview badge in the app.
 
 **Automation**
 - **Command palette**: a hotkey (set it in Settings → Hotkeys) opens a Spotlight-like panel. Type to find an action, a layout profile, a mood, a rule or a menu bar item; Return runs it, Escape closes it. Abbreviations and typos work as in the item search, and starting with `>` leaves out the menu bar items. It keeps no history and needs no permission; with the Touch ID lock on it asks first, because it lists hidden items.
