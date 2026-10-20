@@ -282,6 +282,10 @@ extension HotkeyAction {
             String(localized: "Zen mode")
         case .showItemHints:
             String(localized: "Open an item by letter")
+        case .toggleKeepAwake:
+            String(localized: "Keep the Mac awake")
+        case .openCommandPalette:
+            String(localized: "Open the command palette")
         }
     }
 }

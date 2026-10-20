@@ -21,6 +21,8 @@ struct HotkeyStorageTests {
             "ToggleAutoRehide",
             "ToggleZenMode",
             "ShowItemHints",
+            "ToggleKeepAwake",
+            "OpenCommandPalette",
         ])
     }
 

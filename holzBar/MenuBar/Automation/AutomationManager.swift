@@ -841,6 +841,16 @@ final class AutomationManager {
         }
     }
 
+    /// Whether holzBar keeps the Mac awake now.
+    var isKeepAwakeOn: Bool {
+        keepAwakeActivity != nil
+    }
+
+    /// Keeps the Mac awake or lets it sleep, as the user asked (its hotkey or the palette).
+    func toggleKeepAwake() {
+        setKeepAwake(!isKeepAwakeOn)
+    }
+
     /// Keeps the Mac and its display awake, or lets them sleep. The activity is a hold on idle
     /// sleep only; the user can still sleep the Mac, and it ends when holzBar quits.
     private func setKeepAwake(_ isOn: Bool) {
@@ -848,13 +858,13 @@ final class AutomationManager {
             guard keepAwakeActivity == nil else {
                 return
             }
-            logger.notice("An automation rule keeps the Mac awake")
+            logger.notice("holzBar keeps the Mac awake")
             keepAwakeActivity = ProcessInfo.processInfo.beginActivity(
                 options: [.idleSystemSleepDisabled, .idleDisplaySleepDisabled],
-                reason: "An automation rule keeps the Mac awake"
+                reason: "holzBar keeps the Mac awake"
             )
         } else if let activity = keepAwakeActivity {
-            logger.notice("An automation rule lets the Mac sleep again")
+            logger.notice("holzBar lets the Mac sleep again")
             ProcessInfo.processInfo.endActivity(activity)
             keepAwakeActivity = nil
         }
