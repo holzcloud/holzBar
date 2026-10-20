@@ -23,10 +23,13 @@ struct AutomationRuleEditor: View {
     @FocusState private var isNameFocused: Bool
     @State private var isAskingForWiFiName = false
     @State private var wifiName = ""
+    @State private var isAskingForBluetooth = false
+    @State private var bluetoothNames: [String]?
 
     /// What a rule can do, as the choices of one menu.
     private enum ActionChoice: Hashable {
         case profile
+        case mood
         case hiddenSection
         case alwaysHiddenSection
         case zenOn
@@ -69,6 +72,9 @@ struct AutomationRuleEditor: View {
             if itemName == nil, case .applyProfile(let name) = rule.action {
                 profilePicker(selection: name)
             }
+            if itemName == nil, case .applyMood(let name) = rule.action {
+                moodPicker(selection: name)
+            }
             if itemName == nil, case .showItemOnlyWhile(let key, let hiding) = rule.action {
                 itemPicker(key: key, hiding: hiding)
             }
@@ -98,6 +104,27 @@ struct AutomationRuleEditor: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("macOS shares the Wi-Fi network name only with apps that may use Location Services. holzBar uses it only to read that name and never reads your location. macOS asks for your permission next.")
+        }
+        .alert("Bluetooth Device", isPresented: $isAskingForBluetooth) {
+            Button("Continue") {
+                // The list of paired devices is read only now, after the reason was shown.
+                appState.activate(for: .settings)
+                bluetoothNames = AutomationBluetoothObserver.pairedNames()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("macOS lets an app see which Bluetooth devices are connected only with your permission. holzBar reads the names of your paired devices and whether they are connected, nothing else. macOS asks for your permission next.")
+        }
+        .confirmationDialog(
+            "Bluetooth Device",
+            isPresented: Binding(get: { bluetoothNames != nil }, set: { if !$0 { bluetoothNames = nil } })
+        ) {
+            ForEach(bluetoothNames ?? [], id: \.self) { name in
+                Button(name) {
+                    add(.bluetoothConnected(name))
+                }
+            }
+            Button("Cancel", role: .cancel) {}
         }
     }
 
@@ -200,6 +227,17 @@ struct AutomationRuleEditor: View {
             Button("Microphone in use") {
                 add(.microphoneInUse)
             }
+            Divider()
+            Menu("Sound plays through") {
+                ForEach(AudioOutputDevices.outputNames(), id: \.self) { name in
+                    Button(name) {
+                        add(.audioOutput(name))
+                    }
+                }
+            }
+            Button("A Bluetooth device is connected…") {
+                isAskingForBluetooth = true
+            }
         }
         .menuStyle(.borderlessButton)
         .fixedSize()
@@ -237,6 +275,7 @@ struct AutomationRuleEditor: View {
             get: {
                 switch rule.action {
                 case .applyProfile: .profile
+                case .applyMood: .mood
                 case .showSection(.hidden): .hiddenSection
                 case .showSection(.alwaysHidden): .alwaysHiddenSection
                 case .zen(true): .zenOn
@@ -261,6 +300,8 @@ struct AutomationRuleEditor: View {
                 switch choice {
                 case .profile:
                     rule.action = .applyProfile(profileNames.first ?? "")
+                case .mood:
+                    rule.action = .applyMood(appState.appearanceManager.moods.first?.name ?? "")
                 case .hiddenSection:
                     rule.action = .showSection(.hidden)
                 case .alwaysHiddenSection:
@@ -285,6 +326,7 @@ struct AutomationRuleEditor: View {
     private var actionPicker: some View {
         Picker("Action", selection: actionChoice) {
             Text("Apply a layout profile").tag(ActionChoice.profile)
+            Text("Switch to a mood").tag(ActionChoice.mood)
             Text("Show the hidden section").tag(ActionChoice.hiddenSection)
             Text("Show the always-hidden section").tag(ActionChoice.alwaysHiddenSection)
             Text("Turn Zen mode on").tag(ActionChoice.zenOn)
@@ -312,6 +354,30 @@ struct AutomationRuleEditor: View {
             ) {
                 ForEach(profileNames, id: \.self) { profileName in
                     Text(verbatim: profileName).tag(profileName)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func moodPicker(selection name: String) -> some View {
+        let moods = appState.appearanceManager.moods
+        if moods.isEmpty && name.isEmpty {
+            Text("Save a mood in Menu Bar Appearance first.")
+                .font(HolzBarTheme.Typography.caption)
+                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+        } else {
+            Picker(
+                "Mood",
+                selection: Binding(
+                    get: { name },
+                    set: { rule.action = .applyMood($0) }
+                )
+            ) {
+                // A mood the rule names that was deleted stays in the list, so the row says what
+                // it was for.
+                ForEach(moods.map(\.name).contains(name) || name.isEmpty ? moods.map(\.name) : moods.map(\.name) + [name], id: \.self) { moodName in
+                    Text(verbatim: moodName).tag(moodName)
                 }
             }
         }
@@ -409,7 +475,7 @@ struct AutomationRuleEditor: View {
     /// script, run it again with `HOLZBAR_EVENT=rule-ended`.
     private var restoresApply: Bool {
         switch rule.action {
-        case .applyProfile, .zen, .keepAwake, .runScript: true
+        case .applyProfile, .applyMood, .zen, .keepAwake, .runScript: true
         case .showSection, .showItemOnlyWhile: false
         }
     }
@@ -427,6 +493,9 @@ private struct AutomationConditionRow: View {
                 Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst)
                     .font(HolzBarTheme.Typography.body)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                if condition.isPreview {
+                    PreviewBadge()
+                }
                 Button(action: onRemove) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(HolzBarTheme.Palette.textTertiary)
@@ -467,7 +536,7 @@ private struct AutomationConditionRow: View {
         case .time(let window):
             timeSettings(window)
         case .power, .lowPowerMode, .appRunning, .appFrontmost, .displayConnected, .network, .wifiNetwork,
-            .cameraInUse, .microphoneInUse, .scriptSucceeds:
+            .cameraInUse, .microphoneInUse, .audioOutput, .bluetoothConnected, .scriptSucceeds:
             EmptyView()
         }
     }

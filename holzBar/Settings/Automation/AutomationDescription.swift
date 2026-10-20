@@ -58,6 +58,10 @@ enum AutomationDescription {
             String(localized: "another app uses a camera")
         case .microphoneInUse:
             String(localized: "another app records from the microphone")
+        case .audioOutput(let name):
+            String(localized: "the Mac plays sound through “\(name)”")
+        case .bluetoothConnected(let name):
+            String(localized: "the Bluetooth device “\(name)” is connected")
         case .scriptSucceeds(let name):
             String(localized: "the script “\(URLPrompt.displayName(name))” succeeds")
         }
@@ -71,6 +75,8 @@ enum AutomationDescription {
         switch action {
         case .applyProfile(let name):
             String(localized: "apply the profile “\(name)”")
+        case .applyMood(let name):
+            String(localized: "switch the menu bar to the mood “\(name)”")
         case .showSection(.hidden):
             String(localized: "show the hidden section")
         case .showSection(.alwaysHidden):

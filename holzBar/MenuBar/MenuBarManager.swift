@@ -79,6 +79,15 @@ final class MenuBarManager {
         return panel
     }()
 
+    /// The command palette, created and set up the first time it is used.
+    @ObservationIgnored private(set) lazy var commandPalettePanel: CommandPalettePanel = {
+        let panel = CommandPalettePanel()
+        if let appState = self.appState {
+            panel.performSetup(with: appState)
+        }
+        return panel
+    }()
+
     /// The panel that contains a portable version of the menu bar
     /// appearance editor interface
     let appearanceEditorPanel = MenuBarAppearanceEditorPanel()

@@ -15,6 +15,7 @@ nonisolated enum AutomationEngine {
     /// What the app should do.
     nonisolated enum Effect: Equatable, Sendable {
         case applyProfile(String)
+        case applyMood(String)
         case showSection(AutomationSection)
         case setZen(Bool)
         case setKeepAwake(Bool)
@@ -26,6 +27,8 @@ nonisolated enum AutomationEngine {
     nonisolated struct Context: Equatable, Sendable {
         /// The name of the profile that is applied.
         var currentProfile: String?
+        /// The name of the mood that is applied, or `nil` after the look was changed by hand.
+        var currentMood: String?
         var isZenOn: Bool
         /// Whether holzBar keeps the Mac awake.
         var isKeepAwakeOn = false
@@ -80,6 +83,7 @@ nonisolated enum AutomationEngine {
         func apply(_ effect: Effect) {
             switch effect {
             case .applyProfile(let name): context.currentProfile = name
+            case .applyMood(let name): context.currentMood = name
             case .setZen(let isOn): context.isZenOn = isOn
             case .setKeepAwake(let isOn): context.isKeepAwakeOn = isOn
             case .showSection, .runScript: break
@@ -92,6 +96,7 @@ nonisolated enum AutomationEngine {
         func holds(_ effect: Effect) -> Bool {
             switch effect {
             case .applyProfile(let name): context.currentProfile == name
+            case .applyMood(let name): context.currentMood == name
             case .setZen(let isOn): context.isZenOn == isOn
             case .setKeepAwake(let isOn): context.isKeepAwakeOn == isOn
             case .showSection: false
@@ -120,6 +125,7 @@ nonisolated enum AutomationEngine {
         }
 
         var profileWasChosen = false
+        var moodWasChosen = false
         for rule in rules where rule.isEnabled {
             let isMet = rule.isMet(in: facts)
             let wasActive = next.active.contains(rule.id)
@@ -140,6 +146,12 @@ nonisolated enum AutomationEngine {
                     }
                     profileWasChosen = true
                 }
+                if case .applyMood = effect {
+                    if moodWasChosen {
+                        continue
+                    }
+                    moodWasChosen = true
+                }
                 let restore = rule.restoresWhenEnded ? undo(for: effect, in: context) : nil
                 if !isRedundant(effect, in: context) {
                     apply(effect)
@@ -157,6 +169,7 @@ nonisolated enum AutomationEngine {
     private static func isRedundant(_ effect: Effect, in context: Context) -> Bool {
         switch effect {
         case .applyProfile(let name): context.currentProfile == name
+        case .applyMood(let name): context.currentMood == name
         case .setZen(let isOn): context.isZenOn == isOn
         case .setKeepAwake(let isOn): context.isKeepAwakeOn == isOn
         case .showSection, .runScript: false
@@ -171,6 +184,9 @@ nonisolated enum AutomationEngine {
         switch effect {
         case .applyProfile:
             return context.currentProfile.map(Effect.applyProfile)
+        case .applyMood:
+            // A look that was changed by hand has no name to go back to.
+            return context.currentMood.map(Effect.applyMood)
         case .setZen:
             return .setZen(context.isZenOn)
         case .setKeepAwake:
@@ -188,6 +204,7 @@ extension AutomationAction {
     nonisolated var effect: AutomationEngine.Effect? {
         switch self {
         case .applyProfile(let name): .applyProfile(name)
+        case .applyMood(let name): .applyMood(name)
         case .showSection(let section): .showSection(section)
         case .zen(let isOn): .setZen(isOn)
         case .keepAwake(let isOn): .setKeepAwake(isOn)

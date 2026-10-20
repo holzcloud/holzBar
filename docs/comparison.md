@@ -30,15 +30,15 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Scripts as a rule condition or action | ❌ | ✅ | — | ✅ <sub>from a folder you choose, after you allowed the exact content</sub> |
 | Script hooks before or after a profile | ❌ | ✅ | — | ✅ |
 | Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | ✅ | ✅ |
-| AppleScript dictionary | — | — | ✅ | 🔜 0.0.9 |
+| AppleScript dictionary | — | — | ✅ | ✅ Preview <sub>a small, read-mostly set; asks before lasting changes</sub> |
 | Touch ID or password to show hidden items | — | — | — | ✅ |
-| Smooth show and hide | — | — | — | 🔜 0.0.9 |
+| Smooth show and hide | — | — | — | partly: the holzBar Shelf fades in (Preview); the bar itself 🔜 |
 | Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | — | ✅ |
 | Automatic layout snapshots with a one-click restore | — | — | — | ✅ |
-| Command palette for holzBar's own actions | — | — | — | 🔜 0.0.9 |
+| Command palette for holzBar's own actions | — | — | — | ✅ Preview |
 | Share one profile as a file | ❌ | ✅ | — | ✅ |
 | First-launch assistant that proposes an arrangement | — | — | — | ✅ |
-| Suggests hiding items you never click (opt-in, counters stay on your Mac) | — | — | — | 🔜 0.0.9 |
+| Suggests hiding items you never click (opt-in, counters stay on your Mac) | — | — | — | ✅ Preview |
 | Redacted diagnostics report you read before you copy it | — | — | — | ✅ |
 | URL commands and Raycast | ❌ | ✅ | — | ✅ |
 | Zen mode (also while presenting) | ❌ | ✅ | — | ✅ |
@@ -98,7 +98,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Build provenance attestation (`gh attestation verify`) | ❌ | — | — | ✅, and SLSA Build Level 3 provenance from 0.0.7-beta2 |
 | GitHub Actions pinned by commit SHA (Dependabot keeps them current), OpenSSF Scorecard | — | — | — | ✅ <sub>except the SLSA generator, referenced by its release tag</sub> |
 
-The AppleScript, Touch ID and smooth show and hide rows are about features other menu bar apps have (AppleScript: Bartender 7 and SaneBar; Touch ID lock: SaneBar; smooth show and hide: Vanilla), not Ice or Thaw as far as their documentation says.
+**Preview** marks a feature of 0.0.9 beta 1 that is built and unit tested but not yet tested on a Mac; its badge shows in the app. The AppleScript, Touch ID and smooth show and hide rows are about features other menu bar apps have (AppleScript: Bartender 7 and SaneBar; Touch ID lock: SaneBar; smooth show and hide: Vanilla), not Ice or Thaw as far as their documentation says.
 
 ## Against every other menu bar manager
 
@@ -122,7 +122,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Per-item conditional visibility | ✅ <sup>14</sup> | ✅ | ❌ | ✅ | ❌ | by active app (Pro) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❓ |
 | Widgets / own items | ✅ <sup>14</sup> | ✅ | ❌ | planned | ❌ | ❌ | custom icons | ❌ | ❌ | ❌ | ❌ | ❌ | notch widgets | clipboard, agent notifications | ❓ |
 | Scripts as trigger/action | ✅ <sup>14</sup> | as widget source | ❌ | ✅ | trigger | ❓ | VIP ❓ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | HTTP /notify endpoint | ❓ |
-| AppleScript | 🔜 0.0.9 | ✅ | ❌ <sup>9</sup> | ❌ <sup>9</sup> | ✅ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❓ | ❓ |
+| AppleScript | ✅ Preview | ✅ | ❌ <sup>9</sup> | ❌ <sup>9</sup> | ✅ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❓ | ❓ |
 | Shortcuts / Siri | ✅ | ✅ | ❌ | partly | via AppleScript | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❓ | ❓ |
 | URL scheme / CLI | ✅ holzbar:// | ✅ URL actions | ❌ | ✅ thaw:// | ✅ sanebar:// | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❓ | ❓ |
 | Hotkeys | ✅ also per profile and item | ✅ | ✅ | ✅ | ✅ per icon | ✅ | ✅ | one | ✅ | Pro | ✅ | ✅ | ✅ | ✅ | ❓ |
@@ -145,7 +145,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Imports settings from other apps | ✅ Ice | ❓ Bartender 6 profiles (experimental) | ❌ | ❌ | ✅ Bartender, Ice | ❓ | ❓ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ |
 | Notch hub (widgets, files, now playing in the notch) | 🔜 1.0.0 | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
 | System readouts in the menu bar (CPU, memory, network, disk) | 🔜 1.1.0; CPU, memory and disk as text widgets ✅ <sup>14</sup> | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
-| Launcher, command bar | 🔜 0.0.9 palette, 1.2.0 launcher | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
+| Launcher, command bar | ✅ Preview palette, 🔜 1.2.0 launcher | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
 | Clipboard history | 🔜 1.3.0 | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ✅ | ✅ |
 | Window management, app switcher | 🔜 1.4+ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
 | Screenshots, OCR, screen recording | 🔜 1.4+ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
@@ -173,7 +173,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 - **Automation:** Thaw, SaneBar and Bartender 7 have rules, per-item conditions and scripts. holzBar has them since 0.0.8, with fewer trigger types than Thaw.
 - **No Developer ID signature or notarization**, unlike Thaw, SaneBar, Ice and Lounge (the vendor's claim). holzBar needs the `xattr` step or the Homebrew cask.
 - **Fewer languages** than Thaw and Barbee (20 each); our translations into French, Italian and Romansh are machine-made and unchecked.
-- **No AppleScript or animation yet** (0.0.9); Bartender 7, SaneBar and Vanilla have them today.
+- **No animation of the bar itself yet**: only the holzBar Shelf fades in (Preview); Vanilla has smooth show and hide today. The AppleScript dictionary (Preview) is small next to Bartender 7's.
 - **No settings sync** since 0.0.7-beta3; the redesigned sync comes in 1.0.0. Barbee has cloud sync of profiles.
 - **Not checked on real hardware** for several features, and one maintainer. SaneBar was sunset in June; Tuck and Glow ship updates every week or two.
 - **Apple's own items on macOS 27** (clock, Control Center, Wi-Fi) cannot be hidden; Hidden Bar and Tuck cannot either, Thaw offers replacement icons. holzBar plans replacement items for 0.0.9.

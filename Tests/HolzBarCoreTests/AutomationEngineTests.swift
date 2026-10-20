@@ -58,6 +58,27 @@ struct AutomationEngineTests {
         #expect(second.effects.isEmpty)
     }
 
+    @Test("A mood is applied once, and the one before comes back when the rule ends")
+    func moodRule() {
+        let rules = [rule("Office look", [office], action: .applyMood("Day"))]
+        let context = Engine.Context(currentProfile: nil, currentMood: "Night", isZenOn: false)
+        let started = Engine.evaluate(rules: rules, facts: facts(displays: ["DISPLAY-1"]), context: context, state: Engine.State())
+        #expect(started.effects == [.applyMood("Day")])
+        let after = Engine.Context(currentProfile: nil, currentMood: "Day", isZenOn: false)
+        let ended = Engine.evaluate(rules: rules, facts: facts(), context: after, state: started.state)
+        #expect(ended.effects == [.applyMood("Night")])
+    }
+
+    @Test("A look changed by hand has no mood to go back to")
+    func moodWithoutPrevious() {
+        let rules = [rule("Office look", [office], action: .applyMood("Day"))]
+        let context = Engine.Context(currentProfile: nil, currentMood: nil, isZenOn: false)
+        let started = Engine.evaluate(rules: rules, facts: facts(displays: ["DISPLAY-1"]), context: context, state: Engine.State())
+        let after = Engine.Context(currentProfile: nil, currentMood: "Day", isZenOn: false)
+        let ended = Engine.evaluate(rules: rules, facts: facts(), context: after, state: started.state)
+        #expect(ended.effects.isEmpty)
+    }
+
     @Test("A rule that is not true does nothing")
     func staysQuiet() {
         let rules = [rule("Office", [office], action: .applyProfile("Office"))]
@@ -152,6 +173,31 @@ struct AutomationEngineTests {
         #expect(vpn.evaluate(in: AutomationFacts(networkKinds: [.wifi, .vpn])) == true)
         #expect(vpn.evaluate(in: AutomationFacts(networkKinds: [.wifi])) == false)
         #expect(vpn.evaluate(in: AutomationFacts()) == nil)
+    }
+
+    @Test("The sound output and Bluetooth conditions read their own facts and observers")
+    func audioAndBluetoothConditions() {
+        let headphones = AutomationCondition.audioOutput("Headphones")
+        let pods = AutomationCondition.bluetoothConnected("Pods")
+        let onHeadphones = AutomationFacts(audioOutputName: "Headphones")
+        let onSpeakers = AutomationFacts(audioOutputName: "Speakers")
+        let podsOn = AutomationFacts(connectedBluetoothDevices: ["Pods", "Mouse"])
+        let podsOff = AutomationFacts(connectedBluetoothDevices: ["Mouse"])
+        let unknown = AutomationFacts()
+        #expect(headphones.evaluate(in: onHeadphones) == true)
+        #expect(headphones.evaluate(in: onSpeakers) == false)
+        #expect(headphones.evaluate(in: unknown) == nil)
+        #expect(pods.evaluate(in: podsOn) == true)
+        #expect(pods.evaluate(in: podsOff) == false)
+        #expect(pods.evaluate(in: unknown) == nil)
+        #expect(headphones.source == .audioOutput)
+        #expect(pods.source == .bluetooth)
+        #expect(headphones.isValid)
+        #expect(pods.isValid)
+        #expect(AutomationCondition.audioOutput("").isValid == false)
+        #expect(headphones.isPreview)
+        #expect(pods.isPreview)
+        #expect(AutomationCondition.cameraInUse.isPreview == false)
     }
 
     @Test("The camera and microphone conditions read their own facts and one observer")
@@ -347,6 +393,18 @@ struct AutomationEngineTests {
         var off = rule
         off.isEnabled = false
         #expect(ItemVisibility.wantedSection(of: off, facts: AutomationFacts(networkKinds: [.vpn])) == nil)
+    }
+
+    @Test("An item the user moved by hand goes back; an item in place stays")
+    func movedItemGoesBack() {
+        let wanted = ["a": 0, "b": 2, "c": 1]
+        let applied = ["a": 0, "b": 2]
+        let actual = ["a": 1, "b": 2]
+        let moves = ItemVisibility.itemsToMove(wanted: wanted, applied: applied, actual: actual)
+        #expect(moves == ["a": 0, "c": 1])
+        #expect(ItemVisibility.itemsToMove(wanted: wanted, applied: wanted, actual: wanted).isEmpty)
+        // An unknown real section is judged by the applied one alone.
+        #expect(ItemVisibility.itemsToMove(wanted: wanted, applied: wanted, actual: [:]).isEmpty)
     }
 
     @Test("An item has one rule, and only the rules that are on control it")

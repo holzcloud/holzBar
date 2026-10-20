@@ -50,6 +50,8 @@ nonisolated enum InputMonitors {
         var hasCustomAppearance = false
         /// Whether the Drag in the Menu Bar module is on and the macOS supports it.
         var dragsWithoutCommand = false
+        /// Whether the usage suggestions count clicks on items.
+        var countsUsage = false
     }
 
     /// The monitors the given settings need.
@@ -64,7 +66,7 @@ nonisolated enum InputMonitors {
         let rehidesOnClick = settings.autoRehide && settings.rehidesSmartly
         // Without the Shelf, a click in the menu bar pauses show on hover.
         let hoverPausesOnClick = settings.showOnHover && !settings.usesShelf
-        if settings.showOnClick || rehidesOnClick || settings.secondaryContextMenu || hoverPausesOnClick {
+        if settings.showOnClick || rehidesOnClick || settings.secondaryContextMenu || hoverPausesOnClick || settings.countsUsage {
             kinds.insert(.mouseDown)
         }
         if settings.showAllSectionsOnUserDrag || settings.hasCustomAppearance {

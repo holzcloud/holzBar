@@ -121,6 +121,42 @@
           }
         }
       }
+    },
+    "NSBluetoothAlwaysUsageDescription" : {
+      "comment" : "Bluetooth usage description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "holzBar reads which of your paired Bluetooth devices are connected, so an automation rule can react to it. It only does so while a rule uses this condition."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar liest, welche deiner gekoppelten Bluetooth-Geräte verbunden sind, damit eine Automatisierungsregel darauf reagieren kann. Das geschieht nur, solange eine Regel diese Bedingung verwendet."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar lit lesquels de vos appareils Bluetooth appairés sont connectés afin qu’une règle d’automatisation puisse y réagir. Cela n’a lieu que tant qu’une règle utilise cette condition."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar legge quali dei tuoi dispositivi Bluetooth associati sono connessi, in modo che una regola di automazione possa reagire. Lo fa solo finché una regola usa questa condizione."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar legia tge apparats Bluetooth associads che èn colliads, uschia che ina regla d’automatisaziun po reagir. Quai capita mo uschè ditg che ina regla utilisescha questa cundiziun."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

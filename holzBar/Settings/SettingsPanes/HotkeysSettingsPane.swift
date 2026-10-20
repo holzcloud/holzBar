@@ -42,6 +42,7 @@ struct HotkeysSettingsPane: View {
             HolzBarSection("Menu Bar Items") {
                 hotkeyRecorder(forAction: .searchMenuBarItems)
                 hotkeyRecorder(forAction: .showItemHints)
+                hotkeyRecorder(forAction: .openCommandPalette)
                 itemHotkeyRows
             }
             HolzBarSection("Layout Profiles") {
@@ -52,6 +53,7 @@ struct HotkeysSettingsPane: View {
                 hotkeyRecorder(forAction: .toggleApplicationMenus)
                 hotkeyRecorder(forAction: .toggleAutoRehide)
                 hotkeyRecorder(forAction: .toggleZenMode)
+                hotkeyRecorder(forAction: .toggleKeepAwake)
             }
         }
         .task(id: profileNames) {

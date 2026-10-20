@@ -150,6 +150,10 @@ nonisolated extension Defaults {
         case holzBarIcon = "IceIcon"
         case customHolzBarIconIsTemplate = "CustomIceIconIsTemplate"
         case useShelf = "UseIceBar"
+        /// Whether the holzBar Shelf fades in when it opens (on by default).
+        case animatesShelf = "AnimatesShelf"
+        /// How the holzBar Shelf arranges its items: in a row, a grid or a column.
+        case shelfLayout = "ShelfLayout"
         case shelfLocation = "IceBarLocation"
         case shelfDisplays = "IceBarDisplays"
         case showsNotchOverflowInShelf = "ShowsNotchOverflowInIceBar"
@@ -211,6 +215,11 @@ nonisolated extension Defaults {
         case layoutSnapshotsDisabled = "LayoutSnapshotsDisabled"
         /// How many snapshots of the layout are kept, not counting starred ones.
         case layoutSnapshotsLimit = "LayoutSnapshotsLimit"
+        /// Whether the usage suggestions count how often items are opened. Local to the Mac:
+        /// never exported, imported or synced.
+        case usageSuggestionsEnabled = "UsageSuggestionsEnabled"
+        /// The saved looks of the menu bar (moods), as JSON.
+        case appearanceMoods = "AppearanceMoods"
         /// The automation rules, as JSON (`AutomationRule`).
         case automationRules = "AutomationRules"
         case knownItemTags = "KnownItemTags"
@@ -289,6 +298,7 @@ nonisolated extension Defaults.Key {
         case .showHolzBarIcon,
             .customHolzBarIconIsTemplate,
             .useShelf,
+            .animatesShelf,
             .showsNotchOverflowInShelf,
             .showOnClick,
             .showOnHover,
@@ -304,6 +314,7 @@ nonisolated extension Defaults.Key {
             .screenRecordingOffered,
             .systemItemsMayHide,
             .lockHiddenItems,
+            .usageSuggestionsEnabled,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
             .autoZenWhileSharingScreen,
@@ -326,6 +337,7 @@ nonisolated extension Defaults.Key {
             .canToggleAlwaysHiddenSection:
             .bool
         case .shelfLocation,
+            .shelfLayout,
             .shelfDisplays,
             .rehideStrategy,
             .rehideInterval,
@@ -343,6 +355,7 @@ nonisolated extension Defaults.Key {
             .number
         case .holzBarIcon,
             .layoutProfiles,
+            .appearanceMoods,
             .automationRules,
             .itemGroups,
             .widgets,
@@ -401,6 +414,7 @@ nonisolated extension Defaults.Key {
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,
+            .shelfLayout,
             .shelfDisplays,
             .rehideStrategy,
             .sectionDividerStyle,
@@ -434,6 +448,7 @@ nonisolated extension Defaults.Key {
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
         .lockHiddenItems,
+        .usageSuggestionsEnabled,
         .cleanUpOffered,
         .screenRecordingOffered,
         .widgetShortcutNames,

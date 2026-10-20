@@ -52,6 +52,7 @@ struct MenuBarLayoutSettingsPane: View {
                         ScreenRecordingHint(feature: .layoutPane, appState: appState)
                     }
                 }
+                UsageSuggestionsSection(usage: appState.usage)
                 LayoutProfilesSection(profiles: appState.profiles)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
                 SpacersSection(spacers: appState.spacers)

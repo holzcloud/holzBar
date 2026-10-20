@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+<dictionary title="holzBar Terminology">
+	<suite name="holzBar Suite" code="HzBr" description="Show, hide and apply. Nothing here creates, changes or deletes a rule, a profile, a script or a setting.">
+		<command name="show section" code="HzBrShow" description="Show a menu bar section. Refused while Zen mode is on.">
+			<cocoa class="HolzBarShowSectionCommand"/>
+			<direct-parameter description="&quot;hidden&quot; (the default) or &quot;always hidden&quot;." type="text" optional="yes"/>
+		</command>
+		<command name="hide section" code="HzBrHide" description="Hide a menu bar section.">
+			<cocoa class="HolzBarHideSectionCommand"/>
+			<direct-parameter description="&quot;hidden&quot; (the default) or &quot;always hidden&quot;." type="text" optional="yes"/>
+		</command>
+		<command name="toggle section" code="HzBrTogl" description="Show a menu bar section, or hide it again.">
+			<cocoa class="HolzBarToggleSectionCommand"/>
+			<direct-parameter description="&quot;hidden&quot; (the default) or &quot;always hidden&quot;." type="text" optional="yes"/>
+		</command>
+		<command name="apply profile" code="HzBrProf" description="Apply a saved layout profile. holzBar asks the user first.">
+			<cocoa class="HolzBarApplyProfileCommand"/>
+			<direct-parameter description="The name of the profile." type="text"/>
+		</command>
+		<command name="enable rule" code="HzBrRlOn" description="Turn on an existing automation rule. holzBar asks the user first. A rule that uses a script is turned on only in the settings.">
+			<cocoa class="HolzBarEnableRuleCommand"/>
+			<direct-parameter description="The name of the rule." type="text"/>
+		</command>
+		<command name="disable rule" code="HzBrRlOf" description="Turn off an existing automation rule. holzBar asks the user first.">
+			<cocoa class="HolzBarDisableRuleCommand"/>
+			<direct-parameter description="The name of the rule." type="text"/>
+		</command>
+		<command name="enable zen mode" code="HzBrZnOn" description="Turn Zen mode on: every section is hidden and stays hidden.">
+			<cocoa class="HolzBarEnableZenModeCommand"/>
+		</command>
+		<command name="disable zen mode" code="HzBrZnOf" description="Turn Zen mode off. holzBar asks the user first, and refuses while the screen is shared.">
+			<cocoa class="HolzBarDisableZenModeCommand"/>
+		</command>
+		<class name="application" code="capp" description="holzBar.">
+			<cocoa class="NSApplication"/>
+			<property name="profile names" code="HzPn" access="r" description="The names of the saved layout profiles.">
+				<type type="text" list="yes"/>
+				<cocoa key="holzBarProfileNames"/>
+			</property>
+			<property name="current profile" code="HzPc" type="text" access="r" description="The name of the layout profile applied last, or missing value.">
+				<cocoa key="holzBarCurrentProfile"/>
+			</property>
+			<property name="rule names" code="HzRn" access="r" description="The names of the automation rules.">
+				<type type="text" list="yes"/>
+				<cocoa key="holzBarRuleNames"/>
+			</property>
+			<property name="enabled rule names" code="HzRe" access="r" description="The names of the automation rules that are turned on.">
+				<type type="text" list="yes"/>
+				<cocoa key="holzBarEnabledRuleNames"/>
+			</property>
+			<property name="zen mode" code="HzZm" type="boolean" access="r" description="Whether Zen mode is on.">
+				<cocoa key="holzBarZenMode"/>
+			</property>
+			<property name="hidden section is shown" code="HzHs" type="boolean" access="r" description="Whether the hidden section is shown now.">
+				<cocoa key="holzBarHiddenSectionIsShown"/>
+			</property>
+		</class>
+	</suite>
+</dictionary>

@@ -87,6 +87,10 @@ extension HotkeyAction {
             appState.menuBarManager.toggleZenMode()
         case .showItemHints:
             appState.menuBarManager.itemHintsPanel.toggle()
+        case .toggleKeepAwake:
+            appState.automation.toggleKeepAwake()
+        case .openCommandPalette:
+            appState.menuBarManager.commandPalettePanel.toggle()
         }
     }
 }

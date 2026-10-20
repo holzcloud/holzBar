@@ -192,6 +192,9 @@ struct GeneralSettingsPane: View {
         useShelf
         if settings.useShelf {
             shelfLocationPicker
+            shelfLayoutPicker
+            Toggle("Fade the holzBar Shelf in", isOn: $settings.animatesShelf)
+                .annotation("The holzBar Shelf appears in a moment instead of at once. It does not fade while Reduce Motion is on.")
             shelfDisplaysPicker
             if #available(macOS 27.0, *) {
                 Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInShelf)
@@ -212,6 +215,19 @@ struct GeneralSettingsPane: View {
     private var useShelf: some View {
         Toggle("Use holzBar Shelf", isOn: $settings.useShelf)
             .annotation("Show hidden menu bar items in a separate bar below the menu bar.")
+    }
+
+    @ViewBuilder
+    private var shelfLayoutPicker: some View {
+        HStack {
+            HolzBarPicker("Layout", selection: $settings.shelfLayout) {
+                Text("Row").tag(ShelfLayout.row)
+                Text("Grid").tag(ShelfLayout.grid)
+                Text("Column").tag(ShelfLayout.column)
+            }
+            PreviewBadge()
+        }
+        .annotation("A row holds every item side by side. A grid and a column hold more items without scrolling.")
     }
 
     @ViewBuilder

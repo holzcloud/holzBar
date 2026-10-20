@@ -86,6 +86,9 @@ final class AppState {
     /// The automation rules: "when this is true, do that".
     let automation = AutomationManager()
 
+    /// The counters of the usage suggestions, which run only when the user turns them on.
+    let usage = UsageStore()
+
     /// Turns Zen mode on while the screen is mirrored or shared.
     let presentationMonitor = PresentationMonitor()
 
@@ -211,6 +214,7 @@ final class AppState {
         spacers.performSetup()
         widgets.performSetup(with: self)
         automation.performSetup(with: self)
+        usage.performSetup(with: self)
         presentationMonitor.performSetup(with: self)
         if #available(macOS 27.0, *) {
             // The dot on holzBar's icon while another app records.

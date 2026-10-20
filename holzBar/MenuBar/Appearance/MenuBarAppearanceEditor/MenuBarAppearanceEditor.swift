@@ -63,6 +63,7 @@ struct MenuBarAppearanceEditor: View {
                     systemImage: "lightbulb"
                 )
             }
+            MoodsSection(appearanceManager: appearanceManager)
             HolzBarSection {
                 isDynamicToggle
             }

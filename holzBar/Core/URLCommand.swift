@@ -84,6 +84,13 @@ nonisolated struct URLCommand: Equatable, Sendable {
     /// The command's arguments: the path components, percent-decoded, case kept.
     let arguments: [String]
 
+    /// A command that does not come from a URL, such as one from an Apple event. It goes
+    /// through the same decision as a URL command (`Action.decision(zenMode:)`).
+    init(name: String, arguments: [String]) {
+        self.name = name.lowercased()
+        self.arguments = arguments
+    }
+
     /// Reads the command in `url`.
     ///
     /// - Parameters:

@@ -72,6 +72,21 @@ final class GeneralSettings {
         }
     }
 
+    /// How the holzBar Shelf arranges its items.
+    var shelfLayout: ShelfLayout = .row {
+        didSet {
+            Defaults.set(shelfLayout.rawValue, forKey: .shelfLayout)
+        }
+    }
+
+    /// A Boolean value that indicates whether the holzBar Shelf fades in when it opens. It
+    /// does not, whatever this says, while Reduce Motion is on.
+    var animatesShelf = true {
+        didSet {
+            Defaults.set(animatesShelf, forKey: .animatesShelf)
+        }
+    }
+
     /// The displays the holzBar Shelf is used on.
     var shelfDisplays: HolzBarShelfDisplays = .all {
         didSet {
@@ -199,6 +214,12 @@ final class GeneralSettings {
                 shelfLocation = location
             }
         }
+        Defaults.ifPresent(key: .shelfLayout) { rawValue in
+            if let layout = ShelfLayout(rawValue: rawValue) {
+                shelfLayout = layout
+            }
+        }
+        Defaults.ifPresent(key: .animatesShelf, assign: &animatesShelf)
         Defaults.ifPresent(key: .showsNotchOverflowInShelf, assign: &showsNotchOverflowInShelf)
         Defaults.ifPresent(key: .shelfDisplays) { rawValue in
             if let displays = HolzBarShelfDisplays(rawValue: rawValue) {

@@ -53,6 +53,9 @@ final class AutomationManager {
     /// Whether a camera and the microphone are in use, while the observer runs.
     @ObservationIgnored private var captureActivity: (camera: Bool, microphone: Bool)?
 
+    @ObservationIgnored private var audioObserver: AutomationAudioObserver?
+    @ObservationIgnored private var bluetoothObserver: AutomationBluetoothObserver?
+
     /// The section each item was last put in by a rule that makes it follow a condition.
     @ObservationIgnored private var lastItemSections = [String: Int]()
     @ObservationIgnored private var itemRuleTask: Task<Void, Never>?
@@ -252,6 +255,24 @@ final class AutomationManager {
             wifiMonitor.start()
         case .capture:
             startCaptureObserver()
+        case .audioOutput:
+            let observer = AutomationAudioObserver()
+            observer.onChange = { [weak self] in
+                self?.scriptsAreHeld = false
+                self?.evaluate()
+                self?.systemEventHandler?()
+            }
+            audioObserver = observer
+            observer.start()
+        case .bluetooth:
+            let observer = AutomationBluetoothObserver()
+            observer.onChange = { [weak self] in
+                self?.scriptsAreHeld = false
+                self?.evaluate()
+                self?.systemEventHandler?()
+            }
+            bluetoothObserver = observer
+            observer.start()
         case .scripts:
             // A script condition is asked when the events of power, network, apps and displays
             // arrive (``AutomationRule/observedSources(of:)``) and after the Mac wakes; never
@@ -283,6 +304,12 @@ final class AutomationManager {
             lastWiFiName = nil
         case .capture:
             stopCaptureObserver()
+        case .audioOutput:
+            audioObserver?.stop()
+            audioObserver = nil
+        case .bluetooth:
+            bluetoothObserver?.stop()
+            bluetoothObserver = nil
         case .lowPowerMode, .runningApps, .frontmostApp, .displays, .scripts:
             break
         }
@@ -493,6 +520,12 @@ final class AutomationManager {
             facts.isCameraInUse = captureActivity.camera
             facts.isMicrophoneInUse = captureActivity.microphone
         }
+        if needed.contains(.audioOutput) {
+            facts.audioOutputName = AudioOutputDevices.defaultOutputName()
+        }
+        if needed.contains(.bluetooth) {
+            facts.connectedBluetoothDevices = AutomationBluetoothObserver.connectedNames()
+        }
         facts.scriptResults = scriptResults
         return facts
     }
@@ -534,6 +567,7 @@ final class AutomationManager {
             facts: facts,
             context: AutomationEngine.Context(
                 currentProfile: appState.profiles.currentProfileName,
+                currentMood: appState.appearanceManager.currentMoodName,
                 isZenOn: appState.menuBarManager.zenMode.isManual,
                 isKeepAwakeOn: keepAwakeActivity != nil
             ),
@@ -737,7 +771,7 @@ final class AutomationManager {
     private func followItemRules(facts: AutomationFacts) {
         let wanted = wantedItemSections(facts: facts)
         // A pending move reads the facts again when it runs, so it is not postponed.
-        guard itemRuleTask == nil, wanted.contains(where: { lastItemSections[$0.key] != $0.value }) else {
+        guard itemRuleTask == nil, !pendingItemMoves(wanted: wanted).isEmpty else {
             return
         }
         itemRuleTask = Task { [weak self] in
@@ -750,6 +784,16 @@ final class AutomationManager {
         }
     }
 
+    /// The items to move now: a changed condition, and an item the user moved by hand away
+    /// from the section its rule wants (it goes back at the next evaluation).
+    private func pendingItemMoves(wanted: [String: Int]) -> [String: Int] {
+        guard let appState else {
+            return [:]
+        }
+        let actual = lastItemSections.isEmpty ? [:] : appState.profiles.currentLayout().itemSections
+        return ItemVisibility.itemsToMove(wanted: wanted, applied: lastItemSections, actual: actual)
+    }
+
     private func moveItems() {
         guard let appState else {
             return
@@ -758,7 +802,7 @@ final class AutomationManager {
             followItemRules(facts: currentFacts())
             return
         }
-        let changes = wantedItemSections(facts: currentFacts()).filter { lastItemSections[$0.key] != $0.value }
+        let changes = pendingItemMoves(wanted: wantedItemSections(facts: currentFacts()))
         guard !changes.isEmpty else {
             return
         }
@@ -793,6 +837,9 @@ final class AutomationManager {
                 // A pass that a URL command or a Shortcut caused: no hook runs for its profile.
                 appState.profiles.apply(named: name, runsHooks: false)
             }
+        case .applyMood(let name):
+            logger.notice("An automation rule applies a mood")
+            appState.appearanceManager.applyMood(named: name)
         case .showSection(let section):
             reveal(section == .alwaysHidden ? .alwaysHidden : .hidden)
         case .setZen(let isOn):
@@ -831,6 +878,16 @@ final class AutomationManager {
         }
     }
 
+    /// Whether holzBar keeps the Mac awake now.
+    var isKeepAwakeOn: Bool {
+        keepAwakeActivity != nil
+    }
+
+    /// Keeps the Mac awake or lets it sleep, as the user asked (its hotkey or the palette).
+    func toggleKeepAwake() {
+        setKeepAwake(!isKeepAwakeOn)
+    }
+
     /// Keeps the Mac and its display awake, or lets them sleep. The activity is a hold on idle
     /// sleep only; the user can still sleep the Mac, and it ends when holzBar quits.
     private func setKeepAwake(_ isOn: Bool) {
@@ -838,13 +895,13 @@ final class AutomationManager {
             guard keepAwakeActivity == nil else {
                 return
             }
-            logger.notice("An automation rule keeps the Mac awake")
+            logger.notice("holzBar keeps the Mac awake")
             keepAwakeActivity = ProcessInfo.processInfo.beginActivity(
                 options: [.idleSystemSleepDisabled, .idleDisplaySleepDisabled],
-                reason: "An automation rule keeps the Mac awake"
+                reason: "holzBar keeps the Mac awake"
             )
         } else if let activity = keepAwakeActivity {
-            logger.notice("An automation rule lets the Mac sleep again")
+            logger.notice("holzBar lets the Mac sleep again")
             ProcessInfo.processInfo.endActivity(activity)
             keepAwakeActivity = nil
         }
