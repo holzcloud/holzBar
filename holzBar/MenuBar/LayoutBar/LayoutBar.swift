@@ -100,17 +100,52 @@ struct LayoutBar: View {
     }
 }
 
-/// The strip's background: the menu bar's colour behind items, nothing behind the empty
-/// hint, so the hint reads on the card in light and dark.
+/// The strip's background: the menu bar as macOS draws it now, a translucent glass band in the
+/// colour of the real bar, with a soft sheen at the top; nothing behind the empty hint, so the
+/// hint reads on the card in light and dark.
+///
+/// The pictures of the items are captured from the real bar, so the colour stays strong enough
+/// for them to read; the material and the sheen only take away the flat, opaque look.
 private struct StripBackground: ViewModifier {
     let appState: AppState
     let isEmpty: Bool
+
+    private var colorInfo: MenuBarAverageColorInfo? {
+        appState.menuBarManager.averageColorInfo
+    }
+
+    private var foreground: Color {
+        colorInfo?.isBright == true ? .black : .white
+    }
+
+    @ViewBuilder
+    private var glass: some View {
+        if appState.activeSpace.isFullscreen {
+            Color.black
+        } else {
+            ZStack {
+                Rectangle().fill(.ultraThinMaterial)
+                if let colorInfo {
+                    Color(cgColor: colorInfo.color).opacity(0.74)
+                } else {
+                    Color.defaultLayoutBar.opacity(0.74)
+                }
+                LinearGradient(
+                    colors: [.white.opacity(0.14), .white.opacity(0)],
+                    startPoint: .top,
+                    endPoint: .center
+                )
+            }
+        }
+    }
 
     func body(content: Content) -> some View {
         if isEmpty {
             content
         } else {
-            content.menuBarItemContainer(appState: appState)
+            content
+                .foregroundStyle(foreground)
+                .background { glass }
         }
     }
 }
