@@ -73,10 +73,7 @@ struct AutomationRuleEditor: View {
                 itemPicker(key: key, hiding: hiding)
             }
             if itemName == nil, case .runScript(let name) = rule.action {
-                HStack(spacing: HolzBarTheme.Spacing.sm) {
-                    scriptPicker(name: name)
-                    PreviewBadge()
-                }
+                scriptPicker(name: name)
             }
             if itemName == nil, restoresApply {
                 if case .runScript = rule.action {
@@ -430,9 +427,6 @@ private struct AutomationConditionRow: View {
                 Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst)
                     .font(HolzBarTheme.Typography.body)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                if case .scriptSucceeds = condition {
-                    PreviewBadge()
-                }
                 Button(action: onRemove) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(HolzBarTheme.Palette.textTertiary)

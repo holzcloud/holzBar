@@ -29,11 +29,8 @@ struct ScriptsSection: View {
 
     var body: some View {
         HolzBarSection {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text("Scripts")
-                    .font(.headline)
-                PreviewBadge()
-            }
+            Text("Scripts")
+                .font(.headline)
         } content: {
             Text("Scripts run as you, with holzBar's permissions. macOS asks separately before a script controls another app. Only scripts in the folder you chose run, and only after you allowed their exact content.")
                 .font(HolzBarTheme.Typography.callout)

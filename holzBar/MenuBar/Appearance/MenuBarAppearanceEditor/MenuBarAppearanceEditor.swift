@@ -196,10 +196,7 @@ struct MenuBarAppearanceEditor: View {
     @ViewBuilder
     private var appleLogoShape: some View {
         Toggle(isOn: appleLogoShapeBinding) {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text("Own shape for the Apple logo")
-                PreviewBadge()
-            }
+            Text("Own shape for the Apple logo")
         }
     }
 
@@ -323,10 +320,7 @@ private struct UnlabeledPartialEditor: View {
                     Text(configuration.style.tintStrength, format: .percent.precision(.fractionLength(0)))
                 )
             } label: {
-                HStack(spacing: HolzBarTheme.Spacing.sm) {
-                    Text("Tint Strength")
-                    PreviewBadge()
-                }
+                Text("Tint Strength")
             }
         }
     }
@@ -338,17 +332,11 @@ private struct UnlabeledPartialEditor: View {
                 Text("Horizontal").tag(MenuBarGradientDirection.horizontal)
                 Text("Vertical").tag(MenuBarGradientDirection.vertical)
             } label: {
-                HStack(spacing: HolzBarTheme.Spacing.sm) {
-                    Text("Gradient Direction")
-                    PreviewBadge()
-                }
+                Text("Gradient Direction")
             }
             if drawsShape {
                 Toggle(isOn: gradientPerShape) {
-                    HStack(spacing: HolzBarTheme.Spacing.sm) {
-                        Text("One gradient per shape")
-                        PreviewBadge()
-                    }
+                    Text("One gradient per shape")
                 }
             }
         }
@@ -385,10 +373,7 @@ private struct UnlabeledPartialEditor: View {
                 }
                 .frame(height: 24)
             } label: {
-                HStack(spacing: HolzBarTheme.Spacing.sm) {
-                    Text("Apple Logo")
-                    PreviewBadge()
-                }
+                Text("Apple Logo")
             }
         }
     }
@@ -426,10 +411,7 @@ private struct UnlabeledPartialEditor: View {
                 }
                 .frame(height: 24)
             } label: {
-                HStack(spacing: HolzBarTheme.Spacing.sm) {
-                    Text("Border Fill")
-                    PreviewBadge()
-                }
+                Text("Border Fill")
             }
         }
     }

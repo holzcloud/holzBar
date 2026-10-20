@@ -38,7 +38,7 @@ If you looked for an Ice fork that runs on macOS 27, or a free Bartender alterna
 - **No dependencies, modern Swift.** Swift 6 language mode, built with Swift 6.4 and Xcode 27, no third-party packages.
 - **Least privilege.** Accessibility at first launch, Screen Recording optional, for pictures of your items, Location Services only when you add a Wi-Fi-name condition to a rule. Since 0.0.7-beta2: one executable, no helper process, no entitlements.
 - **Verifiable releases.** Signed with holzBar's own certificate, with GitHub build provenance and, since 0.0.7-beta2, SLSA Build Level 3 provenance.
-- **More than Ice.** Rules, scripts and widgets (Preview), profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a black menu bar, and a camera and microphone dot on macOS 27. Available in English, German, French, Italian and Romansh.
+- **More than Ice.** Rules, scripts and widgets, profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a black menu bar, and a camera and microphone dot on macOS 27. Available in English, German, French, Italian and Romansh.
 
 <table>
 <tr>
@@ -59,17 +59,17 @@ Researched on 9 October 2026 from each project's own pages and repositories. A d
 | macOS 26 / 27 | dev builds / no | yes / yes | no (use Bartender 6) / yes | yes / yes |
 | Hidden and always-hidden sections, separate bar | yes | yes | yes | yes |
 | Layout profiles, groups, spacers | no | yes | yes | yes |
-| Rules and scripts | no | yes | yes | Preview, fewer triggers than Thaw |
+| Rules and scripts | no | yes | yes | yes, fewer triggers than Thaw |
 | Network connections | Sparkle updates | Sparkle updates | vendor says none | none, enforced by CI |
 | Dependencies, Swift | 5 packages, Swift 5 | 9 packages, Swift 6 | closed | none, Swift 6 |
 | Build provenance | no | Cosign, SLSA | - | SLSA Build Level 3 |
 | Developer ID, notarized | yes | yes | - | no (own certificate) |
 
-Where holzBar loses: it has no Developer ID signature, fewer languages than Thaw, no AppleScript or smooth animation yet, and one maintainer. **Preview** features are built but not yet tested on a real Mac. The [full comparison](docs/comparison.md) covers 14 apps, with sources and the cells we could not verify.
+Where holzBar loses: it has no Developer ID signature, fewer languages than Thaw, no AppleScript or smooth animation yet, and one maintainer. The [full comparison](docs/comparison.md) covers 14 apps, with sources and the cells we could not verify.
 
 ## Install
 
-Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, such as 0.0.7. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest. Features marked Preview ship from 0.0.8 on.
+Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, such as 0.0.8. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
 
 ```sh
 brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
@@ -86,7 +86,7 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's next
 
-**0.0.8 beta 5 is out** on the beta channel; the stable 0.0.8 follows once the Preview features have been tested (see the [release notes](docs/release-notes/v0.0.8-beta5.md) and [what is new](docs/features.md#new-in-008)): rules, scripts, per-item conditions, widgets, layout snapshots, a Touch ID lock, menu bar styles, dragging items without ⌘ and support for macOS 27's own overflow button. All of it is marked **Preview**: built, **not yet tested on a Mac**, and each feature carries a Preview badge in the app (the Focus filter, which you set up in System Settings, is marked Preview here only). Report what does not work.
+**0.0.8 is out** (see the [release notes](docs/release-notes/v0.0.8.md) and [what is new](docs/features.md#new-in-008)): rules, scripts, per-item conditions, widgets, layout snapshots, a Touch ID lock, menu bar styles, dragging items without ⌘ and support for macOS 27's own overflow button. Report what does not work.
 
 **Planned, not available yet:** an AppleScript dictionary, a command palette and smooth show and hide in 0.0.9, then settings sync and a notch hub in 1.0.0. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
 

@@ -28,11 +28,8 @@ struct LayoutHistorySection: View {
 
     var body: some View {
         HolzBarSection {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text("Layout History")
-                    .font(.headline)
-                PreviewBadge()
-            }
+            Text("Layout History")
+                .font(.headline)
         } content: {
             Toggle("Keep a history of the layout", isOn: $snapshots.isEnabled)
             if snapshots.isEnabled {

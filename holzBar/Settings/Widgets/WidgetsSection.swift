@@ -24,8 +24,7 @@ struct WidgetsModuleSection: View {
                     set: { isOn in
                         appState.modules.setEnabled(MenuBarWidgets.moduleID, isOn)
                     }
-                ),
-                isPreview: true
+                )
             ) {
                 WidgetsSection(widgets: appState.widgets)
             }
