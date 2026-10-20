@@ -150,6 +150,10 @@ nonisolated extension Defaults {
         case holzBarIcon = "IceIcon"
         case customHolzBarIconIsTemplate = "CustomIceIconIsTemplate"
         case useShelf = "UseIceBar"
+        /// Whether the holzBar Shelf fades in when it opens (on by default).
+        case animatesShelf = "AnimatesShelf"
+        /// How the holzBar Shelf arranges its items: in a row, a grid or a column.
+        case shelfLayout = "ShelfLayout"
         case shelfLocation = "IceBarLocation"
         case shelfDisplays = "IceBarDisplays"
         case showsNotchOverflowInShelf = "ShowsNotchOverflowInIceBar"
@@ -289,6 +293,7 @@ nonisolated extension Defaults.Key {
         case .showHolzBarIcon,
             .customHolzBarIconIsTemplate,
             .useShelf,
+            .animatesShelf,
             .showsNotchOverflowInShelf,
             .showOnClick,
             .showOnHover,
@@ -326,6 +331,7 @@ nonisolated extension Defaults.Key {
             .canToggleAlwaysHiddenSection:
             .bool
         case .shelfLocation,
+            .shelfLayout,
             .shelfDisplays,
             .rehideStrategy,
             .rehideInterval,
@@ -401,6 +407,7 @@ nonisolated extension Defaults.Key {
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,
+            .shelfLayout,
             .shelfDisplays,
             .rehideStrategy,
             .sectionDividerStyle,

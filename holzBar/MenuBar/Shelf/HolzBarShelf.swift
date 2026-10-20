@@ -272,7 +272,7 @@ final class HolzBarShelfPanel: NSPanel {
             colorManager.updateAllProperties(with: frame, screen: screen)
         }
 
-        orderFrontRegardless()
+        fadeIn(appState: appState)
         if acceptsKeyboard {
             makeKey()
         }
@@ -290,6 +290,26 @@ final class HolzBarShelfPanel: NSPanel {
             Logger.default.notice("holzBar Shelf shown \(milliseconds, privacy: .public) ms after it was requested")
         }
         return true
+    }
+
+    /// Orders the panel front, fading it in when the setting is on and Reduce Motion is off.
+    /// Closing is never delayed: the panel is gone at once.
+    private func fadeIn(appState: AppState) {
+        let duration = ShelfAnimation.fadeDuration(
+            isEnabled: appState.settings.general.animatesShelf,
+            reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        )
+        guard duration > 0 else {
+            alphaValue = 1
+            orderFrontRegardless()
+            return
+        }
+        alphaValue = 0
+        orderFrontRegardless()
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = duration
+            animator().alphaValue = 1
+        }
     }
 
     /// Hides the panel.
@@ -409,6 +429,10 @@ private struct HolzBarShelfContentView: View {
         appState.appearanceManager.configuration
     }
 
+    private var layout: ShelfLayout {
+        appState.settings.general.shelfLayout
+    }
+
     private var horizontalPadding: CGFloat {
         if #available(macOS 26.0, *) {
             return 3
@@ -511,7 +535,8 @@ private struct HolzBarShelfContentView: View {
     var body: some View {
         ZStack {
             content
-                .frame(height: contentHeight)
+                .frame(height: layout == .row ? contentHeight : nil)
+                .frame(minHeight: layout == .row ? nil : contentHeight)
                 .padding(.horizontal, horizontalPadding)
                 .padding(.vertical, verticalPadding)
                 .menuBarItemContainer(appState: appState, colorInfo: backgroundColorInfo)
@@ -534,10 +559,16 @@ private struct HolzBarShelfContentView: View {
         .focused($hasKeyboardFocus)
         .focusEffectDisabled()
         .onKeyPress(.leftArrow) {
-            moveHighlight(by: -1)
+            moveHighlight(.left)
         }
         .onKeyPress(.rightArrow) {
-            moveHighlight(by: 1)
+            moveHighlight(.right)
+        }
+        .onKeyPress(.upArrow) {
+            moveHighlight(.up)
+        }
+        .onKeyPress(.downArrow) {
+            moveHighlight(.down)
         }
         .onKeyPress(.return) {
             openHighlightedItem()
@@ -554,19 +585,24 @@ private struct HolzBarShelfContentView: View {
                 return
             }
             hasKeyboardFocus = true
-            highlightedWindowID = items.last?.windowID
+            highlightedWindowID = (layout == .row ? items.last : items.first)?.windowID
         }
     }
 
-    /// Moves the highlight to the item on the left (`-1`) or right (`1`).
-    private func moveHighlight(by step: Int) -> KeyPress.Result {
+    /// Moves the highlight one item to the left or right, or one row up or down.
+    private func moveHighlight(_ step: ShelfLayoutPlan.Step) -> KeyPress.Result {
         let items = items
         guard !items.isEmpty else {
             return .ignored
         }
-        let current = items.firstIndex { $0.windowID == highlightedWindowID } ?? items.count
-        let index = min(max(current + step, 0), items.count - 1)
-        highlightedWindowID = items[index].windowID
+        guard let current = items.firstIndex(where: { $0.windowID == highlightedWindowID }) else {
+            // Nothing is highlighted yet: the first key lands on the end the Shelf starts from.
+            highlightedWindowID = (layout == .row ? items.last : items.first)?.windowID
+            return .handled
+        }
+        if let index = ShelfLayoutPlan.target(from: current, step: step, count: items.count, layout: layout) {
+            highlightedWindowID = items[index].windowID
+        }
         return .handled
     }
 
@@ -608,26 +644,54 @@ private struct HolzBarShelfContentView: View {
 
     @ViewBuilder
     private var itemsScrollView: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 0) {
-                ForEach(items, id: \.windowID) { item in
-                    HolzBarShelfItemView(
-                        imageCache: imageCache,
-                        itemManager: itemManager,
-                        menuBarManager: menuBarManager,
-                        item: item,
-                        section: section,
-                        isHighlighted: item.windowID == highlightedWindowID
-                    )
+        switch layout {
+        case .row:
+            ScrollView(.horizontal) {
+                HStack(spacing: 0) {
+                    ForEach(items, id: \.windowID) { item in
+                        itemView(item)
+                    }
                 }
             }
+            .environment(\.isScrollEnabled, frame.width == screen.frame.width)
+            .defaultScrollAnchor(.trailing)
+            .scrollIndicatorsFlash(trigger: scrollIndicatorsFlashTrigger)
+            .task {
+                scrollIndicatorsFlashTrigger += 1
+            }
+        case .grid, .column:
+            // More rows than fit scroll; the Shelf is as tall as its rows, up to a limit.
+            let rows = ShelfLayoutPlan.rows(of: items, layout: layout)
+            ScrollView(.vertical) {
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(rows, id: \.first?.windowID) { row in
+                        HStack(spacing: 0) {
+                            ForEach(row, id: \.windowID) { item in
+                                itemView(item)
+                            }
+                        }
+                        .frame(minHeight: contentHeight)
+                    }
+                }
+            }
+            .frame(maxHeight: (contentHeight ?? 24) * CGFloat(ShelfLayoutPlan.visibleRows))
+            .fixedSize(horizontal: true, vertical: rows.count <= ShelfLayoutPlan.visibleRows)
+            .scrollIndicatorsFlash(trigger: scrollIndicatorsFlashTrigger)
+            .task {
+                scrollIndicatorsFlashTrigger += 1
+            }
         }
-        .environment(\.isScrollEnabled, frame.width == screen.frame.width)
-        .defaultScrollAnchor(.trailing)
-        .scrollIndicatorsFlash(trigger: scrollIndicatorsFlashTrigger)
-        .task {
-            scrollIndicatorsFlashTrigger += 1
-        }
+    }
+
+    private func itemView(_ item: MenuBarItem) -> some View {
+        HolzBarShelfItemView(
+            imageCache: imageCache,
+            itemManager: itemManager,
+            menuBarManager: menuBarManager,
+            item: item,
+            section: section,
+            isHighlighted: item.windowID == highlightedWindowID
+        )
     }
 }
 

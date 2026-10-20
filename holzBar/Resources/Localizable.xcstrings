@@ -19700,6 +19700,202 @@
           }
         }
       }
+    },
+    "Fade the holzBar Shelf in" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf einblenden lassen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faire apparaître le holzBar Shelf en fondu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra il holzBar Shelf con dissolvenza"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar il holzBar Shelf cun in fade"
+          }
+        }
+      }
+    },
+    "The holzBar Shelf appears in a moment instead of at once. It does not fade while Reduce Motion is on." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das holzBar Shelf erscheint in einem Augenblick statt sofort. Bei aktivierter Option «Bewegung reduzieren» blendet es nicht ein."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le holzBar Shelf apparaît en un instant au lieu d’un coup. Il n’apparaît pas en fondu quand « Réduire les animations » est activé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf compare in un attimo invece che subito. Non si dissolve quando è attivo «Riduci movimento»."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf cumpara en in mument empè dad immediat. El na fa nagin fade, sch’ins ha activà «Reducir il moviment»."
+          }
+        }
+      }
+    },
+    "Layout" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anordnung"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposition"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposizione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disposiziun"
+          }
+        }
+      }
+    },
+    "Row" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reihe"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rangée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riga"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retscha"
+          }
+        }
+      }
+    },
+    "Grid" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raster"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grille"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Griglia"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grillia"
+          }
+        }
+      }
+    },
+    "Column" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spalte"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colonne"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colonna"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colonna"
+          }
+        }
+      }
+    },
+    "A row holds every item side by side. A grid and a column hold more items without scrolling." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Reihe zeigt alle Elemente nebeneinander. Ein Raster und eine Spalte zeigen mehr Elemente ohne Scrollen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une rangée place tous les éléments côte à côte. Une grille et une colonne en montrent davantage sans défilement."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una riga mostra tutti gli elementi affiancati. Una griglia e una colonna ne mostrano di più senza scorrere."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina retscha mussa tut ils elements in sper l’auter. Ina grillia ed ina colonna mussan dapli elements senza scrollar."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
