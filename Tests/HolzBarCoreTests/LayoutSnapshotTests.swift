@@ -4,12 +4,6 @@ import Testing
 
 @Suite("LayoutSnapshot")
 struct LayoutSnapshotTests {
-    private var calendar: Calendar {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
-        return calendar
-    }
-
     private func snapshot(
         minutesAgo: Int = 0,
         daysAgo: Int = 0,
@@ -48,28 +42,27 @@ struct LayoutSnapshotTests {
         #expect(one.hasSameArrangement(as: two))
     }
 
-    @Test("Retention keeps the newest ten and a snapshot per earlier day")
-    func retentionKeepsNewestAndDays() {
-        // 10 snapshots today, then two per day for 25 days.
-        var all = (0..<10).map { snapshot(minutesAgo: $0) }
-        for day in 1...25 {
-            all.append(snapshot(minutesAgo: 10, daysAgo: day))
-            all.append(snapshot(minutesAgo: 20, daysAgo: day))
-        }
-        let kept = SnapshotRetention.kept(from: all, calendar: calendar)
-        // 10 newest, plus the newest of each of the 20 earlier days.
-        #expect(kept.count == 30)
+    @Test("Retention keeps the newest ten by default")
+    func retentionKeepsNewest() {
+        let all = (0..<25).map { snapshot(minutesAgo: $0) }
+        let kept = SnapshotRetention.kept(from: all)
+        #expect(kept.count == 10)
         #expect(kept.first?.date == all.first?.date)
-        #expect(kept.contains { $0.date == snapshot(minutesAgo: 10, daysAgo: 20).date })
-        #expect(!kept.contains { $0.date == snapshot(minutesAgo: 20, daysAgo: 1).date })
-        #expect(!kept.contains { $0.date == snapshot(minutesAgo: 10, daysAgo: 21).date })
+        #expect(kept.last?.date == all[9].date)
     }
 
-    @Test("Starred snapshots always stay")
+    @Test("Retention follows the limit")
+    func retentionFollowsLimit() {
+        let all = (0..<25).map { snapshot(minutesAgo: $0) }
+        #expect(SnapshotRetention.kept(from: all, limit: 3).count == 3)
+        #expect(SnapshotRetention.kept(from: all, limit: 100).count == 25)
+    }
+
+    @Test("Starred snapshots always stay and do not count")
     func starredStay() {
         var all = (0..<12).map { snapshot(minutesAgo: $0) }
         all.append(snapshot(daysAgo: 400, starred: true))
-        let kept = SnapshotRetention.kept(from: all, calendar: calendar)
+        let kept = SnapshotRetention.kept(from: all, limit: 10)
         #expect(kept.contains { $0.isStarred })
         #expect(kept.count == 11)
     }
@@ -77,7 +70,7 @@ struct LayoutSnapshotTests {
     @Test("Few snapshots all stay")
     func fewStay() {
         let all = [snapshot(minutesAgo: 5), snapshot(minutesAgo: 1)]
-        #expect(SnapshotRetention.kept(from: all, calendar: calendar).count == 2)
+        #expect(SnapshotRetention.kept(from: all).count == 2)
     }
 
     @Test("The diff counts moves by target section and items that are not there")

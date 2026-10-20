@@ -142,14 +142,37 @@ final class LayoutBarItemView: NSView {
         alert.beginSheetModal(for: window, completionHandler: nil)
     }
 
+    /// Draws the image. A template is drawn in the colour that reads on the strip's
+    /// background, which is `black` when the strip is bright; drawn as it is, a template is
+    /// black, and unreadable on a dark strip.
+    private func drawDisplayImage() {
+        guard let displayImage else {
+            return
+        }
+        let fraction: CGFloat = isEnabled ? 1.0 : 0.67
+        guard displayImage.isTemplate else {
+            displayImage.draw(in: bounds, from: .zero, operation: .sourceOver, fraction: fraction)
+            return
+        }
+        let isBright: Bool
+        if let colorInfo = appState?.menuBarManager.averageColorInfo {
+            isBright = colorInfo.isBright
+        } else {
+            isBright = effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .aqua
+        }
+        let color: NSColor = isBright ? .black : .white
+        let tinted = NSImage(size: bounds.size, flipped: false) { rect in
+            displayImage.draw(in: rect, from: .zero, operation: .sourceOver, fraction: 1)
+            color.set()
+            rect.fill(using: .sourceAtop)
+            return true
+        }
+        tinted.draw(in: bounds, from: .zero, operation: .sourceOver, fraction: fraction)
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         if !isDraggingPlaceholder {
-            displayImage?.draw(
-                in: bounds,
-                from: .zero,
-                operation: .sourceOver,
-                fraction: isEnabled ? 1.0 : 0.67
-            )
+            drawDisplayImage()
             if Bridging.isProcessUnresponsive(responsivenessPID) {
                 let warningImage = NSImage.warning
                 let width: CGFloat = 15

@@ -12,7 +12,8 @@ import OSLog
 /// A snapshot is taken when the bar has settled after the Mac woke or the displays changed,
 /// at the first check of a day, before a profile rearranges the items, before a restore and
 /// when the user asks. An unchanged arrangement never makes a new file
-/// (``SnapshotPolicy``), and old ones are pruned (``SnapshotRetention``). The files are in
+/// (``SnapshotPolicy``), and all but the newest ones are pruned (``SnapshotRetention``; ten
+/// unless the user chooses another number). The files are in
 /// `~/Library/Application Support/holzBar/Snapshots`, readable only by the user, and are not
 /// synced or exported: item identities belong to the apps of one Mac.
 ///
@@ -33,6 +34,17 @@ final class LayoutSnapshots {
         }
     }
 
+    /// How many snapshots are kept, not counting starred ones. Ten by default.
+    var limit = SnapshotRetention.defaultLimit {
+        didSet {
+            guard !isLoading, limit != oldValue else {
+                return
+            }
+            Defaults.set(limit, forKey: .layoutSnapshotsLimit)
+            prune()
+        }
+    }
+
     /// When holzBar last rearranged the items itself, by a profile or a restore.
     @ObservationIgnored private(set) var lastRearrangement: Date?
 
@@ -50,6 +62,8 @@ final class LayoutSnapshots {
         self.appState = appState
         isLoading = true
         isEnabled = !Defaults.bool(forKey: .layoutSnapshotsDisabled)
+        let storedLimit = Defaults.integer(forKey: .layoutSnapshotsLimit)
+        limit = SnapshotRetention.limits.contains(storedLimit) ? storedLimit : SnapshotRetention.defaultLimit
         isLoading = false
         load()
         appState.systemActivityMonitor.onSettled { [weak self] in
@@ -233,7 +247,7 @@ final class LayoutSnapshots {
 
     /// Deletes the files of the snapshots that are no longer kept.
     private func prune() {
-        let kept = SnapshotRetention.kept(from: snapshots)
+        let kept = SnapshotRetention.kept(from: snapshots, limit: limit)
         guard kept.count != snapshots.count else {
             return
         }
