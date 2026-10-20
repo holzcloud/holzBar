@@ -36,6 +36,9 @@ extension MenuBarItemManager {
         // reveal and the search ask the hidden-items lock; item hotkeys, hints, groups and the
         // Shortcuts action do not, so a script widget keeps the 30 seconds between two asks for
         // every open that is not the user's own click (`origin`).
+        if let appState, appState.usage.isEnabled {
+            appState.usage.recordOpen(ofItemWithKey: identityKey(for: item))
+        }
         if let appState, appState.widgets.handlesOpen(of: item, mouseButton: mouseButton, origin: origin) {
             return
         }

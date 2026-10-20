@@ -86,6 +86,9 @@ final class HIDEventManager {
         if event.cgEvent?.getIntegerValueField(.eventSourceUserData) == HIDEventManager.menuBarActivationMarker {
             return event
         }
+        if appState.usage.isEnabled, let location = MouseHelpers.locationCoreGraphics {
+            appState.usage.recordMenuBarClick(atCoreGraphicsPoint: location)
+        }
         switch event.type {
         case .leftMouseDown:
             handleShowOnClick(appState: appState, screen: screen, clickTime: clickTime)
@@ -195,8 +198,14 @@ final class HIDEventManager {
             showAllSectionsOnUserDrag: advanced.showAllSectionsOnUserDrag,
             savesUserArrangement: MenuBarBackends.current.canMoveItems,
             hasCustomAppearance: appState.appearanceManager.needsOverlayPanels(for: appState.appearanceManager.configuration),
-            dragsWithoutCommand: MenuBarDragController.isSupported && appState.modules.isEnabled(MenuBarDragController.moduleID)
+            dragsWithoutCommand: MenuBarDragController.isSupported && appState.modules.isEnabled(MenuBarDragController.moduleID),
+            countsUsage: appState.usage.isEnabled
         )
+    }
+
+    /// The usage suggestions were turned on or off: the mouse-down monitor runs only for them.
+    func usageSettingChanged() {
+        updateMonitors()
     }
 
     /// Starts the monitors the current settings need and stops the others.
