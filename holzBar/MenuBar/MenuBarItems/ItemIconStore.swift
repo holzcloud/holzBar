@@ -239,12 +239,23 @@ final class ItemIconStore {
         case .custom:
             return custom.map(Self.sizedForMenuBar)
         case .captured:
-            return captured
+            return captured.map(Self.asGlyph)
         case .appIcon:
             return appIcon(for: item).map(Self.sizedForMenuBar)
         case .name:
             return nil
         }
+    }
+
+    /// On macOS 27 a picture is a single-colour glyph that carries only opacity, so the
+    /// layout bar may draw it in the colour that reads on its background. The copy is a
+    /// template; the picture in the image cache is left as it is.
+    private static func asGlyph(_ image: NSImage) -> NSImage {
+        guard #available(macOS 27.0, *), let copy = image.copy() as? NSImage else {
+            return image
+        }
+        copy.isTemplate = true
+        return copy
     }
 
     /// A copy of the image drawn at the height of a menu bar item.

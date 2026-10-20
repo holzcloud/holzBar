@@ -78,50 +78,22 @@ nonisolated enum SnapshotPolicy {
 
 /// Decides which snapshots stay.
 nonisolated enum SnapshotRetention {
-    /// The newest snapshots always kept.
-    static let newestCount = 10
-    /// How many earlier days keep their newest snapshot.
-    static let dayCount = 20
-    /// The most snapshots kept, not counting starred ones.
-    static let maximumCount = 30
+    /// How many snapshots are kept unless the user chooses another number.
+    static let defaultLimit = 10
+    /// The numbers the user can choose from.
+    static let limits = 1...100
 
-    /// The snapshots to keep, newest first: the newest ten, then the newest of each of the
-    /// 20 days before them, at most 30, plus every starred one.
-    static func kept(from snapshots: [LayoutSnapshot], calendar: Calendar = .current) -> [LayoutSnapshot] {
-        let sorted = snapshots.sorted { $0.date > $1.date }
-        var keptIDs = Set<Date>()
-        var result: [LayoutSnapshot] = []
-
-        func keep(_ snapshot: LayoutSnapshot) {
-            if keptIDs.insert(snapshot.id).inserted {
-                result.append(snapshot)
-            }
-        }
-
+    /// The snapshots to keep, newest first: the newest `limit`, plus every starred one,
+    /// which does not count towards the limit.
+    static func kept(from snapshots: [LayoutSnapshot], limit: Int = defaultLimit) -> [LayoutSnapshot] {
         var unstarredCount = 0
-        for snapshot in sorted.prefix(newestCount) {
-            keep(snapshot)
-            if !snapshot.isStarred {
-                unstarredCount += 1
+        return snapshots.sorted { $0.date > $1.date }.filter { snapshot in
+            if snapshot.isStarred {
+                return true
             }
-        }
-        // The days of the newest snapshots are covered; each earlier day keeps its newest one.
-        var coveredDays = Set(sorted.prefix(newestCount).map { calendar.startOfDay(for: $0.date) })
-        var earlierDays = 0
-        for snapshot in sorted.dropFirst(newestCount) where !snapshot.isStarred {
-            let day = calendar.startOfDay(for: snapshot.date)
-            guard !coveredDays.contains(day), earlierDays < dayCount, unstarredCount < maximumCount else {
-                continue
-            }
-            coveredDays.insert(day)
-            earlierDays += 1
-            keep(snapshot)
             unstarredCount += 1
+            return unstarredCount <= limit
         }
-        for snapshot in sorted where snapshot.isStarred {
-            keep(snapshot)
-        }
-        return result.sorted { $0.date > $1.date }
     }
 }
 

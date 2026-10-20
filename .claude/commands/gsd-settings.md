@@ -22,7 +22,7 @@ Routes to the settings workflow which handles:
 </objective>
 
 <execution_context>
-@/home/user/holzIce/.claude/gsd-core/workflows/settings.md
+@/Users/holz/Projects/holzBar/.claude/gsd-core/workflows/settings.md
 </execution_context>
 
 <process>

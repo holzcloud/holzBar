@@ -209,6 +209,8 @@ nonisolated extension Defaults {
         case lockHiddenItems = "LockHiddenItems"
         /// Whether the history of the layout is turned off (it is on by default).
         case layoutSnapshotsDisabled = "LayoutSnapshotsDisabled"
+        /// How many snapshots of the layout are kept, not counting starred ones.
+        case layoutSnapshotsLimit = "LayoutSnapshotsLimit"
         /// The automation rules, as JSON (`AutomationRule`).
         case automationRules = "AutomationRules"
         case knownItemTags = "KnownItemTags"
@@ -334,6 +336,7 @@ nonisolated extension Defaults.Key {
             .newItemsPlacement,
             .spacerCount,
             .spacerWidth,
+            .layoutSnapshotsLimit,
             .macOS27ClickRestoreDelay,
             .menuBarBorderWidth,
             .menuBarTintKind:
@@ -395,6 +398,8 @@ nonisolated extension Defaults.Key {
             .clamped(1...3)
         case .spacerCount:
             .wholeNumber(0...10)
+        case .layoutSnapshotsLimit:
+            .wholeNumber(1...100)
         case .shelfLocation,
             .shelfDisplays,
             .rehideStrategy,

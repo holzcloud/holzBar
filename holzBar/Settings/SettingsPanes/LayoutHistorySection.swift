@@ -12,6 +12,8 @@ struct LayoutHistorySection: View {
     @State private var restoreTarget: LayoutSnapshot?
     @State private var isDismissed = false
     @State private var isConfirmingDeleteAll = false
+    /// The list is folded away until the user opens it.
+    @State private var isExpanded = false
 
     private var isConfirmingRestore: Binding<Bool> {
         Binding(
@@ -33,22 +35,32 @@ struct LayoutHistorySection: View {
             }
         } content: {
             Toggle("Keep a history of the layout", isOn: $snapshots.isEnabled)
+            if snapshots.isEnabled {
+                Stepper(value: $snapshots.limit, in: SnapshotRetention.limits) {
+                    Text("Snapshots to keep: \(snapshots.limit)")
+                }
+                .annotation("Older ones are deleted. Starred snapshots stay and are not counted.")
+            }
             if !isDismissed, let suggested = snapshots.snapshotToSuggest {
                 suggestion(for: suggested)
             }
-            ForEach(snapshots.snapshots) { snapshot in
-                row(for: snapshot)
-            }
-            HStack {
-                Button("Take Snapshot Now") {
-                    snapshots.take(.manual)
+            DisclosureGroup(isExpanded: $isExpanded) {
+                ForEach(snapshots.snapshots) { snapshot in
+                    row(for: snapshot)
                 }
-                .disabled(!snapshots.isEnabled)
-                Spacer()
-                Button("Delete All Snapshots…", role: .destructive) {
-                    isConfirmingDeleteAll = true
+                HStack {
+                    Button("Take Snapshot Now") {
+                        snapshots.take(.manual)
+                    }
+                    .disabled(!snapshots.isEnabled)
+                    Spacer()
+                    Button("Delete All Snapshots…", role: .destructive) {
+                        isConfirmingDeleteAll = true
+                    }
+                    .disabled(snapshots.snapshots.isEmpty)
                 }
-                .disabled(snapshots.snapshots.isEmpty)
+            } label: {
+                Text("Snapshots: \(snapshots.snapshots.count)")
             }
         }
         .confirmationDialog("Restore this layout?", isPresented: isConfirmingRestore, titleVisibility: .visible, presenting: restoreTarget) { target in

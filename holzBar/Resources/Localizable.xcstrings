@@ -18636,6 +18636,90 @@
           }
         }
       }
+    },
+    "Snapshots to keep: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zu behaltende Schnappschüsse: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instantanés à conserver : %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Istantanee da conservare: %lld"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snapshots da mantegnair: %lld"
+          }
+        }
+      }
+    },
+    "Older ones are deleted. Starred snapshots stay and are not counted." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ältere werden gelöscht. Mit Stern markierte bleiben und zählen nicht mit."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les plus anciens sont supprimés. Ceux marqués d’une étoile restent et ne sont pas comptés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quelle più vecchie vengono eliminate. Quelle con la stella restano e non vengono contate."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las pli veglias vegnan stizzadas. Las cun stailla restan e na vegnan betg quintadas."
+          }
+        }
+      }
+    },
+    "Snapshots: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schnappschüsse: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instantanés : %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Istantanee: %lld"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snapshots: %lld"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

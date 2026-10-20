@@ -13,7 +13,7 @@ Display comprehensive project statistics including phase progress, plan executio
 </objective>
 
 <execution_context>
-@/home/user/holzIce/.claude/gsd-core/workflows/stats.md
+@/Users/holz/Projects/holzBar/.claude/gsd-core/workflows/stats.md
 </execution_context>
 
 <process>

@@ -16,7 +16,7 @@ Use when `.planning/phases/` has accumulated directories from past milestones.
 </objective>
 
 <execution_context>
-@/home/user/holzIce/.claude/gsd-core/workflows/cleanup.md
+@/Users/holz/Projects/holzBar/.claude/gsd-core/workflows/cleanup.md
 </execution_context>
 
 <process>

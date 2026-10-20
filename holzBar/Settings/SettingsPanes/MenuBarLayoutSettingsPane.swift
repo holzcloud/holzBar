@@ -27,6 +27,10 @@ struct MenuBarLayoutSettingsPane: View {
         } else {
             HolzBarForm(spacing: 20) {
                 header
+                if #available(macOS 27.0, *) {
+                    StuckOverflowWarning(concealer: appState.concealer27)
+                }
+                layoutBars
                 HolzBarSection {
                     HStack {
                         Text("Let holzBar propose which items to hide, from what it knows of the apps. You decide, and you can undo it.")
@@ -47,17 +51,13 @@ struct MenuBarLayoutSettingsPane: View {
                     }
                 }
                 LayoutProfilesSection(profiles: appState.profiles)
-                LayoutHistorySection(snapshots: appState.snapshots)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
                 SpacersSection(spacers: appState.spacers)
                 WidgetsModuleSection()
                 if MenuBarDragController.isSupported {
                     MenuBarDragModuleSection()
                 }
-                if #available(macOS 27.0, *) {
-                    StuckOverflowWarning(concealer: appState.concealer27)
-                }
-                layoutBars
+                LayoutHistorySection(snapshots: appState.snapshots)
             }
         }
     }
