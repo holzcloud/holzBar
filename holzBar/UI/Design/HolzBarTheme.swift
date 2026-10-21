@@ -19,6 +19,11 @@ enum HolzBarTheme {
             light: DesignTokens.Light.ground,
             dark: DesignTokens.Dark.ground
         )
+        /// The bottom of the window ground's vertical gradient, a little deeper than `ground`.
+        static let groundBottom = Color(
+            light: DesignTokens.Light.groundBottom,
+            dark: DesignTokens.Dark.groundBottom
+        )
         /// Cards and grouped content.
         static let groundElevated = Color(
             light: DesignTokens.Light.groundElevated,

@@ -94,6 +94,8 @@ nonisolated enum DesignTokens {
     /// The colours of the light appearance.
     nonisolated enum Light {
         static let ground = RGB(hex: 0xF3F7FB)
+        /// The bottom of the window ground's vertical gradient.
+        static let groundBottom = RGB(hex: 0xEAF1F8)
         static let groundElevated = RGB(hex: 0xFFFFFF)
         static let stroke = Tint(color: .black, alpha: 0.08)
         static let text = RGB(hex: 0x0B1220)
