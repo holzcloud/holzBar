@@ -30,10 +30,11 @@ struct ModulesSettingsPane: View {
             permissionText: { Text(verbatim: $0.rawValue) },
             isPermissionGranted: isGranted(_:),
             emptyTitle: Text("No modules"),
-            emptyMessage: Text("Modules you can switch on appear here.")
-        ) { module in
-            settings(of: module)
-        }
+            emptyMessage: Text("Modules you can switch on appear here."),
+            settings: { module in
+                settings(of: module)
+            }
+        )
     }
 
     /// Whether holzBar has the permission a module asks for. A permission holzBar has no
