@@ -19,6 +19,10 @@ nonisolated struct ItemRuleMemory: Equatable, Sendable {
     /// holzBar does not know yet. It outlives a restart.
     var shownSection: Int?
     var applied: Applied?
+    /// Whether the item was not found at the last look. An item that is found again is looked
+    /// at anew, as at its first look: what holzBar knew of where it left the item no longer
+    /// holds, so the item is never taken for one the user moved by hand.
+    var wasAbsent = false
 }
 
 /// A move by hand that holzBar undid.
@@ -85,12 +89,22 @@ nonisolated extension ItemVisibility {
     ///   - actual: The section the item is in now, or `nil` when it is not found.
     ///   - memory: What holzBar remembers of the item.
     static func decide(holds: Bool?, hiding: Int, actual: Int?, memory: ItemRuleMemory) -> ItemRuleDecision {
-        guard let holds else {
-            return ItemRuleDecision(moveTo: nil, memory: memory, revert: nil)
+        var memory = memory
+        if actual != nil, memory.wasAbsent {
+            // The item is back after it was missing: a fresh first look, never a revert.
+            memory.applied = nil
+            memory.wasAbsent = false
         }
-        return holds
-            ? decideShown(hiding: hiding, actual: actual, memory: memory)
-            : decideHidden(hiding: hiding, actual: actual, memory: memory)
+        var result: ItemRuleDecision
+        if let holds {
+            result = holds
+                ? decideShown(hiding: hiding, actual: actual, memory: memory)
+                : decideHidden(hiding: hiding, actual: actual, memory: memory)
+        } else {
+            result = ItemRuleDecision(moveTo: nil, memory: memory, revert: nil)
+        }
+        result.memory.wasAbsent = actual == nil
+        return result
     }
 
     /// The section a shown item returns to: the remembered one when it is more visible than
@@ -159,12 +173,17 @@ nonisolated extension ItemVisibility {
         guard let applied = memory.applied else {
             // First look.
             guard let actual else {
-                return decision(memory, applied: hidden, moveTo: hiding)
+                // Not found: nothing moved, so nothing is recorded as applied. The hiding section
+                // is asked for once, so a layout that is keyed by application (macOS 27) places
+                // the item when it shows up.
+                return ItemRuleDecision(moveTo: memory.wasAbsent ? nil : hiding, memory: memory, revert: nil)
             }
             if actual >= hiding {
                 return decision(memory, applied: .init(section: actual, isHiding: true))
             }
-            return decision(memory, applied: hidden, shown: actual, moveTo: hiding)
+            // The shown section that is stored stays: where the item sits at launch (its default
+            // position) says nothing about where the user wants it while the rule shows it.
+            return decision(memory, applied: hidden, shown: memory.shownSection ?? actual, moveTo: hiding)
         }
         if applied.isHiding {
             if let actual, actual != applied.section {
@@ -218,7 +237,66 @@ nonisolated extension ItemVisibility {
         return result
     }
 
+    // MARK: Carrying out
+
+    /// What holzBar remembers once a decision with a move was carried out and the bar was read
+    /// again. Only an item that was seen in the section it was moved to keeps what the decision
+    /// recorded as applied; for any other the earlier `applied` stays, so the next look does
+    /// not take the item, which the move did not reach, for one the user moved by hand.
+    static func settledMemory(of decision: ItemRuleDecision, before: ItemRuleMemory, reached: Bool) -> ItemRuleMemory {
+        guard decision.moveTo != nil, !reached else {
+            return decision.memory
+        }
+        var kept = decision.memory
+        kept.applied = before.applied
+        return kept
+    }
+
+    /// The decisions without the moves that were given up: such a decision moves nothing and
+    /// announces nothing, and remembers as a move that did not reach the item.
+    ///
+    /// - Parameters:
+    ///   - found: The identity keys of the items that are on the bar now.
+    static func droppingGivenUpMoves(
+        from decisions: [String: ItemRuleDecision],
+        memory: [String: ItemRuleMemory],
+        attempts: ItemRuleMoveAttempts,
+        found: Set<String>
+    ) -> [String: ItemRuleDecision] {
+        var result = decisions
+        for (key, decision) in decisions {
+            guard let target = decision.moveTo, attempts.isGivenUp(key: key, target: target, isFound: found.contains(key)) else {
+                continue
+            }
+            let kept = settledMemory(of: decision, before: memory[key] ?? ItemRuleMemory(), reached: false)
+            result[key] = ItemRuleDecision(moveTo: nil, memory: kept, revert: nil)
+        }
+        return result
+    }
+
     // MARK: Persistence
+
+    /// The memory in the app after the rules were loaded: what is already known stays (the
+    /// section where holzBar left each item), the shown sections are refreshed from `stored`
+    /// (see ``restoredMemory(from:ruleKeys:)``), entries are added for items that are new and
+    /// dropped for items no rule controls.
+    static func mergingStored(
+        _ stored: [String: ItemRuleMemory],
+        into current: [String: ItemRuleMemory],
+        ruleKeys: Set<String>
+    ) -> [String: ItemRuleMemory] {
+        var result = [String: ItemRuleMemory]()
+        for key in ruleKeys.sorted() {
+            guard result.count < AutomationRule.maximumCount, var memory = current[key] ?? stored[key] else {
+                continue
+            }
+            if let shown = stored[key]?.shownSection {
+                memory.shownSection = shown
+            }
+            result[key] = memory
+        }
+        return result
+    }
 
     /// The identity keys of the items of all item rules, whether the rule is on or off.
     static func ruleKeys(in rules: [AutomationRule]) -> Set<String> {
@@ -250,6 +328,51 @@ nonisolated extension ItemVisibility {
             result[key] = shown
         }
         return result
+    }
+}
+
+/// How often holzBar tried to move an item without the bar showing it in the new section. After
+/// ``limit`` tries in a row for the same target it stops, until the facts change: the target is
+/// another one, the item appears or disappears, the rules are edited or the user arranges items.
+nonisolated struct ItemRuleMoveAttempts: Equatable, Sendable {
+    /// The most tries in a row for one item and target.
+    static let limit = 3
+
+    private struct Failure: Equatable, Sendable {
+        var target: Int
+        var isFound: Bool
+        var count: Int
+    }
+
+    private var failures = [String: Failure]()
+
+    /// Whether the move of the item to `target` is not tried again. `isFound` tells whether the
+    /// item is on the bar.
+    func isGivenUp(key: String, target: Int, isFound: Bool) -> Bool {
+        guard let failure = failures[key] else {
+            return false
+        }
+        return failure.target == target && failure.isFound == isFound && failure.count >= Self.limit
+    }
+
+    /// Notes a move that did not reach the item. A try with other facts starts the count anew.
+    mutating func recordFailure(key: String, target: Int, isFound: Bool) {
+        if var failure = failures[key], failure.target == target, failure.isFound == isFound {
+            failure.count += 1
+            failures[key] = failure
+        } else {
+            failures[key] = Failure(target: target, isFound: isFound, count: 1)
+        }
+    }
+
+    /// Notes a move that reached the item.
+    mutating func recordSuccess(key: String) {
+        failures.removeValue(forKey: key)
+    }
+
+    /// Forgets every failure: the facts changed.
+    mutating func removeAll() {
+        failures.removeAll()
     }
 }
 

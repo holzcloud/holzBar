@@ -32,7 +32,9 @@ struct ItemRuleMemoryTests {
         let known = memory(shown: 1, at: 2, hiding: true)
         for actual in [nil, 0, 1, 2] as [Int?] {
             let result = decide(nil, hiding: 2, actual: actual, known)
-            #expect(result == ItemRuleDecision(moveTo: nil, memory: known, revert: nil))
+            var expected = known
+            expected.wasAbsent = actual == nil
+            #expect(result == ItemRuleDecision(moveTo: nil, memory: expected, revert: nil))
         }
     }
 
@@ -42,8 +44,9 @@ struct ItemRuleMemoryTests {
         #expect(result.moveTo == nil)
         #expect(result.revert == nil)
         #expect(result.memory == memory(shown: 1, at: 1))
-        // An item that is not found is left alone and nothing is remembered.
-        #expect(decide(true, hiding: 2, actual: nil) == ItemRuleDecision(moveTo: nil, memory: ItemRuleMemory(), revert: nil))
+        // An item that is not found is left alone and nothing is remembered but that it was missing.
+        let absent = ItemRuleMemory(wasAbsent: true)
+        #expect(decide(true, hiding: 2, actual: nil) == ItemRuleDecision(moveTo: nil, memory: absent, revert: nil))
     }
 
     @Test("A rule that shows an item sitting in its hiding section moves it out, without a notice")
@@ -151,6 +154,159 @@ struct ItemRuleMemoryTests {
         #expect(stays.revert == nil)
     }
 
+    @Test("Hiding an item that is not found records nothing as applied and asks for the move once")
+    func absentItemIsHiddenOnce() {
+        let first = decide(false, hiding: 1, actual: nil, memory(shown: 0))
+        #expect(first.moveTo == 1)
+        #expect(first.memory.applied == nil)
+        #expect(first.memory.shownSection == 0)
+        let again = decide(false, hiding: 1, actual: nil, first.memory)
+        #expect(again.moveTo == nil)
+        #expect(again.memory == first.memory)
+    }
+
+    @Test("An item that appears in a more visible section than the hiding one is a first look, not a hand move")
+    func appearingItemIsAFreshFirstLook() {
+        let missing = decide(false, hiding: 1, actual: nil, memory(shown: 0)).memory
+        let appeared = decide(false, hiding: 1, actual: 0, missing)
+        #expect(appeared.moveTo == 1)
+        #expect(appeared.revert == nil)
+        #expect(appeared.memory == memory(shown: 0, at: 1, hiding: true))
+        // The same holds for an item that was hidden before it went missing.
+        let gone = decide(false, hiding: 1, actual: nil, memory(shown: 0, at: 1, hiding: true)).memory
+        let back = decide(false, hiding: 1, actual: 0, gone)
+        #expect(back.moveTo == 1)
+        #expect(back.revert == nil)
+        // And for a shown item that comes back in the hiding section.
+        let goneShown = decide(true, hiding: 1, actual: nil, memory(shown: 0, at: 0)).memory
+        let backHidden = decide(true, hiding: 1, actual: 1, goneShown)
+        #expect(backHidden.moveTo == 0)
+        #expect(backHidden.revert == nil)
+    }
+
+    @Test("A first look at a hidden item keeps the shown section that is stored")
+    func firstLookKeepsStoredShownSection() {
+        let result = decide(false, hiding: 2, actual: 0, memory(shown: 1))
+        #expect(result.moveTo == 2)
+        #expect(result.memory == memory(shown: 1, at: 2, hiding: true))
+        let show = decide(true, hiding: 2, actual: 2, result.memory)
+        #expect(show.moveTo == 1)
+        // Nothing stored: the section it is found in is remembered.
+        #expect(decide(false, hiding: 2, actual: 0).memory.shownSection == 0)
+        // A rule that shows the item adopts the section it is found in.
+        #expect(decide(true, hiding: 2, actual: 0, memory(shown: 1)).memory == memory(shown: 0, at: 0))
+    }
+
+    @Test("A move that did not reach the item keeps the earlier applied state")
+    func settledMemoryKeepsAppliedWhenNotReached() {
+        let before = memory(shown: 0, at: 0)
+        let decision = decide(false, hiding: 1, actual: 0, before)
+        #expect(decision.moveTo == 1)
+        #expect(Visibility.settledMemory(of: decision, before: before, reached: true) == decision.memory)
+        let notReached = Visibility.settledMemory(of: decision, before: before, reached: false)
+        #expect(notReached.applied == before.applied)
+        #expect(notReached.shownSection == decision.memory.shownSection)
+        // The next look neither announces a hand move nor loses the move.
+        let next = decide(false, hiding: 1, actual: 0, notReached)
+        #expect(next.moveTo == 1)
+        #expect(next.revert == nil)
+        // First look: nothing was applied before, so nothing is.
+        let fresh = decide(false, hiding: 1, actual: 0)
+        #expect(Visibility.settledMemory(of: fresh, before: ItemRuleMemory(), reached: false).applied == nil)
+        // A decision without a move is kept as it is.
+        let still = decide(false, hiding: 1, actual: 1, memory(shown: 0, at: 1, hiding: true))
+        #expect(Visibility.settledMemory(of: still, before: before, reached: false) == still.memory)
+    }
+
+    @Test("A revert that did not reach the item is not remembered as put back")
+    func unreachedRevertRepeatsWithoutHandMoveState() {
+        let before = memory(shown: 0, at: 1, hiding: true)
+        let decision = decide(false, hiding: 1, actual: 0, before)
+        #expect(decision.revert == ItemRuleRevert(found: 0, putBack: 1))
+        let kept = Visibility.settledMemory(of: decision, before: before, reached: false)
+        #expect(kept.applied == before.applied)
+    }
+
+    @Test("A move is given up after three tries that did not reach the item, until the facts change")
+    func movesAreBounded() {
+        var attempts = ItemRuleMoveAttempts()
+        #expect(!attempts.isGivenUp(key: "a:A", target: 1, isFound: true))
+        for _ in 0..<(ItemRuleMoveAttempts.limit - 1) {
+            attempts.recordFailure(key: "a:A", target: 1, isFound: true)
+            #expect(!attempts.isGivenUp(key: "a:A", target: 1, isFound: true))
+        }
+        attempts.recordFailure(key: "a:A", target: 1, isFound: true)
+        #expect(attempts.isGivenUp(key: "a:A", target: 1, isFound: true))
+        // Another target, or the item appearing or going, is another case.
+        #expect(!attempts.isGivenUp(key: "a:A", target: 0, isFound: true))
+        #expect(!attempts.isGivenUp(key: "a:A", target: 1, isFound: false))
+        #expect(!attempts.isGivenUp(key: "b:B", target: 1, isFound: true))
+        // A try with other facts starts the count again.
+        attempts.recordFailure(key: "a:A", target: 0, isFound: true)
+        #expect(!attempts.isGivenUp(key: "a:A", target: 1, isFound: true))
+        #expect(!attempts.isGivenUp(key: "a:A", target: 0, isFound: true))
+        for _ in 0..<ItemRuleMoveAttempts.limit {
+            attempts.recordFailure(key: "a:A", target: 1, isFound: true)
+        }
+        #expect(attempts.isGivenUp(key: "a:A", target: 1, isFound: true))
+        attempts.recordSuccess(key: "a:A")
+        #expect(!attempts.isGivenUp(key: "a:A", target: 1, isFound: true))
+        for _ in 0..<ItemRuleMoveAttempts.limit {
+            attempts.recordFailure(key: "a:A", target: 1, isFound: true)
+        }
+        attempts.removeAll()
+        #expect(attempts == ItemRuleMoveAttempts())
+    }
+
+    @Test("A move that was given up is dropped from the decisions and causes no further work")
+    func givenUpMovesAreDropped() {
+        let memories = ["a:A": memory(shown: 0, at: 0), "b:B": memory(shown: 0, at: 0)]
+        let follows: [(itemKey: String, holds: Bool?, hiding: Int)] = [
+            (itemKey: "a:A", holds: false, hiding: 1),
+            (itemKey: "b:B", holds: false, hiding: 1),
+        ]
+        let decisions = Visibility.decisions(follows: follows, actual: ["a:A": 0, "b:B": 0], memory: memories)
+        var attempts = ItemRuleMoveAttempts()
+        for _ in 0..<ItemRuleMoveAttempts.limit {
+            attempts.recordFailure(key: "a:A", target: 1, isFound: true)
+        }
+        let kept = Visibility.droppingGivenUpMoves(from: decisions, memory: memories, attempts: attempts, found: ["a:A", "b:B"])
+        #expect(kept["a:A"]?.moveTo == nil)
+        #expect(kept["a:A"]?.revert == nil)
+        #expect(kept["a:A"]?.memory.applied == memories["a:A"]?.applied)
+        #expect(kept["b:B"]?.moveTo == 1)
+        // With the dropped decision's memory stored, nothing is left to do.
+        let stored = kept["a:A"]?.memory ?? ItemRuleMemory()
+        let again = Visibility.decisions(follows: follows, actual: ["a:A": 0, "b:B": 0], memory: ["a:A": stored])
+        let dropped = Visibility.droppingGivenUpMoves(from: again, memory: ["a:A": stored], attempts: attempts, found: ["a:A"])
+        #expect(dropped["a:A"]?.moveTo == nil)
+        #expect(dropped["a:A"]?.memory == stored)
+    }
+
+    @Test("Loading the rules again keeps what holzBar knows and refreshes the shown sections")
+    func mergingKeepsAppliedMemory() {
+        let current = [
+            "a:A": memory(shown: 0, at: 1, hiding: true),
+            "gone:G": memory(shown: 1, at: 1),
+            "c:C": memory(at: 0),
+        ]
+        let stored = [
+            "a:A": ItemRuleMemory(shownSection: 1),
+            "b:B": ItemRuleMemory(shownSection: 0),
+        ]
+        let merged = Visibility.mergingStored(stored, into: current, ruleKeys: ["a:A", "b:B", "c:C"])
+        #expect(merged == [
+            "a:A": memory(shown: 1, at: 1, hiding: true),
+            "b:B": memory(shown: 0),
+            "c:C": memory(at: 0),
+        ])
+        #expect(Visibility.mergingStored([:], into: [:], ruleKeys: ["a:A"]).isEmpty)
+        #expect(Visibility.mergingStored(stored, into: current, ruleKeys: []).isEmpty)
+        let keys = (0..<(AutomationRule.maximumCount + 5)).map { "app\($0):Item" }
+        let many = Dictionary(uniqueKeysWithValues: keys.map { ($0, memory(shown: 1)) })
+        #expect(Visibility.mergingStored([:], into: many, ruleKeys: Set(keys)).count == AutomationRule.maximumCount)
+    }
+
     @Test("A hiding section edited to a deeper one moves the item, and the old one is not remembered")
     func editedHidingSectionMovesItem() {
         let result = decide(false, hiding: 2, actual: 1, memory(shown: 0, at: 1, hiding: true))
@@ -193,7 +349,13 @@ struct ItemRuleMemoryTests {
                 for actual in [nil, 0, 1, 2] as [Int?] {
                     for start in memories {
                         let first = decide(holds, hiding: hiding, actual: actual, start)
-                        let again = decide(holds, hiding: hiding, actual: first.moveTo ?? actual, first.memory)
+                        // An item that is not found cannot be moved: it is still missing.
+                        let again = decide(
+                            holds,
+                            hiding: hiding,
+                            actual: actual == nil ? nil : first.moveTo ?? actual,
+                            first.memory
+                        )
                         #expect(again.moveTo == nil, "holds \(String(describing: holds)) hiding \(hiding) actual \(String(describing: actual))")
                         #expect(again.revert == nil)
                         #expect(again.memory == first.memory)
