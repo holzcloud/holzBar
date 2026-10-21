@@ -65,28 +65,26 @@ struct AdvancedSettingsPane: View {
         .onAppear {
             appState.permissions.refresh()
         }
-        .confirmationDialog(
-            "Revoke this permission?",
-            isPresented: Binding(
-                get: { revokingPermission != nil },
-                set: { isPresented in
-                    if !isPresented {
-                        revokingPermission = nil
-                    }
+        .sheet(item: $revokingPermission) { permission in
+            ConfirmSheet(
+                title: Text("Revoke this permission?"),
+                message: Text("holzBar stops using it at once and cannot do what needs it until you allow it again. You can also remove it yourself in System Settings, in Privacy & Security."),
+                confirmTitle: "Revoke \(permission.title)",
+                cancelTitle: "Cancel",
+                isDestructive: true,
+                secondaryTitle: "Open System Settings",
+                onSecondary: {
+                    revokingPermission = nil
+                    permission.openSettings()
+                },
+                onConfirm: {
+                    revokingPermission = nil
+                    permission.revoke()
+                },
+                onCancel: {
+                    revokingPermission = nil
                 }
-            ),
-            titleVisibility: .visible,
-            presenting: revokingPermission
-        ) { permission in
-            Button("Revoke \(permission.title)", role: .destructive) {
-                permission.revoke()
-            }
-            Button("Open System Settings") {
-                permission.openSettings()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: { _ in
-            Text("holzBar stops using it at once and cannot do what needs it until you allow it again. You can also remove it yourself in System Settings, in Privacy & Security.")
+            )
         }
     }
 

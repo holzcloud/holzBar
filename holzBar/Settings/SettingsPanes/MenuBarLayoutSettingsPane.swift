@@ -449,13 +449,14 @@ private struct LayoutProfileRow: View {
         .sheet(isPresented: $isSharing) {
             ShareProfileSheet(profile: profile)
         }
-        .confirmationDialog("Delete the profile \u{201C}\(profile.name)\u{201D}?", isPresented: $isConfirmingDelete) {
-            Button("Delete", role: .destructive) {
-                profiles.delete(named: profile.name)
-            }
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("The menu bar stays as it is. You can undo this with \u{2318}Z.")
+        .holzBarConfirmation(
+            isPresented: $isConfirmingDelete,
+            title: Text("Delete the profile \u{201C}\(profile.name)\u{201D}?"),
+            message: Text("The menu bar stays as it is. You can undo this with \u{2318}Z."),
+            confirmTitle: "Delete",
+            isDestructive: true
+        ) {
+            profiles.delete(named: profile.name)
         }
     }
 }

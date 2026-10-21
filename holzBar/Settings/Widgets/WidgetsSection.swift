@@ -73,19 +73,19 @@ struct WidgetsSection: View {
                 }
             }
         }
-        .confirmationDialog("Remove this widget?", isPresented: isConfirmingRemoval, titleVisibility: .visible) {
-            Button("Remove", role: .destructive) {
-                if let id = removalID {
-                    if editingID == id {
-                        editingID = nil
-                    }
-                    widgets.removeWidget(id: id)
+        .holzBarConfirmation(
+            isPresented: isConfirmingRemoval,
+            title: Text("Remove this widget?"),
+            confirmTitle: "Remove",
+            isDestructive: true
+        ) {
+            if let id = removalID {
+                if editingID == id {
+                    editingID = nil
                 }
-                removalID = nil
+                widgets.removeWidget(id: id)
             }
-            Button("Cancel", role: .cancel) {
-                removalID = nil
-            }
+            removalID = nil
         }
     }
 
