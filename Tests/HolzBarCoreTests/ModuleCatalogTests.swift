@@ -61,8 +61,9 @@ struct ModuleCatalogTests {
         #expect(
             ModuleCatalog.all.allSatisfy { $0.permission == nil },
             """
-            A module with a permission needs its sentence in ModulesSettingsPane \
-            (a module says why before it asks). Teach the pane the sentence, then update this test.
+            A module with a permission needs its sentence and its lookup (isGranted) in \
+            ModulesSettingsPane (a module says why before it asks). Teach the pane both, \
+            then update this test.
             """
         )
     }

@@ -28,11 +28,23 @@ struct ModulesSettingsPane: View {
             title: { Text(LocalizedStringKey($0.titleKey)) },
             summary: { Text(LocalizedStringKey($0.summaryKey)) },
             permissionText: { Text(verbatim: $0.rawValue) },
-            isPermissionGranted: { _ in false },
+            isPermissionGranted: isGranted(_:),
             emptyTitle: Text("No modules"),
             emptyMessage: Text("Modules you can switch on appear here.")
         ) { module in
             settings(of: module)
+        }
+    }
+
+    /// Whether holzBar has the permission a module asks for. A permission holzBar has no
+    /// lookup for yet is not granted. The switch has no default: a new case of
+    /// ``ModulePermission`` must be placed here.
+    private func isGranted(_ permission: ModulePermission) -> Bool {
+        switch permission {
+        case .accessibility: appState.permissions.accessibility.hasPermission
+        case .screenRecording: appState.permissions.screenRecording.hasPermission
+        case .inputMonitoring, .microphone, .camera, .calendar, .bluetooth, .notifications, .fullDiskAccess, .files:
+            false
         }
     }
 
