@@ -7711,6 +7711,34 @@
         }
       }
     },
+    "Menu Bar" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menüleiste"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barre des menus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barra dei menu"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trav da menu"
+          }
+        }
+      }
+    },
     "Menu Bar Appearance" : {
       "localizations" : {
         "de" : {
@@ -8099,6 +8127,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La posiziun dal cursur manca"
+          }
+        }
+      }
+    },
+    "Modules" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Module"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modules"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moduli"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moduls"
+          }
+        }
+      }
+    },
+    "Modules you can switch on appear here." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Module, die du einschalten kannst, erscheinen hier."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les modules que vous pouvez activer apparaissent ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I moduli che puoi attivare compaiono qui."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moduls ch'ti pos activar cumparan qua."
           }
         }
       }
@@ -8743,6 +8827,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nagin element da la trav da menu na correspunda a «%@»."
+          }
+        }
+      }
+    },
+    "No modules" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Module"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun module"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun modulo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagins moduls"
           }
         }
       }
