@@ -222,6 +222,9 @@ nonisolated extension Defaults {
         case appearanceMoods = "AppearanceMoods"
         /// The automation rules, as JSON (`AutomationRule`).
         case automationRules = "AutomationRules"
+        /// The section each item that a rule controls has while the rule shows it, by identity
+        /// key: 0 visible, 1 hidden. Local to the Mac: never exported, imported or synced.
+        case itemRuleShownSections = "ItemRuleShownSections"
         case knownItemTags = "KnownItemTags"
         case knownApplications27 = "KnownApplications27"
         /// The section of each item before macOS 27, keyed by its identity (`ItemIdentity`):
@@ -381,7 +384,8 @@ nonisolated extension Defaults.Key {
             .macOS27Layout,
             .itemSections,
             .itemIcons,
-            .widgetShortcutNames:
+            .widgetShortcutNames,
+            .itemRuleShownSections:
             // Their readers cast the contents themselves, so the kind is checked
             // only at the top level.
             .dictionary
@@ -444,7 +448,7 @@ nonisolated extension Defaults.Key {
     ///
     /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
     /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
-    /// Shortcuts the widget buttons run (D-25).
+    /// Shortcuts the widget buttons run (D-25), and the sections that item rules remember.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
         .lockHiddenItems,
@@ -452,6 +456,7 @@ nonisolated extension Defaults.Key {
         .cleanUpOffered,
         .screenRecordingOffered,
         .widgetShortcutNames,
+        .itemRuleShownSections,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
     ]

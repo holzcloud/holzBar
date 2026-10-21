@@ -10,21 +10,28 @@ import SwiftUI
 ///
 /// The safe choice is the default button; the confirming button is never the default for a
 /// destructive action. Escape always cancels.
+///
+/// The message is optional, for a question that needs no more than its title. A secondary
+/// action, such as "Open System Settings", sits at the leading edge of the buttons.
 struct ConfirmSheet: View {
     private let title: Text
-    private let message: Text
+    private let message: Text?
     private let confirmTitle: LocalizedStringKey
     private let cancelTitle: LocalizedStringKey
     private let isDestructive: Bool
+    private let secondaryTitle: LocalizedStringKey?
+    private let onSecondary: (() -> Void)?
     private let onConfirm: () -> Void
     private let onCancel: () -> Void
 
     init(
         title: Text,
-        message: Text,
+        message: Text? = nil,
         confirmTitle: LocalizedStringKey,
         cancelTitle: LocalizedStringKey,
         isDestructive: Bool = false,
+        secondaryTitle: LocalizedStringKey? = nil,
+        onSecondary: (() -> Void)? = nil,
         onConfirm: @escaping () -> Void,
         onCancel: @escaping () -> Void
     ) {
@@ -33,6 +40,8 @@ struct ConfirmSheet: View {
         self.confirmTitle = confirmTitle
         self.cancelTitle = cancelTitle
         self.isDestructive = isDestructive
+        self.secondaryTitle = secondaryTitle
+        self.onSecondary = onSecondary
         self.onConfirm = onConfirm
         self.onCancel = onCancel
     }
@@ -47,11 +56,16 @@ struct ConfirmSheet: View {
                 .font(HolzBarTheme.Typography.headline)
                 .foregroundStyle(HolzBarTheme.Palette.text)
                 .accessibilityAddTraits(.isHeader)
-            message
-                .font(HolzBarTheme.Typography.body)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
+            if let message {
+                message
+                    .font(HolzBarTheme.Typography.body)
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             HStack {
+                if let secondaryTitle, let onSecondary {
+                    Button(secondaryTitle, action: onSecondary)
+                }
                 Spacer()
                 Button(cancelTitle, role: .cancel, action: onCancel)
                     .keyboardShortcut(cancelShortcut)
@@ -72,6 +86,39 @@ struct ConfirmSheet: View {
     }
 }
 
+extension View {
+    /// Asks a question in a ConfirmSheet while `isPresented` is true.
+    ///
+    /// Confirming runs `onConfirm` first and closes the sheet after it: a handler may read
+    /// state that closing the sheet clears. Cancel and Escape only close the sheet.
+    func holzBarConfirmation(
+        isPresented: Binding<Bool>,
+        title: Text,
+        message: Text? = nil,
+        confirmTitle: LocalizedStringKey,
+        cancelTitle: LocalizedStringKey = "Cancel",
+        isDestructive: Bool = false,
+        onConfirm: @escaping () -> Void
+    ) -> some View {
+        sheet(isPresented: isPresented) {
+            ConfirmSheet(
+                title: title,
+                message: message,
+                confirmTitle: confirmTitle,
+                cancelTitle: cancelTitle,
+                isDestructive: isDestructive,
+                onConfirm: {
+                    onConfirm()
+                    isPresented.wrappedValue = false
+                },
+                onCancel: {
+                    isPresented.wrappedValue = false
+                }
+            )
+        }
+    }
+}
+
 #Preview("ConfirmSheet") {
     ConfirmSheet(
         title: Text(verbatim: "Run this script?"),
@@ -81,4 +128,28 @@ struct ConfirmSheet: View {
         onConfirm: {},
         onCancel: {}
     )
+}
+
+#Preview("ConfirmSheet, destructive, with a secondary action") {
+    VStack {
+        ConfirmSheet(
+            title: Text(verbatim: "Delete this rule?"),
+            confirmTitle: "Delete",
+            cancelTitle: "Cancel",
+            isDestructive: true,
+            onConfirm: {},
+            onCancel: {}
+        )
+        ConfirmSheet(
+            title: Text(verbatim: "Revoke this permission?"),
+            message: Text(verbatim: "holzBar stops working with it until you allow it again."),
+            confirmTitle: "Revoke",
+            cancelTitle: "Cancel",
+            isDestructive: true,
+            secondaryTitle: "Open System Settings",
+            onSecondary: {},
+            onConfirm: {},
+            onCancel: {}
+        )
+    }
 }

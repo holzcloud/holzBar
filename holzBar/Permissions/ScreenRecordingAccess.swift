@@ -100,6 +100,7 @@ struct ScreenRecordingHint: View {
 
     var body: some View {
         VStack(spacing: 8) {
+            PermissionPill(Text("Needs \(String(localized: "Screen Recording"))"), state: .needed)
             Text(feature.reason.localizedFromCatalog)
                 .multilineTextAlignment(.center)
             allowButton

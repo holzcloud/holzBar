@@ -54,19 +54,19 @@ struct AutomationSettingsPane: View {
                     .foregroundStyle(HolzBarTheme.Palette.textTertiary)
             }
         }
-        .confirmationDialog("Delete this rule?", isPresented: isConfirmingDeletion, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
-                if let id = deletionID {
-                    if editingID == id {
-                        editingID = nil
-                    }
-                    manager.removeRule(withID: id)
+        .holzBarConfirmation(
+            isPresented: isConfirmingDeletion,
+            title: Text("Delete this rule?"),
+            confirmTitle: "Delete",
+            isDestructive: true
+        ) {
+            if let id = deletionID {
+                if editingID == id {
+                    editingID = nil
                 }
-                deletionID = nil
+                manager.removeRule(withID: id)
             }
-            Button("Cancel", role: .cancel) {
-                deletionID = nil
-            }
+            deletionID = nil
         }
     }
 

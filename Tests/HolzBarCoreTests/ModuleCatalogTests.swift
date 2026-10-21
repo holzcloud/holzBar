@@ -49,6 +49,25 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["menu-bar-drag"], knownTo: ModuleCatalog.all) == ["menu-bar-drag"])
     }
 
+    @Test("The Modules pane knows everything the catalog ships")
+    func modulesPaneKnowsTheCatalog() {
+        #expect(
+            ModuleCatalog.populatedAreas(of: ModuleCatalog.all) == [.menuBar],
+            """
+            A module of another area needs its area title in ModulesSettingsPane. \
+            Teach the pane the title, then update this test.
+            """
+        )
+        #expect(
+            ModuleCatalog.all.allSatisfy { $0.permission == nil },
+            """
+            A module with a permission needs its sentence and its lookup (isGranted) in \
+            ModulesSettingsPane (a module says why before it asks). Teach the pane both, \
+            then update this test.
+            """
+        )
+    }
+
     @Test("Identifiers are lowercase words joined by single hyphens")
     func identifierForm() {
         #expect(ModuleCatalog.isValidIdentifier("notch-hub"))

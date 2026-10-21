@@ -36,7 +36,7 @@ From 0.0.8. Single, Paired, the shape of its own for the Apple logo, the outline
 
 ## Drag items in the menu bar
 
-From 0.0.8. An optional module in Settings → Menu Bar Layout, on macOS 26 and 27, off until you switch it on. While it is on, holzBar holds back a plain click on an app's menu bar item: moving it sideways turns it into the ⌘ Command-drag macOS performs, and releasing it opens the item's menu as a normal click (so the menu opens on release).
+From 0.0.8. An optional module in Settings → Modules, on macOS 26 and 27, off until you switch it on. While it is on, holzBar holds back a plain click on an app's menu bar item: moving it sideways turns it into the ⌘ Command-drag macOS performs, and releasing it opens the item's menu as a normal click (so the menu opens on release).
 
 macOS 27 draws no holzBar dividers and decides the order of the items itself, so sections are reached through the holzBar icon: drop an item on the holzBar icon and its app moves to Hidden, as in Menu Bar Layout; drag an item of a hidden app elsewhere while the hidden items show and its app becomes visible again. Every other drop is macOS's own reorder, which holzBar does not record, because Menu Bar Layout cannot reorder items on macOS 27 either.
 

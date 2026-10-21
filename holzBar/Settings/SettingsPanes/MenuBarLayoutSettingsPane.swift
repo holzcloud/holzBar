@@ -33,6 +33,7 @@ struct MenuBarLayoutSettingsPane: View {
                 if #available(macOS 27.0, *) {
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }
+                ItemRuleNoticesSection()
                 layoutBars
                 HolzBarSection {
                     HStack {
@@ -56,10 +57,6 @@ struct MenuBarLayoutSettingsPane: View {
                 LayoutProfilesSection(profiles: appState.profiles)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
                 SpacersSection(spacers: appState.spacers)
-                WidgetsModuleSection()
-                if MenuBarDragController.isSupported {
-                    MenuBarDragModuleSection()
-                }
                 LayoutHistorySection(snapshots: appState.snapshots)
             }
         }
@@ -158,6 +155,75 @@ private struct StuckOverflowWarning: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
+    }
+}
+
+// MARK: - ItemRuleNoticesSection
+
+/// Tells the user which items a rule put back after a move by hand, so a put-back is never
+/// silent. The notices stay until they are dismissed or the rule goes.
+private struct ItemRuleNoticesSection: View {
+    @Environment(AppState.self) private var appState
+
+    var body: some View {
+        let notices = appState.automation.itemRuleNotices
+        Group {
+            if !notices.isEmpty {
+                HolzBarSection {
+                    HStack {
+                        Text("Put Back by a Rule")
+                            .font(.headline)
+                        PreviewBadge()
+                    }
+                } content: {
+                    ForEach(notices) { notice in
+                        row(for: notice)
+                    }
+                    Text("Its rule decides where the item is. A move by hand lasts only while the rule shows the item.")
+                        .font(HolzBarTheme.Typography.caption)
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(10)
+                }
+            }
+        }
+        .onChange(of: notices) { old, new in
+            // A put-back while Settings is open is announced once; a dismissal is not.
+            if let newest = new.first, !old.contains(newest) {
+                LayoutBarItemView.announce(sentence(for: newest))
+            }
+        }
+    }
+
+    /// "“Name” was put back in Hidden."
+    private func sentence(for notice: ItemRuleNotice) -> String {
+        let section = MenuBarSection.Name(profileIndex: notice.putBackIn)?.displayString ?? ""
+        return String(localized: "\u{201C}\(notice.itemName)\u{201D} was put back in \(section).")
+    }
+
+    private func row(for notice: ItemRuleNotice) -> some View {
+        HStack {
+            Text(sentence(for: notice))
+            Spacer()
+            Button("Edit Rule…") {
+                edit(notice)
+            }
+            Button("OK") {
+                appState.automation.dismissItemRuleNotice(forKey: notice.itemKey)
+            }
+        }
+        .padding(10)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(sentence(for: notice))
+    }
+
+    /// Opens the rule of the item in the sheet of this pane. The item's own name is used when
+    /// it is still on the bar, since the notice shows it cut short.
+    private func edit(_ notice: ItemRuleNotice) {
+        let itemManager = appState.itemManager
+        let name = itemManager.itemCache.managedItems
+            .first { itemManager.identityKey(for: $0) == notice.itemKey }?.displayName
+        appState.navigationState.itemRuleTarget = ItemRuleTarget(key: notice.itemKey, name: name ?? notice.itemName)
     }
 }
 
@@ -383,13 +449,14 @@ private struct LayoutProfileRow: View {
         .sheet(isPresented: $isSharing) {
             ShareProfileSheet(profile: profile)
         }
-        .confirmationDialog("Delete the profile \u{201C}\(profile.name)\u{201D}?", isPresented: $isConfirmingDelete) {
-            Button("Delete", role: .destructive) {
-                profiles.delete(named: profile.name)
-            }
-            Button("Cancel", role: .cancel) { }
-        } message: {
-            Text("The menu bar stays as it is. You can undo this with \u{2318}Z.")
+        .holzBarConfirmation(
+            isPresented: $isConfirmingDelete,
+            title: Text("Delete the profile \u{201C}\(profile.name)\u{201D}?"),
+            message: Text("The menu bar stays as it is. You can undo this with \u{2318}Z."),
+            confirmTitle: "Delete",
+            isDestructive: true
+        ) {
+            profiles.delete(named: profile.name)
         }
     }
 }

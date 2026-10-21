@@ -36,9 +36,9 @@ If you looked for an Ice fork that runs on macOS 27, or a free Bartender alterna
 - **Works on macOS 26 and 27.** A dedicated backend for the redesigned macOS 27 menu bar. Every pull request that changes code launches the app on both and runs the unit tests there. It needs macOS 14 or later; older versions are not tested.
 - **Never online.** No update checks, telemetry or analytics, and a CI check proves the app contains no network code.
 - **No dependencies, modern Swift.** Swift 6 language mode, built with Swift 6.4 and Xcode 27, no third-party packages.
-- **Least privilege.** Accessibility at first launch, Screen Recording optional, for pictures of your items, Location Services only when you add a Wi-Fi-name condition to a rule. Since 0.0.7-beta2: one executable, no helper process, no entitlements.
+- **Least privilege.** Accessibility at first launch, Screen Recording optional, for pictures of your items, Location Services only when you add a Wi-Fi-name condition to a rule, Bluetooth only when you add a Bluetooth condition. Since 0.0.7-beta2: one executable, no helper process, no entitlements.
 - **Verifiable releases.** Signed with holzBar's own certificate, with GitHub build provenance and, since 0.0.7-beta2, SLSA Build Level 3 provenance.
-- **More than Ice.** Rules, scripts and widgets, profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a black menu bar, and a camera and microphone dot on macOS 27. Available in English, German, French, Italian and Romansh.
+- **More than Ice.** Rules, scripts and widgets, profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a command palette and moods (both Preview), a black menu bar, and a camera and microphone dot on macOS 27. Available in English, German, French, Italian and Romansh.
 
 <table>
 <tr>
@@ -47,7 +47,7 @@ If you looked for an Ice fork that runs on macOS 27, or a free Bartender alterna
 </tr>
 </table>
 
-More screenshots in the [gallery](docs/features.md#gallery).
+More screenshots in the [gallery](docs/features.md#gallery). They were taken before 0.0.9, which has a new Settings window with a Modules pane.
 
 ## How it compares
 
@@ -59,7 +59,7 @@ Researched on 9 October 2026 from each project's own pages and repositories. A d
 | macOS 26 / 27 | dev builds / no | yes / yes | no (use Bartender 6) / yes | yes / yes |
 | Hidden and always-hidden sections, separate bar | yes | yes | yes | yes |
 | Layout profiles, groups, spacers | no | yes | yes | yes |
-| Rules and scripts | no | yes | yes | yes, fewer triggers than Thaw |
+| Rules and scripts | no | yes | yes | yes |
 | Network connections | Sparkle updates | Sparkle updates | vendor says none | none, enforced by CI |
 | Dependencies, Swift | 5 packages, Swift 5 | 9 packages, Swift 6 | closed | none, Swift 6 |
 | Build provenance | no | Cosign, SLSA | - | SLSA Build Level 3 |
@@ -69,7 +69,7 @@ Where holzBar loses: it has no Developer ID signature, fewer languages than Thaw
 
 ## Install
 
-Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, such as 0.0.8. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
+Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 0.0.9. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
 
 ```sh
 brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
@@ -86,11 +86,11 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's next
 
-**0.0.8 is out** (see the [release notes](docs/release-notes/v0.0.8.md) and [what is new](docs/features.md#new-in-008)): rules, scripts, per-item conditions, widgets, layout snapshots, a Touch ID lock, menu bar styles, dragging items without ⌘ and support for macOS 27's own overflow button. Report what does not work.
+**0.0.9 is out** (see the [release notes](docs/release-notes/v0.0.9.md) and [what is new](docs/features.md#new-in-009)): a new Settings window with a Modules pane, a command palette, an AppleScript dictionary, moods (saved looks), grid and column layouts and a fade for the holzBar Shelf, sound output and Bluetooth conditions for rules, opt-in usage suggestions, and a hint when a rule puts an item back. Most of it is a **Preview**: built and unit tested, not yet tested on a Mac. Report what does not work.
 
-**0.0.9 beta 2 is out** on the beta channel (see the [release notes](docs/release-notes/v0.0.9-beta2.md) and [what is new](docs/features.md#new-in-009-beta-1)): a command palette, an AppleScript dictionary, sound output and Bluetooth conditions for rules, moods (saved looks), grid and column layouts and a fade for the holzBar Shelf, and opt-in usage suggestions. All of it is a **Preview**: built and unit tested, not yet tested on a Mac.
+**0.0.8** (see the [release notes](docs/release-notes/v0.0.8.md) and [what is new](docs/features.md#new-in-008)) brought rules, scripts, per-item conditions, widgets, layout snapshots, a Touch ID lock, menu bar styles, dragging items without ⌘ and support for macOS 27's own overflow button.
 
-**Planned, not available yet:** smooth show and hide of the bar itself and replacement items for Apple's items in a later 0.0.9 beta, then settings sync and a notch hub in 1.0.0. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
+**Planned, not available yet:** smooth show and hide of the bar itself and replacement items for Apple's items in a later release, then settings sync and a notch hub in 1.0.0. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
 
 ## More
 

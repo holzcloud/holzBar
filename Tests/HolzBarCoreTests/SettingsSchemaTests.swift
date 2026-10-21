@@ -106,6 +106,19 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["SyncsSettingsWithICloud"])
     }
 
+    @Test("A settings file cannot set the sections that item rules remember")
+    func settingsFileCannotSetItemRuleSections() {
+        #expect(Defaults.Key.itemRuleShownSections.settingsKind == .dictionary)
+        #expect(Defaults.Key.localOnlyKeys.contains(.itemRuleShownSections))
+        #expect(Defaults.Key.importableKinds["ItemRuleShownSections"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["ItemRuleShownSections": ["com.example.vpn:VPN": 1], "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["ItemRuleShownSections"])
+    }
+
     @Test("A settings file cannot drop event barrier exits")
     func settingsFileCannotDropBarrierExits() {
         #expect(Defaults.Key.localOnlyKeys.contains(.debugDropsBarrierExitEvent))

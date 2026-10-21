@@ -28,6 +28,7 @@ final class AutomationManager {
             // the user makes in holzBar's own pane releases the hold (D-12).
             scriptsAreHeld = changeComesFromOutside
             save()
+            itemRulesDidChange()
             sourcesChanged()
             evaluate()
         }
@@ -56,9 +57,26 @@ final class AutomationManager {
     @ObservationIgnored private var audioObserver: AutomationAudioObserver?
     @ObservationIgnored private var bluetoothObserver: AutomationBluetoothObserver?
 
-    /// The section each item was last put in by a rule that makes it follow a condition.
-    @ObservationIgnored private var lastItemSections = [String: Int]()
+    /// What holzBar remembers of each item that a rule makes follow a condition, by identity key.
+    @ObservationIgnored private var itemRuleMemory = [String: ItemRuleMemory]()
+    /// The shown sections as stored, so they are written only when they change.
+    @ObservationIgnored private var storedShownSections = [String: Int]()
     @ObservationIgnored private var itemRuleTask: Task<Void, Never>?
+    /// Whether holzBar's own move of items is settling. While it is, the item cache may still
+    /// show the old sections, and nothing may be taken for a move by hand.
+    @ObservationIgnored private var isMovingItems = false
+    /// The items holzBar moved whose new section the bar did not show after the move settled.
+    /// They are taken as not found for the next real pass (``moveItems()``), never as moved by
+    /// hand; that pass consumes them.
+    @ObservationIgnored private var unsettledItemKeys = Set<String>()
+    /// The moves that did not reach their item, so a move that keeps failing (on macOS 27 no
+    /// layout key may exist for the item) is given up instead of tried every few seconds.
+    @ObservationIgnored private var moveAttempts = ItemRuleMoveAttempts()
+    /// How many passes in a row found the item cache not read, so they were put off.
+    @ObservationIgnored private var skippedItemReads = 0
+    /// The items a rule put back, for the hint at the top of Menu Bar Layout. In memory only:
+    /// never stored, exported, synced or logged.
+    private(set) var itemRuleNotices = [ItemRuleNotice]()
 
     /// The scripts of the Scripts folder and what the user approved.
     let scriptStore = ScriptStore()
@@ -110,6 +128,10 @@ final class AutomationManager {
         isSetUp = true
         sourcesChanged()
         evaluate()
+        if rules.contains(where: { $0.isEnabled && ItemVisibility.itemKey(of: $0) != nil }) {
+            // The bar is not read yet: look at the items once the cache has caught up.
+            scheduleItemRuleEvaluation()
+        }
     }
 
     // MARK: Storage
@@ -154,6 +176,37 @@ final class AutomationManager {
             save()
         }
         migrateLegacyRevealRules()
+        loadItemRuleMemory()
+    }
+
+    /// Reads the shown sections of the items that rules control. The stored value is
+    /// untrusted: any process of the user can write the defaults.
+    private func loadItemRuleMemory() {
+        let stored = Defaults.dictionary(forKey: .itemRuleShownSections) as? [String: Int] ?? [:]
+        let ruleKeys = ItemVisibility.ruleKeys(in: rules)
+        // What holzBar already knows of an item whose rule is unchanged stays (where it left
+        // the item); only the shown sections are refreshed from the storage.
+        itemRuleMemory = ItemVisibility.mergingStored(
+            ItemVisibility.restoredMemory(from: stored, ruleKeys: ruleKeys),
+            into: itemRuleMemory,
+            ruleKeys: ruleKeys
+        )
+        storedShownSections = ItemVisibility.persistableShownSections(itemRuleMemory, ruleKeys: ruleKeys)
+    }
+
+    /// Stores the shown sections of the items that rules control, when they changed. They stay
+    /// on this Mac (a local-only key), so after a restart an item returns to the section it had.
+    private func persistShownSections() {
+        let wanted = ItemVisibility.persistableShownSections(itemRuleMemory, ruleKeys: ItemVisibility.ruleKeys(in: rules))
+        guard wanted != storedShownSections else {
+            return
+        }
+        storedShownSections = wanted
+        if wanted.isEmpty {
+            Defaults.removeObject(forKey: .itemRuleShownSections)
+        } else {
+            Defaults.set(wanted, forKey: .itemRuleShownSections)
+        }
     }
 
     /// Takes over the two fixed rules of 0.0.7 and earlier (low battery, offline) as rules of
@@ -752,61 +805,172 @@ final class AutomationManager {
 
     // MARK: Items that follow a condition
 
-    /// The section each item wants now, by identity key, from the rules of the kind
-    /// "show it only while …".
-    private func wantedItemSections(facts: AutomationFacts) -> [String: Int] {
-        var wanted = [String: Int]()
-        for rule in rules {
-            if let item = ItemVisibility.wantedSection(of: rule, facts: facts) {
-                wanted[item.itemKey] = item.section
-            }
-        }
-        return wanted
+    /// The rules of the kind "show it only while …" that are on, with what they say now.
+    private func itemFollows(facts: AutomationFacts) -> [(itemKey: String, holds: Bool?, hiding: Int)] {
+        rules.compactMap { ItemVisibility.follow(of: $0, facts: facts) }
     }
 
-    /// Moves the items whose condition changed, after a hold of three seconds so a flapping
-    /// condition (a VPN that reconnects, Wi-Fi that roams) does not move an item every
-    /// second. The facts are read again after the hold, and nothing moves while the user
-    /// drags an item.
+    /// The section of each item in the item cache, by identity key.
+    private func itemSectionsInCache(of appState: AppState) -> [String: Int] {
+        let itemManager = appState.itemManager
+        var sections = [String: Int]()
+        for section in MenuBarSection.Name.allCases {
+            for item in itemManager.itemCache[section] where !item.isControlItem {
+                sections[itemManager.identityKey(for: item)] = section.profileIndex
+            }
+        }
+        return sections
+    }
+
+    /// What to do with each item that follows a rule. The items whose move has not settled are
+    /// taken as not found, and the moves that were given up are left out.
+    ///
+    /// - Parameter sections: The section of each item on the bar, by identity key.
+    private func plannedDecisions(facts: AutomationFacts, sections: [String: Int]) -> [String: ItemRuleDecision] {
+        let decisions = ItemVisibility.decisions(
+            follows: itemFollows(facts: facts),
+            actual: sections.filter { !unsettledItemKeys.contains($0.key) },
+            memory: itemRuleMemory
+        )
+        return ItemVisibility.droppingGivenUpMoves(
+            from: decisions,
+            memory: itemRuleMemory,
+            attempts: moveAttempts,
+            found: Set(sections.keys)
+        )
+    }
+
+    /// Looks at the items that follow a rule and, when one has to move or its memory changes,
+    /// acts on it after a hold of three seconds so a flapping condition (a VPN that
+    /// reconnects, Wi-Fi that roams) does not move an item every second. The facts and the
+    /// sections are read again after the hold, and nothing moves while the user drags an item.
     private func followItemRules(facts: AutomationFacts) {
-        let wanted = wantedItemSections(facts: facts)
-        // A pending move reads the facts again when it runs, so it is not postponed.
-        guard itemRuleTask == nil, !pendingItemMoves(wanted: wanted).isEmpty else {
+        // A pending pass reads everything again when it runs, so it is not postponed. While
+        // holzBar's own move settles the cache may show the old sections.
+        guard itemRuleTask == nil, !isMovingItems, let appState else {
+            return
+        }
+        let follows = itemFollows(facts: facts)
+        guard !follows.isEmpty else {
+            return
+        }
+        let decisions = plannedDecisions(facts: facts, sections: itemSectionsInCache(of: appState))
+        let hasWork = decisions.contains { key, decision in
+            decision.moveTo != nil || decision.memory != (itemRuleMemory[key] ?? ItemRuleMemory())
+        }
+        if hasWork {
+            scheduleItemRuleEvaluation()
+        }
+    }
+
+    /// Arms the one-shot hold of three seconds, then looks at the items that follow a rule.
+    private func scheduleItemRuleEvaluation() {
+        guard itemRuleTask == nil else {
             return
         }
         itemRuleTask = Task { [weak self] in
             try? await Task.sleep(for: .seconds(3))
-            guard !Task.isCancelled else {
+            guard !Task.isCancelled, let self else {
                 return
             }
-            self?.itemRuleTask = nil
-            self?.moveItems()
+            let outcome = await moveItems()
+            itemRuleTask = nil
+            switch outcome {
+            case .done:
+                skippedItemReads = 0
+                // The conditions may have changed meanwhile.
+                followItemRules(facts: currentFacts())
+            case .waitsForDrag:
+                // A drag held the pass back; it looks again once the hold has passed.
+                followItemRules(facts: currentFacts())
+            case .cacheNotRead:
+                // The bar could not be read (the Mac is not in use, or an item just moved), and
+                // the cache is old: nothing was decided on it. Try again after another hold, a
+                // few times at most; the next event asks again after that.
+                skippedItemReads += 1
+                if skippedItemReads < Self.maximumSkippedItemReads {
+                    scheduleItemRuleEvaluation()
+                } else {
+                    skippedItemReads = 0
+                }
+            }
+            if itemRuleTask == nil {
+                // No pass is left to consume them.
+                unsettledItemKeys.removeAll()
+            }
         }
     }
 
-    /// The items to move now: a changed condition, and an item the user moved by hand away
-    /// from the section its rule wants (it goes back at the next evaluation).
-    private func pendingItemMoves(wanted: [String: Int]) -> [String: Int] {
-        guard let appState else {
-            return [:]
-        }
-        let actual = lastItemSections.isEmpty ? [:] : appState.profiles.currentLayout().itemSections
-        return ItemVisibility.itemsToMove(wanted: wanted, applied: lastItemSections, actual: actual)
+    /// The most passes in a row that are put off because the item cache could not be read.
+    private static let maximumSkippedItemReads = 3
+
+    /// How a pass over the items that follow a rule ended.
+    private enum ItemPassOutcome {
+        /// The items were looked at.
+        case done
+        /// The user drags an item in Menu Bar Layout.
+        case waitsForDrag
+        /// The item cache was not read, so the sections may be old.
+        case cacheNotRead
     }
 
-    private func moveItems() {
+    /// The user moved items by hand (Menu Bar Layout, the keyboard, VoiceOver, undo, a Command-drag,
+    /// the drag module): asks for one look at the items that follow a rule, after the hold, once
+    /// the item cache has caught up. It adds no timer: the move is the event.
+    func itemsWereArrangedByHand() {
+        guard isSetUp, !isMovingItems, rules.contains(where: { $0.isEnabled && ItemVisibility.itemKey(of: $0) != nil }) else {
+            return
+        }
+        // The facts changed: a move that was given up may work now.
+        moveAttempts.removeAll()
+        scheduleItemRuleEvaluation()
+    }
+
+    /// Carries out the decisions for the items that follow a rule: moves the items that have to
+    /// move, remembers the sections, and tells the user about every move by hand it undid.
+    ///
+    /// What holzBar remembers of a moved item is kept only once the bar shows the item in its
+    /// new section. A move that did not reach the item (on macOS 27 without a layout key, or
+    /// when the move failed) leaves what was known, so the next look does not take the item for
+    /// one the user moved by hand, and the move is given up after a few tries.
+    ///
+    /// If the user drags an item while holzBar's move settles, the read at the end cannot tell
+    /// that from the move: the item counts as reached or not by where it ended up, and the next
+    /// look decides from there.
+    private func moveItems() async -> ItemPassOutcome {
         guard let appState else {
-            return
+            return .done
         }
-        if appState.profiles.isLayoutDragInProgress {
-            followItemRules(facts: currentFacts())
-            return
+        guard !appState.profiles.isLayoutDragInProgress else {
+            return .waitsForDrag
         }
-        let changes = pendingItemMoves(wanted: wantedItemSections(facts: currentFacts()))
-        guard !changes.isEmpty else {
-            return
+        // The bar is read once more, so the sections below are the real ones. A read that was
+        // skipped leaves the cache old: nothing is decided on it.
+        guard await appState.itemManager.cacheItemsRegardless() else {
+            return .cacheNotRead
+        }
+        guard !appState.profiles.isLayoutDragInProgress else {
+            return .waitsForDrag
+        }
+        let sectionsBefore = itemSectionsInCache(of: appState)
+        let decisions = plannedDecisions(facts: currentFacts(), sections: sectionsBefore)
+        // This pass took the items that did not settle for not found; they are consumed.
+        unsettledItemKeys.removeAll()
+        let before = itemRuleMemory
+        var moves = [String: ItemRuleDecision]()
+        for (key, decision) in decisions {
+            if decision.moveTo == nil {
+                itemRuleMemory[key] = decision.memory
+            } else {
+                moves[key] = decision
+            }
+        }
+        persistShownSections()
+        guard !moves.isEmpty else {
+            return .done
         }
         appState.snapshots.willApplyRules()
+        let changes = moves.compactMapValues(\.moveTo)
         // On macOS 27 the layout is keyed by application, and a widget by its autosave name. The
         // key comes from the item itself (`layoutKey27`); the part of the rule's key before the
         // colon is only the fallback, and holzBar's own bundle never becomes a key.
@@ -817,12 +981,97 @@ final class AutomationManager {
             }
         }
         logger.notice("An automation rule moves \(changes.count, privacy: .public) items")
-        appState.profiles.applyLayout(of: LayoutProfile(
+        // Until the move has settled and the bar was read, the cache may show the old sections,
+        // and an item there must not be taken for one the user moved by hand.
+        isMovingItems = true
+        defer {
+            isMovingItems = false
+        }
+        await appState.profiles.applyLayout(of: LayoutProfile(
             name: "",
             itemSections: changes,
             applicationSections: applicationSections
-        ))
-        lastItemSections.merge(changes) { _, new in new }
+        ))?.value
+        // The cache refuses a read within a second of a move.
+        try? await Task.sleep(for: .milliseconds(1500))
+        // Without a read there is no proof that the move worked: it counts as a try that did
+        // not reach the item, so a bar that cannot be read does not make the pass repeat forever.
+        let isSettledRead = await appState.itemManager.cacheItemsRegardless()
+        let settled: [String: Int]? = isSettledRead ? itemSectionsInCache(of: appState) : nil
+        let ruleKeys = ItemVisibility.ruleKeys(in: rules)
+        var unsettled = Set<String>()
+        for (key, decision) in moves {
+            guard let target = decision.moveTo else {
+                continue
+            }
+            let found = settled?[key]
+            let reached = found == target
+            if ruleKeys.contains(key) {
+                itemRuleMemory[key] = ItemVisibility.settledMemory(
+                    of: decision,
+                    before: before[key] ?? ItemRuleMemory(),
+                    reached: reached
+                )
+            }
+            if reached {
+                moveAttempts.recordSuccess(key: key)
+                if ruleKeys.contains(key), let revert = decision.revert {
+                    addItemRuleNotice(forKey: key, putBackIn: revert.putBack, appState: appState)
+                }
+            } else {
+                unsettled.insert(key)
+                moveAttempts.recordFailure(
+                    key: key,
+                    target: target,
+                    isFound: settled == nil ? sectionsBefore[key] != nil : found != nil
+                )
+            }
+        }
+        unsettledItemKeys = unsettled
+        persistShownSections()
+        return .done
+    }
+
+    /// Tells the user that a rule put an item back: one notice per item, the newest first.
+    private func addItemRuleNotice(forKey key: String, putBackIn section: Int, appState: AppState) {
+        let itemManager = appState.itemManager
+        let name = itemManager.itemCache.managedItems.first { itemManager.identityKey(for: $0) == key }?.displayName
+        itemRuleNotices = ItemRuleNotices.adding(
+            ItemRuleNotice(
+                itemKey: key,
+                itemName: ItemRuleNotices.cleanedName(name ?? "", fallback: String(localized: "A menu bar item")),
+                putBackIn: section
+            ),
+            to: itemRuleNotices
+        )
+        logger.notice("An automation rule put an item back after a move by hand")
+    }
+
+    /// Dismisses the notice of an item.
+    func dismissItemRuleNotice(forKey key: String) {
+        itemRuleNotices.removeAll { $0.itemKey == key }
+    }
+
+    /// The rules changed: forgets what holzBar knows of items whose rule is gone or off, and
+    /// the notices of items that no rule controls any more.
+    private func itemRulesDidChange() {
+        // The facts changed: a move that was given up may work now.
+        moveAttempts.removeAll()
+        let controlled = controlledItemKeys
+        let ruleKeys = ItemVisibility.ruleKeys(in: rules)
+        for key in Array(itemRuleMemory.keys) {
+            if !ruleKeys.contains(key) {
+                itemRuleMemory.removeValue(forKey: key)
+            } else if !controlled.contains(key) {
+                // A rule that is off leaves the item where the user puts it.
+                itemRuleMemory[key]?.applied = nil
+            }
+        }
+        let kept = ItemRuleNotices.keeping(itemRuleNotices, controlled: controlled)
+        if kept != itemRuleNotices {
+            itemRuleNotices = kept
+        }
+        persistShownSections()
     }
 
     /// Carries out one effect of the engine. `allowsScripts` is false for a pass that a change
@@ -959,8 +1208,8 @@ final class AutomationManager {
 
     func removeRule(withID id: UUID) {
         if let rule = rules.first(where: { $0.id == id }), let key = ItemVisibility.itemKey(of: rule) {
-            // The next rule for the item moves it again, whatever the last move was.
-            lastItemSections.removeValue(forKey: key)
+            // The next rule for the item starts from nothing.
+            itemRuleMemory.removeValue(forKey: key)
         }
         rules.removeAll { $0.id == id }
     }
@@ -991,7 +1240,7 @@ final class AutomationManager {
     /// is replaced.
     func saveItemRule(_ rule: AutomationRule) {
         if let key = ItemVisibility.itemKey(of: rule), let old = itemRule(forKey: key), old.id != rule.id {
-            lastItemSections.removeValue(forKey: key)
+            itemRuleMemory.removeValue(forKey: key)
         }
         rules = ItemVisibility.saving(rule, in: rules)
     }

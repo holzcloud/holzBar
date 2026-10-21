@@ -81,12 +81,11 @@ struct SettingsView: View {
                 ForEach(SettingsNavigationIdentifier.menuBarGroup) { identifier in
                     sidebarItem(for: identifier)
                 }
-                // A quiet gap between the groups, without a header.
-                Color.clear
-                    .frame(height: sidebarFontSize * 0.6)
-                    .listRowSeparator(.hidden)
-                    .selectionDisabled()
-                    .accessibilityHidden(true)
+                sidebarGap
+                ForEach(SettingsNavigationIdentifier.modulesGroup) { identifier in
+                    sidebarItem(for: identifier)
+                }
+                sidebarGap
                 ForEach(SettingsNavigationIdentifier.appGroup) { identifier in
                     sidebarItem(for: identifier)
                 }
@@ -112,6 +111,15 @@ struct SettingsView: View {
             sidebarToolbarSpacer
         }
         .navigationSplitViewColumnWidth(min: sidebarWidth, ideal: sidebarWidth, max: sidebarWidth)
+    }
+
+    /// A quiet gap between the groups, without a header.
+    private var sidebarGap: some View {
+        Color.clear
+            .frame(height: sidebarFontSize * 0.6)
+            .listRowSeparator(.hidden)
+            .selectionDisabled()
+            .accessibilityHidden(true)
     }
 
     @ViewBuilder
@@ -163,6 +171,8 @@ struct SettingsView: View {
             MenuBarAppearanceSettingsPane(appearanceManager: appState.appearanceManager)
         case .automation:
             AutomationSettingsPane(manager: appState.automation)
+        case .modules:
+            ModulesSettingsPane()
         case .hotkeys:
             HotkeysSettingsPane(settings: appState.settings.hotkeys)
         case .advanced:

@@ -257,7 +257,7 @@ final class MenuBarWidgets {
             let name = shortcutNames[id],
             let url = ShortcutLink.runURL(forShortcutNamed: name)
         else {
-            openLayoutSettings()
+            openModulesSettings()
             return
         }
         let configuration = NSWorkspace.OpenConfiguration()
@@ -266,11 +266,11 @@ final class MenuBarWidgets {
         NSWorkspace.shared.open(url, configuration: configuration, completionHandler: nil)
     }
 
-    private func openLayoutSettings() {
+    private func openModulesSettings() {
         guard let appState else {
             return
         }
-        appState.navigationState.settingsNavigationIdentifier = .menuBarLayout
+        appState.navigationState.settingsNavigationIdentifier = .modules
         appState.activate(for: .settings)
         appState.openWindow(.settings)
     }

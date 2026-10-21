@@ -15,17 +15,6 @@ struct LayoutHistorySection: View {
     /// The list is folded away until the user opens it.
     @State private var isExpanded = false
 
-    private var isConfirmingRestore: Binding<Bool> {
-        Binding(
-            get: { restoreTarget != nil },
-            set: { isPresented in
-                if !isPresented {
-                    restoreTarget = nil
-                }
-            }
-        )
-    }
-
     var body: some View {
         HolzBarSection {
             Text("Layout History")
@@ -60,23 +49,32 @@ struct LayoutHistorySection: View {
                 Text("Snapshots: \(snapshots.snapshots.count)")
             }
         }
-        .confirmationDialog("Restore this layout?", isPresented: isConfirmingRestore, titleVisibility: .visible, presenting: restoreTarget) { target in
-            Button("Restore") {
-                snapshots.restore(target)
-                AccessibilityNotification.Announcement(
-                    String(localized: "Layout restored. The layout before it is kept in Layout History.")
-                ).post()
-            }
-            Button("Cancel", role: .cancel) {}
-        } message: { target in
+        .sheet(item: $restoreTarget) { target in
             let diff = snapshots.diff(to: target)
-            Text("\(diff.moves) items will move, \(diff.notPresent) are not in the menu bar now. The layout as it is now is kept first, so you can undo this.")
+            ConfirmSheet(
+                title: Text("Restore this layout?"),
+                message: Text("\(diff.moves) items will move, \(diff.notPresent) are not in the menu bar now. The layout as it is now is kept first, so you can undo this."),
+                confirmTitle: "Restore",
+                cancelTitle: "Cancel",
+                onConfirm: {
+                    restoreTarget = nil
+                    snapshots.restore(target)
+                    AccessibilityNotification.Announcement(
+                        String(localized: "Layout restored. The layout before it is kept in Layout History.")
+                    ).post()
+                },
+                onCancel: {
+                    restoreTarget = nil
+                }
+            )
         }
-        .confirmationDialog("Delete all snapshots?", isPresented: $isConfirmingDeleteAll, titleVisibility: .visible) {
-            Button("Delete All Snapshots", role: .destructive) {
-                snapshots.deleteAll()
-            }
-            Button("Cancel", role: .cancel) {}
+        .holzBarConfirmation(
+            isPresented: $isConfirmingDeleteAll,
+            title: Text("Delete all snapshots?"),
+            confirmTitle: "Delete All Snapshots",
+            isDestructive: true
+        ) {
+            snapshots.deleteAll()
         }
     }
 

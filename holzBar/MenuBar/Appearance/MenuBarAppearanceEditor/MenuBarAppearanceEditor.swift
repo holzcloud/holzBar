@@ -128,16 +128,14 @@ struct MenuBarAppearanceEditor: View {
                 Button("Reset") {
                     isResetPromptPresented = true
                 }
-                .alert("Reset Menu Bar Appearance", isPresented: $isResetPromptPresented) {
-                    Button("Cancel", role: .cancel) {
-                        isResetPromptPresented = false
-                    }
-                    Button("Reset", role: .destructive) {
-                        appearanceManager.configuration = .defaultConfiguration
-                        isResetPromptPresented = false
-                    }
-                } message: {
-                    Text("This action cannot be undone.")
+                .holzBarConfirmation(
+                    isPresented: $isResetPromptPresented,
+                    title: Text("Reset Menu Bar Appearance"),
+                    message: Text("This action cannot be undone."),
+                    confirmTitle: "Reset",
+                    isDestructive: true
+                ) {
+                    appearanceManager.configuration = .defaultConfiguration
                 }
             }
         }

@@ -11,10 +11,20 @@ struct KeyCombination: Hashable {
     let key: KeyCode
     let modifiers: Modifiers
 
+    /// The modifiers as symbols, such as "⌃⌥⇧⌘".
+    var modifierSymbols: String {
+        modifiers.symbolicValue
+    }
+
+    /// The name of the key, capitalized.
+    var keyName: String {
+        key.stringValue.capitalized
+    }
+
     /// A string representation for the key combination suitable
     /// for display.
     var displayValue: String {
-        modifiers.symbolicValue + " " + key.stringValue.capitalized
+        modifierSymbols + " " + keyName
     }
 
     /// Returns a Boolean value that indicates whether this key

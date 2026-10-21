@@ -75,6 +75,8 @@ extension MenuBarItemManager {
         guard backend.canMoveItems else {
             return
         }
+        // A rule that controls the item has to look at it again (never a timer: the move is the event).
+        appState?.automation.itemsWereArrangedByHand()
         needsSectionSave = true
         sectionSaveTask?.cancel()
         // One read after holzBar's own recent-move pause (1 s) has passed; the read saves.

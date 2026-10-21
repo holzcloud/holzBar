@@ -110,7 +110,16 @@ struct HotkeyRecorder<Label: View>: View {
         if model.isRecording {
             Text("Type Hotkey")
         } else if let keyCombination = model.hotkey.keyCombination {
-            Text(keyCombination.displayValue)
+            // The modifiers share one cap, so that four of them and a word such as Space
+            // still fit the segment. VoiceOver reads the whole shortcut once.
+            HStack(spacing: HolzBarTheme.Spacing.hairline) {
+                if !keyCombination.modifierSymbols.isEmpty {
+                    KeyCap(keyCombination.modifierSymbols)
+                }
+                KeyCap(keyCombination.keyName)
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(verbatim: keyCombination.displayValue))
         } else {
             Text("Record Hotkey")
         }

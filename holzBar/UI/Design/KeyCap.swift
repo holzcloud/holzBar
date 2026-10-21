@@ -19,6 +19,8 @@ struct KeyCap: View {
     var body: some View {
         Text(verbatim: text)
             .font(HolzBarTheme.Typography.mono)
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
             .foregroundStyle(HolzBarTheme.Palette.textSecondary)
             .padding(.horizontal, HolzBarTheme.Spacing.xs - 2)
             .padding(.vertical, HolzBarTheme.Spacing.xxs / 2)

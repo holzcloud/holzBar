@@ -44,7 +44,7 @@ struct DesignTokensTests {
 
     @Test("Light appearance: text keeps its contrast over every ground")
     func lightTextContrast() {
-        let grounds = [Tokens.Light.ground, Tokens.Light.groundElevated]
+        let grounds = [Tokens.Light.ground, Tokens.Light.groundBottom, Tokens.Light.groundElevated]
         for ground in grounds {
             let primary = Tokens.contrastRatio(Tokens.Light.text, ground)
             let secondary = Tokens.contrastRatio(Tokens.Light.textSecondary.over(ground), ground)
@@ -55,6 +55,12 @@ struct DesignTokensTests {
             #expect(tertiary >= Tokens.RequiredContrast.text)
             #expect(accent >= Tokens.RequiredContrast.text)
         }
+    }
+
+    @Test("The window ground falls: its bottom is darker than its top in both appearances")
+    func groundFalls() {
+        #expect(Tokens.Dark.groundBottom.relativeLuminance < Tokens.Dark.ground.relativeLuminance)
+        #expect(Tokens.Light.groundBottom.relativeLuminance < Tokens.Light.ground.relativeLuminance)
     }
 
     @Test("State colours are readable as text and as indicators")
@@ -80,7 +86,7 @@ struct DesignTokensTests {
             let stroke = Tokens.IncreasedContrast.Dark.stroke.over(ground)
             #expect(Tokens.contrastRatio(stroke, ground) >= Tokens.RequiredContrast.component)
         }
-        let lightGrounds = [Tokens.Light.ground, Tokens.Light.groundElevated]
+        let lightGrounds = [Tokens.Light.ground, Tokens.Light.groundBottom, Tokens.Light.groundElevated]
         for ground in lightGrounds {
             let stroke = Tokens.IncreasedContrast.Light.stroke.over(ground)
             #expect(Tokens.contrastRatio(stroke, ground) >= Tokens.RequiredContrast.component)
@@ -108,7 +114,7 @@ struct DesignTokensTests {
                 ]
             )
         }
-        let lightGrounds = [Tokens.Light.ground, Tokens.Light.groundElevated]
+        let lightGrounds = [Tokens.Light.ground, Tokens.Light.groundBottom, Tokens.Light.groundElevated]
         for ground in lightGrounds {
             check(
                 ground: ground,
@@ -128,7 +134,7 @@ struct DesignTokensTests {
             let fill = Tokens.Dark.warning.blended(over: ground, alpha: Tokens.badgeFillAlpha)
             #expect(Tokens.contrastRatio(Tokens.Dark.warning, fill) >= Tokens.RequiredContrast.text)
         }
-        let lightGrounds = [Tokens.Light.ground, Tokens.Light.groundElevated]
+        let lightGrounds = [Tokens.Light.ground, Tokens.Light.groundBottom, Tokens.Light.groundElevated]
         for ground in lightGrounds {
             let fill = Tokens.Light.warning.blended(over: ground, alpha: Tokens.badgeFillAlpha)
             #expect(Tokens.contrastRatio(Tokens.Light.warning, fill) >= Tokens.RequiredContrast.text)

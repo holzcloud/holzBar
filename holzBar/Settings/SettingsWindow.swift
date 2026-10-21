@@ -17,7 +17,7 @@ struct SettingsWindow: Scene {
                 .onWindowChange { window in
                     model.observe(window, navigationState: appState.navigationState)
                 }
-                .frame(minWidth: 825, maxWidth: 1150, minHeight: 500, maxHeight: 750)
+                .frame(minWidth: 760, maxWidth: 1150, minHeight: 540, maxHeight: 750)
         }
         .commandsRemoved()
         .windowResizability(.contentSize)
