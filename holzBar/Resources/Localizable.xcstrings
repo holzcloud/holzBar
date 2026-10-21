@@ -85,6 +85,34 @@
         }
       }
     },
+    "Its rule decides where the item is. A move by hand lasts only while the rule shows the item." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seine Regel bestimmt, wo das Element ist. Eine Verschiebung von Hand gilt nur, solange die Regel das Element zeigt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sa règle décide où se trouve l’élément. Un déplacement à la main ne dure que tant que la règle affiche l’élément."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sua regola decide dove si trova l’elemento. Uno spostamento a mano dura solo finché la regola mostra l’elemento."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sia regla decida nua che l’element sa chatta. In move a maun vala mo uschè ditg che la regla mussa l’element."
+          }
+        }
+      }
+    },
     "%@ moved left" : {
       "localizations" : {
         "de" : {
@@ -165,6 +193,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ spustà en %2$@"
+          }
+        }
+      }
+    },
+    "Put Back by a Rule" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von einer Regel zurückgestellt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remis en place par une règle"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimesso a posto da una regola"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remess da ina regla"
           }
         }
       }
@@ -735,6 +791,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "In link, nagina datoteca"
+          }
+        }
+      }
+    },
+    "A menu bar item" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Menüleistenelement"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un élément de la barre des menus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un elemento della barra dei menu"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In element da la trav da menus"
           }
         }
       }
@@ -16055,6 +16139,34 @@
         }
       }
     },
+    "“%@” was put back in %@." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ wurde zurück nach %@ gestellt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » a été remis dans la section %@."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” è stato rimesso in %@."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” è vegnì remess en %@."
+          }
+        }
+      }
+    },
     "Website" : {
       "localizations" : {
         "de" : {
@@ -18889,30 +19001,30 @@
         }
       }
     },
-    "%@ is moved into a hidden section while the conditions do not hold, and back to the visible bar while they do. Nothing happens while a condition cannot be read. A profile leaves this item where its rule puts it." : {
+    "%@ is moved into a hidden section while the conditions do not hold, and back to where you had it while they do. A move by hand lasts only while they hold. Nothing happens while a condition cannot be read. A profile leaves this item where its rule puts it." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ wird in einen versteckten Bereich verschoben, solange die Bedingungen nicht gelten, und zurück in die sichtbare Leiste, solange sie gelten. Es passiert nichts, solange sich eine Bedingung nicht lesen lässt. Ein Profil lässt dieses Element dort, wo seine Regel es hinstellt."
+            "value" : "%@ wird in einen versteckten Bereich verschoben, solange die Bedingungen nicht gelten, und zurück in den Bereich, in dem es vorher war, solange sie gelten. Eine Verschiebung von Hand gilt nur, solange die Bedingungen gelten. Es passiert nichts, solange sich eine Bedingung nicht lesen lässt. Ein Profil lässt dieses Element dort, wo seine Regel es hinstellt."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ passe dans une section masquée tant que les conditions ne sont pas remplies, et revient dans la barre visible tant qu’elles le sont. Rien ne se passe tant qu’une condition ne peut pas être lue. Un profil laisse cet élément là où sa règle le met."
+            "value" : "%@ passe dans une section masquée tant que les conditions ne sont pas remplies, et revient là où il était tant qu’elles le sont. Un déplacement à la main ne dure que tant que les conditions sont remplies. Rien ne se passe tant qu’une condition ne peut pas être lue. Un profil laisse cet élément là où sa règle le met."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ viene spostato in una sezione nascosta finché le condizioni non sono vere, e torna nella barra visibile finché lo sono. Non succede nulla finché una condizione non può essere letta. Un profilo lascia questo elemento dove lo mette la sua regola."
+            "value" : "%@ viene spostato in una sezione nascosta finché le condizioni non sono vere, e torna dov’era finché lo sono. Uno spostamento a mano dura solo finché le condizioni sono vere. Non succede nulla finché una condizione non può essere letta. Un profilo lascia questo elemento dove lo mette la sua regola."
           }
         },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ vegn mess en ina secziun zuppada uschè ditg che las cundiziuns na valan betg, e turna en la trav visibla uschè ditg ch’ellas valan. Nagut na capita uschè ditg che ina cundiziun na po betg vegnir legida. In profil lascha quest element là nua che sia regla til metta."
+            "value" : "%@ vegn mess en ina secziun zuppada uschè ditg che las cundiziuns na valan betg, e turna là nua ch’el era uschè ditg ch’ellas valan. In move a maun vala mo uschè ditg che las cundiziuns valan. Nagut na capita uschè ditg che ina cundiziun na po betg vegnir legida. In profil lascha quest element là nua che sia regla til metta."
           }
         }
       }

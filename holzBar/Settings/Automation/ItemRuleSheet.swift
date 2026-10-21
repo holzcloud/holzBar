@@ -19,7 +19,7 @@ struct ItemRuleSheet: View {
             Text("Show Only When…")
                 .font(HolzBarTheme.Typography.title)
                 .accessibilityAddTraits(.isHeader)
-            Text("\(target.name) is moved into a hidden section while the conditions do not hold, and back to the visible bar while they do. Nothing happens while a condition cannot be read. A profile leaves this item where its rule puts it.")
+            Text("\(target.name) is moved into a hidden section while the conditions do not hold, and back to where you had it while they do. A move by hand lasts only while they hold. Nothing happens while a condition cannot be read. A profile leaves this item where its rule puts it.")
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)

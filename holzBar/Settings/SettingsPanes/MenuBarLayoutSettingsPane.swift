@@ -171,36 +171,63 @@ private struct ItemRuleNoticesSection: View {
 
     var body: some View {
         let notices = appState.automation.itemRuleNotices
-        if !notices.isEmpty {
-            HolzBarSection {
-                HStack {
-                    Text("Put Back by a Rule")
-                        .font(.headline)
-                    PreviewBadge()
+        Group {
+            if !notices.isEmpty {
+                HolzBarSection {
+                    HStack {
+                        Text("Put Back by a Rule")
+                            .font(.headline)
+                        PreviewBadge()
+                    }
+                } content: {
+                    ForEach(notices) { notice in
+                        row(for: notice)
+                    }
+                    Text("Its rule decides where the item is. A move by hand lasts only while the rule shows the item.")
+                        .font(HolzBarTheme.Typography.caption)
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(10)
                 }
-            } content: {
-                ForEach(notices) { notice in
-                    row(for: notice)
-                }
-                Text("Its rule decides where the item is. A move by hand lasts only while the rule shows the item.")
-                    .font(HolzBarTheme.Typography.caption)
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(10)
+            }
+        }
+        .onChange(of: notices) { old, new in
+            // A put-back while Settings is open is announced once; a dismissal is not.
+            if let newest = new.first, !old.contains(newest) {
+                LayoutBarItemView.announce(sentence(for: newest))
             }
         }
     }
 
-    private func row(for notice: ItemRuleNotice) -> some View {
+    /// "“Name” was put back in Hidden."
+    private func sentence(for notice: ItemRuleNotice) -> String {
         let section = MenuBarSection.Name(profileIndex: notice.putBackIn)?.displayString ?? ""
-        return HStack {
-            Text("\u{201C}\(notice.itemName)\u{201D} was put back in \(section).")
+        return String(localized: "\u{201C}\(notice.itemName)\u{201D} was put back in \(section).")
+    }
+
+    private func row(for notice: ItemRuleNotice) -> some View {
+        HStack {
+            Text(sentence(for: notice))
             Spacer()
+            Button("Edit Rule…") {
+                edit(notice)
+            }
             Button("OK") {
                 appState.automation.dismissItemRuleNotice(forKey: notice.itemKey)
             }
         }
         .padding(10)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(sentence(for: notice))
+    }
+
+    /// Opens the rule of the item in the sheet of this pane. The item's own name is used when
+    /// it is still on the bar, since the notice shows it cut short.
+    private func edit(_ notice: ItemRuleNotice) {
+        let itemManager = appState.itemManager
+        let name = itemManager.itemCache.managedItems
+            .first { itemManager.identityKey(for: $0) == notice.itemKey }?.displayName
+        appState.navigationState.itemRuleTarget = ItemRuleTarget(key: notice.itemKey, name: name ?? notice.itemName)
     }
 }
 
