@@ -57,10 +57,6 @@ struct MenuBarLayoutSettingsPane: View {
                 LayoutProfilesSection(profiles: appState.profiles)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
                 SpacersSection(spacers: appState.spacers)
-                WidgetsModuleSection()
-                if MenuBarDragController.isSupported {
-                    MenuBarDragModuleSection()
-                }
                 LayoutHistorySection(snapshots: appState.snapshots)
             }
         }

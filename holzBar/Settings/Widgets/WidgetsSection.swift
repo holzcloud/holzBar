@@ -5,39 +5,11 @@
 
 import SwiftUI
 
-/// The Widgets module as a row of its own, with the list of widgets under it while it is on.
-///
-/// The module is off by default. While it is off holzBar creates no widget, runs no timer and
-/// reads no source (D-06, D-16). The row sits in the Menu Bar Layout pane until the settings
-/// shell hosts the module list; the view is self-contained and moves there unchanged (D-07).
-struct WidgetsModuleSection: View {
-    @Environment(AppState.self) private var appState
-
-    var body: some View {
-        VStack(spacing: 0) {
-            ModuleRow(
-                systemImage: "clock",
-                title: Text("Widgets"),
-                summary: Text("A clock, the battery and other readouts of your own in the menu bar."),
-                isOn: Binding(
-                    get: { appState.modules.isEnabled(MenuBarWidgets.moduleID) },
-                    set: { isOn in
-                        appState.modules.setEnabled(MenuBarWidgets.moduleID, isOn)
-                    }
-                )
-            ) {
-                WidgetsSection(widgets: appState.widgets)
-            }
-        }
-        .clipShape(HolzBarTheme.shape(HolzBarTheme.Radius.card))
-        .holzBarGlass(in: HolzBarTheme.shape(HolzBarTheme.Radius.card))
-    }
-}
-
 /// The widgets of the menu bar: one row each, an editor under the row that was chosen, a way
 /// to add one, at most six (D-05). The order of the rows is the order of the list, which a
 /// settings export carries; rows are moved with the editor's buttons and, for VoiceOver, with
-/// the "Move Up" and "Move Down" actions of every row (D-07).
+/// the "Move Up" and "Move Down" actions of every row (D-07). The Modules pane shows it under
+/// the Widgets row while the module is on.
 struct WidgetsSection: View {
     @Environment(AppState.self) private var appState
     var widgets: MenuBarWidgets
