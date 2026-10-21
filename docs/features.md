@@ -86,7 +86,7 @@
 
 **Convenience**
 - **Usage suggestions** (off by default): count how often you open each item, once a day at most per click, for 30 days. After 14 days holzBar suggests hiding visible items you did not open for 14 days, never the clock, the battery, Control Center, items that show a live value, apps that carry badges, holzBar's own items or items a rule controls. The counts are one file on this Mac (mode 0600, excluded from backups); they are in no export, snapshot, diagnostic or log, **View Data** shows all of it, and **Forget Everything** and turning it off delete it. A suggestion moves nothing until you click **Move to Hidden**, and a snapshot of the layout is taken first.
-- **Item rules**: a manual move of an item that a rule controls is undone at the next evaluation.
+- **Item rules, put back by a rule**: when you move an item that a rule controls and the rule does not allow it, holzBar puts it back at the next evaluation, a few seconds after your move, and says so in a **Put Back by a Rule** section at the top of Menu Bar Layout, with an **Edit Rule…** button and an **OK** button. While the rule shows the item, a move by hand is kept as the section the item has when shown, as long as it is more visible than the hiding section. holzBar remembers the section the item had, so it returns there and not to the visible bar, also after a restart. The remembered sections stay on this Mac and are in no export, import or backup; the notices are kept in memory only and an item name never reaches a log.
 
 ## New in 0.0.8
 
