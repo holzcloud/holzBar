@@ -50,6 +50,10 @@ final class MenuBarItemManager {
     /// The bar as last read, for learning which apps change their item titles.
     @ObservationIgnored private var previousIdentityItems: [ItemIdentity.Item]?
 
+    /// How often the bar was read, so a caller can tell whether a call to
+    /// ``cacheItemsRegardless(_:)`` read it or skipped the read.
+    @ObservationIgnored private var itemReadCount = 0
+
     /// The identity key of each cached item, by window.
     @ObservationIgnored private var identityKeysByWindow = [CGWindowID: String]()
 
@@ -495,7 +499,13 @@ extension MenuBarItemManager {
     /// Before caching, this method ensures that the control items for
     /// the hidden and always-hidden sections are correctly ordered,
     /// arranging them into valid positions if needed.
-    func cacheItemsRegardless(_ currentItemWindowIDs: [CGWindowID]? = nil) async {
+    ///
+    /// - Returns: Whether the bar was read. It is not while the Mac is not in use or within a
+    ///   second of a move, or when a newer read replaced this one; the cache is then as old as
+    ///   before the call.
+    @discardableResult
+    func cacheItemsRegardless(_ currentItemWindowIDs: [CGWindowID]? = nil) async -> Bool {
+        let readsBefore = itemReadCount
         await cacheActor.runCacheTask { [weak self] in
             guard let self else {
                 return
@@ -519,6 +529,7 @@ extension MenuBarItemManager {
             guard !Task.isCancelled else {
                 return
             }
+            itemReadCount += 1
 
             let itemWindowIDs = currentItemWindowIDs ?? items.reversed().map { $0.windowID }
             await cacheActor.updateCachedItemWindowIDs(itemWindowIDs)
@@ -597,6 +608,7 @@ extension MenuBarItemManager {
                 }
             }
         }
+        return itemReadCount != readsBefore
     }
 
     /// Caches the current menu bar items, if the items have changed
