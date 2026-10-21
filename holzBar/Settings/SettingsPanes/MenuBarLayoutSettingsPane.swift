@@ -33,6 +33,7 @@ struct MenuBarLayoutSettingsPane: View {
                 if #available(macOS 27.0, *) {
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }
+                ItemRuleNoticesSection()
                 layoutBars
                 HolzBarSection {
                     HStack {
@@ -158,6 +159,48 @@ private struct StuckOverflowWarning: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
+    }
+}
+
+// MARK: - ItemRuleNoticesSection
+
+/// Tells the user which items a rule put back after a move by hand, so a put-back is never
+/// silent. The notices stay until they are dismissed or the rule goes.
+private struct ItemRuleNoticesSection: View {
+    @Environment(AppState.self) private var appState
+
+    var body: some View {
+        let notices = appState.automation.itemRuleNotices
+        if !notices.isEmpty {
+            HolzBarSection {
+                HStack {
+                    Text("Put Back by a Rule")
+                        .font(.headline)
+                    PreviewBadge()
+                }
+            } content: {
+                ForEach(notices) { notice in
+                    row(for: notice)
+                }
+                Text("Its rule decides where the item is. A move by hand lasts only while the rule shows the item.")
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(10)
+            }
+        }
+    }
+
+    private func row(for notice: ItemRuleNotice) -> some View {
+        let section = MenuBarSection.Name(profileIndex: notice.putBackIn)?.displayString ?? ""
+        return HStack {
+            Text("\u{201C}\(notice.itemName)\u{201D} was put back in \(section).")
+            Spacer()
+            Button("OK") {
+                appState.automation.dismissItemRuleNotice(forKey: notice.itemKey)
+            }
+        }
+        .padding(10)
     }
 }
 
