@@ -33,6 +33,7 @@
 - ✅ **Only on the built-in display or on displays with a notch**
 - ✅ **Shows items the notch covers**
 - ✅ **Works from the keyboard** — open it with its hotkey, then the arrow keys, Return and Escape
+- ✅ **Row, grid or column** <sub>Preview</sub> — and it fades in, never with Reduce Motion on
 
 #### Appearance
 - ✅ Tint, shadow, border; Single and Paired shapes with round or square ends
@@ -40,6 +41,7 @@
 - ✅ **Rounded screen corners**
 - ✅ **Dashed and dotted borders**
 - ✅ **Tints from the wallpaper or the accent colour, and the system's glass** <sub>glass on macOS 26 and later</sub>
+- ✅ **Moods** <sub>Preview</sub> — save the look of the menu bar under a name and switch to it in one click, from the palette or with a rule
 - ✅ **Menu bar styles**: a **Sections** shape, one shape per section on the bar (macOS 14 to 26; macOS 27 draws Paired), a **shape of its own for the Apple logo** (bar tint, accent colour, wallpaper or a colour), **outlines** in the accent colour or a gradient, **vertical gradients**, one gradient per shape and the **tint strength**
 
 </td>
@@ -49,6 +51,9 @@
 
 #### Automation
 - ✅ **Rules, scripts, profile hooks and widgets** — see [New in 0.0.8](#new-in-008)
+- ✅ **Command palette** <sub>Preview</sub> — a Spotlight-like panel for actions, profiles, moods, rules and items
+- ✅ **AppleScript dictionary** <sub>Preview</sub> — show, hide, apply a profile, switch rules and Zen mode; lasting changes ask first
+- ✅ **Sound output and Bluetooth as rule conditions** <sub>Preview</sub>
 - ✅ **Show hidden items when the battery is low or the network drops** — since 0.0.8 these are rules in the Automation pane (the old settings are moved there once)
 - ✅ **Zen mode** — one hotkey, menu item, URL or Shortcuts action keeps hidden items hidden; optionally on while the screen is mirrored or shared, without any permission
 - ✅ **Shortcuts actions** — Zen mode, show or hide a section, apply a profile, open an item by name, search
@@ -62,6 +67,8 @@
 - ✅ **Export and import** all settings
 - ✅ **Imports your Ice settings** on first launch
 - ✅ **Alerts in Settings are sheets** on its window, so holzBar keeps working while one is open
+- ✅ **A Settings window with three sidebar groups and a Modules pane** for the optional modules, each off until you switch it on
+- ✅ **Usage suggestions** <sub>Preview, off by default</sub> — local counters, **View Data** and **Forget Everything**
 - ✅ Launch at login
 - ✅ **English, German, French, Italian and Romansh** — holzBar follows your Mac's language; choose another one for holzBar alone in System Settings → General → Language & Region → Applications
 
@@ -69,24 +76,32 @@
 </tr>
 </table>
 
-## New in 0.0.9 beta 1
+## New in 0.0.9
 
-0.0.9 beta 2 is out on the beta channel; see its [release notes](release-notes/v0.0.9-beta2.md). Everything here is a **Preview**: built and unit tested, not yet tested on a Mac, and each carries a Preview badge in the app.
+0.0.9 is out; see its [release notes](release-notes/v0.0.9.md). Everything marked **Preview** is built and unit tested but not yet tested on a Mac; most carry a Preview badge in the app, and the command palette and the AppleScript dictionary, which have no screen of their own for a badge, are marked here. The new look of Settings has not been looked at on a Mac either.
+
+**The Settings window**
+- **Three sidebar groups**: Menu Bar Layout, Menu Bar Appearance and Automation; Modules; General, Hotkeys, Advanced and About.
+- **Modules** is a pane that lists the optional modules, each off until you switch it on; a module's settings open under its row only while it is on. **Widgets** and **Drag in the Menu Bar** moved there from Menu Bar Layout.
+- **The window ground** falls from a calm colour to a deeper one with two soft glows under the glass (flat with Increase Contrast), and Settings can shrink to 760 by 540 points.
+- **Permission pills** in Advanced, the permissions window and the Screen Recording hint show "Needs <permission>" or "Permission Granted" as a small label; **key caps** draw a set hotkey in the hotkey recorder.
+- **Confirmation sheets** of one design ask before a lasting change (delete a rule, a profile or all snapshots, remove a widget, reset the appearance, revoke a permission, restore a layout, allow a script); Return is Cancel on a destructive one.
+- **The strips of Menu Bar Layout** look like the menu bar of macOS: a translucent band in the colour of the real bar with a soft sheen at the top.
 
 **Automation**
-- **Command palette**: a hotkey (set it in Settings → Hotkeys) opens a Spotlight-like panel. Type to find an action, a layout profile, a mood, a rule or a menu bar item; Return runs it, Escape closes it. Abbreviations and typos work as in the item search, and starting with `>` leaves out the menu bar items. It keeps no history and needs no permission; with the Touch ID lock on it asks first, because it lists hidden items.
-- **AppleScript dictionary**: `show section`, `hide section`, `toggle section`, `apply profile`, `enable rule`, `disable rule`, `enable zen mode` and `disable zen mode`, and the read-only properties `profile names`, `current profile`, `rule names`, `enabled rule names`, `zen mode` and `hidden section is shown`. Every command goes through the same decision as a `holzbar://` URL command: lasting changes ask first, nothing reveals hidden items while Zen mode is on, and Zen mode does not end while the screen is shared. A script cannot create, change or delete a rule, a profile, a script or a setting, and a rule that uses a script is never turned on this way. macOS asks the calling app (Script Editor, a Shortcut) for permission to control holzBar; holzBar sends no Apple events itself.
+- **Command palette** (Preview): a hotkey (set it in Settings → Hotkeys) opens a Spotlight-like panel. Type to find an action, a layout profile, a mood, a rule or a menu bar item; Return runs it, Escape closes it. Abbreviations and typos work as in the item search, and starting with `>` leaves out the menu bar items. It keeps no history and needs no permission; with the Touch ID lock on it asks first, because it lists hidden items.
+- **AppleScript dictionary** (Preview): `show section`, `hide section`, `toggle section`, `apply profile`, `enable rule`, `disable rule`, `enable zen mode` and `disable zen mode`, and the read-only properties `profile names`, `current profile`, `rule names`, `enabled rule names`, `zen mode` and `hidden section is shown`. Every command goes through the same decision as a `holzbar://` URL command: lasting changes ask first, nothing reveals hidden items while Zen mode is on, and Zen mode does not end while the screen is shared. A script cannot create, change or delete a rule, a profile, a script or a setting, and a rule that uses a script is never turned on this way. macOS asks the calling app (Script Editor, a Shortcut) for permission to control holzBar; holzBar sends no Apple events itself.
 - **Keep the Mac awake** from a hotkey and from the command palette, as well as from a rule. Sound output and Bluetooth are new rule conditions (below).
-- **Sound output and Bluetooth as rule conditions**: "the Mac plays sound through …" follows the default output device with one Core Audio listener and needs no permission. "A Bluetooth device is connected" reads which of your paired devices are connected and asks macOS for the Bluetooth permission only when you add such a condition. Energy Mode has no public API on the Mac, so only Low Power Mode, which exists since 0.0.8, is a condition.
-- **Moods**: save the current look of the menu bar (colours, shape, border, corners) under a name in Menu Bar Appearance, switch to it in one click, from the command palette, or with a rule ("switch to a mood"), for example by time of day or when a display is connected. At most twelve.
+- **Sound output and Bluetooth as rule conditions** (Preview): "the Mac plays sound through …" follows the default output device with one Core Audio listener and needs no permission. "A Bluetooth device is connected" reads which of your paired devices are connected and asks macOS for the Bluetooth permission only when you add such a condition. Energy Mode has no public API on the Mac, so only Low Power Mode, which exists since 0.0.8, is a condition.
+- **Moods** (Preview): save the current look of the menu bar (colours, shape, border, corners) under a name in Menu Bar Appearance, switch to it in one click, from the command palette, or with a rule ("switch to a mood"), for example by time of day or when a display is connected. At most twelve.
 
 **The holzBar Shelf**
-- **Layouts**: a row (as before), a grid of six per row, or a column; a grid and a column grow downwards and scroll after ten rows, and the arrow keys move up and down.
-- **Fade in**: the holzBar Shelf appears in 0.15 seconds instead of at once; it never fades while Reduce Motion is on, and closing is never delayed. The bar itself does not animate yet.
+- **Layouts** (Preview): a row (as before), a grid of six per row, or a column; a grid and a column grow downwards and scroll after ten rows, and the arrow keys move up and down.
+- **Fade in** (Preview): the holzBar Shelf appears in 0.15 seconds instead of at once; it never fades while Reduce Motion is on, and closing is never delayed. The bar itself does not animate yet.
 
 **Convenience**
-- **Usage suggestions** (off by default): count how often you open each item, once a day at most per click, for 30 days. After 14 days holzBar suggests hiding visible items you did not open for 14 days, never the clock, the battery, Control Center, items that show a live value, apps that carry badges, holzBar's own items or items a rule controls. The counts are one file on this Mac (mode 0600, excluded from backups); they are in no export, snapshot, diagnostic or log, **View Data** shows all of it, and **Forget Everything** and turning it off delete it. A suggestion moves nothing until you click **Move to Hidden**, and a snapshot of the layout is taken first.
-- **Item rules, put back by a rule**: when you move an item that a rule controls and the rule does not allow it, holzBar puts it back at the next evaluation, a few seconds after your move, and says so in a **Put Back by a Rule** section at the top of Menu Bar Layout, with an **Edit Rule…** button and an **OK** button. While the rule shows the item, a move by hand is kept as the section the item has when shown, as long as it is more visible than the hiding section. holzBar remembers the section the item had, so it returns there and not to the visible bar, also after a restart. The remembered sections stay on this Mac and are in no export, import or backup; the notices are kept in memory only and an item name never reaches a log.
+- **Usage suggestions** (Preview, off by default): count how often you open each item, once a day at most per click, for 30 days. After 14 days holzBar suggests hiding visible items you did not open for 14 days, never the clock, the battery, Control Center, items that show a live value, apps that carry badges, holzBar's own items or items a rule controls. The counts are one file on this Mac (mode 0600, excluded from backups); they are in no export, snapshot, diagnostic or log, **View Data** shows all of it, and **Forget Everything** and turning it off delete it. A suggestion moves nothing until you click **Move to Hidden**, and a snapshot of the layout is taken first.
+- **Item rules, put back by a rule** (Preview): when you move an item that a rule controls and the rule does not allow it, holzBar puts it back at the next evaluation, a few seconds after your move, and says so in a **Put Back by a Rule** section at the top of Menu Bar Layout, with an **Edit Rule…** button and an **OK** button. While the rule shows the item, a move by hand is kept as the section the item has when shown, as long as it is more visible than the hiding section. holzBar remembers the section the item had, so it returns there and not to the visible bar, also after a restart. The remembered sections stay on this Mac and are in no export, import or backup; the notices are kept in memory only and an item name never reaches a log.
 
 ## New in 0.0.8
 
@@ -150,17 +165,17 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 ## Planned next
 
-**None of this is available yet.** It is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
+**None of this is available yet.** Every release is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
 
-### 0.0.9 (more betas)
+### After 0.0.9 (release not fixed yet)
 
-The release starts with the **design system**: one Liquid Glass look (holzBar's blue, dark and light equally designed) and a new Settings window with a sidebar and a gallery of module cards. Every later screen follows it; its building blocks exist, the new Settings window is still to come.
+**Nothing here is in 0.0.9.**
 
 **Automation**
 - More **App Intents** for Shortcuts and Siri, and a **focus mode** hotkey that hides everything except chosen items.
 
 **Convenience**
-- **Smooth show and hide** of the bar itself, respecting Reduce Motion (the holzBar Shelf fades in since 0.0.9 beta 1).
+- **Smooth show and hide** of the bar itself, respecting Reduce Motion (the holzBar Shelf fades in since 0.0.9).
 - Replacement items for Apple items that macOS 27 cannot hide, and hiding system items such as Clock and Control Center.
 
 **Polish**
@@ -199,6 +214,8 @@ The comparison tables in [comparison.md](comparison.md) mark these with 🔜 and
 
 ## Gallery
 
+These screenshots were taken before 0.0.9. The Settings window looks different since then (three sidebar groups, a new window ground, a Modules pane), so its panes no longer look exactly like this.
+
 <p align="center"><img src="../Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, the holzBar icon, the holzBar Shelf with its location, the displays it is used on and items covered by the notch, showing hidden items on click, hover or scroll, and automatic rehide with the Smart strategy" width="760"></p>
 
 <table>
@@ -214,7 +231,7 @@ The comparison tables in [comparison.md](comparison.md) mark these with 🔜 and
 
 <table>
 <tr>
-<td width="50%" valign="top"><b>Layout</b> — drag items into sections, with profiles, groups, spacers and widgets<br><img src="../Resources/Screenshots/settings-layout.png" alt="holzBar settings, Menu Bar Layout pane: layout snapshots, groups with New Group…, spacers, the Widgets module with a CPU load and a free disk space widget, and the Visible and Hidden sections with the menu bar items"></td>
+<td width="50%" valign="top"><b>Layout</b> — drag items into sections, with profiles, groups and spacers <sub>an earlier screenshot: Widgets and Drag in the Menu Bar are in Settings, Modules since 0.0.9</sub><br><img src="../Resources/Screenshots/settings-layout.png" alt="holzBar settings, Menu Bar Layout pane before 0.0.9: layout snapshots, groups with New Group…, spacers, the Widgets module with a CPU load and a free disk space widget, and the Visible and Hidden sections with the menu bar items"></td>
 <td width="50%" valign="top"><b>Appearance</b> — tint, shadow, border, shapes, a black bar and rounded screen corners<br><img src="../Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Menu Bar Appearance pane: dynamic appearance, Tint, Shadow, Border, Shape Kind, Black menu bar and Round the screen corners"></td>
 </tr>
 <tr>
