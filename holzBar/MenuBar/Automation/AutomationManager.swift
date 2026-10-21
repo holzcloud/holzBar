@@ -59,6 +59,8 @@ final class AutomationManager {
 
     /// What holzBar remembers of each item that a rule makes follow a condition, by identity key.
     @ObservationIgnored private var itemRuleMemory = [String: ItemRuleMemory]()
+    /// The shown sections as stored, so they are written only when they change.
+    @ObservationIgnored private var storedShownSections = [String: Int]()
     @ObservationIgnored private var itemRuleTask: Task<Void, Never>?
     /// The items a rule put back, for the hint at the top of Menu Bar Layout. In memory only:
     /// never stored, exported, synced or logged.
@@ -162,6 +164,33 @@ final class AutomationManager {
             save()
         }
         migrateLegacyRevealRules()
+        loadItemRuleMemory()
+    }
+
+    /// Reads the shown sections of the items that rules control. The stored value is
+    /// untrusted: any process of the user can write the defaults.
+    private func loadItemRuleMemory() {
+        let stored = Defaults.dictionary(forKey: .itemRuleShownSections) as? [String: Int] ?? [:]
+        itemRuleMemory = ItemVisibility.restoredMemory(from: stored, ruleKeys: ItemVisibility.ruleKeys(in: rules))
+        storedShownSections = ItemVisibility.persistableShownSections(
+            itemRuleMemory,
+            ruleKeys: ItemVisibility.ruleKeys(in: rules)
+        )
+    }
+
+    /// Stores the shown sections of the items that rules control, when they changed. They stay
+    /// on this Mac (a local-only key), so after a restart an item returns to the section it had.
+    private func persistShownSections() {
+        let wanted = ItemVisibility.persistableShownSections(itemRuleMemory, ruleKeys: ItemVisibility.ruleKeys(in: rules))
+        guard wanted != storedShownSections else {
+            return
+        }
+        storedShownSections = wanted
+        if wanted.isEmpty {
+            Defaults.removeObject(forKey: .itemRuleShownSections)
+        } else {
+            Defaults.set(wanted, forKey: .itemRuleShownSections)
+        }
     }
 
     /// Takes over the two fixed rules of 0.0.7 and earlier (low battery, offline) as rules of
@@ -846,6 +875,7 @@ final class AutomationManager {
                 addItemRuleNotice(forKey: key, putBackIn: revert.putBack, appState: appState)
             }
         }
+        persistShownSections()
         guard !changes.isEmpty else {
             return
         }
@@ -904,6 +934,7 @@ final class AutomationManager {
         if kept != itemRuleNotices {
             itemRuleNotices = kept
         }
+        persistShownSections()
     }
 
     /// Carries out one effect of the engine. `allowsScripts` is false for a pass that a change

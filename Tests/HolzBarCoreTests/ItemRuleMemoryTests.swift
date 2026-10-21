@@ -282,4 +282,54 @@ struct ItemRuleMemoryTests {
         let exact = String(repeating: "y", count: 60)
         #expect(ItemRuleNotices.cleanedName(exact, fallback: "Item") == exact)
     }
+
+    @Test("Stored sections come back only for item rules, as 0 or 1, at most the rule limit")
+    func storedSectionsAreValidated() {
+        let stored = ["a:A": 1, "b:B": 0, "c:C": 2, "d:D": -1, "gone:G": 1]
+        let restored = Visibility.restoredMemory(from: stored, ruleKeys: ["a:A", "b:B", "c:C", "d:D"])
+        #expect(restored == ["a:A": ItemRuleMemory(shownSection: 1), "b:B": ItemRuleMemory(shownSection: 0)])
+        #expect(restored.values.allSatisfy { $0.applied == nil })
+
+        let keys = (0..<(AutomationRule.maximumCount + 20)).map { "app\($0):Item" }
+        let many = Dictionary(uniqueKeysWithValues: keys.map { ($0, 1) })
+        #expect(Visibility.restoredMemory(from: many, ruleKeys: Set(keys)).count == AutomationRule.maximumCount)
+        #expect(Visibility.restoredMemory(from: [:], ruleKeys: ["a:A"]).isEmpty)
+    }
+
+    @Test("Only known shown sections of item rules are stored")
+    func shownSectionsToStore() {
+        let remembered = [
+            "a:A": memory(shown: 1, at: 2, hiding: true),
+            "b:B": memory(at: 1, hiding: true),
+            "c:C": memory(shown: 0),
+            "gone:G": memory(shown: 1),
+            "bad:B": memory(shown: 7),
+        ]
+        let stored = Visibility.persistableShownSections(remembered, ruleKeys: ["a:A", "b:B", "c:C", "bad:B"])
+        #expect(stored == ["a:A": 1, "c:C": 0])
+        #expect(Visibility.persistableShownSections([:], ruleKeys: ["a:A"]).isEmpty)
+    }
+
+    @Test("What is stored restores to the same shown sections")
+    func storedSectionsRoundTrip() {
+        let remembered = ["a:A": memory(shown: 1, at: 2, hiding: true), "c:C": memory(shown: 0, at: 0)]
+        let keys: Set<String> = ["a:A", "c:C"]
+        let restored = Visibility.restoredMemory(
+            from: Visibility.persistableShownSections(remembered, ruleKeys: keys),
+            ruleKeys: keys
+        )
+        #expect(restored.mapValues(\.shownSection) == ["a:A": 1, "c:C": 0])
+    }
+
+    @Test("The keys of item rules include the rules that are off")
+    func ruleKeysIncludeRulesThatAreOff() {
+        var off = AutomationRule(
+            name: "B",
+            clauses: [AutomationClause(condition: .power(.battery))],
+            action: .showItemOnlyWhile(itemKey: "b:B", hiding: .hidden)
+        )
+        off.isEnabled = false
+        let zen = AutomationRule(name: "Zen", clauses: [AutomationClause(condition: .power(.battery))], action: .zen(true))
+        #expect(Visibility.ruleKeys(in: [off, zen]) == ["b:B"])
+    }
 }
