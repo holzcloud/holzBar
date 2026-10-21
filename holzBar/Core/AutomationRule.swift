@@ -437,31 +437,6 @@ nonisolated enum AutomationSchedule {
 
 /// Where an item follows a rule of the kind "show it only while …".
 nonisolated enum ItemVisibility {
-    /// The section index the rule wants for its item now: 0 (visible) while the rule holds,
-    /// the hiding section while it does not, and `nil` when the rule is off, not of this kind
-    /// or the facts do not tell yet. The item then stays where it is: it is never hidden
-    /// because a fact is unavailable.
-    static func wantedSection(of rule: AutomationRule, facts: AutomationFacts) -> (itemKey: String, section: Int)? {
-        guard rule.isEnabled, case .showItemOnlyWhile(let key, let hiding) = rule.action else {
-            return nil
-        }
-        switch rule.evaluation(in: facts) {
-        case .some(true): return (key, 0)
-        case .some(false): return (key, hiding == .alwaysHidden ? 2 : 1)
-        case .none: return nil
-        }
-    }
-
-    /// The items that have to move: those whose wanted section differs from the one holzBar
-    /// last applied, and those that sit elsewhere than wanted because the user moved them by
-    /// hand since. An item whose real section is unknown (`actual` has no entry) is judged by
-    /// the last applied section alone.
-    static func itemsToMove(wanted: [String: Int], applied: [String: Int], actual: [String: Int]) -> [String: Int] {
-        wanted.filter { key, section in
-            applied[key] != section || actual[key].map { $0 != section } == true
-        }
-    }
-
     /// The item of a rule of this kind, whether the rule is on or not.
     static func itemKey(of rule: AutomationRule) -> String? {
         if case .showItemOnlyWhile(let key, _) = rule.action {

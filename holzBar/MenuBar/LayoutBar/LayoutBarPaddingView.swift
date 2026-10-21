@@ -322,5 +322,7 @@ enum LayoutBarMoves {
             undoManager.setActionName(actionName)
         }
         appState.concealer27.setSection(MacOS27Section(section), for: bundleID)
+        // A rule that controls the item has to look at it again.
+        appState.automation.itemsWereArrangedByHand()
     }
 }

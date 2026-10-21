@@ -194,8 +194,8 @@ final class LayoutProfiles {
             let itemManager = appState.itemManager
             for section in MenuBarSection.Name.allCases {
                 for item in itemManager.itemCache[section] where !item.isControlItem {
-                    if let bundleID = item.sourceApplication?.bundleIdentifier, let wantedSection = wanted[bundleID] {
-                        itemSections[itemManager.identityKey(for: item)] = wantedSection
+                    if let bundleID = item.sourceApplication?.bundleIdentifier, let sharedSection = wanted[bundleID] {
+                        itemSections[itemManager.identityKey(for: item)] = sharedSection
                     }
                 }
             }

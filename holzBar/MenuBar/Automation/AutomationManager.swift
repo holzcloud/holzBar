@@ -62,6 +62,12 @@ final class AutomationManager {
     /// The shown sections as stored, so they are written only when they change.
     @ObservationIgnored private var storedShownSections = [String: Int]()
     @ObservationIgnored private var itemRuleTask: Task<Void, Never>?
+    /// Whether holzBar's own move of items is settling. While it is, the item cache may still
+    /// show the old sections, and nothing may be taken for a move by hand.
+    @ObservationIgnored private var isMovingItems = false
+    /// The items holzBar moved whose new section the bar did not show after the move settled.
+    /// They are taken as not found for the one pass that follows, never as moved by hand.
+    @ObservationIgnored private var unsettledItemKeys = Set<String>()
     /// The items a rule put back, for the hint at the top of Menu Bar Layout. In memory only:
     /// never stored, exported, synced or logged.
     private(set) var itemRuleNotices = [ItemRuleNotice]()
@@ -794,13 +800,17 @@ final class AutomationManager {
         rules.compactMap { ItemVisibility.follow(of: $0, facts: facts) }
     }
 
-    /// The section of each item in the item cache, by identity key.
+    /// The section of each item in the item cache, by identity key, without the items whose
+    /// move has not settled.
     private func itemSectionsInCache(of appState: AppState) -> [String: Int] {
         let itemManager = appState.itemManager
         var sections = [String: Int]()
         for section in MenuBarSection.Name.allCases {
             for item in itemManager.itemCache[section] where !item.isControlItem {
-                sections[itemManager.identityKey(for: item)] = section.profileIndex
+                let key = itemManager.identityKey(for: item)
+                if !unsettledItemKeys.contains(key) {
+                    sections[key] = section.profileIndex
+                }
             }
         }
         return sections
@@ -811,8 +821,9 @@ final class AutomationManager {
     /// reconnects, Wi-Fi that roams) does not move an item every second. The facts and the
     /// sections are read again after the hold, and nothing moves while the user drags an item.
     private func followItemRules(facts: AutomationFacts) {
-        // A pending pass reads everything again when it runs, so it is not postponed.
-        guard itemRuleTask == nil, let appState else {
+        // A pending pass reads everything again when it runs, so it is not postponed. While
+        // holzBar's own move settles the cache may show the old sections.
+        guard itemRuleTask == nil, !isMovingItems, let appState else {
             return
         }
         let follows = itemFollows(facts: facts)
@@ -846,7 +857,18 @@ final class AutomationManager {
             itemRuleTask = nil
             // The conditions may have changed meanwhile, and a drag may have held the pass back.
             followItemRules(facts: currentFacts())
+            unsettledItemKeys.removeAll()
         }
+    }
+
+    /// The user moved items by hand (Menu Bar Layout, the keyboard, VoiceOver, undo, a Command-drag,
+    /// the drag module): asks for one look at the items that follow a rule, after the hold, once
+    /// the item cache has caught up. It adds no timer: the move is the event.
+    func itemsWereArrangedByHand() {
+        guard isSetUp, !isMovingItems, rules.contains(where: { $0.isEnabled && ItemVisibility.itemKey(of: $0) != nil }) else {
+            return
+        }
+        scheduleItemRuleEvaluation()
     }
 
     /// Carries out the decisions for the items that follow a rule: moves the items that have to
@@ -890,11 +912,22 @@ final class AutomationManager {
             }
         }
         logger.notice("An automation rule moves \(changes.count, privacy: .public) items")
-        appState.profiles.applyLayout(of: LayoutProfile(
+        // Until the move has settled and the bar was read, the cache may show the old sections,
+        // and an item there must not be taken for one the user moved by hand.
+        isMovingItems = true
+        defer {
+            isMovingItems = false
+        }
+        await appState.profiles.applyLayout(of: LayoutProfile(
             name: "",
             itemSections: changes,
             applicationSections: applicationSections
-        ))
+        ))?.value
+        // The cache refuses a read within a second of a move.
+        try? await Task.sleep(for: .milliseconds(1500))
+        await appState.itemManager.cacheItemsRegardless()
+        let settled = itemSectionsInCache(of: appState)
+        unsettledItemKeys = Set(changes.filter { settled[$0.key] != $0.value }.keys)
     }
 
     /// Tells the user that a rule put an item back: one notice per item, the newest first.

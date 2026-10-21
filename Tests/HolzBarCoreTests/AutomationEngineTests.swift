@@ -378,33 +378,33 @@ struct AutomationEngineTests {
         #expect(AutomationMatch.all.combine([]) == nil)
     }
 
-    @Test("An item follows its rule: visible while it holds, hidden otherwise, still when unknown")
+    @Test("An item follows its rule: holds while the condition holds, still when unknown")
     func itemFollowsRule() throws {
         let rule = rule(
             "VPN item",
             [.network(.vpn)],
             action: .showItemOnlyWhile(itemKey: "com.example.vpn:VPN", hiding: .alwaysHidden)
         )
-        let holds = try #require(ItemVisibility.wantedSection(of: rule, facts: AutomationFacts(networkKinds: [.vpn])))
-        #expect(holds.itemKey == "com.example.vpn:VPN" && holds.section == 0)
-        let fails = try #require(ItemVisibility.wantedSection(of: rule, facts: AutomationFacts(networkKinds: [.wifi])))
-        #expect(fails.section == 2)
-        #expect(ItemVisibility.wantedSection(of: rule, facts: AutomationFacts()) == nil)
+        let holds = try #require(ItemVisibility.follow(of: rule, facts: AutomationFacts(networkKinds: [.vpn])))
+        #expect(holds.itemKey == "com.example.vpn:VPN" && holds.holds == true)
+        // The Always hidden choice hides in the third section.
+        #expect(holds.hiding == 2)
+        let fails = try #require(ItemVisibility.follow(of: rule, facts: AutomationFacts(networkKinds: [.wifi])))
+        #expect(fails.holds == false)
+        // The facts do not tell: the rule is followed, but nothing is known.
+        let unknown = try #require(ItemVisibility.follow(of: rule, facts: AutomationFacts()))
+        #expect(unknown.holds == nil)
         var off = rule
         off.isEnabled = false
-        #expect(ItemVisibility.wantedSection(of: off, facts: AutomationFacts(networkKinds: [.vpn])) == nil)
-    }
-
-    @Test("An item the user moved by hand goes back; an item in place stays")
-    func movedItemGoesBack() {
-        let wanted = ["a": 0, "b": 2, "c": 1]
-        let applied = ["a": 0, "b": 2]
-        let actual = ["a": 1, "b": 2]
-        let moves = ItemVisibility.itemsToMove(wanted: wanted, applied: applied, actual: actual)
-        #expect(moves == ["a": 0, "c": 1])
-        #expect(ItemVisibility.itemsToMove(wanted: wanted, applied: wanted, actual: wanted).isEmpty)
-        // An unknown real section is judged by the applied one alone.
-        #expect(ItemVisibility.itemsToMove(wanted: wanted, applied: wanted, actual: [:]).isEmpty)
+        #expect(ItemVisibility.follow(of: off, facts: AutomationFacts(networkKinds: [.vpn])) == nil)
+        let other = self.rule("Zen", [.network(.vpn)], action: .zen(true))
+        #expect(ItemVisibility.follow(of: other, facts: AutomationFacts(networkKinds: [.vpn])) == nil)
+        let hidden = self.rule(
+            "Hidden item",
+            [.network(.vpn)],
+            action: .showItemOnlyWhile(itemKey: "a:A", hiding: .hidden)
+        )
+        #expect(ItemVisibility.follow(of: hidden, facts: AutomationFacts(networkKinds: [.vpn]))?.hiding == 1)
     }
 
     @Test("An item has one rule, and only the rules that are on control it")
