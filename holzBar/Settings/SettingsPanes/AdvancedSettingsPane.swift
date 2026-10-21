@@ -295,12 +295,7 @@ struct AdvancedSettingsPane: View {
             LabeledContent {
                 if permission.hasPermission {
                     HStack {
-                        Label {
-                            Text("Permission Granted")
-                        } icon: {
-                            Image(systemName: "checkmark.circle")
-                                .foregroundStyle(.green)
-                        }
+                        PermissionPill(Text("Permission Granted"), state: .granted)
                         if permission.canReset {
                             Button("Revoke…") {
                                 revokingPermission = permission
@@ -308,8 +303,11 @@ struct AdvancedSettingsPane: View {
                         }
                     }
                 } else {
-                    Button("Grant Permission") {
-                        permission.performRequest()
+                    HStack {
+                        PermissionPill(Text("Needs \(permission.title)"), state: .needed)
+                        Button("Grant Permission") {
+                            permission.performRequest()
+                        }
                     }
                 }
             } label: {

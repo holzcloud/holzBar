@@ -8607,6 +8607,34 @@
         }
       }
     },
+    "Needs %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Braucht %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nécessite %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richiede %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dovra %@"
+          }
+        }
+      }
+    },
     "Needs Location Services. Until you allow holzBar, this condition is never true." : {
       "localizations" : {
         "de" : {

@@ -150,8 +150,7 @@ struct PermissionsView: View {
                     .foregroundStyle(.secondary)
 
                 if permission.hasPermission {
-                    Text("Permission Granted")
-                        .foregroundStyle(.green)
+                    PermissionPill(Text("Permission Granted"), state: .granted)
                     if permission.canReset {
                         Button("Revoke Permission") {
                             permission.revoke()
@@ -199,24 +198,20 @@ struct PermissionsView: View {
                     }
                 }
 
-                Button {
-                    permission.performRequest()
-                    Task {
-                        guard await permission.waitForPermission() else {
-                            return
+                if permission.hasPermission {
+                    PermissionPill(Text("Permission Granted"), state: .granted)
+                } else {
+                    Button("Grant Permission") {
+                        permission.performRequest()
+                        Task {
+                            guard await permission.waitForPermission() else {
+                                return
+                            }
+                            appState.activate(for: .permissions)
+                            appState.openWindow(.permissions)
                         }
-                        appState.activate(for: .permissions)
-                        appState.openWindow(.permissions)
-                    }
-                } label: {
-                    if permission.hasPermission {
-                        Text("Permission Granted")
-                            .foregroundStyle(.green)
-                    } else {
-                        Text("Grant Permission")
                     }
                 }
-                .allowsHitTesting(!permission.hasPermission)
 
                 if !permission.hasPermission && permission.canReset {
                     VStack(spacing: 2) {
