@@ -246,4 +246,8 @@ Screenshots of holzBar 0.0.9 in dark mode. Features marked Preview in the window
 <td width="50%" valign="top"><b>Modules</b> — widgets and dragging in the menu bar, each with its own switch<br><img src="../Resources/Screenshots/settings-modules.png" alt="holzBar settings, Modules pane: Widgets switched on with a CPU load and a free disk space widget, and Drag in the Menu Bar switched off"></td>
 <td width="50%" valign="top"><b>Permissions</b> — what holzBar has, with Revoke<br><img src="../Resources/Screenshots/settings-advanced-permissions.png" alt="holzBar settings, Advanced pane, the end: Back up or move your settings with Export and Import, and the permissions Accessibility and Screen Recording, each shown as Permission Granted with a Revoke button"></td>
 </tr>
+<tr>
+<td width="50%" valign="top"><b>First launch</b> — holzBar asks only for Accessibility and says why<br><img src="../Resources/Screenshots/permissions.png" alt="holzBar's Permissions window on the first launch: Accessibility with what holzBar needs it for, Grant Permission and Reset and Grant Again; Screen Recording marked optional with Grant Permission; Quit and a disabled Continue"></td>
+<td width="50%" valign="top"><b>Ready</b> — Accessibility granted, Screen Recording optional<br><img src="../Resources/Screenshots/permissions-granted.png" alt="holzBar's Permissions window after Accessibility was granted: Accessibility shows Permission Granted, Screen Recording still offers Grant Permission, and Continue is enabled"></td>
+</tr>
 </table>
