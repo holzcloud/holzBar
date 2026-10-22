@@ -214,7 +214,7 @@ The comparison tables in [comparison.md](comparison.md) mark these with 🔜 and
 
 ## Gallery
 
-These screenshots were taken before 0.0.9. The Settings window looks different since then (three sidebar groups, a new window ground, a Modules pane), so its panes no longer look exactly like this.
+Screenshots of holzBar 0.0.9 in dark mode. Features marked Preview in the window are built and unit tested, but not yet tested on a Mac.
 
 <p align="center"><img src="../Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, the holzBar icon, the holzBar Shelf with its location, the displays it is used on and items covered by the notch, showing hidden items on click, hover or scroll, and automatic rehide with the Smart strategy" width="760"></p>
 
@@ -231,11 +231,19 @@ These screenshots were taken before 0.0.9. The Settings window looks different s
 
 <table>
 <tr>
-<td width="50%" valign="top"><b>Layout</b> — drag items into sections, with profiles, groups and spacers <sub>an earlier screenshot: Widgets and Drag in the Menu Bar are in Settings, Modules since 0.0.9</sub><br><img src="../Resources/Screenshots/settings-layout.png" alt="holzBar settings, Menu Bar Layout pane before 0.0.9: layout snapshots, groups with New Group…, spacers, the Widgets module with a CPU load and a free disk space widget, and the Visible and Hidden sections with the menu bar items"></td>
-<td width="50%" valign="top"><b>Appearance</b> — tint, shadow, border, shapes, a black bar and rounded screen corners<br><img src="../Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Menu Bar Appearance pane: dynamic appearance, Tint, Shadow, Border, Shape Kind, Black menu bar and Round the screen corners"></td>
+<td width="50%" valign="top"><b>Layout</b> — drag items into sections, with profiles, groups and spacers<br><img src="../Resources/Screenshots/settings-layout.png" alt="holzBar settings, Menu Bar Layout pane: the Visible and Hidden sections with the menu bar items, Tidy Up, Usage Suggestions (Preview) and the layout profiles"></td>
+<td width="50%" valign="top"><b>Appearance</b> — moods, tint, shadow, border, shapes, a black bar and rounded screen corners<br><img src="../Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Menu Bar Appearance pane: Moods (Preview), dynamic appearance, Tint, Shadow, Border, Shape Kind, Black menu bar and Round the screen corners"></td>
 </tr>
 <tr>
 <td width="50%" valign="top"><b>Hotkeys</b> — a shortcut for every frequent action, profile and item<br><img src="../Resources/Screenshots/settings-hotkeys.png" alt="holzBar settings, Hotkeys pane: hotkeys for the hidden section, the search, opening an item by letter, the layout profile, the holzBar Shelf, app menus, auto-rehide and Zen mode, each with Record Hotkey"></td>
 <td width="50%" valign="top"><b>Advanced</b> — new items, delays, Zen mode, Touch ID lock and settings backup<br><img src="../Resources/Screenshots/settings-advanced.png" alt="holzBar settings, Advanced pane: where new items go, the secondary context menu, the hover delay, hiding opened items again after 15 seconds, opening hidden items in the menu bar, Zen mode while the screen is shared, Touch ID or password before showing hidden items, settings Export… and Import…, and the permissions"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Layout, further down</b> — usage suggestions, profiles, groups, spacers and the layout history<br><img src="../Resources/Screenshots/settings-layout-more.png" alt="holzBar settings, Menu Bar Layout pane further down: Usage Suggestions (Preview), the home profile with Apply, Bind, Import Profile and Save Current Layout, Groups with New Group, Spacers, and Layout History with 8 snapshots"></td>
+<td width="50%" valign="top"><b>Automation</b> — rules, scripts and profile hooks<br><img src="../Resources/Screenshots/settings-automation.png" alt="holzBar settings, Automation pane: the Scripts folder with Choose Folder and Open Scripts Folder, profile hooks, and Add Rule"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Modules</b> — widgets and dragging in the menu bar, each with its own switch<br><img src="../Resources/Screenshots/settings-modules.png" alt="holzBar settings, Modules pane: Widgets switched on with a CPU load and a free disk space widget, and Drag in the Menu Bar switched off"></td>
+<td width="50%" valign="top"><b>Permissions</b> — what holzBar has, with Revoke<br><img src="../Resources/Screenshots/settings-advanced-permissions.png" alt="holzBar settings, Advanced pane, the end: Back up or move your settings with Export and Import, and the permissions Accessibility and Screen Recording, each shown as Permission Granted with a Revoke button"></td>
 </tr>
 </table>

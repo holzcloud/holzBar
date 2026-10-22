@@ -43,11 +43,11 @@ If you looked for an Ice fork that runs on macOS 27, or a free Bartender alterna
 <table>
 <tr>
 <td width="50%" valign="top"><b>Layout</b>: drag items into sections<br><img src="Resources/Screenshots/settings-layout.png" alt="holzBar settings, Menu Bar Layout: drag menu bar icons into the visible, hidden and always-hidden sections"></td>
-<td width="50%" valign="top"><b>Appearance</b>: tint, border, shapes, a black bar<br><img src="Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Menu Bar Appearance: tint, shadow, border, shapes and rounded screen corners"></td>
+<td width="50%" valign="top"><b>Appearance</b>: moods, tint, border, shapes, a black bar<br><img src="Resources/Screenshots/settings-appearance.png" alt="holzBar settings, Menu Bar Appearance: tint, shadow, border, shapes and rounded screen corners"></td>
 </tr>
 </table>
 
-More screenshots in the [gallery](docs/features.md#gallery). They were taken before 0.0.9, which has a new Settings window with a Modules pane.
+More screenshots in the [gallery](docs/features.md#gallery).
 
 ## How it compares
 
