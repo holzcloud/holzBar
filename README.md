@@ -69,7 +69,7 @@ Where holzBar loses: it has no Developer ID signature, fewer languages than Thaw
 
 ## Install
 
-Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 0.0.9. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
+Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 0.0.10. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
 
 ```sh
 brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
@@ -86,7 +86,9 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's next
 
-**0.0.9 is out** (see the [release notes](docs/release-notes/v0.0.9.md) and [what is new](docs/features.md#new-in-009)): a new Settings window with a Modules pane, a command palette, an AppleScript dictionary, moods (saved looks), grid and column layouts and a fade for the holzBar Shelf, sound output and Bluetooth conditions for rules, opt-in usage suggestions, and a hint when a rule puts an item back. Most of it is a **Preview**: built and unit tested, not yet tested on a Mac. Report what does not work.
+**0.0.10 is out** (see the [release notes](docs/release-notes/v0.0.10.md)): a bugfix release that ends a crash when an app launched or quit on macOS 26.
+
+**0.0.9** (see the [release notes](docs/release-notes/v0.0.9.md) and [what is new](docs/features.md#new-in-009)): a new Settings window with a Modules pane, a command palette, an AppleScript dictionary, moods (saved looks), grid and column layouts and a fade for the holzBar Shelf, sound output and Bluetooth conditions for rules, opt-in usage suggestions, and a hint when a rule puts an item back. Most of it is a **Preview**: built and unit tested, not yet tested on a Mac. Report what does not work.
 
 **0.0.8** (see the [release notes](docs/release-notes/v0.0.8.md) and [what is new](docs/features.md#new-in-008)) brought rules, scripts, per-item conditions, widgets, layout snapshots, a Touch ID lock, menu bar styles, dragging items without ⌘ and support for macOS 27's own overflow button.
 

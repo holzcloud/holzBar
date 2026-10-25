@@ -21,6 +21,9 @@ import OSLog
 /// - Accessibility calls block their thread, so the cache is an actor whose
 ///   executor is its own serial dispatch queue. Scans never run on the main
 ///   thread or on the Swift concurrency pool.
+/// - The running applications are read on the main actor, where AppKit changes
+///   them. Read on the cache's queue, as holzBar 0.0.7 to 0.0.9 did, the read raced
+///   an app launching or quitting and crashed inside AppKit.
 /// - A scan asks holzBar's own process too (its group and spacer items), and
 ///   AppKit answers that on the main thread. Callers on the main actor must
 ///   therefore be suspended, not blocked: holzBar 0.0.6 waited synchronously
@@ -257,8 +260,8 @@ actor SourcePIDCache {
         Bridging.setProcessUnresponsiveTimeout(3)
     }
 
-    /// Starts the observers for the cache.
-    func start() {
+    /// Starts the observers for the cache and reads the running applications.
+    func start() async {
         guard observation == nil else {
             return
         }
@@ -270,17 +273,26 @@ actor SourcePIDCache {
                 await self?.runningApplicationsDidChange()
             }
         }
-        runningApplicationsDidChange()
+        await runningApplicationsDidChange()
     }
 
     /// Brings the cache in line with the running applications.
     ///
-    /// Reads the running applications itself, which AppKit allows from any thread, so
-    /// the order in which the observer's tasks arrive does not matter.
-    private func runningApplicationsDidChange() {
+    /// Reads the running applications itself, when it runs, so the order in which the
+    /// observer's tasks arrive does not matter: the main actor and the cache's queue
+    /// both run their jobs in order, so the list read last is applied last.
+    ///
+    /// The list is read on the main actor, never on the cache's queue. AppKit documents
+    /// `runningApplications` as safe to read from any thread, but on macOS 26.7.1 its
+    /// KVO helper copied the list on the cache's queue while the main thread changed it
+    /// for an app that launched or quit, and holzBar crashed while copying, retaining or
+    /// releasing that copy.
+    private func runningApplicationsDidChange() async {
         logger.debug("Received new running applications")
 
-        let runningApps = NSWorkspace.shared.runningApplications
+        let runningApps = await MainActor.run {
+            NSWorkspace.shared.runningApplications
+        }
         let windowIDs = Bridging.getMenuBarWindowList(option: .itemsOnly)
         let runningPIDs = Set(runningApps.map(\.processIdentifier))
 
@@ -393,9 +405,9 @@ actor SourcePIDCache {
     ///
     /// Starts the cache if nothing has yet, so an item read before the backend's
     /// setup still works.
-    func pids(for windows: [WindowInfo]) -> [CGWindowID: pid_t] {
+    func pids(for windows: [WindowInfo]) async -> [CGWindowID: pid_t] {
         if observation == nil {
-            start()
+            await start()
         }
         dispatchPrecondition(condition: .onQueue(queue))
 
