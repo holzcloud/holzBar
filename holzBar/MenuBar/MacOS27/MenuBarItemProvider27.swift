@@ -105,7 +105,12 @@ nonisolated enum MenuBarItemProvider27 {
     /// before-and-after reads that decide which items sat still for a capture are further
     /// apart than this, so they still see the bar twice.
     static func items() async -> [MenuBarItem] {
-        await withCheckedContinuation { continuation in
+        // Read on the main actor, where AppKit changes the list: read on the queue, it races
+        // an app launching or quitting, which crashed holzBar's macOS 26 lookup (SourcePIDCache).
+        let runningApplications = await MainActor.run {
+            NSWorkspace.shared.runningApplications
+        }
+        return await withCheckedContinuation { continuation in
             queue.async {
                 let fresh: [MenuBarItem]? = withState { state in
                     guard
@@ -122,7 +127,7 @@ nonisolated enum MenuBarItemProvider27 {
                     return
                 }
                 let inputsBefore = withState { $0.itemsAreaInputs }
-                let items = readItems()
+                let items = readItems(runningApplications: runningApplications)
                 let areaChanged = withState { state in
                     state.lastItems = items
                     state.lastReadAt = ProcessInfo.processInfo.systemUptime
@@ -216,7 +221,10 @@ nonisolated enum MenuBarItemProvider27 {
 
     // MARK: Reading
 
-    private static func readItems(retryIfMenuBarMoves: Bool = true) -> [MenuBarItem] {
+    private static func readItems(
+        runningApplications: [NSRunningApplication],
+        retryIfMenuBarMoves: Bool = true
+    ) -> [MenuBarItem] {
         // Timed: a scan that runs while MenuBarAgent is animating the bar is a suspect for
         // the stutter of that animation.
         let started = ProcessInfo.processInfo.systemUptime
@@ -236,7 +244,6 @@ nonisolated enum MenuBarItemProvider27 {
         // MenuBarAgent comes first, and its frames are published before the other
         // processes are asked: a click on the clock needs them, and right after launch
         // the whole read can take seconds (measured 12.7 s).
-        let runningApplications = NSWorkspace.shared.runningApplications
         let applications = runningApplications.filter { $0.bundleIdentifier == menuBarAgentBundleID }
             + runningApplications.filter { $0.bundleIdentifier != menuBarAgentBundleID }
         let now = ProcessInfo.processInfo.systemUptime
@@ -349,7 +356,7 @@ nonisolated enum MenuBarItemProvider27 {
         withState { $0.scanSchedule = scanSchedule }
 
         if retryIfMenuBarMoves, Bridging.getActiveMenuBarDisplayID() != activeDisplayID {
-            return readItems(retryIfMenuBarMoves: false)
+            return readItems(runningApplications: runningApplications, retryIfMenuBarMoves: false)
         }
         var newEntries = [CGWindowID: Entry]()
         var items = [MenuBarItem]()
