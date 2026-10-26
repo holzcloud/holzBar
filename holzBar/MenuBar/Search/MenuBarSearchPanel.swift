@@ -60,11 +60,14 @@ final class MenuBarSearchPanel: NSPanel {
     init() {
         super.init(
             contentRect: .zero,
-            styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel, .utilityWindow, .hudWindow],
+            styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
-        self.titlebarAppearsTransparent = true
+        // The panel draws its own glass surface; the system shadow follows its shape.
+        self.isOpaque = false
+        self.backgroundColor = .clear
+        self.hasShadow = true
         self.isMovableByWindowBackground = false
         self.animationBehavior = .none
         self.isFloatingPanel = true
@@ -228,12 +231,10 @@ private struct MenuBarSearchContentView: View {
             mainContent
             bottomBar
         }
-        .background {
-            VisualEffectView(material: .sheet, blendingMode: .behindWindow)
-                .opacity(0.5)
-        }
         .frame(width: 600, height: 400)
         .fixedSize()
+        .clipShape(HolzBarTheme.shape(HolzBarTheme.Radius.panel))
+        .holzBarGlass(in: HolzBarTheme.shape(HolzBarTheme.Radius.panel))
         .task {
             searchFieldIsFocused = true
         }
@@ -302,7 +303,6 @@ private struct MenuBarSearchContentView: View {
             }
         }
         .padding(bottomBarPadding)
-        .background(.thinMaterial)
         .buttonStyle(BottomBarButtonStyle())
         .overlay(alignment: .top) {
             Divider()
