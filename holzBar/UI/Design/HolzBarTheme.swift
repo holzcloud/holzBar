@@ -135,13 +135,29 @@ enum HolzBarTheme {
     // MARK: Type
 
     enum Typography {
-        static let title = Font.system(size: 22, weight: .semibold)
-        static let headline = Font.system(size: 15, weight: .semibold)
-        static let body = Font.system(size: 13)
-        static let callout = Font.system(size: 12)
-        static let caption = Font.system(size: 11)
-        static let searchField = Font.system(size: 21)
-        static let mono = Font.system(size: 12, design: .monospaced)
+        static let title = Font.system(size: CGFloat(DesignTokens.TypeSize.title), weight: .semibold)
+        static let headline = Font.system(size: CGFloat(DesignTokens.TypeSize.headline), weight: .semibold)
+        static let body = Font.system(size: CGFloat(DesignTokens.TypeSize.body))
+        static let callout = Font.system(size: CGFloat(DesignTokens.TypeSize.callout))
+        static let caption = Font.system(size: CGFloat(DesignTokens.TypeSize.caption))
+        static let searchField = Font.system(size: CGFloat(DesignTokens.TypeSize.searchField))
+        static let mono = Font.system(size: CGFloat(DesignTokens.TypeSize.mono), design: .monospaced)
+
+        // The sizes below exist because screens built earlier use them; new screens use the
+        // seven above.
+
+        /// Badges.
+        static let micro = Font.system(size: CGFloat(DesignTokens.TypeSize.micro), weight: .medium)
+        /// The About pane's lines.
+        static let lead = Font.system(size: CGFloat(DesignTokens.TypeSize.lead))
+        /// The version line of the About pane.
+        static let subtitle = Font.system(size: CGFloat(DesignTokens.TypeSize.subtitle))
+        /// The title of the Permissions window.
+        static let titleLarge = Font.system(size: CGFloat(DesignTokens.TypeSize.titleLarge), weight: .medium)
+        /// The title of the About pane.
+        static let display = Font.system(size: CGFloat(DesignTokens.TypeSize.display))
+        /// Acknowledgement texts and other small monospaced text.
+        static let monoMicro = Font.system(size: CGFloat(DesignTokens.TypeSize.monoMicro), design: .monospaced)
     }
 
     // MARK: Motion

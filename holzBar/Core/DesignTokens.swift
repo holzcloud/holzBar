@@ -5,7 +5,7 @@
 
 import Foundation
 
-/// The values of holzBar's design system: colours, radii and spacing.
+/// The values of holzBar's design system: colours, radii, spacing and type sizes.
 ///
 /// The values live here, apart from SwiftUI, so that a test can check them: every text
 /// colour must keep its contrast over the ground it is drawn on. The views read them
@@ -165,6 +165,32 @@ nonisolated enum DesignTokens {
         static let xl: Double = 24
         static let xxl: Double = 32
         static let huge: Double = 48
+    }
+
+    // MARK: Type
+
+    /// The type sizes in points. The first seven are the main scale of the design; the others
+    /// exist because screens built earlier use them, and new screens use the main seven.
+    nonisolated enum TypeSize {
+        static let title: Double = 22
+        static let headline: Double = 15
+        static let body: Double = 13
+        static let callout: Double = 12
+        static let caption: Double = 11
+        static let searchField: Double = 21
+        static let mono: Double = 12
+        /// Badges.
+        static let micro: Double = 10
+        /// The About pane's lines.
+        static let lead: Double = 14
+        /// The version line of the About pane; the size of `headline`, in regular weight.
+        static let subtitle: Double = 15
+        /// The title of the Permissions window.
+        static let titleLarge: Double = 40
+        /// The title of the About pane.
+        static let display: Double = 64
+        /// Acknowledgement texts and other small monospaced text.
+        static let monoMicro: Double = 10
     }
 
     /// The smallest size of anything the pointer or a finger must hit, in points.

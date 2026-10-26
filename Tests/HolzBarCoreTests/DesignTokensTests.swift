@@ -166,4 +166,56 @@ struct DesignTokensTests {
         ]
         #expect(radii == radii.sorted())
     }
+
+    @Test("The type sizes equal the design's table")
+    func typeSizesEqualTheTable() {
+        typealias Size = Tokens.TypeSize
+        #expect(Size.title == 22)
+        #expect(Size.headline == 15)
+        #expect(Size.body == 13)
+        #expect(Size.callout == 12)
+        #expect(Size.caption == 11)
+        #expect(Size.searchField == 21)
+        #expect(Size.mono == 12)
+        #expect(Size.micro == 10)
+        #expect(Size.lead == 14)
+        #expect(Size.subtitle == 15)
+        #expect(Size.titleLarge == 40)
+        #expect(Size.display == 64)
+        #expect(Size.monoMicro == 10)
+    }
+
+    @Test("The type scale is ordered from micro to display")
+    func typeScaleIsOrdered() {
+        typealias Size = Tokens.TypeSize
+        let ascending = [
+            Size.micro, Size.caption, Size.callout, Size.body, Size.lead, Size.headline,
+            Size.searchField, Size.title, Size.titleLarge, Size.display
+        ]
+        #expect(ascending == ascending.sorted())
+        #expect(Set(ascending).count == ascending.count)
+    }
+
+    @Test("Some type tokens share a size and differ only in weight or design")
+    func typeTokensThatShareASize() {
+        typealias Size = Tokens.TypeSize
+        #expect(Size.subtitle == Size.headline)
+        #expect(Size.monoMicro == Size.micro)
+        #expect(Size.mono == Size.callout)
+    }
+
+    @Test("Every type size is a whole number of points between 10 and 64")
+    func typeSizesAreWholeNumbers() {
+        typealias Size = Tokens.TypeSize
+        let all = [
+            Size.title, Size.headline, Size.body, Size.callout, Size.caption, Size.searchField,
+            Size.mono, Size.micro, Size.lead, Size.subtitle, Size.titleLarge, Size.display,
+            Size.monoMicro
+        ]
+        for size in all {
+            #expect(size == size.rounded())
+            #expect(size >= 10)
+            #expect(size <= 64)
+        }
+    }
 }
