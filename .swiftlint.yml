@@ -53,6 +53,35 @@ custom_rules:
     name: Prefer Spaces Over Tabs
     message: "Indentation should use 4 spaces per indentation level instead of tabs"
     regex: ^\t
+  # The design system: views take every font, colour and radius from `HolzBarTheme`, which
+  # lives in `UI/Design/` and is the only place a raw value may be written.
+  design_raw_font:
+    name: Raw system font
+    message: "Use a `HolzBarTheme.Typography` token instead of a fixed-size system font"
+    regex: '\.font\(\s*\.system\('
+    excluded: ".*/UI/Design/.*"
+    excluded_match_kinds:
+      - comment
+      - doccomment
+    severity: error
+  design_raw_color:
+    name: Raw colour
+    message: "Use a `HolzBarTheme.Palette` colour instead of a colour literal"
+    regex: '\bColor\(\s*(?:red|white|hue|\.sRGB|\.displayP3|\.sRGBLinear|\.genericGamma22Gray|")'
+    excluded: ".*/UI/Design/.*"
+    excluded_match_kinds:
+      - comment
+      - doccomment
+    severity: error
+  design_corner_radius:
+    name: Raw corner radius
+    message: "Use `HolzBarTheme.shape(_:)` with a `HolzBarTheme.Radius` token instead of `.cornerRadius(`"
+    regex: '\.cornerRadius\('
+    excluded: ".*/UI/Design/.*"
+    excluded_match_kinds:
+      - comment
+      - doccomment
+    severity: error
 
 file_header:
   required_pattern: |-
