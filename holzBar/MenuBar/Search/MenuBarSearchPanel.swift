@@ -254,15 +254,11 @@ private struct MenuBarSearchContentView: View {
         let promptText = Text("Search menu bar items…")
 
         VStack(spacing: 0) {
-            TextField(text: Bindable(model).searchText, prompt: promptText) {
-                promptText
-            }
-            .labelsHidden()
-            .textFieldStyle(.plain)
-            .multilineTextAlignment(.leading)
-            .font(.system(size: 18))
-            .padding(15)
-            .focused($searchFieldIsFocused)
+            SearchField(
+                text: Bindable(model).searchText,
+                prompt: promptText,
+                isFocused: $searchFieldIsFocused
+            )
 
             Divider()
         }
