@@ -414,7 +414,7 @@ private struct PrivacyIndicatorNote: View {
                 Label("The camera and microphone indicator is hidden", systemImage: "exclamationmark.triangle")
                     .font(.headline)
                 Text("On macOS 27, while holzBar hides menu bar items, Control Centre does not show its indicator for the camera, the microphone or screen recording. It comes back while holzBar hides no item. holzBar can mark its own icon instead, for the microphone and the camera but not for screen recording. The small green dot beside the clock still appears while the camera is on.")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(HolzBarTheme.Typography.callout.weight(.medium))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }

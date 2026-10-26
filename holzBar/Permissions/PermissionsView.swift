@@ -41,7 +41,7 @@ struct PermissionsView: View {
     private var headerView: some View {
         Label {
             Text("Permissions")
-                .font(.system(size: 40, weight: .medium))
+                .font(HolzBarTheme.Typography.titleLarge)
         } icon: {
             if let nsImage = NSImage(named: NSImage.applicationIconName) {
                 Image(nsImage: nsImage)

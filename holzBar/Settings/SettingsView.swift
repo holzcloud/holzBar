@@ -97,7 +97,7 @@ struct SettingsView: View {
                         .frame(width: titleSize, height: titleSize)
                         .accessibilityHidden(true)
                     Text("holzBar")
-                        .font(.system(size: titleSize, weight: .medium))
+                        .font(HolzBarTheme.Typography.sidebar(size: titleSize, weight: .medium))
                         .foregroundStyle(sidebarTextStyle)
                 }
                 .padding(.leading, sidebarPadding)
@@ -126,7 +126,7 @@ struct SettingsView: View {
     private func sidebarItem(for identifier: SettingsNavigationIdentifier) -> some View {
         Label {
             Text(identifier.localized)
-                .font(.system(size: sidebarFontSize))
+                .font(HolzBarTheme.Typography.sidebar(size: sidebarFontSize))
                 .foregroundStyle(sidebarTextStyle)
         } icon: {
             identifier.iconResource.view

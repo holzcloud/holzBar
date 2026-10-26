@@ -158,6 +158,12 @@ enum HolzBarTheme {
         static let display = Font.system(size: CGFloat(DesignTokens.TypeSize.display))
         /// Acknowledgement texts and other small monospaced text.
         static let monoMicro = Font.system(size: CGFloat(DesignTokens.TypeSize.monoMicro), design: .monospaced)
+
+        /// The text of the Settings sidebar. Its size is not a token: it follows the sidebar
+        /// icon size the user chose in System Settings, so the size is a parameter.
+        static func sidebar(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+            Font.system(size: size, weight: weight)
+        }
     }
 
     // MARK: Motion

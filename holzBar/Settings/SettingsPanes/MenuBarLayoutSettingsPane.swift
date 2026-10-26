@@ -75,7 +75,7 @@ struct MenuBarLayoutSettingsPane: View {
                         Text("Items can also be arranged by ⌘ Command + dragging them in the menu bar.")
                     }
                 }
-                .font(.system(size: 12, weight: .medium))
+                .font(HolzBarTheme.Typography.callout.weight(.medium))
                 .foregroundStyle(.secondary)
             }
             .padding(15)
@@ -147,7 +147,7 @@ private struct StuckOverflowWarning: View {
                     Text("Some items are folded away on the built-in display.")
                         .font(.headline)
                     Text("macOS stopped laying them out when holzBar freed the space beside the notch, and left no control to reach them. Quitting and reopening the application whose item is missing brings it back.")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(HolzBarTheme.Typography.callout.weight(.medium))
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }

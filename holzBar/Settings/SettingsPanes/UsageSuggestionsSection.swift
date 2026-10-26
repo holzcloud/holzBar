@@ -87,7 +87,7 @@ private struct UsageDataSheet: View {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(verbatim: row.name)
                                 Text(verbatim: row.days.map(String.init).joined(separator: " "))
-                                    .font(.system(.caption, design: .monospaced))
+                                    .font(HolzBarTheme.Typography.monoMicro)
                                     .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                             }
                         }

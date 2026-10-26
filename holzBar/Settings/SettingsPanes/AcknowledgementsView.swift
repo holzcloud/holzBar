@@ -125,7 +125,7 @@ private struct AcknowledgementRow: View {
             if let licenseFile = acknowledgement.licenseFile {
                 DisclosureGroup("License", isExpanded: $isLicenseExpanded) {
                     Text(licenseText ?? "")
-                        .font(.system(size: 10, design: .monospaced))
+                        .font(HolzBarTheme.Typography.monoMicro)
                         .textSelection(.enabled)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
