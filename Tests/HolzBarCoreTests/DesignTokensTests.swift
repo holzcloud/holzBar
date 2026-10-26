@@ -167,6 +167,25 @@ struct DesignTokensTests {
         #expect(radii == radii.sorted())
     }
 
+    @Test("The form layout constants keep the values the components always had")
+    func layoutConstantsKeepTheirValues() {
+        #expect(Tokens.Layout.formRowSpacing == 10)
+        #expect(Tokens.Layout.sectionRowSpacing == 11)
+        #expect(Tokens.Layout.sectionRowSpacingLegacy == 10)
+        #expect(Tokens.Layout.headerGap == 2)
+    }
+
+    @Test("The form layout constants are off the spacing scale, by design")
+    func layoutConstantsAreOffTheScale() {
+        let constants = [
+            Tokens.Layout.formRowSpacing, Tokens.Layout.sectionRowSpacing,
+            Tokens.Layout.sectionRowSpacingLegacy, Tokens.Layout.headerGap
+        ]
+        for constant in constants {
+            #expect(!Tokens.Spacing.scale.contains(constant))
+        }
+    }
+
     @Test("The type sizes equal the design's table")
     func typeSizesEqualTheTable() {
         typealias Size = Tokens.TypeSize

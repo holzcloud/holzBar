@@ -121,6 +121,20 @@ enum HolzBarTheme {
         static let huge = CGFloat(DesignTokens.Spacing.huge)
     }
 
+    /// Spacing the form components keep from the design of Ice; it is not on the scale.
+    enum Layout {
+        /// The space between the rows of a form.
+        static let formRowSpacing = CGFloat(DesignTokens.Layout.formRowSpacing)
+        /// The space between the rows of a section: macOS 26 and later spaces them wider.
+        static let sectionRowSpacing: CGFloat = if #available(macOS 26.0, *) {
+            CGFloat(DesignTokens.Layout.sectionRowSpacing)
+        } else {
+            CGFloat(DesignTokens.Layout.sectionRowSpacingLegacy)
+        }
+        /// The gap between a header or footer and the card it belongs to.
+        static let headerGap = CGFloat(DesignTokens.Layout.headerGap)
+    }
+
     /// The smallest size of anything that can be clicked.
     static let minimumTargetSize = CGFloat(DesignTokens.minimumTargetSize)
 

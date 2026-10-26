@@ -193,6 +193,20 @@ nonisolated enum DesignTokens {
         static let monoMicro: Double = 10
     }
 
+    /// Spacing that the form components keep from the design of Ice and that is not on the
+    /// scale. Each is named, so that no raw number is left in the components, and pinned by a
+    /// test, so that it stays what it was.
+    nonisolated enum Layout {
+        /// The space between the rows of a form.
+        static let formRowSpacing: Double = 10
+        /// The space between the rows of a section on macOS 26 and later.
+        static let sectionRowSpacing: Double = 11
+        /// The space between the rows of a section before macOS 26.
+        static let sectionRowSpacingLegacy: Double = 10
+        /// The gap between a header or footer and the card it belongs to.
+        static let headerGap: Double = 2
+    }
+
     /// The smallest size of anything the pointer or a finger must hit, in points.
     static let minimumTargetSize: Double = 24
 
