@@ -38,8 +38,28 @@ enum DiagnosticsCollector {
             automationRuleCount: appState.automation.rules.count,
             snapshotCount: appState.snapshots.snapshots.count,
             nativeOverflow: nativeOverflowWord(appState),
-            appleItems: appleItemsWord(appState)
+            appleItems: appleItemsWord(appState),
+            shelf: shelfWords(appState)
         )
+    }
+
+    /// The Shelf's style and location in fixed words; nothing while the Shelf is off.
+    private static func shelfWords(_ appState: AppState) -> String {
+        let general = appState.settings.general
+        guard general.useShelf else {
+            return ""
+        }
+        let style = switch general.shelfStyle {
+        case .attached: "attached"
+        case .floating: "floating"
+        }
+        let location = switch general.shelfLocation {
+        case .dynamic: "dynamic"
+        case .mousePointer: "mouse pointer"
+        case .holzBarIcon: "holzBar icon"
+        case .screenEdge: "screen edge"
+        }
+        return "\(style), \(location)"
     }
 
     /// The state of the Apple Items module in fixed words and numbers; nothing before macOS 27.

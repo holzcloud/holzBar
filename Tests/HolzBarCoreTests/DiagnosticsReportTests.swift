@@ -139,4 +139,43 @@ struct DiagnosticsReportTests {
         #expect(!text.contains("/"))
         #expect(!text.contains("\""))
     }
+
+    @Test("With no Shelf field the report is as before")
+    func shelfAbsent() {
+        let text = DiagnosticsReport.make(sample)
+        #expect(!text.contains("Shelf"))
+        #expect(text.split(separator: "\n").count == 11)
+    }
+
+    @Test("The Shelf's style and location are one last line in fixed words")
+    func shelfLine() {
+        for words in ["attached, dynamic", "floating, screen edge", "floating, mouse pointer"] {
+            var input = sample
+            input.shelf = words
+            let lines = DiagnosticsReport.make(input).split(separator: "\n")
+            #expect(lines.count == 12)
+            #expect(lines.last == "Shelf: \(words)")
+        }
+    }
+
+    @Test("The Shelf line comes after the Apple Items line")
+    func shelfAfterAppleItems() {
+        var input = sample
+        input.appleItems = "off"
+        input.shelf = "attached, holzBar icon"
+        let lines = DiagnosticsReport.make(input).split(separator: "\n")
+        #expect(lines.count == 13)
+        #expect(lines[11] == "Apple Items: off")
+        #expect(lines[12] == "Shelf: attached, holzBar icon")
+    }
+
+    @Test("A hostile Shelf field stays on one clean line without a path")
+    func hostileShelf() {
+        var input = sample
+        input.shelf = "floating\n/Users/anna/Focus \"x\"\nFake: line"
+        let text = DiagnosticsReport.make(input)
+        #expect(text.split(separator: "\n").count == 12)
+        #expect(!text.contains("/"))
+        #expect(!text.contains("\""))
+    }
 }
