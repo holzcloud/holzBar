@@ -254,9 +254,16 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var shelfLocationPicker: some View {
-        HolzBarPicker("Location", selection: $settings.shelfLocation) {
+        HolzBarPicker(selection: $settings.shelfLocation) {
             ForEach(HolzBarShelfLocation.allCases) { location in
                 Text(location.localized).tag(location)
+            }
+        } label: {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Location")
+                if settings.shelfLocation == .screenEdge {
+                    PreviewBadge()
+                }
             }
         }
         .annotation {
@@ -267,6 +274,8 @@ struct GeneralSettingsPane: View {
                 Text("The holzBar Shelf is centered below the mouse pointer.")
             case .holzBarIcon:
                 Text("The holzBar Shelf is centered below the holzBar icon.")
+            case .screenEdge:
+                Text("The holzBar Shelf is at the right edge of the screen.")
             }
         }
     }

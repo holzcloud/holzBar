@@ -156,7 +156,10 @@ final class HolzBarShelfPanel: NSPanel {
             guard let location = MouseHelpers.locationAppKit else {
                 return getAnchor(for: .holzBarIcon, screen: screen)
             }
-            return .horizontal(location.x)
+            // The attached Shelf uses only the pointer's x; the floating bar hangs below it.
+            return .pointer(x: location.x, y: location.y)
+        case .screenEdge:
+            return .screenEdge
         case .holzBarIcon:
             guard
                 let controlItem = appState.itemManager.itemCache.managedItems.first(matching: .visibleControlItem),

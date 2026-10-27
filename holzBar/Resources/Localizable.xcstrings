@@ -21716,6 +21716,62 @@
           }
         }
       }
+    },
+    "Screen edge" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildschirmrand"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bord de l’écran"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bordo dello schermo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ur da l’ecran"
+          }
+        }
+      }
+    },
+    "The holzBar Shelf is at the right edge of the screen." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das holzBar Shelf sitzt am rechten Bildschirmrand."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le holzBar Shelf se trouve au bord droit de l’écran."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf si trova sul bordo destro dello schermo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf sa chatta sin la vart dretga da l’ecran."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
