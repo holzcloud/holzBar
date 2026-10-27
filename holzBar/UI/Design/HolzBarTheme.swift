@@ -121,6 +121,20 @@ enum HolzBarTheme {
         static let huge = CGFloat(DesignTokens.Spacing.huge)
     }
 
+    /// Spacing the form components keep from the design of Ice; it is not on the scale.
+    enum Layout {
+        /// The space between the rows of a form.
+        static let formRowSpacing = CGFloat(DesignTokens.Layout.formRowSpacing)
+        /// The space between the rows of a section: macOS 26 and later spaces them wider.
+        static let sectionRowSpacing: CGFloat = if #available(macOS 26.0, *) {
+            CGFloat(DesignTokens.Layout.sectionRowSpacing)
+        } else {
+            CGFloat(DesignTokens.Layout.sectionRowSpacingLegacy)
+        }
+        /// The gap between a header or footer and the card it belongs to.
+        static let headerGap = CGFloat(DesignTokens.Layout.headerGap)
+    }
+
     /// The smallest size of anything that can be clicked.
     static let minimumTargetSize = CGFloat(DesignTokens.minimumTargetSize)
 
@@ -135,13 +149,35 @@ enum HolzBarTheme {
     // MARK: Type
 
     enum Typography {
-        static let title = Font.system(size: 22, weight: .semibold)
-        static let headline = Font.system(size: 15, weight: .semibold)
-        static let body = Font.system(size: 13)
-        static let callout = Font.system(size: 12)
-        static let caption = Font.system(size: 11)
-        static let searchField = Font.system(size: 21)
-        static let mono = Font.system(size: 12, design: .monospaced)
+        static let title = Font.system(size: CGFloat(DesignTokens.TypeSize.title), weight: .semibold)
+        static let headline = Font.system(size: CGFloat(DesignTokens.TypeSize.headline), weight: .semibold)
+        static let body = Font.system(size: CGFloat(DesignTokens.TypeSize.body))
+        static let callout = Font.system(size: CGFloat(DesignTokens.TypeSize.callout))
+        static let caption = Font.system(size: CGFloat(DesignTokens.TypeSize.caption))
+        static let searchField = Font.system(size: CGFloat(DesignTokens.TypeSize.searchField))
+        static let mono = Font.system(size: CGFloat(DesignTokens.TypeSize.mono), design: .monospaced)
+
+        // The sizes below exist because screens built earlier use them; new screens use the
+        // seven above.
+
+        /// Badges.
+        static let micro = Font.system(size: CGFloat(DesignTokens.TypeSize.micro), weight: .medium)
+        /// The About pane's lines.
+        static let lead = Font.system(size: CGFloat(DesignTokens.TypeSize.lead))
+        /// The version line of the About pane.
+        static let subtitle = Font.system(size: CGFloat(DesignTokens.TypeSize.subtitle))
+        /// The title of the Permissions window.
+        static let titleLarge = Font.system(size: CGFloat(DesignTokens.TypeSize.titleLarge), weight: .medium)
+        /// The title of the About pane.
+        static let display = Font.system(size: CGFloat(DesignTokens.TypeSize.display))
+        /// Acknowledgement texts and other small monospaced text.
+        static let monoMicro = Font.system(size: CGFloat(DesignTokens.TypeSize.monoMicro), design: .monospaced)
+
+        /// The text of the Settings sidebar. Its size is not a token: it follows the sidebar
+        /// icon size the user chose in System Settings, so the size is a parameter.
+        static func sidebar(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+            Font.system(size: size, weight: weight)
+        }
     }
 
     // MARK: Motion

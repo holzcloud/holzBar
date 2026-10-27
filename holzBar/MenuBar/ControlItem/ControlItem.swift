@@ -138,6 +138,21 @@ final class ControlItem {
     /// The shared app state.
     @ObservationIgnored private weak var appState: AppState?
 
+    /// A Boolean value that indicates whether the divider's length is stepping now, so the
+    /// items beside it are still on their way. Readers of item positions wait for the end
+    /// (see ``MenuBarManager``).
+    @ObservationIgnored private(set) var isAnimatingLength = false
+
+    /// The length the divider was asked to have last, which is where a movement that may
+    /// still be running ends; `nil` before the first assignment.
+    @ObservationIgnored private var lengthTarget: CGFloat?
+
+    /// The numeric length the stepping assigned last; `nil` at rest.
+    @ObservationIgnored private var steppedLength: Double?
+
+    /// Runs the steps of a movement of the divider's length.
+    @ObservationIgnored private let stepRunner = RevealStepRunner()
+
     /// Observers of the settings that decide the item's look and presence.
     @ObservationIgnored private var observers = [ObservationLoop]()
 
@@ -555,7 +570,7 @@ final class ControlItem {
 
         if isVisible {
             constraint?.isActive = true
-            statusItem.length = identifier.length(for: state)
+            applyLength(identifier.length(for: state))
         } else {
             let showOnDrag = appState.settings.advanced.showAllSectionsOnUserDrag
             let isDragging = appState.isDraggingMenuBarItem
@@ -563,13 +578,131 @@ final class ControlItem {
             let shouldShow = showOnDrag && isDragging
 
             constraint?.isActive = false
-            statusItem.length = shouldShow ? 3 : 0
-
-            if let window {
-                let size = withMutableCopy(of: window.frame.size) { $0.width = shouldShow ? 3 : 1 }
-                window.setContentSize(size)
+            applyLength(shouldShow ? 3 : 0) { [weak self] in
+                if let window = self?.window {
+                    let size = withMutableCopy(of: window.frame.size) { $0.width = shouldShow ? 3 : 1 }
+                    window.setContentSize(size)
+                }
             }
         }
+    }
+
+    // MARK: Stepped Length
+
+    /// Gives the status item its length.
+    ///
+    /// A hidden section's divider is `Lengths.expanded` points long. Showing the section used
+    /// to assign the short length at once, so every item of the section appeared in the same
+    /// frame. On macOS 26, with "Animate showing and hiding" on, the length steps for about
+    /// 0.18 s instead, so the items slide in or out. The section's state has changed by then:
+    /// only the picture follows, and a new change cancels the movement and starts from the
+    /// length reached, so quick changes never queue.
+    ///
+    /// Whenever the movement is not wanted (the setting is off, Reduce Motion is on, an item is
+    /// dragged, another macOS) or something it needs is not known, the length is assigned at
+    /// once, as before. A movement always ends with the exact target length.
+    ///
+    /// - Parameters:
+    ///   - target: The length the divider has when the movement is over.
+    ///   - completion: Runs when the target length is in place (at once, or after the steps).
+    private func applyLength(_ target: CGFloat, completion: @escaping @MainActor () -> Void = {}) {
+        let previousTarget = lengthTarget
+        if isAnimatingLength, previousTarget == target {
+            // Icon, divider style and drag marker changes ask for the same length again.
+            return
+        }
+        lengthTarget = target
+        guard
+            let previousTarget,
+            let schedule = lengthSchedule(from: previousTarget, to: target)
+        else {
+            stopStepping()
+            statusItem.length = target
+            completion()
+            return
+        }
+        let startedAt = ContinuousClock.now
+        isAnimatingLength = true
+        stepRunner.run(schedule) { [weak self] length in
+            self?.steppedLength = length
+            self?.statusItem.length = CGFloat(length)
+        } finish: { [weak self] in
+            guard let self else {
+                return
+            }
+            statusItem.length = target
+            completion()
+            stopStepping()
+            let elapsed = (ContinuousClock.now - startedAt).components
+            let milliseconds = Int(elapsed.seconds * 1000 + elapsed.attoseconds / 1_000_000_000_000_000)
+            Self.logger.debug("A divider movement took \(milliseconds, privacy: .public) ms in \(schedule.steps.count, privacy: .public) steps")
+            // The application menus are decided from the final positions.
+            appState?.menuBarManager.sectionStatesDidChange()
+        }
+    }
+
+    /// Ends a running movement without applying anything more.
+    private func stopStepping() {
+        stepRunner.cancel()
+        isAnimatingLength = false
+        steppedLength = nil
+    }
+
+    /// The steps for moving the divider from one target length to another, or `nil` when the
+    /// change is to be instant.
+    private func lengthSchedule(from previous: CGFloat, to target: CGFloat) -> RevealAnimationSchedule? {
+        guard
+            isSectionDivider,
+            let appState,
+            RevealAnimationPolicy.stepsDivider(
+                isEnabled: appState.settings.general.animatesShowHide,
+                reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
+                backend: .current,
+                isDraggingItem: appState.isDraggingMenuBarItem
+            ),
+            let frame,
+            let screen,
+            let applicationMenuFrame = appState.applicationMenuFrames.frame(for: screen)
+        else {
+            return nil
+        }
+        let isReveal = previous == Lengths.expanded && target < Lengths.expanded
+        let isHide = previous < Lengths.expanded && target == Lengths.expanded
+        guard
+            isReveal || isHide,
+            let shortLength = numericLength(of: isReveal ? target : previous),
+            let startLength = RevealAnimationSchedule.startLength(
+                dividerMaxX: frame.maxX,
+                applicationMenuMaxX: applicationMenuFrame.maxX,
+                endLength: shortLength
+            )
+        else {
+            return nil
+        }
+        // A movement that was cut short has reached some length; go on from there.
+        let schedule = if isReveal {
+            RevealAnimationSchedule.make(
+                direction: .reveal,
+                from: min(steppedLength ?? startLength, startLength),
+                to: shortLength
+            )
+        } else {
+            RevealAnimationSchedule.make(
+                direction: .hide,
+                from: steppedLength ?? shortLength,
+                to: startLength
+            )
+        }
+        return schedule.isInstant ? nil : schedule
+    }
+
+    /// The width in points that a length stands for, or `nil` if the item has none yet.
+    private func numericLength(of length: CGFloat) -> Double? {
+        guard length == Lengths.standard else {
+            return Double(length)
+        }
+        let width = Double(statusItem.button?.fittingSize.width ?? 0)
+        return width > 0 ? width : nil
     }
 
     /// Adds the control item to the menu bar.

@@ -38,6 +38,7 @@ final class ItemHintsPanel: NSPanel {
         self.title = String(localized: "Open an Item by Letter")
         self.isFloatingPanel = true
         self.animationBehavior = .none
+        self.isOpaque = false
         self.backgroundColor = .clear
         self.hasShadow = false
         self.level = .mainMenu + 1
@@ -238,7 +239,7 @@ private struct ItemHintsView: View {
             }
         }
         .padding(10)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .holzBarGlass(in: HolzBarTheme.shape(HolzBarTheme.Radius.card))
         .padding(4)
         .fixedSize()
     }
@@ -261,12 +262,7 @@ private struct ItemHintsView: View {
                     }
                 }
                 .frame(width: cellWidth, height: 22)
-                Text(entry.hint.uppercased())
-                    .font(.system(size: 12, weight: .bold, design: .monospaced))
-                    .padding(.horizontal, 5)
-                    .padding(.vertical, 1)
-                    .foregroundStyle(.white)
-                    .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 4, style: .continuous))
+                KeyCap(entry.hint.uppercased(), isProminent: true)
             }
             .contentShape(Rectangle())
         }

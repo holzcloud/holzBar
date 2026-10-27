@@ -34,6 +34,10 @@ The last line of Settings → About → Copy Diagnostics names the state on macO
 
 From 0.0.8. Single, Paired, the shape of its own for the Apple logo, the outlines and the gradients work on macOS 27 as on macOS 26. Sections is not offered on macOS 27: macOS decides the order of the items and holzBar hides whole applications, so the items of one section do not stand together and holzBar's dividers mark no boundary on the bar; a Sections choice that comes from another Mac or a settings file is drawn as Paired. The Apple-logo shape takes the Apple menu's position from the application-menu read holzBar already makes (no new permission); on macOS 27 that read skips holzBar's own menus, so the last position is kept while holzBar is in front.
 
+## Show and hide animation
+
+macOS 27 draws the bar through `MenuBarAgent`, which animates the bar by itself when items are concealed or released (about 250 ms, measured on macOS 27.0). holzBar has no divider length there and steps nothing; the setting **Animate showing and hiding** is not shown on macOS 27. The one animation holzBar adds is the fade of the holzBar Shelf (Settings → General, **Fade the holzBar Shelf in**, never with Reduce Motion on). On macOS 26 the setting makes the bar's items slide in and out, as a Preview in the next release; nothing of that runs on macOS 27. No permission, no timer and no network.
+
 ## Drag items in the menu bar
 
 From 0.0.8. An optional module in Settings → Modules, on macOS 26 and 27, off until you switch it on. While it is on, holzBar holds back a plain click on an app's menu bar item: moving it sideways turns it into the ⌘ Command-drag macOS performs, and releasing it opens the item's menu as a normal click (so the menu opens on release).

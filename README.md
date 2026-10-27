@@ -65,7 +65,7 @@ Researched on 9 October 2026 from each project's own pages and repositories. A d
 | Build provenance | no | Cosign, SLSA | - | SLSA Build Level 3 |
 | Developer ID, notarized | yes | yes | - | no (own certificate) |
 
-Where holzBar loses: it has no Developer ID signature, fewer languages than Thaw, no smooth animation of the bar itself yet, a small AppleScript dictionary (Preview), and one maintainer. The [full comparison](docs/comparison.md) covers 14 apps, with sources and the cells we could not verify.
+Where holzBar loses: it has no Developer ID signature, fewer languages than Thaw, only a Preview slide of the bar's own items (macOS 26), a small AppleScript dictionary (Preview), and one maintainer. The [full comparison](docs/comparison.md) covers 14 apps, with sources and the cells we could not verify.
 
 ## Install
 
@@ -92,7 +92,7 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 **0.0.8** (see the [release notes](docs/release-notes/v0.0.8.md) and [what is new](docs/features.md#new-in-008)) brought rules, scripts, per-item conditions, widgets, layout snapshots, a Touch ID lock, menu bar styles, dragging items without ⌘ and support for macOS 27's own overflow button.
 
-**Planned, not available yet:** smooth show and hide of the bar itself and replacement items for Apple's items in a later release, then settings sync and a notch hub in 1.0.0. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
+**Next release (Preview):** the bar's hidden items slide in and out on macOS 26, under **Animate showing and hiding** in Settings → General (never with Reduce Motion on; macOS 27 animates its own bar, macOS 14 and 15 keep the instant change). **Planned, not available yet:** replacement items for Apple's items in a later release, then settings sync and a notch hub in 1.0.0. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
 
 ## More
 

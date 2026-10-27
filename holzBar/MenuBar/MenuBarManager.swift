@@ -263,8 +263,12 @@ final class MenuBarManager {
     }
 
     /// Hides or shows the application menus after a section was shown or hidden.
-    private func sectionStatesDidChange() {
-        guard let appState else {
+    ///
+    /// While a divider's length steps, the items are still on their way, so this waits; the
+    /// control item calls it again when its movement ends, and the application menus are
+    /// decided from the final positions.
+    func sectionStatesDidChange() {
+        guard let appState, !sections.contains(where: { $0.controlItem.isAnimatingLength }) else {
             return
         }
 

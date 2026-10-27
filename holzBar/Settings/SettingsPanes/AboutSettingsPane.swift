@@ -69,15 +69,15 @@ struct AboutSettingsPane: View {
 
                 VStack(alignment: .leading) {
                     Text("holzBar")
-                        .font(.system(size: 64))
+                        .font(HolzBarTheme.Typography.display)
                         .foregroundStyle(.primary)
 
                     Text("Version \(Constants.versionString)")
-                        .font(.system(size: 15))
+                        .font(HolzBarTheme.Typography.subtitle)
                         .foregroundStyle(.secondary)
 
                     Text(Constants.copyrightString)
-                        .font(.system(size: 14))
+                        .font(HolzBarTheme.Typography.lead)
                         .foregroundStyle(.secondary.opacity(0.67))
 
                     basedOnIce
@@ -99,7 +99,7 @@ struct AboutSettingsPane: View {
             Link("Ice", destination: Constants.originalIceURL)
             Text("by Jordan Baird")
         }
-        .font(.system(size: 14))
+        .font(HolzBarTheme.Typography.lead)
         .foregroundStyle(.secondary)
     }
 

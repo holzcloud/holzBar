@@ -152,8 +152,8 @@ struct HolzBarGroupBox<Header: View, Content: View, Footer: View>: View {
         VStack(alignment: .leading) {
             header
                 .accessibilityAddTraits(.isHeader)
-                .padding([.top, .leading], 8)
-                .padding(.bottom, 2)
+                .padding([.top, .leading], HolzBarTheme.Spacing.xs)
+                .padding(.bottom, HolzBarTheme.Layout.headerGap)
 
             contentStack
                 .padding(padding)
@@ -161,8 +161,8 @@ struct HolzBarGroupBox<Header: View, Content: View, Footer: View>: View {
                 .containerShape(backgroundShape)
 
             footer
-                .padding([.bottom, .leading], 8)
-                .padding(.top, 2)
+                .padding([.bottom, .leading], HolzBarTheme.Spacing.xs)
+                .padding(.top, HolzBarTheme.Layout.headerGap)
         }
         .focusSection()
         .accessibilityElement(children: .contain)
@@ -176,5 +176,5 @@ struct HolzBarGroupBox<Header: View, Content: View, Footer: View>: View {
 
 extension EdgeInsets {
     /// The default padding for a ``HolzBarGroupBox``.
-    static let holzBarGroupBoxDefaultPadding = EdgeInsets(all: 12)
+    static let holzBarGroupBoxDefaultPadding = EdgeInsets(all: HolzBarTheme.Spacing.sm)
 }

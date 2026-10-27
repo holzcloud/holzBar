@@ -94,7 +94,7 @@ private struct HolzBarFormToggleStyle: ToggleStyle {
 extension EdgeInsets {
     /// The default padding for a ``HolzBarForm``.
     static let holzBarFormDefaultPadding: EdgeInsets = {
-        var insets = EdgeInsets(all: 20)
+        var insets = EdgeInsets(all: HolzBarTheme.Spacing.lg)
         if #available(macOS 26.0, *) {
             insets.top = 0
         }
@@ -104,5 +104,5 @@ extension EdgeInsets {
 
 extension CGFloat {
     /// The default spacing for a ``HolzBarForm``.
-    static let holzBarFormDefaultSpacing: CGFloat = 10
+    static let holzBarFormDefaultSpacing: CGFloat = HolzBarTheme.Layout.formRowSpacing
 }

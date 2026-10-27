@@ -110,14 +110,14 @@ struct HolzBarSection<Header: View, Content: View, Footer: View>: View {
                 VStack(alignment: .leading) {
                     header
                         .accessibilityAddTraits(.isHeader)
-                        .padding([.top, .leading], 8)
-                        .padding(.bottom, 2)
+                        .padding([.top, .leading], HolzBarTheme.Spacing.xs)
+                        .padding(.bottom, HolzBarTheme.Layout.headerGap)
 
                     contentLayout
 
                     footer
-                        .padding([.bottom, .leading], 8)
-                        .padding(.top, 2)
+                        .padding([.bottom, .leading], HolzBarTheme.Spacing.xs)
+                        .padding(.top, HolzBarTheme.Layout.headerGap)
                 }
                 .focusSection()
                 .accessibilityElement(children: .contain)
@@ -165,7 +165,7 @@ private struct HolzBarSectionDivider: View {
         if #available(macOS 26.0, *) {
             Rectangle()
                 .fill(.separator.quinary)
-                .frame(height: 1)
+                .frame(height: HolzBarTheme.Spacing.hairline)
         } else {
             Divider()
         }
@@ -174,5 +174,5 @@ private struct HolzBarSectionDivider: View {
 
 extension CGFloat {
     /// The default spacing for a ``HolzBarSection``.
-    static let holzBarSectionDefaultSpacing: CGFloat = if #available(macOS 26.0, *) { 11 } else { 10 }
+    static let holzBarSectionDefaultSpacing: CGFloat = HolzBarTheme.Layout.sectionRowSpacing
 }

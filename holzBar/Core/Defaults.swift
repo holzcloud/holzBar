@@ -152,6 +152,9 @@ nonisolated extension Defaults {
         case useShelf = "UseIceBar"
         /// Whether the holzBar Shelf fades in when it opens (on by default).
         case animatesShelf = "AnimatesShelf"
+        /// Whether showing and hiding the sections slides the menu bar's items (on by default;
+        /// macOS 26 only, never with Reduce Motion on).
+        case animatesShowHide = "AnimatesShowHide"
         /// How the holzBar Shelf arranges its items: in a row, a grid or a column.
         case shelfLayout = "ShelfLayout"
         case shelfLocation = "IceBarLocation"
@@ -302,6 +305,7 @@ nonisolated extension Defaults.Key {
             .customHolzBarIconIsTemplate,
             .useShelf,
             .animatesShelf,
+            .animatesShowHide,
             .showsNotchOverflowInShelf,
             .showOnClick,
             .showOnHover,

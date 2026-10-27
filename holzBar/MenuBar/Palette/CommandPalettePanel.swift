@@ -192,7 +192,7 @@ private struct CommandPaletteView: View {
         VStack(spacing: 0) {
             TextField("Type a command", text: $model.query)
                 .textFieldStyle(.plain)
-                .font(.system(size: 18))
+                .font(HolzBarTheme.Typography.searchField)
                 .padding(15)
                 .focused($fieldIsFocused)
                 .onSubmit {
