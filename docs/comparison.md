@@ -39,6 +39,10 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Smooth show and hide | — | — | — | partly: the holzBar Shelf fades in; the bar's own items slide on macOS 26 only (not macOS 14 and 15; macOS 27 animates its own bar) |
 | Moods: save the look of the menu bar and switch to it in one click, from the palette or with a rule | ❌ | — | — | ✅ |
 | holzBar Shelf as a row, a grid or a column | ❌ | — | — | ✅ |
+| Type in the Shelf to find an item and open it with Return | — | — | — | ✅ <sub>the Shelf takes the keyboard when a hotkey opens it</sub> |
+| Always-hidden items behind one fold tile in the Shelf | — | — | — | ✅ |
+| Apps that are not running shown dimmed in the Shelf, a click launches them | — | — | — | ✅ <sub>opt-in</sub> |
+| Drag an item in the Shelf to put it in order, into another section or onto the menu bar | — | — | — | ✅ <sub>macOS 27 only changes the section</sub> |
 | A hub at the notch (at the top centre without one) that holds optional modules, off until you switch it on | ❌ | — | — | ✅ <sub>no module in it yet</sub> |
 | Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | — | ✅ |
 | Automatic layout snapshots with a one-click restore | — | — | — | ✅ |

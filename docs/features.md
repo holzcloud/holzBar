@@ -36,6 +36,10 @@
 - ✅ **Shows items the notch covers**
 - ✅ **Works from the keyboard** — open it with its hotkey, then the arrow keys, Return and Escape
 - ✅ **Row, grid or column** — and it fades in, never with Reduce Motion on
+- ✅ **Type to find an item** — the best match is highlighted, Return opens its menu
+- ✅ **Always-hidden items behind a fold** — one tile, "+3", opens them
+- ✅ **Closed apps, dimmed** — a click launches the app <sub>off by default</sub>
+- ✅ **Rearrange by dragging** — in order, into another section, or up onto the menu bar
 
 #### Appearance
 - ✅ Tint, shadow, border; Single and Paired shapes with round or square ends
@@ -77,6 +81,15 @@
 </td>
 </tr>
 </table>
+
+## New in 0.0.13
+
+Four upgrades of the holzBar Shelf, with their settings in Settings → General under the holzBar Shelf options. None needs a permission, a timer or the network, and nothing of them runs while the Shelf is closed.
+
+- **Type to find an item**: with a hotkey that opens the holzBar Shelf, which takes the keyboard, start typing. A small field at the start of the Shelf shows what you typed; the best match is highlighted with the same fuzzy search as the item search (abbreviations and typos work), the items that do not match step back, and the arrow keys step through the matches. **Return** (or Space) opens the highlighted item's real menu, **Backspace** deletes a character and **Escape** closes the Shelf. Spaces are not typed, and a key with Command or Control is left alone. **Find items by typing** is on by default; with it off the Shelf behaves as before and shows no field.
+- **Always-hidden items behind a fold**: in the Shelf of the hidden section the always-hidden items (when that section is on in Settings → Advanced) are one tile at the start, "+3" for three items. A click on it opens them to the left of the hidden items, after a divider in a row; the tile becomes a minus that folds them again. Typing opens the fold, so a search reaches every item. **Always-hidden items** in Settings → General sets whether the fold starts folded **each time** or **as you left it**; the state you left stays on this Mac and is in no export. The Shelf opened for the always-hidden section, with its hotkey, lists those items directly, as before.
+- **Closed apps**: with **Show applications that are not running** on (off by default), the Shelf also lists, dimmed, the apps that you hid an item of and that are not running, with their icon; a click launches the app and closes the Shelf. holzBar takes them from the sections it already remembers for your items (on macOS 27 per app, before per item), compares them with the running apps as the Shelf opens, and lists at most 24 for a section. Apps that are no longer installed, Apple's own apps, holzBar's items and widgets are left out.
+- **Rearrange by dragging**: drag an item of the Shelf. Drop it on another item of the same section to put it before or after it (before macOS 27; macOS 27 puts the items of a section in order itself, so there an item only changes its section), on an item of the other section or on the fold tile to move it into that section, or up onto the menu bar to show it there. A line marks where it lands, and the Shelf steps back while the pointer is over the menu bar. It uses the same moves as Menu Bar Layout, so a refused move is reported the same way and an app that does not answer is not dragged. **Rearrange items by dragging** is on by default; with it off the items are only clicked.
 
 ## New in 0.0.12
 

@@ -41,6 +41,7 @@ Without any permission, holzBar also reads, on your Mac only:
 
 - **Code signatures of running apps** (macOS 26), to tell macOS's own processes from other apps when it works out which app a menu bar item belongs to.
 - **The category an app declares** in its own `Info.plist` (and its bundle identifier), to sort menu bar items for Tidy Up and Smart Categories; read on your Mac for the open sheet or search, never stored or sent. With Smart Categories off, the search reads none.
+- **Which apps are running** and **their names and icons**, for the holzBar Shelf's closed apps (off by default): as the Shelf opens, holzBar compares the apps it remembers a hidden item for with the running apps and shows the ones that are not running dimmed. Read on your Mac for the open Shelf, never stored or sent. With **Show applications that are not running** off, it reads none of it.
 
 <p align="center"><img src="../Resources/Screenshots/permissions.png" alt="holzBar's Permissions window on the first launch: holzBar needs your permission to manage the menu bar, collects or stores no personal information and never connects to the network; Accessibility lists what holzBar needs it for, with Grant Permission and Reset and Grant Again; Screen Recording explains the pictures of menu bar items and is marked optional, with Grant Permission; Quit and a disabled Continue" width="440"><br><sub>On the first launch holzBar asks only for Accessibility and says why; Screen Recording is optional.</sub></p>
 
