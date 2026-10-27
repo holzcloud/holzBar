@@ -589,6 +589,34 @@
         }
       }
     },
+    "Open on hover" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Darüberfahren öffnen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir au survol"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri al passaggio del puntatore"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avrir cun passar sur"
+          }
+        }
+      }
+    },
     "Put Back by a Rule" : {
       "localizations" : {
         "de" : {
@@ -13283,6 +13311,34 @@
         }
       }
     },
+    "Show the hub on" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub anzeigen auf"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher le hub sur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra il hub su"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar il hub sin"
+          }
+        }
+      }
+    },
     "Show When It Changes" : {
       "localizations" : {
         "de" : {
@@ -14707,6 +14763,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "La trav da menu resta sco ch'ella è. Ti pos revocar quai cun ⌘Z."
+          }
+        }
+      }
+    },
+    "The pointer has to rest at the notch, or at the top centre on a display without one." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Zeiger muss kurz an der Notch ruhen, oder oben in der Mitte auf einem Bildschirm ohne Notch."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le pointeur doit rester un instant sur l’encoche, ou en haut au centre sur un écran sans encoche."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il puntatore deve fermarsi un momento sul notch, o in alto al centro su un display senza notch."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il cursur sto ruaussar in mument tar la notch, u survart en il mez sin in visur senza notch."
           }
         }
       }

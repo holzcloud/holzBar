@@ -8,9 +8,17 @@ import AppKit
 /// The borderless panel the Notch hub is drawn in, above the menu bar.
 ///
 /// It is always dark: the hub continues the black of the hardware notch, in light mode too, so
-/// the panel fixes its own appearance. It never takes the keyboard in this slice and never
-/// activates holzBar.
+/// the panel fixes its own appearance. It never activates holzBar. It takes the keyboard only
+/// when the hotkey opened it, so that Esc and the arrow keys work there; a hub that hover
+/// opened leaves the keyboard to the app in front, so a pointer that brushes the notch never
+/// interrupts typing.
 final class NotchHubPanel: NSPanel {
+    /// Whether the panel takes keys: the hotkey opened it.
+    var acceptsKeyboard = false
+
+    /// Called when Esc is pressed in the panel.
+    var onEscape: (() -> Void)?
+
     /// Creates the panel, hidden and without content.
     init() {
         super.init(
@@ -29,10 +37,17 @@ final class NotchHubPanel: NSPanel {
         level = .mainMenu + 2
         collectionBehavior = [.fullScreenAuxiliary, .ignoresCycle, .moveToActiveSpace]
         hidesOnDeactivate = false
+        // Without it a pointer that moves inside the hub is not reported, and the hub would
+        // not know that the pointer is still there.
+        acceptsMouseMovedEvents = true
         applyDarkAppearance()
     }
 
-    override var canBecomeKey: Bool { false }
+    override var canBecomeKey: Bool { acceptsKeyboard }
+
+    override func cancelOperation(_ sender: Any?) {
+        onEscape?()
+    }
 
     override var canBecomeMain: Bool { false }
 

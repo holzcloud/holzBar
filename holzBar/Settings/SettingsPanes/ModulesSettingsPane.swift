@@ -77,6 +77,8 @@ struct ModulesSettingsPane: View {
             }
         } else if module.id == AppleItems.moduleID {
             AppleItemsSection(appleItems: appState.appleItems)
+        } else if module.id == NotchHubController.moduleID {
+            NotchHubSettingsView(settings: appState.settings.notchHub)
         } else if let registration = HubModules.registration(for: module.id) {
             // A module of the Notch hub brings its own settings.
             registration.makeSettings()
