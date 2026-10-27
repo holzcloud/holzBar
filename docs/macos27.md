@@ -36,7 +36,7 @@ From 0.0.8. Single, Paired, the shape of its own for the Apple logo, the outline
 
 ## Show and hide animation
 
-macOS 27 draws the bar through `MenuBarAgent`, which animates the bar by itself when items are concealed or released (about 250 ms, measured on macOS 27.0). holzBar has no divider length there and steps nothing; the setting **Animate showing and hiding** is not shown on macOS 27. The one animation holzBar adds is the fade of the holzBar Shelf (Settings → General, **Fade the holzBar Shelf in**, never with Reduce Motion on). On macOS 26 the setting makes the bar's items slide in and out, as a Preview in the next release; nothing of that runs on macOS 27. No permission, no timer and no network.
+macOS 27 draws the bar through `MenuBarAgent`, which animates the bar by itself when items are concealed or released (about 250 ms, measured on macOS 27.0). holzBar has no divider length there and steps nothing; the setting **Animate showing and hiding** is not shown on macOS 27. The one animation holzBar adds is the fade of the holzBar Shelf (Settings → General, **Fade the holzBar Shelf in**, never with Reduce Motion on). On macOS 26 the setting makes the bar's items slide in and out (since 0.0.11); nothing of that runs on macOS 27. No permission, no timer and no network.
 
 ## Drag items in the menu bar
 

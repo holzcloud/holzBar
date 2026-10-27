@@ -33,12 +33,12 @@ shows them again when you do, and works with the notch on macOS 26 and 27.
 
 If you looked for an Ice fork that runs on macOS 27, or a free Bartender alternative that is open source, this is it.
 
-- **Works on macOS 26 and 27.** A dedicated backend for the redesigned macOS 27 menu bar. Every pull request that changes code launches the app on both and runs the unit tests there. It needs macOS 14 or later; older versions are not tested.
+- **Works on macOS 26 and 27.** A dedicated backend for the redesigned macOS 27 menu bar. Every pull request that changes code launches the app on both and runs the unit tests there. It needs macOS 14 or later; CI runs macOS 26 and 27.
 - **Never online.** No update checks, telemetry or analytics, and a CI check proves the app contains no network code.
 - **No dependencies, modern Swift.** Swift 6 language mode, built with Swift 6.4 and Xcode 27, no third-party packages.
 - **Least privilege.** Accessibility at first launch, Screen Recording optional, for pictures of your items, Location Services only when you add a Wi-Fi-name condition to a rule, Bluetooth only when you add a Bluetooth condition. Since 0.0.7-beta2: one executable, no helper process, no entitlements.
 - **Verifiable releases.** Signed with holzBar's own certificate, with GitHub build provenance and, since 0.0.7-beta2, SLSA Build Level 3 provenance.
-- **More than Ice.** Rules, scripts and widgets, profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a command palette and moods (both Preview), a black menu bar, and a camera and microphone dot on macOS 27. Available in English, German, French, Italian and Romansh.
+- **More than Ice.** Rules, scripts and widgets, profiles, folders, spacers, Zen mode, Shortcuts actions, URL commands, a command palette and moods, a black menu bar, and a camera and microphone dot on macOS 27. Available in English, German, French, Italian and Romansh.
 
 <table>
 <tr>
@@ -65,11 +65,11 @@ Researched on 9 October 2026 from each project's own pages and repositories. A d
 | Build provenance | no | Cosign, SLSA | - | SLSA Build Level 3 |
 | Developer ID, notarized | yes | yes | - | no (own certificate) |
 
-Where holzBar loses: it has no Developer ID signature, fewer languages than Thaw, only a Preview slide of the bar's own items (macOS 26), a small AppleScript dictionary (Preview), and one maintainer. The [full comparison](docs/comparison.md) covers 14 apps, with sources and the cells we could not verify.
+Where holzBar loses: it has no Developer ID signature, fewer languages than Thaw, a slide of the bar's own items on macOS 26 only, a small AppleScript dictionary, and one maintainer. The [full comparison](docs/comparison.md) covers 14 apps, with sources and the cells we could not verify.
 
 ## Install
 
-Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 0.0.10. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
+Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 0.0.11. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
 
 ```sh
 brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
@@ -86,13 +86,15 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's next
 
-**0.0.10 is out** (see the [release notes](docs/release-notes/v0.0.10.md)): a bugfix release that ends a crash when an app launched or quit on macOS 26.
+**0.0.11** (see the [release notes](docs/release-notes/v0.0.11.md) and [what is new](docs/features.md#new-in-0011)): the bar's hidden items slide in and out on macOS 26, under **Animate showing and hiding** in Settings → General (never with Reduce Motion on; macOS 27 animates its own bar, macOS 14 and 15 keep the instant change). The Search and Hints panels have a new glass look, and the type sizes and spacing in Settings come from one shared set of design tokens.
 
-**0.0.9** (see the [release notes](docs/release-notes/v0.0.9.md) and [what is new](docs/features.md#new-in-009)): a new Settings window with a Modules pane, a command palette, an AppleScript dictionary, moods (saved looks), grid and column layouts and a fade for the holzBar Shelf, sound output and Bluetooth conditions for rules, opt-in usage suggestions, and a hint when a rule puts an item back. Most of it is a **Preview**: built and unit tested, not yet tested on a Mac. Report what does not work.
+**0.0.11 is out** (see the [release notes](docs/release-notes/v0.0.11.md)): the bar's items slide in and out on macOS 26, and the Search and Hints panels have the new glass look.
+
+**0.0.9** (see the [release notes](docs/release-notes/v0.0.9.md) and [what is new](docs/features.md#new-in-009)): a new Settings window with a Modules pane, a command palette, an AppleScript dictionary, moods (saved looks), grid and column layouts and a fade for the holzBar Shelf, sound output and Bluetooth conditions for rules, opt-in usage suggestions, and a hint when a rule puts an item back.
 
 **0.0.8** (see the [release notes](docs/release-notes/v0.0.8.md) and [what is new](docs/features.md#new-in-008)) brought rules, scripts, per-item conditions, widgets, layout snapshots, a Touch ID lock, menu bar styles, dragging items without ⌘ and support for macOS 27's own overflow button.
 
-**Next release (Preview):** the bar's hidden items slide in and out on macOS 26, under **Animate showing and hiding** in Settings → General (never with Reduce Motion on; macOS 27 animates its own bar, macOS 14 and 15 keep the instant change). **Planned, not available yet:** replacement items for Apple's items in a later release, then settings sync and a notch hub in 1.0.0. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
+**Planned, not available yet:** replacement items for Apple's items in a later release, then settings sync and a notch hub in 1.0.0. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
 
 ## More
 
