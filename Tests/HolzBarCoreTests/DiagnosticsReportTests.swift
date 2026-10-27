@@ -91,4 +91,91 @@ struct DiagnosticsReportTests {
         #expect(!text.contains("/"))
         #expect(!text.contains("\""))
     }
+
+    @Test("Without an Apple Items state the report is as it was")
+    func noAppleItemsLine() {
+        let text = DiagnosticsReport.make(sample)
+        #expect(text.split(separator: "\n").count == 11)
+        #expect(!text.contains("Apple Items"))
+    }
+
+    @Test("The module being off is one last line")
+    func appleItemsOff() {
+        var input = sample
+        input.appleItems = "off"
+        let lines = DiagnosticsReport.make(input).split(separator: "\n")
+        #expect(lines.count == 12)
+        #expect(lines.last == "Apple Items: off")
+    }
+
+    @Test("The module being on names counts and words only, and the longest value is kept whole")
+    func appleItemsOn() {
+        var input = sample
+        input.appleItems = "on, hidden 2, applied no, replaced 1"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Apple Items: on, hidden 2, applied no, replaced 1")
+        let longest = "on, hidden 4, applied yes, replaced 6"
+        #expect(longest.count <= DiagnosticsReport.maximumFieldLength)
+        input.appleItems = longest
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Apple Items: \(longest)")
+    }
+
+    @Test("The Apple Items line comes after the overflow line")
+    func appleItemsAfterOverflow() {
+        var input = sample
+        input.nativeOverflow = "collapsed"
+        input.appleItems = "off"
+        let lines = DiagnosticsReport.make(input).split(separator: "\n")
+        #expect(lines.count == 13)
+        #expect(lines[11] == "macOS 27 overflow: collapsed")
+        #expect(lines[12] == "Apple Items: off")
+    }
+
+    @Test("A hostile Apple Items field stays on one clean line without a path or a name")
+    func hostileAppleItems() {
+        var input = sample
+        input.appleItems = "on, hidden 1\n/Users/anna/Focus \"x\"\nFake: line"
+        let text = DiagnosticsReport.make(input)
+        #expect(text.split(separator: "\n").count == 12)
+        #expect(!text.contains("/"))
+        #expect(!text.contains("\""))
+    }
+
+    @Test("With no Shelf field the report is as before")
+    func shelfAbsent() {
+        let text = DiagnosticsReport.make(sample)
+        #expect(!text.contains("Shelf"))
+        #expect(text.split(separator: "\n").count == 11)
+    }
+
+    @Test("The Shelf's style and location are one last line in fixed words")
+    func shelfLine() {
+        for words in ["attached, dynamic", "floating, screen edge", "floating, mouse pointer"] {
+            var input = sample
+            input.shelf = words
+            let lines = DiagnosticsReport.make(input).split(separator: "\n")
+            #expect(lines.count == 12)
+            #expect(lines.last == "Shelf: \(words)")
+        }
+    }
+
+    @Test("The Shelf line comes after the Apple Items line")
+    func shelfAfterAppleItems() {
+        var input = sample
+        input.appleItems = "off"
+        input.shelf = "attached, holzBar icon"
+        let lines = DiagnosticsReport.make(input).split(separator: "\n")
+        #expect(lines.count == 13)
+        #expect(lines[11] == "Apple Items: off")
+        #expect(lines[12] == "Shelf: attached, holzBar icon")
+    }
+
+    @Test("A hostile Shelf field stays on one clean line without a path")
+    func hostileShelf() {
+        var input = sample
+        input.shelf = "floating\n/Users/anna/Focus \"x\"\nFake: line"
+        let text = DiagnosticsReport.make(input)
+        #expect(text.split(separator: "\n").count == 12)
+        #expect(!text.contains("/"))
+        #expect(!text.contains("\""))
+    }
 }

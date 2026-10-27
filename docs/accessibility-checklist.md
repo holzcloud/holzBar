@@ -15,7 +15,7 @@ Accessibility *support* (this page) is not the Accessibility *permission* holzBa
 
 ## For every screen
 
-Screens: Settings (General, Menu Bar Layout, Menu Bar Appearance, Automation, Modules, Hotkeys, Advanced, About), the permissions window, the holzBar Shelf, the search, a group's popover, the letters of Open an item by letter, holzBar's menu and widgets in the menu bar.
+Screens: Settings (General, Menu Bar Layout, Menu Bar Appearance, Automation, Modules, Hotkeys, Advanced, About), the permissions window, the holzBar Shelf, the search, a group's popover, the letters of Open an item by letter, the notch hub (opened by its hotkey), holzBar's menu and widgets in the menu bar.
 
 1. **VoiceOver**: every control is read with its name, role, value and state; buttons that show only an icon are named; lists and groups are named; a switch tells its state; nothing is conveyed by colour alone.
 2. **Keyboard**: Tab reaches every control, Space or Return uses it, the focus is visible, Escape closes a sheet or panel and Return runs the default button.
@@ -36,6 +36,7 @@ Screens: Settings (General, Menu Bar Layout, Menu Bar Appearance, Automation, Mo
 - **Layout History**: rows are read by date; the star reads Star or Remove Star; Restore… asks first and a restore is announced; Delete is named.
 - **Tidy Up, Share Profile, Import Profile and Copy Diagnostics**: the title is a heading; Escape closes the sheet without acting; Return runs the default button. Every Tidy Up proposal is a checkbox that reads the app's name.
 - **Widgets**: each widget in the menu bar is read with its source name and its value in full ("Battery, 80 percent, charging", "unavailable" when it cannot be read). A Shortcut button is read as a button with the Shortcut's name as its hint. A script widget is read as "Script" with its line, "Choose a script" while none is chosen and "Allow this script in Automation, Scripts" while the script is not allowed. In Modules the rows are read by name, Edit is read as collapsed or expanded, and the Widgets switch, Edit, Remove, Move Up and Move Down are reachable by keyboard; a widget moves with the VoiceOver actions Move Up and Move Down.
+- **Notch hub**: opened by its hotkey the hub takes the keyboard and VoiceOver reads it as "Notch hub"; each tab is read by its name, the selected one as selected, and the Left and Right arrow keys move through the tabs; the More menu lists the tabs that did not fit; the status pills are read by their text; the settings button is read as "Settings"; Esc closes the hub. Opened by hover the hub does not take the keyboard, by design. Under Reduce Motion the hub fades; under Reduce Transparency and Increase Contrast it is opaque and its small texts are stronger; in light mode it stays dark.
 - **Menu Bar Layout bars**: Tab to an item; the arrow keys move it and ⌘Z undoes. The VoiceOver actions are Move to Visible, Move to Hidden, Move to Always Hidden, Move Left, Move Right and Set Hotkey…. With Reduce Motion items jump instead of sliding.
 - **Menu Bar Layout, Put Back by a Rule**: the title is a heading; each row is read as one sentence ("name was put back in section"), and Edit Rule… and OK are named and reachable by Tab; a put-back that happens while Settings is open is announced. Reduce Motion needs nothing, as the row does not animate.
 - **Groups**: the symbol menu is read "Symbol" and names its choices; the colour well and Remove the color are named; the popover's items are read by name.
@@ -45,7 +46,8 @@ Screens: Settings (General, Menu Bar Layout, Menu Bar Appearance, Automation, Mo
 - **Hotkeys**: Record Hotkey starts recording, a typed combination is taken, Escape cancels the recording and Clear removes the hotkey. A set hotkey is drawn as key caps but read once as a whole shortcut, for example "control option shift command Space"; the caps are not separate stops.
 - **Permission pills** (Advanced, the permissions window, the Screen Recording hint): VoiceOver reads "Needs <permission>" or "Permission Granted" before the Grant or Revoke button; the state never rests on colour alone.
 - **Advanced**: the system's Touch ID or password sheet for the lock appears in front; Revoke… asks first, in a confirmation sheet.
-- **The holzBar Shelf**: the hotkey opens it; the arrow keys move a ring in the system's focus colour and VoiceOver says "selected"; Return opens the item and Escape closes the Shelf; the Open and Open Menu actions are offered.
+- **The holzBar Shelf**: the hotkey opens it; the arrow keys move a ring in the system's focus colour and VoiceOver says "selected"; Return opens the item and Escape closes the Shelf; the Open and Open Menu actions are offered. The floating style (Settings → General → Style) behaves the same, and so does Screen edge as a location.
+- **The search's category buttons** (Smart Categories): the row is read as "Categories", each button by its name and, when chosen, as selected; Option with the left or right arrow switches the category and the field keeps the typing. With Smart Categories off in Menu Bar Layout the row is not there.
 - **The search**: typing filters, the arrow keys choose and Return opens. The button at the bottom left is read "holzBar Settings…" and a row is read by the item's name only.
 - **Increase Contrast and Reduce Transparency**: Settings' groups are opaque with a visible border, and module and rule rows show no gradient. The holzBar Shelf and System Glass are opaque with a border, as since 0.0.7.
 
@@ -69,3 +71,4 @@ Write down per screen and macOS version whether a check passes or fails; a faile
 | Open an item by letter | — | — |
 | holzBar's menu | — | — |
 | Widgets in the menu bar | — | — |
+| Notch hub | — | — |

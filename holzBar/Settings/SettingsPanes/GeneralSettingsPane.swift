@@ -191,6 +191,7 @@ struct GeneralSettingsPane: View {
     private var shelfOptions: some View {
         useShelf
         if settings.useShelf {
+            shelfStylePicker
             shelfLocationPicker
             shelfLayoutPicker
             Toggle("Fade the holzBar Shelf in", isOn: $settings.animatesShelf)
@@ -231,10 +232,38 @@ struct GeneralSettingsPane: View {
     }
 
     @ViewBuilder
+    private var shelfStylePicker: some View {
+        HolzBarPicker(selection: $settings.shelfStyle) {
+            Text("Attached").tag(HolzBarShelfStyle.attached)
+            Text("Floating").tag(HolzBarShelfStyle.floating)
+        } label: {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Style")
+                PreviewBadge()
+            }
+        }
+        .annotation {
+            switch settings.shelfStyle {
+            case .attached:
+                Text("The holzBar Shelf hangs directly below the menu bar.")
+            case .floating:
+                Text("The holzBar Shelf floats a little below the menu bar, as a bar of its own.")
+            }
+        }
+    }
+
+    @ViewBuilder
     private var shelfLocationPicker: some View {
-        HolzBarPicker("Location", selection: $settings.shelfLocation) {
+        HolzBarPicker(selection: $settings.shelfLocation) {
             ForEach(HolzBarShelfLocation.allCases) { location in
                 Text(location.localized).tag(location)
+            }
+        } label: {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Location")
+                if settings.shelfLocation == .screenEdge {
+                    PreviewBadge()
+                }
             }
         }
         .annotation {
@@ -245,6 +274,8 @@ struct GeneralSettingsPane: View {
                 Text("The holzBar Shelf is centered below the mouse pointer.")
             case .holzBarIcon:
                 Text("The holzBar Shelf is centered below the holzBar icon.")
+            case .screenEdge:
+                Text("The holzBar Shelf is at the right edge of the screen.")
             }
         }
     }

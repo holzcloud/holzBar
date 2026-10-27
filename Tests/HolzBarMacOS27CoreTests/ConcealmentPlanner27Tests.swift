@@ -36,4 +36,26 @@ struct ConcealmentPlanner27Tests {
         #expect(ConcealmentPlanner27.effectivelyConcealed(sets: [["b", "c"], ["c"]]) == ["c"])
         #expect(ConcealmentPlanner27.effectivelyConcealed(sets: []).isEmpty)
     }
+
+    @Test("A hidden system item is concealed while everything is hidden, and only then")
+    func systemItemInTheStates() {
+        let withClock = layout.merging(SystemItems27.layoutEntries(for: [.clock])) { _, system in system }
+        #expect(ConcealmentPlanner27.concealedSets(layout: withClock, state: .allHidden) == [["hidden.app", "always.app", "system-item:2"]])
+        #expect(ConcealmentPlanner27.concealedSets(layout: withClock, state: .hiddenRevealed) == [["always.app"]])
+        #expect(ConcealmentPlanner27.concealedSets(layout: withClock, state: .allRevealed).isEmpty)
+    }
+
+    @Test("A layout with only a system item still makes one assertion")
+    func onlyASystemItem() {
+        let only = SystemItems27.layoutEntries(for: [.battery])
+        #expect(ConcealmentPlanner27.concealedSets(layout: only, state: .allHidden) == [["system-item:0"]])
+    }
+
+    @Test("The system items an assertion keeps are every number except the hidden ones")
+    func allowedSystemItems() {
+        let concealed: Set<String> = ["system-item:2", "other.app"]
+        #expect(ConcealmentPlanner27.allowedSystemItems(concealing: concealed) == SystemItems27.allowedNumbers(concealing: concealed))
+        #expect(!ConcealmentPlanner27.allowedSystemItems(concealing: concealed).contains(2))
+        #expect(ConcealmentPlanner27.allowedSystemItems(concealing: []).count == 128)
+    }
 }

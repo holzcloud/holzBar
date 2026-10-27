@@ -107,10 +107,10 @@ final class PresentationMonitor {
     }
 
     private func evaluate(running: Set<String>) {
-        let mirroredDisplays = NSScreen.screens.filter { screen in
-            CGDisplayIsInMirrorSet(screen.displayID) != 0
-        }.count
-        let presenting = PresentationSignals.isPresenting(mirroredDisplays: mirroredDisplays, runningBundleIDs: running)
+        let presenting = PresentationSignals.isPresenting(
+            mirroredDisplays: Self.mirroredDisplayCount(),
+            runningBundleIDs: running
+        )
         guard presenting != isPresenting else {
             return
         }
@@ -123,8 +123,15 @@ final class PresentationMonitor {
         appState?.menuBarManager.setAutomaticZenMode(presenting)
     }
 
+    /// The number of active displays in a mirror set.
+    static func mirroredDisplayCount() -> Int {
+        NSScreen.screens.filter { screen in
+            CGDisplayIsInMirrorSet(screen.displayID) != 0
+        }.count
+    }
+
     /// The bundle identifiers of the running applications.
-    private static func runningBundleIDs() -> Set<String> {
+    static func runningBundleIDs() -> Set<String> {
         Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
     }
 }

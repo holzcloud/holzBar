@@ -119,6 +119,67 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["ItemRuleShownSections"])
     }
 
+    @Test("A settings file cannot set the tab the notch hub showed last")
+    func settingsFileCannotSetNotchHubLastTab() {
+        #expect(Defaults.Key.notchHubLastTab.settingsKind == .string)
+        #expect(Defaults.Key.localOnlyKeys.contains(.notchHubLastTab))
+        #expect(Defaults.Key.importableKinds["NotchHubLastTab"] == nil)
+        let result = Defaults.Key.validatedSettings(["NotchHubLastTab": "timers", "ShowOnHover": true], ownBundleIdentifier: ownBundle)
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["NotchHubLastTab"])
+    }
+
+    @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
+    func notchHubSettingsTravel() {
+        #expect(Defaults.Key.importableKinds["NotchHubOpensOnHover"] == .bool)
+        #expect(Defaults.Key.importableKinds["NotchHubDisplays"] == .number)
+        let accepted = Defaults.Key.validatedSettings(
+            ["NotchHubOpensOnHover": false, "NotchHubDisplays": 2],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == ["NotchHubDisplays", "NotchHubOpensOnHover"])
+        for refused: Double in [3, 1.5, .nan] {
+            let result = Defaults.Key.validatedSettings(["NotchHubDisplays": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+            #expect(result.ignored == ["NotchHubDisplays"])
+        }
+    }
+
+    @Test("The Shelf's style and location travel with a settings file, and only as whole numbers within their choices")
+    func shelfStyleAndLocationTravel() {
+        #expect(Defaults.Key.importableKinds["ShelfStyle"] == .number)
+        #expect(Defaults.Key.importableKinds["IceBarLocation"] == .number)
+        let accepted = Defaults.Key.validatedSettings(
+            ["ShelfStyle": 1, "IceBarLocation": 3],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == ["IceBarLocation", "ShelfStyle"])
+        for key in ["ShelfStyle", "IceBarLocation"] {
+            for refused: Double in [16, -1, 1.5, .nan] {
+                let result = Defaults.Key.validatedSettings([key: refused], ownBundleIdentifier: ownBundle)
+                #expect(result.accepted.isEmpty)
+                #expect(result.ignored == [key])
+            }
+            let word = Defaults.Key.validatedSettings([key: "floating"], ownBundleIdentifier: ownBundle)
+            #expect(word.accepted.isEmpty)
+            #expect(word.ignored == [key])
+        }
+    }
+
+    @Test("Smart Categories travels with a settings file, as a Boolean only")
+    func smartCategoriesTravels() {
+        #expect(Defaults.Key.smartCategories.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.smartCategories))
+        #expect(Defaults.Key.importableKinds["SmartCategories"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["SmartCategories": false], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["SmartCategories"])
+        for refused: Any in [1, 0.5, "yes"] {
+            let result = Defaults.Key.validatedSettings(["SmartCategories": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+            #expect(result.ignored == ["SmartCategories"])
+        }
+    }
+
     @Test("A settings file cannot drop event barrier exits")
     func settingsFileCannotDropBarrierExits() {
         #expect(Defaults.Key.localOnlyKeys.contains(.debugDropsBarrierExitEvent))

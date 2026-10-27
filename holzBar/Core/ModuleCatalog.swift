@@ -53,6 +53,9 @@ nonisolated struct ModuleDescriptor: Equatable, Sendable, Identifiable {
     let summaryKey: String
     /// The permission the module asks for when it is switched on, if any.
     let permission: ModulePermission?
+    /// Whether the module is built but not yet tested on a Mac. Its row carries the Preview
+    /// badge until it has been.
+    var isPreview = false
 }
 
 /// The list of modules and the rules it must keep.
@@ -62,8 +65,11 @@ nonisolated enum ModuleCatalog {
     /// Widgets are off until the user switches them on, ask for no permission and cost nothing
     /// while off: no status item, no timer and no sampler (D-06). Drag in the Menu Bar is off
     /// until the user switches it on, asks for no permission beyond holzBar's Accessibility and
-    /// runs no tap while off. The title and the summary are the English strings the settings
-    /// show; their keys are those strings.
+    /// runs no tap while off. Apple Items is off until the user switches it on, asks for no
+    /// permission beyond holzBar's Accessibility and changes no assertion while off. The Notch hub
+    /// is off until the user switches it on, asks for no permission and creates nothing while
+    /// off: no window, no monitor and no module of its own. The title and the summary are the
+    /// English strings the settings show; their keys are those strings.
     static let all: [ModuleDescriptor] = [
         ModuleDescriptor(
             id: "widgets",
@@ -80,6 +86,24 @@ nonisolated enum ModuleCatalog {
             titleKey: "Drag in the Menu Bar",
             summaryKey: "Move menu bar items by dragging them, without holding ⌘ Command.",
             permission: nil
+        ),
+        ModuleDescriptor(
+            id: "apple-items",
+            area: .menuBar,
+            symbol: "menubar.rectangle",
+            titleKey: "Apple Items",
+            summaryKey: "Hide the clock or Control Center, and keep Apple items one click away on macOS 27.",
+            permission: nil,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "notch-hub",
+            area: .notch,
+            symbol: "capsule.tophalf.filled",
+            titleKey: "Notch hub",
+            summaryKey: "A panel at the notch for the modules you switch on.",
+            permission: nil,
+            isPreview: true
         ),
     ]
 

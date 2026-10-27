@@ -237,4 +237,56 @@ struct DesignTokensTests {
             #expect(size <= 64)
         }
     }
+
+    @Test("The hub ground is black at the top and a dark blue-grey below")
+    func hubGround() {
+        #expect(Tokens.Hub.top == .black)
+        #expect(Tokens.Hub.bottom.relativeLuminance < 0.02)
+        #expect(Tokens.Hub.bottom.relativeLuminance > Tokens.Hub.top.relativeLuminance)
+    }
+
+    @Test("The hub's small texts keep 4.5:1 under Increase Contrast, which makes them stronger")
+    func hubTextContrast() {
+        // Over the ground, and over a widget card on it in its most opaque form.
+        let card = Tokens.Tint(color: .white, alpha: Tokens.Hub.tileFillAlphaOpaque)
+        let grounds = [Tokens.Hub.top, Tokens.Hub.bottom, card.over(Tokens.Hub.bottom)]
+        for alpha in [Tokens.Hub.tileLabelAlphaIncreased, Tokens.Hub.tileDetailAlphaIncreased] {
+            let text = Tokens.Tint(color: .white, alpha: alpha)
+            for ground in grounds {
+                #expect(Tokens.contrastRatio(text.over(ground), ground) >= Tokens.RequiredContrast.text)
+            }
+        }
+        #expect(Tokens.Hub.tileLabelAlphaIncreased > Tokens.Hub.tileLabelAlpha)
+        #expect(Tokens.Hub.tileDetailAlphaIncreased > Tokens.Hub.tileDetailAlpha)
+        #expect(Tokens.Hub.tileLabelAlpha == 0.45)
+        #expect(Tokens.Hub.tileDetailAlpha == 0.40)
+    }
+
+    @Test("The hub's sizes equal the design's numbers")
+    func hubSizes() {
+        #expect(Tokens.Hub.tabWidth == 30)
+        #expect(Tokens.Hub.tabHeight == 24)
+        #expect(Tokens.Hub.tabRadius == 8)
+        #expect(Tokens.Hub.settingsButtonSize == 24)
+        #expect(Tokens.Hub.pillFillAlpha == 0.09)
+        #expect(Tokens.Hub.tileRadius == 14)
+        #expect(Tokens.Hub.columns == 4)
+        #expect(Tokens.Hub.tileGap == 6)
+        #expect(Tokens.Hub.tilePadding == 10)
+        // Hit targets of at least 24 points.
+        #expect(Tokens.Hub.tabHeight >= Tokens.minimumTargetSize)
+        #expect(Tokens.Hub.settingsButtonSize >= Tokens.minimumTargetSize)
+    }
+
+    @Test("The floating bar's shadow is the design's numbers and fits the panel's insets")
+    func floatingBarShadow() {
+        #expect(Tokens.Shadow.barOpacity == 0.30)
+        #expect(Tokens.Shadow.barRadius == 10)
+        #expect(Tokens.Shadow.barOffsetY == 4)
+        let insets = HolzBarShelfPlacement.floatingInsets
+        // The blur reaches its radius to every side and the drop pushes it down.
+        #expect(Tokens.Shadow.barRadius + Tokens.Shadow.barOffsetY <= insets.bottom)
+        #expect(Tokens.Shadow.barRadius <= insets.leading)
+        #expect(Tokens.Shadow.barRadius <= insets.trailing)
+    }
 }

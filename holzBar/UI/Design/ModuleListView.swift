@@ -93,7 +93,8 @@ struct ModuleListView<Settings: View>: View {
                 set: { store.setEnabled(module.id, $0) }
             ),
             permission: module.permission.map(permissionText),
-            isPermissionGranted: module.permission.map(isPermissionGranted) ?? false
+            isPermissionGranted: module.permission.map(isPermissionGranted) ?? false,
+            isPreview: module.isPreview
         ) {
             settings(module)
         }

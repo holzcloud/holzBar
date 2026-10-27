@@ -1,12 +1,17 @@
 import Testing
 @testable import HolzBarMacOS27Core
 
-/// Simulates MenuBarAgent: an item shows if any live assertion allows it.
+/// Simulates MenuBarAgent: an item shows if any live assertion allows it. A numbered system
+/// item `n` stands for the entry `system-item:n`.
 @MainActor
 final class FakeConcealmentBackend: ConcealmentBackend27 {
     final class Token: ConcealmentToken27 {
         let allowed: Set<String>
-        init(allowed: Set<String>) { self.allowed = allowed }
+        let allowedNumbers: [Int]
+        init(allowed: Set<String>, allowedNumbers: [Int]) {
+            self.allowed = allowed
+            self.allowedNumbers = allowedNumbers
+        }
     }
 
     struct Rejected: Error {}
@@ -24,17 +29,20 @@ final class FakeConcealmentBackend: ConcealmentBackend27 {
 
     var concealed: Set<String> {
         guard !liveTokens.isEmpty else { return [] }
-        let allowed = liveTokens.reduce(into: Set<String>()) { $0.formUnion($1.allowed) }
+        let allowed = liveTokens.reduce(into: Set<String>()) { result, token in
+            result.formUnion(token.allowed)
+            result.formUnion(token.allowedNumbers.map { SystemItems27.concealedKeyPrefix + String($0) })
+        }
         return universe.subtracting(allowed)
     }
 
-    func activate(allowedBundleIDs: [String]) async throws -> ConcealmentToken27 {
+    func activate(allowedBundleIDs: [String], allowedSystemItems: [Int]) async throws -> ConcealmentToken27 {
         if rejectNextActivation {
             rejectNextActivation = false
             throw Rejected()
         }
         activationCount += 1
-        let token = Token(allowed: Set(allowedBundleIDs))
+        let token = Token(allowed: Set(allowedBundleIDs), allowedNumbers: allowedSystemItems)
         liveTokens.append(token)
         history.append(concealed)
         return token
@@ -128,5 +136,65 @@ struct ConcealmentController27Tests {
         controller.releaseAll()
         #expect(backend.concealed.isEmpty)
         #expect(!controller.isActive)
+    }
+
+    // MARK: Hidden system items
+
+    let systemItems: Set<String> = Set(SystemItem27.allCases.map { SystemItems27.concealedKey(for: $0) })
+
+    @Test("A hidden system item is concealed by one assertion and nothing else is")
+    func systemItemAlone() async throws {
+        let backend = FakeConcealmentBackend(universe: running.union(systemItems))
+        let controller = ConcealmentController27(backend: backend)
+        try await controller.apply(target: [["system-item:2"]], running: running)
+        #expect(backend.concealed == ["system-item:2"])
+        #expect(backend.activationCount == 1)
+        #expect(controller.liveConcealed == ["system-item:2"])
+    }
+
+    @Test("An app and a system item are concealed together by one assertion")
+    func appAndSystemItem() async throws {
+        let backend = FakeConcealmentBackend(universe: running.union(systemItems))
+        let controller = ConcealmentController27(backend: backend)
+        try await controller.apply(target: [["hidden.app", "system-item:8"]], running: running)
+        #expect(backend.concealed == ["hidden.app", "system-item:8"])
+        #expect(backend.activationCount == 1)
+    }
+
+    @Test("Applying nothing afterwards restores the app and the system item")
+    func restoring() async throws {
+        let backend = FakeConcealmentBackend(universe: running.union(systemItems))
+        let controller = ConcealmentController27(backend: backend)
+        try await controller.apply(target: [["hidden.app", "system-item:2"]], running: running)
+        try await controller.apply(target: [], running: running)
+        #expect(backend.concealed.isEmpty)
+        #expect(!controller.isActive)
+    }
+
+    @Test("Revealing the hidden section brings the system item back")
+    func revealingBringsTheSystemItemBack() async throws {
+        let backend = FakeConcealmentBackend(universe: running.union(systemItems))
+        let controller = ConcealmentController27(backend: backend)
+        try await controller.apply(target: [["hidden.app", "always.app", "system-item:2"]], running: running)
+        try await controller.apply(target: hiddenRevealed, running: running)
+        #expect(backend.concealed == ["always.app"])
+    }
+
+    @Test("Applying the same system target twice does not activate again")
+    func systemTargetNoChurn() async throws {
+        let backend = FakeConcealmentBackend(universe: running.union(systemItems))
+        let controller = ConcealmentController27(backend: backend)
+        try await controller.apply(target: [["system-item:6"]], running: running)
+        try await controller.apply(target: [["system-item:6"]], running: running)
+        #expect(backend.activationCount == 1)
+    }
+
+    @Test("Without a hidden system item every number stays allowed")
+    func noSystemItemHidden() async throws {
+        let backend = FakeConcealmentBackend(universe: running.union(systemItems))
+        let controller = ConcealmentController27(backend: backend)
+        try await controller.apply(target: allHidden, running: running)
+        #expect(backend.concealed == ["hidden.app", "always.app"])
+        #expect(backend.liveTokens.first?.allowedNumbers == Array(SystemItems27.allowed))
     }
 }

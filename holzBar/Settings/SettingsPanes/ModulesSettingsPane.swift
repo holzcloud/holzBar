@@ -13,10 +13,15 @@ import SwiftUI
 struct ModulesSettingsPane: View {
     @Environment(AppState.self) private var appState
 
-    /// The modules this Mac can run: Drag in the Menu Bar is left out where it is unsupported.
+    /// The modules this Mac can run: Drag in the Menu Bar and Apple Items are left out where
+    /// they are unsupported.
     private var modules: [ModuleDescriptor] {
         ModuleCatalog.all.filter { module in
-            module.id != MenuBarDragController.moduleID || MenuBarDragController.isSupported
+            switch module.id {
+            case MenuBarDragController.moduleID: MenuBarDragController.isSupported
+            case AppleItems.moduleID: AppleItems.isSupported
+            default: true
+            }
         }
     }
 
@@ -54,6 +59,7 @@ struct ModulesSettingsPane: View {
     private func areaTitle(for area: ModuleArea) -> Text {
         switch area {
         case .menuBar: Text("Menu Bar")
+        case .notch: Text("Notch")
         default: Text(verbatim: area.rawValue)
         }
     }
@@ -69,6 +75,13 @@ struct ModulesSettingsPane: View {
                     .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
+        } else if module.id == AppleItems.moduleID {
+            AppleItemsSection(appleItems: appState.appleItems)
+        } else if module.id == NotchHubController.moduleID {
+            NotchHubSettingsView(settings: appState.settings.notchHub)
+        } else if let registration = HubModules.registration(for: module.id) {
+            // A module of the Notch hub brings its own settings.
+            registration.makeSettings()
         }
     }
 }

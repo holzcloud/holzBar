@@ -47,6 +47,12 @@ nonisolated enum ConcealmentPlanner27 {
         running.subtracting(concealed).sorted()
     }
 
+    /// The numbers of MenuBarAgent's system items an assertion keeps on the bar while it
+    /// conceals the given set. A hidden system item is an entry of the set (``SystemItems27``).
+    static func allowedSystemItems(concealing concealed: Set<String>) -> [Int] {
+        SystemItems27.allowedNumbers(concealing: concealed)
+    }
+
     /// The applications concealed while all of the given sets are live.
     static func effectivelyConcealed(sets: [Set<String>]) -> Set<String> {
         guard let first = sets.first else {

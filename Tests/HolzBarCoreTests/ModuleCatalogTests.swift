@@ -43,16 +43,46 @@ struct ModuleCatalogTests {
         #expect(drag.permission == nil)
         #expect(drag.symbol == "arrow.left.arrow.right")
         #expect(drag.titleKey == "Drag in the Menu Bar")
-        #expect(ModuleCatalog.modules(in: .menuBar).map(\.id) == ["widgets", "menu-bar-drag"])
+        #expect(ModuleCatalog.modules(in: .menuBar).map(\.id) == ["widgets", "menu-bar-drag", "apple-items"])
         // Off until the user switches it on.
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.enabledIdentifiers(["menu-bar-drag"], knownTo: ModuleCatalog.all) == ["menu-bar-drag"])
     }
 
+    @Test("Apple Items is an optional Preview menu bar module without a permission")
+    func appleItemsModule() throws {
+        let appleItems = try #require(ModuleCatalog.all.first { $0.id == "apple-items" })
+        #expect(appleItems.area == .menuBar)
+        #expect(appleItems.permission == nil)
+        #expect(appleItems.symbol == "menubar.rectangle")
+        #expect(appleItems.titleKey == "Apple Items")
+        #expect(appleItems.isPreview)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["apple-items"], knownTo: ModuleCatalog.all) == ["apple-items"])
+        // Widgets and Drag in the Menu Bar carry no badge.
+        #expect(ModuleCatalog.all.filter(\.isPreview).map(\.id) == ["apple-items", "notch-hub"])
+    }
+
+    @Test("The Notch hub is an optional Preview module of the notch area without a permission")
+    func notchHubModule() throws {
+        let hub = try #require(ModuleCatalog.all.first { $0.id == "notch-hub" })
+        #expect(hub.area == .notch)
+        #expect(hub.permission == nil)
+        #expect(hub.symbol == "capsule.tophalf.filled")
+        #expect(hub.titleKey == "Notch hub")
+        #expect(hub.isPreview)
+        #expect(ModuleCatalog.modules(in: .notch).first == hub)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["notch-hub"], knownTo: ModuleCatalog.all) == ["notch-hub"])
+    }
+
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(
-            ModuleCatalog.populatedAreas(of: ModuleCatalog.all) == [.menuBar],
+            ModuleCatalog.populatedAreas(of: ModuleCatalog.all) == [.menuBar, .notch],
             """
             A module of another area needs its area title in ModulesSettingsPane. \
             Teach the pane the title, then update this test.

@@ -20,10 +20,14 @@ final class AppSettings {
     /// The model for the app's Hotkeys settings.
     let hotkeys = HotkeysSettings()
 
+    /// The model for the Notch hub's settings.
+    let notchHub = NotchHubSettings()
+
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
         advanced.performSetup(with: appState)
         general.performSetup(with: appState)
         hotkeys.performSetup(with: appState)
+        notchHub.performSetup(with: appState)
     }
 }

@@ -130,6 +130,11 @@ final class MenuBarSearchPanel: NSPanel {
         // Important that we set the navigation state before updating the cache.
         appState.navigationState.isSearchPresented = true
 
+        // The selection starts at All and the facts at none, each time the panel opens.
+        model.selectedCategory = nil
+        model.presentCategories = []
+        model.facts = ItemFactsReader()
+
         let hostingView = MenuBarSearchHostingView(appState: appState, model: model, displayID: screen.displayID, panel: self)
         hostingView.setFrameSize(hostingView.intrinsicContentSize)
         setFrame(hostingView.frame, display: true)
@@ -221,6 +226,12 @@ private struct MenuBarSearchContentView: View {
         !itemManager.itemCache.managedItems.isEmpty
     }
 
+    /// Whether the search offers categories. With the setting off nothing is classified, no
+    /// application bundle is read and no chip is drawn.
+    private var usesCategories: Bool {
+        appState.settings.general.smartCategories
+    }
+
     private var bottomBarPadding: CGFloat {
         if #available(macOS 26.0, *) { 7 } else { 5 }
     }
@@ -242,6 +253,22 @@ private struct MenuBarSearchContentView: View {
             updateDisplayedItems()
             selectFirstDisplayedItem()
         }
+        .onKeyDown(key: .rightArrow, isEnabled: usesCategories) { event in
+            moveCategory(forward: true, event: event)
+        }
+        .onKeyDown(key: .leftArrow, isEnabled: usesCategories) { event in
+            moveCategory(forward: false, event: event)
+        }
+        .onChange(of: usesCategories) {
+            updateDisplayedItems()
+            selectFirstDisplayedItem()
+        }
+        .onChange(of: model.selectedCategory) {
+            updateDisplayedItems()
+            selectFirstDisplayedItem()
+            // A chip takes no keyboard focus: the field keeps the typing.
+            searchFieldIsFocused = true
+        }
         .onChange(of: itemManager.itemCache, initial: true) {
             updateDisplayedItems()
             if model.selection == nil {
@@ -260,6 +287,13 @@ private struct MenuBarSearchContentView: View {
                 prompt: promptText,
                 isFocused: $searchFieldIsFocused
             )
+
+            if usesCategories, hasItems, !model.presentCategories.isEmpty {
+                MenuBarSearchCategoryRow(
+                    categories: model.presentCategories,
+                    selection: Bindable(model).selectedCategory
+                )
+            }
 
             Divider()
         }
@@ -309,6 +343,28 @@ private struct MenuBarSearchContentView: View {
         }
     }
 
+    /// Option with the left or right arrow moves the selected chip. Every other press is left
+    /// to the field and the list: only Option, no marked text of an input method, and only in
+    /// the search panel.
+    private func moveCategory(forward: Bool, event: NSEvent) -> KeyCode.PressResult {
+        guard
+            event.window is MenuBarSearchPanel,
+            event.modifierFlags.intersection([.command, .option, .control, .shift]) == .option,
+            !model.presentCategories.isEmpty
+        else {
+            return .ignored
+        }
+        if let client = event.window?.firstResponder as? NSTextInputClient, client.hasMarkedText() {
+            return .ignored
+        }
+        model.selectedCategory = ItemCategoryChips.next(
+            after: model.selectedCategory,
+            among: model.presentCategories,
+            forward: forward
+        )
+        return .handled
+    }
+
     private func selectFirstDisplayedItem() {
         model.selection = model.displayedItems.first { $0.isSelectable }?.id
     }
@@ -316,34 +372,66 @@ private struct MenuBarSearchContentView: View {
     private func updateDisplayedItems() {
         typealias SearchItem = (listItem: ListItem, title: String)
 
-        let searchItems: [SearchItem] = MenuBarSection.Name.allCases
-            .reduce(into: []) { items, name in
-                if
-                    let appState = itemManager.appState,
-                    let section = appState.menuBarManager.section(withName: name),
-                    !section.isEnabled
-                {
-                    return
-                }
+        let sections = MenuBarSection.Name.allCases.filter { name in
+            guard
+                let appState = itemManager.appState,
+                let section = appState.menuBarManager.section(withName: name)
+            else {
+                return true
+            }
+            return section.isEnabled
+        }
 
-                let headerItem = ListItem.header(id: .header(name)) {
-                    Text(name.displayString)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.vertical, 10)
-                }
-                items.append(SearchItem(headerItem, name.displayString))
-
-                for item in itemManager.itemCache[name].reversed() {
-                    let listItem = ListItem.item(id: .item(item.tag)) {
-                        performAction(for: item)
-                    } content: {
-                        MenuBarSearchItemView(item: item)
-                    }
-                    items.append(SearchItem(listItem, item.displayName))
+        // Each item's category, worked out from static facts. The same reader serves the
+        // whole panel, so each application's bundle is read once. With the setting off none
+        // of this runs.
+        var categories = [MenuBarItemTag: ItemCategory]()
+        if usesCategories {
+            for name in sections {
+                for item in itemManager.itemCache[name] {
+                    let facts = model.facts.classifiable(item, in: name, using: itemManager)
+                    categories[item.tag] = ItemCategoryClassifier.category(of: facts)
                 }
             }
+        }
+        let present = ItemCategoryChips.chips(present: Array(categories.values))
+        if model.presentCategories != present {
+            model.presentCategories = present
+        }
+        // A category with no item any more, or a setting that is off, leaves the selection at All.
+        if let selected = model.selectedCategory, !present.contains(selected) {
+            model.selectedCategory = nil
+        }
+        let selectedCategory = model.selectedCategory
+
+        var searchItems = [SearchItem]()
+        for name in sections {
+            let items = itemManager.itemCache[name].reversed().filter { item in
+                selectedCategory == nil || categories[item.tag] == selectedCategory
+            }
+            // A category leaves no header without an item under it.
+            if selectedCategory != nil, items.isEmpty {
+                continue
+            }
+
+            let headerItem = ListItem.header(id: .header(name)) {
+                Text(name.displayString)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 10)
+            }
+            searchItems.append(SearchItem(headerItem, name.displayString))
+
+            for item in items {
+                let listItem = ListItem.item(id: .item(item.tag)) {
+                    performAction(for: item)
+                } content: {
+                    MenuBarSearchItemView(item: item)
+                }
+                searchItems.append(SearchItem(listItem, item.displayName))
+            }
+        }
 
         if model.searchText.isEmpty {
             model.displayedItems = searchItems.map { $0.listItem }

@@ -36,6 +36,14 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// The state of macOS 27's own overflow control at the last read (none, collapsed, expanded
     /// or unknown). Empty before macOS 27, so the report of earlier versions stays as it was.
     var nativeOverflow = ""
+    /// The state of the Apple Items module (macOS 27 only): off, or on with the number of hidden
+    /// system items, whether they are applied and the number of replacements. Empty before
+    /// macOS 27, so the report of earlier versions stays as it was.
+    var appleItems = ""
+    /// The Shelf's style and location in fixed lower-case words, such as `floating, screen
+    /// edge`. Empty unless the Shelf is in use, so the report of a Mac that does not use it
+    /// stays as it was.
+    var shelf = ""
 }
 
 /// Writes the text a user can copy into a bug report. It holds an allowlist of facts and
@@ -63,6 +71,12 @@ nonisolated enum DiagnosticsReport {
         ]
         if !input.nativeOverflow.isEmpty {
             lines.append("macOS 27 overflow: \(field(input.nativeOverflow))")
+        }
+        if !input.appleItems.isEmpty {
+            lines.append("Apple Items: \(field(input.appleItems))")
+        }
+        if !input.shelf.isEmpty {
+            lines.append("Shelf: \(field(input.shelf))")
         }
         return lines.joined(separator: "\n")
     }

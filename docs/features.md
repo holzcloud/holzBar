@@ -10,6 +10,8 @@
 - ✅ Automatic rehide
 - ✅ Drag-and-drop layout editor
 - ✅ **Drag items in the menu bar without ⌘ Command** (macOS 26 and 27) — an optional module in Settings, Modules, off until you switch it on
+- ✅ **Apple Items** (macOS 27) — hide the clock, Control Center, Wi-Fi or the battery, and keep an Apple item one click away with a replacement icon; an optional module, off until you switch it on
+- ✅ **Notch hub** — a panel at the notch for optional modules, off until you switch it on; no module in it yet
 - ✅ **Layout profiles** — "Work", "Home", … one click, hotkey or URL away
 - ✅ **Profiles bound to a display or a Space** — applied when you connect the display or switch to the Space
 - ✅ **Groups** (folders) — several items behind an icon of their own, in a colour and with a symbol or image of your choice
@@ -76,12 +78,20 @@
 </tr>
 </table>
 
+## New in 0.0.12
+
+- **Apple Items** (macOS 27): an optional module in Settings → Modules, off until you switch it on, with no permission beyond Accessibility. Hide the **clock**, **Control Center**, **Wi-Fi** or the **battery** with a switch each: the item is gone while the hidden items are hidden and comes back when you show them; nothing is hidden while the holzBar Shelf is on, and while one is hidden Control Centre's camera and microphone indicator is not shown (holzBar's dot covers the microphone and the camera). Add up to six **replacement items**, icons of holzBar's own with a symbol you choose, that open an Apple item you picked from the bar, so you can hide its application and keep the item one click away. See the [macOS 27 notes](macos27.md#apple-items).
+- **Notch hub**: an optional module in Settings → Modules, under Notch, off until you switch it on and costing nothing while it is off. It is a panel that hangs from the notch, or from the top centre of a display without one, and needs no permission. It opens when the pointer rests at the notch for a quarter of a second (**Open on hover**, on by default) and with a hotkey you set under Settings → Hotkeys. A hub that hover opened closes 0.4 seconds after the pointer has left it and the notch; any hub closes on Esc, on a click outside and when the Space or the displays change. It does not open in a fullscreen space, with the menu bar hidden by the system, or while the screen is mirrored or shared, and **Show the hub on** limits it to all displays, the built-in display or displays with a notch. It has an icon strip with the Overview first and the modules you switched on after it (five tabs show, the rest sit in a More menu), the Overview with a card for each module that has one, and status pills and a settings button beside the notch. It is always dark, uses glass on macOS 26 and later, and follows Reduce Motion, Reduce Transparency and Increase Contrast. No module of the hub exists yet, so the Overview is empty and says so; modules for the hub come in later releases.
+- **Smart Categories**: the search shows category buttons under its field, **All** and then the categories your items fall into: System, Network, Media, Communication, Productivity, Developer, Cloud and Backup, Utilities and Other. One click lists only the items of that category, and Option with the left or right arrow moves from one button to the next; the choice starts at All each time the search opens. A category is a hint for browsing, worked out from static facts on your Mac (the item's identifier and name, the category its application declares in its own `Info.plist`, and the short tables Tidy Up uses), so it is best-effort: an app that declares no category and that holzBar does not know is under Other. Nothing is moved or hidden by a category, nothing is recorded or sent, and with **Smart Categories** off in Settings → Menu Bar Layout (it is on by default) the buttons are gone, nothing is classified and no application is read.
+- **Floating Shelf**: in Settings → General the holzBar Shelf has a **Style**, Attached (the default, hanging directly below the menu bar as before) or Floating. A floating Shelf is a bar of its own, a pill for one row and a rounded panel for a grid or a column, 8 points below the menu bar with a hairline and a soft shadow, in the menu bar's colour so the item pictures stay readable; Reduce Transparency and Increase Contrast give it an opaque fill and a visible border. **Location** now also offers **Screen edge**, which puts the Shelf at the right edge of the screen, and with **Mouse pointer** a floating Shelf hangs below the pointer wherever it is (also when you open it with its hotkey), above it near the bottom of the screen. The Shelf keeps the place it opened at while it is open. Items, keyboard use, VoiceOver actions, closing and the notch rules are the same in both styles. It needs no permission and nothing runs for it.
+- **Glass command palette**: the command palette has the same glass look as the item search and the hints panel.
+
 ## New in 0.0.11
 
 0.0.11 is out; see its [release notes](release-notes/v0.0.11.md).
 
 - **Smooth show and hide** (macOS 26 only): with **Animate showing and hiding** on in Settings → General (the default), hidden menu bar items slide in and out in about 0.18 seconds instead of appearing at once. The state changes first and the slide only draws it, so nothing is delayed; a quick show and hide cancel each other instead of queuing. It never runs with Reduce Motion on, while you drag an item or with the holzBar Shelf in use (there the Shelf fades instead). The setting is shown on macOS 26 only: macOS 27 animates its own bar (see [macOS 27 notes](macos27.md#show-and-hide-animation)), and macOS 14 and 15 keep the instant change. It needs no permission, no timer while idle and no network; the one short task lives only while a slide runs.
-- **Glass Search and Hints panels**: the item search and the hints panel (open an item by letter) have the new glass look, with key caps for the hint letters. The command palette keeps its old look.
+- **Glass Search and Hints panels**: the item search and the hints panel (open an item by letter) have the new glass look, with key caps for the hint letters.
 - **Design tokens**: the type sizes and spacing in Settings come from one shared set of values; nothing should look different.
 
 ## New in 0.0.9
@@ -162,13 +172,14 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Menu bar styles**: Single, Paired, the Apple-logo shape, outlines and gradients as on macOS 26; Sections is not offered. See [macOS 27 notes](macos27.md#menu-bar-styles)
 - **macOS 27's own overflow button**: while macOS shows its folded items expanded beside the notch, the holzBar Shelf does not list them a second time; in any doubt it lists them as before. See [macOS 27 notes](macos27.md#macos-27s-own-overflow-button)
 - **Drag in the menu bar**: with the optional module on, drag an item without ⌘ to move it as macOS allows, or drop it on the holzBar icon to hide its app. See [macOS 27 notes](macos27.md#drag-items-in-the-menu-bar)
+- **Apple Items**: hide the clock, Control Center, Wi-Fi or the battery, and keep an Apple item one click away with a replacement icon of holzBar's own. See [macOS 27 notes](macos27.md#apple-items)
 - **A dot on holzBar's icon** while hidden items are concealed and an app uses the microphone (orange) or the camera (green), in place of Control Centre's indicator. On by default in Settings → General, with no permission; the icon appears for the dot even when **Show holzBar icon** is off
 
 **Known limitations on macOS 27**
 
 - holzBar cannot reorder items on the bar by itself: Menu Bar Layout, profiles and rules only assign sections. Dragging an item yourself (with ⌘, or without it while **Drag in the Menu Bar** is on) places it where macOS lets it go.
 - Opening a system item (clock, battery, Wi-Fi) while hidden items are concealed adds ~150 ms.
-- **Control Centre's privacy indicator is hidden while items are hidden.** Its indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item, and comes back while holzBar hides no item. holzBar's dot covers the microphone and the camera, not screen recording; the small green dot beside the clock still shows the camera. See [Permissions](privacy-and-permissions.md#permissions).
+- **Control Centre's privacy indicator is hidden while items are hidden.** Its indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item, including a system item you hid with Apple Items, and comes back while holzBar hides no item. holzBar's dot covers the microphone and the camera, not screen recording; the small green dot beside the clock still shows the camera. See [Permissions](privacy-and-permissions.md#permissions).
 - Coming from 0.0.5 or earlier, macOS asks for Accessibility once more. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.
 
 ## Planned next
@@ -184,7 +195,6 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 **Convenience**
 - **Smooth show and hide** of the bar itself on macOS 14, 15 and 27: macOS 27 animates its own bar, and macOS 14 and 15 keep the instant change. (macOS 26 has it since 0.0.11, see above; the holzBar Shelf fades in since 0.0.9.)
-- Replacement items for Apple items that macOS 27 cannot hide, and hiding system items such as Clock and Control Center.
 
 **Polish**
 - A Control Center control to toggle Zen mode or apply a profile. *Spike, optional.*
@@ -192,9 +202,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 ### 1.0.0
 
 - **Settings sync between your Macs** through any folder they sync (iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing, a network share), **redesigned from scratch**, designed not to lose or silently overwrite a change.
-- **Notch hub**: a panel at the notch (at the top centre on Macs without one) with Now Playing and lyrics, calendar and meetings (Calendar access asked when you switch it on), live activities, timers, a file drop, display controls and AirPods and accessory alerts. Notifications in the hub only if a feasibility test shows it can be done; macOS has no public API for it.
-- **Floating bar** for hidden items, at an icon, at the screen edge or under the cursor.
-- **Smart Categories**: items sorted by static facts such as system, network or media.
+- **Modules for the notch hub**: the hub itself is built (see [New in 0.0.12](#new-in-0012)); the modules planned for it are Now Playing and lyrics, calendar and meetings (Calendar access asked when you switch it on), live activities, timers, a file drop, display controls and AirPods and accessory alerts. Notifications in the hub only if a feasibility test shows it can be done; macOS has no public API for it.
 - **Count badges**: the number of hidden items on the holzBar icon.
 - Up to **20 languages**, with a review process for the translations.
 

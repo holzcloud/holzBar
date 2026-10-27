@@ -188,6 +188,13 @@ final class Concealer27 {
                 self?.update()
             }
         )
+        // The hidden system items follow the user's choice, the module switch and the Shelf
+        // setting; nothing is polled.
+        observers.append(
+            ObservationLoop.observe { appState.appleItems.concealedSystemItems(in: appState) } onChange: { [weak self] _ in
+                self?.update()
+            }
+        )
         update()
     }
 
@@ -312,7 +319,11 @@ final class Concealer27 {
         }
         let applications = NSWorkspace.shared.runningApplications
         let running = Set(applications.compactMap(\.bundleIdentifier))
-        let layout = SectionLayout27.effectiveLayout(observed: [:], saved: savedLayout, running: running)
+        let appLayout = SectionLayout27.effectiveLayout(observed: [:], saved: savedLayout, running: running)
+        // A system item the user hid is an entry of the hidden section, like an application.
+        let layout = appLayout.merging(
+            SystemItems27.layoutEntries(for: appState.appleItems.concealedSystemItems(in: appState))
+        ) { _, system in system }
         let state = revealState(appState)
         // What the sections conceal sets how crowded the bar is: once they conceal more (a
         // reveal that ends, a layout edit), the notch is worked out again from the next settled

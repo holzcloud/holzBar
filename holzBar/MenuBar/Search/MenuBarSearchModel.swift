@@ -17,6 +17,17 @@ final class MenuBarSearchModel {
     var searchText = ""
     var displayedItems = [SectionedListItem<ItemID>]()
     var selection: ItemID?
+
+    /// The category the list is limited to; `nil` is All. It is not stored: it starts at All
+    /// each time the panel opens.
+    var selectedCategory: ItemCategory?
+
+    /// The categories the items in the list fall into, in the order of the chips.
+    var presentCategories = [ItemCategory]()
+
+    /// Reads the facts the categories are worked out from. The panel makes a new one each time
+    /// it opens, so what it learned about the applications is dropped with the panel.
+    @ObservationIgnored var facts = ItemFactsReader()
     private(set) var averageColorInfo: MenuBarAverageColorInfo?
 
     /// Observers of the panel's screen and visibility.

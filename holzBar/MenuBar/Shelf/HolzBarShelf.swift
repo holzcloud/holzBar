@@ -21,9 +21,13 @@ final class HolzBarShelfPanel: NSPanel {
     /// The currently displayed section.
     private(set) var currentSection: MenuBarSection.Name?
 
-    /// The horizontal position the panel centres on, chosen once when it opens, so a resize
-    /// while it is open does not move it to the mouse pointer or the holzBar icon.
-    private var anchorX: CGFloat?
+    /// What the panel is placed by, chosen once when it opens, so a resize while it is open
+    /// does not move it to the mouse pointer or the holzBar icon.
+    private var anchor: HolzBarShelfPlacement.Anchor?
+
+    /// Whether the panel hangs from the menu bar or floats below it, as the setting was when
+    /// it opened: a change made while it is open takes effect the next time it opens.
+    private var style = HolzBarShelfStyle.attached
 
     /// Counts the calls to `show(section:on:)` and `close()`, so a show that waited for the
     /// caches knows whether the panel was closed or shown again meanwhile.
@@ -135,24 +139,27 @@ final class HolzBarShelfPanel: NSPanel {
         }
     }
 
-    /// Returns the horizontal position to centre the panel on for the given location
-    /// setting, read from the mouse pointer and the holzBar icon as they are now.
-    private func getAnchorX(for shelfLocation: HolzBarShelfLocation, screen: NSScreen) -> CGFloat {
+    /// Returns what to place the panel by for the given location setting, read from the
+    /// mouse pointer and the holzBar icon as they are now.
+    private func getAnchor(for shelfLocation: HolzBarShelfLocation, screen: NSScreen) -> HolzBarShelfPlacement.Anchor {
         guard let appState else {
-            return screen.frame.maxX
+            return .screenEdge
         }
 
         switch shelfLocation {
         case .dynamic:
             if appState.hidEventManager.isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) {
-                return getAnchorX(for: .mousePointer, screen: screen)
+                return getAnchor(for: .mousePointer, screen: screen)
             }
-            return getAnchorX(for: .holzBarIcon, screen: screen)
+            return getAnchor(for: .holzBarIcon, screen: screen)
         case .mousePointer:
             guard let location = MouseHelpers.locationAppKit else {
-                return getAnchorX(for: .holzBarIcon, screen: screen)
+                return getAnchor(for: .holzBarIcon, screen: screen)
             }
-            return location.x
+            // The attached Shelf uses only the pointer's x; the floating bar hangs below it.
+            return .pointer(x: location.x, y: location.y)
+        case .screenEdge:
+            return .screenEdge
         case .holzBarIcon:
             guard
                 let controlItem = appState.itemManager.itemCache.managedItems.first(matching: .visibleControlItem),
@@ -160,28 +167,28 @@ final class HolzBarShelfPanel: NSPanel {
                 // cases (like if the item is offscreen).
                 let itemBounds = Bridging.getWindowBounds(for: controlItem.windowID)
             else {
-                // Centring on the screen's right edge puts the panel at the right of the screen.
-                return screen.frame.maxX
+                // Without the icon's position the panel goes to the right of the screen.
+                return .screenEdge
             }
-            return itemBounds.midX
+            return .horizontal(itemBounds.midX)
         }
     }
 
-    /// Updates the panel's frame origin for display on the given screen, centred on the
+    /// Updates the panel's frame origin for display on the given screen, placed by the
     /// anchor chosen when it opened.
     private func updateOrigin(for screen: NSScreen) {
-        let menuBarHeight = screen.getMenuBarHeight() ?? 0
-        let originY = ((screen.frame.maxY - 1) - menuBarHeight) - frame.height
-
-        let lowerBound = screen.frame.minX
-        let upperBound = screen.frame.maxX - frame.width
-
-        guard let anchorX, lowerBound <= upperBound else {
-            setFrameOrigin(CGPoint(x: upperBound, y: originY))
-            return
-        }
-
-        setFrameOrigin(CGPoint(x: (anchorX - frame.width / 2).clamped(to: lowerBound...upperBound), y: originY))
+        let origin = HolzBarShelfPlacement.origin(
+            style: style,
+            anchor: anchor ?? .screenEdge,
+            panel: .init(width: frame.width, height: frame.height),
+            screen: .init(
+                frame: .init(screen.frame),
+                visibleFrame: .init(screen.visibleFrame),
+                menuBarHeight: screen.getMenuBarHeight() ?? 0
+            ),
+            insets: style == .floating ? HolzBarShelfPlacement.floatingInsets : .zero
+        )
+        setFrameOrigin(CGPoint(x: origin.x, y: origin.y))
     }
 
     /// Shows the panel on the given screen, displaying the given
@@ -249,15 +256,18 @@ final class HolzBarShelfPanel: NSPanel {
 
         let colorManager = colorManagerForShowing()
         transparency.start()
+        // The style and the anchor come first: the panel is placed as soon as it has a size.
+        style = appState.settings.general.shelfStyle
+        anchor = getAnchor(for: appState.settings.general.shelfLocation, screen: screen)
         contentView = HolzBarShelfHostingView(
             appState: appState,
             colorManager: colorManager,
             transparency: transparency,
             screen: screen,
-            section: section
+            section: section,
+            style: style
         )
 
-        anchorX = getAnchorX(for: appState.settings.general.shelfLocation, screen: screen)
         updateOrigin(for: screen)
 
         // Color manager must be updated after updating the panel's origin,
@@ -329,7 +339,7 @@ final class HolzBarShelfPanel: NSPanel {
         showGeneration += 1
         contentView = nil
         currentSection = nil
-        anchorX = nil
+        anchor = nil
         acceptsKeyboard = false
         appState?.navigationState.isShelfPresented = false
     }
@@ -345,7 +355,8 @@ private final class HolzBarShelfHostingView: NSHostingView<HolzBarShelfContentVi
         colorManager: HolzBarShelfColorManager,
         transparency: TransparencyObserver,
         screen: NSScreen,
-        section: MenuBarSection.Name
+        section: MenuBarSection.Name,
+        style: HolzBarShelfStyle
     ) {
         let rootView = HolzBarShelfContentView(
             appState: appState,
@@ -355,7 +366,8 @@ private final class HolzBarShelfHostingView: NSHostingView<HolzBarShelfContentVi
             imageCache: appState.imageCache,
             menuBarManager: appState.menuBarManager,
             screen: screen,
-            section: section
+            section: section,
+            style: style
         )
         super.init(rootView: rootView)
     }
@@ -392,6 +404,8 @@ private struct HolzBarShelfContentView: View {
 
     let screen: NSScreen
     let section: MenuBarSection.Name
+    /// How the Shelf sits relative to the menu bar, as it was when the Shelf opened.
+    let style: HolzBarShelfStyle
 
     private var items: [MenuBarItem] {
         let sectionItems = itemManager.itemCache[section]
@@ -457,8 +471,21 @@ private struct HolzBarShelfContentView: View {
         return menuBarHeight
     }
 
+    /// The height of the bar itself: the content less the transparent insets that hold the
+    /// shadow of the floating style.
+    private var barHeight: CGFloat {
+        let insets = HolzBarShelfPlacement.floatingInsets
+        return style == .floating ? max(frame.height - insets.top - insets.bottom, 0) : frame.height
+    }
+
     private var clipShape: some InsettableShape {
-        if configuration.hasRoundedShape {
+        if style == .floating {
+            // A capsule for one row, a rounded panel for a grid or a column.
+            RoundedRectangle(
+                cornerRadius: HolzBarShelfPlacement.floatingCornerRadius(forHeight: barHeight),
+                style: .continuous
+            )
+        } else if configuration.hasRoundedShape {
             RoundedRectangle(cornerRadius: frame.height / 2, style: .circular)
         } else if #available(macOS 26.0, *) {
             RoundedRectangle(cornerRadius: frame.height / 4, style: .continuous)
@@ -528,8 +555,31 @@ private struct HolzBarShelfContentView: View {
         }
     }
 
+    /// The space around the bar inside the panel: it holds the shadow. The floating bar's top
+    /// has none, so the panel never reaches over the menu bar.
+    private var panelInsets: EdgeInsets {
+        switch style {
+        case .attached:
+            return EdgeInsets(top: 5, leading: 5, bottom: 5, trailing: 5)
+        case .floating:
+            let insets = HolzBarShelfPlacement.floatingInsets
+            return EdgeInsets(top: insets.top, leading: insets.leading, bottom: insets.bottom, trailing: insets.trailing)
+        }
+    }
+
     private var shadowOpacity: CGFloat {
         configuration.current.hasShadow ? 0.5 : 0.33
+    }
+
+    /// The Shelf's shadow: the one it always had when attached, the tight shadow of the
+    /// design for the floating bar.
+    private var shadow: (color: Color, radius: CGFloat, y: CGFloat) {
+        switch style {
+        case .attached:
+            return (.black.opacity(shadowOpacity), 2.5, 0)
+        case .floating:
+            return (.black.opacity(HolzBarTheme.Shadow.barOpacity), HolzBarTheme.Shadow.barRadius, HolzBarTheme.Shadow.barOffsetY)
+        }
     }
 
     var body: some View {
@@ -542,16 +592,22 @@ private struct HolzBarShelfContentView: View {
                 .menuBarItemContainer(appState: appState, colorInfo: backgroundColorInfo)
                 .foregroundStyle(colorManager.colorInfo?.color.brightness ?? 0 > 0.67 ? .black : .white)
                 .clipShape(clipShape)
-                .shadow(color: .black.opacity(shadowOpacity), radius: 2.5)
+                .shadow(color: shadow.color, radius: shadow.radius, y: shadow.y)
 
             if let border {
                 clipShape
                     .inset(by: border.width / 2)
                     .stroke(lineWidth: border.width)
                     .foregroundStyle(border.style)
+            } else if style == .floating {
+                // A hairline, so a bar of nearly the colour of the window behind it still reads
+                // as a bar. A visible or configured border replaces it.
+                clipShape
+                    .inset(by: HolzBarTheme.Spacing.hairline / 2)
+                    .stroke(HolzBarTheme.Palette.stroke, lineWidth: HolzBarTheme.Spacing.hairline)
             }
         }
-        .padding(5)
+        .padding(panelInsets)
         .frame(maxWidth: screen.frame.width)
         .fixedSize()
         .onFrameChange(update: $frame)
@@ -868,4 +924,12 @@ private struct HolzBarShelfItemClickView: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSView, context: Context) { }
+}
+
+// MARK: - Placement conversions
+
+private extension HolzBarShelfPlacement.Rect {
+    init(_ rect: CGRect) {
+        self.init(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height)
+    }
 }

@@ -26,7 +26,8 @@ nonisolated struct MenuBarItemTag: Hashable, CustomStringConvertible {
     /// by this tag can be hidden.
     var canBeHidden: Bool {
         if #available(macOS 27.0, *), namespace == .menuBarAgent {
-            // holzBar's assessment-mode assertion always keeps the numbered system items.
+            // holzBar's assessment-mode assertion keeps the numbered system items unless the user
+            // hides them in Apple Items (`SystemItem27`); they never take part in the layout sections.
             return false
         }
         // On macOS 26 an item's app is found from frames that apps report about themselves,

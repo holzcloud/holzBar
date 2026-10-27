@@ -15,13 +15,21 @@ struct RevealStepRunnerTests {
         RevealAnimationSchedule.make(direction: .reveal, from: start, to: end, duration: 0.05)
     }
 
+    /// Waits until the condition holds, at most five seconds, so a slow runner does not fail a run.
+    private func wait(until condition: @MainActor () -> Bool) async throws {
+        let deadline = ContinuousClock.now.advanced(by: .seconds(5))
+        while !condition(), ContinuousClock.now < deadline {
+            try await Task.sleep(for: .milliseconds(10))
+        }
+    }
+
     @Test("A run applies every step in order, ends at the target and finishes once")
     func runsToTheEnd() async throws {
         let runner = RevealStepRunner()
         let recorder = Recorder()
         let plan = schedule()
         runner.run(plan, apply: { recorder.lengths.append($0) }, finish: { recorder.finishes += 1 })
-        try await Task.sleep(for: .milliseconds(500))
+        try await wait { recorder.finishes > 0 }
         #expect(recorder.lengths == plan.steps.map(\.length))
         #expect(recorder.lengths.last == 10)
         #expect(recorder.finishes == 1)
@@ -45,7 +53,7 @@ struct RevealStepRunnerTests {
         let second = Recorder()
         runner.run(schedule(from: 100, to: 10), apply: { first.lengths.append($0) }, finish: { first.finishes += 1 })
         runner.run(schedule(from: 50, to: 5), apply: { second.lengths.append($0) }, finish: { second.finishes += 1 })
-        try await Task.sleep(for: .milliseconds(500))
+        try await wait { second.finishes > 0 }
         #expect(first.lengths.isEmpty)
         #expect(first.finishes == 0)
         #expect(second.lengths.last == 5)

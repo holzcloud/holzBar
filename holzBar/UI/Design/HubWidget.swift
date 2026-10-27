@@ -12,6 +12,7 @@ import SwiftUI
 /// adaptive colours.
 struct HubWidget: View {
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorSchemeContrast) private var contrast
 
     private let systemImage: String
     private let title: Text
@@ -49,6 +50,15 @@ struct HubWidget: View {
         fraction.map { $0.isFinite ? min(max($0, 0), 1) : 0 }
     }
 
+    /// The name and the quiet line are stronger under Increase Contrast.
+    private var labelAlpha: Double {
+        contrast == .increased ? DesignTokens.Hub.tileLabelAlphaIncreased : DesignTokens.Hub.tileLabelAlpha
+    }
+
+    private var detailAlpha: Double {
+        contrast == .increased ? DesignTokens.Hub.tileDetailAlphaIncreased : DesignTokens.Hub.tileDetailAlpha
+    }
+
     private var levelColor: Color {
         switch GaugeLevel.level(for: clampedFraction ?? 0) {
         case .normal: HolzBarTheme.Palette.success
@@ -64,7 +74,7 @@ struct HubWidget: View {
                 .font(.system(size: 9, weight: .medium))
                 .textCase(.uppercase)
                 .tracking(0.7)
-                .foregroundStyle(.white.opacity(0.45))
+                .foregroundStyle(.white.opacity(labelAlpha))
                 .lineLimit(1)
             HStack(alignment: .firstTextBaseline, spacing: 2) {
                 Text(verbatim: value)
@@ -80,18 +90,18 @@ struct HubWidget: View {
             if let detail {
                 detail
                     .font(.system(size: 10))
-                    .foregroundStyle(.white.opacity(0.4))
+                    .foregroundStyle(.white.opacity(detailAlpha))
                     .lineLimit(1)
             }
         }
-        .padding(10)
+        .padding(CGFloat(DesignTokens.Hub.tilePadding))
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            .white.opacity(reduceTransparency ? 0.1 : 0.045),
-            in: HolzBarTheme.shape(14)
+            .white.opacity(reduceTransparency ? DesignTokens.Hub.tileFillAlphaOpaque : DesignTokens.Hub.tileFillAlpha),
+            in: HolzBarTheme.shape(CGFloat(DesignTokens.Hub.tileRadius))
         )
         .overlay {
-            HolzBarTheme.shape(14)
+            HolzBarTheme.shape(CGFloat(DesignTokens.Hub.tileRadius))
                 .stroke(.white.opacity(0.06), lineWidth: HolzBarTheme.Spacing.hairline)
         }
         .accessibilityElement(children: .combine)

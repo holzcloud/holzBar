@@ -158,6 +158,9 @@ nonisolated extension Defaults {
         /// How the holzBar Shelf arranges its items: in a row, a grid or a column.
         case shelfLayout = "ShelfLayout"
         case shelfLocation = "IceBarLocation"
+        /// Whether the holzBar Shelf hangs from the menu bar or floats a little below it. A new
+        /// key, so it takes no old name.
+        case shelfStyle = "ShelfStyle"
         case shelfDisplays = "IceBarDisplays"
         case showsNotchOverflowInShelf = "ShowsNotchOverflowInIceBar"
         case showOnClick = "ShowOnClick"
@@ -221,6 +224,9 @@ nonisolated extension Defaults {
         /// Whether the usage suggestions count how often items are opened. Local to the Mac:
         /// never exported, imported or synced.
         case usageSuggestionsEnabled = "UsageSuggestionsEnabled"
+        /// Whether the search offers category chips (on by default). A new key, so it takes no
+        /// old name. It is exported and imported like the other choices.
+        case smartCategories = "SmartCategories"
         /// The saved looks of the menu bar (moods), as JSON.
         case appearanceMoods = "AppearanceMoods"
         /// The automation rules, as JSON (`AutomationRule`).
@@ -244,6 +250,18 @@ nonisolated extension Defaults {
         case macOS27LayoutSeeded = "MacOS27LayoutSeeded"
         case macOS27ClickRestoreDelay = "MacOS27ClickRestoreDelay"
         case macOS27ShelfWaitsForRefresh = "MacOS27IceBarWaitsForRefresh"
+        /// The system items the user hid on macOS 27, by name (`SystemItem27`).
+        case hiddenSystemItems27 = "HiddenSystemItems27"
+        /// The replacement items of the Apple Items module, as JSON (`AppleItemReplacement`).
+        case appleItemReplacements = "AppleItemReplacements"
+
+        // MARK: Notch hub
+        /// Whether resting the pointer at the notch opens the Notch hub (a boolean, on by default).
+        case notchHubOpensOnHover = "NotchHubOpensOnHover"
+        /// The displays the Notch hub opens on, as the raw value of `NotchHubDisplays`.
+        case notchHubDisplays = "NotchHubDisplays"
+        /// The tab the Notch hub showed last. Local to the Mac: never exported or imported.
+        case notchHubLastTab = "NotchHubLastTab"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -322,9 +340,11 @@ nonisolated extension Defaults.Key {
             .systemItemsMayHide,
             .lockHiddenItems,
             .usageSuggestionsEnabled,
+            .smartCategories,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
             .autoZenWhileSharingScreen,
+            .notchHubOpensOnHover,
             .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
@@ -344,8 +364,10 @@ nonisolated extension Defaults.Key {
             .canToggleAlwaysHiddenSection:
             .bool
         case .shelfLocation,
+            .shelfStyle,
             .shelfLayout,
             .shelfDisplays,
+            .notchHubDisplays,
             .rehideStrategy,
             .rehideInterval,
             .itemSpacingOffset,
@@ -366,6 +388,7 @@ nonisolated extension Defaults.Key {
             .automationRules,
             .itemGroups,
             .widgets,
+            .appleItemReplacements,
             .menuBarAppearanceConfigurationV2,
             .menuBarBorderColor,
             .menuBarTintColor,
@@ -376,10 +399,12 @@ nonisolated extension Defaults.Key {
             .menuBarAppearanceConfiguration,
             .sections:
             .data
-        case .currentLayoutProfile:
+        case .currentLayoutProfile,
+            .notchHubLastTab:
             .string
         case .knownItemTags,
             .knownApplications27,
+            .hiddenSystemItems27,
             .titleChangingItemOwners,
             .revealOnChangeItems:
             .stringArray
@@ -419,9 +444,12 @@ nonisolated extension Defaults.Key {
             .clamped(1...3)
         case .spacerCount:
             .wholeNumber(0...10)
+        case .notchHubDisplays:
+            .wholeNumber(0...2)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,
+            .shelfStyle,
             .shelfLayout,
             .shelfDisplays,
             .rehideStrategy,
@@ -452,7 +480,8 @@ nonisolated extension Defaults.Key {
     ///
     /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
     /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
-    /// Shortcuts the widget buttons run (D-25), and the sections that item rules remember.
+    /// Shortcuts the widget buttons run (D-25), the sections that item rules remember, and the
+    /// tab the Notch hub showed last.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
         .lockHiddenItems,
@@ -461,6 +490,7 @@ nonisolated extension Defaults.Key {
         .screenRecordingOffered,
         .widgetShortcutNames,
         .itemRuleShownSections,
+        .notchHubLastTab,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
     ]
@@ -511,6 +541,17 @@ nonisolated extension Defaults.Key {
             } else {
                 result.accepted.removeValue(forKey: widgetsKey)
                 result.ignored = (result.ignored + [widgetsKey]).sorted()
+            }
+        }
+        // A file never brings a replacement item for anything but an Apple application, more than
+        // six, or a symbol the app does not offer: the list is decoded, validated and encoded again.
+        let replacementsKey = Self.appleItemReplacements.rawValue
+        if let data = result.accepted[replacementsKey] as? Data {
+            if let normalized = AppleItemReplacementList.normalized(data) {
+                result.accepted[replacementsKey] = normalized
+            } else {
+                result.accepted.removeValue(forKey: replacementsKey)
+                result.ignored = (result.ignored + [replacementsKey]).sorted()
             }
         }
         // A file never conceals holzBar itself: an entry for holzBar's own bundle in the macOS 27

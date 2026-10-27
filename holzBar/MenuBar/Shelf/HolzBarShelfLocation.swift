@@ -16,6 +16,9 @@ enum HolzBarShelfLocation: Int, CaseIterable, Identifiable {
     /// The holzBar Shelf will appear centered below the holzBar icon.
     case holzBarIcon = 2
 
+    /// The holzBar Shelf will appear at the right edge of the screen.
+    case screenEdge = 3
+
     var id: Int { rawValue }
 
     /// Localized string key representation.
@@ -24,6 +27,7 @@ enum HolzBarShelfLocation: Int, CaseIterable, Identifiable {
         case .dynamic: "Dynamic"
         case .mousePointer: "Mouse pointer"
         case .holzBarIcon: "holzBar icon"
+        case .screenEdge: "Screen edge"
         }
     }
 }

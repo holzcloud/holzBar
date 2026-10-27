@@ -47,23 +47,6 @@ final class MenuBarAssessmentAssertion27: ConcealmentBackend27 {
     private static let activateSelector = NSSelectorFromString("activateWithConfiguration:completionHandler:")
     private static let invalidateSelector = NSSelectorFromString("invalidate")
 
-    /// The system items holzBar keeps on the bar.
-    ///
-    /// MenuBarAgent numbers its system items, and on macOS 27.0 only 0 (battery), 2 (clock),
-    /// 6 (Wi-Fi) and 8 (Control Centre) draw anything. It accepted every number up to 127,
-    /// offered one at a time and all at once. holzBar keeps that whole measured range
-    /// (`SystemItems27`), so a system item added by a later build is not concealed: holzBar hides
-    /// applications' items, not the system's. jordanbaird/Ice#1001 (@carlossantos74) keeps 0 to
-    /// 63, which lies inside it.
-    ///
-    /// Control Centre's capture indicator — the green camera button, orange for the microphone,
-    /// indigo for screen sharing — is not one of these numbers and cannot be kept. It is drawn
-    /// while no assertion is live and gone while one is, whatever the allowlist holds: every
-    /// number to 127, Control Centre's bundle identifier, the capturing application's own. The
-    /// small green dot beside the clock is not an item and stays either way. Measured with
-    /// `Scripts/macos27/system-item-probe.swift` on macOS 27.0 (2026-09-29).
-    private static let systemItems = SystemItems27.allowed.map { NSNumber(value: $0) } as NSArray
-
     private static let classes: (configuration: AnyClass, assertion: AnyClass)? = {
         guard
             dlopen(frameworkPath, RTLD_NOW) != nil,
@@ -83,11 +66,33 @@ final class MenuBarAssessmentAssertion27: ConcealmentBackend27 {
         classes != nil
     }
 
-    func activate(allowedBundleIDs: [String]) async throws -> ConcealmentToken27 {
+    /// Activates an assertion that keeps the given applications' items and numbered system items.
+    ///
+    /// The list of system items comes from the caller.
+    ///
+    /// MenuBarAgent numbers its system items, and on macOS 27.0 only 0 (battery), 2 (clock),
+    /// 6 (Wi-Fi) and 8 (Control Centre) draw anything. It accepted every number up to 127,
+    /// offered one at a time and all at once. The list holds that whole measured range
+    /// (`SystemItems27`) except the numbers of the system items the user hid, so a system item
+    /// added by a later build is not concealed: holzBar hides applications' items, and the
+    /// system's only when the user asks. jordanbaird/Ice#1001 (@carlossantos74) keeps 0 to 63,
+    /// which lies inside it.
+    ///
+    /// Control Centre's capture indicator — the green camera button, orange for the microphone,
+    /// indigo for screen sharing — is not one of these numbers and cannot be kept. It is drawn
+    /// while no assertion is live and gone while one is, whatever the allowlist holds: every
+    /// number to 127, Control Centre's bundle identifier, the capturing application's own. The
+    /// small green dot beside the clock is not an item and stays either way. Measured with
+    /// `Scripts/macos27/system-item-probe.swift` on macOS 27.0 (2026-09-29).
+    func activate(allowedBundleIDs: [String], allowedSystemItems: [Int]) async throws -> ConcealmentToken27 {
         guard
             let classes = Self.classes,
             let configuration = (classes.configuration.alloc() as AnyObject)
-                .perform(Self.configureSelector, with: Self.systemItems, with: allowedBundleIDs as NSArray)?
+                .perform(
+                    Self.configureSelector,
+                    with: allowedSystemItems.map { NSNumber(value: $0) } as NSArray,
+                    with: allowedBundleIDs as NSArray
+                )?
                 .takeUnretainedValue(),
             let assertion = (classes.assertion.alloc() as AnyObject)
                 .perform(NSSelectorFromString("init"))?

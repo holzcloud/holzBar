@@ -72,6 +72,13 @@ final class GeneralSettings {
         }
     }
 
+    /// Whether the holzBar Shelf hangs directly below the menu bar or floats a little below it.
+    var shelfStyle: HolzBarShelfStyle = .attached {
+        didSet {
+            Defaults.set(shelfStyle.rawValue, forKey: .shelfStyle)
+        }
+    }
+
     /// How the holzBar Shelf arranges its items.
     var shelfLayout: ShelfLayout = .row {
         didSet {
@@ -93,6 +100,14 @@ final class GeneralSettings {
     var animatesShowHide = true {
         didSet {
             Defaults.set(animatesShowHide, forKey: .animatesShowHide)
+        }
+    }
+
+    /// A Boolean value that indicates whether the search offers category chips. While it is off
+    /// nothing is classified and no application bundle is read.
+    var smartCategories = true {
+        didSet {
+            Defaults.set(smartCategories, forKey: .smartCategories)
         }
     }
 
@@ -223,6 +238,9 @@ final class GeneralSettings {
                 shelfLocation = location
             }
         }
+        Defaults.ifPresent(key: .shelfStyle) { (rawValue: Int) in
+            shelfStyle = HolzBarShelfStyle.stored(rawValue)
+        }
         Defaults.ifPresent(key: .shelfLayout) { rawValue in
             if let layout = ShelfLayout(rawValue: rawValue) {
                 shelfLayout = layout
@@ -231,6 +249,7 @@ final class GeneralSettings {
         Defaults.ifPresent(key: .animatesShelf, assign: &animatesShelf)
         Defaults.ifPresent(key: .animatesShowHide, assign: &animatesShowHide)
         Defaults.ifPresent(key: .showsNotchOverflowInShelf, assign: &showsNotchOverflowInShelf)
+        Defaults.ifPresent(key: .smartCategories, assign: &smartCategories)
         Defaults.ifPresent(key: .shelfDisplays) { rawValue in
             if let displays = HolzBarShelfDisplays(rawValue: rawValue) {
                 shelfDisplays = displays
