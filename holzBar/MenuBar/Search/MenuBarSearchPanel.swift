@@ -226,6 +226,12 @@ private struct MenuBarSearchContentView: View {
         !itemManager.itemCache.managedItems.isEmpty
     }
 
+    /// Whether the search offers categories. With the setting off nothing is classified, no
+    /// application bundle is read and no chip is drawn.
+    private var usesCategories: Bool {
+        appState.settings.general.smartCategories
+    }
+
     private var bottomBarPadding: CGFloat {
         if #available(macOS 26.0, *) { 7 } else { 5 }
     }
@@ -244,6 +250,10 @@ private struct MenuBarSearchContentView: View {
             searchFieldIsFocused = true
         }
         .onChange(of: model.searchText, initial: true) {
+            updateDisplayedItems()
+            selectFirstDisplayedItem()
+        }
+        .onChange(of: usesCategories) {
             updateDisplayedItems()
             selectFirstDisplayedItem()
         }
@@ -272,7 +282,7 @@ private struct MenuBarSearchContentView: View {
                 isFocused: $searchFieldIsFocused
             )
 
-            if hasItems, !model.presentCategories.isEmpty {
+            if usesCategories, hasItems, !model.presentCategories.isEmpty {
                 MenuBarSearchCategoryRow(
                     categories: model.presentCategories,
                     selection: Bindable(model).selectedCategory
@@ -345,19 +355,22 @@ private struct MenuBarSearchContentView: View {
         }
 
         // Each item's category, worked out from static facts. The same reader serves the
-        // whole panel, so each application's bundle is read once.
+        // whole panel, so each application's bundle is read once. With the setting off none
+        // of this runs.
         var categories = [MenuBarItemTag: ItemCategory]()
-        for name in sections {
-            for item in itemManager.itemCache[name] {
-                let facts = model.facts.classifiable(item, in: name, using: itemManager)
-                categories[item.tag] = ItemCategoryClassifier.category(of: facts)
+        if usesCategories {
+            for name in sections {
+                for item in itemManager.itemCache[name] {
+                    let facts = model.facts.classifiable(item, in: name, using: itemManager)
+                    categories[item.tag] = ItemCategoryClassifier.category(of: facts)
+                }
             }
         }
         let present = ItemCategoryChips.chips(present: Array(categories.values))
         if model.presentCategories != present {
             model.presentCategories = present
         }
-        // A category with no item any more cannot stay selected.
+        // A category with no item any more, or a setting that is off, leaves the selection at All.
         if let selected = model.selectedCategory, !present.contains(selected) {
             model.selectedCategory = nil
         }

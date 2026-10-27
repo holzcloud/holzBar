@@ -103,6 +103,14 @@ final class GeneralSettings {
         }
     }
 
+    /// A Boolean value that indicates whether the search offers category chips. While it is off
+    /// nothing is classified and no application bundle is read.
+    var smartCategories = true {
+        didSet {
+            Defaults.set(smartCategories, forKey: .smartCategories)
+        }
+    }
+
     /// The displays the holzBar Shelf is used on.
     var shelfDisplays: HolzBarShelfDisplays = .all {
         didSet {
@@ -241,6 +249,7 @@ final class GeneralSettings {
         Defaults.ifPresent(key: .animatesShelf, assign: &animatesShelf)
         Defaults.ifPresent(key: .animatesShowHide, assign: &animatesShowHide)
         Defaults.ifPresent(key: .showsNotchOverflowInShelf, assign: &showsNotchOverflowInShelf)
+        Defaults.ifPresent(key: .smartCategories, assign: &smartCategories)
         Defaults.ifPresent(key: .shelfDisplays) { rawValue in
             if let displays = HolzBarShelfDisplays(rawValue: rawValue) {
                 shelfDisplays = displays

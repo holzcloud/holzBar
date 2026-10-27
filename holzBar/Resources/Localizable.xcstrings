@@ -21996,6 +21996,62 @@
           }
         }
       }
+    },
+    "Smart Categories" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smarte Kategorien"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catégories intelligentes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categorie intelligenti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Categorias intelligentas"
+          }
+        }
+      }
+    },
+    "Adds category buttons to the search, such as Network and Media, worked out from what holzBar can read about each app. Nothing is recorded." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fügt der Suche Kategorie-Schaltflächen hinzu, etwa Netzwerk und Medien, ermittelt aus dem, was holzBar über jede App lesen kann. Es wird nichts aufgezeichnet."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajoute à la recherche des boutons de catégorie, comme Réseau et Médias, déduits de ce que holzBar peut lire sur chaque app. Rien n’est enregistré."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiunge alla ricerca pulsanti di categoria, come Rete e Media, ricavati da ciò che holzBar può leggere su ogni app. Non viene registrato nulla."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agiunscha a la tschertga buttuns da categoria, sco Rait e Medias, deducids da quai che holzBar po leger davart mintga app. Nagut na vegn registrà."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

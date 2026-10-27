@@ -224,6 +224,9 @@ nonisolated extension Defaults {
         /// Whether the usage suggestions count how often items are opened. Local to the Mac:
         /// never exported, imported or synced.
         case usageSuggestionsEnabled = "UsageSuggestionsEnabled"
+        /// Whether the search offers category chips (on by default). A new key, so it takes no
+        /// old name. It is exported and imported like the other choices.
+        case smartCategories = "SmartCategories"
         /// The saved looks of the menu bar (moods), as JSON.
         case appearanceMoods = "AppearanceMoods"
         /// The automation rules, as JSON (`AutomationRule`).
@@ -337,6 +340,7 @@ nonisolated extension Defaults.Key {
             .systemItemsMayHide,
             .lockHiddenItems,
             .usageSuggestionsEnabled,
+            .smartCategories,
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
             .autoZenWhileSharingScreen,

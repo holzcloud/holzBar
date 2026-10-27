@@ -166,6 +166,20 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("Smart Categories travels with a settings file, as a Boolean only")
+    func smartCategoriesTravels() {
+        #expect(Defaults.Key.smartCategories.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.smartCategories))
+        #expect(Defaults.Key.importableKinds["SmartCategories"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["SmartCategories": false], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["SmartCategories"])
+        for refused: Any in [1, 0.5, "yes"] {
+            let result = Defaults.Key.validatedSettings(["SmartCategories": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+            #expect(result.ignored == ["SmartCategories"])
+        }
+    }
+
     @Test("A settings file cannot drop event barrier exits")
     func settingsFileCannotDropBarrierExits() {
         #expect(Defaults.Key.localOnlyKeys.contains(.debugDropsBarrierExitEvent))
