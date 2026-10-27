@@ -219,4 +219,61 @@ struct AppleItemReplacementTests {
         #expect(AppleItemReplacement.id(fromAutosaveName: "") == nil)
         #expect(!WidgetDefinition.isAutosaveName(replacement.autosaveName))
     }
+
+    // MARK: The import path
+
+    private let ownBundle = "com.holzcloud.holzBar"
+
+    @Test("A settings file brings only the valid, corrected and cleaned replacements")
+    func importNormalizes() throws {
+        let duplicateID = UUID()
+        let elements = [
+            element(key: "com.apple.controlcenter:FocusModes", title: "Focus"),
+            element(key: "com.example.app:Item-0", title: "Foreign"),
+            element(key: "com.apple.MenuBarAgent:com.apple.menuextra.clock", title: "Clock"),
+            element(key: "com.apple.a:Symbol", title: "Symbol", symbol: "bogus.symbol"),
+            element(key: "com.apple.b:Control", title: "Con\u{0}trol\u{202E}"),
+            element(key: "com.apple.controlcenter:FocusModes", title: "Same key"),
+            element(duplicateID, key: "com.apple.c:One", title: "One"),
+            element(duplicateID, key: "com.apple.d:Two", title: "Two"),
+        ]
+        let result = Defaults.Key.validatedSettings(["AppleItemReplacements": try data(elements)], ownBundleIdentifier: ownBundle)
+        #expect(result.ignored.isEmpty)
+        let accepted = try #require(result.accepted["AppleItemReplacements"] as? Data)
+        let list = AppleItemReplacementList.decode(accepted)
+        #expect(list.map(\.title) == ["Focus", "Symbol", "Control", "One"])
+        #expect(list.map(\.symbolName) == ["moon", "star", "moon", "moon"])
+    }
+
+    @Test("Data that is not a list is removed and reported")
+    func importRefusesNonLists() {
+        let result = Defaults.Key.validatedSettings(
+            ["AppleItemReplacements": Data(#"{"itemKey": "com.apple.a:One"}"#.utf8)],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted["AppleItemReplacements"] == nil)
+        #expect(result.ignored == ["AppleItemReplacements"])
+    }
+
+    @Test("Data over the size limit is removed and reported")
+    func importRefusesOversize() {
+        let big = Data(repeating: 0x20, count: AppleItemReplacementList.maximumDataSize + 1)
+        let result = Defaults.Key.validatedSettings(["AppleItemReplacements": big], ownBundleIdentifier: ownBundle)
+        #expect(result.accepted["AppleItemReplacements"] == nil)
+        #expect(result.ignored == ["AppleItemReplacements"])
+    }
+
+    @Test("A value that is not data is refused by the schema")
+    func importRefusesOtherKinds() {
+        let result = Defaults.Key.validatedSettings(["AppleItemReplacements": "com.apple.a:One"], ownBundleIdentifier: ownBundle)
+        #expect(result.accepted["AppleItemReplacements"] == nil)
+        #expect(result.ignored == ["AppleItemReplacements"])
+    }
+
+    @Test("Normalizing already normalized data returns the same bytes")
+    func importIsIdempotent() throws {
+        let json = try data([element(key: "com.apple.a:One", title: "One"), element(key: "com.apple.b:Two", title: "Two")])
+        let first = try #require(AppleItemReplacementList.normalized(json))
+        #expect(AppleItemReplacementList.normalized(first) == first)
+    }
 }

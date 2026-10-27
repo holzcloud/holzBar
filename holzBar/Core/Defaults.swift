@@ -519,6 +519,17 @@ nonisolated extension Defaults.Key {
                 result.ignored = (result.ignored + [widgetsKey]).sorted()
             }
         }
+        // A file never brings a replacement item for anything but an Apple application, more than
+        // six, or a symbol the app does not offer: the list is decoded, validated and encoded again.
+        let replacementsKey = Self.appleItemReplacements.rawValue
+        if let data = result.accepted[replacementsKey] as? Data {
+            if let normalized = AppleItemReplacementList.normalized(data) {
+                result.accepted[replacementsKey] = normalized
+            } else {
+                result.accepted.removeValue(forKey: replacementsKey)
+                result.ignored = (result.ignored + [replacementsKey]).sorted()
+            }
+        }
         // A file never conceals holzBar itself: an entry for holzBar's own bundle in the macOS 27
         // layout would hide its icon and dividers. Widgets are keyed by their autosave names.
         let layoutKey = Self.macOS27Layout.rawValue
