@@ -30,6 +30,12 @@
             "value" : "Copyright © 2025 Jordan Baird. holzBar modifications © 2026 holzcloud."
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2025 Jordan Baird. Modificaciones para holzBar © 2026 holzcloud."
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -42,10 +48,40 @@
             "value" : "Copyright © 2025 Jordan Baird. Modifiche per holzBar © 2026 holzcloud."
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2025 Jordan Baird. holzBar の変更部分 © 2026 holzcloud."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2025 Jordan Baird. holzBar 수정 사항 © 2026 holzcloud."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2025 Jordan Baird. Modificações para o holzBar © 2026 holzcloud."
+          }
+        },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Copyright © 2025 Jordan Baird. Midadas per holzBar © 2026 holzcloud."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2025 Jordan Baird. Изменения для holzBar © 2026 holzcloud."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2025 Jordan Baird。holzBar 修改部分 © 2026 holzcloud。"
           }
         }
       }
@@ -54,16 +90,22 @@
       "comment" : "Location usage description",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar liest den Namen des WLAN-Netzwerks, mit dem du verbunden bist, damit eine Automatisierungsregel darauf reagieren kann. Dein Standort wird nicht gelesen."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "holzBar reads the name of the Wi-Fi network you are connected to, so an automation rule can react to it. It does not read your location."
           }
         },
-        "de" : {
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar liest den Namen des WLAN-Netzwerks, mit dem du verbunden bist, damit eine Automatisierungsregel darauf reagieren kann. Dein Standort wird nicht gelesen."
+            "value" : "holzBar lee el nombre de la red Wi-Fi a la que estás conectado para que una regla de automatización pueda reaccionar a él. No lee tu ubicación."
           }
         },
         "fr" : {
@@ -78,10 +120,40 @@
             "value" : "holzBar legge il nome della rete Wi-Fi a cui sei connesso, così una regola di automazione può reagire. La tua posizione non viene letta."
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、接続している Wi-Fi ネットワークの名前を読み取り、オートメーションルールがそれに反応できるようにします。位置情報は読み取りません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 자동화 규칙이 반응할 수 있도록 연결된 Wi-Fi 네트워크의 이름을 읽습니다. 사용자의 위치는 읽지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar lê o nome da rede Wi-Fi à qual você está conectado para que uma regra de automação possa reagir a ele. Ele não lê a sua localização."
+          }
+        },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar legia il num da la rait WLAN cun la quala ti es collià, per che ina regla d’automatisaziun possia reagir. Tia posiziun na vegn betg legida."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar считывает название сети Wi-Fi, к которой вы подключены, чтобы правило автоматизации могло на неё реагировать. Местоположение не считывается."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 会读取你所连接的 Wi-Fi 网络的名称，以便自动化规则可以据此做出反应。它不会读取你的位置。"
           }
         }
       }
@@ -90,16 +162,22 @@
       "comment" : "Location usage description",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar liest den Namen des WLAN-Netzwerks, mit dem du verbunden bist, damit eine Automatisierungsregel darauf reagieren kann. Dein Standort wird nicht gelesen."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "holzBar reads the name of the Wi-Fi network you are connected to, so an automation rule can react to it. It does not read your location."
           }
         },
-        "de" : {
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar liest den Namen des WLAN-Netzwerks, mit dem du verbunden bist, damit eine Automatisierungsregel darauf reagieren kann. Dein Standort wird nicht gelesen."
+            "value" : "holzBar lee el nombre de la red Wi-Fi a la que estás conectado para que una regla de automatización pueda reaccionar a él. No lee tu ubicación."
           }
         },
         "fr" : {
@@ -114,10 +192,40 @@
             "value" : "holzBar legge il nome della rete Wi-Fi a cui sei connesso, così una regola di automazione può reagire. La tua posizione non viene letta."
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、接続している Wi-Fi ネットワークの名前を読み取り、オートメーションルールがそれに反応できるようにします。位置情報は読み取りません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 자동화 규칙이 반응할 수 있도록 연결된 Wi-Fi 네트워크의 이름을 읽습니다. 사용자의 위치는 읽지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar lê o nome da rede Wi-Fi à qual você está conectado para que uma regra de automação possa reagir a ele. Ele não lê a sua localização."
+          }
+        },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar legia il num da la rait WLAN cun la quala ti es collià, per che ina regla d’automatisaziun possia reagir. Tia posiziun na vegn betg legida."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar считывает название сети Wi-Fi, к которой вы подключены, чтобы правило автоматизации могло на неё реагировать. Местоположение не считывается."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 会读取你所连接的 Wi-Fi 网络的名称，以便自动化规则可以据此做出反应。它不会读取你的位置。"
           }
         }
       }
@@ -126,16 +234,22 @@
       "comment" : "Bluetooth usage description",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar liest, welche deiner gekoppelten Bluetooth-Geräte verbunden sind, damit eine Automatisierungsregel darauf reagieren kann. Das geschieht nur, solange eine Regel diese Bedingung verwendet."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "holzBar reads which of your paired Bluetooth devices are connected, so an automation rule can react to it. It only does so while a rule uses this condition."
           }
         },
-        "de" : {
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar liest, welche deiner gekoppelten Bluetooth-Geräte verbunden sind, damit eine Automatisierungsregel darauf reagieren kann. Das geschieht nur, solange eine Regel diese Bedingung verwendet."
+            "value" : "holzBar lee cuáles de tus dispositivos Bluetooth vinculados están conectados para que una regla de automatización pueda reaccionar. Solo lo hace mientras una regla usa esta condición."
           }
         },
         "fr" : {
@@ -150,10 +264,40 @@
             "value" : "holzBar legge quali dei tuoi dispositivi Bluetooth associati sono connessi, in modo che una regola di automazione possa reagire. Lo fa solo finché una regola usa questa condizione."
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、オートメーションルールが反応できるように、ペアリング済みの Bluetooth デバイスのうちどれが接続中かを読み取ります。ルールがこの条件を使用している間だけ読み取ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 자동화 규칙이 반응할 수 있도록 페어링된 Bluetooth 기기 중 어떤 기기가 연결되어 있는지 읽습니다. 규칙이 이 조건을 사용하는 동안에만 읽습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar lê quais dos seus dispositivos Bluetooth pareados estão conectados para que uma regra de automação possa reagir. Ele só faz isso enquanto uma regra usa esta condição."
+          }
+        },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar legia tge apparats Bluetooth associads che èn colliads, uschia che ina regla d’automatisaziun po reagir. Quai capita mo uschè ditg che ina regla utilisescha questa cundiziun."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar считывает, какие из ваших сопряжённых устройств Bluetooth подключены, чтобы правило автоматизации могло на это реагировать. Это происходит только пока правило использует это условие."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 会读取你已配对的蓝牙设备中哪些已连接，以便自动化规则可以据此做出反应。仅在有规则使用此条件期间才会读取。"
           }
         }
       }

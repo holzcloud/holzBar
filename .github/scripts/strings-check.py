@@ -2,15 +2,15 @@
 #
 # strings-check.py
 #
-# Proves that holzBar speaks its five languages (ICE-05): English, the source
-# language, and German, French, Italian and Romansh, the languages of
-# https://holzcloud.ch/holzbar.
+# Proves that holzBar speaks its eleven languages: English, the source
+# language, and German, French, Italian, Romansh, Spanish, Brazilian
+# Portuguese, Japanese, Simplified Chinese, Korean and Russian.
 #
 #   1. Every String Catalog in holzBar/Resources parses as JSON with English as
 #      its source language.
-#   2. Every entry that is to be translated has a translated, non-empty German,
-#      French, Italian and Romansh value (plural variations included), and each
-#      translation keeps the format specifiers of its key.
+#   2. Every entry that is to be translated has a translated, non-empty value
+#      in each of the ten languages besides English (plural variations
+#      included), and each translation keeps the format specifiers of its key.
 #   3. Every string literal in a localisable position of holzBar's Swift code
 #      (SwiftUI initialisers and modifiers, String(localized:), App Intents
 #      titles, NSMenuItem titles, alert texts, tooltips, accessibility labels)
@@ -32,7 +32,7 @@ import sys
 
 RESOURCES = "holzBar/Resources"
 SOURCE_DIR = "holzBar"
-LANGUAGES = ("de", "fr", "it", "rm")
+LANGUAGES = ("de", "fr", "it", "rm", "es", "pt-BR", "ja", "zh-Hans", "ko", "ru")
 
 # A format specifier as Xcode writes it into a catalog key.
 SPECIFIER = r"%(?:\d+\$)?(?:@|lld|llu|ld|lu|d|u|lf|f|g)"

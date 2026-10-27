@@ -10,8 +10,8 @@ Accessibility *support* (this page) is not the Accessibility *permission* holzBa
 - **Full Keyboard Access**: System Settings → Accessibility → Keyboard.
 - **Voice Control**: System Settings → Accessibility → Voice Control. Say "show names", then "click …".
 - **Display options**: System Settings → Accessibility → Display: Reduce Motion, Increase Contrast, Reduce Transparency, Differentiate without color.
-- **Language**: System Settings → General → Language & Region → Applications, or `open -a holzBar --args -AppleLanguages "(de)"` with de, fr, it or rm.
-- macOS has no Dynamic Type, so check long German and Romansh text instead.
+- **Language**: System Settings → General → Language & Region → Applications, or `open -a holzBar --args -AppleLanguages "(de)"` with de, fr, it, rm, es, pt-BR, ja, zh-Hans, ko or ru.
+- macOS has no Dynamic Type, so check long German, Romansh and Russian text instead.
 
 ## For every screen
 
@@ -24,7 +24,7 @@ Screens: Settings (General, Menu Bar Layout, Menu Bar Appearance, Automation, Mo
 5. **Reduce Transparency**: glass becomes opaque and the text stays readable.
 6. **Increase Contrast**: groups are opaque, borders and text are clearly visible.
 7. **Differentiate without color**: no state is shown by colour alone.
-8. **Languages**: in German and Romansh nothing is cut off or overlaps.
+8. **Languages**: in German, Romansh and Russian (the longest) nothing is cut off or overlaps.
 9. **Contrast**: text at least 4.5:1; large text, symbols and borders at least 3:1; in light, in dark and on glass. Measure on a screenshot with Digital Color Meter.
 
 ## Screens with special points

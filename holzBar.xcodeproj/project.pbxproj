@@ -106,6 +106,12 @@
 				fr,
 				it,
 				rm,
+				es,
+				"pt-BR",
+				ja,
+				"zh-Hans",
+				ko,
+				ru,
 			);
 			mainGroup = 716683212A767E6A006ABF84;
 			packageReferences = (
