@@ -114,21 +114,21 @@ struct WidgetDefinitionTests {
         #expect(keys.allSatisfy { !$0.lowercased().contains("shortcut") })
         #expect(
             keys == [
-                "buttonShowsSymbol", "buttonTitle", "id", "kind", "preset", "showsSeconds", "showsSymbol",
-                "source", "uses24HourClock",
+                "buttonShowsSymbol", "buttonTitle", "id", "kind", "mediaOnlyWhenActive", "preset", "showsSeconds",
+                "showsSymbol", "source", "timerMinutes", "uses24HourClock",
             ]
         )
         let labels = Mirror(reflecting: button).children.compactMap(\.label)
         #expect(labels.allSatisfy { !$0.lowercased().contains("shortcut") })
     }
 
-    @Test("A seventh widget is dropped (D-05)")
-    func capIsSix() throws {
-        #expect(WidgetDefinition.maximumCount == 6)
-        let seven = (0..<7).map { _ in element() }
-        let list = WidgetList.decode(try data(seven), now: now)
-        #expect(list.count == 6)
-        #expect(list.map(\.id.uuidString) == seven.prefix(6).compactMap { $0["id"] as? String })
+    @Test("A thirteenth widget is dropped (D-05)")
+    func capIsTwelve() throws {
+        #expect(WidgetDefinition.maximumCount == 12)
+        let thirteen = (0..<13).map { _ in element() }
+        let list = WidgetList.decode(try data(thirteen), now: now)
+        #expect(list.count == 12)
+        #expect(list.map(\.id.uuidString) == thirteen.prefix(12).compactMap { $0["id"] as? String })
     }
 
     @Test("An element of an unknown kind or source is skipped and the rest is kept")
@@ -300,14 +300,14 @@ struct WidgetDefinitionTests {
         #expect(WidgetList.normalized(Data("[]".utf8), now: now) == Data("[]".utf8))
     }
 
-    @Test("A normalised list holds at most six validated widgets without unknown fields (D-25, T-12-04)")
+    @Test("A normalised list holds at most the cap of validated widgets without unknown fields (D-25, T-12-04)")
     func normalisation() throws {
-        let elements = (0..<7).map { index in
+        let elements = (0...WidgetDefinition.maximumCount).map { index in
             element(source: "cpu", ["refreshSeconds": 0, "extra": "x\(index)"])
         }
         let normalized = try #require(WidgetList.normalized(try data(elements), now: now))
         let objects = try #require(try JSONSerialization.jsonObject(with: normalized) as? [[String: Any]])
-        #expect(objects.count == 6)
+        #expect(objects.count == WidgetDefinition.maximumCount)
         #expect(objects.allSatisfy { $0["extra"] == nil })
         #expect(objects.allSatisfy { ($0["refreshSeconds"] as? Int) == 2 })
         #expect(WidgetList.normalized(normalized, now: now) == normalized)
@@ -343,8 +343,8 @@ struct WidgetDefinitionTests {
         #expect(keys.allSatisfy { !$0.lowercased().contains("script") })
         #expect(
             keys == [
-                "buttonShowsSymbol", "buttonTitle", "id", "kind", "preset", "showsSeconds", "showsSymbol",
-                "source", "uses24HourClock",
+                "buttonShowsSymbol", "buttonTitle", "id", "kind", "mediaOnlyWhenActive", "preset", "showsSeconds",
+                "showsSymbol", "source", "timerMinutes", "uses24HourClock",
             ]
         )
         #expect(objects.last?["kind"] as? String == "script")
@@ -417,9 +417,9 @@ struct WidgetDefinitionTests {
         #expect(WidgetRefreshPolicy.nextFire(for: .eventOnly, date: now, calendar: Calendar(identifier: .gregorian), isLowPowerMode: false) == nil)
     }
 
-    @Test("Scripts count towards the six widgets (D-05)")
+    @Test("Scripts count towards the cap of widgets (D-05)")
     func scriptsCountTowardsTheCap() throws {
-        let scripts = (0..<7).map { _ in element(kind: "script", ["preset": "narrowText"]) }
+        let scripts = (0...WidgetDefinition.maximumCount).map { _ in element(kind: "script", ["preset": "narrowText"]) }
         let list = WidgetList.decode(try data(scripts), now: now)
         #expect(list.count == WidgetDefinition.maximumCount)
         #expect(list.allSatisfy { $0.kind == .script && $0.preset == .narrowText })
@@ -430,5 +430,86 @@ struct WidgetDefinitionTests {
         #expect(text(.battery).symbolName == "battery.75percent")
         #expect(WidgetDefinition.button(title: "Go").symbolName == WidgetDefinition.buttonSymbolName)
         #expect(WidgetDefinition.script().symbolName == WidgetDefinition.scriptSymbolName)
+    }
+
+    // MARK: Built-in items (Phase 79)
+
+    @Test("A built-in item keeps its item and the one option that item has")
+    func builtInKeepsItsOption() throws {
+        var timer = WidgetDefinition.builtIn(.timer)
+        timer.timerMinutes = 500
+        timer.mediaOnlyWhenActive = true
+        timer.launcherBundleID = "com.apple.Music"
+        let validTimer = try #require(timer.validated(now: now))
+        #expect(validTimer.builtIn == .timer)
+        #expect(validTimer.timerMinutes == 60)
+        #expect(!validTimer.mediaOnlyWhenActive)
+        #expect(validTimer.launcherBundleID == nil)
+
+        var media = WidgetDefinition.builtIn(.media)
+        media.mediaOnlyWhenActive = true
+        media.timerMinutes = 25
+        let validMedia = try #require(media.validated(now: now))
+        #expect(validMedia.mediaOnlyWhenActive)
+        #expect(validMedia.timerMinutes == ItemTimer.defaultMinutes)
+
+        let launcher = WidgetDefinition.builtIn(.launcher, launcherBundleID: "com.apple.Music")
+        #expect(launcher.validated(now: now)?.launcherBundleID == "com.apple.Music")
+    }
+
+    @Test("A launcher keeps only a bundle identifier; any other text is dropped")
+    func launcherNeedsABundleIdentifier() throws {
+        for text in ["", "Music", "../../etc/passwd", "com.apple.Music\n", "https://example.com"] {
+            let launcher = WidgetDefinition.builtIn(.launcher, launcherBundleID: text)
+            let valid = try #require(launcher.validated(now: now))
+            #expect(valid.launcherBundleID == nil, "\(text)")
+        }
+    }
+
+    @Test("A built-in widget without an item is not a widget; other kinds forget the item")
+    func builtInNeedsAnItem() throws {
+        var none = WidgetDefinition.builtIn(.focus)
+        none.builtIn = nil
+        #expect(none.validated(now: now) == nil)
+
+        var other = text(.battery)
+        other.builtIn = .timer
+        other.timerMinutes = 30
+        other.launcherBundleID = "com.apple.Music"
+        let valid = try #require(other.validated(now: now))
+        #expect(valid.builtIn == nil)
+        #expect(valid.timerMinutes == ItemTimer.defaultMinutes)
+        #expect(valid.launcherBundleID == nil)
+    }
+
+    @Test("Built-in items round-trip through the stored list and share the cap")
+    func builtInRoundTrip() throws {
+        let items = BuiltInItem.allCases.map { WidgetDefinition.builtIn($0, launcherBundleID: "com.apple.Music") }
+        let encoded = try #require(WidgetList.encoded(items))
+        let decoded = WidgetList.decode(encoded, now: now)
+        #expect(decoded == items.compactMap { $0.validated(now: now) })
+        #expect(decoded.map(\.builtIn) == BuiltInItem.allCases)
+
+        let many = (0...WidgetDefinition.maximumCount).map { _ in WidgetDefinition.builtIn(.launcher, launcherBundleID: "com.apple.Music") }
+        let capped = WidgetList.decode(try #require(WidgetList.encoded(many)), now: now)
+        #expect(capped.count == WidgetDefinition.maximumCount)
+    }
+
+    @Test("An item of a kind of this build that has no item field, or an unknown item, is skipped")
+    func builtInUnknownItem() throws {
+        let missing = element(kind: "builtIn")
+        let unknown = element(kind: "builtIn", ["builtIn": "teleport"])
+        let good = element(kind: "builtIn", ["builtIn": "focus"])
+        let list = WidgetList.decode(try data([missing, unknown, good]), now: now)
+        #expect(list.map(\.builtIn) == [.focus])
+    }
+
+    @Test("A built-in item reads on events only; its symbol is its item's")
+    func builtInCadenceAndSymbol() {
+        for item in BuiltInItem.allCases {
+            let widget = WidgetDefinition.builtIn(item)
+            #expect(WidgetCadence(definition: widget) == .eventOnly)
+            #expect(widget.symbolName == item.symbolName)
+        }
     }
 }

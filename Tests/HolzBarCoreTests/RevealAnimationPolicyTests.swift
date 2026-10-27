@@ -12,19 +12,21 @@ struct RevealAnimationPolicyTests {
         #expect(!RevealAnimationPolicy.supportsDividerSteps(.accessibility27))
     }
 
-    @Test("On macOS 26 the divider steps with the setting on, Reduce Motion off and no drag")
+    @Test("On macOS 26 the divider steps in the smooth style with Reduce Motion off and no drag")
     func steps() {
         #expect(RevealAnimationPolicy.stepsDivider(
-            isEnabled: true, reduceMotion: false, backend: .service26, isDraggingItem: false
+            style: .smooth, reduceMotion: false, backend: .service26, isDraggingItem: false
         ))
     }
 
-    @Test("The setting off means no stepping on any backend")
-    func settingOff() {
-        for backend in backends {
-            #expect(!RevealAnimationPolicy.stepsDivider(
-                isEnabled: false, reduceMotion: false, backend: backend, isDraggingItem: false
-            ))
+    @Test("The instant and fade styles never step the divider, on any backend")
+    func otherStyles() {
+        for style in [RevealAnimationStyle.instant, .fade] {
+            for backend in backends {
+                #expect(!RevealAnimationPolicy.stepsDivider(
+                    style: style, reduceMotion: false, backend: backend, isDraggingItem: false
+                ))
+            }
         }
     }
 
@@ -32,7 +34,7 @@ struct RevealAnimationPolicyTests {
     func reduceMotion() {
         for backend in backends {
             #expect(!RevealAnimationPolicy.stepsDivider(
-                isEnabled: true, reduceMotion: true, backend: backend, isDraggingItem: false
+                style: .smooth, reduceMotion: true, backend: backend, isDraggingItem: false
             ))
         }
     }
@@ -41,7 +43,7 @@ struct RevealAnimationPolicyTests {
     func dragging() {
         for backend in backends {
             #expect(!RevealAnimationPolicy.stepsDivider(
-                isEnabled: true, reduceMotion: false, backend: backend, isDraggingItem: true
+                style: .smooth, reduceMotion: false, backend: backend, isDraggingItem: true
             ))
         }
     }
@@ -50,7 +52,7 @@ struct RevealAnimationPolicyTests {
     func otherBackends() {
         for backend in [MenuBarBackendKind.windowList, .accessibility27] {
             #expect(!RevealAnimationPolicy.stepsDivider(
-                isEnabled: true, reduceMotion: false, backend: backend, isDraggingItem: false
+                style: .smooth, reduceMotion: false, backend: backend, isDraggingItem: false
             ))
         }
     }

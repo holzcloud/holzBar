@@ -18,11 +18,8 @@ struct MoodsSection: View {
 
     var body: some View {
         HolzBarSection {
-            HStack {
-                Text("Moods")
-                    .font(.headline)
-                PreviewBadge()
-            }
+            Text("Moods")
+                .font(.headline)
         } content: {
             ForEach(appearanceManager.moods) { mood in
                 row(for: mood)

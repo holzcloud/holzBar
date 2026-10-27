@@ -264,10 +264,10 @@ struct ScriptStorageTests {
         #expect(file.validated().widgetScripts == [widgetID: "ok.sh"])
     }
 
-    @Test("At most six widget bindings are kept, the first by identifier (D-05)")
+    @Test("At most as many widget bindings as widgets are kept, the first by identifier (D-05)")
     func widgetScriptsAreCapped() {
         var file = ScriptStoreFile()
-        let ids = (1...9).map { String(format: "0A1B2C3D-0000-4000-8000-%012d", $0) }
+        let ids = (1...(WidgetDefinition.maximumCount + 3)).map { String(format: "0A1B2C3D-0000-4000-8000-%012d", $0) }
         file.widgetScripts = Dictionary(uniqueKeysWithValues: ids.map { ($0, "s.sh") })
         let kept = file.validated().widgetScripts
         #expect(kept.count == WidgetDefinition.maximumCount)
@@ -295,7 +295,7 @@ struct ScriptStorageTests {
         let bound = ScriptStoreFile.bindingWidgetScript("new.sh", for: live, in: stale, liveWidgets: [live])
         #expect(bound == [widgetID: "new.sh"])
 
-        // Six live widgets: a seventh cannot exist, but the widget that has a binding may change it.
+        // A full set of live widgets: one more cannot exist, but the widget that has a binding may change it.
         let liveIDs = try staleIDs.map { try #require(UUID(uuidString: $0)) }
         #expect(ScriptStoreFile.bindingWidgetScript("new.sh", for: live, in: stale, liveWidgets: Set(liveIDs)) == nil)
         let changed = ScriptStoreFile.bindingWidgetScript("new.sh", for: liveIDs[0], in: stale, liveWidgets: Set(liveIDs))

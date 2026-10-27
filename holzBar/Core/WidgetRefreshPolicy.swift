@@ -26,7 +26,8 @@ nonisolated enum WidgetCadence: Equatable, Sendable {
 
     /// The cadence of a widget: its kind and source, and the interval the user tuned.
     ///
-    /// A button never changes its text, a script widget changes it only when the host runs the
+    /// A button never changes its text, a built-in item changes it only on the host's own wait
+    /// (the timer ticks while it runs), a script widget changes it only when the host runs the
     /// script (on a reveal, a system event or a click, D-23), a countdown without a moment has
     /// nothing to count, and the tuned interval of CPU and memory is kept inside its range even when the definition was
     /// not validated.

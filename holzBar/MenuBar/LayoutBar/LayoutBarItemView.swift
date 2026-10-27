@@ -488,6 +488,17 @@ final class LayoutBarItemView: NSView {
             return
         }
         let neighbour = container.arrangedViews[index + step].item
+        if appState.layoutEditor.recordsChanges {
+            // Into the drawing; Apply lays the bar out.
+            if appState.layoutEditor.recordMove(item, relativeTo: neighbour, isRight: step > 0) {
+                Self.announce(step < 0
+                    ? String(localized: "\(item.displayName) moved left")
+                    : String(localized: "\(item.displayName) moved right"))
+            } else {
+                NSSound.beep()
+            }
+            return
+        }
         let destination: MenuBarItemManager.MoveDestination = step < 0 ? .leftOfItem(neighbour) : .rightOfItem(neighbour)
         let announcement = step < 0
             ? String(localized: "\(item.displayName) moved left")
@@ -504,6 +515,15 @@ final class LayoutBarItemView: NSView {
     /// Moves the item to another section.
     private func move(to section: MenuBarSection.Name) {
         guard checkMovable(), let appState else {
+            return
+        }
+        if appState.layoutEditor.recordsChanges {
+            // Into the drawing; Apply lays the bar out.
+            if appState.layoutEditor.recordSection(of: item, to: section) {
+                Self.announce(String(localized: "\(item.displayName) moved to \(section.displayString)"))
+            } else {
+                NSSound.beep()
+            }
             return
         }
         LayoutBarMoves.setSection(of: item, to: section, appState: appState)
@@ -697,7 +717,8 @@ extension LayoutBarItemView: NSDraggingSource {
             // cache now, which may also have changed during the drag.
             dragSourceContainer = nil
             sourceContainer?.canSetArrangedViews = true
-            if operation.isEmpty {
+            // A drawing changed by the drop shows in the rows once the drag has ended.
+            if operation.isEmpty || appState?.layoutEditor.draft != nil {
                 LayoutBarRouter.shared.showItemCache()
             }
         }

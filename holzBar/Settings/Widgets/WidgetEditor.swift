@@ -13,7 +13,8 @@ import SwiftUI
 /// countdown's moment, and the refresh interval of CPU and memory (D-02, D-09, D-10, D-11,
 /// D-15). A button offers its title or symbol and the name of its Shortcut (D-20, D-21). A
 /// script widget offers one of the scripts of the scripts folder, a fixed width and the symbol
-/// (D-23). Every change goes through ``MenuBarWidgets/update(_:)``, so the menu bar follows at
+/// (D-23). A built-in item offers what it has: a timer its length, the media item when it shows,
+/// a launcher its app. Every change goes through ``MenuBarWidgets/update(_:)``, so the menu bar follows at
 /// once.
 struct WidgetEditor: View {
     var widgets: MenuBarWidgets
@@ -36,6 +37,8 @@ struct WidgetEditor: View {
                     ShortcutButtonFields(widgets: widgets, id: id)
                 case .script:
                     ScriptWidgetFields(widgets: widgets, definition: definition)
+                case .builtIn:
+                    BuiltInItemFields(widgets: widgets, definition: definition)
                 }
                 HStack(spacing: HolzBarTheme.Spacing.sm) {
                     Button("Move Up", systemImage: "arrow.up") {
@@ -369,5 +372,92 @@ private struct ShortcutButtonFields: View {
         }
         updated.buttonTitle = WidgetDefinition.cleanedTitle(text)
         widgets.update(updated)
+    }
+}
+
+// MARK: - Built-in items
+
+/// The options of a built-in item: the timer's length, when the media item shows, the launcher's
+/// app. The items that open Apple's own item have no option; their editor says what a click does.
+private struct BuiltInItemFields: View {
+    var widgets: MenuBarWidgets
+    let definition: WidgetDefinition
+
+    private var appName: String? {
+        definition.launcherBundleID.flatMap { BuiltInItemActions.applicationName(forBundleID: $0) }
+    }
+
+    var body: some View {
+        switch definition.builtIn {
+        case .timer:
+            Picker("Length", selection: binding(\.timerMinutes)) {
+                ForEach(minuteChoices, id: \.self) { minutes in
+                    Text("\(minutes) min")
+                        .tag(minutes)
+                }
+            }
+            caption("A click starts the timer, the next click stops it. A sound plays when it ends.")
+        case .media:
+            Toggle("Only while sound plays", isOn: binding(\.mediaOnlyWhenActive))
+            caption("A click plays or pauses. A right-click offers previous and next. The item stays for two minutes after the sound stops.")
+        case .launcher:
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                if let appName {
+                    Text(verbatim: appName)
+                } else {
+                    Text("No app chosen")
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                }
+                Spacer(minLength: HolzBarTheme.Spacing.sm)
+                Button("Choose App…") {
+                    chooseApp()
+                }
+            }
+        case .airDrop:
+            caption("A click opens AirDrop. Drop files on the icon to share them.")
+        case .focus:
+            caption("A click opens Focus.")
+        case .userSwitching:
+            caption("A click opens fast user switching.")
+        case nil:
+            EmptyView()
+        }
+    }
+
+    /// The timer lengths, and the stored one when it is not among them.
+    private var minuteChoices: [Int] {
+        var choices = ItemTimer.minuteChoices
+        if !choices.contains(definition.timerMinutes) {
+            choices.append(definition.timerMinutes)
+            choices.sort()
+        }
+        return choices
+    }
+
+    private func chooseApp() {
+        guard let bundleID = BuiltInItemActions.chooseApplication() else {
+            return
+        }
+        var updated = definition
+        updated.launcherBundleID = bundleID
+        widgets.update(updated)
+    }
+
+    private func caption(_ text: LocalizedStringKey) -> some View {
+        Text(text)
+            .font(HolzBarTheme.Typography.caption)
+            .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func binding<Value>(_ keyPath: WritableKeyPath<WidgetDefinition, Value>) -> Binding<Value> {
+        Binding(
+            get: { definition[keyPath: keyPath] },
+            set: { value in
+                var updated = definition
+                updated[keyPath: keyPath] = value
+                widgets.update(updated)
+            }
+        )
     }
 }

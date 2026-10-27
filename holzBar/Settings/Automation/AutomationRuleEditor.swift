@@ -493,9 +493,6 @@ private struct AutomationConditionRow: View {
                 Text(verbatim: AutomationDescription.text(for: condition).capitalizedFirst)
                     .font(HolzBarTheme.Typography.body)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                if condition.isPreview {
-                    PreviewBadge()
-                }
                 Button(action: onRemove) {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(HolzBarTheme.Palette.textTertiary)

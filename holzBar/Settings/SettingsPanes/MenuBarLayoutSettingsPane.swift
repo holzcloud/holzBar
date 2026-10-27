@@ -34,6 +34,7 @@ struct MenuBarLayoutSettingsPane: View {
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }
                 ItemRuleNoticesSection()
+                LayoutDraftSection()
                 layoutBars
                 HolzBarSection {
                     HStack {
@@ -46,15 +47,7 @@ struct MenuBarLayoutSettingsPane: View {
                     }
                     .padding(10)
                 }
-                HolzBarSection {
-                    Toggle(isOn: Bindable(appState.settings.general).smartCategories) {
-                        HStack(spacing: HolzBarTheme.Spacing.sm) {
-                            Text("Smart Categories")
-                            PreviewBadge()
-                        }
-                    }
-                    .annotation("Adds category buttons to the search, such as Network and Media, worked out from what holzBar can read about each app. Nothing is recorded.")
-                }
+                SearchSettingsSection(general: appState.settings.general, opens: appState.searchOpens)
                 if !ScreenRecordingAccess.isGranted(appState) {
                     // Without Screen Recording the items show their apps' icons; the hint
                     // offers their real pictures.
@@ -132,6 +125,9 @@ struct MenuBarLayoutSettingsPane: View {
         {
             HolzBarSection(name.localized) {
                 LayoutBar(imageCache: appState.imageCache, section: name)
+                if appState.layoutEditor.newItemsSection == name {
+                    NewItemsTile()
+                }
             }
         }
     }
@@ -179,11 +175,8 @@ private struct ItemRuleNoticesSection: View {
         Group {
             if !notices.isEmpty {
                 HolzBarSection {
-                    HStack {
-                        Text("Put Back by a Rule")
-                            .font(.headline)
-                        PreviewBadge()
-                    }
+                    Text("Put Back by a Rule")
+                        .font(.headline)
                 } content: {
                     ForEach(notices) { notice in
                         row(for: notice)

@@ -203,7 +203,7 @@ jobs:
           # The listings only show the folders' contents in the log.
           # shellcheck disable=SC2012
           echo "Resources: $(ls "$RESOURCES" | tr '\n' ' ')"
-          for LANGUAGE in en de fr it rm; do
+          for LANGUAGE in en de fr it rm es pt-BR ja zh-Hans ko ru; do
             # shellcheck disable=SC2012
             FILES=$(ls "$RESOURCES/$LANGUAGE.lproj" 2>/dev/null | tr '\n' ' ' || true)
             echo "$LANGUAGE.lproj: ${FILES:-missing}"
@@ -219,7 +219,7 @@ jobs:
           if [ "$FAILED" -ne 0 ]; then
             exit 1
           fi
-          echo "==> Five languages and the App Intents metadata in the app"
+          echo "==> Eleven languages and the App Intents metadata in the app"
 
       - name: Keep the app for the compatibility check
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -379,7 +379,8 @@ jobs:
       - name: Only the script runner and the permission reset start processes
         run: python3 .github/scripts/privacy-check.py processes
 
-  # holzBar speaks English, German, French, Italian and Romansh. Fails every pull
+  # holzBar speaks English, German, French, Italian, Romansh, Spanish, Brazilian
+  # Portuguese, Japanese, Simplified Chinese, Korean and Russian. Fails every pull
   # request that adds a text without its translations, or a translation that is
   # unfinished or changes the format specifiers of its text.
   # Runs locally too: python3 .github/scripts/strings-check.py
@@ -390,7 +391,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Every text in five languages
+      - name: Every text in eleven languages
         run: python3 .github/scripts/strings-check.py
 
   # The release workflow runs only for a v* tag, so a broken expression or script in it would

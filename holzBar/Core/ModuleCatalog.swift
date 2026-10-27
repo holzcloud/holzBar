@@ -76,7 +76,7 @@ nonisolated enum ModuleCatalog {
             area: .menuBar,
             symbol: "clock",
             titleKey: "Widgets",
-            summaryKey: "A clock, the battery and other readouts of your own in the menu bar.",
+            summaryKey: "Readouts, app launchers, a timer and media controls of your own in the menu bar.",
             permission: nil
         ),
         ModuleDescriptor(
@@ -93,8 +93,7 @@ nonisolated enum ModuleCatalog {
             symbol: "menubar.rectangle",
             titleKey: "Apple Items",
             summaryKey: "Hide the clock or Control Center, and keep Apple items one click away on macOS 27.",
-            permission: nil,
-            isPreview: true
+            permission: nil
         ),
         ModuleDescriptor(
             id: "notch-hub",
@@ -102,8 +101,7 @@ nonisolated enum ModuleCatalog {
             symbol: "capsule.tophalf.filled",
             titleKey: "Notch hub",
             summaryKey: "A panel at the notch for the modules you switch on.",
-            permission: nil,
-            isPreview: true
+            permission: nil
         ),
     ]
 

@@ -132,6 +132,16 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         // click replayed — and put back the moment their panel is up, rather than after a
         // fixed second and a half, which is what made every hidden item flash into view.
         let systemItem = MenuBarItemProvider27.systemItem(at: location)
+        // The user can leave the clock's click to macOS ("Open Notification Center from the
+        // clock"): it then reaches MenuBarAgent unchanged, which ignores it while items are
+        // concealed. The other system items stay bridged.
+        guard ClockClickPolicy.bridges(
+            item: systemItem?.identifier,
+            clockOpensNotificationCenter: appState.settings.general.clockOpensNotificationCenter
+        ) else {
+            panelMemory.forget()
+            return event
+        }
         let mayOpenFromPress = systemItem.map { !self.systemItemsIgnoringPress.contains($0.identifier) } ?? false
         let taken = panelMemory.takeForBridgedClick()
         Task {

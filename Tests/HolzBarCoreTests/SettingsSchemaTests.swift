@@ -166,6 +166,24 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The Shelf's find, fold and closed-application settings travel as their kinds, the fold's state stays on this Mac")
+    func shelfUpgradeSettings() {
+        for key in ["ShelfFindsByTyping", "ShelfShowsClosedApps", "ShelfDragsTiles"] {
+            #expect(Defaults.Key.importableKinds[key] == .bool)
+            let result = Defaults.Key.validatedSettings([key: 1.5], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+        #expect(Defaults.Key.importableKinds["ShelfAlwaysHiddenFold"] == .number)
+        let accepted = Defaults.Key.validatedSettings(["ShelfAlwaysHiddenFold": 1], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["ShelfAlwaysHiddenFold"])
+        for refused: Double in [16, -1, 1.5, .nan] {
+            let result = Defaults.Key.validatedSettings(["ShelfAlwaysHiddenFold": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+        #expect(Defaults.Key.localOnlyKeys.contains(.shelfAlwaysHiddenFoldOpen))
+        #expect(Defaults.Key.importableKinds["ShelfAlwaysHiddenFoldOpen"] == nil)
+    }
+
     @Test("Smart Categories travels with a settings file, as a Boolean only")
     func smartCategoriesTravels() {
         #expect(Defaults.Key.smartCategories.settingsKind == .bool)
@@ -350,7 +368,7 @@ struct SettingsSchemaTests {
 
     @Test("An imported widget list is normalised before it is applied (D-25, T-12-04)")
     func importedWidgetsAreNormalised() throws {
-        let elements: [[String: Any]] = (0..<7).map { index in
+        let elements: [[String: Any]] = (0...WidgetDefinition.maximumCount).map { index in
             [
                 "id": UUID().uuidString,
                 "kind": "text",
@@ -365,9 +383,9 @@ struct SettingsSchemaTests {
         let accepted = try #require(result.accepted["Widgets"] as? Data)
         #expect(result.ignored.isEmpty)
         let objects = try #require(try JSONSerialization.jsonObject(with: accepted) as? [[String: Any]])
-        #expect(objects.count == 6)
+        #expect(objects.count == WidgetDefinition.maximumCount)
         #expect(objects.allSatisfy { $0["shortcutName"] == nil })
-        #expect(WidgetList.decode(accepted).count == 6)
+        #expect(WidgetList.decode(accepted).count == WidgetDefinition.maximumCount)
         let broken = Defaults.Key.validatedSettings(["Widgets": Data(#"{"kind": "text"}"#.utf8)], ownBundleIdentifier: ownBundle)
         #expect(broken.accepted["Widgets"] == nil)
         #expect(broken.ignored == ["Widgets"])

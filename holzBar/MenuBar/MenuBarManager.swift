@@ -29,6 +29,20 @@ final class MenuBarManager {
     /// Zen mode: while it is active, hidden items stay hidden (see ``ZenMode``).
     private(set) var zenMode = ZenMode()
 
+    /// Follows the display under the pointer and applies its behaviour for the hidden items.
+    @ObservationIgnored private let displayBehaviorController = DisplayBehaviorController()
+
+    /// What the display under the pointer does with the hidden items now.
+    var displayBehavior: DisplayBehavior {
+        displayBehaviorController.effective
+    }
+
+    /// Whether the given trigger may reveal hidden items now: neither Zen mode nor the
+    /// display under the pointer (set to Collapse) refuses it.
+    func allowsReveal(_ trigger: ZenMode.Trigger) -> Bool {
+        zenMode.allows(trigger) && displayBehavior.allows(trigger)
+    }
+
     /// Logger for the menu bar manager.
     @ObservationIgnored private let logger = Logger(category: "MenuBarManager")
 
@@ -118,6 +132,7 @@ final class MenuBarManager {
         for section in sections {
             section.performSetup(with: appState)
         }
+        displayBehaviorController.performSetup(with: appState)
     }
 
     /// Configures the internal observers for the manager.
@@ -538,7 +553,7 @@ final class MenuBarManager {
         logger.notice("Zen mode \(state, privacy: .public) (\(cause, privacy: .public))")
         if newValue.isActive {
             for section in sections {
-                section.hide()
+                section.hide(isUserRequest: true)
             }
         }
     }
@@ -553,7 +568,7 @@ final class MenuBarManager {
     func revealBriefly(itemKey key: String) {
         guard
             let appState,
-            zenMode.allows(.changeReveal),
+            allowsReveal(.changeReveal),
             let item = appState.itemManager.item(withIdentityKey: key)
         else {
             return

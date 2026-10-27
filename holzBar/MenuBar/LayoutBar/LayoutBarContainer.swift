@@ -80,16 +80,17 @@ final class LayoutBarContainer: NSView {
         guard let appState else {
             return
         }
-        let itemManager = appState.itemManager
+        let editor = appState.layoutEditor
         let imageCache = appState.imageCache
-        setArrangedViews(items: itemManager.itemCache[section])
+        setArrangedViews(items: editor.items(in: section))
         layoutArrangedViews()
         observers = [
-            ObservationLoop.observe { itemManager.itemCache } onChange: { [weak self] cache in
+            // The drawing of the Layout pane, or the item cache while there is none.
+            ObservationLoop.observe { editor.revision } onChange: { [weak self] _ in
                 guard let self else {
                     return
                 }
-                setArrangedViews(items: cache[section])
+                setArrangedViews(items: editor.items(in: section))
             },
             ObservationLoop.observe { imageCache.images } onChange: { [weak self] _ in
                 self?.layoutArrangedViews()
@@ -375,7 +376,7 @@ final class LayoutBarRouter {
             guard let container = entry.container, let appState = container.appState else {
                 continue
             }
-            container.setArrangedViews(items: appState.itemManager.itemCache[container.section])
+            container.setArrangedViews(items: appState.layoutEditor.items(in: container.section))
         }
     }
 

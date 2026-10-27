@@ -12,9 +12,12 @@ import Foundation
 /// words. Everything is built with `String(localized:)`, so it follows the language of the app.
 nonisolated enum WidgetSpeech {
     /// The label of a widget: the name of its source, or a button's title, or "Shortcut" for a
-    /// button that has none, or "Script" for a script widget.
-    static func label(for definition: WidgetDefinition) -> String {
+    /// button that has none, or "Script" for a script widget, or the name of a built-in item
+    /// (a launcher's is its application's, when it is known).
+    static func label(for definition: WidgetDefinition, appName: String? = nil) -> String {
         switch definition.kind {
+        case .builtIn:
+            return label(for: definition.builtIn ?? .launcher, appName: appName)
         case .button:
             return definition.buttonTitle.isEmpty ? String(localized: "Shortcut") : definition.buttonTitle
         case .script:
@@ -24,17 +27,51 @@ nonisolated enum WidgetSpeech {
         }
     }
 
+    /// The name of a built-in item, as the settings and VoiceOver say it. A launcher is named
+    /// after its application when that is known.
+    static func label(for item: BuiltInItem, appName: String? = nil) -> String {
+        switch item {
+        case .focus: String(localized: "Focus")
+        case .airDrop: String(localized: "AirDrop")
+        case .media: String(localized: "Media Controls")
+        case .userSwitching: String(localized: "Fast User Switching")
+        case .timer: String(localized: "Timer")
+        case .launcher: appName ?? String(localized: "App Launcher")
+        }
+    }
+
     /// The hint of a button: the name of its Shortcut, or "Choose a Shortcut" while it has none
-    /// (D-27). A text widget has no action and no hint.
+    /// (D-27); of a built-in item: what a click does. A text widget has no action and no hint.
     ///
     /// - Parameters:
     ///   - definition: The widget.
     ///   - shortcutName: The Shortcut the button runs, kept on this Mac.
-    static func hint(for definition: WidgetDefinition, shortcutName: String?) -> String? {
+    ///   - appName: The application a launcher opens, when it is installed.
+    static func hint(for definition: WidgetDefinition, shortcutName: String?, appName: String? = nil) -> String? {
+        if definition.kind == .builtIn {
+            return hint(for: definition.builtIn ?? .launcher, appName: appName)
+        }
         guard definition.kind == .button else {
             return nil
         }
         return shortcutName ?? String(localized: "Choose a Shortcut")
+    }
+
+    /// What a click on a built-in item does, in a few words.
+    static func hint(for item: BuiltInItem, appName: String?) -> String {
+        switch item {
+        case .focus: String(localized: "Opens Focus")
+        case .airDrop: String(localized: "Opens AirDrop. Drop files here to share them.")
+        case .media: String(localized: "Plays or pauses. Right-click for previous and next.")
+        case .userSwitching: String(localized: "Opens fast user switching")
+        case .timer: String(localized: "Starts or stops the timer")
+        case .launcher:
+            if let appName {
+                String(localized: "Opens \(appName)")
+            } else {
+                String(localized: "Choose an app in the settings")
+            }
+        }
     }
 
     /// The name of a source. The same names are the titles in the settings.
@@ -86,6 +123,13 @@ nonisolated enum WidgetSpeech {
     ) -> String {
         if definition.kind == .button {
             // A button has no reading: VoiceOver says its label and its hint.
+            return ""
+        }
+        if definition.kind == .builtIn {
+            // Only the timer has a reading: the time it shows.
+            if definition.builtIn == .timer, case .line(let line) = reading {
+                return line
+            }
             return ""
         }
         if definition.kind == .script {

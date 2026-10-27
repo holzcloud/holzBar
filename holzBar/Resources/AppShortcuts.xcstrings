@@ -9,6 +9,12 @@
             "value" : "Ein Layoutprofil in ${applicationName} anwenden"
           }
         },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplicar un perfil de disposición en ${applicationName}"
+          }
+        },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
@@ -21,10 +27,40 @@
             "value" : "Applica un profilo di layout in ${applicationName}"
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} でレイアウトプロファイルを適用"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}에서 레이아웃 프로파일 적용"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplicar um perfil de layout no ${applicationName}"
+          }
+        },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Applitgar in profil da disposiziun en ${applicationName}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Применить профиль раскладки в ${applicationName}"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 ${applicationName} 中应用布局配置文件"
           }
         }
       }
@@ -35,6 +71,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ein Menüleistenelement mit ${applicationName} öffnen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir un elemento de la barra de menús con ${applicationName}"
           }
         },
         "fr" : {
@@ -49,10 +91,40 @@
             "value" : "Apri un elemento della barra dei menu con ${applicationName}"
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} でメニューバー項目を開く"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}으로 메뉴 막대 항목 열기"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir um item da barra de menus com o ${applicationName}"
+          }
+        },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Avrir in element da la trav da menu cun ${applicationName}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Открыть элемент строки меню с помощью ${applicationName}"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 ${applicationName} 打开菜单栏项目"
           }
         }
       }
@@ -63,6 +135,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Menüleistenelemente mit ${applicationName} suchen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar elementos de la barra de menús con ${applicationName}"
           }
         },
         "fr" : {
@@ -77,10 +155,40 @@
             "value" : "Cerca elementi della barra dei menu con ${applicationName}"
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} でメニューバー項目を検索"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}으로 메뉴 막대 항목 검색"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buscar itens da barra de menus com o ${applicationName}"
+          }
+        },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tschertgar elements da la trav da menu cun ${applicationName}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Найти элементы строки меню с помощью ${applicationName}"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 ${applicationName} 搜索菜单栏项目"
           }
         }
       }
@@ -91,6 +199,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zen-Modus in ${applicationName} umschalten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activar o desactivar el modo Zen en ${applicationName}"
           }
         },
         "fr" : {
@@ -105,10 +219,40 @@
             "value" : "Attiva o disattiva la modalità zen in ${applicationName}"
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} で Zen モードを切り替える"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}에서 젠 모드 전환"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ativar ou desativar o modo Zen no ${applicationName}"
+          }
+        },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Midar il modus zen en ${applicationName}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переключить режим «Дзен» в ${applicationName}"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 ${applicationName} 中切换禅模式"
           }
         }
       }
@@ -119,6 +263,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ausgeblendete Elemente in ${applicationName} umschalten"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar u ocultar los elementos ocultos en ${applicationName}"
           }
         },
         "fr" : {
@@ -133,10 +283,40 @@
             "value" : "Mostra o nascondi gli elementi nascosti in ${applicationName}"
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} で非表示の項目を切り替える"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName}에서 숨겨진 항목 전환"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibir ou ocultar os itens ocultos no ${applicationName}"
+          }
+        },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mussar u zuppentar ils elements zuppads en ${applicationName}"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показать или скрыть скрытые элементы в ${applicationName}"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 ${applicationName} 中切换隐藏项目的显示"
           }
         }
       }

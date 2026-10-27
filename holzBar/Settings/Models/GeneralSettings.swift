@@ -86,20 +86,35 @@ final class GeneralSettings {
         }
     }
 
-    /// A Boolean value that indicates whether the holzBar Shelf fades in when it opens. It
-    /// does not, whatever this says, while Reduce Motion is on.
-    var animatesShelf = true {
+    /// How showing and hiding looks (`RevealAnimationStyle`). With Reduce Motion on nothing
+    /// animates, whatever this says.
+    var revealAnimationStyle = RevealAnimationStyle.standard {
         didSet {
-            Defaults.set(animatesShelf, forKey: .animatesShelf)
+            Defaults.set(revealAnimationStyle.rawValue, forKey: .revealAnimationStyle)
         }
     }
 
-    /// A Boolean value that indicates whether showing and hiding the sections slides the
-    /// menu bar's items instead of switching them at once. Only macOS 26 does so, and not
-    /// while Reduce Motion is on, the holzBar Shelf is in use or an item is dragged.
-    var animatesShowHide = true {
+    /// A Boolean value that indicates whether a click on the clock opens Notification Center
+    /// while items are hidden (macOS 27).
+    var clockOpensNotificationCenter = true {
         didSet {
-            Defaults.set(animatesShowHide, forKey: .animatesShowHide)
+            Defaults.set(clockOpensNotificationCenter, forKey: .clockOpensNotificationCenter)
+        }
+    }
+
+    /// What each display does with the hidden items, by display UUID. The display under the
+    /// pointer wins (`DisplayBehavior`).
+    var displayBehaviors = DisplayBehaviors() {
+        didSet {
+            Defaults.set(displayBehaviors.stored, forKey: .displayBehaviors)
+        }
+    }
+
+    /// A Boolean value that indicates whether a change in the Menu Bar Layout pane moves the
+    /// item at once. Off, the pane draws a draft and Apply lays the bar out.
+    var appliesLayoutChangesImmediately = false {
+        didSet {
+            Defaults.set(appliesLayoutChangesImmediately, forKey: .appliesLayoutChangesImmediately)
         }
     }
 
@@ -123,6 +138,46 @@ final class GeneralSettings {
     var showsNotchOverflowInShelf = true {
         didSet {
             Defaults.set(showsNotchOverflowInShelf, forKey: .showsNotchOverflowInShelf)
+        }
+    }
+
+    /// A Boolean value that indicates whether typing in the holzBar Shelf finds an item. The
+    /// Shelf takes the keyboard when a hotkey opens it.
+    var shelfFindsByTyping = true {
+        didSet {
+            Defaults.set(shelfFindsByTyping, forKey: .shelfFindsByTyping)
+        }
+    }
+
+    /// Whether the holzBar Shelf opens the fold of the always-hidden items folded each time or
+    /// as the user left it.
+    var shelfAlwaysHiddenFold: ShelfAlwaysHiddenFold = .foldedEachTime {
+        didSet {
+            Defaults.set(shelfAlwaysHiddenFold.rawValue, forKey: .shelfAlwaysHiddenFold)
+        }
+    }
+
+    /// Whether the user left the fold of the always-hidden items open the last time. The Shelf
+    /// writes it when the fold is opened or closed; it stays on this Mac.
+    var shelfAlwaysHiddenFoldOpen = false {
+        didSet {
+            Defaults.set(shelfAlwaysHiddenFoldOpen, forKey: .shelfAlwaysHiddenFoldOpen)
+        }
+    }
+
+    /// A Boolean value that indicates whether the holzBar Shelf also lists the applications
+    /// that are not running, dimmed, and launches one that is clicked.
+    var shelfShowsClosedApps = false {
+        didSet {
+            Defaults.set(shelfShowsClosedApps, forKey: .shelfShowsClosedApps)
+        }
+    }
+
+    /// A Boolean value that indicates whether a tile of the holzBar Shelf can be dragged to put
+    /// the items in order, into another section or onto the menu bar.
+    var shelfDragsTiles = true {
+        didSet {
+            Defaults.set(shelfDragsTiles, forKey: .shelfDragsTiles)
         }
     }
 
@@ -246,10 +301,29 @@ final class GeneralSettings {
                 shelfLayout = layout
             }
         }
-        Defaults.ifPresent(key: .animatesShelf, assign: &animatesShelf)
-        Defaults.ifPresent(key: .animatesShowHide, assign: &animatesShowHide)
+        if let raw = Defaults.object(forKey: .revealAnimationStyle) as? Int {
+            revealAnimationStyle = RevealAnimationStyle.stored(raw)
+        } else {
+            // Earlier versions had a switch for the menu bar and one for the holzBar Shelf.
+            revealAnimationStyle = RevealAnimationStyle.migrated(
+                animatesShowHide: Defaults.object(forKey: .animatesShowHide) as? Bool,
+                animatesShelf: Defaults.object(forKey: .animatesShelf) as? Bool
+            )
+        }
+        if let stored = Defaults.dictionary(forKey: .displayBehaviors) {
+            displayBehaviors = DisplayBehaviors(stored: stored)
+        }
+        Defaults.ifPresent(key: .clockOpensNotificationCenter, assign: &clockOpensNotificationCenter)
+        Defaults.ifPresent(key: .appliesLayoutChangesImmediately, assign: &appliesLayoutChangesImmediately)
         Defaults.ifPresent(key: .showsNotchOverflowInShelf, assign: &showsNotchOverflowInShelf)
         Defaults.ifPresent(key: .smartCategories, assign: &smartCategories)
+        Defaults.ifPresent(key: .shelfFindsByTyping, assign: &shelfFindsByTyping)
+        Defaults.ifPresent(key: .shelfAlwaysHiddenFoldOpen, assign: &shelfAlwaysHiddenFoldOpen)
+        Defaults.ifPresent(key: .shelfShowsClosedApps, assign: &shelfShowsClosedApps)
+        Defaults.ifPresent(key: .shelfDragsTiles, assign: &shelfDragsTiles)
+        Defaults.ifPresent(key: .shelfAlwaysHiddenFold) { (rawValue: Int) in
+            shelfAlwaysHiddenFold = ShelfAlwaysHiddenFold.stored(rawValue)
+        }
         Defaults.ifPresent(key: .shelfDisplays) { rawValue in
             if let displays = HolzBarShelfDisplays(rawValue: rawValue) {
                 shelfDisplays = displays

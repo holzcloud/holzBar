@@ -14,11 +14,8 @@ struct UsageSuggestionsSection: View {
 
     var body: some View {
         HolzBarSection {
-            HStack {
-                Text("Usage Suggestions")
-                    .font(.headline)
-                PreviewBadge()
-            }
+            Text("Usage Suggestions")
+                .font(.headline)
         } content: {
             Toggle("Suggest items to hide", isOn: $usage.isEnabled)
                 .annotation("Counts how often you open each item, per day for 30 days. The counts stay on this Mac, are not exported or backed up, and are deleted when you turn this off.")

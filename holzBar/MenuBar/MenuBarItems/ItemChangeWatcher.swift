@@ -313,7 +313,7 @@ final class ItemChangeWatcher {
         }
         changeReveal.noteChange(
             key: key,
-            isZenActive: !appState.menuBarManager.zenMode.allows(.changeReveal),
+            isZenActive: !appState.menuBarManager.allowsReveal(.changeReveal),
             isVisible: isVisible(key, appState: appState),
             at: ProcessInfo.processInfo.systemUptime
         )

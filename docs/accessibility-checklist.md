@@ -10,8 +10,8 @@ Accessibility *support* (this page) is not the Accessibility *permission* holzBa
 - **Full Keyboard Access**: System Settings → Accessibility → Keyboard.
 - **Voice Control**: System Settings → Accessibility → Voice Control. Say "show names", then "click …".
 - **Display options**: System Settings → Accessibility → Display: Reduce Motion, Increase Contrast, Reduce Transparency, Differentiate without color.
-- **Language**: System Settings → General → Language & Region → Applications, or `open -a holzBar --args -AppleLanguages "(de)"` with de, fr, it or rm.
-- macOS has no Dynamic Type, so check long German and Romansh text instead.
+- **Language**: System Settings → General → Language & Region → Applications, or `open -a holzBar --args -AppleLanguages "(de)"` with de, fr, it, rm, es, pt-BR, ja, zh-Hans, ko or ru.
+- macOS has no Dynamic Type, so check long German, Romansh and Russian text instead.
 
 ## For every screen
 
@@ -24,7 +24,7 @@ Screens: Settings (General, Menu Bar Layout, Menu Bar Appearance, Automation, Mo
 5. **Reduce Transparency**: glass becomes opaque and the text stays readable.
 6. **Increase Contrast**: groups are opaque, borders and text are clearly visible.
 7. **Differentiate without color**: no state is shown by colour alone.
-8. **Languages**: in German and Romansh nothing is cut off or overlaps.
+8. **Languages**: in German, Romansh and Russian (the longest) nothing is cut off or overlaps.
 9. **Contrast**: text at least 4.5:1; large text, symbols and borders at least 3:1; in light, in dark and on glass. Measure on a screenshot with Digital Color Meter.
 
 ## Screens with special points
@@ -35,7 +35,7 @@ Screens: Settings (General, Menu Bar Layout, Menu Bar Appearance, Automation, Mo
 - **Profile Hooks**: the title is a heading; rows are read by script; the Profile, When and Script pickers and Remove Hook read their names and values.
 - **Layout History**: rows are read by date; the star reads Star or Remove Star; Restore… asks first and a restore is announced; Delete is named.
 - **Tidy Up, Share Profile, Import Profile and Copy Diagnostics**: the title is a heading; Escape closes the sheet without acting; Return runs the default button. Every Tidy Up proposal is a checkbox that reads the app's name.
-- **Widgets**: each widget in the menu bar is read with its source name and its value in full ("Battery, 80 percent, charging", "unavailable" when it cannot be read). A Shortcut button is read as a button with the Shortcut's name as its hint. A script widget is read as "Script" with its line, "Choose a script" while none is chosen and "Allow this script in Automation, Scripts" while the script is not allowed. In Modules the rows are read by name, Edit is read as collapsed or expanded, and the Widgets switch, Edit, Remove, Move Up and Move Down are reachable by keyboard; a widget moves with the VoiceOver actions Move Up and Move Down.
+- **Widgets**: each widget in the menu bar is read with its source name and its value in full ("Battery, 80 percent, charging", "unavailable" when it cannot be read). A Shortcut button is read as a button with the Shortcut's name as its hint. A script widget is read as "Script" with its line, "Choose a script" while none is chosen and "Allow this script in Automation, Scripts" while the script is not allowed. In Modules the rows are read by name, Edit is read as collapsed or expanded, and the Widgets switch, Edit, Remove, Move Up and Move Down are reachable by keyboard; a widget moves with the VoiceOver actions Move Up and Move Down. A built-in item (Focus, AirDrop, media controls, fast user switching, a timer, an app launcher) is read as a button with its name (a launcher with its app's name) and a hint that says what a click does; the timer's value is the time it shows, and its end is announced.
 - **Notch hub**: opened by its hotkey the hub takes the keyboard and VoiceOver reads it as "Notch hub"; each tab is read by its name, the selected one as selected, and the Left and Right arrow keys move through the tabs; the More menu lists the tabs that did not fit; the status pills are read by their text; the settings button is read as "Settings"; Esc closes the hub. Opened by hover the hub does not take the keyboard, by design. Under Reduce Motion the hub fades; under Reduce Transparency and Increase Contrast it is opaque and its small texts are stronger; in light mode it stays dark.
 - **Menu Bar Layout bars**: Tab to an item; the arrow keys move it and ⌘Z undoes. The VoiceOver actions are Move to Visible, Move to Hidden, Move to Always Hidden, Move Left, Move Right and Set Hotkey…. With Reduce Motion items jump instead of sliding.
 - **Menu Bar Layout, Put Back by a Rule**: the title is a heading; each row is read as one sentence ("name was put back in section"), and Edit Rule… and OK are named and reachable by Tab; a put-back that happens while Settings is open is announced. Reduce Motion needs nothing, as the row does not animate.

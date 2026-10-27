@@ -52,7 +52,8 @@ Changes made in holzBar since forking on 2026-10-01 include:
     clean-up assistant, copy diagnostics, menu bar styles and the cooperation
     with macOS 27's own overflow button.
   - A single executable without the menu bar item XPC service, with no
-    entitlements, translated into German, French, Italian and Romansh.
+    entitlements, translated into German, French, Italian, Romansh, Spanish, Brazilian
+    Portuguese, Japanese, Simplified Chinese, Korean and Russian.
   - A new name (holzBar, bundle identifier com.holzcloud.holzBar), logo, app
     icon and menu bar icon; settings of Ice are imported on first launch.
 

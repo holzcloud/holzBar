@@ -8,11 +8,10 @@ import SwiftUI
 struct GeneralSettingsPane: View {
     @Environment(AppState.self) var appState
     @Bindable var settings: GeneralSettings
-    @State private var isImportingCustomHolzBarIcon = false
-    @State private var isPresentingError = false
-    @State private var presentedError: LocalizedErrorWrapper?
     @State private var isApplyingItemSpacingOffset = false
     @State private var tempItemSpacingOffset: CGFloat = 0
+    /// Changes when the displays do, so the list of displays is read again.
+    @State private var displayListVersion = 0
 
     private var itemSpacingOffsetKey: LocalizedStringKey {
         switch tempItemSpacingOffset {
@@ -34,26 +33,33 @@ struct GeneralSettingsPane: View {
 
     var body: some View {
         HolzBarForm {
-            HolzBarSection {
+            HolzBarSection("Startup") {
                 appOptions
             }
-            HolzBarSection {
+            HolzBarSection("Menu Bar Icon") {
                 holzBarIconOptions
             }
-            HolzBarSection {
+            HolzBarSection("holzBar Shelf") {
                 shelfOptions
             }
-            HolzBarSection {
+            HolzBarSection("Showing Items") {
                 showOptions
             }
-            HolzBarSection {
+            displayBehaviorSection
+            HolzBarSection("Rehiding") {
                 rehideOptions
             }
-            HolzBarSection {
+            HolzBarSection("Item Spacing") {
                 spacingOptions
             }
             if #available(macOS 27.0, *) {
                 PrivacyIndicatorNote(settings: settings)
+            }
+        }
+        .task {
+            // A display that connects or leaves changes the rows of the displays.
+            for await _ in NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+                displayListVersion += 1
             }
         }
     }
@@ -69,120 +75,7 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var holzBarIconOptions: some View {
-        showHolzBarIcon
-        if settings.showHolzBarIcon {
-            holzBarIconPicker
-        }
-    }
-
-    @ViewBuilder
-    private var showHolzBarIcon: some View {
-        Toggle("Show holzBar icon", isOn: $settings.showHolzBarIcon)
-            .annotation("Click to show hidden menu bar items. Right-click to access holzBar's settings.")
-    }
-
-    @ViewBuilder
-    private var holzBarIconPicker: some View {
-        let labelKey = LocalizedStringKey("holzBar icon")
-
-        HolzBarMenu(labelKey) {
-            Picker(labelKey, selection: $settings.holzBarIcon) {
-                ForEach(ControlItemImageSet.userSelectableHolzBarIcons) { imageSet in
-                    Button {
-                        settings.holzBarIcon = imageSet
-                    } label: {
-                        holzBarIconMenuItem(for: imageSet)
-                    }
-                    .tag(imageSet)
-                }
-                if let lastCustomHolzBarIcon = settings.lastCustomHolzBarIcon {
-                    Button {
-                        settings.holzBarIcon = lastCustomHolzBarIcon
-                    } label: {
-                        holzBarIconMenuItem(for: lastCustomHolzBarIcon)
-                    }
-                    .tag(lastCustomHolzBarIcon)
-                }
-            }
-            .pickerStyle(.inline)
-            .labelsHidden()
-
-            Divider()
-
-            Button("Choose image…") {
-                isImportingCustomHolzBarIcon = true
-            }
-        } title: {
-            holzBarIconMenuItem(for: settings.holzBarIcon)
-        }
-        .annotation("Choose a custom icon to show in the menu bar.")
-        .fileImporter(
-            isPresented: $isImportingCustomHolzBarIcon,
-            allowedContentTypes: [.image]
-        ) { result in
-            do {
-                let url = try result.get()
-                // Data(contentsOf:) would fetch an http(s) URL; holzBar reads only files.
-                guard url.isFileURL else {
-                    throw CocoaError(.fileReadUnsupportedScheme)
-                }
-                if url.startAccessingSecurityScopedResource() {
-                    defer { url.stopAccessingSecurityScopedResource() }
-                    let data = try Data(contentsOf: url)
-                    // Stored as a scaled PNG, the only form decoded at launch (bitmaps, never
-                    // PDF or other documents, as the settings can come from another Mac).
-                    Task {
-                        guard let png = await ControlItemImage.customIconPNG(from: data) else {
-                            presentedError = LocalizedErrorWrapper(CocoaError(.fileReadCorruptFile))
-                            isPresentingError = true
-                            return
-                        }
-                        settings.holzBarIcon = ControlItemImageSet(name: .custom, image: .data(png))
-                    }
-                }
-            } catch {
-                presentedError = LocalizedErrorWrapper(error)
-                isPresentingError = true
-            }
-        }
-        .alert(isPresented: $isPresentingError, error: presentedError) {
-            Button("OK") {
-                presentedError = nil
-                isPresentingError = false
-            }
-        }
-
-        if case .custom = settings.holzBarIcon.name {
-            Toggle("Custom icon uses dynamic appearance", isOn: $settings.customHolzBarIconIsTemplate)
-                .annotation {
-                    Text(
-                        """
-                        Display the icon as a monochrome image that dynamically adjusts to match \
-                        the menu bar's appearance. This setting removes all color from the icon, \
-                        but ensures consistent rendering with both light and dark backgrounds.
-                        """
-                    )
-                    .padding(.trailing, 50)
-                }
-        }
-    }
-
-    @ViewBuilder
-    private func holzBarIconMenuItem(for imageSet: ControlItemImageSet) -> some View {
-        Label {
-            Text(imageSet.name.rawValue)
-        } icon: {
-            if let nsImage = imageSet.hidden.nsImage(for: appState) {
-                switch imageSet.name {
-                case .custom:
-                    Image(size: CGSize(width: 18, height: 18)) { context in
-                        context.draw(Image(nsImage: nsImage), in: context.clipBoundingRect)
-                    }
-                default:
-                    Image(nsImage: nsImage)
-                }
-            }
-        }
+        HolzBarIconCards(settings: settings)
     }
 
     // MARK: holzBar Shelf Options
@@ -194,8 +87,10 @@ struct GeneralSettingsPane: View {
             shelfStylePicker
             shelfLocationPicker
             shelfLayoutPicker
-            Toggle("Fade the holzBar Shelf in", isOn: $settings.animatesShelf)
-                .annotation("The holzBar Shelf appears in a moment instead of at once. It does not fade while Reduce Motion is on.")
+            shelfFindsByTyping
+            shelfFoldPicker
+            shelfShowsClosedApps
+            shelfDragsTiles
             shelfDisplaysPicker
             if #available(macOS 27.0, *) {
                 Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInShelf)
@@ -220,27 +115,77 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var shelfLayoutPicker: some View {
-        HStack {
-            HolzBarPicker("Layout", selection: $settings.shelfLayout) {
-                Text("Row").tag(ShelfLayout.row)
-                Text("Grid").tag(ShelfLayout.grid)
-                Text("Column").tag(ShelfLayout.column)
-            }
-            PreviewBadge()
+        PictureCardRow(
+            selection: $settings.shelfLayout,
+            values: ShelfLayout.allCases,
+            name: \.localized
+        ) {
+            Text("Layout")
+        } picture: { layout in
+            ShelfLayoutPicture(layout: layout)
         }
         .annotation("A row holds every item side by side. A grid and a column hold more items without scrolling.")
     }
 
     @ViewBuilder
-    private var shelfStylePicker: some View {
-        HolzBarPicker(selection: $settings.shelfStyle) {
-            Text("Attached").tag(HolzBarShelfStyle.attached)
-            Text("Floating").tag(HolzBarShelfStyle.floating)
-        } label: {
+    private var shelfFindsByTyping: some View {
+        Toggle(isOn: $settings.shelfFindsByTyping) {
             HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text("Style")
+                Text("Find items by typing")
                 PreviewBadge()
             }
+        }
+        .annotation("Type in the holzBar Shelf to highlight the best match. Return opens its menu and Escape closes the holzBar Shelf. The holzBar Shelf takes the keyboard when a hotkey opens it.")
+    }
+
+    @ViewBuilder
+    private var shelfFoldPicker: some View {
+        if appState.settings.advanced.enableAlwaysHiddenSection {
+            HolzBarPicker(selection: $settings.shelfAlwaysHiddenFold) {
+                Text("Folded each time").tag(ShelfAlwaysHiddenFold.foldedEachTime)
+                Text("As I left them").tag(ShelfAlwaysHiddenFold.remembered)
+            } label: {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Always-hidden items")
+                    PreviewBadge()
+                }
+            }
+            .annotation("The holzBar Shelf shows the always-hidden items behind one tile. Click the tile to open them.")
+        }
+    }
+
+    @ViewBuilder
+    private var shelfShowsClosedApps: some View {
+        Toggle(isOn: $settings.shelfShowsClosedApps) {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Show applications that are not running")
+                PreviewBadge()
+            }
+        }
+        .annotation("Applications with a hidden item that are closed appear dimmed in the holzBar Shelf. Click one to open it.")
+    }
+
+    @ViewBuilder
+    private var shelfDragsTiles: some View {
+        Toggle(isOn: $settings.shelfDragsTiles) {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Rearrange items by dragging")
+                PreviewBadge()
+            }
+        }
+        .annotation("Drag an item in the holzBar Shelf to put it in order, into another section or up onto the menu bar to show it there. Where macOS puts the items of a section in order itself, an item can only change its section.")
+    }
+
+    @ViewBuilder
+    private var shelfStylePicker: some View {
+        PictureCardRow(
+            selection: $settings.shelfStyle,
+            values: HolzBarShelfStyle.allCases,
+            name: \.localized
+        ) {
+            Text("Style")
+        } picture: { style in
+            ShelfStylePicture(style: style)
         }
         .annotation {
             switch settings.shelfStyle {
@@ -254,16 +199,9 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var shelfLocationPicker: some View {
-        HolzBarPicker(selection: $settings.shelfLocation) {
+        HolzBarPicker("Location", selection: $settings.shelfLocation) {
             ForEach(HolzBarShelfLocation.allCases) { location in
                 Text(location.localized).tag(location)
-            }
-        } label: {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text("Location")
-                if settings.shelfLocation == .screenEdge {
-                    PreviewBadge()
-                }
             }
         }
         .annotation {
@@ -300,20 +238,105 @@ struct GeneralSettingsPane: View {
             .annotation("Hover over an empty area of the menu bar to show hidden menu bar items.")
         Toggle("Show on scroll", isOn: $settings.showOnScroll)
             .annotation("Scroll or swipe in the menu bar to show hidden menu bar items.")
-        if RevealAnimationPolicy.supportsDividerSteps(.current) {
-            animatesShowHide
+        revealAnimationCards
+        clockOpensNotificationCenter
+    }
+
+    @ViewBuilder
+    private var clockOpensNotificationCenter: some View {
+        if #available(macOS 27.0, *) {
+            Toggle(isOn: $settings.clockOpensNotificationCenter) {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Open Notification Center from the clock")
+                    PreviewBadge()
+                }
+            }
+            .annotation("While items are hidden, macOS 27 ignores a click on the clock. holzBar lifts the hiding for a moment and clicks again, so Notification Center opens. Turn this off to leave the click to macOS; the clock then does nothing while items are hidden. It needs only the Accessibility permission holzBar has already.")
         }
     }
 
     @ViewBuilder
-    private var animatesShowHide: some View {
-        Toggle(isOn: $settings.animatesShowHide) {
-            HStack {
-                Text("Animate showing and hiding")
+    private var revealAnimationCards: some View {
+        PictureCardRow(
+            selection: $settings.revealAnimationStyle,
+            values: RevealAnimationStyle.allCases,
+            name: \.localized
+        ) {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Animation")
                 PreviewBadge()
             }
+        } picture: { style in
+            AnimationStylePicture(style: style)
         }
-        .annotation("Hidden menu bar items slide in and out instead of appearing at once. Not used with the holzBar Shelf, and never while Reduce Motion is on.")
+        .annotation {
+            switch MenuBarBackendKind.current {
+            case .service26:
+                Text("Smooth slides the menu bar's items in and out, and the holzBar Shelf out from under the menu bar. Fade fades the holzBar Shelf in; the menu bar's items change at once. Nothing animates while Reduce Motion is on.")
+            case .accessibility27:
+                Text("macOS animates the menu bar itself on macOS 27, and holzBar cannot change that, so the style applies to the holzBar Shelf: Smooth slides it out from under the menu bar, Fade fades it in. Nothing animates while Reduce Motion is on.")
+            case .windowList:
+                Text("The menu bar's items change at once on this version of macOS, so the style applies to the holzBar Shelf: Smooth slides it out from under the menu bar, Fade fades it in. Nothing animates while Reduce Motion is on.")
+            }
+        }
+    }
+
+    // MARK: Display Behaviour
+
+    /// The connected displays, by name.
+    private struct ConnectedDisplay: Identifiable {
+        let uuid: String
+        let name: String
+        var id: String { uuid }
+    }
+
+    private var connectedDisplays: [ConnectedDisplay] {
+        NSScreen.screens.compactMap { screen in
+            Bridging.getDisplayUUIDString(for: screen.displayID).map {
+                ConnectedDisplay(uuid: $0, name: screen.localizedName)
+            }
+        }
+    }
+
+    /// The choice for one display.
+    private func displayBehavior(for uuid: String) -> Binding<DisplayBehavior> {
+        Binding {
+            settings.displayBehaviors.behavior(of: uuid)
+        } set: { behavior in
+            var behaviors = settings.displayBehaviors
+            behaviors.set(behavior, for: uuid)
+            settings.displayBehaviors = behaviors
+        }
+    }
+
+    /// One row per connected display, shown when there is more than one or a choice is stored.
+    @ViewBuilder
+    private var displayBehaviorSection: some View {
+        let displays = connectedDisplays
+        if displays.count > 1 || !settings.displayBehaviors.isEmpty {
+            HolzBarSection {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Displays")
+                        .font(.headline)
+                    PreviewBadge()
+                }
+            } content: {
+                ForEach(displays) { display in
+                    HolzBarPicker(selection: displayBehavior(for: display.uuid)) {
+                        ForEach(DisplayBehavior.allCases) { behavior in
+                            Text(behavior.localized).tag(behavior)
+                        }
+                    } label: {
+                        Text(verbatim: display.name)
+                    }
+                }
+            } footer: {
+                Text("The display under the pointer decides. Always show everything keeps every section shown there. Collapse keeps the hidden items hidden there: hovering, clicking empty space and scrolling no longer show them, while the holzBar icon and the hotkeys still do. Neither is used with the holzBar Shelf.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
     }
 
     // MARK: Rehide Options
@@ -467,6 +490,19 @@ private struct PrivacyIndicatorNote: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             Toggle("Show a dot on the holzBar icon while the microphone or camera is in use", isOn: $settings.holzBarIconShowsCaptureDot)
                 .annotation("Orange for the microphone, green for the camera. Uses no permission; holzBar cannot tell when an app records the screen.")
+        }
+    }
+}
+
+// MARK: - DisplayBehavior
+
+extension DisplayBehavior {
+    /// The name of the behaviour.
+    var localized: LocalizedStringKey {
+        switch self {
+        case .standard: "Default"
+        case .showEverything: "Always show everything"
+        case .collapse: "Collapse"
         }
     }
 }

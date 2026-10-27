@@ -30,12 +30,14 @@ struct MenuBarShapePicker: View {
             get: { configuration.shapeKind.drawnKind },
             set: { configuration.shapeKind = $0 }
         )
-        HStack(spacing: HolzBarTheme.Spacing.sm) {
-            HolzBarPicker("Shape Kind", selection: selection) {
-                ForEach(MenuBarShapeKind.allCases.filter(\.isAvailable)) { shapeKind in
-                    Text(shapeKind.localized).tag(shapeKind)
-                }
-            }
+        PictureCardRow(
+            selection: selection,
+            values: MenuBarShapeKind.allCases.filter(\.isAvailable),
+            name: \.localized
+        ) {
+            Text("Shape Kind")
+        } picture: { shapeKind in
+            MenuBarShapePicture(kind: shapeKind)
         }
     }
 

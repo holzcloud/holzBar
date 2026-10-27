@@ -16,6 +16,9 @@ struct ControlItemImageSet: Codable, Hashable, Identifiable {
         case ellipsis = "Ellipsis"
         case iceCube = "Ice Cube"
         case sunglasses = "Sunglasses"
+        case eye = "Eye"
+        case grid = "Grid"
+        case panel = "Panel"
         case custom = "Custom"
     }
 
@@ -68,12 +71,13 @@ extension ControlItemImageSet {
         visible: .catalog("LogoStroke")
     )
 
-    /// The image sets that the user can choose to display in the holzBar icon.
+    /// The image sets that the user can choose to display in the holzBar icon, in the order of
+    /// the cards: the logo, then the styles the other menu bar managers offer, then the rest.
     static let userSelectableHolzBarIcons = [
         ControlItemImageSet(
-            name: .arrow,
-            hidden: .symbol("arrowshape.left.fill"),
-            visible: .symbol("arrowshape.right.fill")
+            name: .logo,
+            hidden: .catalog("LogoFill"),
+            visible: .catalog("LogoStroke")
         ),
         ControlItemImageSet(
             name: .chevron,
@@ -81,14 +85,29 @@ extension ControlItemImageSet {
             visible: .symbol("chevron.right")
         ),
         ControlItemImageSet(
-            name: .logo,
-            hidden: .catalog("LogoFill"),
-            visible: .catalog("LogoStroke")
+            name: .arrow,
+            hidden: .symbol("arrowshape.left.fill"),
+            visible: .symbol("arrowshape.right.fill")
         ),
         ControlItemImageSet(
-            name: .door,
-            hidden: .symbol("door.left.hand.closed"),
-            visible: .symbol("door.left.hand.open")
+            name: .eye,
+            hidden: .symbol("eye.slash"),
+            visible: .symbol("eye")
+        ),
+        ControlItemImageSet(
+            name: .ellipsis,
+            hidden: .catalog("EllipsisFill"),
+            visible: .catalog("EllipsisStroke")
+        ),
+        ControlItemImageSet(
+            name: .grid,
+            hidden: .symbol("square.grid.2x2.fill"),
+            visible: .symbol("square.grid.2x2")
+        ),
+        ControlItemImageSet(
+            name: .panel,
+            hidden: .symbol("rectangle.topthird.inset.filled"),
+            visible: .symbol("rectangle.topthird.inset")
         ),
         ControlItemImageSet(
             name: .dot,
@@ -96,9 +115,9 @@ extension ControlItemImageSet {
             visible: .catalog("DotStroke")
         ),
         ControlItemImageSet(
-            name: .ellipsis,
-            hidden: .catalog("EllipsisFill"),
-            visible: .catalog("EllipsisStroke")
+            name: .door,
+            hidden: .symbol("door.left.hand.closed"),
+            visible: .symbol("door.left.hand.open")
         ),
         ControlItemImageSet(
             name: .iceCube,

@@ -72,11 +72,3 @@ nonisolated enum ShelfLayoutPlan {
         case left, right, up, down
     }
 }
-
-nonisolated enum ShelfAnimation {
-    /// How long the Shelf fades in: a moment, or none when the setting is off or Reduce
-    /// Motion is on. Nothing runs before or after the fade.
-    static func fadeDuration(isEnabled: Bool, reduceMotion: Bool) -> TimeInterval {
-        isEnabled && !reduceMotion ? 0.15 : 0
-    }
-}
