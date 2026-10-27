@@ -52,7 +52,7 @@ struct LayoutBar: View {
 
     /// Whether the section holds no items.
     private var isEmpty: Bool {
-        appState.itemManager.itemCache[section].isEmpty
+        appState.layoutEditor.items(in: section).isEmpty
     }
 
     var body: some View {

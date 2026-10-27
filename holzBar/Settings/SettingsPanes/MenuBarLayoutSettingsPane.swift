@@ -34,6 +34,7 @@ struct MenuBarLayoutSettingsPane: View {
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }
                 ItemRuleNoticesSection()
+                LayoutDraftSection()
                 layoutBars
                 HolzBarSection {
                     HStack {
@@ -127,6 +128,9 @@ struct MenuBarLayoutSettingsPane: View {
         {
             HolzBarSection(name.localized) {
                 LayoutBar(imageCache: appState.imageCache, section: name)
+                if appState.layoutEditor.newItemsSection == name {
+                    NewItemsTile()
+                }
             }
         }
     }

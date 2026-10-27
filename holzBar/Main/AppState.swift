@@ -86,6 +86,9 @@ final class AppState {
     /// The lock that asks for Touch ID or the password before hidden items are shown.
     let hiddenItemsLock = HiddenItemsLock()
 
+    /// The drawing behind the Menu Bar Layout pane: changes wait for Apply.
+    let layoutEditor = LayoutEditor()
+
     /// The history of the layout: snapshots to go back to.
     let snapshots = LayoutSnapshots()
 
@@ -215,6 +218,7 @@ final class AppState {
         itemIconStore.performSetup(with: self)
         profiles.performSetup(with: self)
         snapshots.performSetup(with: self)
+        layoutEditor.performSetup(with: self)
         hiddenItemsLock.performSetup(with: self)
         itemGroups.performSetup(with: self)
         appleItems.performSetup(with: self)

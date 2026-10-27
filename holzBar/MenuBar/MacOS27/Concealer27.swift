@@ -957,11 +957,25 @@ final class Concealer27 {
 
     /// Moves an application to a section of the saved layout and applies it.
     func setSection(_ section: MacOS27Section, for bundleID: String) {
-        // holzBar's own bundle has no section: it would conceal holzBar's own icon and dividers.
-        guard !OwnBundle.matches(bundleID, bundleIdentifier: Constants.bundleIdentifier) else {
+        setSections([bundleID: section])
+    }
+
+    /// Moves applications to sections of the saved layout in one pass: the layout is stored
+    /// once and applied once, however many applications move.
+    func setSections(_ sections: [String: MacOS27Section]) {
+        var updated = savedLayout
+        var changed = false
+        for (bundleID, section) in sections.sorted(by: { $0.key < $1.key }) {
+            // holzBar's own bundle has no section: it would conceal holzBar's own icon and dividers.
+            guard !OwnBundle.matches(bundleID, bundleIdentifier: Constants.bundleIdentifier) else {
+                continue
+            }
+            updated = SectionLayout27.settingSection(section, for: bundleID, in: updated)
+            changed = true
+        }
+        guard changed else {
             return
         }
-        let updated = SectionLayout27.settingSection(section, for: bundleID, in: savedLayout)
         store(updated)
         update()
         Task { [weak self] in

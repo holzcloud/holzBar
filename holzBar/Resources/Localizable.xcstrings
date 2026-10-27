@@ -3735,6 +3735,34 @@
         }
       }
     },
+    "Apply changes immediately" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Änderungen sofort anwenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appliquer les changements immédiatement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applica subito le modifiche"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applitgar las midadas immediatamain"
+          }
+        }
+      }
+    },
     "Apply different settings based on the current system appearance." : {
       "localizations" : {
         "de" : {
@@ -3843,6 +3871,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sche ti applitgeschas quest parameter, vegnan tut las apps cun elements en la trav da menu aviadas da nov. Tschertas apps ston forsa vegnir aviadas da nov a maun."
+          }
+        }
+      }
+    },
+    "Applying…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird angewendet …"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Application…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applicazione…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applitgar …"
           }
         }
       }
@@ -4827,6 +4883,62 @@
         }
       }
     },
+    "Changes applied: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angewendete Änderungen: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changements appliqués : %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifiche applicate: %lld"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Midadas applitgadas: %lld"
+          }
+        }
+      }
+    },
+    "Changes waiting: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wartende Änderungen: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changements en attente : %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifiche in attesa: %lld"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Midadas en spetga: %lld"
+          }
+        }
+      }
+    },
     "Check Now" : {
       "localizations" : {
         "de" : {
@@ -5691,6 +5803,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Radius dals cantuns: %lld pt"
+          }
+        }
+      }
+    },
+    "Could not be moved: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht verschiebbar: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacement impossible : %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile spostare: %lld"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg pussaivel da spustar: %lld"
           }
         }
       }
@@ -8411,6 +8551,34 @@
         }
       }
     },
+    "Items holzBar has not seen before land in this section." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemente, die holzBar noch nie gesehen hat, landen in diesem Bereich."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments que holzBar n’a encore jamais vus arrivent dans cette section."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi che holzBar non ha mai visto finiscono in questa sezione."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elements che holzBar n’ha anc mai vis van a fin en questa secziun."
+          }
+        }
+      }
+    },
     "Keep Live Activities visible" : {
       "localizations" : {
         "de" : {
@@ -8911,6 +9079,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fin sanestra"
+          }
+        }
+      }
+    },
+    "Left to their rules: %lld" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ihren Regeln überlassen: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laissés à leurs règles : %lld"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lasciati alle loro regole: %lld"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laschads a lur reglas: %lld"
           }
         }
       }
@@ -10343,6 +10539,34 @@
         }
       }
     },
+    "New items" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Elemente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nouveaux éléments"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuovi elementi"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Novs elements"
+          }
+        }
+      }
+    },
     "New Rule" : {
       "localizations" : {
         "de" : {
@@ -10871,6 +11095,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Deactivà"
+          }
+        }
+      }
+    },
+    "Off: dragging an item only changes the drawing below, and the menu bar follows when you choose Apply. On: every move happens at once." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus: Das Ziehen eines Elements ändert nur die Zeichnung unten, die Menüleiste folgt, sobald du «Anwenden» wählst. An: Jede Bewegung geschieht sofort."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactivé : faire glisser un élément ne change que le dessin ci-dessous, et la barre des menus suit quand vous choisissez Appliquer. Activé : chaque déplacement a lieu aussitôt."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivato: trascinare un elemento cambia solo il disegno qui sotto, e la barra dei menu segue quando scegli Applica. Attivato: ogni spostamento avviene subito."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deactivà: tractar in element mida be il dissegn sutvart, e la trav da menu suonda cur che ti tscherns Applitgar. Activà: mintga moviment capita immediatamain."
           }
         }
       }
@@ -23393,6 +23645,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Svilup"
+          }
+        }
+      }
+    },
+    "Discard" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwerfen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuler les changements"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scarta"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refusar"
           }
         }
       }

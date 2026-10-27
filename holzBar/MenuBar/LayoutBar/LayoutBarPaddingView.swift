@@ -75,6 +75,11 @@ final class LayoutBarPaddingView: NSView {
             onDropTargetChange?(false)
             Task {
                 self.container.canSetArrangedViews = true
+                // A drawing changed by the drop shows in this row now; the row the drag began
+                // in follows when the drag ends.
+                if self.container.appState?.layoutEditor.draft != nil {
+                    LayoutBarRouter.shared.showItemCache()
+                }
             }
         }
 
@@ -93,6 +98,10 @@ final class LayoutBarPaddingView: NSView {
             let item = draggingSource.item
             if !item.isControlItem, draggingSource.dragSourceContainer !== container {
                 // A section that cannot be set fails the drop, like one that changes nothing.
+                // The drawing takes the move until the user applies it.
+                if appState.layoutEditor.recordsChanges {
+                    return appState.layoutEditor.recordSection(of: item, to: container.section)
+                }
                 return LayoutBarMoves.setSection(of: item, to: container.section, appState: appState)
             }
             // A drop that changes no section changes nothing on the bar. It fails, and the
@@ -104,6 +113,12 @@ final class LayoutBarPaddingView: NSView {
         let item = draggingSource.item
         let actionName = String(localized: "Move \(item.displayName)")
         if let index = arrangedViews.firstIndex(of: draggingSource) {
+            if appState.layoutEditor.recordsChanges {
+                // The drawing takes the move until the user applies it: before the view to the
+                // right of the dropped item, or at the end of the section.
+                let next = arrangedViews.indices.contains(index + 1) ? arrangedViews[index + 1].item : nil
+                return appState.layoutEditor.recordMove(item, to: container.section, before: next)
+            }
             if arrangedViews.count == 1 {
                 // The dragging source is the only view in the layout bar, so it goes next to
                 // the section's control item.

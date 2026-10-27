@@ -89,12 +89,12 @@ struct PictureCard<Picture: View>: View {
 
 #Preview("PictureCard") {
     HStack {
-        PictureCard("Smooth", isSelected: true, action: {}) {
+        PictureCard("Smooth", isSelected: true, action: {}, picture: {
             Image(systemName: "waveform")
-        }
-        PictureCard("Fade", isSelected: false, action: {}) {
+        })
+        PictureCard("Fade", isSelected: false, action: {}, picture: {
             Image(systemName: "circle.lefthalf.filled")
-        }
+        })
     }
     .padding()
     .frame(width: 320)

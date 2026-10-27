@@ -68,9 +68,9 @@ struct AnimationStylePicture: View {
 #Preview("AnimationStylePicture") {
     HStack {
         ForEach(RevealAnimationStyle.allCases) { style in
-            PictureCard(style.localized, isSelected: style == .smooth, action: {}) {
+            PictureCard(style.localized, isSelected: style == .smooth, action: {}, picture: {
                 AnimationStylePicture(style: style)
-            }
+            })
         }
     }
     .padding()
