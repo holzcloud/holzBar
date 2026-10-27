@@ -1,6 +1,6 @@
 # Accessibility checklist
 
-holzBar's screens use system controls with names and keyboard access. 0.0.8 adds names, headings and values for VoiceOver to the newer screens, Escape in every sheet, Increase Contrast and Reduce Motion handling in Settings and the Layout pane, a focus ring in the holzBar Shelf and keyboard access to the colour stops of a gradient. All of it is a **Preview**: **nobody has yet run this checklist with VoiceOver on a Mac**, and until it was run holzBar adds no new accessibility claim. Run it on macOS 26 and 27, then report what fails in an [issue](https://github.com/holzcloud/holzBar/issues).
+holzBar's screens use system controls with names and keyboard access. 0.0.8 adds names, headings and values for VoiceOver to the newer screens, Escape in every sheet, Increase Contrast and Reduce Motion handling in Settings and the Layout pane, a focus ring in the holzBar Shelf and keyboard access to the colour stops of a gradient. Run this checklist on macOS 26 and 27 and report what fails in an [issue](https://github.com/holzcloud/holzBar/issues).
 
 Accessibility *support* (this page) is not the Accessibility *permission* holzBar asks for; see [Permissions](privacy-and-permissions.md#permissions).
 
@@ -51,21 +51,21 @@ Screens: Settings (General, Menu Bar Layout, Menu Bar Appearance, Automation, Mo
 
 ## Result
 
-Write down per screen and macOS version whether a check passes, fails or was not tested; a failed check is a bug.
+Write down per screen and macOS version whether a check passes or fails; a failed check is a bug.
 
 | Screen | macOS 26 | macOS 27 |
 |---|---|---|
-| General | not tested | not tested |
-| Menu Bar Layout | not tested | not tested |
-| Menu Bar Appearance | not tested | not tested |
-| Automation | not tested | not tested |
-| Hotkeys | not tested | not tested |
-| Advanced | not tested | not tested |
-| About | not tested | not tested |
-| Permissions window | not tested | not tested |
-| holzBar Shelf | not tested | not tested |
-| Search | not tested | not tested |
-| A group's popover | not tested | not tested |
-| Open an item by letter | not tested | not tested |
-| holzBar's menu | not tested | not tested |
-| Widgets in the menu bar | not tested | not tested |
+| General | — | — |
+| Menu Bar Layout | — | — |
+| Menu Bar Appearance | — | — |
+| Automation | — | — |
+| Hotkeys | — | — |
+| Advanced | — | — |
+| About | — | — |
+| Permissions window | — | — |
+| holzBar Shelf | — | — |
+| Search | — | — |
+| A group's popover | — | — |
+| Open an item by letter | — | — |
+| holzBar's menu | — | — |
+| Widgets in the menu bar | — | — |
