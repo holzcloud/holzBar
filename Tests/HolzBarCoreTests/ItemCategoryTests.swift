@@ -147,4 +147,42 @@ struct ItemCategoryTests {
         #expect(ItemCategoryChips.chips(present: [.other, .network, .other, .system, .network]) == [.system, .network, .other])
         #expect(ItemCategoryChips.chips(present: ItemCategory.allCases.reversed()) == ItemCategory.allCases)
     }
+
+    @Test("The cycle goes All, then the present categories in order, and wraps forward")
+    func cycleForward() {
+        let present: [ItemCategory] = [.media, .network]
+        #expect(ItemCategoryChips.next(after: nil, among: present, forward: true) == .network)
+        #expect(ItemCategoryChips.next(after: .network, among: present, forward: true) == .media)
+        #expect(ItemCategoryChips.next(after: .media, among: present, forward: true) == nil)
+    }
+
+    @Test("The cycle wraps backward from All to the last chip")
+    func cycleBackward() {
+        let present: [ItemCategory] = [.network, .media]
+        #expect(ItemCategoryChips.next(after: nil, among: present, forward: false) == .media)
+        #expect(ItemCategoryChips.next(after: .media, among: present, forward: false) == .network)
+        #expect(ItemCategoryChips.next(after: .network, among: present, forward: false) == nil)
+    }
+
+    @Test("A selection that is not present counts as All, and no category always gives All")
+    func cycleEdges() {
+        #expect(ItemCategoryChips.next(after: .developer, among: [.network, .media], forward: true) == .network)
+        #expect(ItemCategoryChips.next(after: .developer, among: [.network, .media], forward: false) == .media)
+        for forward in [true, false] {
+            #expect(ItemCategoryChips.next(after: nil, among: [], forward: forward) == nil)
+            #expect(ItemCategoryChips.next(after: .media, among: [], forward: forward) == nil)
+        }
+    }
+
+    @Test("A repeated or unordered list gives the same cycle as its chips")
+    func cycleIgnoresOrderAndRepeats() {
+        let messy: [ItemCategory] = [.media, .network, .media, .network]
+        var forward = [ItemCategory?]()
+        var selected: ItemCategory?
+        for _ in 0..<4 {
+            selected = ItemCategoryChips.next(after: selected, among: messy, forward: true)
+            forward.append(selected)
+        }
+        #expect(forward == [.network, .media, nil, .network])
+    }
 }

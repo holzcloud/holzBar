@@ -160,4 +160,14 @@ nonisolated enum ItemCategoryChips {
         let present = Set(categories)
         return ItemCategory.allCases.filter { present.contains($0) }
     }
+
+    /// The selection one step along the row, wrapping at the ends. The row is All (`nil`)
+    /// followed by the chips of `present`; a selection that is not among them counts as All, and
+    /// with no category present the result is always All.
+    static func next(after selected: ItemCategory?, among present: [ItemCategory], forward: Bool) -> ItemCategory? {
+        let row: [ItemCategory?] = [nil] + chips(present: present)
+        let index = row.firstIndex { $0 == selected } ?? 0
+        let step = forward ? 1 : row.count - 1
+        return row[(index + step) % row.count]
+    }
 }

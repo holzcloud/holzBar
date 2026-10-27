@@ -253,6 +253,12 @@ private struct MenuBarSearchContentView: View {
             updateDisplayedItems()
             selectFirstDisplayedItem()
         }
+        .onKeyDown(key: .rightArrow, isEnabled: usesCategories) { event in
+            moveCategory(forward: true, event: event)
+        }
+        .onKeyDown(key: .leftArrow, isEnabled: usesCategories) { event in
+            moveCategory(forward: false, event: event)
+        }
         .onChange(of: usesCategories) {
             updateDisplayedItems()
             selectFirstDisplayedItem()
@@ -335,6 +341,28 @@ private struct MenuBarSearchContentView: View {
         .overlay(alignment: .top) {
             Divider()
         }
+    }
+
+    /// Option with the left or right arrow moves the selected chip. Every other press is left
+    /// to the field and the list: only Option, no marked text of an input method, and only in
+    /// the search panel.
+    private func moveCategory(forward: Bool, event: NSEvent) -> KeyCode.PressResult {
+        guard
+            event.window is MenuBarSearchPanel,
+            event.modifierFlags.intersection([.command, .option, .control, .shift]) == .option,
+            !model.presentCategories.isEmpty
+        else {
+            return .ignored
+        }
+        if let client = event.window?.firstResponder as? NSTextInputClient, client.hasMarkedText() {
+            return .ignored
+        }
+        model.selectedCategory = ItemCategoryChips.next(
+            after: model.selectedCategory,
+            among: model.presentCategories,
+            forward: forward
+        )
+        return .handled
     }
 
     private func selectFirstDisplayedItem() {

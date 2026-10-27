@@ -34,5 +34,8 @@ struct MenuBarSearchCategoryRow: View {
         }
         .scrollIndicators(.hidden)
         .padding(.vertical, HolzBarTheme.Spacing.xxs)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Categories")
+        .help("Option with the left or right arrow switches the category.")
     }
 }
