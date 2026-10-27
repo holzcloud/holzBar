@@ -128,6 +128,47 @@ nonisolated enum DesignTokens {
     /// The opacity of the Preview badge's tint behind its text.
     static let badgeFillAlpha: Double = 0.15
 
+    /// The Notch hub, which is always dark: its ground, its parts and the strength of its small
+    /// texts. The sizes and alphas are the design's numbers for the hub and its widget card.
+    nonisolated enum Hub {
+        /// The silhouette at the top: pure black, one object with the hardware notch.
+        static let top = RGB.black
+        /// The silhouette at the bottom: a dark blue-grey. Tuned on a Mac.
+        static let bottom = RGB(hex: 0x111A2B)
+        /// An icon strip tab.
+        static let tabWidth: Double = 30
+        static let tabHeight: Double = 24
+        static let tabRadius: Double = 8
+        /// The round settings button of the right wing.
+        static let settingsButtonSize: Double = 24
+        /// The fill of a status pill: white at 9 percent.
+        static let pillFillAlpha: Double = 0.09
+        /// The fill of a tab: tinted when selected, white at 8 percent otherwise.
+        static let selectedTabFillAlpha: Double = 0.18
+        static let idleTabFillAlpha: Double = 0.08
+        /// The symbol of a tab that is not selected.
+        static let idleTabSymbolAlpha: Double = 0.6
+        /// The colour of a module without one of its own: white at 70 percent.
+        static let neutralAlpha: Double = 0.7
+        /// The type sizes of the wings' parts.
+        static let pillTextSize: Double = 11
+        static let tabSymbolSize: Double = 13
+        /// The widget card: radius, padding, the gap between cards and the columns of a row.
+        static let tileRadius: Double = 14
+        static let tilePadding: Double = 10
+        static let tileGap: Double = 6
+        static let columns = 4
+        /// The small texts of a widget card: the name and the quiet line, normally and under
+        /// Increase Contrast, which strengthens them.
+        static let tileLabelAlpha: Double = 0.45
+        static let tileDetailAlpha: Double = 0.40
+        static let tileLabelAlphaIncreased: Double = 0.70
+        static let tileDetailAlphaIncreased: Double = 0.70
+        /// The fill of a widget card, normally and under Reduce Transparency.
+        static let tileFillAlpha: Double = 0.045
+        static let tileFillAlphaOpaque: Double = 0.10
+    }
+
     /// The gradient of fills that carry white text, the same in both appearances.
     nonisolated enum Fill {
         static let start = RGB(hex: 0x1C78AE)

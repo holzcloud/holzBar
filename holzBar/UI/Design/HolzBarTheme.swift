@@ -182,10 +182,30 @@ enum HolzBarTheme {
 
     // MARK: Notch hub
 
-    /// The hub is always dark; these values are drawn on its ground.
+    /// The Notch hub is always dark; these values are drawn on its ground.
     enum Hub {
+        /// The silhouette's colour at the top, pure black, and at the bottom, a dark blue-grey.
+        static let top = Color(DesignTokens.Hub.top)
+        static let bottom = Color(DesignTokens.Hub.bottom)
+        /// Black fading to a dark blue-grey, from the top to the bottom.
+        static let silhouetteGradient = LinearGradient(
+            colors: [top, bottom],
+            startPoint: .top,
+            endPoint: .bottom
+        )
         /// White at 70 percent, the colour of a module without one of its own.
-        static let neutral = Color.white.opacity(0.7)
+        static let neutral = Color.white.opacity(DesignTokens.Hub.neutralAlpha)
+        static let tabSize = CGSize(width: DesignTokens.Hub.tabWidth, height: DesignTokens.Hub.tabHeight)
+        static let tabRadius = CGFloat(DesignTokens.Hub.tabRadius)
+        static let settingsButtonSize = CGFloat(DesignTokens.Hub.settingsButtonSize)
+        static let pillFill = Color.white.opacity(DesignTokens.Hub.pillFillAlpha)
+        static let selectedTabFillOpacity = DesignTokens.Hub.selectedTabFillAlpha
+        static let idleTabFill = Color.white.opacity(DesignTokens.Hub.idleTabFillAlpha)
+        static let idleTabSymbol = Color.white.opacity(DesignTokens.Hub.idleTabSymbolAlpha)
+        static let pillFont = Font.system(size: CGFloat(DesignTokens.Hub.pillTextSize), weight: .semibold)
+        static let tabSymbolFont = Font.system(size: CGFloat(DesignTokens.Hub.tabSymbolSize))
+        static let columns = DesignTokens.Hub.columns
+        static let tileGap = CGFloat(DesignTokens.Hub.tileGap)
     }
 
     // MARK: Motion
@@ -195,6 +215,8 @@ enum HolzBarTheme {
         static let smooth = Animation.smooth(duration: 0.3)
         /// Switches and chips.
         static let snappy = Animation.snappy
+        /// The Notch hub opening, the one place the design uses a bounce.
+        static let hub = Animation.bouncy(duration: 0.4, extraBounce: 0.1)
         /// What Reduce Motion replaces every spring with.
         static let reduced = Animation.easeInOut(duration: 0.15)
 

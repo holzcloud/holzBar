@@ -172,6 +172,17 @@ struct NotchHubGeometryTests {
         }
     }
 
+    @Test("The body area is 200 points: two rows of 92-point cards and a gap fit, and the silhouette follows")
+    func fixedBodyArea() throws {
+        #expect(Geometry.bodyHeight == 200)
+        #expect(2 * 92 + DesignTokens.Hub.tileGap <= Geometry.bodyHeight)
+        let result = try #require(
+            Geometry.layout(display: notchedA, content: Geometry.Content(bodyHeight: Geometry.bodyHeight))
+        )
+        #expect(result.body.height == 200)
+        #expect(result.silhouette.height == result.topRowHeight + 12 + 200 + 16)
+    }
+
     @Test("The notch comes from the widths of the areas beside it, and only when both are known")
     func notchFromAreaWidths() {
         let notch = Geometry.notch(displayWidth: 1512, leftAreaWidth: 663, rightAreaWidth: 663, height: 32)

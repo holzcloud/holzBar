@@ -42,6 +42,10 @@ nonisolated enum NotchHubGeometry {
     static let hoverZoneWidth: Double = 200
     /// The height of the hover zone on a display without a notch: the top edge of the screen.
     static let hoverZoneHeight: Double = 3
+    /// The height of the body, the same for every tab so the hub never resizes when a tab
+    /// changes: two rows of widget cards (92 points and a gap of 6 fit in 190) and room to
+    /// breathe. A body that needs more scrolls.
+    static let bodyHeight: Double = 200
     /// The height of the top row where the display reports no usable menu bar height.
     static let fallbackMenuBarHeight: Double = 24
 
