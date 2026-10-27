@@ -46,6 +46,10 @@ final class HolzBarShelfPanel: NSPanel {
     /// Escape work in it. Opened with the mouse, it stays non-key as before.
     var acceptsKeyboard = false
 
+    /// Whether the Shelf of the hidden section lists the always-hidden items now (the fold is
+    /// open, or something is typed), so their pictures are captured too.
+    var listsAlwaysHidden = false
+
     override var canBecomeKey: Bool { acceptsKeyboard }
 
     /// Creates a new holzBar Shelf panel.
@@ -210,6 +214,11 @@ final class HolzBarShelfPanel: NSPanel {
         // before updating the caches.
         appState.navigationState.isShelfPresented = true
         currentSection = section
+        // Set before the pictures are captured: an open fold needs those of its items too.
+        let general = appState.settings.general
+        listsAlwaysHidden = section == .hidden
+            && appState.settings.advanced.enableAlwaysHiddenSection
+            && general.shelfAlwaysHiddenFold.opensFold(wasLeftOpen: general.shelfAlwaysHiddenFoldOpen)
 
         if #available(macOS 27.0, *), !Defaults.bool(forKey: .macOS27ShelfWaitsForRefresh) {
             // Waiting for this refresh cannot help the bar that is about to open on macOS 27:
@@ -257,15 +266,22 @@ final class HolzBarShelfPanel: NSPanel {
         let colorManager = colorManagerForShowing()
         transparency.start()
         // The style and the anchor come first: the panel is placed as soon as it has a size.
-        style = appState.settings.general.shelfStyle
-        anchor = getAnchor(for: appState.settings.general.shelfLocation, screen: screen)
+        style = general.shelfStyle
+        anchor = getAnchor(for: general.shelfLocation, screen: screen)
+        // The closed applications are read only with the setting on, and only now, as the
+        // Shelf opens. The fold belongs to the Shelf of the hidden section.
+        let closedApps = general.shelfShowsClosedApps ? HolzBarShelfClosedAppList.read() : .none
+        let opensFold = section == .hidden
+            && general.shelfAlwaysHiddenFold.opensFold(wasLeftOpen: general.shelfAlwaysHiddenFoldOpen)
         contentView = HolzBarShelfHostingView(
             appState: appState,
             colorManager: colorManager,
             transparency: transparency,
             screen: screen,
             section: section,
-            style: style
+            style: style,
+            closedApps: closedApps,
+            opensFold: opensFold
         )
 
         updateOrigin(for: screen)
@@ -341,6 +357,7 @@ final class HolzBarShelfPanel: NSPanel {
         currentSection = nil
         anchor = nil
         acceptsKeyboard = false
+        listsAlwaysHidden = false
         appState?.navigationState.isShelfPresented = false
     }
 }
@@ -356,7 +373,9 @@ private final class HolzBarShelfHostingView: NSHostingView<HolzBarShelfContentVi
         transparency: TransparencyObserver,
         screen: NSScreen,
         section: MenuBarSection.Name,
-        style: HolzBarShelfStyle
+        style: HolzBarShelfStyle,
+        closedApps: HolzBarShelfClosedAppList,
+        opensFold: Bool
     ) {
         let rootView = HolzBarShelfContentView(
             appState: appState,
@@ -367,7 +386,9 @@ private final class HolzBarShelfHostingView: NSHostingView<HolzBarShelfContentVi
             menuBarManager: appState.menuBarManager,
             screen: screen,
             section: section,
-            style: style
+            style: style,
+            closedApps: closedApps,
+            opensFold: opensFold
         )
         super.init(rootView: rootView)
     }
@@ -398,34 +419,109 @@ private struct HolzBarShelfContentView: View {
     var menuBarManager: MenuBarManager
     @State private var frame = CGRect.zero
     @State private var scrollIndicatorsFlashTrigger = 0
-    /// The item the arrows highlight, while the Shelf takes keys.
-    @State private var highlightedWindowID: CGWindowID?
+    /// The tile the arrows highlight, while the Shelf takes keys.
+    @State private var highlightedID: String?
+    /// What was typed to find an item.
+    @State private var find = ShelfFind()
+    /// Whether the fold of the always-hidden items is open.
+    @State private var isFoldOpen: Bool
+    /// Where the tiles are on the screen, read while a tile is dragged.
+    @State private var registry = HolzBarShelfTileRegistry()
+    @State private var dragModel = HolzBarShelfDragModel()
     @FocusState private var hasKeyboardFocus: Bool
 
     let screen: NSScreen
     let section: MenuBarSection.Name
     /// How the Shelf sits relative to the menu bar, as it was when the Shelf opened.
     let style: HolzBarShelfStyle
+    /// The applications that are not running, read as the Shelf opened.
+    let closedApps: HolzBarShelfClosedAppList
 
-    private var items: [MenuBarItem] {
-        let sectionItems = itemManager.itemCache[section]
+    init(
+        appState: AppState,
+        colorManager: HolzBarShelfColorManager,
+        transparency: TransparencyObserver,
+        itemManager: MenuBarItemManager,
+        imageCache: MenuBarItemImageCache,
+        menuBarManager: MenuBarManager,
+        screen: NSScreen,
+        section: MenuBarSection.Name,
+        style: HolzBarShelfStyle,
+        closedApps: HolzBarShelfClosedAppList,
+        opensFold: Bool
+    ) {
+        self.appState = appState
+        self.colorManager = colorManager
+        self.transparency = transparency
+        self.itemManager = itemManager
+        self.imageCache = imageCache
+        self.menuBarManager = menuBarManager
+        self.screen = screen
+        self.section = section
+        self.style = style
+        self.closedApps = closedApps
+        _isFoldOpen = State(initialValue: opensFold)
+    }
+
+    /// The visible items that the notch covers, which the Shelf of the hidden section lists too.
+    private var coveredItems: [MenuBarItem] {
         guard
             section == .hidden,
             appState.settings.general.showsNotchOverflowInShelf,
             let notch = screen.frameOfNotch
         else {
-            return sectionItems
+            return []
         }
         // Visible items under the notch cannot be seen or clicked, so the bar
         // offers them too (jordanbaird/Ice#227, jordanbaird/Ice#570). The
         // horizontal coordinates of item bounds and screen frames agree.
-        let covered = itemManager.itemCache[.visible].filter { item in
+        return itemManager.itemCache[.visible].filter { item in
             !item.isControlItem &&
             item.bounds.maxX > notch.minX &&
             item.bounds.minX < notch.maxX &&
             !isShownByNativeOverflow(item)
         }
-        return covered + sectionItems
+    }
+
+    /// What the Shelf shows now: its tiles, and the items and applications they stand for.
+    private struct Contents {
+        var tiles = [ShelfTile]()
+        var items = [UInt32: MenuBarItem]()
+    }
+
+    /// The Shelf of the hidden section lists the covered items, the hidden ones and, behind a
+    /// fold, the always-hidden ones; the Shelf of the always-hidden section lists only those.
+    /// While something is typed the fold counts as open, so a search reaches every item.
+    private var contents: Contents {
+        var contents = Contents()
+        var input = ShelfContents.Input()
+        func shelfItems(_ items: [MenuBarItem]) -> [ShelfContents.Item] {
+            items.map { item in
+                contents.items[item.windowID] = item
+                return ShelfContents.Item(windowID: item.windowID, name: item.displayName)
+            }
+        }
+        input.covered = shelfItems(coveredItems)
+        switch section {
+        case .hidden:
+            input.hidden = shelfItems(itemManager.itemCache[.hidden])
+            if appState.settings.advanced.enableAlwaysHiddenSection {
+                input.alwaysHidden = shelfItems(itemManager.itemCache[.alwaysHidden])
+                input.closedAlwaysHidden = closedApps.alwaysHidden.map(\.app)
+            }
+            input.closedHidden = closedApps.hidden.map(\.app)
+            input.foldsAlwaysHidden = true
+            input.isFoldOpen = isFoldOpen || find.isActive
+        case .alwaysHidden:
+            input.alwaysHidden = shelfItems(itemManager.itemCache[.alwaysHidden])
+            input.closedAlwaysHidden = closedApps.alwaysHidden.map(\.app)
+        case .visible:
+            break
+        }
+        input.showsDividers = layout == .row
+        input.closedFirst = layout == .row
+        contents.tiles = ShelfContents.tiles(input)
+        return contents
     }
 
     /// Whether macOS 27 shows the item itself, in its own expanded overflow, so the Shelf would
@@ -614,67 +710,278 @@ private struct HolzBarShelfContentView: View {
         .focusable(menuBarManager.shelfPanel.acceptsKeyboard)
         .focused($hasKeyboardFocus)
         .focusEffectDisabled()
-        .onKeyPress(.leftArrow) {
-            moveHighlight(.left)
+        .onKeyPress(phases: [.down, .repeat]) { press in
+            handleKey(press)
         }
-        .onKeyPress(.rightArrow) {
-            moveHighlight(.right)
-        }
-        .onKeyPress(.upArrow) {
-            moveHighlight(.up)
-        }
-        .onKeyPress(.downArrow) {
-            moveHighlight(.down)
-        }
-        .onKeyPress(.return) {
-            openHighlightedItem()
-        }
-        .onKeyPress(.space) {
-            openHighlightedItem()
-        }
-        .onKeyPress(.escape) {
-            menuBarManager.section(withName: section)?.hide()
-            return .handled
+        .onChange(of: isFoldOpen || find.isActive) { _, isListed in
+            // The pictures of the always-hidden items are captured once they are listed.
+            guard section == .hidden, appState.settings.advanced.enableAlwaysHiddenSection else {
+                return
+            }
+            menuBarManager.shelfPanel.listsAlwaysHidden = isListed
+            if isListed {
+                Task {
+                    await imageCache.updateCache()
+                }
+            }
         }
         .onAppear {
             guard menuBarManager.shelfPanel.acceptsKeyboard else {
                 return
             }
             hasKeyboardFocus = true
-            highlightedWindowID = (layout == .row ? items.last : items.first)?.windowID
+            let navigable = contents.tiles.filter(\.isNavigable)
+            highlightedID = (layout == .row ? navigable.last : navigable.first)?.id
         }
     }
 
-    /// Moves the highlight one item to the left or right, or one row up or down.
-    private func moveHighlight(_ step: ShelfLayoutPlan.Step) -> KeyPress.Result {
-        let items = items
-        guard !items.isEmpty else {
+    // MARK: Keyboard
+
+    /// Whether typing finds an item: the setting is on and the Shelf takes the keyboard.
+    private var findsByTyping: Bool {
+        appState.settings.general.shelfFindsByTyping && menuBarManager.shelfPanel.acceptsKeyboard
+    }
+
+    private func handleKey(_ press: KeyPress) -> KeyPress.Result {
+        switch press.key {
+        case .leftArrow:
+            return moveHighlight(.left)
+        case .rightArrow:
+            return moveHighlight(.right)
+        case .upArrow:
+            return moveHighlight(.up)
+        case .downArrow:
+            return moveHighlight(.down)
+        case .return, .space:
+            return openHighlightedTile()
+        case .escape:
+            menuBarManager.section(withName: section)?.hide()
+            return .handled
+        case .delete:
+            return deleteLastCharacter()
+        default:
+            return typeCharacters(press)
+        }
+    }
+
+    /// Adds the typed characters to the query and highlights the best match.
+    private func typeCharacters(_ press: KeyPress) -> KeyPress.Result {
+        guard
+            findsByTyping,
+            press.modifiers.isDisjoint(with: [.command, .control]),
+            find.type(press.characters)
+        else {
             return .ignored
         }
-        guard let current = items.firstIndex(where: { $0.windowID == highlightedWindowID }) else {
-            // Nothing is highlighted yet: the first key lands on the end the Shelf starts from.
-            highlightedWindowID = (layout == .row ? items.last : items.first)?.windowID
+        highlightBestMatch()
+        return .handled
+    }
+
+    private func deleteLastCharacter() -> KeyPress.Result {
+        guard findsByTyping, find.deleteLast() else {
+            return .ignored
+        }
+        highlightBestMatch()
+        return .handled
+    }
+
+    private func highlightBestMatch() {
+        highlightedID = find.matches(in: contents.tiles).first
+    }
+
+    /// Moves the highlight one tile to the left or right, or one row up or down. While
+    /// something is typed it steps through the matches instead: left and up go back toward the
+    /// best one, right and down on.
+    private func moveHighlight(_ step: ShelfLayoutPlan.Step) -> KeyPress.Result {
+        let tiles = contents.tiles
+        let navigable = tiles.filter(\.isNavigable)
+        guard !navigable.isEmpty else {
+            return .ignored
+        }
+        if find.isActive {
+            let offset = (step == .left || step == .up) ? -1 : 1
+            highlightedID = ShelfFind.step(from: highlightedID, by: offset, in: find.matches(in: tiles))
             return .handled
         }
-        if let index = ShelfLayoutPlan.target(from: current, step: step, count: items.count, layout: layout) {
-            highlightedWindowID = items[index].windowID
+        guard let current = navigable.firstIndex(where: { $0.id == highlightedID }) else {
+            // Nothing is highlighted yet: the first key lands on the end the Shelf starts from.
+            highlightedID = (layout == .row ? navigable.last : navigable.first)?.id
+            return .handled
+        }
+        if let index = ShelfLayoutPlan.target(from: current, step: step, count: navigable.count, layout: layout) {
+            highlightedID = navigable[index].id
         }
         return .handled
     }
 
-    /// Opens the highlighted item through the same path as a click.
-    private func openHighlightedItem() -> KeyPress.Result {
-        guard let item = items.first(where: { $0.windowID == highlightedWindowID }) else {
+    /// Opens the highlighted tile through the same path as a click.
+    private func openHighlightedTile() -> KeyPress.Result {
+        let contents = contents
+        guard let tile = contents.tiles.first(where: { $0.id == highlightedID }) else {
             return .ignored
         }
-        let shelfDisplayID = menuBarManager.shelfPanel.screen?.displayID
-        menuBarManager.section(withName: section)?.hide()
-        Task {
-            try? await Task.sleep(for: .milliseconds(25))
-            await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: shelfDisplayID, origin: .click)
-        }
+        activate(tile, in: contents)
         return .handled
     }
+
+    /// What a click on a tile does: an item opens its menu, a closed application launches and
+    /// the fold opens or closes.
+    private func activate(_ tile: ShelfTile, in contents: Contents) {
+        switch tile.kind {
+        case .item(let windowID):
+            guard let item = contents.items[windowID] else {
+                return
+            }
+            HolzBarShelfActions.open(item, mouseButton: .left, section: section, itemManager: itemManager, menuBarManager: menuBarManager)
+        case .closedApp(let bundleID):
+            guard let entry = closedApps.entry(forBundleIdentifier: bundleID) else {
+                return
+            }
+            HolzBarShelfActions.launch(entry, section: section, menuBarManager: menuBarManager)
+        case .fold:
+            toggleFold()
+        case .divider:
+            break
+        }
+    }
+
+    private func toggleFold() {
+        isFoldOpen.toggle()
+        // The setting decides whether the next Shelf starts this way.
+        appState.settings.general.shelfAlwaysHiddenFoldOpen = isFoldOpen
+    }
+
+    // MARK: Drag
+
+    /// The axis along which the tiles follow each other.
+    private var dropAxis: ShelfDrop.Axis {
+        layout == .column ? .vertical : .horizontal
+    }
+
+    /// The steps of a drag for a tile, or `nil` when it cannot be dragged: only an item of the
+    /// hidden or always-hidden section that holzBar can move is dragged.
+    private func dragActions(for tile: ShelfTile, item: MenuBarItem, image: NSImage?) -> HolzBarShelfDragActions? {
+        guard appState.settings.general.shelfDragsTiles, tile.group != .visible, item.isMovable else {
+            return nil
+        }
+        return HolzBarShelfDragActions(
+            image: image,
+            canBegin: {
+                // An application that does not answer cannot be moved, as in the Layout pane.
+                guard !Bridging.isProcessUnresponsive(item.sourcePID ?? item.ownerPID) else {
+                    NSSound.beep()
+                    return false
+                }
+                return true
+            },
+            began: {
+                dragModel.draggedID = tile.id
+                dragModel.outcome = .none
+                // A profile bound to a display or a Space waits until the drop.
+                appState.profiles.isLayoutDragInProgress = true
+            },
+            moved: {
+                let outcome = dropOutcome(dragging: tile)
+                if outcome != dragModel.outcome {
+                    dragModel.outcome = outcome
+                }
+            },
+            ended: {
+                let outcome = dropOutcome(dragging: tile)
+                dragModel.draggedID = nil
+                dragModel.outcome = .none
+                appState.profiles.isLayoutDragInProgress = false
+                perform(outcome, dragging: tile)
+            }
+        )
+    }
+
+    /// What releasing the dragged tile at the pointer would do now.
+    private func dropOutcome(dragging dragged: ShelfTile) -> ShelfDrop.Outcome {
+        let panel = menuBarManager.shelfPanel
+        guard let screen = panel.screen else {
+            return .none
+        }
+        func role(_ tile: ShelfTile) -> ShelfDrop.Role {
+            switch tile.kind {
+            case .item: .item
+            case .fold: .fold
+            case .closedApp, .divider: .other
+            }
+        }
+        let dropTiles: [ShelfDrop.Tile] = contents.tiles.compactMap { tile in
+            registry.screenFrame(of: tile.id).map {
+                ShelfDrop.Tile(id: tile.id, group: tile.group, role: role(tile), frame: .init($0))
+            }
+        }
+        guard let draggedTile = dropTiles.first(where: { $0.id == dragged.id }) else {
+            return .none
+        }
+        let pointer = NSEvent.mouseLocation
+        return ShelfDrop.outcome(
+            pointer: .init(x: pointer.x, y: pointer.y),
+            dragged: draggedTile,
+            tiles: dropTiles,
+            panel: .init(panel.frame),
+            screen: .init(screen.frame),
+            axis: dropAxis,
+            // macOS 27 puts the items of a section in order itself.
+            ordersItems: itemManager.backend.canMoveItems
+        )
+    }
+
+    /// Makes the move a drop asks for, through the same calls as the Menu Bar Layout pane.
+    private func perform(_ outcome: ShelfDrop.Outcome, dragging dragged: ShelfTile) {
+        let contents = contents
+        guard case .item(let windowID) = dragged.kind, let item = contents.items[windowID] else {
+            return
+        }
+        switch outcome {
+        case .none:
+            break
+        case .menuBar:
+            LayoutBarMoves.setSection(of: item, to: .visible, appState: appState)
+        case .section(let group):
+            guard let name = MenuBarSection.Name(group) else {
+                return
+            }
+            LayoutBarMoves.setSection(of: item, to: name, appState: appState)
+        case .beside(let id, let side):
+            guard
+                let target = contents.tiles.first(where: { $0.id == id }),
+                case .item(let targetID) = target.kind,
+                let targetItem = contents.items[targetID]
+            else {
+                return
+            }
+            LayoutBarMoves.move(
+                item,
+                to: side == .before ? .leftOfItem(targetItem) : .rightOfItem(targetItem),
+                appState: appState,
+                actionName: String(localized: "Move \(item.displayName)")
+            )
+        }
+    }
+
+    /// How a drag in progress shows its drop on a tile.
+    private func dropIndication(for tile: ShelfTile) -> HolzBarShelfDropIndication? {
+        guard dragModel.draggedID != nil, tile.id != dragModel.draggedID else {
+            return nil
+        }
+        switch dragModel.outcome {
+        case .beside(let id, let side):
+            guard id == tile.id else {
+                return nil
+            }
+            return side == .before ? .before : .after
+        case .section(let group):
+            return tile.group == group && tile.isNavigable ? .onto : nil
+        case .none, .menuBar:
+            return nil
+        }
+    }
+
+    // MARK: Content
 
     @ViewBuilder
     private var content: some View {
@@ -694,18 +1001,44 @@ private struct HolzBarShelfContentView: View {
         } else {
             // Without Screen Recording the items show their apps' icons (or the images chosen
             // for them); the first time the Shelf opens, a window offers their real pictures (see `show(section:on:)`).
-            itemsScrollView
+            findAndTiles
+                // Leaving for the menu bar: the Shelf steps back.
+                .opacity(dragModel.outcome == .menuBar ? 0.55 : 1)
+        }
+    }
+
+    /// The field that shows what was typed, if the Shelf takes the keyboard, and the tiles.
+    @ViewBuilder
+    private var findAndTiles: some View {
+        let contents = contents
+        let matches = find.matches(in: contents.tiles)
+        switch layout {
+        case .row:
+            HStack(spacing: 0) {
+                if findsByTyping {
+                    HolzBarShelfFindView(query: find.query, hasMatches: !matches.isEmpty)
+                }
+                tilesScrollView(contents, matches: Set(matches))
+            }
+        case .grid, .column:
+            VStack(alignment: .leading, spacing: 0) {
+                if findsByTyping {
+                    HolzBarShelfFindView(query: find.query, hasMatches: !matches.isEmpty)
+                        .frame(minHeight: contentHeight)
+                }
+                tilesScrollView(contents, matches: Set(matches))
+            }
         }
     }
 
     @ViewBuilder
-    private var itemsScrollView: some View {
+    private func tilesScrollView(_ contents: Contents, matches: Set<String>) -> some View {
         switch layout {
         case .row:
             ScrollView(.horizontal) {
                 HStack(spacing: 0) {
-                    ForEach(items, id: \.windowID) { item in
-                        itemView(item)
+                    ForEach(contents.tiles) { tile in
+                        tileView(tile, in: contents, matches: matches)
                     }
                 }
             }
@@ -717,13 +1050,13 @@ private struct HolzBarShelfContentView: View {
             }
         case .grid, .column:
             // More rows than fit scroll; the Shelf is as tall as its rows, up to a limit.
-            let rows = ShelfLayoutPlan.rows(of: items, layout: layout)
+            let rows = ShelfLayoutPlan.rows(of: contents.tiles, layout: layout)
             ScrollView(.vertical) {
                 VStack(alignment: .leading, spacing: 0) {
-                    ForEach(rows, id: \.first?.windowID) { row in
+                    ForEach(rows, id: \.first?.id) { row in
                         HStack(spacing: 0) {
-                            ForEach(row, id: \.windowID) { item in
-                                itemView(item)
+                            ForEach(row) { tile in
+                                tileView(tile, in: contents, matches: matches)
                             }
                         }
                         .frame(minHeight: contentHeight)
@@ -739,191 +1072,66 @@ private struct HolzBarShelfContentView: View {
         }
     }
 
-    private func itemView(_ item: MenuBarItem) -> some View {
-        HolzBarShelfItemView(
-            imageCache: imageCache,
-            itemManager: itemManager,
-            menuBarManager: menuBarManager,
-            item: item,
-            section: section,
-            isHighlighted: item.windowID == highlightedWindowID
-        )
-    }
-}
-
-// MARK: - HolzBarShelfItemView
-
-private struct HolzBarShelfItemView: View {
-    var imageCache: MenuBarItemImageCache
-    var itemManager: MenuBarItemManager
-    var menuBarManager: MenuBarManager
-
-    let item: MenuBarItem
-    let section: MenuBarSection.Name
-    /// Whether the arrows of the keyboard highlight the item.
-    var isHighlighted = false
-
-    private var leftClickAction: () -> Void {
-        return { [weak itemManager, weak menuBarManager] in
-            guard let itemManager, let menuBarManager else {
-                return
+    @ViewBuilder
+    private func tileView(_ tile: ShelfTile, in contents: Contents, matches: Set<String>) -> some View {
+        let isHighlighted = tile.id == highlightedID
+        // While something is typed, the tiles that do not match step back.
+        let isDimmed = find.isActive && tile.isSearchable && !matches.contains(tile.id)
+        switch tile.kind {
+        case .item(let windowID):
+            if let item = contents.items[windowID] {
+                HolzBarShelfItemView(
+                    imageCache: imageCache,
+                    itemManager: itemManager,
+                    menuBarManager: menuBarManager,
+                    registry: registry,
+                    item: item,
+                    section: section,
+                    tileID: tile.id,
+                    isHighlighted: isHighlighted,
+                    isDimmed: isDimmed,
+                    dropIndication: dropIndication(for: tile),
+                    axis: dropAxis,
+                    drag: dragActions(for: tile, item: item, image: itemImage(item))
+                )
             }
-            let shelfDisplayID = menuBarManager.shelfPanel.screen?.displayID
-            menuBarManager.section(withName: section)?.hide()
-            Task {
-                try? await Task.sleep(for: .milliseconds(25))
-                await itemManager.openItem(item, mouseButton: .left, shelfDisplayID: shelfDisplayID, origin: .click)
+        case .fold(let count, let isOpen):
+            HolzBarShelfFoldView(
+                registry: registry,
+                count: count,
+                isOpen: isOpen,
+                tileID: tile.id,
+                isHighlighted: isHighlighted,
+                dropIndication: dropIndication(for: tile),
+                toggle: { toggleFold() }
+            )
+        case .closedApp(let bundleID):
+            if let entry = closedApps.entry(forBundleIdentifier: bundleID) {
+                HolzBarShelfClosedAppView(
+                    registry: registry,
+                    entry: entry,
+                    tileID: tile.id,
+                    isHighlighted: isHighlighted,
+                    isDimmed: isDimmed,
+                    dropIndication: dropIndication(for: tile),
+                    launch: {
+                        HolzBarShelfActions.launch(entry, section: section, menuBarManager: menuBarManager)
+                    }
+                )
             }
+        case .divider:
+            HolzBarShelfDividerView()
         }
     }
 
-    private var rightClickAction: () -> Void {
-        return { [weak itemManager, weak menuBarManager] in
-            guard let itemManager, let menuBarManager else {
-                return
-            }
-            let shelfDisplayID = menuBarManager.shelfPanel.screen?.displayID
-            menuBarManager.section(withName: section)?.hide()
-            Task {
-                try? await Task.sleep(for: .milliseconds(25))
-                await itemManager.openItem(item, mouseButton: .right, shelfDisplayID: shelfDisplayID, origin: .click)
-            }
-        }
-    }
-
-    /// The item's chosen image, its picture or its app's icon (`ItemIconStore`).
-    private var image: NSImage? {
+    /// The picture of an item that follows the pointer while it is dragged.
+    private func itemImage(_ item: MenuBarItem) -> NSImage? {
         let captured = imageCache.images[item.tag]?.nsImage
         guard let iconStore = itemManager.appState?.itemIconStore else {
             return captured
         }
         return iconStore.image(for: item, captured: captured)
     }
-
-    var body: some View {
-        Group {
-            if let image {
-                Image(nsImage: image)
-            } else if item.displayName == MenuBarItem.fallbackDisplayName {
-                // An item of an unknown app: a quiet symbol instead of the same words many times.
-                Image(systemName: "app.dashed")
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 4)
-            } else {
-                Text(item.displayName)
-                    .font(.caption)
-                    .lineLimit(1)
-                    .padding(.horizontal, 4)
-            }
-        }
-        .contentShape(Rectangle())
-        .overlay {
-            HolzBarShelfItemClickView(
-                item: item,
-                leftClickAction: leftClickAction,
-                rightClickAction: rightClickAction
-            )
-        }
-        .background {
-            if isHighlighted {
-                RoundedRectangle(cornerRadius: 5, style: .continuous)
-                    .fill(Color.primary.opacity(0.2))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                            .strokeBorder(Color(nsColor: .keyboardFocusIndicatorColor), lineWidth: 2)
-                    }
-            }
-        }
-        .accessibilityAddTraits(.isButton)
-        .accessibilityAddTraits(isHighlighted ? .isSelected : [])
-        .accessibilityLabel(item.displayName)
-        .accessibilityAction(.default, leftClickAction)
-        .accessibilityAction(named: "Open", leftClickAction)
-        .accessibilityAction(named: "Open Menu", rightClickAction)
-    }
-}
-
-// MARK: - HolzBarShelfItemClickView
-
-private struct HolzBarShelfItemClickView: NSViewRepresentable {
-    private final class Represented: NSView {
-        let item: MenuBarItem
-
-        let leftClickAction: () -> Void
-        let rightClickAction: () -> Void
-
-        private var lastLeftMouseDownDate = Date.now
-        private var lastRightMouseDownDate = Date.now
-
-        private var lastLeftMouseDownLocation = CGPoint.zero
-        private var lastRightMouseDownLocation = CGPoint.zero
-
-        init(
-            item: MenuBarItem,
-            leftClickAction: @escaping () -> Void,
-            rightClickAction: @escaping () -> Void
-        ) {
-            self.item = item
-            self.leftClickAction = leftClickAction
-            self.rightClickAction = rightClickAction
-            super.init(frame: .zero)
-            self.toolTip = item.displayName
-        }
-
-        @available(*, unavailable)
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-
-        override func mouseDown(with event: NSEvent) {
-            super.mouseDown(with: event)
-            lastLeftMouseDownDate = .now
-            lastLeftMouseDownLocation = NSEvent.mouseLocation
-        }
-
-        override func rightMouseDown(with event: NSEvent) {
-            super.rightMouseDown(with: event)
-            lastRightMouseDownDate = .now
-            lastRightMouseDownLocation = NSEvent.mouseLocation
-        }
-
-        override func mouseUp(with event: NSEvent) {
-            super.mouseUp(with: event)
-            guard
-                Date.now.timeIntervalSince(lastLeftMouseDownDate) < 0.5,
-                lastLeftMouseDownLocation.distance(to: NSEvent.mouseLocation) < 5
-            else {
-                return
-            }
-            leftClickAction()
-        }
-
-        override func rightMouseUp(with event: NSEvent) {
-            super.rightMouseUp(with: event)
-            guard
-                Date.now.timeIntervalSince(lastRightMouseDownDate) < 0.5,
-                lastRightMouseDownLocation.distance(to: NSEvent.mouseLocation) < 5
-            else {
-                return
-            }
-            rightClickAction()
-        }
-    }
-
-    let item: MenuBarItem
-
-    let leftClickAction: () -> Void
-    let rightClickAction: () -> Void
-
-    func makeNSView(context: Context) -> NSView {
-        Represented(
-            item: item,
-            leftClickAction: leftClickAction,
-            rightClickAction: rightClickAction
-        )
-    }
-
-    func updateNSView(_ nsView: NSView, context: Context) { }
 }
 
 // MARK: - Placement conversions
@@ -931,5 +1139,17 @@ private struct HolzBarShelfItemClickView: NSViewRepresentable {
 private extension HolzBarShelfPlacement.Rect {
     init(_ rect: CGRect) {
         self.init(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height)
+    }
+}
+
+private extension MenuBarSection.Name {
+    /// The section a group of tiles stands for; `nil` for the visible items the notch covers,
+    /// which are no section of the Shelf.
+    init?(_ group: ShelfGroup) {
+        switch group {
+        case .visible: return nil
+        case .hidden: self = .hidden
+        case .alwaysHidden: self = .alwaysHidden
+        }
     }
 }

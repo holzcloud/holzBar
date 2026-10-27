@@ -704,6 +704,10 @@ final class MenuBarItemImageCache {
             if section == .hidden, appState.settings.general.showsNotchOverflowInShelf {
                 sectionsNeedingDisplay.append(.visible)
             }
+            // The always-hidden items are listed once the Shelf's fold is open.
+            if appState.menuBarManager.shelfPanel.listsAlwaysHidden {
+                sectionsNeedingDisplay.append(.alwaysHidden)
+            }
         }
 
         await updateCache(sections: sectionsNeedingDisplay)

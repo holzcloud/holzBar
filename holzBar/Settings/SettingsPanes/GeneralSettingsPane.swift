@@ -199,6 +199,7 @@ struct GeneralSettingsPane: View {
             shelfFindsByTyping
             shelfFoldPicker
             shelfShowsClosedApps
+            shelfDragsTiles
             shelfDisplaysPicker
             if #available(macOS 27.0, *) {
                 Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInShelf)
@@ -270,6 +271,17 @@ struct GeneralSettingsPane: View {
             }
         }
         .annotation("Applications with a hidden item that are closed appear dimmed in the holzBar Shelf. Click one to open it.")
+    }
+
+    @ViewBuilder
+    private var shelfDragsTiles: some View {
+        Toggle(isOn: $settings.shelfDragsTiles) {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Rearrange items by dragging")
+                PreviewBadge()
+            }
+        }
+        .annotation("Drag an item in the holzBar Shelf to put it in order, into another section or up onto the menu bar to show it there. Where macOS puts the items of a section in order itself, an item can only change its section.")
     }
 
     @ViewBuilder

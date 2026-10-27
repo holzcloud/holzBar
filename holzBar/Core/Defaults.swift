@@ -174,6 +174,8 @@ nonisolated extension Defaults {
         /// Whether the holzBar Shelf also lists the applications that are not running, dimmed
         /// (off by default).
         case shelfShowsClosedApps = "ShelfShowsClosedApps"
+        /// Whether a tile of the holzBar Shelf can be dragged to arrange the items (on by default).
+        case shelfDragsTiles = "ShelfDragsTiles"
         case showOnClick = "ShowOnClick"
         case showOnHover = "ShowOnHover"
         case showOnScroll = "ShowOnScroll"
@@ -339,6 +341,7 @@ nonisolated extension Defaults.Key {
             .shelfFindsByTyping,
             .shelfAlwaysHiddenFoldOpen,
             .shelfShowsClosedApps,
+            .shelfDragsTiles,
             .showOnClick,
             .showOnHover,
             .showOnScroll,

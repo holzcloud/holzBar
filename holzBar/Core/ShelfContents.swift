@@ -117,11 +117,8 @@ nonisolated enum ShelfContents {
 
         if input.foldsAlwaysHidden {
             if alwaysHiddenCount > 0 {
-                var tiles = [ShelfTile(
-                    kind: .fold(count: alwaysHiddenCount, isOpen: input.isFoldOpen),
-                    group: .alwaysHidden,
-                    name: ""
-                )]
+                let fold = ShelfTile(kind: .fold(count: alwaysHiddenCount, isOpen: input.isFoldOpen), group: .alwaysHidden, name: "")
+                var tiles = [fold]
                 if input.isFoldOpen {
                     tiles += groupTiles(.alwaysHidden, items: input.alwaysHidden, closed: input.closedAlwaysHidden, closedFirst: input.closedFirst)
                 }

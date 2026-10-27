@@ -168,7 +168,7 @@ struct SettingsSchemaTests {
 
     @Test("The Shelf's find, fold and closed-application settings travel as their kinds, the fold's state stays on this Mac")
     func shelfUpgradeSettings() {
-        for key in ["ShelfFindsByTyping", "ShelfShowsClosedApps"] {
+        for key in ["ShelfFindsByTyping", "ShelfShowsClosedApps", "ShelfDragsTiles"] {
             #expect(Defaults.Key.importableKinds[key] == .bool)
             let result = Defaults.Key.validatedSettings([key: 1.5], ownBundleIdentifier: ownBundle)
             #expect(result.accepted.isEmpty)

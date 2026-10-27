@@ -158,6 +158,14 @@ final class GeneralSettings {
         }
     }
 
+    /// A Boolean value that indicates whether a tile of the holzBar Shelf can be dragged to put
+    /// the items in order, into another section or onto the menu bar.
+    var shelfDragsTiles = true {
+        didSet {
+            Defaults.set(shelfDragsTiles, forKey: .shelfDragsTiles)
+        }
+    }
+
     /// A Boolean value that indicates whether the holzBar Shelf is used right now:
     /// it is turned on, and the display under the mouse pointer is one it is
     /// used on.
@@ -285,6 +293,7 @@ final class GeneralSettings {
         Defaults.ifPresent(key: .shelfFindsByTyping, assign: &shelfFindsByTyping)
         Defaults.ifPresent(key: .shelfAlwaysHiddenFoldOpen, assign: &shelfAlwaysHiddenFoldOpen)
         Defaults.ifPresent(key: .shelfShowsClosedApps, assign: &shelfShowsClosedApps)
+        Defaults.ifPresent(key: .shelfDragsTiles, assign: &shelfDragsTiles)
         Defaults.ifPresent(key: .shelfAlwaysHiddenFold) { (rawValue: Int) in
             shelfAlwaysHiddenFold = ShelfAlwaysHiddenFold.stored(rawValue)
         }

@@ -29,6 +29,34 @@
         }
       }
     },
+    "%@ is not running. Click to open it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ läuft nicht. Ein Klick öffnet die App."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ n'est pas ouvert. Un clic l'ouvre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ non è in esecuzione. Un clic la apre."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ na curra betg. Ina clicada avra l'applicaziun."
+          }
+        }
+      }
+    },
     "%@ is running" : {
       "localizations" : {
         "de" : {
@@ -253,6 +281,34 @@
         }
       }
     },
+    "Drag an item in the holzBar Shelf to put it in order, into another section or up onto the menu bar to show it there. Where macOS puts the items of a section in order itself, an item can only change its section." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ziehe ein Element im holzBar Shelf, um es einzuordnen, in einen anderen Bereich zu legen oder nach oben auf die Menüleiste zu ziehen und es dort anzuzeigen. Wo macOS die Elemente eines Bereichs selbst anordnet, kann ein Element nur den Bereich wechseln."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faites glisser un élément dans le holzBar Shelf pour le classer, le placer dans une autre section ou le déposer en haut sur la barre des menus pour l'y afficher. Là où macOS classe lui-même les éléments d'une section, un élément ne peut que changer de section."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trascina un elemento nel holzBar Shelf per riordinarlo, spostarlo in un'altra sezione o portarlo in alto sulla barra dei menu per mostrarlo lì. Dove macOS ordina da solo gli elementi di una sezione, un elemento può solo cambiare sezione."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tira in element en il holzBar Shelf per al metter en ordinaziun, en ina autra secziun u si sin la trav da menus per al mussar là. Nua che macOS ordinescha sez ils elements d'ina secziun, po in element mo midar la secziun."
+          }
+        }
+      }
+    },
     "Find items by typing" : {
       "localizations" : {
         "de" : {
@@ -281,6 +337,62 @@
         }
       }
     },
+    "Fold the always-hidden items" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die immer ausgeblendeten Elemente einklappen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replier les éléments toujours masqués"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprimi gli elementi sempre nascosti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plajar ils elements adina zuppads"
+          }
+        }
+      }
+    },
+    "Folded" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eingeklappt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replié"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compresso"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plajà"
+          }
+        }
+      }
+    },
     "Folded each time" : {
       "localizations" : {
         "de" : {
@@ -304,7 +416,7 @@
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mintga giada stgaffì"
+            "value" : "Mintga giada plajà"
           }
         }
       }
@@ -669,6 +781,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Betg applitgà uschè ditg che il holzBar Shelf è activà: il Shelf na po betg mussar in element dal sistem."
+          }
+        }
+      }
+    },
+    "Not running" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Läuft nicht"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas ouvert"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non in esecuzione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Na curra betg"
           }
         }
       }
@@ -11323,6 +11463,34 @@
         }
       }
     },
+    "Rearrange items by dragging" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemente per Ziehen anordnen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réorganiser les éléments par glisser-déposer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riordina gli elementi trascinandoli"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordinar ils elements cun trer"
+          }
+        }
+      }
+    },
     "Record" : {
       "localizations" : {
         "de" : {
@@ -13503,6 +13671,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mussar l'element"
+          }
+        }
+      }
+    },
+    "Show the always-hidden items" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die immer ausgeblendeten Elemente zeigen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher les éléments toujours masqués"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra gli elementi sempre nascosti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar ils elements adina zuppads"
           }
         }
       }
@@ -16639,6 +16835,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scriva il num exactamain uschia sco ch’el cumpara en l’app Shortcuts."
+          }
+        }
+      }
+    },
+    "Type to find an item" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippen, um ein Element zu finden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tapez pour trouver un élément"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digita per trovare un elemento"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scriva per chattar in element"
           }
         }
       }
