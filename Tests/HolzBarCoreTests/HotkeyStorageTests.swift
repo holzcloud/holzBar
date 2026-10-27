@@ -23,6 +23,7 @@ struct HotkeyStorageTests {
             "ShowItemHints",
             "ToggleKeepAwake",
             "OpenCommandPalette",
+            "ToggleNotchHub",
         ])
     }
 

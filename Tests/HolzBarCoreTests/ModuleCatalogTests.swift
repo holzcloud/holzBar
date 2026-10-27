@@ -60,14 +60,14 @@ struct ModuleCatalogTests {
         // Off until the user switches it on.
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.enabledIdentifiers(["apple-items"], knownTo: ModuleCatalog.all) == ["apple-items"])
-        // The other modules carry no badge.
-        #expect(ModuleCatalog.all.filter(\.isPreview).map(\.id) == ["apple-items"])
+        // Widgets and Drag in the Menu Bar carry no badge.
+        #expect(ModuleCatalog.all.filter(\.isPreview).map(\.id) == ["apple-items", "notch-hub"])
     }
 
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(
-            ModuleCatalog.populatedAreas(of: ModuleCatalog.all) == [.menuBar],
+            ModuleCatalog.populatedAreas(of: ModuleCatalog.all) == [.menuBar, .notch],
             """
             A module of another area needs its area title in ModulesSettingsPane. \
             Teach the pane the title, then update this test.

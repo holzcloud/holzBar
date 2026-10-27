@@ -91,6 +91,8 @@ extension HotkeyAction {
             appState.automation.toggleKeepAwake()
         case .openCommandPalette:
             appState.menuBarManager.commandPalettePanel.toggle()
+        case .toggleNotchHub:
+            appState.notchHub.toggle()
         }
     }
 }

@@ -85,6 +85,34 @@
         }
       }
     },
+    "A panel at the notch for the modules you switch on." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Bereich an der Notch für die Module, die du einschaltest."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un panneau à l’encoche pour les modules que vous activez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un pannello al notch per i moduli che attivi."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina surfatscha tar la notch per ils moduls che ti envidas."
+          }
+        }
+      }
+    },
     "Add Replacement…" : {
       "localizations" : {
         "de" : {
@@ -449,6 +477,34 @@
         }
       }
     },
+    "No modules yet" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Module"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas encore de modules"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ancora nessun modulo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anc nagins moduls"
+          }
+        }
+      }
+    },
     "Not applied while the holzBar Shelf is on: the Shelf cannot show a system item." : {
       "localizations" : {
         "de" : {
@@ -473,6 +529,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Betg applitgà uschè ditg che il holzBar Shelf è activà: il Shelf na po betg mussar in element dal sistem."
+          }
+        }
+      }
+    },
+    "Notch" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encoche"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch"
+          }
+        }
+      }
+    },
+    "Notch hub" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch-Hub"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub de l’encoche"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub del notch"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hub da la notch"
           }
         }
       }
@@ -14151,6 +14263,34 @@
         }
       }
     },
+    "Switch on modules in Settings and they appear here." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schalte Module in den Einstellungen ein, dann erscheinen sie hier."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activez des modules dans les réglages, ils apparaissent ici."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attiva i moduli nelle impostazioni e compariranno qui."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envida moduls en ils parameters, lura cumparan qua."
+          }
+        }
+      }
+    },
     "Symbol" : {
       "localizations" : {
         "de" : {
@@ -15463,6 +15603,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Midar"
+          }
+        }
+      }
+    },
+    "Toggle the notch hub" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch-Hub ein- oder ausblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher ou masquer le hub de l’encoche"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra o nascondi il hub del notch"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar u zuppar il hub da la notch"
           }
         }
       }

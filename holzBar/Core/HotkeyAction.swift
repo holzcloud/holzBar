@@ -33,4 +33,5 @@ nonisolated enum HotkeyAction: String, Codable, CaseIterable {
     case showItemHints = "ShowItemHints"
     case toggleKeepAwake = "ToggleKeepAwake"
     case openCommandPalette = "OpenCommandPalette"
+    case toggleNotchHub = "ToggleNotchHub"
 }

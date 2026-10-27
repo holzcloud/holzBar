@@ -80,6 +80,9 @@ final class AppState {
     /// The Apple Items module: hidden system items (macOS 27).
     let appleItems = AppleItems()
 
+    /// The Notch hub: a panel at the notch for the modules the user switches on (Preview).
+    let notchHub = NotchHubController()
+
     /// The lock that asks for Touch ID or the password before hidden items are shown.
     let hiddenItemsLock = HiddenItemsLock()
 
@@ -217,6 +220,7 @@ final class AppState {
         appleItems.performSetup(with: self)
         spacers.performSetup()
         widgets.performSetup(with: self)
+        notchHub.performSetup(with: self)
         automation.performSetup(with: self)
         usage.performSetup(with: self)
         presentationMonitor.performSetup(with: self)

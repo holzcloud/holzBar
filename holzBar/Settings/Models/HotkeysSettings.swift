@@ -286,6 +286,8 @@ extension HotkeyAction {
             String(localized: "Keep the Mac awake")
         case .openCommandPalette:
             String(localized: "Open the command palette")
+        case .toggleNotchHub:
+            String(localized: "Toggle the notch hub")
         }
     }
 }

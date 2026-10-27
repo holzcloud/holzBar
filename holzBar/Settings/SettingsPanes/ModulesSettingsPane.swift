@@ -59,6 +59,7 @@ struct ModulesSettingsPane: View {
     private func areaTitle(for area: ModuleArea) -> Text {
         switch area {
         case .menuBar: Text("Menu Bar")
+        case .notch: Text("Notch")
         default: Text(verbatim: area.rawValue)
         }
     }
