@@ -142,26 +142,60 @@ nonisolated enum FuzzyMatch {
         }
         let characters = queryCharacters(query)
         return items.enumerated()
-            .compactMap { offset, item -> (offset: Int, isTypo: Bool, score: Int, item: T)? in
-                let positions = Self.positions(of: key(item))
-                if let inOrder = Self.score(of: characters, in: positions) {
-                    return (offset, false, inOrder, item)
+            .compactMap { offset, item -> (offset: Int, match: Match, item: T)? in
+                guard let match = Self.match(of: characters, in: positions(of: key(item))) else {
+                    return nil
                 }
-                if let edits = Self.typoEdits(of: characters, in: positions) {
-                    return (offset, true, -edits, item)
-                }
-                return nil
+                return (offset, match, item)
             }
             .sorted { lhs, rhs in
-                if lhs.isTypo != rhs.isTypo {
-                    return !lhs.isTypo
+                if lhs.match != rhs.match {
+                    return lhs.match.isBetter(than: rhs.match)
                 }
-                return lhs.score != rhs.score ? lhs.score > rhs.score : lhs.offset < rhs.offset
+                return lhs.offset < rhs.offset
             }
             .map(\.item)
     }
 
+    /// How well a query matches a candidate.
+    nonisolated struct Match: Equatable {
+        /// Whether the query matched only as a misspelling of a word of the candidate.
+        let isTypo: Bool
+        /// The score of an in-order match, or the negated number of edits of a typo match.
+        let score: Int
+
+        /// Whether this match ranks above another: every match in order ranks above every typo
+        /// match, then a higher score ranks higher.
+        func isBetter(than other: Match) -> Bool {
+            if isTypo != other.isTypo {
+                return !isTypo
+            }
+            return score > other.score
+        }
+    }
+
+    /// How well `query` matches `candidate`: in order if its characters appear in order,
+    /// otherwise as a typo of a word.
+    ///
+    /// - Returns: `nil` when the query does not match.
+    static func match(query: String, in candidate: String) -> Match? {
+        guard query.contains(where: { !$0.isWhitespace }) else {
+            return nil
+        }
+        return match(of: queryCharacters(query), in: positions(of: candidate))
+    }
+
     // MARK: Private
+
+    private static func match(of characters: [Character], in positions: [Position]) -> Match? {
+        if let inOrder = score(of: characters, in: positions) {
+            return Match(isTypo: false, score: inOrder)
+        }
+        if let edits = typoEdits(of: characters, in: positions) {
+            return Match(isTypo: true, score: -edits)
+        }
+        return nil
+    }
 
     /// `string` without case and diacritics.
     private static func fold(_ string: String) -> String {

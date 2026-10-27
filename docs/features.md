@@ -21,7 +21,7 @@
 - ✅ **Per display: always show everything, or collapse** — the display under the pointer decides
 - ✅ **Animation styles** — Instant, Smooth or Fade, as picture cards
 - ✅ **Keeps items in their section after app updates, title changes and display changes**
-- ✅ Search menu bar items — by abbreviation ("cc" for Control Centre) and despite typos
+- ✅ Search menu bar items — by abbreviation ("cc" for Control Centre), by short name ("bt" for Bluetooth), despite typos, and with what you open from it first
 - ✅ **Open an item by letter** — a hotkey shows a letter under every item; type it to open the item's menu
 - ✅ **Keyboard and VoiceOver** — arrange items in the Layout pane with the arrow keys, undo with ⌘Z, move items with VoiceOver actions
 - ✅ **Opened items stay** up to 30 s after their menu closes — or open without showing the item at all
@@ -121,6 +121,8 @@ The module now holds up to twelve widgets, the readouts, buttons and scripts inc
 None of this needs a permission, a timer or the network.
 
 - **Icon styles as picture cards**: Settings → General shows holzBar's own menu bar icon as a row of cards: the holzBar logo, **Chevron**, **Arrow**, **Eye**, **Dots**, **Grid**, **Panel**, **Dot**, and the older **Door**, **Ice Cube** and **Sunglasses**, with **Choose image…** for an image of your own. Each style has a look for hidden and for shown items. **No icon** replaces the old switch *Show holzBar icon*: the settings are the same, and a style you chose before stays stored. Without the icon, Settings stays one step away: open holzBar again from Finder, Launchpad or Spotlight, use the `holzbar://settings` link, or use a hotkey you set for the search or the command palette. On macOS 27 the icon still appears for the dot that marks a microphone or camera in use.
+- **Short names in the search**: type `bt`, `wlan`, `dnd`, `vol`, `bat`, `cc`, `tm` and about fifty more short names to find Bluetooth, Wi-Fi, Focus, Sound, Battery, Control Center, Time Machine and the like. The table also holds the names the system items carry in the languages holzBar speaks, so `bat` finds *Akku* and *バッテリー* as well. A short name ranks a little below an item you typed the real name of, and the typed text still matches as before, typos included.
+- **The search puts what you open first**: an item you open from the search ranks higher the more often and the more lately you did, and with nothing typed the items of a section you opened come first. The favour is a bonus on the match, not a replacement for it: a favourite beats a slightly better match, never a much better one. holzBar keeps one count per item and day for 30 days (the same small counters as the usage suggestions, in a file of their own: mode 0600, not backed up, in no export, snapshot or log), reads the file only when the search or the setting is shown, and writes it only when you open an item. **Items you open come first** in Settings → Menu Bar Layout, under **Search**, has **Forget**, which deletes the file. Only an open from the search counts, never a click in the menu bar.
 
 ## New in 0.0.12
 

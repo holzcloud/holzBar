@@ -98,6 +98,9 @@ final class AppState {
     /// The counters of the usage suggestions, which run only when the user turns them on.
     let usage = UsageStore()
 
+    /// What the search remembers of the items opened from it, so they come first.
+    let searchOpens = SearchOpensStore()
+
     /// Turns Zen mode on while the screen is mirrored or shared.
     let presentationMonitor = PresentationMonitor()
 

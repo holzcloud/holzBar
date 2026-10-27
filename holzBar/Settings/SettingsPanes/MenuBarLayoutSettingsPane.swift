@@ -47,10 +47,7 @@ struct MenuBarLayoutSettingsPane: View {
                     }
                     .padding(10)
                 }
-                HolzBarSection {
-                    Toggle("Smart Categories", isOn: Bindable(appState.settings.general).smartCategories)
-                    .annotation("Adds category buttons to the search, such as Network and Media, worked out from what holzBar can read about each app. Nothing is recorded.")
-                }
+                SearchSettingsSection(general: appState.settings.general, opens: appState.searchOpens)
                 if !ScreenRecordingAccess.isGranted(appState) {
                     // Without Screen Recording the items show their apps' icons; the hint
                     // offers their real pictures.

@@ -120,4 +120,16 @@ struct FuzzyMatchTests {
         #expect(FuzzyMatch.typoEdits(query: "xxxx", in: "Spotify") == nil)
         #expect(FuzzyMatch.typoEdits(query: "CAFFE", in: "Café") == 1)
     }
+
+    @Test("match reports an in-order match, a typo match or nothing")
+    func matchKinds() throws {
+        let inOrder = try #require(FuzzyMatch.match(query: "ctrl", in: "Control Centre"))
+        #expect(!inOrder.isTypo)
+        let misspelt = try #require(FuzzyMatch.match(query: "bleutooth", in: "Bluetooth"))
+        #expect(misspelt.isTypo)
+        #expect(FuzzyMatch.match(query: "qqqq", in: "Bluetooth") == nil)
+        #expect(FuzzyMatch.match(query: "  ", in: "Bluetooth") == nil)
+        #expect(inOrder.isBetter(than: misspelt))
+        #expect(!misspelt.isBetter(than: inOrder))
+    }
 }

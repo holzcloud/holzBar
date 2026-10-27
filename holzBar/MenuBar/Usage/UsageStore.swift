@@ -48,9 +48,7 @@ final class UsageStore {
         UsageCounters.dayNumber(for: .now)
     }
 
-    private static let fileURL = URL.applicationSupportDirectory
-        .appending(path: "holzBar", directoryHint: .isDirectory)
-        .appending(path: "Usage.json", directoryHint: .notDirectory)
+    private static let fileURL = CounterFile.url(named: "Usage.json")
 
     func performSetup(with appState: AppState) {
         self.appState = appState
@@ -182,7 +180,7 @@ final class UsageStore {
         if isEnabled {
             counters = UsageCounters(startDay: Self.today)
         }
-        try? FileManager.default.removeItem(at: Self.fileURL)
+        CounterFile.delete(at: Self.fileURL)
         if isEnabled {
             save()
         }
@@ -217,32 +215,13 @@ final class UsageStore {
         }
         counters.prune(today: Self.today)
         do {
-            let directory = Self.fileURL.deletingLastPathComponent()
-            try FileManager.default.createDirectory(
-                at: directory,
-                withIntermediateDirectories: true,
-                attributes: [.posixPermissions: 0o700]
-            )
-            var url = Self.fileURL
-            try JSONEncoder().encode(counters).write(to: url, options: .atomic)
-            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path(percentEncoded: false))
-            var values = URLResourceValues()
-            values.isExcludedFromBackup = true
-            try url.setResourceValues(values)
+            try CounterFile.write(counters, to: Self.fileURL)
         } catch {
             logger.error("Could not write the usage counters: \(error.localizedDescription, privacy: .private)")
         }
     }
 
     private func load() {
-        guard
-            let data = try? Data(contentsOf: Self.fileURL),
-            var loaded = try? JSONDecoder().decode(UsageCounters.self, from: data)
-        else {
-            counters = UsageCounters(startDay: Self.today)
-            return
-        }
-        loaded.prune(today: Self.today)
-        counters = loaded
+        counters = CounterFile.read(at: Self.fileURL, today: Self.today) ?? UsageCounters(startDay: Self.today)
     }
 }

@@ -1009,6 +1009,34 @@
         }
       }
     },
+    "Forget" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vergessen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oublier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimentica"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emblidar"
+          }
+        }
+      }
+    },
     "Hide an Apple app's items in Menu Bar Layout, and keep the ones you want one click away here." : {
       "localizations" : {
         "de" : {
@@ -1201,6 +1229,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cub da glatsch"
+          }
+        }
+      }
+    },
+    "Items you open come first" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geöffnete Elemente zuerst"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments ouverts d'abord"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prima gli elementi aperti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elements averts emprim"
           }
         }
       }
@@ -14459,6 +14515,34 @@
         }
       }
     },
+    "Search" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recherche"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricerca"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tschertga"
+          }
+        }
+      }
+    },
     "Search Menu Bar Items" : {
       "localizations" : {
         "de" : {
@@ -16807,6 +16891,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Er la tschertga maina als parameters."
+          }
+        }
+      }
+    },
+    "The search remembers how often and how lately you open an item from it, so what you use most comes first. A short name such as bt or wlan finds Bluetooth or Wi-Fi. The counts stay on this Mac, are not exported or backed up, and Forget deletes them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Suche merkt sich, wie oft und wie kürzlich du ein Element über sie öffnest, damit das Meistgenutzte zuerst steht. Ein Kurzname wie bt oder wlan findet Bluetooth oder WLAN. Die Zähler bleiben auf diesem Mac, werden weder exportiert noch gesichert und mit Vergessen gelöscht."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La recherche retient à quelle fréquence et à quel moment vous ouvrez un élément avec elle, pour placer en premier ce que vous utilisez le plus. Un nom court comme bt ou wlan trouve Bluetooth ou le Wi-Fi. Les compteurs restent sur ce Mac, ne sont ni exportés ni sauvegardés, et Oublier les supprime."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La ricerca ricorda quanto spesso e quanto di recente apri un elemento da essa, così ciò che usi di più viene per primo. Un nome breve come bt o wlan trova Bluetooth o Wi-Fi. I contatori restano su questo Mac, non vengono esportati né salvati nei backup, e Dimentica li elimina."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tschertga regorda co savens e co dacurt ti avras in element cun ella, uschia che quai che ti dovras il pli vegn emprim. In num curt sco bt u wlan chatta Bluetooth u Wi-Fi. Ils numers restan sin quest Mac, na vegnan ni exportads ni segiraids ed Emblidar ils stizza."
           }
         }
       }

@@ -130,6 +130,8 @@ final class MenuBarSearchPanel: NSPanel {
         // Important that we set the navigation state before updating the cache.
         appState.navigationState.isSearchPresented = true
 
+        appState.searchOpens.loadIfNeeded()
+
         // The selection starts at All and the facts at none, each time the panel opens.
         model.selectedCategory = nil
         model.presentCategories = []
@@ -370,7 +372,7 @@ private struct MenuBarSearchContentView: View {
     }
 
     private func updateDisplayedItems() {
-        typealias SearchItem = (listItem: ListItem, title: String)
+        typealias SearchItem = (listItem: ListItem, title: String, frecency: Double)
 
         let sections = MenuBarSection.Name.allCases.filter { name in
             guard
@@ -406,9 +408,12 @@ private struct MenuBarSearchContentView: View {
 
         var searchItems = [SearchItem]()
         for name in sections {
-            let items = itemManager.itemCache[name].reversed().filter { item in
+            let shown = itemManager.itemCache[name].reversed().filter { item in
                 selectedCategory == nil || categories[item.tag] == selectedCategory
             }
+            // The items opened from the search come first in their section; with nothing
+            // remembered the order is the menu bar's.
+            let items = SearchRanking.favouritesFirst(shown) { frecency(of: $0) }
             // A category leaves no header without an item under it.
             if selectedCategory != nil, items.isEmpty {
                 continue
@@ -421,7 +426,7 @@ private struct MenuBarSearchContentView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, 10)
             }
-            searchItems.append(SearchItem(headerItem, name.displayString))
+            searchItems.append(SearchItem(headerItem, name.displayString, 0))
 
             for item in items {
                 let listItem = ListItem.item(id: .item(item.tag)) {
@@ -429,7 +434,7 @@ private struct MenuBarSearchContentView: View {
                 } content: {
                     MenuBarSearchItemView(item: item)
                 }
-                searchItems.append(SearchItem(listItem, item.displayName))
+                searchItems.append(SearchItem(listItem, item.displayName, frecency(of: item)))
             }
         }
 
@@ -437,8 +442,14 @@ private struct MenuBarSearchContentView: View {
             model.displayedItems = searchItems.map { $0.listItem }
         } else {
             let selectableItems = searchItems.filter { $0.listItem.isSelectable }
-            model.displayedItems = FuzzyMatch.rank(selectableItems, query: model.searchText) { $0.title }
-                .map { $0.listItem }
+            // Typed text, the full names of a short name ("bt") and what was opened lately.
+            model.displayedItems = SearchRanking.rank(
+                selectableItems,
+                query: model.searchText,
+                key: { $0.title },
+                frecency: { $0.frecency }
+            )
+            .map { $0.listItem }
         }
     }
 
@@ -451,7 +462,13 @@ private struct MenuBarSearchContentView: View {
         }
     }
 
+    /// How much the user opened the item from the search, lately and often.
+    private func frecency(of item: MenuBarItem) -> Double {
+        appState.searchOpens.frecency(ofItemWithKey: itemManager.identityKey(for: item))
+    }
+
     private func performAction(for item: MenuBarItem) {
+        appState.searchOpens.recordOpen(ofItemWithKey: itemManager.identityKey(for: item))
         closePanel()
         Task {
             try? await Task.sleep(for: .milliseconds(25))
