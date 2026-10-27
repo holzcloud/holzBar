@@ -87,6 +87,15 @@ final class GeneralSettings {
         }
     }
 
+    /// A Boolean value that indicates whether showing and hiding the sections slides the
+    /// menu bar's items instead of switching them at once. Only macOS 26 does so, and not
+    /// while Reduce Motion is on, the holzBar Shelf is in use or an item is dragged.
+    var animatesShowHide = true {
+        didSet {
+            Defaults.set(animatesShowHide, forKey: .animatesShowHide)
+        }
+    }
+
     /// The displays the holzBar Shelf is used on.
     var shelfDisplays: HolzBarShelfDisplays = .all {
         didSet {
@@ -220,6 +229,7 @@ final class GeneralSettings {
             }
         }
         Defaults.ifPresent(key: .animatesShelf, assign: &animatesShelf)
+        Defaults.ifPresent(key: .animatesShowHide, assign: &animatesShowHide)
         Defaults.ifPresent(key: .showsNotchOverflowInShelf, assign: &showsNotchOverflowInShelf)
         Defaults.ifPresent(key: .shelfDisplays) { rawValue in
             if let displays = HolzBarShelfDisplays(rawValue: rawValue) {

@@ -269,6 +269,20 @@ struct GeneralSettingsPane: View {
             .annotation("Hover over an empty area of the menu bar to show hidden menu bar items.")
         Toggle("Show on scroll", isOn: $settings.showOnScroll)
             .annotation("Scroll or swipe in the menu bar to show hidden menu bar items.")
+        if RevealAnimationPolicy.supportsDividerSteps(.current) {
+            animatesShowHide
+        }
+    }
+
+    @ViewBuilder
+    private var animatesShowHide: some View {
+        Toggle(isOn: $settings.animatesShowHide) {
+            HStack {
+                Text("Animate showing and hiding")
+                PreviewBadge()
+            }
+        }
+        .annotation("Hidden menu bar items slide in and out instead of appearing at once. Not used with the holzBar Shelf, and never while Reduce Motion is on.")
     }
 
     // MARK: Rehide Options
