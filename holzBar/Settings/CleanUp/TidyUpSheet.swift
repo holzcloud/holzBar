@@ -135,19 +135,12 @@ struct TidyUpEntry: Identifiable {
         let itemManager = appState.itemManager
         var byKey = [String: MenuBarItem]()
         var classifiable = [ClassifiableItem]()
+        var reader = ItemFactsReader()
         for section in MenuBarSection.Name.allCases {
             for item in itemManager.itemCache[section] where !item.isControlItem {
-                let key = itemManager.identityKey(for: item)
-                byKey[key] = item
-                classifiable.append(ClassifiableItem(
-                    key: key,
-                    namespace: item.tag.namespace.description,
-                    title: item.tag.title,
-                    applicationCategory: applicationCategory(of: item),
-                    section: section.profileIndex,
-                    // A widget is holzBar's own item: never proposed (D-25).
-                    isOwnItem: item.tag.namespace == .holzBar
-                ))
+                let facts = reader.classifiable(item, in: section, using: itemManager)
+                byKey[facts.key] = item
+                classifiable.append(facts)
             }
         }
         return ItemClassifier.proposals(for: classifiable).compactMap { proposal in
@@ -156,14 +149,5 @@ struct TidyUpEntry: Identifiable {
             }
             return TidyUpEntry(proposal: proposal, name: item.displayName, icon: appState.itemIconStore.appIcon(for: item))
         }
-    }
-
-    /// The `LSApplicationCategoryType` of the item's application, read from its bundle.
-    @MainActor
-    private static func applicationCategory(of item: MenuBarItem) -> String? {
-        guard let url = item.sourceApplication?.bundleURL, let bundle = Bundle(url: url) else {
-            return nil
-        }
-        return bundle.object(forInfoDictionaryKey: "LSApplicationCategoryType") as? String
     }
 }
