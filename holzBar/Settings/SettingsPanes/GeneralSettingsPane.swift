@@ -33,23 +33,23 @@ struct GeneralSettingsPane: View {
 
     var body: some View {
         HolzBarForm {
-            HolzBarSection {
+            HolzBarSection("Startup") {
                 appOptions
             }
-            HolzBarSection {
+            HolzBarSection("Menu Bar Icon") {
                 holzBarIconOptions
             }
-            HolzBarSection {
+            HolzBarSection("holzBar Shelf") {
                 shelfOptions
             }
-            HolzBarSection {
+            HolzBarSection("Showing Items") {
                 showOptions
             }
             displayBehaviorSection
-            HolzBarSection {
+            HolzBarSection("Rehiding") {
                 rehideOptions
             }
-            HolzBarSection {
+            HolzBarSection("Item Spacing") {
                 spacingOptions
             }
             if #available(macOS 27.0, *) {
@@ -115,10 +115,14 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var shelfLayoutPicker: some View {
-        HolzBarPicker("Layout", selection: $settings.shelfLayout) {
-            Text("Row").tag(ShelfLayout.row)
-            Text("Grid").tag(ShelfLayout.grid)
-            Text("Column").tag(ShelfLayout.column)
+        PictureCardRow(
+            selection: $settings.shelfLayout,
+            values: ShelfLayout.allCases,
+            name: \.localized
+        ) {
+            Text("Layout")
+        } picture: { layout in
+            ShelfLayoutPicture(layout: layout)
         }
         .annotation("A row holds every item side by side. A grid and a column hold more items without scrolling.")
     }
@@ -174,9 +178,14 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var shelfStylePicker: some View {
-        HolzBarPicker("Style", selection: $settings.shelfStyle) {
-            Text("Attached").tag(HolzBarShelfStyle.attached)
-            Text("Floating").tag(HolzBarShelfStyle.floating)
+        PictureCardRow(
+            selection: $settings.shelfStyle,
+            values: HolzBarShelfStyle.allCases,
+            name: \.localized
+        ) {
+            Text("Style")
+        } picture: { style in
+            ShelfStylePicture(style: style)
         }
         .annotation {
             switch settings.shelfStyle {
@@ -248,23 +257,17 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var revealAnimationCards: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
+        PictureCardRow(
+            selection: $settings.revealAnimationStyle,
+            values: RevealAnimationStyle.allCases,
+            name: \.localized
+        ) {
             HStack(spacing: HolzBarTheme.Spacing.sm) {
                 Text("Animation")
                 PreviewBadge()
             }
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                ForEach(RevealAnimationStyle.allCases) { style in
-                    PictureCard(
-                        style.localized,
-                        isSelected: settings.revealAnimationStyle == style
-                    ) {
-                        settings.revealAnimationStyle = style
-                    } picture: {
-                        AnimationStylePicture(style: style)
-                    }
-                }
-            }
+        } picture: { style in
+            AnimationStylePicture(style: style)
         }
         .annotation {
             switch MenuBarBackendKind.current {
@@ -327,9 +330,10 @@ struct GeneralSettingsPane: View {
                         Text(verbatim: display.name)
                     }
                 }
+            } footer: {
                 Text("The display under the pointer decides. Always show everything keeps every section shown there. Collapse keeps the hidden items hidden there: hovering, clicking empty space and scrolling no longer show them, while the holzBar icon and the hotkeys still do. Neither is used with the holzBar Shelf.")
-                    .font(HolzBarTheme.Typography.caption)
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
