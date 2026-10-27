@@ -14,9 +14,13 @@ import SwiftUI
 /// Nothing exists while the module is off except the observation of the switch: no panel, no
 /// monitor and no task. The panel is created the first time the hub opens, and released when
 /// the module goes off.
+///
+/// A module of the hub has a runtime object only while both the hub and the module are on:
+/// ``HubModuleLifecycle`` decides which runtimes start and stop, this class creates them from
+/// their registrations and shuts them down.
 @MainActor
 @Observable
-final class NotchHubController {
+final class NotchHubController: HubHost {
     /// The identifier of the module in ``ModuleCatalog``.
     static let moduleID = "notch-hub"
 
@@ -26,14 +30,30 @@ final class NotchHubController {
     /// Whether the hub is open.
     private(set) var isOpen = false
 
+    /// The tab that is shown: a module's identifier, or the Overview.
+    private(set) var selectedModuleID = "overview"
+
+    /// The display the hub is open on, or `nil` while it is closed.
+    var screenID: CGDirectDisplayID? {
+        openScreenID
+    }
+
     @ObservationIgnored private let logger = Logger(category: "NotchHub")
     @ObservationIgnored private weak var appState: AppState?
 
     /// Follows the module switch; the only observation that exists while the module is off.
     @ObservationIgnored private var moduleLoop: ObservationLoop?
 
+    /// Follows which hub modules are switched on, while the hub is on.
+    @ObservationIgnored private var modulesLoop: ObservationLoop?
+
+    /// The runtimes of the hub modules that are on, by identifier. Empty while the hub is off.
+    @ObservationIgnored private var runtimes = [String: any HubModuleRuntime]()
+
     /// The panel, created by the first open and released when the module goes off.
     @ObservationIgnored private var panel: NotchHubPanel?
+
+    @ObservationIgnored private var openScreenID: CGDirectDisplayID?
 
     /// Follows the module switch. With the module off, nothing else is created.
     func performSetup(with appState: AppState) {
@@ -51,12 +71,50 @@ final class NotchHubController {
             return
         }
         isActive = isOn
-        guard !isOn else {
+        if isOn {
+            modulesLoop = ObservationLoop.observe { [weak appState] in
+                guard let appState else {
+                    return Set<String>()
+                }
+                return Set(HubModules.all.map(\.id).filter { appState.modules.isEnabled($0) })
+            } onChange: { [weak self] _ in
+                self?.reconcileRuntimes()
+            }
+            reconcileRuntimes()
+        } else {
+            modulesLoop = nil
+            close()
+            // The hub is off, so the plan stops every runtime before the panel goes.
+            reconcileRuntimes()
+            panel?.orderOut(nil)
+            panel = nil
+        }
+    }
+
+    /// Starts and stops the runtimes the plan says: a module has one only while the hub and the
+    /// module are both on.
+    private func reconcileRuntimes() {
+        guard let appState else {
             return
         }
-        close()
-        panel?.orderOut(nil)
-        panel = nil
+        let registered = HubModuleLifecycle.registeredOrder(
+            catalogOrder: ModuleCatalog.all.map(\.id),
+            registrations: HubModules.all.map(\.id)
+        )
+        let plan = HubModuleLifecycle.plan(
+            hubIsOn: isActive,
+            enabled: Set(registered.filter { appState.modules.isEnabled($0) }),
+            registered: registered,
+            running: Set(runtimes.keys)
+        )
+        for id in plan.stop {
+            runtimes.removeValue(forKey: id)?.shutDown()
+        }
+        for id in plan.start {
+            if let runtime = HubModules.registration(for: id)?.makeRuntime(appState) {
+                runtimes[id] = runtime
+            }
+        }
     }
 
     // MARK: Opening and closing
@@ -103,14 +161,43 @@ final class NotchHubController {
         )
         panel.orderFrontRegardless()
         isOpen = true
+        openScreenID = screen.displayID
+        notifyRuntimes(isOpen: true)
         logger.debug("The Notch hub opened on display \(screen.displayID, privacy: .public)")
     }
 
     /// Closes the hub. The panel stays for the next open, without content.
     func close() {
+        let wasOpen = isOpen
         panel?.orderOut(nil)
         panel?.contentView = nil
         isOpen = false
+        openScreenID = nil
+        if wasOpen {
+            notifyRuntimes(isOpen: false)
+        }
+    }
+
+    private func notifyRuntimes(isOpen: Bool) {
+        for runtime in runtimes.values {
+            runtime.hubVisibilityDidChange(isOpen: isOpen)
+        }
+    }
+
+    // MARK: HubHost
+
+    func select(moduleID: String) {
+        selectedModuleID = moduleID
+    }
+
+    func openSettings(for moduleID: String) {
+        close()
+        guard let appState else {
+            return
+        }
+        appState.navigationState.settingsNavigationIdentifier = .modules
+        appState.activate(for: .settings)
+        appState.openWindow(.settings)
     }
 
     // MARK: Geometry

@@ -180,6 +180,14 @@ enum HolzBarTheme {
         }
     }
 
+    // MARK: Notch hub
+
+    /// The hub is always dark; these values are drawn on its ground.
+    enum Hub {
+        /// White at 70 percent, the colour of a module without one of its own.
+        static let neutral = Color.white.opacity(0.7)
+    }
+
     // MARK: Motion
 
     enum Motion {
