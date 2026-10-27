@@ -129,6 +129,22 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["NotchHubLastTab"])
     }
 
+    @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
+    func notchHubSettingsTravel() {
+        #expect(Defaults.Key.importableKinds["NotchHubOpensOnHover"] == .bool)
+        #expect(Defaults.Key.importableKinds["NotchHubDisplays"] == .number)
+        let accepted = Defaults.Key.validatedSettings(
+            ["NotchHubOpensOnHover": false, "NotchHubDisplays": 2],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == ["NotchHubDisplays", "NotchHubOpensOnHover"])
+        for refused: Double in [3, 1.5, .nan] {
+            let result = Defaults.Key.validatedSettings(["NotchHubDisplays": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+            #expect(result.ignored == ["NotchHubDisplays"])
+        }
+    }
+
     @Test("A settings file cannot drop event barrier exits")
     func settingsFileCannotDropBarrierExits() {
         #expect(Defaults.Key.localOnlyKeys.contains(.debugDropsBarrierExitEvent))

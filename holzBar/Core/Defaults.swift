@@ -250,6 +250,10 @@ nonisolated extension Defaults {
         case appleItemReplacements = "AppleItemReplacements"
 
         // MARK: Notch hub
+        /// Whether resting the pointer at the notch opens the Notch hub (a boolean, on by default).
+        case notchHubOpensOnHover = "NotchHubOpensOnHover"
+        /// The displays the Notch hub opens on, as the raw value of `NotchHubDisplays`.
+        case notchHubDisplays = "NotchHubDisplays"
         /// The tab the Notch hub showed last. Local to the Mac: never exported or imported.
         case notchHubLastTab = "NotchHubLastTab"
 
@@ -333,6 +337,7 @@ nonisolated extension Defaults.Key {
             .enableSecondaryContextMenu,
             .keepLiveActivitiesVisible,
             .autoZenWhileSharingScreen,
+            .notchHubOpensOnHover,
             .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
@@ -354,6 +359,7 @@ nonisolated extension Defaults.Key {
         case .shelfLocation,
             .shelfLayout,
             .shelfDisplays,
+            .notchHubDisplays,
             .rehideStrategy,
             .rehideInterval,
             .itemSpacingOffset,
@@ -430,6 +436,8 @@ nonisolated extension Defaults.Key {
             .clamped(1...3)
         case .spacerCount:
             .wholeNumber(0...10)
+        case .notchHubDisplays:
+            .wholeNumber(0...2)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,
