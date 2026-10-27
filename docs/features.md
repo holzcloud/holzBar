@@ -76,6 +76,12 @@
 </tr>
 </table>
 
+## In the next release
+
+Not released yet; it is on the development branch. Marked **Preview**: built and unit tested, not yet tested on a Mac.
+
+- **Smooth show and hide** (*Preview*, macOS 26 only): with **Animate showing and hiding** on in Settings → General (the default), hidden menu bar items slide in and out in about 0.18 seconds instead of appearing at once. The state changes first and the slide only draws it, so nothing is delayed; a quick show and hide cancel each other instead of queuing. It never runs with Reduce Motion on, while you drag an item or with the holzBar Shelf in use (there the Shelf fades instead). The setting is shown on macOS 26 only: macOS 27 animates its own bar (see [macOS 27 notes](macos27.md#show-and-hide-animation)), and macOS 14 and 15 keep the instant change until the slide has been seen there. It needs no permission, no timer while idle and no network; the one short task lives only while a slide runs.
+
 ## New in 0.0.9
 
 0.0.9 is out; see its [release notes](release-notes/v0.0.9.md). Everything marked **Preview** is built and unit tested but not yet tested on a Mac; most carry a Preview badge in the app, and the command palette and the AppleScript dictionary, which have no screen of their own for a badge, are marked here. The new look of Settings has not been looked at on a Mac either.
@@ -97,7 +103,7 @@
 
 **The holzBar Shelf**
 - **Layouts** (Preview): a row (as before), a grid of six per row, or a column; a grid and a column grow downwards and scroll after ten rows, and the arrow keys move up and down.
-- **Fade in** (Preview): the holzBar Shelf appears in 0.15 seconds instead of at once; it never fades while Reduce Motion is on, and closing is never delayed. The bar itself does not animate yet.
+- **Fade in** (Preview): the holzBar Shelf appears in 0.15 seconds instead of at once; it never fades while Reduce Motion is on, and closing is never delayed. The bar's own items are in the next release (see above).
 
 **Convenience**
 - **Usage suggestions** (Preview, off by default): count how often you open each item, once a day at most per click, for 30 days. After 14 days holzBar suggests hiding visible items you did not open for 14 days, never the clock, the battery, Control Center, items that show a live value, apps that carry badges, holzBar's own items or items a rule controls. The counts are one file on this Mac (mode 0600, excluded from backups); they are in no export, snapshot, diagnostic or log, **View Data** shows all of it, and **Forget Everything** and turning it off delete it. A suggestion moves nothing until you click **Move to Hidden**, and a snapshot of the layout is taken first.
@@ -175,7 +181,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - More **App Intents** for Shortcuts and Siri, and a **focus mode** hotkey that hides everything except chosen items.
 
 **Convenience**
-- **Smooth show and hide** of the bar itself, respecting Reduce Motion (the holzBar Shelf fades in since 0.0.9).
+- **Smooth show and hide** of the bar itself on macOS 14, 15 and 27: macOS 27 animates its own bar, and macOS 14 and 15 keep the instant change until the slide has been seen there. (macOS 26 gets it in the next release, see above; the holzBar Shelf fades in since 0.0.9.)
 - Replacement items for Apple items that macOS 27 cannot hide, and hiding system items such as Clock and Control Center.
 
 **Polish**

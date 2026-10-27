@@ -33,7 +33,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | ✅ | ✅ |
 | AppleScript dictionary | — | — | ✅ | ✅ Preview <sub>a small, read-mostly set; asks before lasting changes</sub> |
 | Touch ID or password to show hidden items | — | — | — | ✅ |
-| Smooth show and hide | — | — | — | partly: the holzBar Shelf fades in (Preview); the bar itself 🔜 |
+| Smooth show and hide | — | — | — | partly: the holzBar Shelf fades in (Preview); the bar's own items slide on macOS 26 only, in the next release (Preview) |
 | Moods: save the look of the menu bar and switch to it in one click, from the palette or with a rule | ❌ | — | — | ✅ Preview |
 | holzBar Shelf as a row, a grid or a column | ❌ | — | — | ✅ Preview |
 | Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | — | ✅ |
@@ -102,7 +102,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Build provenance attestation (`gh attestation verify`) | ❌ | — | — | ✅, and SLSA Build Level 3 provenance from 0.0.7-beta2 |
 | GitHub Actions pinned by commit SHA (Dependabot keeps them current), OpenSSF Scorecard | — | — | — | ✅ <sub>except the SLSA generator, referenced by its release tag</sub> |
 
-**Preview** marks a feature of 0.0.9 that is built and unit tested but not yet tested on a Mac; its badge shows in the app (the command palette and the AppleScript dictionary have no screen of their own for one). The AppleScript, Touch ID and smooth show and hide rows are about features other menu bar apps have (AppleScript: Bartender 7 and SaneBar; Touch ID lock: SaneBar; smooth show and hide: Vanilla), not Ice or Thaw as far as their documentation says.
+**Preview** marks a feature of 0.0.9 or the next release that is built and unit tested but not yet tested on a Mac; its badge shows in the app (the command palette and the AppleScript dictionary have no screen of their own for one). The AppleScript, Touch ID and smooth show and hide rows are about features other menu bar apps have (AppleScript: Bartender 7 and SaneBar; Touch ID lock: SaneBar; smooth show and hide: Vanilla), not Ice or Thaw as far as their documentation says.
 
 ## Against every other menu bar manager
 
@@ -132,7 +132,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Hotkeys | ✅ also per profile and item | ✅ | ✅ | ✅ | ✅ per icon | ✅ | ✅ | one | ✅ | Pro | ✅ | ✅ | ✅ | ✅ | ❓ |
 | Zen mode (lock reveal gestures) | ✅ | Focus filter only | ❌ | ✅ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❓ | ❓ |
 | Lock behind Touch ID / password | ✅ <sup>14</sup> | ❌ <sup>10</sup> | ❌ | ❌ | ✅ | ❌ | ❓ | ❌ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ |
-| Show/hide animation | Shelf only (Preview); the bar 🔜 | ❓ | ❓ | Reduce Motion only | ❓ | ❓ | ❓ | ❓ | ❓ | ✅ | ❓ | ✅ beta | ❓ | ✅ speed setting | ❓ |
+| Show/hide animation | Shelf (Preview); the bar on macOS 26 only, next release (Preview) | ❓ | ❓ | Reduce Motion only | ❓ | ❓ | ❓ | ❓ | ❓ | ✅ | ❓ | ✅ beta | ❓ | ✅ speed setting | ❓ |
 | Screen Recording | optional | optional | optional | optional | not needed | optional | required | not needed | not needed | required | ❓ | likely required | for its screenshot tools | not needed | ❓ |
 | Network connections | **none** | vendor: none <sup>11</sup> | Sparkle | Sparkle | Sparkle + anonymous event counts | licence + Sparkle | App Store: none | none | Sparkle | ❓ | App Store: none | check-in (versions, licence status) | none for core; AI servers (Pro) | analytics, crash reports, licence check | update check on by default; other network features opt-in |
 | Export / import settings | ✅ | ❓ | ❌ | ✅ | ✅ (also from Bartender, Ice) | ❓ | cloud backup (VIP) | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ |
@@ -177,7 +177,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 - **Automation:** Thaw, SaneBar and Bartender 7 have rules, per-item conditions and scripts. holzBar has them since 0.0.8, with a similar set of triggers; Thaw can use a Focus as a trigger, holzBar's Focus filter only applies a profile.
 - **No Developer ID signature or notarization**, unlike Thaw, SaneBar, Ice and Lounge (the vendor's claim). holzBar needs the `xattr` step or the Homebrew cask.
 - **Fewer languages** than Thaw and Barbee (20 each); our translations into French, Italian and Romansh are machine-made and unchecked.
-- **No animation of the bar itself yet**: only the holzBar Shelf fades in (Preview); Vanilla has smooth show and hide today. The AppleScript dictionary (Preview) is small next to Bartender 7's.
+- **Little animation of the bar itself**: the holzBar Shelf fades in (Preview) and the bar's items slide on macOS 26 only, from the next release (Preview); not on macOS 14 and 15, and macOS 27 animates its own bar. Vanilla has smooth show and hide today. The AppleScript dictionary (Preview) is small next to Bartender 7's.
 - **No settings sync** since 0.0.7-beta3; the redesigned sync comes in 1.0.0. Barbee has cloud sync of profiles.
 - **Not checked on real hardware** for several features, and one maintainer. SaneBar was sunset in June; Tuck and Glow ship updates every week or two.
 - **Apple's own items on macOS 27** (clock, Control Center, Wi-Fi) cannot be hidden; Hidden Bar and Tuck cannot either, Thaw offers replacement icons. holzBar plans replacement items for a later release.
