@@ -246,6 +246,8 @@ nonisolated extension Defaults {
         case macOS27ShelfWaitsForRefresh = "MacOS27IceBarWaitsForRefresh"
         /// The system items the user hid on macOS 27, by name (`SystemItem27`).
         case hiddenSystemItems27 = "HiddenSystemItems27"
+        /// The replacement items of the Apple Items module, as JSON (`AppleItemReplacement`).
+        case appleItemReplacements = "AppleItemReplacements"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -368,6 +370,7 @@ nonisolated extension Defaults.Key {
             .automationRules,
             .itemGroups,
             .widgets,
+            .appleItemReplacements,
             .menuBarAppearanceConfigurationV2,
             .menuBarBorderColor,
             .menuBarTintColor,

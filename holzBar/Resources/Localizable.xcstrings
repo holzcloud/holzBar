@@ -85,6 +85,34 @@
         }
       }
     },
+    "Add Replacement…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersatz hinzufügen…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter un remplacement…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi sostituto…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agiuntar ina substituziun…"
+          }
+        }
+      }
+    },
     "Apple Items" : {
       "localizations" : {
         "de" : {
@@ -11487,6 +11515,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Remplazzar tes parameters?"
+          }
+        }
+      }
+    },
+    "Replacement items" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersatz-Elemente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Éléments de remplacement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementi sostitutivi"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elements da substituziun"
           }
         }
       }

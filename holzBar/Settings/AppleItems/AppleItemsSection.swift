@@ -25,9 +25,50 @@ struct AppleItemsSection: View {
                 caption(Text("Not applied while the holzBar Shelf is on: the Shelf cannot show a system item."))
             }
             caption(Text("While a system item is hidden, Control Center does not show its camera and microphone indicator; holzBar marks its own icon instead."))
+            replacementsList
         }
         .toggleStyle(.switch)
         .tint(HolzBarTheme.Palette.accent)
+    }
+
+    private var replacementsList: some View {
+        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
+            Text("Replacement items")
+                .font(HolzBarTheme.Typography.headline)
+                .foregroundStyle(HolzBarTheme.Palette.text)
+                .accessibilityAddTraits(.isHeader)
+            ForEach(appleItems.replacements) { replacement in
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Image(systemName: replacement.symbolName)
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                        .frame(width: HolzBarTheme.Spacing.xl)
+                        .accessibilityHidden(true)
+                    Text(verbatim: replacement.title)
+                        .font(HolzBarTheme.Typography.body)
+                        .foregroundStyle(HolzBarTheme.Palette.text)
+                    Spacer(minLength: HolzBarTheme.Spacing.sm)
+                    Button("Remove") {
+                        appleItems.removeReplacement(id: replacement.id)
+                    }
+                    .buttonStyle(.borderless)
+                }
+            }
+            addMenu
+        }
+        .padding(.top, HolzBarTheme.Spacing.sm)
+    }
+
+    private var addMenu: some View {
+        let candidates = appleItems.candidates()
+        return Menu("Add Replacement…") {
+            ForEach(candidates, id: \.key) { candidate in
+                Button(candidate.title) {
+                    appleItems.addReplacement(forItemKey: candidate.key, title: candidate.title)
+                }
+            }
+        }
+        .fixedSize()
+        .disabled(candidates.isEmpty || appleItems.replacements.count >= AppleItemReplacement.maximumCount)
     }
 
     private func caption(_ text: Text) -> some View {

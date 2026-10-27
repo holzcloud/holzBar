@@ -214,6 +214,7 @@ final class AppState {
         snapshots.performSetup(with: self)
         hiddenItemsLock.performSetup(with: self)
         itemGroups.performSetup(with: self)
+        appleItems.performSetup(with: self)
         spacers.performSetup()
         widgets.performSetup(with: self)
         automation.performSetup(with: self)
