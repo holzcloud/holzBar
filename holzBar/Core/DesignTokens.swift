@@ -210,6 +210,16 @@ nonisolated enum DesignTokens {
         static let huge: Double = 48
     }
 
+    /// The shadow of the floating bar (the holzBar Shelf, detached): black at 30 %, a blur of
+    /// 20 points (SwiftUI's radius is half of it) and a drop of 4. It is tighter than the
+    /// popover and hub shadow because a bar is small and close to the bar above it. The panel's
+    /// transparent insets hold it.
+    nonisolated enum Shadow {
+        static let barOpacity: Double = 0.30
+        static let barRadius: Double = 10
+        static let barOffsetY: Double = 4
+    }
+
     // MARK: Type
 
     /// The type sizes in points. The first seven are the main scale of the design; the others

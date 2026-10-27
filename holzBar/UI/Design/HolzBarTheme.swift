@@ -109,6 +109,14 @@ enum HolzBarTheme {
         static let hub = CGFloat(DesignTokens.Radius.hub)
     }
 
+    /// The shadows the design uses.
+    enum Shadow {
+        /// The tight shadow of the floating bar.
+        static let barOpacity = DesignTokens.Shadow.barOpacity
+        static let barRadius = CGFloat(DesignTokens.Shadow.barRadius)
+        static let barOffsetY = CGFloat(DesignTokens.Shadow.barOffsetY)
+    }
+
     enum Spacing {
         static let hairline = CGFloat(DesignTokens.Spacing.hairline)
         static let xxs = CGFloat(DesignTokens.Spacing.xxs)

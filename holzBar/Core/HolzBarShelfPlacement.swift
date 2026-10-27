@@ -164,6 +164,18 @@ nonisolated enum HolzBarShelfPlacement {
         return result
     }
 
+    // MARK: Shape
+
+    /// The corner radius of the floating bar for a bar of the given height: half of it, so a
+    /// one-row bar is a capsule, and at most the panel radius of the design, so a taller bar
+    /// (a grid or a column) is a rounded panel. Zero for a height that is not usable.
+    static func floatingCornerRadius(forHeight height: Double) -> Double {
+        guard height.isFinite, height > 0 else {
+            return 0
+        }
+        return min(height / 2, DesignTokens.Radius.panel)
+    }
+
     // MARK: Attached
 
     private static func attachedOrigin(

@@ -277,4 +277,16 @@ struct DesignTokensTests {
         #expect(Tokens.Hub.tabHeight >= Tokens.minimumTargetSize)
         #expect(Tokens.Hub.settingsButtonSize >= Tokens.minimumTargetSize)
     }
+
+    @Test("The floating bar's shadow is the design's numbers and fits the panel's insets")
+    func floatingBarShadow() {
+        #expect(Tokens.Shadow.barOpacity == 0.30)
+        #expect(Tokens.Shadow.barRadius == 10)
+        #expect(Tokens.Shadow.barOffsetY == 4)
+        let insets = HolzBarShelfPlacement.floatingInsets
+        // The blur reaches its radius to every side and the drop pushes it down.
+        #expect(Tokens.Shadow.barRadius + Tokens.Shadow.barOffsetY <= insets.bottom)
+        #expect(Tokens.Shadow.barRadius <= insets.leading)
+        #expect(Tokens.Shadow.barRadius <= insets.trailing)
+    }
 }

@@ -250,6 +250,20 @@ struct HolzBarShelfPlacementTests {
         #expect(origin.y.isFinite)
     }
 
+    // MARK: Shape
+
+    @Test("The floating bar is a capsule up to the panel radius and a rounded panel above it")
+    func cornerRadius() {
+        #expect(Placement.floatingCornerRadius(forHeight: 24) == 12)
+        #expect(Placement.floatingCornerRadius(forHeight: 40) == 20)
+        #expect(Placement.floatingCornerRadius(forHeight: 44) == 22)
+        #expect(Placement.floatingCornerRadius(forHeight: 100) == 22)
+        #expect(Placement.floatingCornerRadius(forHeight: 0) == 0)
+        #expect(Placement.floatingCornerRadius(forHeight: -10) == 0)
+        #expect(Placement.floatingCornerRadius(forHeight: .nan) == 0)
+        #expect(Placement.floatingCornerRadius(forHeight: .infinity) == 0)
+    }
+
     // MARK: Constants
 
     @Test("The constants are pinned: gap 8, margin 8, pointer offset 12, insets 0, 12, 16, 12")
