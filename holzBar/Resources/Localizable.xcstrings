@@ -113,6 +113,174 @@
         }
       }
     },
+    "%lld min" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        }
+      }
+    },
+    "A click opens AirDrop. Drop files on the icon to share them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Klick öffnet AirDrop. Lege Dateien auf dem Symbol ab, um sie zu teilen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic ouvre AirDrop. Déposez des fichiers sur l’icône pour les partager."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic apre AirDrop. Trascina i file sull’icona per condividerli."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In clic avra AirDrop. Tschenta datotecas sin l’icona per las parter."
+          }
+        }
+      }
+    },
+    "A click opens fast user switching." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Klick öffnet den schnellen Benutzerwechsel."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic ouvre le changement rapide d’utilisateur."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic apre il cambio rapido utente."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In clic avra la midada svelta da utilisader."
+          }
+        }
+      }
+    },
+    "A click opens Focus." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Klick öffnet Fokus."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic ouvre Concentration."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic apre Full immersion."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In clic avra Focus."
+          }
+        }
+      }
+    },
+    "A click plays or pauses. A right-click offers previous and next. The item stays for two minutes after the sound stops." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Klick spielt ab oder pausiert. Ein Rechtsklick bietet vorheriger und nächster Titel. Das Objekt bleibt nach dem Ende des Tons zwei Minuten sichtbar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic lance la lecture ou la met en pause. Un clic droit propose précédent et suivant. L’élément reste deux minutes après la fin du son."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic riproduce o mette in pausa. Un clic destro offre precedente e successivo. L’elemento resta per due minuti dopo la fine dell’audio."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In clic reproducescha u pausescha. In clic dretg porscha precedent e proxim. L’element resta dus minutas suenter la fin dal tun."
+          }
+        }
+      }
+    },
+    "A click starts the timer, the next click stops it. A sound plays when it ends." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Klick startet den Timer, der nächste stoppt ihn. Am Ende ertönt ein Ton."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic démarre le minuteur, le suivant l’arrête. Un son retentit à la fin."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic avvia il timer, il successivo lo ferma. Alla fine si sente un suono."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In clic cumenza il timer, il proxim til ferma. A la fin tunada in tun."
+          }
+        }
+      }
+    },
     "A panel at the notch for the modules you switch on." : {
       "localizations" : {
         "de" : {
@@ -169,6 +337,34 @@
         }
       }
     },
+    "AirDrop" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirDrop"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirDrop"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirDrop"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirDrop"
+          }
+        }
+      }
+    },
     "Always-hidden items" : {
       "localizations" : {
         "de" : {
@@ -193,6 +389,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Elements adina zuppads"
+          }
+        }
+      }
+    },
+    "App Launcher" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App-Starter"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lanceur d’app"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvio app"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starter d’app"
+          }
+        }
+      }
+    },
+    "App Launcher…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App-Starter…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lanceur d’app…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvio app…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starter d’app…"
           }
         }
       }
@@ -281,6 +533,90 @@
         }
       }
     },
+    "Choose an app in the settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle in den Einstellungen eine App"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez une app dans les réglages"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli un’app nelle impostazioni"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tscherna ina app en ils parameters"
+          }
+        }
+      }
+    },
+    "Choose App…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App wählen…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir une app…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli app…"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tscherner ina app…"
+          }
+        }
+      }
+    },
+    "Choose the app this icon opens." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle die App, die dieses Symbol öffnet."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez l’app que cette icône ouvre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli l’app che questa icona apre."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tscherna l’app che questa icona avra."
+          }
+        }
+      }
+    },
     "Drag an item in the holzBar Shelf to put it in order, into another section or up onto the menu bar to show it there. Where macOS puts the items of a section in order itself, an item can only change its section." : {
       "localizations" : {
         "de" : {
@@ -309,6 +645,34 @@
         }
       }
     },
+    "Fast User Switching" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schneller Benutzerwechsel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changement rapide d’utilisateur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambio rapido utente"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Midada svelta da utilisader"
+          }
+        }
+      }
+    },
     "Find items by typing" : {
       "localizations" : {
         "de" : {
@@ -333,6 +697,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chattar elements cun scriver"
+          }
+        }
+      }
+    },
+    "Focus" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fokus"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Concentration"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Full immersion"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Focus"
           }
         }
       }
@@ -701,6 +1093,118 @@
         }
       }
     },
+    "Length" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dauer"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durata"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Durada"
+          }
+        }
+      }
+    },
+    "Media Controls" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mediensteuerung"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Commandes multimédia"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controlli multimediali"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controllas multimedialas"
+          }
+        }
+      }
+    },
+    "Next" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächster Titel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suivant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Successivo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proxim"
+          }
+        }
+      }
+    },
+    "No app chosen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine App gewählt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune app choisie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna app scelta"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagina app tschernida"
+          }
+        }
+      }
+    },
     "No Apple items on the bar to replace." : {
       "localizations" : {
         "de" : {
@@ -869,6 +1373,34 @@
         }
       }
     },
+    "Only while sound plays" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur während Ton läuft"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seulement pendant la lecture du son"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo mentre l’audio è in riproduzione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mo intant che il tun vegn reprodut"
+          }
+        }
+      }
+    },
     "Open on hover" : {
       "localizations" : {
         "de" : {
@@ -897,6 +1429,118 @@
         }
       }
     },
+    "Opens %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvre %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apre %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avra %@"
+          }
+        }
+      }
+    },
+    "Opens AirDrop. Drop files here to share them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet AirDrop. Lege Dateien hier ab, um sie zu teilen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvre AirDrop. Déposez des fichiers ici pour les partager."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apre AirDrop. Trascina qui i file per condividerli."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avra AirDrop. Tschenta datotecas qua per las parter."
+          }
+        }
+      }
+    },
+    "Opens fast user switching" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet den schnellen Benutzerwechsel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvre le changement rapide d’utilisateur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apre il cambio rapido utente"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avra la midada svelta da utilisader"
+          }
+        }
+      }
+    },
+    "Opens Focus" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet Fokus"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvre Concentration"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apre Full immersion"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avra Focus"
+          }
+        }
+      }
+    },
     "Overview" : {
       "localizations" : {
         "de" : {
@@ -921,6 +1565,90 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Survista"
+          }
+        }
+      }
+    },
+    "Play or Pause" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiedergabe oder Pause"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lecture ou pause"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riproduci o metti in pausa"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reproducir u pausa"
+          }
+        }
+      }
+    },
+    "Plays or pauses. Right-click for previous and next." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spielt ab oder pausiert. Rechtsklick für vorherigen und nächsten Titel."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lit ou met en pause. Clic droit pour précédent et suivant."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riproduce o mette in pausa. Clic destro per precedente e successivo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reproducescha u pausescha. Clic dretg per precedent e proxim."
+          }
+        }
+      }
+    },
+    "Previous" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vorheriger Titel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Précédent"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precedente"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Precedent"
           }
         }
       }
@@ -1379,34 +2107,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ura da 24 uras"
-          }
-        }
-      }
-    },
-    "A clock, the battery and other readouts of your own in the menu bar." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eine Uhr, der Akku und weitere eigene Anzeigen in der Menüleiste."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Une horloge, la batterie et d’autres affichages de votre choix dans la barre des menus."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un orologio, la batteria e altre letture a tua scelta nella barra dei menu."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ina ura, l’accu ed autras indicaziuns persunalas en la trav da menu."
           }
         }
       }
@@ -11463,6 +12163,34 @@
         }
       }
     },
+    "Readouts, app launchers, a timer and media controls of your own in the menu bar." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigene Anzeigen, App-Starter, ein Timer und Mediensteuerung in der Menüleiste."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos propres affichages, lanceurs d’app, minuteur et commandes multimédia dans la barre des menus."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letture, avvio app, un timer e controlli multimediali tuoi nella barra dei menu."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indicaziuns, starters d’app, in timer e controllas multimedialas persunalas en la trav da menu."
+          }
+        }
+      }
+    },
     "Rearrange items by dragging" : {
       "localizations" : {
         "de" : {
@@ -14683,6 +15411,34 @@
         }
       }
     },
+    "Starts or stops the timer" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Startet oder stoppt den Timer"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Démarre ou arrête le minuteur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avvia o ferma il timer"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cumenza u ferma il timer"
+          }
+        }
+      }
+    },
     "Strategy" : {
       "localizations" : {
         "de" : {
@@ -15855,6 +16611,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Temporisà"
+          }
+        }
+      }
+    },
+    "Timer" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timer"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minuteur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timer"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timer"
+          }
+        }
+      }
+    },
+    "Timer finished" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timer abgelaufen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minuteur terminé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timer terminato"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il timer è terminà"
           }
         }
       }
@@ -17399,6 +18211,34 @@
         }
       }
     },
+    "You can add up to twelve widgets." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kannst bis zu zwölf Widgets hinzufügen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous pouvez ajouter jusqu’à douze widgets."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puoi aggiungere fino a dodici widget."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ti pos agiuntar fin a dudesch widgets."
+          }
+        }
+      }
+    },
     "“%@” was put back in %@." : {
       "localizations" : {
         "de" : {
@@ -17955,34 +18795,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lavur"
-          }
-        }
-      }
-    },
-    "You can add up to six widgets." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Du kannst bis zu sechs Widgets hinzufügen."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vous pouvez ajouter jusqu’à six widgets."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Puoi aggiungere fino a sei widget."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ti pos agiuntar fin a sis widgets."
           }
         }
       }

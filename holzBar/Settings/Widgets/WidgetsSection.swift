@@ -6,7 +6,7 @@
 import SwiftUI
 
 /// The widgets of the menu bar: one row each, an editor under the row that was chosen, a way
-/// to add one, at most six (D-05). The order of the rows is the order of the list, which a
+/// to add one, at most twelve (D-05). The order of the rows is the order of the list, which a
 /// settings export carries; rows are moved with the editor's buttons and, for VoiceOver, with
 /// the "Move Up" and "Move Down" actions of every row (D-07). The Modules pane shows it under
 /// the Widgets row while the module is on.
@@ -63,11 +63,25 @@ struct WidgetsSection: View {
                     } label: {
                         Text("Script")
                     }
+                    Divider()
+                    ForEach(BuiltInItem.allCases.filter { $0 != .launcher }, id: \.self) { item in
+                        Button {
+                            addBuiltIn(item)
+                        } label: {
+                            Text(verbatim: WidgetSpeech.label(for: item))
+                        }
+                        .disabled(!item.allowsSeveral && hasItem(item))
+                    }
+                    Button {
+                        addLauncher()
+                    } label: {
+                        Text("App Launcher…")
+                    }
                 }
                 .fixedSize()
                 .disabled(isFull)
                 if isFull {
-                    Text("You can add up to six widgets.")
+                    Text("You can add up to twelve widgets.")
                         .font(HolzBarTheme.Typography.caption)
                         .foregroundStyle(HolzBarTheme.Palette.textTertiary)
                 }
@@ -97,9 +111,14 @@ struct WidgetsSection: View {
                 .frame(width: HolzBarTheme.Spacing.xl)
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 1) {
-                title(for: definition)
-                    .font(HolzBarTheme.Typography.body)
-                    .foregroundStyle(HolzBarTheme.Palette.text)
+                HStack(spacing: HolzBarTheme.Spacing.xs) {
+                    title(for: definition)
+                        .font(HolzBarTheme.Typography.body)
+                        .foregroundStyle(HolzBarTheme.Palette.text)
+                    if definition.kind == .builtIn {
+                        PreviewBadge()
+                    }
+                }
                 summary(for: definition)
                     .font(HolzBarTheme.Typography.caption)
                     .foregroundStyle(HolzBarTheme.Palette.textSecondary)
@@ -151,6 +170,8 @@ struct WidgetsSection: View {
         case .button, .script:
             // A title the user typed is shown as it is, never looked up as a string key.
             Text(verbatim: WidgetSpeech.label(for: definition))
+        case .builtIn:
+            Text(verbatim: WidgetSpeech.label(for: definition, appName: launcherName(of: definition)))
         }
     }
 
@@ -173,7 +194,39 @@ struct WidgetsSection: View {
             } else {
                 Text("Choose a Shortcut")
             }
+        case .builtIn:
+            Text(verbatim: WidgetSpeech.hint(for: definition, shortcutName: nil, appName: launcherName(of: definition)) ?? "")
         }
+    }
+
+    /// The name of the application a launcher opens, when it is installed.
+    private func launcherName(of definition: WidgetDefinition) -> String? {
+        definition.launcherBundleID.flatMap { BuiltInItemActions.applicationName(forBundleID: $0) }
+    }
+
+    private func hasItem(_ item: BuiltInItem) -> Bool {
+        widgets.definitions.contains { $0.builtIn == item }
+    }
+
+    /// Adds a built-in item, unless there are twelve widgets (D-05) or the item is there already
+    /// and there can be only one. A timer or a media item opens its editor at once.
+    private func addBuiltIn(_ item: BuiltInItem) {
+        guard item.allowsSeveral || !hasItem(item) else {
+            return
+        }
+        let definition = WidgetDefinition.builtIn(item)
+        if widgets.addWidget(definition), item == .timer || item == .media {
+            editingID = definition.id
+        }
+    }
+
+    /// Asks for an application and adds a launcher for it, unless there are twelve widgets
+    /// (D-05).
+    private func addLauncher() {
+        guard let bundleID = BuiltInItemActions.chooseApplication() else {
+            return
+        }
+        widgets.addWidget(WidgetDefinition.builtIn(.launcher, launcherBundleID: bundleID))
     }
 
     /// Adds a button that runs a Shortcut, unless there are six (D-05). Its name is chosen in

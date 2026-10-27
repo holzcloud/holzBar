@@ -76,7 +76,7 @@ nonisolated enum ModuleCatalog {
             area: .menuBar,
             symbol: "clock",
             titleKey: "Widgets",
-            summaryKey: "A clock, the battery and other readouts of your own in the menu bar.",
+            summaryKey: "Readouts, app launchers, a timer and media controls of your own in the menu bar.",
             permission: nil
         ),
         ModuleDescriptor(

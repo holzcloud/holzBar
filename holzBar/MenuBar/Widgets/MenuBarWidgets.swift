@@ -29,6 +29,12 @@ import OSLog
 /// while hidden, asleep or locked. This class starts no process: the run goes through
 /// ``AutomationManager/runWidgetScript(named:)``, the runner and the gate of the scripts (D-23).
 /// The script it runs is bound in `Scripts.json` on this Mac, never in its definition (D-25).
+///
+/// A built-in item (Phase 79, ``BuiltInItem``) is a widget of its own kind: Focus, AirDrop, media
+/// controls, fast user switching, a timer or an app launcher. It is a status item like the
+/// others, so it has a section, hides with it and is drawn for the Shelf. It has no reading and
+/// no timer of its own, except a timer item that was started (``BuiltInTimers``) and the Core
+/// Audio listeners of a media item that shows only while sound plays (``MediaActivityMonitor``).
 @MainActor
 @Observable
 final class MenuBarWidgets {
@@ -71,12 +77,27 @@ final class MenuBarWidgets {
     /// revealed before it was ready ask their script then. It ends itself.
     @ObservationIgnored private var scriptStoreLoop: ObservationLoop?
 
+    /// What a click on a built-in item does.
+    @ObservationIgnored private let builtInActions = BuiltInItemActions()
+
+    /// The countdowns of the timer items. Empty until a click starts one.
+    @ObservationIgnored private let timers = BuiltInTimers()
+
+    /// Follows whether sound plays, while a media item that shows only then is in the menu bar.
+    @ObservationIgnored private var mediaMonitor: MediaActivityMonitor?
+
+    /// The one wait for the end of the media item's grace period, if one is due.
+    @ObservationIgnored private var mediaGraceTask: Task<Void, Never>?
+
     // MARK: Setup
 
     /// Loads the widgets and follows the module switch. With the module off, nothing else is
     /// created.
     func performSetup(with appState: AppState) {
         self.appState = appState
+        timers.onChange = { [weak self] id in
+            self?.timerChanged(id)
+        }
         definitions = WidgetList.decode(Defaults.data(forKey: .widgets) ?? Data())
         let storedNames = Defaults.dictionary(forKey: .widgetShortcutNames)
         shortcutNames = ShortcutLink.storedNames(storedNames, keeping: Set(definitions.map(\.id)))
@@ -112,6 +133,7 @@ final class MenuBarWidgets {
         save()
         if isActive {
             start(valid)
+            updateMediaMonitoring()
         }
         return true
     }
@@ -133,9 +155,11 @@ final class MenuBarWidgets {
             // layout macOS 27 saves.
             appState.concealer27.removeSection(forKey: definition.autosaveName)
         }
+        timers.forget(id)
         if let runtime = runtimes.removeValue(forKey: id) {
             stop(runtime, keepingPosition: false)
             updatePowerSourceEvents()
+            updateMediaMonitoring()
         } else {
             Self.forgetPosition(of: definition.autosaveName)
         }
@@ -159,6 +183,7 @@ final class MenuBarWidgets {
         runtime.definition = valid
         runtime.cpuBaseline = nil
         configure(runtime)
+        updateMediaMonitoring()
         let command = runtime.policy.handle(
             .cadenceChanged(WidgetCadence(definition: valid)),
             at: .now,
@@ -313,10 +338,134 @@ final class MenuBarWidgets {
             switch definition.kind {
             case .button: runShortcut(for: id)
             case .script: refreshScriptWidget(id: id, isUserAction: origin.isUserClick)
+            case .builtIn: clickBuiltIn(id: id)
             case .text: break
             }
         }
         return true
+    }
+
+    // MARK: Built-in items
+
+    /// A click on a built-in item, in the menu bar or from the Shelf: Focus, AirDrop and fast user
+    /// switching open Apple's item (or its stand-in), media plays or pauses, a timer starts or
+    /// stops, a launcher opens its application. A launcher without an application, or whose
+    /// application is gone, opens the settings, where one is chosen.
+    private func clickBuiltIn(id: UUID) {
+        guard isActive, let definition = runtimes[id]?.definition ?? definitions.first(where: { $0.id == id }) else {
+            return
+        }
+        switch definition.builtIn {
+        case .focus, .airDrop, .userSwitching:
+            if let item = definition.builtIn {
+                builtInActions.openAppleItem(for: item, in: appState)
+            }
+        case .media:
+            builtInActions.press(.playPause)
+        case .timer:
+            timers.tap(id, minutes: definition.timerMinutes)
+        case .launcher:
+            if let bundleID = definition.launcherBundleID, builtInActions.openApplication(withBundleID: bundleID) {
+                return
+            }
+            openModulesSettings()
+        case nil:
+            break
+        }
+    }
+
+    /// A click on the status item of a built-in item. The media item shows its menu (previous,
+    /// next) for a right click or a ⌃ click.
+    private func builtInClicked(id: UUID) {
+        let event = NSApp.currentEvent
+        let isSecondary = event?.type == .rightMouseUp || event?.modifierFlags.contains(.control) == true
+        if isSecondary, let runtime = runtimes[id], runtime.definition.builtIn == .media {
+            builtInActions.showMediaMenu(from: runtime.statusItem)
+            return
+        }
+        clickBuiltIn(id: id)
+    }
+
+    /// The text of a timer item changed: draw it again.
+    private func timerChanged(_ id: UUID) {
+        guard let runtime = runtimes[id] else {
+            return
+        }
+        refresh(runtime)
+    }
+
+    /// The name of the application a launcher opens, when it is installed.
+    private func launcherName(for definition: WidgetDefinition) -> String? {
+        guard definition.builtIn == .launcher, let bundleID = definition.launcherBundleID else {
+            return nil
+        }
+        return BuiltInItemActions.applicationName(forBundleID: bundleID)
+    }
+
+    /// The icon a launcher shows: its application's, when it is installed.
+    private func launcherIcon(for definition: WidgetDefinition) -> NSImage? {
+        guard definition.builtIn == .launcher, let bundleID = definition.launcherBundleID else {
+            return nil
+        }
+        return BuiltInItemActions.applicationIcon(forBundleID: bundleID)
+    }
+
+    /// Starts or stops the Core Audio listeners as the media items need them, and shows or
+    /// hides each media item by the answer.
+    private func updateMediaMonitoring() {
+        let needsMonitor = isActive && runtimes.values.contains { runtime in
+            runtime.definition.builtIn == .media && runtime.definition.mediaOnlyWhenActive
+        }
+        if needsMonitor, mediaMonitor == nil {
+            let monitor = MediaActivityMonitor()
+            monitor.onChange = { [weak self] in
+                self?.applyMediaVisibility()
+            }
+            mediaMonitor = monitor
+            monitor.start()
+        } else if !needsMonitor, let monitor = mediaMonitor {
+            monitor.stop()
+            mediaMonitor = nil
+        }
+        applyMediaVisibility()
+    }
+
+    /// Collapses the media items that should not show now, and arms the one wait for the end of
+    /// the grace period.
+    private func applyMediaVisibility() {
+        mediaGraceTask?.cancel()
+        mediaGraceTask = nil
+        let now = Date()
+        var nextChange: Date?
+        for runtime in runtimes.values where runtime.definition.builtIn == .media {
+            let onlyWhenActive = runtime.definition.mediaOnlyWhenActive
+            let isActive = mediaMonitor?.isActive ?? false
+            let lastActive = mediaMonitor?.lastActive
+            let isShown = MediaVisibility.isShown(
+                onlyWhenActive: onlyWhenActive, isActive: isActive, lastActive: lastActive, now: now
+            )
+            if runtime.isMediaHidden == isShown {
+                runtime.isMediaHidden = !isShown
+                applyLength(of: runtime)
+            }
+            if let change = MediaVisibility.nextChange(
+                onlyWhenActive: onlyWhenActive, isActive: isActive, lastActive: lastActive, now: now
+            ) {
+                nextChange = min(nextChange ?? change, change)
+            }
+        }
+        guard let nextChange else {
+            return
+        }
+        let delay = max(nextChange.timeIntervalSinceNow, 0)
+        mediaGraceTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(delay), tolerance: .seconds(1), clock: ContinuousClock())
+            } catch {
+                return
+            }
+            self?.applyMediaVisibility()
+        }
     }
 
     /// The picture of the widget with the given autosave name, or `nil` when it is not in the
@@ -361,6 +510,7 @@ final class MenuBarWidgets {
         for runtime in runtimes.values {
             begin(runtime, with: inputs)
         }
+        updateMediaMonitoring()
     }
 
     /// Cancels every timer, ends every observation of the widgets and removes the status
@@ -380,6 +530,8 @@ final class MenuBarWidgets {
         }
         runtimes.removeAll()
         updatePowerSourceEvents()
+        timers.removeAll()
+        updateMediaMonitoring()
     }
 
     // MARK: Visibility
@@ -451,6 +603,7 @@ final class MenuBarWidgets {
             setCollapsed(inputs.collapsed.contains(runtime.definition.id), runtime)
             send(.paused(inputs.isPaused), to: runtime)
             send(.shown(inputs.shown.contains(runtime.definition.id)), to: runtime)
+            timers.setSeen(inputs.shown.contains(runtime.definition.id) && !inputs.isPaused, for: runtime.definition.id)
         }
     }
 
@@ -470,7 +623,9 @@ final class MenuBarWidgets {
     /// one point wide as well.
     private func applyLength(of runtime: Runtime) {
         let statusItem = runtime.statusItem
-        guard runtime.isCollapsed else {
+        // A media item that shows only while sound plays is collapsed the same way while it is not
+        // shown.
+        guard runtime.isCollapsed || runtime.isMediaHidden else {
             statusItem.length = runtime.fixedLength
             return
         }
@@ -529,6 +684,10 @@ final class MenuBarWidgets {
         /// Whether the widget is collapsed to nothing, because its section is not drawn
         /// (macOS 27).
         var isCollapsed = false
+        /// Whether a media item that shows only while sound plays is collapsed, because none does.
+        var isMediaHidden = false
+        /// The view over an AirDrop item that takes dropped files.
+        var dropView: AirDropDropView?
         /// The widest width its text may take, from the widest sample of its format.
         var textWidth = CGFloat.zero
         /// A script widget's last result: the line its script printed, or nothing. Kept apart
@@ -583,6 +742,7 @@ final class MenuBarWidgets {
         send(.lowPowerMode(ProcessInfo.processInfo.isLowPowerModeEnabled), to: runtime)
         send(.paused(inputs.isPaused), to: runtime)
         send(.shown(inputs.shown.contains(runtime.definition.id)), to: runtime)
+        timers.setSeen(inputs.shown.contains(runtime.definition.id) && !inputs.isPaused, for: runtime.definition.id)
     }
 
     /// Cancels the widget's timer and takes its status item out of the menu bar.
@@ -621,7 +781,18 @@ final class MenuBarWidgets {
             return
         }
         let definition = runtime.definition
-        if definition.kind != .button, definition.showsSymbol {
+        if definition.kind == .builtIn {
+            // An app launcher shows its application's own icon; every other item, and a launcher
+            // whose application is not installed, a symbol. Only the timer has a text.
+            if let icon = launcherIcon(for: definition) {
+                button.image = icon
+            } else {
+                let image = NSImage(systemSymbolName: definition.symbolName, accessibilityDescription: nil)
+                image?.isTemplate = true
+                button.image = image
+            }
+            button.imagePosition = definition.builtIn == .timer ? .imageLeading : .imageOnly
+        } else if definition.kind != .button, definition.showsSymbol {
             // A text widget's source symbol, or a script widget's terminal symbol (D-11).
             let image = NSImage(systemSymbolName: definition.symbolName, accessibilityDescription: nil)
             image?.isTemplate = true
@@ -645,6 +816,17 @@ final class MenuBarWidgets {
             runtime.clickTarget = target
             button.target = target
             button.action = #selector(ClickTarget.clicked(_:))
+        } else if definition.kind == .builtIn {
+            let id = definition.id
+            let target = runtime.clickTarget ?? ClickTarget { [weak self] _ in
+                self?.builtInClicked(id: id)
+            }
+            runtime.clickTarget = target
+            button.target = target
+            button.action = #selector(ClickTarget.clicked(_:))
+            // The media item answers a right click with its menu.
+            button.sendAction(on: definition.builtIn == .media ? [.leftMouseUp, .rightMouseUp] : [.leftMouseUp])
+            configureDropView(of: runtime, button: button)
         } else if definition.kind == .script {
             // A click asks the script again (D-23). A line wider than the fixed width is cut
             // with an ellipsis at its end (D-12).
@@ -664,10 +846,13 @@ final class MenuBarWidgets {
         // The tooltip repeats the label; a text widget has no action, so it is static text and
         // a button is a button with the Shortcut's name as its hint (D-27). The value is set
         // with every text.
-        let label = WidgetSpeech.label(for: definition)
+        let appName = launcherName(for: definition)
+        let label = WidgetSpeech.label(for: definition, appName: appName)
         button.toolTip = label
         button.setAccessibilityLabel(label)
-        button.setAccessibilityHelp(WidgetSpeech.hint(for: definition, shortcutName: shortcutNames[definition.id]))
+        button.setAccessibilityHelp(
+            WidgetSpeech.hint(for: definition, shortcutName: shortcutNames[definition.id], appName: appName)
+        )
         // The layout editor and search name the widget by the same label, on every backend
         // (D-24).
         OwnStatusItemNames.set(label, forAutosaveName: definition.autosaveName)
@@ -678,6 +863,28 @@ final class MenuBarWidgets {
         // again.
         runtime.text = nil
         runtime.spoken = nil
+    }
+
+    /// Puts the view that takes dropped files over an AirDrop item, and takes it away from any
+    /// other item. A click on it opens AirDrop like a click on the button.
+    private func configureDropView(of runtime: Runtime, button: NSStatusBarButton) {
+        guard runtime.definition.builtIn == .airDrop else {
+            runtime.dropView?.removeFromSuperview()
+            runtime.dropView = nil
+            return
+        }
+        let id = runtime.definition.id
+        let view = runtime.dropView ?? AirDropDropView(frame: button.bounds)
+        view.onClick = { [weak self] in
+            self?.clickBuiltIn(id: id)
+        }
+        view.onDrop = { [weak self] files in
+            self?.builtInActions.shareWithAirDrop(files)
+        }
+        if view.superview == nil {
+            button.addSubview(view)
+        }
+        runtime.dropView = view
     }
 
     /// The one length of the status item: the widest text of the widget's format with the
@@ -801,7 +1008,7 @@ final class MenuBarWidgets {
             let isScript = runtime.definition.kind == .script
             button.attributedTitle = Self.attributedTitle(for: text, truncates: isScript)
             // The same text as a picture, for the surfaces that show items elsewhere (D-24).
-            images[runtime.definition.autosaveName] = Self.picture(
+            images[runtime.definition.autosaveName] = launcherIcon(for: runtime.definition) ?? Self.picture(
                 for: runtime.definition,
                 text: text,
                 maximumTextWidth: isScript && runtime.textWidth > 0 ? runtime.textWidth : nil
@@ -849,6 +1056,8 @@ final class MenuBarWidgets {
             }
         case .script:
             symbolName = definition.showsSymbol ? WidgetDefinition.scriptSymbolName : nil
+        case .builtIn:
+            symbolName = definition.symbolName
         }
         return drawnPicture(
             symbolName: symbolName,
@@ -981,6 +1190,9 @@ final class MenuBarWidgets {
     /// cannot be read, so the text shows the en dash and never an old value (D-13).
     private func sample(_ runtime: Runtime) -> WidgetReading {
         let definition = runtime.definition
+        if definition.kind == .builtIn, definition.builtIn == .timer {
+            return .line(timers.label(for: definition.id, minutes: definition.timerMinutes))
+        }
         guard definition.kind == .text else {
             return .unavailable
         }
