@@ -69,7 +69,7 @@ Where holzBar loses: it has no Developer ID signature, fewer languages than Thaw
 
 ## Install
 
-Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 0.0.11. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
+Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 0.0.12. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
 
 ```sh
 brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
@@ -88,7 +88,7 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 **0.0.11** (see the [release notes](docs/release-notes/v0.0.11.md) and [what is new](docs/features.md#new-in-0011)): the bar's hidden items slide in and out on macOS 26, under **Animate showing and hiding** in Settings → General (never with Reduce Motion on; macOS 27 animates its own bar, macOS 14 and 15 keep the instant change). The Search and Hints panels have a new glass look, and the type sizes and spacing in Settings come from one shared set of design tokens.
 
-**0.0.11 is out** (see the [release notes](docs/release-notes/v0.0.11.md)): the bar's items slide in and out on macOS 26, and the Search and Hints panels have the new glass look.
+**0.0.12 is out** (see the [release notes](docs/release-notes/v0.0.12.md) and [what is new](docs/features.md#new-in-0012)): Apple Items, the Notch hub, Smart Categories, a floating Shelf and a glass command palette.
 
 **0.0.9** (see the [release notes](docs/release-notes/v0.0.9.md) and [what is new](docs/features.md#new-in-009)): a new Settings window with a Modules pane, a command palette, an AppleScript dictionary, moods (saved looks), grid and column layouts and a fade for the holzBar Shelf, sound output and Bluetooth conditions for rules, opt-in usage suggestions, and a hint when a rule puts an item back.
 
