@@ -35,8 +35,14 @@ struct AnimationStylePicture: View {
             }
         }
         .padding(.horizontal, HolzBarTheme.Spacing.sm)
-        .frame(height: HolzBarTheme.Spacing.lg)
-        .background(HolzBarTheme.Palette.groundElevated, in: HolzBarTheme.shape(HolzBarTheme.Radius.keyCap))
+        .frame(width: CGFloat(DesignTokens.PictureCard.animationStripWidth), height: HolzBarTheme.Spacing.lg)
+        .background(HolzBarTheme.Palette.groundElevated, in: stripShape)
+        // The trail of the smooth style is drawn inside the strip, never past its edge.
+        .clipShape(stripShape)
+    }
+
+    private var stripShape: RoundedRectangle {
+        HolzBarTheme.shape(HolzBarTheme.Radius.keyCap)
     }
 
     @ViewBuilder
@@ -45,11 +51,12 @@ struct AnimationStylePicture: View {
         case .instant:
             dot(opacity: 1)
         case .smooth:
-            // The first items still travel: faint copies trail behind them.
+            // The first items still travel: faint copies trail behind them. The farthest copy
+            // reaches the strip's inner edge (the strip's padding), not beyond it.
             ZStack {
                 if index < 2 {
-                    dot(opacity: 0.18).offset(x: -HolzBarTheme.Spacing.md)
-                    dot(opacity: 0.38).offset(x: -HolzBarTheme.Spacing.sm)
+                    dot(opacity: 0.18).offset(x: -HolzBarTheme.Spacing.sm)
+                    dot(opacity: 0.38).offset(x: -HolzBarTheme.Spacing.xs)
                 }
                 dot(opacity: 1)
             }

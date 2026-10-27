@@ -263,6 +263,21 @@ nonisolated enum DesignTokens {
     /// The smallest size of anything the pointer or a finger must hit, in points.
     static let minimumTargetSize: Double = 24
 
+    /// The sizes of a picture card (a small picture with a name under it) and of the widest
+    /// picture drawn on one, so a row of cards keeps its cards from ever being narrower than
+    /// their pictures.
+    nonisolated enum PictureCard {
+        /// The space between the card's edge and its picture's well.
+        static let padding = Spacing.xs
+        /// The width of the animation picture's strip: four items with a gap between them and
+        /// room on both sides. It is the widest picture of a card.
+        static let animationStripWidth = Spacing.sm * 2 + Spacing.sm * 4 + Spacing.xs * 3
+        /// The narrowest a card may be: its widest picture and the padding on both sides.
+        static let minimumWidth = animationStripWidth + padding * 2
+        /// The space between the cards of a row.
+        static let gap = Spacing.sm
+    }
+
     /// The minimum contrast ratios the design asks for.
     nonisolated enum RequiredContrast {
         /// Body text and anything smaller than 18 pt.

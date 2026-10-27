@@ -18,9 +18,6 @@ struct HolzBarIconCards: View {
     @State private var isPresentingError = false
     @State private var presentedError: LocalizedErrorWrapper?
 
-    /// The smallest width of a card; the cards fill the rows of the group.
-    private static let cardWidth: CGFloat = 92
-
     private var choice: MenuBarIconChoice {
         .current(showsIcon: settings.showHolzBarIcon, styleName: settings.holzBarIcon.name.rawValue)
     }
@@ -36,10 +33,7 @@ struct HolzBarIconCards: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: Self.cardWidth), spacing: HolzBarTheme.Spacing.sm)],
-                spacing: HolzBarTheme.Spacing.sm
-            ) {
+            LazyVGrid(columns: PictureCardGrid.columns, spacing: PictureCardGrid.gap) {
                 ForEach(imageSets) { imageSet in
                     PictureCard(
                         imageSet.name.localized,

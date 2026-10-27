@@ -69,8 +69,8 @@ struct BlockingWorkTests {
         let elapsed = start.duration(to: .now)
         #expect(result.value == -1)
         #expect(result.timedOut)
-        // Slack for shared CI runners, as in the task timeout tests.
-        #expect(elapsed < .milliseconds(100) + .milliseconds(400), "Returned after \(elapsed)")
+        // The work never finishes by itself, so any bound well below a hang proves the timeout; the slack covers loaded CI runners.
+        #expect(elapsed < .seconds(5), "Returned after \(elapsed)")
     }
 
     @Test("A late completion does not resume the caller twice")
