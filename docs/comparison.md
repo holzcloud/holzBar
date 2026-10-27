@@ -46,6 +46,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Settings with a Modules pane: every optional module off until you switch it on | ❌ | — | — | ✅ |
 | Share one profile as a file | ❌ | ✅ | — | ✅ |
 | First-launch assistant that proposes an arrangement | — | — | — | ✅ |
+| Smart Categories in the search (system, network, media and more) | ❌ | — | — | ✅ |
 | Suggests hiding items you never click (opt-in, counters stay on your Mac) | — | — | — | ✅ Preview |
 | Redacted diagnostics report you read before you copy it | — | — | — | ✅ |
 | URL commands and Raycast | ❌ | ✅ | — | ✅ |
@@ -125,6 +126,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Move items in the menu bar by dragging, without ⌘ | ✅ <sup>14</sup> <sub>macOS 26, 27</sub> | ❓ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Layout profiles | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ ❓ | ✅ (VIP) | ❌ | ❌ | ❌ | ❌ | looks only (Moods) | ❌ | ❓ | ❓ |
 | Groups, spacers | ✅ | ✅ | ❌ | ✅ | groups, dividers | groups (Pro) | dividers | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ |
+| Smart Categories | ✅ | ❓ | ❌ | ❓ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Item spacing | ✅ beta | ✅ | ✅ beta | ✅ beta | ✅ | Pro | ✅ | ❌ | own icons only | ❌ | ✅ | ✅ | ❌ | ❓ | ❓ |
 | Search | ✅ | ✅ Command Bar | ✅ | ✅ | ✅ | Pro | weak | ❌ | ❌ | ❌ | ❌ | ✅ | ❓ | ❌ | ❓ |
 | Rules / triggers | ✅ <sup>14</sup> | ✅ <sup>7</sup> | ❌ | ✅ many <sup>8</sup> | ✅ 8 types | per app (Pro) | ✅ (VIP) | timer only | timer only | timer (Pro) | timer | ❌ <sup>12</sup> | ❌ <sup>12</sup> | ❌ <sup>12</sup> | ❓ |
