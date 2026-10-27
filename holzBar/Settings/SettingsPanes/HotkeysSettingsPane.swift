@@ -54,6 +54,7 @@ struct HotkeysSettingsPane: View {
                 hotkeyRecorder(forAction: .toggleAutoRehide)
                 hotkeyRecorder(forAction: .toggleZenMode)
                 hotkeyRecorder(forAction: .toggleKeepAwake)
+                hotkeyRecorder(forAction: .toggleNotchHub)
             }
         }
         .task(id: profileNames) {

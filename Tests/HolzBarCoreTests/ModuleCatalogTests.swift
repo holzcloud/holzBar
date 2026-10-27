@@ -64,6 +64,21 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.all.filter(\.isPreview).map(\.id) == ["apple-items", "notch-hub"])
     }
 
+    @Test("The Notch hub is an optional Preview module of the notch area without a permission")
+    func notchHubModule() throws {
+        let hub = try #require(ModuleCatalog.all.first { $0.id == "notch-hub" })
+        #expect(hub.area == .notch)
+        #expect(hub.permission == nil)
+        #expect(hub.symbol == "capsule.tophalf.filled")
+        #expect(hub.titleKey == "Notch hub")
+        #expect(hub.isPreview)
+        #expect(ModuleCatalog.modules(in: .notch).first == hub)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["notch-hub"], knownTo: ModuleCatalog.all) == ["notch-hub"])
+    }
+
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(
