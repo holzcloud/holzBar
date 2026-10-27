@@ -156,7 +156,7 @@ struct ShortcutLinkTests {
 
     @Test("At most as many names as there are widgets")
     func storedNamesAreCapped() {
-        let ids = (0..<10).map { _ in UUID() }
+        let ids = (0..<(WidgetDefinition.maximumCount + 4)).map { _ in UUID() }
         var stored: [String: Any] = [:]
         for id in ids {
             stored[id.uuidString] = "Shortcut"

@@ -8,13 +8,16 @@ import Foundation
 /// What a widget is: a line of text from a built-in source, a button that runs a Shortcut
 /// (D-20), or the first line of an approved script's output (stage 2, D-23). A text widget has
 /// no click action and a button has no data source; a script widget shows a line a script wrote
-/// and runs that script again when it is clicked.
+/// and runs that script again when it is clicked. A built-in item (Phase 79) does one small job
+/// of its own: Focus, AirDrop, media controls, fast user switching, a timer or an app launcher
+/// (``BuiltInItem``).
 ///
 /// The raw values are stored in the settings and never change.
 nonisolated enum WidgetKind: String, Codable, Sendable {
     case text
     case button
     case script
+    case builtIn
 
     /// The fixed widths a script widget offers, narrow to wide (D-12, D-23). The width is part
     /// of the format, so the status item never changes length with the script's line.
@@ -145,8 +148,9 @@ nonisolated enum WidgetPreset: String, Codable, CaseIterable, Sendable {
 /// The settings are written by any process of the user, so every value that is read back goes
 /// through ``validated(now:)``.
 nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable {
-    /// The most widgets there are (D-05).
-    static let maximumCount = 6
+    /// The most widgets there are (D-05). Twelve, so that built-in items and app launchers fit
+    /// next to the readouts.
+    static let maximumCount = 12
     /// The most characters of a button's title.
     static let maximumTitleLength = 24
     /// The symbol of a button that shows one.
@@ -179,6 +183,16 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
     var buttonTitle = ""
     /// Whether a button shows ``buttonSymbolName`` instead of its title (D-20).
     var buttonShowsSymbol = true
+    /// Which built-in item a ``WidgetKind/builtIn`` widget is; `nil` for the other kinds.
+    var builtIn: BuiltInItem?
+    /// The length of a timer item, in minutes, kept within ``ItemTimer/clampedMinutes(_:)``.
+    var timerMinutes = ItemTimer.defaultMinutes
+    /// Whether the media item shows only while sound plays (``MediaVisibility``).
+    var mediaOnlyWhenActive = false
+    /// The bundle identifier of the application a launcher opens. It names an app, not a path
+    /// on this Mac, so it travels with an export; a launcher whose app is not installed does
+    /// nothing.
+    var launcherBundleID: String?
 
     /// The name of the widget's status item (D-17).
     var autosaveName: String {
@@ -191,6 +205,7 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
         case .text: source.symbolName
         case .button: Self.buttonSymbolName
         case .script: Self.scriptSymbolName
+        case .builtIn: builtIn?.symbolName ?? BuiltInItem.launcher.symbolName
         }
     }
 
@@ -267,6 +282,19 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
         )
     }
 
+    /// A new built-in item. A launcher is made with the application it opens; the other items
+    /// ignore it.
+    static func builtIn(_ item: BuiltInItem, launcherBundleID: String? = nil) -> WidgetDefinition {
+        WidgetDefinition(
+            id: UUID(),
+            kind: .builtIn,
+            source: .dateTime,
+            preset: WidgetSource.dateTime.defaultPreset,
+            builtIn: item,
+            launcherBundleID: item == .launcher ? launcherBundleID : nil
+        )
+    }
+
     /// The definition with every value brought into its range, or `nil` when it cannot be a
     /// widget: a countdown without a moment, or with a moment far outside the calendar.
     ///
@@ -274,12 +302,51 @@ nonisolated struct WidgetDefinition: Codable, Equatable, Identifiable, Sendable 
     /// only for the clock, an interval is kept within ``WidgetSource/refreshRange``, and a
     /// button's title is cleaned. A script widget keeps one of the widths of
     /// ``WidgetKind/scriptPresets`` and its symbol option, and no source-specific value. Values
-    /// that belong to the other kind are reset, so a stored definition has one shape.
+    /// that belong to the other kind are reset, so a stored definition has one shape. A built-in
+    /// item keeps its item, and the one option that item has: the timer's length, the media
+    /// item's setting or the launcher's application; a built-in widget without an item is not
+    /// a widget.
     ///
     /// - Parameter now: The moment a countdown's distance is measured from.
     func validated(now: Date = Date()) -> WidgetDefinition? {
         var result = self
+        if kind != .builtIn {
+            result.builtIn = nil
+        }
+        if kind != .builtIn || builtIn != .timer {
+            result.timerMinutes = ItemTimer.defaultMinutes
+        }
+        if kind != .builtIn || builtIn != .media {
+            result.mediaOnlyWhenActive = false
+        }
+        if kind != .builtIn || builtIn != .launcher {
+            result.launcherBundleID = nil
+        }
         switch kind {
+        case .builtIn:
+            guard let builtIn else {
+                return nil
+            }
+            result.source = .dateTime
+            result.preset = WidgetSource.dateTime.defaultPreset
+            result.showsSeconds = false
+            result.refreshSeconds = nil
+            result.countdownTarget = nil
+            result.buttonTitle = ""
+            result.buttonShowsSymbol = true
+            result.showsSymbol = true
+            switch builtIn {
+            case .timer:
+                result.timerMinutes = ItemTimer.clampedMinutes(timerMinutes)
+            case .launcher:
+                // Anything that is not a bundle identifier is dropped; the launcher then opens
+                // the settings, where an application is chosen.
+                result.launcherBundleID = launcherBundleID.flatMap {
+                    SharedProfile.isValidBundleIdentifier($0) ? $0 : nil
+                }
+            case .focus, .airDrop, .media, .userSwitching:
+                break
+            }
         case .button:
             result.source = .dateTime
             result.preset = WidgetSource.dateTime.defaultPreset
@@ -359,6 +426,10 @@ nonisolated extension WidgetDefinition {
         countdownTarget = try? container.decodeIfPresent(Date.self, forKey: .countdownTarget)
         buttonTitle = (try? container.decodeIfPresent(String.self, forKey: .buttonTitle)) ?? ""
         buttonShowsSymbol = (try? container.decodeIfPresent(Bool.self, forKey: .buttonShowsSymbol)) ?? true
+        builtIn = try? container.decodeIfPresent(BuiltInItem.self, forKey: .builtIn)
+        timerMinutes = (try? container.decodeIfPresent(Int.self, forKey: .timerMinutes)) ?? ItemTimer.defaultMinutes
+        mediaOnlyWhenActive = (try? container.decodeIfPresent(Bool.self, forKey: .mediaOnlyWhenActive)) ?? false
+        launcherBundleID = try? container.decodeIfPresent(String.self, forKey: .launcherBundleID)
     }
 }
 

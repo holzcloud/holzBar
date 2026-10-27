@@ -203,6 +203,23 @@ struct WidgetFormatTests {
         #expect(empty.isEmpty)
     }
 
+    @Test("Only the timer item has a text: its line; the others draw a symbol or an icon")
+    func builtInText() {
+        let timer = WidgetDefinition.builtIn(.timer)
+        #expect(text(.line("4:59"), timer).string == "4:59")
+        #expect(text(.unavailable, timer).string == "")
+        #expect(text(.line("4:59"), WidgetDefinition.builtIn(.focus)).string == "")
+        #expect(text(.line("x"), WidgetDefinition.builtIn(.launcher, launcherBundleID: "com.apple.Music")).string == "")
+        let samples = WidgetFormat.widthSamples(for: timer, locale: english, calendar: calendar, capacityBytes: nil)
+        #expect(samples == ["00:00"])
+        for item in BuiltInItem.allCases where item != .timer {
+            let none = WidgetFormat.widthSamples(
+                for: WidgetDefinition.builtIn(item), locale: english, calendar: calendar, capacityBytes: nil
+            )
+            #expect(none.isEmpty)
+        }
+    }
+
     @Test("The widest text of a format is among the samples (D-12)")
     func widestTextIsAmongTheSamples() {
         for locale in [english, swiss, german] {

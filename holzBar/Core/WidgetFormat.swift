@@ -43,6 +43,14 @@ nonisolated enum WidgetFormat {
         if definition.kind == .button {
             return WidgetText(string: definition.buttonTitle)
         }
+        if definition.kind == .builtIn {
+            // Only the timer has a text: the line the host gives it. The other items are a symbol
+            // or an icon, with no text at all.
+            guard definition.builtIn == .timer, case .line(let line) = reading else {
+                return WidgetText(string: "")
+            }
+            return WidgetText(string: line)
+        }
         if definition.kind == .script {
             // The script's line as it is: plain text, never parsed. The app cuts a line that is
             // wider than the fixed width with an ellipsis (D-12).
@@ -95,6 +103,7 @@ nonisolated enum WidgetFormat {
     ///   lies more than 999 days away also gets its own widest texts, with a day count that
     ///   has one digit more than it can reach (WR-04): its moment may lie 126 years away.
     /// - A button: its title.
+    /// - A timer item: 00:00. The other built-in items have no text.
     /// - A script widget: 8, 16 or 32 zeros for its width (``scriptWidthDigits(for:)``). Digits
     ///   are as wide as each other in the widget font, so the width is fixed per format.
     ///
@@ -121,6 +130,10 @@ nonisolated enum WidgetFormat {
                 add(definition.buttonTitle)
             }
             return samples
+        }
+        if definition.kind == .builtIn {
+            // The timer shows up to 60:00; digits are as wide as each other in the widget font.
+            return definition.builtIn == .timer ? ["00:00"] : []
         }
         if definition.kind == .script {
             return [String(repeating: "0", count: scriptWidthDigits(for: definition.preset))]

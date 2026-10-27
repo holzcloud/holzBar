@@ -368,7 +368,7 @@ struct SettingsSchemaTests {
 
     @Test("An imported widget list is normalised before it is applied (D-25, T-12-04)")
     func importedWidgetsAreNormalised() throws {
-        let elements: [[String: Any]] = (0..<7).map { index in
+        let elements: [[String: Any]] = (0...WidgetDefinition.maximumCount).map { index in
             [
                 "id": UUID().uuidString,
                 "kind": "text",
@@ -383,9 +383,9 @@ struct SettingsSchemaTests {
         let accepted = try #require(result.accepted["Widgets"] as? Data)
         #expect(result.ignored.isEmpty)
         let objects = try #require(try JSONSerialization.jsonObject(with: accepted) as? [[String: Any]])
-        #expect(objects.count == 6)
+        #expect(objects.count == WidgetDefinition.maximumCount)
         #expect(objects.allSatisfy { $0["shortcutName"] == nil })
-        #expect(WidgetList.decode(accepted).count == 6)
+        #expect(WidgetList.decode(accepted).count == WidgetDefinition.maximumCount)
         let broken = Defaults.Key.validatedSettings(["Widgets": Data(#"{"kind": "text"}"#.utf8)], ownBundleIdentifier: ownBundle)
         #expect(broken.accepted["Widgets"] == nil)
         #expect(broken.ignored == ["Widgets"])
