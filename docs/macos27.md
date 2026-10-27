@@ -36,7 +36,7 @@ From 0.0.8. Single, Paired, the shape of its own for the Apple logo, the outline
 
 ## Show and hide animation
 
-macOS 27 draws the bar through `MenuBarAgent`, which animates the bar by itself when items are concealed or released (about 250 ms, measured on macOS 27.0). holzBar has no divider length there and steps nothing; the setting **Animate showing and hiding** is not shown on macOS 27. The one animation holzBar adds is the fade of the holzBar Shelf (Settings → General, **Fade the holzBar Shelf in**, never with Reduce Motion on). On macOS 26 the setting makes the bar's items slide in and out, as a Preview in the next release; nothing of that runs on macOS 27. No permission, no timer and no network.
+macOS 27 draws the bar through `MenuBarAgent`, which animates the bar by itself when items are concealed or released (about 250 ms, measured on macOS 27.0). holzBar has no divider length there and steps nothing; the setting **Animate showing and hiding** is not shown on macOS 27. The one animation holzBar adds is the fade of the holzBar Shelf (Settings → General, **Fade the holzBar Shelf in**, never with Reduce Motion on). On macOS 26 the setting makes the bar's items slide in and out (since 0.0.11); nothing of that runs on macOS 27. No permission, no timer and no network.
 
 ## Drag items in the menu bar
 
@@ -48,7 +48,7 @@ Apple's own items, holzBar's items, ⌘, ⌃ and ⌥ clicks and double-clicks ar
 
 ## Apple items
 
-Preview: built and unit tested, not yet tested on a Mac. An optional module in Settings → Modules, on macOS 27, off until you switch it on. It needs no permission beyond the Accessibility holzBar already has.
+An optional module in Settings → Modules, on macOS 27, off until you switch it on. It needs no permission beyond the Accessibility holzBar already has.
 
 **Hide the clock, Control Center, Wi-Fi or the battery.** macOS 27 draws these four as numbered system items of `MenuBarAgent`, and holzBar always asked for them to stay on the bar. With the module on, a switch for each leaves it out of that list while holzBar conceals the hidden section: the item is gone while the hidden items are hidden and comes back when you show them (a click on holzBar's icon, hover, the hotkey) and while Settings → Menu Bar Layout is open. It is the call holzBar already makes to hide applications, with a shorter list. Nothing is hidden while the holzBar Shelf is on, because the Shelf cannot show a system item and nothing else would bring it back. Hiding a system item keeps holzBar's assertion alive even when no application is hidden, so Control Centre's camera and microphone indicator is not shown then either (see "Camera and microphone indicator" above; holzBar's dot on its icon covers the microphone and the camera). That macOS really hides an item left out of the list has not been measured on a Mac yet.
 

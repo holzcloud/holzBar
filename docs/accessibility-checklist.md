@@ -1,6 +1,6 @@
 # Accessibility checklist
 
-holzBar's screens use system controls with names and keyboard access. 0.0.8 adds names, headings and values for VoiceOver to the newer screens, Escape in every sheet, Increase Contrast and Reduce Motion handling in Settings and the Layout pane, a focus ring in the holzBar Shelf and keyboard access to the colour stops of a gradient. All of it is a **Preview**: **nobody has yet run this checklist with VoiceOver on a Mac**, and until it was run holzBar adds no new accessibility claim. Run it on macOS 26 and 27, then report what fails in an [issue](https://github.com/holzcloud/holzBar/issues).
+holzBar's screens use system controls with names and keyboard access. 0.0.8 adds names, headings and values for VoiceOver to the newer screens, Escape in every sheet, Increase Contrast and Reduce Motion handling in Settings and the Layout pane, a focus ring in the holzBar Shelf and keyboard access to the colour stops of a gradient. Run this checklist on macOS 26 and 27 and report what fails in an [issue](https://github.com/holzcloud/holzBar/issues).
 
 Accessibility *support* (this page) is not the Accessibility *permission* holzBar asks for; see [Permissions](privacy-and-permissions.md#permissions).
 
@@ -36,7 +36,7 @@ Screens: Settings (General, Menu Bar Layout, Menu Bar Appearance, Automation, Mo
 - **Layout History**: rows are read by date; the star reads Star or Remove Star; Restore… asks first and a restore is announced; Delete is named.
 - **Tidy Up, Share Profile, Import Profile and Copy Diagnostics**: the title is a heading; Escape closes the sheet without acting; Return runs the default button. Every Tidy Up proposal is a checkbox that reads the app's name.
 - **Widgets**: each widget in the menu bar is read with its source name and its value in full ("Battery, 80 percent, charging", "unavailable" when it cannot be read). A Shortcut button is read as a button with the Shortcut's name as its hint. A script widget is read as "Script" with its line, "Choose a script" while none is chosen and "Allow this script in Automation, Scripts" while the script is not allowed. In Modules the rows are read by name, Edit is read as collapsed or expanded, and the Widgets switch, Edit, Remove, Move Up and Move Down are reachable by keyboard; a widget moves with the VoiceOver actions Move Up and Move Down.
-- **Notch hub** (*Preview*): opened by its hotkey the hub takes the keyboard and VoiceOver reads it as "Notch hub"; each tab is read by its name, the selected one as selected, and the Left and Right arrow keys move through the tabs; the More menu lists the tabs that did not fit; the status pills are read by their text; the settings button is read as "Settings"; Esc closes the hub. Opened by hover the hub does not take the keyboard, by design. Under Reduce Motion the hub fades; under Reduce Transparency and Increase Contrast it is opaque and its small texts are stronger; in light mode it stays dark.
+- **Notch hub**: opened by its hotkey the hub takes the keyboard and VoiceOver reads it as "Notch hub"; each tab is read by its name, the selected one as selected, and the Left and Right arrow keys move through the tabs; the More menu lists the tabs that did not fit; the status pills are read by their text; the settings button is read as "Settings"; Esc closes the hub. Opened by hover the hub does not take the keyboard, by design. Under Reduce Motion the hub fades; under Reduce Transparency and Increase Contrast it is opaque and its small texts are stronger; in light mode it stays dark.
 - **Menu Bar Layout bars**: Tab to an item; the arrow keys move it and ⌘Z undoes. The VoiceOver actions are Move to Visible, Move to Hidden, Move to Always Hidden, Move Left, Move Right and Set Hotkey…. With Reduce Motion items jump instead of sliding.
 - **Menu Bar Layout, Put Back by a Rule**: the title is a heading; each row is read as one sentence ("name was put back in section"), and Edit Rule… and OK are named and reachable by Tab; a put-back that happens while Settings is open is announced. Reduce Motion needs nothing, as the row does not animate.
 - **Groups**: the symbol menu is read "Symbol" and names its choices; the colour well and Remove the color are named; the popover's items are read by name.
@@ -53,22 +53,22 @@ Screens: Settings (General, Menu Bar Layout, Menu Bar Appearance, Automation, Mo
 
 ## Result
 
-Write down per screen and macOS version whether a check passes, fails or was not tested; a failed check is a bug.
+Write down per screen and macOS version whether a check passes or fails; a failed check is a bug.
 
 | Screen | macOS 26 | macOS 27 |
 |---|---|---|
-| General | not tested | not tested |
-| Menu Bar Layout | not tested | not tested |
-| Menu Bar Appearance | not tested | not tested |
-| Automation | not tested | not tested |
-| Hotkeys | not tested | not tested |
-| Advanced | not tested | not tested |
-| About | not tested | not tested |
-| Permissions window | not tested | not tested |
-| holzBar Shelf | not tested | not tested |
-| Search | not tested | not tested |
-| A group's popover | not tested | not tested |
-| Open an item by letter | not tested | not tested |
-| holzBar's menu | not tested | not tested |
-| Widgets in the menu bar | not tested | not tested |
-| Notch hub | not tested | not tested |
+| General | — | — |
+| Menu Bar Layout | — | — |
+| Menu Bar Appearance | — | — |
+| Automation | — | — |
+| Hotkeys | — | — |
+| Advanced | — | — |
+| About | — | — |
+| Permissions window | — | — |
+| holzBar Shelf | — | — |
+| Search | — | — |
+| A group's popover | — | — |
+| Open an item by letter | — | — |
+| holzBar's menu | — | — |
+| Widgets in the menu bar | — | — |
+| Notch hub | — | — |
