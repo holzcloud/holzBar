@@ -1,8 +1,8 @@
 # The beta channel: the newest alpha, beta or plain release. Updated by
 # .github/workflows/release.yml for every release.
 cask "holzbar@beta" do
-  version "0.0.13-beta1"
-  sha256 "7c07dc3312aa4678ce3f49bd78a060d559ddc32b4efd7a1ed545249d8d23354e"
+  version "0.0.13-beta2"
+  sha256 "8f54ad9ce5b613905353f8e689159538eb4d8d44bae835e07e18fa832c693481"
 
   url "https://github.com/holzcloud/holzBar/releases/download/v#{version}/holzBar-#{version}.zip"
   name "holzBar"
