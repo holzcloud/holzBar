@@ -224,13 +224,10 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var shelfLayoutPicker: some View {
-        HStack {
-            HolzBarPicker("Layout", selection: $settings.shelfLayout) {
-                Text("Row").tag(ShelfLayout.row)
-                Text("Grid").tag(ShelfLayout.grid)
-                Text("Column").tag(ShelfLayout.column)
-            }
-            PreviewBadge()
+        HolzBarPicker("Layout", selection: $settings.shelfLayout) {
+            Text("Row").tag(ShelfLayout.row)
+            Text("Grid").tag(ShelfLayout.grid)
+            Text("Column").tag(ShelfLayout.column)
         }
         .annotation("A row holds every item side by side. A grid and a column hold more items without scrolling.")
     }
@@ -286,14 +283,9 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var shelfStylePicker: some View {
-        HolzBarPicker(selection: $settings.shelfStyle) {
+        HolzBarPicker("Style", selection: $settings.shelfStyle) {
             Text("Attached").tag(HolzBarShelfStyle.attached)
             Text("Floating").tag(HolzBarShelfStyle.floating)
-        } label: {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text("Style")
-                PreviewBadge()
-            }
         }
         .annotation {
             switch settings.shelfStyle {
@@ -307,16 +299,9 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var shelfLocationPicker: some View {
-        HolzBarPicker(selection: $settings.shelfLocation) {
+        HolzBarPicker("Location", selection: $settings.shelfLocation) {
             ForEach(HolzBarShelfLocation.allCases) { location in
                 Text(location.localized).tag(location)
-            }
-        } label: {
-            HStack(spacing: HolzBarTheme.Spacing.sm) {
-                Text("Location")
-                if settings.shelfLocation == .screenEdge {
-                    PreviewBadge()
-                }
             }
         }
         .annotation {
@@ -360,12 +345,7 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var animatesShowHide: some View {
-        Toggle(isOn: $settings.animatesShowHide) {
-            HStack {
-                Text("Animate showing and hiding")
-                PreviewBadge()
-            }
-        }
+        Toggle("Animate showing and hiding", isOn: $settings.animatesShowHide)
         .annotation("Hidden menu bar items slide in and out instead of appearing at once. Not used with the holzBar Shelf, and never while Reduce Motion is on.")
     }
 

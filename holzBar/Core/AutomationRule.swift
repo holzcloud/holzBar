@@ -145,14 +145,6 @@ nonisolated enum AutomationCondition: Codable, Equatable, Sendable {
         }
     }
 
-    /// Whether the condition is new and not yet tested on a Mac (the Preview badge).
-    var isPreview: Bool {
-        switch self {
-        case .audioOutput, .bluetoothConnected: true
-        default: false
-        }
-    }
-
     var isValid: Bool {
         switch self {
         case .batteryBelow(let percent):

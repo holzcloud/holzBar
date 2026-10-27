@@ -47,12 +47,7 @@ struct MenuBarLayoutSettingsPane: View {
                     .padding(10)
                 }
                 HolzBarSection {
-                    Toggle(isOn: Bindable(appState.settings.general).smartCategories) {
-                        HStack(spacing: HolzBarTheme.Spacing.sm) {
-                            Text("Smart Categories")
-                            PreviewBadge()
-                        }
-                    }
+                    Toggle("Smart Categories", isOn: Bindable(appState.settings.general).smartCategories)
                     .annotation("Adds category buttons to the search, such as Network and Media, worked out from what holzBar can read about each app. Nothing is recorded.")
                 }
                 if !ScreenRecordingAccess.isGranted(appState) {
@@ -179,11 +174,8 @@ private struct ItemRuleNoticesSection: View {
         Group {
             if !notices.isEmpty {
                 HolzBarSection {
-                    HStack {
-                        Text("Put Back by a Rule")
-                            .font(.headline)
-                        PreviewBadge()
-                    }
+                    Text("Put Back by a Rule")
+                        .font(.headline)
                 } content: {
                     ForEach(notices) { notice in
                         row(for: notice)

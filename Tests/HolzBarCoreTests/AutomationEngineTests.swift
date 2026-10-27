@@ -195,9 +195,6 @@ struct AutomationEngineTests {
         #expect(headphones.isValid)
         #expect(pods.isValid)
         #expect(AutomationCondition.audioOutput("").isValid == false)
-        #expect(headphones.isPreview)
-        #expect(pods.isPreview)
-        #expect(AutomationCondition.cameraInUse.isPreview == false)
     }
 
     @Test("The camera and microphone conditions read their own facts and one observer")
