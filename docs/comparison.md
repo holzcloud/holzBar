@@ -31,6 +31,8 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Scripts as a rule condition or action | ❌ | ✅ | — | ✅ <sub>from a folder you choose, after you allowed the exact content</sub> |
 | Script hooks before or after a profile | ❌ | ✅ | — | ✅ |
 | Menu bar items of your own (clock, battery, CPU, Shortcut button) | ❌ | — | ✅ | ✅ |
+| Hide the clock, Control Center, Wi-Fi or the battery on macOS 27 | — | — | ✅ | ✅ Preview |
+| Replacement icons for Apple items on macOS 27 | — | ✅ | — | ✅ Preview |
 | AppleScript dictionary | — | — | ✅ | ✅ Preview <sub>a small, read-mostly set; asks before lasting changes</sub> |
 | Touch ID or password to show hidden items | — | — | — | ✅ |
 | Smooth show and hide | — | — | — | partly: the holzBar Shelf fades in (Preview); the bar's own items slide on macOS 26 only, in the next release (Preview) |
@@ -141,7 +143,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Dependencies, Swift | none, Swift 6 | closed | 5 packages, Swift 5 | 9 packages, Swift 6 | 3 packages, Swift 6 | ❓ | closed | 1 package, Swift 5 | 5, Swift 5 | closed | closed | closed | closed, native Swift | closed | none, Swift |
 | Distribution | Homebrew | direct, Setapp (beta) | GitHub, Homebrew | GitHub, Homebrew | direct, Homebrew | direct, Homebrew | App Store | App Store, GitHub, Homebrew | GitHub, Homebrew | direct | App Store | direct | direct, Homebrew, App Store | direct | Homebrew, direct |
 | Appearance (tint, border, shapes, black bar, corners, glass) | ✅ all; Sections and Apple-logo shapes, accent and gradient outlines (<sup>14</sup>), moods (Preview) | styles: Glass, Pills, Outline, Gradient, Solid | tint, shadow, border, shapes | ✅ many, wallpaper tint | tint, border, corners, Liquid Glass | shelf styles, colours | menu bar shape, Apple-logo style | ❌ | icon size only | blends dots | ❓ | ✅ Liquid Glass, corners, borders, Moods, Single/Paired/Sections styles, Apple logo | ❓ | icon styles only | ❓ |
-| Replaces or hides Apple's own items on macOS 27 | limit, replacements 🔜 | ❓ | ❌ | ✅ replacement icons | ❓ | system controls stay visible | ❓ | cannot (per app only) | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
+| Replaces or hides Apple's own items on macOS 27 | ✅ Preview: hides the clock, battery, Wi-Fi and Control Center; replacement icons | hides the clock and Control Center (vendor notes) | ❌ | ✅ replacement icons | ❓ | system controls stay visible | ❓ | cannot (per app only) | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Signed with Developer ID and notarized | ❌ (own certificate) | ❓ | ✅ | ✅ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ✅ vendor claim | ✅ |
 | Build provenance (attestation, SLSA) | ✅ SLSA 3 | ❓ | ❌ | ✅ Cosign + SLSA | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Hides desktop icons | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ |
@@ -180,7 +182,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 - **Little animation of the bar itself**: the holzBar Shelf fades in (Preview) and the bar's items slide on macOS 26 only, from the next release (Preview); not on macOS 14 and 15, and macOS 27 animates its own bar. Vanilla has smooth show and hide today. The AppleScript dictionary (Preview) is small next to Bartender 7's.
 - **No settings sync** since 0.0.7-beta3; the redesigned sync comes in 1.0.0. Barbee has cloud sync of profiles.
 - **Not checked on real hardware** for several features, and one maintainer. SaneBar was sunset in June; Tuck and Glow ship updates every week or two.
-- **Apple's own items on macOS 27** (clock, Control Center, Wi-Fi) cannot be hidden; Hidden Bar and Tuck cannot either, Thaw offers replacement icons. holzBar plans replacement items for a later release.
+- **Apple's own items on macOS 27** (clock, Control Center, Wi-Fi) cannot be hidden by Hidden Bar and Tuck; Thaw offers replacement icons and Bartender 7 hides the clock and Control Center. holzBar does both in the next release, as a Preview that is not yet tested on a Mac.
 
 - **Brow and Vorssaint already ship dozens of modules** (notch hub, launcher, clipboard, windows, capture, sound, system monitor, AI). holzBar's are planned (see below), one release at a time. Vorssaint is open source, notarized and has 25k stars on GitHub; holzBar has a fraction of that user base.
 

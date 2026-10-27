@@ -10,6 +10,7 @@
 - ✅ Automatic rehide
 - ✅ Drag-and-drop layout editor
 - ✅ **Drag items in the menu bar without ⌘ Command** (macOS 26 and 27) — an optional module in Settings, Modules, off until you switch it on
+- ✅ **Apple Items** <sub>Preview</sub> (macOS 27) — hide the clock, Control Center, Wi-Fi or the battery, and keep an Apple item one click away with a replacement icon; an optional module, off until you switch it on
 - ✅ **Layout profiles** — "Work", "Home", … one click, hotkey or URL away
 - ✅ **Profiles bound to a display or a Space** — applied when you connect the display or switch to the Space
 - ✅ **Groups** (folders) — several items behind an icon of their own, in a colour and with a symbol or image of your choice
@@ -81,6 +82,7 @@
 Not released yet; it is on the development branch. Marked **Preview**: built and unit tested, not yet tested on a Mac.
 
 - **Smooth show and hide** (*Preview*, macOS 26 only): with **Animate showing and hiding** on in Settings → General (the default), hidden menu bar items slide in and out in about 0.18 seconds instead of appearing at once. The state changes first and the slide only draws it, so nothing is delayed; a quick show and hide cancel each other instead of queuing. It never runs with Reduce Motion on, while you drag an item or with the holzBar Shelf in use (there the Shelf fades instead). The setting is shown on macOS 26 only: macOS 27 animates its own bar (see [macOS 27 notes](macos27.md#show-and-hide-animation)), and macOS 14 and 15 keep the instant change until the slide has been seen there. It needs no permission, no timer while idle and no network; the one short task lives only while a slide runs.
+- **Apple Items** (*Preview*, macOS 27): an optional module in Settings → Modules, off until you switch it on, with no permission beyond Accessibility. Hide the **clock**, **Control Center**, **Wi-Fi** or the **battery** with a switch each: the item is gone while the hidden items are hidden and comes back when you show them; nothing is hidden while the holzBar Shelf is on, and while one is hidden Control Centre's camera and microphone indicator is not shown (holzBar's dot covers the microphone and the camera). Add up to six **replacement items**, icons of holzBar's own with a symbol you choose, that open an Apple item you picked from the bar, so you can hide its application and keep the item one click away. See the [macOS 27 notes](macos27.md#apple-items).
 
 ## New in 0.0.9
 
@@ -160,13 +162,14 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Menu bar styles**: Single, Paired, the Apple-logo shape, outlines and gradients as on macOS 26; Sections is not offered. See [macOS 27 notes](macos27.md#menu-bar-styles)
 - **macOS 27's own overflow button**: while macOS shows its folded items expanded beside the notch, the holzBar Shelf does not list them a second time; in any doubt it lists them as before. See [macOS 27 notes](macos27.md#macos-27s-own-overflow-button)
 - **Drag in the menu bar**: with the optional module on, drag an item without ⌘ to move it as macOS allows, or drop it on the holzBar icon to hide its app. See [macOS 27 notes](macos27.md#drag-items-in-the-menu-bar)
+- **Apple Items** (*Preview*): hide the clock, Control Center, Wi-Fi or the battery, and keep an Apple item one click away with a replacement icon of holzBar's own. See [macOS 27 notes](macos27.md#apple-items)
 - **A dot on holzBar's icon** while hidden items are concealed and an app uses the microphone (orange) or the camera (green), in place of Control Centre's indicator. On by default in Settings → General, with no permission; the icon appears for the dot even when **Show holzBar icon** is off
 
 **Known limitations on macOS 27**
 
 - holzBar cannot reorder items on the bar by itself: Menu Bar Layout, profiles and rules only assign sections. Dragging an item yourself (with ⌘, or without it while **Drag in the Menu Bar** is on) places it where macOS lets it go.
 - Opening a system item (clock, battery, Wi-Fi) while hidden items are concealed adds ~150 ms.
-- **Control Centre's privacy indicator is hidden while items are hidden.** Its indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item, and comes back while holzBar hides no item. holzBar's dot covers the microphone and the camera, not screen recording; the small green dot beside the clock still shows the camera. See [Permissions](privacy-and-permissions.md#permissions).
+- **Control Centre's privacy indicator is hidden while items are hidden.** Its indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item, including a system item you hid with Apple Items (*Preview*), and comes back while holzBar hides no item. holzBar's dot covers the microphone and the camera, not screen recording; the small green dot beside the clock still shows the camera. See [Permissions](privacy-and-permissions.md#permissions).
 - Coming from 0.0.5 or earlier, macOS asks for Accessibility once more. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.
 
 ## Planned next
@@ -182,7 +185,6 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 **Convenience**
 - **Smooth show and hide** of the bar itself on macOS 14, 15 and 27: macOS 27 animates its own bar, and macOS 14 and 15 keep the instant change until the slide has been seen there. (macOS 26 gets it in the next release, see above; the holzBar Shelf fades in since 0.0.9.)
-- Replacement items for Apple items that macOS 27 cannot hide, and hiding system items such as Clock and Control Center.
 
 **Polish**
 - A Control Center control to toggle Zen mode or apply a profile. *Spike, optional.*
