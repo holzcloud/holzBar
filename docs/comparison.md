@@ -18,6 +18,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Choose where new items appear | ❌ | — | — | ✅ |
 | Move items in the menu bar by dragging, without ⌘ Command | ❌ | — | — | ✅ <sub>macOS 26 and 27</sub> |
 | Bar only on some displays, notch overflow | ❌ | — | — | ✅ |
+| Floating bar for hidden items, at the icon, the screen edge or the pointer | ❌ <sub>the bar hangs below the menu bar</sub> | — | ✅ <sub>Bartender Bar, at the cursor</sub> | ✅ |
 | Shelf and macOS 27's own overflow button: no item listed twice | ❌ | — | — | ✅ |
 | Black menu bar, rounded screen corners | ❌ | corners only | — | ✅ |
 | Dashed and dotted borders, wallpaper, accent and glass tints | ❌ | ✅ | — | ✅ |
@@ -120,6 +121,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Apple Silicon / Intel | both (one universal app) | ✅ Apple Silicon (27) | ❓ | ❓ | Apple Silicon only | both | ❓ | both | Intel only (Rosetta) | both | both | both | ❓ | both | Apple Silicon only |
 | Hidden + always-hidden sections | ✅ | ✅ | ✅ | ✅ | ✅ | hidden; per-icon | hidden only ❓ | ✅ | ✅ | hidden; always-hidden in Pro | ✅ | 3 sections | hide, reorder; always-hidden ❓ | visible / hidden; no always-hidden | ❓ |
 | Separate bar, notch handling | ✅ Shelf; no duplicates with the macOS 27 overflow (<sup>14</sup>) | ✅ | ✅ Ice Bar | ✅ Thaw Bar | ✅ | ✅ Shelf | ✅ | ❌ | ❌ | partly | ✅ | ✅ GlowBar; notch ❓ | notch hover panel | ✅ floating panel | ❓ |
+| Floating bar (icon, screen edge, pointer) | ✅ | ✅ Bartender Bar, at the cursor | ❌ | ❓ | ✅ Icon Panel | ❓ | ❓ | ❌ | ❌ | ❓ | ✅ floating window | ✅ GlowBar: icon, right edge, cursor | ❓ | ✅ floating panel | ❓ |
 | Move items in the menu bar by dragging, without ⌘ | ✅ <sup>14</sup> <sub>macOS 26, 27</sub> | ❓ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Layout profiles | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ ❓ | ✅ (VIP) | ❌ | ❌ | ❌ | ❌ | looks only (Moods) | ❌ | ❓ | ❓ |
 | Groups, spacers | ✅ | ✅ | ❌ | ✅ | groups, dividers | groups (Pro) | dividers | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ |
