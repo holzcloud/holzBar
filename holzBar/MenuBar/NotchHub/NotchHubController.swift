@@ -249,7 +249,7 @@ final class NotchHubController: HubHost {
         guard
             let layout = NotchHubGeometry.layout(
                 display: Self.display(of: screen),
-                content: NotchHubGeometry.Content(bodyHeight: Self.tracerBodyHeight)
+                content: NotchHubGeometry.Content(bodyHeight: NotchHubGeometry.bodyHeight)
             )
         else {
             logger.debug("The Notch hub has no layout for this screen")
@@ -263,7 +263,9 @@ final class NotchHubController: HubHost {
         panel.onEscape = { [weak self] in
             self?.close()
         }
-        panel.contentView = NotchHubHostingView(view: NotchHubView(layout: layout))
+        panel.contentView = NotchHubHostingView(
+            view: NotchHubView(layout: layout, model: model, host: self, takesKeyboard: trigger == .hotkey)
+        )
         panel.setFrame(
             NSRect(
                 x: screen.frame.minX + flipped.x,
@@ -394,7 +396,7 @@ final class NotchHubController: HubHost {
             guard
                 let layout = NotchHubGeometry.layout(
                     display: Self.display(of: screen),
-                    content: NotchHubGeometry.Content(bodyHeight: Self.tracerBodyHeight)
+                    content: NotchHubGeometry.Content(bodyHeight: NotchHubGeometry.bodyHeight)
                 )
             else {
                 continue
@@ -499,9 +501,6 @@ final class NotchHubController: HubHost {
     private static func contains(_ rect: CGRect, _ point: CGPoint) -> Bool {
         point.x >= rect.minX && point.x <= rect.maxX && point.y >= rect.minY && point.y <= rect.maxY
     }
-
-    /// The height of the body until the hub has parts to show.
-    private static let tracerBodyHeight: Double = 120
 
     /// What the geometry needs to know about a screen, read from the system's own values.
     private static func display(of screen: NSScreen) -> NotchHubGeometry.Display {

@@ -135,6 +135,8 @@ nonisolated enum DesignTokens {
         static let top = RGB.black
         /// The silhouette at the bottom: a dark blue-grey. Tuned on a Mac.
         static let bottom = RGB(hex: 0x111A2B)
+        /// How opaque the silhouette is at the bottom where glass shows through. Tuned on a Mac.
+        static let bottomAlphaOnGlass: Double = 0.55
         /// An icon strip tab.
         static let tabWidth: Double = 30
         static let tabHeight: Double = 24

@@ -55,6 +55,36 @@ nonisolated enum HubTabStrip {
         return Layout(visible: visible, overflow: overflow, selected: selected)
     }
 
+    /// How many tabs are visible in a wing of the given width, so that the strip, with its More
+    /// button where tabs overflow, never reaches past the wing into the clearance of the notch.
+    ///
+    /// - Parameters:
+    ///   - tabCount: The number of tabs, the Overview included.
+    ///   - wingWidth: The width of the wing.
+    ///   - tabWidth: The width of a tab.
+    ///   - gap: The space between tabs.
+    ///   - maximum: The most tabs ever visible.
+    /// - Returns: At least 1.
+    static func visibleCapacity(
+        tabCount: Int,
+        wingWidth: Double,
+        tabWidth: Double,
+        gap: Double,
+        maximum: Int = HubTabStrip.maximumVisible
+    ) -> Int {
+        let unit = tabWidth + gap
+        guard wingWidth.isFinite, unit.isFinite, unit > 0 else {
+            return 1
+        }
+        let slots = max(Int(((wingWidth + gap) / unit).rounded(.down)), 0)
+        let limit = min(maximum, slots)
+        if tabCount <= limit {
+            return max(limit, 1)
+        }
+        // The More button takes a slot.
+        return max(min(maximum, slots - 1), 1)
+    }
+
     /// The tab a step of the arrow keys leads to, wrapping at both ends.
     ///
     /// - Parameters:

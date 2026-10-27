@@ -193,6 +193,14 @@ enum HolzBarTheme {
             startPoint: .top,
             endPoint: .bottom
         )
+        /// The same fade with a bottom that lets glass show through.
+        static let translucentGradient = LinearGradient(
+            colors: [top, bottom.opacity(DesignTokens.Hub.bottomAlphaOnGlass)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        /// Text on the hub's ground.
+        static let pillText = Color.white
         /// White at 70 percent, the colour of a module without one of its own.
         static let neutral = Color.white.opacity(DesignTokens.Hub.neutralAlpha)
         static let tabSize = CGSize(width: DesignTokens.Hub.tabWidth, height: DesignTokens.Hub.tabHeight)

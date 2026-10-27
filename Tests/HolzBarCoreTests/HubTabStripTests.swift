@@ -68,6 +68,18 @@ struct HubTabStripTests {
         #expect(HubTabStrip.step(from: "gone", by: 1, in: []) == "overview")
     }
 
+    @Test("The strip never reaches past its wing: the More button takes a slot where tabs overflow")
+    func capacityInAWing() {
+        // 30-point tabs with a gap of 2: six slots fit in 190 points.
+        #expect(HubTabStrip.visibleCapacity(tabCount: 4, wingWidth: 191, tabWidth: 30, gap: 2) == 5)
+        #expect(HubTabStrip.visibleCapacity(tabCount: 7, wingWidth: 191, tabWidth: 30, gap: 2) == 5)
+        #expect(HubTabStrip.visibleCapacity(tabCount: 7, wingWidth: 100, tabWidth: 30, gap: 2) == 2)
+        #expect(HubTabStrip.visibleCapacity(tabCount: 2, wingWidth: 100, tabWidth: 30, gap: 2) == 3)
+        #expect(HubTabStrip.visibleCapacity(tabCount: 7, wingWidth: 20, tabWidth: 30, gap: 2) == 1)
+        #expect(HubTabStrip.visibleCapacity(tabCount: 7, wingWidth: .nan, tabWidth: 30, gap: 2) == 1)
+        #expect(HubTabStrip.visibleCapacity(tabCount: 7, wingWidth: 500, tabWidth: 30, gap: 2) == 5)
+    }
+
     @Test("The remembered tab is used when it is available, else the Overview")
     func remembered() {
         #expect(HubTabStrip.remembered(lastTab: "a", available: ["a", "b"]) == "a")

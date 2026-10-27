@@ -35,6 +35,11 @@ final class NotchHubModel {
         HubTabStrip.layout(moduleTabs: tabModuleIDs, selected: chosenID)
     }
 
+    /// The icon strip for a wing that fits only so many tabs.
+    func layout(maximumVisible: Int) -> HubTabStrip.Layout {
+        HubTabStrip.layout(moduleTabs: tabModuleIDs, selected: chosenID, maximumVisible: maximumVisible)
+    }
+
     /// The selected tab, always one that exists: the Overview where the chosen tab is gone.
     var selectedID: String {
         layout.selected
