@@ -146,6 +146,21 @@ final class AppleItems {
         updateStatusItems()
     }
 
+    /// Gives a replacement another symbol of the offered ones. Does nothing for a symbol that
+    /// is not offered, one it already wears or a replacement that is gone.
+    func setSymbol(_ symbolName: String, for id: UUID) {
+        guard
+            AppleItemCatalog.symbolNames.contains(symbolName),
+            let index = replacements.firstIndex(where: { $0.id == id }),
+            replacements[index].symbolName != symbolName
+        else {
+            return
+        }
+        replacements[index].symbolName = symbolName
+        save()
+        updateStatusItems()
+    }
+
     /// The Apple items on the bar that can be replaced and are not yet, one per key, by name.
     func candidates() -> [(key: String, title: String)] {
         guard let itemManager = appState?.itemManager else {

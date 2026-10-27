@@ -141,6 +141,34 @@
         }
       }
     },
+    "Hide an Apple app's items in Menu Bar Layout, and keep the ones you want one click away here." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blende die Elemente einer Apple-App im Menüleistenlayout aus und halte hier die gewünschten einen Klick entfernt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquez les éléments d’une app Apple dans la disposition de la barre des menus et gardez ici ceux que vous voulez à un clic."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi gli elementi di un’app Apple nel layout della barra dei menu e tieni qui, a un clic, quelli che vuoi."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuppenta ils elements d’ina app Apple en la disposiziun da la trav da menu e tegna qua a in clic quels che ti vuls."
+          }
+        }
+      }
+    },
     "Hide Control Center" : {
       "localizations" : {
         "de" : {
@@ -389,6 +417,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ spustà en %2$@"
+          }
+        }
+      }
+    },
+    "No Apple items on the bar to replace." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Apple-Elemente in der Menüleiste zum Ersetzen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun élément Apple à remplacer dans la barre des menus."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun elemento Apple da sostituire nella barra dei menu."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagins elements Apple en la trav da menu per remplazzar."
           }
         }
       }
@@ -11127,6 +11183,34 @@
         }
       }
     },
+    "Remove %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ entfernen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer %@"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rimuovi %@"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allontanar %@"
+          }
+        }
+      }
+    },
     "Remove Approval" : {
       "localizations" : {
         "de" : {
@@ -13699,6 +13783,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Singula"
+          }
+        }
+      }
+    },
+    "Six replacement items are the most." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr als sechs Ersatz-Elemente sind nicht möglich."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Six éléments de remplacement au maximum."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al massimo sei elementi sostitutivi."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximalmain sis elements da substituziun."
           }
         }
       }

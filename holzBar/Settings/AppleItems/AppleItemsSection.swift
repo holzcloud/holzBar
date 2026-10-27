@@ -32,35 +32,54 @@ struct AppleItemsSection: View {
     }
 
     private var replacementsList: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
+        let candidates = appleItems.candidates()
+        let isFull = appleItems.replacements.count >= AppleItemReplacement.maximumCount
+        return VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
             Text("Replacement items")
                 .font(HolzBarTheme.Typography.headline)
                 .foregroundStyle(HolzBarTheme.Palette.text)
                 .accessibilityAddTraits(.isHeader)
+            caption(Text("Hide an Apple app's items in Menu Bar Layout, and keep the ones you want one click away here."))
             ForEach(appleItems.replacements) { replacement in
-                HStack(spacing: HolzBarTheme.Spacing.sm) {
-                    Image(systemName: replacement.symbolName)
-                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                        .frame(width: HolzBarTheme.Spacing.xl)
-                        .accessibilityHidden(true)
-                    Text(verbatim: replacement.title)
-                        .font(HolzBarTheme.Typography.body)
-                        .foregroundStyle(HolzBarTheme.Palette.text)
-                    Spacer(minLength: HolzBarTheme.Spacing.sm)
-                    Button("Remove") {
-                        appleItems.removeReplacement(id: replacement.id)
-                    }
-                    .buttonStyle(.borderless)
-                }
+                row(for: replacement)
             }
-            addMenu
+            addMenu(candidates: candidates, isFull: isFull)
+            if isFull {
+                caption(Text("Six replacement items are the most."))
+            } else if candidates.isEmpty {
+                caption(Text("No Apple items on the bar to replace."))
+            }
         }
         .padding(.top, HolzBarTheme.Spacing.sm)
     }
 
-    private var addMenu: some View {
-        let candidates = appleItems.candidates()
-        return Menu("Add Replacement…") {
+    private func row(for replacement: AppleItemReplacement) -> some View {
+        HStack(spacing: HolzBarTheme.Spacing.sm) {
+            Picker("Symbol", selection: symbolBinding(for: replacement)) {
+                ForEach(AppleItemCatalog.symbolNames, id: \.self) { name in
+                    Image(systemName: name)
+                        .tag(name)
+                }
+            }
+            .pickerStyle(.menu)
+            .labelsHidden()
+            .accessibilityLabel(Text("Symbol"))
+            .fixedSize()
+            Text(verbatim: replacement.title)
+                .font(HolzBarTheme.Typography.body)
+                .foregroundStyle(HolzBarTheme.Palette.text)
+            Spacer(minLength: HolzBarTheme.Spacing.sm)
+            Button("Remove") {
+                appleItems.removeReplacement(id: replacement.id)
+            }
+            .buttonStyle(.borderless)
+            .accessibilityLabel(Text("Remove \(replacement.title)"))
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private func addMenu(candidates: [(key: String, title: String)], isFull: Bool) -> some View {
+        Menu("Add Replacement…") {
             ForEach(candidates, id: \.key) { candidate in
                 Button(candidate.title) {
                     appleItems.addReplacement(forItemKey: candidate.key, title: candidate.title)
@@ -68,7 +87,14 @@ struct AppleItemsSection: View {
             }
         }
         .fixedSize()
-        .disabled(candidates.isEmpty || appleItems.replacements.count >= AppleItemReplacement.maximumCount)
+        .disabled(candidates.isEmpty || isFull)
+    }
+
+    private func symbolBinding(for replacement: AppleItemReplacement) -> Binding<String> {
+        Binding(
+            get: { replacement.symbolName },
+            set: { appleItems.setSymbol($0, for: replacement.id) }
+        )
     }
 
     private func caption(_ text: Text) -> some View {
