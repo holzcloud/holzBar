@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+ <!-- Layer 2: the menu bar with the chevron and its four items. -->
+ <rect x="247" y="520" width="530" height="150" rx="52" fill="#D6F3FF"/>
+ <path d="M370 552 L320 595 L370 638" fill="none" stroke="#1C78AE" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+ <circle cx="480" cy="595" r="22" fill="#95C8E3"/>
+ <circle cx="560" cy="595" r="22" fill="#95C8E3"/>
+ <circle cx="640" cy="595" r="22" fill="#1C78AE"/>
+ <circle cx="715" cy="595" r="22" fill="#1C78AE"/>
+</svg>
