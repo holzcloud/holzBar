@@ -10,7 +10,7 @@ import SwiftUI
 ///
 /// The side walls stand ``NotchHubGeometry/topCornerRadius`` inside the bounds: the concave
 /// corners flare outward over that width and taper to nothing at the top edge.
-struct NotchHubSilhouette: Shape {
+nonisolated struct NotchHubSilhouette: Shape {
     func path(in rect: CGRect) -> Path {
         let top = min(CGFloat(NotchHubGeometry.topCornerRadius), rect.width / 4, rect.height / 2)
         let bottom = min(
