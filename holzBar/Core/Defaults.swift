@@ -158,6 +158,9 @@ nonisolated extension Defaults {
         /// How the holzBar Shelf arranges its items: in a row, a grid or a column.
         case shelfLayout = "ShelfLayout"
         case shelfLocation = "IceBarLocation"
+        /// Whether the holzBar Shelf hangs from the menu bar or floats a little below it. A new
+        /// key, so it takes no old name.
+        case shelfStyle = "ShelfStyle"
         case shelfDisplays = "IceBarDisplays"
         case showsNotchOverflowInShelf = "ShowsNotchOverflowInIceBar"
         case showOnClick = "ShowOnClick"
@@ -357,6 +360,7 @@ nonisolated extension Defaults.Key {
             .canToggleAlwaysHiddenSection:
             .bool
         case .shelfLocation,
+            .shelfStyle,
             .shelfLayout,
             .shelfDisplays,
             .notchHubDisplays,
@@ -441,6 +445,7 @@ nonisolated extension Defaults.Key {
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,
+            .shelfStyle,
             .shelfLayout,
             .shelfDisplays,
             .rehideStrategy,

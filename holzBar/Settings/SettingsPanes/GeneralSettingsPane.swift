@@ -191,6 +191,7 @@ struct GeneralSettingsPane: View {
     private var shelfOptions: some View {
         useShelf
         if settings.useShelf {
+            shelfStylePicker
             shelfLocationPicker
             shelfLayoutPicker
             Toggle("Fade the holzBar Shelf in", isOn: $settings.animatesShelf)
@@ -228,6 +229,27 @@ struct GeneralSettingsPane: View {
             PreviewBadge()
         }
         .annotation("A row holds every item side by side. A grid and a column hold more items without scrolling.")
+    }
+
+    @ViewBuilder
+    private var shelfStylePicker: some View {
+        HolzBarPicker(selection: $settings.shelfStyle) {
+            Text("Attached").tag(HolzBarShelfStyle.attached)
+            Text("Floating").tag(HolzBarShelfStyle.floating)
+        } label: {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Style")
+                PreviewBadge()
+            }
+        }
+        .annotation {
+            switch settings.shelfStyle {
+            case .attached:
+                Text("The holzBar Shelf hangs directly below the menu bar.")
+            case .floating:
+                Text("The holzBar Shelf floats a little below the menu bar, as a bar of its own.")
+            }
+        }
     }
 
     @ViewBuilder

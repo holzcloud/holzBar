@@ -72,6 +72,13 @@ final class GeneralSettings {
         }
     }
 
+    /// Whether the holzBar Shelf hangs directly below the menu bar or floats a little below it.
+    var shelfStyle: HolzBarShelfStyle = .attached {
+        didSet {
+            Defaults.set(shelfStyle.rawValue, forKey: .shelfStyle)
+        }
+    }
+
     /// How the holzBar Shelf arranges its items.
     var shelfLayout: ShelfLayout = .row {
         didSet {
@@ -222,6 +229,9 @@ final class GeneralSettings {
             if let location = HolzBarShelfLocation(rawValue: rawValue) {
                 shelfLocation = location
             }
+        }
+        Defaults.ifPresent(key: .shelfStyle) { (rawValue: Int) in
+            shelfStyle = HolzBarShelfStyle.stored(rawValue)
         }
         Defaults.ifPresent(key: .shelfLayout) { rawValue in
             if let layout = ShelfLayout(rawValue: rawValue) {
