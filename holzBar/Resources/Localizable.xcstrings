@@ -113,6 +113,62 @@
         }
       }
     },
+    "Hide Control Center" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontrollzentrum ausblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer le Centre de contrôle"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi il Centro di Controllo"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuppentar il center da controlla"
+          }
+        }
+      }
+    },
+    "Hide the battery" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Akku ausblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer la batterie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi la batteria"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuppentar l’accu"
+          }
+        }
+      }
+    },
     "Hide the clock" : {
       "localizations" : {
         "de" : {
@@ -165,6 +221,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zuppenta l’ura u il center da controlla e tegna ils elements Apple a in clic sin macOS 27."
+          }
+        }
+      }
+    },
+    "Hide Wi-Fi" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "WLAN ausblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer le Wi-Fi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi il Wi-Fi"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuppentar WLAN"
           }
         }
       }
@@ -277,6 +361,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ spustà en %2$@"
+          }
+        }
+      }
+    },
+    "Not applied while the holzBar Shelf is on: the Shelf cannot show a system item." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht angewendet, solange das holzBar Shelf eingeschaltet ist: Das Shelf kann kein Systemelement anzeigen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non appliqué tant que le holzBar Shelf est activé : le Shelf ne peut pas afficher un élément du système."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non applicato mentre holzBar Shelf è attivo: lo Shelf non può mostrare un elemento di sistema."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betg applitgà uschè ditg che il holzBar Shelf è activà: il Shelf na po betg mussar in element dal sistem."
           }
         }
       }
@@ -16359,6 +16471,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dasda il Mac mintga secunda, uschè ditg ch’el è visibel."
+          }
+        }
+      }
+    },
+    "While a system item is hidden, Control Center does not show its camera and microphone indicator; holzBar marks its own icon instead." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solange ein Systemelement ausgeblendet ist, zeigt das Kontrollzentrum seine Kamera- und Mikrofonanzeige nicht; holzBar markiert stattdessen sein eigenes Symbol."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tant qu’un élément du système est masqué, le Centre de contrôle n’affiche pas son indicateur de caméra et de micro ; holzBar marque à la place sa propre icône."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finché un elemento di sistema è nascosto, il Centro di Controllo non mostra il suo indicatore di fotocamera e microfono; holzBar segnala invece la propria icona."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uschè ditg che in element dal sistem è zuppà, na mussa il center da controlla betg ses indicatur per la camera ed il microfon; holzBar marca empè ses agen simbol."
           }
         }
       }
