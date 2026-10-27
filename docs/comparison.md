@@ -36,7 +36,10 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Replacement icons for Apple items on macOS 27 | — | ✅ | — | ✅ |
 | AppleScript dictionary | — | — | ✅ | ✅ <sub>a small, read-mostly set; asks before lasting changes</sub> |
 | Touch ID or password to show hidden items | — | — | — | ✅ |
-| Smooth show and hide | — | — | — | partly: the holzBar Shelf fades in; the bar's own items slide on macOS 26 only (not macOS 14 and 15; macOS 27 animates its own bar) |
+| Smooth show and hide | — | — | — | partly: the holzBar Shelf has Instant, Smooth and Fade styles; the bar's own items slide on macOS 26 only (not macOS 14 and 15; macOS 27 animates its own bar) |
+| Click on the clock opens Notification Center while items are hidden (macOS 27), as a setting | — | — | — | ✅ |
+| Per display: always show everything, or collapse; the display under the pointer decides | — | — | — | ✅ |
+| Layout editor that draws first and applies in one pass, with a tile for where new items land | ❌ | — | — | ✅ |
 | Moods: save the look of the menu bar and switch to it in one click, from the palette or with a rule | ❌ | — | — | ✅ |
 | holzBar Shelf as a row, a grid or a column | ❌ | — | — | ✅ |
 | Type in the Shelf to find an item and open it with Return | — | — | — | ✅ <sub>the Shelf takes the keyboard when a hotkey opens it</sub> |
@@ -145,7 +148,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Hotkeys | ✅ also per profile and item | ✅ | ✅ | ✅ | ✅ per icon | ✅ | ✅ | one | ✅ | Pro | ✅ | ✅ | ✅ | ✅ | ❓ |
 | Zen mode (lock reveal gestures) | ✅ | Focus filter only | ❌ | ✅ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ❓ | ❓ | ❓ |
 | Lock behind Touch ID / password | ✅ <sup>14</sup> | ❌ <sup>10</sup> | ❌ | ❌ | ✅ | ❌ | ❓ | ❌ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ |
-| Show/hide animation | Shelf; the bar on macOS 26 only | ❓ | ❓ | Reduce Motion only | ❓ | ❓ | ❓ | ❓ | ❓ | ✅ | ❓ | ✅ beta | ❓ | ✅ speed setting | ❓ |
+| Show/hide animation | Shelf (three styles); the bar on macOS 26 only | ❓ | ❓ | Reduce Motion only | ❓ | ❓ | ❓ | ❓ | ❓ | ✅ | ❓ | ✅ beta | ❓ | ✅ speed setting | ❓ |
 | Screen Recording | optional | optional | optional | optional | not needed | optional | required | not needed | not needed | required | ❓ | likely required | for its screenshot tools | not needed | ❓ |
 | Network connections | **none** | vendor: none <sup>11</sup> | Sparkle | Sparkle | Sparkle + anonymous event counts | licence + Sparkle | App Store: none | none | Sparkle | ❓ | App Store: none | check-in (versions, licence status) | none for core; AI servers (Pro) | analytics, crash reports, licence check | update check on by default; other network features opt-in |
 | Export / import settings | ✅ | ❓ | ❌ | ✅ | ✅ (also from Bartender, Ice) | ❓ | cloud backup (VIP) | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ |
@@ -190,7 +193,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 - **Automation:** Thaw, SaneBar and Bartender 7 have rules, per-item conditions and scripts. holzBar has them since 0.0.8, with a similar set of triggers; Thaw can use a Focus as a trigger, holzBar's Focus filter only applies a profile.
 - **No Developer ID signature or notarization**, unlike Thaw, SaneBar, Ice and Lounge (the vendor's claim). holzBar needs the `xattr` step or the Homebrew cask.
 - **Fewer languages** than Thaw and Barbee (20 each).
-- **Little animation of the bar itself**: the holzBar Shelf fades in and the bar's items slide on macOS 26 only; not on macOS 14 and 15, and macOS 27 animates its own bar. Vanilla has smooth show and hide today. The AppleScript dictionary is small next to Bartender 7's.
+- **Little animation of the bar itself**: the holzBar Shelf has animation styles and the bar's items slide on macOS 26 only; not on macOS 14 and 15, and macOS 27 animates its own bar. Vanilla has smooth show and hide today. The AppleScript dictionary is small next to Bartender 7's.
 - **No settings sync** since 0.0.7-beta3; the redesigned sync comes in 1.0.0. Barbee has cloud sync of profiles.
 - **Not checked on real hardware** for several features, and one maintainer. SaneBar was sunset in June; Tuck and Glow ship updates every week or two.
 - **Apple's own items on macOS 27** (clock, Control Center, Wi-Fi) cannot be hidden by Hidden Bar and Tuck; Thaw offers replacement icons and Bartender 7 hides the clock and Control Center. holzBar does both since 0.0.12.

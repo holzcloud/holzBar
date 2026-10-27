@@ -8,7 +8,7 @@
 - ✅ Hide items in a hidden and an always-hidden section
 - ✅ Show on hover, click or scroll (trackpad **and mouse wheel**)
 - ✅ Automatic rehide
-- ✅ Drag-and-drop layout editor
+- ✅ Drag-and-drop layout editor — it draws first and lays the bar out in one pass when you choose Apply (or at once, if you prefer)
 - ✅ **Drag items in the menu bar without ⌘ Command** (macOS 26 and 27) — an optional module in Settings, Modules, off until you switch it on
 - ✅ **Apple Items** (macOS 27) — hide the clock, Control Center, Wi-Fi or the battery, and keep an Apple item one click away with a replacement icon; an optional module, off until you switch it on
 - ✅ **Notch hub** — a panel at the notch for optional modules, off until you switch it on; no module in it yet
@@ -17,7 +17,9 @@
 - ✅ **Groups** (folders) — several items behind an icon of their own, in a colour and with a symbol or image of your choice
 - ✅ **Item images of your choice** — give any item its own picture, or its app's icon; without Screen Recording, the holzBar Shelf and the search show app icons
 - ✅ **Spacers** — empty items of adjustable width
-- ✅ **Choose where new items appear**
+- ✅ **Choose where new items appear** — a tile in the Layout pane shows where, and you can change it there
+- ✅ **Per display: always show everything, or collapse** — the display under the pointer decides
+- ✅ **Animation styles** — Instant, Smooth or Fade, as picture cards
 - ✅ **Keeps items in their section after app updates, title changes and display changes**
 - ✅ Search menu bar items — by abbreviation ("cc" for Control Centre) and despite typos
 - ✅ **Open an item by letter** — a hotkey shows a letter under every item; type it to open the item's menu
@@ -91,6 +93,16 @@ Four upgrades of the holzBar Shelf, with their settings in Settings → General 
 - **Closed apps**: with **Show applications that are not running** on (off by default), the Shelf also lists, dimmed, the apps that you hid an item of and that are not running, with their icon; a click launches the app and closes the Shelf. holzBar takes them from the sections it already remembers for your items (on macOS 27 per app, before per item), compares them with the running apps as the Shelf opens, and lists at most 24 for a section. Apps that are no longer installed, Apple's own apps, holzBar's items and widgets are left out.
 - **Rearrange by dragging**: drag an item of the Shelf. Drop it on another item of the same section to put it before or after it (before macOS 27; macOS 27 puts the items of a section in order itself, so there an item only changes its section), on an item of the other section or on the fold tile to move it into that section, or up onto the menu bar to show it there. A line marks where it lands, and the Shelf steps back while the pointer is over the menu bar. It uses the same moves as Menu Bar Layout, so a refused move is reported the same way and an app that does not answer is not dragged. **Rearrange items by dragging** is on by default; with it off the items are only clicked.
 
+### Behaviour and the layout editor
+
+None of this needs a permission beyond the Accessibility access holzBar already has, the network or a timer.
+
+- **Animation styles**: Settings → General has an **Animation** setting with three picture cards, **Instant**, **Smooth** and **Fade**. It replaces the two switches *Animate showing and hiding* and *Fade in*: Smooth is the slide of the bar's items on macOS 26 and, for the holzBar Shelf, a fade with a short slide of its content (about 0.22 seconds); Fade is the Shelf's fade alone (0.15 seconds); Instant changes at once. Reduce Motion always wins and nothing runs while idle. macOS 27 animates its own bar, so there the cards change the Shelf only, and the card text says so; macOS 14 and 15 keep the instant change of the bar. A setting you had before is carried over once.
+- **Notification Center from the clock** (macOS 27): macOS 27 ignores a click on the clock while items are hidden. holzBar lifts the hiding for a moment and clicks again, so Notification Center opens. **Open Notification Center from the clock** in Settings → General is on by default; turn it off to leave the click to macOS, and the clock then does nothing while items are hidden. macOS offers no way to open Notification Center without that click, so there is no hotkey for it.
+- **Per display**: under **Displays** in Settings → General (shown when more than one display is connected, or a choice is stored) each display is set to **Default**, **Always show everything** or **Collapse**. The display under the pointer wins. *Always show everything* keeps every section shown there: what hides the items by itself (rehiding after a delay or when the pointer leaves, a click on empty space) is refused, while a click on holzBar's icon, a section hotkey and Zen mode still hide them. *Collapse* keeps the hidden items hidden there like Zen mode does: hovering, clicking empty space, scrolling, rules and URL commands do not reveal them, while the holzBar icon and the hotkeys still do. Moving the pointer onto the display shows or hides the sections once. Neither is used with the holzBar Shelf, which holds the hidden items itself. With no display set, nothing runs; with one set, a single mouse-moved monitor costs one rectangle test per event until the pointer changes display.
+- **A layout editor that draws first**: in Menu Bar Layout, dragging an item, the arrow keys and the VoiceOver actions change a drawing and not the bar. A strip above the rows counts the changes and offers **Apply** and **Discard**. Apply lays the bar out in one pass: on macOS 27 the sections of the applications are stored and applied once; before, the items change section as a profile does and each section is then put in order with the fewest moves. A snapshot of the arrangement is taken first, items that a rule controls are left to their rule, and a line afterwards says how many changes were made. The drawing follows the bar while the pane is open. **Apply changes immediately** turns the old behaviour back on (every move at once); turning it on applies what waits. Moves made outside the pane, in the Shelf or by dragging in the menu bar, still happen at once.
+- **The tile "New items"**: it sits in the section where items holzBar has never seen land, the same choice as **Place new menu bar items in** in Settings → Advanced, and a picker on it moves it to another section (in the drawing until you apply it).
+
 ### Built-in items and app launchers
 
 The **Widgets** module (Settings → Modules, off until you switch it on) also offers items that do one small job. Each is a menu bar item of holzBar's own, like a widget: it can be put in any section, hides with it, is kept in layout profiles and shows in the holzBar Shelf and the search, so it keeps working while macOS hides its own items. None needs a permission of its own, a network connection or a private framework, and nothing of them runs while the module is off. **Add Widget** lists them.
@@ -116,7 +128,7 @@ The module now holds up to twelve widgets, the readouts, buttons and scripts inc
 
 0.0.11 is out; see its [release notes](release-notes/v0.0.11.md).
 
-- **Smooth show and hide** (macOS 26 only): with **Animate showing and hiding** on in Settings → General (the default), hidden menu bar items slide in and out in about 0.18 seconds instead of appearing at once. The state changes first and the slide only draws it, so nothing is delayed; a quick show and hide cancel each other instead of queuing. It never runs with Reduce Motion on, while you drag an item or with the holzBar Shelf in use (there the Shelf fades instead). The setting is shown on macOS 26 only: macOS 27 animates its own bar (see [macOS 27 notes](macos27.md#show-and-hide-animation)), and macOS 14 and 15 keep the instant change. It needs no permission, no timer while idle and no network; the one short task lives only while a slide runs.
+- **Smooth show and hide** (macOS 26 only): with **Animate showing and hiding** on in Settings → General (the default), hidden menu bar items slide in and out in about 0.18 seconds instead of appearing at once. The state changes first and the slide only draws it, so nothing is delayed; a quick show and hide cancel each other instead of queuing. It never runs with Reduce Motion on, while you drag an item or with the holzBar Shelf in use (there the Shelf fades instead). The setting is shown on macOS 26 only: macOS 27 animates its own bar (see [macOS 27 notes](macos27.md#show-and-hide-animation)), and macOS 14 and 15 keep the instant change. It needs no permission, no timer while idle and no network; the one short task lives only while a slide runs. Since 0.0.13 the setting is the **Smooth** card of **Animation** (see [Behaviour and the layout editor](#behaviour-and-the-layout-editor)).
 - **Glass Search and Hints panels**: the item search and the hints panel (open an item by letter) have the new glass look, with key caps for the hint letters.
 - **Design tokens**: the type sizes and spacing in Settings come from one shared set of values; nothing should look different.
 
@@ -141,7 +153,7 @@ The module now holds up to twelve widgets, the readouts, buttons and scripts inc
 
 **The holzBar Shelf**
 - **Layouts**: a row (as before), a grid of six per row, or a column; a grid and a column grow downwards and scroll after ten rows, and the arrow keys move up and down.
-- **Fade in**: the holzBar Shelf appears in 0.15 seconds instead of at once; it never fades while Reduce Motion is on, and closing is never delayed. The bar's own items slide on macOS 26 since 0.0.11 (see above).
+- **Fade in** (since 0.0.13 the **Fade** card of **Animation**): the holzBar Shelf appears in 0.15 seconds instead of at once; it never fades while Reduce Motion is on, and closing is never delayed. The bar's own items slide on macOS 26 since 0.0.11 (see above).
 
 **Convenience**
 - **Usage suggestions** (off by default): count how often you open each item, once a day at most per click, for 30 days. After 14 days holzBar suggests hiding visible items you did not open for 14 days, never the clock, the battery, Control Center, items that show a live value, apps that carry badges, holzBar's own items or items a rule controls. The counts are one file on this Mac (mode 0600, excluded from backups); they are in no export, snapshot, diagnostic or log, **View Data** shows all of it, and **Forget Everything** and turning it off delete it. A suggestion moves nothing until you click **Move to Hidden**, and a snapshot of the layout is taken first.
