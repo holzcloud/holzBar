@@ -86,20 +86,27 @@ final class GeneralSettings {
         }
     }
 
-    /// A Boolean value that indicates whether the holzBar Shelf fades in when it opens. It
-    /// does not, whatever this says, while Reduce Motion is on.
-    var animatesShelf = true {
+    /// How showing and hiding looks (`RevealAnimationStyle`). With Reduce Motion on nothing
+    /// animates, whatever this says.
+    var revealAnimationStyle = RevealAnimationStyle.standard {
         didSet {
-            Defaults.set(animatesShelf, forKey: .animatesShelf)
+            Defaults.set(revealAnimationStyle.rawValue, forKey: .revealAnimationStyle)
         }
     }
 
-    /// A Boolean value that indicates whether showing and hiding the sections slides the
-    /// menu bar's items instead of switching them at once. Only macOS 26 does so, and not
-    /// while Reduce Motion is on, the holzBar Shelf is in use or an item is dragged.
-    var animatesShowHide = true {
+    /// A Boolean value that indicates whether a click on the clock opens Notification Center
+    /// while items are hidden (macOS 27).
+    var clockOpensNotificationCenter = true {
         didSet {
-            Defaults.set(animatesShowHide, forKey: .animatesShowHide)
+            Defaults.set(clockOpensNotificationCenter, forKey: .clockOpensNotificationCenter)
+        }
+    }
+
+    /// A Boolean value that indicates whether a change in the Menu Bar Layout pane moves the
+    /// item at once. Off, the pane draws a draft and Apply lays the bar out.
+    var appliesLayoutChangesImmediately = false {
+        didSet {
+            Defaults.set(appliesLayoutChangesImmediately, forKey: .appliesLayoutChangesImmediately)
         }
     }
 
@@ -286,8 +293,17 @@ final class GeneralSettings {
                 shelfLayout = layout
             }
         }
-        Defaults.ifPresent(key: .animatesShelf, assign: &animatesShelf)
-        Defaults.ifPresent(key: .animatesShowHide, assign: &animatesShowHide)
+        if let raw = Defaults.object(forKey: .revealAnimationStyle) as? Int {
+            revealAnimationStyle = RevealAnimationStyle.stored(raw)
+        } else {
+            // Earlier versions had a switch for the menu bar and one for the holzBar Shelf.
+            revealAnimationStyle = RevealAnimationStyle.migrated(
+                animatesShowHide: Defaults.object(forKey: .animatesShowHide) as? Bool,
+                animatesShelf: Defaults.object(forKey: .animatesShelf) as? Bool
+            )
+        }
+        Defaults.ifPresent(key: .clockOpensNotificationCenter, assign: &clockOpensNotificationCenter)
+        Defaults.ifPresent(key: .appliesLayoutChangesImmediately, assign: &appliesLayoutChangesImmediately)
         Defaults.ifPresent(key: .showsNotchOverflowInShelf, assign: &showsNotchOverflowInShelf)
         Defaults.ifPresent(key: .smartCategories, assign: &smartCategories)
         Defaults.ifPresent(key: .shelfFindsByTyping, assign: &shelfFindsByTyping)

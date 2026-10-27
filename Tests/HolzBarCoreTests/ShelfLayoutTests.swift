@@ -70,17 +70,3 @@ struct ShelfLayoutTests {
         #expect(empty == nil)
     }
 }
-
-@Suite("The holzBar Shelf's fade")
-struct ShelfAnimationTests {
-    @Test("It lasts a moment, and not at all when off or with Reduce Motion")
-    func duration() {
-        let normal = ShelfAnimation.fadeDuration(isEnabled: true, reduceMotion: false)
-        let off = ShelfAnimation.fadeDuration(isEnabled: false, reduceMotion: false)
-        let reduced = ShelfAnimation.fadeDuration(isEnabled: true, reduceMotion: true)
-        let isShort = normal > 0 && normal <= 0.2
-        let isNone = off == 0 && reduced == 0
-        #expect(isShort)
-        #expect(isNone)
-    }
-}

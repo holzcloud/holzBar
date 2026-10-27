@@ -3371,6 +3371,34 @@
         }
       }
     },
+    "Animation" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animation"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animation"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animazione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Animaziun"
+          }
+        }
+      }
+    },
     "Another app asked holzBar to change this setting." : {
       "localizations" : {
         "de" : {
@@ -6923,6 +6951,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Exportar …"
+          }
+        }
+      }
+    },
+    "Fade" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Überblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fondu"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dissolvenza"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fade"
           }
         }
       }
@@ -15943,6 +15999,34 @@
         }
       }
     },
+    "The menu bar's items change at once on this version of macOS, so the style applies to the holzBar Shelf: Smooth slides it out from under the menu bar, Fade fades it in. Nothing animates while Reduce Motion is on." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Elemente der Menüleiste ändern sich in dieser macOS-Version sofort. Der Stil gilt daher für das holzBar Shelf: Fließend lässt es unter der Menüleiste hervorgleiten, Überblenden blendet es ein. Bei aktivierter Option «Bewegung reduzieren» wird nichts animiert."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dans cette version de macOS, les éléments de la barre des menus changent instantanément : le style s’applique donc au holzBar Shelf. Fluide le fait glisser sous la barre des menus, Fondu le fait apparaître en fondu. Rien n’est animé lorsque « Réduire les animations » est activé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In questa versione di macOS gli elementi della barra dei menu cambiano subito: lo stile vale quindi per lo holzBar Shelf. Fluida lo fa scorrere da sotto la barra dei menu, Dissolvenza lo mostra con una dissolvenza. Niente viene animato mentre è attiva l’opzione «Riduci movimento»."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En questa versiun da macOS mudan ils elements da la trav da menu immediat, perquai vala il stil per il holzBar Shelf: Fluid til lascha or da sut la trav da menu, Fade til mussa cun in fade. Nagut vegn animà cun «Reducir il moviment» activà."
+          }
+        }
+      }
+    },
     "The pointer has to rest at the notch, or at the top centre on a display without one." : {
       "localizations" : {
         "de" : {
@@ -19757,6 +19841,34 @@
         }
       }
     },
+    "macOS animates the menu bar itself on macOS 27, and holzBar cannot change that, so the style applies to the holzBar Shelf: Smooth slides it out from under the menu bar, Fade fades it in. Nothing animates while Reduce Motion is on." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS animiert die Menüleiste unter macOS 27 selbst, und holzBar kann das nicht ändern. Der Stil gilt daher für das holzBar Shelf: Fließend lässt es unter der Menüleiste hervorgleiten, Überblenden blendet es ein. Bei aktivierter Option «Bewegung reduzieren» wird nichts animiert."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS anime lui-même la barre des menus sous macOS 27, et holzBar ne peut pas le modifier : le style s’applique donc au holzBar Shelf. Fluide le fait glisser sous la barre des menus, Fondu le fait apparaître en fondu. Rien n’est animé lorsque « Réduire les animations » est activé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS anima da sé la barra dei menu con macOS 27 e holzBar non può cambiarlo: lo stile vale quindi per lo holzBar Shelf. Fluida lo fa scorrere da sotto la barra dei menu, Dissolvenza lo mostra con una dissolvenza. Niente viene animato mentre è attiva l’opzione «Riduci movimento»."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS animescha sezza la trav da menu cun macOS 27 e holzBar na sa betg midar quai, perquai vala il stil per il holzBar Shelf: Fluid til lascha or da sut la trav da menu, Fade til mussa cun in fade. Nagut vegn animà cun «Reducir il moviment» activà."
+          }
+        }
+      }
+    },
     "macOS did not accept this combination. Choose another one." : {
       "localizations" : {
         "de" : {
@@ -21885,62 +21997,6 @@
         }
       }
     },
-    "Fade the holzBar Shelf in" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf einblenden lassen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Faire apparaître le holzBar Shelf en fondu"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra il holzBar Shelf con dissolvenza"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mussar il holzBar Shelf cun in fade"
-          }
-        }
-      }
-    },
-    "The holzBar Shelf appears in a moment instead of at once. It does not fade while Reduce Motion is on." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das holzBar Shelf erscheint in einem Augenblick statt sofort. Bei aktivierter Option «Bewegung reduzieren» blendet es nicht ein."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le holzBar Shelf apparaît en un instant au lieu d’un coup. Il n’apparaît pas en fondu quand « Réduire les animations » est activé."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il holzBar Shelf compare in un attimo invece che subito. Non si dissolve quando è attivo «Riduci movimento»."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il holzBar Shelf cumpara en in mument empè dad immediat. El na fa nagin fade, sch’ins ha activà «Reducir il moviment»."
-          }
-        }
-      }
-    },
     "Layout" : {
       "localizations" : {
         "de" : {
@@ -22273,6 +22329,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Duvrà"
+          }
+        }
+      }
+    },
+    "Instant" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sofort"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instantané"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immediata"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instantan"
           }
         }
       }
@@ -22781,62 +22865,6 @@
         }
       }
     },
-    "Animate showing and hiding" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ein- und Ausblenden animieren"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Animer l’affichage et le masquage"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anima la comparsa e la scomparsa"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Animar il mussar e il zuppentar"
-          }
-        }
-      }
-    },
-    "Hidden menu bar items slide in and out instead of appearing at once. Not used with the holzBar Shelf, and never while Reduce Motion is on." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgeblendete Elemente der Menüleiste gleiten ein und aus, statt sofort zu erscheinen. Gilt nicht für das holzBar Shelf und nie bei aktivierter Option «Bewegung reduzieren»."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les éléments masqués de la barre des menus glissent pour apparaître et disparaître au lieu de surgir d’un coup. Sans effet avec le holzBar Shelf, et jamais lorsque « Réduire les animations » est activé."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli elementi nascosti della barra dei menu scorrono per apparire e scomparire invece di comparire subito. Non vale con il holzBar Shelf e mai quando «Riduci movimento» è attivo."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ils elements zuppads da la trav da menu glischan aint e ordaifer empè da cumparair subit. Na vala betg per il holzBar Shelf e mai, sch’ins ha activà «Reducir il moviment»."
-          }
-        }
-      }
-    },
     "Style" : {
       "localizations" : {
         "de" : {
@@ -23281,6 +23309,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Categorias intelligentas"
+          }
+        }
+      }
+    },
+    "Smooth" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fließend"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fluide"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fluida"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fluid"
+          }
+        }
+      }
+    },
+    "Smooth slides the menu bar's items in and out, and the holzBar Shelf out from under the menu bar. Fade fades the holzBar Shelf in; the menu bar's items change at once. Nothing animates while Reduce Motion is on." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fließend lässt die Elemente der Menüleiste ein- und ausgleiten und das holzBar Shelf unter der Menüleiste hervorgleiten. Überblenden blendet das holzBar Shelf ein; die Elemente der Menüleiste ändern sich sofort. Bei aktivierter Option «Bewegung reduzieren» wird nichts animiert."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fluide fait glisser les éléments de la barre des menus vers l’intérieur et l’extérieur, et le holzBar Shelf sous la barre des menus. Fondu fait apparaître le holzBar Shelf en fondu ; les éléments de la barre des menus changent instantanément. Rien n’est animé lorsque « Réduire les animations » est activé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fluida fa scorrere gli elementi della barra dei menu dentro e fuori, e lo holzBar Shelf da sotto la barra dei menu. Dissolvenza mostra lo holzBar Shelf con una dissolvenza; gli elementi della barra dei menu cambiano subito. Niente viene animato mentre è attiva l’opzione «Riduci movimento»."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fluid lascha ir ils elements da la trav da menu aint e ora e il holzBar Shelf or da sut la trav da menu. Fade mussa il holzBar Shelf cun in fade; ils elements da la trav da menu mudan immediat. Nagut vegn animà cun «Reducir il moviment» activà."
           }
         }
       }

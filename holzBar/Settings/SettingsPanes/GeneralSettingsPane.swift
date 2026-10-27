@@ -194,8 +194,6 @@ struct GeneralSettingsPane: View {
             shelfStylePicker
             shelfLocationPicker
             shelfLayoutPicker
-            Toggle("Fade the holzBar Shelf in", isOn: $settings.animatesShelf)
-                .annotation("The holzBar Shelf appears in a moment instead of at once. It does not fade while Reduce Motion is on.")
             shelfFindsByTyping
             shelfFoldPicker
             shelfShowsClosedApps
@@ -338,15 +336,39 @@ struct GeneralSettingsPane: View {
             .annotation("Hover over an empty area of the menu bar to show hidden menu bar items.")
         Toggle("Show on scroll", isOn: $settings.showOnScroll)
             .annotation("Scroll or swipe in the menu bar to show hidden menu bar items.")
-        if RevealAnimationPolicy.supportsDividerSteps(.current) {
-            animatesShowHide
-        }
+        revealAnimationCards
     }
 
     @ViewBuilder
-    private var animatesShowHide: some View {
-        Toggle("Animate showing and hiding", isOn: $settings.animatesShowHide)
-        .annotation("Hidden menu bar items slide in and out instead of appearing at once. Not used with the holzBar Shelf, and never while Reduce Motion is on.")
+    private var revealAnimationCards: some View {
+        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Animation")
+                PreviewBadge()
+            }
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                ForEach(RevealAnimationStyle.allCases) { style in
+                    PictureCard(
+                        style.localized,
+                        isSelected: settings.revealAnimationStyle == style
+                    ) {
+                        settings.revealAnimationStyle = style
+                    } picture: {
+                        AnimationStylePicture(style: style)
+                    }
+                }
+            }
+        }
+        .annotation {
+            switch MenuBarBackendKind.current {
+            case .service26:
+                Text("Smooth slides the menu bar's items in and out, and the holzBar Shelf out from under the menu bar. Fade fades the holzBar Shelf in; the menu bar's items change at once. Nothing animates while Reduce Motion is on.")
+            case .accessibility27:
+                Text("macOS animates the menu bar itself on macOS 27, and holzBar cannot change that, so the style applies to the holzBar Shelf: Smooth slides it out from under the menu bar, Fade fades it in. Nothing animates while Reduce Motion is on.")
+            case .windowList:
+                Text("The menu bar's items change at once on this version of macOS, so the style applies to the holzBar Shelf: Smooth slides it out from under the menu bar, Fade fades it in. Nothing animates while Reduce Motion is on.")
+            }
+        }
     }
 
     // MARK: Rehide Options

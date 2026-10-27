@@ -318,23 +318,38 @@ final class HolzBarShelfPanel: NSPanel {
         return true
     }
 
-    /// Orders the panel front, fading it in when the setting is on and Reduce Motion is off.
-    /// Closing is never delayed: the panel is gone at once.
+    /// Orders the panel front, playing the animation of the chosen style: a fade, and for the
+    /// smooth style also a slide of the content out from under the menu bar. Reduce Motion
+    /// plays none. Closing is never delayed: the panel is gone at once.
     private func fadeIn(appState: AppState) {
-        let duration = ShelfAnimation.fadeDuration(
-            isEnabled: appState.settings.general.animatesShelf,
+        let plan = ShelfAnimation.plan(
+            style: appState.settings.general.revealAnimationStyle,
             reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
         )
-        guard duration > 0 else {
+        guard !plan.isInstant else {
             alphaValue = 1
             orderFrontRegardless()
             return
         }
-        alphaValue = 0
+        alphaValue = plan.fadeDuration > 0 ? 0 : 1
         orderFrontRegardless()
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = duration
-            animator().alphaValue = 1
+        if plan.fadeDuration > 0 {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = plan.fadeDuration
+                context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                animator().alphaValue = 1
+            }
+        }
+        if plan.slideDistance > 0, let layer = contentView?.layer {
+            // The content starts above its place, where the panel clips it, and slides down:
+            // it comes out from under the menu bar. The animation moves the layer's picture
+            // only, so the panel's frame, which holds the placement, is never touched.
+            let slide = CABasicAnimation(keyPath: "transform.translation.y")
+            slide.fromValue = plan.slideDistance
+            slide.toValue = 0
+            slide.duration = max(plan.fadeDuration, 0.05)
+            slide.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            layer.add(slide, forKey: "holzBarShelfSlide")
         }
     }
 

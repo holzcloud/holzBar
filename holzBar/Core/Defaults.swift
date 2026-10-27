@@ -150,11 +150,25 @@ nonisolated extension Defaults {
         case holzBarIcon = "IceIcon"
         case customHolzBarIconIsTemplate = "CustomIceIconIsTemplate"
         case useShelf = "UseIceBar"
-        /// Whether the holzBar Shelf fades in when it opens (on by default).
+        /// Whether the holzBar Shelf fades in when it opens. Earlier versions wrote it; it is read
+        /// only to choose the animation style of a user who never chose one
+        /// (`RevealAnimationStyle.migrated`).
         case animatesShelf = "AnimatesShelf"
-        /// Whether showing and hiding the sections slides the menu bar's items (on by default;
-        /// macOS 26 only, never with Reduce Motion on).
+        /// Whether showing and hiding the sections slides the menu bar's items. Earlier versions
+        /// wrote it; it is read only to choose the animation style of a user who never chose one.
         case animatesShowHide = "AnimatesShowHide"
+        /// How showing and hiding looks: instant, smooth or fade (`RevealAnimationStyle`). Never
+        /// with Reduce Motion on. A new key, so it takes no old name.
+        case revealAnimationStyle = "RevealAnimationStyle"
+        /// Whether a click on the clock opens Notification Center while items are hidden (macOS
+        /// 27; on by default).
+        case clockOpensNotificationCenter = "ClockOpensNotificationCenter"
+        /// Whether a change in the Menu Bar Layout pane moves the item at once (off by default:
+        /// the pane draws a draft, and Apply lays the bar out).
+        case appliesLayoutChangesImmediately = "AppliesLayoutChangesImmediately"
+        /// What each display does with the hidden items, by display UUID (`DisplayBehaviors`).
+        /// Stays on this Mac.
+        case displayBehaviors = "DisplayBehaviors"
         /// How the holzBar Shelf arranges its items: in a row, a grid or a column.
         case shelfLayout = "ShelfLayout"
         case shelfLocation = "IceBarLocation"
@@ -337,6 +351,8 @@ nonisolated extension Defaults.Key {
             .useShelf,
             .animatesShelf,
             .animatesShowHide,
+            .clockOpensNotificationCenter,
+            .appliesLayoutChangesImmediately,
             .showsNotchOverflowInShelf,
             .shelfFindsByTyping,
             .shelfAlwaysHiddenFoldOpen,
@@ -385,6 +401,7 @@ nonisolated extension Defaults.Key {
             .shelfLayout,
             .shelfDisplays,
             .shelfAlwaysHiddenFold,
+            .revealAnimationStyle,
             .notchHubDisplays,
             .rehideStrategy,
             .rehideInterval,
@@ -429,6 +446,7 @@ nonisolated extension Defaults.Key {
         case .hotkeys,
             .revealRules,
             .macOS27Layout,
+            .displayBehaviors,
             .itemSections,
             .itemIcons,
             .widgetShortcutNames,
@@ -471,6 +489,7 @@ nonisolated extension Defaults.Key {
             .shelfLayout,
             .shelfDisplays,
             .shelfAlwaysHiddenFold,
+            .revealAnimationStyle,
             .rehideStrategy,
             .sectionDividerStyle,
             .newItemsPlacement,
@@ -500,7 +519,8 @@ nonisolated extension Defaults.Key {
     /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
     /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
     /// Shortcuts the widget buttons run (D-25), the sections that item rules remember, the
-    /// tab the Notch hub showed last and whether the Shelf's fold was left open.
+    /// tab the Notch hub showed last, whether the Shelf's fold was left open and what each display
+    /// does with the hidden items (the displays' identifiers are those of this Mac).
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
         .lockHiddenItems,
@@ -511,6 +531,7 @@ nonisolated extension Defaults.Key {
         .itemRuleShownSections,
         .notchHubLastTab,
         .shelfAlwaysHiddenFoldOpen,
+        .displayBehaviors,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
     ]

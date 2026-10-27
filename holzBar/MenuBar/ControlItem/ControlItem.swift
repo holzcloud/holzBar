@@ -655,7 +655,7 @@ final class ControlItem {
             isSectionDivider,
             let appState,
             RevealAnimationPolicy.stepsDivider(
-                isEnabled: appState.settings.general.animatesShowHide,
+                style: appState.settings.general.revealAnimationStyle,
                 reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion,
                 backend: .current,
                 isDraggingItem: appState.isDraggingMenuBarItem
