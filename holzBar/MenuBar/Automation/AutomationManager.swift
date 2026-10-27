@@ -1111,7 +1111,7 @@ final class AutomationManager {
         else {
             return
         }
-        guard appState.menuBarManager.zenMode.allows(.revealRule) else {
+        guard appState.menuBarManager.allowsReveal(.revealRule) else {
             logger.notice("An automation rule does not show hidden items: Zen mode")
             return
         }

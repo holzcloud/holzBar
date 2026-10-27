@@ -102,6 +102,14 @@ final class GeneralSettings {
         }
     }
 
+    /// What each display does with the hidden items, by display UUID. The display under the
+    /// pointer wins (`DisplayBehavior`).
+    var displayBehaviors = DisplayBehaviors() {
+        didSet {
+            Defaults.set(displayBehaviors.stored, forKey: .displayBehaviors)
+        }
+    }
+
     /// A Boolean value that indicates whether a change in the Menu Bar Layout pane moves the
     /// item at once. Off, the pane draws a draft and Apply lays the bar out.
     var appliesLayoutChangesImmediately = false {
@@ -301,6 +309,9 @@ final class GeneralSettings {
                 animatesShowHide: Defaults.object(forKey: .animatesShowHide) as? Bool,
                 animatesShelf: Defaults.object(forKey: .animatesShelf) as? Bool
             )
+        }
+        if let stored = Defaults.dictionary(forKey: .displayBehaviors) {
+            displayBehaviors = DisplayBehaviors(stored: stored)
         }
         Defaults.ifPresent(key: .clockOpensNotificationCenter, assign: &clockOpensNotificationCenter)
         Defaults.ifPresent(key: .appliesLayoutChangesImmediately, assign: &appliesLayoutChangesImmediately)

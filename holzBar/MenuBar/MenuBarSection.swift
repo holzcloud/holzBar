@@ -237,8 +237,15 @@ final class MenuBarSection {
     }
 
     /// Hides the section.
-    func hide() {
+    ///
+    /// - Parameter isUserRequest: Whether the user asked for it directly (a click on holzBar's
+    ///   icon, a section hotkey, Zen mode). Everything else, such as rehiding, is refused while
+    ///   the display under the pointer is set to always show everything.
+    func hide(isUserRequest: Bool = false) {
         guard let menuBarManager, !isHidden else {
+            return
+        }
+        guard isUserRequest || useShelf || menuBarManager.displayBehavior.allowsHiding else {
             return
         }
 
@@ -264,8 +271,10 @@ final class MenuBarSection {
     }
 
     /// Toggles the visibility of the section.
-    func toggle() {
-        if isHidden { show() } else { hide() }
+    ///
+    /// - Parameter isUserRequest: Whether the user asked for it directly (see ``hide(isUserRequest:)``).
+    func toggle(isUserRequest: Bool = false) {
+        if isHidden { show() } else { hide(isUserRequest: isUserRequest) }
     }
 
     /// Lets the macOS 27 concealer follow the new state of the sections.

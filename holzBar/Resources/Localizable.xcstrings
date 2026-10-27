@@ -3287,6 +3287,34 @@
         }
       }
     },
+    "Always show everything" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immer alles anzeigen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toujours tout afficher"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra sempre tutto"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adina mussar tut"
+          }
+        }
+      }
+    },
     "Always-Hidden" : {
       "localizations" : {
         "de" : {
@@ -6195,6 +6223,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mussa il simbol en ina colur, adattà a l'apparientscha da la trav da menu. Il simbol perda sias colurs, ma cumpara a moda uniforma sin fund cler e stgir."
+          }
+        }
+      }
+    },
+    "Displays" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildschirme"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Écrans"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schermi"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monitors"
           }
         }
       }
@@ -19250,6 +19306,34 @@
         }
       }
     },
+    "Default" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Par défaut"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Predefinito"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standard"
+          }
+        }
+      }
+    },
     "holzBar" : {
       "shouldTranslate" : false
     },
@@ -20593,6 +20677,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "la colliaziun è chara, per exempel in hotspot"
+          }
+        }
+      }
+    },
+    "The display under the pointer decides. Always show everything keeps every section shown there. Collapse keeps the hidden items hidden there: hovering, clicking empty space and scrolling no longer show them, while the holzBar icon and the hotkeys still do. Neither is used with the holzBar Shelf." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Bildschirm unter dem Zeiger entscheidet. «Immer alles anzeigen» hält dort jeden Bereich eingeblendet. «Einklappen» hält dort die ausgeblendeten Elemente ausgeblendet: Darüberfahren, Klicken auf eine leere Stelle und Scrollen blenden sie nicht mehr ein, das holzBar-Symbol und die Tastenkürzel aber weiterhin. Beides gilt nicht mit dem holzBar Shelf."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’écran sous le pointeur décide. « Toujours tout afficher » y garde chaque section affichée. « Replier » y garde les éléments masqués : le survol, un clic sur un espace vide et le défilement ne les affichent plus, alors que l’icône holzBar et les raccourcis le font toujours. Aucun des deux ne s’applique avec le holzBar Shelf."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decide lo schermo sotto il puntatore. «Mostra sempre tutto» vi tiene ogni sezione visibile. «Comprimi» vi tiene nascosti gli elementi nascosti: il passaggio del puntatore, un clic su uno spazio vuoto e lo scorrimento non li mostrano più, mentre l’icona holzBar e le scorciatoie continuano a farlo. Nessuna delle due vale con lo holzBar Shelf."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il monitur sut il cursur decida. «Adina mussar tut» tegna là mintga secziun mussada. «Plajar» tegna là ils elements zuppads: passar sur, cliccar sin ina zona vida e scrollar na ils mussan betg pli, ma l’icona da holzBar e las cumbinaziuns da tastas fan quai adina. Nagin dals dus na vala cun il holzBar Shelf."
           }
         }
       }
@@ -23309,6 +23421,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cloud e backup"
+          }
+        }
+      }
+    },
+    "Collapse" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einklappen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replier"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comprimi"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plajar"
           }
         }
       }

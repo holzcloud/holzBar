@@ -389,7 +389,7 @@ extension HIDEventManager {
             }
 
             // Zen mode refuses to reveal; hiding what the user showed stays possible.
-            guard !targetSection.isHidden || appState.menuBarManager.zenMode.allows(.clickOnEmptyBar) else {
+            guard !targetSection.isHidden || appState.menuBarManager.allowsReveal(.clickOnEmptyBar) else {
                 logger.debug("Show on click: ignored in Zen mode")
                 return
             }
@@ -586,7 +586,7 @@ extension HIDEventManager {
         if hiddenSection.isHidden {
             guard
                 appState.menuBarManager.showOnHoverAllowed,
-                appState.menuBarManager.zenMode.allows(.hover),
+                appState.menuBarManager.allowsReveal(.hover),
                 isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen)
             else {
                 return
@@ -704,7 +704,7 @@ extension HIDEventManager {
         }
 
         if averageDelta > 5 {
-            guard appState.menuBarManager.zenMode.allows(.scroll) else {
+            guard appState.menuBarManager.allowsReveal(.scroll) else {
                 return
             }
             hiddenSection.show()

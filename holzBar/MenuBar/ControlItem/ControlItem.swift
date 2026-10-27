@@ -773,7 +773,7 @@ final class ControlItem {
                     let section = menuBarManager.section(withName: .alwaysHidden),
                     section.isEnabled
                 {
-                    section.toggle()
+                    section.toggle(isUserRequest: true)
                     return
                 }
 
@@ -781,7 +781,7 @@ final class ControlItem {
                     let section = menuBarManager.section(withName: sectionName),
                     section.isEnabled
                 {
-                    section.toggle()
+                    section.toggle(isUserRequest: true)
                 }
             }
         case .rightMouseUp:
@@ -910,7 +910,7 @@ final class ControlItem {
         guard let section = menuItem.representedObject as? MenuBarSection else {
             return
         }
-        section.toggle()
+        section.toggle(isUserRequest: true)
     }
 
     /// Turns Zen mode on or off.

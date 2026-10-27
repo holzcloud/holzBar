@@ -13,6 +13,8 @@ struct GeneralSettingsPane: View {
     @State private var presentedError: LocalizedErrorWrapper?
     @State private var isApplyingItemSpacingOffset = false
     @State private var tempItemSpacingOffset: CGFloat = 0
+    /// Changes when the displays do, so the list of displays is read again.
+    @State private var displayListVersion = 0
 
     private var itemSpacingOffsetKey: LocalizedStringKey {
         switch tempItemSpacingOffset {
@@ -46,6 +48,7 @@ struct GeneralSettingsPane: View {
             HolzBarSection {
                 showOptions
             }
+            displayBehaviorSection
             HolzBarSection {
                 rehideOptions
             }
@@ -54,6 +57,12 @@ struct GeneralSettingsPane: View {
             }
             if #available(macOS 27.0, *) {
                 PrivacyIndicatorNote(settings: settings)
+            }
+        }
+        .task {
+            // A display that connects or leaves changes the rows of the displays.
+            for await _ in NotificationCenter.default.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+                displayListVersion += 1
             }
         }
     }
@@ -385,6 +394,63 @@ struct GeneralSettingsPane: View {
         }
     }
 
+    // MARK: Display Behaviour
+
+    /// The connected displays, by name.
+    private struct ConnectedDisplay: Identifiable {
+        let uuid: String
+        let name: String
+        var id: String { uuid }
+    }
+
+    private var connectedDisplays: [ConnectedDisplay] {
+        NSScreen.screens.compactMap { screen in
+            Bridging.getDisplayUUIDString(for: screen.displayID).map {
+                ConnectedDisplay(uuid: $0, name: screen.localizedName)
+            }
+        }
+    }
+
+    /// The choice for one display.
+    private func displayBehavior(for uuid: String) -> Binding<DisplayBehavior> {
+        Binding {
+            settings.displayBehaviors.behavior(of: uuid)
+        } set: { behavior in
+            var behaviors = settings.displayBehaviors
+            behaviors.set(behavior, for: uuid)
+            settings.displayBehaviors = behaviors
+        }
+    }
+
+    /// One row per connected display, shown when there is more than one or a choice is stored.
+    @ViewBuilder
+    private var displayBehaviorSection: some View {
+        let displays = connectedDisplays
+        if displays.count > 1 || !settings.displayBehaviors.isEmpty {
+            HolzBarSection {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Displays")
+                        .font(.headline)
+                    PreviewBadge()
+                }
+            } content: {
+                ForEach(displays) { display in
+                    HolzBarPicker(selection: displayBehavior(for: display.uuid)) {
+                        ForEach(DisplayBehavior.allCases) { behavior in
+                            Text(behavior.localized).tag(behavior)
+                        }
+                    } label: {
+                        Text(verbatim: display.name)
+                    }
+                }
+                Text("The display under the pointer decides. Always show everything keeps every section shown there. Collapse keeps the hidden items hidden there: hovering, clicking empty space and scrolling no longer show them, while the holzBar icon and the hotkeys still do. Neither is used with the holzBar Shelf.")
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
     // MARK: Rehide Options
 
     @ViewBuilder
@@ -536,6 +602,19 @@ private struct PrivacyIndicatorNote: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             Toggle("Show a dot on the holzBar icon while the microphone or camera is in use", isOn: $settings.holzBarIconShowsCaptureDot)
                 .annotation("Orange for the microphone, green for the camera. Uses no permission; holzBar cannot tell when an app records the screen.")
+        }
+    }
+}
+
+// MARK: - DisplayBehavior
+
+extension DisplayBehavior {
+    /// The name of the behaviour.
+    var localized: LocalizedStringKey {
+        switch self {
+        case .standard: "Default"
+        case .showEverything: "Always show everything"
+        case .collapse: "Collapse"
         }
     }
 }

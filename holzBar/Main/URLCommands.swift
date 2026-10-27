@@ -110,7 +110,7 @@ enum URLCommands {
 
         // Zen mode keeps hidden items hidden; another app cannot reveal them.
         func isRefusedByZenMode(_ target: MenuBarSection) -> Bool {
-            guard target.isHidden, !manager.zenMode.allows(.urlCommand) else {
+            guard target.isHidden, !manager.allowsReveal(.urlCommand) else {
                 return false
             }
             logger.notice("Ignored: Zen mode")

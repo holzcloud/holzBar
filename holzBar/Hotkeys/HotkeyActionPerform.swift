@@ -42,7 +42,7 @@ extension HotkeyAction {
                 return
             }
             prepareShelfForKeyboard(opening: section, appState: appState)
-            section.toggle()
+            section.toggle(isUserRequest: true)
             // Prevent the section from automatically rehiding after mouse movement.
             if !section.isHidden {
                 appState.menuBarManager.showOnHoverAllowed = false
@@ -52,7 +52,7 @@ extension HotkeyAction {
                 return
             }
             prepareShelfForKeyboard(opening: section, appState: appState)
-            section.toggle()
+            section.toggle(isUserRequest: true)
             // Prevent the section from automatically rehiding after mouse movement.
             if !section.isHidden {
                 appState.menuBarManager.showOnHoverAllowed = false
