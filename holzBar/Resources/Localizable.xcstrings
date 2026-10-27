@@ -11127,6 +11127,34 @@
         }
       }
     },
+    "Open Notification Center from the clock" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mitteilungszentrale über die Uhr öffnen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir le Centre de notifications depuis l’horloge"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri il Centro Notifiche dall’orologio"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avrir la Zentrala da annunzias or da l’ura"
+          }
+        }
+      }
+    },
     "Open Scripts" : {
       "localizations" : {
         "de" : {
@@ -18291,6 +18319,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uschè ditg che in element dal sistem è zuppà, na mussa il center da controlla betg ses indicatur per la camera ed il microfon; holzBar marca empè ses agen simbol."
+          }
+        }
+      }
+    },
+    "While items are hidden, macOS 27 ignores a click on the clock. holzBar lifts the hiding for a moment and clicks again, so Notification Center opens. Turn this off to leave the click to macOS; the clock then does nothing while items are hidden. It needs only the Accessibility permission holzBar has already." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solange Elemente ausgeblendet sind, ignoriert macOS 27 einen Klick auf die Uhr. holzBar hebt das Ausblenden kurz auf und klickt erneut, damit sich die Mitteilungszentrale öffnet. Schalte dies aus, um den Klick macOS zu überlassen; die Uhr reagiert dann nicht, solange Elemente ausgeblendet sind. Es braucht nur die Bedienungshilfen-Berechtigung, die holzBar bereits hat."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tant que des éléments sont masqués, macOS 27 ignore un clic sur l’horloge. holzBar lève un instant le masquage et clique à nouveau, ce qui ouvre le Centre de notifications. Désactivez cette option pour laisser le clic à macOS ; l’horloge ne réagit alors pas tant que des éléments sont masqués. Elle ne demande que l’autorisation d’accessibilité que holzBar a déjà."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finché ci sono elementi nascosti, macOS 27 ignora un clic sull’orologio. holzBar toglie per un attimo il nascondimento e fa clic di nuovo, così si apre il Centro Notifiche. Disattiva questa opzione per lasciare il clic a macOS; l’orologio non reagisce allora finché ci sono elementi nascosti. Serve solo l’autorizzazione di accessibilità che holzBar ha già."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entant che elements èn zuppads, ignorescha macOS 27 in clic sin l’ura. holzBar suspenda per in mument il zuppentar e fa danovamain in clic, uschia s’avra la Zentrala da annunzias. Deactivescha quai per laschar il clic a macOS; l’ura na reagescha lura betg entant che elements èn zuppads. I basegna mo l’autorisaziun d’accessibilitad che holzBar ha gia."
           }
         }
       }

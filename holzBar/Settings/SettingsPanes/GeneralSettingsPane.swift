@@ -337,6 +337,20 @@ struct GeneralSettingsPane: View {
         Toggle("Show on scroll", isOn: $settings.showOnScroll)
             .annotation("Scroll or swipe in the menu bar to show hidden menu bar items.")
         revealAnimationCards
+        clockOpensNotificationCenter
+    }
+
+    @ViewBuilder
+    private var clockOpensNotificationCenter: some View {
+        if #available(macOS 27.0, *) {
+            Toggle(isOn: $settings.clockOpensNotificationCenter) {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Open Notification Center from the clock")
+                    PreviewBadge()
+                }
+            }
+            .annotation("While items are hidden, macOS 27 ignores a click on the clock. holzBar lifts the hiding for a moment and clicks again, so Notification Center opens. Turn this off to leave the click to macOS; the clock then does nothing while items are hidden. It needs only the Accessibility permission holzBar has already.")
+        }
     }
 
     @ViewBuilder
