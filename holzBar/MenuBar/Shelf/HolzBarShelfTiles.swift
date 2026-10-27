@@ -598,6 +598,8 @@ struct HolzBarShelfClickView: NSViewRepresentable {
         guard let view = nsView as? Represented else {
             return
         }
+        view.leftClickAction = leftClickAction
+        view.rightClickAction = rightClickAction
         view.drag = drag
         view.toolTip = toolTip
     }
