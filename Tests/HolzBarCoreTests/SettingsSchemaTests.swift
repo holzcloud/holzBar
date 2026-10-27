@@ -166,6 +166,24 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The Shelf's find, fold and closed-application settings travel as their kinds, the fold's state stays on this Mac")
+    func shelfUpgradeSettings() {
+        for key in ["ShelfFindsByTyping", "ShelfShowsClosedApps"] {
+            #expect(Defaults.Key.importableKinds[key] == .bool)
+            let result = Defaults.Key.validatedSettings([key: 1.5], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+        #expect(Defaults.Key.importableKinds["ShelfAlwaysHiddenFold"] == .number)
+        let accepted = Defaults.Key.validatedSettings(["ShelfAlwaysHiddenFold": 1], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["ShelfAlwaysHiddenFold"])
+        for refused: Double in [16, -1, 1.5, .nan] {
+            let result = Defaults.Key.validatedSettings(["ShelfAlwaysHiddenFold": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+        #expect(Defaults.Key.localOnlyKeys.contains(.shelfAlwaysHiddenFoldOpen))
+        #expect(Defaults.Key.importableKinds["ShelfAlwaysHiddenFoldOpen"] == nil)
+    }
+
     @Test("Smart Categories travels with a settings file, as a Boolean only")
     func smartCategoriesTravels() {
         #expect(Defaults.Key.smartCategories.settingsKind == .bool)

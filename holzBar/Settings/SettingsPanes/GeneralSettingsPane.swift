@@ -196,6 +196,9 @@ struct GeneralSettingsPane: View {
             shelfLayoutPicker
             Toggle("Fade the holzBar Shelf in", isOn: $settings.animatesShelf)
                 .annotation("The holzBar Shelf appears in a moment instead of at once. It does not fade while Reduce Motion is on.")
+            shelfFindsByTyping
+            shelfFoldPicker
+            shelfShowsClosedApps
             shelfDisplaysPicker
             if #available(macOS 27.0, *) {
                 Toggle("Show items covered by the notch", isOn: $settings.showsNotchOverflowInShelf)
@@ -229,6 +232,44 @@ struct GeneralSettingsPane: View {
             PreviewBadge()
         }
         .annotation("A row holds every item side by side. A grid and a column hold more items without scrolling.")
+    }
+
+    @ViewBuilder
+    private var shelfFindsByTyping: some View {
+        Toggle(isOn: $settings.shelfFindsByTyping) {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Find items by typing")
+                PreviewBadge()
+            }
+        }
+        .annotation("Type in the holzBar Shelf to highlight the best match. Return opens its menu and Escape closes the holzBar Shelf. The holzBar Shelf takes the keyboard when a hotkey opens it.")
+    }
+
+    @ViewBuilder
+    private var shelfFoldPicker: some View {
+        if appState.settings.advanced.enableAlwaysHiddenSection {
+            HolzBarPicker(selection: $settings.shelfAlwaysHiddenFold) {
+                Text("Folded each time").tag(ShelfAlwaysHiddenFold.foldedEachTime)
+                Text("As I left them").tag(ShelfAlwaysHiddenFold.remembered)
+            } label: {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Always-hidden items")
+                    PreviewBadge()
+                }
+            }
+            .annotation("The holzBar Shelf shows the always-hidden items behind one tile. Click the tile to open them.")
+        }
+    }
+
+    @ViewBuilder
+    private var shelfShowsClosedApps: some View {
+        Toggle(isOn: $settings.shelfShowsClosedApps) {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                Text("Show applications that are not running")
+                PreviewBadge()
+            }
+        }
+        .annotation("Applications with a hidden item that are closed appear dimmed in the holzBar Shelf. Click one to open it.")
     }
 
     @ViewBuilder

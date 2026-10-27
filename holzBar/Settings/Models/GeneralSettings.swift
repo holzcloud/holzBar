@@ -126,6 +126,38 @@ final class GeneralSettings {
         }
     }
 
+    /// A Boolean value that indicates whether typing in the holzBar Shelf finds an item. The
+    /// Shelf takes the keyboard when a hotkey opens it.
+    var shelfFindsByTyping = true {
+        didSet {
+            Defaults.set(shelfFindsByTyping, forKey: .shelfFindsByTyping)
+        }
+    }
+
+    /// Whether the holzBar Shelf opens the fold of the always-hidden items folded each time or
+    /// as the user left it.
+    var shelfAlwaysHiddenFold: ShelfAlwaysHiddenFold = .foldedEachTime {
+        didSet {
+            Defaults.set(shelfAlwaysHiddenFold.rawValue, forKey: .shelfAlwaysHiddenFold)
+        }
+    }
+
+    /// Whether the user left the fold of the always-hidden items open the last time. The Shelf
+    /// writes it when the fold is opened or closed; it stays on this Mac.
+    var shelfAlwaysHiddenFoldOpen = false {
+        didSet {
+            Defaults.set(shelfAlwaysHiddenFoldOpen, forKey: .shelfAlwaysHiddenFoldOpen)
+        }
+    }
+
+    /// A Boolean value that indicates whether the holzBar Shelf also lists the applications
+    /// that are not running, dimmed, and launches one that is clicked.
+    var shelfShowsClosedApps = false {
+        didSet {
+            Defaults.set(shelfShowsClosedApps, forKey: .shelfShowsClosedApps)
+        }
+    }
+
     /// A Boolean value that indicates whether the holzBar Shelf is used right now:
     /// it is turned on, and the display under the mouse pointer is one it is
     /// used on.
@@ -250,6 +282,12 @@ final class GeneralSettings {
         Defaults.ifPresent(key: .animatesShowHide, assign: &animatesShowHide)
         Defaults.ifPresent(key: .showsNotchOverflowInShelf, assign: &showsNotchOverflowInShelf)
         Defaults.ifPresent(key: .smartCategories, assign: &smartCategories)
+        Defaults.ifPresent(key: .shelfFindsByTyping, assign: &shelfFindsByTyping)
+        Defaults.ifPresent(key: .shelfAlwaysHiddenFoldOpen, assign: &shelfAlwaysHiddenFoldOpen)
+        Defaults.ifPresent(key: .shelfShowsClosedApps, assign: &shelfShowsClosedApps)
+        Defaults.ifPresent(key: .shelfAlwaysHiddenFold) { (rawValue: Int) in
+            shelfAlwaysHiddenFold = ShelfAlwaysHiddenFold.stored(rawValue)
+        }
         Defaults.ifPresent(key: .shelfDisplays) { rawValue in
             if let displays = HolzBarShelfDisplays(rawValue: rawValue) {
                 shelfDisplays = displays

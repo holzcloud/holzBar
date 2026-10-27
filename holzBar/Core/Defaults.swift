@@ -163,6 +163,17 @@ nonisolated extension Defaults {
         case shelfStyle = "ShelfStyle"
         case shelfDisplays = "IceBarDisplays"
         case showsNotchOverflowInShelf = "ShowsNotchOverflowInIceBar"
+        /// Whether typing in the holzBar Shelf finds an item (on by default). A new key, so it
+        /// takes no old name.
+        case shelfFindsByTyping = "ShelfFindsByTyping"
+        /// Whether the holzBar Shelf opens the fold of the always-hidden items folded each time or
+        /// as the user left it (`ShelfAlwaysHiddenFold`).
+        case shelfAlwaysHiddenFold = "ShelfAlwaysHiddenFold"
+        /// Whether the user left the fold of the always-hidden items open; stays on this Mac.
+        case shelfAlwaysHiddenFoldOpen = "ShelfAlwaysHiddenFoldOpen"
+        /// Whether the holzBar Shelf also lists the applications that are not running, dimmed
+        /// (off by default).
+        case shelfShowsClosedApps = "ShelfShowsClosedApps"
         case showOnClick = "ShowOnClick"
         case showOnHover = "ShowOnHover"
         case showOnScroll = "ShowOnScroll"
@@ -325,6 +336,9 @@ nonisolated extension Defaults.Key {
             .animatesShelf,
             .animatesShowHide,
             .showsNotchOverflowInShelf,
+            .shelfFindsByTyping,
+            .shelfAlwaysHiddenFoldOpen,
+            .shelfShowsClosedApps,
             .showOnClick,
             .showOnHover,
             .showOnScroll,
@@ -367,6 +381,7 @@ nonisolated extension Defaults.Key {
             .shelfStyle,
             .shelfLayout,
             .shelfDisplays,
+            .shelfAlwaysHiddenFold,
             .notchHubDisplays,
             .rehideStrategy,
             .rehideInterval,
@@ -452,6 +467,7 @@ nonisolated extension Defaults.Key {
             .shelfStyle,
             .shelfLayout,
             .shelfDisplays,
+            .shelfAlwaysHiddenFold,
             .rehideStrategy,
             .sectionDividerStyle,
             .newItemsPlacement,
@@ -480,8 +496,8 @@ nonisolated extension Defaults.Key {
     ///
     /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
     /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
-    /// Shortcuts the widget buttons run (D-25), the sections that item rules remember, and the
-    /// tab the Notch hub showed last.
+    /// Shortcuts the widget buttons run (D-25), the sections that item rules remember, the
+    /// tab the Notch hub showed last and whether the Shelf's fold was left open.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
         .lockHiddenItems,
@@ -491,6 +507,7 @@ nonisolated extension Defaults.Key {
         .widgetShortcutNames,
         .itemRuleShownSections,
         .notchHubLastTab,
+        .shelfAlwaysHiddenFoldOpen,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
     ]

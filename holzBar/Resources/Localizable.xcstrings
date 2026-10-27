@@ -141,6 +141,34 @@
         }
       }
     },
+    "Always-hidden items" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immer ausgeblendete Elemente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Éléments toujours masqués"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementi sempre nascosti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elements adina zuppads"
+          }
+        }
+      }
+    },
     "Apple Items" : {
       "localizations" : {
         "de" : {
@@ -165,6 +193,118 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Elements Apple"
+          }
+        }
+      }
+    },
+    "Applications with a hidden item that are closed appear dimmed in the holzBar Shelf. Click one to open it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geschlossene Apps mit einem ausgeblendeten Element erscheinen abgeblendet im holzBar Shelf. Ein Klick öffnet die App."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les applications fermées qui ont un élément masqué apparaissent estompées dans le holzBar Shelf. Un clic ouvre l'application."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le app chiuse con un elemento nascosto appaiono attenuate nel holzBar Shelf. Un clic apre l'app."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las applicaziuns serradas cun in element zuppà cumparan sfumadas en il holzBar Shelf. Ina clicada avra l'applicaziun."
+          }
+        }
+      }
+    },
+    "As I left them" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wie zuletzt belassen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comme je les ai laissés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Come li ho lasciati"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uschia sco jau als hai bandunads"
+          }
+        }
+      }
+    },
+    "Find items by typing" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemente durch Tippen finden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trouver des éléments en tapant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trova gli elementi digitando"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chattar elements cun scriver"
+          }
+        }
+      }
+    },
+    "Folded each time" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jedes Mal eingeklappt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replié à chaque fois"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compresso ogni volta"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mintga giada stgaffì"
           }
         }
       }
@@ -13283,6 +13423,34 @@
         }
       }
     },
+    "Show applications that are not running" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht laufende Apps zeigen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher les applications qui ne sont pas ouvertes"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra le app non in esecuzione"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar las applicaziuns che na currran betg"
+          }
+        }
+      }
+    },
     "Show Hidden Section" : {
       "localizations" : {
         "de" : {
@@ -14483,6 +14651,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fatg da tai"
+          }
+        }
+      }
+    },
+    "The holzBar Shelf shows the always-hidden items behind one tile. Click the tile to open them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das holzBar Shelf zeigt die immer ausgeblendeten Elemente hinter einer Kachel. Ein Klick auf die Kachel öffnet sie."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le holzBar Shelf montre les éléments toujours masqués derrière une seule tuile. Un clic sur la tuile les ouvre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf mostra gli elementi sempre nascosti dietro un solo riquadro. Un clic sul riquadro li apre."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf mussa ils elements adina zuppads davos ina sulla tegla. Ina clicada sin la tegla als avra."
           }
         }
       }
@@ -16387,6 +16583,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Smatga la cumbinaziun"
+          }
+        }
+      }
+    },
+    "Type in the holzBar Shelf to highlight the best match. Return opens its menu and Escape closes the holzBar Shelf. The holzBar Shelf takes the keyboard when a hotkey opens it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippe im holzBar Shelf, um den besten Treffer hervorzuheben. Die Eingabetaste öffnet sein Menü, die Escape-Taste schliesst das holzBar Shelf. Das holzBar Shelf übernimmt die Tastatur, wenn ein Tastenkürzel es öffnet."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tapez dans le holzBar Shelf pour mettre en évidence la meilleure correspondance. La touche Retour ouvre son menu et la touche Échap ferme le holzBar Shelf. Le holzBar Shelf prend le clavier lorsqu'un raccourci clavier l'ouvre."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Digita nel holzBar Shelf per evidenziare la corrispondenza migliore. Invio apre il suo menu e Esc chiude il holzBar Shelf. Il holzBar Shelf prende la tastiera quando lo apre una scorciatoia."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scriva en il holzBar Shelf per accentuar la megliera correspundenza. La tasta d'entrada avra ses menu e la tasta Esc serra il holzBar Shelf. Il holzBar Shelf surpiglia la tastiera cur che ina scursanida til avra."
           }
         }
       }
