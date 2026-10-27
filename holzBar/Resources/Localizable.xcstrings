@@ -281,6 +281,34 @@
         }
       }
     },
+    "A hotkey for the search or the command palette reaches Settings too." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auch ein Tastenkürzel für die Suche oder die Befehlspalette führt zu den Einstellungen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un raccourci pour la recherche ou la palette de commandes mène aussi aux réglages."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anche una scorciatoia per la ricerca o per la tavolozza dei comandi porta alle impostazioni."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er ina cumbinaziun da tastas per la tschertga u per la paletta da cumonds maina als parameters."
+          }
+        }
+      }
+    },
     "A panel at the notch for the modules you switch on." : {
       "localizations" : {
         "de" : {
@@ -505,6 +533,34 @@
         }
       }
     },
+    "Arrow" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pfeil"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flèche"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freccia"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saetta"
+          }
+        }
+      }
+    },
     "As I left them" : {
       "localizations" : {
         "de" : {
@@ -617,6 +673,118 @@
         }
       }
     },
+    "Custom" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eigenes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personnalisée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personalizzata"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agen"
+          }
+        }
+      }
+    },
+    "Door" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tür"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porta"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Porta"
+          }
+        }
+      }
+    },
+    "Dot" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkt"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Point"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punto"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punct"
+          }
+        }
+      }
+    },
+    "Dots" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punkte"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Points"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Punti"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puncts"
+          }
+        }
+      }
+    },
     "Drag an item in the holzBar Shelf to put it in order, into another section or up onto the menu bar to show it there. Where macOS puts the items of a section in order itself, an item can only change its section." : {
       "localizations" : {
         "de" : {
@@ -641,6 +809,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tira in element en il holzBar Shelf per al metter en ordinaziun, en ina autra secziun u si sin la trav da menus per al mussar là. Nua che macOS ordinescha sez ils elements d'ina secziun, po in element mo midar la secziun."
+          }
+        }
+      }
+    },
+    "Eye" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auge"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Œil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Occhio"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egl"
           }
         }
       }
@@ -981,6 +1177,34 @@
         }
       }
     },
+    "Ice Cube" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eiswürfel"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glaçon"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cubetto di ghiaccio"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cub da glatsch"
+          }
+        }
+      }
+    },
     "Its rule decides where the item is. A move by hand lasts only while the rule shows the item." : {
       "localizations" : {
         "de" : {
@@ -1229,6 +1453,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nagins elements Apple en la trav da menu per remplazzar."
+          }
+        }
+      }
+    },
+    "No icon" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Symbol"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune icône"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna icona"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nagin simbol"
           }
         }
       }
@@ -1565,6 +1817,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Survista"
+          }
+        }
+      }
+    },
+    "Panel" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leiste"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panneau"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pannello"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panel"
           }
         }
       }
@@ -5103,34 +5383,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tscherner in Shortcut"
-          }
-        }
-      }
-    },
-    "Choose a custom icon to show in the menu bar." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wähle ein eigenes Symbol für die Menüleiste."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisissez une icône personnalisée pour la barre des menus."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scegli un'icona personalizzata per la barra dei menu."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tscherna in agen simbol per la trav da menu."
           }
         }
       }
@@ -15019,34 +15271,6 @@
         }
       }
     },
-    "Show holzBar icon" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar-Symbol zeigen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher l'icône de holzBar"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra l'icona di holzBar"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mussar il simbol da holzBar"
-          }
-        }
-      }
-    },
     "Show items covered by the notch" : {
       "localizations" : {
         "de" : {
@@ -15859,6 +16083,34 @@
         }
       }
     },
+    "Sunglasses" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sonnenbrille"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lunettes de soleil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Occhiali da sole"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egliers da sulegl"
+          }
+        }
+      }
+    },
     "Switch on modules in Settings and they appear here." : {
       "localizations" : {
         "de" : {
@@ -15995,6 +16247,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fatg da tai"
+          }
+        }
+      }
+    },
+    "The command palette reaches Settings too." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auch die Befehlspalette führt zu den Einstellungen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La palette de commandes mène aussi aux réglages."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anche la tavolozza dei comandi porta alle impostazioni."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er la paletta da cumonds maina als parameters."
           }
         }
       }
@@ -16471,6 +16751,62 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Il fid dals scrips n’ha betg pudì vegnir legì ed è vegnì missà da vart. Lubescha puspè tes scrips."
+          }
+        }
+      }
+    },
+    "The search and the command palette reach Settings too." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auch die Suche und die Befehlspalette führen zu den Einstellungen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La recherche et la palette de commandes mènent aussi aux réglages."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anche la ricerca e la tavolozza dei comandi portano alle impostazioni."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er la tschertga e la paletta da cumonds manan als parameters."
+          }
+        }
+      }
+    },
+    "The search reaches Settings too." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auch die Suche führt zu den Einstellungen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La recherche mène aussi aux réglages."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anche la ricerca porta alle impostazioni."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er la tschertga maina als parameters."
           }
         }
       }
@@ -18655,6 +18991,34 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entant che elements èn zuppads, ignorescha macOS 27 in clic sin l’ura. holzBar suspenda per in mument il zuppentar e fa danovamain in clic, uschia s’avra la Zentrala da annunzias. Deactivescha quai per laschar il clic a macOS; l’ura na reagescha lura betg entant che elements èn zuppads. I basegna mo l’autorisaziun d’accessibilitad che holzBar ha gia."
+          }
+        }
+      }
+    },
+    "Without the icon, open holzBar again from Finder, Launchpad or Spotlight to reach Settings, or use the holzbar://settings link." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ohne das Symbol öffnest du die Einstellungen, indem du holzBar im Finder, im Launchpad oder über Spotlight erneut öffnest, oder über den Link holzbar://settings."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sans l'icône, rouvrez holzBar depuis le Finder, le Launchpad ou Spotlight pour accéder aux réglages, ou utilisez le lien holzbar://settings."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senza l'icona, riapri holzBar dal Finder, dal Launchpad o da Spotlight per raggiungere le impostazioni, oppure usa il link holzbar://settings."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Senza simbol avras ils parameters, sche ti avras puspè holzBar dal Finder, dal Launchpad u cun Spotlight, u cun la colliaziun holzbar://settings."
           }
         }
       }

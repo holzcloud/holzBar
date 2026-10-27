@@ -116,6 +116,12 @@ The **Widgets** module (Settings → Modules, off until you switch it on) also o
 
 The module now holds up to twelve widgets, the readouts, buttons and scripts included.
 
+### Menu bar icon, search and design
+
+None of this needs a permission, a timer or the network.
+
+- **Icon styles as picture cards**: Settings → General shows holzBar's own menu bar icon as a row of cards: the holzBar logo, **Chevron**, **Arrow**, **Eye**, **Dots**, **Grid**, **Panel**, **Dot**, and the older **Door**, **Ice Cube** and **Sunglasses**, with **Choose image…** for an image of your own. Each style has a look for hidden and for shown items. **No icon** replaces the old switch *Show holzBar icon*: the settings are the same, and a style you chose before stays stored. Without the icon, Settings stays one step away: open holzBar again from Finder, Launchpad or Spotlight, use the `holzbar://settings` link, or use a hotkey you set for the search or the command palette. On macOS 27 the icon still appears for the dot that marks a microphone or camera in use.
+
 ## New in 0.0.12
 
 - **Apple Items** (macOS 27): an optional module in Settings → Modules, off until you switch it on, with no permission beyond Accessibility. Hide the **clock**, **Control Center**, **Wi-Fi** or the **battery** with a switch each: the item is gone while the hidden items are hidden and comes back when you show them; nothing is hidden while the holzBar Shelf is on, and while one is hidden Control Centre's camera and microphone indicator is not shown (holzBar's dot covers the microphone and the camera). Add up to six **replacement items**, icons of holzBar's own with a symbol you choose, that open an Apple item you picked from the bar, so you can hide its application and keep the item one click away. See the [macOS 27 notes](macos27.md#apple-items).
@@ -211,7 +217,7 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **macOS 27's own overflow button**: while macOS shows its folded items expanded beside the notch, the holzBar Shelf does not list them a second time; in any doubt it lists them as before. See [macOS 27 notes](macos27.md#macos-27s-own-overflow-button)
 - **Drag in the menu bar**: with the optional module on, drag an item without ⌘ to move it as macOS allows, or drop it on the holzBar icon to hide its app. See [macOS 27 notes](macos27.md#drag-items-in-the-menu-bar)
 - **Apple Items**: hide the clock, Control Center, Wi-Fi or the battery, and keep an Apple item one click away with a replacement icon of holzBar's own. See [macOS 27 notes](macos27.md#apple-items)
-- **A dot on holzBar's icon** while hidden items are concealed and an app uses the microphone (orange) or the camera (green), in place of Control Centre's indicator. On by default in Settings → General, with no permission; the icon appears for the dot even when **Show holzBar icon** is off
+- **A dot on holzBar's icon** while hidden items are concealed and an app uses the microphone (orange) or the camera (green), in place of Control Centre's indicator. On by default in Settings → General, with no permission; the icon appears for the dot even when the icon is set to **No icon**
 
 **Known limitations on macOS 27**
 

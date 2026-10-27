@@ -8,9 +8,6 @@ import SwiftUI
 struct GeneralSettingsPane: View {
     @Environment(AppState.self) var appState
     @Bindable var settings: GeneralSettings
-    @State private var isImportingCustomHolzBarIcon = false
-    @State private var isPresentingError = false
-    @State private var presentedError: LocalizedErrorWrapper?
     @State private var isApplyingItemSpacingOffset = false
     @State private var tempItemSpacingOffset: CGFloat = 0
     /// Changes when the displays do, so the list of displays is read again.
@@ -78,120 +75,7 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var holzBarIconOptions: some View {
-        showHolzBarIcon
-        if settings.showHolzBarIcon {
-            holzBarIconPicker
-        }
-    }
-
-    @ViewBuilder
-    private var showHolzBarIcon: some View {
-        Toggle("Show holzBar icon", isOn: $settings.showHolzBarIcon)
-            .annotation("Click to show hidden menu bar items. Right-click to access holzBar's settings.")
-    }
-
-    @ViewBuilder
-    private var holzBarIconPicker: some View {
-        let labelKey = LocalizedStringKey("holzBar icon")
-
-        HolzBarMenu(labelKey) {
-            Picker(labelKey, selection: $settings.holzBarIcon) {
-                ForEach(ControlItemImageSet.userSelectableHolzBarIcons) { imageSet in
-                    Button {
-                        settings.holzBarIcon = imageSet
-                    } label: {
-                        holzBarIconMenuItem(for: imageSet)
-                    }
-                    .tag(imageSet)
-                }
-                if let lastCustomHolzBarIcon = settings.lastCustomHolzBarIcon {
-                    Button {
-                        settings.holzBarIcon = lastCustomHolzBarIcon
-                    } label: {
-                        holzBarIconMenuItem(for: lastCustomHolzBarIcon)
-                    }
-                    .tag(lastCustomHolzBarIcon)
-                }
-            }
-            .pickerStyle(.inline)
-            .labelsHidden()
-
-            Divider()
-
-            Button("Choose image…") {
-                isImportingCustomHolzBarIcon = true
-            }
-        } title: {
-            holzBarIconMenuItem(for: settings.holzBarIcon)
-        }
-        .annotation("Choose a custom icon to show in the menu bar.")
-        .fileImporter(
-            isPresented: $isImportingCustomHolzBarIcon,
-            allowedContentTypes: [.image]
-        ) { result in
-            do {
-                let url = try result.get()
-                // Data(contentsOf:) would fetch an http(s) URL; holzBar reads only files.
-                guard url.isFileURL else {
-                    throw CocoaError(.fileReadUnsupportedScheme)
-                }
-                if url.startAccessingSecurityScopedResource() {
-                    defer { url.stopAccessingSecurityScopedResource() }
-                    let data = try Data(contentsOf: url)
-                    // Stored as a scaled PNG, the only form decoded at launch (bitmaps, never
-                    // PDF or other documents, as the settings can come from another Mac).
-                    Task {
-                        guard let png = await ControlItemImage.customIconPNG(from: data) else {
-                            presentedError = LocalizedErrorWrapper(CocoaError(.fileReadCorruptFile))
-                            isPresentingError = true
-                            return
-                        }
-                        settings.holzBarIcon = ControlItemImageSet(name: .custom, image: .data(png))
-                    }
-                }
-            } catch {
-                presentedError = LocalizedErrorWrapper(error)
-                isPresentingError = true
-            }
-        }
-        .alert(isPresented: $isPresentingError, error: presentedError) {
-            Button("OK") {
-                presentedError = nil
-                isPresentingError = false
-            }
-        }
-
-        if case .custom = settings.holzBarIcon.name {
-            Toggle("Custom icon uses dynamic appearance", isOn: $settings.customHolzBarIconIsTemplate)
-                .annotation {
-                    Text(
-                        """
-                        Display the icon as a monochrome image that dynamically adjusts to match \
-                        the menu bar's appearance. This setting removes all color from the icon, \
-                        but ensures consistent rendering with both light and dark backgrounds.
-                        """
-                    )
-                    .padding(.trailing, 50)
-                }
-        }
-    }
-
-    @ViewBuilder
-    private func holzBarIconMenuItem(for imageSet: ControlItemImageSet) -> some View {
-        Label {
-            Text(imageSet.name.rawValue)
-        } icon: {
-            if let nsImage = imageSet.hidden.nsImage(for: appState) {
-                switch imageSet.name {
-                case .custom:
-                    Image(size: CGSize(width: 18, height: 18)) { context in
-                        context.draw(Image(nsImage: nsImage), in: context.clipBoundingRect)
-                    }
-                default:
-                    Image(nsImage: nsImage)
-                }
-            }
-        }
+        HolzBarIconCards(settings: settings)
     }
 
     // MARK: holzBar Shelf Options
