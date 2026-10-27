@@ -249,6 +249,10 @@ nonisolated extension Defaults {
         /// The replacement items of the Apple Items module, as JSON (`AppleItemReplacement`).
         case appleItemReplacements = "AppleItemReplacements"
 
+        // MARK: Notch hub
+        /// The tab the Notch hub showed last. Local to the Mac: never exported or imported.
+        case notchHubLastTab = "NotchHubLastTab"
+
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
         /// entry event is dropped, so the real event never reaches the item, the exit event
@@ -381,7 +385,8 @@ nonisolated extension Defaults.Key {
             .menuBarAppearanceConfiguration,
             .sections:
             .data
-        case .currentLayoutProfile:
+        case .currentLayoutProfile,
+            .notchHubLastTab:
             .string
         case .knownItemTags,
             .knownApplications27,
@@ -458,7 +463,8 @@ nonisolated extension Defaults.Key {
     ///
     /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
     /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
-    /// Shortcuts the widget buttons run (D-25), and the sections that item rules remember.
+    /// Shortcuts the widget buttons run (D-25), the sections that item rules remember, and the
+    /// tab the Notch hub showed last.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
         .lockHiddenItems,
@@ -467,6 +473,7 @@ nonisolated extension Defaults.Key {
         .screenRecordingOffered,
         .widgetShortcutNames,
         .itemRuleShownSections,
+        .notchHubLastTab,
         .debugDropsBarrierExitEvent,
         .debugHangsItemImageCapture,
     ]

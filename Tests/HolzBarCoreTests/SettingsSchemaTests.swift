@@ -119,6 +119,16 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["ItemRuleShownSections"])
     }
 
+    @Test("A settings file cannot set the tab the notch hub showed last")
+    func settingsFileCannotSetNotchHubLastTab() {
+        #expect(Defaults.Key.notchHubLastTab.settingsKind == .string)
+        #expect(Defaults.Key.localOnlyKeys.contains(.notchHubLastTab))
+        #expect(Defaults.Key.importableKinds["NotchHubLastTab"] == nil)
+        let result = Defaults.Key.validatedSettings(["NotchHubLastTab": "timers", "ShowOnHover": true], ownBundleIdentifier: ownBundle)
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["NotchHubLastTab"])
+    }
+
     @Test("A settings file cannot drop event barrier exits")
     func settingsFileCannotDropBarrierExits() {
         #expect(Defaults.Key.localOnlyKeys.contains(.debugDropsBarrierExitEvent))

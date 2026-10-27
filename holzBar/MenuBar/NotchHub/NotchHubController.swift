@@ -30,8 +30,8 @@ final class NotchHubController: HubHost {
     /// Whether the hub is open.
     private(set) var isOpen = false
 
-    /// The tab that is shown: a module's identifier, or the Overview.
-    private(set) var selectedModuleID = "overview"
+    /// What the hub's views read: the runtimes, the strip and the selected tab.
+    let model = NotchHubModel()
 
     /// The display the hub is open on, or `nil` while it is closed.
     var screenID: CGDirectDisplayID? {
@@ -115,6 +115,12 @@ final class NotchHubController: HubHost {
                 runtimes[id] = runtime
             }
         }
+        // The model follows the runtimes in catalog order. An unchanged list is not stored,
+        // so the views do not draw again for it.
+        let ordered = registered.compactMap { runtimes[$0] }
+        if ordered.map(\.moduleID) != model.runtimes.map(\.moduleID) {
+            model.runtimes = ordered
+        }
     }
 
     // MARK: Opening and closing
@@ -179,7 +185,7 @@ final class NotchHubController: HubHost {
     }
 
     private func notifyRuntimes(isOpen: Bool) {
-        for runtime in runtimes.values {
+        for runtime in model.runtimes {
             runtime.hubVisibilityDidChange(isOpen: isOpen)
         }
     }
@@ -187,7 +193,7 @@ final class NotchHubController: HubHost {
     // MARK: HubHost
 
     func select(moduleID: String) {
-        selectedModuleID = moduleID
+        model.select(moduleID)
     }
 
     func openSettings(for moduleID: String) {
