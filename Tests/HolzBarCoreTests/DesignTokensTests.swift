@@ -5,6 +5,17 @@ import Testing
 struct DesignTokensTests {
     private typealias Tokens = DesignTokens
 
+    @Test("A picture card is never narrower than its widest picture and padding, and sits on the scale")
+    func pictureCardFitsItsPicture() {
+        let card = Tokens.PictureCard.self
+        #expect(card.animationStripWidth == 96)
+        #expect(card.minimumWidth >= card.animationStripWidth + card.padding * 2)
+        #expect(Tokens.Spacing.scale.contains(card.padding))
+        #expect(Tokens.Spacing.scale.contains(card.gap))
+        // The cards of a row are apart, so the border of a selected card never touches the next.
+        #expect(card.gap > 2)
+    }
+
     @Test("A hex value is split into its channels")
     func hexIsSplit() {
         let colour = Tokens.RGB(hex: 0x1C78AE)

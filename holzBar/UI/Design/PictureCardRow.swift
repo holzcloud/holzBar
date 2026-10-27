@@ -17,9 +17,6 @@ struct PictureCardRow<Value: Hashable, Label: View, Picture: View>: View {
     private let label: Label
     private let picture: (Value) -> Picture
 
-    /// The smallest width of a card.
-    private static var cardWidth: CGFloat { HolzBarTheme.Spacing.xxl * 2 + HolzBarTheme.Spacing.lg }
-
     /// Creates a row.
     ///
     /// - Parameters:
@@ -45,10 +42,7 @@ struct PictureCardRow<Value: Hashable, Label: View, Picture: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
             label
-            LazyVGrid(
-                columns: [GridItem(.adaptive(minimum: Self.cardWidth), spacing: HolzBarTheme.Spacing.sm)],
-                spacing: HolzBarTheme.Spacing.sm
-            ) {
+            LazyVGrid(columns: PictureCardGrid.columns, spacing: PictureCardGrid.gap) {
                 ForEach(values, id: \.self) { value in
                     PictureCard(name(value), isSelected: selection == value) {
                         selection = value

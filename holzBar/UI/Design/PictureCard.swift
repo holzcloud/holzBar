@@ -5,6 +5,20 @@
 
 import SwiftUI
 
+/// The layout of a row of picture cards, shared by every screen that shows one.
+enum PictureCardGrid {
+    /// The space between the cards of a row, and between its lines.
+    static var gap: CGFloat { CGFloat(DesignTokens.PictureCard.gap) }
+
+    /// The columns of a row of cards: as many as fit, each at least as wide as the widest
+    /// picture needs, with a gap between them. The cards of a row that is too narrow for
+    /// them wrap to the next line, so no card is ever pushed over its neighbour or out of the
+    /// window.
+    static var columns: [GridItem] {
+        [GridItem(.adaptive(minimum: CGFloat(DesignTokens.PictureCard.minimumWidth)), spacing: gap, alignment: .top)]
+    }
+}
+
 /// A choice shown as a small picture with a name under it, such as the animation styles. One
 /// card of a row is selected; the row is a radio group.
 ///
@@ -22,6 +36,9 @@ struct PictureCard<Picture: View>: View {
 
     /// The height of the picture's well.
     private static var wellHeight: CGFloat { HolzBarTheme.Spacing.xxl + HolzBarTheme.Spacing.md }
+
+    private var wellShape: RoundedRectangle { HolzBarTheme.shape(HolzBarTheme.Radius.control) }
+    private var cardShape: RoundedRectangle { HolzBarTheme.shape(HolzBarTheme.Radius.card) }
 
     /// Creates a card.
     ///
@@ -46,10 +63,15 @@ struct PictureCard<Picture: View>: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: HolzBarTheme.Spacing.xs) {
-                picture
+                // The well takes the width of the card and nothing else: the picture is laid
+                // over it, not part of its size, so a wide picture can never push the card
+                // wider than its cell, and the clip keeps it inside the well.
+                Color.clear
                     .frame(maxWidth: .infinity)
                     .frame(height: Self.wellHeight)
-                    .background(HolzBarTheme.Palette.ground, in: HolzBarTheme.shape(HolzBarTheme.Radius.control))
+                    .overlay { picture }
+                    .background(HolzBarTheme.Palette.ground, in: wellShape)
+                    .clipShape(wellShape)
                     .overlay(alignment: .topTrailing) {
                         if isSelected {
                             Image(systemName: "checkmark.circle.fill")
@@ -63,18 +85,22 @@ struct PictureCard<Picture: View>: View {
                 Text(title)
                     .font(HolzBarTheme.Typography.callout)
                     .foregroundStyle(HolzBarTheme.Palette.text)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
-            .padding(HolzBarTheme.Spacing.xs)
-            .frame(maxWidth: .infinity, minHeight: HolzBarTheme.minimumTargetSize)
-            .background(HolzBarTheme.Palette.groundElevated, in: HolzBarTheme.shape(HolzBarTheme.Radius.card))
+            .padding(CGFloat(DesignTokens.PictureCard.padding))
+            .frame(minWidth: 0, maxWidth: .infinity, minHeight: HolzBarTheme.minimumTargetSize)
+            .background(HolzBarTheme.Palette.groundElevated, in: cardShape)
             .overlay {
-                HolzBarTheme.shape(HolzBarTheme.Radius.card)
-                    .stroke(
+                // Inside the card's edge, so a selected card's thicker border never reaches
+                // over the gap to its neighbour.
+                cardShape
+                    .strokeBorder(
                         isSelected ? HolzBarTheme.Palette.accent : HolzBarTheme.Palette.stroke,
                         lineWidth: isSelected ? 2 : HolzBarTheme.Spacing.hairline
                     )
             }
-            .contentShape(HolzBarTheme.shape(HolzBarTheme.Radius.card))
+            .contentShape(cardShape)
         }
         .buttonStyle(.plain)
         .animation(
