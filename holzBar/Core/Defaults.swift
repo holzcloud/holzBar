@@ -244,6 +244,8 @@ nonisolated extension Defaults {
         case macOS27LayoutSeeded = "MacOS27LayoutSeeded"
         case macOS27ClickRestoreDelay = "MacOS27ClickRestoreDelay"
         case macOS27ShelfWaitsForRefresh = "MacOS27IceBarWaitsForRefresh"
+        /// The system items the user hid on macOS 27, by name (`SystemItem27`).
+        case hiddenSystemItems27 = "HiddenSystemItems27"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -380,6 +382,7 @@ nonisolated extension Defaults.Key {
             .string
         case .knownItemTags,
             .knownApplications27,
+            .hiddenSystemItems27,
             .titleChangingItemOwners,
             .revealOnChangeItems:
             .stringArray

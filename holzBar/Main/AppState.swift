@@ -77,6 +77,9 @@ final class AppState {
     /// Menu bar items of the user's own: text from built-in sources and Shortcut buttons (Phase 12).
     let widgets = MenuBarWidgets()
 
+    /// The Apple Items module: hidden system items (macOS 27).
+    let appleItems = AppleItems()
+
     /// The lock that asks for Touch ID or the password before hidden items are shown.
     let hiddenItemsLock = HiddenItemsLock()
 

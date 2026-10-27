@@ -43,10 +43,25 @@ struct ModuleCatalogTests {
         #expect(drag.permission == nil)
         #expect(drag.symbol == "arrow.left.arrow.right")
         #expect(drag.titleKey == "Drag in the Menu Bar")
-        #expect(ModuleCatalog.modules(in: .menuBar).map(\.id) == ["widgets", "menu-bar-drag"])
+        #expect(ModuleCatalog.modules(in: .menuBar).map(\.id) == ["widgets", "menu-bar-drag", "apple-items"])
         // Off until the user switches it on.
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.enabledIdentifiers(["menu-bar-drag"], knownTo: ModuleCatalog.all) == ["menu-bar-drag"])
+    }
+
+    @Test("Apple Items is an optional Preview menu bar module without a permission")
+    func appleItemsModule() throws {
+        let appleItems = try #require(ModuleCatalog.all.first { $0.id == "apple-items" })
+        #expect(appleItems.area == .menuBar)
+        #expect(appleItems.permission == nil)
+        #expect(appleItems.symbol == "menubar.rectangle")
+        #expect(appleItems.titleKey == "Apple Items")
+        #expect(appleItems.isPreview)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["apple-items"], knownTo: ModuleCatalog.all) == ["apple-items"])
+        // The other modules carry no badge.
+        #expect(ModuleCatalog.all.filter(\.isPreview).map(\.id) == ["apple-items"])
     }
 
     @Test("The Modules pane knows everything the catalog ships")

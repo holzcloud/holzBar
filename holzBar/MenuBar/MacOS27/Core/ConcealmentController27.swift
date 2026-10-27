@@ -14,8 +14,9 @@ nonisolated protocol ConcealmentToken27: AnyObject {}
 /// The app implements it with the private `MenuBarClientCore` API; tests use a fake.
 @MainActor
 protocol ConcealmentBackend27: AnyObject {
-    /// Activates an assertion that keeps only the given applications' items on the bar.
-    func activate(allowedBundleIDs: [String]) async throws -> ConcealmentToken27
+    /// Activates an assertion that keeps only the given applications' items and the given
+    /// numbered system items on the bar.
+    func activate(allowedBundleIDs: [String], allowedSystemItems: [Int]) async throws -> ConcealmentToken27
 
     /// Releases an assertion.
     func invalidate(_ token: ConcealmentToken27)
@@ -25,7 +26,8 @@ protocol ConcealmentBackend27: AnyObject {
 ///
 /// Every transition activates the new assertions before releasing the old
 /// ones. Because assertions combine as a union of allowlists, an application
-/// concealed both before and after a transition stays concealed throughout.
+/// concealed both before and after a transition stays concealed throughout. A hidden system
+/// item is an entry of the concealed set like an application (``SystemItems27``).
 ///
 /// Callers must not overlap calls to `apply(target:running:)`.
 @MainActor
@@ -33,6 +35,7 @@ final class ConcealmentController27 {
     nonisolated private struct Spec: Equatable {
         let concealed: Set<String>
         let allowlist: [String]
+        let systemItems: [Int]
     }
 
     nonisolated private struct Live {
@@ -73,7 +76,11 @@ final class ConcealmentController27 {
             logger.debug("Concealment apply: took \(milliseconds, privacy: .public) ms")
         }
         let desired = target.map { concealed in
-            Spec(concealed: concealed, allowlist: ConcealmentPlanner27.allowlist(concealing: concealed, running: running))
+            Spec(
+                concealed: concealed,
+                allowlist: ConcealmentPlanner27.allowlist(concealing: concealed, running: running),
+                systemItems: ConcealmentPlanner27.allowedSystemItems(concealing: concealed)
+            )
         }
         var remaining = live
         var next = [Live]()
@@ -83,7 +90,7 @@ final class ConcealmentController27 {
                 if let index = remaining.firstIndex(where: { $0.spec == spec }) {
                     next.append(remaining.remove(at: index))
                 } else {
-                    let token = try await backend.activate(allowedBundleIDs: spec.allowlist)
+                    let token = try await backend.activate(allowedBundleIDs: spec.allowlist, allowedSystemItems: spec.systemItems)
                     activated.append(token)
                     next.append(Live(spec: spec, token: token))
                 }

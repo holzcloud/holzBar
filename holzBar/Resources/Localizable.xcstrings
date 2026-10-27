@@ -85,6 +85,90 @@
         }
       }
     },
+    "Apple Items" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple-Elemente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Éléments Apple"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementi Apple"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elements Apple"
+          }
+        }
+      }
+    },
+    "Hide the clock" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uhr ausblenden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer l’horloge"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi l’orologio"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuppentar l’ura"
+          }
+        }
+      }
+    },
+    "Hide the clock or Control Center, and keep Apple items one click away on macOS 27." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blende die Uhr oder das Kontrollzentrum aus und halte Apple-Elemente unter macOS 27 einen Klick entfernt."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquez l’horloge ou le Centre de contrôle et gardez les éléments Apple à un clic sous macOS 27."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi l’orologio o il Centro di Controllo e tieni gli elementi Apple a un clic su macOS 27."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuppenta l’ura u il center da controlla e tegna ils elements Apple a in clic sin macOS 27."
+          }
+        }
+      }
+    },
     "Its rule decides where the item is. A move by hand lasts only while the rule shows the item." : {
       "localizations" : {
         "de" : {
