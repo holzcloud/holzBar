@@ -37,8 +37,22 @@ enum DiagnosticsCollector {
             spacerCount: appState.spacers.count,
             automationRuleCount: appState.automation.rules.count,
             snapshotCount: appState.snapshots.snapshots.count,
-            nativeOverflow: nativeOverflowWord(appState)
+            nativeOverflow: nativeOverflowWord(appState),
+            appleItems: appleItemsWord(appState)
         )
+    }
+
+    /// The state of the Apple Items module in fixed words and numbers; nothing before macOS 27.
+    private static func appleItemsWord(_ appState: AppState) -> String {
+        guard AppleItems.isSupported else {
+            return ""
+        }
+        guard appState.modules.isEnabled(AppleItems.moduleID) else {
+            return "off"
+        }
+        let appleItems = appState.appleItems
+        let applied = appleItems.concealedSystemItems(in: appState).isEmpty ? "no" : "yes"
+        return "on, hidden \(appleItems.hiddenSystemItems.count), applied \(applied), replaced \(appleItems.replacements.count)"
     }
 
     /// The state of macOS 27's own overflow control from the last read; nothing before macOS 27.
