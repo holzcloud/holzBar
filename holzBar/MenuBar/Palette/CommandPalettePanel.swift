@@ -30,11 +30,14 @@ final class CommandPalettePanel: NSPanel {
     init() {
         super.init(
             contentRect: .zero,
-            styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel, .utilityWindow, .hudWindow],
+            styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
-        titlebarAppearsTransparent = true
+        // The panel draws its own glass surface; the system shadow follows its shape.
+        isOpaque = false
+        backgroundColor = .clear
+        hasShadow = true
         isMovableByWindowBackground = false
         animationBehavior = .none
         isFloatingPanel = true
@@ -190,27 +193,25 @@ private struct CommandPaletteView: View {
     var body: some View {
         @Bindable var model = model
         VStack(spacing: 0) {
-            TextField("Type a command", text: $model.query)
-                .textFieldStyle(.plain)
-                .font(HolzBarTheme.Typography.searchField)
-                .padding(15)
-                .focused($fieldIsFocused)
-                .onSubmit {
-                    if let command = model.selectedCommand {
-                        run(command)
-                    }
+            SearchField(
+                text: $model.query,
+                prompt: Text("Type a command"),
+                isFocused: $fieldIsFocused,
+                accessibilityLabel: Text("Command Palette"),
+                accessibilityValue: Text("\(model.results.count) results")
+            )
+            .onSubmit {
+                if let command = model.selectedCommand {
+                    run(command)
                 }
-                .accessibilityLabel(Text("Command Palette"))
-                .accessibilityValue(Text("\(model.results.count) results"))
+            }
             Divider()
             resultList
         }
-        .background {
-            VisualEffectView(material: .sheet, blendingMode: .behindWindow)
-                .opacity(0.5)
-        }
         .frame(width: 600, height: 400)
         .fixedSize()
+        .clipShape(HolzBarTheme.shape(HolzBarTheme.Radius.panel))
+        .holzBarGlass(in: HolzBarTheme.shape(HolzBarTheme.Radius.panel))
         .task {
             fieldIsFocused = true
         }
