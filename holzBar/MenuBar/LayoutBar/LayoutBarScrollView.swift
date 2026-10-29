@@ -39,6 +39,10 @@ final class LayoutBarScrollView: NSScrollView {
         self.hasVerticalScroller = false
         self.verticalScrollElasticity = .none
         self.autohidesScrollers = true
+        // An overlay scroller floats over the bar and fades out; the legacy one
+        // draws a thick track inside it whenever a mouse is connected.
+        self.scrollerStyle = .overlay
+        self.scrollerKnobStyle = .light
         self.drawsBackground = false
         self.translatesAutoresizingMaskIntoConstraints = false
 
