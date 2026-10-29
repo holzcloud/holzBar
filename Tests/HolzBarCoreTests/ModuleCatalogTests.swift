@@ -59,8 +59,7 @@ struct ModuleCatalogTests {
         // Off until the user switches it on.
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.enabledIdentifiers(["apple-items"], knownTo: ModuleCatalog.all) == ["apple-items"])
-        // Only a module that has not been tested yet carries the badge.
-        #expect(ModuleCatalog.all.filter(\.isPreview).isEmpty)
+        #expect(!appleItems.isPreview)
     }
 
     @Test("The Notch hub is an optional module of the notch area without a permission")
@@ -75,6 +74,24 @@ struct ModuleCatalogTests {
         // Off until the user switches it on.
         #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
         #expect(ModuleCatalog.enabledIdentifiers(["notch-hub"], knownTo: ModuleCatalog.all) == ["notch-hub"])
+    }
+
+    @Test("Timers is a Preview module of the notch area without a permission, after the hub")
+    func timersModule() throws {
+        let timers = try #require(ModuleCatalog.all.first { $0.id == "timers" })
+        #expect(timers.area == .notch)
+        #expect(timers.permission == nil)
+        #expect(timers.isPreview)
+        #expect(timers.symbol == "timer")
+        #expect(timers.titleKey == "Timers")
+        let notch = ModuleCatalog.modules(in: .notch).map(\.id)
+        let hubIndex = try #require(notch.firstIndex(of: "notch-hub"))
+        let timersIndex = try #require(notch.firstIndex(of: "timers"))
+        #expect(hubIndex < timersIndex)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["timers"], knownTo: ModuleCatalog.all) == ["timers"])
     }
 
     @Test("The Modules pane knows everything the catalog ships")

@@ -68,8 +68,10 @@ nonisolated enum ModuleCatalog {
     /// runs no tap while off. Apple Items is off until the user switches it on, asks for no
     /// permission beyond holzBar's Accessibility and changes no assertion while off. The Notch hub
     /// is off until the user switches it on, asks for no permission and creates nothing while
-    /// off: no window, no monitor and no module of its own. The title and the summary are the
-    /// English strings the settings show; their keys are those strings.
+    /// off: no window, no monitor and no module of its own. Timers, a module of the hub, is off
+    /// until the user switches it on, asks for no permission and runs no task and no observer
+    /// while off. The title and the summary are the English strings the settings show; their keys
+    /// are those strings.
     static let all: [ModuleDescriptor] = [
         ModuleDescriptor(
             id: "widgets",
@@ -102,6 +104,15 @@ nonisolated enum ModuleCatalog {
             titleKey: "Notch hub",
             summaryKey: "A panel at the notch for the modules you switch on.",
             permission: nil
+        ),
+        ModuleDescriptor(
+            id: "timers",
+            area: .notch,
+            symbol: "timer",
+            titleKey: "Timers",
+            summaryKey: "Timers, countdowns and a stopwatch at the notch, with a sound when a timer ends.",
+            permission: nil,
+            isPreview: true
         ),
     ]
 
