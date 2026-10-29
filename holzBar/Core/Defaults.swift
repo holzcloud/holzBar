@@ -296,6 +296,11 @@ nonisolated extension Defaults {
         case timersBoard = "TimersBoard"
         /// The sound that rings when a timer ends, as the raw value of `TimerFinishSound`.
         case timersFinishSound = "TimersFinishSound"
+        /// Whether the Calendar module shows all-day events (a boolean, on by default).
+        case calendarShowsAllDay = "CalendarShowsAllDay"
+        /// The identifiers of the calendars the user switched off in the Calendar module. They
+        /// name the user's accounts, so this stays on this Mac: never exported or imported.
+        case calendarHiddenCalendars = "CalendarHiddenCalendars"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -386,6 +391,7 @@ nonisolated extension Defaults.Key {
             .keepLiveActivitiesVisible,
             .autoZenWhileSharingScreen,
             .notchHubOpensOnHover,
+            .calendarShowsAllDay,
             .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
@@ -451,7 +457,8 @@ nonisolated extension Defaults.Key {
             .knownApplications27,
             .hiddenSystemItems27,
             .titleChangingItemOwners,
-            .revealOnChangeItems:
+            .revealOnChangeItems,
+            .calendarHiddenCalendars:
             .stringArray
         case .hotkeys,
             .revealRules,
@@ -531,7 +538,8 @@ nonisolated extension Defaults.Key {
     /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
     /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
     /// Shortcuts the widget buttons run (D-25), the sections that item rules remember, the
-    /// tab the Notch hub showed last, the timers (they hold the user's labels), whether the
+    /// tab the Notch hub showed last, the timers (they hold the user's labels), the calendars
+    /// the user switched off (their identifiers name the user's accounts), whether the
     /// Shelf's fold was left open and what each display does with the hidden items (the
     /// displays' identifiers are those of this Mac).
     static let localOnlyKeys: Set<Defaults.Key> = [
@@ -544,6 +552,7 @@ nonisolated extension Defaults.Key {
         .itemRuleShownSections,
         .notchHubLastTab,
         .timersBoard,
+        .calendarHiddenCalendars,
         .shelfAlwaysHiddenFoldOpen,
         .displayBehaviors,
         .debugDropsBarrierExitEvent,

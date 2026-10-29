@@ -23,6 +23,9 @@ final class AppSettings {
     /// The model for the Notch hub's settings.
     let notchHub = NotchHubSettings()
 
+    /// The model for the Calendar module's settings.
+    let calendar = CalendarSettings()
+
     /// The model for the Timers module's settings.
     let timers = TimersSettings()
 
@@ -33,5 +36,6 @@ final class AppSettings {
         hotkeys.performSetup(with: appState)
         notchHub.performSetup(with: appState)
         timers.performSetup(with: appState)
+        calendar.performSetup(with: appState)
     }
 }

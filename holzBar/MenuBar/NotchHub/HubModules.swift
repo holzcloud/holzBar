@@ -19,7 +19,7 @@ enum HubModules {
         HubModuleRegistration(
             id: CalendarRuntime.identifier,
             makeRuntime: { CalendarRuntime(appState: $0) },
-            makeSettings: { AnyView(EmptyView()) }
+            makeSettings: { AnyView(CalendarSettingsView()) }
         ),
     ]
 

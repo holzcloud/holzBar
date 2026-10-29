@@ -47,6 +47,12 @@ struct CalendarRowModel: Identifiable, Equatable {
     var id: String { row.id }
 }
 
+/// What the module's settings say, to notice a change of them.
+private struct SettingsState: Equatable {
+    let showsAllDay: Bool
+    let hidden: Set<String>
+}
+
 /// The running part of the Calendar module of the Notch hub.
 ///
 /// The hub creates it only while the hub and the module are both on and calls ``shutDown()``
@@ -77,6 +83,7 @@ final class CalendarRuntime: HubModuleRuntime {
     @ObservationIgnored private var waitTask: Task<Void, Never>?
     @ObservationIgnored private var isHubOpen = false
     @ObservationIgnored private var permissionLoop: ObservationLoop?
+    @ObservationIgnored private var settingsLoop: ObservationLoop?
     @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private let logger = Logger(category: "Calendar")
 
@@ -87,6 +94,12 @@ final class CalendarRuntime: HubModuleRuntime {
             permission.hasPermission
         } onChange: { [weak self] _ in
             self?.accessDidChange()
+        }
+        let settings = appState.settings.calendar
+        settingsLoop = ObservationLoop.observe {
+            SettingsState(showsAllDay: settings.showsAllDay, hidden: settings.hiddenCalendars)
+        } onChange: { [weak self] _ in
+            self?.storeDidChange()
         }
         // The store's change notification is the only thing that listens while the hub is
         // closed; it reads nothing then (``storeDidChange()``).
@@ -164,6 +177,9 @@ final class CalendarRuntime: HubModuleRuntime {
             rows = []
             return
         }
+        let settings = appState?.settings.calendar
+        let showsAllDay = settings?.showsAllDay ?? true
+        let hidden = settings?.hiddenCalendars ?? []
         let calendar = Calendar.current
         let windowStart = calendar.startOfDay(for: .now)
         let windowEnd = NextEvents.windowEnd(now: .now, calendar: calendar)
@@ -173,7 +189,12 @@ final class CalendarRuntime: HubModuleRuntime {
                 return
             }
             let now = Date.now
-            let selection = NextEvents.select(events: events, now: now, calendar: calendar)
+            let selection = NextEvents.select(
+                events: events.filter { CalendarSelection.isVisible($0.calendarID, hidden: hidden) },
+                now: now,
+                calendar: calendar,
+                includesAllDay: showsAllDay
+            )
             rows = selection.rows.map { row in
                 let link = MeetingLinks.find(url: row.event.url, location: row.event.location, notes: row.event.notes)
                 let isJoinable = link != nil && row.phase != .allDay
@@ -264,6 +285,7 @@ final class CalendarRuntime: HubModuleRuntime {
         waitTask?.cancel()
         waitTask = nil
         permissionLoop = nil
+        settingsLoop = nil
         rows = []
         fetcher = nil
     }

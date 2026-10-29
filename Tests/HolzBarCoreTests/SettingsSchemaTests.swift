@@ -129,6 +129,19 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["NotchHubLastTab"])
     }
 
+    @Test("The all-day setting travels and the hidden calendars do not")
+    func calendarSettings() {
+        #expect(Defaults.Key.importableKinds["CalendarShowsAllDay"] == .bool)
+        #expect(Defaults.Key.importableKinds["CalendarHiddenCalendars"] == nil)
+        #expect(Defaults.Key.calendarHiddenCalendars.settingsKind == .stringArray)
+        #expect(Defaults.Key.localOnlyKeys.contains(.calendarHiddenCalendars))
+        let result = Defaults.Key.validatedSettings(
+            ["CalendarShowsAllDay": false, "CalendarHiddenCalendars": ["a"], "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["CalendarShowsAllDay", "ShowOnHover"])
+        #expect(result.ignored == ["CalendarHiddenCalendars"])
+    }
+
     @Test("The timers' sound travels and their board does not")
     func timersSettings() {
         #expect(Defaults.Key.importableKinds["TimersFinishSound"] == .number)

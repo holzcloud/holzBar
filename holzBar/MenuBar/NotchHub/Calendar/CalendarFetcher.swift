@@ -26,6 +26,17 @@ actor CalendarFetcher {
         return store.events(matching: predicate).compactMap(Self.event(from:))
     }
 
+    /// The calendars macOS lists for events, sorted by name. Empty unless the user has allowed
+    /// full access.
+    func calendars() -> [CalendarInfo] {
+        guard let store = readableStore() else {
+            return []
+        }
+        return store.calendars(for: .event)
+            .map { CalendarInfo(id: $0.calendarIdentifier, title: $0.title, color: Self.color(of: $0.cgColor)) }
+            .sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
+    }
+
     /// Drops the store, so the next read makes a new one. Called after a grant, because a store
     /// made before it may not see the events.
     func reset() {

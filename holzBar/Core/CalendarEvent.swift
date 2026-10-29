@@ -82,3 +82,11 @@ nonisolated struct CalendarEvent: Equatable, Sendable, Identifiable {
         self.isDeclined = isDeclined
     }
 }
+
+/// A calendar macOS lists, for the list of calendars in the module's settings. The name is read
+/// only while that list is open and is never stored or logged.
+nonisolated struct CalendarInfo: Equatable, Sendable, Identifiable {
+    let id: String
+    let title: String
+    let color: CalendarColor
+}
