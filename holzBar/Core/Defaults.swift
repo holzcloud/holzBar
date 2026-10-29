@@ -291,6 +291,11 @@ nonisolated extension Defaults {
         case notchHubDisplays = "NotchHubDisplays"
         /// The tab the Notch hub showed last. Local to the Mac: never exported or imported.
         case notchHubLastTab = "NotchHubLastTab"
+        /// The timers of the Notch hub's Timers module, as JSON (`TimerBoard`). Local to this
+        /// Mac: never exported, imported or synced.
+        case timersBoard = "TimersBoard"
+        /// The sound that rings when a timer ends, as the raw value of `TimerFinishSound`.
+        case timersFinishSound = "TimersFinishSound"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -406,6 +411,7 @@ nonisolated extension Defaults.Key {
             .shelfAlwaysHiddenFold,
             .revealAnimationStyle,
             .notchHubDisplays,
+            .timersFinishSound,
             .rehideStrategy,
             .rehideInterval,
             .itemSpacingOffset,
@@ -427,6 +433,7 @@ nonisolated extension Defaults.Key {
             .itemGroups,
             .widgets,
             .appleItemReplacements,
+            .timersBoard,
             .menuBarAppearanceConfigurationV2,
             .menuBarBorderColor,
             .menuBarTintColor,
@@ -485,6 +492,8 @@ nonisolated extension Defaults.Key {
             .wholeNumber(0...10)
         case .notchHubDisplays:
             .wholeNumber(0...2)
+        case .timersFinishSound:
+            .wholeNumber(0...5)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,
@@ -522,8 +531,9 @@ nonisolated extension Defaults.Key {
     /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
     /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
     /// Shortcuts the widget buttons run (D-25), the sections that item rules remember, the
-    /// tab the Notch hub showed last, whether the Shelf's fold was left open and what each display
-    /// does with the hidden items (the displays' identifiers are those of this Mac).
+    /// tab the Notch hub showed last, the timers (they hold the user's labels), whether the
+    /// Shelf's fold was left open and what each display does with the hidden items (the
+    /// displays' identifiers are those of this Mac).
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
         .lockHiddenItems,
@@ -533,6 +543,7 @@ nonisolated extension Defaults.Key {
         .widgetShortcutNames,
         .itemRuleShownSections,
         .notchHubLastTab,
+        .timersBoard,
         .shelfAlwaysHiddenFoldOpen,
         .displayBehaviors,
         .debugDropsBarrierExitEvent,

@@ -23,11 +23,15 @@ final class AppSettings {
     /// The model for the Notch hub's settings.
     let notchHub = NotchHubSettings()
 
+    /// The model for the Timers module's settings.
+    let timers = TimersSettings()
+
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
         advanced.performSetup(with: appState)
         general.performSetup(with: appState)
         hotkeys.performSetup(with: appState)
         notchHub.performSetup(with: appState)
+        timers.performSetup(with: appState)
     }
 }

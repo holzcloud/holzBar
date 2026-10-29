@@ -129,6 +129,24 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["NotchHubLastTab"])
     }
 
+    @Test("The timers' sound travels and their board does not")
+    func timersSettings() {
+        #expect(Defaults.Key.importableKinds["TimersFinishSound"] == .number)
+        #expect(Defaults.Key.importableKinds["TimersBoard"] == nil)
+        #expect(Defaults.Key.timersBoard.settingsKind == .data)
+        #expect(Defaults.Key.localOnlyKeys.contains(.timersBoard))
+        let accepted = Defaults.Key.validatedSettings(["TimersFinishSound": 5], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["TimersFinishSound"])
+        for refused: Double in [6, -1, 1.5, .nan] {
+            let result = Defaults.Key.validatedSettings(["TimersFinishSound": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+            #expect(result.ignored == ["TimersFinishSound"])
+        }
+        let board = Defaults.Key.validatedSettings(["TimersBoard": Data(), "ShowOnHover": true], ownBundleIdentifier: ownBundle)
+        #expect(board.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(board.ignored == ["TimersBoard"])
+    }
+
     @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
     func notchHubSettingsTravel() {
         #expect(Defaults.Key.importableKinds["NotchHubOpensOnHover"] == .bool)
