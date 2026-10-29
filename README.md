@@ -86,7 +86,7 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's next
 
-**New in 0.0.14** (see [what is new](docs/features.md#new-in-0014)): a **count badge** on the holzBar icon, a small number that says how many items are hidden right now. It is off until you switch it on in Settings → General.
+**New in 0.0.14** (see [what is new](docs/features.md#new-in-0014)): a **count badge** on the holzBar icon, a small number that says how many items are hidden right now. It is off until you switch it on in Settings → General. The notch hub also has its first module, **Timers**: timers, countdowns to a moment and a stopwatch, with a sound when a timer ends and no permission.
 
 **0.0.11** (see the [release notes](docs/release-notes/v0.0.11.md) and [what is new](docs/features.md#new-in-0011)): the bar's hidden items slide in and out on macOS 26, under **Animate showing and hiding** in Settings → General (since 0.0.13 the **Animation** cards, see below; never with Reduce Motion on; macOS 27 animates its own bar, macOS 14 and 15 keep the instant change). The Search and Hints panels have a new glass look, and the type sizes and spacing in Settings come from one shared set of design tokens.
 
@@ -100,7 +100,7 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 **New in 0.0.12:** on macOS 27 the **Apple Items** module hides the clock, Control Center, Wi-Fi or the battery and adds replacement icons that open an Apple item. **Smart Categories** add category buttons to the search (System, Network, Media and more), worked out from what holzBar can read about each app; nothing is recorded. The holzBar Shelf can also **float**: under **Style** in Settings → General it becomes a bar of its own a little below the menu bar, and under **Location** it opens at the holzBar icon, at the right edge of the screen or below the mouse pointer. The command palette has the new glass look. The **notch hub**, a panel at the notch for optional modules, is there with no module in it yet ([what it does](docs/features.md#new-in-0012)).
 
-**Planned, not available yet:** settings sync and the modules of the notch hub in 1.0.0. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
+**Planned, not available yet:** settings sync and the other modules of the notch hub in 1.0.0. Every later module is optional, off until you switch it on, and never uses the network. The [roadmap](docs/features.md#planned-next) has the details.
 
 ## More
 
