@@ -199,6 +199,8 @@ nonisolated extension Defaults {
         case itemSpacingOffset = "ItemSpacingOffset"
         /// macOS 27: a dot on holzBar's icon while another app uses the microphone or a camera.
         case holzBarIconShowsCaptureDot = "HolzBarIconShowsCaptureDot"
+        /// Whether holzBar's icon carries the number of hidden items while they are hidden (off by default).
+        case showsHiddenItemCount = "ShowsHiddenItemCount"
 
         // MARK: Hotkeys Settings
         case hotkeys = "Hotkeys"
@@ -363,6 +365,7 @@ nonisolated extension Defaults.Key {
             .showOnScroll,
             .autoRehide,
             .holzBarIconShowsCaptureDot,
+            .showsHiddenItemCount,
             .enableAlwaysHiddenSection,
             .showAllSectionsOnUserDrag,
             .hideApplicationMenus,

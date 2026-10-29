@@ -198,6 +198,21 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The hidden item count setting travels with a settings file, as a Boolean only")
+    func hiddenItemCountTravels() {
+        #expect(Defaults.Key.showsHiddenItemCount.rawValue == "ShowsHiddenItemCount")
+        #expect(Defaults.Key.showsHiddenItemCount.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.showsHiddenItemCount))
+        #expect(Defaults.Key.importableKinds["ShowsHiddenItemCount"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["ShowsHiddenItemCount": true], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["ShowsHiddenItemCount"])
+        for refused: Any in [1, 0.5, "yes"] {
+            let result = Defaults.Key.validatedSettings(["ShowsHiddenItemCount": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+            #expect(result.ignored == ["ShowsHiddenItemCount"])
+        }
+    }
+
     @Test("A settings file cannot drop event barrier exits")
     func settingsFileCannotDropBarrierExits() {
         #expect(Defaults.Key.localOnlyKeys.contains(.debugDropsBarrierExitEvent))
@@ -312,6 +327,7 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.hotkeys.settingsKind == .dictionary)
         #expect(Defaults.Key.showOnHover.settingsKind == .bool)
         #expect(Defaults.Key.holzBarIconShowsCaptureDot.settingsKind == .bool)
+        #expect(Defaults.Key.showsHiddenItemCount.settingsKind == .bool)
         #expect(Defaults.Key.showOnHoverDelay.settingsKind == .number)
         #expect(Defaults.Key.layoutProfiles.settingsKind == .data)
         #expect(Defaults.Key.automationRules.settingsKind == .data)

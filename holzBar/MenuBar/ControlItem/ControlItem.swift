@@ -175,6 +175,20 @@ final class ControlItem {
     /// items, so holzBar marks its own icon instead; never while nothing is concealed.
     @ObservationIgnored private var captureDot: CaptureDotView?
 
+    /// The capsule with the number of hidden items over holzBar's icon, while that setting is on
+    /// and items are hidden.
+    @ObservationIgnored private var countBadgeView: CountBadgeView?
+
+    /// The badge the capsule shows now; `nil` while none is drawn.
+    @ObservationIgnored private var drawnCountBadge: HiddenItemCount.Badge?
+
+    /// Follows the count of hidden items for the badge. It exists only while the setting is on;
+    /// with the setting off nothing observes the item cache for the badge.
+    @ObservationIgnored private var countObserver: ObservationLoop?
+
+    /// Follows the setting that shows the number of hidden items.
+    @ObservationIgnored private var countSettingObserver: ObservationLoop?
+
     /// Logger for the control item.
     private static let logger = Logger(category: "ControlItem")
 
@@ -286,6 +300,10 @@ final class ControlItem {
                     }
                 )
             }
+            countSettingObserver = ObservationLoop.observe { general.showsHiddenItemCount } onChange: { [weak self] _ in
+                self?.updateCountObserver()
+            }
+            updateCountObserver()
         }
 
         if identifier == .alwaysHidden {
@@ -370,6 +388,7 @@ final class ControlItem {
                     updateOnScreenFrame()
                     // A change of the bar's height moves the icon, and the dot with it.
                     positionCaptureDot()
+                    positionCountBadge()
                 }
             },
             newWindow.observe(\.screen, options: [.initial, .new]) { [weak self] window, _ in
@@ -459,6 +478,7 @@ final class ControlItem {
 
             button.image = image
             updateCaptureDot(on: button)
+            updateCountBadge(on: button)
         case .hidden, .alwaysHidden:
             if #available(macOS 27.0, *) {
                 // holzBar is signed locally, so MenuBarAgent drops its items whenever anything is
@@ -553,6 +573,88 @@ final class ControlItem {
             min(imageRect.maxY - diameter + 1, button.bounds.maxY - diameter)
         }
         captureDot.frame = CGRect(x: x, y: y, width: diameter, height: diameter)
+    }
+
+    // MARK: Count Badge
+
+    /// The badge for the number of hidden items, or `nil` for none.
+    ///
+    /// While the setting is off this reads the setting and nothing else, so no observer of
+    /// the item cache is ever armed for the badge.
+    private func currentCountBadge() -> HiddenItemCount.Badge? {
+        guard let appState, appState.settings.general.showsHiddenItemCount else {
+            return nil
+        }
+        let hidden = appState.itemManager.itemCache[.hidden].count { !$0.isControlItem }
+        let isSectionHidden = appState.menuBarManager.controlItem(withName: .hidden)?.state == .hideSection
+        let isHiding = isSectionHidden && !appState.navigationState.isShelfPresented
+        return HiddenItemCount.badge(
+            hidden: hidden,
+            alwaysHidden: 0,
+            includesAlwaysHidden: false,
+            isHiding: isHiding,
+            isEnabled: true
+        )
+    }
+
+    /// Starts or stops following the count of hidden items, as the setting says, and redraws.
+    private func updateCountObserver() {
+        if appState?.settings.general.showsHiddenItemCount == true {
+            if countObserver == nil {
+                countObserver = ObservationLoop.observe { [weak self] in
+                    self?.currentCountBadge()
+                } onChange: { [weak self] _ in
+                    self?.updateStatusItem()
+                }
+            }
+        } else {
+            countObserver?.cancel()
+            countObserver = nil
+        }
+        updateStatusItem()
+    }
+
+    /// Shows, updates or removes the capsule with the number of hidden items.
+    ///
+    /// The status item's length never changes for the badge, so the bar does not reflow.
+    private func updateCountBadge(on button: NSStatusBarButton) {
+        guard let badge = currentCountBadge() else {
+            if countBadgeView != nil {
+                countBadgeView?.removeFromSuperview()
+                countBadgeView = nil
+            }
+            drawnCountBadge = nil
+            return
+        }
+        let view = countBadgeView ?? CountBadgeView()
+        if view.superview !== button {
+            button.addSubview(view)
+        }
+        countBadgeView = view
+        if drawnCountBadge != badge || view.text != badge.text {
+            view.text = badge.text
+        }
+        drawnCountBadge = badge
+        view.frame.size.width = CountBadgeView.width(for: badge.text)
+        positionCountBadge()
+    }
+
+    /// Places the count badge at the bottom trailing corner of the drawn icon, overlapping it
+    /// and kept inside the button; the capture dot keeps the top trailing corner.
+    private func positionCountBadge() {
+        guard let countBadgeView, let button = statusItem.button else {
+            return
+        }
+        let imageRect = button.cell?.imageRect(forBounds: button.bounds) ?? button.bounds
+        let width = countBadgeView.frame.width
+        let height = CountBadgeView.height
+        let x = max(min(imageRect.maxX - width + 2, button.bounds.maxX - width), button.bounds.minX)
+        let y = if button.isFlipped {
+            min(imageRect.maxY - height + 1, button.bounds.maxY - height)
+        } else {
+            max(imageRect.minY - 1, button.bounds.minY)
+        }
+        countBadgeView.frame = CGRect(x: x, y: y, width: width, height: height)
     }
 
     /// Updates the visibility of the status item.

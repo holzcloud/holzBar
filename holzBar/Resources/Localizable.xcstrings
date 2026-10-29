@@ -56150,6 +56150,134 @@
           }
         }
       }
+    },
+    "Show the number of hidden items on the icon" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anzahl der ausgeblendeten Elemente am Symbol zeigen"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher le nombre d’éléments masqués sur l’icône"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra il numero di elementi nascosti sull’icona"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar il dumber d’elements zuppads sin l’icona"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar el número de elementos ocultos en el icono"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar o número de itens ocultos no ícone"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示の項目の数をアイコンに表示"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在图标上显示隐藏项目的数量"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아이콘에 숨겨진 항목 수 표시"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать число скрытых элементов на значке"
+          }
+        }
+      }
+    },
+    "A small number on the holzBar icon says how many items are hidden right now." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine kleine Zahl am holzBar-Symbol sagt, wie viele Elemente gerade ausgeblendet sind."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un petit nombre sur l’icône holzBar indique combien d’éléments sont masqués en ce moment."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un piccolo numero sull’icona holzBar indica quanti elementi sono nascosti in questo momento."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In pitschen dumber sin l’icona holzBar di quants elements che èn zuppads actualmain."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un pequeño número en el icono de holzBar indica cuántos elementos están ocultos en este momento."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um pequeno número no ícone do holzBar indica quantos itens estão ocultos neste momento."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar のアイコンに表示される小さな数字は、現在非表示になっている項目の数を示します。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 图标上的小数字表示当前隐藏了多少个项目。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 아이콘의 작은 숫자는 지금 숨겨진 항목이 몇 개인지 알려 줍니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Небольшое число на значке holzBar показывает, сколько элементов скрыто в данный момент."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
