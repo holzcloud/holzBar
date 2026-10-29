@@ -27,8 +27,20 @@ final class TimersRuntime: HubModuleRuntime {
     private(set) var board = TimerBoard()
 
     @ObservationIgnored private let alarm = TimersAlarm()
+    @ObservationIgnored private weak var appState: AppState?
 
-    init(appState: AppState) {}
+    /// Reads the stored timers. What ended while holzBar was not watching is marked finished,
+    /// and nothing rings: a late ending is silent, and nothing rings at launch.
+    init(appState: AppState) {
+        self.appState = appState
+        board = TimerBoard.decoded(from: Defaults.data(forKey: .timersBoard))
+        let before = board
+        _ = board.collectFinished(now: .now)
+        if board != before {
+            persist()
+        }
+        rearm()
+    }
 
     // MARK: Operations
 
@@ -36,6 +48,7 @@ final class TimersRuntime: HubModuleRuntime {
     @discardableResult
     func startLength(_ seconds: Double, label: String) -> TimerBoard.StartResult {
         let result = board.startLength(seconds, label: label, now: .now)
+        persist()
         rearm()
         return result
     }
@@ -44,6 +57,7 @@ final class TimersRuntime: HubModuleRuntime {
     @discardableResult
     func startMoment(_ moment: Date, label: String) -> TimerBoard.StartResult {
         let result = board.startMoment(moment, label: label, now: .now)
+        persist()
         rearm()
         return result
     }
@@ -52,27 +66,32 @@ final class TimersRuntime: HubModuleRuntime {
     @discardableResult
     func startStopwatch(label: String) -> TimerBoard.StartResult {
         let result = board.startStopwatch(label: label, now: .now)
+        persist()
         rearm()
         return result
     }
 
     func pause(_ id: UUID) {
         board.pause(id, now: .now)
+        persist()
         rearm()
     }
 
     func resume(_ id: UUID) {
         board.resume(id, now: .now)
+        persist()
         rearm()
     }
 
     func restart(_ id: UUID) {
         board.restart(id, now: .now)
+        persist()
         rearm()
     }
 
     func remove(_ id: UUID) {
         board.remove(id)
+        persist()
         rearm()
     }
 
@@ -129,9 +148,22 @@ final class TimersRuntime: HubModuleRuntime {
         AnyView(TimersBodyView(runtime: self, host: host))
     }
 
+    /// Stops the alarm and its observers and lets go of the timers in memory. The stored board
+    /// stays, so a running timer's end still stands when the module is switched on again.
     func shutDown() {
         alarm.cancel()
         board = TimerBoard()
+    }
+
+    // MARK: Storage
+
+    /// Stores the board on this Mac (a local-only key), or removes the key for an empty one.
+    private func persist() {
+        if board.items.isEmpty {
+            Defaults.removeObject(forKey: .timersBoard)
+        } else {
+            Defaults.set(board.encoded(), forKey: .timersBoard)
+        }
     }
 
     // MARK: Alarm
@@ -147,7 +179,10 @@ final class TimersRuntime: HubModuleRuntime {
     private func fire() {
         let finished = board.collectFinished(now: .now)
         if !finished.rang.isEmpty {
-            alarm.playFinishSound()
+            alarm.playFinishSound(appState?.settings.timers.finishSound ?? .glass)
+        }
+        if !finished.rang.isEmpty || !finished.missed.isEmpty {
+            persist()
         }
         rearm()
     }

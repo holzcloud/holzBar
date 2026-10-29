@@ -14,7 +14,7 @@ enum HubModules {
         HubModuleRegistration(
             id: TimersRuntime.identifier,
             makeRuntime: { TimersRuntime(appState: $0) },
-            makeSettings: { AnyView(EmptyView()) }
+            makeSettings: { AnyView(TimersSettingsView()) }
         ),
     ]
 
