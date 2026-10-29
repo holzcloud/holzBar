@@ -6,16 +6,19 @@
 import SwiftUI
 
 /// The Calendar tab: what is on now and the next events of today and tomorrow, each with its
-/// calendar's colour, or a sentence that says why there is nothing to show.
+/// calendar's colour and, when the event has a meeting link that can be joined, a Join button;
+/// or a sentence that says why there is nothing to show, with the way forward.
 struct CalendarBodyView: View {
     let runtime: CalendarRuntime
+    let host: any HubHost
 
     var body: some View {
         Group {
-            if runtime.authorization == .granted {
-                list
-            } else {
-                missingAccess
+            switch runtime.authorization {
+            case .granted: list
+            case .notDetermined: missingAccess("Calendar access is needed", button: "Allow Calendar Access")
+            case .denied, .restricted: missingAccess("Calendar access is off", button: "Open System Settings")
+            case .writeOnly: missingAccess("holzBar needs full access to read events", button: "Open System Settings")
             }
         }
         .padding(.vertical, HolzBarTheme.Spacing.xxs)
@@ -34,8 +37,8 @@ struct CalendarBodyView: View {
         } else {
             ScrollView {
                 VStack(spacing: HolzBarTheme.Spacing.xs) {
-                    ForEach(runtime.rows) { row in
-                        self.row(row)
+                    ForEach(runtime.rows) { model in
+                        row(model)
                     }
                 }
             }
@@ -43,25 +46,29 @@ struct CalendarBodyView: View {
         }
     }
 
-    private func row(_ row: NextEvents.Row) -> some View {
-        HStack(spacing: HolzBarTheme.Spacing.sm) {
-            CalendarColorDot(color: row.event.calendarColor)
-            when(row)
+    private func row(_ model: CalendarRowModel) -> some View {
+        let event = model.row.event
+        return HStack(spacing: HolzBarTheme.Spacing.sm) {
+            CalendarColorDot(color: event.calendarColor)
+            when(model.row)
                 .font(HolzBarTheme.Typography.callout.monospacedDigit())
-                .foregroundStyle(row.phase == .happening ? HolzBarTheme.Palette.accent : HolzBarTheme.Palette.textSecondary)
+                .foregroundStyle(model.row.phase == .happening ? HolzBarTheme.Palette.accent : HolzBarTheme.Palette.textSecondary)
                 .frame(width: 64, alignment: .leading)
-            Text(verbatim: row.event.title.isEmpty ? String(localized: "Untitled") : row.event.title)
+            Text(verbatim: event.title.isEmpty ? String(localized: "Untitled") : event.title)
                 .font(HolzBarTheme.Typography.body)
                 .foregroundStyle(HolzBarTheme.Palette.text)
                 .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
-            if row.phase != .allDay {
-                Text(row.event.end, style: .time)
+            if let link = model.link {
+                joinControl(link, isJoinable: model.isJoinable)
+            }
+            if model.row.phase != .allDay {
+                Text(event.end, style: .time)
                     .font(HolzBarTheme.Typography.caption.monospacedDigit())
                     .foregroundStyle(HolzBarTheme.Palette.textTertiary)
             }
         }
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .contain)
     }
 
     /// "Now", the start time, or "All day".
@@ -74,15 +81,49 @@ struct CalendarBodyView: View {
         }
     }
 
+    /// The Join button while the link can be joined, else the service name as quiet text. The
+    /// link opens only on a click.
+    @ViewBuilder
+    private func joinControl(_ link: MeetingLink, isJoinable: Bool) -> some View {
+        if isJoinable {
+            Button("Join") {
+                runtime.join(link, host: host)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(HolzBarTheme.Palette.accent)
+            .controlSize(.small)
+            .accessibilityLabel("Join the meeting")
+            .help(Text(verbatim: serviceName(of: link)))
+        } else {
+            Text(verbatim: serviceName(of: link))
+                .font(HolzBarTheme.Typography.caption)
+                .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+        }
+    }
+
+    /// The service's own name, which is the same in every language; for a link on another
+    /// site, its host.
+    private func serviceName(of link: MeetingLink) -> String {
+        switch link.service {
+        case .zoom: "Zoom"
+        case .googleMeet: "Google Meet"
+        case .teams: "Microsoft Teams"
+        case .webex: "Webex"
+        case .faceTime: "FaceTime"
+        case .other: link.url.host() ?? ""
+        }
+    }
+
     // MARK: Missing access
 
-    private var missingAccess: some View {
+    /// A sentence and a button. Nothing asks by itself: the button is the only way.
+    private func missingAccess(_ message: LocalizedStringKey, button: LocalizedStringKey) -> some View {
         VStack(spacing: HolzBarTheme.Spacing.sm) {
-            Text("Calendar access is off")
+            Text(message)
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-            Button("Open System Settings") {
-                runtime.openSystemSettings()
+            Button(button) {
+                runtime.allowAccess()
             }
             .controlSize(.small)
         }
