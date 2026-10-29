@@ -92,7 +92,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Asks for Location Services only when you add a Wi-Fi-name condition, and for Bluetooth only when you add a Bluetooth condition | — | — | — | ✅ |
 | Scripts run only from a folder you chose and only after you allowed their exact content; never from a URL command, an import or sync | — | — | — | ✅ |
 | Hardened runtime (no injected code or libraries) | ✅ | ✅ | — | ✅ (checked by CI) |
-| No entitlements, not even `get-task-allow` | — | — | — | ✅ from 0.0.7-beta2 (checked by CI and the release) |
+| Only one entitlement (Calendar), no `get-task-allow` | — | — | — | ✅ (checked by CI and the release; no entitlement at all from 0.0.7-beta2 to 0.0.13) |
 | Settings import accepts only known keys of the right type, in range | — (no import) | — | — | ✅ |
 | No helper process runs with holzBar's permissions | ❌ (menu bar item service) | — | — | ✅ from 0.0.7-beta2: one executable, no nested code (checked by CI) |
 | Fix for the permissions loop | ❌ | — | — | ✅ |

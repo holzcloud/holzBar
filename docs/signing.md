@@ -8,7 +8,7 @@ holzBar has no Apple Developer ID, so it is not notarized and Gatekeeper does no
    - From 0.0.7-beta2, holzBar ships no nested code: `Contents/MacOS/holzBar` is the only executable in the bundle, so there is nothing else that could be swapped and keep holzBar's permissions. Up to 0.0.7-beta1, the menu bar item XPC service could: on macOS 26, a copy of the app with a swapped service kept the permissions without a prompt ([SECURITY.md](../SECURITY.md), F-04).
 2. **Build provenance.** Every release zip carries a [GitHub artifact attestation](https://docs.github.com/actions/security-for-github-actions/using-artifact-attestations): a statement, signed with the release workflow's identity through Sigstore, that the zip was built by `.github/workflows/release.yml` in this repository, from a given tag and commit. From 0.0.7-beta2, the release also carries [SLSA Build Level 3](https://slsa.dev) provenance, `holzBar-<version>.intoto.jsonl`, made by the [slsa-github-generator](https://github.com/slsa-framework/slsa-github-generator). You can check both before you install.
 
-The hardened runtime stays on, and holzBar has no entitlements, not even `com.apple.security.get-task-allow`, which would let any process of the same user attach a debugger and act with holzBar's permissions. `Scripts/check-signature.sh` fails the pull-request build, the release build and `Scripts/install.sh` when any code in the app carries an entitlement, or when the bundle holds any code besides `Contents/MacOS/holzBar`. Releases up to 0.0.7-beta1 carried get-task-allow; it is gone from 0.0.7-beta2.
+The hardened runtime stays on, and holzBar carries one entitlement, `com.apple.security.personal-information.calendars`, which a hardened app needs before macOS will let it ask for Calendar access and which grants nothing by itself. There is no `com.apple.security.get-task-allow`, which would let any process of the same user attach a debugger and act with holzBar's permissions. `Scripts/check-signature.sh` fails the pull-request build, the release build and `Scripts/install.sh` when any code in the app carries another entitlement, or when the bundle holds any code besides `Contents/MacOS/holzBar`; `Scripts/test-check-signature.sh` proves it on fixture apps in every pull request. Releases up to 0.0.7-beta1 carried get-task-allow; it is gone from 0.0.7-beta2, and releases from 0.0.7-beta2 to 0.0.13 carry no entitlement at all.
 
 The release workflow never publishes an ad hoc build: without the two secrets below, or with a certificate whose SHA-256 is not holzBar's (`e55f0df15060b8c06c6842ccee85e6bc9f86cbbda3bd408abf991457840b1d95`, pinned in `.github/workflows/release.yml`), it fails. Releases up to 0.0.5 are signed ad hoc and carry no attestation.
 
@@ -59,11 +59,10 @@ rm holzbar-signing.key holzbar-signing.cnf
 openssl pkcs12 -in holzbar-signing.p12 -nokeys -clcerts | openssl x509 -outform DER | shasum -a 256
 ```
 
-To try it, import it into your login keychain (`security import holzbar-signing.p12 -T /usr/bin/codesign`), then sign a copy of holzBar the way the release does, with empty entitlements, and check it:
+To try it, import it into your login keychain (`security import holzbar-signing.p12 -T /usr/bin/codesign`), then sign a copy of holzBar the way the release does, with its one entitlement, and check it:
 
 ```sh
-plutil -create xml1 empty.entitlements
-codesign --force --options runtime --entitlements empty.entitlements \
+codesign --force --options runtime --entitlements holzBar.entitlements \
   --sign "holzBar Release Signing" holzBar.app
 Scripts/check-signature.sh holzBar.app
 codesign -d -r- holzBar.app
@@ -109,7 +108,7 @@ A fresh `.p12` exported from Keychain Access with a new password works too, as l
 `.github/workflows/release.yml` runs only for a pushed `v*` tag whose commit is on `main`, in separate jobs, each with only what it needs:
 
 1. **Build**: builds holzBar ad hoc without get-task-allow, with a read-only token, no persisted credentials, no secrets and no OIDC token, and runs `Scripts/check-signature.sh`.
-2. **Sign with holzBar's certificate**: the only job that sees the signing secrets. It has no token permissions and checks out no code from the repository. It checks that the build is exactly the zip the build job made, imports the certificate into a temporary keychain with a random password, and signs only with the certificate whose SHA-256 is pinned, with empty entitlements and `codesign --options runtime` (inside out, without `--deep`). It then fails unless every piece of code carries that certificate, the hardened runtime and no entitlement, the bundle has no code besides `Contents/MacOS/holzBar`, and the designated requirement is exactly the identifier and the certificate. The keychain is deleted, also when a step failed. The key is never in a keychain while the project builds.
+2. **Sign with holzBar's certificate**: the only job that sees the signing secrets. It has no token permissions and checks out no code from the repository. It checks that the build is exactly the zip the build job made, imports the certificate into a temporary keychain with a random password, and signs only with the certificate whose SHA-256 is pinned, with the Calendar entitlement on the app and empty entitlements on any nested code, and `codesign --options runtime` (inside out, without `--deep`). It then fails unless every piece of code carries that certificate, the hardened runtime and no entitlement but the Calendar one on the app, the bundle has no code besides `Contents/MacOS/holzBar`, and the designated requirement is exactly the identifier and the certificate. The keychain is deleted, also when a step failed. The key is never in a keychain while the project builds.
 3. **Publish the release**: checks the signed zip's SHA-256, creates the GitHub attestation and publishes the release with its notes. It completes a release that already exists, but never replaces a zip it already carries.
 4. **SLSA provenance**: the slsa-github-generator attaches `holzBar-<version>.intoto.jsonl` to the release.
 5. **Update the Homebrew cask**: runs in the environment `release` and pushes the casks to `main` with its deploy key, only after both provenances exist, only when the published zip has the signed zip's SHA-256, and only to a version newer than a cask's own (0.0.7-beta1 < 0.0.7 < 0.0.8). A plain release moves `Casks/holzbar.rb` (stable) and `Casks/holzbar@beta.rb`; an alpha or beta release moves only `Casks/holzbar@beta.rb`.
@@ -155,7 +154,7 @@ shasum -a 256 /tmp/holzbar-certificate0
 codesign -d --entitlements - --xml /Applications/holzBar.app
 ```
 
-The authority is `holzBar Release Signing`, and the SHA-256 is the one in the README. `Signature=adhoc` means an ad hoc build (releases up to 0.0.5, or one built without the certificate). From 0.0.7-beta2, the last command prints no entitlements.
+The authority is `holzBar Release Signing`, and the SHA-256 is the one in the README. `Signature=adhoc` means an ad hoc build (releases up to 0.0.5, or one built without the certificate). From 0.0.14, the last command prints the one Calendar entitlement; from 0.0.7-beta2 to 0.0.13 it printed none.
 
 ### The build provenance
 
