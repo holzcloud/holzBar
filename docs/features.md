@@ -84,6 +84,10 @@
 </tr>
 </table>
 
+## New in 0.0.14
+
+- **Count badge**: a small number on the holzBar icon says how many items are hidden right now, in the menu bar's own colours, while they are hidden and there is at least one (the items of the hidden section; the always-hidden ones are not counted, and a count above 99 reads "99+"). The tooltip and VoiceOver say it too ("3 hidden items"; with the capture dot on macOS 27, both: "Microphone in use. 3 hidden items"). Off until you switch it on under **Show the number of hidden items on the icon** in Settings → General (the switch is there while the holzBar icon is shown); nothing is drawn or watched while it is off.
+
 ## New in 0.0.13
 
 0.0.13 is out; see its [release notes](release-notes/v0.0.13.md).
@@ -255,7 +259,6 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 - **Settings sync between your Macs** through any folder they sync (iCloud Drive, Nextcloud, Dropbox, OneDrive, Syncthing, a network share), **redesigned from scratch**, designed not to lose or silently overwrite a change.
 - **Modules for the notch hub**: the hub itself is built (see [New in 0.0.12](#new-in-0012)); the modules planned for it are Now Playing and lyrics, calendar and meetings (Calendar access asked when you switch it on), live activities, timers, a file drop, display controls and AirPods and accessory alerts. Notifications in the hub only if a feasibility test shows it can be done; macOS has no public API for it.
-- **Count badges**: the number of hidden items on the holzBar icon.
 - Up to **20 languages**, with a review process for the translations.
 
 ### 1.1.0: system monitor

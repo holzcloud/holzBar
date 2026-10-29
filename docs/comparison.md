@@ -81,6 +81,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | No screen-recording indicator when showing or hiding (macOS 27) | — | ✅ | — | ✅ |
 | Hover and click on a second display (macOS 27) | — | ✅ | — | ✅ |
 | Dot on its icon while the microphone or camera is in use and Control Centre's indicator is not drawn (macOS 27) | — | — | — | ✅ |
+| Number of hidden items as a badge on the icon (off until you switch it on) | ❌ | — | — | ✅ |
 | URL commands ask before they change anything lasting; no URL shows hidden items while Zen mode is on or ends it during a screen share | — | — | — | ✅ |
 | Validated hotkeys, colours and numbers in imported settings (no crash loop from bad settings) | ❌ | — | — | ✅ |
 | **Privacy and permissions** | | | | |
@@ -135,6 +136,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Move items in the menu bar by dragging, without ⌘ | ✅ <sup>14</sup> <sub>macOS 26, 27</sub> | ❓ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Layout profiles | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ ❓ | ✅ (VIP) | ❌ | ❌ | ❌ | ❌ | looks only (Moods) | ❌ | ❓ | ❓ |
 | Groups, spacers | ✅ | ✅ | ❌ | ✅ | groups, dividers | groups (Pro) | dividers | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ |
+| Item count badge on the icon | ✅ | ❓ | ❌ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ✅ <sup>15</sup> | ❓ | ❓ | ❓ |
 | Smart Categories | ✅ | ❓ | ❌ | ❓ | ✅ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ | ❓ |
 | Item spacing | ✅ beta | ✅ | ✅ beta | ✅ beta | ✅ | Pro | ✅ | ❌ | own icons only | ❌ | ✅ | ✅ | ❌ | ❓ | ❓ |
 | Search | ✅ | ✅ Command Bar | ✅ | ✅ | ✅ | Pro | weak | ❌ | ❌ | ❌ | ❌ | ✅ | ❓ | ❌ | ❓ |
@@ -187,6 +189,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 <sup>12</sup> Glow, Brow and Lounge: ❌ means the vendor's site, changelog and privacy policy do not mention the feature (one source each, no independent test). Lounge's own blog says it lacks automation rules.
 <sup>13</sup> Glow ships two builds: 2.x for macOS 26 and 3.x for macOS 27 (stable since 10 September 2026).
 <sup>14</sup> New in 0.0.8. Rules react to power, Low Power Mode, apps, time, displays, the network, a VPN, the Wi-Fi name, camera and microphone in use and a script's result, and since 0.0.9 to the sound output and a connected Bluetooth device; Thaw's list also has a Focus as a trigger, where holzBar's Focus filter applies a profile on its own. Scripts run as you with holzBar's permissions, only from the folder you chose and only after you allowed their exact content; nothing about them is exported, imported or synced, and no URL command or Shortcut can turn on a rule that uses one. Widgets (macOS 14 to 27) show text from seven permission-free sources (date and time, battery, CPU load, memory, uptime, free disk space, a countdown), run a Shortcut you name, or show the first line of the output of a script you allowed (a script widget); at most twelve, their timers run only while a widget is visible, a script widget never runs on a timer, nothing runs while the module is off, and Shortcut names and the choice of a script never leave your Mac (the widgets' basic steps were checked on macOS 27). Dragging items without ⌘ (macOS 26 and 27) is an optional module that is off until you switch it on; it moves apps' items, not Apple's own, and on macOS 27 hides an app when you drop one of its items on the holzBar icon.
+<sup>15</sup> Glow's changelog lists item count badges; it does not say what they count. Bartender 7: no badge of this kind found in its sources.
 
 ### Where holzBar is behind today
 

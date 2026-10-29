@@ -86,6 +86,8 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's next
 
+**New in 0.0.14** (see [what is new](docs/features.md#new-in-0014)): a **count badge** on the holzBar icon, a small number that says how many items are hidden right now. It is off until you switch it on in Settings → General.
+
 **0.0.11** (see the [release notes](docs/release-notes/v0.0.11.md) and [what is new](docs/features.md#new-in-0011)): the bar's hidden items slide in and out on macOS 26, under **Animate showing and hiding** in Settings → General (since 0.0.13 the **Animation** cards, see below; never with Reduce Motion on; macOS 27 animates its own bar, macOS 14 and 15 keep the instant change). The Search and Hints panels have a new glass look, and the type sizes and spacing in Settings come from one shared set of design tokens.
 
 **0.0.12 is out** (see the [release notes](docs/release-notes/v0.0.12.md) and [what is new](docs/features.md#new-in-0012)): Apple Items, the Notch hub, Smart Categories, a floating Shelf and a glass command palette.
