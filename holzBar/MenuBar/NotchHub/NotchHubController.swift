@@ -494,6 +494,14 @@ final class NotchHubController: HubHost {
         appState.openWindow(.settings)
     }
 
+    func takeKeyboard() {
+        guard isOpen, let panel else {
+            return
+        }
+        panel.acceptsKeyboard = true
+        panel.makeKey()
+    }
+
     // MARK: Geometry
 
     /// Whether the point is in the rectangle, all four edges included: the pointer can sit on

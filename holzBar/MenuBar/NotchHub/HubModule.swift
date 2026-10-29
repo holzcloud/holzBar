@@ -113,6 +113,16 @@ protocol HubHost: AnyObject {
     /// Closes the hub and opens holzBar's Settings at the modules, where the module's settings
     /// are.
     func openSettings(for moduleID: String)
+
+    /// Asks the hub to take the keyboard, so that a text field in a module's body can be typed
+    /// into. A module whose body has a text field calls it when the field gains focus. The
+    /// hub makes its panel the key window, as it is for a hub opened by its hotkey, without
+    /// making holzBar the active app. The default does nothing.
+    func takeKeyboard()
+}
+
+extension HubHost {
+    func takeKeyboard() {}
 }
 
 /// The running part of a hub module.
