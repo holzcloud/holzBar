@@ -13,6 +13,8 @@ nonisolated struct TimerItem: Identifiable, Equatable, Sendable {
         case length(Double)
         /// A countdown to a moment of the wall clock.
         case moment(Date)
+        /// A stopwatch that counts up from zero and never ends by itself.
+        case stopwatch
     }
 
     /// Where the timer is in its life.
@@ -23,6 +25,10 @@ nonisolated struct TimerItem: Identifiable, Equatable, Sendable {
         case paused(remaining: Double, total: Double)
         /// Ended (or was found ended) at the given moment.
         case finished(at: Date)
+        /// A stopwatch counting up since the given moment.
+        case counting(since: Date)
+        /// A stopwatch stopped at `elapsed` seconds.
+        case halted(elapsed: Double)
     }
 
     let id: UUID
@@ -54,6 +60,9 @@ nonisolated struct TimerBoard: Equatable, Sendable {
     /// How late, in seconds, an ending may be noticed and still ring. An ending noticed later
     /// than this (the Mac slept, holzBar was not running) is marked finished without a sound.
     static let lateTolerance: Double = 15
+    /// The most a stopwatch counts, in seconds: 99 hours, 59 minutes and 59 seconds. Beyond it
+    /// the display stays there.
+    static let maximumElapsed: Double = 359_999
 
     /// Why a timer could not be started.
     nonisolated enum Refusal: Equatable, Sendable {
@@ -127,6 +136,18 @@ nonisolated struct TimerBoard: Equatable, Sendable {
         return .started(id)
     }
 
+    /// Starts a stopwatch that counts up from zero at `now`. The board's limit of timers
+    /// applies; a stopwatch never finishes, so on a full board only a finished timer can make
+    /// room.
+    @discardableResult
+    mutating func startStopwatch(label: String, now: Date, id: UUID = UUID()) -> StartResult {
+        guard makeRoom() else {
+            return .refused(.full)
+        }
+        items.append(TimerItem(id: id, label: Self.cleanLabel(label), kind: .stopwatch, state: .counting(since: now)))
+        return .started(id)
+    }
+
     /// Makes room for one more timer: nothing to do while the board is not full, otherwise the
     /// oldest finished timer (the one that finished first) goes. Returns whether there is room.
     private mutating func makeRoom() -> Bool {
@@ -150,52 +171,73 @@ nonisolated struct TimerBoard: Equatable, Sendable {
         return items.count < Self.maximumItems
     }
 
-    /// Pauses a running timer of kind length and keeps the seconds left. A countdown to a
-    /// moment cannot be paused; a timer that is paused, finished or already at its end cannot
-    /// either. Returns whether the timer was paused.
+    /// Pauses a running timer of kind length and keeps the seconds left, or stops a counting
+    /// stopwatch at its elapsed seconds. A countdown to a moment cannot be paused; a timer that
+    /// is paused, finished or already at its end cannot either. Returns whether it was paused.
     @discardableResult
     mutating func pause(_ id: UUID, now: Date) -> Bool {
-        guard
-            let index = items.firstIndex(where: { $0.id == id }),
-            case .length(let total) = items[index].kind,
-            case .running(_, let end) = items[index].state,
-            end.timeIntervalSince(now) > 0
-        else {
+        guard let index = items.firstIndex(where: { $0.id == id }) else {
             return false
         }
-        items[index].state = .paused(remaining: min(end.timeIntervalSince(now), total), total: total)
-        return true
+        switch (items[index].kind, items[index].state) {
+        case (.length(let total), .running(_, let end)) where end.timeIntervalSince(now) > 0:
+            items[index].state = .paused(remaining: min(end.timeIntervalSince(now), total), total: total)
+            return true
+        case (.stopwatch, .counting(let since)):
+            items[index].state = .halted(elapsed: Self.elapsed(since: since, now: now))
+            return true
+        default:
+            return false
+        }
     }
 
-    /// Runs a paused timer again from `now` for the seconds it had left; its start moves so
-    /// that the progress stays right. Returns whether the timer was resumed.
+    /// The seconds a stopwatch has counted since `since`, kept from 0 to ``maximumElapsed``.
+    private static func elapsed(since: Date, now: Date) -> Double {
+        let seconds = now.timeIntervalSince(since)
+        return seconds.isFinite ? min(max(seconds, 0), maximumElapsed) : 0
+    }
+
+    /// Runs a paused timer again from `now` for the seconds it had left, its start moving so
+    /// that the progress stays right, or lets a stopped stopwatch count on from where it
+    /// stopped. Returns whether the timer was resumed.
     @discardableResult
     mutating func resume(_ id: UUID, now: Date) -> Bool {
-        guard
-            let index = items.firstIndex(where: { $0.id == id }),
-            case .paused(let remaining, let total) = items[index].state
-        else {
+        guard let index = items.firstIndex(where: { $0.id == id }) else {
             return false
         }
-        items[index].state = .running(
-            start: now.addingTimeInterval(remaining - total),
-            end: now.addingTimeInterval(remaining)
-        )
-        return true
+        switch items[index].state {
+        case .paused(let remaining, let total):
+            items[index].state = .running(
+                start: now.addingTimeInterval(remaining - total),
+                end: now.addingTimeInterval(remaining)
+            )
+            return true
+        case .halted(let elapsed):
+            items[index].state = .counting(since: now.addingTimeInterval(-elapsed))
+            return true
+        default:
+            return false
+        }
     }
 
     /// Runs a timer of kind length again for its full length from `now`, in whatever state it
-    /// is in. A countdown to a moment cannot restart. Returns whether the timer was restarted.
+    /// is in, or sets a stopwatch back to zero and counts on. A countdown to a moment cannot
+    /// restart. Returns whether the timer was restarted.
     @discardableResult
     mutating func restart(_ id: UUID, now: Date) -> Bool {
-        guard
-            let index = items.firstIndex(where: { $0.id == id }),
-            case .length(let seconds) = items[index].kind
-        else {
+        guard let index = items.firstIndex(where: { $0.id == id }) else {
             return false
         }
-        items[index].state = .running(start: now, end: now.addingTimeInterval(seconds))
-        return true
+        switch items[index].kind {
+        case .length(let seconds):
+            items[index].state = .running(start: now, end: now.addingTimeInterval(seconds))
+            return true
+        case .stopwatch:
+            items[index].state = .counting(since: now)
+            return true
+        case .moment:
+            return false
+        }
     }
 
     /// Removes a timer. Returns whether there was one.
@@ -229,7 +271,19 @@ nonisolated struct TimerBoard: Equatable, Sendable {
         switch item.state {
         case .running(_, let end): return max(0, end.timeIntervalSince(now))
         case .paused(let remaining, _): return remaining
-        case .finished: return 0
+        case .finished, .counting, .halted: return 0
+        }
+    }
+
+    /// The seconds a stopwatch has counted at `now`, or `nil` for a timer that is not one.
+    func elapsed(of id: UUID, now: Date) -> Double? {
+        guard let item = items.first(where: { $0.id == id }) else {
+            return nil
+        }
+        switch item.state {
+        case .counting(let since): return Self.elapsed(since: since, now: now)
+        case .halted(let elapsed): return elapsed
+        case .running, .paused, .finished: return nil
         }
     }
 
@@ -253,6 +307,8 @@ nonisolated struct TimerBoard: Equatable, Sendable {
             return min(max((total - remaining) / total, 0), 1)
         case .finished:
             return 1
+        case .counting, .halted:
+            return 0
         }
     }
 
@@ -267,14 +323,17 @@ nonisolated struct TimerBoard: Equatable, Sendable {
     }
 
     /// The timers as the tab lists them: finished first (the latest end first), then running
-    /// (the soonest end first), then paused (the least time left first). Timers with an equal
-    /// key keep the order they were added in.
+    /// (the soonest end first), then counting stopwatches (the oldest first), then paused
+    /// timers (the least time left first), then stopped stopwatches (the longest first). Timers
+    /// with an equal key keep the order they were added in.
     var ordered: [TimerItem] {
         func key(_ item: TimerItem) -> (group: Int, value: Double) {
             switch item.state {
             case .finished(let at): (0, -at.timeIntervalSince1970)
             case .running(_, let end): (1, end.timeIntervalSince1970)
-            case .paused(let remaining, _): (2, remaining)
+            case .counting(let since): (2, since.timeIntervalSince1970)
+            case .paused(let remaining, _): (3, remaining)
+            case .halted(let elapsed): (4, -elapsed)
             }
         }
         return items.enumerated()
@@ -350,7 +409,8 @@ nonisolated struct TimerBoard: Equatable, Sendable {
     /// The board in its stored form, version 1: a JSON object with the keys `version` and
     /// `items`. An item has `id` (the UUID as text), `label`, `kind` (`length` with `seconds`,
     /// or `moment` with `moment`) and `state` (`running` with `start` and `end`, `paused` with
-    /// `remaining` and `total`, or `finished` with `at`). Dates are seconds since 1970. Keys
+    /// `remaining` and `total`, or `finished` with `at`); a stopwatch has the kind `stopwatch`
+    /// and the state `counting` with `start`, or `halted` with `elapsed`. Dates are seconds since 1970. Keys
     /// may be added later; none is renamed.
     func encoded() -> Data {
         let stored = StoredBoard(version: 1, items: items.map { StoredEntry(StoredItem($0)) })
@@ -417,11 +477,28 @@ nonisolated struct TimerBoard: Equatable, Sendable {
                 return nil
             }
             kind = .moment(Date(timeIntervalSince1970: moment))
+        case "stopwatch":
+            kind = .stopwatch
         default:
+            return nil
+        }
+        // A stopwatch is counting or halted and nothing else; a timer is never either.
+        let isStopwatch = kind == .stopwatch
+        guard isStopwatch == (stored.state == "counting" || stored.state == "halted") else {
             return nil
         }
         let state: TimerItem.State
         switch stored.state {
+        case "counting":
+            guard let since = stored.start, isPlausible(since) else {
+                return nil
+            }
+            state = .counting(since: Date(timeIntervalSince1970: since))
+        case "halted":
+            guard let elapsed = stored.elapsed, elapsed.isFinite, elapsed >= 0, elapsed <= maximumElapsed else {
+                return nil
+            }
+            state = .halted(elapsed: elapsed)
         case "running":
             guard
                 let start = stored.start, let end = stored.end,
@@ -498,6 +575,7 @@ private nonisolated struct StoredItem: Codable {
     var remaining: Double?
     var total: Double?
     var at: Double?
+    var elapsed: Double?
 
     init(_ item: TimerItem) {
         id = item.id.uuidString
@@ -509,6 +587,8 @@ private nonisolated struct StoredItem: Codable {
         case .moment(let date):
             kind = "moment"
             moment = date.timeIntervalSince1970
+        case .stopwatch:
+            kind = "stopwatch"
         }
         switch item.state {
         case .running(let startDate, let endDate):
@@ -522,6 +602,12 @@ private nonisolated struct StoredItem: Codable {
         case .finished(let date):
             state = "finished"
             at = date.timeIntervalSince1970
+        case .counting(let since):
+            state = "counting"
+            start = since.timeIntervalSince1970
+        case .halted(let seconds):
+            state = "halted"
+            elapsed = seconds
         }
     }
 }

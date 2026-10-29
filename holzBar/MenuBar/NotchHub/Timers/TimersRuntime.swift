@@ -48,6 +48,14 @@ final class TimersRuntime: HubModuleRuntime {
         return result
     }
 
+    /// Starts a stopwatch that counts up from zero.
+    @discardableResult
+    func startStopwatch(label: String) -> TimerBoard.StartResult {
+        let result = board.startStopwatch(label: label, now: .now)
+        rearm()
+        return result
+    }
+
     func pause(_ id: UUID) {
         board.pause(id, now: .now)
         rearm()
@@ -80,15 +88,23 @@ final class TimersRuntime: HubModuleRuntime {
         let detail: Text
         switch item.state {
         case .running(let start, let end): detail = Text(timerInterval: start...end, countsDown: true)
-        case .paused: detail = Text("Paused")
+        case .counting(let since): detail = Text(timerInterval: since...TimersFormat.stopwatchEnd(from: since), countsDown: false)
+        case .paused, .halted: detail = Text("Paused")
         case .finished: detail = Text("Done")
         }
         return HubTile(
             symbol: "timer",
-            title: board.items.count > 1 ? Text("Timers") : Text("Timer"),
+            title: title(of: item),
             value: value,
             detail: detail
         )
+    }
+
+    private func title(of item: TimerItem) -> Text {
+        if board.items.count > 1 {
+            return Text("Timers")
+        }
+        return item.kind == .stopwatch ? Text("Stopwatch") : Text("Timer")
     }
 
     /// The pill beside the notch: Done while a finished timer waits, else the end time of the

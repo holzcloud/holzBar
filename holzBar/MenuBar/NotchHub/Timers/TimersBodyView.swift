@@ -16,6 +16,7 @@ struct TimersBodyView: View {
     private enum Mode: Hashable {
         case length
         case until
+        case stopwatch
     }
 
     private enum Field: Hashable {
@@ -65,6 +66,7 @@ struct TimersBodyView: View {
             Picker("Timer type", selection: $mode) {
                 Text("Length").tag(Mode.length)
                 Text("Until").tag(Mode.until)
+                Text("Stopwatch").tag(Mode.stopwatch)
             }
             .pickerStyle(.segmented)
             .labelsHidden()
@@ -79,6 +81,11 @@ struct TimersBodyView: View {
                         .datePickerStyle(.field)
                         .labelsHidden()
                         .focused($focus, equals: .moment)
+                case .stopwatch:
+                    Text("Counts up until you stop it.")
+                        .font(HolzBarTheme.Typography.caption)
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 Button("Start", action: startTyped)
                     .buttonStyle(.borderedProminent)
@@ -117,6 +124,8 @@ struct TimersBodyView: View {
             start(length: seconds)
         case .until:
             show(runtime.startMoment(moment, label: label))
+        case .stopwatch:
+            show(runtime.startStopwatch(label: label))
         }
     }
 
@@ -182,7 +191,7 @@ struct TimersBodyView: View {
                     toggle(item)
                 }
             }
-            if case .length = item.kind {
+            if !isMoment(item) {
                 iconButton("arrow.counterclockwise", title: "Restart") {
                     runtime.restart(item.id)
                 }
@@ -195,15 +204,23 @@ struct TimersBodyView: View {
     }
 
     private func isRunning(_ item: TimerItem) -> Bool {
-        if case .running = item.state {
+        switch item.state {
+        case .running, .counting: true
+        case .paused, .finished, .halted: false
+        }
+    }
+
+    private func isMoment(_ item: TimerItem) -> Bool {
+        if case .moment = item.kind {
             return true
         }
         return false
     }
 
-    /// Whether the pause or resume button shows: a running or paused timer of kind length.
+    /// Whether the pause or resume button shows: a running or paused timer of kind length, or
+    /// a stopwatch.
     private func canPause(_ item: TimerItem) -> Bool {
-        guard case .length = item.kind else {
+        if isMoment(item) {
             return false
         }
         if case .finished = item.state {
@@ -241,7 +258,7 @@ struct TimersBodyView: View {
             case .paused:
                 ProgressView(value: runtime.board.fraction(of: item.id, now: .now) ?? 0)
                     .tint(HolzBarTheme.Palette.textTertiary)
-            case .finished:
+            case .finished, .counting, .halted:
                 EmptyView()
             }
         }
@@ -256,18 +273,31 @@ struct TimersBodyView: View {
                 .font(HolzBarTheme.Typography.mono)
                 .monospacedDigit()
                 .foregroundStyle(HolzBarTheme.Palette.text)
+        case .counting(let since):
+            Text(timerInterval: since...TimersFormat.stopwatchEnd(from: since), countsDown: false)
+                .font(HolzBarTheme.Typography.mono)
+                .monospacedDigit()
+                .foregroundStyle(HolzBarTheme.Palette.text)
         case .paused(let remaining, _):
-            Text(verbatim: TimersFormat.clock(remaining))
+            stopped(TimersFormat.clock(remaining))
+        case .halted(let elapsed):
+            stopped(TimersFormat.clock(elapsed))
+        case .finished:
+            Label("Done", systemImage: "bell.fill")
+                .font(HolzBarTheme.Typography.callout)
+                .foregroundStyle(HolzBarTheme.Palette.danger)
+        }
+    }
+
+    private func stopped(_ clock: String) -> some View {
+        HStack(spacing: HolzBarTheme.Spacing.xs) {
+            Text(verbatim: clock)
                 .font(HolzBarTheme.Typography.mono)
                 .monospacedDigit()
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
             Text("Paused")
                 .font(HolzBarTheme.Typography.caption)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-        case .finished:
-            Label("Done", systemImage: "bell.fill")
-                .font(HolzBarTheme.Typography.callout)
-                .foregroundStyle(HolzBarTheme.Palette.danger)
         }
     }
 

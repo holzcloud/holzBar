@@ -27,6 +27,11 @@ enum TimersFormat {
         return String(format: "%d:%02d", whole / 60, whole % 60)
     }
 
+    /// The last moment a stopwatch that started at `start` still counts.
+    static func stopwatchEnd(from start: Date) -> Date {
+        start.addingTimeInterval(TimerBoard.maximumElapsed)
+    }
+
     /// What a timer is called: its label, else its length, else the moment it counts down to.
     static func name(of item: TimerItem) -> String {
         if !item.label.isEmpty {
@@ -38,6 +43,8 @@ enum TimersFormat {
         case .moment(let date):
             let at = time(date)
             return String(localized: "Until \(at)")
+        case .stopwatch:
+            return String(localized: "Stopwatch")
         }
     }
 }

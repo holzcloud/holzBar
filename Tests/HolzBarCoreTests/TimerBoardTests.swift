@@ -392,4 +392,104 @@ struct TimerBoardTests {
         let longLength = item(3, state: "\"running\",\"start\":1800000000,\"end\":1800360000")
         #expect(decoded(items: [year, tooFar, longLength]).items.map(\.id) == [id(1)])
     }
+
+    // MARK: Stopwatch
+
+    @Test("A stopwatch counts up from zero, never finishes and never sets a deadline")
+    func stopwatchCountsUp() {
+        var board = TimerBoard()
+        #expect(board.startStopwatch(label: " Run ", now: t, id: id(1)) == .started(id(1)))
+        #expect(board.items[0].kind == .stopwatch)
+        #expect(board.items[0].label == "Run")
+        #expect(board.items[0].state == .counting(since: t))
+        #expect(board.elapsed(of: id(1), now: t.addingTimeInterval(75)) == 75)
+        #expect(board.elapsed(of: id(1), now: t.addingTimeInterval(-5)) == 0)
+        #expect(board.elapsed(of: id(1), now: t.addingTimeInterval(1_000_000)) == TimerBoard.maximumElapsed)
+        #expect(board.elapsed(of: id(9), now: t) == nil)
+        #expect(board.nextDeadline == nil)
+        let before = board
+        #expect(board.collectFinished(now: t.addingTimeInterval(10_000_000)) == TimerBoard.Finished())
+        #expect(board == before)
+        #expect(board.remaining(of: id(1), now: t) == 0)
+        #expect(board.fraction(of: id(1), now: t) == 0)
+    }
+
+    @Test("A stopwatch stops at its elapsed seconds, counts on from there and starts over on restart")
+    func stopwatchPauseResumeRestart() {
+        var board = TimerBoard()
+        _ = board.startStopwatch(label: "", now: t, id: id(1))
+        #expect(board.pause(id(1), now: t.addingTimeInterval(40)) == true)
+        #expect(board.items[0].state == .halted(elapsed: 40))
+        #expect(board.elapsed(of: id(1), now: t.addingTimeInterval(9_999)) == 40)
+        #expect(board.pause(id(1), now: t.addingTimeInterval(50)) == false)
+        let later = t.addingTimeInterval(1_000)
+        #expect(board.resume(id(1), now: later) == true)
+        #expect(board.items[0].state == .counting(since: later.addingTimeInterval(-40)))
+        #expect(board.elapsed(of: id(1), now: later.addingTimeInterval(10)) == 50)
+        #expect(board.resume(id(1), now: later) == false)
+        #expect(board.restart(id(1), now: later.addingTimeInterval(20)) == true)
+        #expect(board.items[0].state == .counting(since: later.addingTimeInterval(20)))
+        board.pause(id(1), now: later.addingTimeInterval(25))
+        #expect(board.restart(id(1), now: later.addingTimeInterval(30)) == true)
+        #expect(board.items[0].state == .counting(since: later.addingTimeInterval(30)))
+    }
+
+    @Test("A stopwatch takes a place on the board like a timer: the eight-timer limit applies and only a finished timer makes room")
+    func stopwatchTakesPlace() {
+        var board = TimerBoard()
+        for number in 1...7 {
+            _ = board.startStopwatch(label: "", now: t, id: id(number))
+        }
+        _ = board.startLength(5, label: "", now: t, id: id(8))
+        #expect(board.startStopwatch(label: "", now: t, id: id(9)) == .refused(.full))
+        _ = board.collectFinished(now: t.addingTimeInterval(6))
+        #expect(board.startStopwatch(label: "", now: t, id: id(9)) == .started(id(9)))
+        #expect(!board.items.map(\.id).contains(id(8)))
+    }
+
+    @Test("Stopwatches sit after the running timers, and stopped ones after the paused timers")
+    func stopwatchOrder() {
+        var board = TimerBoard()
+        _ = board.startStopwatch(label: "", now: t, id: id(1))                      // counting, newer
+        _ = board.startLength(300, label: "", now: t, id: id(2))                    // running
+        _ = board.startStopwatch(label: "", now: t.addingTimeInterval(-60), id: id(3)) // counting, older
+        _ = board.startLength(500, label: "", now: t, id: id(4))                    // paused
+        _ = board.startStopwatch(label: "", now: t, id: id(5))                      // halted
+        board.pause(id(4), now: t.addingTimeInterval(1))
+        board.pause(id(5), now: t.addingTimeInterval(10))
+        #expect(board.ordered.map(\.id) == [id(2), id(3), id(1), id(4), id(5)])
+    }
+
+    @Test("A stopwatch survives its stored form, counting and halted")
+    func stopwatchStoredForm() throws {
+        var board = TimerBoard()
+        _ = board.startStopwatch(label: "Lap", now: t, id: id(1))
+        _ = board.startStopwatch(label: "", now: t, id: id(2))
+        board.pause(id(2), now: t.addingTimeInterval(12.5))
+        #expect(TimerBoard.decoded(from: board.encoded()) == board)
+        let object = try #require(try JSONSerialization.jsonObject(with: board.encoded()) as? [String: Any])
+        let items = try #require(object["items"] as? [[String: Any]])
+        #expect(items[0]["kind"] as? String == "stopwatch")
+        #expect(items[0]["state"] as? String == "counting")
+        #expect(items[0]["start"] as? Double == t.timeIntervalSince1970)
+        #expect(items[1]["state"] as? String == "halted")
+        #expect(items[1]["elapsed"] as? Double == 12.5)
+    }
+
+    @Test("A damaged stopwatch is dropped, and a timer in a stopwatch state is too")
+    func stopwatchDamage() {
+        let good = item(1, kind: "\"stopwatch\"", state: "\"counting\",\"start\":1800000000")
+        let bad = [
+            item(2, kind: "\"stopwatch\"", state: "\"halted\",\"elapsed\":-1"),
+            item(3, kind: "\"stopwatch\"", state: "\"halted\",\"elapsed\":400000"),
+            item(4, kind: "\"stopwatch\"", state: "\"halted\""),
+            item(5, kind: "\"stopwatch\"", state: "\"counting\""),
+            item(6, kind: "\"stopwatch\"", state: "\"running\",\"start\":1800000000,\"end\":1800000300"),
+            item(7, kind: "\"stopwatch\"", state: "\"finished\",\"at\":1800000000"),
+            item(8, state: "\"counting\",\"start\":1800000000"),
+            item(9, state: "\"halted\",\"elapsed\":5"),
+        ]
+        #expect(decoded(items: bad + [good]).items.map(\.id) == [id(1)])
+        #expect(decoded(items: [item(2, kind: "\"stopwatch\"", state: "\"halted\",\"elapsed\":359999")]).items.count == 1)
+    }
 }
