@@ -86,6 +86,8 @@
 
 ## New in 0.0.13
 
+0.0.13 is out; see its [release notes](release-notes/v0.0.13.md).
+
 Four upgrades of the holzBar Shelf, with their settings in Settings → General under the holzBar Shelf options. None needs a permission, a timer or the network, and nothing of them runs while the Shelf is closed.
 
 - **Type to find an item**: with a hotkey that opens the holzBar Shelf, which takes the keyboard, start typing. A small field at the start of the Shelf shows what you typed; the best match is highlighted with the same fuzzy search as the item search (abbreviations and typos work), the items that do not match step back, and the arrow keys step through the matches. **Return** (or Space) opens the highlighted item's real menu, **Backspace** deletes a character and **Escape** closes the Shelf. Spaces are not typed, and a key with Command or Control is left alone. **Find items by typing** is on by default; with it off the Shelf behaves as before and shows no field.
