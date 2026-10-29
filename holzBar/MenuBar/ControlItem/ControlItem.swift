@@ -182,6 +182,9 @@ final class ControlItem {
     /// The badge the capsule shows now; `nil` while none is drawn.
     @ObservationIgnored private var drawnCountBadge: HiddenItemCount.Badge?
 
+    /// A Boolean value that indicates whether the icon's tooltip and accessibility value are set.
+    @ObservationIgnored private var hasIconDescription = false
+
     /// Follows the count of hidden items for the badge. It exists only while the setting is on;
     /// with the setting off nothing observes the item cache for the badge.
     @ObservationIgnored private var countObserver: ObservationLoop?
@@ -479,6 +482,7 @@ final class ControlItem {
             button.image = image
             updateCaptureDot(on: button)
             updateCountBadge(on: button)
+            updateIconDescription(on: button)
         case .hidden, .alwaysHidden:
             if #available(macOS 27.0, *) {
                 // holzBar is signed locally, so MenuBarAgent drops its items whenever anything is
@@ -523,11 +527,8 @@ final class ControlItem {
         }
     }
 
-    /// Shows or hides the dot over holzBar's icon, with a tooltip and an accessibility value
-    /// that say what is in use.
-    ///
-    /// The accessibility label stays holzBar's name, so VoiceOver still names the control that
-    /// shows and hides items and reads what is in use as its value.
+    /// Shows or hides the dot over holzBar's icon. What it means is said by
+    /// ``updateIconDescription(on:)``.
     ///
     /// The status item's length never changes for the dot, so the bar does not reflow on
     /// macOS 27.
@@ -536,9 +537,6 @@ final class ControlItem {
             if captureDot != nil {
                 captureDot?.removeFromSuperview()
                 captureDot = nil
-                button.toolTip = nil
-                button.setAccessibilityLabel(nil)
-                button.setAccessibilityValue(nil)
             }
             return
         }
@@ -549,11 +547,40 @@ final class ControlItem {
         captureDot = dot
         dot.color = badge.showsCamera ? .systemGreen : .systemOrange
         positionCaptureDot()
-        let description = switch badge {
-        case .microphone: String(localized: "Microphone in use")
-        case .camera: String(localized: "Camera in use")
-        case .cameraAndMicrophone: String(localized: "Camera and microphone in use")
+    }
+
+    /// Sets the icon's tooltip and accessibility value to say what its decorations mean: what is
+    /// in use (the capture dot) and how many items are hidden (the count badge), both when both
+    /// show.
+    ///
+    /// One function owns the three, so neither decoration clears the other's description. The
+    /// accessibility label stays holzBar's name, so VoiceOver still names the control that shows
+    /// and hides items and reads the rest as its value. A button that never had a description is
+    /// left alone.
+    private func updateIconDescription(on button: NSStatusBarButton) {
+        var sentences = [String]()
+        if let badge = captureBadge {
+            let sentence = switch badge {
+            case .microphone: String(localized: "Microphone in use")
+            case .camera: String(localized: "Camera in use")
+            case .cameraAndMicrophone: String(localized: "Camera and microphone in use")
+            }
+            sentences.append(sentence)
         }
+        if let drawnCountBadge {
+            sentences.append(String(localized: "\(drawnCountBadge.count) hidden items"))
+        }
+        guard !sentences.isEmpty else {
+            if hasIconDescription {
+                hasIconDescription = false
+                button.toolTip = nil
+                button.setAccessibilityLabel(nil)
+                button.setAccessibilityValue(nil)
+            }
+            return
+        }
+        let description = sentences.joined(separator: ". ")
+        hasIconDescription = true
         button.toolTip = description
         button.setAccessibilityLabel(Constants.displayName)
         button.setAccessibilityValue(description)
