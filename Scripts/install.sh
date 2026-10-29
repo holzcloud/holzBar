@@ -38,6 +38,7 @@ echo "==> Building"
 #
 # CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO keeps Xcode from adding get-task-allow, which would
 # let any process of yours attach a debugger to holzBar and use its permissions (as in CI).
+# The one entitlement holzBar carries, for Calendar access, comes from holzBar.entitlements.
 xcodebuild -project "$ROOT/holzBar.xcodeproj" -scheme holzBar -configuration Release \
     -destination 'platform=macOS' -derivedDataPath "$DERIVED" build \
     CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
@@ -49,7 +50,7 @@ APP="$DERIVED/Build/Products/Release/holzBar.app"
 
 echo "==> Verifying the signature before installing"
 # The whole point: never install something that will not launch. The check also fails on
-# any entitlement or a missing hardened runtime.
+# any entitlement but the Calendar one, or a missing hardened runtime.
 "$ROOT/Scripts/check-signature.sh" "$APP"
 codesign -dv "$APP" 2>&1 | grep -E 'Identifier=|TeamIdentifier=|^CodeDirectory' | sed 's/^/    /'
 

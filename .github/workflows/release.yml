@@ -92,8 +92,8 @@ jobs:
             CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
             CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
 
-      # The hardened runtime on every bundle and no entitlement on any code, as in every
-      # pull request's build.
+      # The hardened runtime on every bundle and no entitlement but the Calendar one on the
+      # app, as in every pull request's build.
       - name: Check the build
         run: Scripts/check-signature.sh build/Build/Products/Release/holzBar.app
 
@@ -204,25 +204,39 @@ jobs:
             echo "::error::SIGNING_CERTIFICATE_P12 holds holzBar's certificate without its private key."
             exit 1
           fi
-          # Every piece of code is signed with explicitly empty entitlements: the build job
-          # proved the build had none, so nothing real can be dropped silently, and nothing
-          # the build carried (such as get-task-allow) can survive.
-          ENTITLEMENTS="$RUNNER_TEMP/empty.entitlements"
-          plutil -create xml1 "$ENTITLEMENTS"
+          # The app is signed with exactly one entitlement, the Calendar one, and any nested code
+          # (there is none) with explicitly empty entitlements. The files are made here because
+          # this job checks out no code. The build job proved the build carried nothing else, so
+          # nothing real can be dropped silently, and nothing the build carried (such as
+          # get-task-allow) can survive. Scripts/check-signature.sh allows the same one key.
+          EMPTY_ENTITLEMENTS="$RUNNER_TEMP/empty.entitlements"
+          plutil -create xml1 "$EMPTY_ENTITLEMENTS"
+          APP_ENTITLEMENTS="$RUNNER_TEMP/holzbar.entitlements"
+          cat > "$APP_ENTITLEMENTS" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>com.apple.security.personal-information.calendars</key>
+              <true/>
+          </dict>
+          </plist>
+          PLIST
+          plutil -lint "$APP_ENTITLEMENTS"
           # Inside out, without --deep (Apple's guidance): the embedded code first, deepest
           # first, then the app. The identifier and the hardened runtime of the ad hoc build
           # are kept, never its entitlements; the designated requirement is made anew from the
           # certificate. No timestamp: that would ask Apple's timestamp server, which serves
-          # Developer ID signatures.
+          # Developer ID signatures. sign takes the entitlements file as its second argument.
           sign() {
             codesign --force --sign "$IDENTITY" --keychain "$KEYCHAIN" \
-              --options runtime --timestamp=none --entitlements "$ENTITLEMENTS" \
+              --options runtime --timestamp=none --entitlements "$2" \
               --preserve-metadata=identifier,flags,runtime "$1"
           }
           while IFS= read -r -d '' NESTED; do
-            sign "$NESTED"
+            sign "$NESTED" "$EMPTY_ENTITLEMENTS"
           done < <(find "$APP/Contents" -depth \( -name '*.xpc' -o -name '*.appex' -o -name '*.framework' -o -name '*.app' -o -name '*.dylib' \) -print0)
-          sign "$APP"
+          sign "$APP" "$APP_ENTITLEMENTS"
 
       # Removes the key from the runner, whether signing worked or not.
       - name: Remove the signing keychain
@@ -234,8 +248,9 @@ jobs:
       # What users and macOS rely on, checked before anything is published: holzBar ships no
       # nested code, so nothing the sign loop skipped can stay ad hoc; every piece of code is
       # signed with holzBar's certificate, never ad hoc, with the hardened runtime on every
-      # bundle and no entitlement at all; the app's designated requirement is exactly its
-      # identifier and that certificate, which keeps Accessibility across updates.
+      # bundle and no entitlement but the app's Calendar one; the app's designated requirement
+      # is exactly its identifier and that certificate, which keeps Accessibility across
+      # updates.
       - name: Check the signature
         env:
           APP: ${{ runner.temp }}/release/holzBar.app
@@ -295,7 +310,14 @@ jobs:
             if grep -q 'com.apple.security.get-task-allow' <<< "$ENTITLEMENTS"; then
               fail "$NAME carries com.apple.security.get-task-allow, which lets a debugger attach to it"
             elif grep -q '<key>' <<< "$ENTITLEMENTS"; then
-              fail "$NAME carries entitlements; holzBar has none"
+              # The one allowed key, on the app only; any other key fails by name.
+              while IFS= read -r KEY; do
+                if [ "$KEY" != "com.apple.security.personal-information.calendars" ]; then
+                  fail "$NAME carries the entitlement $KEY; holzBar may carry only com.apple.security.personal-information.calendars"
+                elif [ "$ITEM" != "$APP" ]; then
+                  fail "$NAME carries $KEY; only holzBar.app may"
+                fi
+              done < <(grep -oE '<key>[^<]*</key>' <<< "$ENTITLEMENTS" | sed -E 's|</?key>||g')
             fi
             codesign -d --extract-certificates="$CERTS/$N-" "$ITEM" 2> /dev/null || true
             if [ ! -f "$CERTS/$N-0" ]; then
@@ -326,7 +348,7 @@ jobs:
             echo
             echo "Designated requirement: \`$REQUIREMENT\`"
             echo
-            echo "Entitlements: none, on all $N pieces of code"
+            echo "Entitlements: only com.apple.security.personal-information.calendars, on holzBar.app; none on the other pieces ($N pieces of code)"
           } >> "$GITHUB_STEP_SUMMARY"
 
       # The zip users download. hashes is the zip's sha256sum line, base64-encoded, the

@@ -96,10 +96,17 @@ jobs:
           exit $STATUS
 
       # Every build is hardened (library validation, no DYLD variables, no injected code) and
-      # carries no entitlement, not even get-task-allow, which would let a debugger attach.
-      # The script checks the app and every piece of code inside it.
+      # carries at most one entitlement, the Calendar one; every other key fails, not least
+      # get-task-allow, which would let a debugger attach. The script checks the app and every
+      # piece of code inside it.
       - name: Check the signature
         run: Scripts/check-signature.sh build/Build/Products/Release/holzBar.app
+
+      # The check is a security promise, so it is shown to fail: small fixture apps signed ad hoc
+      # (none, the Calendar key, Calendar plus camera, get-task-allow, a network key, no hardened
+      # runtime, nested code) must each pass or fail as the check says.
+      - name: Test the signature check
+        run: Scripts/test-check-signature.sh
 
       # The app's identity (CLAUDE.md, "Naming"): a changed bundle identifier would lose every
       # user's settings and permissions, and the URL scheme is how Shortcuts, Raycast and
@@ -139,7 +146,7 @@ jobs:
       # the sources; this step checks what was really built: no executable in the app may
       # reference URLSession, NSURLConnection, WKWebView, Network connections, listeners or
       # browsers, or BSD sockets, or link WebKit. "Check the signature" already rejects every
-      # entitlement, network ones included. NWPathMonitor (the "Reveal when offline" rule)
+      # entitlement but the Calendar one, network ones included. NWPathMonitor (the "Reveal when offline" rule)
       # only observes whether a network path exists, so its symbols pass.
       - name: Check the binaries for network code
         run: |
