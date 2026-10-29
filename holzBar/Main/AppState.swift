@@ -412,6 +412,8 @@ final class AppState {
             permissions.accessibility.hasPermission
         case .screenRecording:
             permissions.screenRecording.hasPermission
+        case .calendar:
+            permissions.calendar.hasPermission
         }
     }
 

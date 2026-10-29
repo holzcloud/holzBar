@@ -70,7 +70,8 @@ nonisolated enum ModuleCatalog {
     /// is off until the user switches it on, asks for no permission and creates nothing while
     /// off: no window, no monitor and no module of its own. Timers, a module of the hub, is off
     /// until the user switches it on, asks for no permission and runs no task and no observer
-    /// while off. The title and the summary are the English strings the settings show; their keys
+    /// while off. Calendar, another module of the hub, is off until the user switches it on, asks for
+    /// Calendar access only then and creates no store, observer or wait while off. The title and the summary are the English strings the settings show; their keys
     /// are those strings.
     static let all: [ModuleDescriptor] = [
         ModuleDescriptor(
@@ -112,6 +113,15 @@ nonisolated enum ModuleCatalog {
             titleKey: "Timers",
             summaryKey: "Timers, countdowns and a stopwatch at the notch, with a sound when a timer ends.",
             permission: nil,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "calendar",
+            area: .notch,
+            symbol: "calendar",
+            titleKey: "Calendar",
+            summaryKey: "Your next events and their meeting links.",
+            permission: .calendar,
             isPreview: true
         ),
     ]

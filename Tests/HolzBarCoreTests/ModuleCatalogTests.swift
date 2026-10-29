@@ -94,6 +94,24 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["timers"], knownTo: ModuleCatalog.all) == ["timers"])
     }
 
+    @Test("Calendar is a Preview module of the notch area that asks for the Calendar permission, after Timers")
+    func calendarModule() throws {
+        let calendar = try #require(ModuleCatalog.all.first { $0.id == "calendar" })
+        #expect(calendar.area == .notch)
+        #expect(calendar.permission == .calendar)
+        #expect(calendar.isPreview)
+        #expect(calendar.symbol == "calendar")
+        #expect(calendar.titleKey == "Calendar")
+        let notch = ModuleCatalog.modules(in: .notch).map(\.id)
+        let timersIndex = try #require(notch.firstIndex(of: "timers"))
+        let calendarIndex = try #require(notch.firstIndex(of: "calendar"))
+        #expect(timersIndex < calendarIndex)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["calendar"], knownTo: ModuleCatalog.all) == ["calendar"])
+    }
+
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(
@@ -104,11 +122,11 @@ struct ModuleCatalogTests {
             """
         )
         #expect(
-            ModuleCatalog.all.allSatisfy { $0.permission == nil },
+            Set(ModuleCatalog.all.compactMap(\.permission)) == [.calendar],
             """
-            A module with a permission needs its sentence and its lookup (isGranted) in \
-            ModulesSettingsPane (a module says why before it asks). Teach the pane both, \
-            then update this test.
+            A module with a permission needs its sentence (permissionText) and its lookup \
+            (isGranted) in ModulesSettingsPane (a module says why before it asks). Teach the \
+            pane both, then update this test.
             """
         )
     }

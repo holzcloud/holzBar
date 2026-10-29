@@ -15,6 +15,7 @@ final class AppPermissions {
     enum PermissionKey {
         case accessibility
         case screenRecording
+        case calendar
     }
 
     /// The state of the app's granted permissions.
@@ -33,6 +34,10 @@ final class AppPermissions {
     /// The permission for Screen Recording features.
     let screenRecording = ScreenRecordingPermission()
 
+    /// The permission for the Calendar module's events. It is read once at launch without a
+    /// prompt and asked for only when the module is switched on.
+    let calendar = CalendarPermission()
+
     /// The state of the app's granted permissions.
     private(set) var permissionsState: PermissionsState = .missing
 
@@ -44,7 +49,7 @@ final class AppPermissions {
 
     /// The permissions required for full app functionality.
     var allPermissions: [Permission] {
-        [accessibility, screenRecording]
+        [accessibility, screenRecording, calendar]
     }
 
     /// The permissions required for basic app functionality.

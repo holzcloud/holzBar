@@ -301,6 +301,78 @@
           }
         }
       }
+    },
+    "NSCalendarsFullAccessUsageDescription" : {
+      "comment" : "Calendar usage description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar zeigt deine nächsten Termine und ihre Meeting-Links im Notch-Hub. Sie werden nur auf diesem Mac gelesen und nie gesendet oder gespeichert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "holzBar shows your next events and their meeting links in the notch hub. It reads them on this Mac only and never sends or stores them."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar muestra tus próximos eventos y sus enlaces de reunión en el centro del notch. Los lee solo en este Mac y nunca los envía ni los guarda."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar affiche vos prochains événements et leurs liens de réunion dans le hub de l’encoche. Ils sont lus uniquement sur ce Mac et ne sont jamais envoyés ni enregistrés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar mostra i tuoi prossimi eventi e i relativi link delle riunioni nell’hub del notch. Vengono letti solo su questo Mac e non vengono mai inviati né salvati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、次の予定とその会議リンクをノッチハブに表示します。予定はこの Mac 上でのみ読み取られ、送信や保存は一切行われません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 노치 허브에 다음 일정과 회의 링크를 표시합니다. 일정은 이 Mac에서만 읽으며 전송하거나 저장하지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar mostra seus próximos eventos e os links de reunião deles no hub do notch. Ele os lê somente neste Mac e nunca os envia nem os armazena."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar mussa tes proxims eveniments e lur colligaziuns da scuntradas en il hub da la notch. Els vegnan legids mo sin quest Mac e mai trametti u memorisads."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar показывает ваши ближайшие события и ссылки на встречи в центре у выреза. События читаются только на этом Mac и никогда не отправляются и не сохраняются."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 会在刘海中心里显示你接下来的日程及其会议链接。日程仅在这台 Mac 上读取，绝不会发送或存储。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
