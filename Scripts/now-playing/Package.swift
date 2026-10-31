@@ -15,14 +15,22 @@ let settings: [SwiftSetting] = [
 let package = Package(
     name: "NowPlayingProbe",
     platforms: [.macOS(.v14)],
+    products: [
+        // The same code as RemoteProbeLib, built as a dynamic library for /usr/bin/perl to load.
+        .library(name: "RemoteProbeDylib", type: .dynamic, targets: ["RemoteProbeLib"]),
+    ],
     targets: [
         .target(
             name: "NowPlayingProbeCore",
             swiftSettings: settings
         ),
+        .target(
+            name: "RemoteProbeLib",
+            swiftSettings: settings
+        ),
         .executableTarget(
             name: "now-playing-probe",
-            dependencies: ["NowPlayingProbeCore"],
+            dependencies: ["NowPlayingProbeCore", "RemoteProbeLib"],
             swiftSettings: settings,
             linkerSettings: [
                 .linkedFramework("AppKit"),
