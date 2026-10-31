@@ -215,6 +215,25 @@ enum HolzBarShelfActions {
         }
     }
 
+    /// Closes the Shelf and opens a system item the user hid: the clock, Control Center, Wi-Fi
+    /// or the battery. macOS 27 only; the item is lifted for a moment and put away again.
+    static func openSystemItem(
+        _ item: SystemItem27,
+        section: MenuBarSection.Name,
+        appState: AppState,
+        menuBarManager: MenuBarManager?
+    ) {
+        guard #available(macOS 27.0, *), let menuBarManager else {
+            return
+        }
+        let shelfDisplayID = menuBarManager.shelfPanel.screen?.displayID
+        menuBarManager.section(withName: section)?.hide()
+        Task {
+            try? await Task.sleep(for: .milliseconds(25))
+            await SystemItemClickBridge27.openFromShelf(item, shelfDisplayID: shelfDisplayID, appState: appState)
+        }
+    }
+
     /// Closes the Shelf and launches an application that is not running.
     static func launch(
         _ entry: HolzBarShelfClosedAppList.Entry,
@@ -397,6 +416,50 @@ struct HolzBarShelfClosedAppView: View {
             .accessibilityLabel(entry.app.name)
             .accessibilityHint(Text("Not running"))
             .accessibilityAction(.default, launch)
+    }
+}
+
+// MARK: - HolzBarShelfSystemItemView
+
+/// A system item the user hid, as a symbol tile: macOS draws no picture of a concealed item. A
+/// click lifts the item for a moment and opens it where macOS draws it. The tile cannot be
+/// dragged and accepts no drop.
+struct HolzBarShelfSystemItemView: View {
+    var registry: HolzBarShelfTileRegistry
+
+    let symbolName: String
+    let name: String
+    let tileID: String
+    var isHighlighted = false
+    var isDimmed = false
+    var dropIndication: HolzBarShelfDropIndication?
+    let open: () -> Void
+
+    var body: some View {
+        Image(systemName: symbolName)
+            .renderingMode(.template)
+            .imageScale(.large)
+            .accessibilityHidden(true)
+            .padding(.horizontal, 4)
+            .contentShape(Rectangle())
+            .opacity(isDimmed ? 0.35 : 1)
+            .background(HolzBarShelfFrameReporter(id: tileID, registry: registry))
+            .overlay {
+                HolzBarShelfClickView(
+                    toolTip: name,
+                    leftClickAction: open,
+                    rightClickAction: nil,
+                    drag: nil
+                )
+            }
+            .keyboardHighlight(isHighlighted)
+            .dropIndication(dropIndication, axis: .horizontal)
+            .accessibilityElement(children: .ignore)
+            .accessibilityAddTraits(.isButton)
+            .accessibilityAddTraits(isHighlighted ? .isSelected : [])
+            .accessibilityLabel(name)
+            .accessibilityHint(Text("Opens the item"))
+            .accessibilityAction(.default, open)
     }
 }
 

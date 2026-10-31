@@ -350,7 +350,72 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         return CGRect(x: displayBounds.minX, y: displayBounds.minY, width: displayBounds.width, height: height)
     }
 
-    private static func replayClick(at location: CGPoint) {
+    // MARK: Opened from the holzBar Shelf
+
+    /// Opens a system item the user hid, from its tile in the holzBar Shelf.
+    ///
+    /// The item is lifted for a moment, clicked where macOS draws it with a click the tap lets
+    /// through, and put away again once its panel is gone. Every exit after the show has begun
+    /// ends the temporary show exactly once.
+    ///
+    /// - Parameters:
+    ///   - item: The system item to open.
+    ///   - shelfDisplayID: The display the Shelf was on, whose menu bar must be the active one.
+    ///   - appState: The shared app state.
+    static func openFromShelf(_ item: SystemItem27, shelfDisplayID: CGDirectDisplayID?, appState: AppState) async {
+        let key = SystemItems27.concealedKey(for: item)
+        let identifier = item.accessibilityIdentifier
+        let concealer = appState.concealer27
+
+        // The menu bar of the Shelf's display must be active before the item is shown, while
+        // the spot to click is still empty.
+        await ItemClicker27.activateMenuBarIfNeeded(shelfDisplayID: shelfDisplayID, appState: appState)
+
+        let shown = await concealer.showTemporarily(bundleID: key)
+        defer {
+            concealer.endTemporaryShow(bundleID: key)
+        }
+        if shown {
+            // A shown item is drawn 0.4 to 0.6 s after the change that allows it lands (measured).
+            try? await Task.sleep(for: .milliseconds(600))
+        } else {
+            bridgeLogger.notice("A hidden system item was not shown in time")
+        }
+
+        _ = await MenuBarItemProvider27.items()
+        let baseline = windowNumbers()
+        if shown, let frame = MenuBarItemProvider27.systemItemFrame(identifier: identifier) {
+            let original = CGEvent(source: nil)?.location
+            replayClick(at: CGPoint(x: frame.midX, y: frame.midY))
+            if let original {
+                _ = CGWarpMouseCursorPosition(original)
+            }
+        } else if let element = MenuBarItemProvider27.systemItemElement(identifier: identifier) {
+            await press(element)
+        } else {
+            bridgeLogger.error("A hidden system item is neither drawn nor reachable through Accessibility")
+            return
+        }
+
+        // Keep the item shown until its panel is gone; a bounded wait in rounds of one second.
+        if let opened = await waitForOpenedPanel(item: identifier, baseline: baseline, polls: 8) {
+            var gone = false
+            var rounds = 0
+            while !gone, rounds < 60 {
+                gone = await waitForPanelToGo(window: opened.window, polls: 20)
+                rounds += 1
+            }
+        } else {
+            try? await Task.sleep(for: .milliseconds(1500))
+        }
+        // "Hide opened items again after" counts from here, when the panel has closed.
+        let delay = min(max(appState.settings.advanced.tempShowInterval, 0), 30)
+        if delay > 0 {
+            try? await Task.sleep(for: .seconds(delay))
+        }
+    }
+
+    static func replayClick(at location: CGPoint) {
         let source = CGEventSource(stateID: .hidSystemState)
         for type in [CGEventType.leftMouseDown, .leftMouseUp] {
             guard let event = CGEvent(

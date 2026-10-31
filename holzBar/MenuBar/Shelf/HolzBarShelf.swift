@@ -525,6 +525,7 @@ private struct HolzBarShelfContentView: View {
                 input.closedAlwaysHidden = closedApps.alwaysHidden.map(\.app)
             }
             input.closedHidden = closedApps.hidden.map(\.app)
+            input.hiddenSystemItems = hiddenSystemItems
             input.foldsAlwaysHidden = true
             input.isFoldOpen = isFoldOpen || find.isActive
         case .alwaysHidden:
@@ -537,6 +538,27 @@ private struct HolzBarShelfContentView: View {
         input.closedFirst = layout == .row
         contents.tiles = ShelfContents.tiles(input)
         return contents
+    }
+
+    /// The system items the user hid with Apple Items (macOS 27), in the bar's order. macOS
+    /// draws no picture of a concealed item, so the Shelf lists a symbol tile for each.
+    private var hiddenSystemItems: [ShelfContents.SystemItem] {
+        guard AppleItems.isSupported else {
+            return []
+        }
+        return SystemItems27.inBarOrder(appState.appleItems.concealedSystemItems(in: appState)).map { item in
+            ShelfContents.SystemItem(key: SystemItems27.concealedKey(for: item), name: Self.name(of: item))
+        }
+    }
+
+    /// The name of a system item, for its tile's tooltip, VoiceOver label and search.
+    private static func name(of item: SystemItem27) -> String {
+        switch item {
+        case .battery: String(localized: "Battery")
+        case .clock: String(localized: "Clock")
+        case .wifi: String(localized: "Wi-Fi")
+        case .controlCentre: String(localized: "Control Center")
+        }
     }
 
     /// Whether macOS 27 shows the item itself, in its own expanded overflow, so the Shelf would
@@ -853,11 +875,21 @@ private struct HolzBarShelfContentView: View {
                 return
             }
             HolzBarShelfActions.launch(entry, section: section, menuBarManager: menuBarManager)
+        case .systemItem(let key):
+            openSystemItem(forKey: key)
         case .fold:
             toggleFold()
         case .divider:
             break
         }
+    }
+
+    /// Closes the Shelf and opens the system item a tile stands for.
+    private func openSystemItem(forKey key: String) {
+        guard let item = SystemItems27.item(forConcealedKey: key) else {
+            return
+        }
+        HolzBarShelfActions.openSystemItem(item, section: section, appState: appState, menuBarManager: menuBarManager)
     }
 
     private func toggleFold() {
@@ -921,7 +953,7 @@ private struct HolzBarShelfContentView: View {
             switch tile.kind {
             case .item: .item
             case .fold: .fold
-            case .closedApp, .divider: .other
+            case .closedApp, .systemItem, .divider: .other
             }
         }
         let dropTiles: [ShelfDrop.Tile] = contents.tiles.compactMap { tile in
@@ -1132,6 +1164,19 @@ private struct HolzBarShelfContentView: View {
                     launch: {
                         HolzBarShelfActions.launch(entry, section: section, menuBarManager: menuBarManager)
                     }
+                )
+            }
+        case .systemItem(let key):
+            if let item = SystemItems27.item(forConcealedKey: key) {
+                HolzBarShelfSystemItemView(
+                    registry: registry,
+                    symbolName: item.symbolName,
+                    name: tile.name,
+                    tileID: tile.id,
+                    isHighlighted: isHighlighted,
+                    isDimmed: isDimmed,
+                    dropIndication: dropIndication(for: tile),
+                    open: { openSystemItem(forKey: key) }
                 )
             }
         case .divider:

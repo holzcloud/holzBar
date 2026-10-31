@@ -30,14 +30,7 @@ enum ItemClicker27 {
             return
         }
 
-        if
-            ItemClick27.needsMenuBarActivation(activeDisplayID: Bridging.getActiveMenuBarDisplayID(), shelfDisplayID: shelfDisplayID),
-            let shelfDisplayID,
-            let point = appState.hidEventManager.lastEmptyMenuBarPoint(for: shelfDisplayID)
-        {
-            postMenuBarActivationClick(at: point)
-            try? await Task.sleep(for: .milliseconds(300))
-        }
+        await activateMenuBarIfNeeded(shelfDisplayID: shelfDisplayID, appState: appState)
 
         let concealer = appState.concealer27
         let shown = await concealer.showTemporarily(bundleID: bundleID)
@@ -84,6 +77,21 @@ enum ItemClicker27 {
             try? await Task.sleep(for: .seconds(delay))
         }
         concealer.endTemporaryShow(bundleID: bundleID)
+    }
+
+    /// Makes the menu bar of the holzBar Shelf's display the active one, where it is not: a
+    /// click on the empty spot where the Shelf was opened. Shared by every click that comes
+    /// from the Shelf, which must run before the application is shown.
+    static func activateMenuBarIfNeeded(shelfDisplayID: CGDirectDisplayID?, appState: AppState) async {
+        guard
+            ItemClick27.needsMenuBarActivation(activeDisplayID: Bridging.getActiveMenuBarDisplayID(), shelfDisplayID: shelfDisplayID),
+            let shelfDisplayID,
+            let point = appState.hidEventManager.lastEmptyMenuBarPoint(for: shelfDisplayID)
+        else {
+            return
+        }
+        postMenuBarActivationClick(at: point)
+        try? await Task.sleep(for: .milliseconds(300))
     }
 
     private static func perform(_ action: String, on element: AXUIElement) async -> AXError {

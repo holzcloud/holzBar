@@ -24,6 +24,10 @@ nonisolated struct ShelfTile: Equatable, Identifiable, Sendable {
         case fold(count: Int, isOpen: Bool)
         /// An application that is not running and has a hidden item remembered.
         case closedApp(bundleID: String)
+        /// A system item the user hid (the clock, Control Center, Wi-Fi, the battery), which
+        /// macOS draws no picture of while it is concealed. `key` is the item's key in the
+        /// saved layout.
+        case systemItem(key: String)
         /// The thin line between two groups of a row.
         case divider
     }
@@ -39,6 +43,7 @@ nonisolated struct ShelfTile: Equatable, Identifiable, Sendable {
         case .item(let windowID): "item-\(windowID)"
         case .fold: "fold"
         case .closedApp(let bundleID): "app-\(bundleID)"
+        case .systemItem(let key): "system-\(key)"
         case .divider: "divider-\(group.rawValue)"
         }
     }
@@ -51,10 +56,10 @@ nonisolated struct ShelfTile: Equatable, Identifiable, Sendable {
         return true
     }
 
-    /// Whether a search looks at the tile: an item and a closed application.
+    /// Whether a search looks at the tile: an item, a closed application and a system item.
     var isSearchable: Bool {
         switch kind {
-        case .item, .closedApp: true
+        case .item, .closedApp, .systemItem: true
         case .fold, .divider: false
         }
     }
@@ -65,7 +70,9 @@ nonisolated struct ShelfTile: Equatable, Identifiable, Sendable {
 /// The Shelf of the hidden section lists, from left to right as the menu bar does, the
 /// always-hidden items behind one fold tile (or open, after a divider), the visible items that
 /// the notch covers and the hidden items. An application that is not running goes with the
-/// section it is remembered in.
+/// section it is remembered in. The system items the user hid close the hidden group, as tiles
+/// of their own, in the order the caller gives (the bar's); the Shelf of the always-hidden
+/// section has none.
 nonisolated enum ShelfContents {
     /// A menu bar item that is on the bar now.
     nonisolated struct Item: Equatable, Sendable {
@@ -89,6 +96,19 @@ nonisolated enum ShelfContents {
         }
     }
 
+    /// A system item the user hid, as the Shelf lists it.
+    nonisolated struct SystemItem: Equatable, Sendable {
+        /// The item's key in the saved layout, such as `system-item:2`.
+        let key: String
+        /// The item's name, which a search matches.
+        let name: String
+
+        init(key: String, name: String) {
+            self.key = key
+            self.name = name
+        }
+    }
+
     nonisolated struct Input: Equatable, Sendable {
         /// Visible items that the notch covers.
         var covered = [Item]()
@@ -96,6 +116,9 @@ nonisolated enum ShelfContents {
         var alwaysHidden = [Item]()
         var closedHidden = [ClosedApp]()
         var closedAlwaysHidden = [ClosedApp]()
+        /// The system items the user hid, in the order to list them; only the hidden group
+        /// lists them.
+        var hiddenSystemItems = [SystemItem]()
         /// Whether the always-hidden items sit behind a fold tile. When they do not, they are
         /// listed as the Shelf's own group: the Shelf of the always-hidden section.
         var foldsAlwaysHidden = false
@@ -128,7 +151,10 @@ nonisolated enum ShelfContents {
             groups.append(groupTiles(.alwaysHidden, items: input.alwaysHidden, closed: input.closedAlwaysHidden, closedFirst: input.closedFirst))
         }
         groups.append(groupTiles(.visible, items: input.covered, closed: [], closedFirst: false))
-        groups.append(groupTiles(.hidden, items: input.hidden, closed: input.closedHidden, closedFirst: input.closedFirst))
+        groups.append(
+            groupTiles(.hidden, items: input.hidden, closed: input.closedHidden, closedFirst: input.closedFirst)
+                + input.hiddenSystemItems.map { ShelfTile(kind: .systemItem(key: $0.key), group: .hidden, name: $0.name) }
+        )
 
         var result = [ShelfTile]()
         for tiles in groups where !tiles.isEmpty {
