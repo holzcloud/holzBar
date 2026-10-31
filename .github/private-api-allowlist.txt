@@ -22,3 +22,11 @@ holzBar/MenuBar/NotchHub/AccessoryAlerts/AccessoryBatterySource.swift: dlsym
 holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: dlopen
 holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: dlsym
 holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: PrivateFrameworks
+#
+# The Now Playing module's Read all apps reads what any app plays through MediaRemote, which
+# Apple does not document and only lets Apple's own platform binaries use. The helper framework
+# loads it at run time inside /usr/bin/perl and is the only file that names it (agreed
+# 2026-10-31; CLAUDE.md, Private API in modules). The bridge names no private API.
+NowPlayingRemote/NowPlayingRemote.swift: dlopen
+NowPlayingRemote/NowPlayingRemote.swift: dlsym
+NowPlayingRemote/NowPlayingRemote.swift: PrivateFrameworks

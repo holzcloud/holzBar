@@ -13,12 +13,13 @@
 #   logs     Every interpolation in a Logger call names its privacy, and no
 #            interpolation makes personal data (item tags, bundle identifiers,
 #            app and profile names, errors) public.
-#   processes  Only the script runner and the permission reset start a process:
-#            no process-launching API, shell path or osascript path appears in
-#            holzBar/ or Shared/ except the lines .github/process-allowlist.txt
-#            allows (threats T-11-H3 and T-11-H4 of SECURITY.md).
+#   processes  Only the listed files start a process (the script runner, the permission
+#            reset and the Now Playing bridge): no process-launching API, shell path,
+#            osascript path or perl path appears in holzBar/, Shared/ or NowPlayingRemote/
+#            except the lines .github/process-allowlist.txt allows (threats T-11-H3 and
+#            T-11-H4 of SECURITY.md).
 #   private  Private API only where the list says: no dlopen, dlsym, PrivateFrameworks
-#            path or @_silgen_name appears in holzBar/ or Shared/ except the lines
+#            path or @_silgen_name appears in holzBar/, Shared/ or NowPlayingRemote/ except the lines
 #            .github/private-api-allowlist.txt allows (one wrapper per private API, each
 #            agreed with the maintainer; see CLAUDE.md, "Private API only by exception").
 #
@@ -41,7 +42,9 @@ import re
 import string
 import sys
 
-SOURCE_DIRS = ("holzBar", "Shared")
+# NowPlayingRemote/ holds the source of the helper framework of the Now Playing module; it sits
+# outside holzBar/ because every file in that folder is compiled into the app.
+SOURCE_DIRS = ("holzBar", "Shared", "NowPlayingRemote")
 NETWORK_ALLOWLIST = ".github/network-allowlist.txt"
 PROCESS_ALLOWLIST = ".github/process-allowlist.txt"
 PRIVATE_ALLOWLIST = ".github/private-api-allowlist.txt"
@@ -103,6 +106,7 @@ PROCESS_PATTERNS = [
     ("vfork()", re.compile(r"(?<![.\w])vfork\s*\(")),
     ("shell path", re.compile(r'"/(?:usr/)?bin/(?:sh|bash|zsh|dash|ksh|csh|tcsh)"')),
     ("osascript path", re.compile(r'"/usr/bin/osascript"')),
+    ("perl path", re.compile(r'"/usr/bin/perl"')),
 ]
 
 # Ways to reach a private macOS interface, each with a short name for the message. `dlopen` and
@@ -495,14 +499,14 @@ def check_processes(root):
                     annotate(
                         path,
                         number,
-                        f"Process API ({name}); only the script runner and the permission reset may start a process",
+                        f"Process API ({name}); only the files listed in {PROCESS_ALLOWLIST} may start a process",
                     )
                     violations += 1
 
     if violations:
         print(f"==> {violations} process violation(s)")
         return 1
-    print("==> Only the allowed files start processes")
+    print("==> Only the listed files start processes")
     return 0
 
 

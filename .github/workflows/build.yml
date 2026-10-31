@@ -367,7 +367,7 @@ jobs:
   # (CLAUDE.md, "Private"). Fails every pull request that adds networking code or a
   # Swift package, or a log interpolation that does not name its privacy or makes
   # personal data public. It also fails every pull request that starts a process
-  # anywhere but in the script runner and the permission reset (.github/process-allowlist.txt),
+  # anywhere but in the files .github/process-allowlist.txt lists (the script runner, the permission reset, the Now Playing bridge),
   # so a new way to run a program cannot slip in. It also fails every pull request that adds a
   # dlopen, dlsym, private framework path or @_silgen_name that is not on
   # .github/private-api-allowlist.txt. Runs locally too:
@@ -385,7 +385,7 @@ jobs:
       - name: Logs keep personal data private
         run: python3 .github/scripts/privacy-check.py logs
 
-      - name: Only the script runner and the permission reset start processes
+      - name: Only the listed files start processes
         run: python3 .github/scripts/privacy-check.py processes
 
       - name: Private API only where the list says
