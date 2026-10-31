@@ -48,9 +48,10 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Drag an item in the Shelf to put it in order, into another section or onto the menu bar | — | — | — | ✅ <sub>macOS 27 only changes the section</sub> |
 | Own menu bar items for Focus, AirDrop, media controls, fast user switching and a timer, which hide and move like any item | ❌ | — | — | ✅ <sub>optional module, up to twelve widgets</sub> |
 | App launchers: a holzBar icon for any app you pick, a click opens it | ❌ | — | — | ✅ <sub>same module</sub> |
-| A hub at the notch (at the top centre without one) that holds optional modules, off until you switch it on | ❌ | — | — | ✅ <sub>its first modules are Timers, Calendar and Live activities</sub> |
+| A hub at the notch (at the top centre without one) that holds optional modules, off until you switch it on | ❌ | — | — | ✅ <sub>its first modules are Timers, Calendar, Live activities and Now Playing</sub> |
 | Timers, countdowns to a moment and a stopwatch in that hub (optional module, no permission) | ❌ | — | — | ✅ |
 | Next events and a Join button for meetings in that hub (optional module; Calendar access asked only when you switch it on) | ❌ | — | — | ✅ |
+| Now Playing in that hub (optional module; Music and Spotify without a permission, other apps with the opt-in Read all apps) | ❌ | — | — | ✅ |
 | A capsule at the notch for downloads and for a camera or microphone in use (optional module in that hub) | ❌ | — | — | ✅ |
 | Connection and low-battery alerts for AirPods and other accessories, as a capsule at the notch (optional module in that hub; Bluetooth asked only when you switch it on; battery levels use a macOS call that Apple does not document) | ❌ | — | — | ✅ |
 | A file stash at the notch: drag files in, drag them out later as copies (optional module in that hub, no permission) | ❌ | — | — | ✅ |
@@ -100,7 +101,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Hardened runtime (no injected code or libraries) | ✅ | ✅ | — | ✅ (checked by CI) |
 | Only one entitlement (Calendar), no `get-task-allow` | — | — | — | ✅ (checked by CI and the release; no entitlement at all from 0.0.7-beta2 to 0.0.13) |
 | Settings import accepts only known keys of the right type, in range | — (no import) | — | — | ✅ |
-| No helper process runs with holzBar's permissions | ❌ (menu bar item service) | — | — | ✅ from 0.0.7-beta2: one executable, no nested code (checked by CI) |
+| No helper process runs with holzBar's permissions | ❌ (menu bar item service) | — | — | ✅ no XPC service or helper app; from 0.0.14 one signed library for the optional Read all apps, started only while the hub is open and only with that switch on (checked by CI) |
 | Fix for the permissions loop | ❌ | — | — | ✅ |
 | **Code and resources** | | | | |
 | Swift packages | 5 | 9 (Sparkle, AXSwift6, CompactSlider, Ifrit, LaunchAtLogin-Modern and others) | closed source | **none** |
@@ -172,8 +173,9 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Hides desktop icons | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ |
 | Clipboard history, extras beyond the menu bar | ❌ | ✅ Command Bar, Top Shelf | ❌ | ❌ | ❌ | ❌ | MCP server | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ clipboard, launcher, AI | ✅ clipboard history | ✅ clipboard, Command Bar, many tools |
 | Imports settings from other apps | ✅ Ice | ❓ Bartender 6 profiles (experimental) | ❌ | ❌ | ✅ Bartender, Ice | ❓ | ❓ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ |
-| Notch hub (widgets, files, now playing in the notch) | Hub ✅, Timers ✅, Calendar ✅, Live activities ✅, File drop ✅, Display controls ✅, Accessory alerts ✅, Notifications ✅, other modules 🔜 1.0.0 | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
+| Notch hub (widgets, files, now playing in the notch) | Hub ✅, Timers ✅, Calendar ✅, Live activities ✅, File drop ✅, Display controls ✅, Accessory alerts ✅, Notifications ✅, Now Playing ✅, other modules 🔜 1.0.0 | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
 | Calendar and meeting link in the hub (reads your calendars on this Mac only) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
+| Now Playing in the hub (Music and Spotify; any app with the opt-in Read all apps) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
 | Live activities in the hub (a capsule at the notch while something is going on; holzBar's are downloads and a camera or microphone in use) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ❓ |
 | Accessory alerts (connect, disconnect and low battery of AirPods and other accessories; holzBar's battery levels use a call that Apple does not document) | ✅ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ | ✅ |
 | System readouts in the menu bar (CPU, memory, network, disk) | 🔜 1.1.0; CPU, memory and disk as text widgets ✅ <sup>14</sup> | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
