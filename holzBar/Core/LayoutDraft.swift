@@ -16,8 +16,11 @@ import Foundation
 ///
 /// An item is an ``Entry`` with a stable key (its identity in the saved layout) and a group. On
 /// macOS 27 the section belongs to an application, so every item of one application has the
-/// same group and moves with it; macOS also orders the items within a section, so a draft built
-/// with `ordersWithinSection` off records sections only. Before macOS 27 each item is its own
+/// same group and moves with it into another section, while a move within a section moves the
+/// item alone. The order within a section is part of the drawing wherever the backend can sort
+/// it (before macOS 27 always; on macOS 27 when the backend reports `reordersItems` and sorting
+/// has not been turned off for the session); a draft built with `ordersWithinSection` off
+/// records sections only. Before macOS 27 each item is its own
 /// group and the order within a section is part of the drawing.
 nonisolated struct LayoutDraft: Equatable, Sendable {
     /// The sections of the bar, in the order the pane lists them.
@@ -84,7 +87,7 @@ nonisolated struct LayoutDraft: Equatable, Sendable {
     }
 
     /// The entry of an item in the drawing.
-    private func entry(for key: String) -> Entry? {
+    func entry(for key: String) -> Entry? {
         for section in Section.allCases {
             if let found = entries(in: section).first(where: { $0.key == key }) {
                 return found
@@ -120,11 +123,14 @@ nonisolated struct LayoutDraft: Equatable, Sendable {
         if !ordersWithinSection, source == section {
             return
         }
-        // The item first, then the others of its group, wherever they were.
+        // The item first, then the others of its group, wherever they were; a move within the
+        // item's own section is a change of place and moves the item alone.
         var moved = [entry]
-        for candidate in Section.allCases {
-            for mate in entries(in: candidate) where mate.group == entry.group && mate.key != key && !mate.isLocked {
-                moved.append(mate)
+        if source != section {
+            for candidate in Section.allCases {
+                for mate in entries(in: candidate) where mate.group == entry.group && mate.key != key && !mate.isLocked {
+                    moved.append(mate)
+                }
             }
         }
         let movedKeys = Set(moved.map(\.key))
@@ -156,8 +162,10 @@ nonisolated struct LayoutDraft: Equatable, Sendable {
         guard let index = entries.firstIndex(where: { $0.key == other }) else {
             return
         }
-        let group = entries.first { $0.key == key }?.group
-        let next = entries[(index + 1)...].first { $0.key != key && $0.group != group }
+        // Into another section the item's group moves with it, so its mates are not neighbours;
+        // within its own section only the item moves.
+        let group = self.section(of: key) == section ? nil : entries.first { $0.key == key }?.group
+        let next = entries[(index + 1)...].first { $0.key != key && (group == nil || $0.group != group) }
         move(key, to: section, before: next?.key)
     }
 

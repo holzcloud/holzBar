@@ -91,12 +91,22 @@ final class LayoutBarPaddingView: NSView {
         }
 
         if #available(macOS 27.0, *) {
-            // On macOS 27 the saved layout decides sections and macOS orders the items within
-            // one, so a drop from another row only moves the item's application to this
-            // section. The row the drag began in decides, not the item cache, which may no
-            // longer list the item (a new title, or its app quit).
+            // The row the drag began in decides, not the item cache, which may no longer list
+            // the item (a new title, or its app quit).
             let item = draggingSource.item
-            if !item.isControlItem, draggingSource.dragSourceContainer !== container {
+            guard !item.isControlItem else {
+                return false
+            }
+            let isSameRow = draggingSource.dragSourceContainer === container
+            if appState.layoutEditor.ordersItems, let index = arrangedViews.firstIndex(of: draggingSource) {
+                // The drawing takes the position the user chose until they apply it: before
+                // the view to the right of the dropped item, or at the end of the row.
+                if appState.layoutEditor.recordsChanges {
+                    let next = arrangedViews.indices.contains(index + 1) ? arrangedViews[index + 1].item : nil
+                    return appState.layoutEditor.recordMove(item, to: container.section, before: next)
+                }
+            }
+            if !isSameRow {
                 // A section that cannot be set fails the drop, like one that changes nothing.
                 // The drawing takes the move until the user applies it.
                 if appState.layoutEditor.recordsChanges {
@@ -104,9 +114,9 @@ final class LayoutBarPaddingView: NSView {
                 }
                 return LayoutBarMoves.setSection(of: item, to: container.section, appState: appState)
             }
-            // A drop that changes no section changes nothing on the bar. It fails, and the
-            // end of the drag puts the rows back to the item cache, after the dragged view
-            // is back in a row (`draggingSession(_:endedAt:operation:)`).
+            // A drop that changes nothing fails, and the end of the drag puts the rows back to
+            // the item cache, after the dragged view is back in a row
+            // (`draggingSession(_:endedAt:operation:)`).
             return false
         }
 

@@ -148,6 +148,68 @@ struct LayoutDraftTests {
         #expect(draft.changedGroups == ["mail": .hidden])
     }
 
+    @Test("A move within a section moves only the item, a move into another section moves its group")
+    func sameSectionMovesTheItemAlone() {
+        func grouped() -> Draft {
+            Draft(
+                sections: [
+                    .visible: [Entry(key: "a", group: "G"), Entry(key: "x"), Entry(key: "a2", group: "G"), Entry(key: "y")],
+                    .hidden: [Entry(key: "h")],
+                ],
+                newItems: .visible,
+                ordersWithinSection: true
+            )
+        }
+        var draft = grouped()
+        draft.move("a", to: .visible, before: "y")
+        #expect(keys(draft, .visible) == ["x", "a2", "a", "y"])
+        #expect(draft.changedKeys.isEmpty)
+        #expect(draft.hasOrderChanges)
+        var toHidden = grouped()
+        toHidden.move("a", to: .hidden)
+        #expect(keys(toHidden, .visible) == ["x", "y"])
+        #expect(keys(toHidden, .hidden) == ["h", "a", "a2"])
+        var rightOf = grouped()
+        rightOf.move("a", rightOf: "x")
+        #expect(keys(rightOf, .visible) == ["x", "a", "a2", "y"])
+    }
+
+    @Test("Moving an item before another and back leaves a drawing equal to the bar")
+    func moveAndMoveBack() {
+        var draft = Draft(
+            sections: [.visible: [Entry(key: "a", group: "G"), Entry(key: "x"), Entry(key: "a2", group: "G"), Entry(key: "y")]],
+            newItems: .visible,
+            ordersWithinSection: true
+        )
+        draft.move("x", to: .visible, before: "a")
+        #expect(keys(draft, .visible) == ["x", "a", "a2", "y"])
+        #expect(draft.hasOrderChanges)
+        draft.move("x", to: .visible, before: "a2")
+        #expect(keys(draft, .visible) == ["a", "x", "a2", "y"])
+        #expect(!draft.hasOrderChanges)
+        #expect(!draft.isChanged)
+    }
+
+    @Test("An item moved into another section before a given item sits there in the drawing")
+    func intoAnotherSectionByPosition() {
+        var draft = draft()
+        draft.move("b", to: .hidden, before: "e")
+        #expect(keys(draft, .hidden) == ["d", "b", "e"])
+        #expect(draft.changedKeys == ["b": .hidden])
+    }
+
+    @Test("A locked entry never moves")
+    func lockedNeverMoves() {
+        var draft = Draft(
+            sections: [.visible: [Entry(key: "pinned", isLocked: true), Entry(key: "a"), Entry(key: "b")]],
+            newItems: .visible,
+            ordersWithinSection: true
+        )
+        draft.move("pinned", to: .visible, before: "b")
+        #expect(keys(draft, .visible) == ["pinned", "a", "b"])
+        #expect(!draft.isChanged)
+    }
+
     @Test("Without an order within sections only the section counts")
     func sectionsOnly() {
         var draft = draft(ordersWithinSection: false)

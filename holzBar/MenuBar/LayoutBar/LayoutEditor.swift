@@ -110,10 +110,22 @@ final class LayoutEditor {
         return true
     }
 
+    /// Whether the drawing takes a move of the item: not a pinned item and not one a rule controls.
+    private func canRecord(_ key: String) -> Bool {
+        guard let entry = draft?.entry(for: key), !entry.isLocked else {
+            return false
+        }
+        guard let appState else {
+            return true
+        }
+        let manager = appState.itemManager
+        return !appState.automation.controlledItemKeys.map(manager.storedIdentityKey).contains(key)
+    }
+
     /// Puts an item in a section of the drawing, before another item or at the end.
     @discardableResult
     func recordMove(_ item: MenuBarItem, to section: MenuBarSection.Name, before next: MenuBarItem?) -> Bool {
-        guard prepareDraft(), let key = key(of: item) else {
+        guard prepareDraft(), let key = key(of: item), canRecord(key) else {
             return false
         }
         draft?.move(key, to: LayoutDraft.Section(section), before: next.flatMap { self.key(of: $0) })
@@ -124,7 +136,7 @@ final class LayoutEditor {
     /// Puts an item next to another one, in the other item's section.
     @discardableResult
     func recordMove(_ item: MenuBarItem, relativeTo neighbour: MenuBarItem, isRight: Bool) -> Bool {
-        guard prepareDraft(), let key = key(of: item), let neighbourKey = self.key(of: neighbour) else {
+        guard prepareDraft(), let key = key(of: item), canRecord(key), let neighbourKey = self.key(of: neighbour) else {
             return false
         }
         if isRight {
@@ -202,8 +214,8 @@ final class LayoutEditor {
         }
         outcome.applied = sectionChanges.count
         if #available(macOS 27.0, *) {
-            // macOS orders the items within a section; the sections of the applications are
-            // written once and applied once.
+            // The sections of the applications are written once and applied once; then each
+            // section is sorted on the bar, where the backend can.
             var applications = [String: MacOS27Section]()
             for (key, section) in sectionChanges {
                 if let application = itemsByKey[key]?.layoutKey27 {
@@ -212,6 +224,9 @@ final class LayoutEditor {
             }
             appState.concealer27.setSections(applications)
             appState.automation.itemsWereArrangedByHand()
+            if pending.ordersWithinSection {
+                await sortSections(of: pending, controlled: controlled, outcome: &outcome, appState: appState)
+            }
             // The rows show the bar again once the draft goes: read it now, not at the next change.
             await manager.cacheItemsRegardless()
         } else {
@@ -222,6 +237,34 @@ final class LayoutEditor {
             outcome.applied += 1
         }
         return outcome
+    }
+
+    /// Sorts each section on the bar in the drawing's order (macOS 27): the items that are not
+    /// pinned and that no rule controls, by the executor. A stopped run or a blocker counts as one
+    /// failure and ends the sorting of the remaining sections.
+    @available(macOS 27.0, *)
+    private func sortSections(
+        of pending: LayoutDraft,
+        controlled: Set<String>,
+        outcome: inout Outcome,
+        appState: AppState
+    ) async {
+        for section in LayoutDraft.Section.allCases {
+            let windowIDs = pending.entries(in: section)
+                .filter { !$0.isLocked && !controlled.contains($0.key) }
+                .compactMap { itemsByKey[$0.key]?.windowID }
+            guard windowIDs.count > 1 else {
+                continue
+            }
+            let result = await ItemReorderer27.sort(desired: windowIDs, appState: appState)
+            outcome.applied += result.moved
+            if result.stop != nil || result.blocker != nil {
+                outcome.failed += 1
+                let word = result.stop.map { $0.rawValue } ?? result.blocker.map { String(describing: $0) } ?? "unknown"
+                logger.debug("Sorting a section stopped: \(word, privacy: .public)")
+                return
+            }
+        }
     }
 
     /// The pass before macOS 27: the items change section (the machinery of a profile), then
@@ -326,7 +369,7 @@ final class LayoutEditor {
         outcome = nil
         itemsByKey = snapshot.items
         keysByWindow = snapshot.keys
-        draft = LayoutDraft(sections: snapshot.sections, newItems: landing, ordersWithinSection: !isMacOS27)
+        draft = LayoutDraft(sections: snapshot.sections, newItems: landing, ordersWithinSection: ordersWithinSection)
         return true
     }
 
@@ -404,7 +447,22 @@ final class LayoutEditor {
         return LayoutDraft.Entry(key: key, group: group, isLocked: isLocked)
     }
 
-    /// macOS 27 orders the items within a section itself; before, the order is part of the drawing.
+    /// Whether a drop within a row changes the order: the drawing's, or the backend's when there
+    /// is no drawing yet.
+    var ordersItems: Bool {
+        draft?.ordersWithinSection ?? ordersWithinSection
+    }
+
+    /// Whether the order within a section is part of the drawing: always before macOS 27; on
+    /// macOS 27 while the backend can put items in order and sorting has not turned itself off
+    /// for the session.
+    private var ordersWithinSection: Bool {
+        if #available(macOS 27.0, *) {
+            return appState?.itemManager.backend.reordersItems == true && !ItemReorderer27.isBlockedThisSession
+        }
+        return true
+    }
+
     private var isMacOS27: Bool {
         if #available(macOS 27.0, *) {
             return true
