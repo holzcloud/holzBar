@@ -1,5 +1,6 @@
 included:
   - holzBar
+  - NowPlayingRemote
 
 disabled_rules:
   - cyclomatic_complexity
