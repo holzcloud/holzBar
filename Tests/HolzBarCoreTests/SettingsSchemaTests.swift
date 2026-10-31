@@ -215,6 +215,27 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The accessory alert switches travel as booleans and nothing else")
+    func accessoryAlertSettingsTravel() {
+        #expect(Defaults.Key.accessoryAlertsOnConnect.settingsKind == .bool)
+        #expect(Defaults.Key.accessoryAlertsOnDisconnect.settingsKind == .bool)
+        #expect(Defaults.Key.importableKinds["AccessoryAlertsOnConnect"] == .bool)
+        #expect(Defaults.Key.importableKinds["AccessoryAlertsOnDisconnect"] == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.accessoryAlertsOnConnect))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.accessoryAlertsOnDisconnect))
+        let accepted = Defaults.Key.validatedSettings(
+            ["AccessoryAlertsOnConnect": false, "AccessoryAlertsOnDisconnect": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == ["AccessoryAlertsOnConnect", "AccessoryAlertsOnDisconnect"])
+        for key in ["AccessoryAlertsOnConnect", "AccessoryAlertsOnDisconnect"] {
+            for refused: Any in [1.5, 2, "yes", ["a"]] {
+                let result = Defaults.Key.validatedSettings([key: refused], ownBundleIdentifier: ownBundle)
+                #expect(result.accepted.isEmpty)
+            }
+        }
+    }
+
     @Test("The Shelf's style and location travel with a settings file, and only as whole numbers within their choices")
     func shelfStyleAndLocationTravel() {
         #expect(Defaults.Key.importableKinds["ShelfStyle"] == .number)

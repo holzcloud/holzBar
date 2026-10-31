@@ -88,10 +88,15 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
         }
         let now = Date.now
         let events = tracker.update(connected: devices, now: now)
+        // The tracker sees every snapshot, so a switch turned on later alerts only for new events.
+        let options = AccessoryAlertsSettings.options()
         var raised = alerts.filter { now.timeIntervalSince($0.startedAt) < Self.alertRetention }
-        for event in events {
-            if case .connected(let device) = event {
+        for event in events where options.allows(event) {
+            switch event {
+            case .connected(let device):
                 raised.append(alert(for: device, title: String(localized: "\(device.name) connected"), at: now))
+            case .disconnected(let device):
+                raised.append(alert(for: device, title: String(localized: "\(device.name) disconnected"), at: now))
             }
         }
         if raised != alerts {

@@ -39,7 +39,7 @@ enum HubModules {
         HubModuleRegistration(
             id: "accessory-alerts",
             makeRuntime: { AccessoryAlertsRuntime(appState: $0) },
-            makeSettings: { AnyView(EmptyView()) }
+            makeSettings: { AnyView(AccessoryAlertsSettingsView()) }
         ),
     ]
 

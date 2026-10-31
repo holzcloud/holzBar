@@ -309,67 +309,67 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar liest, welche deiner gekoppelten Bluetooth-Geräte verbunden sind, damit eine Automatisierungsregel darauf reagieren kann. Das geschieht nur, solange eine Regel diese Bedingung verwendet."
+            "value" : "holzBar sieht, welche deiner gekoppelten Bluetooth-Geräte verbunden sind, damit Automatisierungsregeln und Zubehör-Hinweise darauf reagieren können. Es verbindet sich nie mit einem Gerät, sucht keine Geräte und sendet nichts an ein Gerät."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "holzBar reads which of your paired Bluetooth devices are connected, so an automation rule can react to it. It only does so while a rule uses this condition."
+            "value" : "holzBar sees which of your paired Bluetooth devices are connected, so automation rules and accessory alerts can react to it. It never connects to a device, scans for devices or sends anything to one."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar lee cuáles de tus dispositivos Bluetooth vinculados están conectados para que una regla de automatización pueda reaccionar. Solo lo hace mientras una regla usa esta condición."
+            "value" : "holzBar ve cuáles de tus dispositivos Bluetooth vinculados están conectados para que las reglas de automatización y los avisos de accesorios puedan reaccionar. Nunca se conecta a un dispositivo, busca dispositivos ni envía nada a ninguno."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar lit lesquels de vos appareils Bluetooth appairés sont connectés afin qu’une règle d’automatisation puisse y réagir. Cela n’a lieu que tant qu’une règle utilise cette condition."
+            "value" : "holzBar voit lesquels de vos appareils Bluetooth jumelés sont connectés afin que les règles d’automatisation et les alertes d’accessoires puissent y réagir. Elle ne se connecte jamais à un appareil, n’en recherche pas et ne lui envoie rien."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar legge quali dei tuoi dispositivi Bluetooth associati sono connessi, in modo che una regola di automazione possa reagire. Lo fa solo finché una regola usa questa condizione."
+            "value" : "holzBar vede quali dei tuoi dispositivi Bluetooth associati sono connessi, così le regole di automazione e gli avvisi degli accessori possono reagire. Non si connette mai a un dispositivo, non ne cerca e non invia nulla a un dispositivo."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar は、オートメーションルールが反応できるように、ペアリング済みの Bluetooth デバイスのうちどれが接続中かを読み取ります。ルールがこの条件を使用している間だけ読み取ります。"
+            "value" : "holzBar は、オートメーションルールやアクセサリの通知が反応できるように、ペアリング済みの Bluetooth デバイスのうちどれが接続中かを確認します。デバイスに接続したり、デバイスを検索したり、デバイスに何かを送信したりすることは一切ありません。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar는 자동화 규칙이 반응할 수 있도록 페어링된 Bluetooth 기기 중 어떤 기기가 연결되어 있는지 읽습니다. 규칙이 이 조건을 사용하는 동안에만 읽습니다."
+            "value" : "holzBar는 자동화 규칙과 액세서리 알림이 반응할 수 있도록 페어링된 Bluetooth 기기 중 어떤 기기가 연결되어 있는지 확인합니다. 기기에 연결하거나 기기를 검색하거나 기기로 무언가를 보내는 일은 절대 없습니다."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "O holzBar lê quais dos seus dispositivos Bluetooth pareados estão conectados para que uma regra de automação possa reagir. Ele só faz isso enquanto uma regra usa esta condição."
+            "value" : "O holzBar vê quais dos seus dispositivos Bluetooth pareados estão conectados para que as regras de automação e os avisos de acessórios possam reagir. Ele nunca se conecta a um dispositivo, procura dispositivos nem envia nada a nenhum."
           }
         },
         "rm" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar legia tge apparats Bluetooth associads che èn colliads, uschia che ina regla d’automatisaziun po reagir. Quai capita mo uschè ditg che ina regla utilisescha questa cundiziun."
+            "value" : "holzBar vesa tgenins da tes apparats Bluetooth colliads èn collià, per che las reglas d’automatisaziun e las avertenzas dals accessoris possian reagir. El na sa collia mai cun in apparat, na tschertga nagins apparats e na trametta nagut a in apparat."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar считывает, какие из ваших сопряжённых устройств Bluetooth подключены, чтобы правило автоматизации могло на это реагировать. Это происходит только пока правило использует это условие."
+            "value" : "holzBar видит, какие из ваших сопряжённых устройств Bluetooth подключены, чтобы правила автоматизации и оповещения об аксессуарах могли на это реагировать. Он никогда не подключается к устройствам, не ищет их и ничего им не отправляет."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "holzBar 会读取你已配对的蓝牙设备中哪些已连接，以便自动化规则可以据此做出反应。仅在有规则使用此条件期间才会读取。"
+            "value" : "holzBar 会查看你已配对的蓝牙设备中哪些已连接，以便自动化规则和配件提醒可以据此做出反应。它绝不会连接设备、搜索设备或向设备发送任何内容。"
           }
         }
       }

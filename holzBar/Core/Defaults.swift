@@ -316,6 +316,14 @@ nonisolated extension Defaults {
         /// on by default).
         case fileDropRemovesAfterDrop = "FileDropRemovesAfterDrop"
 
+        // MARK: Accessory Alerts
+        /// Whether the Accessory alerts module raises a capsule alert when an accessory connects
+        /// (a boolean, on by default).
+        case accessoryAlertsOnConnect = "AccessoryAlertsOnConnect"
+        /// Whether the Accessory alerts module raises a capsule alert when an accessory
+        /// disconnects (a boolean, off by default: AirPods in their case disconnect often).
+        case accessoryAlertsOnDisconnect = "AccessoryAlertsOnDisconnect"
+
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
         /// entry event is dropped, so the real event never reaches the item, the exit event
@@ -410,6 +418,8 @@ nonisolated extension Defaults.Key {
             .liveActivitiesDownloads,
             .fileDropOpensOnDrag,
             .fileDropRemovesAfterDrop,
+            .accessoryAlertsOnConnect,
+            .accessoryAlertsOnDisconnect,
             .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
