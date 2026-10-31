@@ -131,6 +131,12 @@
             "state" : "translated",
             "value" : "Copyright © 2025 Jordan Baird。holzBar 修改部分 © 2026 holzcloud。"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2025 Jordan Baird. holzBar 的修改 © 2026 holzcloud."
+          }
         }
       }
     },
@@ -250,6 +256,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar стежить за папкою «Завантаження», щоб показувати поточні завантаження біля вирізу. Вміст завантажуваних файлів не читається."
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 會監看你的「下載項目」檔案夾，以便在瀏海旁顯示進行中的下載。它絕不會讀取你下載的內容。"
           }
         }
       }
@@ -371,6 +383,12 @@
             "state" : "translated",
             "value" : "holzBar 会读取你所连接的 Wi-Fi 网络的名称，以便自动化规则可以据此做出反应。它不会读取你的位置。"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 會讀取你所連接之 Wi-Fi 網路的名稱，讓自動化規則可以對它做出反應。它不會讀取你的位置。"
+          }
         }
       }
     },
@@ -490,6 +508,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar 会读取你所连接的 Wi-Fi 网络的名称，以便自动化规则可以据此做出反应。它不会读取你的位置。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 會讀取你所連接之 Wi-Fi 網路的名稱，讓自動化規則可以對它做出反應。它不會讀取你的位置。"
           }
         }
       }
@@ -611,6 +635,12 @@
             "state" : "translated",
             "value" : "holzBar 会查看你已配对的蓝牙设备中哪些已连接，以便自动化规则和配件提醒可以据此做出反应。它绝不会连接设备、搜索设备或向设备发送任何内容。"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 會查看你已配對的藍牙裝置中有哪些已連線，讓自動化規則與配件提醒可以對此做出反應。它絕不會連接裝置、搜尋裝置或向裝置傳送任何內容。"
+          }
         }
       }
     },
@@ -730,6 +760,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar 会在刘海中心里显示你接下来的日程及其会议链接。日程仅在这台 Mac 上读取，绝不会发送或存储。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 會在瀏海中心顯示你接下來的行程與會議連結。它只在這台 Mac 上讀取，絕不會傳送或儲存。"
           }
         }
       }

@@ -185,6 +185,7 @@
 				tr,
 				id,
 				uk,
+				"zh-Hant",
 			);
 			mainGroup = 716683212A767E6A006ABF84;
 			packageReferences = (

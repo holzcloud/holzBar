@@ -110,6 +110,12 @@
             "state" : "translated",
             "value" : "在 ${applicationName} 中应用布局配置文件"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在${applicationName}中套用佈局設定檔"
+          }
         }
       }
     },
@@ -221,6 +227,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "用 ${applicationName} 打开菜单栏项目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用${applicationName}打開選單列項目"
           }
         }
       }
@@ -334,6 +346,12 @@
             "state" : "translated",
             "value" : "用 ${applicationName} 搜索菜单栏项目"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用${applicationName}搜尋選單列項目"
+          }
         }
       }
     },
@@ -446,6 +464,12 @@
             "state" : "translated",
             "value" : "在 ${applicationName} 中切换禅模式"
           }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在${applicationName}中切換 Zen 模式"
+          }
         }
       }
     },
@@ -557,6 +581,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 ${applicationName} 中切换隐藏项目的显示"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在${applicationName}中切換隱藏的項目"
           }
         }
       }

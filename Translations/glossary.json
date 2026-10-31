@@ -75,6 +75,14 @@
         "ko": {
           "text": "메뉴 막대",
           "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "zh-Hans": {
+          "text": "菜单栏",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "zh-Hant": {
+          "text": "選單列",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
         }
       }
     },
@@ -165,6 +173,16 @@
           "text": "메뉴 막대 항목",
           "source": "catalog",
           "entries": 39
+        },
+        "zh-Hans": {
+          "text": "菜单栏项目",
+          "source": "catalog",
+          "entries": 39
+        },
+        "zh-Hant": {
+          "text": "選單列項目",
+          "source": "catalog",
+          "entries": 42
         }
       }
     },
@@ -248,6 +266,14 @@
           "text": "숨김",
           "source": "catalog",
           "entries": 21
+        },
+        "zh-Hans": {
+          "text": "隐藏",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "隱藏",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -338,6 +364,16 @@
           "text": "항상 숨김",
           "source": "catalog",
           "entries": 11
+        },
+        "zh-Hans": {
+          "text": "始终隐藏",
+          "source": "catalog",
+          "entries": 13
+        },
+        "zh-Hant": {
+          "text": "一律隱藏",
+          "source": "catalog",
+          "entries": 13
         }
       }
     },
@@ -428,6 +464,16 @@
           "text": "표시",
           "source": "catalog",
           "entries": 7
+        },
+        "zh-Hans": {
+          "text": "可见",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hant": {
+          "text": "可見",
+          "source": "catalog",
+          "entries": 3
         }
       }
     },
@@ -516,6 +562,16 @@
         },
         "ko": {
           "text": "섹션",
+          "source": "catalog",
+          "entries": 29
+        },
+        "zh-Hans": {
+          "text": "分区",
+          "source": "catalog",
+          "entries": 29
+        },
+        "zh-Hant": {
+          "text": "區段",
           "source": "catalog",
           "entries": 29
         }
@@ -608,6 +664,16 @@
           "text": "holzBar Shelf",
           "source": "catalog",
           "entries": 23
+        },
+        "zh-Hans": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "zh-Hant": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
         }
       }
     },
@@ -685,6 +751,16 @@
         },
         "ko": {
           "text": "프로파일",
+          "source": "catalog",
+          "entries": 40
+        },
+        "zh-Hans": {
+          "text": "配置文件",
+          "source": "catalog",
+          "entries": 40
+        },
+        "zh-Hant": {
+          "text": "設定檔",
           "source": "catalog",
           "entries": 40
         }
@@ -767,6 +843,14 @@
         },
         "ko": {
           "text": "레이아웃",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "布局",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "佈局",
           "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -858,6 +942,16 @@
           "text": "규칙",
           "source": "catalog",
           "entries": 32
+        },
+        "zh-Hans": {
+          "text": "规则",
+          "source": "catalog",
+          "entries": 32
+        },
+        "zh-Hant": {
+          "text": "規則",
+          "source": "catalog",
+          "entries": 32
         }
       }
     },
@@ -946,6 +1040,16 @@
           "text": "조건",
           "source": "catalog",
           "entries": 6
+        },
+        "zh-Hans": {
+          "text": "条件",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hant": {
+          "text": "條件",
+          "source": "catalog",
+          "entries": 6
         }
       }
     },
@@ -1025,6 +1129,14 @@
         "ko": {
           "text": "동작",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hans": {
+          "text": "操作",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_CN.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hant": {
+          "text": "動作",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_TW.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -1113,6 +1225,16 @@
         },
         "ko": {
           "text": "젠 모드",
+          "source": "catalog",
+          "entries": 11
+        },
+        "zh-Hans": {
+          "text": "禅模式",
+          "source": "catalog",
+          "entries": 11
+        },
+        "zh-Hant": {
+          "text": "Zen 模式",
           "source": "catalog",
           "entries": 11
         }
@@ -1205,6 +1327,16 @@
           "text": "단축키",
           "source": "catalog",
           "entries": 19
+        },
+        "zh-Hans": {
+          "text": "快捷键",
+          "source": "catalog",
+          "entries": 19
+        },
+        "zh-Hant": {
+          "text": "快速鍵",
+          "source": "catalog",
+          "entries": 19
         }
       }
     },
@@ -1282,6 +1414,14 @@
         "ko": {
           "text": "검색",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hans": {
+          "text": "搜索",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_CN.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hant": {
+          "text": "搜尋",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_TW.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -1360,6 +1500,14 @@
         "ko": {
           "text": "모양",
           "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "外观",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "外觀",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -1441,6 +1589,15 @@
           "text": "색조",
           "source": "catalog",
           "entries": 4
+        },
+        "zh-Hans": {
+          "text": "着色",
+          "source": "catalog",
+          "entries": 4
+        },
+        "zh-Hant": {
+          "text": "色調",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -1529,6 +1686,16 @@
           "text": "테두리",
           "source": "catalog",
           "entries": 6
+        },
+        "zh-Hans": {
+          "text": "边框",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hant": {
+          "text": "邊框",
+          "source": "catalog",
+          "entries": 6
         }
       }
     },
@@ -1601,6 +1768,14 @@
         },
         "ko": {
           "text": "그림자",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "阴影",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "陰影",
           "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -1679,6 +1854,15 @@
         "ko": {
           "text": "손쉬운 사용",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "zh-Hans": {
+          "text": "辅助功能",
+          "source": "catalog",
+          "entries": 8
+        },
+        "zh-Hant": {
+          "text": "輔助使用",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
         }
       }
     },
@@ -1756,6 +1940,15 @@
         "ko": {
           "text": "화면 기록",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "zh-Hans": {
+          "text": "屏幕录制",
+          "source": "catalog",
+          "entries": 7
+        },
+        "zh-Hant": {
+          "text": "螢幕錄影",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
         }
       }
     },
@@ -1832,6 +2025,14 @@
         },
         "ko": {
           "text": "위치 서비스",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "定位服务",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "定位服務",
           "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -1923,6 +2124,16 @@
           "text": "권한",
           "source": "catalog",
           "entries": 12
+        },
+        "zh-Hans": {
+          "text": "权限",
+          "source": "catalog",
+          "entries": 11
+        },
+        "zh-Hant": {
+          "text": "權限",
+          "source": "catalog",
+          "entries": 11
         }
       }
     },
@@ -2011,6 +2222,16 @@
         },
         "ko": {
           "text": "위젯",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hans": {
+          "text": "小组件",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hant": {
+          "text": "小工具",
           "source": "catalog",
           "entries": 6
         }
@@ -2103,6 +2324,16 @@
           "text": "스크립트",
           "source": "catalog",
           "entries": 30
+        },
+        "zh-Hans": {
+          "text": "脚本",
+          "source": "catalog",
+          "entries": 30
+        },
+        "zh-Hant": {
+          "text": "指令碼",
+          "source": "catalog",
+          "entries": 30
         }
       }
     },
@@ -2180,6 +2411,14 @@
         "ko": {
           "text": "단축어",
           "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "zh-Hans": {
+          "text": "快捷指令",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "zh-Hant": {
+          "text": "捷徑",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
         }
       }
     },
@@ -2256,6 +2495,14 @@
         },
         "ko": {
           "text": "집중 모드",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "zh-Hans": {
+          "text": "专注模式",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "zh-Hant": {
+          "text": "專注模式",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
         }
       }
@@ -2340,6 +2587,14 @@
         "ko": {
           "text": "Wi-Fi",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -2416,6 +2671,14 @@
         },
         "ko": {
           "text": "배터리",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "zh-Hans": {
+          "text": "电池",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "zh-Hant": {
+          "text": "電池",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
         }
       }
@@ -2495,6 +2758,15 @@
         "ko": {
           "text": "저전력 모드",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "zh-Hans": {
+          "text": "低功耗模式",
+          "source": "catalog",
+          "entries": 2
+        },
+        "zh-Hant": {
+          "text": "低耗電模式",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
         }
       }
     },
@@ -2573,6 +2845,14 @@
         },
         "ko": {
           "text": "디스플레이",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "zh-Hans": {
+          "text": "显示器",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "zh-Hant": {
+          "text": "顯示器",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
         }
       }
@@ -2664,6 +2944,16 @@
           "text": "노치",
           "source": "catalog",
           "entries": 24
+        },
+        "zh-Hans": {
+          "text": "刘海",
+          "source": "catalog",
+          "entries": 24
+        },
+        "zh-Hant": {
+          "text": "瀏海",
+          "source": "catalog",
+          "entries": 24
         }
       }
     },
@@ -2745,6 +3035,14 @@
         "ko": {
           "text": "앱",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hans": {
+          "text": "App",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_CN.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hant": {
+          "text": "App",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_TW.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -2824,6 +3122,14 @@
         "ko": {
           "text": "미리보기",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hans": {
+          "text": "预览",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_CN.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hant": {
+          "text": "預覽",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_TW.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -2900,6 +3206,14 @@
         },
         "ko": {
           "text": "설정",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "设置",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "設定",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -2979,6 +3293,14 @@
         "ko": {
           "text": "종료",
           "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/ko.lproj/DockMenus.strings"
+        },
+        "zh-Hans": {
+          "text": "退出",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/zh_CN.lproj/DockMenus.strings"
+        },
+        "zh-Hant": {
+          "text": "結束",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/zh_TW.lproj/DockMenus.strings"
         }
       }
     },
@@ -3058,6 +3380,14 @@
           "text": "되돌릴 수",
           "source": "catalog",
           "entries": 4
+        },
+        "zh-Hans": {
+          "text": "撤销",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_CN.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hant": {
+          "text": "還原",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_TW.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -3135,6 +3465,14 @@
         "ko": {
           "text": "가져오기",
           "source": "/System/Applications/Music.app/Contents/Resources/ko.lproj/Localizable.strings"
+        },
+        "zh-Hans": {
+          "text": "导入",
+          "source": "/System/Applications/Music.app/Contents/Resources/zh_CN.lproj/Localizable.strings"
+        },
+        "zh-Hant": {
+          "text": "輸入",
+          "source": "/System/Applications/Music.app/Contents/Resources/zh_TW.lproj/Localizable.strings"
         }
       }
     },
@@ -3211,6 +3549,14 @@
         },
         "ko": {
           "text": "내보내기",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "导出",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "輸出",
           "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -3297,6 +3643,16 @@
           "text": "스냅샷",
           "source": "catalog",
           "entries": 7
+        },
+        "zh-Hans": {
+          "text": "快照",
+          "source": "catalog",
+          "entries": 7
+        },
+        "zh-Hant": {
+          "text": "快照",
+          "source": "catalog",
+          "entries": 7
         }
       }
     },
@@ -3380,6 +3736,16 @@
         },
         "ko": {
           "text": "알림",
+          "source": "catalog",
+          "entries": 8
+        },
+        "zh-Hans": {
+          "text": "通知",
+          "source": "catalog",
+          "entries": 8
+        },
+        "zh-Hant": {
+          "text": "通知",
           "source": "catalog",
           "entries": 8
         }

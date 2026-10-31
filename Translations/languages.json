@@ -133,6 +133,13 @@
       "nativeName": "Українська",
       "reviewedThrough": null,
       "note": ""
+    },
+    {
+      "code": "zh-Hant",
+      "englishName": "Chinese (Traditional)",
+      "nativeName": "繁體中文",
+      "reviewedThrough": null,
+      "note": "Traditional Chinese as Apple writes it for Taiwan; macOS also offers it to Hong Kong readers."
     }
   ]
 }
