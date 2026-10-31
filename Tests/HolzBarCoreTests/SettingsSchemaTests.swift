@@ -236,6 +236,39 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The low-battery settings travel as a boolean, a number within 10 to 30 and a boolean")
+    func accessoryBatterySettingsTravel() {
+        #expect(Defaults.Key.accessoryAlertsOnLowBattery.settingsKind == .bool)
+        #expect(Defaults.Key.accessoryAlertsLowBatteryLevel.settingsKind == .number)
+        #expect(Defaults.Key.accessoryAlertsReadsBattery.settingsKind == .bool)
+        #expect(Defaults.Key.accessoryAlertsLowBatteryLevel.numberRule == .clamped(10...30))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.accessoryAlertsOnLowBattery))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.accessoryAlertsLowBatteryLevel))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.accessoryAlertsReadsBattery))
+        let accepted = Defaults.Key.validatedSettings(
+            [
+                "AccessoryAlertsOnLowBattery": false,
+                "AccessoryAlertsLowBatteryLevel": 25,
+                "AccessoryAlertsReadsBattery": false,
+            ],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == [
+            "AccessoryAlertsLowBatteryLevel", "AccessoryAlertsOnLowBattery", "AccessoryAlertsReadsBattery",
+        ])
+        for key in ["AccessoryAlertsOnLowBattery", "AccessoryAlertsReadsBattery"] {
+            for refused: Any in [1.5, 2, "yes", ["a"]] {
+                #expect(Defaults.Key.validatedSettings([key: refused], ownBundleIdentifier: ownBundle).accepted.isEmpty)
+            }
+        }
+        for refused: Any in ["20", true, ["a"]] {
+            let result = Defaults.Key.validatedSettings(["AccessoryAlertsLowBatteryLevel": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+        let clamped = Defaults.Key.validatedSettings(["AccessoryAlertsLowBatteryLevel": 99], ownBundleIdentifier: ownBundle)
+        #expect(clamped.accepted["AccessoryAlertsLowBatteryLevel"] as? Double == 30)
+    }
+
     @Test("The Shelf's style and location travel with a settings file, and only as whole numbers within their choices")
     func shelfStyleAndLocationTravel() {
         #expect(Defaults.Key.importableKinds["ShelfStyle"] == .number)

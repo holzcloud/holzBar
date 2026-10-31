@@ -323,6 +323,16 @@ nonisolated extension Defaults {
         /// Whether the Accessory alerts module raises a capsule alert when an accessory
         /// disconnects (a boolean, off by default: AirPods in their case disconnect often).
         case accessoryAlertsOnDisconnect = "AccessoryAlertsOnDisconnect"
+        /// Whether the Accessory alerts module raises a capsule alert when an accessory's
+        /// battery is low (a boolean, on by default).
+        case accessoryAlertsOnLowBattery = "AccessoryAlertsOnLowBattery"
+        /// The level, in percent, at or below which an accessory's battery is low (a number
+        /// from 10 to 30, 20 by default).
+        case accessoryAlertsLowBatteryLevel = "AccessoryAlertsLowBatteryLevel"
+        /// Whether the Accessory alerts module reads accessory battery levels, which uses one
+        /// macOS call that Apple does not document (a boolean, on by default; the switch that
+        /// turns that call off).
+        case accessoryAlertsReadsBattery = "AccessoryAlertsReadsBattery"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -420,6 +430,8 @@ nonisolated extension Defaults.Key {
             .fileDropRemovesAfterDrop,
             .accessoryAlertsOnConnect,
             .accessoryAlertsOnDisconnect,
+            .accessoryAlertsOnLowBattery,
+            .accessoryAlertsReadsBattery,
             .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
@@ -458,6 +470,7 @@ nonisolated extension Defaults.Key {
             .layoutSnapshotsLimit,
             .macOS27ClickRestoreDelay,
             .lastRunMacOSMajor,
+            .accessoryAlertsLowBatteryLevel,
             .menuBarBorderWidth,
             .menuBarTintKind:
             .number
@@ -527,6 +540,8 @@ nonisolated extension Defaults.Key {
             .clamped(0...1000)
         case .menuBarBorderWidth:
             .clamped(1...3)
+        case .accessoryAlertsLowBatteryLevel:
+            .clamped(10...30)
         case .spacerCount:
             .wholeNumber(0...10)
         case .notchHubDisplays:
