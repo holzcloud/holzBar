@@ -368,8 +368,10 @@ jobs:
   # Swift package, or a log interpolation that does not name its privacy or makes
   # personal data public. It also fails every pull request that starts a process
   # anywhere but in the script runner and the permission reset (.github/process-allowlist.txt),
-  # so a new way to run a program cannot slip in. Runs locally too:
-  # python3 .github/scripts/privacy-check.py network|logs|processes
+  # so a new way to run a program cannot slip in. It also fails every pull request that adds a
+  # dlopen, dlsym, private framework path or @_silgen_name that is not on
+  # .github/private-api-allowlist.txt. Runs locally too:
+  # python3 .github/scripts/privacy-check.py network|logs|processes|private
   no-network:
     runs-on: ubuntu-latest
     steps:
@@ -385,6 +387,9 @@ jobs:
 
       - name: Only the script runner and the permission reset start processes
         run: python3 .github/scripts/privacy-check.py processes
+
+      - name: Private API only where the list says
+        run: python3 .github/scripts/privacy-check.py private
 
   # holzBar speaks English, German, French, Italian, Romansh, Spanish, Brazilian
   # Portuguese, Japanese, Simplified Chinese, Korean and Russian. Fails every pull

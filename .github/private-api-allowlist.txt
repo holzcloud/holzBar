@@ -1,0 +1,24 @@
+# Lines that reach a private macOS interface, which `privacy-check.py private` allows, as
+# `<path>: <token>`. A hit (dlopen, dlsym, a PrivateFrameworks path or @_silgen_name) is allowed
+# when its file equals <path> and the line contains <token>. Each private API sits behind one
+# wrapper per API, and every entry was agreed with the maintainer for that module (see
+# CLAUDE.md, "Private API only by exception, per module"). A new entry needs the maintainer's
+# decision and says why.
+#
+# The menu bar manager's own interfaces. MenuBarClientCore is the macOS 27 framework that
+# conceals the menu bar's items.
+holzBar/MenuBar/MacOS27/MenuBarAssessmentAssertion27.swift: dlopen
+holzBar/MenuBar/MacOS27/MenuBarAssessmentAssertion27.swift: PrivateFrameworks
+# WindowServer's functions for the menu bar's windows and spaces.
+Shared/Bridging/Shims.swift: @_silgen_name
+#
+# The Accessory alerts module reads accessory batteries through IOPSCopyPowerSourcesByType,
+# looked up at run time (agreed 2026-10-16).
+holzBar/MenuBar/NotchHub/AccessoryAlerts/AccessoryBatterySource.swift: dlsym
+#
+# The Display controls module sets brightness through DisplayServices, which Apple does not
+# document: brightness has no public API (agreed 2026-10-09). The wrapper loads it on first
+# use and only while the module's Brightness setting is on.
+holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: dlopen
+holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: dlsym
+holzBar/MenuBar/NotchHub/DisplayControls/DisplayServicesBrightness.swift: PrivateFrameworks

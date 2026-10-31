@@ -2,7 +2,7 @@
 #
 # privacy-check.py
 #
-# Proves three of holzBar's promises (see CLAUDE.md, "Private", and SECURITY.md) on the
+# Proves four of holzBar's promises (see CLAUDE.md, "Private", and SECURITY.md) on the
 # source tree:
 #
 #   network  No networking API appears in holzBar/, Shared/ or Package.swift
@@ -17,12 +17,17 @@
 #            no process-launching API, shell path or osascript path appears in
 #            holzBar/ or Shared/ except the lines .github/process-allowlist.txt
 #            allows (threats T-11-H3 and T-11-H4 of SECURITY.md).
+#   private  Private API only where the list says: no dlopen, dlsym, PrivateFrameworks
+#            path or @_silgen_name appears in holzBar/ or Shared/ except the lines
+#            .github/private-api-allowlist.txt allows (one wrapper per private API, each
+#            agreed with the maintainer; see CLAUDE.md, "Private API only by exception").
 #
 # It runs in the no-network job of .github/workflows/build.yml and locally:
 #
 #   python3 .github/scripts/privacy-check.py network
 #   python3 .github/scripts/privacy-check.py logs [--root DIR]
 #   python3 .github/scripts/privacy-check.py processes [--root DIR]
+#   python3 .github/scripts/privacy-check.py private [--root DIR]
 #
 # It walks the file system (not git), so it also works on an extracted copy of
 # the repository. Every violation is printed as a GitHub annotation and makes
@@ -39,6 +44,7 @@ import sys
 SOURCE_DIRS = ("holzBar", "Shared")
 NETWORK_ALLOWLIST = ".github/network-allowlist.txt"
 PROCESS_ALLOWLIST = ".github/process-allowlist.txt"
+PRIVATE_ALLOWLIST = ".github/private-api-allowlist.txt"
 ALLOWED_PACKAGES = ".github/allowed-packages.txt"
 PACKAGE_RESOLVED = "holzBar.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
 PROJECT = "holzBar.xcodeproj/project.pbxproj"
@@ -97,6 +103,15 @@ PROCESS_PATTERNS = [
     ("vfork()", re.compile(r"(?<![.\w])vfork\s*\(")),
     ("shell path", re.compile(r'"/(?:usr/)?bin/(?:sh|bash|zsh|dash|ksh|csh|tcsh)"')),
     ("osascript path", re.compile(r'"/usr/bin/osascript"')),
+]
+
+# Ways to reach a private macOS interface, each with a short name for the message. `dlopen` and
+# `dlsym` count only as calls.
+PRIVATE_PATTERNS = [
+    ("dlopen", re.compile(r"(?<![.\w])dlopen\s*\(")),
+    ("dlsym", re.compile(r"(?<![.\w])dlsym\s*\(")),
+    ("PrivateFrameworks path", re.compile(r"PrivateFrameworks")),
+    ("@_silgen_name", re.compile(r"@_silgen_name")),
 ]
 
 LOG_LEVELS = r"(?:log|trace|debug|info|notice|warning|error|critical|fault)"
@@ -491,6 +506,44 @@ def check_processes(root):
     return 0
 
 
+def check_private(root):
+    """Fails on a private-API site outside the lines private-api-allowlist.txt allows."""
+    allowlist = []
+    for entry in read_list(root, PRIVATE_ALLOWLIST):
+        path, separator, token = entry.partition(":")
+        if separator:
+            allowlist.append((path.strip(), token.strip()))
+
+    violations = 0
+    for path in swift_files(root):
+        text = read_text(root, path)
+        for number, line in enumerate(text.splitlines(), start=1):
+            # A line that is only a comment reaches nothing; prose that names a framework
+            # must not read as a site.
+            if line.lstrip().startswith("//"):
+                continue
+            for name, pattern in PRIVATE_PATTERNS:
+                if not pattern.search(line):
+                    continue
+                allowed = any(
+                    path == allowed_path and token in line
+                    for allowed_path, token in allowlist
+                )
+                if not allowed:
+                    annotate(
+                        path,
+                        number,
+                        f"Private API ({name}); a private API belongs on {PRIVATE_ALLOWLIST}",
+                    )
+                    violations += 1
+
+    if violations:
+        print(f"==> {violations} private API violation(s)")
+        return 1
+    print("==> Only the listed files use private API")
+    return 0
+
+
 def skip_nested_string(text, index):
     """Returns the index after the plain string literal that starts at `index`."""
     if text.startswith('"""', index):
@@ -584,8 +637,8 @@ def check_logs(root):
 
 def main():
     default_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    parser = argparse.ArgumentParser(description="holzBar's network, log and process checks.")
-    parser.add_argument("check", choices=("network", "logs", "processes"))
+    parser = argparse.ArgumentParser(description="holzBar's network, log, process and private API checks.")
+    parser.add_argument("check", choices=("network", "logs", "processes", "private"))
     parser.add_argument("--root", default=default_root, help="repository root (default: %(default)s)")
     arguments = parser.parse_args()
     root = os.path.abspath(arguments.root)
@@ -593,6 +646,8 @@ def main():
         return check_network(root)
     if arguments.check == "processes":
         return check_processes(root)
+    if arguments.check == "private":
+        return check_private(root)
     return check_logs(root)
 
 
