@@ -86,6 +86,78 @@
         }
       }
     },
+    "NSDownloadsFolderUsageDescription" : {
+      "comment" : "Downloads folder usage description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "holzBar watches your Downloads folder for downloads in progress, to show them at the notch. It never reads what you download."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar beobachtet deinen Ordner „Downloads“ auf laufende Downloads, um sie an der Notch anzuzeigen. Was du lädst, wird nie gelesen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar vigila tu carpeta Descargas para detectar las descargas en curso y mostrarlas en el notch. Nunca lee lo que descargas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar surveille votre dossier Téléchargements pour repérer les téléchargements en cours et les afficher à l’encoche. Il ne lit jamais ce que vous téléchargez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar osserva la tua cartella Download per rilevare i download in corso e mostrarli sulla notch. Non legge mai ciò che scarichi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar は、進行中のダウンロードをノッチに表示するために、ダウンロードフォルダを監視します。ダウンロードした内容は読み取りません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar는 진행 중인 다운로드를 노치에 표시하기 위해 다운로드 폴더를 감시합니다. 다운로드한 내용은 읽지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar observa a sua pasta Downloads para detectar downloads em andamento e mostrá-los no notch. Ele nunca lê o que você baixa."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar observescha tia mappa «Downloads» per mussar las telechargiadas en andament tar la notch. Quai che ti telechargias na vegn mai legì."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar следит за папкой «Загрузки», чтобы показывать текущие загрузки у выреза. Содержимое загружаемых файлов не читается."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 会监视你的“下载”文件夹，以便在刘海处显示正在进行的下载。它不会读取你下载的内容。"
+          }
+        }
+      }
+    },
     "NSLocationUsageDescription" : {
       "comment" : "Location usage description",
       "extractionState" : "extracted_with_value",

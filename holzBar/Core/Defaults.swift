@@ -303,6 +303,12 @@ nonisolated extension Defaults {
         /// The identifiers of the calendars the user switched off in the Calendar module. They
         /// name the user's accounts, so this stays on this Mac: never exported or imported.
         case calendarHiddenCalendars = "CalendarHiddenCalendars"
+        /// Whether the Live activities module shows a camera or the microphone in use by another
+        /// app (a boolean, on by default).
+        case liveActivitiesCapture = "LiveActivitiesCapture"
+        /// Whether the Live activities module watches the Downloads folder for downloads in
+        /// progress (a boolean, off by default). Switching it on is when macOS asks for the folder.
+        case liveActivitiesDownloads = "LiveActivitiesDownloads"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -394,6 +400,8 @@ nonisolated extension Defaults.Key {
             .autoZenWhileSharingScreen,
             .notchHubOpensOnHover,
             .calendarShowsAllDay,
+            .liveActivitiesCapture,
+            .liveActivitiesDownloads,
             .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,

@@ -29,6 +29,9 @@ final class AppSettings {
     /// The model for the Timers module's settings.
     let timers = TimersSettings()
 
+    /// The model for the Live activities module's settings.
+    let liveActivities = LiveActivitiesSettings()
+
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
         advanced.performSetup(with: appState)
@@ -37,5 +40,6 @@ final class AppSettings {
         notchHub.performSetup(with: appState)
         timers.performSetup(with: appState)
         calendar.performSetup(with: appState)
+        liveActivities.performSetup(with: appState)
     }
 }

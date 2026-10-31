@@ -21,6 +21,8 @@
 	<string>holzBar reads which of your paired Bluetooth devices are connected, so an automation rule can react to it. It only does so while a rule uses this condition.</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>holzBar shows your next events and their meeting links in the notch hub. It reads them on this Mac only and never sends or stores them.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>holzBar watches your Downloads folder for downloads in progress, to show them at the notch. It never reads what you download.</string>
 	<key>NSLocationUsageDescription</key>
 	<string>holzBar reads the name of the Wi-Fi network you are connected to, so an automation rule can react to it. It does not read your location.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

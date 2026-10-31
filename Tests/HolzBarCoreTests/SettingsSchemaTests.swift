@@ -176,6 +176,26 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The Live activities sub-switches travel with a settings file, as Booleans only")
+    func liveActivitiesSwitchesTravel() {
+        #expect(Defaults.Key.liveActivitiesCapture.settingsKind == .bool)
+        #expect(Defaults.Key.liveActivitiesDownloads.settingsKind == .bool)
+        #expect(Defaults.Key.importableKinds["LiveActivitiesCapture"] == .bool)
+        #expect(Defaults.Key.importableKinds["LiveActivitiesDownloads"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(
+            ["LiveActivitiesCapture": false, "LiveActivitiesDownloads": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == ["LiveActivitiesCapture", "LiveActivitiesDownloads"])
+        for key in ["LiveActivitiesCapture", "LiveActivitiesDownloads"] {
+            for refused: Any in [1.5, "yes", ["a"]] {
+                let result = Defaults.Key.validatedSettings([key: refused], ownBundleIdentifier: ownBundle)
+                #expect(result.accepted.isEmpty)
+                #expect(result.ignored == [key])
+            }
+        }
+    }
+
     @Test("The Shelf's style and location travel with a settings file, and only as whole numbers within their choices")
     func shelfStyleAndLocationTravel() {
         #expect(Defaults.Key.importableKinds["ShelfStyle"] == .number)
