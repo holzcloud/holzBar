@@ -41,10 +41,11 @@ struct LayoutKeysTests {
         #expect(LayoutKeys.sectionIndex(for: .hidden, from: 1, sectionCount: 3) == nil)
     }
 
-    @Test("Moving within a section is refused where macOS orders items")
-    func movingWithinASectionIsRefused() {
-        #expect(LayoutKeys.command(keyCode: Key.leftArrow, modifiers: .option, itemsKeepOrder: false) == .refused(LayoutKeys.macOSOrdersItems))
-        #expect(LayoutKeys.command(keyCode: Key.downArrow, modifiers: .option, itemsKeepOrder: false) == .moveToSection(.next))
+    @Test("Option with the left and right arrows moves the item within its section")
+    func movingWithinASection() {
+        #expect(LayoutKeys.command(keyCode: Key.leftArrow, modifiers: .option) == .moveWithinSection(-1))
+        #expect(LayoutKeys.command(keyCode: Key.rightArrow, modifiers: .option) == .moveWithinSection(1))
+        #expect(LayoutKeys.command(keyCode: Key.downArrow, modifiers: .option) == .moveToSection(.next))
     }
 
     @Test("Return and Space open the item's menu")

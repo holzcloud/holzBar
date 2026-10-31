@@ -105,6 +105,26 @@ final class LayoutBarPaddingView: NSView {
                     let next = arrangedViews.indices.contains(index + 1) ? arrangedViews[index + 1].item : nil
                     return appState.layoutEditor.recordMove(item, to: container.section, before: next)
                 }
+                if isSameRow {
+                    // At once: left of the item to the right, else right of the item to the left.
+                    // The order has no undo of its own; the section undo stays as it is.
+                    let destination: MenuBarItemManager.MoveDestination
+                    if arrangedViews.indices.contains(index + 1) {
+                        destination = .leftOfItem(arrangedViews[index + 1].item)
+                    } else if arrangedViews.indices.contains(index - 1) {
+                        destination = .rightOfItem(arrangedViews[index - 1].item)
+                    } else {
+                        return false
+                    }
+                    LayoutBarMoves.move(
+                        item,
+                        to: destination,
+                        appState: appState,
+                        actionName: String(localized: "Move \(item.displayName)"),
+                        registersUndo: false
+                    )
+                    return true
+                }
             }
             if !isSameRow {
                 // A section that cannot be set fails the drop, like one that changes nothing.

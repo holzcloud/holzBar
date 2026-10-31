@@ -9,8 +9,7 @@ import Foundation
 ///
 /// The arrows move the focus: Left and Right between the items of a section, Up and Down
 /// between the sections. Option with an arrow moves the focused item: Left and Right one
-/// place within its section (refused where macOS orders the items, on macOS 27), Up and
-/// Down to the neighbouring section. Command-1, 2 and 3 move it to the visible, hidden
+/// place within its section, Up and Down to the neighbouring section. Command-1, 2 and 3 move it to the visible, hidden
 /// and always-hidden section. Return or Space opens the item's menu.
 nonisolated enum LayoutKeys {
     /// Virtual key codes (`kVK_*` of Carbon's `Events.h`).
@@ -48,20 +47,14 @@ nonisolated enum LayoutKeys {
         case moveToSection(SectionTarget)
         /// Opens the focused item's menu.
         case openMenu
-        /// Says why the key does nothing here.
-        case refused(String)
     }
-
-    /// Why an item cannot move within its section on macOS 27.
-    static let macOSOrdersItems = "macOS orders the items within each section."
 
     /// The command for a key, or `nil` for a key the Layout pane leaves alone.
     ///
     /// - Parameters:
     ///   - keyCode: The key's virtual key code.
     ///   - modifiers: The modifier keys held.
-    ///   - itemsKeepOrder: Whether items can be ordered within a section (before macOS 27).
-    static func command(keyCode: Int, modifiers: Modifiers, itemsKeepOrder: Bool = true) -> Command? {
+    static func command(keyCode: Int, modifiers: Modifiers) -> Command? {
         let modifiers = modifiers.subtracting(.shift)
         switch (keyCode, modifiers) {
         case (Key.leftArrow, []):
@@ -73,9 +66,9 @@ nonisolated enum LayoutKeys {
         case (Key.downArrow, []):
             return .focus(dx: 0, dy: 1)
         case (Key.leftArrow, .option):
-            return itemsKeepOrder ? .moveWithinSection(-1) : .refused(macOSOrdersItems)
+            return .moveWithinSection(-1)
         case (Key.rightArrow, .option):
-            return itemsKeepOrder ? .moveWithinSection(1) : .refused(macOSOrdersItems)
+            return .moveWithinSection(1)
         case (Key.upArrow, .option):
             return .moveToSection(.previous)
         case (Key.downArrow, .option):
