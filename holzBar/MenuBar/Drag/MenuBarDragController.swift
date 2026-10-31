@@ -17,7 +17,8 @@ import OSLog
 /// A press on an app's item is held back. A sideways move inside the bar replays the press as
 /// a ⌘ Command-drag that macOS performs; a move down out of the bar replays a plain press into the
 /// item's menu; a release replays a plain click. Every drop then sends the same intent as a move
-/// in the Layout pane (`LayoutBarMoves`).
+/// in the Layout pane (`LayoutBarMoves`). On macOS 27 a drop on holzBar's icon or on the open
+/// Shelf hides the item's application.
 @MainActor
 final class MenuBarDragController {
     /// The module's identifier, as stored with the user's choices.
@@ -33,6 +34,10 @@ final class MenuBarDragController {
 
     /// How long after the release the drop is handled, so macOS has placed the item.
     static let dropSettleDelay = Duration.milliseconds(500)
+
+    /// The last drop in fixed words (generation, zone, intent, result), for Copy Diagnostics;
+    /// empty until the first drop. It carries no name, title or position.
+    static var lastDrop = ""
 
     /// No menu bar is taller; a press below this strip is let through without any lookup.
     private static let barStripHeight: CGFloat = 64
@@ -250,8 +255,15 @@ final class MenuBarDragController {
             post(.leftMouseUp, at: up, flags: gesture.pressFlags)
             return nil
         case .rewriteWithCommand:
+            // The pointer's real position, read before the event is moved into the bar: the
+            // moved one can never lie on the Shelf.
             addCommandInsideBar(event, bar: gesture.pressBar)
-            handleDrop(gesture, release: event.location, at: ContinuousClock.now)
+            handleDrop(
+                gesture,
+                release: location,
+                shelfZone: shelfZone(for: gesture.pressBar),
+                at: ContinuousClock.now
+            )
             return event
         default:
             return event
@@ -270,17 +282,48 @@ final class MenuBarDragController {
         CGPoint(x: point.x, y: min(point.y, bar.barMaxY - 2))
     }
 
+    /// The open Shelf's frame in screen coordinates, extended up to the bar's bottom edge, or
+    /// `nil` when no Shelf is open (or before macOS 27, where a drop on the Shelf is not a target).
+    private func shelfZone(for bar: MenuBarDrop.Bar) -> CGRect? {
+        guard
+            generation == .macOS27,
+            let panel = appState?.menuBarManager.shelfPanel,
+            panel.isVisible,
+            let primaryHeight = NSScreen.screens.first?.frame.height
+        else {
+            return nil
+        }
+        let bounds = StatusItemWindowFrame.windowBounds(fromAppKitFrame: panel.frame, primaryScreenHeight: primaryHeight)
+        let top = min(bounds.minY, bar.barMaxY)
+        return CGRect(x: bounds.minX, y: top, width: bounds.width, height: bounds.maxY - top)
+    }
+
     // MARK: - The drop
 
     /// Handles a drop once, after the item has settled: one sleep, no loop.
-    private func handleDrop(_ gesture: Gesture, release: CGPoint, at instant: ContinuousClock.Instant) {
+    private func handleDrop(
+        _ gesture: Gesture,
+        release: CGPoint,
+        shelfZone: CGRect?,
+        at instant: ContinuousClock.Instant
+    ) {
         isHandlingDrop = true
         Task { [weak self] in
-            await self?.finishDrop(gesture, release: release, settleAt: instant + Self.dropSettleDelay)
+            await self?.finishDrop(
+                gesture,
+                release: release,
+                shelfZone: shelfZone,
+                settleAt: instant + Self.dropSettleDelay
+            )
         }
     }
 
-    private func finishDrop(_ gesture: Gesture, release: CGPoint, settleAt: ContinuousClock.Instant) async {
+    private func finishDrop(
+        _ gesture: Gesture,
+        release: CGPoint,
+        shelfZone: CGRect?,
+        settleAt: ContinuousClock.Instant
+    ) async {
         defer {
             isHandlingDrop = false
         }
@@ -294,6 +337,7 @@ final class MenuBarDragController {
         var settledItems = [MenuBarItem]()
         var bar = gesture.pressBar
         let target: MenuBarDrop.Target?
+        var zone = MenuBarDrop.Zone.item
         switch generation {
         case .before27:
             settledItems = await MenuBarItem.getMenuBarItems(on: gesture.displayID, option: .activeSpace)
@@ -303,7 +347,21 @@ final class MenuBarDragController {
             bar = settled
             target = MenuBarDrop.placement(of: gesture.draggedID, in: settled)
         case .macOS27:
-            target = MenuBarDrop.target(forDropAt: release, draggedID: gesture.draggedID, in: gesture.pressBar)
+            // One read of the bar after the drop settled tells where the icon is now.
+            var settledIconFrame: CGRect?
+            if #available(macOS 27.0, *) {
+                let items = await MenuBarItemProvider27.items()
+                settledIconFrame = items.first(where: { $0.tag == .visibleControlItem })?.bounds
+            }
+            let resolution = MenuBarDrop.resolve(
+                forDropAt: release,
+                draggedID: gesture.draggedID,
+                in: gesture.pressBar,
+                settledIconFrame: settledIconFrame,
+                shelfZone: shelfZone
+            )
+            target = resolution.target
+            zone = resolution.zone
         }
         let intent = MenuBarDrop.intent(
             for: target,
@@ -311,7 +369,10 @@ final class MenuBarDragController {
             in: bar,
             currentSection: gesture.currentSection
         )
-        await perform(intent, gesture: gesture, settledItems: settledItems, appState: appState)
+        let result = await perform(intent, gesture: gesture, settledItems: settledItems, appState: appState)
+        let summary = MenuBarDrop.summary(generation: generation, zone: zone, intent: intent, result: result)
+        Self.lastDrop = summary
+        logger.debug("A drop: \(summary, privacy: .public)")
         // The next hit test reads the bar as the drop left it.
         await appState.itemManager.cacheItemsRegardless()
     }
@@ -321,7 +382,7 @@ final class MenuBarDragController {
         gesture: Gesture,
         settledItems: [MenuBarItem],
         appState: AppState
-    ) async {
+    ) async -> MenuBarDrop.Outcome {
         switch intent {
         case .move(_, let target):
             let neighbourID: UInt32
@@ -329,14 +390,14 @@ final class MenuBarDragController {
             case .leftOf(let id), .rightOf(let id):
                 neighbourID = id
             case .section:
-                return
+                return .noChange
             }
             guard
                 let dragged = settledItems.first(where: { $0.windowID == gesture.draggedID }),
                 let neighbour = settledItems.first(where: { $0.windowID == neighbourID })
             else {
                 logger.debug("A dropped item or its neighbour is gone")
-                return
+                return .notApplied
             }
             // A timeout skips the call, so the Layout pane's error alert never appears for a
             // drop made on the bar; macOS's own move stands.
@@ -344,7 +405,7 @@ final class MenuBarDragController {
                 try await MenuBarItemEventPoster.waitForUserToPauseInput()
             } catch {
                 logger.debug("The pointer kept moving after a drop")
-                return
+                return .notApplied
             }
             let destination: MenuBarItemManager.MoveDestination
             if case .leftOf = target {
@@ -358,12 +419,16 @@ final class MenuBarDragController {
                 appState: appState,
                 actionName: String(localized: "Move \(dragged.displayName)")
             )
+            return .applied
         case .setSection(_, let section):
-            LayoutBarMoves.setSection(of: gesture.dragged, to: Self.name(of: section), appState: appState)
+            let accepted = LayoutBarMoves.setSection(of: gesture.dragged, to: Self.name(of: section), appState: appState)
+            return accepted ? .applied : .notApplied
         case .macOSOrders:
             logger.debug("macOS ordered a dropped item")
+            return .noChange
         case .refused(let refusal):
             logger.debug("A drop was not acted on: \(String(describing: refusal), privacy: .public)")
+            return .notApplied
         }
     }
 

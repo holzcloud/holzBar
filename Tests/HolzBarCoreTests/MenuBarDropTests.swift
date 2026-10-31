@@ -60,7 +60,7 @@ struct MenuBarDropTests {
         y: CGFloat = 12,
         in bar: MenuBarDrop.Bar? = nil
     ) -> MenuBarDrop.Target? {
-        MenuBarDrop.target(forDropAt: CGPoint(x: x, y: y), draggedID: Fixture.b, in: bar ?? before27)
+        MenuBarDrop.resolve(forDropAt: CGPoint(x: x, y: y), draggedID: Fixture.b, in: bar ?? before27).target
     }
 
     // MARK: Bar
@@ -116,6 +116,152 @@ struct MenuBarDropTests {
         #expect(target(510, in: on27) == .section(.hidden))
         #expect(target(505, in: before27) == .leftOf(Fixture.icon))
         #expect(target(520, in: before27) == .rightOf(Fixture.icon))
+    }
+
+    // MARK: Resolve on a bar modelled on a real one
+
+    /// A 1512 point display with the bar bottom at 33: an app item P left of holzBar's icon, the
+    /// icon, apps A and B right of it, the collapsed divider and two system items.
+    private enum RealBar {
+        static let p: UInt32 = 30
+        static let icon: UInt32 = 31
+        static let divider: UInt32 = 32
+        static let a: UInt32 = 33
+        static let b: UInt32 = 34
+        static let system: UInt32 = 35
+
+        static func item(_ id: UInt32, _ kind: MenuBarDrop.Item.Kind, x: CGFloat, width: CGFloat) -> MenuBarDrop.Item {
+            MenuBarDrop.Item(id: id, kind: kind, frame: CGRect(x: x, y: 0, width: width, height: 33))
+        }
+
+        static let bar = MenuBarDrop.Bar(
+            generation: .macOS27,
+            displayBounds: CGRect(x: 0, y: 0, width: 1512, height: 982),
+            barMaxY: 33,
+            items: [
+                item(p, .app, x: 760, width: 26),
+                item(icon, .holzBarIcon, x: 1007, width: 35),
+                item(divider, .hiddenDivider, x: 1300, width: 2),
+                item(a, .app, x: 1105, width: 26),
+                item(b, .app, x: 1140, width: 30),
+                item(system, .system, x: 1196, width: 26),
+                item(36, .system, x: 1383, width: 109),
+            ]
+        )
+    }
+
+    private func resolve(
+        _ x: CGFloat,
+        y: CGFloat = 12,
+        dragged: UInt32 = RealBar.a,
+        settled: CGRect? = nil,
+        shelf: CGRect? = nil
+    ) -> MenuBarDrop.Resolution {
+        MenuBarDrop.resolve(
+            forDropAt: CGPoint(x: x, y: y),
+            draggedID: dragged,
+            in: RealBar.bar,
+            settledIconFrame: settled,
+            shelfZone: shelf
+        )
+    }
+
+    @Test("A release inside the icon's frame hides, with the zone icon")
+    func dropOnTheIcon() {
+        #expect(resolve(1020) == MenuBarDrop.Resolution(target: .section(.hidden), zone: .icon))
+    }
+
+    @Test("A release three points left of the icon is still on it, in the margin")
+    func dropInTheMargin() {
+        #expect(resolve(1004) == MenuBarDrop.Resolution(target: .section(.hidden), zone: .iconMargin))
+    }
+
+    @Test("An item that came from the right finds the icon slid right by its width and the gap")
+    func iconShifted() {
+        // A is 26 wide: the icon slides to 1037...1072.
+        #expect(resolve(1060) == MenuBarDrop.Resolution(target: .section(.hidden), zone: .iconShifted))
+        // The same point from the left of the icon is not on a shifted icon.
+        #expect(resolve(1060, dragged: RealBar.p).target != .section(.hidden))
+    }
+
+    @Test("An item that came from the left finds the icon slid left")
+    func iconShiftedLeft() {
+        // P is 26 wide: the icon slides to 977...1012.
+        #expect(resolve(985, dragged: RealBar.p) == MenuBarDrop.Resolution(target: .section(.hidden), zone: .iconShifted))
+    }
+
+    @Test("The icon where the settled bar has it counts too")
+    func iconSettled() {
+        let settled = CGRect(x: 1033, y: 0, width: 35, height: 33)
+        #expect(resolve(1086, dragged: RealBar.p, settled: settled).zone != .iconSettled)
+        #expect(
+            resolve(1066, dragged: RealBar.p, settled: settled)
+                == MenuBarDrop.Resolution(target: .section(.hidden), zone: .iconSettled)
+        )
+    }
+
+    @Test("A release on the neighbour area is not the icon")
+    func neighbourIsNotTheIcon() {
+        let resolution = resolve(1090)
+        #expect(resolution.target == .leftOf(RealBar.b))
+        #expect(resolution.zone == .gap)
+        #expect(resolve(1150, dragged: RealBar.a).zone == .item)
+    }
+
+    @Test("Below the bar a release has no target without a Shelf zone")
+    func belowTheBarOn27() {
+        #expect(resolve(1020, y: 120) == MenuBarDrop.Resolution(target: nil, zone: .outsideBar))
+    }
+
+    @Test("Below the bar a release inside the Shelf zone hides, and the Shelf wins over the icon")
+    func dropOnTheShelf() {
+        let shelf = CGRect(x: 600, y: 33, width: 300, height: 367)
+        #expect(resolve(700, y: 120, shelf: shelf) == MenuBarDrop.Resolution(target: .section(.hidden), zone: .shelf))
+        #expect(resolve(1020, y: 120, shelf: CGRect(x: 900, y: 33, width: 300, height: 367)).zone == .shelf)
+        #expect(resolve(1500, y: 120, shelf: shelf) == MenuBarDrop.Resolution(target: nil, zone: .outsideBar))
+    }
+
+    @Test("A dragged item that is not an app item never resolves to hide")
+    func onlyAppItemsHide() {
+        let resolution = resolve(1020, dragged: RealBar.system)
+        let dragged = RealBar.item(RealBar.system, .system, x: 1196, width: 26)
+        let intent = MenuBarDrop.intent(for: resolution.target, dragged: dragged, in: RealBar.bar, currentSection: nil)
+        #expect(intent == .refused(.notAnAppItem))
+    }
+
+    @Test("Before macOS 27 the icon and the Shelf zone change nothing")
+    func before27Unchanged() {
+        let bar = MenuBarDrop.Bar(
+            generation: .before27,
+            displayBounds: RealBar.bar.displayBounds,
+            barMaxY: RealBar.bar.barMaxY,
+            items: RealBar.bar.items
+        )
+        let onIcon = MenuBarDrop.resolve(forDropAt: CGPoint(x: 1020, y: 12), draggedID: RealBar.a, in: bar)
+        #expect(onIcon.zone == .item)
+        let shelf = CGRect(x: 600, y: 33, width: 300, height: 367)
+        let below = MenuBarDrop.resolve(forDropAt: CGPoint(x: 700, y: 120), draggedID: RealBar.a, in: bar, shelfZone: shelf)
+        #expect(below == MenuBarDrop.Resolution(target: nil, zone: .outsideBar))
+    }
+
+    // MARK: Summary
+
+    @Test("The summary is made of fixed words only")
+    func summaryWords() {
+        let hide = MenuBarDrop.Intent.setSection(item: 7, section: .hidden)
+        #expect(
+            MenuBarDrop.summary(generation: .macOS27, zone: .shelf, intent: hide, result: .applied)
+                == "macOS 27, shelf, hide, applied"
+        )
+        #expect(
+            MenuBarDrop.summary(generation: .before27, zone: .gap, intent: .move(item: 7, target: .leftOf(8)), result: .noChange)
+                == "before 27, gap, order, no change"
+        )
+        #expect(
+            MenuBarDrop.summary(generation: .macOS27, zone: .outsideBar, intent: .refused(.outsideTheBar), result: .notApplied)
+                == "macOS 27, outsideBar, refused, outside the bar, not applied"
+        )
+        #expect(MenuBarDrop.summary(generation: .macOS27, zone: .item, intent: nil, result: .noChange) == "macOS 27, item, none, no change")
     }
 
     // MARK: Intent
