@@ -155,6 +155,9 @@ nonisolated enum DesignTokens {
         /// The type sizes of the wings' parts.
         static let pillTextSize: Double = 11
         static let tabSymbolSize: Double = 13
+        /// The type sizes of the compact live-activity capsule: the symbol and the phrase.
+        static let compactSymbolSize: Double = 16
+        static let compactTitleSize: Double = 12
         /// The widget card: radius, padding, the gap between cards and the columns of a row.
         static let tileRadius: Double = 14
         static let tilePadding: Double = 10
@@ -169,6 +172,23 @@ nonisolated enum DesignTokens {
         /// The fill of a widget card, normally and under Reduce Transparency.
         static let tileFillAlpha: Double = 0.045
         static let tileFillAlphaOpaque: Double = 0.10
+        /// The File drop tab's file tile: its size, the type icon, the remove button's circle and
+        /// the border (white at 6 percent). A missing file is drawn at half strength.
+        static let fileTileWidth: Double = 72
+        static let fileTileHeight: Double = 84
+        static let fileIconSize: Double = 40
+        static let fileRemoveSize: Double = 18
+        static let fileTileBorderAlpha: Double = 0.06
+        static let fileMissingAlpha: Double = 0.5
+        /// The outline of the File drop tab while a file is dragged over it: its width, the
+        /// lengths of dash and gap, and the words in it (12 pt, white at 85 percent).
+        static let fileDropOutlineWidth: Double = 1.5
+        static let fileDropOutlineDash: [Double] = [6, 4]
+        static let fileDropOutlineAlpha: Double = 0.8
+        static let fileDropLabelSize: Double = 12
+        static let fileDropLabelAlpha: Double = 0.85
+        /// The black behind those words, so they read over the tiles.
+        static let fileDropScrimAlpha: Double = 0.6
     }
 
     /// The gradient of fills that carry white text, the same in both appearances.

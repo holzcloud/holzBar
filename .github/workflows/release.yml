@@ -71,9 +71,11 @@ jobs:
 
       # Built and signed ad hoc first, in a job without write token, OIDC token or secrets, so
       # no build script or tool can reach them. The sign job signs it again with holzBar's
-      # certificate. The hardened runtime stays on, as in the project: holzBar embeds no
-      # framework, and the system framework it opens at runtime is a platform binary, which
-      # library validation accepts. CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO keeps Xcode from
+      # certificate. The hardened runtime stays on, as in the project: holzBar embeds one
+      # helper framework, NowPlayingRemote.framework (Now Playing, Read all apps), that only Apple's perl loads, so library
+      # validation of holzBar's own process is not affected, and the system framework it opens
+      # at runtime is a platform binary, which library validation accepts.
+      # CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO keeps Xcode from
       # adding get-task-allow, which would let a debugger attach to holzBar.
       - name: Build
         run: |
@@ -92,8 +94,8 @@ jobs:
             CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
             CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
 
-      # The hardened runtime on every bundle and no entitlement on any code, as in every
-      # pull request's build.
+      # The hardened runtime on every bundle and no entitlement but the Calendar one on the
+      # app, as in every pull request's build.
       - name: Check the build
         run: Scripts/check-signature.sh build/Build/Products/Release/holzBar.app
 
@@ -204,25 +206,41 @@ jobs:
             echo "::error::SIGNING_CERTIFICATE_P12 holds holzBar's certificate without its private key."
             exit 1
           fi
-          # Every piece of code is signed with explicitly empty entitlements: the build job
-          # proved the build had none, so nothing real can be dropped silently, and nothing
-          # the build carried (such as get-task-allow) can survive.
-          ENTITLEMENTS="$RUNNER_TEMP/empty.entitlements"
-          plutil -create xml1 "$ENTITLEMENTS"
+          # The app is signed with exactly one entitlement, the Calendar one, and the nested code
+          # (the one helper framework, NowPlayingRemote.framework) with explicitly empty entitlements. The loop below keeps
+          # the hardened runtime the Xcode target gave the helper through
+          # --preserve-metadata=identifier,flags,runtime. The files are made here because
+          # this job checks out no code. The build job proved the build carried nothing else, so
+          # nothing real can be dropped silently, and nothing the build carried (such as
+          # get-task-allow) can survive. Scripts/check-signature.sh allows the same one key.
+          EMPTY_ENTITLEMENTS="$RUNNER_TEMP/empty.entitlements"
+          plutil -create xml1 "$EMPTY_ENTITLEMENTS"
+          APP_ENTITLEMENTS="$RUNNER_TEMP/holzbar.entitlements"
+          cat > "$APP_ENTITLEMENTS" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>com.apple.security.personal-information.calendars</key>
+              <true/>
+          </dict>
+          </plist>
+          PLIST
+          plutil -lint "$APP_ENTITLEMENTS"
           # Inside out, without --deep (Apple's guidance): the embedded code first, deepest
           # first, then the app. The identifier and the hardened runtime of the ad hoc build
           # are kept, never its entitlements; the designated requirement is made anew from the
           # certificate. No timestamp: that would ask Apple's timestamp server, which serves
-          # Developer ID signatures.
+          # Developer ID signatures. sign takes the entitlements file as its second argument.
           sign() {
             codesign --force --sign "$IDENTITY" --keychain "$KEYCHAIN" \
-              --options runtime --timestamp=none --entitlements "$ENTITLEMENTS" \
+              --options runtime --timestamp=none --entitlements "$2" \
               --preserve-metadata=identifier,flags,runtime "$1"
           }
           while IFS= read -r -d '' NESTED; do
-            sign "$NESTED"
+            sign "$NESTED" "$EMPTY_ENTITLEMENTS"
           done < <(find "$APP/Contents" -depth \( -name '*.xpc' -o -name '*.appex' -o -name '*.framework' -o -name '*.app' -o -name '*.dylib' \) -print0)
-          sign "$APP"
+          sign "$APP" "$APP_ENTITLEMENTS"
 
       # Removes the key from the runner, whether signing worked or not.
       - name: Remove the signing keychain
@@ -231,11 +249,13 @@ jobs:
           security delete-keychain "$RUNNER_TEMP/holzbar-signing.keychain-db" 2> /dev/null || true
           rm -f "$RUNNER_TEMP/holzbar-signing.p12"
 
-      # What users and macOS rely on, checked before anything is published: holzBar ships no
-      # nested code, so nothing the sign loop skipped can stay ad hoc; every piece of code is
-      # signed with holzBar's certificate, never ad hoc, with the hardened runtime on every
-      # bundle and no entitlement at all; the app's designated requirement is exactly its
-      # identifier and that certificate, which keeps Accessibility across updates.
+      # What users and macOS rely on, checked before anything is published: the one nested
+      # item is the helper framework NowPlayingRemote.framework (the rules between the "nested code rules" comments mirror
+      # Scripts/check-signature.sh), so nothing the sign loop skipped can stay ad hoc; every
+      # piece of code is signed with holzBar's certificate, never ad hoc, with the hardened
+      # runtime on every bundle and no entitlement but the app's Calendar one; the app's designated requirement
+      # is exactly its identifier and that certificate, which keeps Accessibility across
+      # updates.
       - name: Check the signature
         env:
           APP: ${{ runner.temp }}/release/holzBar.app
@@ -250,11 +270,39 @@ jobs:
           if ! codesign --verify --deep --strict "$APP"; then
             fail "holzBar.app does not pass codesign --verify --deep --strict"
           fi
-          # As in Scripts/check-signature.sh: Contents/MacOS/holzBar is the only Mach-O file.
-          for FOLDER in XPCServices PlugIns Helpers Frameworks; do
+          # --- nested code rules (mirror Scripts/check-signature.sh) ---
+          # Contents/MacOS/holzBar is the main executable; the only nested item is the helper
+          # framework, with exactly one Mach-O file. Anything else fails.
+          ALLOWED_NESTED=("Contents/Frameworks/NowPlayingRemote.framework")
+          is_allowed_nested() {
+            local ok
+            for ok in "${ALLOWED_NESTED[@]}"; do
+              if [ "$1" = "$ok" ]; then
+                return 0
+              fi
+            done
+            return 1
+          }
+          for FOLDER in XPCServices PlugIns Helpers; do
             if [ -e "$APP/Contents/$FOLDER" ]; then
-              fail "holzBar.app/Contents/$FOLDER exists; holzBar ships no nested code"
+              fail "holzBar.app/Contents/$FOLDER exists; only ${ALLOWED_NESTED[*]} may be nested"
             fi
+          done
+          if [ -d "$APP/Contents/Frameworks" ]; then
+            while IFS= read -r -d '' ENTRY; do
+              if ! is_allowed_nested "${ENTRY#"$APP"/}"; then
+                fail "holzBar.app/${ENTRY#"$APP"/} is in Contents/Frameworks; only ${ALLOWED_NESTED[*]} may be nested"
+              fi
+            done < <(find "$APP/Contents/Frameworks" -mindepth 1 -maxdepth 1 -print0)
+          fi
+          while IFS= read -r -d '' NESTED_ITEM; do
+            if ! is_allowed_nested "${NESTED_ITEM#"$APP"/}"; then
+              fail "holzBar.app/${NESTED_ITEM#"$APP"/} is nested code; only ${ALLOWED_NESTED[*]} may be nested"
+            fi
+          done < <(find "$APP/Contents" -depth \( -name '*.xpc' -o -name '*.appex' -o -name '*.framework' -o -name '*.app' -o -name '*.dylib' \) -print0)
+          COUNTS=()
+          for _ in "${ALLOWED_NESTED[@]}"; do
+            COUNTS+=(0)
           done
           while IFS= read -r -d '' FILE; do
             if [ "$FILE" = "$APP/Contents/MacOS/holzBar" ]; then
@@ -262,9 +310,24 @@ jobs:
             fi
             KIND=$(file -b "$FILE")
             if [[ "$KIND" == Mach-O* ]]; then
-              fail "holzBar.app${FILE#"$APP"} is code outside holzBar's main executable; holzBar ships no nested code"
+              INSIDE=0
+              for INDEX in "${!ALLOWED_NESTED[@]}"; do
+                if [[ "$FILE" == "$APP/${ALLOWED_NESTED[$INDEX]}/"* ]]; then
+                  COUNTS[INDEX]=$((COUNTS[INDEX] + 1))
+                  INSIDE=1
+                fi
+              done
+              if [ "$INSIDE" -eq 0 ]; then
+                fail "holzBar.app/${FILE#"$APP"/} is code outside holzBar's main executable and the helper; holzBar ships no nested code besides the helper"
+              fi
             fi
           done < <(find "$APP" -type f -print0)
+          for INDEX in "${!ALLOWED_NESTED[@]}"; do
+            if [ -d "$APP/${ALLOWED_NESTED[$INDEX]}" ] && [ "${COUNTS[$INDEX]}" -ne 1 ]; then
+              fail "holzBar.app/${ALLOWED_NESTED[$INDEX]} must hold exactly one Mach-O file, not ${COUNTS[$INDEX]}"
+            fi
+          done
+          # --- end of nested code rules ---
           CERTS="$RUNNER_TEMP/certificates"
           rm -rf "$CERTS"
           mkdir -p "$CERTS"
@@ -285,7 +348,7 @@ jobs:
               fail "$NAME is still signed ad hoc"
             fi
             case "$ITEM" in
-              *.app | *.xpc | *.appex)
+              *.app | *.framework | *.xpc | *.appex)
                 if ! grep -qE '^CodeDirectory.*flags=0x[0-9a-f]+\([^)]*runtime' <<< "$DETAILS"; then
                   fail "$NAME is not signed with the hardened runtime"
                 fi
@@ -295,7 +358,14 @@ jobs:
             if grep -q 'com.apple.security.get-task-allow' <<< "$ENTITLEMENTS"; then
               fail "$NAME carries com.apple.security.get-task-allow, which lets a debugger attach to it"
             elif grep -q '<key>' <<< "$ENTITLEMENTS"; then
-              fail "$NAME carries entitlements; holzBar has none"
+              # The one allowed key, on the app only; any other key fails by name.
+              while IFS= read -r KEY; do
+                if [ "$KEY" != "com.apple.security.personal-information.calendars" ]; then
+                  fail "$NAME carries the entitlement $KEY; holzBar may carry only com.apple.security.personal-information.calendars"
+                elif [ "$ITEM" != "$APP" ]; then
+                  fail "$NAME carries $KEY; only holzBar.app may"
+                fi
+              done < <(grep -oE '<key>[^<]*</key>' <<< "$ENTITLEMENTS" | sed -E 's|</?key>||g')
             fi
             codesign -d --extract-certificates="$CERTS/$N-" "$ITEM" 2> /dev/null || true
             if [ ! -f "$CERTS/$N-0" ]; then
@@ -326,7 +396,7 @@ jobs:
             echo
             echo "Designated requirement: \`$REQUIREMENT\`"
             echo
-            echo "Entitlements: none, on all $N pieces of code"
+            echo "Entitlements: only com.apple.security.personal-information.calendars, on holzBar.app; none on the other pieces, the helper framework included ($N pieces of code)"
           } >> "$GITHUB_STEP_SUMMARY"
 
       # The zip users download. hashes is the zip's sha256sum line, base64-encoded, the

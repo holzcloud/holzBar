@@ -1,0 +1,3755 @@
+{
+  "version": 1,
+  "terms": [
+    {
+      "en": "menu bar",
+      "translations": {
+        "de": {
+          "text": "Menüleiste",
+          "source": "catalog",
+          "entries": 89
+        },
+        "fr": {
+          "text": "barre des menus",
+          "source": "catalog",
+          "entries": 80
+        },
+        "it": {
+          "text": "barra dei menu",
+          "source": "catalog",
+          "entries": 77
+        },
+        "rm": {
+          "text": "trav da menu",
+          "source": "catalog",
+          "entries": 76
+        },
+        "es": {
+          "text": "Barra de menús",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "nl": {
+          "text": "Menubalk",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "pt-BR": {
+          "text": "Barra de Menus",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "pl": {
+          "text": "Pasek menu",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "cs": {
+          "text": "Řádek nabídek",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "hu": {
+          "text": "Menüsor",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "sv": {
+          "text": "Menyrad",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "tr": {
+          "text": "Menü Çubuğu",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "id": {
+          "text": "Bar Menu",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "ru": {
+          "text": "Строка меню",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "uk": {
+          "text": "Смуга меню",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "ja": {
+          "text": "メニューバー",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "ko": {
+          "text": "메뉴 막대",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "zh-Hans": {
+          "text": "菜单栏",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "zh-Hant": {
+          "text": "選單列",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        }
+      }
+    },
+    {
+      "en": "menu bar item",
+      "translations": {
+        "de": {
+          "text": "Menüleistenelement",
+          "source": "catalog",
+          "entries": 32
+        },
+        "fr": {
+          "text": "élément de la barre des menus",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "elemento della barra dei menu",
+          "source": "catalog",
+          "entries": 6
+        },
+        "rm": {
+          "text": "element da la trav da menu",
+          "source": "catalog",
+          "entries": 7
+        },
+        "es": {
+          "text": "elemento de la barra de menús",
+          "source": "catalog",
+          "entries": 7
+        },
+        "nl": {
+          "text": "menubalkonderdeel",
+          "source": "catalog",
+          "entries": 7
+        },
+        "pt-BR": {
+          "text": "item da barra de menus",
+          "source": "catalog",
+          "entries": 7
+        },
+        "pl": {
+          "text": "element paska menu",
+          "source": "catalog",
+          "entries": 5
+        },
+        "cs": {
+          "text": "položka řádku nabídek",
+          "source": "catalog",
+          "entries": 3
+        },
+        "hu": {
+          "text": "menüsor-elem",
+          "source": "catalog",
+          "entries": 41
+        },
+        "sv": {
+          "text": "menyradsobjekt",
+          "source": "catalog",
+          "entries": 42
+        },
+        "tr": {
+          "text": "menü çubuğu öğesi",
+          "source": "catalog",
+          "entries": 11
+        },
+        "id": {
+          "text": "item bar menu",
+          "source": "catalog",
+          "entries": 42
+        },
+        "ru": {
+          "text": "элемент строки меню",
+          "source": "catalog",
+          "entries": 5
+        },
+        "uk": {
+          "text": "елемент смуги меню",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ja": {
+          "text": "メニューバー項目",
+          "source": "catalog",
+          "entries": 36
+        },
+        "ko": {
+          "text": "메뉴 막대 항목",
+          "source": "catalog",
+          "entries": 39
+        },
+        "zh-Hans": {
+          "text": "菜单栏项目",
+          "source": "catalog",
+          "entries": 39
+        },
+        "zh-Hant": {
+          "text": "選單列項目",
+          "source": "catalog",
+          "entries": 42
+        }
+      }
+    },
+    {
+      "en": "hidden",
+      "translations": {
+        "de": {
+          "text": "ausgeblendet",
+          "source": "catalog",
+          "entries": 46
+        },
+        "fr": {
+          "text": "masqué",
+          "source": "catalog",
+          "entries": 46
+        },
+        "it": {
+          "text": "nascosto",
+          "source": "catalog",
+          "entries": 13
+        },
+        "rm": {
+          "text": "zuppà",
+          "source": "catalog",
+          "entries": 13
+        },
+        "es": {
+          "text": "Oculto",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Verborgen",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "oculto",
+          "source": "catalog",
+          "entries": 30
+        },
+        "pl": {
+          "text": "Ukryte",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "cs": {
+          "text": "skrytý",
+          "source": "catalog",
+          "entries": 18
+        },
+        "hu": {
+          "text": "Rejtett",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "dold",
+          "source": "catalog",
+          "entries": 40
+        },
+        "tr": {
+          "text": "gizli",
+          "source": "catalog",
+          "entries": 43
+        },
+        "id": {
+          "text": "Tersembunyi",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Скрыто",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "приховано",
+          "source": "catalog",
+          "entries": 22
+        },
+        "ja": {
+          "text": "非表示",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "숨김",
+          "source": "catalog",
+          "entries": 21
+        },
+        "zh-Hans": {
+          "text": "隐藏",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "隱藏",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "always hidden",
+      "translations": {
+        "de": {
+          "text": "immer ausgeblendet",
+          "source": "catalog",
+          "entries": 13
+        },
+        "fr": {
+          "text": "toujours masqué",
+          "source": "catalog",
+          "entries": 13
+        },
+        "it": {
+          "text": "sempre nascosto",
+          "source": "catalog",
+          "entries": 7
+        },
+        "rm": {
+          "text": "adina zuppà",
+          "source": "catalog",
+          "entries": 7
+        },
+        "es": {
+          "text": "siempre oculto",
+          "source": "catalog",
+          "entries": 7
+        },
+        "nl": {
+          "text": "altijd verborgen",
+          "source": "catalog",
+          "entries": 13
+        },
+        "pt-BR": {
+          "text": "sempre oculto",
+          "source": "catalog",
+          "entries": 7
+        },
+        "pl": {
+          "text": "zawsze ukryte",
+          "source": "catalog",
+          "entries": 6
+        },
+        "cs": {
+          "text": "vždy skrytý",
+          "source": "catalog",
+          "entries": 7
+        },
+        "hu": {
+          "text": "mindig rejtett",
+          "source": "catalog",
+          "entries": 13
+        },
+        "sv": {
+          "text": "alltid dold",
+          "source": "catalog",
+          "entries": 13
+        },
+        "tr": {
+          "text": "her zaman gizli",
+          "source": "catalog",
+          "entries": 13
+        },
+        "id": {
+          "text": "selalu tersembunyi",
+          "source": "catalog",
+          "entries": 13
+        },
+        "ru": {
+          "text": "всегда скрыто",
+          "source": "catalog",
+          "entries": 11
+        },
+        "uk": {
+          "text": "завжди приховано",
+          "source": "catalog",
+          "entries": 9
+        },
+        "ja": {
+          "text": "常に非表示",
+          "source": "catalog",
+          "entries": 13
+        },
+        "ko": {
+          "text": "항상 숨김",
+          "source": "catalog",
+          "entries": 11
+        },
+        "zh-Hans": {
+          "text": "始终隐藏",
+          "source": "catalog",
+          "entries": 13
+        },
+        "zh-Hant": {
+          "text": "一律隱藏",
+          "source": "catalog",
+          "entries": 13
+        }
+      }
+    },
+    {
+      "en": "visible",
+      "translations": {
+        "de": {
+          "text": "sichtbar",
+          "source": "catalog",
+          "entries": 7
+        },
+        "fr": {
+          "text": "visible",
+          "source": "catalog",
+          "entries": 7
+        },
+        "it": {
+          "text": "visibile",
+          "source": "catalog",
+          "entries": 4
+        },
+        "rm": {
+          "text": "visibel",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "visible",
+          "source": "catalog",
+          "entries": 7
+        },
+        "nl": {
+          "text": "zichtbaar",
+          "source": "catalog",
+          "entries": 7
+        },
+        "pt-BR": {
+          "text": "visível",
+          "source": "catalog",
+          "entries": 5
+        },
+        "pl": {
+          "text": "widoczne",
+          "source": "catalog",
+          "entries": 3
+        },
+        "cs": {
+          "text": "viditelný",
+          "source": "catalog",
+          "entries": 2
+        },
+        "hu": {
+          "text": "látható",
+          "source": "catalog",
+          "entries": 8
+        },
+        "sv": {
+          "text": "synlig",
+          "source": "catalog",
+          "entries": 7
+        },
+        "tr": {
+          "text": "görünür",
+          "source": "catalog",
+          "entries": 8
+        },
+        "id": {
+          "text": "terlihat",
+          "source": "catalog",
+          "entries": 8
+        },
+        "ru": {
+          "text": "видимо",
+          "source": "catalog",
+          "entries": 2
+        },
+        "uk": {
+          "text": "видимі",
+          "source": "catalog",
+          "entries": 3
+        },
+        "ja": {
+          "text": "表示",
+          "source": "catalog",
+          "entries": 8
+        },
+        "ko": {
+          "text": "표시",
+          "source": "catalog",
+          "entries": 7
+        },
+        "zh-Hans": {
+          "text": "可见",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hant": {
+          "text": "可見",
+          "source": "catalog",
+          "entries": 3
+        }
+      }
+    },
+    {
+      "en": "section",
+      "translations": {
+        "de": {
+          "text": "Bereich",
+          "source": "catalog",
+          "entries": 29
+        },
+        "fr": {
+          "text": "section",
+          "source": "catalog",
+          "entries": 29
+        },
+        "it": {
+          "text": "sezione",
+          "source": "catalog",
+          "entries": 25
+        },
+        "rm": {
+          "text": "secziun",
+          "source": "catalog",
+          "entries": 29
+        },
+        "es": {
+          "text": "sección",
+          "source": "catalog",
+          "entries": 23
+        },
+        "nl": {
+          "text": "sectie",
+          "source": "catalog",
+          "entries": 29
+        },
+        "pt-BR": {
+          "text": "seção",
+          "source": "catalog",
+          "entries": 23
+        },
+        "pl": {
+          "text": "sekcja",
+          "source": "catalog",
+          "entries": 4
+        },
+        "cs": {
+          "text": "sekce",
+          "source": "catalog",
+          "entries": 11
+        },
+        "hu": {
+          "text": "szakasz",
+          "source": "catalog",
+          "entries": 29
+        },
+        "sv": {
+          "text": "sektion",
+          "source": "catalog",
+          "entries": 29
+        },
+        "tr": {
+          "text": "bölüm",
+          "source": "catalog",
+          "entries": 29
+        },
+        "id": {
+          "text": "bagian",
+          "source": "catalog",
+          "entries": 29
+        },
+        "ru": {
+          "text": "раздел",
+          "source": "catalog",
+          "entries": 29
+        },
+        "uk": {
+          "text": "розділ",
+          "source": "catalog",
+          "entries": 29
+        },
+        "ja": {
+          "text": "セクション",
+          "source": "catalog",
+          "entries": 29
+        },
+        "ko": {
+          "text": "섹션",
+          "source": "catalog",
+          "entries": 29
+        },
+        "zh-Hans": {
+          "text": "分区",
+          "source": "catalog",
+          "entries": 29
+        },
+        "zh-Hant": {
+          "text": "區段",
+          "source": "catalog",
+          "entries": 29
+        }
+      }
+    },
+    {
+      "en": "holzBar Shelf",
+      "translations": {
+        "de": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "fr": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "it": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "rm": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "es": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "nl": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "pt-BR": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "pl": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "cs": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "hu": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "sv": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "tr": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "id": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "ru": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "uk": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "ja": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "ko": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "zh-Hans": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "zh-Hant": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        }
+      }
+    },
+    {
+      "en": "profile",
+      "translations": {
+        "de": {
+          "text": "Profil",
+          "source": "catalog",
+          "entries": 40
+        },
+        "fr": {
+          "text": "profil",
+          "source": "catalog",
+          "entries": 40
+        },
+        "it": {
+          "text": "profilo",
+          "source": "catalog",
+          "entries": 35
+        },
+        "rm": {
+          "text": "profil",
+          "source": "catalog",
+          "entries": 40
+        },
+        "es": {
+          "text": "Perfil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Profiel",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Perfil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pl": {
+          "text": "Profil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "cs": {
+          "text": "Profil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Profil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "Profil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Profil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "id": {
+          "text": "Profil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Профиль",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Профіль",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "プロファイル",
+          "source": "catalog",
+          "entries": 40
+        },
+        "ko": {
+          "text": "프로파일",
+          "source": "catalog",
+          "entries": 40
+        },
+        "zh-Hans": {
+          "text": "配置文件",
+          "source": "catalog",
+          "entries": 40
+        },
+        "zh-Hant": {
+          "text": "設定檔",
+          "source": "catalog",
+          "entries": 40
+        }
+      }
+    },
+    {
+      "en": "layout",
+      "translations": {
+        "de": {
+          "text": "Layout",
+          "source": "catalog",
+          "entries": 29
+        },
+        "fr": {
+          "text": "disposition",
+          "source": "catalog",
+          "entries": 30
+        },
+        "it": {
+          "text": "layout",
+          "source": "catalog",
+          "entries": 29
+        },
+        "rm": {
+          "text": "disposiziun",
+          "source": "catalog",
+          "entries": 19
+        },
+        "es": {
+          "text": "Disposición",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Lay-out",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Layout",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pl": {
+          "text": "Układ",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "cs": {
+          "text": "Uspořádání",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "elrendezés",
+          "source": "catalog",
+          "entries": 30
+        },
+        "sv": {
+          "text": "Layout",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "düzen",
+          "source": "catalog",
+          "entries": 30
+        },
+        "id": {
+          "text": "Tata Letak",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "раскладка",
+          "source": "catalog",
+          "entries": 12
+        },
+        "uk": {
+          "text": "розкладка",
+          "source": "catalog",
+          "entries": 10
+        },
+        "ja": {
+          "text": "レイアウト",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "레이아웃",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "布局",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "佈局",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "rule",
+      "translations": {
+        "de": {
+          "text": "Regel",
+          "source": "catalog",
+          "entries": 32
+        },
+        "fr": {
+          "text": "règle",
+          "source": "catalog",
+          "entries": 32
+        },
+        "it": {
+          "text": "regola",
+          "source": "catalog",
+          "entries": 23
+        },
+        "rm": {
+          "text": "regla",
+          "source": "catalog",
+          "entries": 32
+        },
+        "es": {
+          "text": "regla",
+          "source": "catalog",
+          "entries": 32
+        },
+        "nl": {
+          "text": "regel",
+          "source": "catalog",
+          "entries": 32
+        },
+        "pt-BR": {
+          "text": "regra",
+          "source": "catalog",
+          "entries": 32
+        },
+        "pl": {
+          "text": "reguła",
+          "source": "catalog",
+          "entries": 8
+        },
+        "cs": {
+          "text": "pravidlo",
+          "source": "catalog",
+          "entries": 19
+        },
+        "hu": {
+          "text": "szabály",
+          "source": "catalog",
+          "entries": 32
+        },
+        "sv": {
+          "text": "regel",
+          "source": "catalog",
+          "entries": 23
+        },
+        "tr": {
+          "text": "kural",
+          "source": "catalog",
+          "entries": 32
+        },
+        "id": {
+          "text": "aturan",
+          "source": "catalog",
+          "entries": 32
+        },
+        "ru": {
+          "text": "правило",
+          "source": "catalog",
+          "entries": 18
+        },
+        "uk": {
+          "text": "правило",
+          "source": "catalog",
+          "entries": 19
+        },
+        "ja": {
+          "text": "ルール",
+          "source": "catalog",
+          "entries": 32
+        },
+        "ko": {
+          "text": "규칙",
+          "source": "catalog",
+          "entries": 32
+        },
+        "zh-Hans": {
+          "text": "规则",
+          "source": "catalog",
+          "entries": 32
+        },
+        "zh-Hant": {
+          "text": "規則",
+          "source": "catalog",
+          "entries": 32
+        }
+      }
+    },
+    {
+      "en": "condition",
+      "translations": {
+        "de": {
+          "text": "Bedingung",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "condition",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "condizione",
+          "source": "catalog",
+          "entries": 5
+        },
+        "rm": {
+          "text": "cundiziun",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "condición",
+          "source": "catalog",
+          "entries": 5
+        },
+        "nl": {
+          "text": "voorwaarde",
+          "source": "catalog",
+          "entries": 6
+        },
+        "pt-BR": {
+          "text": "condição",
+          "source": "catalog",
+          "entries": 5
+        },
+        "pl": {
+          "text": "warunek",
+          "source": "catalog",
+          "entries": 4
+        },
+        "cs": {
+          "text": "podmínka",
+          "source": "unverified"
+        },
+        "hu": {
+          "text": "feltétel",
+          "source": "catalog",
+          "entries": 6
+        },
+        "sv": {
+          "text": "villkor",
+          "source": "catalog",
+          "entries": 6
+        },
+        "tr": {
+          "text": "koşul",
+          "source": "catalog",
+          "entries": 6
+        },
+        "id": {
+          "text": "kondisi",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ru": {
+          "text": "условие",
+          "source": "catalog",
+          "entries": 5
+        },
+        "uk": {
+          "text": "умова",
+          "source": "unverified"
+        },
+        "ja": {
+          "text": "条件",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ko": {
+          "text": "조건",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hans": {
+          "text": "条件",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hant": {
+          "text": "條件",
+          "source": "catalog",
+          "entries": 6
+        }
+      }
+    },
+    {
+      "en": "action",
+      "translations": {
+        "de": {
+          "text": "Aktion",
+          "source": "catalog",
+          "entries": 2
+        },
+        "fr": {
+          "text": "action",
+          "source": "catalog",
+          "entries": 3
+        },
+        "it": {
+          "text": "azione",
+          "source": "catalog",
+          "entries": 3
+        },
+        "rm": {
+          "text": "acziun",
+          "source": "catalog",
+          "entries": 3
+        },
+        "es": {
+          "text": "Acción",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        },
+        "nl": {
+          "text": "actie",
+          "source": "catalog",
+          "entries": 2
+        },
+        "pt-BR": {
+          "text": "Ação",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pt_BR.lproj/LocalizableMerged.strings"
+        },
+        "pl": {
+          "text": "akcja",
+          "source": "catalog",
+          "entries": 2
+        },
+        "cs": {
+          "text": "Akce",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/cs.lproj/LocalizableMerged.strings"
+        },
+        "hu": {
+          "text": "Művelet",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/hu.lproj/LocalizableMerged.strings"
+        },
+        "sv": {
+          "text": "Åtgärd",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/sv.lproj/LocalizableMerged.strings"
+        },
+        "tr": {
+          "text": "Eylem",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/tr.lproj/LocalizableMerged.strings"
+        },
+        "id": {
+          "text": "Tindakan",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
+        },
+        "ru": {
+          "text": "Действие",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ru.lproj/LocalizableMerged.strings"
+        },
+        "uk": {
+          "text": "Дія",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
+        },
+        "ja": {
+          "text": "アクション",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ja.lproj/LocalizableMerged.strings"
+        },
+        "ko": {
+          "text": "동작",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hans": {
+          "text": "操作",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_CN.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hant": {
+          "text": "動作",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_TW.lproj/LocalizableMerged.strings"
+        }
+      }
+    },
+    {
+      "en": "Zen mode",
+      "translations": {
+        "de": {
+          "text": "Zen-Modus",
+          "source": "catalog",
+          "entries": 11
+        },
+        "fr": {
+          "text": "mode Zen",
+          "source": "catalog",
+          "entries": 11
+        },
+        "it": {
+          "text": "modalità Zen",
+          "source": "catalog",
+          "entries": 11
+        },
+        "rm": {
+          "text": "modus Zen",
+          "source": "catalog",
+          "entries": 11
+        },
+        "es": {
+          "text": "modo Zen",
+          "source": "catalog",
+          "entries": 11
+        },
+        "nl": {
+          "text": "zenmodus",
+          "source": "catalog",
+          "entries": 11
+        },
+        "pt-BR": {
+          "text": "modo Zen",
+          "source": "catalog",
+          "entries": 11
+        },
+        "pl": {
+          "text": "tryb Zen",
+          "source": "catalog",
+          "entries": 10
+        },
+        "cs": {
+          "text": "režim Zen",
+          "source": "catalog",
+          "entries": 10
+        },
+        "hu": {
+          "text": "Zen mód",
+          "source": "catalog",
+          "entries": 11
+        },
+        "sv": {
+          "text": "Zen-läge",
+          "source": "catalog",
+          "entries": 11
+        },
+        "tr": {
+          "text": "Zen modu",
+          "source": "catalog",
+          "entries": 11
+        },
+        "id": {
+          "text": "mode Zen",
+          "source": "catalog",
+          "entries": 11
+        },
+        "ru": {
+          "text": "режим «Дзен»",
+          "source": "catalog",
+          "entries": 11
+        },
+        "uk": {
+          "text": "режим «Дзен»",
+          "source": "catalog",
+          "entries": 11
+        },
+        "ja": {
+          "text": "Zen モード",
+          "source": "catalog",
+          "entries": 11
+        },
+        "ko": {
+          "text": "젠 모드",
+          "source": "catalog",
+          "entries": 11
+        },
+        "zh-Hans": {
+          "text": "禅模式",
+          "source": "catalog",
+          "entries": 11
+        },
+        "zh-Hant": {
+          "text": "Zen 模式",
+          "source": "catalog",
+          "entries": 11
+        }
+      }
+    },
+    {
+      "en": "hotkey",
+      "translations": {
+        "de": {
+          "text": "Tastenkürzel",
+          "source": "catalog",
+          "entries": 19
+        },
+        "fr": {
+          "text": "raccourci clavier",
+          "source": "catalog",
+          "entries": 3
+        },
+        "it": {
+          "text": "abbreviazione da tastiera",
+          "source": "catalog",
+          "entries": 2
+        },
+        "rm": {
+          "text": "cumbinaziun da tastas",
+          "source": "catalog",
+          "entries": 8
+        },
+        "es": {
+          "text": "atajo de teclado",
+          "source": "catalog",
+          "entries": 16
+        },
+        "nl": {
+          "text": "sneltoets",
+          "source": "catalog",
+          "entries": 19
+        },
+        "pt-BR": {
+          "text": "atalho de teclado",
+          "source": "catalog",
+          "entries": 16
+        },
+        "pl": {
+          "text": "skrót klawiszowy",
+          "source": "catalog",
+          "entries": 13
+        },
+        "cs": {
+          "text": "klávesová zkratka",
+          "source": "catalog",
+          "entries": 5
+        },
+        "hu": {
+          "text": "billentyűparancs",
+          "source": "catalog",
+          "entries": 18
+        },
+        "sv": {
+          "text": "kortkommando",
+          "source": "catalog",
+          "entries": 19
+        },
+        "tr": {
+          "text": "klavye kısayolu",
+          "source": "catalog",
+          "entries": 15
+        },
+        "id": {
+          "text": "pintasan keyboard",
+          "source": "catalog",
+          "entries": 18
+        },
+        "ru": {
+          "text": "горячая клавиша",
+          "source": "catalog",
+          "entries": 3
+        },
+        "uk": {
+          "text": "гаряча клавіша",
+          "source": "catalog",
+          "entries": 3
+        },
+        "ja": {
+          "text": "ショートカットキー",
+          "source": "catalog",
+          "entries": 18
+        },
+        "ko": {
+          "text": "단축키",
+          "source": "catalog",
+          "entries": 19
+        },
+        "zh-Hans": {
+          "text": "快捷键",
+          "source": "catalog",
+          "entries": 19
+        },
+        "zh-Hant": {
+          "text": "快速鍵",
+          "source": "catalog",
+          "entries": 19
+        }
+      }
+    },
+    {
+      "en": "search",
+      "translations": {
+        "de": {
+          "text": "Suche",
+          "source": "catalog",
+          "entries": 12
+        },
+        "fr": {
+          "text": "recherche",
+          "source": "catalog",
+          "entries": 12
+        },
+        "it": {
+          "text": "ricerca",
+          "source": "catalog",
+          "entries": 8
+        },
+        "rm": {
+          "text": "tschertga",
+          "source": "catalog",
+          "entries": 12
+        },
+        "es": {
+          "text": "Buscar",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        },
+        "nl": {
+          "text": "Zoek",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/nl.lproj/LocalizableMerged.strings"
+        },
+        "pt-BR": {
+          "text": "Buscar",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pt_BR.lproj/LocalizableMerged.strings"
+        },
+        "pl": {
+          "text": "Szukaj",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pl.lproj/LocalizableMerged.strings"
+        },
+        "cs": {
+          "text": "Hledat",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/cs.lproj/LocalizableMerged.strings"
+        },
+        "hu": {
+          "text": "Keresés",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/hu.lproj/LocalizableMerged.strings"
+        },
+        "sv": {
+          "text": "Sök",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/sv.lproj/LocalizableMerged.strings"
+        },
+        "tr": {
+          "text": "Ara",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/tr.lproj/LocalizableMerged.strings"
+        },
+        "id": {
+          "text": "Cari",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
+        },
+        "ru": {
+          "text": "Поиск",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ru.lproj/LocalizableMerged.strings"
+        },
+        "uk": {
+          "text": "Пошук",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
+        },
+        "ja": {
+          "text": "検索",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ja.lproj/LocalizableMerged.strings"
+        },
+        "ko": {
+          "text": "검색",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hans": {
+          "text": "搜索",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_CN.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hant": {
+          "text": "搜尋",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_TW.lproj/LocalizableMerged.strings"
+        }
+      }
+    },
+    {
+      "en": "appearance",
+      "translations": {
+        "de": {
+          "text": "Erscheinungsbild",
+          "source": "catalog",
+          "entries": 14
+        },
+        "fr": {
+          "text": "apparence",
+          "source": "catalog",
+          "entries": 14
+        },
+        "it": {
+          "text": "aspetto",
+          "source": "catalog",
+          "entries": 14
+        },
+        "rm": {
+          "text": "apparientscha",
+          "source": "catalog",
+          "entries": 13
+        },
+        "es": {
+          "text": "Aspecto",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Weergave",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Aparência",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "pl": {
+          "text": "Wygląd",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "cs": {
+          "text": "Vzhled",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Megjelenés",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "Utseende",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "görünüm",
+          "source": "catalog",
+          "entries": 14
+        },
+        "id": {
+          "text": "Tampilan",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Внешний вид",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Вигляд",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "外観",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "모양",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "外观",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "外觀",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "tint",
+      "translations": {
+        "de": {
+          "text": "Tönung",
+          "source": "catalog",
+          "entries": 3
+        },
+        "fr": {
+          "text": "teinte",
+          "source": "catalog",
+          "entries": 4
+        },
+        "it": {
+          "text": "tinta",
+          "source": "catalog",
+          "entries": 3
+        },
+        "rm": {
+          "text": "tinta",
+          "source": "catalog",
+          "entries": 4
+        },
+        "es": {
+          "text": "Tinte",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Tint",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Tonalidade",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pl": {
+          "text": "odcień",
+          "source": "catalog",
+          "entries": 2
+        },
+        "cs": {
+          "text": "Odstín",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "színárnyalat",
+          "source": "catalog",
+          "entries": 3
+        },
+        "sv": {
+          "text": "Färgton",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Renk Tonu",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "id": {
+          "text": "rona",
+          "source": "catalog",
+          "entries": 4
+        },
+        "ru": {
+          "text": "Оттенок",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Відтінок",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "色合い",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "색조",
+          "source": "catalog",
+          "entries": 4
+        },
+        "zh-Hans": {
+          "text": "着色",
+          "source": "catalog",
+          "entries": 4
+        },
+        "zh-Hant": {
+          "text": "色調",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "border",
+      "translations": {
+        "de": {
+          "text": "Rahmen",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "bordure",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "bordo",
+          "source": "catalog",
+          "entries": 6
+        },
+        "rm": {
+          "text": "rom",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "borde",
+          "source": "catalog",
+          "entries": 6
+        },
+        "nl": {
+          "text": "rand",
+          "source": "catalog",
+          "entries": 6
+        },
+        "pt-BR": {
+          "text": "borda",
+          "source": "catalog",
+          "entries": 6
+        },
+        "pl": {
+          "text": "obramowanie",
+          "source": "catalog",
+          "entries": 2
+        },
+        "cs": {
+          "text": "ohraničení",
+          "source": "catalog",
+          "entries": 6
+        },
+        "hu": {
+          "text": "szegély",
+          "source": "catalog",
+          "entries": 5
+        },
+        "sv": {
+          "text": "kantlinje",
+          "source": "catalog",
+          "entries": 6
+        },
+        "tr": {
+          "text": "kenarlık",
+          "source": "catalog",
+          "entries": 6
+        },
+        "id": {
+          "text": "garis tepi",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ru": {
+          "text": "граница",
+          "source": "unverified"
+        },
+        "uk": {
+          "text": "межа",
+          "source": "unverified"
+        },
+        "ja": {
+          "text": "枠線",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ko": {
+          "text": "테두리",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hans": {
+          "text": "边框",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hant": {
+          "text": "邊框",
+          "source": "catalog",
+          "entries": 6
+        }
+      }
+    },
+    {
+      "en": "shadow",
+      "translations": {
+        "de": {
+          "text": "Schatten",
+          "source": "unverified"
+        },
+        "fr": {
+          "text": "ombre",
+          "source": "unverified"
+        },
+        "it": {
+          "text": "ombra",
+          "source": "unverified"
+        },
+        "rm": {
+          "text": "sumbriva",
+          "source": "unverified"
+        },
+        "es": {
+          "text": "sombra",
+          "source": "unverified"
+        },
+        "nl": {
+          "text": "Schaduw",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Sombra",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pl": {
+          "text": "Cień",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "cs": {
+          "text": "Stín",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Árnyék",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "Skugga",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "gölge",
+          "source": "unverified"
+        },
+        "id": {
+          "text": "Bayangan",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "тень",
+          "source": "unverified"
+        },
+        "uk": {
+          "text": "тінь",
+          "source": "unverified"
+        },
+        "ja": {
+          "text": "影",
+          "source": "unverified"
+        },
+        "ko": {
+          "text": "그림자",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "阴影",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "陰影",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "Accessibility",
+      "translations": {
+        "de": {
+          "text": "Bedienungshilfen",
+          "source": "catalog",
+          "entries": 8
+        },
+        "fr": {
+          "text": "accessibilité",
+          "source": "catalog",
+          "entries": 8
+        },
+        "it": {
+          "text": "accessibilità",
+          "source": "catalog",
+          "entries": 8
+        },
+        "rm": {
+          "text": "Bedienungshilfen",
+          "source": "catalog",
+          "entries": 5
+        },
+        "es": {
+          "text": "Accesibilidad",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "nl": {
+          "text": "Toegankelijkheid",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "pt-BR": {
+          "text": "Acessibilidade",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "pl": {
+          "text": "Dostępność",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "cs": {
+          "text": "Zpřístupnění",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "hu": {
+          "text": "Kisegítő lehetőségek",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "sv": {
+          "text": "Hjälpmedel",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "tr": {
+          "text": "Erişilebilirlik",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "id": {
+          "text": "Aksesibilitas",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "ru": {
+          "text": "Универсальный доступ",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "uk": {
+          "text": "Доступність",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "ja": {
+          "text": "アクセシビリティ",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "ko": {
+          "text": "손쉬운 사용",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "zh-Hans": {
+          "text": "辅助功能",
+          "source": "catalog",
+          "entries": 8
+        },
+        "zh-Hant": {
+          "text": "輔助使用",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        }
+      }
+    },
+    {
+      "en": "Screen Recording",
+      "translations": {
+        "de": {
+          "text": "Bildschirmaufnahme",
+          "source": "catalog",
+          "entries": 7
+        },
+        "fr": {
+          "text": "enregistrement de l'écran",
+          "source": "catalog",
+          "entries": 7
+        },
+        "it": {
+          "text": "registrazione schermo",
+          "source": "catalog",
+          "entries": 7
+        },
+        "rm": {
+          "text": "Bildschirmaufnahme",
+          "source": "catalog",
+          "entries": 7
+        },
+        "es": {
+          "text": "Grabación de pantalla",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "nl": {
+          "text": "Schermopname",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "pt-BR": {
+          "text": "Gravação de Tela",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "pl": {
+          "text": "Nagrywanie ekranu",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "cs": {
+          "text": "Záznam obrazovky",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "hu": {
+          "text": "Képernyőfelvétel",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "sv": {
+          "text": "Skärminspelning",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "tr": {
+          "text": "Ekran Kaydı",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "id": {
+          "text": "Perekaman Layar",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "ru": {
+          "text": "Запись экрана",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "uk": {
+          "text": "Запис екрана",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "ja": {
+          "text": "画面収録",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "ko": {
+          "text": "화면 기록",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "zh-Hans": {
+          "text": "屏幕录制",
+          "source": "catalog",
+          "entries": 7
+        },
+        "zh-Hant": {
+          "text": "螢幕錄影",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        }
+      }
+    },
+    {
+      "en": "Location Services",
+      "translations": {
+        "de": {
+          "text": "Ortungsdienste",
+          "source": "catalog",
+          "entries": 2
+        },
+        "fr": {
+          "text": "services de localisation",
+          "source": "catalog",
+          "entries": 2
+        },
+        "it": {
+          "text": "servizi di localizzazione",
+          "source": "catalog",
+          "entries": 2
+        },
+        "rm": {
+          "text": "servetschs da localisaziun",
+          "source": "catalog",
+          "entries": 2
+        },
+        "es": {
+          "text": "Localización",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Locatievoorzieningen",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Serviços de Localização",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pl": {
+          "text": "Usługi lokalizacji",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "cs": {
+          "text": "Polohové služby",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Helymeghatározás",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "Platstjänster",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Konum Servisleri",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "id": {
+          "text": "Layanan Lokasi",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Службы геолокации",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Служби локації",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "位置情報サービス",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "위치 서비스",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "定位服务",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "定位服務",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "permission",
+      "translations": {
+        "de": {
+          "text": "Berechtigung",
+          "source": "catalog",
+          "entries": 9
+        },
+        "fr": {
+          "text": "autorisation",
+          "source": "catalog",
+          "entries": 12
+        },
+        "it": {
+          "text": "autorizzazione",
+          "source": "catalog",
+          "entries": 6
+        },
+        "rm": {
+          "text": "permissiun",
+          "source": "catalog",
+          "entries": 11
+        },
+        "es": {
+          "text": "permiso",
+          "source": "catalog",
+          "entries": 14
+        },
+        "nl": {
+          "text": "toestemming",
+          "source": "catalog",
+          "entries": 14
+        },
+        "pt-BR": {
+          "text": "permissão",
+          "source": "catalog",
+          "entries": 10
+        },
+        "pl": {
+          "text": "uprawnienie",
+          "source": "catalog",
+          "entries": 4
+        },
+        "cs": {
+          "text": "oprávnění",
+          "source": "catalog",
+          "entries": 11
+        },
+        "hu": {
+          "text": "engedély",
+          "source": "catalog",
+          "entries": 14
+        },
+        "sv": {
+          "text": "behörighet",
+          "source": "catalog",
+          "entries": 11
+        },
+        "tr": {
+          "text": "izin",
+          "source": "catalog",
+          "entries": 8
+        },
+        "id": {
+          "text": "izin",
+          "source": "catalog",
+          "entries": 14
+        },
+        "ru": {
+          "text": "разрешение",
+          "source": "catalog",
+          "entries": 8
+        },
+        "uk": {
+          "text": "дозвіл",
+          "source": "catalog",
+          "entries": 8
+        },
+        "ja": {
+          "text": "権限",
+          "source": "catalog",
+          "entries": 11
+        },
+        "ko": {
+          "text": "권한",
+          "source": "catalog",
+          "entries": 12
+        },
+        "zh-Hans": {
+          "text": "权限",
+          "source": "catalog",
+          "entries": 11
+        },
+        "zh-Hant": {
+          "text": "權限",
+          "source": "catalog",
+          "entries": 11
+        }
+      }
+    },
+    {
+      "en": "widget",
+      "translations": {
+        "de": {
+          "text": "Widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "rm": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "nl": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "pt-BR": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "pl": {
+          "text": "widżet",
+          "source": "catalog",
+          "entries": 6
+        },
+        "cs": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "hu": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "sv": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "tr": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "id": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ru": {
+          "text": "виджет",
+          "source": "catalog",
+          "entries": 6
+        },
+        "uk": {
+          "text": "віджет",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ja": {
+          "text": "ウィジェット",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ko": {
+          "text": "위젯",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hans": {
+          "text": "小组件",
+          "source": "catalog",
+          "entries": 6
+        },
+        "zh-Hant": {
+          "text": "小工具",
+          "source": "catalog",
+          "entries": 6
+        }
+      }
+    },
+    {
+      "en": "script",
+      "translations": {
+        "de": {
+          "text": "Skript",
+          "source": "catalog",
+          "entries": 30
+        },
+        "fr": {
+          "text": "script",
+          "source": "catalog",
+          "entries": 30
+        },
+        "it": {
+          "text": "script",
+          "source": "catalog",
+          "entries": 30
+        },
+        "rm": {
+          "text": "scrip",
+          "source": "catalog",
+          "entries": 30
+        },
+        "es": {
+          "text": "script",
+          "source": "catalog",
+          "entries": 30
+        },
+        "nl": {
+          "text": "script",
+          "source": "catalog",
+          "entries": 30
+        },
+        "pt-BR": {
+          "text": "script",
+          "source": "catalog",
+          "entries": 30
+        },
+        "pl": {
+          "text": "skrypt",
+          "source": "catalog",
+          "entries": 30
+        },
+        "cs": {
+          "text": "skript",
+          "source": "catalog",
+          "entries": 30
+        },
+        "hu": {
+          "text": "szkript",
+          "source": "catalog",
+          "entries": 30
+        },
+        "sv": {
+          "text": "skript",
+          "source": "catalog",
+          "entries": 30
+        },
+        "tr": {
+          "text": "komut dosyası",
+          "source": "catalog",
+          "entries": 25
+        },
+        "id": {
+          "text": "skrip",
+          "source": "catalog",
+          "entries": 30
+        },
+        "ru": {
+          "text": "скрипт",
+          "source": "catalog",
+          "entries": 30
+        },
+        "uk": {
+          "text": "скрипт",
+          "source": "catalog",
+          "entries": 30
+        },
+        "ja": {
+          "text": "スクリプト",
+          "source": "catalog",
+          "entries": 30
+        },
+        "ko": {
+          "text": "스크립트",
+          "source": "catalog",
+          "entries": 30
+        },
+        "zh-Hans": {
+          "text": "脚本",
+          "source": "catalog",
+          "entries": 30
+        },
+        "zh-Hant": {
+          "text": "指令碼",
+          "source": "catalog",
+          "entries": 30
+        }
+      }
+    },
+    {
+      "en": "Shortcut",
+      "translations": {
+        "de": {
+          "text": "Kurzbefehl",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "raccourci",
+          "source": "catalog",
+          "entries": 7
+        },
+        "it": {
+          "text": "comando rapido",
+          "source": "catalog",
+          "entries": 5
+        },
+        "rm": {
+          "text": "shortcut",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "Atajo",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "nl": {
+          "text": "Opdracht",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "pt-BR": {
+          "text": "Atalho",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "pl": {
+          "text": "Skrót",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "cs": {
+          "text": "Zkratka",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "hu": {
+          "text": "Parancs",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "sv": {
+          "text": "Genväg",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "tr": {
+          "text": "Kestirme",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "id": {
+          "text": "Pintasan",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "ru": {
+          "text": "Быстрая команда",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "uk": {
+          "text": "Швидка команда",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "ja": {
+          "text": "ショートカット",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "ko": {
+          "text": "단축어",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "zh-Hans": {
+          "text": "快捷指令",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "zh-Hant": {
+          "text": "捷徑",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        }
+      }
+    },
+    {
+      "en": "Focus",
+      "translations": {
+        "de": {
+          "text": "Fokus",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "concentration",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "full immersion",
+          "source": "catalog",
+          "entries": 3
+        },
+        "rm": {
+          "text": "focus",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "Modo de concentración",
+          "source": "/System/Library/ExtensionKit/Extensions/DoNotDisturbAppIntents.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Focus",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "pt-BR": {
+          "text": "Foco",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "pl": {
+          "text": "Tryb skupienia",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "cs": {
+          "text": "Soustředění",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "hu": {
+          "text": "Fókusz",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "sv": {
+          "text": "Fokus",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "tr": {
+          "text": "Odak",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "id": {
+          "text": "Fokus",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "ru": {
+          "text": "Фокусирование",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "uk": {
+          "text": "Зосередження",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "ja": {
+          "text": "集中モード",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "ko": {
+          "text": "집중 모드",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "zh-Hans": {
+          "text": "专注模式",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "zh-Hant": {
+          "text": "專注模式",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        }
+      }
+    },
+    {
+      "en": "Wi-Fi",
+      "translations": {
+        "de": {
+          "text": "WLAN",
+          "source": "catalog",
+          "entries": 10
+        },
+        "fr": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "it": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "rm": {
+          "text": "WLAN",
+          "source": "catalog",
+          "entries": 10
+        },
+        "es": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Wifi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "pl": {
+          "text": "Wi-Fi",
+          "source": "/System/Library/ExtensionKit/Extensions/PlaceholderSettingsSearchTermsIntents.appex/Contents/Resources/Localizable.loctable"
+        },
+        "cs": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "sv": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "tr": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "id": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "ru": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "uk": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "ja": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "battery",
+      "translations": {
+        "de": {
+          "text": "Akku",
+          "source": "catalog",
+          "entries": 14
+        },
+        "fr": {
+          "text": "batterie",
+          "source": "catalog",
+          "entries": 17
+        },
+        "it": {
+          "text": "batteria",
+          "source": "catalog",
+          "entries": 17
+        },
+        "rm": {
+          "text": "batteria",
+          "source": "catalog",
+          "entries": 7
+        },
+        "es": {
+          "text": "Batería",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "nl": {
+          "text": "Batterij",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "pt-BR": {
+          "text": "Bateria",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "pl": {
+          "text": "Bateria",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "cs": {
+          "text": "Baterie",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "hu": {
+          "text": "Akkumulátor",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "sv": {
+          "text": "Batteri",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "tr": {
+          "text": "Pil",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "id": {
+          "text": "Baterai",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "ru": {
+          "text": "Аккумулятор",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "uk": {
+          "text": "Акумулятор",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "ja": {
+          "text": "バッテリー",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "ko": {
+          "text": "배터리",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "zh-Hans": {
+          "text": "电池",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "zh-Hant": {
+          "text": "電池",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        }
+      }
+    },
+    {
+      "en": "Low Power Mode",
+      "translations": {
+        "de": {
+          "text": "Energiesparmodus",
+          "source": "catalog",
+          "entries": 2
+        },
+        "fr": {
+          "text": "mode économie d'énergie",
+          "source": "catalog",
+          "entries": 2
+        },
+        "it": {
+          "text": "risparmio energia",
+          "source": "catalog",
+          "entries": 2
+        },
+        "rm": {
+          "text": "spargn d'energia",
+          "source": "catalog",
+          "entries": 2
+        },
+        "es": {
+          "text": "Modo de bajo consumo",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "nl": {
+          "text": "Energiebesparingsmodus",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "pt-BR": {
+          "text": "Modo Pouca Energia",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "pl": {
+          "text": "tryb niskiego zużycia energii",
+          "source": "catalog",
+          "entries": 2
+        },
+        "cs": {
+          "text": "Režim nízké spotřeby",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "hu": {
+          "text": "Alacsony fogyasztású mód",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "sv": {
+          "text": "Strömsparläge",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "tr": {
+          "text": "Düşük Güç Modu",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "id": {
+          "text": "Mode Daya Rendah",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "ru": {
+          "text": "Режим энергосбережения",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "uk": {
+          "text": "Режим економії заряду",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "ja": {
+          "text": "低電力モード",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "ko": {
+          "text": "저전력 모드",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "zh-Hans": {
+          "text": "低功耗模式",
+          "source": "catalog",
+          "entries": 2
+        },
+        "zh-Hant": {
+          "text": "低耗電模式",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        }
+      }
+    },
+    {
+      "en": "display",
+      "translations": {
+        "de": {
+          "text": "Bildschirm",
+          "source": "catalog",
+          "entries": 18
+        },
+        "fr": {
+          "text": "écran",
+          "source": "catalog",
+          "entries": 18
+        },
+        "it": {
+          "text": "monitor",
+          "source": "catalog",
+          "entries": 11
+        },
+        "rm": {
+          "text": "monitur",
+          "source": "catalog",
+          "entries": 8
+        },
+        "es": {
+          "text": "Pantalla",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "nl": {
+          "text": "Beeldscherm",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "pt-BR": {
+          "text": "Monitor",
+          "source": "/System/Library/ExtensionKit/Extensions/AboutExtension.appex/Contents/Resources/SPInfo.loctable"
+        },
+        "pl": {
+          "text": "Wyświetlacz",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "cs": {
+          "text": "displej",
+          "source": "catalog",
+          "entries": 20
+        },
+        "hu": {
+          "text": "Kijelző",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "sv": {
+          "text": "Skärm",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "tr": {
+          "text": "Ekran",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "id": {
+          "text": "layar",
+          "source": "catalog",
+          "entries": 19
+        },
+        "ru": {
+          "text": "Дисплей",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "uk": {
+          "text": "Дисплей",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "ja": {
+          "text": "ディスプレイ",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "ko": {
+          "text": "디스플레이",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "zh-Hans": {
+          "text": "显示器",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "zh-Hant": {
+          "text": "顯示器",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        }
+      }
+    },
+    {
+      "en": "notch",
+      "translations": {
+        "de": {
+          "text": "Notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "fr": {
+          "text": "encoche",
+          "source": "catalog",
+          "entries": 24
+        },
+        "it": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "rm": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "es": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "nl": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "pt-BR": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "pl": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "cs": {
+          "text": "výřez",
+          "source": "catalog",
+          "entries": 24
+        },
+        "hu": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "sv": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "tr": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "id": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "ru": {
+          "text": "вырез",
+          "source": "catalog",
+          "entries": 24
+        },
+        "uk": {
+          "text": "виріз",
+          "source": "catalog",
+          "entries": 24
+        },
+        "ja": {
+          "text": "ノッチ",
+          "source": "catalog",
+          "entries": 24
+        },
+        "ko": {
+          "text": "노치",
+          "source": "catalog",
+          "entries": 24
+        },
+        "zh-Hans": {
+          "text": "刘海",
+          "source": "catalog",
+          "entries": 24
+        },
+        "zh-Hant": {
+          "text": "瀏海",
+          "source": "catalog",
+          "entries": 24
+        }
+      }
+    },
+    {
+      "en": "app",
+      "translations": {
+        "de": {
+          "text": "App",
+          "source": "catalog",
+          "entries": 51
+        },
+        "fr": {
+          "text": "app",
+          "source": "catalog",
+          "entries": 48
+        },
+        "it": {
+          "text": "app",
+          "source": "catalog",
+          "entries": 48
+        },
+        "rm": {
+          "text": "app",
+          "source": "catalog",
+          "entries": 48
+        },
+        "es": {
+          "text": "App",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        },
+        "nl": {
+          "text": "App",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/nl.lproj/LocalizableMerged.strings"
+        },
+        "pt-BR": {
+          "text": "App",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pt_BR.lproj/LocalizableMerged.strings"
+        },
+        "pl": {
+          "text": "Aplikacja",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pl.lproj/LocalizableMerged.strings"
+        },
+        "cs": {
+          "text": "Aplikace",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/cs.lproj/LocalizableMerged.strings"
+        },
+        "hu": {
+          "text": "alkalmazás",
+          "source": "catalog",
+          "entries": 48
+        },
+        "sv": {
+          "text": "app",
+          "source": "catalog",
+          "entries": 51
+        },
+        "tr": {
+          "text": "uygulama",
+          "source": "catalog",
+          "entries": 51
+        },
+        "id": {
+          "text": "app",
+          "source": "catalog",
+          "entries": 51
+        },
+        "ru": {
+          "text": "Приложение",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ru.lproj/LocalizableMerged.strings"
+        },
+        "uk": {
+          "text": "Програма",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
+        },
+        "ja": {
+          "text": "アプリ",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ja.lproj/LocalizableMerged.strings"
+        },
+        "ko": {
+          "text": "앱",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hans": {
+          "text": "App",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_CN.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hant": {
+          "text": "App",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_TW.lproj/LocalizableMerged.strings"
+        }
+      }
+    },
+    {
+      "en": "preview",
+      "translations": {
+        "de": {
+          "text": "Vorschau",
+          "source": "catalog",
+          "entries": 3
+        },
+        "fr": {
+          "text": "aperçu",
+          "source": "catalog",
+          "entries": 2
+        },
+        "it": {
+          "text": "anteprima",
+          "source": "catalog",
+          "entries": 3
+        },
+        "rm": {
+          "text": "prevista",
+          "source": "catalog",
+          "entries": 3
+        },
+        "es": {
+          "text": "Previsualización",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        },
+        "nl": {
+          "text": "Voorvertoning",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/nl.lproj/LocalizableMerged.strings"
+        },
+        "pt-BR": {
+          "text": "Pré-visualizar",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pt_BR.lproj/LocalizableMerged.strings"
+        },
+        "pl": {
+          "text": "Podgląd",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pl.lproj/LocalizableMerged.strings"
+        },
+        "cs": {
+          "text": "Náhled",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/cs.lproj/LocalizableMerged.strings"
+        },
+        "hu": {
+          "text": "Előnézet",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/hu.lproj/LocalizableMerged.strings"
+        },
+        "sv": {
+          "text": "Förhandsvisning",
+          "source": "/System/Library/ExtensionKit/Extensions/Wallpaper.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Önizleme",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/tr.lproj/LocalizableMerged.strings"
+        },
+        "id": {
+          "text": "Pratinjau",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
+        },
+        "ru": {
+          "text": "превью",
+          "source": "catalog",
+          "entries": 2
+        },
+        "uk": {
+          "text": "превʼю",
+          "source": "catalog",
+          "entries": 2
+        },
+        "ja": {
+          "text": "プレビュー",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ja.lproj/LocalizableMerged.strings"
+        },
+        "ko": {
+          "text": "미리보기",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hans": {
+          "text": "预览",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_CN.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hant": {
+          "text": "預覽",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_TW.lproj/LocalizableMerged.strings"
+        }
+      }
+    },
+    {
+      "en": "settings",
+      "translations": {
+        "de": {
+          "text": "Einstellungen",
+          "source": "catalog",
+          "entries": 33
+        },
+        "fr": {
+          "text": "réglages",
+          "source": "catalog",
+          "entries": 34
+        },
+        "it": {
+          "text": "impostazioni",
+          "source": "catalog",
+          "entries": 34
+        },
+        "rm": {
+          "text": "parameters",
+          "source": "catalog",
+          "entries": 28
+        },
+        "es": {
+          "text": "Ajustes",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Instellingen",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Ajustes",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "pl": {
+          "text": "Ustawienia",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "cs": {
+          "text": "Nastavení",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Beállítások",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "Inställningar",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Ayarlar",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "id": {
+          "text": "Pengaturan",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Настройки",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Параметри",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "設定",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "설정",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "设置",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "設定",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "quit",
+      "translations": {
+        "de": {
+          "text": "Beenden",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "quitter",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "esci",
+          "source": "catalog",
+          "entries": 5
+        },
+        "rm": {
+          "text": "terminar",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "Salir",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/es.lproj/DockMenus.strings"
+        },
+        "nl": {
+          "text": "Stop",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/nl.lproj/DockMenus.strings"
+        },
+        "pt-BR": {
+          "text": "Encerrar",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/pt_BR.lproj/DockMenus.strings"
+        },
+        "pl": {
+          "text": "Zakończ",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/pl.lproj/DockMenus.strings"
+        },
+        "cs": {
+          "text": "Ukončit",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/cs.lproj/DockMenus.strings"
+        },
+        "hu": {
+          "text": "Kilépés",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/hu.lproj/DockMenus.strings"
+        },
+        "sv": {
+          "text": "Avsluta",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/sv.lproj/DockMenus.strings"
+        },
+        "tr": {
+          "text": "Çık",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/tr.lproj/DockMenus.strings"
+        },
+        "id": {
+          "text": "keluar",
+          "source": "catalog",
+          "entries": 7
+        },
+        "ru": {
+          "text": "Завершить",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/ru.lproj/DockMenus.strings"
+        },
+        "uk": {
+          "text": "Завершити",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/uk.lproj/DockMenus.strings"
+        },
+        "ja": {
+          "text": "終了",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/ja.lproj/DockMenus.strings"
+        },
+        "ko": {
+          "text": "종료",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/ko.lproj/DockMenus.strings"
+        },
+        "zh-Hans": {
+          "text": "退出",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/zh_CN.lproj/DockMenus.strings"
+        },
+        "zh-Hant": {
+          "text": "結束",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/zh_TW.lproj/DockMenus.strings"
+        }
+      }
+    },
+    {
+      "en": "undo",
+      "translations": {
+        "de": {
+          "text": "Rückgängig machen",
+          "source": "catalog",
+          "entries": 3
+        },
+        "fr": {
+          "text": "annuler",
+          "source": "catalog",
+          "entries": 4
+        },
+        "it": {
+          "text": "annullare",
+          "source": "catalog",
+          "entries": 4
+        },
+        "rm": {
+          "text": "revocar",
+          "source": "catalog",
+          "entries": 4
+        },
+        "es": {
+          "text": "Deshacer",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        },
+        "nl": {
+          "text": "Herstel",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/nl.lproj/LocalizableMerged.strings"
+        },
+        "pt-BR": {
+          "text": "Desfazer",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pt_BR.lproj/LocalizableMerged.strings"
+        },
+        "pl": {
+          "text": "Cofnij",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pl.lproj/LocalizableMerged.strings"
+        },
+        "cs": {
+          "text": "Odvolat akci",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/cs.lproj/LocalizableMerged.strings"
+        },
+        "hu": {
+          "text": "Visszavonás",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/hu.lproj/LocalizableMerged.strings"
+        },
+        "sv": {
+          "text": "Ångra",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/sv.lproj/LocalizableMerged.strings"
+        },
+        "tr": {
+          "text": "Geri Al",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/tr.lproj/LocalizableMerged.strings"
+        },
+        "id": {
+          "text": "Urung",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
+        },
+        "ru": {
+          "text": "Отменить",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ru.lproj/LocalizableMerged.strings"
+        },
+        "uk": {
+          "text": "Відмінити",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
+        },
+        "ja": {
+          "text": "元に戻す",
+          "source": "catalog",
+          "entries": 2
+        },
+        "ko": {
+          "text": "되돌릴 수",
+          "source": "catalog",
+          "entries": 4
+        },
+        "zh-Hans": {
+          "text": "撤销",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_CN.lproj/LocalizableMerged.strings"
+        },
+        "zh-Hant": {
+          "text": "還原",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/zh_TW.lproj/LocalizableMerged.strings"
+        }
+      }
+    },
+    {
+      "en": "import",
+      "translations": {
+        "de": {
+          "text": "Importieren",
+          "source": "catalog",
+          "entries": 8
+        },
+        "fr": {
+          "text": "importer",
+          "source": "catalog",
+          "entries": 8
+        },
+        "it": {
+          "text": "importa",
+          "source": "catalog",
+          "entries": 9
+        },
+        "rm": {
+          "text": "importar",
+          "source": "catalog",
+          "entries": 7
+        },
+        "es": {
+          "text": "Importar",
+          "source": "/System/Applications/Music.app/Contents/Resources/es.lproj/Localizable.strings"
+        },
+        "nl": {
+          "text": "Importeren",
+          "source": "/System/Applications/Music.app/Contents/Resources/nl.lproj/Localizable.strings"
+        },
+        "pt-BR": {
+          "text": "Importar",
+          "source": "/System/Applications/Music.app/Contents/Resources/pt.lproj/Localizable.strings"
+        },
+        "pl": {
+          "text": "Importuj",
+          "source": "/System/Applications/Music.app/Contents/Resources/pl.lproj/Localizable.strings"
+        },
+        "cs": {
+          "text": "Importovat",
+          "source": "/System/Applications/Music.app/Contents/Resources/cs.lproj/Localizable.strings"
+        },
+        "hu": {
+          "text": "Importálás",
+          "source": "/System/Applications/Music.app/Contents/Resources/hu.lproj/Localizable.strings"
+        },
+        "sv": {
+          "text": "Importera",
+          "source": "/System/Applications/Music.app/Contents/Resources/sv.lproj/Localizable.strings"
+        },
+        "tr": {
+          "text": "İçe Aktar",
+          "source": "/System/Applications/Music.app/Contents/Resources/tr.lproj/Localizable.strings"
+        },
+        "id": {
+          "text": "Impor",
+          "source": "/System/Applications/Music.app/Contents/Resources/id.lproj/Localizable.strings"
+        },
+        "ru": {
+          "text": "Импортировать",
+          "source": "/System/Applications/Calendar.app/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Імпортувати",
+          "source": "/System/Applications/Music.app/Contents/Resources/uk.lproj/Localizable.strings"
+        },
+        "ja": {
+          "text": "読み込む",
+          "source": "/System/Applications/Calendar.app/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "가져오기",
+          "source": "/System/Applications/Music.app/Contents/Resources/ko.lproj/Localizable.strings"
+        },
+        "zh-Hans": {
+          "text": "导入",
+          "source": "/System/Applications/Music.app/Contents/Resources/zh_CN.lproj/Localizable.strings"
+        },
+        "zh-Hant": {
+          "text": "輸入",
+          "source": "/System/Applications/Music.app/Contents/Resources/zh_TW.lproj/Localizable.strings"
+        }
+      }
+    },
+    {
+      "en": "export",
+      "translations": {
+        "de": {
+          "text": "Exportieren",
+          "source": "catalog",
+          "entries": 2
+        },
+        "fr": {
+          "text": "exporter",
+          "source": "catalog",
+          "entries": 2
+        },
+        "it": {
+          "text": "esporta",
+          "source": "catalog",
+          "entries": 6
+        },
+        "rm": {
+          "text": "exportar",
+          "source": "catalog",
+          "entries": 2
+        },
+        "es": {
+          "text": "Exportar",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Exporteer",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Exportar",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "pl": {
+          "text": "Eksportuj",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "cs": {
+          "text": "Exportovat",
+          "source": "/System/Applications/Calendar.app/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Exportálás",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "Exportera",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Dışa Aktar",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "id": {
+          "text": "Ekspor",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Экспорт",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Експортувати",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "書き出す",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "내보내기",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hans": {
+          "text": "导出",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "zh-Hant": {
+          "text": "輸出",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "snapshot",
+      "translations": {
+        "de": {
+          "text": "Momentaufnahme",
+          "source": "catalog",
+          "entries": 4
+        },
+        "fr": {
+          "text": "instantané",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "istantanea",
+          "source": "unverified"
+        },
+        "rm": {
+          "text": "snapshot",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "instantánea",
+          "source": "catalog",
+          "entries": 7
+        },
+        "nl": {
+          "text": "momentopname",
+          "source": "catalog",
+          "entries": 7
+        },
+        "pt-BR": {
+          "text": "instantâneo",
+          "source": "catalog",
+          "entries": 7
+        },
+        "pl": {
+          "text": "migawka",
+          "source": "unverified"
+        },
+        "cs": {
+          "text": "snímek",
+          "source": "unverified"
+        },
+        "hu": {
+          "text": "pillanatkép",
+          "source": "catalog",
+          "entries": 7
+        },
+        "sv": {
+          "text": "ögonblicksbild",
+          "source": "catalog",
+          "entries": 7
+        },
+        "tr": {
+          "text": "anlık görüntü",
+          "source": "catalog",
+          "entries": 7
+        },
+        "id": {
+          "text": "snapshot",
+          "source": "catalog",
+          "entries": 7
+        },
+        "ru": {
+          "text": "снимок",
+          "source": "unverified"
+        },
+        "uk": {
+          "text": "знімок",
+          "source": "unverified"
+        },
+        "ja": {
+          "text": "スナップショット",
+          "source": "catalog",
+          "entries": 7
+        },
+        "ko": {
+          "text": "스냅샷",
+          "source": "catalog",
+          "entries": 7
+        },
+        "zh-Hans": {
+          "text": "快照",
+          "source": "catalog",
+          "entries": 7
+        },
+        "zh-Hant": {
+          "text": "快照",
+          "source": "catalog",
+          "entries": 7
+        }
+      }
+    },
+    {
+      "en": "notification",
+      "translations": {
+        "de": {
+          "text": "Mitteilung",
+          "source": "catalog",
+          "entries": 8
+        },
+        "fr": {
+          "text": "notification",
+          "source": "catalog",
+          "entries": 8
+        },
+        "it": {
+          "text": "notifica",
+          "source": "unverified"
+        },
+        "rm": {
+          "text": "communicaziun",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "notificación",
+          "source": "unverified"
+        },
+        "nl": {
+          "text": "melding",
+          "source": "catalog",
+          "entries": 8
+        },
+        "pt-BR": {
+          "text": "notificação",
+          "source": "unverified"
+        },
+        "pl": {
+          "text": "powiadomienie",
+          "source": "unverified"
+        },
+        "cs": {
+          "text": "oznámení",
+          "source": "catalog",
+          "entries": 5
+        },
+        "hu": {
+          "text": "értesítés",
+          "source": "catalog",
+          "entries": 8
+        },
+        "sv": {
+          "text": "notis",
+          "source": "catalog",
+          "entries": 8
+        },
+        "tr": {
+          "text": "bildirim",
+          "source": "catalog",
+          "entries": 8
+        },
+        "id": {
+          "text": "notifikasi",
+          "source": "catalog",
+          "entries": 8
+        },
+        "ru": {
+          "text": "уведомление",
+          "source": "unverified"
+        },
+        "uk": {
+          "text": "сповіщення",
+          "source": "catalog",
+          "entries": 2
+        },
+        "ja": {
+          "text": "通知",
+          "source": "catalog",
+          "entries": 8
+        },
+        "ko": {
+          "text": "알림",
+          "source": "catalog",
+          "entries": 8
+        },
+        "zh-Hans": {
+          "text": "通知",
+          "source": "catalog",
+          "entries": 8
+        },
+        "zh-Hant": {
+          "text": "通知",
+          "source": "catalog",
+          "entries": 8
+        }
+      }
+    }
+  ]
+}

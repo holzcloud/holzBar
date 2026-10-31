@@ -76,6 +76,15 @@ struct GeneralSettingsPane: View {
     @ViewBuilder
     private var holzBarIconOptions: some View {
         HolzBarIconCards(settings: settings)
+        if settings.showHolzBarIcon {
+            Toggle(isOn: $settings.showsHiddenItemCount) {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Show the number of hidden items on the icon")
+                    PreviewBadge()
+                }
+            }
+            .annotation("A small number on the holzBar icon says how many items are hidden right now.")
+        }
     }
 
     // MARK: holzBar Shelf Options

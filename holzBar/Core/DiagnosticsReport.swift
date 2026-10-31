@@ -44,6 +44,10 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// edge`. Empty unless the Shelf is in use, so the report of a Mac that does not use it
     /// stays as it was.
     var shelf = ""
+    /// Whether Accessory alerts can read accessory batteries on this Mac: one of the fixed words
+    /// `available`, `not available` or `off`. Empty unless the module is on, so the report of a
+    /// Mac that does not use it stays as it was. Never a device name.
+    var accessoryBattery = ""
 }
 
 /// Writes the text a user can copy into a bug report. It holds an allowlist of facts and
@@ -77,6 +81,9 @@ nonisolated enum DiagnosticsReport {
         }
         if !input.shelf.isEmpty {
             lines.append("Shelf: \(field(input.shelf))")
+        }
+        if !input.accessoryBattery.isEmpty {
+            lines.append("Accessory battery: \(field(input.accessoryBattery))")
         }
         return lines.joined(separator: "\n")
     }

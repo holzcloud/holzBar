@@ -199,6 +199,8 @@ nonisolated extension Defaults {
         case itemSpacingOffset = "ItemSpacingOffset"
         /// macOS 27: a dot on holzBar's icon while another app uses the microphone or a camera.
         case holzBarIconShowsCaptureDot = "HolzBarIconShowsCaptureDot"
+        /// Whether holzBar's icon carries the number of hidden items while they are hidden (off by default).
+        case showsHiddenItemCount = "ShowsHiddenItemCount"
 
         // MARK: Hotkeys Settings
         case hotkeys = "Hotkeys"
@@ -275,6 +277,8 @@ nonisolated extension Defaults {
         // MARK: macOS 27
         case macOS27Layout = "MacOS27Layout"
         case macOS27LayoutSeeded = "MacOS27LayoutSeeded"
+        /// The major macOS version holzBar last ran on; an upgrade path starts when it differs.
+        case lastRunMacOSMajor = "LastRunMacOSMajor"
         case macOS27ClickRestoreDelay = "MacOS27ClickRestoreDelay"
         case macOS27ShelfWaitsForRefresh = "MacOS27IceBarWaitsForRefresh"
         /// The system items the user hid on macOS 27, by name (`SystemItem27`).
@@ -289,6 +293,65 @@ nonisolated extension Defaults {
         case notchHubDisplays = "NotchHubDisplays"
         /// The tab the Notch hub showed last. Local to the Mac: never exported or imported.
         case notchHubLastTab = "NotchHubLastTab"
+        /// The timers of the Notch hub's Timers module, as JSON (`TimerBoard`). Local to this
+        /// Mac: never exported, imported or synced.
+        case timersBoard = "TimersBoard"
+        /// The sound that rings when a timer ends, as the raw value of `TimerFinishSound`.
+        case timersFinishSound = "TimersFinishSound"
+        /// The players the Now Playing module follows, as the raw value of `NowPlayingPlayers`
+        /// (1 Music, 2 Spotify, 3 both).
+        case nowPlayingPlayers = "NowPlayingPlayers"
+        /// Whether the Now Playing module also reads what every other app plays, through a
+        /// private macOS interface and a helper (a boolean, off by default). It turns a private
+        /// interface on, so it never travels: local to this Mac, never exported, imported or
+        /// synced.
+        case nowPlayingReadsAllApps = "NowPlayingReadsAllApps"
+        /// Whether the Calendar module shows all-day events (a boolean, on by default).
+        case calendarShowsAllDay = "CalendarShowsAllDay"
+        /// The identifiers of the calendars the user switched off in the Calendar module. They
+        /// name the user's accounts, so this stays on this Mac: never exported or imported.
+        case calendarHiddenCalendars = "CalendarHiddenCalendars"
+        /// Whether the Live activities module shows a camera or the microphone in use by another
+        /// app (a boolean, on by default).
+        case liveActivitiesCapture = "LiveActivitiesCapture"
+        /// Whether the Live activities module watches the Downloads folder for downloads in
+        /// progress (a boolean, off by default). Switching it on is when macOS asks for the folder.
+        case liveActivitiesDownloads = "LiveActivitiesDownloads"
+        /// Whether the Notch hub opens on the File drop tab when a file is dragged to the notch
+        /// (a boolean, on by default).
+        case fileDropOpensOnDrag = "FileDropOpensOnDrag"
+        /// Whether a file leaves the File drop stash once it was dropped elsewhere (a boolean,
+        /// on by default).
+        case fileDropRemovesAfterDrop = "FileDropRemovesAfterDrop"
+
+        // MARK: Accessory Alerts
+        /// Whether the Accessory alerts module raises a capsule alert when an accessory connects
+        /// (a boolean, on by default).
+        case accessoryAlertsOnConnect = "AccessoryAlertsOnConnect"
+        /// Whether the Accessory alerts module raises a capsule alert when an accessory
+        /// disconnects (a boolean, off by default: AirPods in their case disconnect often).
+        case accessoryAlertsOnDisconnect = "AccessoryAlertsOnDisconnect"
+        /// Whether the Accessory alerts module raises a capsule alert when an accessory's
+        /// battery is low (a boolean, on by default).
+        case accessoryAlertsOnLowBattery = "AccessoryAlertsOnLowBattery"
+        /// The level, in percent, at or below which an accessory's battery is low (a number
+        /// from 10 to 30, 20 by default).
+        case accessoryAlertsLowBatteryLevel = "AccessoryAlertsLowBatteryLevel"
+        /// Whether the Accessory alerts module reads accessory battery levels, which uses one
+        /// macOS call that Apple does not document (a boolean, on by default; the switch that
+        /// turns that call off).
+        case accessoryAlertsReadsBattery = "AccessoryAlertsReadsBattery"
+
+        // MARK: Notifications
+        /// The names of the apps whose notifications the Notifications module never shows (a
+        /// list of strings). They name the apps the user runs, so this stays on this Mac:
+        /// never exported or imported.
+        case notificationsExcludedApps = "NotificationsExcludedApps"
+
+        // MARK: Display Controls
+        /// Whether the Display controls module shows brightness sliders, which use a private
+        /// macOS interface (a boolean, on by default; the switch that turns that part off).
+        case displayControlsBrightness = "DisplayControlsBrightness"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -363,6 +426,7 @@ nonisolated extension Defaults.Key {
             .showOnScroll,
             .autoRehide,
             .holzBarIconShowsCaptureDot,
+            .showsHiddenItemCount,
             .enableAlwaysHiddenSection,
             .showAllSectionsOnUserDrag,
             .hideApplicationMenus,
@@ -378,6 +442,17 @@ nonisolated extension Defaults.Key {
             .keepLiveActivitiesVisible,
             .autoZenWhileSharingScreen,
             .notchHubOpensOnHover,
+            .calendarShowsAllDay,
+            .nowPlayingReadsAllApps,
+            .liveActivitiesCapture,
+            .liveActivitiesDownloads,
+            .fileDropOpensOnDrag,
+            .fileDropRemovesAfterDrop,
+            .accessoryAlertsOnConnect,
+            .accessoryAlertsOnDisconnect,
+            .accessoryAlertsOnLowBattery,
+            .accessoryAlertsReadsBattery,
+            .displayControlsBrightness,
             .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
@@ -403,6 +478,8 @@ nonisolated extension Defaults.Key {
             .shelfAlwaysHiddenFold,
             .revealAnimationStyle,
             .notchHubDisplays,
+            .timersFinishSound,
+            .nowPlayingPlayers,
             .rehideStrategy,
             .rehideInterval,
             .itemSpacingOffset,
@@ -414,6 +491,8 @@ nonisolated extension Defaults.Key {
             .spacerWidth,
             .layoutSnapshotsLimit,
             .macOS27ClickRestoreDelay,
+            .lastRunMacOSMajor,
+            .accessoryAlertsLowBatteryLevel,
             .menuBarBorderWidth,
             .menuBarTintKind:
             .number
@@ -424,6 +503,7 @@ nonisolated extension Defaults.Key {
             .itemGroups,
             .widgets,
             .appleItemReplacements,
+            .timersBoard,
             .menuBarAppearanceConfigurationV2,
             .menuBarBorderColor,
             .menuBarTintColor,
@@ -441,7 +521,9 @@ nonisolated extension Defaults.Key {
             .knownApplications27,
             .hiddenSystemItems27,
             .titleChangingItemOwners,
-            .revealOnChangeItems:
+            .revealOnChangeItems,
+            .calendarHiddenCalendars,
+            .notificationsExcludedApps:
             .stringArray
         case .hotkeys,
             .revealRules,
@@ -476,12 +558,21 @@ nonisolated extension Defaults.Key {
         case .macOS27ClickRestoreDelay:
             // Milliseconds, read as a whole number and kept in 30...2000 by its reader.
             .clamped(0...2000)
+        case .lastRunMacOSMajor:
+            // A major macOS version; the key is never imported, the rule only completes the schema.
+            .clamped(0...1000)
         case .menuBarBorderWidth:
             .clamped(1...3)
+        case .accessoryAlertsLowBatteryLevel:
+            .clamped(10...30)
         case .spacerCount:
             .wholeNumber(0...10)
         case .notchHubDisplays:
             .wholeNumber(0...2)
+        case .timersFinishSound:
+            .wholeNumber(0...5)
+        case .nowPlayingPlayers:
+            .wholeNumber(1...3)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,
@@ -519,10 +610,14 @@ nonisolated extension Defaults.Key {
     /// The key the 0.0.7 betas used for settings sync stays here too, so a settings file
     /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
     /// Shortcuts the widget buttons run (D-25), the sections that item rules remember, the
-    /// tab the Notch hub showed last, whether the Shelf's fold was left open and what each display
-    /// does with the hidden items (the displays' identifiers are those of this Mac).
+    /// tab the Notch hub showed last, the timers (they hold the user's labels), the calendars
+    /// the user switched off (their identifiers name the user's accounts), whether the
+    /// Shelf's fold was left open and what each display does with the hidden items (the
+    /// displays' identifiers are those of this Mac), and the Now Playing switch that turns a
+    /// private interface on.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
+        .lastRunMacOSMajor,
         .lockHiddenItems,
         .usageSuggestionsEnabled,
         .cleanUpOffered,
@@ -530,6 +625,10 @@ nonisolated extension Defaults.Key {
         .widgetShortcutNames,
         .itemRuleShownSections,
         .notchHubLastTab,
+        .timersBoard,
+        .calendarHiddenCalendars,
+        .nowPlayingReadsAllApps,
+        .notificationsExcludedApps,
         .shelfAlwaysHiddenFoldOpen,
         .displayBehaviors,
         .debugDropsBarrierExitEvent,

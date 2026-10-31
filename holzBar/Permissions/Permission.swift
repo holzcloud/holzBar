@@ -4,6 +4,7 @@
 //
 
 import Cocoa
+import EventKit
 import Observation
 
 // MARK: - Permission
@@ -30,6 +31,14 @@ class Permission: Identifiable {
 
     /// A Boolean value that indicates if the app can work without this permission.
     let isRequired: Bool
+
+    /// What a permission that is asked for later is used for, in one sentence, for the
+    /// Permissions window. `nil` for a permission asked for at launch, which lists its
+    /// ``details`` instead.
+    let summary: String?
+
+    /// What happens without the permission, in one sentence, for the Permissions window.
+    let withoutNote: String?
 
     /// A Boolean value that indicates whether holzBar asks for this permission at the
     /// first launch.
@@ -72,6 +81,8 @@ class Permission: Identifiable {
     ///     permission at the first launch.
     ///   - settingsURL: The URL of the settings pane to open.
     ///   - tccService: The name of the privacy service that `tccutil` uses for this permission.
+    ///   - summary: What a permission that is asked for later is used for.
+    ///   - withoutNote: What happens without a permission that is asked for later.
     ///   - check: A function that checks permissions.
     ///   - request: A function that requests permissions.
     init(
@@ -81,11 +92,15 @@ class Permission: Identifiable {
         requestsAtLaunch: Bool,
         settingsURL: URL?,
         tccService: String?,
+        summary: String? = nil,
+        withoutNote: String? = nil,
         check: @escaping () -> Bool,
         request: @escaping () -> Void
     ) {
         self.title = title
         self.details = details
+        self.summary = summary
+        self.withoutNote = withoutNote
         self.isRequired = isRequired
         self.requestsAtLaunch = requestsAtLaunch
         self.settingsURL = settingsURL
@@ -311,12 +326,102 @@ final class ScreenRecordingPermission: Permission {
             requestsAtLaunch: false,
             settingsURL: URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_ScreenCapture"),
             tccService: "ScreenCapture",
+            summary: ScreenRecordingFeature.summary.localizedFromCatalog,
+            withoutNote: String(localized: "Optional. Without it holzBar shows the apps' icons."),
             check: {
                 // Refreshes the cached result too, which the capture paths read.
                 ScreenCapture.cachedCheckPermissions(reset: true)
             },
             request: {
                 ScreenCapture.requestPermissions()
+            }
+        )
+    }
+}
+
+// MARK: - CalendarPermission
+
+/// Full access to the user's events, for the Calendar module of the Notch hub.
+///
+/// It is not asked for at launch: the status is read once, without a prompt, and the module
+/// asks when it is switched on (``requestAccess()``). The Permissions window and the Advanced
+/// pane offer Allow and Revoke like Screen Recording's.
+final class CalendarPermission: Permission {
+    init() {
+        super.init(
+            title: String(localized: "Calendar"),
+            details: [String(localized: "Shows your next events and their meeting links in the notch hub.")],
+            isRequired: false,
+            requestsAtLaunch: false,
+            // The Calendars pane is opened by ``openSettings()`` once the system will not ask
+            // again; while it still asks, the prompt is all that opens.
+            settingsURL: nil,
+            tccService: "Calendar",
+            summary: String(localized: "Shows your next events and their meeting links in the notch hub."),
+            withoutNote: String(localized: "Optional. Without it the Calendar module cannot show your events."),
+            check: {
+                EKEventStore.authorizationStatus(for: .event) == .fullAccess
+            },
+            request: {
+                Task {
+                    await CalendarPermission.requestAccess()
+                }
+            }
+        )
+    }
+
+    /// Asks the system for full access to events; the prompt appears only while the status is
+    /// not determined. The one place the request is made. The result is ignored: the
+    /// permission reads the status itself (``Permission/refresh()``).
+    static func requestAccess() async {
+        _ = try? await EKEventStore().requestFullAccessToEvents()
+    }
+
+    /// Asks while the system still asks; once the user has decided, opens the Calendars pane
+    /// of System Settings, where the decision can be changed.
+    override func performRequest() {
+        let isDecided = EKEventStore.authorizationStatus(for: .event) != .notDetermined
+        super.performRequest()
+        if isDecided {
+            openSettings()
+        }
+    }
+
+    override func openSettings() {
+        if let url = URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Calendars") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+}
+
+// MARK: - BluetoothPermission
+
+/// Bluetooth, for the connection alerts of the Accessory alerts module and the Bluetooth
+/// trigger of automation rules.
+///
+/// It is not asked for at launch: reading it looks at the authorization class property only,
+/// which asks nothing and starts no Bluetooth work. The question is asked once by the
+/// module or by Allow in the Permissions window, through ``BluetoothDeviceMonitor``; Revoke
+/// resets holzBar's own entry like the other optional permissions.
+final class BluetoothPermission: Permission {
+    init() {
+        super.init(
+            title: String(localized: "Bluetooth"),
+            details: [
+                String(localized: "Show which of your paired accessories are connected, for the connection alerts of Accessory alerts."),
+                String(localized: "Tell automation rules which Bluetooth device is connected."),
+            ],
+            isRequired: false,
+            requestsAtLaunch: false,
+            settingsURL: URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Bluetooth"),
+            tccService: "Bluetooth",
+            summary: String(localized: "Show which of your paired accessories are connected, for the connection alerts of Accessory alerts."),
+            withoutNote: String(localized: "Optional. Without it Accessory alerts cannot tell which accessories are connected."),
+            check: {
+                BluetoothDeviceMonitor.access == .allowed
+            },
+            request: {
+                BluetoothDeviceMonitor.requestAccess()
             }
         )
     }

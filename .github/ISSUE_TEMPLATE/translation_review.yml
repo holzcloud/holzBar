@@ -1,0 +1,46 @@
+name: Translation review
+description: Offer to check one of holzBar's translations.
+title: "[Translation review]: "
+labels: Translation
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you. Every translation is machine-made until someone who knows the language has gone through it. [How a review works](https://github.com/holzcloud/holzBar/blob/main/docs/translations.md#review-a-language)
+
+        After you send this form, the maintainer replies with a spreadsheet of the texts not yet reviewed. You correct it and attach it here. No account other than GitHub is needed.
+  - type: input
+    attributes:
+      label: Language
+      description: The name or the code, for example Spanish or es.
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: How well do you know the language?
+      options:
+        - Native speaker
+        - Fluent
+        - Learning
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Credit
+      description: A name is published only if you choose so.
+      options:
+        - Name me with my GitHub account
+        - Name me as written below
+        - Do not name me
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Name
+      description: Only if you chose "Name me as written below".
+  - type: checkboxes
+    attributes:
+      label: Licence
+      options:
+        - label: I agree that my corrections are licensed under GPL-3.0, like the rest of holzBar.
+          required: true

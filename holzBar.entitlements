@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  holzBar's only entitlement. A hardened app needs it before macOS will let it ask for Calendar
+  access (the Calendar module of the notch hub). It grants nothing by itself: macOS still asks
+  the user, who can refuse and revoke. Scripts/check-signature.sh allows exactly this key and
+  fails on any other, get-task-allow and network entitlements included.
+-->
+<plist version="1.0">
+<dict>
+	<key>com.apple.security.personal-information.calendars</key>
+	<true/>
+</dict>
+</plist>

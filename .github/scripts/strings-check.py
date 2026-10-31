@@ -2,21 +2,31 @@
 #
 # strings-check.py
 #
-# Proves that holzBar speaks its eleven languages: English, the source
-# language, and German, French, Italian, Romansh, Spanish, Brazilian
-# Portuguese, Japanese, Simplified Chinese, Korean and Russian.
+# Proves that holzBar speaks the languages of its registry,
+# Translations/languages.json: English, the source language, and every language
+# the registry lists.
 #
 #   1. Every String Catalog in holzBar/Resources parses as JSON with English as
 #      its source language.
 #   2. Every entry that is to be translated has a translated, non-empty value
-#      in each of the ten languages besides English (plural variations
-#      included), and each translation keeps the format specifiers of its key.
+#      in each language of the registry besides English (plural variations
+#      included). Each translation keeps the format specifiers and the
+#      ${...} placeholders of its key (a translation may number the specifiers),
+#      holds the plural categories its language needs and none it does not use
+#      (Unicode CLDR, see translations.py), and is not a copy of an English
+#      sentence of more than three words. A language in a catalog that the
+#      registry does not list is refused, and so is a registry that disagrees
+#      with the knownRegions of the Xcode project, and so is a language table
+#      in docs/translations.md (between its languages:start and languages:end
+#      lines) that lists other languages than the registry, or in another order.
 #   3. Every string literal in a localisable position of holzBar's Swift code
 #      (SwiftUI initialisers and modifiers, String(localized:), App Intents
 #      titles, NSMenuItem titles, alert texts, tooltips, accessibility labels)
 #      has an entry; each interpolation \(...) stands for a format specifier.
 #
-# It runs in the strings job of .github/workflows/build.yml and locally:
+# The rules live in translations.py, the review tool, so that the check and the
+# tool cannot disagree. It runs in the strings job of .github/workflows/build.yml
+# and locally:
 #
 #   python3 .github/scripts/strings-check.py
 #   python3 .github/scripts/strings-check.py --list   # the keys the code uses
@@ -30,13 +40,16 @@ import os
 import re
 import sys
 
+# The shared rules and the registry reader live next to this script.
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import translations  # noqa: E402
+
 RESOURCES = "holzBar/Resources"
 SOURCE_DIR = "holzBar"
-LANGUAGES = ("de", "fr", "it", "rm", "es", "pt-BR", "ja", "zh-Hans", "ko", "ru")
 
 # A format specifier as Xcode writes it into a catalog key.
-SPECIFIER = r"%(?:\d+\$)?(?:@|lld|llu|ld|lu|d|u|lf|f|g)"
-SPECIFIER_RE = re.compile(SPECIFIER)
+SPECIFIER = translations.SPECIFIER
 
 # Where a string literal is localised. Each pattern ends right before the
 # opening quote of the literal.
@@ -255,38 +268,42 @@ def string_units(entry):
                     stack.extend(value.values() if "stringUnit" not in value else [value])
 
 
-def specifiers(text):
-    """The kinds of the format specifiers of a text; a translation may number
-    them (%1$@, %2$@) to change their order."""
-    return sorted(re.sub(r"\d+\$", "", found) for found in SPECIFIER_RE.findall(text.replace("%%", "")))
-
-
-def check_catalog(path, data):
+def check_catalog(path, data, languages):
     problems = 0
     if data.get("sourceLanguage") != "en":
         annotate(path, 1, "The source language must be en")
         problems += 1
     strings = data.get("strings", {})
     for key, entry in strings.items():
+        for language in entry.get("localizations", {}):
+            if language != "en" and language not in languages:
+                annotate(path, 1, f"{key!r} has a {language} translation, but {language} is not in the registry")
+                problems += 1
         if entry.get("shouldTranslate") is False:
             continue
         units = {}
         for language, unit in string_units(entry):
             units.setdefault(language, []).append(unit)
-        for language in LANGUAGES:
+        english = translations.english_side(key, entry)
+        for language in languages:
             found = units.get(language, [])
             if not found:
                 annotate(path, 1, f"{key!r} has no {language} translation")
                 problems += 1
                 continue
+            unfinished = False
             for unit in found:
                 value = unit.get("value", "")
                 if unit.get("state") != "translated" or not value.strip():
                     annotate(path, 1, f"{key!r} has an unfinished {language} translation")
                     problems += 1
-                elif specifiers(value) != specifiers(key) and "variations" not in entry.get("localizations", {}).get(language, {}):
-                    annotate(path, 1, f"{key!r}: the {language} translation changes the format specifiers")
-                    problems += 1
+                    unfinished = True
+            if unfinished:
+                continue
+            side = translations.language_side(entry, language)
+            for message in translations.translation_problems(key, english, language, side):
+                annotate(path, 1, f"{key!r}: {message}")
+                problems += 1
     return problems
 
 
@@ -309,6 +326,26 @@ def main():
         return 0
 
     problems = 0
+    try:
+        registry = translations.read_registry(root)
+        languages = translations.target_codes(registry)
+    except translations.ToolError as error:
+        annotate(translations.REGISTRY, 1, str(error))
+        return 1
+    try:
+        for message in translations.region_problems(registry, translations.known_regions(root)):
+            annotate(translations.PROJECT, 1, message)
+            problems += 1
+    except translations.ToolError as error:
+        annotate(translations.PROJECT, 1, str(error))
+        problems += 1
+    try:
+        for message in translations.guide_problems(root, registry):
+            annotate(translations.GUIDE, 1, message)
+            problems += 1
+    except translations.ToolError as error:
+        annotate(translations.GUIDE, 1, str(error))
+        problems += 1
     catalogs = {}
     directory = os.path.join(root, RESOURCES)
     names = sorted(name for name in os.listdir(directory) if name.endswith(".xcstrings"))
@@ -324,7 +361,7 @@ def main():
             annotate(path, 1, f"Not a String Catalog: {error}")
             problems += 1
             continue
-        problems += check_catalog(path, catalogs[name])
+        problems += check_catalog(path, catalogs[name], languages)
 
     keys = set(catalogs.get("Localizable.xcstrings", {}).get("strings", {}))
     for path, line, key in uses:
@@ -341,7 +378,7 @@ def main():
     if problems:
         print(f"==> {problems} String Catalog problem(s)")
         return 1
-    print(f"==> String Catalogs complete: {total} strings in {1 + len(LANGUAGES)} languages")
+    print(f"==> String Catalogs complete: {total} strings in {1 + len(languages)} languages")
     return 0
 
 

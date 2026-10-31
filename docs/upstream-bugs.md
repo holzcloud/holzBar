@@ -8,7 +8,7 @@ Issue numbers below refer to [jordanbaird/Ice](https://github.com/jordanbaird/Ic
 
 | Group | Issues | Fix |
 |---|---|---|
-| macOS 27: nothing hides, "Loading menu bar items", layout editor spins | #954, #965, #970, #991, #992, #996, #999, #1003, #1005, #1006 | macOS 27 backend from [#995](https://github.com/jordanbaird/Ice/pull/995) |
+| macOS 27: nothing hides, "Loading menu bar items", layout editor spins | #954, #965, #970, #991, #992, #996, #999, #1003, #1005, #1006 | macOS 27 backend from [#995](https://github.com/jordanbaird/Ice/pull/995); since 1.0.0 an update from macOS 26 takes the hidden items over from the sections saved before, also when macOS 27 has already rearranged the bar |
 | macOS 27: an app launched while items are concealed gets a squashed 3-point item | #1007 | The app is shown until its item exists, then concealed |
 | Items lose their section after a restart, an app update or a width change | #661, #666, #675, #702, #723, #732, #748, #769, #771, #806, #844, #853, #887, #909, #979 | Items keep an identity when their titles change; their sections are saved and restored on launch, app launch and display changes |
 | Several items of one app (OneDrive, …) are mixed up | #300, #404, #739, #857 | Several items of one app keep separate identities |

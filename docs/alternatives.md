@@ -12,4 +12,4 @@ The full comparison table is in [comparison.md](comparison.md#against-every-othe
 
 ## How reliable is this?
 
-Most cells are read from the vendor's page, the README or the source. Cells from a single search snippet or a competitor's blog are marked ❓ rather than guessed. holzBar ships one universal app for Apple Silicon and Intel (the CI build of 13 October 2026 carries arm64 and x86_64).
+Most cells are read from the vendor's page, the README or the source. Cells from a single search snippet or a competitor's blog are marked ❓ rather than guessed. holzBar ships one universal app for Apple Silicon and Intel (the Release build of CI on 31 October 2026 compiles arm64 and x86_64).

@@ -119,6 +119,19 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["ItemRuleShownSections"])
     }
 
+    @Test("The excluded notification apps stay on this Mac")
+    func excludedNotificationAppsStayLocal() {
+        #expect(Defaults.Key.notificationsExcludedApps.rawValue == "NotificationsExcludedApps")
+        #expect(Defaults.Key.notificationsExcludedApps.settingsKind == .stringArray)
+        #expect(Defaults.Key.importableKinds["NotificationsExcludedApps"] == nil)
+        #expect(Defaults.Key.localOnlyKeys.contains(.notificationsExcludedApps))
+        let result = Defaults.Key.validatedSettings(
+            ["NotificationsExcludedApps": ["Mail"], "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["NotificationsExcludedApps"])
+    }
+
     @Test("A settings file cannot set the tab the notch hub showed last")
     func settingsFileCannotSetNotchHubLastTab() {
         #expect(Defaults.Key.notchHubLastTab.settingsKind == .string)
@@ -127,6 +140,65 @@ struct SettingsSchemaTests {
         let result = Defaults.Key.validatedSettings(["NotchHubLastTab": "timers", "ShowOnHover": true], ownBundleIdentifier: ownBundle)
         #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
         #expect(result.ignored == ["NotchHubLastTab"])
+    }
+
+    @Test("The all-day setting travels and the hidden calendars do not")
+    func calendarSettings() {
+        #expect(Defaults.Key.importableKinds["CalendarShowsAllDay"] == .bool)
+        #expect(Defaults.Key.importableKinds["CalendarHiddenCalendars"] == nil)
+        #expect(Defaults.Key.calendarHiddenCalendars.settingsKind == .stringArray)
+        #expect(Defaults.Key.localOnlyKeys.contains(.calendarHiddenCalendars))
+        let result = Defaults.Key.validatedSettings(
+            ["CalendarShowsAllDay": false, "CalendarHiddenCalendars": ["a"], "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["CalendarShowsAllDay", "ShowOnHover"])
+        #expect(result.ignored == ["CalendarHiddenCalendars"])
+    }
+
+    @Test("The timers' sound travels and their board does not")
+    func timersSettings() {
+        #expect(Defaults.Key.importableKinds["TimersFinishSound"] == .number)
+        #expect(Defaults.Key.importableKinds["TimersBoard"] == nil)
+        #expect(Defaults.Key.timersBoard.settingsKind == .data)
+        #expect(Defaults.Key.localOnlyKeys.contains(.timersBoard))
+        let accepted = Defaults.Key.validatedSettings(["TimersFinishSound": 5], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["TimersFinishSound"])
+        for refused: Double in [6, -1, 1.5, .nan] {
+            let result = Defaults.Key.validatedSettings(["TimersFinishSound": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+            #expect(result.ignored == ["TimersFinishSound"])
+        }
+        let board = Defaults.Key.validatedSettings(["TimersBoard": Data(), "ShowOnHover": true], ownBundleIdentifier: ownBundle)
+        #expect(board.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(board.ignored == ["TimersBoard"])
+    }
+
+    @Test("The Now Playing players travel with a settings file, and only 1, 2 and 3")
+    func nowPlayingSettings() {
+        #expect(Defaults.Key.importableKinds["NowPlayingPlayers"] == .number)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.nowPlayingPlayers))
+        for accepted: Double in [1, 2, 3] {
+            let result = Defaults.Key.validatedSettings(["NowPlayingPlayers": accepted], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.keys.sorted() == ["NowPlayingPlayers"])
+        }
+        for refused: Double in [0, 4, 1.5, .nan] {
+            let result = Defaults.Key.validatedSettings(["NowPlayingPlayers": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+            #expect(result.ignored == ["NowPlayingPlayers"])
+        }
+    }
+
+    @Test("The Now Playing switch for the private route is a local-only Boolean that no file can set")
+    func nowPlayingReadsAllAppsStaysLocal() {
+        #expect(Defaults.Key.nowPlayingReadsAllApps.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.nowPlayingReadsAllApps))
+        #expect(Defaults.Key.importableKinds["NowPlayingReadsAllApps"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["NowPlayingReadsAllApps": true, "NowPlayingPlayers": 2, "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["NowPlayingPlayers", "ShowOnHover"])
+        #expect(result.ignored == ["NowPlayingReadsAllApps"])
     }
 
     @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
@@ -142,6 +214,112 @@ struct SettingsSchemaTests {
             let result = Defaults.Key.validatedSettings(["NotchHubDisplays": refused], ownBundleIdentifier: ownBundle)
             #expect(result.accepted.isEmpty)
             #expect(result.ignored == ["NotchHubDisplays"])
+        }
+    }
+
+    @Test("The Live activities sub-switches travel with a settings file, as Booleans only")
+    func liveActivitiesSwitchesTravel() {
+        #expect(Defaults.Key.liveActivitiesCapture.settingsKind == .bool)
+        #expect(Defaults.Key.liveActivitiesDownloads.settingsKind == .bool)
+        #expect(Defaults.Key.importableKinds["LiveActivitiesCapture"] == .bool)
+        #expect(Defaults.Key.importableKinds["LiveActivitiesDownloads"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(
+            ["LiveActivitiesCapture": false, "LiveActivitiesDownloads": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == ["LiveActivitiesCapture", "LiveActivitiesDownloads"])
+        for key in ["LiveActivitiesCapture", "LiveActivitiesDownloads"] {
+            for refused: Any in [1.5, "yes", ["a"]] {
+                let result = Defaults.Key.validatedSettings([key: refused], ownBundleIdentifier: ownBundle)
+                #expect(result.accepted.isEmpty)
+                #expect(result.ignored == [key])
+            }
+        }
+    }
+
+    @Test("The file drop settings travel")
+    func fileDropSettingsTravel() {
+        #expect(Defaults.Key.fileDropOpensOnDrag.settingsKind == .bool)
+        #expect(Defaults.Key.fileDropRemovesAfterDrop.settingsKind == .bool)
+        #expect(Defaults.Key.importableKinds["FileDropOpensOnDrag"] == .bool)
+        #expect(Defaults.Key.importableKinds["FileDropRemovesAfterDrop"] == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.fileDropOpensOnDrag))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.fileDropRemovesAfterDrop))
+        let accepted = Defaults.Key.validatedSettings(
+            ["FileDropOpensOnDrag": false, "FileDropRemovesAfterDrop": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == ["FileDropOpensOnDrag", "FileDropRemovesAfterDrop"])
+        for refused: Any in [1.5, "yes", ["a"]] {
+            let result = Defaults.Key.validatedSettings(["FileDropOpensOnDrag": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+    }
+
+    @Test("The accessory alert switches travel as booleans and nothing else")
+    func accessoryAlertSettingsTravel() {
+        #expect(Defaults.Key.accessoryAlertsOnConnect.settingsKind == .bool)
+        #expect(Defaults.Key.accessoryAlertsOnDisconnect.settingsKind == .bool)
+        #expect(Defaults.Key.importableKinds["AccessoryAlertsOnConnect"] == .bool)
+        #expect(Defaults.Key.importableKinds["AccessoryAlertsOnDisconnect"] == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.accessoryAlertsOnConnect))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.accessoryAlertsOnDisconnect))
+        let accepted = Defaults.Key.validatedSettings(
+            ["AccessoryAlertsOnConnect": false, "AccessoryAlertsOnDisconnect": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == ["AccessoryAlertsOnConnect", "AccessoryAlertsOnDisconnect"])
+        for key in ["AccessoryAlertsOnConnect", "AccessoryAlertsOnDisconnect"] {
+            for refused: Any in [1.5, 2, "yes", ["a"]] {
+                let result = Defaults.Key.validatedSettings([key: refused], ownBundleIdentifier: ownBundle)
+                #expect(result.accepted.isEmpty)
+            }
+        }
+    }
+
+    @Test("The low-battery settings travel as a boolean, a number within 10 to 30 and a boolean")
+    func accessoryBatterySettingsTravel() {
+        #expect(Defaults.Key.accessoryAlertsOnLowBattery.settingsKind == .bool)
+        #expect(Defaults.Key.accessoryAlertsLowBatteryLevel.settingsKind == .number)
+        #expect(Defaults.Key.accessoryAlertsReadsBattery.settingsKind == .bool)
+        #expect(Defaults.Key.accessoryAlertsLowBatteryLevel.numberRule == .clamped(10...30))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.accessoryAlertsOnLowBattery))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.accessoryAlertsLowBatteryLevel))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.accessoryAlertsReadsBattery))
+        let accepted = Defaults.Key.validatedSettings(
+            [
+                "AccessoryAlertsOnLowBattery": false,
+                "AccessoryAlertsLowBatteryLevel": 25,
+                "AccessoryAlertsReadsBattery": false,
+            ],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == [
+            "AccessoryAlertsLowBatteryLevel", "AccessoryAlertsOnLowBattery", "AccessoryAlertsReadsBattery",
+        ])
+        for key in ["AccessoryAlertsOnLowBattery", "AccessoryAlertsReadsBattery"] {
+            for refused: Any in [1.5, 2, "yes", ["a"]] {
+                #expect(Defaults.Key.validatedSettings([key: refused], ownBundleIdentifier: ownBundle).accepted.isEmpty)
+            }
+        }
+        for refused: Any in ["20", true, ["a"]] {
+            let result = Defaults.Key.validatedSettings(["AccessoryAlertsLowBatteryLevel": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+        let clamped = Defaults.Key.validatedSettings(["AccessoryAlertsLowBatteryLevel": 99], ownBundleIdentifier: ownBundle)
+        #expect(clamped.accepted["AccessoryAlertsLowBatteryLevel"] as? Double == 30)
+    }
+
+    @Test("The display controls' brightness setting travels")
+    func displayControlsBrightnessSettingTravels() {
+        #expect(Defaults.Key.importableKinds["DisplayControlsBrightness"] == .bool)
+        #expect(Defaults.Key.displayControlsBrightness.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.displayControlsBrightness))
+        let accepted = Defaults.Key.validatedSettings(["DisplayControlsBrightness": false], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["DisplayControlsBrightness"])
+        for refused: Any in [1.5, 2, "yes", ["a"]] {
+            let result = Defaults.Key.validatedSettings(["DisplayControlsBrightness": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
         }
     }
 
@@ -195,6 +373,21 @@ struct SettingsSchemaTests {
             let result = Defaults.Key.validatedSettings(["SmartCategories": refused], ownBundleIdentifier: ownBundle)
             #expect(result.accepted.isEmpty)
             #expect(result.ignored == ["SmartCategories"])
+        }
+    }
+
+    @Test("The hidden item count setting travels with a settings file, as a Boolean only")
+    func hiddenItemCountTravels() {
+        #expect(Defaults.Key.showsHiddenItemCount.rawValue == "ShowsHiddenItemCount")
+        #expect(Defaults.Key.showsHiddenItemCount.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.showsHiddenItemCount))
+        #expect(Defaults.Key.importableKinds["ShowsHiddenItemCount"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["ShowsHiddenItemCount": true], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["ShowsHiddenItemCount"])
+        for refused: Any in [1, 0.5, "yes"] {
+            let result = Defaults.Key.validatedSettings(["ShowsHiddenItemCount": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+            #expect(result.ignored == ["ShowsHiddenItemCount"])
         }
     }
 
@@ -312,6 +505,7 @@ struct SettingsSchemaTests {
         #expect(Defaults.Key.hotkeys.settingsKind == .dictionary)
         #expect(Defaults.Key.showOnHover.settingsKind == .bool)
         #expect(Defaults.Key.holzBarIconShowsCaptureDot.settingsKind == .bool)
+        #expect(Defaults.Key.showsHiddenItemCount.settingsKind == .bool)
         #expect(Defaults.Key.showOnHoverDelay.settingsKind == .number)
         #expect(Defaults.Key.layoutProfiles.settingsKind == .data)
         #expect(Defaults.Key.automationRules.settingsKind == .data)

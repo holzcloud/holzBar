@@ -32,7 +32,7 @@ struct ModulesSettingsPane: View {
             areaTitle: areaTitle(for:),
             title: { Text(LocalizedStringKey($0.titleKey)) },
             summary: { Text(LocalizedStringKey($0.summaryKey)) },
-            permissionText: { Text(verbatim: $0.rawValue) },
+            permissionText: permissionText(_:),
             isPermissionGranted: isGranted(_:),
             emptyTitle: Text("No modules"),
             emptyMessage: Text("Modules you can switch on appear here."),
@@ -42,6 +42,19 @@ struct ModulesSettingsPane: View {
         )
     }
 
+    /// The quiet line under a module that asks for a permission: what it asks and when. The
+    /// switch has no default: a new case of ``ModulePermission`` must be placed here.
+    private func permissionText(_ permission: ModulePermission) -> Text {
+        switch permission {
+        case .calendar: Text("Asks for Calendar access when you switch it on")
+        case .bluetooth: Text("Needs Bluetooth")
+        case .accessibility: Text("Needs Accessibility")
+        case .screenRecording, .inputMonitoring, .microphone, .camera, .notifications,
+            .fullDiskAccess, .files:
+            Text(verbatim: permission.rawValue)
+        }
+    }
+
     /// Whether holzBar has the permission a module asks for. A permission holzBar has no
     /// lookup for yet is not granted. The switch has no default: a new case of
     /// ``ModulePermission`` must be placed here.
@@ -49,7 +62,9 @@ struct ModulesSettingsPane: View {
         switch permission {
         case .accessibility: appState.permissions.accessibility.hasPermission
         case .screenRecording: appState.permissions.screenRecording.hasPermission
-        case .inputMonitoring, .microphone, .camera, .calendar, .bluetooth, .notifications, .fullDiskAccess, .files:
+        case .calendar: appState.permissions.calendar.hasPermission
+        case .bluetooth: BluetoothDeviceMonitor.access == .allowed
+        case .inputMonitoring, .microphone, .camera, .notifications, .fullDiskAccess, .files:
             false
         }
     }

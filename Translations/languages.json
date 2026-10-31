@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "source": "en",
+  "languages": [
+    {
+      "code": "en",
+      "englishName": "English",
+      "nativeName": "English",
+      "role": "source"
+    },
+    {
+      "code": "de",
+      "englishName": "German",
+      "nativeName": "Deutsch",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "fr",
+      "englishName": "French",
+      "nativeName": "Français",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "it",
+      "englishName": "Italian",
+      "nativeName": "Italiano",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "rm",
+      "englishName": "Romansh",
+      "nativeName": "Rumantsch",
+      "reviewedThrough": null,
+      "note": "Rumantsch Grischun, the written standard of Romansh (articles ina and in, tschertgar)."
+    },
+    {
+      "code": "es",
+      "englishName": "Spanish",
+      "nativeName": "Español",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "pt-BR",
+      "englishName": "Portuguese (Brazil)",
+      "nativeName": "Português (Brasil)",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "ja",
+      "englishName": "Japanese",
+      "nativeName": "日本語",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "zh-Hans",
+      "englishName": "Chinese (Simplified)",
+      "nativeName": "简体中文",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "ko",
+      "englishName": "Korean",
+      "nativeName": "한국어",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "ru",
+      "englishName": "Russian",
+      "nativeName": "Русский",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "nl",
+      "englishName": "Dutch",
+      "nativeName": "Nederlands",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "pl",
+      "englishName": "Polish",
+      "nativeName": "Polski",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "cs",
+      "englishName": "Czech",
+      "nativeName": "Čeština",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "hu",
+      "englishName": "Hungarian",
+      "nativeName": "Magyar",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "sv",
+      "englishName": "Swedish",
+      "nativeName": "Svenska",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "tr",
+      "englishName": "Turkish",
+      "nativeName": "Türkçe",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "id",
+      "englishName": "Indonesian",
+      "nativeName": "Bahasa Indonesia",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "uk",
+      "englishName": "Ukrainian",
+      "nativeName": "Українська",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "zh-Hant",
+      "englishName": "Chinese (Traditional)",
+      "nativeName": "繁體中文",
+      "reviewedThrough": null,
+      "note": "Traditional Chinese as Apple writes it for Taiwan; macOS also offers it to Hong Kong readers."
+    }
+  ]
+}

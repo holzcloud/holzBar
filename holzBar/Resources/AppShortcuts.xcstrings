@@ -3,6 +3,12 @@
   "strings" : {
     "Apply a layout profile in ${applicationName}" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Použít profil uspořádání v ${applicationName}"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -19,6 +25,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Appliquer un profil de disposition dans ${applicationName}"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elrendezésprofil alkalmazása: ${applicationName}"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terapkan profil tata letak di ${applicationName}"
           }
         },
         "it" : {
@@ -39,6 +57,18 @@
             "value" : "${applicationName}에서 레이아웃 프로파일 적용"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas een indelingsprofiel toe in ${applicationName}"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zastosuj profil układu w ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -57,16 +87,46 @@
             "value" : "Применить профиль раскладки в ${applicationName}"
           }
         },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tillämpa en layoutprofil i ${applicationName}"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} içinde bir düzen profili uygula"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Застосувати профіль розкладки в ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 ${applicationName} 中应用布局配置文件"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在${applicationName}中套用佈局設定檔"
           }
         }
       }
     },
     "Open a menu bar item with ${applicationName}" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otevřít položku řádku nabídek v ${applicationName}"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -83,6 +143,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ouvrir un élément de la barre des menus avec ${applicationName}"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menüsor-elem megnyitása: ${applicationName}"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buka item bar menu di ${applicationName}"
           }
         },
         "it" : {
@@ -103,6 +175,18 @@
             "value" : "${applicationName}으로 메뉴 막대 항목 열기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open een menubalkonderdeel met ${applicationName}"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otwórz element paska menu w ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -121,16 +205,46 @@
             "value" : "Открыть элемент строки меню с помощью ${applicationName}"
           }
         },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öppna ett menyradsobjekt i ${applicationName}"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} içinde bir menü çubuğu öğesi aç"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкрити елемент смуги меню за допомогою ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "用 ${applicationName} 打开菜单栏项目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用${applicationName}打開選單列項目"
           }
         }
       }
     },
     "Search menu bar items with ${applicationName}" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hledat položky řádku nabídek v ${applicationName}"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -147,6 +261,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rechercher des éléments de la barre des menus avec ${applicationName}"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menüsor-elemek keresése: ${applicationName}"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cari item bar menu di ${applicationName}"
           }
         },
         "it" : {
@@ -167,6 +293,18 @@
             "value" : "${applicationName}으로 메뉴 막대 항목 검색"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoek menubalkonderdelen met ${applicationName}"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szukaj elementów paska menu w ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -185,16 +323,46 @@
             "value" : "Найти элементы строки меню с помощью ${applicationName}"
           }
         },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sök efter menyradsobjekt i ${applicationName}"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} içinde menü çubuğu öğelerini ara"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Знайти елементи смуги меню за допомогою ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "用 ${applicationName} 搜索菜单栏项目"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用${applicationName}搜尋選單列項目"
           }
         }
       }
     },
     "Toggle Zen mode in ${applicationName}" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přepnout režim Zen v ${applicationName}"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -211,6 +379,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Activer ou désactiver le mode zen dans ${applicationName}"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen mód váltása: ${applicationName}"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alihkan mode Zen di ${applicationName}"
           }
         },
         "it" : {
@@ -231,6 +411,18 @@
             "value" : "${applicationName}에서 젠 모드 전환"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet de zenmodus aan of uit in ${applicationName}"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przełącz tryb Zen w ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -249,16 +441,46 @@
             "value" : "Переключить режим «Дзен» в ${applicationName}"
           }
         },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Växla Zen-läge i ${applicationName}"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} içinde Zen modunu aç/kapat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перемкнути режим «Дзен» у ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 ${applicationName} 中切换禅模式"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在${applicationName}中切換 Zen 模式"
           }
         }
       }
     },
     "Toggle hidden items in ${applicationName}" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přepnout skryté položky v ${applicationName}"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -275,6 +497,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Afficher ou masquer les éléments cachés dans ${applicationName}"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rejtett elemek váltása: ${applicationName}"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alihkan item tersembunyi di ${applicationName}"
           }
         },
         "it" : {
@@ -295,6 +529,18 @@
             "value" : "${applicationName}에서 숨겨진 항목 전환"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon of verberg verborgen onderdelen in ${applicationName}"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przełącz ukryte elementy w ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -313,10 +559,34 @@
             "value" : "Показать или скрыть скрытые элементы в ${applicationName}"
           }
         },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Växla dolda objekt i ${applicationName}"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} içinde gizli öğeleri aç/kapat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показати або приховати приховані елементи в ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 ${applicationName} 中切换隐藏项目的显示"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在${applicationName}中切換隱藏的項目"
           }
         }
       }

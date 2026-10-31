@@ -225,4 +225,119 @@ struct NotchHubGeometryTests {
         #expect(Geometry.minimumWingWidth == 96)
         #expect(Geometry.screenMargin == 12)
     }
+
+    // MARK: Compact capsule
+
+    @Test("Compact, notched fixture A: begins at the notch's lower edge, centred on it, at least the notch plus 24")
+    func compactNotched() throws {
+        let result = try #require(Geometry.compactLayout(display: notchedA, contentWidth: 240))
+        #expect(result.silhouette == Geometry.Rect(x: 636, y: 32, width: 240, height: 30))
+        #expect(result.hoverZone == result.silhouette)
+        // Centred on the notch's centre, 756.
+        #expect(result.silhouette.x + result.silhouette.width / 2 == 756)
+        let narrow = try #require(Geometry.compactLayout(display: notchedA, contentWidth: 100))
+        #expect(narrow.silhouette.width == 210)
+        #expect(narrow.silhouette.x == 651)
+        let wide = try #require(Geometry.compactLayout(display: notchedA, contentWidth: 400))
+        #expect(wide.silhouette.width == 280)
+        #expect(wide.silhouette.x == 616)
+        #expect(wide.silhouette.y == 32)
+        #expect(wide.silhouette.height == 30)
+    }
+
+    @Test("Compact, a display without a notch: 200 wide at the narrowest, centred, below the menu bar")
+    func compactNotchless() throws {
+        let result = try #require(Geometry.compactLayout(display: notchless, contentWidth: 150))
+        #expect(result.silhouette == Geometry.Rect(x: 1180, y: 24, width: 200, height: 30))
+    }
+
+    @Test("Compact: the capsule lies below the top row, so it never overlaps the notch or a menu bar item")
+    func compactNeverOverTheBar() throws {
+        for display in [notchedA, notchedB, notchedC, notchless] {
+            let result = try #require(Geometry.compactLayout(display: display, contentWidth: 240))
+            let full = try layout(display)
+            #expect(result.silhouette.minY == full.topRowHeight)
+            if let notch = full.notch {
+                #expect(!result.silhouette.intersects(notch))
+                #expect(result.silhouette.minX <= notch.minX - Geometry.compactNotchMargin / 2)
+                #expect(result.silhouette.maxX >= notch.maxX + Geometry.compactNotchMargin / 2)
+            }
+            #expect(result.silhouette.minX >= Geometry.screenMargin)
+            #expect(result.silhouette.maxX <= display.width - Geometry.screenMargin)
+        }
+    }
+
+    @Test("Compact: the top row is the notch when it is taller than the menu bar")
+    func compactBelowATallNotch() throws {
+        let tall = Geometry.Display(
+            width: 1512, height: 982, menuBarHeight: 30,
+            notch: Geometry.Notch(minX: 663, maxX: 849, height: 38)
+        )
+        #expect(try #require(Geometry.compactLayout(display: tall, contentWidth: 240)).silhouette.y == 38)
+    }
+
+    @Test("Compact: a malformed notch counts as none, and a display without a usable size has no capsule")
+    func compactMalformed() throws {
+        let reference = try #require(
+            Geometry.compactLayout(
+                display: Geometry.Display(width: 1512, height: 982, menuBarHeight: 32, notch: nil),
+                contentWidth: 240
+            )
+        )
+        let malformed: [Geometry.Notch] = [
+            Geometry.Notch(minX: 300, maxX: 300, height: 32),
+            Geometry.Notch(minX: 663, maxX: 2000, height: 32),
+            Geometry.Notch(minX: 663, maxX: 849, height: 0),
+            Geometry.Notch(minX: .nan, maxX: 849, height: 32),
+        ]
+        for notch in malformed {
+            let display = Geometry.Display(width: 1512, height: 982, menuBarHeight: 32, notch: notch)
+            #expect(Geometry.compactLayout(display: display, contentWidth: 240) == reference)
+        }
+        let unusable = [
+            Geometry.Display(width: 0, height: 982, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: .nan, height: 982, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: 1512, height: 0, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: 1512, height: .infinity, menuBarHeight: 32, notch: nil),
+            Geometry.Display(width: 20, height: 982, menuBarHeight: 32, notch: nil),
+        ]
+        for display in unusable {
+            #expect(Geometry.compactLayout(display: display, contentWidth: 240) == nil)
+        }
+    }
+
+    @Test("Compact: a narrow display clamps the width into the margins, and a width that is no number is the narrowest")
+    func compactNarrowDisplayAndOddWidths() throws {
+        let narrow = Geometry.Display(width: 300, height: 800, menuBarHeight: 24, notch: nil)
+        let clamped = try #require(Geometry.compactLayout(display: narrow, contentWidth: 280))
+        #expect(clamped.silhouette.width == 276)
+        #expect(clamped.silhouette.x == 12)
+        let nan = try #require(Geometry.compactLayout(display: notchedA, contentWidth: .nan))
+        #expect(nan.silhouette.width == 210)
+        let infinite = try #require(Geometry.compactLayout(display: notchedA, contentWidth: .infinity))
+        #expect(infinite.silhouette.width == 280)
+        let negative = try #require(Geometry.compactLayout(display: notchedA, contentWidth: -50))
+        #expect(negative.silhouette.width == 210)
+    }
+
+    @Test("Compact: a notch near an edge moves the capsule into the display")
+    func compactNearAnEdge() throws {
+        let display = Geometry.Display(
+            width: 900, height: 600, menuBarHeight: 32,
+            notch: Geometry.Notch(minX: 20, maxX: 120, height: 32)
+        )
+        let result = try #require(Geometry.compactLayout(display: display, contentWidth: 240))
+        #expect(result.silhouette.x == 12)
+        #expect(result.silhouette.maxX <= 900 - 12)
+    }
+
+    @Test("The compact constants equal the design's numbers")
+    func compactConstants() {
+        #expect(Geometry.compactHeight == 30)
+        #expect(Geometry.compactMinimumWidth == 200)
+        #expect(Geometry.compactMaximumWidth == 280)
+        #expect(Geometry.compactNotchMargin == 24)
+        #expect(Geometry.compactTopRadius == 12)
+        #expect(Geometry.compactBottomRadius == 18)
+    }
 }

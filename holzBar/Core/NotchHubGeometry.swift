@@ -48,6 +48,19 @@ nonisolated enum NotchHubGeometry {
     static let bodyHeight: Double = 200
     /// The height of the top row where the display reports no usable menu bar height.
     static let fallbackMenuBarHeight: Double = 24
+    /// The height of the compact capsule.
+    static let compactHeight: Double = 30
+    /// The narrowest the compact capsule gets, where the notch allows.
+    static let compactMinimumWidth: Double = 200
+    /// The widest the compact capsule gets.
+    static let compactMaximumWidth: Double = 280
+    /// The space the compact capsule keeps beyond the notch's width, so it is never narrower
+    /// than the notch plus this.
+    static let compactNotchMargin: Double = 24
+    /// The radius of the compact capsule's concave corners at the top.
+    static let compactTopRadius: Double = 12
+    /// The radius of the compact capsule's corners at the bottom.
+    static let compactBottomRadius: Double = 18
 
     // MARK: Values
 
@@ -113,6 +126,14 @@ nonisolated enum NotchHubGeometry {
         var topRowHeight: Double
     }
 
+    /// The compact capsule of the live activities, relative to the display.
+    nonisolated struct CompactLayout: Equatable, Sendable {
+        /// The capsule, which is also the panel's frame.
+        var silhouette: Rect
+        /// Where the pointer rests to open the hub from the capsule: the capsule itself.
+        var hoverZone: Rect
+    }
+
     // MARK: Layout
 
     /// The notch from the widths of the unobscured areas beside it, as
@@ -146,10 +167,7 @@ nonisolated enum NotchHubGeometry {
             return nil
         }
         let notch = validated(display.notch, in: display.width)
-        let menuBarHeight = display.menuBarHeight.isFinite && display.menuBarHeight > 0
-            ? display.menuBarHeight
-            : fallbackMenuBarHeight
-        let topRowHeight = max(menuBarHeight, notch?.height ?? 0)
+        let topRowHeight = resolvedTopRowHeight(of: display, notch: notch)
 
         let centre = notch.map { ($0.minX + $0.maxX) / 2 } ?? display.width / 2
         let upperBound = display.width - screenMargin - width
@@ -186,6 +204,39 @@ nonisolated enum NotchHubGeometry {
         )
     }
 
+    /// The compact capsule of the live activities on a display, or `nil` when the display has
+    /// no usable size.
+    ///
+    /// The capsule hangs from the lower edge of the notch, or of the menu bar where there is no
+    /// notch, so it never lies over a menu bar item. It is ``compactHeight`` high and as wide as
+    /// `contentWidth`, within ``compactMinimumWidth`` (or the notch plus ``compactNotchMargin``,
+    /// if that is wider) and ``compactMaximumWidth`` and inside the display's margins. It is
+    /// centred on the notch, or on the display, and kept ``screenMargin`` from the edges. A width
+    /// that is not a number counts as the narrowest. The notch is judged as ``layout(display:content:)``
+    /// judges it.
+    static func compactLayout(display: Display, contentWidth: Double) -> CompactLayout? {
+        guard
+            display.width.isFinite, display.width > 0,
+            display.height.isFinite, display.height > 0
+        else {
+            return nil
+        }
+        let available = display.width - 2 * screenMargin
+        guard available >= 1 else {
+            return nil
+        }
+        let notch = validated(display.notch, in: display.width)
+        let narrowest = max(compactMinimumWidth, (notch.map { $0.maxX - $0.minX } ?? 0) + compactNotchMargin)
+        let requested = contentWidth.isNaN ? narrowest : contentWidth
+        let width = min(min(max(requested, narrowest), compactMaximumWidth), available)
+
+        let centre = notch.map { ($0.minX + $0.maxX) / 2 } ?? display.width / 2
+        let upperBound = display.width - screenMargin - width
+        let x = min(max(centre - width / 2, screenMargin), max(upperBound, screenMargin))
+        let rect = Rect(x: x, y: resolvedTopRowHeight(of: display, notch: notch), width: width, height: compactHeight)
+        return CompactLayout(silhouette: rect, hoverZone: rect)
+    }
+
     /// The same rectangle in AppKit's coordinates, whose origin is the bottom-left corner of the
     /// display. Only y changes.
     static func flipped(_ rect: Rect, displayHeight: Double) -> Rect {
@@ -205,6 +256,15 @@ nonisolated enum NotchHubGeometry {
             return nil
         }
         return notch
+    }
+
+    /// The height of the top row: the menu bar, or the notch if that is taller. A menu bar height
+    /// that makes no sense falls back to ``fallbackMenuBarHeight``.
+    private static func resolvedTopRowHeight(of display: Display, notch: Notch?) -> Double {
+        let menuBarHeight = display.menuBarHeight.isFinite && display.menuBarHeight > 0
+            ? display.menuBarHeight
+            : fallbackMenuBarHeight
+        return max(menuBarHeight, notch?.height ?? 0)
     }
 
     private static func wing(from start: Double, to end: Double, height: Double) -> Rect? {

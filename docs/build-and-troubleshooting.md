@@ -46,6 +46,8 @@ TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw -o - \
   ~/Library/Developer/Toolchains/swift-6.4.0-RELEASE.xctoolchain/Info.plist) Scripts/install.sh
 ```
 
-`Scripts/install.sh` builds without the `get-task-allow` entitlement Xcode adds for debugging and installs nothing that fails `Scripts/check-signature.sh`, the check CI and the release run too: the app must carry the hardened runtime and no entitlement, and `Contents/MacOS/holzBar` must be its only code. holzBar ships no XPC service, helper or other nested code; on macOS 26 it looks up each item's app itself.
+`Scripts/install.sh` builds without the `get-task-allow` entitlement Xcode adds for debugging and installs nothing that fails `Scripts/check-signature.sh`, the check CI and the release run too: the app must carry the hardened runtime and no entitlement but `com.apple.security.personal-information.calendars` (Calendar access of the notch hub), and `Contents/MacOS/holzBar` must be its only code besides `Contents/Frameworks/NowPlayingRemote.framework`, the library of the optional Read all apps, which the same Xcode build produces and embeds. holzBar ships no XPC service or helper app; on macOS 26 it looks up each item's app itself.
+
+If Read all apps in the Now Playing module says "Read all apps is not available on this Mac", macOS may have changed the private interface it uses; the Music and Spotify sources keep working.
 
 Two hidden defaults show how holzBar recovers before macOS 27: `DebugDropsBarrierExitEvent` loses the whole round trip of every item move and click, so no event reaches the item and holzBar gives up after about two seconds; `DebugHangsItemImageCapture` makes every item image capture hang, so each is given up after two seconds and capture stops after three until holzBar is relaunched. Turn one on with `defaults write com.holzcloud.holzBar <name> -bool true` and off with `defaults delete com.holzcloud.holzBar <name>`.

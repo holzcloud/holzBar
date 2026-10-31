@@ -113,6 +113,16 @@ protocol HubHost: AnyObject {
     /// Closes the hub and opens holzBar's Settings at the modules, where the module's settings
     /// are.
     func openSettings(for moduleID: String)
+
+    /// Asks the hub to take the keyboard, so that a text field in a module's body can be typed
+    /// into. A module whose body has a text field calls it when the field gains focus. The
+    /// hub makes its panel the key window, as it is for a hub opened by its hotkey, without
+    /// making holzBar the active app. The default does nothing.
+    func takeKeyboard()
+}
+
+extension HubHost {
+    func takeKeyboard() {}
 }
 
 /// The running part of a hub module.
@@ -138,6 +148,20 @@ protocol HubModuleRuntime: AnyObject {
     /// The module's status in the right wing, or `nil` for none. The default is `nil`.
     var statusPill: HubStatusPill? { get }
 
+    /// What is going on in the module, as plain values: a download, a camera in use, a timer.
+    /// The hub reads it while it is on, with the activities of every other module, and shows
+    /// the top one as a small capsule below the notch while the hub is closed, and the list in
+    /// the Live activities tab. The runtime keeps it current from observable state, so the hub
+    /// follows every change; it does no work for the hub. A file name or an event title in an
+    /// activity stays in memory: the capsule shows only titles, and nothing is logged or
+    /// stored. The default is none.
+    var activities: [LiveActivity] { get }
+
+    /// Whether the module wants the hub to open, on the module's tab, when a file is dragged to
+    /// the notch. The hub reads it when the runtimes or this value change, and watches for file
+    /// drags only while some runtime answers `true`. The default is `false`.
+    var acceptsFileDrags: Bool { get }
+
     /// The body of the module's tab. The hub calls it only while the hub is open and the tab
     /// is selected; the view fills the hub's one body area and scrolls if it needs more.
     func makeBody(host: any HubHost) -> AnyView
@@ -159,6 +183,10 @@ extension HubModuleRuntime {
     var tile: HubTile? { nil }
 
     var statusPill: HubStatusPill? { nil }
+
+    var activities: [LiveActivity] { [] }
+
+    var acceptsFileDrags: Bool { false }
 
     func hubVisibilityDidChange(isOpen: Bool) {}
 }

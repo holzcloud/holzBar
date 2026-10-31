@@ -91,7 +91,10 @@ final class AccessibilityBackend27: MenuBarBackend {
         appState.concealer27.placeNewApplications(items: items)
         // The state of the system's overflow control comes from the same read that becomes the item cache (Phase 22).
         appState.concealer27.noteNativeOverflow(items: items, displayID: displayID)
-        return appState.concealer27.cacheFromSavedLayout(items: items, displayID: displayID)
+        // macOS 27.2 reports no items at all while its overflow control folds them away, so the
+        // ones read earlier stay listed, not drawn, in their saved sections (Layout, Shelf).
+        let folded = displayID == Bridging.getActiveMenuBarDisplayID() ? MenuBarItemProvider27.foldedItems() : []
+        return appState.concealer27.cacheFromSavedLayout(items: items + folded, displayID: displayID)
     }
 
     func move(item: MenuBarItem, to destination: MenuBarItemManager.MoveDestination, appState: AppState) async throws {

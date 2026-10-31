@@ -5,7 +5,7 @@ xcuserdata/
 .swiftpm/
 
 # Planning lives in the private repository holzcloud/holzBar-planning
-.planning/
+.planning
 
 # GSD (OpenGSD gsd-core) install staging and local overrides
 .claude/.gsd-staging/

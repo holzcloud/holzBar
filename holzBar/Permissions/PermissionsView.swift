@@ -141,13 +141,17 @@ struct PermissionsView: View {
                     .font(.title.weight(.medium))
                     .underline()
 
-                Text(ScreenRecordingFeature.summary.localizedFromCatalog)
-                    .multilineTextAlignment(.center)
-                    .fontWeight(.medium)
+                if let summary = permission.summary {
+                    Text(verbatim: summary)
+                        .multilineTextAlignment(.center)
+                        .fontWeight(.medium)
+                }
 
-                Text("Optional. Without it holzBar shows the apps' icons.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
+                if let withoutNote = permission.withoutNote {
+                    Text(verbatim: withoutNote)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
 
                 if permission.hasPermission {
                     PermissionPill(Text("Permission Granted"), state: .granted)

@@ -30,6 +30,14 @@ final class GeneralSettings {
         }
     }
 
+    /// A Boolean value that indicates whether holzBar's icon shows how many items are
+    /// hidden right now. Off by default; while off nothing is drawn or observed for it.
+    var showsHiddenItemCount = false {
+        didSet {
+            Defaults.set(showsHiddenItemCount, forKey: .showsHiddenItemCount)
+        }
+    }
+
     /// An icon to show in the menu bar, with a different image
     /// for when items are visible or hidden.
     var holzBarIcon: ControlItemImageSet = .defaultHolzBarIcon {
@@ -275,6 +283,7 @@ final class GeneralSettings {
     private func loadInitialState() {
         Defaults.ifPresent(key: .showHolzBarIcon, assign: &showHolzBarIcon)
         Defaults.ifPresent(key: .holzBarIconShowsCaptureDot, assign: &holzBarIconShowsCaptureDot)
+        Defaults.ifPresent(key: .showsHiddenItemCount, assign: &showsHiddenItemCount)
         Defaults.ifPresent(key: .customHolzBarIconIsTemplate, assign: &customHolzBarIconIsTemplate)
         Defaults.ifPresent(key: .useShelf, assign: &useShelf)
         Defaults.ifPresent(key: .showOnClick, assign: &showOnClick)

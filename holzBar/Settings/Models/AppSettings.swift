@@ -23,11 +23,39 @@ final class AppSettings {
     /// The model for the Notch hub's settings.
     let notchHub = NotchHubSettings()
 
+    /// The model for the Calendar module's settings.
+    let calendar = CalendarSettings()
+
+    /// The model for the Timers module's settings.
+    let timers = TimersSettings()
+
+    /// The model for the Live activities module's settings.
+    let liveActivities = LiveActivitiesSettings()
+
+    /// The model for the File drop module's settings.
+    let fileDrop = FileDropSettings()
+
+    /// The model for the Display controls module's settings.
+    let displayControls = DisplayControlsSettings()
+
+    /// The model for the Notifications module's settings.
+    let notifications = NotificationsSettings()
+
+    /// The model for the Now Playing module's settings.
+    let nowPlaying = NowPlayingSettings()
+
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
         advanced.performSetup(with: appState)
         general.performSetup(with: appState)
         hotkeys.performSetup(with: appState)
         notchHub.performSetup(with: appState)
+        timers.performSetup(with: appState)
+        calendar.performSetup(with: appState)
+        liveActivities.performSetup(with: appState)
+        fileDrop.performSetup(with: appState)
+        displayControls.performSetup(with: appState)
+        notifications.performSetup(with: appState)
+        nowPlaying.performSetup(with: appState)
     }
 }

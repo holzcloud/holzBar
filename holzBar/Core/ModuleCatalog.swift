@@ -68,8 +68,16 @@ nonisolated enum ModuleCatalog {
     /// runs no tap while off. Apple Items is off until the user switches it on, asks for no
     /// permission beyond holzBar's Accessibility and changes no assertion while off. The Notch hub
     /// is off until the user switches it on, asks for no permission and creates nothing while
-    /// off: no window, no monitor and no module of its own. The title and the summary are the
-    /// English strings the settings show; their keys are those strings.
+    /// off: no window, no monitor and no module of its own. Timers, a module of the hub, is off
+    /// until the user switches it on, asks for no permission and runs no task and no observer
+    /// while off. Calendar, another module of the hub, is off until the user switches it on, asks for
+    /// Calendar access only then and creates no store, observer or wait while off. Live activities,
+    /// a third module of the hub, is off until the user switches it on, has no permission on its row
+    /// and creates no source, capsule or wait while off. Display controls, a fourth module of the hub, is off until
+    /// the user switches it on, asks for no permission and creates no runtime or CoreAudio listener while
+    /// off. Now Playing, a fifth module of the hub, is off until the user switches it on, asks for no
+    /// permission and creates no observer, runtime or model while off. The title and the summary are the English
+    /// strings the settings show; their keys are those strings.
     static let all: [ModuleDescriptor] = [
         ModuleDescriptor(
             id: "widgets",
@@ -102,6 +110,78 @@ nonisolated enum ModuleCatalog {
             titleKey: "Notch hub",
             summaryKey: "A panel at the notch for the modules you switch on.",
             permission: nil
+        ),
+        ModuleDescriptor(
+            id: "timers",
+            area: .notch,
+            symbol: "timer",
+            titleKey: "Timers",
+            summaryKey: "Timers, countdowns and a stopwatch at the notch, with a sound when a timer ends.",
+            permission: nil,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "calendar",
+            area: .notch,
+            symbol: "calendar",
+            titleKey: "Calendar",
+            summaryKey: "Your next events and their meeting links.",
+            permission: .calendar,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "live-activities",
+            area: .notch,
+            symbol: "waveform",
+            titleKey: "Live activities",
+            summaryKey: "Calls and downloads shown as a small capsule at the notch.",
+            permission: nil,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "file-drop",
+            area: .notch,
+            symbol: "tray.and.arrow.down",
+            titleKey: "File drop",
+            summaryKey: "Stash files you drag to the notch and drop them somewhere else later.",
+            permission: nil,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "display-controls",
+            area: .notch,
+            symbol: "slider.horizontal.3",
+            titleKey: "Display controls",
+            summaryKey: "Brightness and volume sliders at the notch.",
+            permission: nil,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "accessory-alerts",
+            area: .notch,
+            symbol: "airpods",
+            titleKey: "Accessory alerts",
+            summaryKey: "Tells you when AirPods and other accessories connect, disconnect or run low.",
+            permission: .bluetooth,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "notifications",
+            area: .notch,
+            symbol: "bell.badge",
+            titleKey: "Notifications",
+            summaryKey: "The banners macOS shows, listed at the notch.",
+            permission: .accessibility,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "now-playing",
+            area: .notch,
+            symbol: "music.note",
+            titleKey: "Now Playing",
+            summaryKey: "Shows what is playing, at the notch.",
+            permission: nil,
+            isPreview: true
         ),
     ]
 

@@ -995,6 +995,21 @@ final class Concealer27 {
     /// own keeps it, and a bar whose order macOS 27 has already rearranged is left alone (see
     /// ``SectionLayout27/seededLayout(items:hiddenControlItem:alwaysHiddenControlItem:)``).
     func seedLayoutIfNeeded(items: [MenuBarItem]) {
+        // The sections saved by identity before macOS 27 come first: they do not depend on what
+        // macOS 27 did to the bar, so an upgrade keeps hiding what it hid.
+        if
+            !Defaults.bool(forKey: .macOS27LayoutSeeded),
+            savedLayout.isEmpty,
+            let saved = SectionLayout27.seededLayout(
+                itemSections: Defaults.dictionary(forKey: .itemSections) as? [String: Int] ?? [:]
+            )
+        {
+            Defaults.set(true, forKey: .macOS27LayoutSeeded)
+            store(saved)
+            logger.notice("Took the macOS 27 layout from the sections saved before macOS 27")
+            update()
+            return
+        }
         guard
             !Defaults.bool(forKey: .macOS27LayoutSeeded),
             savedLayout.isEmpty,

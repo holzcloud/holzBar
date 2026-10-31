@@ -157,4 +157,81 @@ struct NotchHubPolicyTests {
         let zone = NotchHubGeometry.Rect(x: 663, y: 0, width: 186, height: 32)
         #expect(zone.contains(x: top.x, y: top.y))
     }
+
+    @Test("The capsule's trigger is judged exactly as a hover is, in every environment")
+    func compactTriggerEqualsHover() {
+        let flags = [false, true]
+        for fullscreen in flags {
+            for hidden in flags {
+                for presenting in flags {
+                    for allowed in flags {
+                        let environment = Policy.Environment(
+                            isFullscreenSpace: fullscreen,
+                            isMenuBarHiddenBySystem: hidden,
+                            isPresenting: presenting,
+                            isDisplayAllowed: allowed
+                        )
+                        #expect(
+                            Policy.blockReason(environment, trigger: .compact)
+                                == Policy.blockReason(environment, trigger: .hover)
+                        )
+                    }
+                }
+            }
+        }
+        var fullscreen = clear
+        fullscreen.isFullscreenSpace = true
+        #expect(Policy.blockReason(fullscreen, trigger: .compact) == .fullscreen)
+        #expect(Policy.blockReason(clear, trigger: .compact) == nil)
+    }
+
+    @Test("A hub opened from the capsule closes on leaving like one opened by hover, and the hotkey's does not")
+    func compactClosesOnLeave() {
+        #expect(Policy.Trigger.compact.closesOnLeave)
+        #expect(Policy.Trigger.hover.closesOnLeave)
+        #expect(!Policy.Trigger.hotkey.closesOnLeave)
+        // The pointer rule itself is unchanged: in the zone (extended by the capsule) it opens,
+        // and away from both it closes a hub that closes on leaving.
+        #expect(Policy.hoverDesired(pointer: inZone, isOpen: false, closesOnLeave: false) == .open)
+        #expect(
+            Policy.hoverDesired(pointer: away, isOpen: true, closesOnLeave: Policy.Trigger.compact.closesOnLeave)
+                == .close
+        )
+    }
+
+    @Test("A file drag is judged exactly as a hover is, in every environment")
+    func fileDragTriggerEqualsHover() {
+        let flags = [false, true]
+        for fullscreen in flags {
+            for hidden in flags {
+                for presenting in flags {
+                    for allowed in flags {
+                        let environment = Policy.Environment(
+                            isFullscreenSpace: fullscreen,
+                            isMenuBarHiddenBySystem: hidden,
+                            isPresenting: presenting,
+                            isDisplayAllowed: allowed
+                        )
+                        #expect(
+                            Policy.blockReason(environment, trigger: .fileDrag)
+                                == Policy.blockReason(environment, trigger: .hover)
+                        )
+                    }
+                }
+            }
+        }
+        #expect(Policy.Trigger.fileDrag.closesOnLeave)
+    }
+
+    @Test("A wish and the pending action decide what to schedule")
+    func decisionTruthTable() {
+        #expect(Policy.decision(desired: .open, pending: nil) == .schedule(.open))
+        #expect(Policy.decision(desired: .open, pending: .open) == .none)
+        #expect(Policy.decision(desired: nil, pending: .open) == .cancelPending)
+        #expect(Policy.decision(desired: nil, pending: .close) == .cancelPending)
+        #expect(Policy.decision(desired: .close, pending: .open) == .schedule(.close))
+        #expect(Policy.decision(desired: .close, pending: .close) == .none)
+        #expect(Policy.decision(desired: .close, pending: nil) == .schedule(.close))
+        #expect(Policy.decision(desired: nil, pending: nil) == .none)
+    }
 }

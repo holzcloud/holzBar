@@ -3,12 +3,55 @@
 //  holzBar
 //
 
+import SwiftUI
+
 /// The modules of the Notch hub.
 enum HubModules {
     /// One registration per hub module. A new module adds one line here, one descriptor to
     /// ``ModuleCatalog/all`` and one runtime class; the order of the tabs is the catalog's,
-    /// not this list's. No module of the hub exists yet.
-    static let all: [HubModuleRegistration] = []
+    /// not this list's.
+    static let all: [HubModuleRegistration] = [
+        HubModuleRegistration(
+            id: TimersRuntime.identifier,
+            makeRuntime: { TimersRuntime(appState: $0) },
+            makeSettings: { AnyView(TimersSettingsView()) }
+        ),
+        HubModuleRegistration(
+            id: CalendarRuntime.identifier,
+            makeRuntime: { CalendarRuntime(appState: $0) },
+            makeSettings: { AnyView(CalendarSettingsView()) }
+        ),
+        HubModuleRegistration(
+            id: "live-activities",
+            makeRuntime: { LiveActivitiesRuntime(appState: $0) },
+            makeSettings: { AnyView(LiveActivitiesSettingsView()) }
+        ),
+        HubModuleRegistration(
+            id: "file-drop",
+            makeRuntime: { FileDropRuntime(appState: $0) },
+            makeSettings: { AnyView(FileDropSettingsView()) }
+        ),
+        HubModuleRegistration(
+            id: "display-controls",
+            makeRuntime: { DisplayControlsRuntime(appState: $0) },
+            makeSettings: { AnyView(DisplayControlsSettingsView()) }
+        ),
+        HubModuleRegistration(
+            id: "accessory-alerts",
+            makeRuntime: { AccessoryAlertsRuntime(appState: $0) },
+            makeSettings: { AnyView(AccessoryAlertsSettingsView()) }
+        ),
+        HubModuleRegistration(
+            id: "notifications",
+            makeRuntime: { NotificationsRuntime(appState: $0) },
+            makeSettings: { AnyView(NotificationsSettingsView()) }
+        ),
+        HubModuleRegistration(
+            id: NowPlayingRuntime.identifier,
+            makeRuntime: { NowPlayingRuntime(appState: $0) },
+            makeSettings: { AnyView(NowPlayingSettingsView()) }
+        ),
+    ]
 
     /// The registration of a module, if it has one.
     static func registration(for id: String) -> HubModuleRegistration? {
