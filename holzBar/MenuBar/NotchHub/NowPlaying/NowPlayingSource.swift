@@ -23,9 +23,12 @@ final class NowPlayingSource: NSObject {
     /// Starts listening. A source that is already listening is restarted.
     ///
     /// - Parameters:
+    ///   - players: The players to follow; the notification of a player that is not in the set
+    ///     is not observed at all.
     ///   - onEvent: Called with every playback event that was understood.
     ///   - onPlayerQuit: Called when Apple Music or Spotify quits.
     func start(
+        players: NowPlayingPlayers,
         onEvent: @escaping @MainActor (NowPlayingEvent) -> Void,
         onPlayerQuit: @escaping @MainActor (NowPlayingPlayer) -> Void
     ) {
@@ -33,7 +36,14 @@ final class NowPlayingSource: NSObject {
         self.onEvent = onEvent
         self.onPlayerQuit = onPlayerQuit
         let center = DistributedNotificationCenter.default()
-        for name in [NowPlayingPayload.musicNotification, NowPlayingPayload.spotifyNotification] {
+        var names = [String]()
+        if players.allows(.music) {
+            names.append(NowPlayingPayload.musicNotification)
+        }
+        if players.allows(.spotify) {
+            names.append(NowPlayingPayload.spotifyNotification)
+        }
+        for name in names {
             center.addObserver(
                 self,
                 selector: #selector(playbackDidChange(_:)),

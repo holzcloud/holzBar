@@ -49,7 +49,7 @@ enum HubModules {
         HubModuleRegistration(
             id: NowPlayingRuntime.identifier,
             makeRuntime: { NowPlayingRuntime(appState: $0) },
-            makeSettings: { AnyView(EmptyView()) }
+            makeSettings: { AnyView(NowPlayingSettingsView()) }
         ),
     ]
 

@@ -66,20 +66,48 @@ final class NowPlayingRuntime: HubModuleRuntime {
     @ObservationIgnored private var artworkTask: Task<Void, Never>?
     @ObservationIgnored private var artworkIdentity: String?
     @ObservationIgnored private var generation = 0
+    @ObservationIgnored private var players = NowPlayingPlayers.all
+    @ObservationIgnored private var playersLoop: ObservationLoop?
     @ObservationIgnored private let logger = Logger(category: "NowPlaying")
 
     init(appState: AppState) {
         self.appState = appState
-        source.start { [weak self] event in
+        let settings = appState.settings.nowPlaying
+        players = settings.players
+        startSource()
+        playersLoop = ObservationLoop.observe {
+            settings.players
+        } onChange: { [weak self] players in
+            self?.playersDidChange(players)
+        }
+    }
+
+    private func startSource() {
+        source.start(players: players) { [weak self] event in
             self?.handle(event)
         } onPlayerQuit: { [weak self] player in
             self?.playerDidQuit(player)
         }
     }
 
+    /// The setting changed: observe only the chosen players' notifications and drop the state of
+    /// a player that was switched off.
+    private func playersDidChange(_ players: NowPlayingPlayers) {
+        self.players = players
+        startSource()
+        for player in [NowPlayingPlayer.music, .spotify] where !players.allows(player) {
+            model.clear(player)
+        }
+        refresh()
+    }
+
     // MARK: Events
 
     private func handle(_ event: NowPlayingEvent) {
+        // A player the user switched off is ignored, whichever way its event arrived.
+        guard players.allows(event.player) else {
+            return
+        }
         let before = current?.event.track?.identity
         model.handle(event, at: ProcessInfo.processInfo.systemUptime)
         refresh()
@@ -205,6 +233,8 @@ final class NowPlayingRuntime: HubModuleRuntime {
 
     /// Stops listening and lets go of what played.
     func shutDown() {
+        playersLoop?.cancel()
+        playersLoop = nil
         source.stop()
         clearArtwork()
         model.removeAll()

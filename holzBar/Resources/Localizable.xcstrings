@@ -64806,6 +64806,70 @@
           }
         }
       }
+    },
+    "Music and Spotify tell holzBar what they play." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Music und Spotify melden holzBar, was sie spielen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Music et Spotify indiquent à holzBar ce qu’ils jouent."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Music e Spotify comunicano a holzBar cosa riproducono."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Music e Spotify di a holzBar tge ch’els reproduceschan."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Music y Spotify le dicen a holzBar lo que reproducen."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Music e o Spotify informam ao holzBar o que estão tocando."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MusicとSpotifyが、再生中の内容をholzBarに知らせます。"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Music 和 Spotify 会告诉 holzBar 它们正在播放什么。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Music과 Spotify가 재생 중인 항목을 holzBar에 알려 줍니다."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Music и Spotify сообщают holzBar, что они играют."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
