@@ -34,7 +34,7 @@ enum HubModules {
         HubModuleRegistration(
             id: "display-controls",
             makeRuntime: { DisplayControlsRuntime(appState: $0) },
-            makeSettings: { AnyView(EmptyView()) }
+            makeSettings: { AnyView(DisplayControlsSettingsView()) }
         ),
         HubModuleRegistration(
             id: "accessory-alerts",

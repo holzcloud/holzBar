@@ -63270,6 +63270,134 @@
           }
         }
       }
+    },
+    "macOS cannot change this display from here" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS kann diesen Bildschirm von hier aus nicht ändern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS no puede cambiar esta pantalla desde aquí"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS ne peut pas modifier cet écran d'ici"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS non può modificare questo schermo da qui"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS はここからこのディスプレイを調整できません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS에서는 여기서 이 디스플레이를 변경할 수 없습니다"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS não pode alterar esta tela daqui"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS na po betg midar quest visur da qua"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS не может изменить этот дисплей отсюда"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 无法从此处更改此显示器"
+          }
+        }
+      }
+    },
+    "Uses a private macOS interface. It switches itself off if macOS changes it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nutzt eine private macOS-Schnittstelle. Sie schaltet sich selbst ab, wenn macOS sie ändert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa una interfaz privada de macOS. Se desactiva sola si macOS la cambia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilise une interface privée de macOS. Elle se désactive d'elle-même si macOS la modifie."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa un'interfaccia privata di macOS. Si disattiva da sola se macOS la cambia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS の非公開インターフェイスを使用します。macOS が変更した場合は自動的にオフになります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS의 비공개 인터페이스를 사용합니다. macOS에서 변경하면 자동으로 꺼집니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa uma interface privada do macOS. Desliga-se sozinha se o macOS a alterar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duvra ina interfascha privata da macOS. Ella sa deactiveschescha sezza sch'macOS la midada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использует закрытый интерфейс macOS. Отключается сама, если macOS его изменит."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 macOS 的私有接口。如果 macOS 更改了该接口，它会自动关闭。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

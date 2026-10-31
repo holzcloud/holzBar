@@ -334,6 +334,11 @@ nonisolated extension Defaults {
         /// turns that call off).
         case accessoryAlertsReadsBattery = "AccessoryAlertsReadsBattery"
 
+        // MARK: Display Controls
+        /// Whether the Display controls module shows brightness sliders, which use a private
+        /// macOS interface (a boolean, on by default; the switch that turns that part off).
+        case displayControlsBrightness = "DisplayControlsBrightness"
+
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
         /// entry event is dropped, so the real event never reaches the item, the exit event
@@ -432,6 +437,7 @@ nonisolated extension Defaults.Key {
             .accessoryAlertsOnDisconnect,
             .accessoryAlertsOnLowBattery,
             .accessoryAlertsReadsBattery,
+            .displayControlsBrightness,
             .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,

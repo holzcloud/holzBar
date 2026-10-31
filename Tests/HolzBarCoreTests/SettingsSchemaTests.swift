@@ -269,6 +269,19 @@ struct SettingsSchemaTests {
         #expect(clamped.accepted["AccessoryAlertsLowBatteryLevel"] as? Double == 30)
     }
 
+    @Test("The display controls' brightness setting travels")
+    func displayControlsBrightnessSettingTravels() {
+        #expect(Defaults.Key.importableKinds["DisplayControlsBrightness"] == .bool)
+        #expect(Defaults.Key.displayControlsBrightness.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.displayControlsBrightness))
+        let accepted = Defaults.Key.validatedSettings(["DisplayControlsBrightness": false], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["DisplayControlsBrightness"])
+        for refused: Any in [1.5, 2, "yes", ["a"]] {
+            let result = Defaults.Key.validatedSettings(["DisplayControlsBrightness": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+    }
+
     @Test("The Shelf's style and location travel with a settings file, and only as whole numbers within their choices")
     func shelfStyleAndLocationTravel() {
         #expect(Defaults.Key.importableKinds["ShelfStyle"] == .number)
