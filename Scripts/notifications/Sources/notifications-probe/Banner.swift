@@ -66,14 +66,19 @@ enum Banner {
         guard let observer = register(target.pid, watch: watch, application: application) else {
             // No notification could be added: the process refused the observer, which the
             // criteria count as NO-GO, with no event.
-            return BannerOutcome(observation: Verdict.observe(posted: false, eventCount: 0, samples: []))
+            return BannerOutcome(observation: Verdict.observe(posted: options.post, eventCount: 0, samples: []))
         }
         let source = AXObserverGetRunLoopSource(observer)
         CFRunLoopAddSource(CFRunLoopGetMain(), source, .defaultMode)
         watch.resetTriggerClock()
 
         signal(SIGINT) { _ in interrupted = 1 }
-        Out.emit("STEP trigger the notification of your app now; watching for \(options.seconds) seconds (Ctrl-C ends the run early)")
+        if options.post, let title = options.title, let body = options.body {
+            Out.emit("STEP posting one test notification; watching for \(options.seconds) seconds (Ctrl-C ends the run early)")
+            Post.start(title: title, body: body, watch: watch)
+        } else {
+            Out.emit("STEP trigger the notification of your app now; watching for \(options.seconds) seconds (Ctrl-C ends the run early)")
+        }
 
         let end = DispatchTime.now().uptimeNanoseconds + UInt64(options.seconds) * 1_000_000_000
         while interrupted == 0, !watch.isBlocked, DispatchTime.now().uptimeNanoseconds < end {
@@ -85,7 +90,7 @@ enum Banner {
         if result.blocked {
             Out.emit("STEP the target did not answer within 2 seconds; the run ended")
         }
-        let observation = Verdict.observe(posted: false, eventCount: result.events, samples: result.samples)
+        let observation = Verdict.observe(posted: options.post, eventCount: result.events, samples: result.samples)
         return BannerOutcome(observation: observation)
     }
 

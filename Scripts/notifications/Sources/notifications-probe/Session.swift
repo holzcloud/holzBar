@@ -38,6 +38,7 @@ struct Options {
     var trigger = "T2"
     var title: String?
     var body: String?
+    var post = false
     var showValues = false
     var seconds = 90
 }
@@ -52,6 +53,7 @@ enum Session {
         Out.emit(systemLine())
 
         var routeA: String?
+        var routeB: String?
         var decision: String?
         var answers = Answers()
         switch options.command {
@@ -67,11 +69,13 @@ enum Session {
                 decision = Verdict.decision(routeA: judgement.result)
                 answers = askBannerQuestions()
             }
+        case "db-access":
+            routeB = Verdict.routeB(DatabaseAccess.run()).0.word
         default:
             break
         }
 
-        Out.emit(ProbeLine.summary(routeA: routeA ?? "not run", routeB: "not run", decision: decision))
+        Out.emit(ProbeLine.summary(routeA: routeA ?? "not run", routeB: routeB ?? "not run", decision: decision))
         Out.emit(ProbeLine.line("ANSWER", [
             ("bannerSeen", answers.bannerSeen),
             ("focusOn", answers.focusOn),
@@ -204,6 +208,29 @@ enum Selftest {
                 ("identifier", nil), ("textLen", "11"),
             ]),
             "NODE n=1 depth=1 role=AXStaticText subrole=- identifier=- textLen=11"
+        )
+
+        check("routeBNo", Verdict.routeB([.denied(1), .absent]).0.word, "NO-GO")
+        check("routeBReadable", Verdict.routeB([.absent, .ok]).0.word, "READABLE")
+        check(
+            "routeBSummary",
+            ProbeLine.summary(routeA: nil, routeB: Verdict.routeB([.ok]).0.word, decision: nil),
+            "SUMMARY routeA=- routeB=READABLE decision=-"
+        )
+        check(
+            "decisionRouteB",
+            Verdict.decision(routeA: .noGo, routeB: .readable),
+            "no-go"
+        )
+        check(
+            "db",
+            ProbeLine.line("DB", [("candidate", "groupContainer"), ("access", DatabaseOutcome.denied(1).word)]),
+            "DB candidate=groupContainer access=denied:1"
+        )
+        check(
+            "script",
+            Post.script(title: "A \"b\"", body: "c\\d"),
+            "display notification \"c\\\\d\" with title \"A \\\"b\\\"\""
         )
 
         if failures.isEmpty {
