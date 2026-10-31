@@ -37,6 +37,26 @@ final class BluetoothDeviceMonitor: NSObject, CBCentralManagerDelegate {
         }
     }
 
+    /// The monitor that is waiting for the answer to a question asked from the Permissions
+    /// window, kept alive until the answer arrives.
+    private static var pendingRequest: BluetoothDeviceMonitor?
+
+    /// Asks macOS for the Bluetooth permission from the Permissions window, through the same
+    /// single question as ``requestAuthorization()``. It does nothing unless macOS has not been
+    /// asked yet, and it never scans, connects or pairs.
+    static func requestAccess() {
+        guard access == .notDetermined, pendingRequest == nil else {
+            return
+        }
+        let monitor = BluetoothDeviceMonitor()
+        pendingRequest = monitor
+        monitor.onChange = {
+            pendingRequest?.onChange = nil
+            pendingRequest = nil
+        }
+        monitor.requestAuthorization()
+    }
+
     /// The state of the Bluetooth permission as of the last ``refreshAuthorization()``.
     private(set) var authorization = CBManager.authorization
 

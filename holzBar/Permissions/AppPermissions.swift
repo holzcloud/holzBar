@@ -38,6 +38,11 @@ final class AppPermissions {
     /// prompt and asked for only when the module is switched on.
     let calendar = CalendarPermission()
 
+    /// The permission for Bluetooth, used by Accessory alerts and automation rules. It is read
+    /// once at launch without a prompt, which starts no Bluetooth work, and asked for only when
+    /// a feature that needs it is switched on or the user clicks Grant Permission.
+    let bluetooth = BluetoothPermission()
+
     /// The state of the app's granted permissions.
     private(set) var permissionsState: PermissionsState = .missing
 
@@ -49,7 +54,7 @@ final class AppPermissions {
 
     /// The permissions required for full app functionality.
     var allPermissions: [Permission] {
-        [accessibility, screenRecording, calendar]
+        [accessibility, screenRecording, calendar, bluetooth]
     }
 
     /// The permissions required for basic app functionality.

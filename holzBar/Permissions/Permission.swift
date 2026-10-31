@@ -393,3 +393,36 @@ final class CalendarPermission: Permission {
         }
     }
 }
+
+// MARK: - BluetoothPermission
+
+/// Bluetooth, for the connection alerts of the Accessory alerts module and the Bluetooth
+/// trigger of automation rules.
+///
+/// It is not asked for at launch: reading it looks at the authorization class property only,
+/// which asks nothing and starts no Bluetooth work. The question is asked once by the
+/// module or by Allow in the Permissions window, through ``BluetoothDeviceMonitor``; Revoke
+/// resets holzBar's own entry like the other optional permissions.
+final class BluetoothPermission: Permission {
+    init() {
+        super.init(
+            title: String(localized: "Bluetooth"),
+            details: [
+                String(localized: "Show which of your paired accessories are connected, for the connection alerts of Accessory alerts."),
+                String(localized: "Tell automation rules which Bluetooth device is connected."),
+            ],
+            isRequired: false,
+            requestsAtLaunch: false,
+            settingsURL: URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Bluetooth"),
+            tccService: "Bluetooth",
+            summary: String(localized: "Show which of your paired accessories are connected, for the connection alerts of Accessory alerts."),
+            withoutNote: String(localized: "Optional. Without it Accessory alerts cannot tell which accessories are connected."),
+            check: {
+                BluetoothDeviceMonitor.access == .allowed
+            },
+            request: {
+                BluetoothDeviceMonitor.requestAccess()
+            }
+        )
+    }
+}

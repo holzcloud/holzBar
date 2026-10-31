@@ -62822,6 +62822,262 @@
           }
         }
       }
+    },
+    "Bluetooth" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蓝牙"
+          }
+        }
+      }
+    },
+    "Show which of your paired accessories are connected, for the connection alerts of Accessory alerts." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigen, welches deiner gekoppelten Zubehörteile verbunden ist, für die Verbindungshinweise der Zubehör-Hinweise."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar cuáles de tus accesorios emparejados están conectados, para los avisos de conexión de Avisos de accesorios."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Montrer lesquels de vos accessoires jumelés sont connectés, pour les alertes de connexion d’Alertes d’accessoires."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrare quali dei tuoi accessori associati sono connessi, per gli avvisi di connessione di Avvisi accessori."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ペアリング済みのアクセサリのうち、どれが接続されているかを表示します（「アクセサリ通知」の接続通知用）。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링된 액세서리 중 연결된 것을 표시합니다(액세서리 알림의 연결 알림용)."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar quais dos seus acessórios emparelhados estão conectados, para os avisos de conexão de Avisos de acessórios."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar tgenins da tes accessoris colliads èn colliads, per las avertenzas da colliaziun dals Avertiments dals accessoris."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать, какие из ваших подключённых аксессуаров соединены, для оповещений о подключении в «Оповещениях об аксессуарах»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示已配对的配件中哪些已连接，用于“配件提醒”的连接提醒。"
+          }
+        }
+      }
+    },
+    "Tell automation rules which Bluetooth device is connected." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisierungsregeln mitteilen, welches Bluetooth-Gerät verbunden ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indicar a las reglas de automatización qué dispositivo Bluetooth está conectado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indiquer aux règles d’automatisation quel appareil Bluetooth est connecté."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indicare alle regole di automazione quale dispositivo Bluetooth è connesso."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "どのBluetoothデバイスが接続されているかを自動化ルールに伝えます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어떤 블루투스 기기가 연결되어 있는지 자동화 규칙에 알려 줍니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informar às regras de automação qual dispositivo Bluetooth está conectado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dir a las reglas d’automatisaziun tgenin apparat Bluetooth è collià."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Сообщать правилам автоматизации, какое устройство Bluetooth подключено."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "告诉自动化规则当前连接了哪个蓝牙设备。"
+          }
+        }
+      }
+    },
+    "Optional. Without it Accessory alerts cannot tell which accessories are connected." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional. Ohne sie können die Zubehör-Hinweise nicht erkennen, welches Zubehör verbunden ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcional. Sin él, Avisos de accesorios no puede saber qué accesorios están conectados."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Facultatif. Sans elle, Alertes d’accessoires ne peut pas savoir quels accessoires sont connectés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Facoltativo. Senza di essa, Avvisi accessori non può sapere quali accessori sono connessi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "任意です。これがないと、「アクセサリ通知」はどのアクセサリが接続されているかを判別できません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "선택 사항입니다. 이 권한이 없으면 액세서리 알림은 어떤 액세서리가 연결되어 있는지 알 수 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opcional. Sem ela, Avisos de acessórios não consegue saber quais acessórios estão conectados."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opziunal. Senza na pon ils Avertiments dals accessoris betg ver tgenins accessoris che èn colliads."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Необязательно. Без него «Оповещения об аксессуарах» не смогут определить, какие аксессуары подключены."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可选。没有它，“配件提醒”无法得知哪些配件已连接。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
