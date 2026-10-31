@@ -34137,124 +34137,6 @@
         }
       }
     },
-    "Drop an item on the holzBar icon to hide its app." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pusťte položku na ikonu holzBar, aby se skryla její aplikace."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lege ein Element auf dem holzBar-Symbol ab, um seine App auszublenden."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suelta un elemento en el icono de holzBar para ocultar su app."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Déposez un élément sur l'icône de holzBar pour masquer son app."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Engedjen egy elemet a holzBar ikonra az alkalmazása elrejtéséhez."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jatuhkan item ke ikon holzBar untuk menyembunyikan app-nya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rilascia un elemento sull'icona di holzBar per nasconderne l'app."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "項目を holzBar のアイコンにドロップすると、その App が非表示になります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "항목을 holzBar 아이콘에 드롭하면 해당 앱이 숨겨집니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zet een onderdeel op het holzBar-symbool om de app ervan te verbergen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Upuść element na ikonie holzBar, aby ukryć jego aplikację."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Solte um item no ícone do holzBar para ocultar o app dele."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lascha crudar in element sin il simbol da holzBar per zuppentar sia app."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перетащите элемент на значок holzBar, чтобы скрыть его приложение."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Släpp ett objekt på holzBar-ikonen för att dölja dess app."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uygulamasını gizlemek için bir öğeyi holzBar simgesine bırakın."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перетягніть елемент на значок holzBar, щоб приховати його програму."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "将项目拖到 holzBar 图标上，即可隐藏其 App。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "將項目拖放到 holzBar 圖像上即可隱藏其 App。"
-          }
-        }
-      }
-    },
     "Duration" : {
       "localizations" : {
         "cs" : {
@@ -120313,6 +120195,125 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "開啟該項目"
+          }
+        }
+      }
+    },
+    "Drop an item on the holzBar icon or on the open Shelf to hide its app." : {
+      "comment" : "Settings text under Drag in the Menu Bar (macOS 27); Shelf stays untranslated",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pusťte položku na ikonu holzBar nebo na otevřený Shelf, aby se skryla její aplikace."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lege ein Element auf dem holzBar-Symbol oder im geöffneten Shelf ab, um seine App auszublenden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suelta un elemento en el icono de holzBar o en el Shelf abierto para ocultar su app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déposez un élément sur l'icône de holzBar ou sur le Shelf ouvert pour masquer son app."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Engedjen egy elemet a holzBar ikonra vagy a megnyitott Shelfre az alkalmazása elrejtéséhez."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jatuhkan item ke ikon holzBar atau ke Shelf yang terbuka untuk menyembunyikan app-nya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rilascia un elemento sull'icona di holzBar o sullo Shelf aperto per nasconderne l'app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目を holzBar のアイコンまたは開いている Shelf にドロップすると、その App が非表示になります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목을 holzBar 아이콘이나 열려 있는 Shelf에 드롭하면 해당 앱이 숨겨집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet een onderdeel op het holzBar-symbool of op de geopende Shelf om de app ervan te verbergen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upuść element na ikonie holzBar lub na otwartym Shelf, aby ukryć jego aplikację."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solte um item no ícone do holzBar ou no Shelf aberto para ocultar o app dele."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lascha crudar in element sin il simbol da holzBar u sin il Shelf avert per zuppentar sia app."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетащите элемент на значок holzBar или на открытый Shelf, чтобы скрыть его приложение."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Släpp ett objekt på holzBar-ikonen eller på den öppna Shelf för att dölja dess app."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamasını gizlemek için bir öğeyi holzBar simgesine veya açık Shelf'e bırakın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетягніть елемент на значок holzBar або на відкритий Shelf, щоб приховати його програму."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将项目拖到 holzBar 图标或打开的 Shelf 上，即可隐藏其 App。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將項目拖放到 holzBar 圖像或已開啟的 Shelf 上即可隱藏其 App。"
           }
         }
       }
