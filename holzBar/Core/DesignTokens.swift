@@ -141,8 +141,24 @@ nonisolated enum DesignTokens {
         static let tabWidth: Double = 30
         static let tabHeight: Double = 24
         static let tabRadius: Double = 8
+        /// The widths the whole row of tabs steps down through before any tab goes into the More
+        /// menu: 30 points, then 28, then 26, the smallest. The height stays 24 and the hit area
+        /// stays the whole top row.
+        static let tabWidthSteps: [Double] = [30, 28, 26]
+        /// The space between two tabs of the row.
+        static let tabGap: Double = 2
         /// The round settings button of the right wing.
         static let settingsButtonSize: Double = 24
+        /// What a status pill is estimated to need, so that the row of tabs can leave room for the
+        /// pills without measuring them: a conservative width per character of the pill's text
+        /// (11 point semibold with monospaced digits is about 6.6 points wide), the symbol, the
+        /// space between symbol and text, and the padding on both sides of the pill.
+        static let pillCharacterWidth: Double = 7
+        static let pillSymbolWidth: Double = 14
+        static let pillInnerSpacing = Spacing.xxs
+        static let pillPadding = Spacing.xs
+        /// The space between the parts of the right group: the pills and the settings button.
+        static let pillSpacing = Spacing.xs
         /// The fill of a status pill: white at 9 percent.
         static let pillFillAlpha: Double = 0.09
         /// The fill of a tab: tinted when selected, white at 8 percent otherwise.
@@ -220,6 +236,8 @@ nonisolated enum DesignTokens {
     nonisolated enum Spacing {
         static let scale: [Double] = [4, 8, 12, 16, 20, 24, 32, 48]
         static let hairline: Double = 1
+        /// The outline of the Shelf while a dragged menu bar item is over it.
+        static let dropOutline: Double = 2
         static let xxs: Double = 4
         static let xs: Double = 8
         static let sm: Double = 12

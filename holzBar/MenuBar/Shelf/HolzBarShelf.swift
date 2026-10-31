@@ -52,6 +52,16 @@ final class HolzBarShelfPanel: NSPanel {
 
     override var canBecomeKey: Bool { acceptsKeyboard }
 
+    /// What the Shelf shows while a tile or a dragged menu bar item is over it.
+    let dragModel = HolzBarShelfDragModel()
+
+    /// Outlines the Shelf while a dragged menu bar item is over it and will be hidden by the drop.
+    func setDropTargeted(_ isTargeted: Bool) {
+        if dragModel.isDropTargeted != isTargeted {
+            dragModel.isDropTargeted = isTargeted
+        }
+    }
+
     /// Creates a new holzBar Shelf panel.
     init() {
         super.init(
@@ -442,7 +452,6 @@ private struct HolzBarShelfContentView: View {
     @State private var isFoldOpen: Bool
     /// Where the tiles are on the screen, read while a tile is dragged.
     @State private var registry = HolzBarShelfTileRegistry()
-    @State private var dragModel = HolzBarShelfDragModel()
     @FocusState private var hasKeyboardFocus: Bool
 
     let screen: NSScreen
@@ -525,6 +534,7 @@ private struct HolzBarShelfContentView: View {
                 input.closedAlwaysHidden = closedApps.alwaysHidden.map(\.app)
             }
             input.closedHidden = closedApps.hidden.map(\.app)
+            input.hiddenSystemItems = hiddenSystemItems
             input.foldsAlwaysHidden = true
             input.isFoldOpen = isFoldOpen || find.isActive
         case .alwaysHidden:
@@ -537,6 +547,27 @@ private struct HolzBarShelfContentView: View {
         input.closedFirst = layout == .row
         contents.tiles = ShelfContents.tiles(input)
         return contents
+    }
+
+    /// The system items the user hid with Apple Items (macOS 27), in the bar's order. macOS
+    /// draws no picture of a concealed item, so the Shelf lists a symbol tile for each.
+    private var hiddenSystemItems: [ShelfContents.SystemItem] {
+        guard AppleItems.isSupported else {
+            return []
+        }
+        return SystemItems27.inBarOrder(appState.appleItems.concealedSystemItems(in: appState)).map { item in
+            ShelfContents.SystemItem(key: SystemItems27.concealedKey(for: item), name: Self.name(of: item))
+        }
+    }
+
+    /// The name of a system item, for its tile's tooltip, VoiceOver label and search.
+    private static func name(of item: SystemItem27) -> String {
+        switch item {
+        case .battery: String(localized: "Battery")
+        case .clock: String(localized: "Clock")
+        case .wifi: String(localized: "Wi-Fi")
+        case .controlCentre: String(localized: "Control Center")
+        }
     }
 
     /// Whether macOS 27 shows the item itself, in its own expanded overflow, so the Shelf would
@@ -587,6 +618,11 @@ private struct HolzBarShelfContentView: View {
     private var barHeight: CGFloat {
         let insets = HolzBarShelfPlacement.floatingInsets
         return style == .floating ? max(frame.height - insets.top - insets.bottom, 0) : frame.height
+    }
+
+    /// The Shelf's drag state, which the panel owns so the drag tap can set it.
+    private var dragModel: HolzBarShelfDragModel {
+        menuBarManager.shelfPanel.dragModel
     }
 
     private var clipShape: some InsettableShape {
@@ -705,6 +741,15 @@ private struct HolzBarShelfContentView: View {
                 .clipShape(clipShape)
                 .shadow(color: shadow.color, radius: shadow.radius, y: shadow.y)
 
+            if dragModel.isDropTargeted {
+                // A dragged menu bar item is over the Shelf: the drop will hide its app.
+                clipShape
+                    .inset(by: HolzBarTheme.Spacing.dropOutline / 2)
+                    .stroke(lineWidth: HolzBarTheme.Spacing.dropOutline)
+                    .foregroundStyle(HolzBarTheme.Palette.accent)
+                    .transition(.opacity)
+            }
+
             if let border {
                 clipShape
                     .inset(by: border.width / 2)
@@ -718,6 +763,13 @@ private struct HolzBarShelfContentView: View {
                     .stroke(HolzBarTheme.Palette.stroke, lineWidth: HolzBarTheme.Spacing.hairline)
             }
         }
+        .animation(
+            HolzBarTheme.Motion.resolved(
+                HolzBarTheme.Motion.snappy,
+                reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+            ),
+            value: dragModel.isDropTargeted
+        )
         .padding(panelInsets)
         .frame(maxWidth: screen.frame.width)
         .fixedSize()
@@ -853,11 +905,21 @@ private struct HolzBarShelfContentView: View {
                 return
             }
             HolzBarShelfActions.launch(entry, section: section, menuBarManager: menuBarManager)
+        case .systemItem(let key):
+            openSystemItem(forKey: key)
         case .fold:
             toggleFold()
         case .divider:
             break
         }
+    }
+
+    /// Closes the Shelf and opens the system item a tile stands for.
+    private func openSystemItem(forKey key: String) {
+        guard let item = SystemItems27.item(forConcealedKey: key) else {
+            return
+        }
+        HolzBarShelfActions.openSystemItem(item, section: section, appState: appState, menuBarManager: menuBarManager)
     }
 
     private func toggleFold() {
@@ -921,7 +983,7 @@ private struct HolzBarShelfContentView: View {
             switch tile.kind {
             case .item: .item
             case .fold: .fold
-            case .closedApp, .divider: .other
+            case .closedApp, .systemItem, .divider: .other
             }
         }
         let dropTiles: [ShelfDrop.Tile] = contents.tiles.compactMap { tile in
@@ -1132,6 +1194,19 @@ private struct HolzBarShelfContentView: View {
                     launch: {
                         HolzBarShelfActions.launch(entry, section: section, menuBarManager: menuBarManager)
                     }
+                )
+            }
+        case .systemItem(let key):
+            if let item = SystemItems27.item(forConcealedKey: key) {
+                HolzBarShelfSystemItemView(
+                    registry: registry,
+                    symbolName: item.symbolName,
+                    name: tile.name,
+                    tileID: tile.id,
+                    isHighlighted: isHighlighted,
+                    isDimmed: isDimmed,
+                    dropIndication: dropIndication(for: tile),
+                    open: { openSystemItem(forKey: key) }
                 )
             }
         case .divider:

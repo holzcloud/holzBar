@@ -40,6 +40,10 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// system items, whether they are applied and the number of replacements. Empty before
     /// macOS 27, so the report of earlier versions stays as it was.
     var appleItems = ""
+    /// The last drop of Drag in the Menu Bar in fixed words (generation, zone, intent, result),
+    /// such as `macOS 27, shelf, hide, applied`. Empty before the first drop or while the module
+    /// is off, so the report stays as it was.
+    var lastDrop = ""
     /// The Shelf's style and location in fixed lower-case words, such as `floating, screen
     /// edge`. Empty unless the Shelf is in use, so the report of a Mac that does not use it
     /// stays as it was.
@@ -55,6 +59,10 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
 /// no user or computer name. It also names the state of macOS 27's overflow button (a fixed
 /// word, still no names).
 nonisolated enum DiagnosticsReport {
+    /// The longest text kept for the last drop, whose fixed words (the longest line is `macOS 27,
+    /// outsideBar, refused, outside the bar, not applied`) are longer than other fields.
+    static let maximumLastDropLength = 64
+
     /// The longest text kept for a field.
     static let maximumFieldLength = 40
 
@@ -79,6 +87,9 @@ nonisolated enum DiagnosticsReport {
         if !input.appleItems.isEmpty {
             lines.append("Apple Items: \(field(input.appleItems))")
         }
+        if !input.lastDrop.isEmpty {
+            lines.append("Last drop: \(field(input.lastDrop, limit: maximumLastDropLength))")
+        }
         if !input.shelf.isEmpty {
             lines.append("Shelf: \(field(input.shelf))")
         }
@@ -94,9 +105,11 @@ nonisolated enum DiagnosticsReport {
 
     /// The text of a field: only letters, digits and the punctuation of versions and model
     /// identifiers, shortened. Anything else, such as a path or a line break, is dropped.
-    static func field(_ text: String) -> String {
+    ///
+    /// - Parameter limit: The most characters kept.
+    static func field(_ text: String, limit: Int = maximumFieldLength) -> String {
         let allowed = Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,-_")
-        let cleaned = String(text.filter { allowed.contains($0) }.prefix(maximumFieldLength))
+        let cleaned = String(text.filter { allowed.contains($0) }.prefix(limit))
         return cleaned.isEmpty ? "unknown" : cleaned
     }
 }

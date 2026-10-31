@@ -169,6 +169,11 @@ struct DesignTokensTests {
         #expect(named == scale)
     }
 
+    @Test("The Shelf's drop outline is 2 points")
+    func dropOutline() {
+        #expect(Tokens.Spacing.dropOutline == 2)
+    }
+
     @Test("Radii ascend from control to hub")
     func radii() {
         let radii = [
@@ -278,6 +283,9 @@ struct DesignTokensTests {
         #expect(Tokens.Hub.tabWidth == 30)
         #expect(Tokens.Hub.tabHeight == 24)
         #expect(Tokens.Hub.tabRadius == 8)
+        #expect(Tokens.Hub.tabGap == 2)
+        #expect(Tokens.Hub.tabWidthSteps == [30, 28, 26])
+        #expect(Tokens.Hub.tabWidthSteps.first == Tokens.Hub.tabWidth)
         #expect(Tokens.Hub.settingsButtonSize == 24)
         #expect(Tokens.Hub.pillFillAlpha == 0.09)
         #expect(Tokens.Hub.tileRadius == 14)

@@ -72,7 +72,10 @@ struct MenuBarLayoutSettingsPane: View {
                     .font(.title3.bold())
                 Group {
                     if #available(macOS 27.0, *) {
-                        Text("macOS orders the items within each section.")
+                        HStack(spacing: HolzBarTheme.Spacing.sm) {
+                            Text("Items can be sorted by dragging them within a section.")
+                            PreviewBadge()
+                        }
                     } else {
                         Text("Items can also be arranged by ⌘ Command + dragging them in the menu bar.")
                     }

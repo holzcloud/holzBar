@@ -133,4 +133,87 @@ struct ShelfContentsTests {
         #expect(before == ["item-5"])
         #expect(after.contains("item-5"))
     }
+
+    private func system(_ number: Int, _ name: String) -> ShelfContents.SystemItem {
+        ShelfContents.SystemItem(key: "system-item:\(number)", name: name)
+    }
+
+    @Test("Hidden system items close the hidden group, after the application items")
+    func systemItemsInTheHiddenGroup() {
+        var input = ShelfContents.Input()
+        input.hidden = [item(2)]
+        input.hiddenSystemItems = [system(0, "Battery"), system(2, "Clock")]
+        let tiles = ShelfContents.tiles(input)
+        #expect(ids(tiles) == ["item-2", "system-system-item:0", "system-system-item:2"])
+        #expect(tiles.map(\.group) == [.hidden, .hidden, .hidden])
+        #expect(tiles.map(\.kind) == [
+            .item(windowID: 2), .systemItem(key: "system-item:0"), .systemItem(key: "system-item:2"),
+        ])
+        #expect(tiles.dropFirst().allSatisfy { $0.isNavigable && $0.isSearchable })
+        #expect(tiles.map(\.name) == ["Item 2", "Battery", "Clock"])
+    }
+
+    @Test("System tiles are the only tiles of a hidden group that has no applications, and none appear without items")
+    func systemItemsAlone() {
+        var input = ShelfContents.Input()
+        #expect(ShelfContents.tiles(input).isEmpty)
+        input.hiddenSystemItems = [system(8, "Control Center")]
+        #expect(ids(ShelfContents.tiles(input)) == ["system-system-item:8"])
+        input.hiddenSystemItems = []
+        #expect(ids(ShelfContents.tiles(input)).isEmpty)
+    }
+
+    @Test("A divider separates the visible group from the hidden group, system tiles included, as before")
+    func systemItemsWithDividers() {
+        var input = ShelfContents.Input()
+        input.covered = [item(1)]
+        input.hiddenSystemItems = [system(2, "Clock")]
+        input.showsDividers = true
+        #expect(ids(ShelfContents.tiles(input)) == ["item-1", "divider-0", "system-system-item:2"])
+    }
+
+    @Test("The always-hidden section's Shelf lists no system tile: its input carries none")
+    func noSystemTilesInTheAlwaysHiddenShelf() {
+        var hiddenShelf = ShelfContents.Input()
+        hiddenShelf.hidden = [item(2)]
+        hiddenShelf.hiddenSystemItems = [system(2, "Clock")]
+        var alwaysHiddenShelf = ShelfContents.Input()
+        alwaysHiddenShelf.alwaysHidden = [item(10)]
+        #expect(ids(ShelfContents.tiles(hiddenShelf)).contains("system-system-item:2"))
+        #expect(ids(ShelfContents.tiles(alwaysHiddenShelf)) == ["item-10"])
+        #expect(ShelfContents.tiles(alwaysHiddenShelf).allSatisfy { tile in
+            if case .systemItem = tile.kind { return false }
+            return true
+        })
+    }
+
+    @Test("All four hidden system items are listed in bar order, after the application items and the closed ones")
+    func allFourInBarOrder() {
+        var input = ShelfContents.Input()
+        input.hidden = [item(2)]
+        input.closedHidden = [app("org.example.Closed")]
+        input.hiddenSystemItems = [system(0, "Battery"), system(6, "Wi-Fi"), system(8, "Control Center"), system(2, "Clock")]
+        let expected = [
+            "item-2", "app-org.example.Closed",
+            "system-system-item:0", "system-system-item:6", "system-system-item:8", "system-system-item:2",
+        ]
+        #expect(ids(ShelfContents.tiles(input)) == expected)
+        // In a row the closed applications come first; the system items still close the group.
+        input.closedFirst = true
+        #expect(ids(ShelfContents.tiles(input)) == [
+            "app-org.example.Closed", "item-2",
+            "system-system-item:0", "system-system-item:6", "system-system-item:8", "system-system-item:2",
+        ])
+    }
+
+    @Test("A system tile is not in the fold: the folded always-hidden group does not hide it")
+    func systemTilesOutsideTheFold() {
+        var input = ShelfContents.Input()
+        input.alwaysHidden = [item(10)]
+        input.foldsAlwaysHidden = true
+        input.hiddenSystemItems = [system(2, "Clock")]
+        #expect(ids(ShelfContents.tiles(input)) == ["fold", "system-system-item:2"])
+        input.isFoldOpen = true
+        #expect(ids(ShelfContents.tiles(input)) == ["fold", "item-10", "system-system-item:2"])
+    }
 }

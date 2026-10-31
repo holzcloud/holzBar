@@ -39,6 +39,7 @@ enum DiagnosticsCollector {
             snapshotCount: appState.snapshots.snapshots.count,
             nativeOverflow: nativeOverflowWord(appState),
             appleItems: appleItemsWord(appState),
+            lastDrop: lastDropWords(appState),
             shelf: shelfWords(appState),
             accessoryBattery: accessoryBatteryWord(appState)
         )
@@ -54,6 +55,15 @@ enum DiagnosticsCollector {
             return "off"
         }
         return AccessoryBatterySource.isAvailable ? "available" : "not available"
+    }
+
+    /// The last drop of Drag in the Menu Bar, in the fixed words the controller wrote; nothing
+    /// while the module is off or before macOS 27.
+    private static func lastDropWords(_ appState: AppState) -> String {
+        guard MenuBarBackendKind.current == .accessibility27, appState.modules.isEnabled(MenuBarDragController.moduleID) else {
+            return ""
+        }
+        return MenuBarDragController.lastDrop
     }
 
     /// The Shelf's style and location in fixed words; nothing while the Shelf is off.

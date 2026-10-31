@@ -24,6 +24,27 @@ nonisolated enum SystemItem27: String, CaseIterable, Sendable {
         case .controlCentre: 8
         }
     }
+
+    /// The Accessibility identifier MenuBarAgent gives the item (measured on macOS 27.2).
+    var accessibilityIdentifier: String {
+        switch self {
+        case .battery: "com.apple.menuextra.battery"
+        case .clock: "com.apple.menuextra.clock"
+        case .wifi: "com.apple.menuextra.wifi"
+        case .controlCentre: "com.apple.menuextra.controlcenter"
+        }
+    }
+
+    /// The SF Symbol of the item's tile in the holzBar Shelf, which has no picture of a
+    /// concealed item.
+    var symbolName: String {
+        switch self {
+        case .battery: "battery.100"
+        case .clock: "clock"
+        case .wifi: "wifi"
+        case .controlCentre: "switch.2"
+        }
+    }
 }
 
 /// MenuBarAgent's numbered system items on macOS 27.
@@ -73,10 +94,22 @@ nonisolated enum SystemItems27 {
         items.sorted { $0.number < $1.number }.map(\.rawValue)
     }
 
-    /// The items to hide now: none while the module is off and none while the holzBar Shelf is
-    /// on, because the Shelf cannot show a system item and nothing else would bring it back.
-    static func concealed(stored: Set<SystemItem27>, moduleIsOn: Bool, shelfIsOn: Bool) -> Set<SystemItem27> {
-        moduleIsOn && !shelfIsOn ? stored : []
+    /// The items to hide now: the stored ones while the module is on, none while it is off.
+    /// The holzBar Shelf does not matter: it shows a tile for each hidden item.
+    static func concealed(stored: Set<SystemItem27>, moduleIsOn: Bool) -> Set<SystemItem27> {
+        moduleIsOn ? stored : []
+    }
+
+    /// The items in the order the bar draws them from left to right: the battery, Wi-Fi,
+    /// Control Center, the clock.
+    static func inBarOrder(_ items: Set<SystemItem27>) -> [SystemItem27] {
+        let order: [SystemItem27] = [.battery, .wifi, .controlCentre, .clock]
+        return order.filter(items.contains)
+    }
+
+    /// The system item a concealed key stands for, or `nil` for any other key.
+    static func item(forConcealedKey key: String) -> SystemItem27? {
+        SystemItem27.allCases.first { concealedKey(for: $0) == key }
     }
 
     /// The layout entries that conceal the given items while the hidden section is hidden.

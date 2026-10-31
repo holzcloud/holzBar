@@ -395,15 +395,6 @@ final class LayoutBarItemView: NSView {
         (superview as? LayoutBarContainer)?.section
     }
 
-    /// Whether items keep an order within their section (before macOS 27).
-    private static var itemsKeepOrder: Bool {
-        if #available(macOS 27.0, *) {
-            false
-        } else {
-            true
-        }
-    }
-
     override var acceptsFirstResponder: Bool { true }
 
     override var canBecomeKeyView: Bool { true }
@@ -427,7 +418,7 @@ final class LayoutBarItemView: NSView {
             }
             return
         }
-        guard let command = LayoutKeys.command(keyCode: keyCode, modifiers: modifiers, itemsKeepOrder: Self.itemsKeepOrder) else {
+        guard let command = LayoutKeys.command(keyCode: keyCode, modifiers: modifiers) else {
             super.keyDown(with: event)
             return
         }
@@ -459,9 +450,6 @@ final class LayoutBarItemView: NSView {
             move(to: MenuBarSection.Name.allCases[targetIndex])
         case .openMenu:
             showContextMenu()
-        case .refused:
-            NSSound.beep()
-            Self.announce(String(localized: "macOS orders the items within each section."))
         }
     }
 
@@ -480,6 +468,7 @@ final class LayoutBarItemView: NSView {
         guard
             checkMovable(),
             let appState,
+            appState.layoutEditor.ordersItems,
             let container = superview as? LayoutBarContainer,
             let index = container.arrangedViews.firstIndex(of: self),
             container.arrangedViews.indices.contains(index + step)
@@ -577,10 +566,8 @@ final class LayoutBarItemView: NSView {
                 }
                 actions.append(NSAccessibilityCustomAction(name: title, target: self, selector: selector))
             }
-            if Self.itemsKeepOrder {
-                actions.append(NSAccessibilityCustomAction(name: String(localized: "Move Left"), target: self, selector: #selector(accessibilityMoveLeft)))
-                actions.append(NSAccessibilityCustomAction(name: String(localized: "Move Right"), target: self, selector: #selector(accessibilityMoveRight)))
-            }
+            actions.append(NSAccessibilityCustomAction(name: String(localized: "Move Left"), target: self, selector: #selector(accessibilityMoveLeft)))
+            actions.append(NSAccessibilityCustomAction(name: String(localized: "Move Right"), target: self, selector: #selector(accessibilityMoveRight)))
         }
         if appState != nil, !item.isControlItem {
             actions.append(NSAccessibilityCustomAction(

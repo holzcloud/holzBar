@@ -191,6 +191,24 @@ nonisolated enum MenuBarItemProvider27 {
         }
     }
 
+    /// The frame of the system item with the given Accessibility identifier (such as
+    /// `com.apple.menuextra.clock`), from the last read. `nil` before the item was read.
+    static func systemItemFrame(identifier: String) -> CGRect? {
+        withState { state in
+            state.entries.values
+                .first { $0.bundleID == menuBarAgentBundleID && $0.identifier == identifier }?.frame
+        }
+    }
+
+    /// The Accessibility element of the system item with the given identifier, from the last
+    /// read, for a press when no frame is known.
+    static func systemItemElement(identifier: String) -> AXUIElement? {
+        withState { state in
+            state.entries.values
+                .first { $0.bundleID == menuBarAgentBundleID && $0.identifier == identifier }?.element
+        }
+    }
+
     /// Tells the provider which processes are concealed right now.
     static func setConcealedPIDs(_ pids: Set<pid_t>) {
         withState { $0.concealedPIDs = pids }

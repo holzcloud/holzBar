@@ -9,15 +9,22 @@ import Cocoa
 ///
 /// MenuBarAgent draws the items without WindowServer windows, so they are read,
 /// hit tested and clicked through Accessibility (``MenuBarItemProvider27``,
-/// ``ItemHitTest27``, ``ItemClicker27``). They cannot be moved: the saved layout
-/// decides their sections, and concealment hides them.
+/// ``ItemHitTest27``, ``ItemClicker27``). They cannot be hidden by moving them: the saved
+/// layout decides their sections, and concealment hides them. They can be put in order, though:
+/// ``ItemReorderer27`` drags one next to another the way a user does with ⌘ held.
 @available(macOS 27.0, *)
 @MainActor
 final class AccessibilityBackend27: MenuBarBackend {
     /// Notices item changes of the processes that own items.
     private let itemChangeObserver = ItemChangeObserver27()
 
+    /// Items cannot be moved between sections. This capability also switches off the section
+    /// restore, the Shelf's ordering and the saved arrangement, which must stay off on macOS 27,
+    /// so it stays `false`; putting items in order has its own capability, ``reordersItems``.
     var canMoveItems: Bool { false }
+
+    /// ``ItemReorderer27`` puts the items of a section in order with a command-drag.
+    var reordersItems: Bool { true }
 
     /// On macOS 27 the icon's window is only a placeholder, and its frame says nothing
     /// about the menu bar (measured past a display's left edge, below its bottom, and
@@ -97,8 +104,11 @@ final class AccessibilityBackend27: MenuBarBackend {
         return appState.concealer27.cacheFromSavedLayout(items: items + folded, displayID: displayID)
     }
 
+    /// Puts an item next to another one with a synthetic command-drag (``ItemReorderer27``).
+    /// macOS 27 sends no notification for a reorder, so the cache is read again afterwards.
     func move(item: MenuBarItem, to destination: MenuBarItemManager.MoveDestination, appState: AppState) async throws {
-        throw MenuBarItemManager.EventError.itemNotMovable(item)
+        try await ItemReorderer27.move(item, to: destination, appState: appState)
+        await appState.itemManager.cacheItemsRegardless()
     }
 
     func click(item: MenuBarItem, with mouseButton: CGMouseButton, appState: AppState) async throws {

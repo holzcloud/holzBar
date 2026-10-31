@@ -119,6 +119,27 @@ struct DiagnosticsReportTests {
         #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Apple Items: \(longest)")
     }
 
+    @Test("The last drop is one line of fixed words, and none without a drop")
+    func lastDrop() {
+        var input = sample
+        #expect(!DiagnosticsReport.make(input).contains("Last drop"))
+        input.lastDrop = "macOS 27, shelf, hide, applied"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Last drop: macOS 27, shelf, hide, applied")
+        let longest = "macOS 27, outsideBar, refused, outside the bar, not applied"
+        #expect(longest.count <= DiagnosticsReport.maximumLastDropLength)
+        input.lastDrop = longest
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Last drop: \(longest)")
+    }
+
+    @Test("A last drop with a newline or a home path is sanitised like every field")
+    func lastDropSanitised() {
+        var input = sample
+        input.lastDrop = "macOS 27, shelf\n/Users/anna/Focus\nFake: line"
+        let report = DiagnosticsReport.make(input)
+        #expect(!report.contains("/Users/anna"))
+        #expect(report.split(separator: "\n").filter { $0.hasPrefix("Fake:") }.isEmpty)
+    }
+
     @Test("The Apple Items line comes after the overflow line")
     func appleItemsAfterOverflow() {
         var input = sample

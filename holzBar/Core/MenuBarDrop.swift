@@ -14,8 +14,9 @@ import CoreGraphics
 /// Turns the point where an item was dropped on the menu bar into the call holzBar makes for it.
 ///
 /// Every drop sends the same intent as a move in the Layout pane. Before macOS 27 that is a move
-/// next to a neighbour; on macOS 27 the Layout pane only assigns applications to sections and
-/// macOS orders the items within one, so only a section is an intent there.
+/// next to a neighbour; on macOS 27 a drop on holzBar's icon or on the open Shelf sets the
+/// application's section to hidden, and a drop among the other items is left to macOS, which
+/// orders the items within a section.
 nonisolated enum MenuBarDrop {
     /// How the menu bar is built on the macOS that runs holzBar.
     ///
@@ -111,6 +112,14 @@ nonisolated enum MenuBarDrop {
         case notAnAppItem
         /// The drop is not on the bar.
         case outsideTheBar
+
+        /// The refusal in fixed words.
+        var word: String {
+            switch self {
+            case .notAnAppItem: "not an app item"
+            case .outsideTheBar: "outside the bar"
+            }
+        }
     }
 
     /// The call holzBar makes for a drop.
@@ -123,34 +132,149 @@ nonisolated enum MenuBarDrop {
         case macOSOrders(item: UInt32)
         /// The drop is not something holzBar acts on.
         case refused(Refusal)
+
+        /// The intent in the fixed words of ``MenuBarDrop/summary(generation:zone:intent:result:)``.
+        var word: String {
+            switch self {
+            case .move, .macOSOrders:
+                "order"
+            case .setSection(_, let section):
+                switch section {
+                case .visible: "show"
+                case .hidden: "hide"
+                case .alwaysHidden: "always hide"
+                }
+            case .refused(let refusal):
+                "refused, \(refusal.word)"
+            }
+        }
+    }
+
+    /// Where a drop landed, as far as the decision is concerned. The raw value is the word the
+    /// last-drop line of Copy Diagnostics uses; it never carries a name or a position.
+    nonisolated enum Zone: String, Equatable, Sendable {
+        /// Inside the icon's frame at the press.
+        case icon
+        /// Within the margin around that frame.
+        case iconMargin
+        /// On the icon where it slides to while the dragged item crosses it.
+        case iconShifted
+        /// On the icon where the settled bar has it.
+        case iconSettled
+        /// On the open Shelf.
+        case shelf
+        /// On another item of the bar.
+        case item
+        /// In a gap of the bar.
+        case gap
+        /// Not on the bar and not on the Shelf.
+        case outsideBar
+    }
+
+    /// The target of a drop and where it landed.
+    nonisolated struct Resolution: Equatable, Sendable {
+        let target: Target?
+        let zone: Zone
+    }
+
+    /// What became of the intent.
+    nonisolated enum Outcome: String, Equatable, Sendable {
+        case applied
+        case notApplied = "not applied"
+        case noChange = "no change"
     }
 
     /// How far below the bar a release still counts as on it, in points.
     private static let tolerance: CGFloat = 4
 
-    /// The target of a drop at `point`, in this order: nothing below the bar; on macOS 27 holzBar's
-    /// icon (holzBar draws no dividers there, so the icon names the hidden section); the counted
+    /// How far around the holzBar icon a release still counts as on it, in points.
+    static let iconMargin: CGFloat = 6
+
+    /// The room between two items, which the icon slides by on top of the dragged item's width.
+    static let gapEstimate: CGFloat = 4
+
+    /// The target of a drop at `point` and where it landed, in this order. Below the bar, on
+    /// macOS 27, the open Shelf's zone is the hidden section and anything else is nothing. In or
+    /// near the bar, on macOS 27, holzBar's icon (holzBar draws no dividers there, so the icon
+    /// names the hidden section) in four places: its frame at the press, that frame widened by
+    /// ``iconMargin``, that frame slid by the dragged item's width toward the side the item came
+    /// from (macOS 27 moves items aside while one is dragged across them) and `settledIconFrame`,
+    /// the frame read after the drop; the last three widened by the margin. Then the counted
     /// item under the point, by its halves; else the nearest counted item on the right, else the
     /// nearest on the left. The dragged item is never its own target.
-    static func target(forDropAt point: CGPoint, draggedID: UInt32, in bar: Bar) -> Target? {
+    ///
+    /// - Parameters:
+    ///   - settledIconFrame: The icon's frame in the bar as it is after the drop, if known.
+    ///   - shelfZone: The open Shelf's frame, extended up to the bar's bottom edge, if one is open.
+    static func resolve(
+        forDropAt point: CGPoint,
+        draggedID: UInt32,
+        in bar: Bar,
+        settledIconFrame: CGRect? = nil,
+        shelfZone: CGRect? = nil
+    ) -> Resolution {
+        if bar.generation == .macOS27, point.y > bar.barMaxY, let shelfZone, shelfZone.contains(point) {
+            return Resolution(target: .section(.hidden), zone: .shelf)
+        }
         guard point.y <= bar.barMaxY + tolerance else {
-            return nil
+            return Resolution(target: nil, zone: .outsideBar)
         }
         let others = bar.items.filter { $0.counts && $0.id != draggedID }
-        if bar.generation == .macOS27,
-           others.contains(where: { $0.kind == .holzBarIcon && ($0.frame.minX...$0.frame.maxX).contains(point.x) }) {
-            return .section(.hidden)
+        if bar.generation == .macOS27, let zone = iconZone(at: point.x, draggedID: draggedID, in: bar, settled: settledIconFrame) {
+            return Resolution(target: .section(.hidden), zone: zone)
         }
         if let under = others.first(where: { ($0.frame.minX...$0.frame.maxX).contains(point.x) }) {
-            return point.x < under.frame.midX ? .leftOf(under.id) : .rightOf(under.id)
+            return Resolution(target: point.x < under.frame.midX ? .leftOf(under.id) : .rightOf(under.id), zone: .item)
         }
         if let right = others.filter({ $0.frame.minX > point.x }).min(by: { $0.frame.minX < $1.frame.minX }) {
-            return .leftOf(right.id)
+            return Resolution(target: .leftOf(right.id), zone: .gap)
         }
         if let left = others.filter({ $0.frame.maxX < point.x }).max(by: { $0.frame.maxX < $1.frame.maxX }) {
-            return .rightOf(left.id)
+            return Resolution(target: .rightOf(left.id), zone: .gap)
+        }
+        return Resolution(target: nil, zone: .outsideBar)
+    }
+
+    /// Which zone of holzBar's icon an x lies in, if any; only the x range matters.
+    private static func iconZone(at x: CGFloat, draggedID: UInt32, in bar: Bar, settled: CGRect?) -> Zone? {
+        guard let icon = bar.items.first(where: { $0.kind == .holzBarIcon && $0.counts })?.frame else {
+            return nil
+        }
+        func range(_ frame: CGRect, margin: CGFloat) -> ClosedRange<CGFloat> {
+            (frame.minX - margin)...(frame.maxX + margin)
+        }
+        if range(icon, margin: 0).contains(x) {
+            return .icon
+        }
+        if range(icon, margin: iconMargin).contains(x) {
+            return .iconMargin
+        }
+        if let dragged = bar.items.first(where: { $0.id == draggedID })?.frame {
+            let slide = dragged.width + gapEstimate
+            let dx: CGFloat? = if dragged.minX > icon.maxX {
+                slide
+            } else if dragged.maxX < icon.minX {
+                -slide
+            } else {
+                nil
+            }
+            if let dx, range(icon.offsetBy(dx: dx, dy: 0), margin: iconMargin).contains(x) {
+                return .iconShifted
+            }
+        }
+        if let settled, range(settled, margin: iconMargin).contains(x) {
+            return .iconSettled
         }
         return nil
+    }
+
+    /// One line about a drop, from a fixed vocabulary only: the generation, the zone, the intent
+    /// and what became of it. It never contains a name, a title or a position.
+    ///
+    /// - Parameter intent: `nil` when the drop led to no intent.
+    static func summary(generation: Generation, zone: Zone, intent: Intent?, result: Outcome) -> String {
+        let generationWord = generation == .macOS27 ? "macOS 27" : "before 27"
+        return [generationWord, zone.rawValue, intent?.word ?? "none", result.rawValue].joined(separator: ", ")
     }
 
     /// The intent for a drop, following the Layout pane: before macOS 27 a neighbour moves the item

@@ -56,8 +56,8 @@ nonisolated struct NotchHubSilhouette: Shape {
     }
 }
 
-/// The content of the Notch hub's panel: the silhouette, the icon strip in the left wing, the
-/// status pills and the settings button in the right wing, and the body below.
+/// The content of the Notch hub's panel: the silhouette, the icon row across both wings, the
+/// status pills and the settings button at the far right of the right wing, and the body below.
 ///
 /// Everything is placed in the rectangles of ``NotchHubGeometry``, relative to the silhouette;
 /// nothing is placed in the notch. The hub is always dark. It opens with one bounce and a glass
@@ -173,15 +173,50 @@ struct NotchHubView: View {
 
     // MARK: Parts
 
+    /// The tab row across both wings, decided once for both of them.
+    private var row: HubTabStrip.Row {
+        HubTabStrip.row(
+            moduleTabs: model.tabModuleIDs,
+            selected: model.selectedID,
+            leftWingWidth: layout.leftWing?.width ?? 0,
+            rightWingWidth: layout.rightWing?.width ?? 0,
+            rightReservedWidth: reservedRightWidth
+        )
+    }
+
+    /// What the status pills and the settings button need at the far right of the right wing.
+    private var reservedRightWidth: Double {
+        HubTabStrip.rightReservedWidth(
+            pills: model.pills.map { HubTabStrip.Pill(textLength: $0.pill.text.count, hasSymbol: $0.pill.symbol != nil) }
+        )
+    }
+
     private var parts: some View {
-        ZStack(alignment: .topLeading) {
+        let row = row
+        return ZStack(alignment: .topLeading) {
             if let left = layout.leftWing {
-                HubTabStripView(model: model, wingWidth: left.width, rowHeight: left.height)
-                    .offset(x: left.x - origin.x, y: left.y - origin.y)
+                HubTabStripView(
+                    model: model,
+                    ids: row.left,
+                    selected: row.selected,
+                    tabWidth: CGFloat(row.tabWidth),
+                    rowHeight: left.height,
+                    overflow: row.moreWing == .left ? row.overflow : []
+                )
+                .frame(width: left.width, height: left.height, alignment: .leading)
+                .clipped()
+                .offset(x: left.x - origin.x, y: left.y - origin.y)
             }
             if let right = layout.rightWing {
-                HubRightWingView(model: model, host: host, wingWidth: right.width, rowHeight: right.height)
-                    .offset(x: right.x - origin.x, y: right.y - origin.y)
+                HubRightWingView(
+                    model: model,
+                    host: host,
+                    row: row,
+                    wingWidth: right.width,
+                    rowHeight: right.height,
+                    reservedWidth: reservedRightWidth
+                )
+                .offset(x: right.x - origin.x, y: right.y - origin.y)
             }
             bodyArea
                 .frame(width: layout.body.width, height: layout.body.height)

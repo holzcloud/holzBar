@@ -10,8 +10,9 @@ import Observation
 /// and replacement items for Apple's other items.
 ///
 /// The module is off until the user switches it on and costs nothing while off: no status
-/// item exists and no assertion changes. The stored choice of hidden system items never takes
-/// effect while the module is off or the holzBar Shelf is on (``concealedSystemItems(in:)``).
+/// item exists and no assertion changes. The stored choice of hidden system items takes effect
+/// only while the module is on (``concealedSystemItems(in:)``); with the holzBar Shelf on, each
+/// hidden item has a tile in the Shelf that opens it.
 /// There is no timer and no polling: the concealer observes ``concealedSystemItems(in:)``, and
 /// this class follows the module switch.
 ///
@@ -98,14 +99,12 @@ final class AppleItems {
         Defaults.set(SystemItems27.storedNames(of: hiddenSystemItems), forKey: .hiddenSystemItems27)
     }
 
-    /// The system items to hide now: none while the module is off, and none while the holzBar
-    /// Shelf is on, whatever is stored. The Shelf cannot show a system item, and nothing else
-    /// would bring it back.
+    /// The system items to hide now: the chosen ones while the module is on, whatever the
+    /// holzBar Shelf does. The Shelf lists a tile for each of them, which opens the item.
     func concealedSystemItems(in appState: AppState) -> Set<SystemItem27> {
         SystemItems27.concealed(
             stored: hiddenSystemItems,
-            moduleIsOn: appState.modules.isEnabled(Self.moduleID),
-            shelfIsOn: appState.settings.general.useShelf
+            moduleIsOn: appState.modules.isEnabled(Self.moduleID)
         )
     }
 

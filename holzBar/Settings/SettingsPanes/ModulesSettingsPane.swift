@@ -85,10 +85,13 @@ struct ModulesSettingsPane: View {
             WidgetsSection(widgets: appState.widgets)
         } else if module.id == MenuBarDragController.moduleID {
             if #available(macOS 27.0, *) {
-                Text("Drop an item on the holzBar icon to hide its app.")
-                    .font(HolzBarTheme.Typography.callout)
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Drop an item on the holzBar icon or on the open Shelf to hide its app.")
+                        .font(HolzBarTheme.Typography.callout)
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    PreviewBadge()
+                }
             }
         } else if module.id == AppleItems.moduleID {
             AppleItemsSection(appleItems: appState.appleItems)

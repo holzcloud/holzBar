@@ -5,24 +5,48 @@
 
 import SwiftUI
 
-/// The Notch hub's right wing: the status pills of the modules and the round settings button.
+/// The Notch hub's right wing: the second part of the tab row at the notch side, and at the far
+/// right the status pills of the modules and the round settings button.
 ///
-/// The wing is clipped to its rectangle, so a long pill never reaches the notch.
+/// The wing is clipped to its rectangle, so a long pill never reaches the notch. The tab group
+/// gets the wing minus the width the pills and the button need, see
+/// ``HubTabStrip/rightReservedWidth(pills:)``, so tabs and pills never overlap.
 struct HubRightWingView: View {
     let model: NotchHubModel
     let host: any HubHost
+    /// The row across both wings.
+    let row: HubTabStrip.Row
     /// The width of the wing.
     let wingWidth: CGFloat
     /// The height of the top row.
     let rowHeight: CGFloat
+    /// The width the pills and the settings button reserve at the far right.
+    let reservedWidth: CGFloat
 
     var body: some View {
-        HStack(spacing: HolzBarTheme.Spacing.xs) {
-            Spacer(minLength: 0)
-            ForEach(model.pills, id: \.id) { entry in
-                pill(entry.pill)
+        ZStack {
+            HubTabStripView(
+                model: model,
+                ids: row.right,
+                selected: row.selected,
+                tabWidth: CGFloat(row.tabWidth),
+                rowHeight: rowHeight,
+                overflow: row.moreWing == .right ? row.overflow : []
+            )
+            .frame(
+                width: max(wingWidth - reservedWidth - HolzBarTheme.Hub.tabGap, 0),
+                height: rowHeight,
+                alignment: .leading
+            )
+            .clipped()
+            .frame(width: wingWidth, height: rowHeight, alignment: .leading)
+            HStack(spacing: HolzBarTheme.Hub.pillSpacing) {
+                ForEach(model.pills, id: \.id) { entry in
+                    pill(entry.pill)
+                }
+                settingsButton
             }
-            settingsButton
+            .frame(width: wingWidth, height: rowHeight, alignment: .trailing)
         }
         .frame(width: wingWidth, height: rowHeight)
         .clipped()
