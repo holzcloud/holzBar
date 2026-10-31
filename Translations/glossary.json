@@ -1,0 +1,1203 @@
+{
+  "version": 1,
+  "terms": [
+    {
+      "en": "menu bar",
+      "translations": {
+        "de": {
+          "text": "Menüleiste",
+          "source": "catalog",
+          "entries": 89
+        },
+        "fr": {
+          "text": "barre des menus",
+          "source": "catalog",
+          "entries": 80
+        },
+        "it": {
+          "text": "barra dei menu",
+          "source": "catalog",
+          "entries": 77
+        },
+        "rm": {
+          "text": "trav da menu",
+          "source": "catalog",
+          "entries": 76
+        },
+        "es": {
+          "text": "Barra de menús",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        }
+      }
+    },
+    {
+      "en": "menu bar item",
+      "translations": {
+        "de": {
+          "text": "Menüleistenelement",
+          "source": "catalog",
+          "entries": 32
+        },
+        "fr": {
+          "text": "élément de la barre des menus",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "elemento della barra dei menu",
+          "source": "catalog",
+          "entries": 6
+        },
+        "rm": {
+          "text": "element da la trav da menu",
+          "source": "catalog",
+          "entries": 7
+        },
+        "es": {
+          "text": "elemento de la barra de menús",
+          "source": "catalog",
+          "entries": 7
+        }
+      }
+    },
+    {
+      "en": "hidden",
+      "translations": {
+        "de": {
+          "text": "ausgeblendet",
+          "source": "catalog",
+          "entries": 46
+        },
+        "fr": {
+          "text": "masqué",
+          "source": "catalog",
+          "entries": 46
+        },
+        "it": {
+          "text": "nascosto",
+          "source": "catalog",
+          "entries": 13
+        },
+        "rm": {
+          "text": "zuppà",
+          "source": "catalog",
+          "entries": 13
+        },
+        "es": {
+          "text": "Oculto",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "always hidden",
+      "translations": {
+        "de": {
+          "text": "immer ausgeblendet",
+          "source": "catalog",
+          "entries": 13
+        },
+        "fr": {
+          "text": "toujours masqué",
+          "source": "catalog",
+          "entries": 13
+        },
+        "it": {
+          "text": "sempre nascosto",
+          "source": "catalog",
+          "entries": 7
+        },
+        "rm": {
+          "text": "adina zuppà",
+          "source": "catalog",
+          "entries": 7
+        },
+        "es": {
+          "text": "siempre oculto",
+          "source": "catalog",
+          "entries": 7
+        }
+      }
+    },
+    {
+      "en": "visible",
+      "translations": {
+        "de": {
+          "text": "sichtbar",
+          "source": "catalog",
+          "entries": 7
+        },
+        "fr": {
+          "text": "visible",
+          "source": "catalog",
+          "entries": 7
+        },
+        "it": {
+          "text": "visibile",
+          "source": "catalog",
+          "entries": 4
+        },
+        "rm": {
+          "text": "visibel",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "visible",
+          "source": "catalog",
+          "entries": 7
+        }
+      }
+    },
+    {
+      "en": "section",
+      "translations": {
+        "de": {
+          "text": "Bereich",
+          "source": "catalog",
+          "entries": 29
+        },
+        "fr": {
+          "text": "section",
+          "source": "catalog",
+          "entries": 29
+        },
+        "it": {
+          "text": "sezione",
+          "source": "catalog",
+          "entries": 25
+        },
+        "rm": {
+          "text": "secziun",
+          "source": "catalog",
+          "entries": 29
+        },
+        "es": {
+          "text": "sección",
+          "source": "catalog",
+          "entries": 23
+        }
+      }
+    },
+    {
+      "en": "holzBar Shelf",
+      "translations": {
+        "de": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "fr": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "it": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "rm": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "es": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        }
+      }
+    },
+    {
+      "en": "profile",
+      "translations": {
+        "de": {
+          "text": "Profil",
+          "source": "catalog",
+          "entries": 40
+        },
+        "fr": {
+          "text": "profil",
+          "source": "catalog",
+          "entries": 40
+        },
+        "it": {
+          "text": "profilo",
+          "source": "catalog",
+          "entries": 35
+        },
+        "rm": {
+          "text": "profil",
+          "source": "catalog",
+          "entries": 40
+        },
+        "es": {
+          "text": "Perfil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "layout",
+      "translations": {
+        "de": {
+          "text": "Layout",
+          "source": "catalog",
+          "entries": 29
+        },
+        "fr": {
+          "text": "disposition",
+          "source": "catalog",
+          "entries": 30
+        },
+        "it": {
+          "text": "layout",
+          "source": "catalog",
+          "entries": 29
+        },
+        "rm": {
+          "text": "disposiziun",
+          "source": "catalog",
+          "entries": 19
+        },
+        "es": {
+          "text": "Disposición",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "rule",
+      "translations": {
+        "de": {
+          "text": "Regel",
+          "source": "catalog",
+          "entries": 32
+        },
+        "fr": {
+          "text": "règle",
+          "source": "catalog",
+          "entries": 32
+        },
+        "it": {
+          "text": "regola",
+          "source": "catalog",
+          "entries": 23
+        },
+        "rm": {
+          "text": "regla",
+          "source": "catalog",
+          "entries": 32
+        },
+        "es": {
+          "text": "regla",
+          "source": "catalog",
+          "entries": 32
+        }
+      }
+    },
+    {
+      "en": "condition",
+      "translations": {
+        "de": {
+          "text": "Bedingung",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "condition",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "condizione",
+          "source": "catalog",
+          "entries": 5
+        },
+        "rm": {
+          "text": "cundiziun",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "condición",
+          "source": "catalog",
+          "entries": 5
+        }
+      }
+    },
+    {
+      "en": "action",
+      "translations": {
+        "de": {
+          "text": "Aktion",
+          "source": "catalog",
+          "entries": 2
+        },
+        "fr": {
+          "text": "action",
+          "source": "catalog",
+          "entries": 3
+        },
+        "it": {
+          "text": "azione",
+          "source": "catalog",
+          "entries": 3
+        },
+        "rm": {
+          "text": "acziun",
+          "source": "catalog",
+          "entries": 3
+        },
+        "es": {
+          "text": "Acción",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        }
+      }
+    },
+    {
+      "en": "Zen mode",
+      "translations": {
+        "de": {
+          "text": "Zen-Modus",
+          "source": "catalog",
+          "entries": 11
+        },
+        "fr": {
+          "text": "mode Zen",
+          "source": "catalog",
+          "entries": 11
+        },
+        "it": {
+          "text": "modalità Zen",
+          "source": "catalog",
+          "entries": 11
+        },
+        "rm": {
+          "text": "modus Zen",
+          "source": "catalog",
+          "entries": 11
+        },
+        "es": {
+          "text": "modo Zen",
+          "source": "catalog",
+          "entries": 11
+        }
+      }
+    },
+    {
+      "en": "hotkey",
+      "translations": {
+        "de": {
+          "text": "Tastenkürzel",
+          "source": "catalog",
+          "entries": 19
+        },
+        "fr": {
+          "text": "raccourci clavier",
+          "source": "catalog",
+          "entries": 3
+        },
+        "it": {
+          "text": "abbreviazione da tastiera",
+          "source": "catalog",
+          "entries": 2
+        },
+        "rm": {
+          "text": "cumbinaziun da tastas",
+          "source": "catalog",
+          "entries": 8
+        },
+        "es": {
+          "text": "atajo de teclado",
+          "source": "catalog",
+          "entries": 16
+        }
+      }
+    },
+    {
+      "en": "search",
+      "translations": {
+        "de": {
+          "text": "Suche",
+          "source": "catalog",
+          "entries": 12
+        },
+        "fr": {
+          "text": "recherche",
+          "source": "catalog",
+          "entries": 12
+        },
+        "it": {
+          "text": "ricerca",
+          "source": "catalog",
+          "entries": 8
+        },
+        "rm": {
+          "text": "tschertga",
+          "source": "catalog",
+          "entries": 12
+        },
+        "es": {
+          "text": "Buscar",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        }
+      }
+    },
+    {
+      "en": "appearance",
+      "translations": {
+        "de": {
+          "text": "Erscheinungsbild",
+          "source": "catalog",
+          "entries": 14
+        },
+        "fr": {
+          "text": "apparence",
+          "source": "catalog",
+          "entries": 14
+        },
+        "it": {
+          "text": "aspetto",
+          "source": "catalog",
+          "entries": 14
+        },
+        "rm": {
+          "text": "apparientscha",
+          "source": "catalog",
+          "entries": 13
+        },
+        "es": {
+          "text": "Aspecto",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "tint",
+      "translations": {
+        "de": {
+          "text": "Tönung",
+          "source": "catalog",
+          "entries": 3
+        },
+        "fr": {
+          "text": "teinte",
+          "source": "catalog",
+          "entries": 4
+        },
+        "it": {
+          "text": "tinta",
+          "source": "catalog",
+          "entries": 3
+        },
+        "rm": {
+          "text": "tinta",
+          "source": "catalog",
+          "entries": 4
+        },
+        "es": {
+          "text": "Tinte",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "border",
+      "translations": {
+        "de": {
+          "text": "Rahmen",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "bordure",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "bordo",
+          "source": "catalog",
+          "entries": 6
+        },
+        "rm": {
+          "text": "rom",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "borde",
+          "source": "catalog",
+          "entries": 6
+        }
+      }
+    },
+    {
+      "en": "shadow",
+      "translations": {
+        "de": {
+          "text": "Schatten",
+          "source": "unverified"
+        },
+        "fr": {
+          "text": "ombre",
+          "source": "unverified"
+        },
+        "it": {
+          "text": "ombra",
+          "source": "unverified"
+        },
+        "rm": {
+          "text": "sumbriva",
+          "source": "unverified"
+        },
+        "es": {
+          "text": "sombra",
+          "source": "unverified"
+        }
+      }
+    },
+    {
+      "en": "Accessibility",
+      "translations": {
+        "de": {
+          "text": "Bedienungshilfen",
+          "source": "catalog",
+          "entries": 8
+        },
+        "fr": {
+          "text": "accessibilité",
+          "source": "catalog",
+          "entries": 8
+        },
+        "it": {
+          "text": "accessibilità",
+          "source": "catalog",
+          "entries": 8
+        },
+        "rm": {
+          "text": "Bedienungshilfen",
+          "source": "catalog",
+          "entries": 5
+        },
+        "es": {
+          "text": "Accesibilidad",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        }
+      }
+    },
+    {
+      "en": "Screen Recording",
+      "translations": {
+        "de": {
+          "text": "Bildschirmaufnahme",
+          "source": "catalog",
+          "entries": 7
+        },
+        "fr": {
+          "text": "enregistrement de l'écran",
+          "source": "catalog",
+          "entries": 7
+        },
+        "it": {
+          "text": "registrazione schermo",
+          "source": "catalog",
+          "entries": 7
+        },
+        "rm": {
+          "text": "Bildschirmaufnahme",
+          "source": "catalog",
+          "entries": 7
+        },
+        "es": {
+          "text": "Grabación de pantalla",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        }
+      }
+    },
+    {
+      "en": "Location Services",
+      "translations": {
+        "de": {
+          "text": "Ortungsdienste",
+          "source": "catalog",
+          "entries": 2
+        },
+        "fr": {
+          "text": "services de localisation",
+          "source": "catalog",
+          "entries": 2
+        },
+        "it": {
+          "text": "servizi di localizzazione",
+          "source": "catalog",
+          "entries": 2
+        },
+        "rm": {
+          "text": "servetschs da localisaziun",
+          "source": "catalog",
+          "entries": 2
+        },
+        "es": {
+          "text": "Localización",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "permission",
+      "translations": {
+        "de": {
+          "text": "Berechtigung",
+          "source": "catalog",
+          "entries": 9
+        },
+        "fr": {
+          "text": "autorisation",
+          "source": "catalog",
+          "entries": 12
+        },
+        "it": {
+          "text": "autorizzazione",
+          "source": "catalog",
+          "entries": 6
+        },
+        "rm": {
+          "text": "permissiun",
+          "source": "catalog",
+          "entries": 11
+        },
+        "es": {
+          "text": "permiso",
+          "source": "catalog",
+          "entries": 14
+        }
+      }
+    },
+    {
+      "en": "widget",
+      "translations": {
+        "de": {
+          "text": "Widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "rm": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        }
+      }
+    },
+    {
+      "en": "script",
+      "translations": {
+        "de": {
+          "text": "Skript",
+          "source": "catalog",
+          "entries": 30
+        },
+        "fr": {
+          "text": "script",
+          "source": "catalog",
+          "entries": 30
+        },
+        "it": {
+          "text": "script",
+          "source": "catalog",
+          "entries": 30
+        },
+        "rm": {
+          "text": "scrip",
+          "source": "catalog",
+          "entries": 30
+        },
+        "es": {
+          "text": "script",
+          "source": "catalog",
+          "entries": 30
+        }
+      }
+    },
+    {
+      "en": "Shortcut",
+      "translations": {
+        "de": {
+          "text": "Kurzbefehl",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "raccourci",
+          "source": "catalog",
+          "entries": 7
+        },
+        "it": {
+          "text": "comando rapido",
+          "source": "catalog",
+          "entries": 5
+        },
+        "rm": {
+          "text": "shortcut",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "Atajo",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        }
+      }
+    },
+    {
+      "en": "Focus",
+      "translations": {
+        "de": {
+          "text": "Fokus",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "concentration",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "full immersion",
+          "source": "catalog",
+          "entries": 3
+        },
+        "rm": {
+          "text": "focus",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "Modo de concentración",
+          "source": "/System/Library/ExtensionKit/Extensions/DoNotDisturbAppIntents.appex/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "Wi-Fi",
+      "translations": {
+        "de": {
+          "text": "WLAN",
+          "source": "catalog",
+          "entries": 10
+        },
+        "fr": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "it": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "rm": {
+          "text": "WLAN",
+          "source": "catalog",
+          "entries": 10
+        },
+        "es": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "battery",
+      "translations": {
+        "de": {
+          "text": "Akku",
+          "source": "catalog",
+          "entries": 14
+        },
+        "fr": {
+          "text": "batterie",
+          "source": "catalog",
+          "entries": 17
+        },
+        "it": {
+          "text": "batteria",
+          "source": "catalog",
+          "entries": 17
+        },
+        "rm": {
+          "text": "batteria",
+          "source": "catalog",
+          "entries": 7
+        },
+        "es": {
+          "text": "Batería",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        }
+      }
+    },
+    {
+      "en": "Low Power Mode",
+      "translations": {
+        "de": {
+          "text": "Energiesparmodus",
+          "source": "catalog",
+          "entries": 2
+        },
+        "fr": {
+          "text": "mode économie d'énergie",
+          "source": "catalog",
+          "entries": 2
+        },
+        "it": {
+          "text": "risparmio energia",
+          "source": "catalog",
+          "entries": 2
+        },
+        "rm": {
+          "text": "spargn d'energia",
+          "source": "catalog",
+          "entries": 2
+        },
+        "es": {
+          "text": "Modo de bajo consumo",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        }
+      }
+    },
+    {
+      "en": "display",
+      "translations": {
+        "de": {
+          "text": "Bildschirm",
+          "source": "catalog",
+          "entries": 18
+        },
+        "fr": {
+          "text": "écran",
+          "source": "catalog",
+          "entries": 18
+        },
+        "it": {
+          "text": "monitor",
+          "source": "catalog",
+          "entries": 11
+        },
+        "rm": {
+          "text": "monitur",
+          "source": "catalog",
+          "entries": 8
+        },
+        "es": {
+          "text": "Pantalla",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        }
+      }
+    },
+    {
+      "en": "notch",
+      "translations": {
+        "de": {
+          "text": "Notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "fr": {
+          "text": "encoche",
+          "source": "catalog",
+          "entries": 24
+        },
+        "it": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "rm": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "es": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        }
+      }
+    },
+    {
+      "en": "app",
+      "translations": {
+        "de": {
+          "text": "App",
+          "source": "catalog",
+          "entries": 51
+        },
+        "fr": {
+          "text": "app",
+          "source": "catalog",
+          "entries": 48
+        },
+        "it": {
+          "text": "app",
+          "source": "catalog",
+          "entries": 48
+        },
+        "rm": {
+          "text": "app",
+          "source": "catalog",
+          "entries": 48
+        },
+        "es": {
+          "text": "App",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        }
+      }
+    },
+    {
+      "en": "preview",
+      "translations": {
+        "de": {
+          "text": "Vorschau",
+          "source": "catalog",
+          "entries": 3
+        },
+        "fr": {
+          "text": "aperçu",
+          "source": "catalog",
+          "entries": 2
+        },
+        "it": {
+          "text": "anteprima",
+          "source": "catalog",
+          "entries": 3
+        },
+        "rm": {
+          "text": "prevista",
+          "source": "catalog",
+          "entries": 3
+        },
+        "es": {
+          "text": "Previsualización",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        }
+      }
+    },
+    {
+      "en": "settings",
+      "translations": {
+        "de": {
+          "text": "Einstellungen",
+          "source": "catalog",
+          "entries": 33
+        },
+        "fr": {
+          "text": "réglages",
+          "source": "catalog",
+          "entries": 34
+        },
+        "it": {
+          "text": "impostazioni",
+          "source": "catalog",
+          "entries": 34
+        },
+        "rm": {
+          "text": "parameters",
+          "source": "catalog",
+          "entries": 28
+        },
+        "es": {
+          "text": "Ajustes",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "quit",
+      "translations": {
+        "de": {
+          "text": "Beenden",
+          "source": "catalog",
+          "entries": 6
+        },
+        "fr": {
+          "text": "quitter",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "esci",
+          "source": "catalog",
+          "entries": 5
+        },
+        "rm": {
+          "text": "terminar",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "Salir",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/es.lproj/DockMenus.strings"
+        }
+      }
+    },
+    {
+      "en": "undo",
+      "translations": {
+        "de": {
+          "text": "Rückgängig machen",
+          "source": "catalog",
+          "entries": 3
+        },
+        "fr": {
+          "text": "annuler",
+          "source": "catalog",
+          "entries": 4
+        },
+        "it": {
+          "text": "annullare",
+          "source": "catalog",
+          "entries": 4
+        },
+        "rm": {
+          "text": "revocar",
+          "source": "catalog",
+          "entries": 4
+        },
+        "es": {
+          "text": "Deshacer",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        }
+      }
+    },
+    {
+      "en": "import",
+      "translations": {
+        "de": {
+          "text": "Importieren",
+          "source": "catalog",
+          "entries": 8
+        },
+        "fr": {
+          "text": "importer",
+          "source": "catalog",
+          "entries": 8
+        },
+        "it": {
+          "text": "importa",
+          "source": "catalog",
+          "entries": 9
+        },
+        "rm": {
+          "text": "importar",
+          "source": "catalog",
+          "entries": 7
+        },
+        "es": {
+          "text": "Importar",
+          "source": "/System/Applications/Music.app/Contents/Resources/es.lproj/Localizable.strings"
+        }
+      }
+    },
+    {
+      "en": "export",
+      "translations": {
+        "de": {
+          "text": "Exportieren",
+          "source": "catalog",
+          "entries": 2
+        },
+        "fr": {
+          "text": "exporter",
+          "source": "catalog",
+          "entries": 2
+        },
+        "it": {
+          "text": "esporta",
+          "source": "catalog",
+          "entries": 6
+        },
+        "rm": {
+          "text": "exportar",
+          "source": "catalog",
+          "entries": 2
+        },
+        "es": {
+          "text": "Exportar",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        }
+      }
+    },
+    {
+      "en": "snapshot",
+      "translations": {
+        "de": {
+          "text": "Momentaufnahme",
+          "source": "catalog",
+          "entries": 4
+        },
+        "fr": {
+          "text": "instantané",
+          "source": "catalog",
+          "entries": 6
+        },
+        "it": {
+          "text": "istantanea",
+          "source": "unverified"
+        },
+        "rm": {
+          "text": "snapshot",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "instantánea",
+          "source": "catalog",
+          "entries": 7
+        }
+      }
+    },
+    {
+      "en": "notification",
+      "translations": {
+        "de": {
+          "text": "Mitteilung",
+          "source": "catalog",
+          "entries": 8
+        },
+        "fr": {
+          "text": "notification",
+          "source": "catalog",
+          "entries": 8
+        },
+        "it": {
+          "text": "notifica",
+          "source": "unverified"
+        },
+        "rm": {
+          "text": "communicaziun",
+          "source": "catalog",
+          "entries": 6
+        },
+        "es": {
+          "text": "notificación",
+          "source": "unverified"
+        }
+      }
+    }
+  ]
+}

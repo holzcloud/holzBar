@@ -204,7 +204,8 @@ jobs:
           fi
           echo "==> Acknowledgements: $COUNT license files in the app"
 
-      # The String Catalogs must reach the app in every language, and the App Intents
+      # The String Catalogs must reach the app in every language of the registry
+      # (Translations/languages.json, read through translations.py), and the App Intents
       # metadata must be extracted, or Shortcuts shows none of holzBar's actions.
       - name: Check the languages and the Shortcuts actions
         run: |
@@ -213,7 +214,7 @@ jobs:
           # The listings only show the folders' contents in the log.
           # shellcheck disable=SC2012
           echo "Resources: $(ls "$RESOURCES" | tr '\n' ' ')"
-          for LANGUAGE in en de fr it rm es pt-BR ja zh-Hans ko ru; do
+          for LANGUAGE in $(python3 .github/scripts/translations.py codes); do
             # shellcheck disable=SC2012
             FILES=$(ls "$RESOURCES/$LANGUAGE.lproj" 2>/dev/null | tr '\n' ' ' || true)
             echo "$LANGUAGE.lproj: ${FILES:-missing}"
@@ -229,7 +230,7 @@ jobs:
           if [ "$FAILED" -ne 0 ]; then
             exit 1
           fi
-          echo "==> Eleven languages and the App Intents metadata in the app"
+          echo "==> Every registered language and the App Intents metadata in the app"
 
       - name: Keep the app for the compatibility check
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -394,11 +395,14 @@ jobs:
       - name: Private API only where the list says
         run: python3 .github/scripts/privacy-check.py private
 
-  # holzBar speaks English, German, French, Italian, Romansh, Spanish, Brazilian
-  # Portuguese, Japanese, Simplified Chinese, Korean and Russian. Fails every pull
-  # request that adds a text without its translations, or a translation that is
-  # unfinished or changes the format specifiers of its text.
-  # Runs locally too: python3 .github/scripts/strings-check.py
+  # holzBar speaks the languages of Translations/languages.json. Fails every pull
+  # request that adds a text without its translations in every one of them, or a
+  # translation that is unfinished, changes the format specifiers or placeholders
+  # of its text, lacks a plural form of its language, copies an English sentence,
+  # or a language that the registry, the catalogs and the Xcode project's
+  # knownRegions do not list alike. The self-test proves each rule of the review
+  # tool on fixtures. Runs locally too: python3 .github/scripts/strings-check.py
+  # and python3 .github/scripts/translations.py self-test
   strings:
     runs-on: ubuntu-latest
     steps:
@@ -406,8 +410,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Every text in eleven languages
+      - name: Every text in every registered language
         run: python3 .github/scripts/strings-check.py
+
+      - name: Review tool self-test
+        run: python3 .github/scripts/translations.py self-test
 
   # The release workflow runs only for a v* tag, so a broken expression or script in it would
   # surface only then. actionlint (with shellcheck) checks every workflow on every pull
