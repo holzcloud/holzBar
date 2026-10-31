@@ -8,22 +8,19 @@ import SwiftUI
 /// The settings of the Apple Items module (macOS 27): which of Apple's system items to hide.
 /// The Modules pane shows it under the module's row while the module is on.
 struct AppleItemsSection: View {
-    @Environment(AppState.self) private var appState
     var appleItems: AppleItems
-
-    private var shelfIsOn: Bool {
-        appState.settings.general.useShelf
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-            Toggle("Hide the clock", isOn: binding(for: .clock))
+            Toggle(isOn: binding(for: .clock)) {
+                HStack(spacing: HolzBarTheme.Spacing.sm) {
+                    Text("Hide the clock")
+                    PreviewBadge()
+                }
+            }
             Toggle("Hide Control Center", isOn: binding(for: .controlCentre))
             Toggle("Hide Wi-Fi", isOn: binding(for: .wifi))
             Toggle("Hide the battery", isOn: binding(for: .battery))
-            if shelfIsOn {
-                caption(Text("Not applied while the holzBar Shelf is on: the Shelf cannot show a system item."))
-            }
             caption(Text("While a system item is hidden, Control Center does not show its camera and microphone indicator; holzBar marks its own icon instead."))
             replacementsList
         }
