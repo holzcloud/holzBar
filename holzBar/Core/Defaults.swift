@@ -496,6 +496,9 @@ nonisolated extension Defaults.Key {
         case .macOS27ClickRestoreDelay:
             // Milliseconds, read as a whole number and kept in 30...2000 by its reader.
             .clamped(0...2000)
+        case .lastRunMacOSMajor:
+            // A major macOS version; the key is never imported, the rule only completes the schema.
+            .clamped(0...1000)
         case .menuBarBorderWidth:
             .clamped(1...3)
         case .spacerCount:
