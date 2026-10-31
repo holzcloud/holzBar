@@ -84,6 +84,20 @@
       "nativeName": "Nederlands",
       "reviewedThrough": null,
       "note": ""
+    },
+    {
+      "code": "pl",
+      "englishName": "Polish",
+      "nativeName": "Polski",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "cs",
+      "englishName": "Czech",
+      "nativeName": "Čeština",
+      "reviewedThrough": null,
+      "note": ""
     }
   ]
 }

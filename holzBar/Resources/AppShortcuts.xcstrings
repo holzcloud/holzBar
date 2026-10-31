@@ -3,6 +3,12 @@
   "strings" : {
     "Apply a layout profile in ${applicationName}" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Použít profil uspořádání v ${applicationName}"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -45,6 +51,12 @@
             "value" : "Pas een indelingsprofiel toe in ${applicationName}"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zastosuj profil układu w ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -73,6 +85,12 @@
     },
     "Open a menu bar item with ${applicationName}" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otevřít položku řádku nabídek v ${applicationName}"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -115,6 +133,12 @@
             "value" : "Open een menubalkonderdeel met ${applicationName}"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otwórz element paska menu w ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -143,6 +167,12 @@
     },
     "Search menu bar items with ${applicationName}" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hledat položky řádku nabídek v ${applicationName}"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -185,6 +215,12 @@
             "value" : "Zoek menubalkonderdelen met ${applicationName}"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szukaj elementów paska menu w ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -213,6 +249,12 @@
     },
     "Toggle Zen mode in ${applicationName}" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přepnout režim Zen v ${applicationName}"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -255,6 +297,12 @@
             "value" : "Zet de zenmodus aan of uit in ${applicationName}"
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przełącz tryb Zen w ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -283,6 +331,12 @@
     },
     "Toggle hidden items in ${applicationName}" : {
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přepnout skryté položky v ${applicationName}"
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -323,6 +377,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Toon of verberg verborgen onderdelen in ${applicationName}"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przełącz ukryte elementy w ${applicationName}"
           }
         },
         "pt-BR" : {

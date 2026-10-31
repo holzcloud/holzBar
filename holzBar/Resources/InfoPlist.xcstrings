@@ -18,6 +18,12 @@
       "comment" : "Copyright (human-readable)",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2025 Jordan Baird. Úpravy holzBar © 2026 holzcloud."
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -64,6 +70,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Copyright © 2025 Jordan Baird. holzBar-wijzigingen © 2026 holzcloud."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2025 Jordan Baird. Zmiany holzBar © 2026 holzcloud."
           }
         },
         "pt-BR" : {
@@ -167,6 +179,18 @@
             "state" : "translated",
             "value" : "holzBar houdt je map Downloads in de gaten voor downloads die bezig zijn, om ze bij de notch te tonen. Het leest nooit wat je downloadt."
           }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar obserwuje Twój folder Pobrane pod kątem trwających pobrań, aby pokazać je przy notchu. Nigdy nie odczytuje tego, co pobierasz."
+          }
+        },
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar sleduje vaši složku Stažené kvůli probíhajícímu stahování, aby ho zobrazil u výřezu. Nikdy nečte, co stahujete."
+          }
         }
       }
     },
@@ -174,6 +198,12 @@
       "comment" : "Location usage description",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar čte název sítě Wi-Fi, ke které jste připojeni, aby na něj mohlo pravidlo automatizace reagovat. Nečte vaši polohu."
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -220,6 +250,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar leest de naam van het wifi-netwerk waarmee je bent verbonden, zodat een automatiseringsregel erop kan reageren. Het leest je locatie niet."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar odczytuje nazwę sieci Wi-Fi, z którą jesteś połączony, aby reguła automatyzacji mogła na nią zareagować. Nie odczytuje Twojej lokalizacji."
           }
         },
         "pt-BR" : {
@@ -252,6 +288,12 @@
       "comment" : "Location usage description",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar čte název sítě Wi-Fi, ke které jste připojeni, aby na něj mohlo pravidlo automatizace reagovat. Nečte vaši polohu."
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -300,6 +342,12 @@
             "value" : "holzBar leest de naam van het wifi-netwerk waarmee je bent verbonden, zodat een automatiseringsregel erop kan reageren. Het leest je locatie niet."
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar odczytuje nazwę sieci Wi-Fi, z którą jesteś połączony, aby reguła automatyzacji mogła na nią zareagować. Nie odczytuje Twojej lokalizacji."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -330,6 +378,12 @@
       "comment" : "Bluetooth usage description",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar vidí, která z vašich spárovaných zařízení Bluetooth jsou připojena, aby na to mohla reagovat pravidla automatizace a upozornění na příslušenství. Nikdy se k zařízení nepřipojí, nehledá zařízení ani k žádnému nic neodesílá."
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -378,6 +432,12 @@
             "value" : "holzBar ziet welke van je gekoppelde Bluetooth-apparaten zijn verbonden, zodat automatiseringsregels en accessoiremeldingen erop kunnen reageren. Het maakt nooit verbinding met een apparaat, zoekt niet naar apparaten en stuurt niets naar een apparaat."
           }
         },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar widzi, które ze sparowanych urządzeń Bluetooth są połączone, aby reguły automatyzacji i alerty akcesoriów mogły na to reagować. Nigdy nie łączy się z urządzeniem, nie szuka urządzeń ani nic do nich nie wysyła."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -408,6 +468,12 @@
       "comment" : "Calendar usage description",
       "extractionState" : "extracted_with_value",
       "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar zobrazuje vaše další události a odkazy na schůzky v centru u výřezu. Čte je jen na tomto Macu a nikdy je neodesílá ani neukládá."
+          }
+        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
@@ -454,6 +520,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar toont je volgende afspraken en hun vergaderlinks in de notch-hub. Het leest ze alleen op deze Mac en verzendt of bewaart ze nooit."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar pokazuje Twoje następne wydarzenia i linki do spotkań w centrum notcha. Odczytuje je tylko na tym Macu i nigdy ich nie wysyła ani nie zapisuje."
           }
         },
         "pt-BR" : {
