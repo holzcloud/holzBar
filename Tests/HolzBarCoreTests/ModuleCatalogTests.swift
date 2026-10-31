@@ -168,6 +168,27 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["display-controls"], knownTo: ModuleCatalog.all) == ["display-controls"])
     }
 
+    @Test("Accessory alerts is a Preview module of the notch area that needs Bluetooth, after the hub's other modules")
+    func accessoryAlertsModule() throws {
+        let alerts = try #require(ModuleCatalog.all.first { $0.id == "accessory-alerts" })
+        #expect(alerts.area == .notch)
+        #expect(alerts.permission == .bluetooth)
+        #expect(alerts.isPreview)
+        #expect(alerts.symbol == "airpods")
+        #expect(alerts.titleKey == "Accessory alerts")
+        #expect(alerts.summaryKey == "Tells you when AirPods and other accessories connect, disconnect or run low.")
+        let notch = ModuleCatalog.modules(in: .notch).map(\.id)
+        let alertsIndex = try #require(notch.firstIndex(of: "accessory-alerts"))
+        for other in ["notch-hub", "timers", "calendar", "live-activities", "file-drop", "display-controls"] {
+            let index = try #require(notch.firstIndex(of: other))
+            #expect(index < alertsIndex)
+        }
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["accessory-alerts"], knownTo: ModuleCatalog.all) == ["accessory-alerts"])
+    }
+
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(
@@ -178,7 +199,7 @@ struct ModuleCatalogTests {
             """
         )
         #expect(
-            Set(ModuleCatalog.all.compactMap(\.permission)) == [.calendar],
+            Set(ModuleCatalog.all.compactMap(\.permission)) == [.calendar, .bluetooth],
             """
             A module with a permission needs its sentence (permissionText) and its lookup \
             (isGranted) in ModulesSettingsPane (a module says why before it asks). Teach the \

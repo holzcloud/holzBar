@@ -155,6 +155,15 @@ nonisolated enum ModuleCatalog {
             permission: nil,
             isPreview: true
         ),
+        ModuleDescriptor(
+            id: "accessory-alerts",
+            area: .notch,
+            symbol: "airpods",
+            titleKey: "Accessory alerts",
+            summaryKey: "Tells you when AirPods and other accessories connect, disconnect or run low.",
+            permission: .bluetooth,
+            isPreview: true
+        ),
     ]
 
     /// The modules of an area, in catalog order.

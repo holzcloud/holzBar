@@ -36,6 +36,11 @@ enum HubModules {
             makeRuntime: { DisplayControlsRuntime(appState: $0) },
             makeSettings: { AnyView(EmptyView()) }
         ),
+        HubModuleRegistration(
+            id: "accessory-alerts",
+            makeRuntime: { AccessoryAlertsRuntime(appState: $0) },
+            makeSettings: { AnyView(EmptyView()) }
+        ),
     ]
 
     /// The registration of a module, if it has one.

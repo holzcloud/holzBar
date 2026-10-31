@@ -47,7 +47,8 @@ struct ModulesSettingsPane: View {
     private func permissionText(_ permission: ModulePermission) -> Text {
         switch permission {
         case .calendar: Text("Asks for Calendar access when you switch it on")
-        case .accessibility, .screenRecording, .inputMonitoring, .microphone, .camera, .bluetooth, .notifications,
+        case .bluetooth: Text("Needs Bluetooth")
+        case .accessibility, .screenRecording, .inputMonitoring, .microphone, .camera, .notifications,
             .fullDiskAccess, .files:
             Text(verbatim: permission.rawValue)
         }
@@ -61,7 +62,8 @@ struct ModulesSettingsPane: View {
         case .accessibility: appState.permissions.accessibility.hasPermission
         case .screenRecording: appState.permissions.screenRecording.hasPermission
         case .calendar: appState.permissions.calendar.hasPermission
-        case .inputMonitoring, .microphone, .camera, .bluetooth, .notifications, .fullDiskAccess, .files:
+        case .bluetooth: BluetoothDeviceMonitor.access == .allowed
+        case .inputMonitoring, .microphone, .camera, .notifications, .fullDiskAccess, .files:
             false
         }
     }
