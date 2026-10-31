@@ -22,6 +22,8 @@ struct AccessoryAlertsBodyView: View {
         let symbol: String
         let name: String
         let percent: Int?
+        /// Whether the Bluetooth monitor lists the device as connected; a battery-only row is not.
+        let isConnected: Bool
     }
 
     /// Devices first, each with its battery when the join is unambiguous, then the batteries of
@@ -39,11 +41,19 @@ struct AccessoryAlertsBodyView: View {
                 percent = battery.percent
                 joined.insert(battery.id)
             }
-            result.append(Row(id: device.id, symbol: device.symbolName, name: device.name, percent: percent))
+            result.append(
+                Row(id: device.id, symbol: device.symbolName, name: device.name, percent: percent, isConnected: true)
+            )
         }
         for battery in batteries where !joined.contains(battery.id) {
             result.append(
-                Row(id: "battery:" + battery.id, symbol: Self.symbol(for: battery), name: battery.name, percent: battery.percent)
+                Row(
+                    id: "battery:" + battery.id,
+                    symbol: Self.symbol(for: battery),
+                    name: battery.name,
+                    percent: battery.percent,
+                    isConnected: false
+                )
             )
         }
         return result
@@ -145,9 +155,13 @@ struct AccessoryAlertsBodyView: View {
     }
 
     private func label(for row: Row) -> Text {
-        if let percent = row.percent {
+        switch (row.percent, row.isConnected) {
+        case let (percent?, true):
+            return Text("\(row.name), connected, battery \(percent) percent")
+        case let (percent?, false):
             return Text("\(row.name), battery \(percent) percent")
+        case (nil, _):
+            return Text("\(row.name), connected")
         }
-        return Text("\(row.name), connected")
     }
 }

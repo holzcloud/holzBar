@@ -124,12 +124,15 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
         let options = AccessoryAlertsSettings.options()
         var raised = alerts.filter { now.timeIntervalSince($0.startedAt) < Self.alertRetention }
         for event in events where options.allows(event) {
+            let raisedAlert: LiveActivity
             switch event {
             case .connected(let device):
-                raised.append(alert(for: device, title: String(localized: "\(device.name) connected"), at: now))
+                raisedAlert = alert(for: device, title: String(localized: "\(device.name) connected"), at: now)
             case .disconnected(let device):
-                raised.append(alert(for: device, title: String(localized: "\(device.name) disconnected"), at: now))
+                raisedAlert = alert(for: device, title: String(localized: "\(device.name) disconnected"), at: now)
             }
+            raised.append(raisedAlert)
+            announce(raisedAlert)
         }
         if raised != alerts {
             alerts = raised
@@ -148,8 +151,20 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
             priority: 10,
             startedAt: date,
             finishedAt: date,
-            tint: .accent
+            tint: .accent,
+            announcesItself: true
         )
+    }
+
+    /// Tells VoiceOver about an alert, because a capsule that lasts five seconds is easy to
+    /// miss without sight. Nothing is posted while VoiceOver is off. The text is the one the
+    /// capsule shows and stays in the accessibility layer of this Mac; it is never logged.
+    private func announce(_ alert: LiveActivity) {
+        guard NSWorkspace.shared.isVoiceOverEnabled else {
+            return
+        }
+        let text = [alert.title, alert.detail].compactMap(\.self).joined(separator: ", ")
+        AccessibilityNotification.Announcement(text).post()
     }
 
     // MARK: Hub
@@ -317,20 +332,21 @@ final class AccessoryAlertsRuntime: HubModuleRuntime {
         var raised = alerts.filter { now.timeIntervalSince($0.startedAt) < Self.alertRetention }
         for battery in lowBatteries {
             let isCritical = battery.percent <= 10
-            raised.append(
-                LiveActivity(
-                    id: UUID().uuidString,
-                    moduleID: moduleID,
-                    kind: .other,
-                    symbol: isCritical ? "battery.0percent" : "battery.25percent",
-                    title: String(localized: "\(battery.name) battery low"),
-                    detail: battery.percentText,
-                    priority: 30,
-                    startedAt: now,
-                    finishedAt: now,
-                    tint: isCritical ? .red : .amber
-                )
+            let lowAlert = LiveActivity(
+                id: UUID().uuidString,
+                moduleID: moduleID,
+                kind: .other,
+                symbol: isCritical ? "battery.0percent" : "battery.25percent",
+                title: String(localized: "\(battery.name) battery low"),
+                detail: battery.percentText,
+                priority: 30,
+                startedAt: now,
+                finishedAt: now,
+                tint: isCritical ? .red : .amber,
+                announcesItself: true
             )
+            raised.append(lowAlert)
+            announce(lowAlert)
         }
         if raised != alerts {
             alerts = raised

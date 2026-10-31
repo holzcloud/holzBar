@@ -147,7 +147,7 @@ struct NotchHubCompactView: View {
 
     /// Tells VoiceOver once that an activity started.
     private func announce(_ activity: LiveActivity?) {
-        guard let activity else {
+        guard let activity, !activity.announcesItself else {
             return
         }
         AccessibilityNotification.Announcement(activity.title).post()

@@ -64,6 +64,9 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
     /// ``HubActivityBoard/finishedHold`` seconds with its own done title and symbol.
     let finishedAt: Date?
     let tint: LiveActivityTint
+    /// Whether the module that returned the activity speaks it to VoiceOver itself, so the
+    /// capsule does not announce its title a second time.
+    let announcesItself: Bool
 
     /// A key that is unique across modules: the module's identifier and the activity's id.
     var key: String {
@@ -84,7 +87,8 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         startedAt: Date,
         endsAt: Date? = nil,
         finishedAt: Date? = nil,
-        tint: LiveActivityTint = .accent
+        tint: LiveActivityTint = .accent,
+        announcesItself: Bool = false
     ) {
         self.id = id
         self.moduleID = moduleID
@@ -100,5 +104,6 @@ nonisolated struct LiveActivity: Equatable, Sendable, Identifiable {
         self.endsAt = endsAt
         self.finishedAt = finishedAt
         self.tint = tint
+        self.announcesItself = announcesItself
     }
 }
