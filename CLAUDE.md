@@ -19,6 +19,7 @@ holzBar is to become an alternative to **Brow, Glow and Vorssaint**: as many of 
 - Save CI runs and credits: run CI as rarely as possible. Group several phases into one pull request, commit locally and push only once at the end of the work (then fix until green); never push after every task or plan.
 - **Build what you cannot test yourself, and mark it Preview** (decision of 2026-10-09): features that need a real Mac, a permission or hardware the development environment lacks are built anyway, never skipped. Each one shows a **Preview** badge (`PreviewBadge`) in the app, and nothing else (no explanatory text next to it; its tooltip says the rest), until the user has tested it on a Mac; then the badge goes. The README, `docs/` and the release notes never say that something is untested or Preview (decision of 2026-10-27): they describe every feature normally.
 - Ask the user every question as a multiple choice (the AskUserQuestion tool), never as free text.
+- Every user-visible string is translated into every language of `Translations/languages.json` (20 today). New strings go in through `python3 .github/scripts/translations.py add-strings FILE`, which checks format specifiers, placeholders and plural forms; `strings-check.py` fails otherwise. Translations are machine-made until a review round (`docs/translations.md`) records otherwise, and no document calls a language reviewed without one.
 - Update GSD with `npx -y @opengsd/gsd-core@latest --claude --local` and commit the result.
 
 ## Principles
@@ -90,6 +91,7 @@ Named exceptions:
 - `Scripts/check-signature.sh` – fails unless a built `holzBar.app` is validly signed with the hardened runtime, carries no entitlement but the Calendar one on the app (not even `get-task-allow`) and has no code besides `Contents/MacOS/holzBar` and the one helper framework `Contents/Frameworks/NowPlayingRemote.framework` (hardened runtime, no entitlement, exactly one Mach-O file): holzBar ships one executable and that one helper, with no XPC service or other nested code. Used by `build.yml`, `release.yml` and `Scripts/install.sh`.
 - `Resources/Logo/` – logo and README banner sources (SVG).
 - `Resources/Screenshots/` – real screenshots of the app, used by the README gallery (and on https://holzcloud.ch/holzbar). Replace any that do not show holzBar as it is now, and the one of the original Ice, with new screenshots of holzBar when they exist.
+- `Translations/` – the registry `languages.json` (the 20 languages and their review dates), the glossary of product terms and the review ledgers `reviews/<code>.json` (written only by a review round). `.github/scripts/translations.py` is the review tool (export, apply, add-strings, status, report, self-test); `docs/translations.md` is the guide.
 - `docs/upstream-bugs.md` – the open bug reports of the original Ice, grouped, and which of them holzBar has fixed. Update it when fixing one.
 
 ## Building
