@@ -5,38 +5,31 @@
 
 import SwiftUI
 
-/// The icon strip in the Notch hub's left wing: the Overview, then one tab per module that
-/// offers one, and a More menu for the tabs that do not fit.
+/// One group of the Notch hub's icon row: the tabs of the left wing, or the tabs at the notch
+/// side of the right wing.
 ///
-/// The selected tab is tinted by its module. Each tab is 24 points high to the eye, and its
-/// hit area is the whole height of the top row.
+/// The row spans both wings; ``HubTabStrip/row(moduleTabs:selected:leftWingWidth:rightWingWidth:rightReservedWidth:gap:)``
+/// decides which tab sits in which group and how wide a tab is. The selected tab is tinted by
+/// its module. Each tab is 24 points high to the eye, and its hit area is the whole height of
+/// the top row.
 struct HubTabStripView: View {
     let model: NotchHubModel
-    /// The width of the wing, which decides how many tabs fit.
-    let wingWidth: CGFloat
+    /// The tabs of this group, in order.
+    let ids: [String]
+    /// The selected tab.
+    let selected: String
+    /// The width of one tab, the same across the whole row.
+    let tabWidth: CGFloat
     /// The height of the top row.
     let rowHeight: CGFloat
 
-    private static let gap = CGFloat(2)
-
     var body: some View {
-        let strip = model.layout(
-            maximumVisible: HubTabStrip.visibleCapacity(
-                tabCount: model.allTabIDs.count,
-                wingWidth: Double(wingWidth),
-                tabWidth: Double(HolzBarTheme.Hub.tabSize.width),
-                gap: Double(Self.gap)
-            )
-        )
-        HStack(spacing: Self.gap) {
-            ForEach(strip.visible, id: \.self) { id in
-                tab(id, isSelected: id == strip.selected)
-            }
-            if !strip.overflow.isEmpty {
-                moreMenu(strip.overflow)
+        HStack(spacing: HolzBarTheme.Hub.tabGap) {
+            ForEach(ids, id: \.self) { id in
+                tab(id, isSelected: id == selected)
             }
         }
-        .frame(width: wingWidth, height: rowHeight, alignment: .leading)
+        .frame(height: rowHeight)
         .accessibilityElement(children: .contain)
     }
 
@@ -48,7 +41,7 @@ struct HubTabStripView: View {
             Image(systemName: symbol(of: id))
                 .font(HolzBarTheme.Hub.tabSymbolFont)
                 .foregroundStyle(isSelected ? tint.color : HolzBarTheme.Hub.idleTabSymbol)
-                .frame(width: HolzBarTheme.Hub.tabSize.width, height: HolzBarTheme.Hub.tabSize.height)
+                .frame(width: tabWidth, height: HolzBarTheme.Hub.tabSize.height)
                 .background(
                     isSelected ? tint.color.opacity(HolzBarTheme.Hub.selectedTabFillOpacity) : HolzBarTheme.Hub.idleTabFill,
                     in: HolzBarTheme.shape(HolzBarTheme.Hub.tabRadius)
@@ -60,33 +53,6 @@ struct HubTabStripView: View {
         .help(title(of: id))
         .accessibilityLabel(title(of: id))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-
-    private func moreMenu(_ overflow: [String]) -> some View {
-        Menu {
-            ForEach(overflow, id: \.self) { id in
-                Button {
-                    model.select(id)
-                } label: {
-                    Label(title(of: id), systemImage: symbol(of: id))
-                }
-            }
-        } label: {
-            Image(systemName: "ellipsis")
-                .accessibilityHidden(true)
-                .font(HolzBarTheme.Hub.tabSymbolFont)
-                .foregroundStyle(HolzBarTheme.Hub.idleTabSymbol)
-                .frame(width: HolzBarTheme.Hub.tabSize.width, height: HolzBarTheme.Hub.tabSize.height)
-                .background(HolzBarTheme.Hub.idleTabFill, in: HolzBarTheme.shape(HolzBarTheme.Hub.tabRadius))
-                .frame(height: rowHeight)
-                .contentShape(Rectangle())
-        }
-        .menuStyle(.button)
-        .buttonStyle(.plain)
-        .menuIndicator(.hidden)
-        .fixedSize()
-        .help("More")
-        .accessibilityLabel(Text("More"))
     }
 
     // MARK: What a tab shows

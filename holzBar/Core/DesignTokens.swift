@@ -141,8 +141,20 @@ nonisolated enum DesignTokens {
         static let tabWidth: Double = 30
         static let tabHeight: Double = 24
         static let tabRadius: Double = 8
+        /// The space between two tabs of the row.
+        static let tabGap: Double = 2
         /// The round settings button of the right wing.
         static let settingsButtonSize: Double = 24
+        /// What a status pill is estimated to need, so that the row of tabs can leave room for the
+        /// pills without measuring them: a conservative width per character of the pill's text
+        /// (11 point semibold with monospaced digits is about 6.6 points wide), the symbol, the
+        /// space between symbol and text, and the padding on both sides of the pill.
+        static let pillCharacterWidth: Double = 7
+        static let pillSymbolWidth: Double = 14
+        static let pillInnerSpacing = Spacing.xxs
+        static let pillPadding = Spacing.xs
+        /// The space between the parts of the right group: the pills and the settings button.
+        static let pillSpacing = Spacing.xs
         /// The fill of a status pill: white at 9 percent.
         static let pillFillAlpha: Double = 0.09
         /// The fill of a tab: tinted when selected, white at 8 percent otherwise.

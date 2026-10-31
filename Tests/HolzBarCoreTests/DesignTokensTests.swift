@@ -278,6 +278,7 @@ struct DesignTokensTests {
         #expect(Tokens.Hub.tabWidth == 30)
         #expect(Tokens.Hub.tabHeight == 24)
         #expect(Tokens.Hub.tabRadius == 8)
+        #expect(Tokens.Hub.tabGap == 2)
         #expect(Tokens.Hub.settingsButtonSize == 24)
         #expect(Tokens.Hub.pillFillAlpha == 0.09)
         #expect(Tokens.Hub.tileRadius == 14)

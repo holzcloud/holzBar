@@ -213,6 +213,9 @@ enum HolzBarTheme {
         static let neutral = Color.white.opacity(DesignTokens.Hub.neutralAlpha)
         static let tabSize = CGSize(width: DesignTokens.Hub.tabWidth, height: DesignTokens.Hub.tabHeight)
         static let tabRadius = CGFloat(DesignTokens.Hub.tabRadius)
+        /// The space between two tabs of the row, and between the parts of the right group.
+        static let tabGap = CGFloat(DesignTokens.Hub.tabGap)
+        static let pillSpacing = CGFloat(DesignTokens.Hub.pillSpacing)
         static let settingsButtonSize = CGFloat(DesignTokens.Hub.settingsButtonSize)
         static let pillFill = Color.white.opacity(DesignTokens.Hub.pillFillAlpha)
         static let selectedTabFillOpacity = DesignTokens.Hub.selectedTabFillAlpha

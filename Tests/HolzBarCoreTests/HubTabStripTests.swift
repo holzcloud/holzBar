@@ -87,4 +87,116 @@ struct HubTabStripTests {
         #expect(HubTabStrip.remembered(lastTab: nil, available: ["a"]) == "overview")
         #expect(HubTabStrip.remembered(lastTab: "overview", available: []) == "overview")
     }
+
+    // MARK: The row across both wings
+
+    private let eight = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    private let allNine = ["overview", "a", "b", "c", "d", "e", "f", "g", "h"]
+
+    @Test("Nine tabs across two wings of 194 points: six on the left, three on the right, no overflow")
+    func nineTabsAcrossBothWings() {
+        let row = HubTabStrip.row(
+            moduleTabs: eight, selected: "overview",
+            leftWingWidth: 194, rightWingWidth: 194, rightReservedWidth: 90
+        )
+        #expect(row.left == ["overview", "a", "b", "c", "d", "e"])
+        #expect(row.right == ["f", "g", "h"])
+        #expect(row.overflow.isEmpty)
+        #expect(row.tabWidth == 30)
+        #expect(row.selected == "overview")
+    }
+
+    @Test("The left group is the first tabs in catalog order, the right group the rest, each tab once")
+    func eachTabOnce() {
+        let row = HubTabStrip.row(
+            moduleTabs: eight, selected: "c",
+            leftWingWidth: 100, rightWingWidth: 160, rightReservedWidth: 60
+        )
+        #expect(Set(row.left + row.right + row.overflow) == Set(allNine))
+        #expect((row.left + row.right + row.overflow).count == allNine.count)
+        #expect(row.left == ["overview", "a", "b"])
+        #expect(row.right == ["c", "d", "e"])
+        #expect(row.overflow == ["f", "g", "h"])
+    }
+
+    @Test("Six tabs fit in a left wing of 194 points and the right group stays empty")
+    func leftWingOnly() {
+        let row = HubTabStrip.row(
+            moduleTabs: ["a", "b", "c", "d", "e"], selected: "overview",
+            leftWingWidth: 194, rightWingWidth: 194, rightReservedWidth: 90
+        )
+        #expect(row.left == ["overview", "a", "b", "c", "d", "e"])
+        #expect(row.right.isEmpty)
+        #expect(row.overflow.isEmpty)
+    }
+
+    @Test("Without a right wing only the left wing is used and the tabs that do not fit overflow")
+    func noRightWing() {
+        let row = HubTabStrip.row(
+            moduleTabs: eight, selected: "overview",
+            leftWingWidth: 194, rightWingWidth: 0, rightReservedWidth: 90
+        )
+        #expect(row.left == ["overview", "a", "b", "c", "d", "e"])
+        #expect(row.right.isEmpty)
+        #expect(row.overflow == ["f", "g", "h"])
+    }
+
+    @Test("The selected tab never ends in the overflow: it takes the last visible place")
+    func selectionStaysVisible() {
+        let row = HubTabStrip.row(
+            moduleTabs: eight, selected: "h",
+            leftWingWidth: 194, rightWingWidth: 0, rightReservedWidth: 90
+        )
+        #expect(row.left == ["overview", "a", "b", "c", "d", "h"])
+        #expect(row.overflow == ["e", "f", "g"])
+        #expect(row.selected == "h")
+        let wide = HubTabStrip.row(
+            moduleTabs: eight, selected: "g",
+            leftWingWidth: 194, rightWingWidth: 194, rightReservedWidth: 90
+        )
+        #expect(wide.right == ["f", "g", "h"])
+        #expect(wide.overflow.isEmpty)
+    }
+
+    @Test("An unknown selection becomes the Overview; duplicates and a stray overview are dropped")
+    func rowCleaning() {
+        let row = HubTabStrip.row(
+            moduleTabs: ["a", "overview", "b", "a"], selected: "zzz",
+            leftWingWidth: 194, rightWingWidth: 0, rightReservedWidth: 0
+        )
+        #expect(row.left == ["overview", "a", "b"])
+        #expect(row.selected == "overview")
+    }
+
+    @Test("Widths that are not numbers or are negative count as no room")
+    func unusableWidths() {
+        let none = HubTabStrip.row(
+            moduleTabs: ["a"], selected: "overview",
+            leftWingWidth: .nan, rightWingWidth: -50, rightReservedWidth: .infinity
+        )
+        #expect(none.left.isEmpty && none.right.isEmpty)
+        #expect(none.overflow == ["overview", "a"])
+        let crowded = HubTabStrip.row(
+            moduleTabs: ["a"], selected: "overview",
+            leftWingWidth: 0, rightWingWidth: 100, rightReservedWidth: 400
+        )
+        #expect(crowded.right.isEmpty)
+    }
+
+    @Test("The pills and the settings button reserve their estimated width; no pills reserve the button alone")
+    func reservedWidth() {
+        #expect(HubTabStrip.rightReservedWidth(pills: []) == 24)
+        // "Muted": five characters at 7 points, and 8 points of padding on both sides.
+        #expect(HubTabStrip.pillWidth(textLength: 5, hasSymbol: false) == 51)
+        // A symbol adds 14 points and the 4 points between it and the text.
+        #expect(HubTabStrip.pillWidth(textLength: 5, hasSymbol: true) == 69)
+        #expect(HubTabStrip.pillWidth(textLength: -3, hasSymbol: false) == 16)
+        // One pill, the button and 8 points between them.
+        let one = HubTabStrip.rightReservedWidth(pills: [.init(textLength: 5, hasSymbol: false)])
+        #expect(one == 51 + 24 + 8)
+        let two = HubTabStrip.rightReservedWidth(pills: [
+            .init(textLength: 5, hasSymbol: false), .init(textLength: 4, hasSymbol: true),
+        ])
+        #expect(two == 51 + 62 + 24 + 16)
+    }
 }
