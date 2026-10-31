@@ -52,6 +52,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Timers, countdowns to a moment and a stopwatch in that hub (optional module, no permission) | ❌ | — | — | ✅ |
 | Next events and a Join button for meetings in that hub (optional module; Calendar access asked only when you switch it on) | ❌ | — | — | ✅ |
 | A capsule at the notch for downloads and for a camera or microphone in use (optional module in that hub) | ❌ | — | — | ✅ |
+| A file stash at the notch: drag files in, drag them out later as copies (optional module in that hub, no permission) | ❌ | — | — | ✅ |
 | Show or hide a single item while a condition holds (a VPN is connected, an app is running) | ❌ | ✅ | — | ✅ |
 | Automatic layout snapshots with a one-click restore | — | — | — | ✅ |
 | Command palette for holzBar's own actions | — | — | — | ✅ |
@@ -168,7 +169,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 | Hides desktop icons | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ |
 | Clipboard history, extras beyond the menu bar | ❌ | ✅ Command Bar, Top Shelf | ❌ | ❌ | ❌ | ❌ | MCP server | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ clipboard, launcher, AI | ✅ clipboard history | ✅ clipboard, Command Bar, many tools |
 | Imports settings from other apps | ✅ Ice | ❓ Bartender 6 profiles (experimental) | ❌ | ❌ | ✅ Bartender, Ice | ❓ | ❓ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❓ |
-| Notch hub (widgets, files, now playing in the notch) | Hub ✅, Timers ✅, Calendar ✅, Live activities ✅, other modules 🔜 1.0.0 | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
+| Notch hub (widgets, files, now playing in the notch) | Hub ✅, Timers ✅, Calendar ✅, Live activities ✅, File drop ✅, other modules 🔜 1.0.0 | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
 | Calendar and meeting link in the hub (reads your calendars on this Mac only) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
 | Live activities in the hub (a capsule at the notch while something is going on; holzBar's are downloads and a camera or microphone in use) | ✅ | ❌ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ❓ |
 | System readouts in the menu bar (CPU, memory, network, disk) | 🔜 1.1.0; CPU, memory and disk as text widgets ✅ <sup>14</sup> | ✅ | ❌ | ❌ | ❌ | ❓ | ❓ | ❌ | ❌ | ❌ | ❓ | ❌ | ✅ | ❌ | ✅ |
