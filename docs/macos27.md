@@ -4,9 +4,11 @@ macOS 27 draws all menu bar items through `MenuBarAgent` into one bar; items are
 
 ## Reordering items on the bar
 
-Not available yet. On earlier macOS versions holzBar moves an item by posting a ⌘ Command-drag to its window; on macOS 27 there is no item window to post it to, and it is not known whether `MenuBarAgent` accepts a synthetic ⌘-drag on the bar.
+In Settings → Menu Bar Layout holzBar sorts the items inside a section on macOS 27. Drag an item to another place in its row, move it with Option and the arrow keys, or use the Move Left and Move Right VoiceOver actions. In the drawing that waits for **Apply**, Apply writes the sections first and then puts each section in order on the bar; with **Apply changes immediately** a move happens at once.
 
-`Scripts/macos27/reorder-probe.swift` answers that on a real Mac: it ⌘-drags one application item past another and prints `REORDER WORKS` or `REORDER BLOCKED`. If it works, reordering can be built on the same events; if not, macOS 27 decides the order and holzBar can only assign sections.
+holzBar does it the way macOS lets you do it by hand: it posts one ⌘ Command-drag at a time on the bar, at the item's position, and `MenuBarAgent` accepts it. After each drag it reads the bar again, tries once more from the other side when an item did not move, and stops and reports it when an item still did not move. The pointer is hidden for a moment and put back where it was, and the mouse button is always released. Sorting starts only while Menu Bar Layout is open (so the bar is fully revealed), with no mouse button held, and it needs no permission beyond the Accessibility access holzBar already has. Items that a rule controls, pinned items and macOS's own numbered system items stay where they are.
+
+When macOS does not accept the events (the first drag changes nothing, twice), sorting turns itself off until holzBar is restarted and the sections still apply. The holzBar Shelf cannot sort on macOS 27: an item dragged there only changes its section.
 
 ## Hiding application menus
 
