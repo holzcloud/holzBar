@@ -16,6 +16,13 @@ nonisolated struct NowPlayingPlayer: Hashable, Sendable {
     static let music = NowPlayingPlayer(bundleIdentifier: "com.apple.Music")
     /// Spotify.
     static let spotify = NowPlayingPlayer(bundleIdentifier: "com.spotify.client")
+
+    /// Whether the public playback notifications own this player: Apple Music and Spotify. Their
+    /// events are taken from those notifications only, so the same player reported by the
+    /// optional route that reads all apps is ignored (the players setting rules them).
+    var hasPublicSource: Bool {
+        self == .music || self == .spotify
+    }
 }
 
 /// What a player is doing.

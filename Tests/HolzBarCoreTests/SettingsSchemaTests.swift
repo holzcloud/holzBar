@@ -188,6 +188,19 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The Now Playing switch for the private route is a local-only Boolean that no file can set")
+    func nowPlayingReadsAllAppsStaysLocal() {
+        #expect(Defaults.Key.nowPlayingReadsAllApps.settingsKind == .bool)
+        #expect(Defaults.Key.localOnlyKeys.contains(.nowPlayingReadsAllApps))
+        #expect(Defaults.Key.importableKinds["NowPlayingReadsAllApps"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["NowPlayingReadsAllApps": true, "NowPlayingPlayers": 2, "ShowOnHover": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["NowPlayingPlayers", "ShowOnHover"])
+        #expect(result.ignored == ["NowPlayingReadsAllApps"])
+    }
+
     @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
     func notchHubSettingsTravel() {
         #expect(Defaults.Key.importableKinds["NotchHubOpensOnHover"] == .bool)

@@ -14,6 +14,15 @@ struct NowPlayingModelTests {
         NowPlayingEvent(player: player, state: state, track: title.map { NowPlayingTrack(title: $0) })
     }
 
+    @Test("Apple Music and Spotify have a public source; any other bundle identifier does not")
+    func publicSource() {
+        #expect(NowPlayingPlayer.music.hasPublicSource)
+        #expect(NowPlayingPlayer.spotify.hasPublicSource)
+        #expect(!other.hasPublicSource)
+        #expect(!NowPlayingPlayer(bundleIdentifier: "com.apple.Safari").hasPublicSource)
+        #expect(!NowPlayingPlayer(bundleIdentifier: "com.apple.music").hasPublicSource)
+    }
+
     @Test("A playing player beats a paused one, whichever is newer")
     func playingBeatsPaused() throws {
         var model = NowPlayingModel()

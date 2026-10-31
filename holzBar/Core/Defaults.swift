@@ -301,6 +301,11 @@ nonisolated extension Defaults {
         /// The players the Now Playing module follows, as the raw value of `NowPlayingPlayers`
         /// (1 Music, 2 Spotify, 3 both).
         case nowPlayingPlayers = "NowPlayingPlayers"
+        /// Whether the Now Playing module also reads what every other app plays, through a
+        /// private macOS interface and a helper (a boolean, off by default). It turns a private
+        /// interface on, so it never travels: local to this Mac, never exported, imported or
+        /// synced.
+        case nowPlayingReadsAllApps = "NowPlayingReadsAllApps"
         /// Whether the Calendar module shows all-day events (a boolean, on by default).
         case calendarShowsAllDay = "CalendarShowsAllDay"
         /// The identifiers of the calendars the user switched off in the Calendar module. They
@@ -438,6 +443,7 @@ nonisolated extension Defaults.Key {
             .autoZenWhileSharingScreen,
             .notchHubOpensOnHover,
             .calendarShowsAllDay,
+            .nowPlayingReadsAllApps,
             .liveActivitiesCapture,
             .liveActivitiesDownloads,
             .fileDropOpensOnDrag,
@@ -607,7 +613,8 @@ nonisolated extension Defaults.Key {
     /// tab the Notch hub showed last, the timers (they hold the user's labels), the calendars
     /// the user switched off (their identifiers name the user's accounts), whether the
     /// Shelf's fold was left open and what each display does with the hidden items (the
-    /// displays' identifiers are those of this Mac).
+    /// displays' identifiers are those of this Mac), and the Now Playing switch that turns a
+    /// private interface on.
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
         .lastRunMacOSMajor,
@@ -620,6 +627,7 @@ nonisolated extension Defaults.Key {
         .notchHubLastTab,
         .timersBoard,
         .calendarHiddenCalendars,
+        .nowPlayingReadsAllApps,
         .notificationsExcludedApps,
         .shelfAlwaysHiddenFoldOpen,
         .displayBehaviors,
