@@ -59,6 +59,14 @@
         "id": {
           "text": "Bar Menu",
           "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "ru": {
+          "text": "Строка меню",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "uk": {
+          "text": "Смуга меню",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
         }
       }
     },
@@ -129,6 +137,16 @@
           "text": "item bar menu",
           "source": "catalog",
           "entries": 42
+        },
+        "ru": {
+          "text": "элемент строки меню",
+          "source": "catalog",
+          "entries": 5
+        },
+        "uk": {
+          "text": "елемент смуги меню",
+          "source": "catalog",
+          "entries": 6
         }
       }
     },
@@ -194,6 +212,15 @@
         "id": {
           "text": "Tersembunyi",
           "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Скрыто",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "приховано",
+          "source": "catalog",
+          "entries": 22
         }
       }
     },
@@ -264,6 +291,16 @@
           "text": "selalu tersembunyi",
           "source": "catalog",
           "entries": 13
+        },
+        "ru": {
+          "text": "всегда скрыто",
+          "source": "catalog",
+          "entries": 11
+        },
+        "uk": {
+          "text": "завжди приховано",
+          "source": "catalog",
+          "entries": 9
         }
       }
     },
@@ -334,6 +371,16 @@
           "text": "terlihat",
           "source": "catalog",
           "entries": 8
+        },
+        "ru": {
+          "text": "видимо",
+          "source": "catalog",
+          "entries": 2
+        },
+        "uk": {
+          "text": "видимі",
+          "source": "catalog",
+          "entries": 3
         }
       }
     },
@@ -402,6 +449,16 @@
         },
         "id": {
           "text": "bagian",
+          "source": "catalog",
+          "entries": 29
+        },
+        "ru": {
+          "text": "раздел",
+          "source": "catalog",
+          "entries": 29
+        },
+        "uk": {
+          "text": "розділ",
           "source": "catalog",
           "entries": 29
         }
@@ -474,6 +531,16 @@
           "text": "holzBar Shelf",
           "source": "catalog",
           "entries": 23
+        },
+        "ru": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "uk": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
         }
       }
     },
@@ -534,6 +601,14 @@
         },
         "id": {
           "text": "Profil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Профиль",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Профіль",
           "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -598,6 +673,16 @@
         "id": {
           "text": "Tata Letak",
           "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "раскладка",
+          "source": "catalog",
+          "entries": 12
+        },
+        "uk": {
+          "text": "розкладка",
+          "source": "catalog",
+          "entries": 10
         }
       }
     },
@@ -668,6 +753,16 @@
           "text": "aturan",
           "source": "catalog",
           "entries": 32
+        },
+        "ru": {
+          "text": "правило",
+          "source": "catalog",
+          "entries": 18
+        },
+        "uk": {
+          "text": "правило",
+          "source": "catalog",
+          "entries": 19
         }
       }
     },
@@ -737,6 +832,15 @@
           "text": "kondisi",
           "source": "catalog",
           "entries": 6
+        },
+        "ru": {
+          "text": "условие",
+          "source": "catalog",
+          "entries": 5
+        },
+        "uk": {
+          "text": "умова",
+          "source": "unverified"
         }
       }
     },
@@ -800,6 +904,14 @@
         "id": {
           "text": "Tindakan",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
+        },
+        "ru": {
+          "text": "Действие",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ru.lproj/LocalizableMerged.strings"
+        },
+        "uk": {
+          "text": "Дія",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -868,6 +980,16 @@
         },
         "id": {
           "text": "mode Zen",
+          "source": "catalog",
+          "entries": 11
+        },
+        "ru": {
+          "text": "режим «Дзен»",
+          "source": "catalog",
+          "entries": 11
+        },
+        "uk": {
+          "text": "режим «Дзен»",
           "source": "catalog",
           "entries": 11
         }
@@ -940,6 +1062,16 @@
           "text": "pintasan keyboard",
           "source": "catalog",
           "entries": 18
+        },
+        "ru": {
+          "text": "горячая клавиша",
+          "source": "catalog",
+          "entries": 3
+        },
+        "uk": {
+          "text": "гаряча клавіша",
+          "source": "catalog",
+          "entries": 3
         }
       }
     },
@@ -1001,6 +1133,14 @@
         "id": {
           "text": "Cari",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
+        },
+        "ru": {
+          "text": "Поиск",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ru.lproj/LocalizableMerged.strings"
+        },
+        "uk": {
+          "text": "Пошук",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -1062,6 +1202,14 @@
         },
         "id": {
           "text": "Tampilan",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Внешний вид",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Вигляд",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -1127,6 +1275,14 @@
           "text": "rona",
           "source": "catalog",
           "entries": 4
+        },
+        "ru": {
+          "text": "Оттенок",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Відтінок",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -1197,6 +1353,14 @@
           "text": "garis tepi",
           "source": "catalog",
           "entries": 6
+        },
+        "ru": {
+          "text": "граница",
+          "source": "unverified"
+        },
+        "uk": {
+          "text": "межа",
+          "source": "unverified"
         }
       }
     },
@@ -1254,6 +1418,14 @@
         "id": {
           "text": "Bayangan",
           "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "тень",
+          "source": "unverified"
+        },
+        "uk": {
+          "text": "тінь",
+          "source": "unverified"
         }
       }
     },
@@ -1314,6 +1486,14 @@
         },
         "id": {
           "text": "Aksesibilitas",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "ru": {
+          "text": "Универсальный доступ",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "uk": {
+          "text": "Доступність",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
         }
       }
@@ -1376,6 +1556,14 @@
         "id": {
           "text": "Perekaman Layar",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "ru": {
+          "text": "Запись экрана",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "uk": {
+          "text": "Запис екрана",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
         }
       }
     },
@@ -1436,6 +1624,14 @@
         },
         "id": {
           "text": "Layanan Lokasi",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Службы геолокации",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Служби локації",
           "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -1507,6 +1703,16 @@
           "text": "izin",
           "source": "catalog",
           "entries": 14
+        },
+        "ru": {
+          "text": "разрешение",
+          "source": "catalog",
+          "entries": 8
+        },
+        "uk": {
+          "text": "дозвіл",
+          "source": "catalog",
+          "entries": 8
         }
       }
     },
@@ -1575,6 +1781,16 @@
         },
         "id": {
           "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ru": {
+          "text": "виджет",
+          "source": "catalog",
+          "entries": 6
+        },
+        "uk": {
+          "text": "віджет",
           "source": "catalog",
           "entries": 6
         }
@@ -1647,6 +1863,16 @@
           "text": "skrip",
           "source": "catalog",
           "entries": 30
+        },
+        "ru": {
+          "text": "скрипт",
+          "source": "catalog",
+          "entries": 30
+        },
+        "uk": {
+          "text": "скрипт",
+          "source": "catalog",
+          "entries": 30
         }
       }
     },
@@ -1708,6 +1934,14 @@
         "id": {
           "text": "Pintasan",
           "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "ru": {
+          "text": "Быстрая команда",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "uk": {
+          "text": "Швидка команда",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
         }
       }
     },
@@ -1768,6 +2002,14 @@
         },
         "id": {
           "text": "Fokus",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "ru": {
+          "text": "Фокусирование",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "uk": {
+          "text": "Зосередження",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
         }
       }
@@ -1834,6 +2076,16 @@
           "text": "Wi-Fi",
           "source": "catalog",
           "entries": 10
+        },
+        "ru": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "uk": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
         }
       }
     },
@@ -1894,6 +2146,14 @@
         },
         "id": {
           "text": "Baterai",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "ru": {
+          "text": "Аккумулятор",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "uk": {
+          "text": "Акумулятор",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
         }
       }
@@ -1956,6 +2216,14 @@
         },
         "id": {
           "text": "Mode Daya Rendah",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "ru": {
+          "text": "Режим энергосбережения",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "uk": {
+          "text": "Режим економії заряду",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
         }
       }
@@ -2020,6 +2288,14 @@
           "text": "layar",
           "source": "catalog",
           "entries": 19
+        },
+        "ru": {
+          "text": "Дисплей",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "uk": {
+          "text": "Дисплей",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
         }
       }
     },
@@ -2090,6 +2366,16 @@
           "text": "notch",
           "source": "catalog",
           "entries": 24
+        },
+        "ru": {
+          "text": "вырез",
+          "source": "catalog",
+          "entries": 24
+        },
+        "uk": {
+          "text": "виріз",
+          "source": "catalog",
+          "entries": 24
         }
       }
     },
@@ -2155,6 +2441,14 @@
           "text": "app",
           "source": "catalog",
           "entries": 51
+        },
+        "ru": {
+          "text": "Приложение",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ru.lproj/LocalizableMerged.strings"
+        },
+        "uk": {
+          "text": "Програма",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -2216,6 +2510,16 @@
         "id": {
           "text": "Pratinjau",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
+        },
+        "ru": {
+          "text": "превью",
+          "source": "catalog",
+          "entries": 2
+        },
+        "uk": {
+          "text": "превʼю",
+          "source": "catalog",
+          "entries": 2
         }
       }
     },
@@ -2276,6 +2580,14 @@
         },
         "id": {
           "text": "Pengaturan",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Настройки",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Параметри",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -2339,6 +2651,14 @@
           "text": "keluar",
           "source": "catalog",
           "entries": 7
+        },
+        "ru": {
+          "text": "Завершить",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/ru.lproj/DockMenus.strings"
+        },
+        "uk": {
+          "text": "Завершити",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/uk.lproj/DockMenus.strings"
         }
       }
     },
@@ -2400,6 +2720,14 @@
         "id": {
           "text": "Urung",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
+        },
+        "ru": {
+          "text": "Отменить",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ru.lproj/LocalizableMerged.strings"
+        },
+        "uk": {
+          "text": "Відмінити",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -2461,6 +2789,14 @@
         "id": {
           "text": "Impor",
           "source": "/System/Applications/Music.app/Contents/Resources/id.lproj/Localizable.strings"
+        },
+        "ru": {
+          "text": "Импортировать",
+          "source": "/System/Applications/Calendar.app/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Імпортувати",
+          "source": "/System/Applications/Music.app/Contents/Resources/uk.lproj/Localizable.strings"
         }
       }
     },
@@ -2521,6 +2857,14 @@
         },
         "id": {
           "text": "Ekspor",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "ru": {
+          "text": "Экспорт",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "uk": {
+          "text": "Експортувати",
           "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -2589,6 +2933,14 @@
           "text": "snapshot",
           "source": "catalog",
           "entries": 7
+        },
+        "ru": {
+          "text": "снимок",
+          "source": "unverified"
+        },
+        "uk": {
+          "text": "знімок",
+          "source": "unverified"
         }
       }
     },
@@ -2655,6 +3007,15 @@
           "text": "notifikasi",
           "source": "catalog",
           "entries": 8
+        },
+        "ru": {
+          "text": "уведомление",
+          "source": "unverified"
+        },
+        "uk": {
+          "text": "сповіщення",
+          "source": "catalog",
+          "entries": 2
         }
       }
     }

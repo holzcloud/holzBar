@@ -99,6 +99,12 @@
             "value" : "${applicationName} içinde bir düzen profili uygula"
           }
         },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Застосувати профіль розкладки в ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -203,6 +209,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "${applicationName} içinde bir menü çubuğu öğesi aç"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Відкрити елемент смуги меню за допомогою ${applicationName}"
           }
         },
         "zh-Hans" : {
@@ -311,6 +323,12 @@
             "value" : "${applicationName} içinde menü çubuğu öğelerini ara"
           }
         },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Знайти елементи смуги меню за допомогою ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -417,6 +435,12 @@
             "value" : "${applicationName} içinde Zen modunu aç/kapat"
           }
         },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перемкнути режим «Дзен» у ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -521,6 +545,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "${applicationName} içinde gizli öğeleri aç/kapat"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показати або приховати приховані елементи в ${applicationName}"
           }
         },
         "zh-Hans" : {

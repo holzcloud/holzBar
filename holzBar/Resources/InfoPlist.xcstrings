@@ -120,6 +120,12 @@
             "value" : "Telif Hakkı © 2025 Jordan Baird. holzBar değişiklikleri © 2026 holzcloud."
           }
         },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2025 Jordan Baird. Зміни holzBar © 2026 holzcloud."
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -239,6 +245,12 @@
             "state" : "translated",
             "value" : "holzBar memantau folder Unduhan Anda untuk unduhan yang sedang berlangsung agar dapat menampilkannya di notch. holzBar tidak pernah membaca apa yang Anda unduh."
           }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar стежить за папкою «Завантаження», щоб показувати поточні завантаження біля вирізу. Вміст завантажуваних файлів не читається."
+          }
         }
       }
     },
@@ -346,6 +358,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar, bir otomasyon kuralının tepki verebilmesi için bağlı olduğunuz Wi-Fi ağının adını okur. Konumunuzu okumaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar зчитує назву мережі Wi-Fi, до якої ви підключені, щоб правило автоматизації могло на неї реагувати. Локація не зчитується."
           }
         },
         "zh-Hans" : {
@@ -462,6 +480,12 @@
             "value" : "holzBar, bir otomasyon kuralının tepki verebilmesi için bağlı olduğunuz Wi-Fi ağının adını okur. Konumunuzu okumaz."
           }
         },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar зчитує назву мережі Wi-Fi, до якої ви підключені, щоб правило автоматизації могло на неї реагувати. Локація не зчитується."
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -576,6 +600,12 @@
             "value" : "holzBar, otomasyon kuralları ve aksesuar uyarıları tepki verebilsin diye eşlenmiş Bluetooth aygıtlarınızdan hangilerinin bağlı olduğunu görür. Bir aygıta asla bağlanmaz, aygıt aramaz ve hiçbirine bir şey göndermez."
           }
         },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar бачить, які з ваших спарених пристроїв Bluetooth підключено, щоб правила автоматизації та сповіщення про аксесуари могли на це реагувати. Він ніколи не підключається до пристроїв, не шукає їх і нічого їм не надсилає."
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -688,6 +718,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar, sonraki etkinliklerinizi ve toplantı bağlantılarınızı notch merkezinde gösterir. Bunları yalnızca bu Mac’te okur ve asla göndermez veya saklamaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar показує ваші найближчі події та посилання на зустрічі в центрі біля вирізу. Події читаються лише на цьому Mac і ніколи не надсилаються та не зберігаються."
           }
         },
         "zh-Hans" : {
