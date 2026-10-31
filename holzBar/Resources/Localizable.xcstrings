@@ -32081,6 +32081,134 @@
         }
       }
     },
+    "Read all apps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Apps lesen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leer todas las apps"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lire toutes les apps"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leggi tutte le app"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのアプリを読み取る"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 앱 읽기"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ler todos os apps"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leger tut las apps"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Читать все приложения"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "读取所有 App"
+          }
+        }
+      }
+    },
+    "Read all apps is not available on this Mac" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Apps lesen ist auf diesem Mac nicht verfügbar"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leer todas las apps no está disponible en este Mac"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lire toutes les apps n’est pas disponible sur ce Mac"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leggi tutte le app non è disponibile su questo Mac"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「すべてのアプリを読み取る」はこのMacでは利用できません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 Mac에서는 ‘모든 앱 읽기’를 사용할 수 없습니다"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ler todos os apps não está disponível neste Mac"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leger tut las apps n’è betg disponibel sin quest Mac"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Функция «Читать все приложения» недоступна на этом Mac"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "此 Mac 上无法使用“读取所有 App”"
+          }
+        }
+      }
+    },
     "Read where menu bar items are." : {
       "localizations" : {
         "de" : {
@@ -39053,6 +39181,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在菜单栏中显示隐藏的项目，并在其下方打开其菜单。关闭时，菜单会打开，但不显示该项目。"
+          }
+        }
+      }
+    },
+    "Shows what browsers and video apps play, too. Uses a private macOS interface and a helper that holzBar starts only while the hub is open. It switches itself off if macOS changes it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt auch, was Browser und Video-Apps abspielen. Nutzt eine private macOS-Schnittstelle und einen Helfer, den holzBar nur startet, solange der Hub offen ist. Schaltet sich selbst aus, wenn macOS sie ändert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra también lo que reproducen los navegadores y las apps de vídeo. Usa una interfaz privada de macOS y un ayudante que holzBar inicia solo mientras el hub está abierto. Se desactiva solo si macOS la cambia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche aussi ce que lisent les navigateurs et les apps vidéo. Utilise une interface privée de macOS et un assistant que holzBar ne lance que lorsque le hub est ouvert. Se désactive de lui-même si macOS la modifie."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra anche ciò che riproducono browser e app video. Usa un’interfaccia privata di macOS e un helper che holzBar avvia solo mentre l’hub è aperto. Si disattiva da sola se macOS la modifica."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ブラウザやビデオアプリが再生している内容も表示します。macOSのプライベートなインターフェースと、hubが開いている間だけholzBarが起動するヘルパーを使用します。macOSがそれを変更すると、自動的にオフになります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "브라우저와 동영상 앱이 재생하는 내용도 표시합니다. macOS의 비공개 인터페이스와, hub가 열려 있는 동안에만 holzBar가 실행하는 도우미를 사용합니다. macOS가 이를 변경하면 스스로 꺼집니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra também o que navegadores e apps de vídeo reproduzem. Usa uma interface privada do macOS e um auxiliar que o holzBar inicia somente enquanto o hub está aberto. Desliga-se sozinho se o macOS a alterar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussa era tge che navigaturs ed apps da video reproduceschan. Duvra ina interfatscha privata da macOS ed in agid che holzBar entscheva mo uschè ditg che il hub è avert. El sa deactivescha atgnamain, sche macOS la midada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывает также то, что воспроизводят браузеры и видеоприложения. Использует закрытый интерфейс macOS и вспомогательную программу, которую holzBar запускает только пока открыт hub. Отключается сама, если macOS его изменит."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同时显示浏览器和视频 App 正在播放的内容。使用 macOS 的私有接口，以及 holzBar 仅在 hub 打开期间启动的辅助程序。如果 macOS 更改了该接口，它会自动关闭。"
           }
         }
       }

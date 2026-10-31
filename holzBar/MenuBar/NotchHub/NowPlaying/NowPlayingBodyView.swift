@@ -17,14 +17,22 @@ struct NowPlayingBodyView: View {
     private static let artworkSize: CGFloat = 96
 
     var body: some View {
-        Group {
-            if let event = runtime.current?.event, event.state != .stopped {
-                playing(event)
-            } else {
-                Text("Nothing is playing")
-                    .font(HolzBarTheme.Typography.callout)
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+        VStack(spacing: HolzBarTheme.Spacing.xs) {
+            Group {
+                if let event = runtime.current?.event, event.state != .stopped {
+                    playing(event)
+                } else {
+                    Text("Nothing is playing")
+                        .font(HolzBarTheme.Typography.callout)
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+            if runtime.showsRemoteUnavailable {
+                Text("Read all apps is not available on this Mac")
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+                    .lineLimit(1)
             }
         }
         .padding(.vertical, HolzBarTheme.Spacing.xxs)
@@ -33,7 +41,7 @@ struct NowPlayingBodyView: View {
 
     private func playing(_ event: NowPlayingEvent) -> some View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-            summary(event)
+            summary(event, player: runtime.current?.player)
             if let progress = runtime.progress {
                 progressRow(progress)
                     .id(runtime.revision)
@@ -42,7 +50,7 @@ struct NowPlayingBodyView: View {
         }
     }
 
-    private func summary(_ event: NowPlayingEvent) -> some View {
+    private func summary(_ event: NowPlayingEvent, player: NowPlayingPlayer?) -> some View {
         HStack(alignment: .top, spacing: HolzBarTheme.Spacing.md) {
             artworkTile
             VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
@@ -65,6 +73,13 @@ struct NowPlayingBodyView: View {
                 stateLabel(event.state)
                     .font(HolzBarTheme.Typography.caption)
                     .foregroundStyle(HolzBarTheme.Palette.accent)
+                // An app the route that reads all apps reported is named; Music and Spotify are not.
+                if let player, !player.hasPublicSource {
+                    Text(verbatim: runtime.appName(for: player))
+                        .font(HolzBarTheme.Typography.caption)
+                        .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+                        .lineLimit(1)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }

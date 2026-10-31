@@ -36,8 +36,18 @@ struct NowPlayingProgress: Equatable {
 ///
 /// The module owns no timer and no wait. The elapsed time and the progress bar are drawn by the
 /// system from a start and an end date (``NowPlayingProgress``), which are recomputed only when
-/// an event arrives. Its only task is the one-shot read of a local song's artwork, off the main
-/// actor; the buttons press the media keys through holzBar's existing poster, and only on a click.
+/// an event arrives. Its only tasks are the one-shot read of a local song's artwork, off the main
+/// actor, and, while Read all apps is on and the hub is open, the reading of the helper's output
+/// in ``MediaRemoteBridge``; the buttons press the media keys through holzBar's existing poster,
+/// and only on a click.
+///
+/// Read all apps (the optional private route) exists only while its switch is on, the hub is
+/// open and ``remoteGate`` is available: the runtime starts the bridge when the hub opens and
+/// ends it when the hub closes, when the switch goes off and on shutdown. Apps other than Music
+/// and Spotify that it reports show like the public players; Music and Spotify from it are
+/// ignored, because the public notifications and the players setting own them. When the
+/// interface or the helper fails, the gate switches the route off for the session and the module
+/// says so; the public sources keep working.
 @MainActor
 @Observable
 final class NowPlayingRuntime: HubModuleRuntime {
@@ -70,6 +80,16 @@ final class NowPlayingRuntime: HubModuleRuntime {
     @ObservationIgnored private var playersLoop: ObservationLoop?
     @ObservationIgnored private let logger = Logger(category: "NowPlaying")
 
+    /// Whether Read all apps may run: its switch, and what loading and running the helper gave.
+    /// Switched off by itself for the session after a missing interface or three failures.
+    private(set) var remoteGate = PrivateFeatureGate(isEnabled: false, load: .loaded)
+
+    @ObservationIgnored private let bridge = MediaRemoteBridge()
+    @ObservationIgnored private var readsAllApps = false
+    @ObservationIgnored private var hubIsOpen = false
+    @ObservationIgnored private var remotePlayers = Set<NowPlayingPlayer>()
+    @ObservationIgnored private var readsAllAppsLoop: ObservationLoop?
+
     init(appState: AppState) {
         self.appState = appState
         let settings = appState.settings.nowPlaying
@@ -79,6 +99,22 @@ final class NowPlayingRuntime: HubModuleRuntime {
             settings.players
         } onChange: { [weak self] players in
             self?.playersDidChange(players)
+        }
+        readsAllApps = settings.readsAllApps
+        remoteGate = PrivateFeatureGate(isEnabled: readsAllApps, load: .loaded)
+        bridge.onLine = { [weak self] line in
+            self?.remoteLineArrived(line)
+        }
+        bridge.onExit = { [weak self] status in
+            self?.remoteDidExit(status: status)
+        }
+        bridge.onUnusable = { [weak self] in
+            self?.remoteIsUnusable()
+        }
+        readsAllAppsLoop = ObservationLoop.observe {
+            settings.readsAllApps
+        } onChange: { [weak self] isOn in
+            self?.readsAllAppsDidChange(isOn)
         }
     }
 
@@ -130,7 +166,8 @@ final class NowPlayingRuntime: HubModuleRuntime {
             clearArtwork()
             return
         }
-        updateArtwork(for: current.event.track)
+        // Artwork comes from a local file named by Music; the route that reads all apps names none.
+        updateArtwork(for: current.player.hasPublicSource ? current.event.track : nil)
         let position = model.position(of: current.player, at: ProcessInfo.processInfo.systemUptime) ?? 0
         progress = NowPlayingProgress(
             position: position,
@@ -138,6 +175,124 @@ final class NowPlayingRuntime: HubModuleRuntime {
             isPlaying: current.event.state == .playing,
             start: Date.now.addingTimeInterval(-position)
         )
+    }
+
+    // MARK: Read all apps
+
+    /// Whether the module says that Read all apps switched itself off: the user wants it, and
+    /// the gate does not allow it.
+    var showsRemoteUnavailable: Bool {
+        if case .unavailable(let reason) = remoteGate.state, reason != .switchedOff {
+            return true
+        }
+        return false
+    }
+
+    /// The name of an app the route reported: the running app's name, else the last part of its
+    /// bundle identifier. Held in memory only, never logged.
+    func appName(for player: NowPlayingPlayer) -> String {
+        NSRunningApplication.runningApplications(withBundleIdentifier: player.bundleIdentifier)
+            .first?.localizedName
+            ?? player.bundleIdentifier.split(separator: ".").last.map(String.init)
+            ?? player.bundleIdentifier
+    }
+
+    /// The switch changed: start afresh with an empty count of failures.
+    private func readsAllAppsDidChange(_ isOn: Bool) {
+        readsAllApps = isOn
+        stopRemote()
+        remoteGate.setEnabled(isOn, load: .loaded)
+        appState?.settings.nowPlaying.remoteIsUnavailable = false
+        startRemote()
+    }
+
+    /// Starts the route, only while the switch is on, the hub is open and the gate allows it.
+    private func startRemote() {
+        guard hubIsOpen, PrivateFeatureGate.shouldLoad(isEnabled: readsAllApps), remoteGate.isAvailable,
+              !bridge.isActive else {
+            return
+        }
+        bridge.start()
+    }
+
+    /// Ends the route and drops the players it reported.
+    private func stopRemote() {
+        bridge.stop()
+        removeRemotePlayers()
+    }
+
+    private func removeRemotePlayers() {
+        guard !remotePlayers.isEmpty else {
+            return
+        }
+        for player in remotePlayers {
+            model.clear(player)
+        }
+        remotePlayers.removeAll()
+        refresh()
+    }
+
+    /// One line of the helper's output. Every line goes through the parser first.
+    private func remoteLineArrived(_ line: String) {
+        switch NowPlayingRemoteMessage.parse(line: line, now: .now) {
+        case .event(let event):
+            remoteGate.recordSuccess()
+            // Music and Spotify belong to the public notifications and the players setting.
+            guard !event.player.hasPublicSource else {
+                return
+            }
+            remotePlayers.insert(event.player)
+            handle(event)
+        case .none:
+            remoteGate.recordSuccess()
+            removeRemotePlayers()
+        case .unavailable(let failure):
+            switch failure {
+            case .framework: remoteGate = PrivateFeatureGate(isEnabled: true, load: .frameworkMissing)
+            case .symbol: remoteGate = PrivateFeatureGate(isEnabled: true, load: .symbolMissing)
+            case .unavailable, .timeout: remoteGate.recordFailure()
+            }
+            remoteGateDidChange()
+        case .invalid:
+            remoteGate.recordFailure()
+            remoteGateDidChange()
+        }
+    }
+
+    /// The helper ended by itself. Exit codes 3 and 4 are perl's: the library did not load or the
+    /// function was missing. 5 and 6 follow an error line that was already counted. Anything
+    /// else is a failure. The route starts again at once while the gate allows it.
+    private func remoteDidExit(status: Int32) {
+        switch status {
+        case 3: remoteGate = PrivateFeatureGate(isEnabled: true, load: .frameworkMissing)
+        case 4: remoteGate = PrivateFeatureGate(isEnabled: true, load: .symbolMissing)
+        case 5, 6: break
+        default: remoteGate.recordFailure()
+        }
+        removeRemotePlayers()
+        remoteGateDidChange()
+        startRemote()
+    }
+
+    /// The bundle failed its check, the helper is missing, the process could not start or a line
+    /// was too long: the part is not available.
+    private func remoteIsUnusable() {
+        remoteGate = PrivateFeatureGate(isEnabled: true, load: .frameworkMissing)
+        remoteGateDidChange()
+    }
+
+    /// Switches the route off for the session when the gate says so, and tells the settings.
+    private func remoteGateDidChange() {
+        guard !remoteGate.isAvailable else {
+            return
+        }
+        stopRemote()
+        guard let settings = appState?.settings.nowPlaying, !settings.remoteIsUnavailable else {
+            return
+        }
+        settings.remoteIsUnavailable = true
+        // Once: names of apps and songs are never logged.
+        logger.notice("Read all apps switched itself off for this session")
     }
 
     // MARK: Controls
@@ -231,10 +386,28 @@ final class NowPlayingRuntime: HubModuleRuntime {
         AnyView(NowPlayingBodyView(runtime: self))
     }
 
+    /// The route that reads all apps runs only while the hub is open.
+    func hubVisibilityDidChange(isOpen: Bool) {
+        hubIsOpen = isOpen
+        if isOpen {
+            startRemote()
+        } else {
+            stopRemote()
+        }
+    }
+
     /// Stops listening and lets go of what played.
     func shutDown() {
         playersLoop?.cancel()
         playersLoop = nil
+        readsAllAppsLoop?.cancel()
+        readsAllAppsLoop = nil
+        hubIsOpen = false
+        stopRemote()
+        bridge.onLine = nil
+        bridge.onExit = nil
+        bridge.onUnusable = nil
+        appState?.settings.nowPlaying.remoteIsUnavailable = false
         source.stop()
         clearArtwork()
         model.removeAll()
