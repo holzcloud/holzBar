@@ -78,6 +78,22 @@ final class LiveActivitiesRuntime: HubModuleRuntime {
 
     // MARK: Hub
 
+    /// The Overview card: the top activity, and how many more are live. Nothing while nothing
+    /// is live.
+    var tile: HubTile? {
+        let board = HubActivityBoard.board(activities, now: .now)
+        guard let top = board.compact else {
+            return nil
+        }
+        let value = top.title.count > 14 ? String(top.title.prefix(13)) + "…" : top.title
+        return HubTile(
+            symbol: top.symbol,
+            title: Text("Now"),
+            value: value,
+            detail: board.hiddenCount > 0 ? Text("+\(board.hiddenCount) more") : nil
+        )
+    }
+
     func makeBody(host: any HubHost) -> AnyView {
         AnyView(LiveActivitiesBodyView(runtime: self))
     }
