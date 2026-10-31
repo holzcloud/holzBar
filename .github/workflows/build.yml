@@ -104,7 +104,9 @@ jobs:
 
       # The check is a security promise, so it is shown to fail: small fixture apps signed ad hoc
       # (none, the Calendar key, Calendar plus camera, get-task-allow, a network key, no hardened
-      # runtime, nested code) must each pass or fail as the check says.
+      # runtime, nested code, and the Now Playing helper framework: allowed, but not a second
+      # framework, an entitlement, a removed signature, the wrong folder, a second Mach-O file
+      # or a missing hardened runtime) must each pass or fail as the check says.
       - name: Test the signature check
         run: Scripts/test-check-signature.sh
 
@@ -146,8 +148,9 @@ jobs:
       # the sources; this step checks what was really built: no executable in the app may
       # reference URLSession, NSURLConnection, WKWebView, Network connections, listeners or
       # browsers, or BSD sockets, or link WebKit. "Check the signature" already rejects every
-      # entitlement but the Calendar one, network ones included. NWPathMonitor (the "Reveal when offline" rule)
-      # only observes whether a network path exists, so its symbols pass.
+      # entitlement but the Calendar one, network ones included. The helper framework of the
+      # Now Playing module (NowPlayingRemote.framework) is scanned too. NWPathMonitor (the
+      # "Reveal when offline" rule) only observes whether a network path exists, so its symbols pass.
       - name: Check the binaries for network code
         run: |
           APP=build/Build/Products/Release/holzBar.app
@@ -169,7 +172,7 @@ jobs:
               echo "::error::$NAME links WebKit"
               FAILED=1
             fi
-          done < <(find "$APP" -type f \( -path '*/Contents/MacOS/*' -o -name '*.dylib' \) -print0)
+          done < <(find "$APP" -type f \( -path '*/Contents/MacOS/*' -o -name '*.dylib' -o -path '*/NowPlayingRemote.framework/Versions/*/NowPlayingRemote' \) -print0)
           if [ "$COUNT" -eq 0 ]; then
             echo "::error::No executable found in $APP"
             FAILED=1
