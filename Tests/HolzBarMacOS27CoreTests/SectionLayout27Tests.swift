@@ -175,3 +175,58 @@ struct SeededLayout27Tests {
         #expect(SectionLayout27.seededLayout(items: [], hiddenControlItem: hiddenDivider, alwaysHiddenControlItem: nil) == nil)
     }
 }
+
+@Suite("Seeding the macOS 27 layout from the sections saved before macOS 27")
+struct SavedSectionsSeed27Tests {
+    @Test("Items collapse to their application, the most visible section wins")
+    func collapses() {
+        let layout = SectionLayout27.seededLayout(itemSections: [
+            "com.caldis.Mos:a": 2,
+            "eu.exelban.Stats:a": 1,
+            "eu.exelban.Stats:b": 0,
+            "ru.keepcoder.Telegram:x": 1,
+        ])
+        #expect(layout == [
+            "com.caldis.Mos": .alwaysHidden,
+            "eu.exelban.Stats": .visible,
+            "ru.keepcoder.Telegram": .hidden,
+        ])
+    }
+
+    @Test("Unusable entries are skipped and nothing saved gives nil")
+    func skips() {
+        #expect(SectionLayout27.seededLayout(itemSections: [:]) == nil)
+        #expect(SectionLayout27.seededLayout(itemSections: ["nodot:a": 1, "com.x.y:a": 7]) == nil)
+    }
+}
+
+@Suite("Upgrading from one macOS to another")
+struct OSUpgrade27Tests {
+    @Test("An upgrade from 26 with sections saved and no layout seeds the layout again")
+    func upgrade() {
+        let plan = OSUpgrade27.plan(previousMajor: 26, currentMajor: 27, layoutIsEmpty: true, hasSavedSections: true)
+        #expect(plan.reseedsLayout)
+        #expect(plan.recordsVersion)
+    }
+
+    @Test("An installation that recorded nothing is repaired once")
+    func unknownPrevious() {
+        let plan = OSUpgrade27.plan(previousMajor: nil, currentMajor: 27, layoutIsEmpty: true, hasSavedSections: true)
+        #expect(plan.reseedsLayout)
+    }
+
+    @Test("A layout the user has is kept")
+    func keepsLayout() {
+        let plan = OSUpgrade27.plan(previousMajor: 26, currentMajor: 27, layoutIsEmpty: false, hasSavedSections: true)
+        #expect(!plan.reseedsLayout)
+        #expect(plan.recordsVersion)
+    }
+
+    @Test("The same version and a downgrade do nothing to the layout")
+    func noop() {
+        #expect(OSUpgrade27.plan(previousMajor: 27, currentMajor: 27, layoutIsEmpty: true, hasSavedSections: true) == .none)
+        let down = OSUpgrade27.plan(previousMajor: 27, currentMajor: 26, layoutIsEmpty: true, hasSavedSections: true)
+        #expect(!down.reseedsLayout)
+        #expect(down.recordsVersion)
+    }
+}

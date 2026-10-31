@@ -277,6 +277,8 @@ nonisolated extension Defaults {
         // MARK: macOS 27
         case macOS27Layout = "MacOS27Layout"
         case macOS27LayoutSeeded = "MacOS27LayoutSeeded"
+        /// The major macOS version holzBar last ran on; an upgrade path starts when it differs.
+        case lastRunMacOSMajor = "LastRunMacOSMajor"
         case macOS27ClickRestoreDelay = "MacOS27ClickRestoreDelay"
         case macOS27ShelfWaitsForRefresh = "MacOS27IceBarWaitsForRefresh"
         /// The system items the user hid on macOS 27, by name (`SystemItem27`).
@@ -429,6 +431,7 @@ nonisolated extension Defaults.Key {
             .spacerWidth,
             .layoutSnapshotsLimit,
             .macOS27ClickRestoreDelay,
+            .lastRunMacOSMajor,
             .menuBarBorderWidth,
             .menuBarTintKind:
             .number
@@ -544,6 +547,7 @@ nonisolated extension Defaults.Key {
     /// displays' identifiers are those of this Mac).
     static let localOnlyKeys: Set<Defaults.Key> = [
         .syncsSettingsWithICloud,
+        .lastRunMacOSMajor,
         .lockHiddenItems,
         .usageSuggestionsEnabled,
         .cleanUpOffered,

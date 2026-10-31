@@ -201,6 +201,7 @@ final class AppState {
     @ObservationIgnored private lazy var setupTask = Task { @MainActor in
         permissions.stopAllChecks()
 
+        applyOSUpgrade()
         settings.performSetup(with: self)
         systemActivityMonitor.performSetup()
         applicationMenuFrames.performSetup()
@@ -260,6 +261,29 @@ final class AppState {
             await itemManager.reconcileSections(trigger: .settle)
             await itemManager.retryPausedRehide()
             await imageCache.updateCache()
+        }
+    }
+
+    /// Carries the stored state over when macOS was updated since holzBar last ran
+    /// (see ``OSUpgrade27``). It runs before anything reads the layout.
+    private func applyOSUpgrade() {
+        let current = ProcessInfo.processInfo.operatingSystemVersion.majorVersion
+        let recorded = Defaults.integer(forKey: .lastRunMacOSMajor)
+        let layout = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
+        let sections = Defaults.dictionary(forKey: .itemSections) as? [String: Int] ?? [:]
+        let plan = OSUpgrade27.plan(
+            previousMajor: recorded == 0 ? nil : recorded,
+            currentMajor: current,
+            layoutIsEmpty: layout.isEmpty,
+            hasSavedSections: !sections.isEmpty
+        )
+        if plan.reseedsLayout {
+            // The seeding runs once more and reads the sections saved before macOS 27.
+            Defaults.set(false, forKey: .macOS27LayoutSeeded)
+            logger.notice("macOS changed from \(recorded, privacy: .public) to \(current, privacy: .public): the layout is taken over from the sections saved before")
+        }
+        if plan.recordsVersion {
+            Defaults.set(current, forKey: .lastRunMacOSMajor)
         }
     }
 

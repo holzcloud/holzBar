@@ -80,6 +80,32 @@ nonisolated enum SectionLayout27 {
         return appSections(items: sections)
     }
 
+    /// The sections holzBar saved by item identity before macOS 27 (`Defaults.Key.itemSections`),
+    /// collapsed to one section per application.
+    ///
+    /// Unlike the order of the bar, this record survives the upgrade whatever macOS 27 did to
+    /// the bar, so it is the first source of the seeded layout. Keys look like
+    /// `<bundle identifier>:<rest>`; entries with another section index or an invalid bundle
+    /// identifier are skipped. Returns `nil` when nothing usable is saved.
+    static func seededLayout(itemSections: [String: Int]) -> [String: MacOS27Section]? {
+        let sections = itemSections.compactMap { entry -> (bundleID: String, section: MacOS27Section)? in
+            let bundleID = String(entry.key.prefix { $0 != ":" })
+            guard
+                bundleID.contains("."),
+                !bundleID.hasPrefix("."),
+                !bundleID.hasSuffix("."),
+                let section = MacOS27Section(rawValue: entry.value)
+            else {
+                return nil
+            }
+            return (bundleID, section)
+        }
+        guard !sections.isEmpty else {
+            return nil
+        }
+        return appSections(items: sections)
+    }
+
     /// The section an item's bounds put it in, or `nil` for one lying across a divider.
     ///
     /// The rules are the ones the original Ice used on the bar before macOS 27.
