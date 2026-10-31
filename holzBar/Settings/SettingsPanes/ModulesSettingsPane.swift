@@ -48,7 +48,8 @@ struct ModulesSettingsPane: View {
         switch permission {
         case .calendar: Text("Asks for Calendar access when you switch it on")
         case .bluetooth: Text("Needs Bluetooth")
-        case .accessibility, .screenRecording, .inputMonitoring, .microphone, .camera, .notifications,
+        case .accessibility: Text("Needs Accessibility")
+        case .screenRecording, .inputMonitoring, .microphone, .camera, .notifications,
             .fullDiskAccess, .files:
             Text(verbatim: permission.rawValue)
         }

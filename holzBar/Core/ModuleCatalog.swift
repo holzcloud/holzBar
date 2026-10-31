@@ -164,6 +164,15 @@ nonisolated enum ModuleCatalog {
             permission: .bluetooth,
             isPreview: true
         ),
+        ModuleDescriptor(
+            id: "notifications",
+            area: .notch,
+            symbol: "bell.badge",
+            titleKey: "Notifications",
+            summaryKey: "The banners macOS shows, listed at the notch.",
+            permission: .accessibility,
+            isPreview: true
+        ),
     ]
 
     /// The modules of an area, in catalog order.

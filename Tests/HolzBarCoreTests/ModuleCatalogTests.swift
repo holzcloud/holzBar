@@ -189,6 +189,29 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["accessory-alerts"], knownTo: ModuleCatalog.all) == ["accessory-alerts"])
     }
 
+    @Test("Notifications is a Preview module of the notch area that needs Accessibility, after the hub's other modules")
+    func notificationsModule() throws {
+        let notifications = try #require(ModuleCatalog.all.first { $0.id == "notifications" })
+        #expect(notifications.area == .notch)
+        #expect(notifications.permission == .accessibility)
+        #expect(notifications.isPreview)
+        #expect(notifications.symbol == "bell.badge")
+        #expect(notifications.titleKey == "Notifications")
+        #expect(notifications.summaryKey == "The banners macOS shows, listed at the notch.")
+        let notch = ModuleCatalog.modules(in: .notch).map(\.id)
+        let index = try #require(notch.firstIndex(of: "notifications"))
+        let hubIndex = try #require(notch.firstIndex(of: "notch-hub"))
+        #expect(hubIndex < index)
+        for other in ["timers", "calendar", "live-activities", "file-drop", "display-controls", "accessory-alerts"] {
+            let otherIndex = try #require(notch.firstIndex(of: other))
+            #expect(otherIndex < index)
+        }
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["notifications"], knownTo: ModuleCatalog.all) == ["notifications"])
+    }
+
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(
@@ -199,7 +222,7 @@ struct ModuleCatalogTests {
             """
         )
         #expect(
-            Set(ModuleCatalog.all.compactMap(\.permission)) == [.calendar, .bluetooth],
+            Set(ModuleCatalog.all.compactMap(\.permission)) == [.calendar, .bluetooth, .accessibility],
             """
             A module with a permission needs its sentence (permissionText) and its lookup \
             (isGranted) in ModulesSettingsPane (a module says why before it asks). Teach the \
