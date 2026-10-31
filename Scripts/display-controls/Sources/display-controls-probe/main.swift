@@ -11,13 +11,16 @@ import DisplayProbeCore
 import Foundation
 
 let usage = """
-usage: display-controls-probe brightness [--allow-change] [--set VALUE] [--label TEXT] [--show-values]
+usage: display-controls-probe displays [--label TEXT]
+       display-controls-probe brightness [--allow-change] [--set VALUE] [--label TEXT] [--show-values]
+       display-controls-probe volume [--allow-change] [--label TEXT] [--show-values]
+       display-controls-probe listen [--seconds N] [--label TEXT]
        display-controls-probe selftest
        (--redact is the default)
 """
 
 private func parse(_ arguments: [String]) -> Options? {
-    guard let command = arguments.first, ["brightness", "selftest"].contains(command) else {
+    guard let command = arguments.first, ["displays", "brightness", "volume", "listen", "selftest"].contains(command) else {
         return nil
     }
     var options = Options(command: command)

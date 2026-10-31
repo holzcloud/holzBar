@@ -73,6 +73,14 @@ enum Session {
             let outcome = runBrightness(options)
             summary = outcome.summary
             answers = outcome.answers
+        case "displays":
+            for display in Displays.list() {
+                Out.emit(display.line)
+            }
+        case "volume":
+            summary = runVolume(options)
+        case "listen":
+            summary.listener = Listen.run(seconds: options.seconds).rawValue
         default:
             break
         }
@@ -232,6 +240,54 @@ enum Session {
         ])
     }
 
+    // MARK: volume
+
+    private static func runVolume(_ options: Options) -> SummaryParts {
+        var summary = SummaryParts()
+        guard let device = Volume.defaultOutputDevice() else {
+            Out.emit(ProbeLine.line("VOLUME", [
+                ("transport", nil), ("plan", nil), ("virtualMain", nil), ("channels", nil),
+                ("muteSettable", nil), ("set", nil), ("readBack", nil), ("restored", nil),
+            ]))
+            summary.volume = Verdict.text((.noGo, "no default output device"))
+            return summary
+        }
+        let transport = Volume.transport(of: device)
+        if options.showValues, let name = Volume.name(of: device) {
+            Out.emit(ProbeLine.line("STEP", [("outputDevice", name)]))
+        }
+        let plan = Volume.plan(for: device)
+        if options.allowChange {
+            Out.emit("STEP the output volume moves by 5 percent for under a second and goes back; you may hear it")
+        }
+        let change = options.allowChange ? Volume.changeTest(device, plan: plan) : Volume.ChangeOutcome()
+        let tested = options.allowChange && change.original != nil
+        Out.emit(ProbeLine.line("VOLUME", [
+            ("transport", transport.rawValue),
+            ("plan", plan.word.rawValue),
+            ("virtualMain", plan.virtualMainState),
+            ("channels", String(plan.settableChannels)),
+            ("muteSettable", Report.yesNo(plan.muteSettable)),
+            ("set", change.setStatus.map { Report.status($0) }),
+            ("readBack", change.readBack.map(Report.level)),
+            ("restored", change.restored.map(Report.level)),
+        ]))
+        let observation = Verdict.VolumeObservation(
+            plan: plan.word,
+            transport: transport,
+            changeTested: tested,
+            original: change.original,
+            target: change.target,
+            readBack: change.readBack,
+            restored: change.restored,
+            muteSettable: plan.muteSettable,
+            listener: change.listener
+        )
+        summary.volume = Verdict.text(Verdict.volume(observation))
+        summary.listener = change.listener.rawValue
+        return summary
+    }
+
     // MARK: Questions
 
     /// The end-of-run questions, asked only on a terminal.
@@ -321,6 +377,29 @@ enum Selftest {
         check("target", Report.level(Verdict.target(from: 0.62)), "0.6700")
         check("targetFloor", Report.level(Verdict.target(from: 0.0)), "0.0500")
         check("targetTop", Report.level(Verdict.target(from: 0.99)), "0.9400")
+
+        let volume = Verdict.VolumeObservation(
+            plan: .virtualMain,
+            transport: .builtIn,
+            changeTested: true,
+            original: 0.5,
+            target: 0.55,
+            readBack: 0.55,
+            restored: 0.5,
+            muteSettable: true,
+            listener: .fired
+        )
+        check("volumeGo", Verdict.text(Verdict.volume(volume)), "GO")
+        var untested = volume
+        untested.changeTested = false
+        untested.listener = .notRun
+        check("volumeReduced", Verdict.text(Verdict.volume(untested)), "REDUCED-GO (change not tested, listener not run)")
+        check("volumeNone", Verdict.text(Verdict.volume(.init(plan: .none, transport: .builtIn))), "NO-GO (no settable volume)")
+        check(
+            "volumeLine",
+            ProbeLine.summary(brightness: nil, volume: "GO", listener: Verdict.ListenerState.notRun.rawValue, external: nil),
+            "SUMMARY brightness=- volume=GO listener=\"not run\" external=-"
+        )
 
         if failures.isEmpty {
             Out.emit("selftest ok")

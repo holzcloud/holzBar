@@ -65,10 +65,73 @@ public enum Verdict {
         }
     }
 
-    /// What the probe saw of the default output device's volume. Declared here; the verdict
-    /// function for it is `volume(_:)`.
+    /// How the volume of an output is reached, as a word.
+    public enum VolumePlan: String, Sendable {
+        case virtualMain
+        case mainScalar
+        case channels
+        case none
+
+        /// The virtual main volume first, then the main element's scalar volume, then the
+        /// scalar volumes of channels 1 and 2, else none.
+        public static func choose(virtualMainSettable: Bool, mainScalarSettable: Bool, settableChannels: Int) -> VolumePlan {
+            if virtualMainSettable { return .virtualMain }
+            if mainScalarSettable { return .mainScalar }
+            if settableChannels > 0 { return .channels }
+            return .none
+        }
+    }
+
+    /// How an output device is connected, as a word. A device name is never used.
+    public enum Transport: String, Sendable {
+        case builtIn = "built-in"
+        case usb
+        case bluetooth
+        case hdmi
+        case displayPort = "displayport"
+        case other
+    }
+
+    /// Whether a volume listener reported the probe's own change.
+    public enum ListenerState: String, Sendable {
+        case fired
+        case silent
+        case notRun = "not run"
+    }
+
+    /// What the probe saw of the default output device's volume.
     public struct VolumeObservation: Sendable {
-        public init() {}
+        public var plan: VolumePlan
+        public var transport: Transport
+        public var changeTested: Bool
+        public var original: Double?
+        public var target: Double?
+        public var readBack: Double?
+        public var restored: Double?
+        public var muteSettable: Bool
+        public var listener: ListenerState
+
+        public init(
+            plan: VolumePlan,
+            transport: Transport = .other,
+            changeTested: Bool = false,
+            original: Double? = nil,
+            target: Double? = nil,
+            readBack: Double? = nil,
+            restored: Double? = nil,
+            muteSettable: Bool = false,
+            listener: ListenerState = .notRun
+        ) {
+            self.plan = plan
+            self.transport = transport
+            self.changeTested = changeTested
+            self.original = original
+            self.target = target
+            self.readBack = readBack
+            self.restored = restored
+            self.muteSettable = muteSettable
+            self.listener = listener
+        }
     }
 
     /// BRIGHTNESS: the built-in display, or an Apple display when the Mac has none.
@@ -108,9 +171,41 @@ public enum Verdict {
         return (.go, "all criteria met")
     }
 
-    /// VOLUME: not implemented yet.
+    /// VOLUME: the default output device.
     public static func volume(_ observation: VolumeObservation) -> (result: Result, reason: String) {
-        (.noGo, "not run")
+        if observation.plan == .none {
+            // A monitor's own audio often has no volume control; that is not the criterion,
+            // which names the built-in speakers and wired headphones.
+            if observation.transport == .hdmi || observation.transport == .displayPort {
+                return (.reducedGo, "no volume control on this transport")
+            }
+            return (.noGo, "no settable volume")
+        }
+        var reasons: [String] = []
+        if !observation.changeTested {
+            reasons.append("change not tested")
+        } else {
+            let target = observation.target ?? Self.target(from: observation.original ?? 0.5)
+            if let readBack = observation.readBack, Tolerance.agrees(readBack, target) {
+                if let original = observation.original, let restored = observation.restored,
+                   Tolerance.agrees(restored, original) {
+                    // The change read back and was restored.
+                } else {
+                    reasons.append("original not restored")
+                }
+            } else {
+                reasons.append("change did not read back")
+            }
+        }
+        if !observation.muteSettable {
+            reasons.append("no settable mute")
+        }
+        switch observation.listener {
+        case .fired: break
+        case .silent: reasons.append("listener silent")
+        case .notRun: reasons.append("listener not run")
+        }
+        return reasons.isEmpty ? (.go, "all criteria met") : (.reducedGo, reasons.joined(separator: ", "))
     }
 
     /// The level a change test moves to: the original plus 0.05, or minus 0.05 when the
