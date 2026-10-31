@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+import AppKit
 import CoreAudio
 import Foundation
 import Observation
@@ -43,6 +44,16 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// The output's name, for the open tab only.
     private(set) var outputName: String?
 
+    /// The built-in display's brightness from 0 to 1, or `nil` when it cannot be read.
+    private(set) var brightness: Double?
+
+    /// Whether the brightness part may run. It starts switched off and is replaced the first
+    /// time the brightness is needed.
+    private(set) var gate = PrivateFeatureGate(isEnabled: false, load: .loaded)
+
+    /// The built-in display the brightness belongs to.
+    @ObservationIgnored private var brightnessDisplay: CGDirectDisplayID?
+
     /// The device the volume was read from.
     @ObservationIgnored private var device: AudioObjectID?
 
@@ -52,8 +63,9 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     /// Creates the runtime. It has nothing to start: the state is read when the hub opens.
     init(appState _: AppState) {}
 
-    /// Reads the default output's plan, level, mute and name again.
+    /// Reads the default output's plan, level, mute and name again, and the brightness.
     func refresh() {
+        refreshBrightness()
         guard let output = OutputVolume.current() else {
             clear()
             return
@@ -73,6 +85,56 @@ final class DisplayControlsRuntime: HubModuleRuntime {
         }
         OutputVolume.setVolume(value, of: device, plan: plan)
         volume = OutputVolume.volume(of: device, plan: plan)
+    }
+
+    /// Reads the built-in display's brightness. The brightness wrapper is loaded here, the first
+    /// time and never before; a failed read counts against the gate.
+    func refreshBrightness() {
+        guard PrivateFeatureGate.shouldLoad(isEnabled: true) else {
+            return
+        }
+        // Loading happens once; asking again returns the same result and changes nothing.
+        gate.setEnabled(true, load: DisplayServicesBrightness.load())
+        guard gate.isAvailable else {
+            brightness = nil
+            return
+        }
+        guard let display = NSScreen.screens.map(\.displayID).first(where: { CGDisplayIsBuiltin($0) != 0 }) else {
+            brightness = nil
+            return
+        }
+        brightnessDisplay = display
+        if let value = DisplayServicesBrightness.read(display) {
+            brightness = value
+            gate.recordSuccess()
+        } else {
+            brightness = nil
+            gate.recordFailure()
+        }
+    }
+
+    /// Sets the brightness of the built-in display. The level shown afterwards is the one read
+    /// back, not the argument.
+    func setBrightness(_ value: Double) {
+        guard gate.isAvailable, let display = brightnessDisplay else {
+            return
+        }
+        guard DisplayServicesBrightness.write(value, to: display),
+              let readBack = DisplayServicesBrightness.read(display)
+        else {
+            gate.recordFailure()
+            return
+        }
+        brightness = readBack
+        gate.recordSuccess()
+    }
+
+    /// Moves the brightness by steps of 5 percent, for the keyboard and VoiceOver.
+    func adjustBrightness(by steps: Int) {
+        guard let brightness else {
+            return
+        }
+        setBrightness(DisplayControlsLevel.stepped(brightness, by: steps))
     }
 
     /// Moves the level by steps of 5 percent, for the keyboard and VoiceOver.
@@ -157,5 +219,7 @@ final class DisplayControlsRuntime: HubModuleRuntime {
     func shutDown() {
         listener.stop()
         clear()
+        brightness = nil
+        brightnessDisplay = nil
     }
 }

@@ -19,6 +19,7 @@ struct DisplayControlsBodyView: View {
 
     var body: some View {
         VStack(spacing: Row.gap) {
+            brightnessRow
             volumeRow
         }
         .frame(maxWidth: .infinity, alignment: .top)
@@ -40,6 +41,87 @@ struct DisplayControlsBodyView: View {
     /// Whether the output has a volume the app can show and set.
     private var isAvailable: Bool {
         runtime.plan != .unsupported && runtime.volume != nil
+    }
+
+    /// The built-in display's brightness: a slider, or one sentence when the part is unavailable.
+    private var brightnessRow: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                Image(systemName: "sun.max.fill")
+                    .font(HolzBarTheme.Hub.compactSymbolFont)
+                    .foregroundStyle(HolzBarTheme.Hub.pillText)
+                    .frame(width: Row.slot, height: Row.slot)
+                    .accessibilityHidden(true)
+                Text("Brightness")
+                    .font(HolzBarTheme.Typography.callout)
+                    .foregroundStyle(HolzBarTheme.Hub.neutral)
+                    .lineLimit(1)
+                if runtime.gate.isAvailable, runtime.brightness != nil {
+                    Slider(value: brightnessLevel, in: DisplayControlsLevel.minimumBrightness...1)
+                        .tint(HolzBarTheme.Palette.accent)
+                        .accessibilityLabel(Text("Brightness"))
+                        .accessibilityValue(Text("\(DisplayControlsLevel.percent(runtime.brightness ?? 0)) percent"))
+                        .accessibilityAdjustableAction { direction in
+                            switch direction {
+                            case .increment: runtime.adjustBrightness(by: 1)
+                            case .decrement: runtime.adjustBrightness(by: -1)
+                            @unknown default: break
+                            }
+                        }
+                        .onKeyPress(.leftArrow) { stepBrightness(-1) }
+                        .onKeyPress(.downArrow) { stepBrightness(-1) }
+                        .onKeyPress(.rightArrow) { stepBrightness(1) }
+                        .onKeyPress(.upArrow) { stepBrightness(1) }
+                    Text(brightnessText)
+                        .font(HolzBarTheme.Typography.mono.monospacedDigit())
+                        .foregroundStyle(HolzBarTheme.Hub.neutral)
+                        .frame(width: Row.valueWidth, alignment: .trailing)
+                        .accessibilityHidden(true)
+                } else {
+                    Spacer(minLength: 0)
+                }
+            }
+            .frame(height: Row.height)
+            if !runtime.gate.isAvailable {
+                Text("Brightness is not available on this Mac")
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Hub.neutral)
+                    .padding(.leading, Row.slot + HolzBarTheme.Spacing.xs)
+                    .padding(.bottom, HolzBarTheme.Spacing.xxs)
+            }
+        }
+        .padding(HolzBarTheme.Spacing.xs)
+        .background(
+            .white.opacity(reduceTransparency ? DesignTokens.Hub.tileFillAlphaOpaque : DesignTokens.Hub.tileFillAlpha),
+            in: HolzBarTheme.shape(CGFloat(DesignTokens.Hub.tileRadius))
+        )
+        .overlay {
+            HolzBarTheme.shape(CGFloat(DesignTokens.Hub.tileRadius))
+                .stroke(.white.opacity(DesignTokens.Hub.fileTileBorderAlpha), lineWidth: HolzBarTheme.Spacing.hairline)
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private var brightnessLevel: Binding<Double> {
+        Binding(
+            get: { runtime.brightness ?? DisplayControlsLevel.minimumBrightness },
+            set: { runtime.setBrightness($0) }
+        )
+    }
+
+    private var brightnessText: String {
+        guard let brightness = runtime.brightness else {
+            return "–"
+        }
+        return "\(DisplayControlsLevel.percent(brightness)) %"
+    }
+
+    private func stepBrightness(_ steps: Int) -> KeyPress.Result {
+        guard runtime.brightness != nil else {
+            return .ignored
+        }
+        runtime.adjustBrightness(by: steps)
+        return .handled
     }
 
     private var volumeRow: some View {
