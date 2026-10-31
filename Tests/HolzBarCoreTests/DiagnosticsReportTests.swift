@@ -178,4 +178,32 @@ struct DiagnosticsReportTests {
         #expect(!text.contains("/"))
         #expect(!text.contains("\""))
     }
+
+    @Test("With no accessory battery field the report is as before")
+    func accessoryBatteryAbsent() {
+        let text = DiagnosticsReport.make(sample)
+        #expect(!text.contains("Accessory battery"))
+        #expect(text.split(separator: "\n").count == 11)
+    }
+
+    @Test("The accessory battery state is one last line in fixed words")
+    func accessoryBatteryLine() {
+        for word in ["available", "not available", "off"] {
+            var input = sample
+            input.accessoryBattery = word
+            let lines = DiagnosticsReport.make(input).split(separator: "\n")
+            #expect(lines.count == 12)
+            #expect(lines.last == "Accessory battery: \(word)")
+        }
+    }
+
+    @Test("A hostile accessory battery field stays on one clean line without a path or a name")
+    func hostileAccessoryBattery() {
+        var input = sample
+        input.accessoryBattery = "available\n/Users/anna/Annas AirPods \"x\"\nFake: line"
+        let text = DiagnosticsReport.make(input)
+        #expect(text.split(separator: "\n").count == 12)
+        #expect(!text.contains("/"))
+        #expect(!text.contains("\""))
+    }
 }

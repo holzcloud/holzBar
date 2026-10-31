@@ -39,8 +39,21 @@ enum DiagnosticsCollector {
             snapshotCount: appState.snapshots.snapshots.count,
             nativeOverflow: nativeOverflowWord(appState),
             appleItems: appleItemsWord(appState),
-            shelf: shelfWords(appState)
+            shelf: shelfWords(appState),
+            accessoryBattery: accessoryBatteryWord(appState)
         )
+    }
+
+    /// Whether the undocumented battery call of Accessory alerts works on this Mac, in one of
+    /// three fixed words; nothing while the module is off. It reads no device and no name.
+    private static func accessoryBatteryWord(_ appState: AppState) -> String {
+        guard appState.modules.isEnabled(AccessoryAlertsRuntime.identifier) else {
+            return ""
+        }
+        guard AccessoryAlertsSettings.readsBattery() else {
+            return "off"
+        }
+        return AccessoryBatterySource.isAvailable ? "available" : "not available"
     }
 
     /// The Shelf's style and location in fixed words; nothing while the Shelf is off.
