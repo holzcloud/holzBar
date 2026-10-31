@@ -26,6 +26,11 @@ enum HubModules {
             makeRuntime: { LiveActivitiesRuntime(appState: $0) },
             makeSettings: { AnyView(LiveActivitiesSettingsView()) }
         ),
+        HubModuleRegistration(
+            id: "file-drop",
+            makeRuntime: { FileDropRuntime(appState: $0) },
+            makeSettings: { AnyView(EmptyView()) }
+        ),
     ]
 
     /// The registration of a module, if it has one.

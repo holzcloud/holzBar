@@ -135,6 +135,15 @@ nonisolated enum ModuleCatalog {
             permission: nil,
             isPreview: true
         ),
+        ModuleDescriptor(
+            id: "file-drop",
+            area: .notch,
+            symbol: "tray.and.arrow.down",
+            titleKey: "File drop",
+            summaryKey: "Stash files you drag to the notch and drop them somewhere else later.",
+            permission: nil,
+            isPreview: true
+        ),
     ]
 
     /// The modules of an area, in catalog order.

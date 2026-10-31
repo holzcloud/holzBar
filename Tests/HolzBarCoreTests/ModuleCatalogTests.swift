@@ -130,6 +130,26 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["live-activities"], knownTo: ModuleCatalog.all) == ["live-activities"])
     }
 
+    @Test("File drop is a Preview module of the notch area without a permission, after the hub and Live activities")
+    func fileDropModule() throws {
+        let drop = try #require(ModuleCatalog.all.first { $0.id == "file-drop" })
+        #expect(drop.area == .notch)
+        #expect(drop.permission == nil)
+        #expect(drop.isPreview)
+        #expect(drop.symbol == "tray.and.arrow.down")
+        #expect(drop.titleKey == "File drop")
+        let notch = ModuleCatalog.modules(in: .notch).map(\.id)
+        let hubIndex = try #require(notch.firstIndex(of: "notch-hub"))
+        let liveIndex = try #require(notch.firstIndex(of: "live-activities"))
+        let dropIndex = try #require(notch.firstIndex(of: "file-drop"))
+        #expect(hubIndex < dropIndex)
+        #expect(liveIndex < dropIndex)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["file-drop"], knownTo: ModuleCatalog.all) == ["file-drop"])
+    }
+
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(

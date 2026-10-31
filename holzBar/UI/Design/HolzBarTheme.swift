@@ -223,6 +223,8 @@ enum HolzBarTheme {
         /// The compact live-activity capsule: the activity's symbol and its phrase.
         static let compactSymbolFont = Font.system(size: CGFloat(DesignTokens.Hub.compactSymbolSize))
         static let compactTitleFont = Font.system(size: CGFloat(DesignTokens.Hub.compactTitleSize), weight: .semibold)
+        /// The words in the File drop tab's outline while a file is dragged over it.
+        static let fileDropLabelFont = Font.system(size: CGFloat(DesignTokens.Hub.fileDropLabelSize), weight: .semibold)
         static let columns = DesignTokens.Hub.columns
         static let tileGap = CGFloat(DesignTokens.Hub.tileGap)
     }
