@@ -54,6 +54,12 @@
             "value" : "Copyright © 2025 Jordan Baird. holzBar-módosítások © 2026 holzcloud."
           }
         },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hak Cipta © 2025 Jordan Baird. Perubahan holzBar © 2026 holzcloud."
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
@@ -106,6 +112,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Copyright © 2025 Jordan Baird. Ändringar i holzBar © 2026 holzcloud."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telif Hakkı © 2025 Jordan Baird. holzBar değişiklikleri © 2026 holzcloud."
           }
         },
         "zh-Hans" : {
@@ -215,6 +227,18 @@
             "state" : "translated",
             "value" : "holzBar bevakar din mapp Hämtade filer efter pågående hämtningar för att visa dem vid notchen. Den läser aldrig det du hämtar."
           }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar sürmekte olan indirmeler için İndirilenler klasörünüzü izler ve onları notch’ta gösterir. İndirdiklerinizi asla okumaz."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar memantau folder Unduhan Anda untuk unduhan yang sedang berlangsung agar dapat menampilkannya di notch. holzBar tidak pernah membaca apa yang Anda unduh."
+          }
         }
       }
     },
@@ -256,6 +280,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A holzBar beolvassa annak a Wi-Fi hálózatnak a nevét, amelyhez csatlakozik, hogy egy automatizálási szabály reagálhasson rá. A tartózkodási helyét nem olvassa."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar membaca nama jaringan Wi-Fi yang terhubung dengan Anda agar aturan otomatisasi dapat bereaksi terhadapnya. holzBar tidak membaca lokasi Anda."
           }
         },
         "it" : {
@@ -310,6 +340,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar läser namnet på Wi-Fi-nätverket du är ansluten till så att en automationsregel kan reagera på det. Den läser inte din plats."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, bir otomasyon kuralının tepki verebilmesi için bağlı olduğunuz Wi-Fi ağının adını okur. Konumunuzu okumaz."
           }
         },
         "zh-Hans" : {
@@ -360,6 +396,12 @@
             "value" : "A holzBar beolvassa annak a Wi-Fi hálózatnak a nevét, amelyhez csatlakozik, hogy egy automatizálási szabály reagálhasson rá. A tartózkodási helyét nem olvassa."
           }
         },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar membaca nama jaringan Wi-Fi yang terhubung dengan Anda agar aturan otomatisasi dapat bereaksi terhadapnya. holzBar tidak membaca lokasi Anda."
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
@@ -414,6 +456,12 @@
             "value" : "holzBar läser namnet på Wi-Fi-nätverket du är ansluten till så att en automationsregel kan reagera på det. Den läser inte din plats."
           }
         },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, bir otomasyon kuralının tepki verebilmesi için bağlı olduğunuz Wi-Fi ağının adını okur. Konumunuzu okumaz."
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -460,6 +508,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A holzBar látja, hogy a párosított Bluetooth-eszközei közül melyek csatlakoznak, hogy az automatizálási szabályok és a tartozékriasztások reagálhassanak rá. Soha nem csatlakozik eszközhöz, nem keres eszközöket, és nem küld semmit egyiknek sem."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar melihat perangkat Bluetooth Anda yang dipasangkan mana yang terhubung agar aturan otomatisasi dan peringatan aksesori dapat bereaksi. holzBar tidak pernah terhubung ke perangkat, mencari perangkat, atau mengirim apa pun ke perangkat mana pun."
           }
         },
         "it" : {
@@ -516,6 +570,12 @@
             "value" : "holzBar ser vilka av dina parade Bluetooth-enheter som är anslutna så att automationsregler och tillbehörsvarningar kan reagera på det. Den ansluter aldrig till en enhet, söker inte efter enheter och skickar ingenting till någon."
           }
         },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, otomasyon kuralları ve aksesuar uyarıları tepki verebilsin diye eşlenmiş Bluetooth aygıtlarınızdan hangilerinin bağlı olduğunu görür. Bir aygıta asla bağlanmaz, aygıt aramaz ve hiçbirine bir şey göndermez."
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -562,6 +622,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A holzBar megjeleníti a következő eseményeit és az értekezlethivatkozásaikat a notch-központban. Csak ezen a Macen olvassa őket, és soha nem küldi el vagy tárolja őket."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar menampilkan acara berikutnya dan tautan rapat Anda di pusat notch. holzBar hanya membacanya di Mac ini dan tidak pernah mengirim atau menyimpannya."
           }
         },
         "it" : {
@@ -616,6 +682,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar visar dina nästa händelser och möteslänkar i notchcentret. Den läser dem bara på den här Macen och skickar eller sparar dem aldrig."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, sonraki etkinliklerinizi ve toplantı bağlantılarınızı notch merkezinde gösterir. Bunları yalnızca bu Mac’te okur ve asla göndermez veya saklamaz."
           }
         },
         "zh-Hans" : {

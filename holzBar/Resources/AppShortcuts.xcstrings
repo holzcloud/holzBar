@@ -33,6 +33,12 @@
             "value" : "Elrendezésprofil alkalmazása: ${applicationName}"
           }
         },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terapkan profil tata letak di ${applicationName}"
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
@@ -87,6 +93,12 @@
             "value" : "Tillämpa en layoutprofil i ${applicationName}"
           }
         },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} içinde bir düzen profili uygula"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -125,6 +137,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Menüsor-elem megnyitása: ${applicationName}"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buka item bar menu di ${applicationName}"
           }
         },
         "it" : {
@@ -181,6 +199,12 @@
             "value" : "Öppna ett menyradsobjekt i ${applicationName}"
           }
         },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} içinde bir menü çubuğu öğesi aç"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -219,6 +243,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Menüsor-elemek keresése: ${applicationName}"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cari item bar menu di ${applicationName}"
           }
         },
         "it" : {
@@ -275,6 +305,12 @@
             "value" : "Sök efter menyradsobjekt i ${applicationName}"
           }
         },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} içinde menü çubuğu öğelerini ara"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -313,6 +349,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zen mód váltása: ${applicationName}"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alihkan mode Zen di ${applicationName}"
           }
         },
         "it" : {
@@ -369,6 +411,12 @@
             "value" : "Växla Zen-läge i ${applicationName}"
           }
         },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} içinde Zen modunu aç/kapat"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -407,6 +455,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rejtett elemek váltása: ${applicationName}"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alihkan item tersembunyi di ${applicationName}"
           }
         },
         "it" : {
@@ -461,6 +515,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Växla dolda objekt i ${applicationName}"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "${applicationName} içinde gizli öğeleri aç/kapat"
           }
         },
         "zh-Hans" : {

@@ -51,6 +51,14 @@
         "sv": {
           "text": "Menyrad",
           "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "tr": {
+          "text": "Menü Çubuğu",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "id": {
+          "text": "Bar Menu",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
         }
       }
     },
@@ -111,6 +119,16 @@
           "text": "menyradsobjekt",
           "source": "catalog",
           "entries": 42
+        },
+        "tr": {
+          "text": "menü çubuğu öğesi",
+          "source": "catalog",
+          "entries": 11
+        },
+        "id": {
+          "text": "item bar menu",
+          "source": "catalog",
+          "entries": 42
         }
       }
     },
@@ -167,6 +185,15 @@
           "text": "dold",
           "source": "catalog",
           "entries": 40
+        },
+        "tr": {
+          "text": "gizli",
+          "source": "catalog",
+          "entries": 43
+        },
+        "id": {
+          "text": "Tersembunyi",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -225,6 +252,16 @@
         },
         "sv": {
           "text": "alltid dold",
+          "source": "catalog",
+          "entries": 13
+        },
+        "tr": {
+          "text": "her zaman gizli",
+          "source": "catalog",
+          "entries": 13
+        },
+        "id": {
+          "text": "selalu tersembunyi",
           "source": "catalog",
           "entries": 13
         }
@@ -287,6 +324,16 @@
           "text": "synlig",
           "source": "catalog",
           "entries": 7
+        },
+        "tr": {
+          "text": "görünür",
+          "source": "catalog",
+          "entries": 8
+        },
+        "id": {
+          "text": "terlihat",
+          "source": "catalog",
+          "entries": 8
         }
       }
     },
@@ -345,6 +392,16 @@
         },
         "sv": {
           "text": "sektion",
+          "source": "catalog",
+          "entries": 29
+        },
+        "tr": {
+          "text": "bölüm",
+          "source": "catalog",
+          "entries": 29
+        },
+        "id": {
+          "text": "bagian",
           "source": "catalog",
           "entries": 29
         }
@@ -407,6 +464,16 @@
           "text": "holzBar Shelf",
           "source": "catalog",
           "entries": 23
+        },
+        "tr": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "id": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
         }
       }
     },
@@ -458,6 +525,14 @@
           "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
         },
         "sv": {
+          "text": "Profil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Profil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "id": {
           "text": "Profil",
           "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
         }
@@ -513,6 +588,15 @@
         },
         "sv": {
           "text": "Layout",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "düzen",
+          "source": "catalog",
+          "entries": 30
+        },
+        "id": {
+          "text": "Tata Letak",
           "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -574,6 +658,16 @@
           "text": "regel",
           "source": "catalog",
           "entries": 23
+        },
+        "tr": {
+          "text": "kural",
+          "source": "catalog",
+          "entries": 32
+        },
+        "id": {
+          "text": "aturan",
+          "source": "catalog",
+          "entries": 32
         }
       }
     },
@@ -633,6 +727,16 @@
           "text": "villkor",
           "source": "catalog",
           "entries": 6
+        },
+        "tr": {
+          "text": "koşul",
+          "source": "catalog",
+          "entries": 6
+        },
+        "id": {
+          "text": "kondisi",
+          "source": "catalog",
+          "entries": 6
         }
       }
     },
@@ -688,6 +792,14 @@
         "sv": {
           "text": "Åtgärd",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/sv.lproj/LocalizableMerged.strings"
+        },
+        "tr": {
+          "text": "Eylem",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/tr.lproj/LocalizableMerged.strings"
+        },
+        "id": {
+          "text": "Tindakan",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -746,6 +858,16 @@
         },
         "sv": {
           "text": "Zen-läge",
+          "source": "catalog",
+          "entries": 11
+        },
+        "tr": {
+          "text": "Zen modu",
+          "source": "catalog",
+          "entries": 11
+        },
+        "id": {
+          "text": "mode Zen",
           "source": "catalog",
           "entries": 11
         }
@@ -808,6 +930,16 @@
           "text": "kortkommando",
           "source": "catalog",
           "entries": 19
+        },
+        "tr": {
+          "text": "klavye kısayolu",
+          "source": "catalog",
+          "entries": 15
+        },
+        "id": {
+          "text": "pintasan keyboard",
+          "source": "catalog",
+          "entries": 18
         }
       }
     },
@@ -861,6 +993,14 @@
         "sv": {
           "text": "Sök",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/sv.lproj/LocalizableMerged.strings"
+        },
+        "tr": {
+          "text": "Ara",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/tr.lproj/LocalizableMerged.strings"
+        },
+        "id": {
+          "text": "Cari",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -913,6 +1053,15 @@
         },
         "sv": {
           "text": "Utseende",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "görünüm",
+          "source": "catalog",
+          "entries": 14
+        },
+        "id": {
+          "text": "Tampilan",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -969,6 +1118,15 @@
         "sv": {
           "text": "Färgton",
           "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Renk Tonu",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "id": {
+          "text": "rona",
+          "source": "catalog",
+          "entries": 4
         }
       }
     },
@@ -1029,6 +1187,16 @@
           "text": "kantlinje",
           "source": "catalog",
           "entries": 6
+        },
+        "tr": {
+          "text": "kenarlık",
+          "source": "catalog",
+          "entries": 6
+        },
+        "id": {
+          "text": "garis tepi",
+          "source": "catalog",
+          "entries": 6
         }
       }
     },
@@ -1077,6 +1245,14 @@
         },
         "sv": {
           "text": "Skugga",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "gölge",
+          "source": "unverified"
+        },
+        "id": {
+          "text": "Bayangan",
           "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -1131,6 +1307,14 @@
         "sv": {
           "text": "Hjälpmedel",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "tr": {
+          "text": "Erişilebilirlik",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "id": {
+          "text": "Aksesibilitas",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
         }
       }
     },
@@ -1184,6 +1368,14 @@
         "sv": {
           "text": "Skärminspelning",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "tr": {
+          "text": "Ekran Kaydı",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "id": {
+          "text": "Perekaman Layar",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
         }
       }
     },
@@ -1236,6 +1428,14 @@
         },
         "sv": {
           "text": "Platstjänster",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Konum Servisleri",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "id": {
+          "text": "Layanan Lokasi",
           "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -1297,6 +1497,16 @@
           "text": "behörighet",
           "source": "catalog",
           "entries": 11
+        },
+        "tr": {
+          "text": "izin",
+          "source": "catalog",
+          "entries": 8
+        },
+        "id": {
+          "text": "izin",
+          "source": "catalog",
+          "entries": 14
         }
       }
     },
@@ -1354,6 +1564,16 @@
           "entries": 6
         },
         "sv": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "tr": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "id": {
           "text": "widget",
           "source": "catalog",
           "entries": 6
@@ -1417,6 +1637,16 @@
           "text": "skript",
           "source": "catalog",
           "entries": 30
+        },
+        "tr": {
+          "text": "komut dosyası",
+          "source": "catalog",
+          "entries": 25
+        },
+        "id": {
+          "text": "skrip",
+          "source": "catalog",
+          "entries": 30
         }
       }
     },
@@ -1470,6 +1700,14 @@
         "sv": {
           "text": "Genväg",
           "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "tr": {
+          "text": "Kestirme",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "id": {
+          "text": "Pintasan",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
         }
       }
     },
@@ -1521,6 +1759,14 @@
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
         },
         "sv": {
+          "text": "Fokus",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "tr": {
+          "text": "Odak",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "id": {
           "text": "Fokus",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
         }
@@ -1578,6 +1824,16 @@
           "text": "Wi-Fi",
           "source": "catalog",
           "entries": 10
+        },
+        "tr": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "id": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
         }
       }
     },
@@ -1630,6 +1886,14 @@
         },
         "sv": {
           "text": "Batteri",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "tr": {
+          "text": "Pil",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "id": {
+          "text": "Baterai",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
         }
       }
@@ -1685,6 +1949,14 @@
         "sv": {
           "text": "Strömsparläge",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "tr": {
+          "text": "Düşük Güç Modu",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "id": {
+          "text": "Mode Daya Rendah",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
         }
       }
     },
@@ -1739,6 +2011,15 @@
         "sv": {
           "text": "Skärm",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "tr": {
+          "text": "Ekran",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "id": {
+          "text": "layar",
+          "source": "catalog",
+          "entries": 19
         }
       }
     },
@@ -1799,6 +2080,16 @@
           "text": "notch",
           "source": "catalog",
           "entries": 24
+        },
+        "tr": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "id": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
         }
       }
     },
@@ -1851,6 +2142,16 @@
           "entries": 48
         },
         "sv": {
+          "text": "app",
+          "source": "catalog",
+          "entries": 51
+        },
+        "tr": {
+          "text": "uygulama",
+          "source": "catalog",
+          "entries": 51
+        },
+        "id": {
           "text": "app",
           "source": "catalog",
           "entries": 51
@@ -1907,6 +2208,14 @@
         "sv": {
           "text": "Förhandsvisning",
           "source": "/System/Library/ExtensionKit/Extensions/Wallpaper.appex/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Önizleme",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/tr.lproj/LocalizableMerged.strings"
+        },
+        "id": {
+          "text": "Pratinjau",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -1959,6 +2268,14 @@
         },
         "sv": {
           "text": "Inställningar",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Ayarlar",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "id": {
+          "text": "Pengaturan",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -2013,6 +2330,15 @@
         "sv": {
           "text": "Avsluta",
           "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/sv.lproj/DockMenus.strings"
+        },
+        "tr": {
+          "text": "Çık",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/tr.lproj/DockMenus.strings"
+        },
+        "id": {
+          "text": "keluar",
+          "source": "catalog",
+          "entries": 7
         }
       }
     },
@@ -2066,6 +2392,14 @@
         "sv": {
           "text": "Ångra",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/sv.lproj/LocalizableMerged.strings"
+        },
+        "tr": {
+          "text": "Geri Al",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/tr.lproj/LocalizableMerged.strings"
+        },
+        "id": {
+          "text": "Urung",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/id.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -2119,6 +2453,14 @@
         "sv": {
           "text": "Importera",
           "source": "/System/Applications/Music.app/Contents/Resources/sv.lproj/Localizable.strings"
+        },
+        "tr": {
+          "text": "İçe Aktar",
+          "source": "/System/Applications/Music.app/Contents/Resources/tr.lproj/Localizable.strings"
+        },
+        "id": {
+          "text": "Impor",
+          "source": "/System/Applications/Music.app/Contents/Resources/id.lproj/Localizable.strings"
         }
       }
     },
@@ -2171,6 +2513,14 @@
         },
         "sv": {
           "text": "Exportera",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "tr": {
+          "text": "Dışa Aktar",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "id": {
+          "text": "Ekspor",
           "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -2229,6 +2579,16 @@
           "text": "ögonblicksbild",
           "source": "catalog",
           "entries": 7
+        },
+        "tr": {
+          "text": "anlık görüntü",
+          "source": "catalog",
+          "entries": 7
+        },
+        "id": {
+          "text": "snapshot",
+          "source": "catalog",
+          "entries": 7
         }
       }
     },
@@ -2283,6 +2643,16 @@
         },
         "sv": {
           "text": "notis",
+          "source": "catalog",
+          "entries": 8
+        },
+        "tr": {
+          "text": "bildirim",
+          "source": "catalog",
+          "entries": 8
+        },
+        "id": {
+          "text": "notifikasi",
           "source": "catalog",
           "entries": 8
         }

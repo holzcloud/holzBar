@@ -112,6 +112,20 @@
       "nativeName": "Svenska",
       "reviewedThrough": null,
       "note": ""
+    },
+    {
+      "code": "tr",
+      "englishName": "Turkish",
+      "nativeName": "Türkçe",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "id",
+      "englishName": "Indonesian",
+      "nativeName": "Bahasa Indonesia",
+      "reviewedThrough": null,
+      "note": ""
     }
   ]
 }
