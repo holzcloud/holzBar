@@ -7,6 +7,10 @@
 // It takes the two leftmost application items, ⌘-drags the first past the second,
 // reads the order again and prints REORDER WORKS or REORDER BLOCKED. Drag it back by
 // hand afterwards if it moved.
+//
+// Result: on macOS 27.2, with holzBar quit, it printed REORDER WORKS. holzBar's own executor
+// (`ItemReorderer27`) posts the same events: a pointer move, a left mouse down with ⌘, thirty
+// dragged events and a mouse up, at the items' Accessibility frames.
 import AppKit
 import ApplicationServices
 

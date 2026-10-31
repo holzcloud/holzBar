@@ -15,11 +15,16 @@ import Cocoa
 /// - ``WindowListBackend``: macOS 14 and 15, the window list and posted events.
 /// - ``ServiceBackend26``: macOS 26, the window list with source processes looked up
 ///   through Accessibility (``SourcePIDCache``).
-/// - ``AccessibilityBackend27``: macOS 27, Accessibility; items cannot be moved.
+/// - ``AccessibilityBackend27``: macOS 27, Accessibility; items cannot be moved to another
+///   section, but they can be put in order with a synthetic command-drag.
 @MainActor
 protocol MenuBarBackend: AnyObject {
     /// Whether menu bar items can be moved.
     var canMoveItems: Bool { get }
+
+    /// Whether the Layout pane can put the items of a section in order. The earlier backends
+    /// reorder exactly when they can move items; macOS 27 reorders although it cannot move.
+    var reordersItems: Bool { get }
 
     /// Whether the holzBar icon's window tells whether the menu bar is on screen.
     var iconWindowShowsMenuBar: Bool { get }
@@ -84,6 +89,10 @@ protocol MenuBarBackend: AnyObject {
     /// Creates the tap that lets clicks reach the system items while items are
     /// concealed, where the backend needs one.
     func makeSystemItemClickBridge(appState: AppState) -> (any SystemItemClickBridge)?
+}
+
+extension MenuBarBackend {
+    var reordersItems: Bool { canMoveItems }
 }
 
 /// A tap that `HIDEventManager` starts and stops with its other monitors.

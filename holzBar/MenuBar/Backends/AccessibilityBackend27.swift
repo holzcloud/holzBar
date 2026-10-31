@@ -18,7 +18,13 @@ final class AccessibilityBackend27: MenuBarBackend {
     /// Notices item changes of the processes that own items.
     private let itemChangeObserver = ItemChangeObserver27()
 
+    /// Items cannot be moved between sections. This capability also switches off the section
+    /// restore, the Shelf's ordering and the saved arrangement, which must stay off on macOS 27,
+    /// so it stays `false`; putting items in order has its own capability, ``reordersItems``.
     var canMoveItems: Bool { false }
+
+    /// ``ItemReorderer27`` puts the items of a section in order with a command-drag.
+    var reordersItems: Bool { true }
 
     /// On macOS 27 the icon's window is only a placeholder, and its frame says nothing
     /// about the menu bar (measured past a display's left edge, below its bottom, and
