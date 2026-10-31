@@ -292,9 +292,15 @@ The comparison tables in [comparison.md](comparison.md) mark these with 🔜 and
 
 ## Gallery
 
-Screenshots of holzBar 0.0.9 in dark mode.
+Screenshots of holzBar in dark mode.
 
-<p align="center"><img src="../Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, the holzBar icon, the holzBar Shelf with its location, the displays it is used on and items covered by the notch, showing hidden items on click, hover or scroll, and automatic rehide with the Smart strategy" width="760"></p>
+<p align="center"><img src="../Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, the menu bar icon choices and the holzBar Shelf with its style" width="760"></p>
+
+<p align="center"><img src="../Resources/Screenshots/settings-general-shelf.png" alt="holzBar settings, General pane, the holzBar Shelf: style, location, layout, find items by typing, applications that are not running, rearranging by dragging and the displays it is used on" width="760"></p>
+
+<p align="center"><img src="../Resources/Screenshots/settings-general-showing.png" alt="holzBar settings, General pane: items covered by the notch, showing hidden items on click, hover or scroll, the animation, opening Notification Center from the clock and per-display behaviour" width="760"></p>
+
+<p align="center"><img src="../Resources/Screenshots/settings-general-rehiding.png" alt="holzBar settings, General pane: per-display behaviour, automatic rehide with the Smart strategy, menu bar item spacing and the camera and microphone indicator dot" width="760"></p>
 
 <table>
 <tr>
