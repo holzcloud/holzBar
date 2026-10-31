@@ -74,4 +74,26 @@ struct ShelfFindTests {
         #expect(ShelfFind.step(from: "x", by: 1, in: []) == "x")
         #expect(ShelfFind.step(from: nil, by: 1, in: []) == nil)
     }
+
+    @Test("A system item's tile is found by its name, and the other tiles do not match")
+    func findsSystemTiles() {
+        var input = ShelfContents.Input()
+        input.hidden = [ShelfContents.Item(windowID: 1, name: "Dropbox")]
+        input.hiddenSystemItems = [
+            ShelfContents.SystemItem(key: "system-item:0", name: "Battery"),
+            ShelfContents.SystemItem(key: "system-item:6", name: "Wi-Fi"),
+            ShelfContents.SystemItem(key: "system-item:8", name: "Control Center"),
+            ShelfContents.SystemItem(key: "system-item:2", name: "Clock"),
+        ]
+        let tiles = ShelfContents.tiles(input)
+        var find = ShelfFind()
+        _ = find.type("wi")
+        #expect(find.matches(in: tiles) == ["system-system-item:6"])
+        find.clear()
+        _ = find.type("clock")
+        #expect(find.matches(in: tiles) == ["system-system-item:2"])
+        find.clear()
+        _ = find.type("zzz")
+        #expect(find.matches(in: tiles).isEmpty)
+    }
 }

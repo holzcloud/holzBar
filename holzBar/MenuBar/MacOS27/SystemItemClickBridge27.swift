@@ -352,6 +352,9 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
 
     // MARK: Opened from the holzBar Shelf
 
+    /// The hidden system items that a click on a Shelf tile is opening now.
+    private static var itemsOpenedFromShelf = Set<String>()
+
     /// Opens a system item the user hid, from its tile in the holzBar Shelf.
     ///
     /// The item is lifted for a moment, clicked where macOS draws it with a click the tap lets
@@ -364,6 +367,13 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
     ///   - appState: The shared app state.
     static func openFromShelf(_ item: SystemItem27, shelfDisplayID: CGDirectDisplayID?, appState: AppState) async {
         let key = SystemItems27.concealedKey(for: item)
+        // A second click while the first is still waiting for its panel starts nothing.
+        guard itemsOpenedFromShelf.insert(key).inserted else {
+            return
+        }
+        defer {
+            itemsOpenedFromShelf.remove(key)
+        }
         let identifier = item.accessibilityIdentifier
         let concealer = appState.concealer27
 

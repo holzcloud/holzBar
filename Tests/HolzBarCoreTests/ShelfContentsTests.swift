@@ -186,4 +186,34 @@ struct ShelfContentsTests {
             return true
         })
     }
+
+    @Test("All four hidden system items are listed in bar order, after the application items and the closed ones")
+    func allFourInBarOrder() {
+        var input = ShelfContents.Input()
+        input.hidden = [item(2)]
+        input.closedHidden = [app("org.example.Closed")]
+        input.hiddenSystemItems = [system(0, "Battery"), system(6, "Wi-Fi"), system(8, "Control Center"), system(2, "Clock")]
+        let expected = [
+            "item-2", "app-org.example.Closed",
+            "system-system-item:0", "system-system-item:6", "system-system-item:8", "system-system-item:2",
+        ]
+        #expect(ids(ShelfContents.tiles(input)) == expected)
+        // In a row the closed applications come first; the system items still close the group.
+        input.closedFirst = true
+        #expect(ids(ShelfContents.tiles(input)) == [
+            "app-org.example.Closed", "item-2",
+            "system-system-item:0", "system-system-item:6", "system-system-item:8", "system-system-item:2",
+        ])
+    }
+
+    @Test("A system tile is not in the fold: the folded always-hidden group does not hide it")
+    func systemTilesOutsideTheFold() {
+        var input = ShelfContents.Input()
+        input.alwaysHidden = [item(10)]
+        input.foldsAlwaysHidden = true
+        input.hiddenSystemItems = [system(2, "Clock")]
+        #expect(ids(ShelfContents.tiles(input)) == ["fold", "system-system-item:2"])
+        input.isFoldOpen = true
+        #expect(ids(ShelfContents.tiles(input)) == ["fold", "item-10", "system-system-item:2"])
+    }
 }
