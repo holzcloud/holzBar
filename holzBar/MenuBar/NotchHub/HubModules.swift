@@ -44,7 +44,7 @@ enum HubModules {
         HubModuleRegistration(
             id: "notifications",
             makeRuntime: { NotificationsRuntime(appState: $0) },
-            makeSettings: { AnyView(EmptyView()) }
+            makeSettings: { AnyView(NotificationsSettingsView()) }
         ),
     ]
 

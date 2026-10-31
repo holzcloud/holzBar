@@ -119,6 +119,19 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["ItemRuleShownSections"])
     }
 
+    @Test("The excluded notification apps stay on this Mac")
+    func excludedNotificationAppsStayLocal() {
+        #expect(Defaults.Key.notificationsExcludedApps.rawValue == "NotificationsExcludedApps")
+        #expect(Defaults.Key.notificationsExcludedApps.settingsKind == .stringArray)
+        #expect(Defaults.Key.importableKinds["NotificationsExcludedApps"] == nil)
+        #expect(Defaults.Key.localOnlyKeys.contains(.notificationsExcludedApps))
+        let result = Defaults.Key.validatedSettings(
+            ["NotificationsExcludedApps": ["Mail"], "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["NotificationsExcludedApps"])
+    }
+
     @Test("A settings file cannot set the tab the notch hub showed last")
     func settingsFileCannotSetNotchHubLastTab() {
         #expect(Defaults.Key.notchHubLastTab.settingsKind == .string)

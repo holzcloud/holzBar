@@ -334,6 +334,12 @@ nonisolated extension Defaults {
         /// turns that call off).
         case accessoryAlertsReadsBattery = "AccessoryAlertsReadsBattery"
 
+        // MARK: Notifications
+        /// The names of the apps whose notifications the Notifications module never shows (a
+        /// list of strings). They name the apps the user runs, so this stays on this Mac:
+        /// never exported or imported.
+        case notificationsExcludedApps = "NotificationsExcludedApps"
+
         // MARK: Display Controls
         /// Whether the Display controls module shows brightness sliders, which use a private
         /// macOS interface (a boolean, on by default; the switch that turns that part off).
@@ -506,7 +512,8 @@ nonisolated extension Defaults.Key {
             .hiddenSystemItems27,
             .titleChangingItemOwners,
             .revealOnChangeItems,
-            .calendarHiddenCalendars:
+            .calendarHiddenCalendars,
+            .notificationsExcludedApps:
             .stringArray
         case .hotkeys,
             .revealRules,
@@ -607,6 +614,7 @@ nonisolated extension Defaults.Key {
         .notchHubLastTab,
         .timersBoard,
         .calendarHiddenCalendars,
+        .notificationsExcludedApps,
         .shelfAlwaysHiddenFoldOpen,
         .displayBehaviors,
         .debugDropsBarrierExitEvent,

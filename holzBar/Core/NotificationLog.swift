@@ -144,6 +144,28 @@ nonisolated struct NotificationLog: Equatable, Sendable {
             && newest.body == draft.body
     }
 
+    /// The most apps the exclusion list holds.
+    static let maximumExcludedApps = 50
+
+    /// A stored exclusion list made safe: names trimmed, empty ones dropped, a name that repeats
+    /// another without regard to case dropped, at most ``maximumExcludedApps`` kept, in order. The
+    /// stored list can hold anything, because any process of the user can write the defaults.
+    static func cleanedExclusions(_ names: [String]) -> [String] {
+        var seen = Set<String>()
+        var result = [String]()
+        for name in names {
+            let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty, seen.insert(key(trimmed)).inserted else {
+                continue
+            }
+            result.append(trimmed)
+            if result.count == maximumExcludedApps {
+                break
+            }
+        }
+        return result
+    }
+
     private static func key(_ name: String) -> String {
         name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }

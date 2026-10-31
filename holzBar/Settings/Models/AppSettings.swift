@@ -38,6 +38,9 @@ final class AppSettings {
     /// The model for the Display controls module's settings.
     let displayControls = DisplayControlsSettings()
 
+    /// The model for the Notifications module's settings.
+    let notifications = NotificationsSettings()
+
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
         advanced.performSetup(with: appState)
@@ -49,5 +52,6 @@ final class AppSettings {
         liveActivities.performSetup(with: appState)
         fileDrop.performSetup(with: appState)
         displayControls.performSetup(with: appState)
+        notifications.performSetup(with: appState)
     }
 }
