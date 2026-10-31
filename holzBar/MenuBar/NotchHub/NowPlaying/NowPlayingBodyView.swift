@@ -8,7 +8,9 @@ import SwiftUI
 /// The Now Playing tab: the song that plays, with its artist, album and state; or a quiet
 /// sentence when nothing plays.
 ///
-/// The view draws what the runtime holds as plain text and holds nothing itself.
+/// The view draws what the runtime holds as plain text and holds nothing itself. The elapsed
+/// time and the progress bar are drawn by the system from a start and an end date, so the view
+/// runs no timer; it starts them over on every event.
 struct NowPlayingBodyView: View {
     let runtime: NowPlayingRuntime
 
@@ -16,7 +18,7 @@ struct NowPlayingBodyView: View {
 
     var body: some View {
         Group {
-            if let event = runtime.event, event.state != .stopped {
+            if let event = runtime.current?.event, event.state != .stopped {
                 playing(event)
             } else {
                 Text("Nothing is playing")
@@ -30,6 +32,16 @@ struct NowPlayingBodyView: View {
     }
 
     private func playing(_ event: NowPlayingEvent) -> some View {
+        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
+            summary(event)
+            if let progress = runtime.progress {
+                progressRow(progress)
+                    .id(runtime.revision)
+            }
+        }
+    }
+
+    private func summary(_ event: NowPlayingEvent) -> some View {
         HStack(alignment: .top, spacing: HolzBarTheme.Spacing.md) {
             symbolTile
             VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
@@ -79,6 +91,55 @@ struct NowPlayingBodyView: View {
         }
         .frame(width: Self.artworkSize, height: Self.artworkSize)
     }
+
+    // MARK: Progress
+
+    /// The elapsed time, the bar and the length. While the song plays, the system updates the
+    /// time and the bar between a start and an end date; while it is paused they are still.
+    @ViewBuilder
+    private func progressRow(_ progress: NowPlayingProgress) -> some View {
+        HStack(spacing: HolzBarTheme.Spacing.sm) {
+            if let end = progress.end {
+                if progress.isPlaying {
+                    Text(timerInterval: progress.start...end, pauseTime: nil, countsDown: false, showsHours: false)
+                        .font(HolzBarTheme.Typography.caption.monospacedDigit())
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    ProgressView(timerInterval: progress.start...end, countsDown: false) {
+                        EmptyView()
+                    } currentValueLabel: {
+                        EmptyView()
+                    }
+                    .tint(HolzBarTheme.Palette.accent)
+                } else {
+                    Text(verbatim: Self.format(progress.position))
+                        .font(HolzBarTheme.Typography.caption.monospacedDigit())
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    ProgressView(value: progress.position, total: max(progress.duration ?? 1, 1))
+                        .tint(HolzBarTheme.Palette.accent)
+                }
+                Text(verbatim: Self.format(progress.duration ?? 0))
+                    .font(HolzBarTheme.Typography.caption.monospacedDigit())
+                    .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+            } else if progress.isPlaying {
+                // No length is known: only the time since the start, counted up by the system.
+                Text(progress.start, style: .timer)
+                    .font(HolzBarTheme.Typography.caption.monospacedDigit())
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            } else {
+                Text(verbatim: Self.format(progress.position))
+                    .font(HolzBarTheme.Typography.caption.monospacedDigit())
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    /// Minutes and seconds, such as 3:05.
+    private static func format(_ seconds: Double) -> String {
+        Duration.seconds(seconds).formatted(.time(pattern: .minuteSecond))
+    }
+
+    // MARK: State
 
     /// The state as a symbol and a word.
     @ViewBuilder
