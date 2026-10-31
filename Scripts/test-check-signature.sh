@@ -5,6 +5,8 @@
 # The signature check is a security promise: holzBar.app carries exactly one entitlement,
 # com.apple.security.personal-information.calendars (macOS lets a hardened app ask for
 # Calendar access only with it), and every other key must fail the build and the release.
+# It also holds exactly one piece of nested code, the Now Playing helper framework
+# Contents/Frameworks/NowPlayingRemote.framework, and nothing else.
 # A check that is never shown to fail proves nothing, so this script builds a tiny app per
 # case, signs it ad hoc and runs the check on it:
 #
@@ -15,6 +17,13 @@
 #   5  hardened, a network entitlement                fails, names it
 #   6  not hardened                                   fails
 #   7  a second Mach-O file inside the bundle         fails on the nested-code rule
+#   8  the helper framework, hardened, no entitlement passes, names the helper
+#   9  a second framework beside the helper          fails: only the helper may be nested
+#  10  the helper with an entitlement                 fails, names the key
+#  11  the helper's signature removed after signing   fails: does not pass codesign --verify
+#  12  the helper under Contents/Resources            fails: only the helper's place may be nested
+#  13  a second Mach-O file inside the helper         fails: must hold exactly one Mach-O file
+#  14  the helper without the hardened runtime        fails
 #
 # It builds everything in a temporary folder, removed when it ends, and touches nothing in the
 # repository. Run by .github/workflows/build.yml next to the signature check.
@@ -76,6 +85,50 @@ fixture() {
     codesign "${args[@]}" "$app" 2> /dev/null
 }
 
+# framework APP_DIR FOLDER NAME [executable] builds a framework bundle in the real layout:
+# Versions/A with one dynamic library and Resources/Info.plist, the Versions/Current link and
+# the top-level links to the executable and the resources. codesign embeds an entitlement only
+# in an executable, never in a dynamic library, so the fixture that needs an entitlement on the
+# helper passes `executable` and gets a plain executable as the framework's code.
+framework() {
+    local app="$1" folder="$2" name="$3" kind="${4:-dylib}"
+    local fw="$app/$folder/$name.framework"
+    mkdir -p "$fw/Versions/A/Resources"
+    printf 'int helper(void) { return 0; }\n' > "$WORK/$name.c"
+    if [ "$kind" = executable ]; then
+        printf 'int main(void) { return 0; }\n' > "$WORK/$name.c"
+        cc -o "$fw/Versions/A/$name" "$WORK/$name.c"
+    else
+        cc -dynamiclib -o "$fw/Versions/A/$name" "$WORK/$name.c"
+    fi
+    local plist="$fw/Versions/A/Resources/Info.plist"
+    plutil -create xml1 "$plist"
+    plutil -insert CFBundleExecutable -string "$name" "$plist"
+    plutil -insert CFBundleIdentifier -string "com.holzcloud.holzBar.$name" "$plist"
+    plutil -insert CFBundlePackageType -string FMWK "$plist"
+    ln -s A "$fw/Versions/Current"
+    ln -s "Versions/Current/$name" "$fw/$name"
+    ln -s Versions/Current/Resources "$fw/Resources"
+}
+
+# sign_framework APP_DIR FOLDER NAME RUNTIME(yes|no) [KEY...] signs it ad hoc.
+sign_framework() {
+    local app="$1" folder="$2" name="$3" runtime="$4"
+    shift 4
+    local args=(--force --sign -)
+    [ "$runtime" = yes ] && args+=(--options runtime)
+    if [ "$#" -gt 0 ]; then
+        entitlements "$WORK/$name-entitlements.plist" "$@"
+        args+=(--entitlements "$WORK/$name-entitlements.plist")
+    fi
+    codesign "${args[@]}" "$app/$folder/$name.framework" 2> /dev/null
+}
+
+# seal_app APP re-signs the app (hardened) so that its seal covers what was added to it.
+seal_app() {
+    codesign --force --sign - --options runtime "$1" 2> /dev/null
+}
+
 FAILURES=0
 TOTAL=0
 
@@ -120,6 +173,55 @@ fixture nested yes
 cp "$WORK/holzBar" "$WORK/nested/holzBar.app/Contents/MacOS/helper"
 codesign --force --sign - --options runtime "$WORK/nested/holzBar.app" 2> /dev/null
 expect 7 "a second Mach-O file" 1 "ships no nested code" "$WORK/nested/holzBar.app"
+
+# The helper: a hardened app that contains the one allowed framework.
+HELPER=Contents/Frameworks
+
+fixture helper yes
+framework "$WORK/helper/holzBar.app" "$HELPER" NowPlayingRemote
+sign_framework "$WORK/helper/holzBar.app" "$HELPER" NowPlayingRemote yes
+seal_app "$WORK/helper/holzBar.app"
+expect 8 "the helper framework" 0 "NowPlayingRemote.framework: hardened runtime, entitlements: none" "$WORK/helper/holzBar.app"
+
+fixture second yes
+framework "$WORK/second/holzBar.app" "$HELPER" NowPlayingRemote
+sign_framework "$WORK/second/holzBar.app" "$HELPER" NowPlayingRemote yes
+framework "$WORK/second/holzBar.app" "$HELPER" Other
+sign_framework "$WORK/second/holzBar.app" "$HELPER" Other yes
+seal_app "$WORK/second/holzBar.app"
+expect 9 "a second framework" 1 "only Contents/Frameworks/NowPlayingRemote.framework may be nested" "$WORK/second/holzBar.app"
+
+fixture entitled yes
+framework "$WORK/entitled/holzBar.app" "$HELPER" NowPlayingRemote executable
+sign_framework "$WORK/entitled/holzBar.app" "$HELPER" NowPlayingRemote yes com.apple.security.device.camera
+seal_app "$WORK/entitled/holzBar.app"
+expect 10 "the helper with an entitlement" 1 "com.apple.security.device.camera" "$WORK/entitled/holzBar.app"
+
+fixture stripped yes
+framework "$WORK/stripped/holzBar.app" "$HELPER" NowPlayingRemote
+sign_framework "$WORK/stripped/holzBar.app" "$HELPER" NowPlayingRemote yes
+seal_app "$WORK/stripped/holzBar.app"
+codesign --remove-signature "$WORK/stripped/holzBar.app/$HELPER/NowPlayingRemote.framework" 2> /dev/null
+expect 11 "the helper's signature removed" 1 "does not pass codesign --verify" "$WORK/stripped/holzBar.app"
+
+fixture misplaced yes
+framework "$WORK/misplaced/holzBar.app" Contents/Resources NowPlayingRemote
+sign_framework "$WORK/misplaced/holzBar.app" Contents/Resources NowPlayingRemote yes
+seal_app "$WORK/misplaced/holzBar.app"
+expect 12 "the helper in the wrong folder" 1 "may be nested" "$WORK/misplaced/holzBar.app"
+
+fixture twin yes
+framework "$WORK/twin/holzBar.app" "$HELPER" NowPlayingRemote
+cp "$WORK/holzBar" "$WORK/twin/holzBar.app/$HELPER/NowPlayingRemote.framework/Versions/A/Resources/second"
+sign_framework "$WORK/twin/holzBar.app" "$HELPER" NowPlayingRemote yes
+seal_app "$WORK/twin/holzBar.app"
+expect 13 "a second Mach-O file in the helper" 1 "must hold exactly one Mach-O file" "$WORK/twin/holzBar.app"
+
+fixture soft yes
+framework "$WORK/soft/holzBar.app" "$HELPER" NowPlayingRemote
+sign_framework "$WORK/soft/holzBar.app" "$HELPER" NowPlayingRemote no
+seal_app "$WORK/soft/holzBar.app"
+expect 14 "the helper without the hardened runtime" 1 "not signed with the hardened runtime" "$WORK/soft/holzBar.app"
 
 if [ "$FAILURES" -ne 0 ]; then
     echo "$FAILURES of $TOTAL fixtures did not match" >&2
