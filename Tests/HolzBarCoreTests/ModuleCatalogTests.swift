@@ -112,6 +112,24 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["calendar"], knownTo: ModuleCatalog.all) == ["calendar"])
     }
 
+    @Test("Live activities is a Preview module of the notch area without a permission, after Calendar")
+    func liveActivitiesModule() throws {
+        let live = try #require(ModuleCatalog.all.first { $0.id == "live-activities" })
+        #expect(live.area == .notch)
+        #expect(live.permission == nil)
+        #expect(live.isPreview)
+        #expect(live.symbol == "waveform")
+        #expect(live.titleKey == "Live activities")
+        let notch = ModuleCatalog.modules(in: .notch).map(\.id)
+        let calendarIndex = try #require(notch.firstIndex(of: "calendar"))
+        let liveIndex = try #require(notch.firstIndex(of: "live-activities"))
+        #expect(calendarIndex < liveIndex)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["live-activities"], knownTo: ModuleCatalog.all) == ["live-activities"])
+    }
+
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(

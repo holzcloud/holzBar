@@ -155,6 +155,9 @@ nonisolated enum DesignTokens {
         /// The type sizes of the wings' parts.
         static let pillTextSize: Double = 11
         static let tabSymbolSize: Double = 13
+        /// The type sizes of the compact live-activity capsule: the symbol and the phrase.
+        static let compactSymbolSize: Double = 16
+        static let compactTitleSize: Double = 12
         /// The widget card: radius, padding, the gap between cards and the columns of a row.
         static let tileRadius: Double = 14
         static let tilePadding: Double = 10

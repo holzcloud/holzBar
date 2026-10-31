@@ -23,9 +23,12 @@ import SwiftUI
 /// - the hover monitor, its zones and its one-shot tasks, while the hub is on and Open on
 ///   hover is on;
 /// - the click monitor and the two change tasks, while the hub is open;
-/// - a module's runtime, while the hub and the module are both on (``HubModuleLifecycle``).
+/// - a module's runtime, while the hub and the module are both on (``HubModuleLifecycle``);
+/// - the compact capsule of the live activities, its two change tasks and its place in the
+///   hover zone, while at least one activity is live and the hub is closed.
 ///
-/// Every wait is a one-shot task; there is no timer.
+/// Every wait is a one-shot task; there is no timer. The only wait the live activities own is
+/// one task until the next finished activity leaves, armed only while one exists.
 @MainActor
 @Observable
 final class NotchHubController: HubHost {
@@ -58,6 +61,10 @@ final class NotchHubController: HubHost {
     /// Follows the hub's own settings, while the hub is on.
     @ObservationIgnored private var settingsLoop: ObservationLoop?
 
+    /// Follows the live activities and what decides whether the capsule may show, while the hub
+    /// is on.
+    @ObservationIgnored private var activitiesLoop: ObservationLoop?
+
     /// The runtimes of the hub modules that are on, by identifier. Empty while the hub is off.
     @ObservationIgnored private var runtimes = [String: any HubModuleRuntime]()
 
@@ -75,6 +82,9 @@ final class NotchHubController: HubHost {
     private struct Zone {
         var frame: CGRect
         var hoverZone: NotchHubGeometry.Rect
+        /// The compact capsule's rectangle while it shows on this display: the pointer resting
+        /// on it asks for the hub like the pointer at the notch.
+        var compactZone: NotchHubGeometry.Rect?
     }
 
     /// What decides whether the hover monitor and its zones exist.
@@ -109,6 +119,35 @@ final class NotchHubController: HubHost {
     @ObservationIgnored private var outsideClickMonitor: EventMonitor?
 
     @ObservationIgnored private var openTasks = [Task<Void, Never>]()
+
+    // MARK: While the capsule shows
+
+    /// What the board of live activities is built from, and what decides whether the capsule
+    /// may show: the activities, a fullscreen space and a menu bar the system hides.
+    private struct ActivityInputs: Equatable {
+        var activities: [LiveActivity]
+        var isFullscreenSpace: Bool
+        var isMenuBarHidden: Bool
+    }
+
+    /// Where the capsule is while it shows.
+    private struct CompactPlacement {
+        var screenID: CGDirectDisplayID
+        var hoverZone: NotchHubGeometry.Rect
+    }
+
+    /// The width the capsule asks the geometry for; the geometry keeps it within its limits.
+    private static let compactContentWidth: Double = 240
+
+    @ObservationIgnored private var compactPlacement: CompactPlacement?
+    @ObservationIgnored private var compactHostingView: NotchHubCompactHostingView?
+
+    /// The two tasks that follow space and display changes, only while the capsule shows.
+    @ObservationIgnored private var compactTasks = [Task<Void, Never>]()
+
+    /// The one wait of the live activities: until the next finished activity leaves.
+    @ObservationIgnored private var expiryTask: Task<Void, Never>?
+    @ObservationIgnored private var expiryGeneration = 0
 
     // MARK: Setup
 
@@ -145,11 +184,20 @@ final class NotchHubController: HubHost {
             } onChange: { [weak self] _ in
                 self?.updateHover()
             }
+            activitiesLoop = ObservationLoop.observe { [weak self] in
+                self?.activityInputs() ?? ActivityInputs(activities: [], isFullscreenSpace: false, isMenuBarHidden: false)
+            } onChange: { [weak self] _ in
+                self?.activitiesDidChange()
+            }
             reconcileRuntimes()
             updateHover()
+            activitiesDidChange()
         } else {
             modulesLoop = nil
             settingsLoop = nil
+            activitiesLoop = nil
+            cancelExpiry()
+            hideCompact()
             stopHover()
             close()
             // The hub is off, so the plan stops every runtime before the panel goes.
@@ -201,13 +249,13 @@ final class NotchHubController: HubHost {
         if isOpen {
             close()
         } else {
-            open(on: screenForHotkey(), trigger: .hotkey)
+            open(on: preferredScreen(), trigger: .hotkey)
         }
     }
 
-    /// The display the hotkey opens the hub on: the one under the pointer when the setting
-    /// includes it, else the first one it includes.
-    private func screenForHotkey() -> NSScreen? {
+    /// The display the hotkey opens the hub on, and the capsule shows on: the one under the
+    /// pointer when the setting includes it, else the first one it includes.
+    private func preferredScreen() -> NSScreen? {
         if let screen = NSScreen.screenWithMouse, isIncluded(screen) {
             return screen
         }
@@ -233,15 +281,7 @@ final class NotchHubController: HubHost {
             return
         }
         // Read once, now, and never followed.
-        let environment = NotchHubPolicy.Environment(
-            isFullscreenSpace: appState.activeSpace.isFullscreen,
-            isMenuBarHiddenBySystem: appState.menuBarManager.isMenuBarHiddenBySystem,
-            isPresenting: PresentationSignals.isPresenting(
-                mirroredDisplays: PresentationMonitor.mirroredDisplayCount(),
-                runningBundleIDs: PresentationMonitor.runningBundleIDs()
-            ),
-            isDisplayAllowed: isIncluded(screen)
-        )
+        let environment = policyEnvironment(of: screen, appState: appState)
         if let reason = NotchHubPolicy.blockReason(environment, trigger: trigger) {
             logger.debug("The Notch hub stays closed: \(reason.rawValue, privacy: .public)")
             return
@@ -255,6 +295,8 @@ final class NotchHubController: HubHost {
             logger.debug("The Notch hub has no layout for this screen")
             return
         }
+        // The capsule and the hub are one panel: the capsule goes first.
+        hideCompact()
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
         let flipped = NotchHubGeometry.flipped(layout.silhouette, displayHeight: Double(screen.frame.height))
@@ -304,6 +346,8 @@ final class NotchHubController: HubHost {
         openedBy = nil
         openScreenID = nil
         notifyRuntimes(isOpen: false)
+        // The capsule comes back when something is live.
+        activitiesDidChange()
     }
 
     private func notifyRuntimes(isOpen: Bool) {
@@ -403,6 +447,9 @@ final class NotchHubController: HubHost {
             }
             zones[screen.displayID] = Zone(frame: screen.frame, hoverZone: layout.hoverZone)
         }
+        if let placement = compactPlacement {
+            zones[placement.screenID]?.compactZone = placement.hoverZone
+        }
     }
 
     /// Handles a move of the pointer: one rectangle test against the cached zones, and a
@@ -422,7 +469,9 @@ final class NotchHubController: HubHost {
                 displayMinX: Double(zone.frame.minX),
                 displayMaxY: Double(zone.frame.maxY)
             )
-            if zone.hoverZone.contains(x: local.x, y: local.y) {
+            let isInHubZone = zone.hoverZone.contains(x: local.x, y: local.y)
+            let isInCompactZone = zone.compactZone?.contains(x: local.x, y: local.y) ?? false
+            if isInHubZone || isInCompactZone {
                 pointer.isInZone = true
                 zoneScreenID = id
             }
@@ -438,7 +487,7 @@ final class NotchHubController: HubHost {
         let decision = NotchHubPolicy.hoverDecision(
             pointer: pointer,
             isOpen: isOpen,
-            closesOnLeave: openedBy == .hover,
+            closesOnLeave: openedBy?.closesOnLeave ?? false,
             pending: hoverSchedule.pending
         )
         switch decision {
@@ -476,6 +525,192 @@ final class NotchHubController: HubHost {
         case .close:
             close()
         }
+    }
+
+    // MARK: Live activities
+
+    /// What the policy needs to know about the Mac when the hub or the capsule would show: read
+    /// when asked, never followed.
+    private func policyEnvironment(of screen: NSScreen, appState: AppState) -> NotchHubPolicy.Environment {
+        NotchHubPolicy.Environment(
+            isFullscreenSpace: appState.activeSpace.isFullscreen,
+            isMenuBarHiddenBySystem: appState.menuBarManager.isMenuBarHiddenBySystem,
+            isPresenting: PresentationSignals.isPresenting(
+                mirroredDisplays: PresentationMonitor.mirroredDisplayCount(),
+                runningBundleIDs: PresentationMonitor.runningBundleIDs()
+            ),
+            isDisplayAllowed: isIncluded(screen)
+        )
+    }
+
+    /// Reads, in one place, what the capsule depends on, so that the loop follows each of them.
+    private func activityInputs() -> ActivityInputs {
+        ActivityInputs(
+            activities: model.activities,
+            isFullscreenSpace: appState?.activeSpace.isFullscreen ?? false,
+            isMenuBarHidden: appState?.menuBarManager.isMenuBarHiddenBySystem ?? false
+        )
+    }
+
+    /// Works out the board and shows, moves or hides the capsule. Called when an activity
+    /// changes, when a fullscreen space or the hidden menu bar changes, when the hub closes,
+    /// when a finished activity leaves and when a space or the displays change while the
+    /// capsule shows.
+    ///
+    /// The capsule shows only while an activity is live, the hub is closed and the policy lets
+    /// the hub open on the display.
+    private func activitiesDidChange() {
+        guard isActive else {
+            hideCompact()
+            return
+        }
+        let board = model.board(now: .now)
+        armExpiry(at: board.nextExpiry)
+        guard
+            board.compact != nil,
+            !isOpen,
+            let appState,
+            let screen = preferredScreen(),
+            NotchHubPolicy.blockReason(policyEnvironment(of: screen, appState: appState), trigger: .compact) == nil
+        else {
+            hideCompact()
+            return
+        }
+        showCompact(board: board, on: screen)
+    }
+
+    /// Hangs the capsule below the notch of the screen, or updates it where it already is. The
+    /// capsule is the hub's panel in a smaller frame: no second window exists.
+    private func showCompact(board: HubActivityBoard.Board, on screen: NSScreen) {
+        guard
+            let layout = NotchHubGeometry.compactLayout(
+                display: Self.display(of: screen),
+                contentWidth: Self.compactContentWidth
+            )
+        else {
+            hideCompact()
+            return
+        }
+        let view = NotchHubCompactView(board: board) { [weak self] in
+            // The click is handled after the view's own action has returned, because opening
+            // the hub replaces the view.
+            Task { @MainActor in
+                self?.compactWasClicked()
+            }
+        }
+        let panel = panel ?? NotchHubPanel()
+        self.panel = panel
+        if let hostingView = compactHostingView {
+            hostingView.rootView = view
+        } else {
+            let hostingView = NotchHubCompactHostingView(view: view)
+            compactHostingView = hostingView
+            panel.applyDarkAppearance()
+            panel.acceptsKeyboard = false
+            panel.onEscape = nil
+            panel.contentView = hostingView
+            startCompactObservers()
+        }
+        let flipped = NotchHubGeometry.flipped(layout.silhouette, displayHeight: Double(screen.frame.height))
+        panel.setFrame(
+            NSRect(
+                x: screen.frame.minX + flipped.x,
+                y: screen.frame.minY + flipped.y,
+                width: flipped.width,
+                height: flipped.height
+            ),
+            display: true
+        )
+        panel.orderFrontRegardless()
+        compactPlacement = CompactPlacement(screenID: screen.displayID, hoverZone: layout.hoverZone)
+        zones = zones.mapValues { zone in
+            var zone = zone
+            zone.compactZone = nil
+            return zone
+        }
+        zones[screen.displayID]?.compactZone = layout.hoverZone
+    }
+
+    /// Takes the capsule away and ends what exists only while it shows. Does nothing to the
+    /// panel while the hub is open.
+    private func hideCompact() {
+        for task in compactTasks {
+            task.cancel()
+        }
+        compactTasks.removeAll()
+        guard compactPlacement != nil else {
+            return
+        }
+        compactPlacement = nil
+        compactHostingView = nil
+        zones = zones.mapValues { zone in
+            var zone = zone
+            zone.compactZone = nil
+            return zone
+        }
+        guard !isOpen else {
+            return
+        }
+        panel?.orderOut(nil)
+        panel?.contentView = nil
+    }
+
+    /// Follows the active space and the displays, only while the capsule shows: on either it
+    /// works out again where, and whether, the capsule shows.
+    private func startCompactObservers() {
+        compactTasks = [
+            Task { [weak self] in
+                let center = NSWorkspace.shared.notificationCenter
+                for await _ in center.notifications(named: NSWorkspace.activeSpaceDidChangeNotification) {
+                    self?.activitiesDidChange()
+                }
+            },
+            Task { [weak self] in
+                let center = NotificationCenter.default
+                for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
+                    self?.activitiesDidChange()
+                }
+            },
+        ]
+    }
+
+    /// Opens the hub on the capsule's display.
+    private func compactWasClicked() {
+        guard let screenID = compactPlacement?.screenID else {
+            return
+        }
+        open(on: NSScreen.screens.first { $0.displayID == screenID }, trigger: .compact)
+    }
+
+    // MARK: The wait for an expiry
+
+    /// Arms the one wait of the live activities: until the next finished activity leaves, then
+    /// the board is worked out again. Replaces a wait already armed, and arms none when no
+    /// finished activity is waiting to leave.
+    private func armExpiry(at date: Date?) {
+        expiryTask?.cancel()
+        expiryTask = nil
+        expiryGeneration += 1
+        guard let date else {
+            return
+        }
+        let generation = expiryGeneration
+        expiryTask = Task { [weak self] in
+            let wait = Duration.seconds(max(date.timeIntervalSinceNow, 0))
+            try? await Task.sleep(until: ContinuousClock.now.advanced(by: wait), tolerance: .seconds(1))
+            guard !Task.isCancelled, let self, expiryGeneration == generation else {
+                return
+            }
+            expiryTask = nil
+            model.activitiesDidExpire()
+            activitiesDidChange()
+        }
+    }
+
+    private func cancelExpiry() {
+        expiryTask?.cancel()
+        expiryTask = nil
+        expiryGeneration += 1
     }
 
     // MARK: HubHost

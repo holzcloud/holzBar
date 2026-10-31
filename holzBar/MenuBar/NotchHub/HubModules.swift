@@ -21,6 +21,11 @@ enum HubModules {
             makeRuntime: { CalendarRuntime(appState: $0) },
             makeSettings: { AnyView(CalendarSettingsView()) }
         ),
+        HubModuleRegistration(
+            id: "live-activities",
+            makeRuntime: { LiveActivitiesRuntime(appState: $0) },
+            makeSettings: { AnyView(EmptyView()) }
+        ),
     ]
 
     /// The registration of a module, if it has one.

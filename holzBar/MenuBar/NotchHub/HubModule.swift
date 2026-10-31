@@ -148,6 +148,15 @@ protocol HubModuleRuntime: AnyObject {
     /// The module's status in the right wing, or `nil` for none. The default is `nil`.
     var statusPill: HubStatusPill? { get }
 
+    /// What is going on in the module, as plain values: a download, a camera in use, a timer.
+    /// The hub reads it while it is on, with the activities of every other module, and shows
+    /// the top one as a small capsule below the notch while the hub is closed, and the list in
+    /// the Live activities tab. The runtime keeps it current from observable state, so the hub
+    /// follows every change; it does no work for the hub. A file name or an event title in an
+    /// activity stays in memory: the capsule shows only titles, and nothing is logged or
+    /// stored. The default is none.
+    var activities: [LiveActivity] { get }
+
     /// The body of the module's tab. The hub calls it only while the hub is open and the tab
     /// is selected; the view fills the hub's one body area and scrolls if it needs more.
     func makeBody(host: any HubHost) -> AnyView
@@ -169,6 +178,8 @@ extension HubModuleRuntime {
     var tile: HubTile? { nil }
 
     var statusPill: HubStatusPill? { nil }
+
+    var activities: [LiveActivity] { [] }
 
     func hubVisibilityDidChange(isOpen: Bool) {}
 }
