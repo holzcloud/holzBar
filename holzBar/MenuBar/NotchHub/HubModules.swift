@@ -24,7 +24,7 @@ enum HubModules {
         HubModuleRegistration(
             id: "live-activities",
             makeRuntime: { LiveActivitiesRuntime(appState: $0) },
-            makeSettings: { AnyView(EmptyView()) }
+            makeSettings: { AnyView(LiveActivitiesSettingsView()) }
         ),
     ]
 

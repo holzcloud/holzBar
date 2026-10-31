@@ -207,6 +207,19 @@ final class NotchHubController: HubHost {
         }
     }
 
+    /// The running runtime of a module, or `nil` while the hub or that module is off. It is how a
+    /// module's settings read its state. It creates nothing and starts nothing; it reads the
+    /// model's list of the runtimes that ``reconcileRuntimes()`` keeps, so a view that calls it
+    /// updates when a runtime starts or stops.
+    func runtime<T: HubModuleRuntime>(_ type: T.Type) -> T? {
+        for runtime in model.runtimes {
+            if let match = runtime as? T {
+                return match
+            }
+        }
+        return nil
+    }
+
     /// Starts and stops the runtimes the plan says: a module has one only while the hub and the
     /// module are both on.
     private func reconcileRuntimes() {

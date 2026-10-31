@@ -59622,6 +59622,326 @@
           }
         }
       }
+    },
+    "Downloads" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloads"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descargas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Téléchargements"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다운로드"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloads"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Telechargiadas"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Загрузки"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下载"
+          }
+        }
+      }
+    },
+    "A capsule shows while another app uses the camera or the microphone. holzBar reads no audio or video." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Kapsel erscheint, solange eine andere App die Kamera oder das Mikrofon verwendet. holzBar liest weder Ton noch Bild."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aparece una cápsula mientras otra app usa la cámara o el micrófono. holzBar no lee ni audio ni vídeo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une capsule s'affiche tant qu'une autre app utilise la caméra ou le micro. holzBar ne lit ni audio ni vidéo."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appare una capsula finché un'altra app usa la fotocamera o il microfono. holzBar non legge né audio né video."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ほかのAppがカメラまたはマイクを使用している間、カプセルが表示されます。holzBarは音声も映像も読み取りません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 앱이 카메라나 마이크를 사용하는 동안 캡슐이 표시됩니다. holzBar는 오디오나 비디오를 읽지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma cápsula aparece enquanto outro app usa a câmera ou o microfone. O holzBar não lê áudio nem vídeo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina capsla vegn mussada uschè ditg che in'autra app duvra la camera u il microfon. holzBar na legia ni audio ni video."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока другое приложение использует камеру или микрофон, показывается капсула. holzBar не считывает ни звук, ни видео."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当其他 App 使用摄像头或麦克风时，会显示一个胶囊。holzBar 不会读取音频或视频。"
+          }
+        }
+      }
+    },
+    "Asks for access to your Downloads folder when you switch it on. holzBar never reads what you download." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fragt beim Einschalten nach Zugriff auf deinen Downloads-Ordner. holzBar liest nie, was du lädst."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pide acceso a tu carpeta Descargas al activarlo. holzBar nunca lee lo que descargas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Demande l'accès à ton dossier Téléchargements lorsque tu l'actives. holzBar ne lit jamais ce que tu télécharges."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiede l'accesso alla cartella Download quando lo attivi. holzBar non legge mai ciò che scarichi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オンにすると、ダウンロードフォルダへのアクセスを求めます。holzBarはダウンロードした内容を読み取りません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "켜면 다운로드 폴더에 대한 접근을 요청합니다. holzBar는 다운로드한 내용을 읽지 않습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pede acesso à sua pasta Downloads ao ser ativado. O holzBar nunca lê o que você baixa."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dumonda l'access a tia mappa da telechargiadas cur ch'ins l'activescha. holzBar na legia mai tge che ti telechargias."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "При включении запрашивает доступ к папке «Загрузки». holzBar никогда не читает то, что вы загружаете."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开启时会请求访问“下载”文件夹。holzBar 绝不会读取你下载的内容。"
+          }
+        }
+      }
+    },
+    "Downloads access is off" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Zugriff auf Downloads ist aus"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El acceso a Descargas está desactivado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'accès aux téléchargements est désactivé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'accesso ai download è disattivato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ダウンロードへのアクセスがオフです"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다운로드 접근이 꺼져 있습니다"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O acesso a Downloads está desativado"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'access a las telechargiadas è deactivà"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Доступ к загрузкам выключен"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“下载”访问已关闭"
+          }
+        }
+      }
+    },
+    "These are holzBar's own activities, not Apple's Live Activities from your iPhone." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das sind die eigenen Aktivitäten von holzBar, nicht die Live-Aktivitäten von Apple von deinem iPhone."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estas son las actividades propias de holzBar, no las Actividades en directo de Apple de tu iPhone."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce sont les activités propres à holzBar, et non les Live Activities d'Apple de ton iPhone."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Queste sono le attività proprie di holzBar, non le Attività live di Apple del tuo iPhone."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これはholzBar独自のアクティビティであり、iPhoneのAppleのライブアクティビティではありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이것은 holzBar 자체의 활동이며, iPhone의 Apple 실시간 현황이 아닙니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estas são as atividades próprias do holzBar, não as Atividades ao Vivo da Apple do seu iPhone."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quai èn las atividads atgnas da holzBar, betg las Live Activities d'Apple da tes iPhone."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Это собственные активности holzBar, а не «Актуальные события» Apple с вашего iPhone."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这些是 holzBar 自己的活动，不是来自你 iPhone 的 Apple 实时活动。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
