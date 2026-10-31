@@ -67,6 +67,14 @@
         "uk": {
           "text": "Смуга меню",
           "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "ja": {
+          "text": "メニューバー",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "ko": {
+          "text": "메뉴 막대",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
         }
       }
     },
@@ -147,6 +155,16 @@
           "text": "елемент смуги меню",
           "source": "catalog",
           "entries": 6
+        },
+        "ja": {
+          "text": "メニューバー項目",
+          "source": "catalog",
+          "entries": 36
+        },
+        "ko": {
+          "text": "메뉴 막대 항목",
+          "source": "catalog",
+          "entries": 39
         }
       }
     },
@@ -221,6 +239,15 @@
           "text": "приховано",
           "source": "catalog",
           "entries": 22
+        },
+        "ja": {
+          "text": "非表示",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "숨김",
+          "source": "catalog",
+          "entries": 21
         }
       }
     },
@@ -301,6 +328,16 @@
           "text": "завжди приховано",
           "source": "catalog",
           "entries": 9
+        },
+        "ja": {
+          "text": "常に非表示",
+          "source": "catalog",
+          "entries": 13
+        },
+        "ko": {
+          "text": "항상 숨김",
+          "source": "catalog",
+          "entries": 11
         }
       }
     },
@@ -381,6 +418,16 @@
           "text": "видимі",
           "source": "catalog",
           "entries": 3
+        },
+        "ja": {
+          "text": "表示",
+          "source": "catalog",
+          "entries": 8
+        },
+        "ko": {
+          "text": "표시",
+          "source": "catalog",
+          "entries": 7
         }
       }
     },
@@ -459,6 +506,16 @@
         },
         "uk": {
           "text": "розділ",
+          "source": "catalog",
+          "entries": 29
+        },
+        "ja": {
+          "text": "セクション",
+          "source": "catalog",
+          "entries": 29
+        },
+        "ko": {
+          "text": "섹션",
           "source": "catalog",
           "entries": 29
         }
@@ -541,6 +598,16 @@
           "text": "holzBar Shelf",
           "source": "catalog",
           "entries": 23
+        },
+        "ja": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "ko": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
         }
       }
     },
@@ -610,6 +677,16 @@
         "uk": {
           "text": "Профіль",
           "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "プロファイル",
+          "source": "catalog",
+          "entries": 40
+        },
+        "ko": {
+          "text": "프로파일",
+          "source": "catalog",
+          "entries": 40
         }
       }
     },
@@ -683,6 +760,14 @@
           "text": "розкладка",
           "source": "catalog",
           "entries": 10
+        },
+        "ja": {
+          "text": "レイアウト",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "레이아웃",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -763,6 +848,16 @@
           "text": "правило",
           "source": "catalog",
           "entries": 19
+        },
+        "ja": {
+          "text": "ルール",
+          "source": "catalog",
+          "entries": 32
+        },
+        "ko": {
+          "text": "규칙",
+          "source": "catalog",
+          "entries": 32
         }
       }
     },
@@ -841,6 +936,16 @@
         "uk": {
           "text": "умова",
           "source": "unverified"
+        },
+        "ja": {
+          "text": "条件",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ko": {
+          "text": "조건",
+          "source": "catalog",
+          "entries": 6
         }
       }
     },
@@ -912,6 +1017,14 @@
         "uk": {
           "text": "Дія",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
+        },
+        "ja": {
+          "text": "アクション",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ja.lproj/LocalizableMerged.strings"
+        },
+        "ko": {
+          "text": "동작",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -990,6 +1103,16 @@
         },
         "uk": {
           "text": "режим «Дзен»",
+          "source": "catalog",
+          "entries": 11
+        },
+        "ja": {
+          "text": "Zen モード",
+          "source": "catalog",
+          "entries": 11
+        },
+        "ko": {
+          "text": "젠 모드",
           "source": "catalog",
           "entries": 11
         }
@@ -1072,6 +1195,16 @@
           "text": "гаряча клавіша",
           "source": "catalog",
           "entries": 3
+        },
+        "ja": {
+          "text": "ショートカットキー",
+          "source": "catalog",
+          "entries": 18
+        },
+        "ko": {
+          "text": "단축키",
+          "source": "catalog",
+          "entries": 19
         }
       }
     },
@@ -1141,6 +1274,14 @@
         "uk": {
           "text": "Пошук",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
+        },
+        "ja": {
+          "text": "検索",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ja.lproj/LocalizableMerged.strings"
+        },
+        "ko": {
+          "text": "검색",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -1211,6 +1352,14 @@
         "uk": {
           "text": "Вигляд",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "外観",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "모양",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -1283,6 +1432,15 @@
         "uk": {
           "text": "Відтінок",
           "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "色合い",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "색조",
+          "source": "catalog",
+          "entries": 4
         }
       }
     },
@@ -1361,6 +1519,16 @@
         "uk": {
           "text": "межа",
           "source": "unverified"
+        },
+        "ja": {
+          "text": "枠線",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ko": {
+          "text": "테두리",
+          "source": "catalog",
+          "entries": 6
         }
       }
     },
@@ -1426,6 +1594,14 @@
         "uk": {
           "text": "тінь",
           "source": "unverified"
+        },
+        "ja": {
+          "text": "影",
+          "source": "unverified"
+        },
+        "ko": {
+          "text": "그림자",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -1494,6 +1670,14 @@
         },
         "uk": {
           "text": "Доступність",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "ja": {
+          "text": "アクセシビリティ",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "ko": {
+          "text": "손쉬운 사용",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
         }
       }
@@ -1564,6 +1748,14 @@
         "uk": {
           "text": "Запис екрана",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "ja": {
+          "text": "画面収録",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "ko": {
+          "text": "화면 기록",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
         }
       }
     },
@@ -1632,6 +1824,14 @@
         },
         "uk": {
           "text": "Служби локації",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "位置情報サービス",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "위치 서비스",
           "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -1713,6 +1913,16 @@
           "text": "дозвіл",
           "source": "catalog",
           "entries": 8
+        },
+        "ja": {
+          "text": "権限",
+          "source": "catalog",
+          "entries": 11
+        },
+        "ko": {
+          "text": "권한",
+          "source": "catalog",
+          "entries": 12
         }
       }
     },
@@ -1791,6 +2001,16 @@
         },
         "uk": {
           "text": "віджет",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ja": {
+          "text": "ウィジェット",
+          "source": "catalog",
+          "entries": 6
+        },
+        "ko": {
+          "text": "위젯",
           "source": "catalog",
           "entries": 6
         }
@@ -1873,6 +2093,16 @@
           "text": "скрипт",
           "source": "catalog",
           "entries": 30
+        },
+        "ja": {
+          "text": "スクリプト",
+          "source": "catalog",
+          "entries": 30
+        },
+        "ko": {
+          "text": "스크립트",
+          "source": "catalog",
+          "entries": 30
         }
       }
     },
@@ -1942,6 +2172,14 @@
         "uk": {
           "text": "Швидка команда",
           "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "ja": {
+          "text": "ショートカット",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "ko": {
+          "text": "단축어",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
         }
       }
     },
@@ -2010,6 +2248,14 @@
         },
         "uk": {
           "text": "Зосередження",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "ja": {
+          "text": "集中モード",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "ko": {
+          "text": "집중 모드",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
         }
       }
@@ -2086,6 +2332,14 @@
           "text": "Wi-Fi",
           "source": "catalog",
           "entries": 10
+        },
+        "ja": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -2154,6 +2408,14 @@
         },
         "uk": {
           "text": "Акумулятор",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "ja": {
+          "text": "バッテリー",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "ko": {
+          "text": "배터리",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
         }
       }
@@ -2225,6 +2487,14 @@
         "uk": {
           "text": "Режим економії заряду",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "ja": {
+          "text": "低電力モード",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "ko": {
+          "text": "저전력 모드",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
         }
       }
     },
@@ -2295,6 +2565,14 @@
         },
         "uk": {
           "text": "Дисплей",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "ja": {
+          "text": "ディスプレイ",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "ko": {
+          "text": "디스플레이",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
         }
       }
@@ -2376,6 +2654,16 @@
           "text": "виріз",
           "source": "catalog",
           "entries": 24
+        },
+        "ja": {
+          "text": "ノッチ",
+          "source": "catalog",
+          "entries": 24
+        },
+        "ko": {
+          "text": "노치",
+          "source": "catalog",
+          "entries": 24
         }
       }
     },
@@ -2449,6 +2737,14 @@
         "uk": {
           "text": "Програма",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
+        },
+        "ja": {
+          "text": "アプリ",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ja.lproj/LocalizableMerged.strings"
+        },
+        "ko": {
+          "text": "앱",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -2520,6 +2816,14 @@
           "text": "превʼю",
           "source": "catalog",
           "entries": 2
+        },
+        "ja": {
+          "text": "プレビュー",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ja.lproj/LocalizableMerged.strings"
+        },
+        "ko": {
+          "text": "미리보기",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/ko.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -2588,6 +2892,14 @@
         },
         "uk": {
           "text": "Параметри",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "設定",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "설정",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -2659,6 +2971,14 @@
         "uk": {
           "text": "Завершити",
           "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/uk.lproj/DockMenus.strings"
+        },
+        "ja": {
+          "text": "終了",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/ja.lproj/DockMenus.strings"
+        },
+        "ko": {
+          "text": "종료",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/ko.lproj/DockMenus.strings"
         }
       }
     },
@@ -2728,6 +3048,16 @@
         "uk": {
           "text": "Відмінити",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/uk.lproj/LocalizableMerged.strings"
+        },
+        "ja": {
+          "text": "元に戻す",
+          "source": "catalog",
+          "entries": 2
+        },
+        "ko": {
+          "text": "되돌릴 수",
+          "source": "catalog",
+          "entries": 4
         }
       }
     },
@@ -2797,6 +3127,14 @@
         "uk": {
           "text": "Імпортувати",
           "source": "/System/Applications/Music.app/Contents/Resources/uk.lproj/Localizable.strings"
+        },
+        "ja": {
+          "text": "読み込む",
+          "source": "/System/Applications/Calendar.app/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "가져오기",
+          "source": "/System/Applications/Music.app/Contents/Resources/ko.lproj/Localizable.strings"
         }
       }
     },
@@ -2865,6 +3203,14 @@
         },
         "uk": {
           "text": "Експортувати",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "ja": {
+          "text": "書き出す",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "ko": {
+          "text": "내보내기",
           "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -2941,6 +3287,16 @@
         "uk": {
           "text": "знімок",
           "source": "unverified"
+        },
+        "ja": {
+          "text": "スナップショット",
+          "source": "catalog",
+          "entries": 7
+        },
+        "ko": {
+          "text": "스냅샷",
+          "source": "catalog",
+          "entries": 7
         }
       }
     },
@@ -3016,6 +3372,16 @@
           "text": "сповіщення",
           "source": "catalog",
           "entries": 2
+        },
+        "ja": {
+          "text": "通知",
+          "source": "catalog",
+          "entries": 8
+        },
+        "ko": {
+          "text": "알림",
+          "source": "catalog",
+          "entries": 8
         }
       }
     }
