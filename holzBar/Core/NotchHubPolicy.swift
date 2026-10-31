@@ -23,12 +23,15 @@ nonisolated enum NotchHubPolicy {
         /// The pointer rested on the live-activity capsule, or the user clicked it. It follows the
         /// rules of ``hover`` in every way.
         case compact
+        /// A file is being dragged to the notch (File drop). It follows the rules of ``hover`` in
+        /// every way.
+        case fileDrag
 
         /// Whether a hub opened by this trigger closes when the pointer leaves it: the pointer
         /// asked for it, so the pointer takes it back.
         var closesOnLeave: Bool {
             switch self {
-            case .hover, .compact: true
+            case .hover, .compact, .fileDrag: true
             case .hotkey: false
             }
         }
@@ -98,7 +101,8 @@ nonisolated enum NotchHubPolicy {
     /// In order: the display is not allowed; a fullscreen space (hover always, the hotkey too
     /// unless ``hotkeyOpensInFullscreen``); the menu bar hidden by the system (the same rule);
     /// the screen presented while ``blocksWhilePresenting``. The live-activity capsule's
-    /// ``Trigger/compact`` is judged exactly as ``Trigger/hover`` is.
+    /// ``Trigger/compact`` and a file drag's ``Trigger/fileDrag`` are judged exactly as
+    /// ``Trigger/hover`` is.
     static func blockReason(_ environment: Environment, trigger: Trigger) -> BlockReason? {
         if !environment.isDisplayAllowed {
             return .displayNotAllowed
@@ -137,6 +141,17 @@ nonisolated enum NotchHubPolicy {
         pending: HoverAction?
     ) -> HoverDecision {
         guard let desired = hoverDesired(pointer: pointer, isOpen: isOpen, closesOnLeave: closesOnLeave) else {
+            return pending == nil ? .none : .cancelPending
+        }
+        return desired == pending ? .none : .schedule(desired)
+    }
+
+    /// Turns a wish that may be absent into a decision, given the action already waiting: a wish
+    /// that differs from the pending action is scheduled, no wish while an action is pending
+    /// cancels it, and everything else changes nothing. A file drag's wishes come from
+    /// ``FileDragWatch``.
+    static func decision(desired: HoverAction?, pending: HoverAction?) -> HoverDecision {
+        guard let desired else {
             return pending == nil ? .none : .cancelPending
         }
         return desired == pending ? .none : .schedule(desired)
