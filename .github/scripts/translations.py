@@ -13,7 +13,8 @@
 #   apply CODE FILE   validate corrected sheets, write the catalogs, and with
 #                     --reviewer record the round in Translations/reviews/CODE.json
 #   add-strings FILE  add new English keys with their translations in every language
-#   status            strings, reviewed share, copies of English, changed strings
+#   status            strings, reviewed share, copies of English, changed strings;
+#                     with --markdown --write FILE the language table of the guide
 #   report            translations that are much longer than the English
 #   self-test         every rule above, proven on fixtures in a temporary folder
 #
@@ -48,6 +49,9 @@ CATALOGS = ("Localizable", "InfoPlist", "AppShortcuts")
 REGISTRY = "Translations/languages.json"
 REVIEWS = "Translations/reviews"
 PROJECT = "holzBar.xcodeproj/project.pbxproj"
+GUIDE = "docs/translations.md"
+GUIDE_START = "<!-- languages:start -->"
+GUIDE_END = "<!-- languages:end -->"
 
 MAX_SHEET_BYTES = 5 * 1024 * 1024
 HASH_LENGTH = 16
@@ -322,6 +326,63 @@ def language_entry(registry, code):
         if language["code"] == code:
             return language
     raise ToolError(f"{code!r} is not in the registry {REGISTRY}")
+
+
+def language_table(registry):
+    """The rows of the guide's table: the translations, in registry order."""
+    rows = ["| Code | English name | Native name | Status |", "| --- | --- | --- | --- |"]
+    for language in registry["languages"][1:]:
+        if language.get("reviewedThrough"):
+            status = f"reviewed through {language['reviewedThrough']}"
+        else:
+            status = "machine-made"
+        rows.append(f"| `{language['code']}` | {language['englishName']} | {language['nativeName']} | {status} |")
+    return rows
+
+
+def guide_table_codes(text):
+    """The language codes in the table between the two marker lines of the guide;
+    None when the text has no markers."""
+    if GUIDE_START not in text or GUIDE_END not in text:
+        return None
+    block = text.split(GUIDE_START, 1)[1].split(GUIDE_END, 1)[0]
+    rows = [line for line in block.splitlines() if line.startswith("|")][2:]
+    return [row.split("|")[1].strip().strip("`") for row in rows]
+
+
+def guide_problems(root, registry):
+    """Messages when the guide's table and the registry disagree. A guide that
+    does not exist yet, or has no markers, is not a problem."""
+    path = os.path.join(root, GUIDE)
+    if not os.path.exists(path):
+        return []
+    codes = guide_table_codes(read_text(path))
+    if codes is None:
+        return []
+    wanted = target_codes(registry)
+    if codes == wanted:
+        return []
+    missing = [code for code in wanted if code not in codes]
+    extra = [code for code in codes if code not in wanted]
+    detail = []
+    if missing:
+        detail.append(f"missing {missing}")
+    if extra:
+        detail.append(f"extra {extra}")
+    if not detail:
+        detail.append("in another order than the registry")
+    return [f"{GUIDE}: the language table differs from {REGISTRY} ({', '.join(detail)}); run `python3 .github/scripts/translations.py status --markdown --write {GUIDE}`"]
+
+
+def write_guide_table(path, registry):
+    """Replaces the text between the two marker lines of the guide with the
+    table and leaves every other byte alone."""
+    text = read_text(path)
+    if text.count(GUIDE_START) != 1 or text.count(GUIDE_END) != 1 or text.index(GUIDE_START) > text.index(GUIDE_END):
+        raise ToolError(f"{path}: needs the lines {GUIDE_START} and {GUIDE_END}, once each and in this order")
+    head, rest = text.split(GUIDE_START, 1)
+    tail = rest.split(GUIDE_END, 1)[1]
+    write_all({path: head + GUIDE_START + "\n" + "\n".join(language_table(registry)) + "\n" + GUIDE_END + tail})
 
 
 def known_regions(root):
@@ -884,17 +945,15 @@ def entry_status(repo, code):
 
 def cmd_status(args):
     repo = Repo(args.root)
+    if args.write and not args.markdown:
+        raise ToolError("--write needs --markdown")
     if args.markdown:
-        print("| Code | English name | Native name | Status |")
-        print("| --- | --- | --- | --- |")
-        for language in repo.registry["languages"]:
-            if language["code"] == repo.registry["source"]:
-                status = "source language"
-            elif language.get("reviewedThrough"):
-                status = f"reviewed through {language['reviewedThrough']}"
-            else:
-                status = "machine-made"
-            print(f"| `{language['code']}` | {language['englishName']} | {language['nativeName']} | {status} |")
+        if args.write:
+            path = args.write if os.path.isabs(args.write) else os.path.join(args.root, args.write)
+            write_guide_table(path, repo.registry)
+            print(f"status: the language table of {args.write} is written")
+        else:
+            print("\n".join(language_table(repo.registry)))
         return 0
     for code in repo.targets():
         total, reviewed, copies, changed = entry_status(repo, code)
@@ -1359,7 +1418,40 @@ def self_test():
         # status --markdown and report.
         build_fixture(root)
         status, out, _ = run(["status", "--markdown", "--root", root])
-        check("status --markdown: a table with machine-made rows", status == 0 and "| `de` | German | Deutsch | machine-made |" in out and "source language" in out)
+        check("status --markdown: a table with machine-made rows", status == 0 and "| `de` | German | Deutsch | machine-made |" in out and "| `en`" not in out)
+
+        # The guide's table: written between the markers, held to the registry.
+        guide = os.path.join(root, GUIDE)
+        prose = "# Translations\n\nSome text\n\n"
+        after_prose = "\nMore text, with no final newline"
+        write_all({guide: prose + GUIDE_START + "\nold table\n" + GUIDE_END + after_prose})
+        status, out, _ = run(["status", "--markdown", "--write", GUIDE, "--root", root])
+        first = read_text(guide)
+        check("guide table: --write replaces only the text between the markers", status == 0 and first.startswith(prose + GUIDE_START + "\n| Code |") and first.endswith("machine-made |\n" + GUIDE_END + after_prose) and "old table" not in first)
+        check("guide table: --write is idempotent", run(["status", "--markdown", "--write", GUIDE, "--root", root])[0] == 0 and read_text(guide) == first)
+        check("guide table: the table lists the registry's codes in order", guide_table_codes(first) == ["de", "ru", "ja"])
+        check("guide table: a matching guide has no problem", guide_problems(root, Repo(root).registry) == [])
+        write_all({guide: first.replace("| `ru` | Russian | Русский | machine-made |\n", "")})
+        problems = guide_problems(root, Repo(root).registry)
+        check("guide table: a missing language is named", len(problems) == 1 and "translations.md" in problems[0] and "missing ['ru']" in problems[0])
+        write_all({guide: first.replace("| `ru` | Russian", "| `pl` | Polish")})
+        problems = guide_problems(root, Repo(root).registry)
+        check("guide table: an extra language is named", len(problems) == 1 and "extra ['pl']" in problems[0])
+        rows = first.split("\n")
+        swapped = [rows[i] for i in range(len(rows))]
+        positions = [i for i, line in enumerate(rows) if line.startswith("| `de`") or line.startswith("| `ru`")]
+        swapped[positions[0]], swapped[positions[1]] = rows[positions[1]], rows[positions[0]]
+        write_all({guide: "\n".join(swapped)})
+        problems = guide_problems(root, Repo(root).registry)
+        check("guide table: another order is a problem", len(problems) == 1 and "another order" in problems[0])
+        write_all({guide: "# Translations\n\nNo table yet.\n"})
+        check("guide table: a guide without markers is no problem", guide_problems(root, Repo(root).registry) == [])
+        before = read_text(guide)
+        status, _, err = run(["status", "--markdown", "--write", GUIDE, "--root", root])
+        check("guide table: --write refuses a file without markers and leaves it alone", status == 1 and "languages:start" in err and read_text(guide) == before)
+        os.remove(guide)
+        check("guide table: no guide is no problem", guide_problems(root, Repo(root).registry) == [])
+        check("guide table: --write needs --markdown", run(["status", "--write", GUIDE, "--root", root])[0] == 1)
         status, out, _ = run(["report", "de", "--root", root])
         check("report: lists the ten longest", status == 0 and "ten longest" in out)
         check("report: flags a long translation", "Datei jetzt speichern" not in out and "strings are more than 1.4 times" in out)
@@ -1391,6 +1483,7 @@ def make_parser():
     add.add_argument("file")
     status = commands.add_parser("status", parents=[common], help="strings, reviewed share, copies and changed strings per language")
     status.add_argument("--markdown", action="store_true", help="the table of docs/translations.md")
+    status.add_argument("--write", metavar="FILE", help="with --markdown: replace the table between the languages:start and languages:end lines of FILE")
     report = commands.add_parser("report", parents=[common], help="translations that are much longer than the English")
     report.add_argument("code", nargs="?")
     report.add_argument("--ratio", type=float, default=LONG_RATIO)

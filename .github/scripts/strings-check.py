@@ -16,7 +16,9 @@
 #      (Unicode CLDR, see translations.py), and is not a copy of an English
 #      sentence of more than three words. A language in a catalog that the
 #      registry does not list is refused, and so is a registry that disagrees
-#      with the knownRegions of the Xcode project.
+#      with the knownRegions of the Xcode project, and so is a language table
+#      in docs/translations.md (between its languages:start and languages:end
+#      lines) that lists other languages than the registry, or in another order.
 #   3. Every string literal in a localisable position of holzBar's Swift code
 #      (SwiftUI initialisers and modifiers, String(localized:), App Intents
 #      titles, NSMenuItem titles, alert texts, tooltips, accessibility labels)
@@ -336,6 +338,13 @@ def main():
             problems += 1
     except translations.ToolError as error:
         annotate(translations.PROJECT, 1, str(error))
+        problems += 1
+    try:
+        for message in translations.guide_problems(root, registry):
+            annotate(translations.GUIDE, 1, message)
+            problems += 1
+    except translations.ToolError as error:
+        annotate(translations.GUIDE, 1, str(error))
         problems += 1
     catalogs = {}
     directory = os.path.join(root, RESOURCES)
