@@ -212,6 +212,25 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["notifications"], knownTo: ModuleCatalog.all) == ["notifications"])
     }
 
+    @Test("Now Playing is a Preview module of the notch area without a permission, after Calendar")
+    func nowPlayingModule() throws {
+        let nowPlaying = try #require(ModuleCatalog.all.first { $0.id == "now-playing" })
+        #expect(nowPlaying.area == .notch)
+        #expect(nowPlaying.permission == nil)
+        #expect(nowPlaying.isPreview)
+        #expect(nowPlaying.symbol == "music.note")
+        #expect(nowPlaying.titleKey == "Now Playing")
+        #expect(nowPlaying.summaryKey == "Shows what is playing, at the notch.")
+        let notch = ModuleCatalog.modules(in: .notch).map(\.id)
+        let index = try #require(notch.firstIndex(of: "now-playing"))
+        let calendarIndex = try #require(notch.firstIndex(of: "calendar"))
+        #expect(calendarIndex < index)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["now-playing"], knownTo: ModuleCatalog.all) == ["now-playing"])
+    }
+
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(

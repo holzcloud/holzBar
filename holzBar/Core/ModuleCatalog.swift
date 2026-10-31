@@ -75,7 +75,8 @@ nonisolated enum ModuleCatalog {
     /// a third module of the hub, is off until the user switches it on, has no permission on its row
     /// and creates no source, capsule or wait while off. Display controls, a fourth module of the hub, is off until
     /// the user switches it on, asks for no permission and creates no runtime or CoreAudio listener while
-    /// off. The title and the summary are the English
+    /// off. Now Playing, a fifth module of the hub, is off until the user switches it on, asks for no
+    /// permission and creates no observer, runtime or model while off. The title and the summary are the English
     /// strings the settings show; their keys are those strings.
     static let all: [ModuleDescriptor] = [
         ModuleDescriptor(
@@ -171,6 +172,15 @@ nonisolated enum ModuleCatalog {
             titleKey: "Notifications",
             summaryKey: "The banners macOS shows, listed at the notch.",
             permission: .accessibility,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "now-playing",
+            area: .notch,
+            symbol: "music.note",
+            titleKey: "Now Playing",
+            summaryKey: "Shows what is playing, at the notch.",
+            permission: nil,
             isPreview: true
         ),
     ]

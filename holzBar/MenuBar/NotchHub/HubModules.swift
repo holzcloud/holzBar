@@ -46,6 +46,11 @@ enum HubModules {
             makeRuntime: { NotificationsRuntime(appState: $0) },
             makeSettings: { AnyView(NotificationsSettingsView()) }
         ),
+        HubModuleRegistration(
+            id: NowPlayingRuntime.identifier,
+            makeRuntime: { NowPlayingRuntime(appState: $0) },
+            makeSettings: { AnyView(EmptyView()) }
+        ),
     ]
 
     /// The registration of a module, if it has one.
