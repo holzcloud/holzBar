@@ -13,6 +13,11 @@ import Foundation
 /// from its left edge, the right wing takes the rest from its notch side. The status pills and
 /// the settings button stay at the far right of the right wing, so the right wing's tab area is
 /// the wing minus the width they need.
+///
+/// The tabs are 30 points wide. If they do not all fit, the whole row steps down to 28 and then
+/// to 26 points (``DesignTokens/Hub/tabWidthSteps``) before any tab goes into a More menu; the
+/// menu is the last place in the right group (in the left group where there is no right wing)
+/// and only a row that does not fit at 26 points shows it. The selected tab is always visible.
 nonisolated enum HubTabStrip {
     /// The identifier of the Overview, the first tab.
     static let overviewID = "overview"
@@ -42,9 +47,22 @@ nonisolated enum HubTabStrip {
         var selected: String
         /// The width of one tab in points.
         var tabWidth: Double
+        /// The group whose last place the More button takes, or `nil` where every tab has a
+        /// place. The button's width is the tab width, and it lists ``overflow``.
+        var moreWing: Wing?
+    }
+
+    /// One of the two groups of the row.
+    nonisolated enum Wing: Equatable, Sendable {
+        case left
+        case right
     }
 
     /// The row for the module tabs, a selection and the room the two wings give.
+    ///
+    /// The widths of ``DesignTokens/Hub/tabWidthSteps`` are tried in order, and the first at
+    /// which every tab has a place wins. If none does, the smallest width is used, one place
+    /// is kept for the More button, and the tabs that do not fit go to ``Row/overflow``.
     ///
     /// - Parameters:
     ///   - moduleTabs: The modules that offer a tab, in catalog order. A duplicate and a stray
@@ -64,25 +82,62 @@ nonisolated enum HubTabStrip {
         gap: Double = DesignTokens.Hub.tabGap
     ) -> Row {
         let tabs = allTabs(moduleTabs)
-        let selected = tabs.contains(selected) ? selected : overviewID
-        let tabWidth = DesignTokens.Hub.tabWidth
-        let leftSlots = slots(in: leftWingWidth, tabWidth: tabWidth, gap: gap)
-        let rightSlots = slots(
-            in: usable(rightWingWidth) - usable(rightReservedWidth) - gap,
-            tabWidth: tabWidth,
-            gap: gap
-        )
+        let selected = selection(selected, moduleTabs: moduleTabs)
+        let rightRoom = usable(rightWingWidth) - usable(rightReservedWidth) - gap
+        let steps = DesignTokens.Hub.tabWidthSteps.isEmpty ? [DesignTokens.Hub.tabWidth] : DesignTokens.Hub.tabWidthSteps
+
+        for width in steps {
+            let left = slots(in: leftWingWidth, tabWidth: width, gap: gap)
+            let right = slots(in: rightRoom, tabWidth: width, gap: gap)
+            if left + right >= tabs.count {
+                return place(tabs, selected: selected, tabWidth: width, leftSlots: left, rightSlots: right, moreWing: nil)
+            }
+        }
+        let width = steps[steps.count - 1]
+        var left = slots(in: leftWingWidth, tabWidth: width, gap: gap)
+        var right = slots(in: rightRoom, tabWidth: width, gap: gap)
+        var moreWing: Wing?
+        if right > 0 {
+            right -= 1
+            moreWing = .right
+        } else if left > 0 {
+            left -= 1
+            moreWing = .left
+        }
+        return place(tabs, selected: selected, tabWidth: width, leftSlots: left, rightSlots: right, moreWing: moreWing)
+    }
+
+    /// The tab that is selected for a wanted one: the wanted one if it is a tab, else the
+    /// Overview.
+    static func selection(_ wanted: String, moduleTabs: [String]) -> String {
+        allTabs(moduleTabs).contains(wanted) ? wanted : overviewID
+    }
+
+    /// Puts the tabs in the places: the first ones left, the next ones right, the rest in the
+    /// overflow, with the selected tab taking the last place if it would be in the overflow.
+    private static func place(
+        _ tabs: [String],
+        selected: String,
+        tabWidth: Double,
+        leftSlots: Int,
+        rightSlots: Int,
+        moreWing: Wing?
+    ) -> Row {
         var visible = Array(tabs.prefix(leftSlots + rightSlots))
+        if visible.isEmpty, tabs.count == 1 {
+            // A lone Overview is never put in a menu, however little room there is.
+            return Row(left: tabs, right: [], overflow: [], selected: selected, tabWidth: tabWidth, moreWing: nil)
+        }
         if !visible.isEmpty, !visible.contains(selected) {
             visible[visible.count - 1] = selected
         }
-        let overflow = tabs.filter { !visible.contains($0) }
         return Row(
             left: Array(visible.prefix(leftSlots)),
             right: Array(visible.dropFirst(leftSlots)),
-            overflow: overflow,
+            overflow: tabs.filter { !visible.contains($0) },
             selected: selected,
-            tabWidth: tabWidth
+            tabWidth: tabWidth,
+            moreWing: moreWing
         )
     }
 
@@ -114,75 +169,6 @@ nonisolated enum HubTabStrip {
     /// A width that is a number and not negative; anything else counts as 0.
     private static func usable(_ width: Double) -> Double {
         width.isFinite && width > 0 ? width : 0
-    }
-
-    /// How many tabs fit in the left wing.
-    static let maximumVisible = 5
-
-    /// What the strip shows.
-    nonisolated struct Layout: Equatable, Sendable {
-        /// The tabs in the strip, in order.
-        var visible: [String]
-        /// The tabs in the More menu, in catalog order.
-        var overflow: [String]
-        /// The selected tab, which is always one of the tabs.
-        var selected: String
-    }
-
-    /// The strip for the module tabs and a selection.
-    ///
-    /// - Parameters:
-    ///   - moduleTabs: The modules that offer a tab, in catalog order. A duplicate and a stray
-    ///     Overview are dropped.
-    ///   - selected: The wanted tab. One that is not a tab becomes the Overview.
-    ///   - maximumVisible: How many tabs are visible; below 1 counts as 1.
-    static func layout(
-        moduleTabs: [String],
-        selected: String,
-        maximumVisible: Int = HubTabStrip.maximumVisible
-    ) -> Layout {
-        let tabs = allTabs(moduleTabs)
-        let selected = tabs.contains(selected) ? selected : overviewID
-        let limit = max(maximumVisible, 1)
-        guard tabs.count > limit else {
-            return Layout(visible: tabs, overflow: [], selected: selected)
-        }
-        var visible = Array(tabs.prefix(limit))
-        if !visible.contains(selected) {
-            visible = Array(visible.prefix(limit - 1)) + [selected]
-        }
-        let overflow = tabs.filter { !visible.contains($0) }
-        return Layout(visible: visible, overflow: overflow, selected: selected)
-    }
-
-    /// How many tabs are visible in a wing of the given width, so that the strip, with its More
-    /// button where tabs overflow, never reaches past the wing into the clearance of the notch.
-    ///
-    /// - Parameters:
-    ///   - tabCount: The number of tabs, the Overview included.
-    ///   - wingWidth: The width of the wing.
-    ///   - tabWidth: The width of a tab.
-    ///   - gap: The space between tabs.
-    ///   - maximum: The most tabs ever visible.
-    /// - Returns: At least 1.
-    static func visibleCapacity(
-        tabCount: Int,
-        wingWidth: Double,
-        tabWidth: Double,
-        gap: Double,
-        maximum: Int = HubTabStrip.maximumVisible
-    ) -> Int {
-        let unit = tabWidth + gap
-        guard wingWidth.isFinite, unit.isFinite, unit > 0 else {
-            return 1
-        }
-        let slots = max(Int(((wingWidth + gap) / unit).rounded(.down)), 0)
-        let limit = min(maximum, slots)
-        if tabCount <= limit {
-            return max(limit, 1)
-        }
-        // The More button takes a slot.
-        return max(min(maximum, slots - 1), 1)
     }
 
     /// The tab a step of the arrow keys leads to, wrapping at both ends.

@@ -141,6 +141,10 @@ nonisolated enum DesignTokens {
         static let tabWidth: Double = 30
         static let tabHeight: Double = 24
         static let tabRadius: Double = 8
+        /// The widths the whole row of tabs steps down through before any tab goes into the More
+        /// menu: 30 points, then 28, then 26, the smallest. The height stays 24 and the hit area
+        /// stays the whole top row.
+        static let tabWidthSteps: [Double] = [30, 28, 26]
         /// The space between two tabs of the row.
         static let tabGap: Double = 2
         /// The round settings button of the right wing.

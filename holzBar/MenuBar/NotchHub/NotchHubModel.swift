@@ -6,8 +6,8 @@
 import Foundation
 import Observation
 
-/// What the Notch hub's views read: the runtimes of the modules that are on, the icon strip's
-/// layout, the tiles of the Overview, the status pills and the selected tab.
+/// What the Notch hub's views read: the runtimes of the modules that are on, the tabs,
+/// the tiles of the Overview, the status pills and the selected tab.
 ///
 /// The model holds no timer and starts nothing. The controller sets the runtimes; a view that
 /// reads the model follows them, and a tile or a pill that reads observable state follows
@@ -35,19 +35,9 @@ final class NotchHubModel {
         runtimes.filter(\.offersTab).map(\.moduleID)
     }
 
-    /// The icon strip: the visible tabs, the More menu and the selected tab.
-    var layout: HubTabStrip.Layout {
-        HubTabStrip.layout(moduleTabs: tabModuleIDs, selected: chosenID)
-    }
-
-    /// The icon strip for a wing that fits only so many tabs.
-    func layout(maximumVisible: Int) -> HubTabStrip.Layout {
-        HubTabStrip.layout(moduleTabs: tabModuleIDs, selected: chosenID, maximumVisible: maximumVisible)
-    }
-
     /// The selected tab, always one that exists: the Overview where the chosen tab is gone.
     var selectedID: String {
-        layout.selected
+        HubTabStrip.selection(chosenID, moduleTabs: tabModuleIDs)
     }
 
     /// The selected module's runtime, or `nil` while the Overview is selected.
@@ -97,7 +87,7 @@ final class NotchHubModel {
 
     /// Selects a tab and remembers it. An identifier that is not a tab selects the Overview.
     func select(_ id: String) {
-        let selected = HubTabStrip.layout(moduleTabs: tabModuleIDs, selected: id).selected
+        let selected = HubTabStrip.selection(id, moduleTabs: tabModuleIDs)
         chosenID = selected
         Defaults.set(selected, forKey: .notchHubLastTab)
     }
