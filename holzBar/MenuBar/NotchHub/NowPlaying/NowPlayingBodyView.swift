@@ -38,12 +38,13 @@ struct NowPlayingBodyView: View {
                 progressRow(progress)
                     .id(runtime.revision)
             }
+            controls(event)
         }
     }
 
     private func summary(_ event: NowPlayingEvent) -> some View {
         HStack(alignment: .top, spacing: HolzBarTheme.Spacing.md) {
-            symbolTile
+            artworkTile
             VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
                 title(of: event.track)
                     .font(HolzBarTheme.Typography.headline)
@@ -79,17 +80,73 @@ struct NowPlayingBodyView: View {
         }
     }
 
-    /// A symbol on a quiet tile, until a song's artwork replaces it.
-    private var symbolTile: some View {
-        ZStack {
-            HolzBarTheme.shape(HolzBarTheme.Radius.control)
-                .fill(HolzBarTheme.Hub.idleTabFill)
-            Image(systemName: "music.note")
-                .font(HolzBarTheme.Hub.compactSymbolFont)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+    /// The song's artwork when it has one, else a symbol on a quiet tile.
+    @ViewBuilder
+    private var artworkTile: some View {
+        if let artwork = runtime.artwork {
+            Image(nsImage: artwork)
+                .resizable()
+                .scaledToFill()
+                .frame(width: Self.artworkSize, height: Self.artworkSize)
+                .clipShape(HolzBarTheme.shape(HolzBarTheme.Radius.control))
                 .accessibilityHidden(true)
+        } else {
+            ZStack {
+                HolzBarTheme.shape(HolzBarTheme.Radius.control)
+                    .fill(HolzBarTheme.Hub.idleTabFill)
+                Image(systemName: "music.note")
+                    .font(HolzBarTheme.Hub.compactSymbolFont)
+                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    .accessibilityHidden(true)
+            }
+            .frame(width: Self.artworkSize, height: Self.artworkSize)
         }
-        .frame(width: Self.artworkSize, height: Self.artworkSize)
+    }
+
+    // MARK: Controls
+
+    /// Previous, play or pause, and next. The buttons post the media keys only when clicked,
+    /// and are off while there is no song or holzBar lacks Accessibility.
+    private func controls(_ event: NowPlayingEvent) -> some View {
+        let isOn = event.track != nil && runtime.canControl
+        let isPlaying = event.state == .playing
+        return HStack(spacing: HolzBarTheme.Spacing.lg) {
+            Spacer(minLength: 0)
+            controlButton(symbol: "backward.fill", label: Text("Previous"), isOn: isOn) {
+                runtime.send(.previous)
+            }
+            controlButton(
+                symbol: isPlaying ? "pause.fill" : "play.fill",
+                label: isPlaying ? Text("Pause") : Text("Play"),
+                isOn: isOn
+            ) {
+                runtime.send(.playPause)
+            }
+            controlButton(symbol: "forward.fill", label: Text("Next"), isOn: isOn) {
+                runtime.send(.next)
+            }
+            Spacer(minLength: 0)
+        }
+    }
+
+    private func controlButton(
+        symbol: String,
+        label: Text,
+        isOn: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(HolzBarTheme.Hub.compactSymbolFont)
+                .foregroundStyle(HolzBarTheme.Palette.text)
+                .frame(minWidth: HolzBarTheme.minimumTargetSize, minHeight: HolzBarTheme.minimumTargetSize)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(!isOn)
+        .opacity(isOn ? 1 : 0.4)
+        .accessibilityLabel(label)
+        .help(runtime.canControl ? label : Text("Needs Accessibility access"))
     }
 
     // MARK: Progress

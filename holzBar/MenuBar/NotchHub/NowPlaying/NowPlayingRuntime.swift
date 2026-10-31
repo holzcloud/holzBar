@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+import AppKit
 import Foundation
 import Observation
 import OSLog
@@ -35,7 +36,8 @@ struct NowPlayingProgress: Equatable {
 ///
 /// The module owns no timer and no wait. The elapsed time and the progress bar are drawn by the
 /// system from a start and an end date (``NowPlayingProgress``), which are recomputed only when
-/// an event arrives.
+/// an event arrives. Its only task is the one-shot read of a local song's artwork, off the main
+/// actor; the buttons press the media keys through holzBar's existing poster, and only on a click.
 @MainActor
 @Observable
 final class NowPlayingRuntime: HubModuleRuntime {
@@ -55,10 +57,19 @@ final class NowPlayingRuntime: HubModuleRuntime {
     /// Counts the events, so a view can start its progress over on each one.
     private(set) var revision = 0
 
+    /// The artwork of the current song, when it is a local file that has one.
+    private(set) var artwork: NSImage?
+
     @ObservationIgnored private let source = NowPlayingSource()
+    @ObservationIgnored private let actions = BuiltInItemActions()
+    @ObservationIgnored private weak var appState: AppState?
+    @ObservationIgnored private var artworkTask: Task<Void, Never>?
+    @ObservationIgnored private var artworkIdentity: String?
+    @ObservationIgnored private var generation = 0
     @ObservationIgnored private let logger = Logger(category: "NowPlaying")
 
     init(appState: AppState) {
+        self.appState = appState
         source.start { [weak self] event in
             self?.handle(event)
         } onPlayerQuit: { [weak self] player in
@@ -88,8 +99,10 @@ final class NowPlayingRuntime: HubModuleRuntime {
         revision += 1
         guard let current, current.event.state != .stopped else {
             progress = nil
+            clearArtwork()
             return
         }
+        updateArtwork(for: current.event.track)
         let position = model.position(of: current.player, at: ProcessInfo.processInfo.systemUptime) ?? 0
         progress = NowPlayingProgress(
             position: position,
@@ -97,6 +110,53 @@ final class NowPlayingRuntime: HubModuleRuntime {
             isPlaying: current.event.state == .playing,
             start: Date.now.addingTimeInterval(-position)
         )
+    }
+
+    // MARK: Controls
+
+    /// Presses a media key. Only the buttons of the tab call it, so a key is posted only on a
+    /// click; whatever app macOS treats as the now-playing app answers.
+    func send(_ key: MediaKey) {
+        actions.press(key)
+    }
+
+    /// Whether the buttons work: posting a key needs holzBar's Accessibility grant, which is
+    /// observable, so the buttons enable and disable themselves when the grant changes.
+    var canControl: Bool {
+        appState?.permissions.accessibility.hasPermission ?? false
+    }
+
+    // MARK: Artwork
+
+    /// Starts the one-shot read when the song changed; the picture is for the current song only.
+    private func updateArtwork(for track: NowPlayingTrack?) {
+        let identity = track?.identity
+        guard identity != artworkIdentity else {
+            return
+        }
+        clearArtwork()
+        artworkIdentity = identity
+        guard let fileURL = track?.fileURL else {
+            return
+        }
+        generation += 1
+        let wanted = generation
+        artworkTask = Task { [weak self] in
+            let data = await NowPlayingArtworkReader.thumbnail(for: fileURL)
+            guard !Task.isCancelled, let self, wanted == generation else {
+                return
+            }
+            artwork = data.flatMap { NSImage(data: $0) }
+        }
+    }
+
+    /// Cancels the read and lets go of the picture.
+    private func clearArtwork() {
+        artworkTask?.cancel()
+        artworkTask = nil
+        artworkIdentity = nil
+        generation += 1
+        artwork = nil
     }
 
     /// The player the hub shows and its latest event.
@@ -146,6 +206,7 @@ final class NowPlayingRuntime: HubModuleRuntime {
     /// Stops listening and lets go of what played.
     func shutDown() {
         source.stop()
+        clearArtwork()
         model.removeAll()
         progress = nil
     }
