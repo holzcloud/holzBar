@@ -139,6 +139,14 @@ final class Session {
         return nil
     }
 
+    /// Asks for one of the given words, only when standard input is a terminal.
+    func askChoice(_ question: String, choices: [String]) -> String? {
+        guard isatty(STDIN_FILENO) != 0 else { return nil }
+        step("\(question) (\(choices.joined(separator: ", ")); Enter if unknown)")
+        guard let answer = readLine()?.trimmingCharacters(in: .whitespaces).lowercased() else { return nil }
+        return choices.contains(answer) ? answer : nil
+    }
+
     /// Writes the ANSWER line. Each value is a text or nil for unknown.
     func answer(
         playEvent: String? = nil, pauseEvent: String? = nil, skipEvent: String? = nil,
@@ -211,6 +219,7 @@ func runMainLoop(seconds: Int) {
 
 /// Runs every pure function on built-in data and compares the lines to literals.
 enum Selftest {
+    @MainActor
     static func run() -> Bool {
         var mismatches: [String] = []
         func check(_ name: String, _ actual: String, _ expected: String) {
@@ -272,6 +281,8 @@ enum Selftest {
         check("remote verdict", Verdict.remote(observations).rawValue, "GO")
         check("remote direct only", Verdict.remote(observations.filter { $0.route == "direct" }).rawValue, "NO-GO")
         check("controls", Verdict.controls(musicToggled: true, spotifyToggled: nil).rawValue, "REDUCED-GO")
+
+        mismatches += LocalChecks.selftestMismatches()
 
         for line in mismatches { Output.emit("mismatch: " + line) }
         Output.emit(mismatches.isEmpty ? "selftest ok" : "selftest MISMATCH")
