@@ -970,7 +970,9 @@ def cmd_report(args):
         flagged = []
         longest = []
         for row in sheet_rows(repo, code):
-            english = SPECIFIER_RE.sub("", row["english"])
+            # The catalog holds only the key of an Info.plist text; measure against the English text.
+            source = repo.info.get(row["key"], row["english"]) if row["catalog"] == "InfoPlist" else row["english"]
+            english = SPECIFIER_RE.sub("", source)
             text = row["translation"]
             if not text:
                 continue
@@ -1455,6 +1457,12 @@ def self_test():
         status, out, _ = run(["report", "de", "--root", root])
         check("report: lists the ten longest", status == 0 and "ten longest" in out)
         check("report: flags a long translation", "Datei jetzt speichern" not in out and "strings are more than 1.4 times" in out)
+        plist = os.path.join(root, RESOURCES, "Info.plist")
+        with open(plist, "wb") as file:
+            plistlib.dump({"NSLocationUsageDescription": "Hi there you"}, file)
+        status, out, _ = run(["report", "de", "--root", root])
+        check("report: measures an Info.plist text against its English text, not its key", status == 0 and "InfoPlist|'NSLocationUsageDescription'" in out and "x2.67" in out)
+        os.remove(plist)
 
     print(f"self-test: {results['passed']} checks passed" if not results["failed"] else f"self-test: {results['failed']} checks FAILED, {results['passed']} passed")
     return 1 if results["failed"] or results["passed"] < 40 else 0
