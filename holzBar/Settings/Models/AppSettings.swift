@@ -32,6 +32,9 @@ final class AppSettings {
     /// The model for the Live activities module's settings.
     let liveActivities = LiveActivitiesSettings()
 
+    /// The model for the File drop module's settings.
+    let fileDrop = FileDropSettings()
+
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
         advanced.performSetup(with: appState)
@@ -41,5 +44,6 @@ final class AppSettings {
         timers.performSetup(with: appState)
         calendar.performSetup(with: appState)
         liveActivities.performSetup(with: appState)
+        fileDrop.performSetup(with: appState)
     }
 }

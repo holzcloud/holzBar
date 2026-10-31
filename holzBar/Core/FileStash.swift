@@ -124,6 +124,25 @@ nonisolated struct FileStash: Equatable, Sendable {
         return result
     }
 
+    /// Marks the files that are gone and clears the mark on every other file.
+    ///
+    /// The set holds keys, as ``key(for:)`` makes them. A key that is not stashed is ignored.
+    /// Order and ids never change.
+    mutating func markMissing(_ missing: Set<String>) {
+        for index in files.indices {
+            files[index].isMissing = missing.contains(Self.key(for: files[index].url))
+        }
+    }
+
+    /// Whether a file leaves the stash after the user dragged it out.
+    ///
+    /// A drag is completed when the receiver took the file, that is, when the drop's operation
+    /// was anything other than none. A cancelled or refused drag leaves the file in the stash,
+    /// and so does the setting being off.
+    static func shouldRemoveAfterDrag(completed: Bool, removesAfterDrop: Bool) -> Bool {
+        completed && removesAfterDrop
+    }
+
     /// Takes a file out of the stash. An unknown id changes nothing.
     mutating func remove(_ id: UUID) {
         files.removeAll { $0.id == id }

@@ -26,6 +26,9 @@ final class FileDropRuntime: HubModuleRuntime {
     /// The stashed files. Names and paths live here in memory only.
     private(set) var stash = FileStash()
 
+    /// The check for files that are gone, while one runs.
+    @ObservationIgnored private var probeTask: Task<Void, Never>?
+
     /// Creates the runtime. It has nothing to start: the stash fills when files are dropped.
     init(appState: AppState) {}
 
@@ -44,14 +47,41 @@ final class FileDropRuntime: HubModuleRuntime {
         stash.remove(id)
     }
 
+    /// Marks the files that no longer exist. The lookup runs off the main actor and its result is
+    /// dropped when it was overtaken by another check or by ``shutDown()``.
+    func refreshMissing() {
+        probeTask?.cancel()
+        let keys = stash.keys
+        guard !keys.isEmpty else {
+            probeTask = nil
+            return
+        }
+        probeTask = Task { [weak self] in
+            let missing = await FileDropProbe.missingKeys(among: keys)
+            guard !Task.isCancelled else {
+                return
+            }
+            self?.stash.markMissing(missing)
+        }
+    }
+
     // MARK: Hub
+
+    /// Looks for files that are gone when the hub opens, and at no other time: nothing repeats.
+    func hubVisibilityDidChange(isOpen: Bool) {
+        if isOpen {
+            refreshMissing()
+        }
+    }
 
     func makeBody(host: any HubHost) -> AnyView {
         AnyView(FileDropBodyView(runtime: self))
     }
 
-    /// Lets go of every reference.
+    /// Cancels the check and lets go of every reference.
     func shutDown() {
+        probeTask?.cancel()
+        probeTask = nil
         stash = FileStash()
     }
 }

@@ -196,6 +196,25 @@ struct SettingsSchemaTests {
         }
     }
 
+    @Test("The file drop settings travel")
+    func fileDropSettingsTravel() {
+        #expect(Defaults.Key.fileDropOpensOnDrag.settingsKind == .bool)
+        #expect(Defaults.Key.fileDropRemovesAfterDrop.settingsKind == .bool)
+        #expect(Defaults.Key.importableKinds["FileDropOpensOnDrag"] == .bool)
+        #expect(Defaults.Key.importableKinds["FileDropRemovesAfterDrop"] == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.fileDropOpensOnDrag))
+        #expect(!Defaults.Key.localOnlyKeys.contains(.fileDropRemovesAfterDrop))
+        let accepted = Defaults.Key.validatedSettings(
+            ["FileDropOpensOnDrag": false, "FileDropRemovesAfterDrop": true],
+            ownBundleIdentifier: ownBundle
+        )
+        #expect(accepted.accepted.keys.sorted() == ["FileDropOpensOnDrag", "FileDropRemovesAfterDrop"])
+        for refused: Any in [1.5, "yes", ["a"]] {
+            let result = Defaults.Key.validatedSettings(["FileDropOpensOnDrag": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+        }
+    }
+
     @Test("The Shelf's style and location travel with a settings file, and only as whole numbers within their choices")
     func shelfStyleAndLocationTravel() {
         #expect(Defaults.Key.importableKinds["ShelfStyle"] == .number)

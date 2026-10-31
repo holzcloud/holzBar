@@ -149,4 +149,54 @@ struct FileStashTests {
         stash.add(urls(["/a", "/b"]), makeID: counter.make)
         #expect(stash.files.map(\.id) == [Counter.id(1), Counter.id(2)])
     }
+
+    @Test("markMissing marks exactly the files whose key is in the set and clears the rest")
+    func markingMissing() {
+        var stash = FileStash()
+        let counter = Counter()
+        stash.add(urls(["/a/one", "/a/two", "/a/three"]), makeID: counter.make)
+        let order = stash.files.map(\.id)
+
+        stash.markMissing(["/a/two", "/not/stashed"])
+        #expect(stash.files.map(\.isMissing) == [false, true, false])
+        #expect(stash.files.map(\.id) == order)
+
+        stash.markMissing(["/a/one"])
+        #expect(stash.files.map(\.isMissing) == [true, false, false])
+
+        stash.markMissing([])
+        #expect(stash.files.allSatisfy { !$0.isMissing })
+        #expect(stash.files.map(\.id) == order)
+        #expect(paths(of: stash) == ["/a/one", "/a/two", "/a/three"])
+    }
+
+    @Test("A file marked missing and dropped again loses its mark and keeps its id")
+    func droppingAgainClearsTheMark() {
+        var stash = FileStash()
+        stash.add(urls(["/a/one", "/a/two"]))
+        let twoID = stash.files[1].id
+        stash.markMissing(["/a/two"])
+        #expect(stash.files[1].isMissing)
+
+        stash.add(urls(["/a/two"]))
+        #expect(stash.files[0].id == twoID)
+        #expect(!stash.files[0].isMissing)
+        #expect(paths(of: stash) == ["/a/two", "/a/one"])
+    }
+
+    @Test("keys lists the keys of the files in order")
+    func keysInOrder() {
+        var stash = FileStash()
+        #expect(stash.keys.isEmpty)
+        stash.add(urls(["/a/one/", "/b/two"]))
+        #expect(stash.keys == ["/a/one", "/b/two"])
+    }
+
+    @Test("A file leaves the stash after a drag only when the drop completed and the setting is on")
+    func removalAfterDrag() {
+        #expect(FileStash.shouldRemoveAfterDrag(completed: true, removesAfterDrop: true))
+        #expect(!FileStash.shouldRemoveAfterDrag(completed: true, removesAfterDrop: false))
+        #expect(!FileStash.shouldRemoveAfterDrag(completed: false, removesAfterDrop: true))
+        #expect(!FileStash.shouldRemoveAfterDrag(completed: false, removesAfterDrop: false))
+    }
 }

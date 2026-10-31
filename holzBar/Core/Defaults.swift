@@ -309,6 +309,12 @@ nonisolated extension Defaults {
         /// Whether the Live activities module watches the Downloads folder for downloads in
         /// progress (a boolean, off by default). Switching it on is when macOS asks for the folder.
         case liveActivitiesDownloads = "LiveActivitiesDownloads"
+        /// Whether the Notch hub opens on the File drop tab when a file is dragged to the notch
+        /// (a boolean, on by default).
+        case fileDropOpensOnDrag = "FileDropOpensOnDrag"
+        /// Whether a file leaves the File drop stash once it was dropped elsewhere (a boolean,
+        /// on by default).
+        case fileDropRemovesAfterDrop = "FileDropRemovesAfterDrop"
 
         // MARK: Debugging
         /// Loses the round trip of every move and click event barrier before macOS 27: the
@@ -402,6 +408,8 @@ nonisolated extension Defaults.Key {
             .calendarShowsAllDay,
             .liveActivitiesCapture,
             .liveActivitiesDownloads,
+            .fileDropOpensOnDrag,
+            .fileDropRemovesAfterDrop,
             .openHiddenItemsInMenuBar,
             .syncsSettingsWithICloud,
             .macOS27LayoutSeeded,
