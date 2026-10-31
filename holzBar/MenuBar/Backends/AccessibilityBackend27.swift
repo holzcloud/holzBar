@@ -9,8 +9,9 @@ import Cocoa
 ///
 /// MenuBarAgent draws the items without WindowServer windows, so they are read,
 /// hit tested and clicked through Accessibility (``MenuBarItemProvider27``,
-/// ``ItemHitTest27``, ``ItemClicker27``). They cannot be moved: the saved layout
-/// decides their sections, and concealment hides them.
+/// ``ItemHitTest27``, ``ItemClicker27``). They cannot be hidden by moving them: the saved
+/// layout decides their sections, and concealment hides them. They can be put in order, though:
+/// ``ItemReorderer27`` drags one next to another the way a user does with ⌘ held.
 @available(macOS 27.0, *)
 @MainActor
 final class AccessibilityBackend27: MenuBarBackend {
@@ -97,8 +98,11 @@ final class AccessibilityBackend27: MenuBarBackend {
         return appState.concealer27.cacheFromSavedLayout(items: items + folded, displayID: displayID)
     }
 
+    /// Puts an item next to another one with a synthetic command-drag (``ItemReorderer27``).
+    /// macOS 27 sends no notification for a reorder, so the cache is read again afterwards.
     func move(item: MenuBarItem, to destination: MenuBarItemManager.MoveDestination, appState: AppState) async throws {
-        throw MenuBarItemManager.EventError.itemNotMovable(item)
+        try await ItemReorderer27.move(item, to: destination, appState: appState)
+        await appState.itemManager.cacheItemsRegardless()
     }
 
     func click(item: MenuBarItem, with mouseButton: CGMouseButton, appState: AppState) async throws {
