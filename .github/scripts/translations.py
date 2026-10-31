@@ -35,6 +35,7 @@ import hashlib
 import io
 import json
 import os
+import plistlib
 import re
 import sys
 import tempfile
@@ -344,6 +345,24 @@ def region_problems(registry, regions):
     return messages
 
 
+def info_english(root):
+    """The English text of the InfoPlist keys, from Resources/Info.plist and the
+    project's copyright build setting; the catalog holds only the key. Best effort."""
+    result = {}
+    try:
+        with open(os.path.join(root, RESOURCES, "Info.plist"), "rb") as file:
+            result.update({key: value for key, value in plistlib.load(file).items() if isinstance(value, str)})
+    except (OSError, ValueError, plistlib.InvalidFileException):
+        pass
+    try:
+        found = re.search(r'INFOPLIST_KEY_NSHumanReadableCopyright = "([^"]*)"', read_text(os.path.join(root, PROJECT)))
+        if found:
+            result.setdefault("NSHumanReadableCopyright", found.group(1))
+    except ToolError:
+        pass
+    return result
+
+
 class Repo:
     """The registry and the three catalogs of one root."""
 
@@ -360,6 +379,7 @@ class Repo:
             except ValueError as error:
                 raise ToolError(f"{path}: not a String Catalog: {error}")
             self.texts[name] = text
+        self.info = info_english(root)
 
     def targets(self):
         return target_codes(self.registry)
@@ -422,10 +442,12 @@ def sheet_rows(repo, code, catalogs=None):
     category the language needs or already holds."""
     needed, _ = plural_rule(code)
     rows = []
-    for catalog, key, entry in repo.entries(catalogs):
+    for number, (catalog, key, entry) in enumerate(repo.entries(catalogs), 1):
         english = english_side(key, entry)
         side = language_side(entry, code)
         comment = entry.get("comment", "")
+        if catalog == "InfoPlist" and key in repo.info:
+            comment = f"English text: {repo.info[key]} ({comment})" if comment else f"English text: {repo.info[key]}"
         note = "Keep every ${...} placeholder exactly once, unchanged." if "${" in key else ""
         if isinstance(english, dict):
             present = side if isinstance(side, dict) else {}
@@ -433,6 +455,7 @@ def sheet_rows(repo, code, catalogs=None):
                 text = f"Plural form '{name}'. {comment}".strip()
                 rows.append(
                     {
+                        "id": f"{number}.{name}",
                         "catalog": catalog,
                         "key": key,
                         "form": name,
@@ -444,6 +467,7 @@ def sheet_rows(repo, code, catalogs=None):
         else:
             rows.append(
                 {
+                    "id": str(number),
                     "catalog": catalog,
                     "key": key,
                     "form": "",
@@ -457,7 +481,28 @@ def sheet_rows(repo, code, catalogs=None):
     return rows
 
 
+def escape_line(text):
+    return text.replace("\\", "\\\\").replace("\n", "\\n")
+
+
+def unescape_line(text):
+    result = []
+    index = 0
+    while index < len(text):
+        char = text[index]
+        if char == "\\" and index + 1 < len(text) and text[index + 1] in ("n", "\\"):
+            result.append("\n" if text[index + 1] == "n" else "\\")
+            index += 2
+        else:
+            result.append(char)
+            index += 1
+    return "".join(result)
+
+
 def write_sheet(path, rows, fmt):
+    if fmt == "lines":
+        write_all({path: "".join(f"{row['id']}|{escape_line(row['english'])}" + (f"   // {row['comment']}" if row["catalog"] == "InfoPlist" else "") + "\n" for row in rows)})
+        return
     if fmt == "json":
         text = dumps_plain(rows)
         write_all({path: text})
@@ -485,6 +530,16 @@ def read_sheet(path):
     except UnicodeDecodeError:
         raise ToolError(f"{path}: not UTF-8")
     required = ("catalog", "key", "form", "english", "translation")
+    if path.lower().endswith(".txt"):
+        lines = {}
+        for number, line in enumerate(text.split("\n"), 1):
+            if not line.strip():
+                continue
+            identifier, separator, value = line.partition("|")
+            if not separator or not re.match(r"^\d+(\.[a-z]+)?$", identifier):
+                raise ToolError(f"{path}: line {number} is not ID|text")
+            lines[identifier] = unescape_line(value)
+        return "lines", lines
     if path.lower().endswith(".csv"):
         reader = csv.DictReader(io.StringIO(text, newline=""))
         if not reader.fieldnames or not set(required) <= set(reader.fieldnames):
@@ -562,7 +617,16 @@ def collect_updates(repo, code, paths):
     problems = []
     for path in paths:
         kind, content = read_sheet(path)
-        if kind == "map":
+        if kind == "lines":
+            entries = list(repo.entries())
+            for identifier, text in content.items():
+                number, _, form = identifier.partition(".")
+                if not 1 <= int(number) <= len(entries):
+                    problems.append(f"{path}: entry {number} does not exist")
+                    continue
+                catalog, key, _ = entries[int(number) - 1]
+                updates[(catalog, key, form)] = (text, None)
+        elif kind == "map":
             rows = {row["row"]: row for row in sheet_rows(repo, code)}
             for number, text in content.items():
                 row = rows.get(number)
@@ -1181,6 +1245,25 @@ def self_test():
         check("round: a partial round leaves reviewedThrough null", language_entry(read_registry(root), "ru")["reviewedThrough"] is None)
         check("round: a partial round covers only its rows", len(read_ledger(root, "ru")["strings"]) == 1)
 
+        # The line format: ID|text, newlines escaped.
+        build_fixture(root)
+        listing = os.path.join(folder, "de-lines.txt")
+        run(["export", "de", "--format", "lines", "--out", listing, "--root", root])
+        with open(listing, encoding="utf-8") as file:
+            listed = file.read().split("\n")[:-1]
+        check("lines: one ID|english per row", len(listed) == 7 and listed[0] == "1|Hello" and "3.one|One item" in listed)
+        answers = os.path.join(folder, "de-answers.txt")
+        write_all({answers: "1|Servus\n2|Zwei\\nZeilen mit | Strich\n3.one|Ein Ding\n3.other|%lld Dinge\n"})
+        status, _, _ = run(["apply", "de", answers, "--root", root])
+        strings = Repo(root).catalogs["Localizable"]["strings"]
+        check("lines: apply reads ID|text", status == 0 and language_side(strings["Hello"], "de") == "Servus")
+        check("lines: an escaped newline and a bar survive", language_side(strings["Save the file to disk now"], "de") == "Zwei\nZeilen mit | Strich")
+        check("lines: plural forms by ID", language_side(strings["%lld items"], "de") == {"one": "Ein Ding", "other": "%lld Dinge"})
+        write_all({answers: "99|Nope\n"})
+        check("lines: an unknown entry is refused", run(["apply", "de", answers, "--root", root])[0] == 1)
+        write_all({answers: "no bar here\n"})
+        check("lines: a line without a bar is refused", run(["apply", "de", answers, "--root", root])[0] == 1)
+
         # A json map of row numbers.
         build_fixture(root)
         mapping = os.path.join(folder, "map.json")
@@ -1298,7 +1381,7 @@ def make_parser():
     export = commands.add_parser("export", parents=[common], help="write a sheet of one language")
     export.add_argument("code")
     export.add_argument("--unreviewed", action="store_true", help="only the strings the ledger does not cover")
-    export.add_argument("--format", choices=("csv", "json"), default="csv")
+    export.add_argument("--format", choices=("csv", "json", "lines"), default="csv", help="lines: one ID|english per line, answered with ID|translation in a .txt file")
     export.add_argument("--out", required=True)
     apply = commands.add_parser("apply", parents=[common], help="validate corrected sheets and write the catalogs")
     apply.add_argument("code")

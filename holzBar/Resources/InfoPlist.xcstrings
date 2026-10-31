@@ -60,6 +60,12 @@
             "value" : "Copyright © 2025 Jordan Baird. holzBar 수정 사항 © 2026 holzcloud."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copyright © 2025 Jordan Baird. holzBar-wijzigingen © 2026 holzcloud."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -155,6 +161,12 @@
             "state" : "translated",
             "value" : "holzBar 会监视你的“下载”文件夹，以便在刘海处显示正在进行的下载。它不会读取你下载的内容。"
           }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar houdt je map Downloads in de gaten voor downloads die bezig zijn, om ze bij de notch te tonen. Het leest nooit wat je downloadt."
+          }
         }
       }
     },
@@ -202,6 +214,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar는 자동화 규칙이 반응할 수 있도록 연결된 Wi-Fi 네트워크의 이름을 읽습니다. 사용자의 위치는 읽지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar leest de naam van het wifi-netwerk waarmee je bent verbonden, zodat een automatiseringsregel erop kan reageren. Het leest je locatie niet."
           }
         },
         "pt-BR" : {
@@ -276,6 +294,12 @@
             "value" : "holzBar는 자동화 규칙이 반응할 수 있도록 연결된 Wi-Fi 네트워크의 이름을 읽습니다. 사용자의 위치는 읽지 않습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar leest de naam van het wifi-netwerk waarmee je bent verbonden, zodat een automatiseringsregel erop kan reageren. Het leest je locatie niet."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -348,6 +372,12 @@
             "value" : "holzBar는 자동화 규칙과 액세서리 알림이 반응할 수 있도록 페어링된 Bluetooth 기기 중 어떤 기기가 연결되어 있는지 확인합니다. 기기에 연결하거나 기기를 검색하거나 기기로 무언가를 보내는 일은 절대 없습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ziet welke van je gekoppelde Bluetooth-apparaten zijn verbonden, zodat automatiseringsregels en accessoiremeldingen erop kunnen reageren. Het maakt nooit verbinding met een apparaat, zoekt niet naar apparaten en stuurt niets naar een apparaat."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -418,6 +448,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar는 노치 허브에 다음 일정과 회의 링크를 표시합니다. 일정은 이 Mac에서만 읽으며 전송하거나 저장하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar toont je volgende afspraken en hun vergaderlinks in de notch-hub. Het leest ze alleen op deze Mac en verzendt of bewaart ze nooit."
           }
         },
         "pt-BR" : {

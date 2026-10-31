@@ -27,6 +27,14 @@
         "es": {
           "text": "Barra de menús",
           "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "nl": {
+          "text": "Menubalk",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "pt-BR": {
+          "text": "Barra de Menus",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
         }
       }
     },
@@ -55,6 +63,16 @@
         },
         "es": {
           "text": "elemento de la barra de menús",
+          "source": "catalog",
+          "entries": 7
+        },
+        "nl": {
+          "text": "menubalkonderdeel",
+          "source": "catalog",
+          "entries": 7
+        },
+        "pt-BR": {
+          "text": "item da barra de menus",
           "source": "catalog",
           "entries": 7
         }
@@ -86,6 +104,15 @@
         "es": {
           "text": "Oculto",
           "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Verborgen",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "oculto",
+          "source": "catalog",
+          "entries": 30
         }
       }
     },
@@ -114,6 +141,16 @@
         },
         "es": {
           "text": "siempre oculto",
+          "source": "catalog",
+          "entries": 7
+        },
+        "nl": {
+          "text": "altijd verborgen",
+          "source": "catalog",
+          "entries": 13
+        },
+        "pt-BR": {
+          "text": "sempre oculto",
           "source": "catalog",
           "entries": 7
         }
@@ -146,6 +183,16 @@
           "text": "visible",
           "source": "catalog",
           "entries": 7
+        },
+        "nl": {
+          "text": "zichtbaar",
+          "source": "catalog",
+          "entries": 7
+        },
+        "pt-BR": {
+          "text": "visível",
+          "source": "catalog",
+          "entries": 5
         }
       }
     },
@@ -174,6 +221,16 @@
         },
         "es": {
           "text": "sección",
+          "source": "catalog",
+          "entries": 23
+        },
+        "nl": {
+          "text": "sectie",
+          "source": "catalog",
+          "entries": 29
+        },
+        "pt-BR": {
+          "text": "seção",
           "source": "catalog",
           "entries": 23
         }
@@ -206,6 +263,16 @@
           "text": "holzBar Shelf",
           "source": "catalog",
           "entries": 23
+        },
+        "nl": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "pt-BR": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
         }
       }
     },
@@ -233,6 +300,14 @@
           "entries": 40
         },
         "es": {
+          "text": "Perfil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Profiel",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
           "text": "Perfil",
           "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
         }
@@ -264,6 +339,14 @@
         "es": {
           "text": "Disposición",
           "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Lay-out",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Layout",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -292,6 +375,16 @@
         },
         "es": {
           "text": "regla",
+          "source": "catalog",
+          "entries": 32
+        },
+        "nl": {
+          "text": "regel",
+          "source": "catalog",
+          "entries": 32
+        },
+        "pt-BR": {
+          "text": "regra",
           "source": "catalog",
           "entries": 32
         }
@@ -324,6 +417,16 @@
           "text": "condición",
           "source": "catalog",
           "entries": 5
+        },
+        "nl": {
+          "text": "voorwaarde",
+          "source": "catalog",
+          "entries": 6
+        },
+        "pt-BR": {
+          "text": "condição",
+          "source": "catalog",
+          "entries": 5
         }
       }
     },
@@ -353,6 +456,15 @@
         "es": {
           "text": "Acción",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        },
+        "nl": {
+          "text": "actie",
+          "source": "catalog",
+          "entries": 2
+        },
+        "pt-BR": {
+          "text": "Ação",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pt_BR.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -380,6 +492,16 @@
           "entries": 11
         },
         "es": {
+          "text": "modo Zen",
+          "source": "catalog",
+          "entries": 11
+        },
+        "nl": {
+          "text": "zenmodus",
+          "source": "catalog",
+          "entries": 11
+        },
+        "pt-BR": {
           "text": "modo Zen",
           "source": "catalog",
           "entries": 11
@@ -413,6 +535,16 @@
           "text": "atajo de teclado",
           "source": "catalog",
           "entries": 16
+        },
+        "nl": {
+          "text": "sneltoets",
+          "source": "catalog",
+          "entries": 19
+        },
+        "pt-BR": {
+          "text": "atalho de teclado",
+          "source": "catalog",
+          "entries": 16
         }
       }
     },
@@ -442,6 +574,14 @@
         "es": {
           "text": "Buscar",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        },
+        "nl": {
+          "text": "Zoek",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/nl.lproj/LocalizableMerged.strings"
+        },
+        "pt-BR": {
+          "text": "Buscar",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pt_BR.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -471,6 +611,14 @@
         "es": {
           "text": "Aspecto",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Weergave",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Aparência",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -499,6 +647,14 @@
         },
         "es": {
           "text": "Tinte",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Tint",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Tonalidade",
           "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -530,6 +686,16 @@
           "text": "borde",
           "source": "catalog",
           "entries": 6
+        },
+        "nl": {
+          "text": "rand",
+          "source": "catalog",
+          "entries": 6
+        },
+        "pt-BR": {
+          "text": "borda",
+          "source": "catalog",
+          "entries": 6
         }
       }
     },
@@ -555,6 +721,14 @@
         "es": {
           "text": "sombra",
           "source": "unverified"
+        },
+        "nl": {
+          "text": "Schaduw",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Sombra",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -583,6 +757,14 @@
         },
         "es": {
           "text": "Accesibilidad",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "nl": {
+          "text": "Toegankelijkheid",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "pt-BR": {
+          "text": "Acessibilidade",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
         }
       }
@@ -613,6 +795,14 @@
         "es": {
           "text": "Grabación de pantalla",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "nl": {
+          "text": "Schermopname",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "pt-BR": {
+          "text": "Gravação de Tela",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
         }
       }
     },
@@ -641,6 +831,14 @@
         },
         "es": {
           "text": "Localización",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Locatievoorzieningen",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
+          "text": "Serviços de Localização",
           "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -672,6 +870,16 @@
           "text": "permiso",
           "source": "catalog",
           "entries": 14
+        },
+        "nl": {
+          "text": "toestemming",
+          "source": "catalog",
+          "entries": 14
+        },
+        "pt-BR": {
+          "text": "permissão",
+          "source": "catalog",
+          "entries": 10
         }
       }
     },
@@ -699,6 +907,16 @@
           "entries": 6
         },
         "es": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "nl": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "pt-BR": {
           "text": "widget",
           "source": "catalog",
           "entries": 6
@@ -732,6 +950,16 @@
           "text": "script",
           "source": "catalog",
           "entries": 30
+        },
+        "nl": {
+          "text": "script",
+          "source": "catalog",
+          "entries": 30
+        },
+        "pt-BR": {
+          "text": "script",
+          "source": "catalog",
+          "entries": 30
         }
       }
     },
@@ -760,6 +988,14 @@
         },
         "es": {
           "text": "Atajo",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "nl": {
+          "text": "Opdracht",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "pt-BR": {
+          "text": "Atalho",
           "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
         }
       }
@@ -790,6 +1026,14 @@
         "es": {
           "text": "Modo de concentración",
           "source": "/System/Library/ExtensionKit/Extensions/DoNotDisturbAppIntents.appex/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Focus",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "pt-BR": {
+          "text": "Foco",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
         }
       }
     },
@@ -817,6 +1061,14 @@
           "entries": 10
         },
         "es": {
+          "text": "Wi-Fi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Wifi",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
           "text": "Wi-Fi",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
@@ -848,6 +1100,14 @@
         "es": {
           "text": "Batería",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "nl": {
+          "text": "Batterij",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "pt-BR": {
+          "text": "Bateria",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
         }
       }
     },
@@ -876,6 +1136,14 @@
         },
         "es": {
           "text": "Modo de bajo consumo",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "nl": {
+          "text": "Energiebesparingsmodus",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "pt-BR": {
+          "text": "Modo Pouca Energia",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
         }
       }
@@ -906,6 +1174,14 @@
         "es": {
           "text": "Pantalla",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "nl": {
+          "text": "Beeldscherm",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "pt-BR": {
+          "text": "Monitor",
+          "source": "/System/Library/ExtensionKit/Extensions/AboutExtension.appex/Contents/Resources/SPInfo.loctable"
         }
       }
     },
@@ -933,6 +1209,16 @@
           "entries": 24
         },
         "es": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "nl": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "pt-BR": {
           "text": "notch",
           "source": "catalog",
           "entries": 24
@@ -965,6 +1251,14 @@
         "es": {
           "text": "App",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        },
+        "nl": {
+          "text": "App",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/nl.lproj/LocalizableMerged.strings"
+        },
+        "pt-BR": {
+          "text": "App",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pt_BR.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -994,6 +1288,14 @@
         "es": {
           "text": "Previsualización",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        },
+        "nl": {
+          "text": "Voorvertoning",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/nl.lproj/LocalizableMerged.strings"
+        },
+        "pt-BR": {
+          "text": "Pré-visualizar",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pt_BR.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -1021,6 +1323,14 @@
           "entries": 28
         },
         "es": {
+          "text": "Ajustes",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Instellingen",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
           "text": "Ajustes",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
@@ -1052,6 +1362,14 @@
         "es": {
           "text": "Salir",
           "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/es.lproj/DockMenus.strings"
+        },
+        "nl": {
+          "text": "Stop",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/nl.lproj/DockMenus.strings"
+        },
+        "pt-BR": {
+          "text": "Encerrar",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/pt_BR.lproj/DockMenus.strings"
         }
       }
     },
@@ -1081,6 +1399,14 @@
         "es": {
           "text": "Deshacer",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/es.lproj/LocalizableMerged.strings"
+        },
+        "nl": {
+          "text": "Herstel",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/nl.lproj/LocalizableMerged.strings"
+        },
+        "pt-BR": {
+          "text": "Desfazer",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/pt_BR.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -1110,6 +1436,14 @@
         "es": {
           "text": "Importar",
           "source": "/System/Applications/Music.app/Contents/Resources/es.lproj/Localizable.strings"
+        },
+        "nl": {
+          "text": "Importeren",
+          "source": "/System/Applications/Music.app/Contents/Resources/nl.lproj/Localizable.strings"
+        },
+        "pt-BR": {
+          "text": "Importar",
+          "source": "/System/Applications/Music.app/Contents/Resources/pt.lproj/Localizable.strings"
         }
       }
     },
@@ -1137,6 +1471,14 @@
           "entries": 2
         },
         "es": {
+          "text": "Exportar",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "nl": {
+          "text": "Exporteer",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "pt-BR": {
           "text": "Exportar",
           "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
         }
@@ -1168,6 +1510,16 @@
           "text": "instantánea",
           "source": "catalog",
           "entries": 7
+        },
+        "nl": {
+          "text": "momentopname",
+          "source": "catalog",
+          "entries": 7
+        },
+        "pt-BR": {
+          "text": "instantâneo",
+          "source": "catalog",
+          "entries": 7
         }
       }
     },
@@ -1195,6 +1547,15 @@
         },
         "es": {
           "text": "notificación",
+          "source": "unverified"
+        },
+        "nl": {
+          "text": "melding",
+          "source": "catalog",
+          "entries": 8
+        },
+        "pt-BR": {
+          "text": "notificação",
           "source": "unverified"
         }
       }

@@ -39,6 +39,12 @@
             "value" : "${applicationName}에서 레이아웃 프로파일 적용"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas een indelingsprofiel toe in ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -101,6 +107,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "${applicationName}으로 메뉴 막대 항목 열기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open een menubalkonderdeel met ${applicationName}"
           }
         },
         "pt-BR" : {
@@ -167,6 +179,12 @@
             "value" : "${applicationName}으로 메뉴 막대 항목 검색"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoek menubalkonderdelen met ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -231,6 +249,12 @@
             "value" : "${applicationName}에서 젠 모드 전환"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zet de zenmodus aan of uit in ${applicationName}"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
@@ -293,6 +317,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "${applicationName}에서 숨겨진 항목 전환"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon of verberg verborgen onderdelen in ${applicationName}"
           }
         },
         "pt-BR" : {
