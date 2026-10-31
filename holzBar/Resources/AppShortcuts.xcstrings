@@ -27,6 +27,12 @@
             "value" : "Appliquer un profil de disposition dans ${applicationName}"
           }
         },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elrendezésprofil alkalmazása: ${applicationName}"
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
@@ -75,6 +81,12 @@
             "value" : "Применить профиль раскладки в ${applicationName}"
           }
         },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tillämpa en layoutprofil i ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -107,6 +119,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ouvrir un élément de la barre des menus avec ${applicationName}"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menüsor-elem megnyitása: ${applicationName}"
           }
         },
         "it" : {
@@ -157,6 +175,12 @@
             "value" : "Открыть элемент строки меню с помощью ${applicationName}"
           }
         },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öppna ett menyradsobjekt i ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -189,6 +213,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rechercher des éléments de la barre des menus avec ${applicationName}"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menüsor-elemek keresése: ${applicationName}"
           }
         },
         "it" : {
@@ -239,6 +269,12 @@
             "value" : "Найти элементы строки меню с помощью ${applicationName}"
           }
         },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sök efter menyradsobjekt i ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -271,6 +307,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Activer ou désactiver le mode zen dans ${applicationName}"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen mód váltása: ${applicationName}"
           }
         },
         "it" : {
@@ -321,6 +363,12 @@
             "value" : "Переключить режим «Дзен» в ${applicationName}"
           }
         },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Växla Zen-läge i ${applicationName}"
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
@@ -353,6 +401,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Afficher ou masquer les éléments cachés dans ${applicationName}"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rejtett elemek váltása: ${applicationName}"
           }
         },
         "it" : {
@@ -401,6 +455,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Показать или скрыть скрытые элементы в ${applicationName}"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Växla dolda objekt i ${applicationName}"
           }
         },
         "zh-Hans" : {

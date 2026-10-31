@@ -98,6 +98,20 @@
       "nativeName": "Čeština",
       "reviewedThrough": null,
       "note": ""
+    },
+    {
+      "code": "hu",
+      "englishName": "Hungarian",
+      "nativeName": "Magyar",
+      "reviewedThrough": null,
+      "note": ""
+    },
+    {
+      "code": "sv",
+      "englishName": "Swedish",
+      "nativeName": "Svenska",
+      "reviewedThrough": null,
+      "note": ""
     }
   ]
 }

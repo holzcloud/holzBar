@@ -43,6 +43,14 @@
         "cs": {
           "text": "Řádek nabídek",
           "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "hu": {
+          "text": "Menüsor",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
+        },
+        "sv": {
+          "text": "Menyrad",
+          "source": "/System/Library/ExtensionKit/Extensions/ControlCenterSettings.appex/Contents/Resources/InfoPlist.loctable"
         }
       }
     },
@@ -93,6 +101,16 @@
           "text": "položka řádku nabídek",
           "source": "catalog",
           "entries": 3
+        },
+        "hu": {
+          "text": "menüsor-elem",
+          "source": "catalog",
+          "entries": 41
+        },
+        "sv": {
+          "text": "menyradsobjekt",
+          "source": "catalog",
+          "entries": 42
         }
       }
     },
@@ -140,6 +158,15 @@
           "text": "skrytý",
           "source": "catalog",
           "entries": 18
+        },
+        "hu": {
+          "text": "Rejtett",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "dold",
+          "source": "catalog",
+          "entries": 40
         }
       }
     },
@@ -190,6 +217,16 @@
           "text": "vždy skrytý",
           "source": "catalog",
           "entries": 7
+        },
+        "hu": {
+          "text": "mindig rejtett",
+          "source": "catalog",
+          "entries": 13
+        },
+        "sv": {
+          "text": "alltid dold",
+          "source": "catalog",
+          "entries": 13
         }
       }
     },
@@ -240,6 +277,16 @@
           "text": "viditelný",
           "source": "catalog",
           "entries": 2
+        },
+        "hu": {
+          "text": "látható",
+          "source": "catalog",
+          "entries": 8
+        },
+        "sv": {
+          "text": "synlig",
+          "source": "catalog",
+          "entries": 7
         }
       }
     },
@@ -290,6 +337,16 @@
           "text": "sekce",
           "source": "catalog",
           "entries": 11
+        },
+        "hu": {
+          "text": "szakasz",
+          "source": "catalog",
+          "entries": 29
+        },
+        "sv": {
+          "text": "sektion",
+          "source": "catalog",
+          "entries": 29
         }
       }
     },
@@ -340,6 +397,16 @@
           "text": "holzBar Shelf",
           "source": "catalog",
           "entries": 23
+        },
+        "hu": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
+        },
+        "sv": {
+          "text": "holzBar Shelf",
+          "source": "catalog",
+          "entries": 23
         }
       }
     },
@@ -383,6 +450,14 @@
           "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
         },
         "cs": {
+          "text": "Profil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Profil",
+          "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
           "text": "Profil",
           "source": "/System/Library/ExtensionKit/Extensions/GameCenterSettingsDeviceExpertExtension.appex/Contents/Resources/Localizable.loctable"
         }
@@ -429,6 +504,15 @@
         },
         "cs": {
           "text": "Uspořádání",
+          "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "elrendezés",
+          "source": "catalog",
+          "entries": 30
+        },
+        "sv": {
+          "text": "Layout",
           "source": "/System/Library/ExtensionKit/Extensions/GPUIExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -480,6 +564,16 @@
           "text": "pravidlo",
           "source": "catalog",
           "entries": 19
+        },
+        "hu": {
+          "text": "szabály",
+          "source": "catalog",
+          "entries": 32
+        },
+        "sv": {
+          "text": "regel",
+          "source": "catalog",
+          "entries": 23
         }
       }
     },
@@ -529,6 +623,16 @@
         "cs": {
           "text": "podmínka",
           "source": "unverified"
+        },
+        "hu": {
+          "text": "feltétel",
+          "source": "catalog",
+          "entries": 6
+        },
+        "sv": {
+          "text": "villkor",
+          "source": "catalog",
+          "entries": 6
         }
       }
     },
@@ -576,6 +680,14 @@
         "cs": {
           "text": "Akce",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/cs.lproj/LocalizableMerged.strings"
+        },
+        "hu": {
+          "text": "Művelet",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/hu.lproj/LocalizableMerged.strings"
+        },
+        "sv": {
+          "text": "Åtgärd",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/sv.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -626,6 +738,16 @@
           "text": "režim Zen",
           "source": "catalog",
           "entries": 10
+        },
+        "hu": {
+          "text": "Zen mód",
+          "source": "catalog",
+          "entries": 11
+        },
+        "sv": {
+          "text": "Zen-läge",
+          "source": "catalog",
+          "entries": 11
         }
       }
     },
@@ -676,6 +798,16 @@
           "text": "klávesová zkratka",
           "source": "catalog",
           "entries": 5
+        },
+        "hu": {
+          "text": "billentyűparancs",
+          "source": "catalog",
+          "entries": 18
+        },
+        "sv": {
+          "text": "kortkommando",
+          "source": "catalog",
+          "entries": 19
         }
       }
     },
@@ -721,6 +853,14 @@
         "cs": {
           "text": "Hledat",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/cs.lproj/LocalizableMerged.strings"
+        },
+        "hu": {
+          "text": "Keresés",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/hu.lproj/LocalizableMerged.strings"
+        },
+        "sv": {
+          "text": "Sök",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/sv.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -765,6 +905,14 @@
         },
         "cs": {
           "text": "Vzhled",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Megjelenés",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "Utseende",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -811,6 +959,15 @@
         },
         "cs": {
           "text": "Odstín",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "színárnyalat",
+          "source": "catalog",
+          "entries": 3
+        },
+        "sv": {
+          "text": "Färgton",
           "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -862,6 +1019,16 @@
           "text": "ohraničení",
           "source": "catalog",
           "entries": 6
+        },
+        "hu": {
+          "text": "szegély",
+          "source": "catalog",
+          "entries": 5
+        },
+        "sv": {
+          "text": "kantlinje",
+          "source": "catalog",
+          "entries": 6
         }
       }
     },
@@ -902,6 +1069,14 @@
         },
         "cs": {
           "text": "Stín",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Árnyék",
+          "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "Skugga",
           "source": "/System/Library/ExtensionKit/Extensions/AccessibilitySettingsExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -948,6 +1123,14 @@
         "cs": {
           "text": "Zpřístupnění",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "hu": {
+          "text": "Kisegítő lehetőségek",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
+        },
+        "sv": {
+          "text": "Hjälpmedel",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/AccessibilityShortcuts.loctable"
         }
       }
     },
@@ -993,6 +1176,14 @@
         "cs": {
           "text": "Záznam obrazovky",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "hu": {
+          "text": "Képernyőfelvétel",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
+        },
+        "sv": {
+          "text": "Skärminspelning",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/SensorIndicators.loctable"
         }
       }
     },
@@ -1037,6 +1228,14 @@
         },
         "cs": {
           "text": "Polohové služby",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Helymeghatározás",
+          "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "Platstjänster",
           "source": "/System/Library/ExtensionKit/Extensions/SecurityPrivacyExtension.appex/Contents/Resources/Localizable.loctable"
         }
       }
@@ -1088,6 +1287,16 @@
           "text": "oprávnění",
           "source": "catalog",
           "entries": 11
+        },
+        "hu": {
+          "text": "engedély",
+          "source": "catalog",
+          "entries": 14
+        },
+        "sv": {
+          "text": "behörighet",
+          "source": "catalog",
+          "entries": 11
         }
       }
     },
@@ -1135,6 +1344,16 @@
           "entries": 6
         },
         "cs": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "hu": {
+          "text": "widget",
+          "source": "catalog",
+          "entries": 6
+        },
+        "sv": {
           "text": "widget",
           "source": "catalog",
           "entries": 6
@@ -1188,6 +1407,16 @@
           "text": "skript",
           "source": "catalog",
           "entries": 30
+        },
+        "hu": {
+          "text": "szkript",
+          "source": "catalog",
+          "entries": 30
+        },
+        "sv": {
+          "text": "skript",
+          "source": "catalog",
+          "entries": 30
         }
       }
     },
@@ -1232,6 +1461,14 @@
         },
         "cs": {
           "text": "Zkratka",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "hu": {
+          "text": "Parancs",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
+        },
+        "sv": {
+          "text": "Genväg",
           "source": "/System/Applications/Shortcuts.app/Contents/Resources/AppIntents.loctable"
         }
       }
@@ -1278,6 +1515,14 @@
         "cs": {
           "text": "Soustředění",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "hu": {
+          "text": "Fókusz",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
+        },
+        "sv": {
+          "text": "Fokus",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/BentoGallery.loctable"
         }
       }
     },
@@ -1323,6 +1568,16 @@
         "cs": {
           "text": "Wi-Fi",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
+        },
+        "sv": {
+          "text": "Wi-Fi",
+          "source": "catalog",
+          "entries": 10
         }
       }
     },
@@ -1367,6 +1622,14 @@
         },
         "cs": {
           "text": "Baterie",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "hu": {
+          "text": "Akkumulátor",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
+        },
+        "sv": {
+          "text": "Batteri",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/Battery.loctable"
         }
       }
@@ -1414,6 +1677,14 @@
         "cs": {
           "text": "Režim nízké spotřeby",
           "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "hu": {
+          "text": "Alacsony fogyasztású mód",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
+        },
+        "sv": {
+          "text": "Strömsparläge",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/EnergyMode.loctable"
         }
       }
     },
@@ -1460,6 +1731,14 @@
           "text": "displej",
           "source": "catalog",
           "entries": 20
+        },
+        "hu": {
+          "text": "Kijelző",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
+        },
+        "sv": {
+          "text": "Skärm",
+          "source": "/System/Library/CoreServices/ControlCenter.app/Contents/Resources/ControlCenterDisplayableModule.loctable"
         }
       }
     },
@@ -1510,6 +1789,16 @@
           "text": "výřez",
           "source": "catalog",
           "entries": 24
+        },
+        "hu": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
+        },
+        "sv": {
+          "text": "notch",
+          "source": "catalog",
+          "entries": 24
         }
       }
     },
@@ -1555,6 +1844,16 @@
         "cs": {
           "text": "Aplikace",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/cs.lproj/LocalizableMerged.strings"
+        },
+        "hu": {
+          "text": "alkalmazás",
+          "source": "catalog",
+          "entries": 48
+        },
+        "sv": {
+          "text": "app",
+          "source": "catalog",
+          "entries": 51
         }
       }
     },
@@ -1600,6 +1899,14 @@
         "cs": {
           "text": "Náhled",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/cs.lproj/LocalizableMerged.strings"
+        },
+        "hu": {
+          "text": "Előnézet",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/hu.lproj/LocalizableMerged.strings"
+        },
+        "sv": {
+          "text": "Förhandsvisning",
+          "source": "/System/Library/ExtensionKit/Extensions/Wallpaper.appex/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -1644,6 +1951,14 @@
         },
         "cs": {
           "text": "Nastavení",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Beállítások",
+          "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "Inställningar",
           "source": "/System/Applications/System Settings.app/Contents/Resources/Localizable.loctable"
         }
       }
@@ -1690,6 +2005,14 @@
         "cs": {
           "text": "Ukončit",
           "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/cs.lproj/DockMenus.strings"
+        },
+        "hu": {
+          "text": "Kilépés",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/hu.lproj/DockMenus.strings"
+        },
+        "sv": {
+          "text": "Avsluta",
+          "source": "/System/Library/CoreServices/Dock.app/Contents/Resources/sv.lproj/DockMenus.strings"
         }
       }
     },
@@ -1735,6 +2058,14 @@
         "cs": {
           "text": "Odvolat akci",
           "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/cs.lproj/LocalizableMerged.strings"
+        },
+        "hu": {
+          "text": "Visszavonás",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/hu.lproj/LocalizableMerged.strings"
+        },
+        "sv": {
+          "text": "Ångra",
+          "source": "/System/Library/CoreServices/Finder.app/Contents/Resources/sv.lproj/LocalizableMerged.strings"
         }
       }
     },
@@ -1780,6 +2111,14 @@
         "cs": {
           "text": "Importovat",
           "source": "/System/Applications/Music.app/Contents/Resources/cs.lproj/Localizable.strings"
+        },
+        "hu": {
+          "text": "Importálás",
+          "source": "/System/Applications/Music.app/Contents/Resources/hu.lproj/Localizable.strings"
+        },
+        "sv": {
+          "text": "Importera",
+          "source": "/System/Applications/Music.app/Contents/Resources/sv.lproj/Localizable.strings"
         }
       }
     },
@@ -1825,6 +2164,14 @@
         "cs": {
           "text": "Exportovat",
           "source": "/System/Applications/Calendar.app/Contents/Resources/Localizable.loctable"
+        },
+        "hu": {
+          "text": "Exportálás",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
+        },
+        "sv": {
+          "text": "Exportera",
+          "source": "/System/Applications/Shortcuts.app/Contents/Resources/Localizable.loctable"
         }
       }
     },
@@ -1872,6 +2219,16 @@
         "cs": {
           "text": "snímek",
           "source": "unverified"
+        },
+        "hu": {
+          "text": "pillanatkép",
+          "source": "catalog",
+          "entries": 7
+        },
+        "sv": {
+          "text": "ögonblicksbild",
+          "source": "catalog",
+          "entries": 7
         }
       }
     },
@@ -1918,6 +2275,16 @@
           "text": "oznámení",
           "source": "catalog",
           "entries": 5
+        },
+        "hu": {
+          "text": "értesítés",
+          "source": "catalog",
+          "entries": 8
+        },
+        "sv": {
+          "text": "notis",
+          "source": "catalog",
+          "entries": 8
         }
       }
     }
