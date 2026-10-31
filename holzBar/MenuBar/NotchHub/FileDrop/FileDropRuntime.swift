@@ -102,6 +102,33 @@ final class FileDropRuntime: HubModuleRuntime {
         }
     }
 
+    /// The Overview card: how many files are stashed, never a name. None while the stash is empty.
+    var tile: HubTile? {
+        let count = stash.files.count
+        guard count > 0 else {
+            return nil
+        }
+        return HubTile(
+            symbol: "tray.and.arrow.down",
+            title: Text("File drop"),
+            value: String(count),
+            detail: Text("in the stash")
+        )
+    }
+
+    /// The pill beside the notch: the count, never a name. None while the stash is empty.
+    var statusPill: HubStatusPill? {
+        let count = stash.files.count
+        guard count > 0 else {
+            return nil
+        }
+        return HubStatusPill(
+            symbol: "tray.full",
+            text: String(count),
+            accessibilityLabel: Text("\(count) in the stash")
+        )
+    }
+
     func makeBody(host: any HubHost) -> AnyView {
         AnyView(FileDropBodyView(runtime: self))
     }

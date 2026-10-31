@@ -29,7 +29,7 @@ enum HubModules {
         HubModuleRegistration(
             id: "file-drop",
             makeRuntime: { FileDropRuntime(appState: $0) },
-            makeSettings: { AnyView(EmptyView()) }
+            makeSettings: { AnyView(FileDropSettingsView()) }
         ),
     ]
 
