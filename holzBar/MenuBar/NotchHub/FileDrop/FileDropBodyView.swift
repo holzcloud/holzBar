@@ -42,24 +42,66 @@ struct FileDropBodyView: View {
             )
             .frame(maxHeight: .infinity)
         } else {
-            ScrollView {
-                LazyVGrid(
-                    columns: [
-                        GridItem(
-                            .adaptive(minimum: CGFloat(DesignTokens.Hub.fileTileWidth), maximum: CGFloat(DesignTokens.Hub.fileTileWidth)),
-                            spacing: HolzBarTheme.Hub.tileGap
-                        ),
-                    ],
-                    alignment: .leading,
-                    spacing: HolzBarTheme.Hub.tileGap
-                ) {
-                    ForEach(runtime.stash.files) { file in
-                        FileDropTile(file: file) {
-                            runtime.remove(file.id)
+            VStack(spacing: HolzBarTheme.Spacing.xxs) {
+                grid
+                footer
+            }
+        }
+    }
+
+    private var grid: some View {
+        ScrollView {
+            LazyVGrid(
+                columns: [
+                    GridItem(
+                        .adaptive(minimum: CGFloat(DesignTokens.Hub.fileTileWidth), maximum: CGFloat(DesignTokens.Hub.fileTileWidth)),
+                        spacing: HolzBarTheme.Hub.tileGap
+                    ),
+                ],
+                alignment: .leading,
+                spacing: HolzBarTheme.Hub.tileGap
+            ) {
+                ForEach(runtime.stash.files) { file in
+                    FileDropTile(
+                        file: file,
+                        onRemove: { runtime.remove(file.id) },
+                        onShowInFinder: { runtime.showInFinder(file.id) },
+                        onDragFinished: { completed in
+                            runtime.dragFinished(id: file.id, completed: completed)
                         }
-                    }
+                    )
                 }
-                .padding(.vertical, HolzBarTheme.Spacing.xxs)
+            }
+            .padding(.vertical, HolzBarTheme.Spacing.xxs)
+        }
+    }
+
+    /// The notice of a full stash and the button that empties it. Neither needs a timer: the
+    /// notice shows for as long as the stash is full.
+    @ViewBuilder
+    private var footer: some View {
+        let count = runtime.stash.files.count
+        let isFull = count >= FileStash.maximumFiles
+        if isFull || count >= 2 {
+            HStack(spacing: HolzBarTheme.Spacing.sm) {
+                if isFull {
+                    Text("The stash is full")
+                        .font(HolzBarTheme.Typography.caption)
+                        .foregroundStyle(HolzBarTheme.Hub.pillText)
+                }
+                Spacer(minLength: 0)
+                if count >= 2 {
+                    Button {
+                        runtime.removeAll()
+                    } label: {
+                        Text("Remove all")
+                            .font(HolzBarTheme.Typography.caption)
+                            .foregroundStyle(HolzBarTheme.Hub.pillText)
+                            .frame(minHeight: HolzBarTheme.minimumTargetSize)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
     }
@@ -88,38 +130,35 @@ struct FileDropBodyView: View {
     }
 }
 
-/// One stashed file: its type icon and name, and a button that takes it out of the stash.
+/// One stashed file: its type icon and name, a drag source over it, and two buttons that show it
+/// in the Finder and take it out of the stash.
+///
+/// A file that no longer exists is drawn at half strength with the caption "Missing" and cannot
+/// be dragged. Everything a pointer does has a keyboard and a VoiceOver alternative: Delete
+/// removes the focused tile, Return shows it in the Finder, and both are named actions.
 private struct FileDropTile: View {
     let file: StashedFile
     let onRemove: () -> Void
+    let onShowInFinder: () -> Void
+    let onDragFinished: @MainActor (_ completed: Bool) -> Void
 
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var isHovered = false
     @FocusState private var isFocused: Bool
 
     var body: some View {
-        VStack(spacing: HolzBarTheme.Spacing.xxs) {
-            Image(nsImage: FileDropIcons.icon(for: file.url))
-                .resizable()
-                .scaledToFit()
-                .frame(width: CGFloat(DesignTokens.Hub.fileIconSize), height: CGFloat(DesignTokens.Hub.fileIconSize))
-                .accessibilityHidden(true)
-            Text(verbatim: file.url.lastPathComponent)
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Hub.pillText)
-                .lineLimit(2)
-                .truncationMode(.middle)
-                .multilineTextAlignment(.center)
+        let icon = FileDropIcons.icon(for: file.url)
+        ZStack {
+            content(icon: icon)
+            if !file.isMissing {
+                FileDropDragSource(url: file.url, icon: icon, onFinished: onDragFinished)
+            }
         }
-        .padding(HolzBarTheme.Spacing.xxs)
         .frame(width: CGFloat(DesignTokens.Hub.fileTileWidth), height: CGFloat(DesignTokens.Hub.fileTileHeight), alignment: .top)
-        .background(
-            .white.opacity(reduceTransparency ? DesignTokens.Hub.tileFillAlphaOpaque : DesignTokens.Hub.tileFillAlpha),
-            in: HolzBarTheme.shape(CGFloat(DesignTokens.Hub.tileRadius))
-        )
-        .overlay {
-            HolzBarTheme.shape(CGFloat(DesignTokens.Hub.tileRadius))
-                .stroke(.white.opacity(DesignTokens.Hub.fileTileBorderAlpha), lineWidth: HolzBarTheme.Spacing.hairline)
+        .overlay(alignment: .topLeading) {
+            if !file.isMissing {
+                showInFinderButton
+            }
         }
         .overlay(alignment: .topTrailing) {
             removeButton
@@ -135,16 +174,69 @@ private struct FileDropTile: View {
             onRemove()
             return .handled
         }
+        .onKeyPress(.return) {
+            guard !file.isMissing else {
+                return .ignored
+            }
+            onShowInFinder()
+            return .handled
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: file.url.lastPathComponent))
+        .accessibilityValue(file.isMissing ? Text("Missing") : Text(verbatim: ""))
         .accessibilityAction(named: Text("Remove"), onRemove)
+        .modifier(ShowInFinderAction(isAvailable: !file.isMissing, action: onShowInFinder))
+    }
+
+    /// The icon, the name and, for a missing file, the caption.
+    private func content(icon: NSImage) -> some View {
+        VStack(spacing: HolzBarTheme.Spacing.xxs) {
+            VStack(spacing: HolzBarTheme.Spacing.xxs) {
+                Image(nsImage: icon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: CGFloat(DesignTokens.Hub.fileIconSize), height: CGFloat(DesignTokens.Hub.fileIconSize))
+                    .accessibilityHidden(true)
+                Text(verbatim: file.url.lastPathComponent)
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Hub.pillText)
+                    .lineLimit(file.isMissing ? 1 : 2)
+                    .truncationMode(.middle)
+                    .multilineTextAlignment(.center)
+            }
+            .opacity(file.isMissing ? DesignTokens.Hub.fileMissingAlpha : 1)
+            if file.isMissing {
+                Text("Missing")
+                    .font(HolzBarTheme.Typography.caption)
+                    .foregroundStyle(HolzBarTheme.Hub.pillText)
+            }
+        }
+        .padding(HolzBarTheme.Spacing.xxs)
+        .frame(width: CGFloat(DesignTokens.Hub.fileTileWidth), height: CGFloat(DesignTokens.Hub.fileTileHeight), alignment: .top)
+        .background(
+            .white.opacity(reduceTransparency ? DesignTokens.Hub.tileFillAlphaOpaque : DesignTokens.Hub.tileFillAlpha),
+            in: HolzBarTheme.shape(CGFloat(DesignTokens.Hub.tileRadius))
+        )
+        .overlay {
+            HolzBarTheme.shape(CGFloat(DesignTokens.Hub.tileRadius))
+                .stroke(.white.opacity(DesignTokens.Hub.fileTileBorderAlpha), lineWidth: HolzBarTheme.Spacing.hairline)
+        }
     }
 
     /// The remove button: an 18 pt circle with a cross inside a 24 pt hit area, shown while the
     /// pointer is over the tile or the tile has focus.
     private var removeButton: some View {
-        Button(action: onRemove) {
-            Image(systemName: "xmark")
+        cornerButton(systemImage: "xmark", label: Text("Remove"), action: onRemove)
+    }
+
+    /// The Show in Finder button, on the other corner.
+    private var showInFinderButton: some View {
+        cornerButton(systemImage: "magnifyingglass", label: Text("Show in Finder"), action: onShowInFinder)
+    }
+
+    private func cornerButton(systemImage: String, label: Text, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
                 .font(HolzBarTheme.Typography.micro)
                 .foregroundStyle(HolzBarTheme.Hub.pillText)
                 .frame(width: CGFloat(DesignTokens.Hub.fileRemoveSize), height: CGFloat(DesignTokens.Hub.fileRemoveSize))
@@ -153,7 +245,22 @@ private struct FileDropTile: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(Text("Remove"))
+        .focusable(false)
+        .accessibilityLabel(label)
         .opacity(isHovered || isFocused ? 1 : 0)
+    }
+}
+
+/// Adds the named VoiceOver action "Show in Finder" while the file can be shown.
+private struct ShowInFinderAction: ViewModifier {
+    let isAvailable: Bool
+    let action: () -> Void
+
+    func body(content: Content) -> some View {
+        if isAvailable {
+            content.accessibilityAction(named: Text("Show in Finder"), action)
+        } else {
+            content
+        }
     }
 }

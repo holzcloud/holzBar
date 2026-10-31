@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+import AppKit
 import Foundation
 import Observation
 import SwiftUI
@@ -29,8 +30,13 @@ final class FileDropRuntime: HubModuleRuntime {
     /// The check for files that are gone, while one runs.
     @ObservationIgnored private var probeTask: Task<Void, Never>?
 
+    /// The app state, for the setting that decides whether a dropped file leaves the stash.
+    @ObservationIgnored private weak var appState: AppState?
+
     /// Creates the runtime. It has nothing to start: the stash fills when files are dropped.
-    init(appState: AppState) {}
+    init(appState: AppState) {
+        self.appState = appState
+    }
 
     // MARK: Stash
 
@@ -45,6 +51,28 @@ final class FileDropRuntime: HubModuleRuntime {
     /// Takes a file out of the stash.
     func remove(_ id: UUID) {
         stash.remove(id)
+    }
+
+    /// Takes every file out of the stash.
+    func removeAll() {
+        stash.removeAll()
+    }
+
+    /// Handles the end of a drag out of the stash: the file leaves when the receiver took it and
+    /// the setting says so; a cancelled or refused drag leaves it where it is.
+    func dragFinished(id: UUID, completed: Bool) {
+        let removesAfterDrop = appState?.settings.fileDrop.removesAfterDrop ?? true
+        if FileStash.shouldRemoveAfterDrag(completed: completed, removesAfterDrop: removesAfterDrop) {
+            stash.remove(id)
+        }
+    }
+
+    /// Shows a file in the Finder. A file that is marked missing is not looked for.
+    func showInFinder(_ id: UUID) {
+        guard let file = stash.files.first(where: { $0.id == id }), !file.isMissing else {
+            return
+        }
+        NSWorkspace.shared.activateFileViewerSelecting([file.url])
     }
 
     /// Marks the files that no longer exist. The lookup runs off the main actor and its result is
