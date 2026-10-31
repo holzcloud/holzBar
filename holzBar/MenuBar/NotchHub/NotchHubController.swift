@@ -21,7 +21,10 @@ import SwiftUI
 /// kinds of things exist only while they are needed:
 ///
 /// - the hover monitor, its zones and its one-shot tasks, while the hub is on and Open on
-///   hover is on;
+///   hover is on, or while a hub that a file drag opened is open;
+/// - the drag monitor, which tells a file dragged to the notch from other mouse drags
+///   (``FileDragWatch``), while the hub is on and a module accepts file drags; it shares the
+///   zones and the one-shot tasks of the hover;
 /// - the click monitor and the two change tasks, while the hub is open;
 /// - a module's runtime, while the hub and the module are both on (``HubModuleLifecycle``);
 /// - the compact capsule of the live activities, its two change tasks and its place in the
@@ -64,6 +67,9 @@ final class NotchHubController: HubHost {
     /// Follows the live activities and what decides whether the capsule may show, while the hub
     /// is on.
     @ObservationIgnored private var activitiesLoop: ObservationLoop?
+
+    /// Follows whether a module accepts file drags, while the hub is on.
+    @ObservationIgnored private var dragLoop: ObservationLoop?
 
     /// The runtimes of the hub modules that are on, by identifier. Empty while the hub is off.
     @ObservationIgnored private var runtimes = [String: any HubModuleRuntime]()
@@ -111,6 +117,23 @@ final class NotchHubController: HubHost {
     /// Whether the pointer has been outside the zone since the hub last closed, so that a hub
     /// closed by Esc, the hotkey or a click does not open again under the resting pointer.
     @ObservationIgnored private var hoverIsArmed = true
+
+    // MARK: File drags
+
+    /// Reports mouse presses, drags and releases in other apps, while the hub is on and a module
+    /// accepts file drags. It reads mouse events only, which need no permission.
+    @ObservationIgnored private var dragMonitor: EventMonitor?
+
+    /// Decides which drags are file drags; exists with the drag monitor.
+    @ObservationIgnored private var dragWatch: FileDragWatch?
+
+    /// The pasteboard of drags; only its change count and, once per drag, whether it can give file
+    /// URLs are read, never a name, a path or any content.
+    @ObservationIgnored private var dragPasteboard: NSPasteboard?
+
+    /// Whether the pending open or close is a file drag's. A drag that asks for nothing cancels
+    /// only its own pending action, never one the hover started.
+    @ObservationIgnored private var dragOwnsPending = false
 
     // MARK: While open
 
@@ -194,6 +217,7 @@ final class NotchHubController: HubHost {
             activitiesDidChange()
         } else {
             modulesLoop = nil
+            dragLoop = nil
             settingsLoop = nil
             activitiesLoop = nil
             cancelExpiry()
@@ -249,6 +273,22 @@ final class NotchHubController: HubHost {
         let ordered = registered.compactMap { runtimes[$0] }
         if ordered.map(\.moduleID) != model.runtimes.map(\.moduleID) {
             model.runtimes = ordered
+        }
+        followFileDrags()
+        updateDragWatching()
+    }
+
+    /// Follows whether a module accepts file drags. It starts again whenever the runtimes change,
+    /// because what it reads is the setting of the runtimes that exist.
+    private func followFileDrags() {
+        guard isActive else {
+            dragLoop = nil
+            return
+        }
+        dragLoop = ObservationLoop.observe { [weak self] in
+            self?.acceptsFileDrags() ?? false
+        } onChange: { [weak self] _ in
+            self?.updateDragWatching()
         }
     }
 
@@ -310,6 +350,9 @@ final class NotchHubController: HubHost {
         }
         // The capsule and the hub are one panel: the capsule goes first.
         hideCompact()
+        if trigger == .fileDrag {
+            showDropTab()
+        }
         let panel = panel ?? NotchHubPanel()
         self.panel = panel
         let flipped = NotchHubGeometry.flipped(layout.silhouette, displayHeight: Double(screen.frame.height))
@@ -337,6 +380,11 @@ final class NotchHubController: HubHost {
         isOpen = true
         openedBy = trigger
         openScreenID = screen.displayID
+        dragWatch?.hubOpened(byDrag: trigger == .fileDrag)
+        if trigger == .fileDrag {
+            // The hub a drag opened closes when the pointer leaves it, even without Open on hover.
+            updateHover()
+        }
         startOpenObservers()
         notifyRuntimes(isOpen: true)
         logger.debug("The Notch hub opened on display \(screen.displayID, privacy: .public)")
@@ -355,9 +403,14 @@ final class NotchHubController: HubHost {
         panel?.onEscape = nil
         panel?.orderOut(nil)
         panel?.contentView = nil
+        let wasOpenedByDrag = openedBy == .fileDrag
         isOpen = false
         openedBy = nil
         openScreenID = nil
+        dragWatch?.hubClosed()
+        if wasOpenedByDrag {
+            updateHover()
+        }
         notifyRuntimes(isOpen: false)
         // The capsule comes back when something is live.
         activitiesDidChange()
@@ -409,11 +462,11 @@ final class NotchHubController: HubHost {
     /// Starts the hover monitor and builds the zones while the hub and Open on hover are on,
     /// and removes them otherwise.
     private func updateHover() {
-        guard isActive, appState?.settings.notchHub.opensOnHover == true else {
+        guard isActive, wantsHover else {
             stopHover()
             return
         }
-        buildZones()
+        updateZones()
         guard hoverMonitor == nil else {
             return
         }
@@ -422,6 +475,34 @@ final class NotchHubController: HubHost {
         }
         monitor.start()
         hoverMonitor = monitor
+    }
+
+    private func stopHover() {
+        hoverMonitor?.stop()
+        hoverMonitor = nil
+        cancelHover()
+        updateZones()
+    }
+
+    /// Whether the hover monitor is wanted: Open on hover is on, or the hub a file drag opened is
+    /// open and has to close when the pointer leaves it.
+    private var wantsHover: Bool {
+        appState?.settings.notchHub.opensOnHover == true || (isOpen && openedBy == .fileDrag)
+    }
+
+    /// Builds the zones and follows the displays while the hover or the drag watch needs them, and
+    /// releases both otherwise. The one cache serves both.
+    private func updateZones() {
+        guard isActive, wantsHover || dragMonitor != nil else {
+            zoneTask?.cancel()
+            zoneTask = nil
+            zones.removeAll()
+            return
+        }
+        buildZones()
+        guard zoneTask == nil else {
+            return
+        }
         zoneTask = Task { [weak self] in
             let center = NotificationCenter.default
             for await _ in center.notifications(named: NSApplication.didChangeScreenParametersNotification) {
@@ -430,16 +511,8 @@ final class NotchHubController: HubHost {
         }
     }
 
-    private func stopHover() {
-        hoverMonitor?.stop()
-        hoverMonitor = nil
-        zoneTask?.cancel()
-        zoneTask = nil
-        zones.removeAll()
-        cancelHover()
-    }
-
     private func cancelHover() {
+        dragOwnsPending = false
         hoverTask?.cancel()
         hoverTask = nil
         hoverSchedule.cancel()
@@ -465,9 +538,9 @@ final class NotchHubController: HubHost {
         }
     }
 
-    /// Handles a move of the pointer: one rectangle test against the cached zones, and a
-    /// decision only when the answer changes.
-    private func pointerMoved() {
+    /// Where the pointer is, from the cached zones: one rectangle test per display, no layout.
+    /// Also the display of the zone it is in.
+    private func pointerPlacement() -> (pointer: NotchHubPolicy.Pointer, zoneScreenID: CGDirectDisplayID?) {
         let location = NSEvent.mouseLocation
         var pointer = NotchHubPolicy.Pointer(isInZone: false, isInHub: false)
         var zoneScreenID: CGDirectDisplayID?
@@ -492,6 +565,13 @@ final class NotchHubController: HubHost {
         if isOpen, let panel {
             pointer.isInHub = Self.contains(panel.frame, location)
         }
+        return (pointer, zoneScreenID)
+    }
+
+    /// Handles a move of the pointer: one rectangle test against the cached zones, and a
+    /// decision only when the answer changes.
+    private func pointerMoved() {
+        var (pointer, zoneScreenID) = pointerPlacement()
         if !pointer.isInZone {
             hoverIsArmed = true
         } else if !hoverIsArmed, !isOpen {
@@ -514,30 +594,144 @@ final class NotchHubController: HubHost {
     }
 
     /// Waits for the delay of the action in one task, then performs it.
-    private func schedule(_ action: NotchHubPolicy.HoverAction, screenID: CGDirectDisplayID?) {
+    private func schedule(
+        _ action: NotchHubPolicy.HoverAction,
+        screenID: CGDirectDisplayID?,
+        trigger: NotchHubPolicy.Trigger = .hover
+    ) {
         guard let generation = hoverSchedule.request(action) else {
             return
         }
         hoverTask?.cancel()
+        dragOwnsPending = trigger == .fileDrag
         let delay = action == .open ? NotchHubPolicy.openDelay : NotchHubPolicy.closeDelay
         hoverTask = Task { [weak self] in
             try? await Task.sleep(for: delay)
             guard !Task.isCancelled else {
                 return
             }
-            self?.performHover(action, generation: generation, screenID: screenID)
+            self?.performHover(action, generation: generation, screenID: screenID, trigger: trigger)
         }
     }
 
-    private func performHover(_ action: NotchHubPolicy.HoverAction, generation: Int, screenID: CGDirectDisplayID?) {
+    private func performHover(
+        _ action: NotchHubPolicy.HoverAction,
+        generation: Int,
+        screenID: CGDirectDisplayID?,
+        trigger: NotchHubPolicy.Trigger
+    ) {
         hoverSchedule.finish(generation)
         hoverTask = nil
+        dragOwnsPending = false
         switch action {
         case .open:
-            open(on: NSScreen.screens.first { $0.displayID == screenID }, trigger: .hover)
+            // A drag that ended during the dwell opens nothing.
+            if trigger == .fileDrag, NSEvent.pressedMouseButtons & 1 == 0 {
+                return
+            }
+            open(on: NSScreen.screens.first { $0.displayID == screenID }, trigger: trigger)
         case .close:
             close()
         }
+    }
+
+    // MARK: File drags
+
+    /// Whether a running module accepts file drags.
+    private func acceptsFileDrags() -> Bool {
+        runtimes.values.contains { $0.acceptsFileDrags }
+    }
+
+    /// Starts the drag monitor and the watch while the hub is on and a module accepts file
+    /// drags, and releases both, and the zones when nothing else needs them, otherwise.
+    private func updateDragWatching() {
+        guard isActive, acceptsFileDrags() else {
+            guard dragMonitor != nil else {
+                return
+            }
+            dragMonitor?.stop()
+            dragMonitor = nil
+            dragWatch = nil
+            dragPasteboard = nil
+            cancelHover()
+            updateZones()
+            return
+        }
+        guard dragMonitor == nil else {
+            return
+        }
+        let pasteboard = NSPasteboard(name: .drag)
+        dragPasteboard = pasteboard
+        dragWatch = FileDragWatch(changeCount: pasteboard.changeCount)
+        let monitor = EventMonitor.global(for: [.leftMouseDown, .leftMouseDragged, .leftMouseUp]) { [weak self] event in
+            self?.dragEvent(event.type)
+        }
+        monitor.start()
+        dragMonitor = monitor
+        updateZones()
+    }
+
+    /// Feeds one mouse event of another app to the watch and applies what it asks for. The cost
+    /// is an integer read per event; the pasteboard is asked for file URLs once per drag, and the
+    /// zones are tested only while a file drag is known. Nothing is stored or logged.
+    private func dragEvent(_ type: NSEvent.EventType) {
+        guard dragWatch != nil, let pasteboard = dragPasteboard else {
+            return
+        }
+        let count = pasteboard.changeCount
+        var outcome: FileDragWatch.Outcome?
+        var zoneScreenID: CGDirectDisplayID?
+        switch type {
+        case .leftMouseDown:
+            dragWatch?.pressed(changeCount: count)
+        case .leftMouseDragged:
+            let needsInspection = dragWatch?.needsInspection(changeCount: count) ?? false
+            let hasFileURLs = needsInspection
+                && pasteboard.canReadObject(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true])
+            var pointer = NotchHubPolicy.Pointer(isInZone: false, isInHub: false)
+            if hasFileURLs || dragWatch?.isFileDrag == true {
+                (pointer, zoneScreenID) = pointerPlacement()
+            }
+            outcome = dragWatch?.dragged(
+                changeCount: count,
+                hasFileURLs: hasFileURLs,
+                pointerInZone: pointer.isInZone,
+                pointerInHub: pointer.isInHub,
+                hubIsOpen: isOpen
+            )
+        case .leftMouseUp:
+            let isInHub = isOpen && panel.map { Self.contains($0.frame, NSEvent.mouseLocation) } == true
+            outcome = dragWatch?.released(hubIsOpen: isOpen, pointerInHub: isInHub)
+        default:
+            return
+        }
+        guard let outcome else {
+            return
+        }
+        if outcome.showDropTab {
+            showDropTab()
+        }
+        switch NotchHubPolicy.decision(
+            desired: outcome.wish,
+            pending: dragOwnsPending ? hoverSchedule.pending : nil
+        ) {
+        case .none:
+            return
+        case .cancelPending:
+            cancelHover()
+        case .schedule(let action):
+            schedule(action, screenID: zoneScreenID, trigger: .fileDrag)
+        }
+    }
+
+    /// Shows the tab of the first module that accepts file drags.
+    private func showDropTab() {
+        guard let module = model.runtimes.first(where: { $0.acceptsFileDrags }),
+              model.selectedID != module.moduleID
+        else {
+            return
+        }
+        select(moduleID: module.moduleID)
     }
 
     // MARK: Live activities

@@ -157,6 +157,11 @@ protocol HubModuleRuntime: AnyObject {
     /// stored. The default is none.
     var activities: [LiveActivity] { get }
 
+    /// Whether the module wants the hub to open, on the module's tab, when a file is dragged to
+    /// the notch. The hub reads it when the runtimes or this value change, and watches for file
+    /// drags only while some runtime answers `true`. The default is `false`.
+    var acceptsFileDrags: Bool { get }
+
     /// The body of the module's tab. The hub calls it only while the hub is open and the tab
     /// is selected; the view fills the hub's one body area and scrolls if it needs more.
     func makeBody(host: any HubHost) -> AnyView
@@ -180,6 +185,8 @@ extension HubModuleRuntime {
     var statusPill: HubStatusPill? { nil }
 
     var activities: [LiveActivity] { [] }
+
+    var acceptsFileDrags: Bool { false }
 
     func hubVisibilityDidChange(isOpen: Bool) {}
 }

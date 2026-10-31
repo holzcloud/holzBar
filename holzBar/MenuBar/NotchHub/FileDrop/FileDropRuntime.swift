@@ -38,6 +38,12 @@ final class FileDropRuntime: HubModuleRuntime {
         self.appState = appState
     }
 
+    /// Whether a file dragged to the notch opens the hub on this module's tab: the setting. It
+    /// reads observable state, so the hub follows a change.
+    var acceptsFileDrags: Bool {
+        appState?.settings.fileDrop.opensOnDrag ?? false
+    }
+
     // MARK: Stash
 
     /// Stashes dropped files.
