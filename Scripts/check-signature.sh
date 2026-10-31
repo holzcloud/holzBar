@@ -98,7 +98,7 @@ while IFS= read -r -d '' FILE; do
         INSIDE=0
         for INDEX in "${!ALLOWED_NESTED[@]}"; do
             if [[ "$FILE" == "$APP/${ALLOWED_NESTED[$INDEX]}/"* ]]; then
-                COUNTS[$INDEX]=$((COUNTS[INDEX] + 1))
+                COUNTS[INDEX]=$((COUNTS[INDEX] + 1))
                 INSIDE=1
             fi
         done
