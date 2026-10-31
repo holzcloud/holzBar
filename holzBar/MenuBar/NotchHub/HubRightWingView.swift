@@ -30,7 +30,8 @@ struct HubRightWingView: View {
                 ids: row.right,
                 selected: row.selected,
                 tabWidth: CGFloat(row.tabWidth),
-                rowHeight: rowHeight
+                rowHeight: rowHeight,
+                overflow: row.moreWing == .right ? row.overflow : []
             )
             .frame(
                 width: max(wingWidth - reservedWidth - HolzBarTheme.Hub.tabGap, 0),

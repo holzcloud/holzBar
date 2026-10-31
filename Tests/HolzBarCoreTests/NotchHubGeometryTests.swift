@@ -340,4 +340,125 @@ struct NotchHubGeometryTests {
         #expect(Geometry.compactTopRadius == 12)
         #expect(Geometry.compactBottomRadius == 18)
     }
+
+    // MARK: The tab row over a matrix of displays
+
+    private static let none: [HubTabStrip.Pill] = []
+    private static let muted = [HubTabStrip.Pill(textLength: 5, hasSymbol: true)]
+    private static let crowdedPills = [
+        HubTabStrip.Pill(textLength: 5, hasSymbol: true),
+        HubTabStrip.Pill(textLength: 5, hasSymbol: true),
+        HubTabStrip.Pill(textLength: 18, hasSymbol: true),
+    ]
+
+    /// Every tab of the row as a rectangle in the display's coordinates, the More button
+    /// included, the way the views place them: the left group from the left wing's left edge,
+    /// the right group from the right wing's notch side.
+    private func tabRects(
+        _ row: HubTabStrip.Row,
+        layout: Geometry.Layout
+    ) -> (left: [Geometry.Rect], right: [Geometry.Rect]) {
+        func rects(_ count: Int, from wing: Geometry.Rect?) -> [Geometry.Rect] {
+            guard let wing else {
+                return []
+            }
+            return (0..<count).map { index in
+                Geometry.Rect(
+                    x: wing.x + Double(index) * (row.tabWidth + DesignTokens.Hub.tabGap),
+                    y: 0,
+                    width: row.tabWidth,
+                    height: DesignTokens.Hub.tabHeight
+                )
+            }
+        }
+        return (
+            rects(row.left.count + (row.moreWing == .left ? 1 : 0), from: layout.leftWing),
+            rects(row.right.count + (row.moreWing == .right ? 1 : 0), from: layout.rightWing)
+        )
+    }
+
+    @Test("displayMatrix: the tab row never leaves its wing, never meets the pills or the notch's clearance")
+    func displayMatrix() throws {
+        let displays: [(name: String, display: Geometry.Display)] = [
+            ("14 inch", notchedA),
+            ("16 inch", notchedB),
+            ("13 inch Air", notchedC),
+            ("external 1920", Geometry.Display(width: 1920, height: 1080, menuBarHeight: 24, notch: nil)),
+            ("external 1280", Geometry.Display(width: 1280, height: 800, menuBarHeight: 24, notch: nil)),
+            ("600 wide", Geometry.Display(width: 600, height: 400, menuBarHeight: 24, notch: nil)),
+        ]
+        let pillSets = [Self.none, Self.muted, Self.crowdedPills]
+        let modules = ["a", "b", "c", "d", "e", "f", "g", "h"]
+        let allTabs = HubTabStrip.allTabs(modules)
+        let smallest = try #require(DesignTokens.Hub.tabWidthSteps.last)
+
+        for (name, display) in displays {
+            let result = try layout(display)
+            let inflated = result.notch.map {
+                Geometry.Rect(
+                    x: $0.minX - Geometry.clearance,
+                    y: 0,
+                    width: $0.width + 2 * Geometry.clearance,
+                    height: $0.height
+                )
+            }
+            for pills in pillSets {
+                let reserved = HubTabStrip.rightReservedWidth(pills: pills)
+                let row = HubTabStrip.row(
+                    moduleTabs: modules, selected: "overview",
+                    leftWingWidth: result.leftWing?.width ?? 0,
+                    rightWingWidth: result.rightWing?.width ?? 0,
+                    rightReservedWidth: reserved
+                )
+                let context = "\(name), \(pills.count) pills"
+                // Each tab appears exactly once.
+                #expect(Set(row.left + row.right + row.overflow) == Set(allTabs), "\(context)")
+                #expect((row.left + row.right + row.overflow).count == allTabs.count, "\(context)")
+                // A menu appears only at the smallest width.
+                #expect(row.overflow.isEmpty || row.tabWidth == smallest, "\(context)")
+                #expect(row.overflow.isEmpty == (row.moreWing == nil), "\(context)")
+                // Nothing is placed in a wing that does not exist.
+                #expect(result.leftWing != nil || (row.left.isEmpty && row.moreWing != .left), "\(context)")
+                #expect(result.rightWing != nil || (row.right.isEmpty && row.moreWing != .right), "\(context)")
+
+                let rects = tabRects(row, layout: result)
+                if let left = result.leftWing, let last = rects.left.last {
+                    #expect(last.maxX <= left.maxX, "\(context)")
+                }
+                if let right = result.rightWing, let last = rects.right.last {
+                    #expect(last.maxX <= right.maxX - reserved - DesignTokens.Hub.tabGap + 0.0001, "\(context)")
+                    #expect(last.maxX <= right.maxX, "\(context)")
+                }
+                if let inflated {
+                    for rect in rects.left + rects.right {
+                        #expect(!rect.intersects(inflated), "\(context)")
+                    }
+                }
+            }
+        }
+    }
+
+    @Test("displayMatrix: with the Muted pill every tab is visible in one row on the usual MacBook and external displays")
+    func displayMatrixEverythingFits() throws {
+        let modules = ["a", "b", "c", "d", "e", "f", "g", "h"]
+        let displays = [
+            notchedA,
+            notchedB,
+            notchedC,
+            Geometry.Display(width: 1920, height: 1080, menuBarHeight: 24, notch: nil),
+        ]
+        for display in displays {
+            let result = try layout(display)
+            let row = HubTabStrip.row(
+                moduleTabs: modules, selected: "overview",
+                leftWingWidth: result.leftWing?.width ?? 0,
+                rightWingWidth: result.rightWing?.width ?? 0,
+                rightReservedWidth: HubTabStrip.rightReservedWidth(pills: Self.muted)
+            )
+            #expect(row.overflow.isEmpty)
+            #expect(row.moreWing == nil)
+            #expect(row.left.count + row.right.count == 9)
+            #expect(row.left.first == "overview")
+        }
+    }
 }

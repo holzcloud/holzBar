@@ -200,7 +200,8 @@ struct NotchHubView: View {
                     ids: row.left,
                     selected: row.selected,
                     tabWidth: CGFloat(row.tabWidth),
-                    rowHeight: left.height
+                    rowHeight: left.height,
+                    overflow: row.moreWing == .left ? row.overflow : []
                 )
                 .frame(width: left.width, height: left.height, alignment: .leading)
                 .clipped()
