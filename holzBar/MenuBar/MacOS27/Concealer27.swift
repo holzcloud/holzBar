@@ -1074,7 +1074,10 @@ final class Concealer27 {
 
     // MARK: Private
 
-    private func revealState(_ appState: AppState) -> RevealState27 {
+    /// What the concealment follows: everything while Menu Bar Layout is open, nothing but the
+    /// always shown items while the holzBar Shelf shows the rest, otherwise the sections' state.
+    /// ``ItemReorderer27`` runs only while this is ``RevealState27/allRevealed``.
+    func revealState(_ appState: AppState) -> RevealState27 {
         let navigation = appState.navigationState
         if navigation.isSettingsPresented, navigation.settingsNavigationIdentifier == .menuBarLayout {
             // Everything is drawn while the layout window is open, so every item can be photographed.

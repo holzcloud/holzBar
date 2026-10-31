@@ -38,6 +38,24 @@ enum ItemReorderer27 {
         var movable: Set<String>
     }
 
+    /// What a run did.
+    struct Outcome: Equatable {
+        /// How many drags landed.
+        var moved = 0
+        /// How many runs stopped before the section was in order: 0 or 1.
+        var failed = 0
+        /// Why the run stopped early, if it did.
+        var stop: ReorderDrag.StopReason?
+        /// Why the run did not start or went no further, if a condition kept it from running.
+        var blocker: ReorderDrag.Preflight.Blocker?
+    }
+
+    /// Whether a run is going.
+    private(set) static var isRunning = false
+    /// Whether an earlier run showed that macOS does not accept the events: sorting is off for
+    /// the rest of the session, and the next launch tries again.
+    private(set) static var isBlockedThisSession = false
+
     /// Puts one item before or after another one.
     ///
     /// - Throws: ``EventError/itemNotMovable(_:)`` for an item that cannot be dragged,
@@ -59,37 +77,119 @@ enum ItemReorderer27 {
         guard bar.movable.contains(key), bar.movable.contains(target), key != target else {
             throw EventError.itemNotMovable(item)
         }
-        let others = bar.items.map(\.id).filter { bar.movable.contains($0) && $0 != key }
-        guard let targetIndex = others.firstIndex(of: target) else {
+        // The section's row with the item moved next to the target is the wanted order.
+        var wanted = bar.items.map(\.id).filter { bar.movable.contains($0) && $0 != key }
+        guard let targetIndex = wanted.firstIndex(of: target) else {
             throw EventError.cannotComplete
         }
-        let before: String?
         switch destination {
         case .leftOfItem:
-            before = target
+            wanted.insert(key, at: targetIndex)
         case .rightOfItem:
-            before = targetIndex + 1 < others.count ? others[targetIndex + 1] : nil
+            wanted.insert(key, at: targetIndex + 1)
         }
-        let move = ReorderPlan.Move(key: key, before: before)
-        if ReorderDrag.isPlaced(move, in: bar.items, sectionIDs: bar.movable) {
-            return
+        let outcome = await sort(desired: wanted.compactMap { CGWindowID($0) }, appState: appState)
+        if outcome.blocker == .buttonDown || outcome.stop == .interrupted {
+            throw EventError.userInputNotPaused
         }
-        guard let step = ReorderDrag.step(for: move, in: bar.items, sectionIDs: bar.movable, bias: .primary) else {
+        if outcome.blocker != nil || outcome.failed > 0 {
             throw EventError.cannotComplete
         }
-        try await postDrag(step, appState: appState)
-        do {
-            try await Task.sleep(for: settleDelay)
-        } catch {
-            throw EventError.cannotComplete
+    }
+
+    /// Puts the items of one section in the wanted order, one drag at a time.
+    ///
+    /// It does not start unless Accessibility is granted, Menu Bar Layout is open (so the bar is
+    /// fully revealed), no mouse button is down, the bar is on the display with the active menu
+    /// bar, no other run is going and no earlier run showed that the events are not accepted.
+    /// Between two drags the conditions that can change are checked again. The bar is read
+    /// fresh before every drag; a drag that did not land is retried once from the other side; a
+    /// run is capped at the number of planned moves plus three. It never throws: the outcome
+    /// says what happened.
+    ///
+    /// - Parameter desired: The section's items in the wanted order, by window identifier.
+    ///   Items not in it, and items that cannot be dragged, stay where they are.
+    static func sort(desired: [CGWindowID], appState: AppState) async -> Outcome {
+        var outcome = Outcome()
+        let startDisplay = Bridging.getActiveMenuBarDisplayID()
+        if let blocker = preflight(appState: appState, startDisplay: startDisplay, isStarting: true) {
+            outcome.blocker = blocker
+            return outcome
         }
-        guard
-            let fresh = await readBar(),
-            ReorderDrag.isPlaced(move, in: fresh.items, sectionIDs: fresh.movable)
-        else {
-            logger.notice("A command-drag did not land")
-            throw EventError.cannotComplete
+        isRunning = true
+        defer {
+            isRunning = false
         }
+        var session: ReorderDrag.Session?
+        while true {
+            if Task.isCancelled {
+                outcome.stop = .interrupted
+                outcome.failed = 1
+                break
+            }
+            if session != nil,
+               let blocker = preflight(appState: appState, startDisplay: startDisplay, isStarting: false) {
+                outcome.blocker = blocker
+                break
+            }
+            guard let bar = await readBar() else {
+                outcome.stop = .itemMissing
+                outcome.failed = 1
+                break
+            }
+            if session == nil {
+                session = ReorderDrag.Session(desired: desired.map { String($0) }, movable: bar.movable)
+            }
+            guard var current = session else {
+                break
+            }
+            let decision = current.next(order: bar.items)
+            session = current
+            switch decision {
+            case .finished:
+                outcome.moved = current.moved
+                return outcome
+            case .stopped(let reason):
+                outcome.moved = current.moved
+                outcome.stop = reason
+                outcome.failed = 1
+                if reason == .noProgress, current.moved == 0 {
+                    // The very first drag did nothing, twice: macOS does not take these events.
+                    isBlockedThisSession = true
+                    logger.notice("Sorting is off for this session: the command-drag changed nothing")
+                }
+                return outcome
+            case .drag(let step):
+                do {
+                    try await postDrag(step, appState: appState)
+                    try await Task.sleep(for: settleDelay)
+                } catch {
+                    outcome.moved = current.moved
+                    outcome.stop = .interrupted
+                    outcome.failed = 1
+                    return outcome
+                }
+            }
+        }
+        outcome.moved = session?.moved ?? 0
+        return outcome
+    }
+
+    /// The condition that keeps a run from starting, or from going on after a drag.
+    private static func preflight(
+        appState: AppState,
+        startDisplay: CGDirectDisplayID?,
+        isStarting: Bool
+    ) -> ReorderDrag.Preflight.Blocker? {
+        let active = Bridging.getActiveMenuBarDisplayID()
+        return ReorderDrag.Preflight.blocker(
+            isTrusted: appState.permissions.accessibility.hasPermission,
+            barIsRevealed: appState.concealer27.revealState(appState) == .allRevealed,
+            buttonIsDown: MouseHelpers.isButtonPressed(),
+            isOnActiveDisplay: active != nil && active == startDisplay,
+            isRunning: isStarting && isRunning,
+            isBlockedThisSession: isStarting && isBlockedThisSession
+        )
     }
 
     // MARK: Reading the bar
