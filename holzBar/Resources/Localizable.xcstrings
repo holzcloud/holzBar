@@ -95031,124 +95031,6 @@
         }
       }
     },
-    "macOS orders the items within each section." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS řadí položky v každé sekci."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS ordnet die Elemente innerhalb jedes Bereichs."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS ordena los elementos dentro de cada sección."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS ordonne les éléments au sein de chaque section."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A macOS rendezi az elemeket minden szakaszon belül."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS mengurutkan item di setiap bagian."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS ordina gli elementi all'interno di ogni sezione."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "各セクション内の項目の順序は macOS が決めます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "각 섹션 안의 항목 순서는 macOS가 정합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS ordent de onderdelen binnen elke sectie."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS porządkuje elementy w każdej sekcji."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O macOS ordena os itens dentro de cada seção."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS ordinescha ils elements entaifer mintga secziun."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS сама упорядочивает элементы внутри каждого раздела."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS ordnar objekten i varje sektion."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS her bölümdeki öğeleri sıralar."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS сама впорядковує елементи всередині кожного розділу."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 会在每个分区内对项目进行排序。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 會自行排列每個區段內的項目。"
-          }
-        }
-      }
-    },
     "macOS prohibits “%@” from being moved." : {
       "localizations" : {
         "cs" : {
@@ -120314,6 +120196,125 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "將項目拖放到 holzBar 圖像或已開啟的 Shelf 上即可隱藏其 App。"
+          }
+        }
+      }
+    },
+    "Items can be sorted by dragging them within a section." : {
+      "comment" : "Menu Bar Layout header on macOS 27",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Položky lze řadit přetažením v rámci sekce."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemente lassen sich per Ziehen innerhalb eines Bereichs sortieren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos se pueden ordenar arrastrándolos dentro de una sección."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments peuvent être triés en les faisant glisser au sein d'une section."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az elemek egy szakaszon belül húzással rendezhetők."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item dapat diurutkan dengan menyeretnya di dalam satu bagian."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi possono essere ordinati trascinandoli all'interno di una sezione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目は、セクション内でドラッグして並べ替えられます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "섹션 안에서 항목을 드래그하여 정렬할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderdelen kunnen binnen een sectie worden gesorteerd door ze te slepen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementy można sortować, przeciągając je w obrębie sekcji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os itens podem ser ordenados arrastando-os dentro de uma seção."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils elements pon vegnir sortads cun als trair entaifer ina secziun."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Элементы можно сортировать, перетаскивая их внутри раздела."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objekt kan sorteras genom att dra dem inom en sektion."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öğeler, bir bölüm içinde sürüklenerek sıralanabilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Елементи можна сортувати, перетягуючи їх у межах розділу."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可在分区内拖动项目来排序。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "可在區段內拖移項目來排序。"
           }
         }
       }
