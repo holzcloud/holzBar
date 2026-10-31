@@ -29,8 +29,33 @@ nonisolated enum DisplayControlsLevel {
         return min(max(value, 0), 1)
     }
 
+    /// A brightness kept between ``minimumBrightness`` and 1. A value that is not a number
+    /// becomes the minimum.
+    static func clampedBrightness(_ value: Double) -> Double {
+        guard value.isFinite else {
+            return minimumBrightness
+        }
+        return min(max(value, minimumBrightness), 1)
+    }
+
     /// The whole percent of a level, rounded (62.5 becomes 63).
     static func percent(_ value: Double) -> Int {
         Int((clamped(value) * 100).rounded())
+    }
+
+    /// A level moved by whole steps (negative to lower it), kept between 0 and 1 and rounded to
+    /// two decimals so that many steps in a row do not drift.
+    static func stepped(_ value: Double, by steps: Int) -> Double {
+        let moved = clamped(value) + Double(steps) * step
+        return (clamped(moved) * 100).rounded() / 100
+    }
+
+    /// Whether a level read back agrees with the level requested, within ``tolerance``. A value
+    /// that is not a number agrees with nothing.
+    static func agrees(_ requested: Double, _ readBack: Double) -> Bool {
+        guard requested.isFinite, readBack.isFinite else {
+            return false
+        }
+        return abs(requested - readBack) <= tolerance + 1e-9
     }
 }

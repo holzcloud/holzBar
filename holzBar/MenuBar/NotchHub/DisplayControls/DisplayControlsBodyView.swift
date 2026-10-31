@@ -45,12 +45,8 @@ struct DisplayControlsBodyView: View {
     private var volumeRow: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: HolzBarTheme.Spacing.xs) {
-                Image(systemName: "speaker.wave.2.fill")
-                    .font(HolzBarTheme.Hub.compactSymbolFont)
-                    .foregroundStyle(HolzBarTheme.Hub.pillText)
-                    .frame(width: Row.slot, height: Row.slot)
-                    .accessibilityHidden(true)
-                Text("Volume")
+                muteButton
+                Text(verbatim: runtime.outputName ?? String(localized: "Volume"))
                     .font(HolzBarTheme.Typography.callout)
                     .foregroundStyle(HolzBarTheme.Hub.neutral)
                     .lineLimit(1)
@@ -60,6 +56,18 @@ struct DisplayControlsBodyView: View {
                     .disabled(!isAvailable)
                     .opacity(isAvailable ? 1 : Row.disabledOpacity)
                     .accessibilityLabel(Text("Volume"))
+                    .accessibilityValue(Text("\(DisplayControlsLevel.percent(runtime.volume ?? 0)) percent"))
+                    .accessibilityAdjustableAction { direction in
+                        switch direction {
+                        case .increment: runtime.adjustVolume(by: 1)
+                        case .decrement: runtime.adjustVolume(by: -1)
+                        @unknown default: break
+                        }
+                    }
+                    .onKeyPress(.leftArrow) { step(-1) }
+                    .onKeyPress(.downArrow) { step(-1) }
+                    .onKeyPress(.rightArrow) { step(1) }
+                    .onKeyPress(.upArrow) { step(1) }
                 Text(valueText)
                     .font(HolzBarTheme.Typography.mono.monospacedDigit())
                     .foregroundStyle(HolzBarTheme.Hub.neutral)
@@ -85,6 +93,34 @@ struct DisplayControlsBodyView: View {
                 .stroke(.white.opacity(DesignTokens.Hub.fileTileBorderAlpha), lineWidth: HolzBarTheme.Spacing.hairline)
         }
         .accessibilityElement(children: .contain)
+    }
+
+    /// The mute button in the 28 pt slot. It is disabled where the output has no mute that can
+    /// be set, and it states its state to VoiceOver.
+    private var muteButton: some View {
+        Button {
+            runtime.setMuted(!runtime.isMuted)
+        } label: {
+            Image(systemName: runtime.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                .font(HolzBarTheme.Hub.compactSymbolFont)
+                .foregroundStyle(HolzBarTheme.Hub.pillText)
+                .frame(width: Row.slot, height: Row.slot)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(!runtime.canMute)
+        .opacity(runtime.canMute ? 1 : Row.disabledOpacity)
+        .accessibilityLabel(runtime.isMuted ? Text("Unmute") : Text("Mute"))
+        .accessibilityAddTraits(runtime.isMuted ? .isSelected : [])
+    }
+
+    /// An arrow key steps the level by 5 percent when the slider has focus.
+    private func step(_ steps: Int) -> KeyPress.Result {
+        guard isAvailable else {
+            return .ignored
+        }
+        runtime.adjustVolume(by: steps)
+        return .handled
     }
 
     /// The slider's value: the level read back, written through the runtime.

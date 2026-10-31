@@ -107,14 +107,57 @@ nonisolated enum OutputVolume {
         }
     }
 
+    // MARK: Mute and name
+
+    /// Whether the output is muted, or `nil` when it has no mute or it cannot be read.
+    static func isMuted(_ device: AudioObjectID) -> Bool? {
+        var address = address(kAudioDevicePropertyMute)
+        guard AudioObjectHasProperty(device, &address) else {
+            return nil
+        }
+        var value: UInt32 = 0
+        var size = UInt32(MemoryLayout<UInt32>.size)
+        guard AudioObjectGetPropertyData(device, &address, 0, nil, &size, &value) == noErr else {
+            return nil
+        }
+        return value != 0
+    }
+
+    /// Mutes or unmutes the output where the mute can be set. Answers whether the write was
+    /// accepted.
+    @discardableResult
+    static func setMuted(_ muted: Bool, _ device: AudioObjectID) -> Bool {
+        guard isSettable(device, selector: kAudioDevicePropertyMute, element: mainElement) else {
+            return false
+        }
+        var address = address(kAudioDevicePropertyMute)
+        var value: UInt32 = muted ? 1 : 0
+        return AudioObjectSetPropertyData(device, &address, 0, nil, UInt32(MemoryLayout<UInt32>.size), &value) == noErr
+    }
+
+    /// The device's name, such as "MacBook Pro Speakers". It is personal when it is a person's
+    /// headphones: it is read for the open tab only, kept in memory and never logged.
+    static func name(of device: AudioObjectID) -> String? {
+        var address = address(kAudioObjectPropertyName, scope: kAudioObjectPropertyScopeGlobal)
+        var name: Unmanaged<CFString>?
+        var size = UInt32(MemoryLayout<Unmanaged<CFString>?>.size)
+        let status = withUnsafeMutablePointer(to: &name) {
+            AudioObjectGetPropertyData(device, &address, 0, nil, &size, $0)
+        }
+        guard status == noErr, let name else {
+            return nil
+        }
+        return name.takeRetainedValue() as String
+    }
+
     // MARK: Properties
 
     /// The main element of a property (element 0).
-    private static let mainElement = UInt32(kAudioObjectPropertyElementMain)
+    fileprivate static let mainElement = UInt32(kAudioObjectPropertyElementMain)
 
     /// The virtual main volume: the one constant of AudioToolbox's hardware-service header that
     /// is used. Its functions are deprecated; the property is not.
-    private static let virtualMainVolume = AudioObjectPropertySelector(kAudioHardwareServiceDeviceProperty_VirtualMainVolume)
+    fileprivate static let virtualMainVolume = AudioObjectPropertySelector(kAudioHardwareServiceDeviceProperty_VirtualMainVolume)
 
     /// The address of a property of an output.
     static func address(
@@ -149,5 +192,124 @@ nonisolated enum OutputVolume {
         var address = address(selector, element: element)
         var level = Float32(value)
         return AudioObjectSetPropertyData(device, &address, 0, nil, UInt32(MemoryLayout<Float32>.size), &level) == noErr
+    }
+}
+
+extension OutputVolume {
+    /// Tells the module that something about the default output changed, while the hub is open.
+    ///
+    /// It listens to the default output device, and on the current device to the volume property
+    /// the plan chose (each channel for a channel plan) and to the mute. When the default device
+    /// changes, the device's listeners are replaced by those of the new device. Every block runs
+    /// on the main queue. ``stop()`` removes every block it added with the same object, address
+    /// and queue; nothing outlives it, and nothing is polled.
+    @MainActor
+    final class Listener {
+        /// One block added to CoreAudio, with what removes it again.
+        private struct Registration {
+            let object: AudioObjectID
+            let address: AudioObjectPropertyAddress
+            let block: AudioObjectPropertyListenerBlock
+        }
+
+        private var systemRegistration: Registration?
+        private var deviceRegistrations = [Registration]()
+        private var onChange: (@MainActor () -> Void)?
+
+        /// Whether the listeners are added.
+        var isRunning: Bool {
+            onChange != nil
+        }
+
+        /// Adds the listeners. Does nothing when they are already added.
+        func start(onChange: @escaping @MainActor () -> Void) {
+            guard !isRunning else {
+                return
+            }
+            self.onChange = onChange
+            let system = AudioObjectID(kAudioObjectSystemObject)
+            let address = OutputVolume.address(kAudioHardwarePropertyDefaultOutputDevice, scope: kAudioObjectPropertyScopeGlobal)
+            systemRegistration = register(system, address) { listener in
+                listener.defaultDeviceChanged()
+            }
+            addDeviceListeners()
+        }
+
+        /// Removes every listener. Does nothing when none is added.
+        func stop() {
+            removeDeviceListeners()
+            if let systemRegistration {
+                unregister(systemRegistration)
+            }
+            systemRegistration = nil
+            onChange = nil
+        }
+
+        private func defaultDeviceChanged() {
+            removeDeviceListeners()
+            addDeviceListeners()
+            onChange?()
+        }
+
+        private func valueChanged() {
+            onChange?()
+        }
+
+        private func addDeviceListeners() {
+            guard let output = OutputVolume.current() else {
+                return
+            }
+            var addresses = [AudioObjectPropertyAddress]()
+            switch output.plan {
+            case .virtualMain:
+                addresses.append(OutputVolume.address(OutputVolume.virtualMainVolume))
+            case .mainScalar:
+                addresses.append(OutputVolume.address(kAudioDevicePropertyVolumeScalar))
+            case let .channels(elements):
+                addresses += elements.map { OutputVolume.address(kAudioDevicePropertyVolumeScalar, element: $0) }
+            case .unsupported:
+                break
+            }
+            if output.capabilities.muteSettable {
+                addresses.append(OutputVolume.address(kAudioDevicePropertyMute))
+            }
+            for address in addresses {
+                if let registration = register(output.device, address, { $0.valueChanged() }) {
+                    deviceRegistrations.append(registration)
+                }
+            }
+        }
+
+        private func removeDeviceListeners() {
+            for registration in deviceRegistrations {
+                unregister(registration)
+            }
+            deviceRegistrations.removeAll()
+        }
+
+        /// Adds one block on the main queue. A block that CoreAudio refused is not kept.
+        private func register(
+            _ object: AudioObjectID,
+            _ address: AudioObjectPropertyAddress,
+            _ action: @escaping @MainActor (Listener) -> Void
+        ) -> Registration? {
+            let block: AudioObjectPropertyListenerBlock = { [weak self] _, _ in
+                MainActor.assumeIsolated {
+                    if let self {
+                        action(self)
+                    }
+                }
+            }
+            var address = address
+            guard AudioObjectAddPropertyListenerBlock(object, &address, DispatchQueue.main, block) == noErr else {
+                return nil
+            }
+            return Registration(object: object, address: address, block: block)
+        }
+
+        private func unregister(_ registration: Registration) {
+            var address = registration.address
+            AudioObjectRemovePropertyListenerBlock(registration.object, &address, DispatchQueue.main, registration.block)
+        }
     }
 }
