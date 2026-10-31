@@ -33,6 +33,12 @@ nonisolated enum MenuBarItemProvider27 {
         let frame: CGRect
     }
 
+    /// What the memory of folded items keeps per item.
+    private struct Folded {
+        let item: MenuBarItem
+        let entry: Entry
+    }
+
     private struct RawItem {
         let element: AXUIElement
         let bundleID: String
@@ -67,6 +73,9 @@ nonisolated enum MenuBarItemProvider27 {
         /// Processes whose items are concealed. Accessibility keeps reporting their frames where
         /// they were last drawn, so without this they would pass for drawn items.
         var concealedPIDs = Set<pid_t>()
+        /// The items macOS folds behind its overflow control, which Accessibility stops reporting
+        /// while it is collapsed (macOS 27.2). See `FoldedItemMemory27`.
+        var foldedMemory = FoldedItemMemory27<Folded>()
         /// Only used on `queue`.
         var scanSchedule = AccessibilityScanSchedule27()
         var lastItems: [MenuBarItem]?
@@ -216,7 +225,29 @@ nonisolated enum MenuBarItemProvider27 {
     /// The Accessibility element of the item with the given synthetic identifier, from the
     /// last read. Items drawn on another display are included (see `ItemDrawing27`).
     static func element(forWindowID windowID: CGWindowID) -> AXUIElement? {
-        withState { $0.entries[windowID]?.element }
+        withState { state in
+            state.entries[windowID]?.element
+                ?? state.foldedMemory.folded.first { $0.windowID == windowID }?.payload.entry.element
+        }
+    }
+
+    /// The items macOS folded behind its overflow control and Accessibility no longer
+    /// reports, from the last read: not drawn, with the frame they were last read at.
+    /// Empty without the control, and once an item's process quits or it is read again.
+    static func foldedItems() -> [MenuBarItem] {
+        withState { state in
+            state.foldedMemory.folded.map { candidate in
+                let item = candidate.payload.item
+                return MenuBarItem(
+                    tag: item.tag,
+                    syntheticWindowID: item.windowID,
+                    ownerPID: item.ownerPID,
+                    bounds: item.bounds,
+                    title: item.title,
+                    isOnScreen: false
+                )
+            }
+        }
     }
 
     // MARK: Reading
@@ -394,7 +425,34 @@ nonisolated enum MenuBarItemProvider27 {
             }
             .map(\.bounds.minX)
             .min()
+        // The control and the processes that run decide which missing items count as folded.
+        let controlPresent = chevronFrame.map { activeDisplayBounds?.intersects($0) ?? true } ?? false
+        let running = Set(runningApplications.map(\.processIdentifier))
+        let seen = items.compactMap { item -> FoldedItemMemory27<Folded>.Candidate? in
+            // holzBar's own items and the system's are never folded away.
+            guard
+                item.ownerPID != ownPID,
+                !item.isControlItem,
+                let entry = newEntries[item.windowID],
+                entry.bundleID != menuBarAgentBundleID
+            else {
+                return nil
+            }
+            return FoldedItemMemory27<Folded>.Candidate(
+                windowID: item.windowID,
+                ownerPID: item.ownerPID,
+                frame: item.bounds,
+                payload: Folded(item: item, entry: entry)
+            )
+        }
         withState { state in
+            state.foldedMemory.update(
+                seen: seen,
+                controlPresent: controlPresent,
+                running: running,
+                displayID: activeDisplayID,
+                displayBounds: activeDisplayBounds
+            )
             state.entries = newEntries
             state.lastOverflowButtonFrame = chevronFrame
             state.lastSystemItemFrames = newEntries.values
