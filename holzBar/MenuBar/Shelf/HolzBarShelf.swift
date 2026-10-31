@@ -52,6 +52,16 @@ final class HolzBarShelfPanel: NSPanel {
 
     override var canBecomeKey: Bool { acceptsKeyboard }
 
+    /// What the Shelf shows while a tile or a dragged menu bar item is over it.
+    let dragModel = HolzBarShelfDragModel()
+
+    /// Outlines the Shelf while a dragged menu bar item is over it and will be hidden by the drop.
+    func setDropTargeted(_ isTargeted: Bool) {
+        if dragModel.isDropTargeted != isTargeted {
+            dragModel.isDropTargeted = isTargeted
+        }
+    }
+
     /// Creates a new holzBar Shelf panel.
     init() {
         super.init(
@@ -442,7 +452,6 @@ private struct HolzBarShelfContentView: View {
     @State private var isFoldOpen: Bool
     /// Where the tiles are on the screen, read while a tile is dragged.
     @State private var registry = HolzBarShelfTileRegistry()
-    @State private var dragModel = HolzBarShelfDragModel()
     @FocusState private var hasKeyboardFocus: Bool
 
     let screen: NSScreen
@@ -611,6 +620,11 @@ private struct HolzBarShelfContentView: View {
         return style == .floating ? max(frame.height - insets.top - insets.bottom, 0) : frame.height
     }
 
+    /// The Shelf's drag state, which the panel owns so the drag tap can set it.
+    private var dragModel: HolzBarShelfDragModel {
+        menuBarManager.shelfPanel.dragModel
+    }
+
     private var clipShape: some InsettableShape {
         if style == .floating {
             // A capsule for one row, a rounded panel for a grid or a column.
@@ -727,6 +741,15 @@ private struct HolzBarShelfContentView: View {
                 .clipShape(clipShape)
                 .shadow(color: shadow.color, radius: shadow.radius, y: shadow.y)
 
+            if dragModel.isDropTargeted {
+                // A dragged menu bar item is over the Shelf: the drop will hide its app.
+                clipShape
+                    .inset(by: HolzBarTheme.Spacing.dropOutline / 2)
+                    .stroke(lineWidth: HolzBarTheme.Spacing.dropOutline)
+                    .foregroundStyle(HolzBarTheme.Palette.accent)
+                    .transition(.opacity)
+            }
+
             if let border {
                 clipShape
                     .inset(by: border.width / 2)
@@ -740,6 +763,13 @@ private struct HolzBarShelfContentView: View {
                     .stroke(HolzBarTheme.Palette.stroke, lineWidth: HolzBarTheme.Spacing.hairline)
             }
         }
+        .animation(
+            HolzBarTheme.Motion.resolved(
+                HolzBarTheme.Motion.snappy,
+                reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+            ),
+            value: dragModel.isDropTargeted
+        )
         .padding(panelInsets)
         .frame(maxWidth: screen.frame.width)
         .fixedSize()

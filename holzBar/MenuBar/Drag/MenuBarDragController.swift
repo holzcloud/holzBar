@@ -57,6 +57,11 @@ final class MenuBarDragController {
     private var decider = MenuBarDragDecider()
     private var gesture: Gesture?
 
+    /// The open Shelf's zone for the gesture going on, read once at its first drag event so the
+    /// tap callback does no screen lookups per event.
+    private var gestureShelfZone: CGRect?
+    private var hasReadShelfZone = false
+
     /// Whether a drop is being handled; presses pass unchanged until it is done, so the next hit
     /// test reads the bar as the drop left it.
     private var isHandlingDrop = false
@@ -106,7 +111,7 @@ final class MenuBarDragController {
         tap?.disable()
         tap = nil
         decider.reset()
-        gesture = nil
+        endGesture()
         let longest = Self.microseconds(of: longestCallback)
         logger.debug("The longest tap callback of this run took \(longest, privacy: .public) µs")
         longestCallback = .zero
@@ -161,9 +166,17 @@ final class MenuBarDragController {
         return parts.seconds * 1_000_000 + parts.attoseconds / 1_000_000_000_000
     }
 
+    /// Forgets the gesture and tells the Shelf that nothing is dragged over it any more.
+    private func endGesture() {
+        gesture = nil
+        gestureShelfZone = nil
+        hasReadShelfZone = false
+        appState?.menuBarManager.shelfPanel.setDropTargeted(false)
+    }
+
     private func handleDown(_ event: CGEvent) -> CGEvent? {
         decider.reset()
-        gesture = nil
+        endGesture()
         let location = event.location
         guard
             let appState,
@@ -216,11 +229,19 @@ final class MenuBarDragController {
             return event
         }
         let location = event.location
+        if !hasReadShelfZone {
+            gestureShelfZone = shelfZone(for: gesture.pressBar)
+            hasReadShelfZone = true
+        }
         let action = decider.mouseDragged(
             to: location,
             time: ProcessInfo.processInfo.systemUptime,
-            barMaxY: gesture.pressBar.barMaxY
+            barMaxY: gesture.pressBar.barMaxY,
+            shelfZone: gestureShelfZone
         )
+        if let zone = gestureShelfZone {
+            appState?.menuBarManager.shelfPanel.setDropTargeted(location.y > gesture.pressBar.barMaxY && zone.contains(location))
+        }
         switch action {
         case .pass, .replayClick:
             return event
@@ -237,7 +258,7 @@ final class MenuBarDragController {
         case .replayPlainDown(let down):
             post(.leftMouseDown, at: down, flags: gesture.pressFlags)
             post(.leftMouseDragged, at: location, flags: event.flags)
-            self.gesture = nil
+            endGesture()
             return nil
         }
     }
@@ -248,7 +269,8 @@ final class MenuBarDragController {
         }
         let location = event.location
         let action = decider.mouseUp(at: location, time: ProcessInfo.processInfo.systemUptime)
-        self.gesture = nil
+        let shelfZone = hasReadShelfZone ? gestureShelfZone : shelfZone(for: gesture.pressBar)
+        endGesture()
         switch action {
         case .replayClick(let down, let up):
             post(.leftMouseDown, at: down, flags: gesture.pressFlags)
@@ -261,7 +283,7 @@ final class MenuBarDragController {
             handleDrop(
                 gesture,
                 release: location,
-                shelfZone: shelfZone(for: gesture.pressBar),
+                shelfZone: shelfZone,
                 at: ContinuousClock.now
             )
             return event

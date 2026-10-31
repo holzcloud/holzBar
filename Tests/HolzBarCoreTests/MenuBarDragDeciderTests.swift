@@ -61,6 +61,48 @@ struct MenuBarDragDeciderTests {
         #expect(decider.state == .idle)
     }
 
+    @Test("A press that moves straight down into the Shelf's zone becomes a drag")
+    func straightDownIntoTheShelf() {
+        var decider = holding()
+        let zone = CGRect(x: 300, y: 24, width: 300, height: 300)
+        #expect(
+            decider.mouseDragged(to: CGPoint(x: 436, y: 60), time: 1.05, barMaxY: barMaxY, shelfZone: zone)
+                == .replayCommandDown(at: press)
+        )
+        #expect(decider.state == .dragging)
+        #expect(
+            decider.mouseDragged(to: CGPoint(x: 440, y: 90), time: 1.1, barMaxY: barMaxY, shelfZone: zone)
+                == .rewriteWithCommand
+        )
+        #expect(decider.mouseUp(at: CGPoint(x: 440, y: 90), time: 1.2) == .rewriteWithCommand)
+    }
+
+    @Test("A move down outside the Shelf's zone, or without a zone, still tracks the menu")
+    func downOutsideTheShelf() {
+        let zone = CGRect(x: 600, y: 24, width: 300, height: 300)
+        var outside = holding()
+        #expect(
+            outside.mouseDragged(to: CGPoint(x: 436, y: 60), time: 1.05, barMaxY: barMaxY, shelfZone: zone)
+                == .replayPlainDown(at: press)
+        )
+        #expect(outside.state == .menuTracking)
+        var withoutZone = holding()
+        #expect(
+            withoutZone.mouseDragged(to: CGPoint(x: 436, y: 60), time: 1.05, barMaxY: barMaxY)
+                == .replayPlainDown(at: press)
+        )
+    }
+
+    @Test("A sideways move is a drag whether or not a zone is given")
+    func sidewaysWithAZone() {
+        var decider = holding()
+        let zone = CGRect(x: 600, y: 24, width: 300, height: 300)
+        #expect(
+            decider.mouseDragged(to: CGPoint(x: 440, y: 12), time: 1.05, barMaxY: barMaxY, shelfZone: zone)
+                == .replayCommandDown(at: press)
+        )
+    }
+
     @Test("A press that is not on an item and its drags and release pass")
     func notOnAnItem() {
         var decider = MenuBarDragDecider()

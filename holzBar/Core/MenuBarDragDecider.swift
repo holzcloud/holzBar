@@ -15,7 +15,8 @@ import CoreGraphics
 ///
 /// A press on an app's menu bar item is held back. What the pointer does next decides what the
 /// press was: a sideways move inside the bar makes it a ⌘ Command-drag, a move down out of the bar
-/// a press that tracks the item's menu, and a release a plain click.
+/// a press that tracks the item's menu, and a release a plain click. A move down into the open
+/// Shelf's zone is a drag too, so the item can be dropped there.
 nonisolated struct MenuBarDragDecider: Equatable, Sendable {
     /// Where the gesture is.
     nonisolated enum State: Equatable, Sendable {
@@ -86,9 +87,21 @@ nonisolated struct MenuBarDragDecider: Equatable, Sendable {
     }
 
     /// The pointer moved with the button down.
-    mutating func mouseDragged(to point: CGPoint, time: Double, barMaxY: CGFloat) -> Action {
+    ///
+    /// - Parameter shelfZone: The open Shelf's zone, if one is open. A press that moves below the
+    ///   bar into it becomes a drag instead of tracking the item's menu.
+    mutating func mouseDragged(
+        to point: CGPoint,
+        time: Double,
+        barMaxY: CGFloat,
+        shelfZone: CGRect? = nil
+    ) -> Action {
         switch state {
         case .holding(let down, _):
+            if point.y > barMaxY, let shelfZone, shelfZone.contains(point) {
+                state = .dragging
+                return .replayCommandDown(at: down)
+            }
             if point.y > barMaxY {
                 state = .menuTracking
                 return .replayPlainDown(at: down)

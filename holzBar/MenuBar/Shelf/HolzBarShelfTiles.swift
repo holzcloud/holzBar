@@ -125,6 +125,8 @@ final class HolzBarShelfDragModel {
     var draggedID: String?
     /// What releasing it now would do.
     var outcome = ShelfDrop.Outcome.none
+    /// Whether an item dragged from the menu bar is over the open Shelf, which takes its drop.
+    var isDropTargeted = false
 }
 
 /// The steps of a drag that a tile reports.

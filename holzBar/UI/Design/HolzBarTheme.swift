@@ -119,6 +119,7 @@ enum HolzBarTheme {
 
     enum Spacing {
         static let hairline = CGFloat(DesignTokens.Spacing.hairline)
+        static let dropOutline = CGFloat(DesignTokens.Spacing.dropOutline)
         static let xxs = CGFloat(DesignTokens.Spacing.xxs)
         static let xs = CGFloat(DesignTokens.Spacing.xs)
         static let sm = CGFloat(DesignTokens.Spacing.sm)

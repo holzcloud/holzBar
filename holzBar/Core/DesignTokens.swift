@@ -236,6 +236,8 @@ nonisolated enum DesignTokens {
     nonisolated enum Spacing {
         static let scale: [Double] = [4, 8, 12, 16, 20, 24, 32, 48]
         static let hairline: Double = 1
+        /// The outline of the Shelf while a dragged menu bar item is over it.
+        static let dropOutline: Double = 2
         static let xxs: Double = 4
         static let xs: Double = 8
         static let sm: Double = 12
