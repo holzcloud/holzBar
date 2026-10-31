@@ -30,6 +30,7 @@ These hold for every change, always, without taking a feature away:
 - **Private**: the app never connects to the network — no telemetry, analytics, crash reporting, update checks or remote content. Opening a link in the browser is the only exception. Personal data stays on the Mac and out of logs.
 - **Apple's way**: follow Apple's guidance — Human Interface Guidelines, API documentation and deprecation notices, Swift API Design Guidelines. Use the API Apple recommends for the job; never build on deprecated or soon-to-be-deprecated API when a replacement exists; adopt improvements a new Xcode, Swift or SDK brings.
 - **Least privilege**: request only the permissions and entitlements a feature really needs, only when it needs them, and say why.
+- **Private API only by exception, per module**: where macOS offers no public API for what a module must do, the module may call one named undocumented function, only with the maintainer's agreement for that module. The agreed ones: the CGS calls and MenuBarClientCore that the menu bar manager itself needs (`Shared/Bridging`, `holzBar/MenuBar/MacOS27`), and the accessory battery read of Accessory alerts (decision of 2026-10-16). The call sits in one wrapper file that looks the symbol up at run time and fails soft, an availability check switches the part off and says so, a setting turns it off, Settings and the docs say that it uses an undocumented call, and it never touches the network. For everything else the principle 'Apple's way' holds.
 
 ## Dependencies
 
