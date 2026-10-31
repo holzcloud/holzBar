@@ -73,7 +73,9 @@ nonisolated enum ModuleCatalog {
     /// while off. Calendar, another module of the hub, is off until the user switches it on, asks for
     /// Calendar access only then and creates no store, observer or wait while off. Live activities,
     /// a third module of the hub, is off until the user switches it on, has no permission on its row
-    /// and creates no source, capsule or wait while off. The title and the summary are the English
+    /// and creates no source, capsule or wait while off. Display controls, a fourth module of the hub, is off until
+    /// the user switches it on, asks for no permission and creates no runtime or CoreAudio listener while
+    /// off. The title and the summary are the English
     /// strings the settings show; their keys are those strings.
     static let all: [ModuleDescriptor] = [
         ModuleDescriptor(
@@ -141,6 +143,15 @@ nonisolated enum ModuleCatalog {
             symbol: "tray.and.arrow.down",
             titleKey: "File drop",
             summaryKey: "Stash files you drag to the notch and drop them somewhere else later.",
+            permission: nil,
+            isPreview: true
+        ),
+        ModuleDescriptor(
+            id: "display-controls",
+            area: .notch,
+            symbol: "slider.horizontal.3",
+            titleKey: "Display controls",
+            summaryKey: "Brightness and volume sliders at the notch.",
             permission: nil,
             isPreview: true
         ),

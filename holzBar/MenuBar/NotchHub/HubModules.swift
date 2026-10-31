@@ -31,6 +31,11 @@ enum HubModules {
             makeRuntime: { FileDropRuntime(appState: $0) },
             makeSettings: { AnyView(FileDropSettingsView()) }
         ),
+        HubModuleRegistration(
+            id: "display-controls",
+            makeRuntime: { DisplayControlsRuntime(appState: $0) },
+            makeSettings: { AnyView(EmptyView()) }
+        ),
     ]
 
     /// The registration of a module, if it has one.

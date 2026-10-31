@@ -150,6 +150,24 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["file-drop"], knownTo: ModuleCatalog.all) == ["file-drop"])
     }
 
+    @Test("Display controls is a Preview module of the notch area without a permission, after the hub")
+    func displayControlsModule() throws {
+        let controls = try #require(ModuleCatalog.all.first { $0.id == "display-controls" })
+        #expect(controls.area == .notch)
+        #expect(controls.permission == nil)
+        #expect(controls.isPreview)
+        #expect(controls.symbol == "slider.horizontal.3")
+        #expect(controls.titleKey == "Display controls")
+        let notch = ModuleCatalog.modules(in: .notch).map(\.id)
+        let hubIndex = try #require(notch.firstIndex(of: "notch-hub"))
+        let controlsIndex = try #require(notch.firstIndex(of: "display-controls"))
+        #expect(hubIndex < controlsIndex)
+        #expect(ModuleCatalog.problems(in: ModuleCatalog.all).isEmpty)
+        // Off until the user switches it on.
+        #expect(ModuleCatalog.enabledIdentifiers([], knownTo: ModuleCatalog.all).isEmpty)
+        #expect(ModuleCatalog.enabledIdentifiers(["display-controls"], knownTo: ModuleCatalog.all) == ["display-controls"])
+    }
+
     @Test("The Modules pane knows everything the catalog ships")
     func modulesPaneKnowsTheCatalog() {
         #expect(
