@@ -41,6 +41,9 @@ final class AppSettings {
     /// The model for the Notifications module's settings.
     let notifications = NotificationsSettings()
 
+    /// The model for the Now Playing module's settings.
+    let nowPlaying = NowPlayingSettings()
+
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
         advanced.performSetup(with: appState)
@@ -53,5 +56,6 @@ final class AppSettings {
         fileDrop.performSetup(with: appState)
         displayControls.performSetup(with: appState)
         notifications.performSetup(with: appState)
+        nowPlaying.performSetup(with: appState)
     }
 }

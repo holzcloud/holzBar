@@ -173,6 +173,21 @@ struct SettingsSchemaTests {
         #expect(board.ignored == ["TimersBoard"])
     }
 
+    @Test("The Now Playing players travel with a settings file, and only 1, 2 and 3")
+    func nowPlayingSettings() {
+        #expect(Defaults.Key.importableKinds["NowPlayingPlayers"] == .number)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.nowPlayingPlayers))
+        for accepted: Double in [1, 2, 3] {
+            let result = Defaults.Key.validatedSettings(["NowPlayingPlayers": accepted], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.keys.sorted() == ["NowPlayingPlayers"])
+        }
+        for refused: Double in [0, 4, 1.5, .nan] {
+            let result = Defaults.Key.validatedSettings(["NowPlayingPlayers": refused], ownBundleIdentifier: ownBundle)
+            #expect(result.accepted.isEmpty)
+            #expect(result.ignored == ["NowPlayingPlayers"])
+        }
+    }
+
     @Test("The notch hub's settings travel with a settings file, and only the displays within their choices")
     func notchHubSettingsTravel() {
         #expect(Defaults.Key.importableKinds["NotchHubOpensOnHover"] == .bool)

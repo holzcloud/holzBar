@@ -298,6 +298,9 @@ nonisolated extension Defaults {
         case timersBoard = "TimersBoard"
         /// The sound that rings when a timer ends, as the raw value of `TimerFinishSound`.
         case timersFinishSound = "TimersFinishSound"
+        /// The players the Now Playing module follows, as the raw value of `NowPlayingPlayers`
+        /// (1 Music, 2 Spotify, 3 both).
+        case nowPlayingPlayers = "NowPlayingPlayers"
         /// Whether the Calendar module shows all-day events (a boolean, on by default).
         case calendarShowsAllDay = "CalendarShowsAllDay"
         /// The identifiers of the calendars the user switched off in the Calendar module. They
@@ -470,6 +473,7 @@ nonisolated extension Defaults.Key {
             .revealAnimationStyle,
             .notchHubDisplays,
             .timersFinishSound,
+            .nowPlayingPlayers,
             .rehideStrategy,
             .rehideInterval,
             .itemSpacingOffset,
@@ -561,6 +565,8 @@ nonisolated extension Defaults.Key {
             .wholeNumber(0...2)
         case .timersFinishSound:
             .wholeNumber(0...5)
+        case .nowPlayingPlayers:
+            .wholeNumber(1...3)
         case .layoutSnapshotsLimit:
             .wholeNumber(1...100)
         case .shelfLocation,
