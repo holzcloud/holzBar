@@ -24,9 +24,22 @@ import OSLog
 enum ItemClicker27 {
     private static let logger = Logger(category: "ItemClicker27")
 
+    /// The last click from the Shelf in fixed words (how the item was reached, and whether it
+    /// took the click), for Copy Diagnostics. Never a name. Empty before the first click.
+    static var lastClick = ""
+
+    /// Tells the user that a click on a Shelf tile did not reach its item: a system beep, and an
+    /// announcement for VoiceOver. The Shelf has closed by then, so nothing else stays to show it.
+    private static func reportFailure(_ words: String) {
+        lastClick = words
+        NSSound.beep()
+        AccessibilityNotification.Announcement(String(localized: "The item did not open.")).post()
+    }
+
     static func click(item: MenuBarItem, mouseButton: CGMouseButton, shelfDisplayID: CGDirectDisplayID?, appState: AppState) async {
         guard let bundleID = item.sourceApplication?.bundleIdentifier else {
             logger.error("No application for \(item.logString, privacy: .private(mask: .hash))")
+            reportFailure("failed, no application")
             return
         }
 
@@ -49,14 +62,19 @@ enum ItemClicker27 {
         }
         if let drawn {
             postClick(at: CGPoint(x: drawn.bounds.midX, y: drawn.bounds.midY), mouseButton: mouseButton)
+            lastClick = "shown, clicked"
         } else if let element = MenuBarItemProvider27.element(forWindowID: item.windowID) {
             let action = mouseButton == .right ? kAXShowMenuAction : kAXPressAction
             let result = await perform(action, on: element)
-            if result != .success {
+            if result == .success {
+                lastClick = shown ? "not drawn, pressed" : "not shown in time, pressed"
+            } else {
                 logger.notice("\(action, privacy: .public) on \(item.logString, privacy: .private(mask: .hash)) returned \(result.rawValue, privacy: .public)")
+                reportFailure("press refused, code \(result.rawValue)")
             }
         } else {
             logger.error("\(item.logString, privacy: .private(mask: .hash)) is neither drawn nor reachable through Accessibility")
+            reportFailure(shown ? "failed, not drawn and not reachable" : "failed, not shown and not reachable")
             concealer.endTemporaryShow(bundleID: bundleID)
             return
         }

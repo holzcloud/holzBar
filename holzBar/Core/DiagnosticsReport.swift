@@ -44,6 +44,9 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// such as `macOS 27, shelf, hide, applied`. Empty before the first drop or while the module
     /// is off, so the report stays as it was.
     var lastDrop = ""
+    /// The last click on a Shelf tile in fixed words, such as `shown, clicked` or `failed, not
+    /// shown and not reachable`. Empty before the first click or before macOS 27.
+    var lastShelfClick = ""
     /// The Shelf's style and location in fixed lower-case words, such as `floating, screen
     /// edge`. Empty unless the Shelf is in use, so the report of a Mac that does not use it
     /// stays as it was.
@@ -89,6 +92,9 @@ nonisolated enum DiagnosticsReport {
         }
         if !input.lastDrop.isEmpty {
             lines.append("Last drop: \(field(input.lastDrop, limit: maximumLastDropLength))")
+        }
+        if !input.lastShelfClick.isEmpty {
+            lines.append("Last Shelf click: \(field(input.lastShelfClick, limit: maximumLastDropLength))")
         }
         if !input.shelf.isEmpty {
             lines.append("Shelf: \(field(input.shelf))")
