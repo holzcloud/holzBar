@@ -146,7 +146,7 @@ struct AboutSettingsPane: View {
             }
             Spacer()
             Button("What's New…", systemImage: "sparkles") {
-                // A user action: the window opens on the newest tab and stores nothing.
+                // A user action: the window opens on the installed version's tab and stores nothing.
                 appState.activate(for: .whatsNew)
                 appState.openWindow(.whatsNew)
             }
