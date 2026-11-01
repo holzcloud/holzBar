@@ -309,6 +309,7 @@ nonisolated enum MenuBarItemProvider27 {
         var lastRawByPID = withState { $0.lastRawByPID }
         var carriedReads = withState { $0.carriedReads }
         let runningPIDs = Set(runningApplications.map(\.processIdentifier))
+        let concealedPIDs = withState { $0.concealedPIDs }
         lastRawByPID = lastRawByPID.filter { runningPIDs.contains($0.key) }
         carriedReads = carriedReads.filter { runningPIDs.contains($0.key) }
 
@@ -344,13 +345,26 @@ nonisolated enum MenuBarItemProvider27 {
                 if
                     pid != ownPID,
                     bundleID != menuBarAgentBundleID,
-                    result == .cannotComplete,
                     let previous = lastRawByPID[pid],
-                    carriedReads[pid, default: 0] < Self.maximumCarriedReads
+                    (result == .cannotComplete && carriedReads[pid, default: 0] < Self.maximumCarriedReads)
+                        || concealedPIDs.contains(pid)
                 {
                     carriedReads[pid, default: 0] += 1
                     rawItems.append(contentsOf: previous)
                 }
+                continue
+            }
+            // A concealed process may report no items at all (measured with Time Machine: it
+            // is gone from the Shelf after it was opened from there and put away again). It
+            // still has them, so its last answer stands until it draws them again or quits.
+            if
+                pid != ownPID,
+                bundleID != menuBarAgentBundleID,
+                children.isEmpty,
+                concealedPIDs.contains(pid),
+                let previous = lastRawByPID[pid]
+            {
+                rawItems.append(contentsOf: previous)
                 continue
             }
             carriedReads[pid] = nil
