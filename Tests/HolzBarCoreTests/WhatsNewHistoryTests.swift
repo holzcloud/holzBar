@@ -63,4 +63,65 @@ struct WhatsNewHistoryTests {
         #expect(tabs.versions == versions)
         #expect(tabs.installed == "1.0.1")
     }
+
+    // MARK: String Catalog
+
+    /// The repository root, three levels above this file. The link is resolved because the
+    /// Linux script symlinks the test into a throwaway package.
+    private static let repositoryRoot = URL(filePath: #filePath)
+        .resolvingSymlinksInPath()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+        .deletingLastPathComponent()
+
+    private struct Registry: Decodable {
+        struct Language: Decodable {
+            let code: String
+        }
+
+        let source: String
+        let languages: [Language]
+    }
+
+    private struct Catalog: Decodable {
+        struct Entry: Decodable {
+            struct Localization: Decodable {
+                struct StringUnit: Decodable {
+                    let state: String?
+                    let value: String?
+                }
+
+                let stringUnit: StringUnit?
+            }
+
+            let localizations: [String: Localization]?
+        }
+
+        let strings: [String: Entry]
+    }
+
+    @Test("Every text of the history is a catalog key translated into every language")
+    func textsAreTranslated() throws {
+        let registry = try JSONDecoder().decode(
+            Registry.self,
+            from: Data(contentsOf: Self.repositoryRoot.appending(path: "Translations/languages.json"))
+        )
+        let targets = registry.languages.map(\.code).filter { $0 != registry.source }
+        #expect(!targets.isEmpty)
+        let catalog = try JSONDecoder().decode(
+            Catalog.self,
+            from: Data(contentsOf: Self.repositoryRoot.appending(path: "holzBar/Resources/Localizable.xcstrings"))
+        )
+        for text in Set(Self.allTexts) {
+            guard let entry = catalog.strings[text] else {
+                Issue.record("Localizable.xcstrings has no key \"\(text)\"")
+                continue
+            }
+            for code in targets {
+                let unit = entry.localizations?[code]?.stringUnit
+                let translated = unit?.state == "translated" && !(unit?.value ?? "").isEmpty
+                #expect(translated, "\"\(text)\" has no finished translation in \(code)")
+            }
+        }
+    }
 }
