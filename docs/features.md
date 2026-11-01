@@ -227,6 +227,13 @@ None of this needs a permission, a timer or the network.
 - **System items pinned visible** (macOS 26 and earlier): profiles, restored layouts and rules leave the clock, battery, Wi-Fi, Control Center and sound where they are; you can still move them yourself.
 - **Drag in the menu bar** (macOS 26 and 27): an optional module in Settings, Modules, off until you switch it on. Drag an app's item sideways to move it, with no ⌘ Command; on macOS 26 drag it past holzBar's divider into the hidden or always-hidden section. On macOS 27 drop it on the holzBar icon or on the open Shelf to hide its app (the Shelf draws an accent outline while the item is over it), or drag a hidden app's item elsewhere while it shows to make the app visible again. On macOS 26 every drop is kept like a move in Menu Bar Layout; on macOS 27 only a drop that hides or shows an app is, and a plain reorder is macOS's own. Copy Diagnostics names the last drop in plain words. A click opens the item's menu when you release it; Apple's own items, holzBar's items, ⌘, ⌃ and ⌥ clicks and double-clicks work as before. holzBar watches only the left mouse button, only while the module is on, with no permission beyond Accessibility.
 
+**Menu bar**
+- **Restore layout automatically** on macOS 27: a setting in Menu Bar Layout that puts items back in your saved order when macOS or an app moves them.
+- **Dock badges**: an optional module that shows the unread counts of apps such as Messages, Mail and Slack in the menu bar.
+
+**Automation (local)**
+- An optional **MCP server**, off by default, so AI assistants on your Mac can read and change the menu bar layout. Local only, never over the network.
+
 **Polish**
 - A [keyboard and VoiceOver checklist](accessibility-checklist.md) to run on a Mac; holzBar makes no accessibility claim until it was run.
 
@@ -280,17 +287,13 @@ CPU, GPU, memory, network, disk and power readouts in the menu bar and in the hu
 
 An app launcher and search panel, file search through Spotlight, a calculator and unit converter (no currencies, because that needs the network), an emoji picker (no GIFs), text snippets, quick actions for system commands and Shortcuts, a radial menu, a scratchpad, and a tool to end a process or the one using a port.
 
-### 1.3.0: clipboard
-
-Clipboard history (opt-in, local, password managers excluded, erasable), paste as plain text, cut and paste in Finder, and clean URLs without tracking parameters.
-
 ### 1.4.0 and later (order open)
 
 Window management (app switcher, Dock previews, layouts), mouse and keyboard tweaks (scroll direction, smooth scrolling, no acceleration, mouse button shortcuts, trackpad middle click, shortcut management), sound (per-app volume, output switcher, microphone mute, music app blocker), energy and display (extra brightness, display tools, cleaning mode), capture (screenshots, text from the screen, screen and GIF recording, colour picker, measure, QR, camera preview), system tools (cleanup scan, app uninstaller, Homebrew manager, wallpaper tools, focus timer) and text tools with on-device AI (translation, dictation, grammar fix, agent and workflows).
 
 ### Principles for every module
 
-Each module is optional and costs nothing while it is off. It asks for its permission only when you switch it on, and says why. No module uses the network. **All AI features run on your Mac with Apple's own on-device models.** Cloud features, weather, speed tests, fan control, a charge limit and a hosts-file blocker are not planned.
+Each module is optional and costs nothing while it is off. It asks for its permission only when you switch it on, and says why. No module uses the network. **All AI features run on your Mac with Apple's own on-device models.** Clipboard history, cloud features, weather, speed tests, fan control, a charge limit and a hosts-file blocker are not planned.
 
 The comparison tables in [comparison.md](comparison.md) mark these with 🔜 and the release.
 
