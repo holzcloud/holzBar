@@ -134,6 +134,14 @@ final class GeneralSettings {
         }
     }
 
+    /// A Boolean value that indicates whether the What's New window opens by itself after an
+    /// update to a version it has texts for.
+    var showsWhatsNewAfterUpdate = true {
+        didSet {
+            Defaults.set(showsWhatsNewAfterUpdate, forKey: .whatsNewShowsAfterUpdate)
+        }
+    }
+
     /// The displays the holzBar Shelf is used on.
     var shelfDisplays: HolzBarShelfDisplays = .all {
         didSet {
@@ -330,6 +338,7 @@ final class GeneralSettings {
         Defaults.ifPresent(key: .shelfAlwaysHiddenFoldOpen, assign: &shelfAlwaysHiddenFoldOpen)
         Defaults.ifPresent(key: .shelfShowsClosedApps, assign: &shelfShowsClosedApps)
         Defaults.ifPresent(key: .shelfDragsTiles, assign: &shelfDragsTiles)
+        Defaults.ifPresent(key: .whatsNewShowsAfterUpdate, assign: &showsWhatsNewAfterUpdate)
         Defaults.ifPresent(key: .shelfAlwaysHiddenFold) { (rawValue: Int) in
             shelfAlwaysHiddenFold = ShelfAlwaysHiddenFold.stored(rawValue)
         }

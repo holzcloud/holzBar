@@ -15,10 +15,12 @@ struct WhatsNewWindow: Scene {
 
     var body: some Scene {
         HolzBarWindow(id: .whatsNew, appState: appState) {
-            WhatsNewView()
-                .onWindowChange { window in
-                    model.observe(window)
-                }
+            WhatsNewView(settings: appState.settings.general) {
+                appState.dismissWindow(.whatsNew)
+            }
+            .onWindowChange { window in
+                model.observe(window)
+            }
         }
         .windowResizability(.contentSize)
         .windowStyle(.hiddenTitleBar)

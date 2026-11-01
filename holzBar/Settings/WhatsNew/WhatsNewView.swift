@@ -5,103 +5,143 @@
 
 import SwiftUI
 
-/// The content of the What's New window: the release of the installed version, or the newest
-/// one on a development build, as New, Improved and Fixed groups on the calm ground.
+/// The content of the What's New window: a header with the version, the pill tabs of the
+/// versions, the notes of the selected one and a footer with the switch and Done.
+///
+/// The window is glass on the calm ground: the tab strip is its one glass layer, the rows
+/// have none. It opens on the installed version, or on the newest one on a development build.
 struct WhatsNewView: View {
-    @Environment(AppState.self) private var appState
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.colorSchemeContrast) private var contrast
 
-    /// The release to show: the installed version's, else the newest.
-    private var release: WhatsNewRelease? {
-        let tabs = WhatsNewPolicy.tabs(
-            knownVersions: WhatsNewHistory.releases.map(\.version),
-            current: Bundle.main.versionString
-        )
-        let version = tabs.installed ?? tabs.versions.first
-        return WhatsNewHistory.releases.first { $0.version == version } ?? WhatsNewHistory.releases.first
+    @Bindable private var settings: GeneralSettings
+    private let releases: [WhatsNewRelease]
+    private let tabs: WhatsNewPolicy.Tabs
+    private let onDone: () -> Void
+
+    @State private var selection: String
+
+    /// Creates the window content.
+    ///
+    /// - Parameters:
+    ///   - settings: The settings that hold the "Show after an update" switch.
+    ///   - releases: The release history, newest first.
+    ///   - currentVersion: The version of the running app; `nil` on a development build.
+    ///   - onDone: Called by the Done button and the Escape key.
+    init(
+        settings: GeneralSettings,
+        releases: [WhatsNewRelease] = WhatsNewHistory.releases,
+        currentVersion: String? = Bundle.main.versionString,
+        onDone: @escaping () -> Void
+    ) {
+        let tabs = WhatsNewPolicy.tabs(knownVersions: releases.map(\.version), current: currentVersion)
+        self.settings = settings
+        self.releases = releases
+        self.tabs = tabs
+        self.onDone = onDone
+        _selection = State(initialValue: tabs.installed ?? tabs.versions.first ?? "")
     }
 
     var body: some View {
         ZStack {
             HolzBarGround()
-            VStack(spacing: 0) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.lg) {
-                        if let release {
-                            group("New", items: release.new)
-                            group("Improved", items: release.improved)
-                            fixedGroup(release.fixed)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(HolzBarTheme.Spacing.xl)
-                }
-                Button("Done") {
-                    appState.dismissWindow(.whatsNew)
-                }
-                .keyboardShortcut(.defaultAction)
-                .padding(HolzBarTheme.Spacing.md)
+            VStack(alignment: .leading, spacing: 0) {
+                header
+                WhatsNewTabStrip(versions: tabs.versions, installed: tabs.installed, selection: $selection)
+                    .padding(.horizontal, HolzBarTheme.Spacing.xl)
+                    .padding(.bottom, HolzBarTheme.Spacing.md)
+                notes
+                footer
             }
         }
         .frame(width: 560)
         .frame(minHeight: 460, idealHeight: 640, maxHeight: 800)
+        .onExitCommand(perform: onDone)
     }
 
-    @ViewBuilder
-    private func group(_ title: LocalizedStringKey, items: [WhatsNewItem]) -> some View {
-        if !items.isEmpty {
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-                heading(title)
-                ForEach(items) { item in
-                    itemRow(item)
-                }
-            }
-        }
-    }
+    // MARK: Header
 
-    @ViewBuilder
-    private func fixedGroup(_ fixes: [WhatsNewFix]) -> some View {
-        if !fixes.isEmpty {
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
-                heading("Fixed")
-                ForEach(fixes) { fix in
-                    HStack(alignment: .firstTextBaseline, spacing: HolzBarTheme.Spacing.sm) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(HolzBarTheme.Palette.success)
-                            .accessibilityHidden(true)
-                        Text(LocalizedStringKey(fix.text))
-                            .font(HolzBarTheme.Typography.callout)
-                            .foregroundStyle(HolzBarTheme.Palette.text)
-                    }
-                    .accessibilityElement(children: .combine)
-                }
-            }
-        }
-    }
-
-    private func heading(_ title: LocalizedStringKey) -> some View {
-        Text(title)
-            .font(HolzBarTheme.Typography.headline)
-            .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-            .accessibilityAddTraits(.isHeader)
-    }
-
-    private func itemRow(_ item: WhatsNewItem) -> some View {
-        HStack(alignment: .top, spacing: HolzBarTheme.Spacing.sm) {
-            Image(systemName: item.symbol)
-                .symbolRenderingMode(.hierarchical)
-                .font(HolzBarTheme.Typography.headline)
-                .foregroundStyle(HolzBarTheme.Palette.accent)
-                .frame(width: HolzBarTheme.Spacing.xl)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
-                Text(LocalizedStringKey(item.title))
-                    .font(HolzBarTheme.Typography.body.weight(.semibold))
-                    .foregroundStyle(HolzBarTheme.Palette.text)
-                Text(LocalizedStringKey(item.detail))
-                    .font(HolzBarTheme.Typography.callout)
+    private var header: some View {
+        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
+            HStack(spacing: HolzBarTheme.Spacing.xs) {
+                Text("What's New")
+                    .font(HolzBarTheme.Typography.headline)
                     .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                    .accessibilityAddTraits(.isHeader)
+                PreviewBadge()
+            }
+            Text(verbatim: selection)
+                .font(HolzBarTheme.Typography.display)
+                .foregroundStyle(HolzBarTheme.Palette.text)
+                .accessibilityLabel(String(localized: "Version \(selection)"))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, HolzBarTheme.Spacing.xl)
+        .padding(.top, HolzBarTheme.Spacing.xxl)
+        .padding(.bottom, HolzBarTheme.Spacing.md)
+    }
+
+    // MARK: Notes
+
+    private var notes: some View {
+        ScrollView {
+            if let release = releases.first(where: { $0.version == selection }) {
+                WhatsNewReleaseBody(release: release)
+                    .id(release.version)
+                    .transition(.opacity)
+                    .padding(.horizontal, HolzBarTheme.Spacing.xl)
+                    .padding(.top, HolzBarTheme.Spacing.xs)
+                    .padding(.bottom, HolzBarTheme.Spacing.xl)
             }
         }
-        .accessibilityElement(children: .combine)
+        .animation(
+            HolzBarTheme.Motion.resolved(HolzBarTheme.Motion.smooth, reduceMotion: reduceMotion),
+            value: selection
+        )
+        .mask { fadeMask }
     }
+
+    /// A mask that fades the last points of the scrolling notes into the ground, a soft edge
+    /// under which the rows disappear. With Reduce Transparency or Increase Contrast the notes
+    /// end sharply instead.
+    @ViewBuilder
+    private var fadeMask: some View {
+        let options = TransparencyOptions(
+            reduceTransparency: reduceTransparency,
+            increaseContrast: contrast == .increased
+        )
+        if options.prefersOpaque {
+            Rectangle()
+        } else {
+            VStack(spacing: 0) {
+                Rectangle()
+                LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
+                    .frame(height: HolzBarTheme.Spacing.xl)
+            }
+        }
+    }
+
+    // MARK: Footer
+
+    private var footer: some View {
+        HStack {
+            Toggle("Show after an update", isOn: $settings.showsWhatsNewAfterUpdate)
+                .toggleStyle(.switch)
+            Spacer()
+            Button("Done", action: onDone)
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .keyboardShortcut(.defaultAction)
+        }
+        .padding(HolzBarTheme.Spacing.xl)
+    }
+}
+
+#Preview("WhatsNewView") {
+    WhatsNewView(
+        settings: GeneralSettings(),
+        releases: WhatsNewHistory.releases,
+        currentVersion: "1.0.1"
+    ) {}
 }
