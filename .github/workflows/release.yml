@@ -67,6 +67,11 @@ jobs:
         run: |
           test -f "docs/release-notes/v$VERSION.md" || { echo "::error::Missing docs/release-notes/v$VERSION.md"; exit 1; }
 
+      # The What's New window shows the history in the app: a release needs its entry there,
+      # and every text in it needs its translations, before anything is built.
+      - name: Check the What's New history
+        run: python3 .github/scripts/whatsnew-check.py --version "$VERSION"
+
       - uses: ./.github/actions/select-xcode
 
       # Built and signed ad hoc first, in a job without write token, OIDC token or secrets, so
