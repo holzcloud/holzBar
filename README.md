@@ -47,7 +47,14 @@ If you looked for an Ice fork that runs on macOS 27, or a free Bartender alterna
 </tr>
 </table>
 
-More screenshots in the [gallery](docs/features.md#gallery).
+<table>
+<tr>
+<td width="50%" valign="top"><b>Notch hub, Overview — one tile per module</b><br><img src="Resources/Screenshots/hub-overview.jpg" alt="The notch hub open at the notch: tabs for the modules, and tiles for the next calendar event, the volume, the connected accessories and what is playing"></td>
+<td width="50%" valign="top"><b>Modules — Accessory alerts, Notifications, Now Playing</b><br><img src="Resources/Screenshots/settings-modules-accessories.jpg" alt="holzBar settings, Modules pane: Accessory alerts with the low battery level, Notifications with Excluded apps, and Now Playing with Music, Spotify and Read all apps"></td>
+</tr>
+</table>
+
+More screenshots in the [gallery](docs/features.md#gallery), including the [notch hub and its modules](docs/features.md#notch-hub-and-modules).
 
 ## How it compares
 

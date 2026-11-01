@@ -299,6 +299,30 @@ The comparison tables in [comparison.md](comparison.md) mark these with 🔜 and
 
 Screenshots of holzBar in dark mode.
 
+### Notch hub and modules
+
+<table>
+<tr>
+<td width="50%" valign="top"><b>Notch hub, Overview — one tile per module</b><br><img src="../Resources/Screenshots/hub-overview.jpg" alt="The notch hub open at the notch: tabs for the modules, and tiles for the next calendar event, the volume, the connected accessories and what is playing"></td>
+<td width="50%" valign="top"><b>Notch hub, Timers — presets, a typed length, a countdown or a stopwatch</b><br><img src="../Resources/Screenshots/hub-timers.jpg" alt="The Timers tab of the notch hub with the presets 1, 5, 10 and 25 minutes and 1 hour, the Length, Until and Stopwatch choices and a label field"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Notch hub, Display — brightness and volume</b><br><img src="../Resources/Screenshots/hub-display.jpg" alt="The Display tab of the notch hub: a brightness slider for the built-in display, a display macOS cannot change from here, and the volume slider of the speakers"></td>
+<td width="50%" valign="top"><b>Modules — the notch hub, Timers, Calendar and Live activities</b><br><img src="../Resources/Screenshots/settings-modules-notch.jpg" alt="holzBar settings, Modules pane: the Notch hub with Open on hover, Show the hub on and a hotkey, Timers with a finish sound, Calendar with one switch per calendar, and Live activities"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Modules — Live activities, File drop, Display controls, Accessory alerts</b><br><img src="../Resources/Screenshots/settings-modules-live.jpg" alt="holzBar settings, Modules pane: Live activities with Camera and microphone in use and Downloads, File drop, Display controls with the Brightness switch, and Accessory alerts"></td>
+<td width="50%" valign="top"><b>Modules — Accessory alerts, Notifications, Now Playing</b><br><img src="../Resources/Screenshots/settings-modules-accessories.jpg" alt="holzBar settings, Modules pane: Accessory alerts with the low battery level, Notifications with Excluded apps, and Now Playing with Music, Spotify and Read all apps"></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><b>Modules — Widgets, Drag in the Menu Bar, Apple Items</b><br><img src="../Resources/Screenshots/settings-modules-menu-bar.jpg" alt="holzBar settings, Modules pane: Widgets, Drag in the Menu Bar, and Apple Items with Hide the clock, Hide Control Center, Hide Wi-Fi, Hide the battery and Replacement items"></td>
+<td width="50%" valign="top"><b>Menu Bar Layout — sort the items of a section (macOS 27)</b><br><img src="../Resources/Screenshots/settings-layout-sorting.jpg" alt="holzBar settings, Menu Bar Layout pane: Apply changes immediately, the Visible and Hidden sections with their items, New items and Tidy Up"></td>
+</tr>
+</table>
+
+### Menu bar and settings
+
+
 <p align="center"><img src="../Resources/Screenshots/settings-general.png" alt="holzBar settings, General pane: Launch at login, the menu bar icon choices and the holzBar Shelf with its style" width="760"></p>
 
 <p align="center"><img src="../Resources/Screenshots/settings-general-shelf.png" alt="holzBar settings, General pane, the holzBar Shelf: style, location, layout, find items by typing, applications that are not running, rearranging by dragging and the displays it is used on" width="760"></p>
