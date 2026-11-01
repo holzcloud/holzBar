@@ -40,6 +40,7 @@ enum DiagnosticsCollector {
             nativeOverflow: nativeOverflowWord(appState),
             appleItems: appleItemsWord(appState),
             lastDrop: lastDropWords(appState),
+            lastShelfClick: lastShelfClickWords(),
             shelf: shelfWords(appState),
             accessoryBattery: accessoryBatteryWord(appState)
         )
@@ -55,6 +56,14 @@ enum DiagnosticsCollector {
             return "off"
         }
         return AccessoryBatterySource.isAvailable ? "available" : "not available"
+    }
+
+    /// The last click on a Shelf tile in fixed words; nothing before macOS 27.
+    private static func lastShelfClickWords() -> String {
+        guard #available(macOS 27.0, *) else {
+            return ""
+        }
+        return ItemClicker27.lastClick
     }
 
     /// The last drop of Drag in the Menu Bar, in the fixed words the controller wrote; nothing

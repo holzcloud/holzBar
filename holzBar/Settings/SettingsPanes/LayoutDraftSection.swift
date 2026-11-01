@@ -22,7 +22,6 @@ struct LayoutDraftSection: View {
             Toggle(isOn: general.appliesLayoutChangesImmediately) {
                 HStack(spacing: HolzBarTheme.Spacing.sm) {
                     Text("Apply changes immediately")
-                    PreviewBadge()
                 }
             }
             .annotation("Off: dragging an item only changes the drawing below, and the menu bar follows when you choose Apply. On: every move happens at once.")

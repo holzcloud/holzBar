@@ -117,8 +117,7 @@ nonisolated enum ModuleCatalog {
             symbol: "timer",
             titleKey: "Timers",
             summaryKey: "Timers, countdowns and a stopwatch at the notch, with a sound when a timer ends.",
-            permission: nil,
-            isPreview: true
+            permission: nil
         ),
         ModuleDescriptor(
             id: "calendar",
@@ -126,8 +125,7 @@ nonisolated enum ModuleCatalog {
             symbol: "calendar",
             titleKey: "Calendar",
             summaryKey: "Your next events and their meeting links.",
-            permission: .calendar,
-            isPreview: true
+            permission: .calendar
         ),
         ModuleDescriptor(
             id: "live-activities",
@@ -135,8 +133,7 @@ nonisolated enum ModuleCatalog {
             symbol: "waveform",
             titleKey: "Live activities",
             summaryKey: "Calls and downloads shown as a small capsule at the notch.",
-            permission: nil,
-            isPreview: true
+            permission: nil
         ),
         ModuleDescriptor(
             id: "file-drop",
@@ -144,8 +141,7 @@ nonisolated enum ModuleCatalog {
             symbol: "tray.and.arrow.down",
             titleKey: "File drop",
             summaryKey: "Stash files you drag to the notch and drop them somewhere else later.",
-            permission: nil,
-            isPreview: true
+            permission: nil
         ),
         ModuleDescriptor(
             id: "display-controls",
@@ -153,8 +149,7 @@ nonisolated enum ModuleCatalog {
             symbol: "slider.horizontal.3",
             titleKey: "Display controls",
             summaryKey: "Brightness and volume sliders at the notch.",
-            permission: nil,
-            isPreview: true
+            permission: nil
         ),
         ModuleDescriptor(
             id: "accessory-alerts",
@@ -162,8 +157,7 @@ nonisolated enum ModuleCatalog {
             symbol: "airpods",
             titleKey: "Accessory alerts",
             summaryKey: "Tells you when AirPods and other accessories connect, disconnect or run low.",
-            permission: .bluetooth,
-            isPreview: true
+            permission: .bluetooth
         ),
         ModuleDescriptor(
             id: "notifications",
@@ -171,8 +165,7 @@ nonisolated enum ModuleCatalog {
             symbol: "bell.badge",
             titleKey: "Notifications",
             summaryKey: "The banners macOS shows, listed at the notch.",
-            permission: .accessibility,
-            isPreview: true
+            permission: .accessibility
         ),
         ModuleDescriptor(
             id: "now-playing",
@@ -180,8 +173,7 @@ nonisolated enum ModuleCatalog {
             symbol: "music.note",
             titleKey: "Now Playing",
             summaryKey: "Shows what is playing, at the notch.",
-            permission: nil,
-            isPreview: true
+            permission: nil
         ),
     ]
 

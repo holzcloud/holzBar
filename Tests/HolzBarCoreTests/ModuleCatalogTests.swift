@@ -76,12 +76,12 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["notch-hub"], knownTo: ModuleCatalog.all) == ["notch-hub"])
     }
 
-    @Test("Timers is a Preview module of the notch area without a permission, after the hub")
+    @Test("Timers is a module of the notch area without a permission, after the hub")
     func timersModule() throws {
         let timers = try #require(ModuleCatalog.all.first { $0.id == "timers" })
         #expect(timers.area == .notch)
         #expect(timers.permission == nil)
-        #expect(timers.isPreview)
+        #expect(!timers.isPreview)
         #expect(timers.symbol == "timer")
         #expect(timers.titleKey == "Timers")
         let notch = ModuleCatalog.modules(in: .notch).map(\.id)
@@ -94,12 +94,12 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["timers"], knownTo: ModuleCatalog.all) == ["timers"])
     }
 
-    @Test("Calendar is a Preview module of the notch area that asks for the Calendar permission, after Timers")
+    @Test("Calendar is a module of the notch area that asks for the Calendar permission, after Timers")
     func calendarModule() throws {
         let calendar = try #require(ModuleCatalog.all.first { $0.id == "calendar" })
         #expect(calendar.area == .notch)
         #expect(calendar.permission == .calendar)
-        #expect(calendar.isPreview)
+        #expect(!calendar.isPreview)
         #expect(calendar.symbol == "calendar")
         #expect(calendar.titleKey == "Calendar")
         let notch = ModuleCatalog.modules(in: .notch).map(\.id)
@@ -112,12 +112,12 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["calendar"], knownTo: ModuleCatalog.all) == ["calendar"])
     }
 
-    @Test("Live activities is a Preview module of the notch area without a permission, after Calendar")
+    @Test("Live activities is a module of the notch area without a permission, after Calendar")
     func liveActivitiesModule() throws {
         let live = try #require(ModuleCatalog.all.first { $0.id == "live-activities" })
         #expect(live.area == .notch)
         #expect(live.permission == nil)
-        #expect(live.isPreview)
+        #expect(!live.isPreview)
         #expect(live.symbol == "waveform")
         #expect(live.titleKey == "Live activities")
         let notch = ModuleCatalog.modules(in: .notch).map(\.id)
@@ -130,12 +130,12 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["live-activities"], knownTo: ModuleCatalog.all) == ["live-activities"])
     }
 
-    @Test("File drop is a Preview module of the notch area without a permission, after the hub and Live activities")
+    @Test("File drop is a module of the notch area without a permission, after the hub and Live activities")
     func fileDropModule() throws {
         let drop = try #require(ModuleCatalog.all.first { $0.id == "file-drop" })
         #expect(drop.area == .notch)
         #expect(drop.permission == nil)
-        #expect(drop.isPreview)
+        #expect(!drop.isPreview)
         #expect(drop.symbol == "tray.and.arrow.down")
         #expect(drop.titleKey == "File drop")
         let notch = ModuleCatalog.modules(in: .notch).map(\.id)
@@ -150,12 +150,12 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["file-drop"], knownTo: ModuleCatalog.all) == ["file-drop"])
     }
 
-    @Test("Display controls is a Preview module of the notch area without a permission, after the hub")
+    @Test("Display controls is a module of the notch area without a permission, after the hub")
     func displayControlsModule() throws {
         let controls = try #require(ModuleCatalog.all.first { $0.id == "display-controls" })
         #expect(controls.area == .notch)
         #expect(controls.permission == nil)
-        #expect(controls.isPreview)
+        #expect(!controls.isPreview)
         #expect(controls.symbol == "slider.horizontal.3")
         #expect(controls.titleKey == "Display controls")
         let notch = ModuleCatalog.modules(in: .notch).map(\.id)
@@ -168,12 +168,12 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["display-controls"], knownTo: ModuleCatalog.all) == ["display-controls"])
     }
 
-    @Test("Accessory alerts is a Preview module of the notch area that needs Bluetooth, after the hub's other modules")
+    @Test("Accessory alerts is a module of the notch area that needs Bluetooth, after the hub's other modules")
     func accessoryAlertsModule() throws {
         let alerts = try #require(ModuleCatalog.all.first { $0.id == "accessory-alerts" })
         #expect(alerts.area == .notch)
         #expect(alerts.permission == .bluetooth)
-        #expect(alerts.isPreview)
+        #expect(!alerts.isPreview)
         #expect(alerts.symbol == "airpods")
         #expect(alerts.titleKey == "Accessory alerts")
         #expect(alerts.summaryKey == "Tells you when AirPods and other accessories connect, disconnect or run low.")
@@ -189,12 +189,12 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["accessory-alerts"], knownTo: ModuleCatalog.all) == ["accessory-alerts"])
     }
 
-    @Test("Notifications is a Preview module of the notch area that needs Accessibility, after the hub's other modules")
+    @Test("Notifications is a module of the notch area that needs Accessibility, after the hub's other modules")
     func notificationsModule() throws {
         let notifications = try #require(ModuleCatalog.all.first { $0.id == "notifications" })
         #expect(notifications.area == .notch)
         #expect(notifications.permission == .accessibility)
-        #expect(notifications.isPreview)
+        #expect(!notifications.isPreview)
         #expect(notifications.symbol == "bell.badge")
         #expect(notifications.titleKey == "Notifications")
         #expect(notifications.summaryKey == "The banners macOS shows, listed at the notch.")
@@ -212,12 +212,12 @@ struct ModuleCatalogTests {
         #expect(ModuleCatalog.enabledIdentifiers(["notifications"], knownTo: ModuleCatalog.all) == ["notifications"])
     }
 
-    @Test("Now Playing is a Preview module of the notch area without a permission, after Calendar")
+    @Test("Now Playing is a module of the notch area without a permission, after Calendar")
     func nowPlayingModule() throws {
         let nowPlaying = try #require(ModuleCatalog.all.first { $0.id == "now-playing" })
         #expect(nowPlaying.area == .notch)
         #expect(nowPlaying.permission == nil)
-        #expect(nowPlaying.isPreview)
+        #expect(!nowPlaying.isPreview)
         #expect(nowPlaying.symbol == "music.note")
         #expect(nowPlaying.titleKey == "Now Playing")
         #expect(nowPlaying.summaryKey == "Shows what is playing, at the notch.")

@@ -131,6 +131,16 @@ struct DiagnosticsReportTests {
         #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Last drop: \(longest)")
     }
 
+    @Test("The last Shelf click is one line of fixed words, and none before a click")
+    func lastShelfClick() {
+        var input = sample
+        #expect(!DiagnosticsReport.make(input).contains("Last Shelf click"))
+        input.lastShelfClick = "failed, not shown and not reachable"
+        #expect(DiagnosticsReport.make(input).contains("Last Shelf click: failed, not shown and not reachable"))
+        input.lastShelfClick = "press refused\n/Users/anna/x"
+        #expect(!DiagnosticsReport.make(input).contains("/Users/anna"))
+    }
+
     @Test("A last drop with a newline or a home path is sanitised like every field")
     func lastDropSanitised() {
         var input = sample
