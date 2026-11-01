@@ -11,6 +11,13 @@ struct DockIconPolicyTests {
         }
     }
 
+    @Test("The What's New window stays out of the Dock")
+    func whatsNewWindowStaysOutOfTheDock() {
+        for keepsHidden in [true, false] {
+            #expect(DockIconPolicy.policy(for: .whatsNew, keepsDockIconHidden: keepsHidden) == .accessory)
+        }
+    }
+
     @Test("The permissions window is in the Dock")
     func permissionsWindowIsInTheDock() {
         #expect(DockIconPolicy.policy(for: .permissions, keepsDockIconHidden: true) == .regular)
