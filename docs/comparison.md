@@ -2,7 +2,7 @@
 
 Two comparisons live here: the detailed one against Ice, Thaw and Bartender, and [the wider one against 14 apps](#against-every-other-menu-bar-manager) further down. The README carries a short version.
 
-What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. — means not available or not documented. 🔜 means planned, with the release where one is set (1.1.0, or later): it is **not available yet**.
+What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the other active fork [Thaw](https://github.com/thaw-app/Thaw) 3.0 beta do, and what holzBar adds, next to [Bartender](https://www.macbartender.com/) 7, the paid app for macOS 27 (Bartender 6 covers macOS 14 – 26). The Bartender column comes from its product pages; — means not stated there. ❌ means not available or not documented. 🔜 means planned, with the release where one is set (1.1.0, or later): it is **not available yet**.
 
 | | Ice 0.11.12 | Thaw 3.0 beta | Bartender 7 | holzBar |
 |---|:---:|:---:|:---:|:---:|
@@ -48,7 +48,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Drag an item in the Shelf to put it in order, into another section or onto the menu bar | — | — | — | ✅ <sub>macOS 27 only changes the section</sub> |
 | Own menu bar items for Focus, AirDrop, media controls, fast user switching and a timer, which hide and move like any item | ❌ | — | — | ✅ <sub>optional module, up to twelve widgets</sub> |
 | App launchers: a holzBar icon for any app you pick, a click opens it | ❌ | — | — | ✅ <sub>same module</sub> |
-| A hub at the notch (at the top centre without one) that holds optional modules, off until you switch it on | ❌ | — | — | ✅ <sub>its first modules are Timers, Calendar, Live activities and Now Playing</sub> |
+| A hub at the notch (at the top centre without one) that holds optional modules, off until you switch it on | ❌ | — | — | ✅ <sub>its modules are Timers, Calendar, Live activities, File drop, Display controls, Accessory alerts, Notifications and Now Playing</sub> |
 | Timers, countdowns to a moment and a stopwatch in that hub (optional module, no permission) | ❌ | — | — | ✅ |
 | Next events and a Join button for meetings in that hub (optional module; Calendar access asked only when you switch it on) | ❌ | — | — | ✅ |
 | Now Playing in that hub (optional module; Music and Spotify without a permission, other apps with the opt-in Read all apps) | ❌ | — | — | ✅ |
