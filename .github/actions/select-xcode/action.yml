@@ -11,20 +11,20 @@ inputs:
       The Xcode version to select. It must be installed as
       /Applications/Xcode_VERSION.app. Xcode 27 is on the xcode-27 runner
       image (a public preview, actions/runner-images#14404); 27.0 is the
-      release that ships Swift 6.4.0, the toolchain pinned below.
+      release that ships Swift 6.4.2, the toolchain pinned below.
     default: "27.0"
   swift-version:
     description: >-
       The Swift release to install from swift.org, exactly as swift.org names
       it (https://www.swift.org/api/v1/install/releases.json, "name"), such as
-      6.4.0. Bumping it means updating swift-sha256 too.
-    default: "6.4.0"
+      6.4.2. Bumping it means updating swift-sha256 too.
+    default: "6.4.2"
   swift-sha256:
     description: >-
       The SHA-256 of swift-SWIFT_VERSION-RELEASE-osx.pkg. swift.org publishes
       no checksum for the macOS package, so it is pinned here on top of the
       Developer ID signature check.
-    default: "8fd03185b98fe27f54a54631c2449decf75d5b466ce8e34abbd414141063c6aa"
+    default: "0a7d8489900d21dbf5f0187cb570e646a4c0226d0ddef2cbde8c7f54dfe79736"
 runs:
   using: composite
   steps:
