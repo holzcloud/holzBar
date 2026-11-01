@@ -111,7 +111,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Settings migration | 6 version steps at every launch | — | — | once each: Ice settings while they are imported, holzBar's own older settings at the first launch that needs it |
 | Runtime patching of AppKit (method swizzling) | yes | yes | — | none |
 | Item images in memory | kept | — | — | released when unused |
-| Unit tests run on every code change | none | ✅ | — | ✅ 1,640 |
+| Unit tests run on every code change | none | ✅ | — | ✅ |
 | App size | — | — | — | 38.3 MB <sub>CI build of 31 Oct 2026</sub> |
 | Widgets do nothing while hidden: no timer, no refresh | — | — | — | ✅ |
 | **Distribution and maintenance** | | | | |

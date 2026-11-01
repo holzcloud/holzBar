@@ -20,7 +20,7 @@ Only the newest stable release, the newest beta and `main` receive security fixe
 
 ## Threat register
 
-From the security audit of 2026-10-03 (the private planning repository) and the full bug and security audit of 2026-10-05 (IDs F-…), with their fixes. Severity follows the audits; no security, privacy or supply-chain finding of the audits was rated critical or high. The T-11 rows come from the security design of the scripts feature (Phase 11, written in the private planning repository): each gives the status of the scripts feature, and the test or check that proves it. The T-12 rows come from the threat model of the widgets feature (Phase 12) and are written the same way: each row says what the unit tests prove and which part is app code that only a Mac can prove.
+From the security audit of 2026-10-03 and the full bug and security audit of 2026-10-05 (IDs F-…), with their fixes. Severity follows the audits; no security, privacy or supply-chain finding of the audits was rated critical or high. The T-11 rows come from the security design of the scripts feature (Phase 11): each gives the status of the scripts feature, and the test or check that proves it. The T-12 rows come from the threat model of the widgets feature (Phase 12) and are written the same way: each row says what the unit tests prove and which part is app code that only a Mac can prove.
 
 | ID | Threat | Component | Severity | Disposition | Status |
 |---|---|---|---|---|---|
