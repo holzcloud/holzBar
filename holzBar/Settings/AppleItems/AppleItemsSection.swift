@@ -15,7 +15,6 @@ struct AppleItemsSection: View {
             Toggle(isOn: binding(for: .clock)) {
                 HStack(spacing: HolzBarTheme.Spacing.sm) {
                     Text("Hide the clock")
-                    PreviewBadge()
                 }
             }
             Toggle("Hide Control Center", isOn: binding(for: .controlCentre))

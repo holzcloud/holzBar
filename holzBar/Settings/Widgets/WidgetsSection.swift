@@ -115,9 +115,6 @@ struct WidgetsSection: View {
                     title(for: definition)
                         .font(HolzBarTheme.Typography.body)
                         .foregroundStyle(HolzBarTheme.Palette.text)
-                    if definition.kind == .builtIn {
-                        PreviewBadge()
-                    }
                 }
                 summary(for: definition)
                     .font(HolzBarTheme.Typography.caption)

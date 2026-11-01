@@ -74,7 +74,6 @@ struct MenuBarLayoutSettingsPane: View {
                     if #available(macOS 27.0, *) {
                         HStack(spacing: HolzBarTheme.Spacing.sm) {
                             Text("Items can be sorted by dragging them within a section.")
-                            PreviewBadge()
                         }
                     } else {
                         Text("Items can also be arranged by ⌘ Command + dragging them in the menu bar.")

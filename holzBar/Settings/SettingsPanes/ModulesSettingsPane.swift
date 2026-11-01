@@ -90,7 +90,6 @@ struct ModulesSettingsPane: View {
                         .font(HolzBarTheme.Typography.callout)
                         .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
-                    PreviewBadge()
                 }
             }
         } else if module.id == AppleItems.moduleID {

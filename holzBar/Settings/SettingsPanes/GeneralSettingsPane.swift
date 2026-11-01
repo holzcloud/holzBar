@@ -80,7 +80,6 @@ struct GeneralSettingsPane: View {
             Toggle(isOn: $settings.showsHiddenItemCount) {
                 HStack(spacing: HolzBarTheme.Spacing.sm) {
                     Text("Show the number of hidden items on the icon")
-                    PreviewBadge()
                 }
             }
             .annotation("A small number on the holzBar icon says how many items are hidden right now.")
@@ -141,7 +140,6 @@ struct GeneralSettingsPane: View {
         Toggle(isOn: $settings.shelfFindsByTyping) {
             HStack(spacing: HolzBarTheme.Spacing.sm) {
                 Text("Find items by typing")
-                PreviewBadge()
             }
         }
         .annotation("Type in the holzBar Shelf to highlight the best match. Return opens its menu and Escape closes the holzBar Shelf. The holzBar Shelf takes the keyboard when a hotkey opens it.")
@@ -156,7 +154,6 @@ struct GeneralSettingsPane: View {
             } label: {
                 HStack(spacing: HolzBarTheme.Spacing.sm) {
                     Text("Always-hidden items")
-                    PreviewBadge()
                 }
             }
             .annotation("The holzBar Shelf shows the always-hidden items behind one tile. Click the tile to open them.")
@@ -168,7 +165,6 @@ struct GeneralSettingsPane: View {
         Toggle(isOn: $settings.shelfShowsClosedApps) {
             HStack(spacing: HolzBarTheme.Spacing.sm) {
                 Text("Show applications that are not running")
-                PreviewBadge()
             }
         }
         .annotation("Applications with a hidden item that are closed appear dimmed in the holzBar Shelf. Click one to open it.")
@@ -179,7 +175,6 @@ struct GeneralSettingsPane: View {
         Toggle(isOn: $settings.shelfDragsTiles) {
             HStack(spacing: HolzBarTheme.Spacing.sm) {
                 Text("Rearrange items by dragging")
-                PreviewBadge()
             }
         }
         .annotation("Drag an item in the holzBar Shelf to put it in order, into another section or up onto the menu bar to show it there. Where macOS puts the items of a section in order itself, an item can only change its section.")
@@ -257,7 +252,6 @@ struct GeneralSettingsPane: View {
             Toggle(isOn: $settings.clockOpensNotificationCenter) {
                 HStack(spacing: HolzBarTheme.Spacing.sm) {
                     Text("Open Notification Center from the clock")
-                    PreviewBadge()
                 }
             }
             .annotation("While items are hidden, macOS 27 ignores a click on the clock. holzBar lifts the hiding for a moment and clicks again, so Notification Center opens. Turn this off to leave the click to macOS; the clock then does nothing while items are hidden. It needs only the Accessibility permission holzBar has already.")
@@ -273,7 +267,6 @@ struct GeneralSettingsPane: View {
         ) {
             HStack(spacing: HolzBarTheme.Spacing.sm) {
                 Text("Animation")
-                PreviewBadge()
             }
         } picture: { style in
             AnimationStylePicture(style: style)
@@ -327,7 +320,6 @@ struct GeneralSettingsPane: View {
                 HStack(spacing: HolzBarTheme.Spacing.sm) {
                     Text("Displays")
                         .font(.headline)
-                    PreviewBadge()
                 }
             } content: {
                 ForEach(displays) { display in
