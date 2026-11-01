@@ -86,8 +86,6 @@
 
 ## New in 1.0.0
 
-1.0.0 is out; see its [release notes](release-notes/v1.0.0.md).
-
 - **Sorting in Menu Bar Layout (macOS 27)**: drag an item to another place in its row, or use Option and the arrow keys or the VoiceOver actions, then press Apply (or turn on **Apply changes immediately**). holzBar posts one ⌘ Command-drag at a time at the item's position, hides the pointer for a moment and puts it back, and needs no permission beyond Accessibility. If macOS does not accept the drags, sorting turns itself off until holzBar restarts and the sections still apply. See the [macOS 27 notes](macos27.md#reordering-items-on-the-bar).
 - **The hub's tabs in one row**: the Overview and every module tab stand in one row across both sides of the notch, with the status pills and the settings button at the far right. The tabs shrink a little on a narrow display, and a More menu appears only where the row does not fit even then.
 - **Apple Items with the Shelf on**: the clock, Control Center, Wi-Fi and the battery stay hidden while the holzBar Shelf is on, and the Shelf of the hidden section shows a symbol tile for each that opens the item.
