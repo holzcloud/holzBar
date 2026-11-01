@@ -12,9 +12,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let appState: AppState
 
     override init() {
+        // Must be read before the migration: it writes its flag on every first run, and
+        // nothing later tells a new install from an update of 1.0.0 (What's New).
+        let isFreshInstall = MigrationManager.ownSettingsAreEmpty
         // Must come before the app state, which reads the settings.
         MigrationManager.importPreviousSettingsIfNeeded()
         let appState = AppState()
+        appState.isFreshInstall = isFreshInstall
         AppState.current = appState
         self.appState = appState
         super.init()

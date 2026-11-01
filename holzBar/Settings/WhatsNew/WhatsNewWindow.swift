@@ -15,9 +15,16 @@ struct WhatsNewWindow: Scene {
 
     var body: some Scene {
         HolzBarWindow(id: .whatsNew, appState: appState) {
-            WhatsNewView(settings: appState.settings.general) {
-                appState.dismissWindow(.whatsNew)
+            // The first click on a tab or on Done acts at once, although the window opens
+            // without activating holzBar.
+            WhatsNewFirstMouseHost(idealSize: CGSize(width: WhatsNewView.width, height: WhatsNewView.heights.ideal)) {
+                WhatsNewView(settings: appState.settings.general) {
+                    appState.dismissWindow(.whatsNew)
+                }
             }
+            .ignoresSafeArea()
+            .frame(width: WhatsNewView.width)
+            .frame(minHeight: WhatsNewView.heights.min, idealHeight: WhatsNewView.heights.ideal, maxHeight: WhatsNewView.heights.max)
             .onWindowChange { window in
                 model.observe(window)
             }

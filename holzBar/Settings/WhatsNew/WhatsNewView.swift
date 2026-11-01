@@ -11,6 +11,11 @@ import SwiftUI
 /// The window is glass on the calm ground: the tab strip is its one glass layer, the rows
 /// have none. It opens on the installed version, or on the newest one on a development build.
 struct WhatsNewView: View {
+    /// The width of the window's content.
+    static let width: CGFloat = 560
+    /// The least, ideal and greatest height of the window's content.
+    static let heights: (min: CGFloat, ideal: CGFloat, max: CGFloat) = (460, 640, 800)
+
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @Environment(\.colorSchemeContrast) private var contrast
@@ -55,8 +60,8 @@ struct WhatsNewView: View {
                 footer
             }
         }
-        .frame(width: 560)
-        .frame(minHeight: 460, idealHeight: 640, maxHeight: 800)
+        .frame(width: Self.width)
+        .frame(minHeight: Self.heights.min, idealHeight: Self.heights.ideal, maxHeight: Self.heights.max)
         .onExitCommand(perform: onDone)
     }
 

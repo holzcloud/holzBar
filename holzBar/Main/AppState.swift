@@ -190,6 +190,10 @@ final class AppState {
     /// Logger for the app state.
     @ObservationIgnored private let logger = Logger(category: "AppState")
 
+    /// Whether this launch is the first one of a new install, read by the app delegate before
+    /// the settings of Ice are imported. The What's New window stays closed then.
+    @ObservationIgnored var isFreshInstall = false
+
     /// Whether the setup finished: before, the settings and items are not loaded yet.
     @ObservationIgnored private(set) var isSetUp = false
 
@@ -242,6 +246,9 @@ final class AppState {
         isSetUp = true
         Task {
             await TidyUpOffer.offerIfFirstLaunch(appState: self)
+        }
+        Task {
+            await WhatsNewOffer.offerIfNeeded(appState: self)
         }
     }
 
