@@ -38,12 +38,12 @@ cd holzBar
 Scripts/install.sh            # installs to ~/Applications
 ```
 
-`Scripts/install.sh` builds with Xcode's own Swift. To build with Swift 6.4 like CI (optional), install `swift-6.4.0-RELEASE-osx.pkg` from swift.org for your user only, then select it with `TOOLCHAINS`:
+`Scripts/install.sh` builds with Xcode's own Swift. To build with Swift 6.4 like CI (optional), install `swift-6.4.2-RELEASE-osx.pkg` from swift.org for your user only, then select it with `TOOLCHAINS`:
 
 ```sh
-installer -pkg swift-6.4.0-RELEASE-osx.pkg -target CurrentUserHomeDirectory
+installer -pkg swift-6.4.2-RELEASE-osx.pkg -target CurrentUserHomeDirectory
 TOOLCHAINS=$(plutil -extract CFBundleIdentifier raw -o - \
-  ~/Library/Developer/Toolchains/swift-6.4.0-RELEASE.xctoolchain/Info.plist) Scripts/install.sh
+  ~/Library/Developer/Toolchains/swift-6.4.2-RELEASE.xctoolchain/Info.plist) Scripts/install.sh
 ```
 
 `Scripts/install.sh` builds without the `get-task-allow` entitlement Xcode adds for debugging and installs nothing that fails `Scripts/check-signature.sh`, the check CI and the release run too: the app must carry the hardened runtime and no entitlement but `com.apple.security.personal-information.calendars` (Calendar access of the notch hub), and `Contents/MacOS/holzBar` must be its only code besides `Contents/Frameworks/NowPlayingRemote.framework`, the library of the optional Read all apps, which the same Xcode build produces and embeds. holzBar ships no XPC service or helper app; on macOS 26 it looks up each item's app itself.
