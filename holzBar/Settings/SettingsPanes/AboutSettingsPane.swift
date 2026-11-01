@@ -82,6 +82,8 @@ struct AboutSettingsPane: View {
 
                     basedOnIce
                         .padding(.top, 6)
+
+                    projectLinks
                 }
                 .fontWeight(.medium)
             }
@@ -101,6 +103,18 @@ struct AboutSettingsPane: View {
         }
         .font(HolzBarTheme.Typography.lead)
         .foregroundStyle(.secondary)
+    }
+
+    /// The links to the website and the repository. They sit here, not in the bottom bar,
+    /// which would not fit its buttons in the longer languages.
+    @ViewBuilder
+    private var projectLinks: some View {
+        HStack(spacing: 12) {
+            Link("Website", destination: Constants.websiteURL)
+            Link("Contribute", destination: Constants.repositoryURL)
+        }
+        .font(HolzBarTheme.Typography.lead)
+        .padding(.top, 2)
     }
 
     @ViewBuilder
@@ -131,14 +145,13 @@ struct AboutSettingsPane: View {
                 NSApp.terminate(nil)
             }
             Spacer()
+            Button("What's New…", systemImage: "sparkles") {
+                // A user action: the window opens on the newest tab and stores nothing.
+                appState.activate(for: .whatsNew)
+                appState.openWindow(.whatsNew)
+            }
             Button("Acknowledgements") {
                 isShowingAcknowledgements = true
-            }
-            Button("Website") {
-                openURL(Constants.websiteURL)
-            }
-            Button("Contribute") {
-                openURL(Constants.repositoryURL)
             }
             Button("Copy Diagnostics…", systemImage: "doc.on.clipboard") {
                 isShowingDiagnostics = true
