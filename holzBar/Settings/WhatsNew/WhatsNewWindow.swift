@@ -26,7 +26,7 @@ struct WhatsNewWindow: Scene {
             .frame(width: WhatsNewView.width)
             .frame(minHeight: WhatsNewView.heights.min, idealHeight: WhatsNewView.heights.ideal, maxHeight: WhatsNewView.heights.max)
             .onWindowChange { window in
-                model.observe(window)
+                model.observe(window, navigationState: appState.navigationState)
             }
         }
         .windowResizability(.contentSize)
@@ -52,9 +52,13 @@ private final class WhatsNewWindowModel {
     /// Whether the window has been centred already.
     private var isCentered = false
 
+    /// The navigation state that learns whether the window is shown.
+    private weak var navigationState: AppNavigationState?
+
     /// Follows the given window; a `nil` window stops following the previous one.
-    func observe(_ window: NSWindow?) {
+    func observe(_ window: NSWindow?, navigationState: AppNavigationState) {
         observation = nil
+        self.navigationState = navigationState
         guard let window else {
             return
         }
@@ -68,6 +72,10 @@ private final class WhatsNewWindowModel {
     }
 
     private func windowVisibilityChanged(_ window: NSWindow) {
+        // The tidy-up offer waits while the window is on screen.
+        if navigationState?.isWhatsNewPresented != window.isVisible {
+            navigationState?.isWhatsNewPresented = window.isVisible
+        }
         guard window.isVisible else {
             return
         }

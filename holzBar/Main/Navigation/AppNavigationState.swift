@@ -12,6 +12,8 @@ import Observation
 final class AppNavigationState {
     var isAppFrontmost = false
     var isSettingsPresented = false
+    /// Whether the What's New window is shown.
+    var isWhatsNewPresented = false
     var isShelfPresented = false
     var isSearchPresented = false
     /// Whether the panel of a menu bar item group is shown.
