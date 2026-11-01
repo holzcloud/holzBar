@@ -51,6 +51,9 @@ nonisolated enum MenuBarItemProvider27 {
 
     private static let logger = Logger(category: "MenuBarItemProvider27")
 
+    /// How many reads in a row a process's last answer stands in for one that timed out.
+    private static let maximumCarriedReads = 4
+
     /// Accessibility calls block, so they run on their own queue, off the Swift
     /// concurrency pool (see `MenuBarItemImageCache.captureQueue`).
     private static let queue = DispatchQueue(label: "com.holzcloud.holzBar.MenuBarItemProvider27", qos: .userInitiated)
@@ -78,6 +81,10 @@ nonisolated enum MenuBarItemProvider27 {
         var foldedMemory = FoldedItemMemory27<Folded>()
         /// Only used on `queue`.
         var scanSchedule = AccessibilityScanSchedule27()
+        /// What each process reported at its last read, and how many reads in a row its answer
+        /// has been carried over since. Only used on `queue`.
+        var lastRawByPID = [pid_t: [RawItem]]()
+        var carriedReads = [pid_t: Int]()
         var lastItems: [MenuBarItem]?
         var lastReadAt: TimeInterval = 0
 
@@ -299,6 +306,12 @@ nonisolated enum MenuBarItemProvider27 {
         // The schedule is only used on `queue`, so a copy is read here and written back below.
         var scanSchedule = withState { $0.scanSchedule }
         scanSchedule.retain(running: Set(applications.map(\.processIdentifier)))
+        var lastRawByPID = withState { $0.lastRawByPID }
+        var carriedReads = withState { $0.carriedReads }
+        let runningPIDs = Set(runningApplications.map(\.processIdentifier))
+        let concealedPIDs = withState { $0.concealedPIDs }
+        lastRawByPID = lastRawByPID.filter { runningPIDs.contains($0.key) }
+        carriedReads = carriedReads.filter { runningPIDs.contains($0.key) }
 
         for app in applications {
             guard let bundleID = app.bundleIdentifier else {
@@ -326,7 +339,40 @@ nonisolated enum MenuBarItemProvider27 {
                 CFGetTypeID(barValue) == AXUIElementGetTypeID(),
                 let children = elements(barValue as! AXUIElement, kAXChildrenAttribute) // swiftlint:disable:this force_cast
             else {
+                // A busy process can miss the time limit for one read. Its items are still
+                // there, so the last answer stands for a few reads instead of dropping them
+                // from the Shelf and the layout until the next read.
+                if
+                    pid != ownPID,
+                    bundleID != menuBarAgentBundleID,
+                    let previous = lastRawByPID[pid],
+                    (result == .cannotComplete && carriedReads[pid, default: 0] < Self.maximumCarriedReads)
+                        || concealedPIDs.contains(pid)
+                {
+                    carriedReads[pid, default: 0] += 1
+                    rawItems.append(contentsOf: previous)
+                }
                 continue
+            }
+            // A concealed process may report no items at all (measured with Time Machine: it
+            // is gone from the Shelf after it was opened from there and put away again). It
+            // still has them, so its last answer stands until it draws them again or quits.
+            if
+                pid != ownPID,
+                bundleID != menuBarAgentBundleID,
+                children.isEmpty,
+                concealedPIDs.contains(pid),
+                let previous = lastRawByPID[pid]
+            {
+                rawItems.append(contentsOf: previous)
+                continue
+            }
+            carriedReads[pid] = nil
+            let firstRawIndex = rawItems.count
+            defer {
+                if pid != ownPID, bundleID != menuBarAgentBundleID {
+                    lastRawByPID[pid] = Array(rawItems[firstRawIndex...])
+                }
             }
             if pid != ownPID, !children.isEmpty {
                 scanSchedule.recordItems(pid: pid)
@@ -402,7 +448,11 @@ nonisolated enum MenuBarItemProvider27 {
             }
         }
 
-        withState { $0.scanSchedule = scanSchedule }
+        withState {
+            $0.scanSchedule = scanSchedule
+            $0.lastRawByPID = lastRawByPID
+            $0.carriedReads = carriedReads
+        }
 
         if retryIfMenuBarMoves, Bridging.getActiveMenuBarDisplayID() != activeDisplayID {
             return readItems(runningApplications: runningApplications, retryIfMenuBarMoves: false)
