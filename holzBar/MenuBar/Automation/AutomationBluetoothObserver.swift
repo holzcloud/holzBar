@@ -70,6 +70,10 @@ final class AutomationBluetoothObserver: NSObject {
     @objc private nonisolated func deviceConnected(_ notification: IOBluetoothUserNotification, device: IOBluetoothDevice) {
         nonisolated(unsafe) let device = device
         Task { @MainActor in
+            // A callback that was already on its way when the observer stopped does nothing.
+            guard self.connectNotification != nil else {
+                return
+            }
             self.watchDisconnect(of: device)
             self.onChange?()
         }
@@ -79,6 +83,9 @@ final class AutomationBluetoothObserver: NSObject {
         nonisolated(unsafe) let notification = notification
         Task { @MainActor in
             notification.unregister()
+            guard self.connectNotification != nil else {
+                return
+            }
             self.disconnectNotifications.removeAll { $0 === notification }
             self.onChange?()
         }

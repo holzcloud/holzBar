@@ -189,6 +189,10 @@ final class BluetoothDeviceMonitor: NSObject, CBCentralManagerDelegate {
     @objc private nonisolated func deviceConnected(_ notification: IOBluetoothUserNotification, device: IOBluetoothDevice) {
         nonisolated(unsafe) let device = device
         Task { @MainActor in
+            // A callback that was already on its way when the monitor stopped does nothing.
+            guard self.isMonitoring else {
+                return
+            }
             self.watchDisconnect(of: device)
             self.onChange?()
         }
@@ -198,6 +202,9 @@ final class BluetoothDeviceMonitor: NSObject, CBCentralManagerDelegate {
         nonisolated(unsafe) let notification = notification
         Task { @MainActor in
             notification.unregister()
+            guard self.isMonitoring else {
+                return
+            }
             self.disconnectNotifications = self.disconnectNotifications.filter { $0.value !== notification }
             self.onChange?()
         }
