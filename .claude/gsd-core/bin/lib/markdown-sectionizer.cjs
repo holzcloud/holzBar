@@ -30,6 +30,8 @@ exports.maskFences = maskFences;
 exports.editOutsideFences = editOutsideFences;
 exports.replaceSection = replaceSection;
 exports.withSection = withSection;
+exports.headingSliceRange = headingSliceRange;
+exports.editHeadingSlice = editHeadingSlice;
 exports.deleteSection = deleteSection;
 exports.extractXmlTagBodies = extractXmlTagBodies;
 const pattern_cjs_1 = require("./pattern.cjs");
@@ -1035,6 +1037,29 @@ function withSection(content, target, edit, opts = {}) {
         return content;
     return replaceSection(content, section, newBody);
 }
+/**
+ * Range of the slice that starts at `headings[index]` and runs to the next
+ * heading of level <= `maxLevel` (fence-aware: `headings` comes from
+ * `tokenizeHeadings`). Unlike `collectSection` it keeps the heading line and
+ * every trailing byte, so a caller that edits the slice can splice it back
+ * byte-exact (#5762).
+ */
+function headingSliceRange(content, headings, index, maxLevel = 2) {
+    const next = headings.slice(index + 1).find((h) => h.level <= maxLevel);
+    return { start: headings[index].offset, end: next ? next.offset : content.length };
+}
+/**
+ * Run `edit` on `content.slice(range.start, end)` and splice the result back,
+ * where `end` excludes the single newline that precedes the next heading — the
+ * slice the pre-owner writers cut with `search(/\n#{1,2}[ \t]/)` — so a row
+ * inserted at the end of a table keeps the blank line before that heading.
+ */
+function editHeadingSlice(content, range, edit) {
+    const end = range.end < content.length && range.end > range.start && content[range.end - 1] === '\n'
+        ? range.end - 1
+        : range.end;
+    return content.slice(0, range.start) + edit(content.slice(range.start, end)) + content.slice(end);
+}
 // ─── deleteSection ────────────────────────────────────────────────────────────
 /**
  * Delete an entire section — the matching heading line ITSELF plus its body —
@@ -1065,6 +1090,8 @@ function withSection(content, target, edit, opts = {}) {
  * double-blank gap accumulates where the section used to sit. Content
  * elsewhere in the document is never touched.
  *
+ * `endOffset` adds an optional caller-owned maximum boundary. It never widens
+ * the heading-level range, and callers that omit it retain the legacy bytes.
  * Returns `content` unchanged when no heading matches `headingPredicate`
  * (bounded no-op, mirroring `withSection`'s miss behaviour).
  */
@@ -1103,7 +1130,13 @@ function deleteSection(content, headingPredicate, opts = {}) {
     }
     const eofOffset = acc;
     const sectionStart = lineOffsets[target.line - 1]; // start of the target heading LINE itself
-    const sectionEnd = stopLine <= lines.length ? lineOffsets[stopLine - 1] : eofOffset;
+    const headingBoundedEnd = stopLine <= lines.length ? lineOffsets[stopLine - 1] : eofOffset;
+    const explicitEnd = typeof opts.endOffset === 'number' && Number.isFinite(opts.endOffset)
+        ? Math.max(0, Math.min(content.length, opts.endOffset))
+        : headingBoundedEnd;
+    const sectionEnd = Math.min(headingBoundedEnd, explicitEnd);
+    if (sectionEnd <= sectionStart)
+        return content;
     const before = content.slice(0, sectionStart);
     const after = content.slice(sectionEnd);
     // Collapse a resulting blank-line seam to at most one blank line (2 newlines).

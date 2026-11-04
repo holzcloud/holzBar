@@ -87,9 +87,9 @@ Load all context in one call:
 @/Users/holz/Projects/holzBar/.claude/gsd-core/references/gsd-run-resolver.md
 
 ```bash
-IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_77a647aca4b52db49969e5987a9b1f21' || true
+IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7' || true
 $ARGUMENTS
-GSD_ARGS_END_77a647aca4b52db49969e5987a9b1f21
+GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7
 GSD_ARGS=${GSD_ARGS%$'\n'}
 WAVE_PARAM=""; if [[ "$GSD_ARGS" =~ (^|[[:space:]])--wave[[:space:]]+([^[:space:]-][^[:space:]]*) ]]; then WAVE_PARAM="--wave ${BASH_REMATCH[2]}"; fi
 GSD_WS=$(echo " $GSD_ARGS" | sed -nE 's/.* --ws +([A-Za-z0-9][A-Za-z0-9._-]*).*/--ws \1/p' | head -n 1)
@@ -185,9 +185,9 @@ inline path for each plan.
 
 **REQUIRED — Sync chain flag with intent.** If user invoked manually (no `--auto`), clear the ephemeral chain flag from any previous interrupted `--auto` chain. This prevents stale `_auto_chain_active: true` from causing unwanted auto-advance. This does NOT touch `workflow.auto_advance` (the user's persistent settings preference). You MUST execute this bash block before any config reads:
 ```bash
-IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_77a647aca4b52db49969e5987a9b1f21' || true
+IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7' || true
 $ARGUMENTS
-GSD_ARGS_END_77a647aca4b52db49969e5987a9b1f21
+GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7
 GSD_ARGS=${GSD_ARGS%$'\n'}
 # REQUIRED: prevents stale auto-chain from previous --auto runs
 if [[ ! "$GSD_ARGS" =~ --auto ]]; then
@@ -197,9 +197,9 @@ fi
 
 Resolve `MVP_MODE` once via the centralized `phase.mvp-mode` query verb (precedence chain: CLI flag → ROADMAP `**Mode:** mvp` → `workflow.mvp_mode` config → false):
 ```bash
-IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_77a647aca4b52db49969e5987a9b1f21' || true
+IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7' || true
 $ARGUMENTS
-GSD_ARGS_END_77a647aca4b52db49969e5987a9b1f21
+GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7
 GSD_ARGS=${GSD_ARGS%$'\n'}
 MVP_FLAG_ARG=""
 if [[ "$GSD_ARGS" =~ (^|[[:space:]])--mvp([[:space:]]|$) ]]; then MVP_FLAG_ARG="--cli-flag"; fi
@@ -958,7 +958,7 @@ increases monotonically across waves. `{status}` is `complete` (success),
    if [ "${TEST_EXIT}" -eq 0 ]; then
      # Update ROADMAP plan progress for each completed plan in this wave
      for plan_id in {completed_plan_ids}; do
-       gsd_run query roadmap.update-plan-progress "${PHASE_NUMBER}" "${plan_id}" "complete"
+       PROGRESS=$(gsd_run query roadmap.update-plan-progress "${PHASE_NUMBER}" "${plan_id}" "complete") && REASON=$(jq -er '.reason//""' <<<"$PROGRESS") && [ "$REASON" != missing_phase_details ] || { echo "ERROR: ROADMAP update-plan-progress did not complete for ${PHASE_NUMBER}-${plan_id} (missing_phase_details decline, failed query, or jq not installed). STOP: skip this plan's completion steps." >&2; exit 1; }
      done
 
      # Only commit tracking files if they actually changed

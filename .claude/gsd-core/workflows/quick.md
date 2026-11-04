@@ -117,9 +117,9 @@ If `$VALIDATE_MODE` only:
 **Step 2: Initialize**
 
 ```bash
-IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_77a647aca4b52db49969e5987a9b1f21' || true
+IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7' || true
 $ARGUMENTS
-GSD_ARGS_END_77a647aca4b52db49969e5987a9b1f21
+GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7
 GSD_ARGS=${GSD_ARGS%$'\n'}
 DISCUSS_PARAM=""; if [[ "$GSD_ARGS" =~ (^|[[:space:]])--discuss([[:space:]]|$) ]]; then DISCUSS_PARAM="--discuss"; fi
 RESEARCH_PARAM=""; if [[ "$GSD_ARGS" =~ (^|[[:space:]])--research([[:space:]]|$) ]]; then RESEARCH_PARAM="--research"; fi

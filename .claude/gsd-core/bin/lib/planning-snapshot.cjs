@@ -29,7 +29,7 @@ const roadmapParserMod = require("./roadmap-parser.cjs");
 const { getMilestoneInfo, extractCurrentMilestone } = roadmapParserMod;
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const phaseLocatorMod = require("./phase-locator.cjs");
-const { listMilestonePhaseDirs, listAllPhaseDirs } = phaseLocatorMod;
+const { phaseDirectoryOptions, listMilestonePhaseDirs, listAllPhaseDirs } = phaseLocatorMod;
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const verificationMod = require("./verification.cjs");
 const { isPhaseComplete } = verificationMod;
@@ -51,6 +51,7 @@ const { planningPaths, planningRoot, resolvePhaseIdConvention, resolveEnvWorkstr
 // PROSE, not quoted literals.
 const markdown_sectionizer_cjs_1 = require("./markdown-sectionizer.cjs");
 const shell_command_projection_cjs_1 = require("./shell-command-projection.cjs");
+const phase_entry_grammar_cjs_1 = require("./phase-entry-grammar.cjs");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const frontmatterMod = require("./frontmatter.cjs");
 const { extractFrontmatter, stripFrontmatter } = frontmatterMod;
@@ -586,7 +587,7 @@ function buildRoadmapDeclaredPhasesField(roadmapPath, convention) {
  * diagnostic (W011) whose entire purpose is flagging when the two DISAGREE —
  * reading the data is not re-litigating who is authoritative.
  */
-function buildRoadmapPhaseCheckboxesField(roadmapPath, convention) {
+function buildRoadmapPhaseCheckboxesField(roadmapPath, convention, directoryContext) {
     if (!node_fs_1.default.existsSync(roadmapPath)) {
         return { value: {}, scope: SCOPE.UNREADABLE };
     }
@@ -605,7 +606,9 @@ function buildRoadmapPhaseCheckboxesField(roadmapPath, convention) {
     // vanish from the exclusion set and every unstarted bracket phase gains a
     // W006. NON-capturing (`capturing` defaults false), so the phase token stays
     // group 2 and the legacy repo compiles a byte-identical source.
-    const checkboxRe = new RegExp(`-\\s*\\[([xX ])\\].*?${phaseHeadingPrefixSrcFor(PHASE_HEADING_BASELINE.LABEL_ONLY, convention)}0*(${PHASE_NUMBER_TOKEN_SOURCE})${OPTIONAL_PHASE_TAG_SOURCE}[:\\s]`, 'gi');
+    // The entry prefix (marker, box, bold token) is the phase-entry grammar's (#5764),
+    // the same one `buildNotStartedPhaseVariants` composes; group 1 is the box.
+    const checkboxRe = (0, phase_entry_grammar_cjs_1.phaseEntryRegExp)(`${phaseHeadingPrefixSrcFor(PHASE_HEADING_BASELINE.LABEL_ONLY, convention)}0*(${convention === 'bracket' ? PHASE_NUMBER_TOKEN_SOURCE : phaseIdMod.phaseScanTokenSource(directoryContext)})${OPTIONAL_PHASE_TAG_SOURCE}[:\\s]`, 'gi', { state: 'captured' });
     const value = {};
     let m;
     while ((m = checkboxRe.exec(content)) !== null) {
@@ -864,7 +867,7 @@ function buildArchivedPhaseTokensField(planBase, convention) {
  * ROADMAP.md degrades to an empty list, mirroring every other
  * ROADMAP-sourced field's absent-file handling.
  */
-function buildCurrentMilestoneRoadmapPhaseIdsField(cwd, roadmapPath, convention) {
+function buildCurrentMilestoneRoadmapPhaseIdsField(cwd, roadmapPath, convention, directoryContext) {
     if (!node_fs_1.default.existsSync(roadmapPath))
         return { value: [], scope: SCOPE.UNREADABLE };
     let content;
@@ -902,7 +905,7 @@ function buildCurrentMilestoneRoadmapPhaseIdsField(cwd, roadmapPath, convention)
     // pinned to this site by name) would catch that narrowing, since the census
     // only pins `phaseHeadingPrefixSrcFor`'s own output, not this regex's tail.
     // Kept as its own composition to preserve this exact byte-for-behavior.
-    const phasePattern = new RegExp(`#{2,4}\\s*${phaseHeadingPrefixSrcFor(PHASE_HEADING_BASELINE.LABEL_ONLY, convention, Boolean(bracketGroup))}(${PHASE_NUMBER_TOKEN_SOURCE})(?:\\s*\\([^)\\n]{0,200}\\))?\\s*:`, 'gi');
+    const phasePattern = new RegExp(`#{2,4}\\s*${phaseHeadingPrefixSrcFor(PHASE_HEADING_BASELINE.LABEL_ONLY, convention, Boolean(bracketGroup))}(${convention !== 'bracket' ? phaseIdMod.phaseScanTokenSource(directoryContext) : PHASE_NUMBER_TOKEN_SOURCE})(?:\\s*\\([^)\\n]{0,200}\\))?\\s*:`, 'gi');
     const value = [];
     for (const m of scoped.matchAll(phasePattern)) {
         const bracketId = bracketGroup ? m[1] : undefined;
@@ -1021,6 +1024,7 @@ function buildPlanningSnapshot(cwd) {
     // See the `phaseIdConvention` field's comment for why one resolution point is
     // load-bearing rather than a micro-optimisation.
     const phaseIdConvention = resolvePhaseIdConvention(cwd) ?? null;
+    const directoryContext = phaseDirectoryOptions(cwd);
     // #4257: the workstream `planningPaths(cwd)` just scoped every read to
     // (its `planningDir` call applies this exact discriminator when handed no
     // `ws`), resolved through the same owner so W002's scope clause names the
@@ -1068,17 +1072,18 @@ function buildPlanningSnapshot(cwd) {
         statePhaseTokens: stateFields.statePhaseTokens,
         stateStatus: stateFields.stateStatus,
         roadmapDeclaredPhases: roadmapDeclared.declared,
-        roadmapPhaseCheckboxes: buildRoadmapPhaseCheckboxesField(paths.roadmap, phaseIdConvention),
+        roadmapPhaseCheckboxes: buildRoadmapPhaseCheckboxesField(paths.roadmap, phaseIdConvention, directoryContext),
         researchValidationStatus: buildResearchValidationStatusField(paths.phases, phaseDirs.value, phaseDirs.scope, phaseIdConvention),
         milestoneArchiveStatus: buildMilestoneArchiveStatusField(cwd),
         planningRootFiles: buildPlanningRootFilesField(cwd),
         allPhaseDirNames,
         archivedPhaseTokens: buildArchivedPhaseTokensField(paths.planning, phaseIdConvention),
-        currentMilestoneRoadmapPhaseIds: buildCurrentMilestoneRoadmapPhaseIdsField(cwd, paths.roadmap, phaseIdConvention),
+        currentMilestoneRoadmapPhaseIds: buildCurrentMilestoneRoadmapPhaseIdsField(cwd, paths.roadmap, phaseIdConvention, directoryContext),
         perPhasePlanNumbering: perPhasePlanScanFields.perPhasePlanNumbering,
         perPhaseOrphanSummaries: perPhasePlanScanFields.perPhaseOrphanSummaries,
         perPhaseWaveMissingPlans: perPhasePlanScanFields.perPhaseWaveMissingPlans,
         phaseIdConvention,
+        directoryContext,
         roadmapSentinelPhaseTokens: roadmapDeclared.sentinelTokens,
         roadmapBracketIncoherences: buildRoadmapBracketIncoherencesField(paths.roadmap, phaseIdConvention),
         workstream,

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// gsd-hook-version: 1.19.0
+// gsd-hook-version: 1.20.0
 // GSD Workflow Guard — PreToolUse hook
 // Detects when Claude attempts file edits outside a GSD workflow context
 // (no active /gsd- skill or Task subagent) and injects an advisory warning.
@@ -22,7 +22,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const { tokenize, skipToSubcommand } = require('./lib/git-cmd.js');
 const { HOOK_ON_CRASH, allow, deny, crash } = require('./lib/hook-exit.js');
-const { reportIfUndetermined, BLOCKING_GUARD_PROBE_TIMEOUT_MS } = require('./lib/git-probe.js');
+const { reportIfUndetermined, gitEnv, BLOCKING_GUARD_PROBE_TIMEOUT_MS } = require('./lib/git-probe.js');
 
 // This guard is almost entirely advisory (fail open — a broken advisory must
 // never wedge every tool call), with ONE hard block (#3504 force-add-on-
@@ -83,6 +83,7 @@ function forceGitAddCwds(command, defaultCwd) {
 function currentBranch(cwd) {
   const result = spawnSync('git', ['branch', '--show-current'], { // allow-index-refresh: reads HEAD only, never opens the index
     cwd,
+    env: gitEnv(),
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'ignore'],
     windowsHide: true,
