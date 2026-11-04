@@ -63,14 +63,24 @@ final class AutomationBluetoothObserver: NSObject {
         }
     }
 
-    @objc private func deviceConnected(_ notification: IOBluetoothUserNotification, device: IOBluetoothDevice) {
-        watchDisconnect(of: device)
-        onChange?()
+    // IOBluetooth calls both callbacks on its own coordinator queue, not on the main queue, so
+    // they are `nonisolated` and hop to the main actor before they touch any state. The two
+    // IOBluetooth objects are only handed over, never used from two threads at once.
+
+    @objc private nonisolated func deviceConnected(_ notification: IOBluetoothUserNotification, device: IOBluetoothDevice) {
+        nonisolated(unsafe) let device = device
+        Task { @MainActor in
+            self.watchDisconnect(of: device)
+            self.onChange?()
+        }
     }
 
-    @objc private func deviceDisconnected(_ notification: IOBluetoothUserNotification, device: IOBluetoothDevice) {
-        notification.unregister()
-        disconnectNotifications.removeAll { $0 === notification }
-        onChange?()
+    @objc private nonisolated func deviceDisconnected(_ notification: IOBluetoothUserNotification, device: IOBluetoothDevice) {
+        nonisolated(unsafe) let notification = notification
+        Task { @MainActor in
+            notification.unregister()
+            self.disconnectNotifications.removeAll { $0 === notification }
+            self.onChange?()
+        }
     }
 }
