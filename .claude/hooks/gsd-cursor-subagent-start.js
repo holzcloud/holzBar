@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// gsd-hook-version: 1.19.0
+// gsd-hook-version: 1.20.0
 // gsd-cursor-subagent-start.js — Cursor subagentStart hook (ADR-1239 / #2089,
 // isolation guard #3045)
 //

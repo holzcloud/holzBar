@@ -19,6 +19,7 @@ exports.STATE_MD_SECTIONS = exports.FRONTMATTER_BODY_SOURCE = exports.FIELD_CLAS
 exports.formatProgressMachineSegment = formatProgressMachineSegment;
 exports.stateReplaceProgressPercent = stateReplaceProgressPercent;
 exports.beginFrontmatterReassembly = beginFrontmatterReassembly;
+exports.isSessionScopedBodyField = isSessionScopedBodyField;
 exports.getFrontmatterBodySource = getFrontmatterBodySource;
 exports.frontmatterKeyForBodyField = frontmatterKeyForBodyField;
 exports.getFieldClassification = getFieldClassification;
@@ -37,6 +38,7 @@ const state_document_cjs_1 = require("./state-document.cjs");
 const state_document_cjs_2 = require("./state-document.cjs");
 const markdown_sectionizer_cjs_1 = require("./markdown-sectionizer.cjs");
 const phase_lifecycle_cjs_1 = require("./phase-lifecycle.cjs");
+const roadmap_progress_cjs_1 = require("./roadmap-progress.cjs");
 const pattern_cjs_1 = require("./pattern.cjs");
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- phase-id.cjs is an export= CommonJS module
 const phaseIdMod = require("./phase-id.cjs");
@@ -251,6 +253,13 @@ exports.FRONTMATTER_BODY_SOURCE = Object.freeze(FRONTMATTER_BODY_SOURCE_KEY_ORDE
  */
 const SESSION_SCOPED_KEYS = new Set(['stopped_at', 'paused_at']);
 /**
+ * #4998 review: the `## Session` fields with no frontmatter key. `state-snapshot`
+ * reads them from the session section only, with fenced blocks blanked, so
+ * `state update` / `state patch` write them there too — never a fenced example
+ * above the live line, and never an archive section's copy.
+ */
+const SESSION_BODY_FIELDS = new Set(['resume file', 'last session', 'last date']);
+/**
  * The `(primary, fallback)` label pair for a session-scoped frontmatter KEY.
  */
 function sessionLabelsForKey(key) {
@@ -261,7 +270,8 @@ function sessionLabelsForKey(key) {
 }
 /**
  * The same pair, resolved from a BODY LABEL the caller named (`Stopped At`,
- * `Stopped at`, `Paused At`). `null` for anything else.
+ * `Stopped at`, `Paused At`, or a SESSION_BODY_FIELDS label as named). `null`
+ * for anything else.
  *
  * Deliberately does NOT accept a frontmatter key. An earlier cut resolved both
  * spellings through one function and used it for the write, which made
@@ -272,7 +282,13 @@ function sessionLabelsForKey(key) {
  */
 function sessionLabelsForBodyField(field) {
     const key = frontmatterKeyForBodyField(field);
-    return key === null ? null : sessionLabelsForKey(key);
+    if (key !== null)
+        return sessionLabelsForKey(key);
+    return SESSION_BODY_FIELDS.has(field.trim().toLowerCase()) ? { primary: field, fallback: null } : null;
+}
+/** #4998 review: whether `state update` / `state patch` write the body field `field` inside the session section. */
+function isSessionScopedBodyField(field) {
+    return sessionLabelsForBodyField(field) !== null;
 }
 /**
  * Would a session-scoped write actually land? Asks by attempting the real write
@@ -1025,7 +1041,7 @@ function beginPhaseCore(content, intent, deps) {
             tryField('Current Phase Name', intent.phaseName);
         }
         tryField('Current Plan', String(startPlan));
-        if (intent.planCount) {
+        if (intent.planCount != null) {
             tryField('Total Plans in Phase', String(intent.planCount));
         }
         // **Current focus:** body text line (#1104).
@@ -1163,7 +1179,7 @@ function mutateCurrentPositionFirstTime(body, intent, today, updated) {
             sectionBody = replaced;
     }
     // Plan line.
-    const planValue = `${intent.startPlan} of ${intent.planCount || '?'}`;
+    const planValue = `${intent.startPlan} of ${intent.planCount ?? '?'}`;
     if (/^Plan:/m.test(sectionBody)) {
         sectionBody = sectionBody.replace(/^Plan:.*$/m, `Plan: ${planValue}`);
     }
@@ -1754,8 +1770,8 @@ function completePhaseCore(content, intent, deps) {
     // else the milestone STATE asserts. It scopes the roadmap-derived counters
     // below to that milestone's Progress-table rows, the same milestone
     // `phase complete` scopes its frontmatter progress to.
-    const currentMilestone = (0, phase_lifecycle_cjs_1.milestoneVersionOf)(intent.milestone)
-        ?? (0, phase_lifecycle_cjs_1.milestoneVersionOf)(extractFrontmatter(content, deps.sourcePath)['milestone']);
+    const currentMilestone = (0, roadmap_progress_cjs_1.milestoneVersionOf)(intent.milestone)
+        ?? (0, roadmap_progress_cjs_1.milestoneVersionOf)(extractFrontmatter(content, deps.sourcePath)['milestone']);
     // Consult the field-classification table for the frontmatter keys this
     // transition touches (same guard beginPhaseCore applies). A missing row is a
     // substrate defect — fail loudly rather than silently re-encoding policy.
@@ -2350,7 +2366,20 @@ function patchCore(content, intent) {
         // `^field:` pattern — e.g. `status` matching both the frontmatter key
         // and a `Status:` body line). Frontmatter is only consulted when the
         // body has no match for this key.
-        const replaced = (0, state_document_cjs_1.stateReplaceField)(body, field, value);
+        // #4998: a session field is written the way `state update` writes it —
+        // inside the session section, never a fenced example there — so the
+        // patch agrees with the session readers the frontmatter sync uses.
+        const sessionWriteLabels = sessionLabelsForBodyField(field);
+        let replaced;
+        if (sessionWriteLabels) {
+            const inSession = (0, state_document_cjs_1.stateReplaceFieldInSession)(body, sessionWriteLabels.primary, sessionWriteLabels.fallback, value);
+            // Unchanged is a miss only when the field is absent: one already holding
+            // the value matched (#4488), as stateReplaceField reports it.
+            replaced = inSession !== body || sessionSourceExists(body, sessionWriteLabels) ? inSession : null;
+        }
+        else {
+            replaced = (0, state_document_cjs_1.stateReplaceField)(body, field, value);
+        }
         if (replaced !== null) {
             body = replaced;
             updated.push(field);
@@ -2416,10 +2445,10 @@ function updateCore(content, intent) {
     const sessionWriteLabels = sessionLabelsForBodyField(intent.field);
     let result;
     if (sessionWriteLabels) {
-        // Replace-only by contract: unchanged content means the field is not in the
-        // session section, which is a miss, not a write.
+        // Replace-only by contract: the session writer never inserts a missing field.
         const replaced = (0, state_document_cjs_1.stateReplaceFieldInSession)(body, sessionWriteLabels.primary, sessionWriteLabels.fallback, intent.value);
-        result = replaced === body ? null : replaced;
+        // A field already holding the value matched; unchanged with no field is the miss (#4488).
+        result = replaced !== body || sessionSourceExists(body, sessionWriteLabels) ? replaced : null;
     }
     else {
         result = (0, state_document_cjs_1.stateReplaceField)(body, intent.field, intent.value);

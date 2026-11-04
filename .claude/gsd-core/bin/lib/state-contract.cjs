@@ -8,7 +8,8 @@
  * already answers:
  *   - `planning-workspace.cjs`'s `planningPaths` for every `.planning/` path
  *     (workstream-aware — never re-derived here).
- *   - `phase-lifecycle.cjs`'s `locateProgressTable` (this issue's Edit 1) for
+ *   - `roadmap-progress.cjs`'s `locateRoadmapProgress` (#5761; was
+ *     `phase-lifecycle`'s `locateProgressTable`) for
  *     "where is the Progress table" — the SAME table
  *     `deriveProgressFromRoadmap` counts from, so `phases[]` and
  *     `deriveProgressFromRoadmap`'s `totalPhases` can never disagree about
@@ -79,6 +80,7 @@ const node_fs_1 = __importDefault(require("node:fs"));
 // documented `state.cjs -> state-contract.cjs -> smart-entry.cjs -> state.cjs`
 // require cycle the file header warns about.
 const phase_status_cjs_1 = require("./phase-status.cjs");
+const phase_entry_grammar_cjs_1 = require("./phase-entry-grammar.cjs");
 // ─── Public wire vocabulary ────────────────────────────────────────────────
 exports.STATE_CONTRACT_VERSION = '1.0.0';
 exports.STATE_CONTRACT_FLAVOR = 'core';
@@ -114,7 +116,7 @@ function owners() {
     /* eslint-disable @typescript-eslint/no-require-imports */
     const planningWorkspaceMod = require('./planning-workspace.cjs');
     const shellCommandProjectionMod = require('./shell-command-projection.cjs');
-    const phaseLifecycleMod = require('./phase-lifecycle.cjs');
+    const roadmapProgressMod = require('./roadmap-progress.cjs');
     const phaseIdMod = require('./phase-id.cjs');
     const roadmapParserMod = require('./roadmap-parser.cjs');
     const markdownSectionizerMod = require('./markdown-sectionizer.cjs');
@@ -126,7 +128,7 @@ function owners() {
         planningPaths: planningWorkspaceMod.planningPaths,
         platformReadSync: shellCommandProjectionMod.platformReadSync,
         platformWriteSync: shellCommandProjectionMod.platformWriteSync,
-        locateProgressTable: phaseLifecycleMod.locateProgressTable,
+        locateRoadmapProgress: roadmapProgressMod.locateRoadmapProgress,
         isSentinelPhaseId: phaseIdMod.isSentinelPhaseId,
         parsePhaseFromProse: phaseIdMod.parsePhaseFromProse,
         resolvePhaseIdConvention: planningWorkspaceMod.resolvePhaseIdConvention,
@@ -188,9 +190,11 @@ function phasesFromProgressTable(table, convention) {
 }
 // ─── phases: `## Phases` checkbox fallback ─────────────────────────────────
 // `- [x] **Phase 1: Foundation**` / `- [ ] **Phase 2.1: Hardening**`.
-const PHASE_BULLET_RE = /^[ \t]*[-*][ \t]+\[([ xX])\][ \t]+\*\*Phase[ \t]+(\d+(?:\.\d+)*)[ \t]*:?[ \t]*([^*\n]*)\*\*/gm;
+// The entry prefix (marker, box, bold token) is the phase-entry grammar's (#5764): capture
+// group 1 is the box character, 2 the number, 3 the name.
+const PHASE_BULLET_RE = (0, phase_entry_grammar_cjs_1.phaseEntryRegExp)(`Phase[ \\t]+(\\d+(?:\\.\\d+)*)[ \\t]*:?[ \\t]*([^*\\n]*)${phase_entry_grammar_cjs_1.PHASE_ENTRY_BOLD_CLOSE_SRC}`, 'g', { state: 'captured', bold: 'required' });
 // #5626: the same bullet under `milestone-prefixed`: the number capture takes one optional `-NN` segment.
-const PHASE_BULLET_MILESTONE_RE = /^[ \t]*[-*][ \t]+\[([ xX])\][ \t]+\*\*Phase[ \t]+(\d+(?:-\d+)?(?:\.\d+)*)[ \t]*:?[ \t]*([^*\n]*)\*\*/gm;
+const PHASE_BULLET_MILESTONE_RE = (0, phase_entry_grammar_cjs_1.phaseEntryRegExp)(`Phase[ \\t]+(\\d+(?:-\\d+)?(?:\\.\\d+)*)[ \\t]*:?[ \\t]*([^*\\n]*)${phase_entry_grammar_cjs_1.PHASE_ENTRY_BOLD_CLOSE_SRC}`, 'g', { state: 'captured', bold: 'required' });
 /**
  * STATE.md's current phase, via the same frontmatter-then-body chain
  * `cmdStateCompletePhase` uses (`stateFieldValue` owns the #1760 fallback
@@ -249,7 +253,7 @@ function phasesFromChecklist(roadmapContent, cwd, statePath, convention) {
     return phases;
 }
 function buildPhases(cwd, paths) {
-    const { platformReadSync, locateProgressTable } = owners();
+    const { platformReadSync, locateRoadmapProgress } = owners();
     try {
         let content = platformReadSync(paths.roadmap);
         if (content === null)
@@ -257,7 +261,7 @@ function buildPhases(cwd, paths) {
         if (content.charCodeAt(0) === 0xfeff)
             content = content.slice(1); // strip leading BOM
         const convention = phaseIdConventionOf(cwd);
-        const table = locateProgressTable(content);
+        const { table } = locateRoadmapProgress(content);
         if (table)
             return phasesFromProgressTable(table, convention);
         return phasesFromChecklist(content, cwd, paths.state, convention);
