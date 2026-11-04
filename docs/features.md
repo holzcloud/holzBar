@@ -78,11 +78,19 @@
 - ✅ **A Settings window with three sidebar groups and a Modules pane** for the optional modules, each off until you switch it on
 - ✅ **Usage suggestions** <sub>off by default</sub> — local counters, **View Data** and **Forget Everything**
 - ✅ Launch at login
+- ✅ **What's New window** — a tab for every version since 1.0.0; opens once after an update and from Settings → About, with a switch under General → Startup — see [New in 1.0.1](#new-in-101)
 - ✅ **20 languages**: English and nineteen translations (German, French, Italian, Romansh, Spanish, Brazilian Portuguese, Dutch, Polish, Czech, Hungarian, Swedish, Turkish, Indonesian, Russian, Ukrainian, Japanese, Korean, Simplified and Traditional Chinese), all machine-made and not yet checked by a native speaker, see [Translations](translations.md) — holzBar follows your Mac's language; choose another one for holzBar alone in System Settings → General → Language & Region → Applications
 
 </td>
 </tr>
 </table>
+
+## New in 1.0.1
+
+1.0.1 is out; see its [release notes](release-notes/v1.0.1.md).
+
+- **What's New window**: a window with one tab for every version since 1.0.0, newest on the left. Each tab lists what is new, improved and fixed in that version, with a symbol, a short title and one sentence for each item. The tab of the version you just installed has a small dot. It opens once, on the first launch after an update (also after a small one, and not on a fresh install or after importing Ice settings); a beta and the stable release of the same version share one tab, which shows once. holzBar does not take the keyboard focus when it opens by itself. **Settings → About → What's New…** opens it at any time on the tab of the version you run. The texts ship inside holzBar in all 20 languages; nothing is fetched and nothing is sent.
+- **Show after an update**: the switch at the bottom of the window and **Show What's New after an update** under Settings → General → Startup control the same setting, on by default; with it off the window opens only from About. The setting is exported with the others. Which version you last saw is kept on this Mac only and is never exported.
 
 ## New in 1.0.0
 

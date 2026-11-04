@@ -20,6 +20,9 @@ nonisolated enum DockIconPolicy {
         case settings
         /// The search panel opens.
         case search
+        /// The What's New window opens, after an update or from About. It never takes the Dock
+        /// icon and does not activate holzBar.
+        case whatsNew
         /// The permissions window opens at the first launch.
         case permissions
         /// Shown items reach the application menus, which holzBar hides by coming to the front.
@@ -40,7 +43,7 @@ nonisolated enum DockIconPolicy {
     /// the front at all.
     static func policy(for reason: ActivationReason, keepsDockIconHidden: Bool) -> ActivationPolicyChoice? {
         switch reason {
-        case .settings, .search:
+        case .settings, .search, .whatsNew:
             .accessory
         case .permissions:
             // The first window of a fresh install, which must be found in the Dock and in

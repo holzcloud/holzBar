@@ -69,6 +69,8 @@ struct GeneralSettingsPane: View {
     @ViewBuilder
     private var appOptions: some View {
         LaunchAtLoginToggle()
+        Toggle("Show What's New after an update", isOn: $settings.showsWhatsNewAfterUpdate)
+            .annotation("The What's New window opens once after holzBar is updated.")
     }
 
     // MARK: holzBar Icon Options

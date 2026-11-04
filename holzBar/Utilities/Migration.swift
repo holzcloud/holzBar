@@ -15,6 +15,15 @@ enum MigrationManager {
     /// The logger for the import.
     private static let logger = Logger(category: "Migration")
 
+    /// Whether holzBar's own defaults domain holds nothing yet: the state of a new install.
+    ///
+    /// It only means a new install before ``importPreviousSettingsIfNeeded()`` runs, which
+    /// writes its flag on every first run; the app delegate reads it first.
+    static var ownSettingsAreEmpty: Bool {
+        let ownSettings = Bundle.main.bundleIdentifier.flatMap(UserDefaults.standard.persistentDomain(forName:)) ?? [:]
+        return ownSettings.isEmpty
+    }
+
     /// Takes over the settings of the original Ice, once.
     ///
     /// holzBar has a bundle identifier of its own, so it starts out with empty
@@ -31,10 +40,10 @@ enum MigrationManager {
         guard !defaults.bool(forKey: flag) else {
             return
         }
-        let ownSettings = Bundle.main.bundleIdentifier.flatMap(defaults.persistentDomain(forName:)) ?? [:]
+        let isNewInstall = ownSettingsAreEmpty
         defaults.set(true, forKey: flag)
         guard
-            ownSettings.isEmpty,
+            isNewInstall,
             let settings = defaults.persistentDomain(forName: iceBundleIdentifier),
             !settings.isEmpty
         else {

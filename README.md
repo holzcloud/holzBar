@@ -93,34 +93,20 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's new
 
-### 1.0.0
+### 1.0.1
 
-Details: [release notes](docs/release-notes/v1.0.0.md) · [full list](docs/features.md#new-in-100)
+Details: [release notes](docs/release-notes/v1.0.1.md) · [full list](docs/features.md#new-in-101)
 
-**Notch hub: eight optional modules.** Each is off until you switch it on in Settings → Modules, and costs nothing while off.
-
-- **Now Playing**: title, artist and controls for Music and Spotify. *Read all apps* adds browsers and video apps through a private macOS interface.
-- **Calendar**: your next events, with a Join button for meeting links.
-- **Timers**: timers, countdowns to a moment and a stopwatch, with a sound at the end.
-- **Live activities**: a capsule below the notch while an app uses the camera or microphone, or a download runs.
-- **File drop**: stash files at the notch and drag them out later as copies.
-- **Display controls**: volume, mute and brightness sliders. Brightness uses an undocumented macOS call that has its own switch.
-- **Accessory alerts**: a capsule when AirPods or headphones connect or run low, with their battery levels.
-- **Notifications**: the banners macOS shows, listed newest first. Read through Accessibility, kept in memory only.
-
-**Menu bar and Shelf**
-
-- **Count badge**: a small number on the holzBar icon says how many items are hidden.
-- **Sorting in Menu Bar Layout** on macOS 27: drag items into order, then Apply.
-- **Apple Items** (clock, Control Center, Wi-Fi, battery) stay hidden with the Shelf on and open from a tile.
-- **Drop to hide** on macOS 27: drop a bar item on the holzBar icon or the open Shelf to hide its app.
-- **Hidden items stay listed** when an app misses a read, and a failed Shelf click is told by a beep.
-- **The hub's tabs** stand in one row across the notch.
-
-**20 languages**: nine new translations. All are machine-made ([how they are reviewed](docs/translations.md)).
+- **What's New window**: a tab for every version since 1.0.0, newest first, with what is new, improved and fixed. It opens once after an update and from Settings → About → What's New….
+- **Show after an update**: a switch in the window and under Settings → General → Startup turns the automatic opening off.
+- **Inside the app**: the texts ship with holzBar in 20 languages and nothing is fetched.
 
 ### Earlier releases
 
+- **1.0.0** ([notes](docs/release-notes/v1.0.0.md), [details](docs/features.md#new-in-100)):
+  - Notch hub: eight optional modules (Now Playing, Calendar, Timers, Live activities, File drop, Display controls, Accessory alerts, Notifications), each off until you switch it on in Settings → Modules.
+  - Menu bar and Shelf: a count badge on the icon, sorting in Menu Bar Layout and drop to hide on macOS 27, Apple Items in the Shelf, hidden items that stay listed, hub tabs in one row.
+  - 20 languages: nine new translations, all machine-made ([how they are reviewed](docs/translations.md)).
 - **0.0.13** ([notes](docs/release-notes/v0.0.13.md), [details](docs/features.md#new-in-0013)):
   - Shelf: type to find an item, a fold tile for always-hidden items ("+3"), dimmed apps that are not running, drag to reorder.
   - Built-in items and app launchers in the Widgets module: Focus, AirDrop, media controls, fast user switching, a timer.

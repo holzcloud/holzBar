@@ -26,6 +26,8 @@ enum TidyUpOffer {
             appState.isSetUp,
             appState.profiles.profiles.isEmpty,
             !appState.navigationState.isSettingsPresented,
+            // The alert would land on the window; the offer comes on a later launch.
+            !appState.navigationState.isWhatsNewPresented,
             appState.itemManager.itemCache[.visible].filter({ !$0.isControlItem }).count >= minimumVisibleItems,
             !TidyUpEntry.proposals(from: appState).isEmpty
         else {

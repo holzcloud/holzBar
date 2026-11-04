@@ -238,6 +238,13 @@ nonisolated extension Defaults {
         case revealRules = "RevealRules"
         /// Whether the clean-up assistant was offered once, at the first launch.
         case cleanUpOffered = "CleanUpOffered"
+        /// The core version of holzBar the What's New window last covered (`1.0.1` for
+        /// `1.0.1-beta1`), as text. It describes this Mac's install, so it stays here: never
+        /// exported, imported or synced.
+        case lastSeenVersion = "WhatsNewLastSeenVersion"
+        /// Whether the What's New window opens by itself after an update (a boolean, on by
+        /// default). Exported and imported like the other choices.
+        case whatsNewShowsAfterUpdate = "WhatsNewShowsAfterUpdate"
         /// Whether the holzBar Shelf asked once whether it may use Screen Recording; the answer is
         /// kept, so it never asks again. Local to the Mac.
         case screenRecordingOffered = "ScreenRecordingOffered"
@@ -433,6 +440,7 @@ nonisolated extension Defaults.Key {
             .keepsDockIconHidden,
             .layoutSnapshotsDisabled,
             .cleanUpOffered,
+            .whatsNewShowsAfterUpdate,
             .screenRecordingOffered,
             .systemItemsMayHide,
             .lockHiddenItems,
@@ -515,6 +523,7 @@ nonisolated extension Defaults.Key {
             .sections:
             .data
         case .currentLayoutProfile,
+            .lastSeenVersion,
             .notchHubLastTab:
             .string
         case .knownItemTags,
@@ -611,7 +620,8 @@ nonisolated extension Defaults.Key {
     /// never sets it. The debug defaults stay on this Mac as well, and so do the names of the
     /// Shortcuts the widget buttons run (D-25), the sections that item rules remember, the
     /// tab the Notch hub showed last, the timers (they hold the user's labels), the calendars
-    /// the user switched off (their identifiers name the user's accounts), whether the
+    /// the user switched off (their identifiers name the user's accounts), the version the
+    /// What's New window last covered (it describes this install), whether the
     /// Shelf's fold was left open and what each display does with the hidden items (the
     /// displays' identifiers are those of this Mac), and the Now Playing switch that turns a
     /// private interface on.
@@ -621,6 +631,7 @@ nonisolated extension Defaults.Key {
         .lockHiddenItems,
         .usageSuggestionsEnabled,
         .cleanUpOffered,
+        .lastSeenVersion,
         .screenRecordingOffered,
         .widgetShortcutNames,
         .itemRuleShownSections,

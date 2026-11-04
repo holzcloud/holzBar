@@ -12,5 +12,6 @@ struct HolzBarApp: App {
     var body: some Scene {
         SettingsWindow(appState: appDelegate.appState)
         PermissionsWindow(appState: appDelegate.appState)
+        WhatsNewWindow(appState: appDelegate.appState)
     }
 }

@@ -142,6 +142,32 @@ struct SettingsSchemaTests {
         #expect(result.ignored == ["NotchHubLastTab"])
     }
 
+    @Test("A settings file cannot set the version the What's New window last covered")
+    func settingsFileCannotSetLastSeenVersion() {
+        #expect(Defaults.Key.lastSeenVersion.rawValue == "WhatsNewLastSeenVersion")
+        #expect(Defaults.Key.lastSeenVersion.settingsKind == .string)
+        #expect(Defaults.Key.localOnlyKeys.contains(.lastSeenVersion))
+        #expect(Defaults.Key.importableKinds["WhatsNewLastSeenVersion"] == nil)
+        let result = Defaults.Key.validatedSettings(
+            ["WhatsNewLastSeenVersion": "9.9.9", "ShowOnHover": true], ownBundleIdentifier: ownBundle
+        )
+        #expect(result.accepted.keys.sorted() == ["ShowOnHover"])
+        #expect(result.ignored == ["WhatsNewLastSeenVersion"])
+    }
+
+    @Test("The What's New switch travels with a settings file, as a Boolean only")
+    func whatsNewSwitchTravels() {
+        #expect(Defaults.Key.whatsNewShowsAfterUpdate.rawValue == "WhatsNewShowsAfterUpdate")
+        #expect(Defaults.Key.whatsNewShowsAfterUpdate.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.whatsNewShowsAfterUpdate))
+        #expect(Defaults.Key.importableKinds["WhatsNewShowsAfterUpdate"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["WhatsNewShowsAfterUpdate": false], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["WhatsNewShowsAfterUpdate"])
+        let refused = Defaults.Key.validatedSettings(["WhatsNewShowsAfterUpdate": "yes"], ownBundleIdentifier: ownBundle)
+        #expect(refused.accepted.isEmpty)
+        #expect(refused.ignored == ["WhatsNewShowsAfterUpdate"])
+    }
+
     @Test("The all-day setting travels and the hidden calendars do not")
     func calendarSettings() {
         #expect(Defaults.Key.importableKinds["CalendarShowsAllDay"] == .bool)
