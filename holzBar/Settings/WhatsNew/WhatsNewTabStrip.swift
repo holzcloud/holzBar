@@ -31,6 +31,9 @@ struct WhatsNewTabStrip: View {
                 }
                 .padding(HolzBarTheme.Spacing.xs)
             }
+            // A horizontal scroll view takes all the height it is offered; the strip is one row
+            // of pills high, so it takes the height of its content instead.
+            .fixedSize(horizontal: false, vertical: true)
             .onAppear {
                 proxy.scrollTo(selection, anchor: .center)
             }
