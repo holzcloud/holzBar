@@ -36,6 +36,9 @@ nonisolated enum WhatsNewHistory {
                     title: "Show after an update",
                     detail: "Turn the window off here or under General in Settings."
                 ),
+            ],
+            fixed: [
+                WhatsNewFix(text: "holzBar no longer quits when a Bluetooth device such as AirPods connects."),
             ]
         ),
         WhatsNewRelease(version: "1.0.0",

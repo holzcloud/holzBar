@@ -125077,6 +125077,124 @@
           }
         }
       }
+    },
+    "holzBar no longer quits when a Bluetooth device such as AirPods connects." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar se už neukončí, když se připojí zařízení Bluetooth, například AirPods."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar beendet sich nicht mehr, wenn sich ein Bluetooth-Gerät wie AirPods verbindet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ya no se cierra cuando se conecta un dispositivo Bluetooth como los AirPods."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ne se ferme plus quand un appareil Bluetooth comme des AirPods se connecte."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar már nem lép ki, amikor egy Bluetooth-eszköz, például az AirPods csatlakozik."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar tidak lagi keluar sendiri saat perangkat Bluetooth seperti AirPods terhubung."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar non si chiude più quando si connette un dispositivo Bluetooth come gli AirPods."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods などの Bluetooth デバイスが接続されても、holzBar が終了しなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods 같은 Bluetooth 기기가 연결될 때 holzBar가 더 이상 종료되지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar sluit niet meer af wanneer een Bluetooth-apparaat zoals AirPods verbinding maakt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar nie zamyka się już po połączeniu urządzenia Bluetooth, takiego jak AirPods."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar não fecha mais quando um dispositivo Bluetooth, como os AirPods, se conecta."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar na As serra betg pli cur ch'in apparat Bluetooth sco AirPods As colliescha."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar больше не закрывается, когда подключается устройство Bluetooth, например AirPods."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar avslutas inte längre när en Bluetooth-enhet som AirPods ansluts."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar, AirPods gibi bir Bluetooth aygıtı bağlandığında artık kapanmıyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar більше не закривається, коли підключається пристрій Bluetooth, наприклад AirPods."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods 等蓝牙设备连接时，holzBar 不再退出。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AirPods 等藍牙裝置連線時，holzBar 不再結束。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
