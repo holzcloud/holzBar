@@ -42,7 +42,8 @@ enum DiagnosticsCollector {
             lastDrop: lastDropWords(appState),
             lastShelfClick: lastShelfClickWords(),
             shelf: shelfWords(appState),
-            accessoryBattery: accessoryBatteryWord(appState)
+            accessoryBattery: accessoryBatteryWord(appState),
+            barClicks: BarClickLog.trace.lines
         )
     }
 

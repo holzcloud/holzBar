@@ -105,7 +105,8 @@ extension HIDEventManager {
             isMouseInsideMenuBar(appState: appState, screen: screen),
             !isMouseInsideApplicationMenu(appState: appState, screen: screen),
             !isMouseInsideMenuBarItem(appState: appState, screen: screen),
-            !isMouseInsideNotch(appState: appState, screen: screen)
+            !isMouseInsideNotch(appState: appState, screen: screen),
+            !isMouseInsideNotchHub(appState: appState)
         else {
             return false
         }
@@ -189,6 +190,20 @@ extension HIDEventManager {
         // moves their mouse outside of the holzBar Shelf.
         let paddedFrame = panel.frame.insetBy(dx: -15, dy: -15)
         return paddedFrame.contains(mouseLocation)
+    }
+
+    /// A Boolean value that indicates whether the mouse pointer is within the Notch hub's
+    /// panel (the open hub or the compact capsule). The panel stands above the menu bar, so
+    /// without this a click on a hub tab would count as a click on empty menu bar space and
+    /// open the Shelf.
+    func isMouseInsideNotchHub(appState: AppState) -> Bool {
+        guard
+            let frame = appState.notchHub.visiblePanelFrame,
+            let mouseLocation = MouseHelpers.locationAppKit
+        else {
+            return false
+        }
+        return frame.contains(mouseLocation)
     }
 
     /// A Boolean value that indicates whether the mouse pointer is within

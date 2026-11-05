@@ -114,12 +114,20 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         // The overflow button ("»") ignores clicks while concealed like the clock (Thaw #1195).
         let systemFrames = (framesOnDisplay.isEmpty ? MenuBarItemProvider27.systemItemFrames() : framesOnDisplay)
             + [MenuBarItemProvider27.overflowButtonFrame()].compactMap { $0 }
-        guard ClockBridgeZone27.shouldBridge(
+        let isInZone = ClockBridgeZone27.shouldBridge(
             click: event.location,
             systemItemFrames: systemFrames,
             isConcealing: concealer.isConcealing,
             menuBarRect: menuBarRect
-        ) else {
+        )
+        recordBarClick(
+            event.location,
+            display: clickedDisplay,
+            appState: appState,
+            systemFrames: systemFrames,
+            bridged: isInZone
+        )
+        guard isInZone else {
             // A click let through may close the panel holzBar saw open (a click on the desktop
             // closes Notification Center), and nothing would tell.
             panelMemory.forget()
@@ -226,6 +234,37 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         }
         heldBackReleaseUntil = .now + .seconds(1)
         return nil
+    }
+
+    /// Notes a click in a display's menu bar in the diagnostics' click trace (see
+    /// `BarClickTrace`): where it landed, which system item was there, whether the bridge took
+    /// it, and the extent of the system items and of holzBar's own control items. Clicks below
+    /// the bar are not noted.
+    private func recordBarClick(
+        _ location: CGPoint,
+        display: CGDirectDisplayID?,
+        appState: AppState,
+        systemFrames: [CGRect],
+        bridged: Bool
+    ) {
+        guard let display, location.y - CGDisplayBounds(display).minY < 40 else {
+            return
+        }
+        func range(_ frame: CGRect) -> ClosedRange<Int> {
+            Int(frame.minX.rounded())...max(Int(frame.minX.rounded()), Int(frame.maxX.rounded()))
+        }
+        let ownItems = [MenuBarSection.Name.visible, .hidden, .alwaysHidden]
+            .compactMap { appState.menuBarManager.controlItem(withName: $0)?.frame }
+            .map(range)
+        BarClickLog.trace.record(BarClickTrace.barClick(
+            seconds: BarClickLog.seconds,
+            x: Int(location.x.rounded()),
+            concealing: appState.concealer27.isConcealing,
+            item: MenuBarItemProvider27.systemItem(at: location)?.identifier,
+            bridged: bridged,
+            systemItems: systemFrames.map(range).sorted { $0.lowerBound < $1.lowerBound },
+            ownItems: ownItems.sorted { $0.lowerBound < $1.lowerBound }
+        ))
     }
 
     /// How long concealment stays lifted around a replayed click.
