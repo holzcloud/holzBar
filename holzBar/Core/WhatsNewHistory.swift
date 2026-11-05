@@ -25,8 +25,16 @@ nonisolated enum WhatsNewHistory {
     /// The releases, newest first.
     static let releases: [WhatsNewRelease] = [
         WhatsNewRelease(version: "1.0.2",
+            improved: [
+                WhatsNewItem(
+                    symbol: "square.stack",
+                    title: "What's New by version",
+                    detail: "A tab for every major version, a sub tab for every minor version and the fixes below as sections."
+                ),
+            ],
             fixed: [
                 WhatsNewFix(text: "Clicking a tab of the Notch hub no longer opens the Shelf."),
+                WhatsNewFix(text: "Clicking the holzBar icon no longer opens another item's menu, such as Wi-Fi, instead of the Shelf."),
             ]
         ),
         WhatsNewRelease(version: "1.0.1",

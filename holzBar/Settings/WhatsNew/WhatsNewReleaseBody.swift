@@ -12,9 +12,19 @@ import SwiftUI
 /// Catalog keys, localized here.
 struct WhatsNewReleaseBody: View {
     let release: WhatsNewRelease
+    /// Whether the release starts with its version as a heading, so several releases read as
+    /// sections one below the other.
+    var showsVersion = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.lg) {
+            if showsVersion {
+                Text(verbatim: release.version)
+                    .font(HolzBarTheme.Typography.title)
+                    .foregroundStyle(HolzBarTheme.Palette.text)
+                    .accessibilityLabel(String(localized: "Version \(release.version)"))
+                    .accessibilityAddTraits(.isHeader)
+            }
             itemGroup("New", items: release.new)
             itemGroup("Improved", items: release.improved)
             fixedGroup(release.fixed)

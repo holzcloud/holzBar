@@ -5,11 +5,14 @@
 
 import SwiftUI
 
-/// The content of the What's New window: a header with the version, the pill tabs of the
-/// versions, the notes of the selected one and a footer with the switch and Done.
+/// The content of the What's New window: a header with the newest version shown, a main tab for
+/// every major version, a sub tab for every minor version of it, the notes of that minor and a
+/// footer with the switch and Done.
 ///
-/// The window is glass on the calm ground: the tab strip is its one glass layer, the rows
-/// have none. It opens on the installed version, or on the newest one on a development build.
+/// The notes of a minor are its releases one below the other, newest first, each as a section
+/// that starts with its version; there is no tab per patch version. The window is glass on the
+/// calm ground: the main strip is its one glass layer, the rows have none. It opens on the tabs
+/// of the installed version, or of the newest one on a development build.
 struct WhatsNewView: View {
     /// The width of the window's content.
     static let width: CGFloat = 560
@@ -23,9 +26,11 @@ struct WhatsNewView: View {
     @Bindable private var settings: GeneralSettings
     private let releases: [WhatsNewRelease]
     private let tabs: WhatsNewPolicy.Tabs
+    private let majors: [WhatsNewMajorGroup]
     private let onDone: () -> Void
 
-    @State private var selection: String
+    @State private var majorSelection: String
+    @State private var minorSelection: String
 
     /// Creates the window content.
     ///
@@ -43,9 +48,27 @@ struct WhatsNewView: View {
         let tabs = WhatsNewPolicy.tabs(knownVersions: releases.map(\.version), current: currentVersion)
         self.settings = settings
         self.releases = releases
+        let majors = WhatsNewGrouping.majors(of: tabs.versions)
         self.tabs = tabs
+        self.majors = majors
         self.onDone = onDone
-        _selection = State(initialValue: tabs.installed ?? tabs.versions.first ?? "")
+        let start = WhatsNewGrouping.location(of: tabs.installed ?? tabs.versions.first, in: majors)
+            ?? majors.last.map { ($0.id, $0.minors.last?.id ?? "") }
+        _majorSelection = State(initialValue: start?.major ?? "")
+        _minorSelection = State(initialValue: start?.minor ?? "")
+    }
+
+    private var selectedMajor: WhatsNewMajorGroup? {
+        majors.first { $0.id == majorSelection }
+    }
+
+    private var selectedMinor: WhatsNewMinorGroup? {
+        selectedMajor?.minors.first { $0.id == minorSelection }
+    }
+
+    /// The tab ids of the installed version, to mark them with the wood dot.
+    private var installedLocation: (major: String, minor: String)? {
+        WhatsNewGrouping.location(of: tabs.installed, in: majors)
     }
 
     var body: some View {
@@ -53,15 +76,33 @@ struct WhatsNewView: View {
             HolzBarGround()
             VStack(alignment: .leading, spacing: 0) {
                 header
-                WhatsNewTabStrip(versions: tabs.versions, installed: tabs.installed, selection: $selection)
-                    .padding(.horizontal, HolzBarTheme.Spacing.xl)
-                    .padding(.bottom, HolzBarTheme.Spacing.md)
+                WhatsNewTabStrip(
+                    tabs: majors.map { .init(id: $0.id, title: $0.label) },
+                    installed: installedLocation?.major,
+                    selection: $majorSelection
+                )
+                .padding(.horizontal, HolzBarTheme.Spacing.xl)
+                .padding(.bottom, HolzBarTheme.Spacing.xs)
+                WhatsNewTabStrip(
+                    tabs: (selectedMajor?.minors ?? []).map { .init(id: $0.id, title: $0.label) },
+                    installed: installedLocation?.major == majorSelection ? installedLocation?.minor : nil,
+                    isGlass: false,
+                    selection: $minorSelection
+                )
+                .padding(.horizontal, HolzBarTheme.Spacing.xl)
+                .padding(.bottom, HolzBarTheme.Spacing.md)
                 notes
                 footer
             }
         }
         .frame(width: Self.width)
         .frame(minHeight: Self.heights.min, idealHeight: Self.heights.ideal, maxHeight: Self.heights.max)
+        .onChange(of: majorSelection) { _, _ in
+            // A new main tab opens on its newest minor.
+            if selectedMinor == nil {
+                minorSelection = selectedMajor?.minors.last?.id ?? ""
+            }
+        }
         .onExitCommand(perform: onDone)
     }
 
@@ -76,10 +117,11 @@ struct WhatsNewView: View {
                     .accessibilityAddTraits(.isHeader)
                 PreviewBadge()
             }
-            Text(verbatim: selection)
+            let newest = selectedMinor?.versions.first ?? ""
+            Text(verbatim: newest)
                 .font(HolzBarTheme.Typography.display)
                 .foregroundStyle(HolzBarTheme.Palette.text)
-                .accessibilityLabel(String(localized: "Version \(selection)"))
+                .accessibilityLabel(String(localized: "Version \(newest)"))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, HolzBarTheme.Spacing.xl)
@@ -91,18 +133,23 @@ struct WhatsNewView: View {
 
     private var notes: some View {
         ScrollView {
-            if let release = releases.first(where: { $0.version == selection }) {
-                WhatsNewReleaseBody(release: release)
-                    .id(release.version)
-                    .transition(.opacity)
-                    .padding(.horizontal, HolzBarTheme.Spacing.xl)
-                    .padding(.top, HolzBarTheme.Spacing.xs)
-                    .padding(.bottom, HolzBarTheme.Spacing.xl)
+            VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xl) {
+                ForEach(selectedMinor?.versions ?? [], id: \.self) { version in
+                    if let release = releases.first(where: { $0.version == version }) {
+                        WhatsNewReleaseBody(release: release, showsVersion: true)
+                    }
+                }
             }
+            .id(minorSelection)
+            .transition(.opacity)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, HolzBarTheme.Spacing.xl)
+            .padding(.top, HolzBarTheme.Spacing.xs)
+            .padding(.bottom, HolzBarTheme.Spacing.xl)
         }
         .animation(
             HolzBarTheme.Motion.resolved(HolzBarTheme.Motion.smooth, reduceMotion: reduceMotion),
-            value: selection
+            value: minorSelection
         )
         .mask { fadeMask }
     }

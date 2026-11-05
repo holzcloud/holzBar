@@ -122,9 +122,9 @@ path regardless of `CHUNKED_PARALLEL` — there is nothing to batch.
    plans are overwritten, not skipped (#2762). Unchanged from before this change, applied per entry
    before dispatch rather than immediately before each individual spawn:
    ```bash
-IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7' || true
+IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_a86341796db1fdf086d631535ef436ce' || true
 $ARGUMENTS
-GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7
+GSD_ARGS_END_a86341796db1fdf086d631535ef436ce
 GSD_ARGS=${GSD_ARGS%$'\n'}
    PLAN_FILE="${PHASE_DIR}/${plan_id}-PLAN.md"
    if [[ -f "$PLAN_FILE" ]] && head -1 "$PLAN_FILE" | grep -q '^---' && [[ "$GSD_ARGS" != *"--reviews"* ]]; then

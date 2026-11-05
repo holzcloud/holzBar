@@ -95,6 +95,28 @@ struct ClockBridgeZone27Tests {
         #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1708, y: 15), systemItemFrames: [clock], isConcealing: true, menuBarRect: menuBar))
     }
 
+    @Test("A click on holzBar's own item is never bridged, even inside a system frame")
+    func ownItemNotBridged() {
+        let ownIcon = CGRect(x: 1097, y: 0, width: 28, height: 30)
+        let stale = CGRect(x: 1090, y: 0, width: 50, height: 30)
+        let click = CGPoint(x: 1107, y: 15)
+        #expect(ClockBridgeZone27.shouldBridge(click: click, systemItemFrames: [stale], isConcealing: true, menuBarRect: menuBar))
+        #expect(!ClockBridgeZone27.shouldBridge(click: click, systemItemFrames: [stale], ownItemFrames: [ownIcon], isConcealing: true, menuBarRect: menuBar))
+    }
+
+    @Test("A collapsed control item's huge frame does not block the system items")
+    func hugeOwnFrameIgnored() {
+        let divider = CGRect(x: -10000, y: 0, width: 11500, height: 30)
+        #expect(ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], ownItemFrames: [divider], isConcealing: true, menuBarRect: menuBar))
+    }
+
+    @Test("A frame spanning the bar or an empty one is no item")
+    func implausibleFramesIgnored() {
+        let host = CGRect(x: 0, y: 0, width: 1920, height: 30)
+        let empty = CGRect(x: 900, y: 0, width: 0, height: 30)
+        #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 900, y: 15), systemItemFrames: [host, empty], isConcealing: true, menuBarRect: menuBar))
+    }
+
     @Test("Nothing is bridged while the bar is hidden")
     func barHidden() {
         #expect(!ClockBridgeZone27.shouldBridge(click: CGPoint(x: 1840, y: 15), systemItemFrames: [clock], isConcealing: true, menuBarRect: nil))

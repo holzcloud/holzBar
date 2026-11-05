@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// gsd-hook-version: 1.20.0
+// gsd-hook-version: 1.20.1
 // SessionStart hook: put the installed gsd-core `bin/` directory (which holds `gsd_run`) on the
 // PATH of every later Bash tool call in this Claude Code session (#5465).
 //

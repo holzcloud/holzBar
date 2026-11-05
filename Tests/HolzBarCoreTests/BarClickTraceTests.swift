@@ -20,7 +20,11 @@ struct BarClickTraceTests {
             seconds: 120, x: 570, concealing: true, item: "com.apple.menuextra.wifi", bridged: false,
             systemItems: [595...677, 700...730], ownItems: [1121...1156]
         )
-        #expect(line == "t 120, bar click x 570, concealing yes, item wifi, bridged no, system 595-677 700-730, own 1121-1156")
+        let withOverflow = BarClickTrace.barClick(
+            seconds: 1, x: 1, concealing: true, item: nil, bridged: false, systemItems: [], ownItems: [], overflow: 1097...1125
+        )
+        #expect(withOverflow.contains("overflow 1097-1125"))
+        #expect(line == "t 120, bar click x 570, concealing yes, item wifi, bridged no, own 1121-1156, overflow none, system 595-677 700-730")
     }
 
     @Test("A third-party item is never named, and no item reads none")
@@ -33,7 +37,7 @@ struct BarClickTraceTests {
         let none = BarClickTrace.barClick(
             seconds: 1, x: 1, concealing: false, item: nil, bridged: false, systemItems: [], ownItems: []
         )
-        #expect(none.contains("item none, bridged no, system none, own none"))
+        #expect(none.contains("item none, bridged no, own none, overflow none, system none"))
     }
 
     @Test("A click on the holzBar icon says which section and whether it was hidden")
@@ -48,7 +52,7 @@ struct BarClickTraceTests {
         #expect(!DiagnosticsReport.make(input).contains("Click 1"))
         let line = BarClickTrace.barClick(
             seconds: 120, x: 570, concealing: true, item: "com.apple.menuextra.wifi", bridged: false,
-            systemItems: [595...677, 700...730, 740...790, 800...850, 860...900, 910...950], ownItems: [1121...1156, 1302...1303]
+            systemItems: Array(repeating: 1297...1330, count: 12), ownItems: [1121...1156, 1302...1303, 1400...1410], overflow: 1097...1125
         )
         input.barClicks = [line]
         let report = DiagnosticsReport.make(input)

@@ -114,9 +114,11 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         // The overflow button ("»") ignores clicks while concealed like the clock (Thaw #1195).
         let systemFrames = (framesOnDisplay.isEmpty ? MenuBarItemProvider27.systemItemFrames() : framesOnDisplay)
             + [MenuBarItemProvider27.overflowButtonFrame()].compactMap { $0 }
+        let ownFrames = Self.ownControlItemFrames(appState: appState)
         let isInZone = ClockBridgeZone27.shouldBridge(
             click: event.location,
             systemItemFrames: systemFrames,
+            ownItemFrames: ownFrames,
             isConcealing: concealer.isConcealing,
             menuBarRect: menuBarRect
         )
@@ -125,6 +127,7 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             display: clickedDisplay,
             appState: appState,
             systemFrames: systemFrames,
+            ownFrames: ownFrames,
             bridged: isInZone
         )
         guard isInZone else {
@@ -245,6 +248,7 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         display: CGDirectDisplayID?,
         appState: AppState,
         systemFrames: [CGRect],
+        ownFrames: [CGRect],
         bridged: Bool
     ) {
         guard let display, location.y - CGDisplayBounds(display).minY < 40 else {
@@ -253,9 +257,7 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         func range(_ frame: CGRect) -> ClosedRange<Int> {
             Int(frame.minX.rounded())...max(Int(frame.minX.rounded()), Int(frame.maxX.rounded()))
         }
-        let ownItems = [MenuBarSection.Name.visible, .hidden, .alwaysHidden]
-            .compactMap { appState.menuBarManager.controlItem(withName: $0)?.frame }
-            .map(range)
+        let ownItems = ownFrames.map(range)
         BarClickLog.trace.record(BarClickTrace.barClick(
             seconds: BarClickLog.seconds,
             x: Int(location.x.rounded()),
@@ -263,8 +265,15 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             item: MenuBarItemProvider27.systemItem(at: location)?.identifier,
             bridged: bridged,
             systemItems: systemFrames.map(range).sorted { $0.lowerBound < $1.lowerBound },
-            ownItems: ownItems.sorted { $0.lowerBound < $1.lowerBound }
+            ownItems: ownItems.sorted { $0.lowerBound < $1.lowerBound },
+            overflow: MenuBarItemProvider27.overflowButtonFrame().map(range)
         ))
+    }
+
+    /// The frames of holzBar's own control items, whose clicks are holzBar's own.
+    private static func ownControlItemFrames(appState: AppState) -> [CGRect] {
+        [MenuBarSection.Name.visible, .hidden, .alwaysHidden]
+            .compactMap { appState.menuBarManager.controlItem(withName: $0)?.frame }
     }
 
     /// How long concealment stays lifted around a replayed click.
