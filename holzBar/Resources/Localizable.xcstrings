@@ -125313,6 +125313,124 @@
           }
         }
       }
+    },
+    "Clicking the holzBar icon no longer opens another item's menu, such as Wi-Fi, instead of the Shelf." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kliknutí na ikonu holzBar už místo Shelf neotevírá nabídku jiné položky, například Wi-Fi."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Klick auf das holzBar-Symbol öffnet nicht mehr das Menü eines anderen Symbols, etwa WLAN, statt des Shelf."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacer clic en el icono de holzBar ya no abre el menú de otro elemento, como el Wi-Fi, en lugar del Shelf."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic sur l’icône holzBar n’ouvre plus le menu d’un autre élément, comme le Wi-Fi, à la place du Shelf."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar ikonjára kattintva már nem egy másik elem, például a Wi-Fi menüje nyílik meg a Shelf helyett."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mengeklik ikon holzBar tidak lagi membuka menu item lain, seperti Wi-Fi, alih-alih Shelf."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic sull’icona di holzBar non apre più il menu di un altro elemento, come il Wi-Fi, al posto dello Shelf."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar のアイコンをクリックしても、Shelf の代わりに Wi-Fi など別の項目のメニューが開かなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 아이콘을 클릭해도 더 이상 Shelf 대신 Wi-Fi 같은 다른 항목의 메뉴가 열리지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klikken op het holzBar-symbool opent niet langer het menu van een ander onderdeel, zoals wifi, in plaats van de Shelf."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kliknięcie ikony holzBar nie otwiera już menu innego elementu, na przykład Wi-Fi, zamiast Shelf."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clicar no ícone do holzBar não abre mais o menu de outro item, como o Wi-Fi, em vez do Shelf."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In clic sin il simbol da holzBar na avra betg pli il menu d’in auter simbol, p. ex. WLAN, empè dal Shelf."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щелчок по значку holzBar больше не открывает меню другого элемента, например Wi-Fi, вместо Shelf."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ett klick på holzBar-symbolen öppnar inte längre menyn för ett annat objekt, som Wi-Fi, i stället för Shelf."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar simgesine tıklamak artık Shelf yerine Wi-Fi gibi başka bir öğenin menüsünü açmıyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Клацання значка holzBar більше не відкриває меню іншого елемента, наприклад Wi-Fi, замість Shelf."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点按 holzBar 图标不再打开 Wi-Fi 等其他项目的菜单，而是打开 Shelf。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點按 holzBar 圖示不再開啟 Wi-Fi 等其他項目的選單，而是開啟 Shelf。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

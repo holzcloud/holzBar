@@ -27,6 +27,7 @@ nonisolated enum WhatsNewHistory {
         WhatsNewRelease(version: "1.0.2",
             fixed: [
                 WhatsNewFix(text: "Clicking a tab of the Notch hub no longer opens the Shelf."),
+                WhatsNewFix(text: "Clicking the holzBar icon no longer opens another item's menu, such as Wi-Fi, instead of the Shelf."),
             ]
         ),
         WhatsNewRelease(version: "1.0.1",
