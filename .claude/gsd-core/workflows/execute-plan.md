@@ -45,9 +45,9 @@ Load execution context (paths only to minimize orchestrator context):
 @/Users/holz/Projects/holzBar/.claude/gsd-core/references/gsd-run-resolver.md
 
 ```bash
-IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7' || true
+IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_a86341796db1fdf086d631535ef436ce' || true
 $ARGUMENTS
-GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7
+GSD_ARGS_END_a86341796db1fdf086d631535ef436ce
 GSD_ARGS=${GSD_ARGS%$'\n'}
 GSD_WS=$(echo " $GSD_ARGS" | sed -nE 's/.* --ws +([A-Za-z0-9][A-Za-z0-9._-]*).*/--ws \1/p' | head -n 1)
 INIT=$(gsd_run query init.execute-phase ${GSD_WS:+--ws=${GSD_WS##* }} "${PHASE}")

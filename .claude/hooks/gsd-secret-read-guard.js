@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// gsd-hook-version: 1.20.0
+// gsd-hook-version: 1.20.1
 // GSD Secret Read Guard — PreToolUse hook (Read | Grep | Bash)
 //
 // Blocks reads of secret files — `.env`, `.env.<suffix>`, `.secrets` — by any

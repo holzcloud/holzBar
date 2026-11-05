@@ -5,9 +5,9 @@ The init JSON includes `phase_status` — one of `Pending | Planned | In Progres
 Parse `phase_status` from the init JSON, then:
 
 ```bash
-IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7' || true
+IFS= read -rd '' GSD_ARGS <<'GSD_ARGS_END_a86341796db1fdf086d631535ef436ce' || true
 $ARGUMENTS
-GSD_ARGS_END_b01f0e246f713e7ef050eb56b4244cb7
+GSD_ARGS_END_a86341796db1fdf086d631535ef436ce
 GSD_ARGS=${GSD_ARGS%$'\n'}
 FORCE_REPLAN=false
 if [[ "$GSD_ARGS" =~ (^|[[:space:]])--force([[:space:]]|$) ]]; then
