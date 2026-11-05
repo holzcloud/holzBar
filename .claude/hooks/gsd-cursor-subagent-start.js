@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// gsd-hook-version: 1.20.0
+// gsd-hook-version: 1.20.1
 // gsd-cursor-subagent-start.js — Cursor subagentStart hook (ADR-1239 / #2089,
 // isolation guard #3045)
 //
@@ -512,7 +512,7 @@ function evaluateRootIsolation(root, subagentType, { clock = Date, dispatchIds =
   // Hoisted (readSentinel never throws) so the "present, fresh, but did not
   // apply" case (#4594 row 15) can be reported on every deny path below
   // instead of silently discarded.
-  const sentinel = readSentinel(root, { clock });
+  const sentinel = readSentinel(root, { clock, dispatchIds });
   const applies = sentinelAppliesToDispatch(sentinel, dispatchIds);
   const sentinelDiscarded = buildSentinelDiscard(sentinel, dispatchIds);
 

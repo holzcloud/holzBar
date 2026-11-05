@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// gsd-hook-version: 1.20.0
+// gsd-hook-version: 1.20.1
 // GSD Agent Isolation Dispatch Guard — PreToolUse hook (#3045)
 //
 // Problem: `gsd-core/workflows/execute-phase/steps/executor-isolation-dispatch.md`
@@ -422,7 +422,7 @@ function resolveIsolationState(cwd, { clock = Date, dispatchIds = null } = {}) {
     return { gsdProject: false, isolation: null, harnessFlag: null, error: null, sentinelDiscarded: null };
   }
 
-  const sentinel = readSentinel(cwd, { clock });
+  const sentinel = readSentinel(cwd, { clock, dispatchIds });
   // Hoisted so the "sentinel was present/fresh but did not apply" case below
   // (#4594 row 15 — Postel's-Law finding) can distinguish itself from
   // "absent"/"stale" without re-deriving applicability.
