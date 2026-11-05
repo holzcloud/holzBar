@@ -125195,6 +125195,124 @@
           }
         }
       }
+    },
+    "Clicking a tab of the Notch hub no longer opens the Shelf." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kliknutí na kartu centra u výřezu už neotevírá Shelf."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein Klick auf einen Tab des Notch-Hubs öffnet das Shelf nicht mehr."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hacer clic en una pestaña del centro del notch ya no abre el Shelf."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic sur un onglet du hub de l’encoche n’ouvre plus le Shelf."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Notch-központ egyik fülére kattintva már nem nyílik meg a Shelf."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mengeklik tab Pusat Notch tidak lagi membuka Shelf."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un clic su una scheda dell’hub del notch non apre più lo Shelf."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ノッチハブのタブをクリックしても、Shelf が開かなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노치 허브의 탭을 클릭해도 더 이상 Shelf가 열리지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klikken op een tabblad van de Notch-hub opent de Shelf niet meer."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kliknięcie karty centrum notcha nie otwiera już Shelf."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clicar em uma aba do hub do notch não abre mais o Shelf."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In clic sin ina tab da l’hub da la notch na avra betg pli il Shelf."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Щелчок по вкладке центра у выреза больше не открывает Shelf."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ett klick på en flik i notchcentrumet öppnar inte längre Shelf."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch Merkezi’ndeki bir sekmeye tıklamak artık Shelf’i açmıyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Клацання вкладки центру біля вирізу більше не відкриває Shelf."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "点按刘海中心的标签页不再打开 Shelf。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "點按瀏海中心的分頁不再開啟 Shelf。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

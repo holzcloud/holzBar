@@ -24,6 +24,11 @@ import Foundation
 nonisolated enum WhatsNewHistory {
     /// The releases, newest first.
     static let releases: [WhatsNewRelease] = [
+        WhatsNewRelease(version: "1.0.2",
+            fixed: [
+                WhatsNewFix(text: "Clicking a tab of the Notch hub no longer opens the Shelf."),
+            ]
+        ),
         WhatsNewRelease(version: "1.0.1",
             new: [
                 WhatsNewItem(

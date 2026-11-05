@@ -77,6 +77,16 @@ final class NotchHubController: HubHost {
     /// The panel, created by the first open and released when the module goes off.
     @ObservationIgnored private var panel: NotchHubPanel?
 
+    /// The frame of the hub's panel (the hub or the compact capsule, which are one panel)
+    /// while it is on screen, in AppKit coordinates; `nil` while it is not. The hit test of
+    /// show on click reads it: a click on a hub tab is not a click on empty menu bar space.
+    var visiblePanelFrame: CGRect? {
+        guard let panel, panel.isVisible else {
+            return nil
+        }
+        return panel.frame
+    }
+
     @ObservationIgnored private var openScreenID: CGDirectDisplayID?
 
     /// What opened the hub, while it is open.
