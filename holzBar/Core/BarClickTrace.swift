@@ -37,6 +37,7 @@ nonisolated struct BarClickTrace: Equatable, Sendable {
     ///   - bridged: Whether the bridge took the click to replay it.
     ///   - systemItems: The horizontal extent of the system items on that display.
     ///   - ownItems: The horizontal extent of holzBar's own control items.
+    ///   - overflow: The horizontal extent of the system overflow button, if macOS has one.
     static func barClick(
         seconds: Int,
         x: Int,
@@ -44,12 +45,14 @@ nonisolated struct BarClickTrace: Equatable, Sendable {
         item: String?,
         bridged: Bool,
         systemItems: [ClosedRange<Int>],
-        ownItems: [ClosedRange<Int>]
+        ownItems: [ClosedRange<Int>],
+        overflow: ClosedRange<Int>? = nil
     ) -> String {
         let prefix = "com.apple.menuextra."
         let itemWord = item.map { $0.hasPrefix(prefix) ? String($0.dropFirst(prefix.count)) : "other" } ?? "none"
         return "t \(seconds), bar click x \(x), concealing \(yesNo(concealing)), item \(itemWord), "
-            + "bridged \(yesNo(bridged)), system \(extents(systemItems)), own \(extents(ownItems))"
+            + "bridged \(yesNo(bridged)), own \(extents(ownItems)), overflow \(extents(overflow.map { [$0] } ?? [])), "
+            + "system \(extents(systemItems))"
     }
 
     /// A click that reached holzBar's own control item.

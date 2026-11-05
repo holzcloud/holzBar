@@ -111,8 +111,8 @@ nonisolated enum DiagnosticsReport {
         return lines.joined(separator: "\n")
     }
 
-    /// The longest text kept for a click of the trace (the longest line has six extents).
-    static let maximumClickLength = 200
+    /// The longest text kept for a click of the trace (the longest line has a dozen extents).
+    static let maximumClickLength = 400
 
     private static func yesNo(_ value: Bool) -> String {
         value ? "granted or on" : "not granted or off"
