@@ -894,6 +894,12 @@ final class ControlItem {
                 return
             }
 
+            BarClickLog.trace.record(BarClickTrace.controlClick(
+                seconds: BarClickLog.seconds,
+                section: String(describing: sectionName),
+                wasHidden: menuBarManager.section(withName: sectionName)?.isHidden ?? false
+            ))
+
             // Running this from a Task seems to improve the visual
             // responsiveness of the status item's button.
             Task {

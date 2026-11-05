@@ -55,6 +55,9 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// `available`, `not available` or `off`. Empty unless the module is on, so the report of a
     /// Mac that does not use it stays as it was. Never a device name.
     var accessoryBattery = ""
+    /// The last clicks in the menu bar as ``BarClickTrace`` wrote them: numbers and fixed words
+    /// only. Empty before the first click, so the report of a Mac without clicks stays as it was.
+    var barClicks: [String] = []
 }
 
 /// Writes the text a user can copy into a bug report. It holds an allowlist of facts and
@@ -102,8 +105,14 @@ nonisolated enum DiagnosticsReport {
         if !input.accessoryBattery.isEmpty {
             lines.append("Accessory battery: \(field(input.accessoryBattery))")
         }
+        for (index, click) in input.barClicks.suffix(BarClickTrace.capacity).enumerated() {
+            lines.append("Click \(index + 1): \(field(click, limit: maximumClickLength))")
+        }
         return lines.joined(separator: "\n")
     }
+
+    /// The longest text kept for a click of the trace (the longest line has six extents).
+    static let maximumClickLength = 200
 
     private static func yesNo(_ value: Bool) -> String {
         value ? "granted or on" : "not granted or off"
