@@ -162,6 +162,13 @@ final class MenuBarItemImageCache {
     /// The cached item images, keyed by their corresponding tags.
     private(set) var images = [MenuBarItemTag: CapturedImage]()
 
+    /// Whether a capture of item images is under way (macOS 27).
+    private(set) var isCapturing = false
+
+    /// Whether a capture has finished since launch. Until then an empty image list
+    /// means the pictures are still on their way, not that capturing failed.
+    private(set) var hasCaptured = false
+
     /// Logger for the menu bar item image cache.
     private let logger = Logger(category: "MenuBarItemImageCache")
 
@@ -547,6 +554,7 @@ final class MenuBarItemImageCache {
             logger.debug("Skipping item image cache while the Mac is not in use")
             return
         }
+        defer { hasCaptured = true }
 
         if #available(macOS 27.0, *) {
             // There are no item windows to capture on macOS 27. See `ItemImageStore27`.
@@ -554,6 +562,8 @@ final class MenuBarItemImageCache {
             for section in sections {
                 items += appState.itemManager.itemCache[section]
             }
+            isCapturing = true
+            defer { isCapturing = false }
             let store = appState.itemImageStore27
             await store.captureActiveMenuBar(appState: appState)
             await store.photographMissing(items: items, appState: appState)

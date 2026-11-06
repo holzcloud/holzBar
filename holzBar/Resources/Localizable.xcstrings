@@ -125785,6 +125785,360 @@
           }
         }
       }
+    },
+    "Hidden apps that were already running when holzBar started now appear in the Shelf." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skryté aplikace, které už běžely při spuštění holzBaru, se nyní zobrazují v Shelf."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versteckte Apps, die beim Start von holzBar schon liefen, erscheinen jetzt im Shelf."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las apps ocultas que ya estaban abiertas al iniciar holzBar ahora aparecen en el Shelf."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les apps masquées déjà ouvertes au démarrage de holzBar apparaissent désormais dans le Shelf."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar indításakor már futó rejtett alkalmazások most megjelennek a Shelfben."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App tersembunyi yang sudah berjalan saat holzBar dimulai kini muncul di Shelf."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le app nascoste già in esecuzione all’avvio di holzBar ora compaiono nello Shelf."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar の起動時にすでに実行中だった非表示の App が、Shelf に表示されるようになりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar가 시작될 때 이미 실행 중이던 숨겨진 앱이 이제 Shelf에 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verborgen apps die al draaiden toen holzBar startte, verschijnen nu in de Shelf."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ukryte aplikacje, które działały już przy uruchomieniu holzBar, pojawiają się teraz w Shelf."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps ocultos que já estavam em execução quando o holzBar iniciou agora aparecem no Shelf."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las apps zuppadas che currivan gia cura che holzBar ha cumenzà cumparan ussa en il Shelf."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скрытые приложения, которые уже работали при запуске holzBar, теперь появляются в Shelf."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dolda appar som redan körde när holzBar startade visas nu i Shelf."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar başladığında zaten çalışan gizli uygulamalar artık Shelf’te görünüyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приховані програми, які вже працювали під час запуску holzBar, тепер з’являються в Shelf."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 启动时已在运行的隐藏 App 现在会显示在 Shelf 中。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 啟動時已在執行的隱藏 App 現在會顯示在 Shelf 中。"
+          }
+        }
+      }
+    },
+    "The Shelf no longer shows an error while the item pictures are still being taken." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shelf už nehlásí chybu, dokud se ještě pořizují obrázky položek."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Shelf zeigt keinen Fehler mehr, solange die Bilder der Elemente noch aufgenommen werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El Shelf ya no muestra un error mientras aún se capturan las imágenes de los elementos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le Shelf n’affiche plus d’erreur tant que les images des éléments sont encore en cours de capture."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Shelf már nem jelez hibát, amíg az elemek képeit még készíti."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shelf tidak lagi menampilkan kesalahan saat gambar item masih diambil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo Shelf non mostra più un errore mentre le immagini degli elementi vengono ancora acquisite."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目の画像をまだ取得している間、Shelf にエラーが表示されなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목 이미지를 아직 가져오는 중에는 Shelf에 더 이상 오류가 표시되지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De Shelf toont geen fout meer zolang de afbeeldingen van de onderdelen nog worden gemaakt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shelf nie pokazuje już błędu, gdy obrazy elementów są jeszcze robione."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Shelf não mostra mais um erro enquanto as imagens dos itens ainda estão sendo capturadas."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il Shelf na mussa betg pli in sbagl entant che las maletgs dals elements vegnan anc fatgas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shelf больше не показывает ошибку, пока изображения элементов ещё снимаются."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shelf visar inte längre något fel medan objektens bilder fortfarande tas."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öğelerin görüntüleri hâlâ alınırken Shelf artık hata göstermiyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shelf більше не показує помилку, поки зображення елементів ще знімаються."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "项目图像仍在截取时，Shelf 不再显示错误。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目影像仍在擷取時，Shelf 不再顯示錯誤。"
+          }
+        }
+      }
+    },
+    "A tile no longer shows another app's icon." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dlaždice už nezobrazuje ikonu jiné aplikace."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Kachel zeigt nicht mehr das Symbol einer anderen App."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un icono ya no muestra el símbolo de otra app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une vignette n’affiche plus l’icône d’une autre app."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy csempe már nem egy másik alkalmazás ikonját mutatja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ubin tidak lagi menampilkan ikon app lain."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un riquadro non mostra più l’icona di un’altra app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイルに別の App のアイコンが表示されることがなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "타일에 다른 앱의 아이콘이 더 이상 표시되지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een tegel toont niet meer het symbool van een andere app."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kafelek nie pokazuje już ikony innej aplikacji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um bloco não mostra mais o ícone de outro app."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ina tegla na mussa betg pli l’icona d’in’autra app."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плитка больше не показывает значок другого приложения."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En ruta visar inte längre en annan apps ikon."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir karo artık başka bir uygulamanın simgesini göstermiyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Плитка більше не показує значок іншої програми."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "图块不再显示其他 App 的图标。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "圖塊不再顯示其他 App 的圖示。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

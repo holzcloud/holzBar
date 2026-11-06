@@ -28,7 +28,7 @@ struct WhatsNewHistoryTests {
     @Test("The history starts at 1.0.0 and the newest entry is the newest release")
     func historyBounds() {
         #expect(Self.releases.last?.version == "1.0.0")
-        #expect(Self.releases.first?.version == "1.0.2")
+        #expect(Self.releases.first?.version == "1.0.3")
     }
 
     @Test("Every release has content and every text is a plain one-line literal")
@@ -59,9 +59,9 @@ struct WhatsNewHistoryTests {
     func versionsSuitThePolicy() {
         let versions = Self.releases.map(\.version)
         #expect(versions.allSatisfy { AppVersion($0)?.isPrerelease == false })
-        let tabs = WhatsNewPolicy.tabs(knownVersions: versions, current: "1.0.2-beta1")
+        let tabs = WhatsNewPolicy.tabs(knownVersions: versions, current: "1.0.3-beta1")
         #expect(tabs.versions == versions)
-        #expect(tabs.installed == "1.0.2")
+        #expect(tabs.installed == "1.0.3")
     }
 
     // MARK: String Catalog
