@@ -28,15 +28,15 @@ jobs:
       - uses: ./.github/actions/select-xcode
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           languages: swift
           build-mode: manual
 
       # The toolchain: CodeQL 2.27.1 (the bundle of codeql-action v4.38.2) analyzes Swift 5.4
-      # to 6.3.3. holzBar needs Swift 6.4 and the macOS 27 SDK (Xcode 27.0, as in build.yml),
+      # to 6.3.3. holzBar needs Swift 6.4 and the macOS 27 SDK (Xcode 27.1, as in build.yml),
       # and no toolchain CodeQL supports can build it. So this job keeps the runner, Xcode and
-      # Swift version of build.yml, but compiles with Xcode 27.0's own Swift 6.4 instead of
+      # Swift version of build.yml, but compiles with Xcode 27.1's own Swift 6.4 instead of
       # the swift.org build that select-xcode installs: CodeQL traces the compiler by
       # injecting a library, which Xcode's compiler allows, while the notarized swift.org
       # compiler runs with the hardened runtime. Until a CodeQL bundle supports Swift 6.4
@@ -57,7 +57,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
       - name: Analyze
-        uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           category: /language:swift
 
@@ -76,12 +76,12 @@ jobs:
           persist-credentials: false
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        uses: github/codeql-action/init@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           languages: actions
           build-mode: none
 
       - name: Analyze
-        uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        uses: github/codeql-action/analyze@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           category: /language:actions
