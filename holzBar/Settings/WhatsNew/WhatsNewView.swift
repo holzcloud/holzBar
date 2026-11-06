@@ -17,7 +17,7 @@ struct WhatsNewView: View {
     /// The width of the window's content.
     static let width: CGFloat = 560
     /// The least, ideal and greatest height of the window's content.
-    static let heights: (min: CGFloat, ideal: CGFloat, max: CGFloat) = (460, 640, 800)
+    static let heights: (min: CGFloat, ideal: CGFloat, max: CGFloat) = (380, 520, 760)
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
@@ -76,22 +76,29 @@ struct WhatsNewView: View {
             HolzBarGround()
             VStack(alignment: .leading, spacing: 0) {
                 header
-                WhatsNewTabStrip(
-                    tabs: majors.map { .init(id: $0.id, title: $0.label) },
-                    installed: installedLocation?.major,
-                    selection: $majorSelection
-                )
-                .padding(.horizontal, HolzBarTheme.Spacing.xl)
-                .padding(.bottom, HolzBarTheme.Spacing.xs)
-                WhatsNewTabStrip(
-                    tabs: (selectedMajor?.minors ?? []).map { .init(id: $0.id, title: $0.label) },
-                    installed: installedLocation?.major == majorSelection ? installedLocation?.minor : nil,
-                    isGlass: false,
-                    selection: $minorSelection
-                )
-                .padding(.horizontal, HolzBarTheme.Spacing.xl)
-                .padding(.bottom, HolzBarTheme.Spacing.md)
+                // A strip shows only when there is a choice to make.
+                if majors.count > 1 {
+                    WhatsNewTabStrip(
+                        tabs: majors.map { .init(id: $0.id, title: $0.label) },
+                        installed: installedLocation?.major,
+                        selection: $majorSelection
+                    )
+                    .padding(.horizontal, HolzBarTheme.Spacing.xl)
+                    .padding(.bottom, HolzBarTheme.Spacing.sm)
+                }
+                if (selectedMajor?.minors.count ?? 0) > 1 {
+                    WhatsNewTabStrip(
+                        tabs: (selectedMajor?.minors ?? []).map { .init(id: $0.id, title: $0.label) },
+                        installed: installedLocation?.major == majorSelection ? installedLocation?.minor : nil,
+                        isGlass: false,
+                        selection: $minorSelection
+                    )
+                    .padding(.horizontal, HolzBarTheme.Spacing.xl)
+                    Divider()
+                        .padding(.horizontal, HolzBarTheme.Spacing.xl)
+                }
                 notes
+                Divider()
                 footer
             }
         }
@@ -109,19 +116,12 @@ struct WhatsNewView: View {
     // MARK: Header
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xxs) {
-            HStack(spacing: HolzBarTheme.Spacing.xs) {
-                Text("What's New")
-                    .font(HolzBarTheme.Typography.headline)
-                    .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                    .accessibilityAddTraits(.isHeader)
-                PreviewBadge()
-            }
-            let newest = selectedMinor?.versions.first ?? ""
-            Text(verbatim: newest)
-                .font(HolzBarTheme.Typography.display)
-                .foregroundStyle(HolzBarTheme.Palette.text)
-                .accessibilityLabel(String(localized: "Version \(newest)"))
+        HStack(spacing: HolzBarTheme.Spacing.xs) {
+            Text("What's New")
+                .font(HolzBarTheme.Typography.headline)
+                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                .accessibilityAddTraits(.isHeader)
+            PreviewBadge()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, HolzBarTheme.Spacing.xl)
@@ -136,7 +136,11 @@ struct WhatsNewView: View {
             VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xl) {
                 ForEach(selectedMinor?.versions ?? [], id: \.self) { version in
                     if let release = releases.first(where: { $0.version == version }) {
-                        WhatsNewReleaseBody(release: release, showsVersion: true)
+                        WhatsNewReleaseBody(
+                            release: release,
+                            showsVersion: true,
+                            isInstalled: version == tabs.installed
+                        )
                     }
                 }
             }
@@ -144,7 +148,7 @@ struct WhatsNewView: View {
             .transition(.opacity)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, HolzBarTheme.Spacing.xl)
-            .padding(.top, HolzBarTheme.Spacing.xs)
+            .padding(.top, HolzBarTheme.Spacing.md)
             .padding(.bottom, HolzBarTheme.Spacing.xl)
         }
         .animation(
@@ -180,13 +184,14 @@ struct WhatsNewView: View {
         HStack {
             Toggle("Show after an update", isOn: $settings.showsWhatsNewAfterUpdate)
                 .toggleStyle(.switch)
+                .controlSize(.small)
             Spacer()
             Button("Done", action: onDone)
                 .buttonStyle(.borderedProminent)
-                .controlSize(.large)
                 .keyboardShortcut(.defaultAction)
         }
-        .padding(HolzBarTheme.Spacing.xl)
+        .padding(.horizontal, HolzBarTheme.Spacing.xl)
+        .padding(.vertical, HolzBarTheme.Spacing.md)
     }
 }
 

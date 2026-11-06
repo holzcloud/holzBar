@@ -31,7 +31,7 @@ struct WhatsNewWindow: Scene {
         }
         .windowResizability(.contentSize)
         .windowStyle(.hiddenTitleBar)
-        .defaultSize(width: 560, height: 640)
+        .defaultSize(width: 560, height: 520)
         .environment(appState)
     }
 }
