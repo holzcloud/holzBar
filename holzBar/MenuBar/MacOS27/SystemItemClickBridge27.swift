@@ -254,26 +254,39 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         guard let display, location.y - CGDisplayBounds(display).minY < 40 else {
             return
         }
-        func range(_ frame: CGRect) -> ClosedRange<Int> {
-            Int(frame.minX.rounded())...max(Int(frame.minX.rounded()), Int(frame.maxX.rounded()))
+        // A frame without finite edges (`CGRect.null`) has no extent to log.
+        func range(_ frame: CGRect) -> ClosedRange<Int>? {
+            guard frame.minX.isFinite, frame.maxX.isFinite, abs(frame.minX) < 1e6, abs(frame.maxX) < 1e6 else {
+                return nil
+            }
+            return Int(frame.minX.rounded())...max(Int(frame.minX.rounded()), Int(frame.maxX.rounded()))
         }
-        let ownItems = ownFrames.map(range)
+        let ownItems = ownFrames.compactMap(range)
         BarClickLog.trace.record(BarClickTrace.barClick(
             seconds: BarClickLog.seconds,
             x: Int(location.x.rounded()),
             concealing: appState.concealer27.isConcealing,
             item: MenuBarItemProvider27.systemItem(at: location)?.identifier,
             bridged: bridged,
-            systemItems: systemFrames.map(range).sorted { $0.lowerBound < $1.lowerBound },
+            systemItems: systemFrames.compactMap(range).sorted { $0.lowerBound < $1.lowerBound },
             ownItems: ownItems.sorted { $0.lowerBound < $1.lowerBound },
-            overflow: MenuBarItemProvider27.overflowButtonFrame().map(range)
+            overflow: MenuBarItemProvider27.overflowButtonFrame().flatMap(range)
         ))
     }
 
     /// The frames of holzBar's own control items, whose clicks are holzBar's own.
+    ///
+    /// The control items report AppKit frames; clicks and the system items' frames are in
+    /// the coordinates of the top left of the primary display, so the frames are converted.
     private static func ownControlItemFrames(appState: AppState) -> [CGRect] {
-        [MenuBarSection.Name.visible, .hidden, .alwaysHidden]
-            .compactMap { appState.menuBarManager.controlItem(withName: $0)?.frame }
+        guard let primaryHeight = NSScreen.screens.first?.frame.height else {
+            return []
+        }
+        return [MenuBarSection.Name.visible, .hidden, .alwaysHidden].compactMap { name in
+            appState.menuBarManager.controlItem(withName: name)?.frame.map {
+                ClockBridgeZone27.quartzFrame(fromAppKit: $0, primaryHeight: primaryHeight)
+            }
+        }
     }
 
     /// How long concealment stays lifted around a replayed click.
