@@ -14,8 +14,8 @@ nonisolated struct WhatsNewMinorGroup: Identifiable, Equatable, Sendable {
 
     var id: String { "\(major).\(minor)" }
 
-    /// The tab's name, always with three numbers (`1.0.0`, `1.2.0`).
-    var label: String { "\(major).\(minor).0" }
+    /// The tab's name: the major and the minor (`1.0`, `1.2`).
+    var label: String { "\(major).\(minor)" }
 }
 
 /// The minors of one major version, such as every `1.x.x`: a main tab of the What's New window.
@@ -26,8 +26,8 @@ nonisolated struct WhatsNewMajorGroup: Identifiable, Equatable, Sendable {
 
     var id: String { "\(major)" }
 
-    /// The tab's name, always with three numbers (`1.0.0`, `2.0.0`).
-    var label: String { "\(major).0.0" }
+    /// The tab's name: the major and an x (`1.x`, `2.x`).
+    var label: String { "\(major).x" }
 }
 
 /// Sorts a list of versions into main tabs (major) and sub tabs (minor); the patch versions of a

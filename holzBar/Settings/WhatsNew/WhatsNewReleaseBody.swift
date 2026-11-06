@@ -15,21 +15,49 @@ struct WhatsNewReleaseBody: View {
     /// Whether the release starts with its version as a heading, so several releases read as
     /// sections one below the other.
     var showsVersion = false
+    /// Whether this release is the installed version, which gets a small "Installed" tag.
+    var isInstalled = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.lg) {
+        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.md) {
             if showsVersion {
-                Text(verbatim: release.version)
-                    .font(HolzBarTheme.Typography.title)
-                    .foregroundStyle(HolzBarTheme.Palette.text)
-                    .accessibilityLabel(String(localized: "Version \(release.version)"))
-                    .accessibilityAddTraits(.isHeader)
+                versionHeading
             }
             itemGroup("New", items: release.new)
             itemGroup("Improved", items: release.improved)
             fixedGroup(release.fixed)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var versionHeading: some View {
+        HStack(spacing: HolzBarTheme.Spacing.sm) {
+            Text(verbatim: release.version)
+                .font(HolzBarTheme.Typography.title)
+                .foregroundStyle(HolzBarTheme.Palette.text)
+                .accessibilityLabel(String(localized: "Version \(release.version)"))
+                .accessibilityAddTraits(.isHeader)
+            if isInstalled {
+                installedTag
+            }
+        }
+    }
+
+    /// The small tag next to the installed version: the wood dot and the word.
+    private var installedTag: some View {
+        HStack(spacing: HolzBarTheme.Spacing.xxs) {
+            Circle()
+                .fill(HolzBarTheme.Palette.wood)
+                .frame(width: HolzBarTheme.Spacing.xs, height: HolzBarTheme.Spacing.xs)
+                .accessibilityHidden(true)
+            Text("Installed")
+                .font(HolzBarTheme.Typography.caption.weight(.semibold))
+                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+        }
+        .padding(.horizontal, HolzBarTheme.Spacing.xs)
+        .padding(.vertical, HolzBarTheme.Spacing.xxs)
+        .background(HolzBarTheme.Palette.groundElevated, in: Capsule())
+        .overlay(Capsule().strokeBorder(HolzBarTheme.Palette.stroke, lineWidth: HolzBarTheme.Spacing.hairline))
     }
 
     @ViewBuilder
@@ -49,17 +77,31 @@ struct WhatsNewReleaseBody: View {
         if !fixes.isEmpty {
             VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.sm) {
                 heading("Fixed")
-                ForEach(fixes) { fix in
-                    fixRow(fix)
+                VStack(alignment: .leading, spacing: 0) {
+                    ForEach(Array(fixes.enumerated()), id: \.element.id) { index, fix in
+                        if index > 0 {
+                            Divider()
+                        }
+                        fixRow(fix)
+                            .padding(.horizontal, HolzBarTheme.Spacing.md)
+                            .padding(.vertical, HolzBarTheme.Spacing.sm)
+                    }
                 }
+                .background(HolzBarTheme.Palette.groundElevated, in: HolzBarTheme.shape(HolzBarTheme.Radius.control))
+                .overlay(
+                    HolzBarTheme.shape(HolzBarTheme.Radius.control)
+                        .strokeBorder(HolzBarTheme.Palette.stroke, lineWidth: HolzBarTheme.Spacing.hairline)
+                )
             }
         }
     }
 
     private func heading(_ title: LocalizedStringKey) -> some View {
         Text(title)
-            .font(HolzBarTheme.Typography.headline)
-            .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            .font(HolzBarTheme.Typography.caption.weight(.bold))
+            .textCase(.uppercase)
+            .tracking(0.8)
+            .foregroundStyle(HolzBarTheme.Palette.textTertiary)
             .accessibilityAddTraits(.isHeader)
     }
 
@@ -87,9 +129,8 @@ struct WhatsNewReleaseBody: View {
     private func fixRow(_ fix: WhatsNewFix) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: HolzBarTheme.Spacing.sm) {
             Image(systemName: "checkmark.circle.fill")
-                .font(HolzBarTheme.Typography.headline)
+                .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.success)
-                .frame(width: HolzBarTheme.Spacing.xl)
                 .accessibilityHidden(true)
             Text(LocalizedStringKey(fix.text))
                 .font(HolzBarTheme.Typography.callout)
