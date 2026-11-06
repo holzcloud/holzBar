@@ -104,6 +104,25 @@ struct ClockBridgeZone27Tests {
         #expect(!ClockBridgeZone27.shouldBridge(click: click, systemItemFrames: [stale], ownItemFrames: [ownIcon], isConcealing: true, menuBarRect: menuBar))
     }
 
+    @Test("An AppKit window frame becomes the frame a click compares with")
+    func appKitFrameConverted() {
+        // A 24 pt high item at the top of a 1080 pt high display: AppKit says y 1056, a click says 0 to 24.
+        let appKit = CGRect(x: 1097, y: 1056, width: 28, height: 24)
+        let quartz = ClockBridgeZone27.quartzFrame(fromAppKit: appKit, primaryHeight: 1080)
+        #expect(quartz == CGRect(x: 1097, y: 0, width: 28, height: 24))
+        let stale = CGRect(x: 1090, y: 0, width: 50, height: 30)
+        let click = CGPoint(x: 1107, y: 12)
+        #expect(!ClockBridgeZone27.shouldBridge(click: click, systemItemFrames: [stale], ownItemFrames: [quartz], isConcealing: true, menuBarRect: menuBar))
+        // The unconverted frame lies at the bottom of the screen and let the click through to the stale frame.
+        #expect(ClockBridgeZone27.shouldBridge(click: click, systemItemFrames: [stale], ownItemFrames: [appKit], isConcealing: true, menuBarRect: menuBar))
+    }
+
+    @Test("A null or infinite frame converts to no frame")
+    func nullFrameConverted() {
+        #expect(ClockBridgeZone27.quartzFrame(fromAppKit: .null, primaryHeight: 1080).isNull)
+        #expect(ClockBridgeZone27.quartzFrame(fromAppKit: .infinite, primaryHeight: 1080).isNull)
+    }
+
     @Test("A collapsed control item's huge frame does not block the system items")
     func hugeOwnFrameIgnored() {
         let divider = CGRect(x: -10000, y: 0, width: 11500, height: 30)

@@ -42,4 +42,21 @@ nonisolated enum ClockBridgeZone27 {
         }
         return systemItemFrames.contains { isPlausible($0) && $0.insetBy(dx: -1, dy: 0).contains(click) }
     }
+
+    /// A window frame of AppKit (origin at the bottom left of the primary display) in
+    /// the coordinates of event locations and Accessibility frames (origin at its top left).
+    ///
+    /// holzBar's control items report `window.frame`, which AppKit gives from the bottom
+    /// left; compared with a click's location as it was, an item in the menu bar lay at the
+    /// bottom of the screen and never contained the click.
+    ///
+    /// - Parameters:
+    ///   - frame: The frame in AppKit coordinates.
+    ///   - primaryHeight: The height of the primary display, whose top left is the origin.
+    static func quartzFrame(fromAppKit frame: CGRect, primaryHeight: CGFloat) -> CGRect {
+        guard !frame.isNull, !frame.isInfinite, frame.origin.x.isFinite, frame.origin.y.isFinite else {
+            return .null
+        }
+        return CGRect(x: frame.minX, y: primaryHeight - frame.maxY, width: frame.width, height: frame.height)
+    }
 }
