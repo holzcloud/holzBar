@@ -33,6 +33,7 @@ nonisolated enum WhatsNewHistory {
                 ),
             ],
             fixed: [
+                WhatsNewFix(text: "The Permissions window is smaller, so Quit and Continue stay on screen."),
                 WhatsNewFix(text: "Clicking a tab of the Notch hub no longer opens the Shelf."),
                 WhatsNewFix(text: "Clicking the holzBar icon no longer opens another item's menu, such as Wi-Fi, instead of the Shelf."),
             ]
