@@ -125667,6 +125667,124 @@
           }
         }
       }
+    },
+    "The Permissions window is smaller, so Quit and Continue stay on screen." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Okno oprávnění je menší, takže tlačítka Ukončit a Pokračovat zůstávají na obrazovce."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Berechtigungsfenster ist kleiner, sodass Beenden und Weiter auf dem Bildschirm bleiben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La ventana de permisos es más pequeña, así que Salir y Continuar siguen en pantalla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La fenêtre des autorisations est plus petite : Quitter et Continuer restent à l’écran."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az engedélyek ablaka kisebb, így a Kilépés és a Folytatás gomb látható marad a képernyőn."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jendela Izin kini lebih kecil, sehingga Keluar dan Lanjutkan tetap ada di layar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La finestra dei permessi è più piccola, così Esci e Continua restano sullo schermo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「権限」ウインドウが小さくなり、「終了」と「続ける」が画面内に収まります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "권한 창이 작아져서 ‘종료’와 ‘계속’ 버튼이 화면 안에 유지됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het venster Toegangsrechten is kleiner, zodat Stop en Ga door op het scherm blijven."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Okno uprawnień jest mniejsze, więc przyciski Zakończ i Kontynuuj pozostają na ekranie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A janela de permissões ficou menor, então Sair e Continuar permanecem na tela."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La fanestra da las permissiuns è pli pitschna, uschia che Terminar e Cuntinuar restan sin il visur."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Окно разрешений стало меньше, поэтому кнопки «Выйти» и «Продолжить» остаются на экране."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behörighetsfönstret är mindre, så Avsluta och Fortsätt stannar kvar på skärmen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İzinler penceresi küçüldü; Çık ve Devam düğmeleri ekranda kalıyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вікно дозволів стало меншим, тому кнопки «Вийти» та «Продовжити» залишаються на екрані."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "权限窗口变小了，“退出”和“继续”按钮始终留在屏幕内。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "權限視窗變小了，「結束」和「繼續」按鈕會一直留在螢幕內。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
