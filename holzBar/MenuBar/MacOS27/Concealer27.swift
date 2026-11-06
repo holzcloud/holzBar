@@ -412,7 +412,7 @@ final class Concealer27 {
         guard !bundleIDs.isEmpty else {
             return
         }
-        logger.debug("Showing \(bundleIDs.count, privacy: .public) concealed applications for a first read of their items")
+        logger.debug("Showing \(unread.count, privacy: .public) concealed applications for a first read of their items")
         showTemporarily(bundleIDs: bundleIDs)
         // The items are drawn 0.4–0.6 s after the change lands (measured).
         try? await Task.sleep(for: .milliseconds(900))
