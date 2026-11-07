@@ -24,6 +24,13 @@ import Foundation
 nonisolated enum WhatsNewHistory {
     /// The releases, newest first.
     static let releases: [WhatsNewRelease] = [
+        WhatsNewRelease(version: "1.0.3",
+            fixed: [
+                WhatsNewFix(text: "Hidden apps that were already running when holzBar started now appear in the Shelf."),
+                WhatsNewFix(text: "The Shelf no longer shows an error while the item pictures are still being taken."),
+                WhatsNewFix(text: "A tile no longer shows another app's icon."),
+            ]
+        ),
         WhatsNewRelease(version: "1.0.2",
             improved: [
                 WhatsNewItem(

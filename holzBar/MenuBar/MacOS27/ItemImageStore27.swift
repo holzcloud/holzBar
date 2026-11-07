@@ -37,7 +37,10 @@ final class ItemImageStore27 {
     /// could store a tile cut while the bar was re-laying out; version 9 could hold another
     /// item's glyph for an application photographed while the change that showed it was still
     /// on its way.
-    private static let storeVersion = "10"
+    /// Version 10 could still keep another application's glyph on a tile, when the bar had not
+    /// finished moving at the capture; version 11 refuses a glyph that another application's
+    /// tile already shows, and drops what version 10 stored.
+    private static let storeVersion = "11"
 
     /// What `version.txt` holds: the version, and the appearance the glyphs are tinted for,
     /// so glyphs kept from a session in the other appearance are not loaded.
@@ -59,6 +62,8 @@ final class ItemImageStore27 {
         .appending(path: "holzBar/ItemImages", directoryHint: .isDirectory)
     private var index = [String: IndexEntry]()
     private var loaded = [String: CapturedImage]()
+    /// A hash of each loaded glyph's pixels, to tell a glyph taken from another tile.
+    private var glyphHashes = [String: Int]()
     private var photoSchedule = PhotoSchedule27()
 
     /// The capture under way, so captures follow one another instead of overlapping.
@@ -301,7 +306,15 @@ final class ItemImageStore27 {
             else {
                 continue
             }
-            store(glyph, scale: scale, key: item.tag.description)
+            let key = item.tag.description
+            // Two applications never draw the same glyph: one that another application's tile
+            // already shows was taken from the wrong place while the bar was still moving.
+            if let hash = Self.pixelHash(of: glyph), let owner = tileShowing(hash: hash, besides: key) {
+                skipped += 1
+                logger.debug("Item image refused: it equals the glyph of \(owner, privacy: .private)")
+                continue
+            }
+            store(glyph, scale: scale, key: key)
             stored += 1
         }
         writeIndex()
@@ -502,7 +515,39 @@ final class ItemImageStore27 {
         return padded.makeImage() ?? keyedImage
     }
 
+    /// The key of a tile of another application that shows a glyph with the given hash.
+    private func tileShowing(hash: Int, besides key: String) -> String? {
+        let application = Self.application(of: key)
+        for (other, image) in loaded where other != key && Self.application(of: other) != application {
+            if glyphHashes[other] == nil, let value = Self.pixelHash(of: image.cgImage) {
+                glyphHashes[other] = value
+            }
+            if glyphHashes[other] == hash {
+                return other
+            }
+        }
+        return nil
+    }
+
+    /// The bundle identifier a tile key starts with.
+    private static func application(of key: String) -> Substring {
+        key.split(separator: ":", maxSplits: 1).first ?? ""
+    }
+
+    /// A hash of an image's size and pixels; `nil` when they cannot be read.
+    private static func pixelHash(of image: CGImage) -> Int? {
+        guard let data = pixels(of: image) else {
+            return nil
+        }
+        var hasher = Hasher()
+        hasher.combine(image.width)
+        hasher.combine(image.height)
+        hasher.combine(data)
+        return hasher.finalize()
+    }
+
     private func store(_ image: CGImage, scale: CGFloat, key: String) {
+        glyphHashes[key] = nil
         let fileName = ItemImages27.fileName(forTag: key)
         loaded[key] = CapturedImage(cgImage: image, scale: scale)
         index[key] = IndexEntry(fileName: fileName, scale: scale)

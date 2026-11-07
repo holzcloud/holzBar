@@ -216,6 +216,16 @@ nonisolated enum MenuBarItemProvider27 {
         }
     }
 
+    /// The concealed processes that no read has ever shown an item of.
+    ///
+    /// A concealed process may report no items, so one that was concealed before its first read
+    /// (holzBar relaunched while it ran) has nothing to fall back on and drops out of the list.
+    static func unreadConcealedPIDs() -> Set<pid_t> {
+        withState { state in
+            state.concealedPIDs.filter { state.lastRawByPID[$0]?.isEmpty ?? true }
+        }
+    }
+
     /// Tells the provider which processes are concealed right now.
     static func setConcealedPIDs(_ pids: Set<pid_t>) {
         withState { $0.concealedPIDs = pids }

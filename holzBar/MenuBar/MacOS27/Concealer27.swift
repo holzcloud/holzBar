@@ -384,8 +384,40 @@ final class Concealer27 {
             await self?.checkStuckOverflow()
             await self?.checkNotchCover()
             await self?.checkOwnIcon()
+            await self?.readUnreadConcealed()
         }
         return true
+    }
+
+    /// The processes whose concealed items were looked for once already.
+    private var probedPIDs = Set<pid_t>()
+
+    /// Shows the concealed applications that no read has ever listed an item of, for one read.
+    ///
+    /// holzBar relaunched while its hidden applications ran: concealment landed before the first
+    /// read, a concealed process reports no items, and so those applications were missing from
+    /// the Shelf until they were relaunched. Shown for a moment, they report their items; once
+    /// read, the last answer stands while they are concealed again. Each process is tried once.
+    private func readUnreadConcealed() async {
+        let unread = MenuBarItemProvider27.unreadConcealedPIDs().subtracting(probedPIDs)
+        guard !unread.isEmpty, let appState else {
+            return
+        }
+        probedPIDs.formUnion(unread)
+        let bundleIDs = Set(
+            NSWorkspace.shared.runningApplications
+                .filter { unread.contains($0.processIdentifier) }
+                .compactMap(\.bundleIdentifier)
+        )
+        guard !bundleIDs.isEmpty else {
+            return
+        }
+        logger.debug("Showing \(unread.count, privacy: .public) concealed applications for a first read of their items")
+        showTemporarily(bundleIDs: bundleIDs)
+        // The items are drawn 0.4–0.6 s after the change lands (measured).
+        try? await Task.sleep(for: .milliseconds(900))
+        await appState.itemManager.cacheItemsRegardless()
+        endTemporaryShow(bundleIDs: bundleIDs)
     }
 
     /// Records that an apply landed and answers whoever waited for it.
