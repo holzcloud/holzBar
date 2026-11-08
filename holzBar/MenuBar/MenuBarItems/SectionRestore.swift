@@ -23,7 +23,8 @@ extension MenuBarItemManager {
     nonisolated enum SectionRestoreTrigger: String {
         /// holzBar has set up.
         case launch
-        /// An application has launched (and its one re-check 2 s later).
+        /// An application has launched (and its re-checks: 2 s later, then the bounded ones while
+        /// an item still has a launch placeholder title).
         case applicationLaunch
         /// The bar has settled after a display change, wake or unlock.
         case settle
@@ -106,11 +107,18 @@ extension MenuBarItemManager {
     // MARK: Restoring
 
     /// Restores an application's items a moment after it launched, and checks once more 2 s
-    /// later (a single bounded re-check; the app may add its items late).
+    /// later (the app may add its items late). While items with a launch placeholder title
+    /// remain (`ItemPlaceholder`), at most four more reads follow, 5 s, 15 s, 30 s and 12 s
+    /// later, each only if such an item is still on the bar, so the last one falls after the
+    /// 60 s period in which such an item counts as provisional.
+    ///
+    /// The re-checks are triggered by the launch and bounded (at most four extra reads within
+    /// about 66 s), not polling: no event exists for a title change of a status item window. A
+    /// later launch replaces the running schedule.
     func applicationDidLaunch() {
         applicationLaunchRestoreTask?.cancel()
         applicationLaunchRestoreTask = Task { [weak self] in
-            for delay in [Duration.milliseconds(1500), .seconds(2)] {
+            for delay in ItemPlaceholder.launchRecheckDelays {
                 do {
                     try await Task.sleep(for: delay)
                 } catch {
@@ -122,6 +130,36 @@ extension MenuBarItemManager {
                 await cacheItemsIfNeeded()
                 await reconcileSections(trigger: .applicationLaunch)
             }
+            await self?.recheckProvisionalItems()
+        }
+    }
+
+    /// The bounded re-checks for items with a launch placeholder title: for each of
+    /// `ItemPlaceholder.provisionalRecheckDelays`, stops as soon as no cached item is
+    /// provisional, otherwise waits, reads the bar anew (a title change does not change the
+    /// window list, so the read is never skipped) and reconciles.
+    private func recheckProvisionalItems() async {
+        for delay in ItemPlaceholder.provisionalRecheckDelays {
+            guard itemCache.managedItems.contains(where: isProvisionalPlaceholder) else {
+                return
+            }
+            do {
+                try await Task.sleep(for: delay)
+            } catch {
+                return
+            }
+            await cacheItemsRegardless()
+            await reconcileSections(trigger: .applicationLaunch)
+        }
+    }
+
+    /// Starts the provisional re-checks alone, after holzBar's own launch restore skipped an item
+    /// with a launch placeholder title (holzBar started together with a slow app, at login). They
+    /// run through ``applicationLaunchRestoreTask``, so a later app launch replaces them.
+    private func startProvisionalRechecks() {
+        applicationLaunchRestoreTask?.cancel()
+        applicationLaunchRestoreTask = Task { [weak self] in
+            await self?.recheckProvisionalItems()
         }
     }
 
@@ -352,6 +390,11 @@ extension MenuBarItemManager {
             storeSections(wanted)
         }
         storeSections(placedSections)
+
+        // Only the launch restore starts the re-checks, so a re-check never starts another.
+        if trigger == .launch && skippedProvisionalNewItem {
+            startProvisionalRechecks()
+        }
     }
 
     /// How long the application of an item has run, for the rule of ``ItemPlaceholder``: since
