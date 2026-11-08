@@ -40,6 +40,22 @@ extension MenuBarItemManager {
         var restoresSavedSections: Bool {
             self != .itemListChange
         }
+
+        /// The kind of pass, for the neighbour check after each move.
+        var pass: MoveNeighbourCheck.Pass {
+            switch self {
+            case .profile: .arrangement
+            case .moveRepair: .repair
+            case .launch, .applicationLaunch, .settle, .itemListChange: .restore
+            }
+        }
+    }
+
+    /// The pass of the reconciliation the current task runs, `nil` outside one. Bound to the
+    /// task, so a move another task makes meanwhile (rehiding, the dividers) is not taken for one
+    /// of the pass.
+    nonisolated enum ReconciliationPass {
+        @TaskLocal static var current: MoveNeighbourCheck.Pass?
     }
 
     // MARK: Saving
@@ -271,15 +287,15 @@ extension MenuBarItemManager {
         }
 
         isReconcilingSections = true
-        activeReconciliationTrigger = trigger
-        await performReconciliation(
-            wanted: wanted,
-            trigger: trigger,
-            items: givenItems,
-            controlItems: givenControlItems,
-            appState: appState
-        )
-        activeReconciliationTrigger = nil
+        await ReconciliationPass.$current.withValue(trigger.pass) {
+            await performReconciliation(
+                wanted: wanted,
+                trigger: trigger,
+                items: givenItems,
+                controlItems: givenControlItems,
+                appState: appState
+            )
+        }
         isReconcilingSections = false
 
         if let pending = pendingReconciliation {

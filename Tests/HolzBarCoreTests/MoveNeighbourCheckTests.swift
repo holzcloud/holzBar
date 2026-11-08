@@ -58,4 +58,15 @@ struct MoveNeighbourCheckTests {
     func emptyLists() {
         #expect(MoveNeighbourCheck.disturbed(before: [], after: [], moved: 1).isEmpty)
     }
+
+    @Test("Only an automatic move outside a pass or in a restore schedules a repair")
+    func repairPolicy() {
+        #expect(MoveNeighbourCheck.schedulesRepair(automatic: true, pass: nil))
+        #expect(MoveNeighbourCheck.schedulesRepair(automatic: true, pass: .restore))
+        #expect(!MoveNeighbourCheck.schedulesRepair(automatic: true, pass: .arrangement))
+        #expect(!MoveNeighbourCheck.schedulesRepair(automatic: true, pass: .repair))
+        for pass: MoveNeighbourCheck.Pass? in [nil, .restore, .arrangement, .repair] {
+            #expect(!MoveNeighbourCheck.schedulesRepair(automatic: false, pass: pass))
+        }
+    }
 }

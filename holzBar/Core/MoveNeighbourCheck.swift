@@ -45,6 +45,31 @@ nonisolated enum MoveNeighbourCheck {
         return result.sorted()
     }
 
+    /// The pass of section reconciliation a move belongs to.
+    enum Pass: Sendable {
+        /// A restore of the saved sections and order, new-item placement, keeping Live
+        /// Activities visible.
+        case restore
+        /// The user's own arrangement: a profile or the Menu Bar Layout pane. Its result is
+        /// saved afterwards, so a repair would put back what the user is replacing.
+        case arrangement
+        /// The repair after a move that disturbed other items.
+        case repair
+    }
+
+    /// Whether a move that disturbed other items schedules a repair: only an automatic move
+    /// outside a pass (rehiding, the order of the dividers) or in a restore. A move by the user
+    /// and the moves of an arrangement or of a repair are only logged.
+    static func schedulesRepair(automatic: Bool, pass: Pass?) -> Bool {
+        guard automatic else {
+            return false
+        }
+        switch pass {
+        case nil, .restore?: return true
+        case .arrangement?, .repair?: return false
+        }
+    }
+
     /// The ids by left edge, then by id; a repeated id counts once (its first place).
     private static func ordered(_ entries: [Entry]) -> [UInt32] {
         var seen = Set<UInt32>()

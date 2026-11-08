@@ -77,9 +77,6 @@ final class MenuBarItemManager {
     /// Whether the sections are being reconciled.
     @ObservationIgnored var isReconcilingSections = false
 
-    /// The trigger of the reconciliation that is running now, `nil` between reconciliations.
-    @ObservationIgnored var activeReconciliationTrigger: SectionRestoreTrigger?
-
     /// Whether a repair after a move that pushed other items is scheduled or running (see
     /// `scheduleMoveRepair()` in `SectionRestore.swift`).
     @ObservationIgnored var isMoveRepairScheduled = false
@@ -869,9 +866,11 @@ extension MenuBarItemManager {
     }
 
     /// Compares the bar after a move with the one before it. When the move pushed other items out
-    /// of their places, an automatic move schedules one repair (a repair never schedules another);
-    /// a move by the user is only logged, because the user's arrangement is what gets saved.
-    /// Only counts and the origin are logged, never item names.
+    /// of their places, an automatic move outside a pass or in a restore schedules one repair
+    /// (`MoveNeighbourCheck.schedulesRepair`); a move by the user, of a profile or the Layout pane
+    /// (the user's arrangement is what gets saved) and of a repair is only logged. The pass is the
+    /// one of the move's own task (``ReconciliationPass``), so a move of another task is never
+    /// taken for one of a running pass. Only counts and the origin are logged, never item names.
     private func checkNeighbours(
         after item: MenuBarItem,
         before: [MoveNeighbourCheck.Entry],
@@ -887,7 +886,7 @@ extension MenuBarItemManager {
         }
         let originName = origin == .user ? "user" : "automatic"
         logger.notice("A move disturbed \(disturbed.count, privacy: .public) other items (\(originName, privacy: .public) move)")
-        if origin == .automatic, activeReconciliationTrigger != .moveRepair {
+        if MoveNeighbourCheck.schedulesRepair(automatic: origin == .automatic, pass: ReconciliationPass.current) {
             scheduleMoveRepair()
         }
     }
