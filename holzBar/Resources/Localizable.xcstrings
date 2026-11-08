@@ -126139,6 +126139,1304 @@
           }
         }
       }
+    },
+    "Order inside sections" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pořadí uvnitř sekcí"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reihenfolge innerhalb der Bereiche"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Orden dentro de las secciones"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordre dans les sections"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sorrend a szakaszokon belül"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Urutan di dalam bagian"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordine all’interno delle sezioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "セクション内の順序"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "섹션 안의 순서"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volgorde binnen secties"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kolejność w obrębie sekcji"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordem dentro das seções"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Successiun entaifer las secziuns"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Порядок внутри разделов"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ordning inom sektioner"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bölümler içindeki sıra"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Порядок усередині розділів"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分区内的顺序"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "區段內的順序"
+          }
+        }
+      }
+    },
+    "On macOS 26 and earlier, items keep their order inside each section and go back to their place when they reappear." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 26 a starších si položky drží pořadí uvnitř každé sekce a když se znovu objeví, vrátí se na své místo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 26 und früher behalten Elemente ihre Reihenfolge innerhalb jedes Bereichs und kehren an ihren Platz zurück, wenn sie wieder erscheinen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 26 y anteriores, los elementos conservan su orden dentro de cada sección y vuelven a su sitio cuando reaparecen."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 26 et antérieur, les éléments gardent leur ordre dans chaque section et reprennent leur place quand ils réapparaissent."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 26 és korábbi rendszeren az elemek megtartják a sorrendjüket az egyes szakaszokon belül, és visszakerülnek a helyükre, amikor újra megjelennek."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 26 dan yang lebih lama, item mempertahankan urutannya di dalam setiap bagian dan kembali ke tempatnya saat muncul lagi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con macOS 26 e precedenti, gli elementi mantengono l’ordine all’interno di ogni sezione e tornano al loro posto quando riappaiono."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 26 以前では、項目は各セクション内で順序を保ち、再び現れたときは元の位置に戻ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 26 및 이전 버전에서는 항목이 각 섹션 안에서 순서를 유지하고, 다시 나타나면 원래 자리로 돌아갑니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 26 en eerder behouden onderdelen hun volgorde binnen elke sectie en gaan ze terug naar hun plek als ze opnieuw verschijnen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 26 i wcześniejszych elementy zachowują kolejność w każdej sekcji i wracają na swoje miejsce, gdy pojawią się ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 26 e anteriores, os itens mantêm a ordem dentro de cada seção e voltam ao seu lugar quando reaparecem."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sut macOS 26 ed ina versiun pli veglia mantegnan ils elements lur successiun entaifer mintga secziun e turnan a lur plaz cur ch’els cumparan danovamain."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 26 и более ранних версиях элементы сохраняют порядок внутри каждого раздела и возвращаются на своё место, когда появляются снова."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I macOS 26 och tidigare behåller objekt sin ordning inom varje sektion och går tillbaka till sin plats när de dyker upp igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 26 ve öncesinde öğeler her bölümün içindeki sıralarını korur ve yeniden göründüklerinde yerlerine geri döner."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 26 і раніших версіях елементи зберігають порядок усередині кожного розділу й повертаються на своє місце, коли з’являються знову."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 26 及更早版本上，项目会保持其在各分区内的顺序，重新出现时会回到原来的位置。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 26 及更早版本上，項目會保持其在各區段內的順序，重新出現時會回到原來的位置。"
+          }
+        }
+      }
+    },
+    "Safer URL commands" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bezpečnější příkazy URL"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sicherere URL-Befehle"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comandos URL más seguros"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Commandes URL plus sûres"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Biztonságosabb URL-parancsok"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Perintah URL yang lebih aman"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comandi URL più sicuri"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "より安全な URL コマンド"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "더 안전한 URL 명령"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veiligere URL-opdrachten"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bezpieczniejsze polecenia URL"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comandos de URL mais seguros"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cumonds URL pli segirs"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Более безопасные команды URL"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Säkrare URL-kommandon"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Daha güvenli URL komutları"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Безпечніші команди URL"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更安全的 URL 命令"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更安全的 URL 指令"
+          }
+        }
+      }
+    },
+    "While Zen mode is on, the command that toggles application menus is ignored, and a burst of commands from another app is limited." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dokud je zapnutý režim Zen, příkaz přepínající nabídky aplikací se ignoruje a příval příkazů z jiné aplikace se omezuje."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solange der Zen-Modus an ist, wird der Befehl zum Ein- und Ausblenden der Anwendungsmenüs ignoriert, und eine Flut von Befehlen einer anderen App wird begrenzt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mientras el modo Zen está activado, se ignora el comando que muestra u oculta los menús de las aplicaciones, y se limita una ráfaga de comandos de otra app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tant que le mode Zen est activé, la commande qui affiche ou masque les menus d’application est ignorée, et une rafale de commandes d’une autre app est limitée."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amíg a Zen mód be van kapcsolva, az alkalmazásmenük átváltására szolgáló parancsot figyelmen kívül hagyja a rendszer, egy másik alkalmazás parancsözönét pedig korlátozza."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selama mode Zen aktif, perintah yang mengalihkan menu aplikasi diabaikan, dan banjir perintah dari app lain dibatasi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finché la modalità Zen è attiva, il comando che mostra o nasconde i menu delle app viene ignorato, e una raffica di comandi da un’altra app viene limitata."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen モードがオンの間、アプリケーションメニューを切り替えるコマンドは無視され、他のアプリからの大量のコマンドは制限されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "젠 모드가 켜져 있는 동안에는 응용 프로그램 메뉴를 전환하는 명령이 무시되고, 다른 앱에서 한꺼번에 오는 명령은 제한됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zolang de Zenmodus aan staat, wordt de opdracht die de appmenu’s in- of uitschakelt genegeerd en wordt een stortvloed aan opdrachten van een andere app beperkt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gdy tryb Zen jest włączony, polecenie przełączające menu aplikacji jest ignorowane, a lawina poleceń z innej aplikacji jest ograniczana."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enquanto o modo Zen está ativado, o comando que mostra ou oculta os menus dos apps é ignorado, e uma rajada de comandos de outro app é limitada."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uschè ditg che il modus Zen è activà, vegn il cumond che mussa u zuppa ils menus d’applicaziuns ignorà, ed ina fluena da cumonds d’ina autra app vegn limitada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Пока включён режим «Дзен», команда переключения меню приложений игнорируется, а поток команд от другого приложения ограничивается."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medan Zen-läge är på ignoreras kommandot som växlar programmenyer, och en störtflod av kommandon från en annan app begränsas."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zen modu açıkken uygulama menülerini açıp kapatan komut yok sayılır ve başka bir uygulamadan gelen komut yağmuru sınırlanır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Поки ввімкнено режим «Дзен», команду перемикання меню програм ігноровано, а потік команд від іншої програми обмежено."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开启禅模式时，切换应用程序菜单的命令会被忽略，来自其他 App 的大量命令会受到限制。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "開啟 Zen 模式時，切換 App 選單的指令會被忽略，來自其他 App 的大量指令會受到限制。"
+          }
+        }
+      }
+    },
+    "holzBar no longer moves items or records your layout while the menu bar is still settling after a display change." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar už nepřesouvá položky ani nezaznamenává uspořádání, dokud se řádek nabídek po změně displeje ještě ustaluje."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar verschiebt keine Elemente mehr und sichert dein Layout nicht, solange sich die Menüleiste nach einer Bildschirmänderung noch beruhigt."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ya no mueve elementos ni guarda tu disposición mientras la barra de menús aún se estabiliza tras un cambio de pantalla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ne déplace plus d’éléments et n’enregistre plus votre disposition tant que la barre des menus se stabilise après un changement d’écran."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar már nem helyez át elemeket, és nem rögzíti az elrendezést, amíg a menüsor egy kijelzőváltozás után még megnyugszik."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar tidak lagi memindahkan item atau merekam tata letak Anda selagi bar menu masih menenang setelah perubahan layar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar non sposta più gli elementi e non registra il layout mentre la barra dei menu si sta ancora assestando dopo una modifica del monitor."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ディスプレイの変更後にメニューバーがまだ落ち着いていない間は、holzBar は項目を移動せず、レイアウトも記録しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "디스플레이가 바뀐 뒤 메뉴 막대가 아직 안정되는 중에는 holzBar가 항목을 옮기거나 레이아웃을 기록하지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar verplaatst geen onderdelen meer en legt je indeling niet vast zolang de menubalk na een beeldschermwijziging nog tot rust komt."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar nie przenosi już elementów ani nie zapisuje układu, gdy pasek menu jeszcze się stabilizuje po zmianie wyświetlacza."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar não move mais itens nem registra seu layout enquanto a barra de menus ainda se estabiliza após uma mudança de monitor."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar na dislocheschia betg pli elements e na memorisescha betg la disposiziun, uschè ditg che la trav da menu sa stabilisescha anc suenter ina midada da monitur."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar больше не перемещает элементы и не записывает вашу раскладку, пока строка меню ещё успокаивается после изменения дисплея."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar flyttar inte längre objekt och sparar inte din layout medan menyraden fortfarande lugnar sig efter en skärmändring."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ekran değişikliğinden sonra menü çubuğu hâlâ oturmakta olduğu sürece holzBar artık öğeleri taşımaz ve düzeninizi kaydetmez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar більше не переміщує елементи й не записує вашу розкладку, поки смуга меню ще заспокоюється після зміни дисплея."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示器变更后菜单栏仍在稳定期间，holzBar 不再移动项目，也不再记录你的布局。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示器變更後選單列仍在穩定期間，holzBar 不再移動項目，也不再記錄你的佈局。"
+          }
+        }
+      }
+    },
+    "Apps that start slowly, such as OneDrive, are placed once they have started." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplikace, které se spouštějí pomalu, například OneDrive, se umístí, až se spustí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps, die langsam starten, etwa OneDrive, werden platziert, sobald sie gestartet sind."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las apps que arrancan despacio, como OneDrive, se colocan cuando ya han arrancado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les apps qui démarrent lentement, comme OneDrive, sont placées une fois démarrées."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A lassan induló alkalmazások, például a OneDrive, az indulásuk után kerülnek a helyükre."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App yang mulai dengan lambat, seperti OneDrive, ditempatkan setelah selesai dimulai."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le app che si avviano lentamente, come OneDrive, vengono posizionate una volta avviate."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OneDrive など起動が遅いアプリは、起動した後に配置されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OneDrive처럼 느리게 시작되는 앱은 시작된 뒤에 배치됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps die langzaam starten, zoals OneDrive, worden geplaatst zodra ze zijn gestart."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aplikacje, które uruchamiają się wolno, takie jak OneDrive, są umieszczane po uruchomieniu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps que iniciam devagar, como o OneDrive, são posicionados depois de iniciarem."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps che cumenzan plaunsieu, sco OneDrive, vegnan plazzadas, uschespert ch’ellas èn partidas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Приложения, которые запускаются медленно, например OneDrive, размещаются после своего запуска."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appar som startar långsamt, till exempel OneDrive, placeras när de har startat."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OneDrive gibi yavaş başlayan uygulamalar, başladıktan sonra yerleştirilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Програми, що запускаються повільно, як-от OneDrive, розміщуються після свого запуску."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "启动较慢的 App（例如 OneDrive）会在启动完成后再放置。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "啟動較慢的 App（例如 OneDrive）會在啟動完成後再放置。"
+          }
+        }
+      }
+    },
+    "Items with a second line or a live value in their title keep their place." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Položky s druhým řádkem nebo živou hodnotou v názvu si drží své místo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemente mit einer zweiten Zeile oder einem Live-Wert im Titel behalten ihren Platz."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos con una segunda línea o un valor en directo en su título conservan su sitio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments dont le titre comporte une deuxième ligne ou une valeur en direct gardent leur place."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A második sort vagy élő értéket tartalmazó című elemek megtartják a helyüket."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item dengan baris kedua atau nilai langsung di judulnya tetap berada di tempatnya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi con una seconda riga o un valore in tempo reale nel titolo mantengono il loro posto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイトルに 2 行目やライブ値を含む項目も、位置を保ちます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목에 둘째 줄이나 실시간 값이 있는 항목도 자리를 유지합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderdelen met een tweede regel of een live waarde in hun titel behouden hun plek."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementy z drugą linią lub wartością na żywo w tytule zachowują swoje miejsce."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Itens com uma segunda linha ou um valor ao vivo no título mantêm o seu lugar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elements cun ina segunda lingia u cun ina valur actuala en il titel mantegnan lur plaz."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Элементы со второй строкой или живым значением в названии сохраняют своё место."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Objekt med en andra rad eller ett live-värde i titeln behåller sin plats."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Başlığında ikinci satır veya canlı değer bulunan öğeler yerlerini korur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Елементи з другим рядком або живим значенням у назві зберігають своє місце."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标题带有第二行或实时数值的项目会保持原位。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "標題帶有第二行或即時數值的項目會保持原位。"
+          }
+        }
+      }
+    },
+    "Moving an item no longer pushes the items next to it into another section." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přesunutí položky už nepostrčí sousední položky do jiné sekce."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Verschieben eines Elements schiebt die Nachbarelemente nicht mehr in einen anderen Bereich."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover un elemento ya no empuja los elementos contiguos a otra sección."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacer un élément ne pousse plus les éléments voisins dans une autre section."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy elem áthelyezése már nem tolja át a szomszédos elemeket egy másik szakaszba."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memindahkan sebuah item tidak lagi mendorong item di sebelahnya ke bagian lain."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spostare un elemento non spinge più gli elementi accanto in un’altra sezione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目を移動しても、隣の項目が別のセクションへ押し出されなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목을 옮겨도 옆의 항목이 다른 섹션으로 밀려나지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het verplaatsen van een onderdeel duwt de aangrenzende onderdelen niet meer naar een andere sectie."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeniesienie elementu nie wypycha już sąsiednich elementów do innej sekcji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mover um item não empurra mais os itens vizinhos para outra seção."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dislocar in element na tira betg pli ils elements vischins en in’autra secziun."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перемещение элемента больше не вытесняет соседние элементы в другой раздел."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Att flytta ett objekt knuffar inte längre objekten bredvid till en annan sektion."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir öğeyi taşımak artık yanındaki öğeleri başka bir bölüme itmez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переміщення елемента більше не виштовхує сусідні елементи в інший розділ."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移动一个项目不再把相邻的项目推到另一个分区。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "移動一個項目不再把相鄰的項目推到另一個區段。"
+          }
+        }
+      }
+    },
+    "Control Center controls pinned to the menu bar show as fixed in Menu Bar Layout on macOS 27." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ovládací prvky Ovládacího centra připnuté do řádku nabídek se v Uspořádání řádku nabídek v macOS 27 zobrazují jako pevné."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ans Kontrollzentrum angeheftete Steuerelemente der Menüleiste erscheinen unter macOS 27 im Menüleistenlayout als fixiert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los controles del Centro de control fijados en la barra de menús aparecen como fijos en Disposición de la barra de menús en macOS 27."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les commandes du Centre de contrôle épinglées à la barre des menus apparaissent comme fixes dans Disposition de la barre des menus sous macOS 27."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A menüsorhoz rögzített Vezérlőközpont-vezérlők macOS 27-en rögzítettként jelennek meg a Menüsor elrendezésében."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontrol Pusat Kontrol yang disematkan ke bar menu tampil sebagai tetap di Tata Letak Bar Menu di macOS 27."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I controlli del Centro di Controllo fissati nella barra dei menu appaiono come fissi in Layout della barra dei menu su macOS 27."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバーに固定したコントロールセンターのコントロールは、macOS 27 のメニューバーレイアウトで固定として表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대에 고정한 제어 센터 컨트롤이 macOS 27의 메뉴 막대 레이아웃에서 고정된 것으로 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Control Center-regelaars die aan de menubalk zijn vastgemaakt, worden in Menubalkindeling op macOS 27 als vast getoond."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przypięte do paska menu elementy sterujące Centrum sterowania są w macOS 27 pokazywane jako przypięte w układzie paska menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controles da Central de Controle fixados na barra de menus aparecem como fixos em Layout da Barra de Menus no macOS 27."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controllas dal Center da controlla fixadas a la trav da menu cumparan sco fixas en Disposiziun da la trav da menu sut macOS 27."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Элементы Пункта управления, закреплённые в строке меню, отображаются как закреплённые в Раскладке строки меню в macOS 27."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kontrollcenter-kontroller som är fästa i menyraden visas som fasta i Menyradslayout i macOS 27."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğuna sabitlenen Denetim Merkezi denetimleri, macOS 27’de Menü Çubuğu Düzeni içinde sabit olarak görünür."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Елементи Центру керування, закріплені в смузі меню, у macOS 27 показуються як закріплені в Розкладці смуги меню."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "固定在菜单栏中的控制中心控件，在 macOS 27 的菜单栏布局中显示为已固定。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "固定在選單列中的控制中心控制項，在 macOS 27 的選單列佈局中顯示為已固定。"
+          }
+        }
+      }
+    },
+    "Tray icons of Windows apps run with Wine or CrossOver are no longer moved by holzBar." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikony v oznamovací oblasti aplikací Windows spuštěných přes Wine nebo CrossOver už holzBar nepřesouvá."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ablagesymbole von Windows-Apps, die mit Wine oder CrossOver laufen, werden von holzBar nicht mehr verschoben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ya no mueve los iconos de la bandeja de las apps de Windows que se ejecutan con Wine o CrossOver."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les icônes de la zone de notification des apps Windows exécutées avec Wine ou CrossOver ne sont plus déplacées par holzBar."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Wine-nal vagy CrossOverrel futtatott Windows-alkalmazások tálcaikonjait a holzBar már nem helyezi át."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikon baki app Windows yang dijalankan dengan Wine atau CrossOver tidak lagi dipindahkan oleh holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le icone nell’area di notifica delle app Windows eseguite con Wine o CrossOver non vengono più spostate da holzBar."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wine や CrossOver で動かす Windows アプリのトレイアイコンは、holzBar によって移動されなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wine 또는 CrossOver로 실행하는 Windows 앱의 트레이 아이콘을 holzBar가 더 이상 옮기지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systeemvakpictogrammen van Windows-apps die met Wine of CrossOver draaien, worden niet meer door holzBar verplaatst."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikony w zasobniku aplikacji Windows uruchamianych przez Wine lub CrossOver nie są już przenoszone przez holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os ícones da bandeja de apps do Windows executados com Wine ou CrossOver não são mais movidos pelo holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils simbols da la zona d’infurmaziun d’apps da Windows che vegnan exequidas cun Wine u CrossOver na vegnan betg pli dislocads da holzBar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Значки в трее приложений Windows, запущенных через Wine или CrossOver, больше не перемещаются holzBar."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systemfältsikoner för Windows-appar som körs med Wine eller CrossOver flyttas inte längre av holzBar."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wine veya CrossOver ile çalışan Windows uygulamalarının tepsi simgeleri artık holzBar tarafından taşınmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Значки в треї програм Windows, запущених через Wine або CrossOver, більше не переміщуються holzBar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过 Wine 或 CrossOver 运行的 Windows App 的托盘图标不再被 holzBar 移动。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過 Wine 或 CrossOver 執行的 Windows App 的托盤圖示不再被 holzBar 移動。"
+          }
+        }
+      }
+    },
+    "An imported settings file can no longer bring an unlimited number of layout profiles." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importovaný soubor nastavení už nemůže přinést neomezený počet profilů uspořádání."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine importierte Einstellungsdatei kann nicht mehr beliebig viele Layoutprofile mitbringen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un archivo de ajustes importado ya no puede traer un número ilimitado de perfiles de disposición."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un fichier de réglages importé ne peut plus apporter un nombre illimité de profils de disposition."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy importált beállításfájl már nem hozhat korlátlan számú elrendezésprofilt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File pengaturan yang diimpor tidak lagi dapat membawa profil tata letak dalam jumlah tak terbatas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un file di impostazioni importato non può più portare un numero illimitato di profili di layout."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "読み込んだ設定ファイルが、無制限の数のレイアウトプロファイルを持ち込むことはなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가져온 설정 파일이 레이아웃 프로파일을 무제한으로 가져올 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een geïmporteerd instellingenbestand kan niet langer een onbeperkt aantal indelingsprofielen meebrengen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zaimportowany plik ustawień nie może już wnieść nieograniczonej liczby profili układu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um arquivo de ajustes importado não pode mais trazer um número ilimitado de perfis de layout."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In fail da parameters importà na po betg pli purtar in dumber nunlimità da profils da disposiziun."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Импортированный файл настроек больше не может принести неограниченное число профилей раскладки."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En importerad inställningsfil kan inte längre ta med ett obegränsat antal layoutprofiler."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "İçe aktarılan bir ayar dosyası artık sınırsız sayıda düzen profili getiremez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Імпортований файл налаштувань більше не може принести необмежену кількість профілів розкладки."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入的设置文件不能再带来数量不限的布局配置文件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯入的設定檔不能再帶來數量不限的佈局設定檔。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
