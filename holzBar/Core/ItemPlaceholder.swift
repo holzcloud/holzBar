@@ -13,7 +13,10 @@ import Foundation
 /// and the saved section of its real title was never restored. So before macOS 27 an item with a
 /// placeholder title whose app started less than ``provisionalPeriod`` ago is provisional: it is
 /// not placed by the new-items setting, not recorded as known and not stored in the saved
-/// sections (``isProvisional(title:runningFor:)``). Saved sections and profiles still apply to it.
+/// sections (``isProvisional(title:runningFor:)``). A profile still applies to it, a saved section
+/// does not: earlier versions saved `Item-N` keys with the section macOS gave the item at launch,
+/// and such keys are dropped once their app shows its final items
+/// (``stalePlaceholderKeys(stored:current:)``).
 ///
 /// A placeholder title alone is not enough: many apps keep `Item-N` for good, so once the period
 /// has passed such an item is placed like any other.
@@ -46,5 +49,35 @@ nonisolated enum ItemPlaceholder {
     ///   - runningFor: How long the item's app (or holzBar, if it started later) has run.
     static func isProvisional(title: String, runningFor: Duration) -> Bool {
         ItemIdentity.isPlaceholderTitle(title) && runningFor < provisionalPeriod
+    }
+
+    /// An item on the bar now, for ``stalePlaceholderKeys(stored:current:)``.
+    struct CurrentItem: Sendable {
+        let namespace: String
+        let key: String
+        let isProvisional: Bool
+    }
+
+    /// The stored keys of launch placeholders that are stale: `namespace:Item-N` (with an
+    /// optional `:<occurrence>`) of an app that is on the bar now, has no provisional item and no
+    /// item under that key. Versions up to 1.0.3 saved such keys with the section macOS gave the
+    /// item at launch; restoring them moved the item at every login. An app that keeps `Item-N`
+    /// for good has its item under that key, and an app that is not on the bar keeps its keys.
+    static func stalePlaceholderKeys(stored: some Sequence<String>, current: [CurrentItem]) -> Set<String> {
+        let currentKeys = Set(current.map(\.key))
+        var settledNamespaces = Set(current.map(\.namespace))
+        settledNamespaces.subtract(current.filter(\.isProvisional).map(\.namespace))
+        var stale = Set<String>()
+        for key in stored where !currentKeys.contains(key) {
+            guard let separator = key.firstIndex(of: ":") else {
+                continue
+            }
+            let namespace = String(key[..<separator])
+            let title = key[key.index(after: separator)...]
+            if settledNamespaces.contains(namespace), title.wholeMatch(of: /Item-[0-9]+(?::[0-9]+)?/) != nil {
+                stale.insert(key)
+            }
+        }
+        return stale
     }
 }

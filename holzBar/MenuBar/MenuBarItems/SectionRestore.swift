@@ -404,8 +404,10 @@ extension MenuBarItemManager {
         // trigger. A profile does not use them.
         let reappearedKeys = wanted == nil ? pendingReappearedKeys : []
 
-        // Items that still carry a launch placeholder title (`ItemPlaceholder`): a profile and the
-        // saved sections still apply to them, but they are neither placed as new nor remembered.
+        // Items that still carry a launch placeholder title (`ItemPlaceholder`): a profile still
+        // applies to them, but a saved section does not (an `Item-N` key saved by an earlier
+        // version holds the section macOS gave the item at launch), and they are neither placed
+        // as new nor remembered.
         var provisionalKeys = Set<String>()
         var skippedProvisionalNewItem = false
 
@@ -422,7 +424,7 @@ extension MenuBarItemManager {
             var target: MenuBarSection.Name?
             if let wanted {
                 target = wanted[key]
-            } else if trigger.restoresSavedSections || reappearedKeys.contains(key), let section = saved[key] {
+            } else if !isProvisional, trigger.restoresSavedSections || reappearedKeys.contains(key), let section = saved[key] {
                 target = section
             } else if isNew {
                 if isProvisional {
@@ -537,6 +539,7 @@ extension MenuBarItemManager {
 
         // Where new items were placed is a section to restore too.
         storeSections(placedSections)
+        dropStalePlaceholderSections(items: items, keys: keys)
 
         // Only the launch restore starts the re-checks, so a re-check never starts another.
         if trigger == .launch && skippedProvisionalNewItem {
@@ -550,6 +553,34 @@ extension MenuBarItemManager {
             let sections = trigger.restoresSavedSections ? nil : Set(reappearedHere.compactMap { saved[$0] })
             await restoreOrder(trigger: trigger, sections: sections, appState: appState)
         }
+    }
+
+    /// Drops saved sections of launch placeholders (`namespace:Item-N`) that versions up to 1.0.3
+    /// saved, once their app is on the bar with its final items
+    /// (`ItemPlaceholder.stalePlaceholderKeys`). Only counts are logged.
+    private func dropStalePlaceholderSections(items: [MenuBarItem], keys: [CGWindowID: String]) {
+        guard var stored = Defaults.dictionary(forKey: .itemSections) as? [String: Int] else {
+            return
+        }
+        let current = items.compactMap { item -> ItemPlaceholder.CurrentItem? in
+            guard !item.isControlItem, let key = keys[item.windowID] else {
+                return nil
+            }
+            return ItemPlaceholder.CurrentItem(
+                namespace: item.tag.namespace.description,
+                key: key,
+                isProvisional: isProvisionalPlaceholder(item)
+            )
+        }
+        let stale = ItemPlaceholder.stalePlaceholderKeys(stored: stored.keys, current: current)
+        guard !stale.isEmpty else {
+            return
+        }
+        for key in stale {
+            stored.removeValue(forKey: key)
+        }
+        Defaults.set(stored, forKey: .itemSections)
+        Self.restoreLogger.info("Dropped the saved sections of \(stale.count, privacy: .public) launch placeholders")
     }
 
     /// The items a restore may move: movable, hideable, not a control item, a system clone or an
