@@ -127794,6 +127794,125 @@
           }
         }
       }
+    },
+    "The profiles would be too large to store. Delete one, then save again." : {
+      "comment" : "Menu Bar Layout pane, Profiles: alert message when saving a layout profile is refused because the stored list would exceed its size limit (4 MB).",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profily by byly příliš velké na uložení. Smažte jeden a pak uložte znovu."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Profile wären zu gross zum Speichern. Lösche eines und sichere dann erneut."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los perfiles serían demasiado grandes para guardarlos. Elimina uno y vuelve a guardar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les profils seraient trop volumineux pour être enregistrés. Supprimez-en un, puis enregistrez à nouveau."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A profilok túl nagyok lennének a mentéshez. Töröljön egyet, majd mentsen újra."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil akan terlalu besar untuk disimpan. Hapus satu, lalu simpan lagi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I profili sarebbero troppo grandi da salvare. Eliminane uno, poi salva di nuovo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルが大きすぎて保存できません。いずれかを削除してから、もう一度保存してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로파일이 너무 커서 저장할 수 없습니다. 하나를 삭제한 다음 다시 저장하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De profielen zouden te groot zijn om te bewaren. Verwijder er een en bewaar opnieuw."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile byłyby zbyt duże, aby je zachować. Usuń jeden i zachowaj ponownie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os perfis ficariam grandes demais para salvar. Exclua um e salve novamente."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils profils fissan memia gronds per als memorisar. Stizza in e memorisescha lura danovamain."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Профили были бы слишком большими для сохранения. Удалите один и сохраните снова."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profilerna skulle bli för stora att spara. Ta bort en och spara sedan igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profiller kaydedilemeyecek kadar büyük olurdu. Birini silin, sonra yeniden kaydedin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Профілі були б завеликими для збереження. Видаліть один, а потім збережіть знову."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置文件太大，无法存储。请删除一个后再存储。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定檔太大，無法儲存。請刪除一個後再儲存。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

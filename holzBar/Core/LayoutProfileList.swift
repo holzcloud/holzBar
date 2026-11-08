@@ -59,7 +59,8 @@ nonisolated enum LayoutProfileList {
     /// An element that cannot be decoded is dropped alone. A stored name is kept exactly as it
     /// is; a profile is dropped only when its name is empty or white space, or over
     /// ``maximumStoredNameBytes``, which no version of the app writes. A name an earlier profile
-    /// already has gets a number (" 2", " 3", …) instead of dropping the profile. The first
+    /// already has gets the first number (" 2", " 3", …) that no stored name has, instead of
+    /// dropping the profile. The first
     /// ``maximumProfiles`` stay. Within a profile, a key that is empty or over
     /// ``maximumKeyLength`` bytes and a section outside 0 to 2 are dropped, the first
     /// ``maximumEntriesPerProfile`` entries by key stay, and a display or Space UUID that is empty
@@ -69,20 +70,23 @@ nonisolated enum LayoutProfileList {
             let elements = try? JSONDecoder().decode([LossyLayoutProfile].self, from: data) else {
             return nil
         }
+        let valid = elements.compactMap(\.value).filter { isValidStoredName($0.name) }
+        // Every real stored name is reserved first, so a numbered repeat never takes the name of
+        // a later profile that hotkeys and Shortcuts refer to.
+        let reserved = Set(valid.map(\.name))
         var seenNames = Set<String>()
         var profiles = [LayoutProfile]()
-        for case let element? in elements.map(\.value) {
+        for element in valid {
             guard profiles.count < maximumProfiles else {
                 break
             }
-            guard isValidStoredName(element.name) else {
-                continue
-            }
             var name = element.name
-            var number = 2
-            while !seenNames.insert(name).inserted {
-                name = "\(element.name) \(number)"
-                number += 1
+            if !seenNames.insert(name).inserted {
+                var number = 2
+                repeat {
+                    name = "\(element.name) \(number)"
+                    number += 1
+                } while reserved.contains(name) || !seenNames.insert(name).inserted
             }
             profiles.append(LayoutProfile(
                 name: name,
@@ -111,7 +115,51 @@ nonisolated enum LayoutProfileList {
     /// and at most ``maximumDataSize`` once encoded. A change that breaks this is refused, so the
     /// next load never drops a profile the user saw.
     static func fitsLimits(_ profiles: [LayoutProfile]) -> Bool {
-        profiles.count <= maximumProfiles && encoded(profiles) != nil
+        limitViolation(profiles) == nil
+    }
+
+    /// A limit of the next load that a list breaks.
+    enum LimitViolation: Equatable, Sendable {
+        /// More than ``maximumProfiles``.
+        case tooMany
+        /// Over ``maximumDataSize`` once encoded.
+        case tooLarge
+    }
+
+    /// The limit of the next load that a list breaks, or `nil` when it fits
+    /// (``fitsLimits(_:)``).
+    static func limitViolation(_ profiles: [LayoutProfile]) -> LimitViolation? {
+        if profiles.count > maximumProfiles {
+            return .tooMany
+        }
+        return encoded(profiles) == nil ? .tooLarge : nil
+    }
+
+    /// The stored name a typed name refers to: the stored name that is exactly the typed text
+    /// (white space trimmed), else the first whose cleaned form is the cleaned typed name, else
+    /// `nil`. A profile saved by an earlier version can have a name the cleaning changes (a joiner
+    /// in an emoji, a soft hyphen, more than 80 characters); typing or keeping that name still
+    /// means that profile.
+    static func existingName(matching typed: String, among names: [String]) -> String? {
+        let trimmed = typed.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return nil
+        }
+        if names.contains(trimmed) {
+            return trimmed
+        }
+        let cleaned = cleanedName(trimmed)
+        guard !cleaned.isEmpty else {
+            return nil
+        }
+        return names.first { cleanedName($0) == cleaned }
+    }
+
+    /// The name a typed name is saved under: the stored name it refers to
+    /// (``existingName(matching:among:)``), so the profile is replaced and keeps its identity,
+    /// else the cleaned typed name. Empty when nothing is left.
+    static func savedName(forTyped typed: String, among names: [String]) -> String {
+        existingName(matching: typed, among: names) ?? cleanedName(typed)
     }
 
     /// An imported list as it may be applied: the validated profiles, encoded again, so that

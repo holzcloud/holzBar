@@ -86,8 +86,15 @@ struct LayoutProfileListTests {
             element("Work", items: ["d": 0]),
             element("work"),
         ])
-        #expect(list.map(\.name) == ["Work", "Work 2", "Work 2 2", "Work 3", "work"])
+        // A real stored name is never taken by a numbered repeat.
+        #expect(list.map(\.name) == ["Work", "Work 3", "Work 2", "Work 4", "work"])
         #expect(list.map(\.itemSections) == [["a": 0], ["b": 0], ["c": 0], ["d": 0], ["com.example.app:Item": 1]])
+    }
+
+    @Test("Numbering a repeat skips every real stored name")
+    func numberingSkipsRealNames() throws {
+        let list = try profiles([element("Work"), element("Work"), element("Work 2")])
+        #expect(list.map(\.name) == ["Work", "Work 3", "Work 2"])
     }
 
     @Test("A name that is empty or white space is dropped")
@@ -129,6 +136,43 @@ struct LayoutProfileListTests {
         let cleaned = LayoutProfileList.cleanedName(name)
         #expect(cleaned == String(repeating: "a", count: 79))
         #expect(LayoutProfileList.cleanedName(cleaned) == cleaned)
+    }
+
+    @Test("A typed name that is a stored name, exactly or once cleaned, refers to that profile")
+    func typedNameMatchesStoredName() {
+        let emoji = "\u{1F469}\u{200D}\u{1F4BB} Work"
+        let hyphen = "Wo\u{00AD}rk"
+        let long = String(repeating: "x", count: 90)
+        let names = [emoji, hyphen, long, "Home"]
+        // The pre-filled stored name keeps the profile's identity.
+        #expect(LayoutProfileList.savedName(forTyped: emoji, among: names) == emoji)
+        #expect(LayoutProfileList.savedName(forTyped: " \(hyphen) ", among: names) == hyphen)
+        #expect(LayoutProfileList.savedName(forTyped: long, among: names) == long)
+        // The cleaned form of a stored name refers to it too.
+        #expect(LayoutProfileList.savedName(forTyped: LayoutProfileList.cleanedName(emoji), among: names) == emoji)
+        #expect(LayoutProfileList.savedName(forTyped: "Work", among: [hyphen]) == hyphen)
+        // An exact match wins over a cleaned one.
+        #expect(LayoutProfileList.savedName(forTyped: "Work", among: [hyphen, "Work"]) == "Work")
+        // A new name is cleaned.
+        #expect(LayoutProfileList.savedName(forTyped: " Ne\u{0007}w ", among: names) == "New")
+        #expect(LayoutProfileList.existingName(matching: "New", among: names) == nil)
+        #expect(LayoutProfileList.existingName(matching: "   ", among: names) == nil)
+    }
+
+    @Test("A limit that a list breaks is named")
+    func limitViolation() {
+        let full = (0..<LayoutProfileList.maximumProfiles).map {
+            LayoutProfile(name: "P\($0)", itemSections: [:], applicationSections: [:])
+        }
+        #expect(LayoutProfileList.limitViolation(full) == nil)
+        #expect(LayoutProfileList.limitViolation(full + [LayoutProfile(name: "X", itemSections: [:], applicationSections: [:])]) == .tooMany)
+        let key = String(repeating: "k", count: 500)
+        let heavy = LayoutProfile(
+            name: "Heavy",
+            itemSections: Dictionary(uniqueKeysWithValues: (0..<9000).map { ("\($0)\(key)", 1) }),
+            applicationSections: [:]
+        )
+        #expect(LayoutProfileList.limitViolation([heavy]) == .tooLarge)
     }
 
     @Test("A list the app stores fits the limits of the next load")
