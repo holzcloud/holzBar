@@ -153,7 +153,8 @@ extension MenuBarItemManager {
     ///
     /// The re-checks are triggered by the launch and bounded (at most four extra reads within
     /// about 66 s), not polling: no event exists for a title change of a status item window. A
-    /// later launch replaces the running schedule.
+    /// later launch replaces the schedule: it cancels the waiting, never a pass that runs (see
+    /// ``runLaunchPass(readsRegardless:)``).
     func applicationDidLaunch() {
         applicationLaunchRestoreTask?.cancel()
         applicationLaunchRestoreTask = Task { [weak self] in
@@ -166,11 +167,28 @@ extension MenuBarItemManager {
                 guard let self else {
                     return
                 }
-                await cacheItemsIfNeeded()
-                await reconcileSections(trigger: .applicationLaunch)
+                await runLaunchPass(readsRegardless: false)
             }
             await self?.recheckProvisionalItems()
         }
+    }
+
+    /// One read and reconciliation of the launch schedule, in a task of its own: cancelling the
+    /// schedule (a later launch) then stops only its waiting. A pass cut off in the middle of a
+    /// move would count as a failed automatic move and could mark a new item as known before it
+    /// was placed.
+    private func runLaunchPass(readsRegardless: Bool) async {
+        await Task { [weak self] in
+            guard let self else {
+                return
+            }
+            if readsRegardless {
+                await cacheItemsRegardless()
+            } else {
+                await cacheItemsIfNeeded()
+            }
+            await reconcileSections(trigger: .applicationLaunch)
+        }.value
     }
 
     /// The bounded re-checks for items with a launch placeholder title: for each of
@@ -187,8 +205,7 @@ extension MenuBarItemManager {
             } catch {
                 return
             }
-            await cacheItemsRegardless()
-            await reconcileSections(trigger: .applicationLaunch)
+            await runLaunchPass(readsRegardless: true)
         }
     }
 
@@ -431,6 +448,11 @@ extension MenuBarItemManager {
                 Self.restoreLogger.notice("The user did not pause input, so not moving the remaining items into their sections")
                 stoppedEarly = true
                 break
+            } catch where Task.isCancelled {
+                // A cancelled pass did not try the move: the item stays new or pending.
+                Self.restoreLogger.notice("The pass was cancelled, so not moving the remaining items into their sections")
+                stoppedEarly = true
+                break
             } catch {
                 untriedNewKeys.remove(move.key)
                 untriedReappearedKeys.remove(move.key)
@@ -597,6 +619,9 @@ extension MenuBarItemManager {
                 return
             } catch EventError.userInputNotPaused {
                 Self.restoreLogger.notice("The user did not pause input, so not ordering the remaining items")
+                return
+            } catch where Task.isCancelled {
+                Self.restoreLogger.notice("The pass was cancelled, so not ordering the remaining items")
                 return
             } catch {
                 Self.restoreLogger.error("Error ordering \(move.item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")

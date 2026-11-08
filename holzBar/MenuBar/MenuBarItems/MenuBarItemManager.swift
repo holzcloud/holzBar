@@ -840,7 +840,9 @@ extension MenuBarItemManager {
             // back-off.
             throw EventError.userInputNotPaused
         } catch {
-            if origin == .automatic, moveBackoff.recordFailure(at: .now) {
+            // A cancelled task stops waiting and fails the move; the bar did not refuse it, so
+            // it is not a failure for the back-off.
+            if origin == .automatic, !Task.isCancelled, moveBackoff.recordFailure(at: .now) {
                 logPausedMoves()
             }
             throw error
