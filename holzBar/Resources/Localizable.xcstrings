@@ -127675,6 +127675,125 @@
           }
         }
       }
+    },
+    "Tray icons of Windows apps run with Wine or CrossOver are no longer moved by holzBar on its own." : {
+      "comment" : "What's New, version 1.0.4, Fixed: holzBar's automatic passes leave Wine and CrossOver tray icons alone; the user can still move them.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikony v oznamovací oblasti aplikací Windows spuštěných přes Wine nebo CrossOver už holzBar sám od sebe nepřesouvá."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ablagesymbole von Windows-Apps, die mit Wine oder CrossOver laufen, werden von holzBar nicht mehr von sich aus verschoben."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar ya no mueve por su cuenta los iconos de la bandeja de las apps de Windows que se ejecutan con Wine o CrossOver."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les icônes de la zone de notification des apps Windows exécutées avec Wine ou CrossOver ne sont plus déplacées par holzBar de lui-même."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Wine-nal vagy CrossOverrel futtatott Windows-alkalmazások tálcaikonjait a holzBar már nem helyezi át magától."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikon baki app Windows yang dijalankan dengan Wine atau CrossOver tidak lagi dipindahkan oleh holzBar dengan sendirinya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le icone nell’area di notifica delle app Windows eseguite con Wine o CrossOver non vengono più spostate da holzBar di sua iniziativa."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wine や CrossOver で動かす Windows アプリのトレイアイコンは、holzBar が自動で移動しなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wine 또는 CrossOver로 실행하는 Windows 앱의 트레이 아이콘을 holzBar가 더 이상 스스로 옮기지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systeemvakpictogrammen van Windows-apps die met Wine of CrossOver draaien, worden niet meer door holzBar uit zichzelf verplaatst."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikony w zasobniku aplikacji Windows uruchamianych przez Wine lub CrossOver nie są już samoczynnie przenoszone przez holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os ícones da bandeja de apps do Windows executados com Wine ou CrossOver não são mais movidos pelo holzBar por conta própria."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils simbols da la zona d’infurmaziun d’apps da Windows che vegnan exequidas cun Wine u CrossOver na vegnan betg pli dislocads da holzBar sez."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Значки в трее приложений Windows, запущенных через Wine или CrossOver, больше не перемещаются holzBar самостоятельно."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systemfältsikoner för Windows-appar som körs med Wine eller CrossOver flyttas inte längre av holzBar på egen hand."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wine veya CrossOver ile çalışan Windows uygulamalarının tepsi simgeleri artık holzBar tarafından kendiliğinden taşınmaz."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Значки в треї програм Windows, запущених через Wine або CrossOver, більше не переміщуються holzBar самостійно."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过 Wine 或 CrossOver 运行的 Windows App 的托盘图标不再被 holzBar 自行移动。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過 Wine 或 CrossOver 執行的 Windows App 的托盤圖示不再被 holzBar 自行移動。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

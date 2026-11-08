@@ -43,7 +43,7 @@ nonisolated enum WhatsNewHistory {
                 WhatsNewFix(text: "Items with a second line or a live value in their title keep their place."),
                 WhatsNewFix(text: "If one of holzBar's own moves pushes the items next to it out of place, holzBar puts them back."),
                 WhatsNewFix(text: "Control Center controls pinned to the menu bar show as fixed in Menu Bar Layout on macOS 27."),
-                WhatsNewFix(text: "Tray icons of Windows apps run with Wine or CrossOver are no longer moved by holzBar."),
+                WhatsNewFix(text: "Tray icons of Windows apps run with Wine or CrossOver are no longer moved by holzBar on its own."),
                 WhatsNewFix(text: "An imported settings file can no longer bring an unlimited number of layout profiles."),
             ]
         ),
