@@ -135,6 +135,11 @@ extension MenuBarItemManager {
     /// a call during another reconciliation runs once that one ends. The moves are
     /// automatic, so `MoveBackoff` can pause them.
     ///
+    /// A read with a divider right of the Clock (`DividerPlausibility`) is not believed: a
+    /// restore, a launch or a settle moves nothing and places no new item from it, and the next
+    /// read tries again. A profile applied on such a read runs its moves but stores nothing: no
+    /// saved sections, no known items.
+    ///
     /// - Parameters:
     ///   - wanted: The section of each identity key, when a profile is applied.
     ///   - trigger: What asks for the reconciliation.
@@ -206,6 +211,21 @@ extension MenuBarItemManager {
                 return
             }
             controlItems = pair
+        }
+
+        // A divider read right of the Clock is a bad read (`DividerPlausibility`). A restore from
+        // it would move items into Hidden, so it moves nothing and places no new item; the next
+        // read and the next settle, launch or app launch reach this point again. A profile the
+        // user applies still runs its moves, but the pass stores nothing from the bad read.
+        let isPlausibleRead = dividersArePlausible(items: items, controlItems: controlItems)
+        if !isPlausibleRead {
+            if wanted == nil {
+                Self.restoreLogger.notice(
+                    "Not reconciling sections (\(trigger.rawValue, privacy: .public)): a divider reads right of the Clock"
+                )
+                return
+            }
+            Self.restoreLogger.notice("Applying a profile without storing its sections: a divider reads right of the Clock")
         }
 
         let keepsLiveActivitiesVisible = appState.settings.advanced.keepLiveActivitiesVisible
@@ -293,6 +313,11 @@ extension MenuBarItemManager {
                 untriedNewKeys.remove(move.key)
                 Self.restoreLogger.error("Error moving \(move.item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
             }
+        }
+
+        // Nothing is stored from a read that failed the divider check.
+        guard isPlausibleRead else {
+            return
         }
 
         // A new item whose move was not tried stays unknown, so a later pass places it.
