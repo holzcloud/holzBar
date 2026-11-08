@@ -19,7 +19,9 @@ import Foundation
 ///
 /// Keys stored by earlier versions (`namespace:title`) still match through
 /// ``storedKey(_:titleChangingOwners:)``. The canonical form of a title is adapted from
-/// Thaw's `canonicalMetricTitle` (GPL-3.0, see NOTICE).
+/// Thaw's `canonicalMetricTitle` and `canonicalFirstLineTitle`, and the rule that a launch
+/// placeholder is not a title change from Thaw's `FreshVolatileTitleLearner` (GPL-3.0, see
+/// NOTICE).
 nonisolated enum ItemIdentity {
     /// One item, as read from the bar: its namespace and its title.
     typealias Item = (namespace: String, title: String)
@@ -31,7 +33,25 @@ nonisolated enum ItemIdentity {
     /// `Item-0` or `com.apple.menuextra.clock` (a letter followed by letters, digits, dots,
     /// hyphens and underscores only), are kept as they are: their digits tell the items of
     /// one app apart and never change.
+    ///
+    /// Two more rules come before these:
+    /// - A title of several lines is known by its first line (when that is not empty after
+    ///   trimming), so "OneDrive - Personal" keeps one key whatever its status line says.
+    /// - A Control Center control pinned to the menu bar on macOS 27 loses the instance UUID
+    ///   macOS mints each time it places the control (``ControlCenterControl``); its
+    ///   identifier is kept as it is.
     static func canonicalTitle(_ title: String) -> String {
+        var title = title
+        if title.contains(where: \.isNewline),
+           let firstLine = title.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline).first {
+            let trimmed = firstLine.trimmingCharacters(in: .whitespaces)
+            if !trimmed.isEmpty {
+                title = trimmed
+            }
+        }
+        if ControlCenterControl.isPinnedControlTitle(title) {
+            return ControlCenterControl.stableIdentity(forTitle: title)
+        }
         if isIdentifier(title) {
             return title
         }
@@ -48,6 +68,16 @@ nonisolated enum ItemIdentity {
     /// and the canonical titles of those items differ. Namespaces in `excluding` (holzBar's
     /// own) and UUID namespaces (system items whose namespace changes on every launch) are
     /// never learned.
+    ///
+    /// A namespace is not learned either when a title that differs between the reads, in
+    /// either direction, is a placeholder (``isPlaceholderTitle(_:)``): a change between
+    /// `Item-N` and a real title is the app finishing its launch, not an app whose titles
+    /// change (Thaw's `FreshVolatileTitleLearner`).
+    ///
+    /// The callers pass holzBar's own namespace in `excluding` and must keep doing so:
+    /// holzBar's items are tagged by their autosave names, which are identifiers and never
+    /// live titles, so learning them would key them by position and break the keys of
+    /// profiles and rules.
     static func learnTitleChangingOwners(previous: [Item], current: [Item], excluding: Set<String>) -> Set<String> {
         let previousTitles = canonicalTitlesByNamespace(previous)
         let currentTitles = canonicalTitlesByNamespace(current)
@@ -59,7 +89,8 @@ nonisolated enum ItemIdentity {
                 let previousTitles = previousTitles[namespace],
                 !titles.isEmpty,
                 previousTitles.count == titles.count,
-                previousTitles.sorted() != titles.sorted()
+                previousTitles.sorted() != titles.sorted(),
+                !changesPlaceholder(from: previousTitles, to: titles)
             else {
                 continue
             }
@@ -119,7 +150,8 @@ nonisolated enum ItemIdentity {
         // optional `:<occurrence>`.
         if let match = title.wholeMatch(of: /(.*):(\d+)/) {
             let base = String(match.1)
-            if canonicalTitle(base) == base, !base.contains(where: \.isNumber) || isIdentifier(base) {
+            if canonicalTitle(base) == base,
+               !base.contains(where: \.isNumber) || isIdentifier(base) || ControlCenterControl.isPinnedControlTitle(base) {
                 return stored
             }
         }
@@ -143,7 +175,26 @@ nonisolated enum ItemIdentity {
         return values
     }
 
+    /// Whether the title is the generic one macOS gives a status item that has no autosave
+    /// name or whose app has not finished launching: `Item-` followed by digits.
+    static func isPlaceholderTitle(_ title: String) -> Bool {
+        title.wholeMatch(of: /Item-[0-9]+/) != nil
+    }
+
     // MARK: Private
+
+    /// Whether a title that is in one of the two reads and not in the other (counted with
+    /// repeats) is a placeholder.
+    private static func changesPlaceholder(from previous: [String], to current: [String]) -> Bool {
+        var counts = [String: Int]()
+        for title in previous {
+            counts[title, default: 0] += 1
+        }
+        for title in current {
+            counts[title, default: 0] -= 1
+        }
+        return counts.contains { $0.value != 0 && isPlaceholderTitle($0.key) }
+    }
 
     /// Whether the title is an identifier rather than text: a letter followed by letters,
     /// digits, dots, hyphens and underscores only.
