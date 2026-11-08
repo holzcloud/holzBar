@@ -214,8 +214,9 @@ extension MenuBarItemManager {
     ///
     /// A read with a divider right of the Clock (`DividerPlausibility`) is not believed: a
     /// restore, a launch or a settle moves nothing and places no new item from it, and the next
-    /// read tries again. A profile applied on such a read runs its moves but stores nothing: no
-    /// saved sections, no known items.
+    /// read tries again. A profile applied on such a read runs its moves and stores its own
+    /// sections, which do not depend on the read, but nothing from the read: no placed new items,
+    /// no known items.
     ///
     /// - Parameters:
     ///   - wanted: The section of each identity key, when a profile is applied.
@@ -317,7 +318,7 @@ extension MenuBarItemManager {
         // A divider read right of the Clock is a bad read (`DividerPlausibility`). A restore from
         // it would move items into Hidden, so it moves nothing and places no new item; the next
         // read and the next settle, launch or app launch reach this point again. A profile the
-        // user applies still runs its moves, but the pass stores nothing from the bad read.
+        // user applies still runs its moves and stores its sections, but nothing from the bad read.
         let isPlausibleRead = dividersArePlausible(items: items, controlItems: controlItems)
         if !isPlausibleRead {
             if wanted == nil {
@@ -326,7 +327,7 @@ extension MenuBarItemManager {
                 )
                 return
             }
-            Self.restoreLogger.notice("Applying a profile without storing its sections: a divider reads right of the Clock")
+            Self.restoreLogger.notice("Applying a profile on a read with a divider right of the Clock: storing only its sections")
         }
 
         let keepsLiveActivitiesVisible = appState.settings.advanced.keepLiveActivitiesVisible
@@ -441,7 +442,13 @@ extension MenuBarItemManager {
             Self.restoreLogger.debug("Reappeared items: \(reappearedHere.count, privacy: .public)")
         }
 
-        // Nothing is stored from a read that failed the divider check.
+        // A profile's sections do not come from the read, so they are stored on any read: the next
+        // restore then keeps the profile instead of undoing it.
+        if let wanted {
+            storeSections(wanted)
+        }
+
+        // Nothing that comes from the read is stored from one that failed the divider check.
         guard isPlausibleRead else {
             return
         }
@@ -460,10 +467,7 @@ extension MenuBarItemManager {
             Defaults.set(known.sorted(), forKey: .knownItemTags)
         }
 
-        // A profile's sections, and where new items were placed, are the sections to restore.
-        if let wanted {
-            storeSections(wanted)
-        }
+        // Where new items were placed is a section to restore too.
         storeSections(placedSections)
 
         // Only the launch restore starts the re-checks, so a re-check never starts another.
