@@ -35,6 +35,9 @@ extension MenuBarItemManager {
         /// A move by holzBar pushed other items out of place; restores the saved sections and
         /// order.
         case moveRepair
+        /// The first plausible read after a restore was skipped, or a profile was applied, on a
+        /// read with a divider right of the Clock; restores the saved sections and order once.
+        case retryAfterBadRead
 
         /// Whether items go back to their saved sections, not only new ones to theirs.
         var restoresSavedSections: Bool {
@@ -46,7 +49,7 @@ extension MenuBarItemManager {
             switch self {
             case .profile: .arrangement
             case .moveRepair: .repair
-            case .launch, .applicationLaunch, .settle, .itemListChange: .restore
+            case .launch, .applicationLaunch, .settle, .itemListChange, .retryAfterBadRead: .restore
             }
         }
     }
@@ -254,10 +257,11 @@ extension MenuBarItemManager {
     /// automatic, so `MoveBackoff` can pause them.
     ///
     /// A read with a divider right of the Clock (`DividerPlausibility`) is not believed: a
-    /// restore, a launch or a settle moves nothing and places no new item from it, and the next
-    /// read tries again. A profile applied on such a read runs its moves and stores its own
-    /// sections, which do not depend on the read, but nothing from the read: no placed new items,
-    /// no known items.
+    /// restore, a launch or a settle moves nothing and places no new item from it. A profile
+    /// applied on such a read runs its moves and stores its own sections, which do not depend on
+    /// the read, but nothing from the read: no placed new items, no known items. Either way the
+    /// next plausible read restores the saved sections once (`retryAfterBadRead`), which finishes
+    /// the skipped restore or the profile.
     ///
     /// - Parameters:
     ///   - wanted: The section of each identity key, when a profile is applied.
@@ -364,6 +368,11 @@ extension MenuBarItemManager {
         // user applies still runs its moves and stores its sections, but nothing from the bad read.
         let isPlausibleRead = dividersArePlausible(items: items, controlItems: controlItems)
         if !isPlausibleRead {
+            // The next plausible read restores the saved sections once (`retryAfterBadRead`): the
+            // skipped restore, or the rest of a profile whose moves were planned on this read.
+            if wanted != nil || trigger.restoresSavedSections {
+                restoreSkippedForBadRead = true
+            }
             if wanted == nil {
                 Self.restoreLogger.notice(
                     "Not reconciling sections (\(trigger.rawValue, privacy: .public)): a divider reads right of the Clock"
@@ -506,6 +515,10 @@ extension MenuBarItemManager {
         // Nothing that comes from the read is stored from one that failed the divider check.
         guard isPlausibleRead else {
             return
+        }
+        // A restore on a plausible read does what a retry after a bad read would.
+        if wanted == nil, trigger.restoresSavedSections {
+            restoreSkippedForBadRead = false
         }
 
         // A new item whose move was not tried stays unknown, so a later pass places it. So does

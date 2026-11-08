@@ -49,6 +49,10 @@ final class MenuBarItemManager {
     /// believed (no snapshot, no rule decision).
     @ObservationIgnored private(set) var isCacheFromImplausibleRead = false
 
+    /// Whether a restore was skipped, or a profile applied, on a read with a divider right of the
+    /// Clock: the next plausible read runs one restore (`retryAfterBadRead`) and clears it.
+    @ObservationIgnored var restoreSkippedForBadRead = false
+
     /// When the current stretch of reads with a divider right of the Clock began, `nil` after a
     /// plausible read.
     @ObservationIgnored private var implausibleReadsSince: ContinuousClock.Instant?
@@ -682,9 +686,13 @@ extension MenuBarItemManager {
                     needsSectionSave = false
                     saveSections()
                 }
+                // A restore that a bad read skipped runs once on this plausible read; otherwise
+                // only new and reappeared items are placed.
+                let trigger: SectionRestoreTrigger = restoreSkippedForBadRead ? .retryAfterBadRead : .itemListChange
+                restoreSkippedForBadRead = false
                 // Moving runs outside the cache task, which it would otherwise hold up.
                 Task {
-                    await self.reconcileSections(trigger: .itemListChange, items: items, controlItems: controlItems)
+                    await self.reconcileSections(trigger: trigger, items: items, controlItems: controlItems)
                 }
             }
         }
