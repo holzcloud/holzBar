@@ -127556,6 +127556,125 @@
           }
         }
       }
+    },
+    "If one of holzBar's own moves pushes the items next to it out of place, holzBar puts them back." : {
+      "comment" : "What's New, version 1.0.4, Fixed: after an automatic move pushed neighbouring menu bar items out of place, holzBar restores them once.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokud vlastní přesun holzBar odsune sousední položky z jejich míst, holzBar je vrátí zpět."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn eine eigene Verschiebung von holzBar die Nachbarelemente aus ihrer Position schiebt, stellt holzBar sie zurück."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si un movimiento del propio holzBar desplaza los elementos contiguos de su sitio, holzBar los vuelve a colocar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si un déplacement fait par holzBar lui-même pousse les éléments voisins hors de leur place, holzBar les remet en place."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ha a holzBar saját áthelyezése kitolja helyükről a szomszédos elemeket, a holzBar visszateszi őket."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jika pemindahan oleh holzBar sendiri menggeser item di sebelahnya dari tempatnya, holzBar mengembalikannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se uno spostamento fatto da holzBar sposta gli elementi accanto dal loro posto, holzBar li rimette a posto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar 自身の移動で隣の項目が元の位置からずれた場合、holzBar がそれらを元に戻します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar가 직접 한 이동으로 옆의 항목이 제자리에서 밀려나면 holzBar가 다시 제자리로 돌려놓습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als een verplaatsing door holzBar zelf de aangrenzende onderdelen van hun plek duwt, zet holzBar ze terug."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeśli własne przeniesienie holzBar wypchnie sąsiednie elementy z ich miejsc, holzBar odstawia je z powrotem."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se um movimento do próprio holzBar tirar os itens vizinhos do lugar, o holzBar os coloca de volta."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sch’ina dislocaziun che holzBar fa sez stumpla ils elements vischins ord lur plazza, als metta holzBar puspè en lur plazza."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Если собственное перемещение holzBar сдвигает соседние элементы с их мест, holzBar возвращает их обратно."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om en flytt som holzBar gör själv knuffar objekten bredvid ur sin plats, flyttar holzBar tillbaka dem."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar'ın kendi taşıması yanındaki öğeleri yerinden iterse, holzBar onları yerine geri koyar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Якщо власне переміщення holzBar зсуває сусідні елементи з їхніх місць, holzBar повертає їх назад."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果 holzBar 自己的移动把相邻的项目挤离原位，holzBar 会把它们放回去。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果 holzBar 自己的移動把相鄰的項目擠離原位，holzBar 會把它們放回去。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
