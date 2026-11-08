@@ -77,6 +77,13 @@ final class MenuBarItemManager {
     /// Whether the sections are being reconciled.
     @ObservationIgnored var isReconcilingSections = false
 
+    /// The trigger of the reconciliation that is running now, `nil` between reconciliations.
+    @ObservationIgnored var activeReconciliationTrigger: SectionRestoreTrigger?
+
+    /// Whether a repair after a move that pushed other items is scheduled or running (see
+    /// `scheduleMoveRepair()` in `SectionRestore.swift`).
+    @ObservationIgnored var isMoveRepairScheduled = false
+
     /// A reconciliation asked for while one was running; it runs once that one ends.
     @ObservationIgnored var pendingReconciliation: (wanted: [String: MenuBarSection.Name]?, trigger: SectionRestoreTrigger)?
 
@@ -825,6 +832,7 @@ extension MenuBarItemManager {
         case .automatic:
             try checkAutomaticMove(of: item, appState: appState)
         }
+        let neighboursBefore = backend.canMoveItems ? neighbourSnapshot() : nil
         do {
             try await backend.move(item: item, to: destination, appState: appState)
         } catch EventError.userInputNotPaused {
@@ -837,11 +845,48 @@ extension MenuBarItemManager {
             }
             throw error
         }
+        if let neighboursBefore {
+            checkNeighbours(after: item, before: neighboursBefore, origin: origin)
+        }
         if origin == .user, isRehideWaitingForMoves {
             // The user's move ended the pause; the waiting items are rehidden after the
             // usual interval (not at once: this may be an item the user is opening).
             isRehideWaitingForMoves = false
             runRehideTimer()
+        }
+    }
+
+    /// The windows of the items and dividers of the bar with their left edges, for the check
+    /// that a move left the other items in their places. Windows without bounds are left out.
+    private func neighbourSnapshot() -> [MoveNeighbourCheck.Entry] {
+        Bridging.getMenuBarWindowList(option: [.activeSpace, .itemsOnly]).compactMap { windowID in
+            Bridging.getWindowBounds(for: windowID).map {
+                MoveNeighbourCheck.Entry(id: windowID, minX: Double($0.minX))
+            }
+        }
+    }
+
+    /// Compares the bar after a move with the one before it. When the move pushed other items out
+    /// of their places, an automatic move schedules one repair (a repair never schedules another);
+    /// a move by the user is only logged, because the user's arrangement is what gets saved.
+    /// Only counts and the origin are logged, never item names.
+    private func checkNeighbours(
+        after item: MenuBarItem,
+        before: [MoveNeighbourCheck.Entry],
+        origin: MoveOrigin
+    ) {
+        let disturbed = MoveNeighbourCheck.disturbed(
+            before: before,
+            after: neighbourSnapshot(),
+            moved: item.windowID
+        )
+        guard !disturbed.isEmpty else {
+            return
+        }
+        let originName = origin == .user ? "user" : "automatic"
+        logger.notice("A move disturbed \(disturbed.count, privacy: .public) other items (\(originName, privacy: .public) move)")
+        if origin == .automatic, activeReconciliationTrigger != .moveRepair {
+            scheduleMoveRepair()
         }
     }
 

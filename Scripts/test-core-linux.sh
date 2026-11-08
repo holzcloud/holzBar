@@ -80,6 +80,7 @@ sources=(
   MenuBarStyleOptions
   ModuleCatalog
   MoveBackoff
+  MoveNeighbourCheck
   NextEvents
   NotchHubDisplays
   NotchHubGeometry
@@ -187,6 +188,7 @@ tests=(
   MenuBarStyleOptionsTests
   ModuleCatalogTests
   MoveBackoffTests
+  MoveNeighbourCheckTests
   NextEventsTests
   NotchHubDisplaysTests
   NotchHubGeometryTests

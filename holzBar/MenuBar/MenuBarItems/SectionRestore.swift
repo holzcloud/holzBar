@@ -32,6 +32,9 @@ extension MenuBarItemManager {
         case profile
         /// The item list changed: only new items are placed.
         case itemListChange
+        /// A move by holzBar pushed other items out of place; restores the saved sections and
+        /// order.
+        case moveRepair
 
         /// Whether items go back to their saved sections, not only new ones to theirs.
         var restoresSavedSections: Bool {
@@ -250,6 +253,7 @@ extension MenuBarItemManager {
         }
 
         isReconcilingSections = true
+        activeReconciliationTrigger = trigger
         await performReconciliation(
             wanted: wanted,
             trigger: trigger,
@@ -257,11 +261,34 @@ extension MenuBarItemManager {
             controlItems: givenControlItems,
             appState: appState
         )
+        activeReconciliationTrigger = nil
         isReconcilingSections = false
 
         if let pending = pendingReconciliation {
             pendingReconciliation = nil
             await reconcileSections(wanted: pending.wanted, trigger: pending.trigger)
+        }
+    }
+
+    /// Restores the saved sections and order once, after an automatic move pushed other items
+    /// out of their places. Nothing happens while a repair is scheduled or running; a call while
+    /// another reconciliation runs becomes its pending restore (see
+    /// ``reconcileSections(wanted:trigger:items:controlItems:)``).
+    ///
+    /// The repair's own moves are automatic, so `MoveBackoff` bounds them (the same item at most
+    /// 4 times in 60 s, 8 failures) and pauses repeated ones, and a move of a repair never
+    /// schedules another repair.
+    func scheduleMoveRepair() {
+        guard !isMoveRepairScheduled else {
+            return
+        }
+        isMoveRepairScheduled = true
+        Task { [weak self] in
+            guard let self else {
+                return
+            }
+            await reconcileSections(trigger: .moveRepair)
+            isMoveRepairScheduled = false
         }
     }
 
