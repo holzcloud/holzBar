@@ -55,6 +55,37 @@ extension MenuBarItemManager {
         }
         Defaults.set(stored, forKey: .itemSections)
         Self.restoreLogger.debug("Saved the sections of \(stored.count, privacy: .public) items")
+        saveOrder(of: itemCache.managedItems)
+    }
+
+    /// Saves the order of the given items, left to right, merged with the stored order, so an
+    /// item that is not on the bar now keeps its place (`ItemOrder`). Control items, items of a UUID
+    /// namespace and temporarily shown items are not part of the order. It runs at the moments the
+    /// sections are saved, and once to seed the order of an existing install.
+    private func saveOrder(of items: [MenuBarItem], keys: [CGWindowID: String]? = nil) {
+        let ordered = items
+            .filter { !$0.isControlItem && !$0.tag.namespace.isUUID && !isTemporarilyShown($0) }
+            .sorted { orderPosition(of: $0) < orderPosition(of: $1) }
+        guard !ordered.isEmpty else {
+            return
+        }
+        let merged = ItemOrder.merge(
+            saved: storedOrder() ?? [],
+            current: ordered.map { keys?[$0.windowID] ?? identityKey(for: $0) }
+        )
+        Defaults.set(merged, forKey: .itemOrder)
+        Self.restoreLogger.debug("Saved the order of \(merged.count, privacy: .public) items")
+    }
+
+    /// The horizontal position of an item on the bar now.
+    private func orderPosition(of item: MenuBarItem) -> CGFloat {
+        (Bridging.getWindowBounds(for: item.windowID) ?? item.bounds).minX
+    }
+
+    /// The stored order under the keys they match today, or `nil` when none is stored yet. The
+    /// value can come from an imported settings file, so it is sanitized.
+    private func storedOrder() -> [String]? {
+        Defaults.stringArray(forKey: .itemOrder).map { ItemOrder.sanitized($0.map(storedIdentityKey)) }
     }
 
     /// Saves the sections of the given items (by identity key), keeping the others.
@@ -273,15 +304,7 @@ extension MenuBarItemManager {
 
         let keys = identityKeys(for: items)
         // Live Activities kept visible are never moved back by a saved or new-items section.
-        let candidates = items.filter { item in
-            item.isMovable &&
-            item.canBeHidden &&
-            !item.isControlItem &&
-            !item.isSystemClone &&
-            !item.tag.namespace.isUUID &&
-            !(keepsLiveActivitiesVisible && item.tag.isLiveActivity) &&
-            !isTemporarilyShown(item)
-        }
+        let candidates = reconcilableItems(items, keepsLiveActivitiesVisible: keepsLiveActivitiesVisible)
 
         let storedKnown = Defaults.array(forKey: .knownItemTags) as? [String]
         var known = Set((storedKnown ?? []).map(storedIdentityKey))
@@ -332,9 +355,11 @@ extension MenuBarItemManager {
         // New items whose move was not tried: the loop stopped before them, or automatic
         // moves were paused. A move that failed otherwise is not retried on every read.
         var untriedNewKeys = Set(moves.filter(\.isNew).map(\.key))
+        var stoppedEarly = false
         for move in moves {
             if await yieldsToUserAfterInputPause(wanted: wanted, appState: appState) {
                 Self.restoreLogger.debug("The user arranges the items, so not moving the remaining items into their sections")
+                stoppedEarly = true
                 break
             }
             let destination: MoveDestination = switch move.section {
@@ -356,9 +381,11 @@ extension MenuBarItemManager {
                 }
             } catch EventError.automaticMovesPaused {
                 Self.restoreLogger.warning("Automatic moves are paused, so not moving the remaining items into their sections")
+                stoppedEarly = true
                 break
             } catch EventError.userInputNotPaused {
                 Self.restoreLogger.notice("The user did not pause input, so not moving the remaining items into their sections")
+                stoppedEarly = true
                 break
             } catch {
                 untriedNewKeys.remove(move.key)
@@ -394,6 +421,120 @@ extension MenuBarItemManager {
         // Only the launch restore starts the re-checks, so a re-check never starts another.
         if trigger == .launch && skippedProvisionalNewItem {
             startProvisionalRechecks()
+        }
+
+        // The order inside the sections, after the section moves. A profile does not reorder, and
+        // a pass that stopped because the user arranges the items does not start another.
+        if wanted == nil, !stoppedEarly, trigger.restoresSavedSections {
+            await restoreOrder(trigger: trigger, sections: nil, appState: appState)
+        }
+    }
+
+    /// The items a restore may move: movable, hideable, not a control item, a system clone or an
+    /// item of a UUID namespace, not a Live Activity that is kept visible, not temporarily shown.
+    private func reconcilableItems(_ items: [MenuBarItem], keepsLiveActivitiesVisible: Bool) -> [MenuBarItem] {
+        items.filter { item in
+            item.isMovable &&
+            item.canBeHidden &&
+            !item.isControlItem &&
+            !item.isSystemClone &&
+            !item.tag.namespace.isUUID &&
+            !(keepsLiveActivitiesVisible && item.tag.isLiveActivity) &&
+            !isTemporarilyShown(item)
+        }
+    }
+
+    /// The order pass: puts the items of each section back into the saved order (`ItemOrder`)
+    /// with as few moves as possible, at most `ItemOrder.maximumMovesPerPass` in all.
+    ///
+    /// With no stored order, holzBar's own launch restore seeds it from the bar as it is then
+    /// (an existing install has sections but no order) and moves nothing; any other trigger does
+    /// nothing. The bar is read anew because the section moves changed the positions, and a read
+    /// with a divider right of the Clock is not believed. The moves are automatic, so
+    /// `MoveBackoff` bounds them, and each waits for the user to pause input.
+    ///
+    /// - Parameters:
+    ///   - trigger: What asks for the reconciliation.
+    ///   - sections: The only sections to reorder, or `nil` for all.
+    ///   - appState: The app state.
+    private func restoreOrder(trigger: SectionRestoreTrigger, sections: Set<MenuBarSection.Name>?, appState: AppState) async {
+        let stored = storedOrder()
+        guard stored != nil || trigger == .launch else {
+            return
+        }
+        var items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
+        guard let controlItems = ControlItemPair(items: &items) else {
+            Self.restoreLogger.warning("Missing control item for hidden section, not ordering items")
+            return
+        }
+        guard dividersArePlausible(items: items, controlItems: controlItems) else {
+            Self.restoreLogger.notice("Not ordering items (\(trigger.rawValue, privacy: .public)): a divider reads right of the Clock")
+            return
+        }
+        let keys = identityKeys(for: items)
+        guard let stored else {
+            guard !appState.isDraggingMenuBarItem, !needsSectionSave else {
+                return
+            }
+            saveOrder(of: items, keys: keys)
+            return
+        }
+
+        let keepsLiveActivitiesVisible = appState.settings.advanced.keepLiveActivitiesVisible
+        var entriesBySection = [MenuBarSection.Name: [(key: String, item: MenuBarItem)]]()
+        for item in reconcilableItems(items, keepsLiveActivitiesVisible: keepsLiveActivitiesVisible)
+            .sorted(by: { orderPosition(of: $0) < orderPosition(of: $1) }) {
+            if let key = keys[item.windowID] {
+                entriesBySection[section(of: item, controlItems: controlItems), default: []].append((key, item))
+            }
+        }
+
+        var planned = [(item: MenuBarItem, destination: MoveDestination)]()
+        for name in MenuBarSection.Name.allCases where sections?.contains(name) ?? true {
+            guard let entries = entriesBySection[name] else {
+                continue
+            }
+            let itemsByKey = Dictionary(entries.map { ($0.key, $0.item) }) { first, _ in first }
+            for step in ItemOrder.plan(current: entries.map(\.key), wanted: stored) {
+                guard let item = itemsByKey[step.key] else {
+                    continue
+                }
+                switch step.anchor {
+                case .after(let anchorKey):
+                    if let anchor = itemsByKey[anchorKey] {
+                        planned.append((item, .rightOfItem(anchor)))
+                    }
+                case .before(let anchorKey):
+                    if let anchor = itemsByKey[anchorKey] {
+                        planned.append((item, .leftOfItem(anchor)))
+                    }
+                }
+            }
+        }
+        guard !planned.isEmpty else {
+            return
+        }
+        Self.restoreLogger.info(
+            "Ordering items: \(planned.count, privacy: .public) moves planned (\(trigger.rawValue, privacy: .public))"
+        )
+
+        for move in planned.prefix(ItemOrder.maximumMovesPerPass) {
+            if await yieldsToUserAfterInputPause(wanted: nil, appState: appState) {
+                Self.restoreLogger.debug("The user arranges the items, so not ordering the remaining items")
+                return
+            }
+            do {
+                Self.restoreLogger.info("Ordering \(move.item.logString, privacy: .private(mask: .hash)) (\(trigger.rawValue, privacy: .public))")
+                try await self.move(item: move.item, to: move.destination)
+            } catch EventError.automaticMovesPaused {
+                Self.restoreLogger.warning("Automatic moves are paused, so not ordering the remaining items")
+                return
+            } catch EventError.userInputNotPaused {
+                Self.restoreLogger.notice("The user did not pause input, so not ordering the remaining items")
+                return
+            } catch {
+                Self.restoreLogger.error("Error ordering \(move.item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
+            }
         }
     }
 
