@@ -146,6 +146,15 @@ nonisolated enum ItemIdentity {
         if title.wholeMatch(of: /[2-9]|[1-9]\d+/) != nil {
             return stored
         }
+        // A key of the version before the first-line rule for a later item with a multi-line
+        // title: `namespace:<canonical lines>:<occurrence>`, the lines without digits. The
+        // occurrence goes onto the key of the first line, which is the item's key today; without
+        // it, both items of the app would match the first one's key.
+        if let match = title.wholeMatch(of: /(.*):([2-9]|[1-9]\d+)/.dotMatchesNewlines()),
+           match.1.contains(where: \.isNewline),
+           !match.1.contains(where: \.isNumber) {
+            return "\(baseKey(namespace: namespace, canonicalTitle: canonicalTitle(String(match.1)))):\(match.2)"
+        }
         // A key of this version: a canonical title (no digits, or an identifier) with an
         // optional `:<occurrence>`.
         if let match = title.wholeMatch(of: /(.*):(\d+)/) {

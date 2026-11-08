@@ -141,6 +141,21 @@ struct ItemIdentityTests {
         #expect(learned.isEmpty)
     }
 
+    @Test("A stored multi-line key with an occurrence keeps its occurrence on the first line")
+    func multiLineOccurrenceKeys() {
+        #expect(ItemIdentity.storedKey("ns:A\nb:2", titleChangingOwners: []) == "ns:A:2")
+        #expect(ItemIdentity.storedKey("ns:Status\nA:12", titleChangingOwners: []) == "ns:Status:12")
+        // The current keys of the same two items.
+        let items: [ItemIdentity.Item] = [(namespace: "ns", title: "Status\nA"), (namespace: "ns", title: "Status\nA")]
+        #expect(ItemIdentity.keys(for: items, titleChangingOwners: []) == ["ns:Status", "ns:Status:2"])
+        // Both stored sections survive the update apart.
+        let values = ItemIdentity.storedValues(["ns:Status\nA": 1, "ns:Status\nA:2": 2], titleChangingOwners: [])
+        #expect(values == ["ns:Status": 1, "ns:Status:2": 2])
+        // A raw title of an earlier version that ends in a number is not an occurrence.
+        #expect(ItemIdentity.storedKey("ns:Line1\nTime 10:12", titleChangingOwners: []) == "ns:Line1")
+        #expect(ItemIdentity.storedKey("ns:Sync\nUp 3:2", titleChangingOwners: []) == "ns:Sync")
+    }
+
     // MARK: Pinned Control Center controls
 
     private static let agent = "com.apple.MenuBarAgent"
