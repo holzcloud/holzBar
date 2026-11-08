@@ -1,13 +1,17 @@
 #!/bin/bash
 #
-# Runs the unit tests of holzBar's pure logic on Linux, without a Mac.
+# Runs the unit tests of holzBar's pure logic on Linux, without a Mac, or on a Mac as a quick local
+# check.
 #
 # Only the files of holzBar/Core that need nothing but Foundation compile on Linux; they are
 # listed below with their tests and built as a throwaway package with the app's concurrency
-# settings. The app itself (SwiftUI, AppKit) needs macOS and is built by CI.
+# settings. On Linux this proves they build with swift-corelibs-foundation. On a Mac (Darwin) the
+# same lists run against Apple's Foundation: a quick check, not a proof of the Linux build. The
+# app itself (SwiftUI, AppKit) needs macOS and is built by CI.
 #
-# Needs a Swift 6.4 toolchain for Linux on the PATH (https://www.swift.org/install/linux/).
-# Add a file to the lists when it and its tests need only Foundation.
+# Needs a Swift 6.4 toolchain on the PATH (Linux: https://www.swift.org/install/linux/).
+# Add a new Core file and its test to the lists when they need only Foundation.
+# Pass arguments to swift test, for example --filter ShelfFindTests.
 
 set -euo pipefail
 
@@ -16,8 +20,8 @@ scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 
 sources=(
-  AccessoryAlertOptions AccessoryBattery AccessoryDevice AccessoryLowBatteryGate AccessoryRefreshPolicy AccessoryTracker AppearanceMoods AppleItemReplacement AppVersion AutomationEngine AutomationRule AXSnapshot BarClickTrace BatteryLevel BuiltInItem CalendarEvent CalendarSelection ClockClickPolicy Defaults DesignTokens DiagnosticsReport DisplayBehavior DisplayControlsLevel DownloadScan DownloadTracker FileDragWatch FileStash FocusFilterBinding HiddenItemCount HolzBarShelfPlacement HolzBarShelfStyle HubActivityBoard HubModuleLifecycle HubTabStrip
-  ItemCategory ItemClassifier ItemIdentity ItemOpenOrigin ItemRuleMemory ItemTimer LayoutDraft LayoutSnapshot LegacyRevealRules LiveActivity MenuBarBackendKind MenuBarDragDecider MenuBarIconChoice MenuBarDrop MenuBarPills MeetingLinks MenuBarStyleOptions ModuleCatalog NextEvents NotchHubDisplays NotchHubGeometry NotchHubPolicy NotificationBannerParser NotificationLog NowPlayingModel NowPlayingPayload NowPlayingPlayers NowPlayingRemoteLaunch NowPlayingRemoteMessage NowPlayingTrack OutputVolumePlan OwnBundle PinnedSystemItems PlaybackClock PrivateFeatureGate ReorderDrag RevealAnimationPolicy RevealAnimationSchedule RevealAnimationStyle RevealGate RevealStepRunner ScriptGate ScriptLaunch ScriptOutput ScriptStorage SettingsSchema SharedProfile ShelfAlwaysHiddenFold ShelfClosedApps ShelfContents ShelfDrop ShelfFind ShortcutLink
+  AccessoryAlertOptions AccessoryBattery AccessoryDevice AccessoryLowBatteryGate AccessoryRefreshPolicy AccessoryTracker AppearanceMoods AppleItemReplacement AppVersion AutomationEngine AutomationRule AXSnapshot BarClickTrace BatteryLevel BuiltInItem CalendarEvent CalendarSelection ClockClickPolicy Defaults DesignTokens DiagnosticsReport DisplayBehavior DisplayControlsLevel DownloadScan DownloadTracker FileDragWatch FileStash FocusFilterBinding FuzzyMatch HiddenItemCount HolzBarShelfPlacement HolzBarShelfStyle HubActivityBoard HubModuleLifecycle HubTabStrip
+  ItemCategory ItemClassifier ItemIdentity ItemOpenOrigin ItemRuleMemory ItemTimer LayoutDraft LayoutSnapshot LegacyRevealRules LiveActivity MenuBarBackendKind MenuBarDragDecider MenuBarIconChoice MenuBarDrop MenuBarPills MeetingLinks MenuBarStyleOptions ModuleCatalog NextEvents NotchHubDisplays NotchHubGeometry NotchHubPolicy NotificationBannerParser NotificationLog NowPlayingModel NowPlayingPayload NowPlayingPlayers NowPlayingRemoteLaunch NowPlayingRemoteMessage NowPlayingTrack OutputVolumePlan OwnBundle PinnedSystemItems PlaybackClock PrivateFeatureGate ReorderDrag RevealAnimationPolicy RevealAnimationSchedule RevealAnimationStyle RevealGate RevealStepRunner ScriptGate ScriptLaunch ScriptOutput ScriptStorage SettingsSchema SharedProfile ShelfAlwaysHiddenFold ShelfClosedApps ShelfContents ShelfDrop ShelfFind ShelfFindRanking ShortcutLink
   SystemActivity TimerBoard TimerFinishSound TimerInput URLCommand WidgetDefinition WidgetFormat WidgetReadings WidgetRefreshPolicy WidgetScriptSharing WhatsNewGrouping WhatsNewHistory WhatsNewPolicy WhatsNewRelease ZenMode
 )
 tests=(
@@ -34,9 +38,12 @@ for name in "${tests[@]}"; do
   ln -s "$root/Tests/HolzBarCoreTests/$name.swift" "$scratch/Tests/HolzBarCoreTests/$name.swift"
 done
 
-# swift-corelibs-foundation has no Core Foundation type identifiers; SettingsSchema uses them to
-# tell a Boolean from a number.
-cat > "$scratch/Sources/HolzBarCore/LinuxShim.swift" <<'SWIFT'
+platforms=""
+if [ "$(uname)" != "Darwin" ]; then
+  # swift-corelibs-foundation has no Core Foundation type identifiers; SettingsSchema uses them to
+  # tell a Boolean from a number. On macOS, Foundation re-exports Core Foundation, so the shim
+  # would clash with it.
+  cat > "$scratch/Sources/HolzBarCore/LinuxShim.swift" <<'SWIFT'
 import Foundation
 
 typealias CFTypeID = UInt
@@ -50,8 +57,13 @@ nonisolated func CFGetTypeID(_ object: AnyObject) -> CFTypeID {
     return 0
 }
 SWIFT
+else
+  # The app's deployment target; Duration, ContinuousClock and regex literals need macOS 13.
+  platforms=$'\n    platforms: [.macOS(.v14)],'
+fi
 
-cat > "$scratch/Package.swift" <<'SWIFT'
+# The heredoc is unquoted so that ${platforms} expands; the body has no other dollar sign.
+cat > "$scratch/Package.swift" <<SWIFT
 // swift-tools-version:6.2
 import PackageDescription
 
@@ -62,7 +74,7 @@ let settings: [SwiftSetting] = [
     .enableUpcomingFeature("MemberImportVisibility"),
 ]
 let package = Package(
-    name: "LinuxCore",
+    name: "LinuxCore",${platforms}
     targets: [
         .target(name: "HolzBarCore", path: "Sources/HolzBarCore", swiftSettings: settings + [.defaultIsolation(MainActor.self)]),
         .testTarget(name: "HolzBarCoreTests", dependencies: ["HolzBarCore"], path: "Tests/HolzBarCoreTests", swiftSettings: settings),
