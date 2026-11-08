@@ -42,4 +42,16 @@ nonisolated enum DividerPlausibility {
         }
         return true
     }
+
+    /// How long the item cache of the last good read stands for the bar while every read is bad.
+    /// After that the Shelf, search and the Layout pane get the bad read, so new and removed items
+    /// show; the cache is then marked as coming from a bad read.
+    static let staleCacheLimit: Duration = .seconds(30)
+
+    /// Whether a bad read goes into the item cache for the UI: when the cache is empty (the first
+    /// read), already comes from a bad read, or has stood for the bar for ``staleCacheLimit``.
+    /// Nothing is moved, saved or decided from such a read either way.
+    static func cachesBadRead(cacheIsEmpty: Bool, cacheIsFromBadRead: Bool, badReadsFor: Duration) -> Bool {
+        cacheIsEmpty || cacheIsFromBadRead || badReadsFor >= staleCacheLimit
+    }
 }

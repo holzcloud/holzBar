@@ -44,9 +44,14 @@ final class MenuBarItemManager {
     /// notice is logged once per such stretch and not for every read.
     @ObservationIgnored private var loggedImplausibleDividers = false
 
-    /// Whether the item cache comes from a read with a divider right of the Clock: it was empty
-    /// then, so it was filled for the UI, but its sections are not believed (no snapshot).
+    /// Whether the item cache comes from a read with a divider right of the Clock: it was empty,
+    /// or had stood for the bar too long, so it was filled for the UI, but its sections are not
+    /// believed (no snapshot, no rule decision).
     @ObservationIgnored private(set) var isCacheFromImplausibleRead = false
+
+    /// When the current stretch of reads with a divider right of the Clock began, `nil` after a
+    /// plausible read.
+    @ObservationIgnored private var implausibleReadsSince: ContinuousClock.Instant?
 
     /// Whether temporarily shown items wait to be rehidden until automatic moves may run
     /// again (on the next settle or user move) instead of retrying every 3 seconds.
@@ -537,8 +542,9 @@ extension MenuBarItemManager {
     /// arranging them into valid positions if needed.
     ///
     /// - Returns: Whether the bar was read. It is not while the Mac is not in use or within a
-    ///   second of a move, or when a newer read replaced this one; the cache is then as old as
-    ///   before the call.
+    ///   second of a move, when a newer read replaced this one, or when a divider read right of
+    ///   the Clock (`DividerPlausibility`); the cache is then as old as before the call, or comes
+    ///   from that bad read for the UI only (``isCacheFromImplausibleRead``).
     @discardableResult
     func cacheItemsRegardless(_ currentItemWindowIDs: [CGWindowID]? = nil) async -> Bool {
         let readsBefore = itemReadCount
@@ -617,20 +623,32 @@ extension MenuBarItemManager {
             // A divider read right of the Clock is a bad read (macOS 14 to 26, right after a display
             // change, wake or unlock). Nothing is moved, learned or saved from it, and the cache
             // keeps the previous read, which snapshots and profiles take their sections from. Only
-            // an empty cache (the first read) is filled from it, for the UI, and marked so that no
-            // snapshot is taken from it. The cleared window list makes the next event or the 60 s
-            // fallback read the bar again.
+            // an empty cache (the first read), or one that stood for the bar for
+            // `DividerPlausibility.staleCacheLimit`, is filled from it, for the UI, and marked so
+            // that no snapshot is taken from it. Such a read does not count as a read of the bar.
+            // The cleared window list makes the next event or the 60 s fallback read the bar again.
             if backend.canMoveItems {
                 if dividersArePlausible(items: items, controlItems: controlItems) {
                     loggedImplausibleDividers = false
+                    implausibleReadsSince = nil
                 } else {
+                    // Not a read of the bar for the callers (automation rules, the settle check):
+                    // nothing may be decided on it.
+                    itemReadCount -= 1
                     if !loggedImplausibleDividers {
                         loggedImplausibleDividers = true
                         logger.notice(
                             "A divider reads right of the Clock, so nothing is moved or saved until the next read"
                         )
                     }
-                    if itemCache.managedItems.isEmpty || isCacheFromImplausibleRead {
+                    let now = ContinuousClock.now
+                    let since = implausibleReadsSince ?? now
+                    implausibleReadsSince = since
+                    if DividerPlausibility.cachesBadRead(
+                        cacheIsEmpty: itemCache.managedItems.isEmpty,
+                        cacheIsFromBadRead: isCacheFromImplausibleRead,
+                        badReadsFor: since.duration(to: now)
+                    ) {
                         await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
                         isCacheFromImplausibleRead = true
                     }

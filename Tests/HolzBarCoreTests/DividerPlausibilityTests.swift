@@ -54,4 +54,14 @@ struct DividerPlausibilityTests {
         let alwaysHidden = Span(minX: 100, maxX: 120)
         #expect(DividerPlausibility.isPlausible(hidden: hidden, alwaysHidden: alwaysHidden, clock: clock))
     }
+
+    @Test("A bad read reaches the cache only when it is empty, untrusted already, or stale too long")
+    func badReadCachePolicy() {
+        let limit = DividerPlausibility.staleCacheLimit
+        #expect(!DividerPlausibility.cachesBadRead(cacheIsEmpty: false, cacheIsFromBadRead: false, badReadsFor: .zero))
+        #expect(!DividerPlausibility.cachesBadRead(cacheIsEmpty: false, cacheIsFromBadRead: false, badReadsFor: limit - .seconds(1)))
+        #expect(DividerPlausibility.cachesBadRead(cacheIsEmpty: false, cacheIsFromBadRead: false, badReadsFor: limit))
+        #expect(DividerPlausibility.cachesBadRead(cacheIsEmpty: true, cacheIsFromBadRead: false, badReadsFor: .zero))
+        #expect(DividerPlausibility.cachesBadRead(cacheIsEmpty: false, cacheIsFromBadRead: true, badReadsFor: .zero))
+    }
 }
