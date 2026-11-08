@@ -7,38 +7,6 @@ import AppKit
 import Observation
 import OSLog
 
-/// A saved arrangement of menu bar items into sections.
-struct LayoutProfile: Codable, Hashable, Identifiable {
-    /// The profile's name, which also identifies it.
-    var name: String
-
-    /// The section of each item, keyed by the item's tag (macOS 26 and earlier).
-    var itemSections: [String: Int]
-
-    /// The section of each application, keyed by bundle identifier (macOS 27).
-    var applicationSections: [String: Int]
-
-    /// The applications holzBar knew when the profile was saved on macOS 27, keyed by bundle
-    /// identifier. Visible applications are missing from `applicationSections`, so a known
-    /// one missing there is visible. Optional, so profiles saved before macOS 27, or before
-    /// this was recorded, decode unchanged.
-    var knownApplications: [String]?
-
-    /// The UUID of the display whose connection applies the profile. Optional, so
-    /// profiles saved before bindings existed decode unchanged.
-    var displayUUID: String?
-
-    /// The UUID of the Space whose activation applies the profile.
-    var spaceUUID: String?
-
-    var id: String { name }
-
-    /// Whether the profile is bound to a display or a Space.
-    var isBound: Bool {
-        displayUUID != nil || spaceUUID != nil
-    }
-}
-
 /// Saves and applies layout profiles, such as "Work" and "Home"
 /// (jordanbaird/Ice#26).
 ///
@@ -91,9 +59,10 @@ final class LayoutProfiles {
     }
 
     private func load() {
+        // Capped and cleaned: the defaults can be written by any process of the user.
         if
             let data = Defaults.data(forKey: .layoutProfiles),
-            let decoded = try? JSONDecoder().decode([LayoutProfile].self, from: data)
+            let decoded = LayoutProfileList.profiles(from: data)
         {
             profiles = decoded.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         }
@@ -155,7 +124,8 @@ final class LayoutProfiles {
         guard appState != nil else {
             return
         }
-        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        // The rule the next load applies, so the name stays the one the user typed.
+        let name = LayoutProfileList.cleanedName(name)
         guard !name.isEmpty else {
             return
         }
@@ -398,7 +368,7 @@ final class LayoutProfiles {
     /// Renames a profile; its hotkey moves with it. A name that another profile has is
     /// refused.
     func rename(_ profile: LayoutProfile, to newName: String) {
-        let newName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let newName = LayoutProfileList.cleanedName(newName)
         guard
             !newName.isEmpty,
             newName != profile.name,

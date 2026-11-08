@@ -62,6 +62,8 @@ sources=(
   ItemRuleMemory
   ItemTimer
   LayoutDraft
+  LayoutProfile
+  LayoutProfileList
   LayoutSnapshot
   LegacyRevealRules
   LiveActivity
@@ -165,6 +167,7 @@ tests=(
   ItemRuleMemoryTests
   ItemTimerTests
   LayoutDraftTests
+  LayoutProfileListTests
   LayoutSnapshotTests
   LegacyRevealRulesTests
   MenuBarDragDeciderTests
