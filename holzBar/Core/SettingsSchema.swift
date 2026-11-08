@@ -14,6 +14,15 @@ import Foundation
 /// also checked for their value (``NumberRule``): a value such as `1e300`, infinity or NaN
 /// would trap where the app turns it into an `Int` or a `Duration`, at every launch.
 nonisolated enum SettingsSchema {
+    /// The largest settings file holzBar reads, in bytes (8 MB). A file is read whole into memory,
+    /// and the settings holzBar writes itself are far smaller.
+    static let maximumImportSize = 8 * 1024 * 1024
+
+    /// Whether a settings file of `size` bytes may be read.
+    static func acceptsImport(ofSize size: Int) -> Bool {
+        size <= maximumImportSize
+    }
+
     /// The kind of value a setting holds, as it appears in a property list.
     nonisolated enum Kind: Sendable {
         /// A Boolean (`CFBoolean`).

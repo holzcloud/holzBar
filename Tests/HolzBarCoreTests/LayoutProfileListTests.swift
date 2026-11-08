@@ -205,4 +205,32 @@ struct LayoutProfileListTests {
         #expect(try profiles([]).isEmpty)
         #expect(LayoutProfileList.normalized(Data("[]".utf8)) == Data("[]".utf8))
     }
+
+    // MARK: Settings file
+
+    @Test("A settings file brings only capped profiles")
+    func settingsFileProfiles() throws {
+        let input = try data((0..<150).map { element("Profile \($0)") })
+        let accepted = Defaults.Key.validatedSettings(
+            [Defaults.Key.layoutProfiles.rawValue: input],
+            ownBundleIdentifier: "com.holzcloud.holzBar"
+        )
+        let stored = try #require(accepted.accepted[Defaults.Key.layoutProfiles.rawValue] as? Data)
+        let list = try #require(LayoutProfileList.profiles(from: stored))
+        #expect(list.count == LayoutProfileList.maximumProfiles)
+        #expect(accepted.ignored.isEmpty)
+    }
+
+    @Test("A LayoutProfiles value that is not a list is removed and reported")
+    func settingsFileNotAList() {
+        let ownBundle = "com.holzcloud.holzBar"
+        for value in [Data("{\"a\":1}".utf8), Data(repeating: 0x20, count: LayoutProfileList.maximumDataSize + 1)] {
+            let result = Defaults.Key.validatedSettings(
+                [Defaults.Key.layoutProfiles.rawValue: value],
+                ownBundleIdentifier: ownBundle
+            )
+            #expect(result.accepted[Defaults.Key.layoutProfiles.rawValue] == nil)
+            #expect(result.ignored.contains(Defaults.Key.layoutProfiles.rawValue))
+        }
+    }
 }

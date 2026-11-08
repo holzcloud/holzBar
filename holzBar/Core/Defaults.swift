@@ -705,6 +705,18 @@ nonisolated extension Defaults.Key {
                 result.ignored = (result.ignored + [replacementsKey]).sorted()
             }
         }
+        // A file never brings more profiles or entries than the limits of `LayoutProfileList`, a
+        // name that is empty or taken twice, or a section that does not exist: the list is
+        // decoded, validated and encoded again.
+        let profilesKey = Self.layoutProfiles.rawValue
+        if let data = result.accepted[profilesKey] as? Data {
+            if let normalized = LayoutProfileList.normalized(data) {
+                result.accepted[profilesKey] = normalized
+            } else {
+                result.accepted.removeValue(forKey: profilesKey)
+                result.ignored = (result.ignored + [profilesKey]).sorted()
+            }
+        }
         // A file never conceals holzBar itself: an entry for holzBar's own bundle in the macOS 27
         // layout would hide its icon and dividers. Widgets are keyed by their autosave names.
         let layoutKey = Self.macOS27Layout.rawValue
