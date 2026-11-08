@@ -44,6 +44,10 @@ final class MenuBarItemManager {
     /// notice is logged once per such stretch and not for every read.
     @ObservationIgnored private var loggedImplausibleDividers = false
 
+    /// Whether the item cache comes from a read with a divider right of the Clock: it was empty
+    /// then, so it was filled for the UI, but its sections are not believed (no snapshot).
+    @ObservationIgnored private(set) var isCacheFromImplausibleRead = false
+
     /// Whether temporarily shown items wait to be rehidden until automatic moves may run
     /// again (on the next settle or user move) instead of retrying every 3 seconds.
     @ObservationIgnored private var isRehideWaitingForMoves = false
@@ -611,9 +615,11 @@ extension MenuBarItemManager {
             }
 
             // A divider read right of the Clock is a bad read (macOS 14 to 26, right after a display
-            // change, wake or unlock). Nothing is moved, learned or saved from it; the cache is
-            // still updated for the UI, and the cleared window list makes the next event or the
-            // 60 s fallback read the bar again.
+            // change, wake or unlock). Nothing is moved, learned or saved from it, and the cache
+            // keeps the previous read, which snapshots and profiles take their sections from. Only
+            // an empty cache (the first read) is filled from it, for the UI, and marked so that no
+            // snapshot is taken from it. The cleared window list makes the next event or the 60 s
+            // fallback read the bar again.
             if backend.canMoveItems {
                 if dividersArePlausible(items: items, controlItems: controlItems) {
                     loggedImplausibleDividers = false
@@ -624,7 +630,10 @@ extension MenuBarItemManager {
                             "A divider reads right of the Clock, so nothing is moved or saved until the next read"
                         )
                     }
-                    await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
+                    if itemCache.managedItems.isEmpty || isCacheFromImplausibleRead {
+                        await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
+                        isCacheFromImplausibleRead = true
+                    }
                     await cacheActor.clearCachedItemWindowIDs()
                     return
                 }
@@ -642,6 +651,7 @@ extension MenuBarItemManager {
                 updateIdentities(with: items)
             }
             await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
+            isCacheFromImplausibleRead = false
 
             guard !Task.isCancelled else {
                 await cacheActor.clearCachedItemWindowIDs()

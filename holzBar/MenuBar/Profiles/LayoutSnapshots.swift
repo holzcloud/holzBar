@@ -98,6 +98,11 @@ final class LayoutSnapshots {
         guard isEnabled else {
             return
         }
+        // A cache filled from a read with a divider right of the Clock has every item in Hidden.
+        guard appState?.itemManager.isCacheFromImplausibleRead != true else {
+            logger.notice("Not taking a snapshot (\(reason.rawValue, privacy: .public)): the items were read with a divider right of the Clock")
+            return
+        }
         let candidate = currentSnapshot(reason: reason)
         guard SnapshotPolicy.shouldKeep(candidate, latest: snapshots.first) else {
             return
