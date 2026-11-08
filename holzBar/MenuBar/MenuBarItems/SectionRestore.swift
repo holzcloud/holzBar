@@ -61,14 +61,16 @@ extension MenuBarItemManager {
     // MARK: Saving
 
     /// Saves the section of every cached item under its identity key. Sections of items that
-    /// are not on the bar now (their apps are not running) are kept.
+    /// are not on the bar now (their apps are not running) are kept. An item that still carries a
+    /// launch placeholder title (`ItemPlaceholder`) is not saved: its key is not its own yet.
     func saveSections() {
         guard backend.canMoveItems else {
             return
         }
         var stored = storedSectionIndexes()
         for section in MenuBarSection.Name.allCases {
-            for item in itemCache[section] where !item.isControlItem && !item.tag.namespace.isUUID {
+            for item in itemCache[section]
+            where !item.isControlItem && !item.tag.namespace.isUUID && !isProvisionalPlaceholder(item) {
                 stored[identityKey(for: item)] = section.profileIndex
             }
         }
@@ -79,11 +81,14 @@ extension MenuBarItemManager {
 
     /// Saves the order of the given items, left to right, merged with the stored order, so an
     /// item that is not on the bar now keeps its place (`ItemOrder`). Control items, items of a UUID
-    /// namespace and temporarily shown items are not part of the order. It runs at the moments the
-    /// sections are saved, and once to seed the order of an existing install.
+    /// namespace, temporarily shown items and items with a launch placeholder title are not part
+    /// of the order. It runs at the moments the sections are saved, and once to seed the order of
+    /// an existing install.
     private func saveOrder(of items: [MenuBarItem], keys: [CGWindowID: String]? = nil) {
         let ordered = items
-            .filter { !$0.isControlItem && !$0.tag.namespace.isUUID && !isTemporarilyShown($0) }
+            .filter {
+                !$0.isControlItem && !$0.tag.namespace.isUUID && !isTemporarilyShown($0) && !isProvisionalPlaceholder($0)
+            }
             .sorted { orderPosition(of: $0) < orderPosition(of: $1) }
         guard !ordered.isEmpty else {
             return
