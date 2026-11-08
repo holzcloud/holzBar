@@ -55,8 +55,14 @@ extension MenuBarItemManager {
     }
 
     /// The pass of the reconciliation the current task runs, `nil` outside one. Bound to the
-    /// task, so a move another task makes meanwhile (rehiding, the dividers) is not taken for one
-    /// of the pass.
+    /// task, so a move a task started outside the pass makes meanwhile (rehiding, the dividers) is
+    /// not taken for one of the pass.
+    ///
+    /// Like every task-local value it is inherited by a `Task {}` created inside the pass: the
+    /// repair from `scheduleMoveRepair()`, the re-checks from `startProvisionalRechecks()` and a
+    /// cache task started meanwhile all see `.restore`, which schedules repairs as `nil` does. A
+    /// task created inside an `.arrangement` or `.repair` pass that moves items later must run
+    /// with `ReconciliationPass.$current.withValue(nil)`, or its moves would schedule no repair.
     nonisolated enum ReconciliationPass {
         @TaskLocal static var current: MoveNeighbourCheck.Pass?
     }
