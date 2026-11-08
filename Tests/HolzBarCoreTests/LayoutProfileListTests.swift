@@ -77,24 +77,50 @@ struct LayoutProfileListTests {
         #expect(list.last?.name == "Profile 99")
     }
 
-    @Test("A name that is equal after cleaning is dropped")
+    @Test("A name an earlier profile has gets a number instead of being dropped")
     func duplicateNames() throws {
-        let list = try profiles([element("Work", items: ["a": 0]), element(" Work "), element("Work\u{0007}", items: ["b": 0]), element("work")])
-        #expect(list.map(\.name) == ["Work", "work"])
-        #expect(list[0].itemSections == ["a": 0])
+        let list = try profiles([
+            element("Work", items: ["a": 0]),
+            element("Work", items: ["b": 0]),
+            element("Work 2", items: ["c": 0]),
+            element("Work", items: ["d": 0]),
+            element("work"),
+        ])
+        #expect(list.map(\.name) == ["Work", "Work 2", "Work 2 2", "Work 3", "work"])
+        #expect(list.map(\.itemSections) == [["a": 0], ["b": 0], ["c": 0], ["d": 0], ["com.example.app:Item": 1]])
     }
 
-    @Test("A name that is empty after cleaning is dropped")
+    @Test("A name that is empty or white space is dropped")
     func emptyNames() throws {
-        let list = try profiles([element(""), element("   "), element("\u{0007}\u{200B}"), element("Real")])
+        let list = try profiles([element(""), element("   "), element("\n\t"), element("Real")])
         #expect(list.map(\.name) == ["Real"])
     }
 
-    @Test("Control characters are removed from a name and a long one is cut to 80")
-    func nameCleaning() throws {
-        let list = try profiles([element("Wo\u{0007}rk\n"), element(String(repeating: "x", count: 120))])
-        #expect(list[0].name == "Work")
-        #expect(list[1].name.count == SharedProfile.maximumNameLength)
+    @Test("A stored name is kept exactly, even where a typed one would be cleaned")
+    func storedNamesKeptExactly() throws {
+        let emoji = "\u{1F469}\u{200D}\u{1F4BB} Work"
+        let long = String(repeating: "x", count: SharedProfile.maximumNameLength + 1)
+        let marked = "Wo\u{00AD}rk \u{200E}"
+        let list = try profiles([element(emoji), element(long), element(marked), element(" Spaced ")])
+        #expect(list.map(\.name) == [emoji, long, marked, " Spaced "])
+        // Typed names are still cleaned.
+        #expect(LayoutProfileList.cleanedName(" Wo\u{0007}rk\n") == "Work")
+        #expect(LayoutProfileList.cleanedName(long).count == SharedProfile.maximumNameLength)
+    }
+
+    @Test("Profiles that differ only after cleaning both stay")
+    func cleaningDoesNotCollapse() throws {
+        let list = try profiles([element("Work"), element("Wo\u{200B}rk"), element(String(repeating: "y", count: 81)), element(String(repeating: "y", count: 82))])
+        #expect(list.count == 4)
+        #expect(Set(list.map(\.name)).count == 4)
+    }
+
+    @Test("A stored name over the byte cap is dropped")
+    func nameByteCap() throws {
+        let exact = String(repeating: "n", count: LayoutProfileList.maximumStoredNameBytes)
+        let over = exact + "n"
+        let list = try profiles([element(over), element(exact)])
+        #expect(list.map(\.name) == [exact])
     }
 
     @Test("A name cut inside a space does not end in one")

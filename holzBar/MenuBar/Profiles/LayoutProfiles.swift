@@ -59,7 +59,8 @@ final class LayoutProfiles {
     }
 
     private func load() {
-        // Capped and cleaned: the defaults can be written by any process of the user.
+        // Capped and validated, names kept as stored: the defaults can be written by any process
+        // of the user, and hotkeys, hooks and Shortcuts refer to the stored names.
         if
             let data = Defaults.data(forKey: .layoutProfiles),
             let decoded = LayoutProfileList.profiles(from: data)
