@@ -151,7 +151,16 @@ enum SettingsBackup {
                    !SettingsSchema.acceptsImport(ofSize: size) {
                     throw CocoaError(.fileReadTooLarge)
                 }
-                let data = try Data(contentsOf: url)
+                // The size above is nil or 0 for a file that is not a regular one, so the read
+                // itself stops one byte past the limit.
+                let handle = try FileHandle(forReadingFrom: url)
+                defer {
+                    try? handle.close()
+                }
+                let data = try handle.read(upToCount: SettingsSchema.maximumImportSize + 1) ?? Data()
+                guard SettingsSchema.acceptsImport(ofSize: data.count) else {
+                    throw CocoaError(.fileReadTooLarge)
+                }
                 guard let settings = try PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else {
                     throw CocoaError(.fileReadCorruptFile)
                 }
