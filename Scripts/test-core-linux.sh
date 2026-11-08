@@ -44,6 +44,7 @@ sources=(
   DiagnosticsReport
   DisplayBehavior
   DisplayControlsLevel
+  DividerPlausibility
   DownloadScan
   DownloadTracker
   FileDragWatch
@@ -153,6 +154,7 @@ tests=(
   DiagnosticsReportTests
   DisplayBehaviorTests
   DisplayControlsLevelTests
+  DividerPlausibilityTests
   DownloadScanTests
   DownloadTrackerTests
   FileDragWatchTests

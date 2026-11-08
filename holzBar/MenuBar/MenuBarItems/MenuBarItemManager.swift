@@ -40,6 +40,10 @@ final class MenuBarItemManager {
     /// The end of the pause of automatic moves that was last logged, so it is logged once.
     @ObservationIgnored private var loggedPauseEnd: ContinuousClock.Instant?
 
+    /// Whether the last read had a divider right of the Clock (`DividerPlausibility`), so the
+    /// notice is logged once per such stretch and not for every read.
+    @ObservationIgnored private var loggedImplausibleDividers = false
+
     /// Whether temporarily shown items wait to be rehidden until automatic moves may run
     /// again (on the next settle or user move) instead of retrying every 3 seconds.
     @ObservationIgnored private var isRehideWaitingForMoves = false
@@ -493,6 +497,21 @@ extension MenuBarItemManager {
         logger.debug("Updated menu bar item cache")
     }
 
+    /// Whether a read of the bar can be believed: neither divider ends right of the Clock
+    /// (`DividerPlausibility`). A read without a Clock in `items` counts as plausible. `items` is
+    /// the list without the control items, as left by `ControlItemPair.init(items:)`.
+    func dividersArePlausible(items: [MenuBarItem], controlItems: ControlItemPair) -> Bool {
+        func span(of item: MenuBarItem) -> DividerPlausibility.Span {
+            let bounds = Bridging.getWindowBounds(for: item.windowID) ?? item.bounds
+            return DividerPlausibility.Span(minX: bounds.minX, maxX: bounds.maxX)
+        }
+        return DividerPlausibility.isPlausible(
+            hidden: span(of: controlItems.hidden),
+            alwaysHidden: controlItems.alwaysHidden.map { span(of: $0) },
+            clock: items.first(matching: .clock).map { span(of: $0) }
+        )
+    }
+
     /// Caches the current menu bar items, regardless of whether the
     /// items have changed since the previous cache.
     ///
@@ -576,6 +595,26 @@ extension MenuBarItemManager {
                 // not be skipped. It comes with the next event, timer or Shelf, not from here.
                 await cacheActor.clearCachedItemWindowIDs()
                 return
+            }
+
+            // A divider read right of the Clock is a bad read (macOS 14 to 26, right after a display
+            // change, wake or unlock). Nothing is moved, learned or saved from it; the cache is
+            // still updated for the UI, and the cleared window list makes the next event or the
+            // 60 s fallback read the bar again.
+            if backend.canMoveItems {
+                if dividersArePlausible(items: items, controlItems: controlItems) {
+                    loggedImplausibleDividers = false
+                } else {
+                    if !loggedImplausibleDividers {
+                        loggedImplausibleDividers = true
+                        logger.notice(
+                            "A divider reads right of the Clock, so nothing is moved or saved until the next read"
+                        )
+                    }
+                    await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
+                    await cacheActor.clearCachedItemWindowIDs()
+                    return
+                }
             }
 
             // Where items cannot be moved, the dividers stay where macOS placed them.
