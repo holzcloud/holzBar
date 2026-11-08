@@ -38,6 +38,7 @@ sources=(
   CalendarEvent
   CalendarSelection
   ClockClickPolicy
+  ControlCenterControl
   Defaults
   DesignTokens
   DiagnosticsReport
@@ -146,6 +147,7 @@ tests=(
   BuiltInItemTests
   CalendarSelectionTests
   ClockClickPolicyTests
+  ControlCenterControlTests
   DesignTokensTests
   DiagnosticsReportTests
   DisplayBehaviorTests

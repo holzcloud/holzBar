@@ -18,8 +18,15 @@ nonisolated struct MenuBarItemTag: Hashable, CustomStringConvertible {
 
     /// A Boolean value that indicates whether the item identified
     /// by this tag can be moved.
+    ///
+    /// On macOS 27 a Control Center control pinned to the menu bar is placed by macOS
+    /// itself and cannot be moved either (``ControlCenterControl``).
     var isMovable: Bool {
-        !MenuBarItemTag.immovableItems.contains(self)
+        if #available(macOS 27.0, *),
+           ControlCenterControl.isPinnedControl(namespace: namespace.description, title: title) {
+            return false
+        }
+        return !MenuBarItemTag.immovableItems.contains(self)
     }
 
     /// A Boolean value that indicates whether the item identified
@@ -116,7 +123,9 @@ nonisolated extension MenuBarItemTag {
     /// and cannot be hidden.
     ///
     /// In macOS 26, this list contains the "Clock" and "Control Center" items.
-    /// In earlier releases, it also contained the "Siri" item.
+    /// In earlier releases, it also contained the "Siri" item. The controls pinned to
+    /// the menu bar on macOS 27 vary by title and are not listed here; ``isMovable``
+    /// recognises them by their shape.
     static let immovableItems: [MenuBarItemTag] = {
         var items = [clock, controlCenter]
         if #unavailable(macOS 26.0) {

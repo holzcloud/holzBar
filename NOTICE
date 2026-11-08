@@ -33,6 +33,9 @@ one line per adapted file:
   - holzBar/MenuBar/Appearance/MenuBarOverlayPanel.swift masks the system glass tint to
     the menu bar shape the way Thaw's Thaw/MenuBar/Appearance/MenuBarOverlayPanel.swift
     does (Copyright (C) 2026 Toni Förster).
+  - holzBar/Core/ControlCenterControl.swift is adapted from Thaw's
+    packages/MenuBarModel/Sources/MenuBarModel/ChronoControlIdentity.swift
+    (Copyright (C) 2026 Toni Förster).
 
 holzBar links no third-party package; the adapted projects and their licenses are
 listed in the app under Settings, About, Acknowledgements.
