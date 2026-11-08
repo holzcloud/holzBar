@@ -61,6 +61,7 @@ sources=(
   ItemClassifier
   ItemIdentity
   ItemOpenOrigin
+  ItemPlaceholder
   ItemRuleMemory
   ItemTimer
   LayoutDraft
@@ -169,6 +170,7 @@ tests=(
   ItemCategoryTests
   ItemClassifierTests
   ItemIdentityTests
+  ItemPlaceholderTests
   ItemRuleMemoryTests
   ItemTimerTests
   LayoutDraftTests

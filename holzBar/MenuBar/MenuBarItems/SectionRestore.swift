@@ -250,10 +250,19 @@ extension MenuBarItemManager {
         let saved = savedSections()
         let newItemsSection = appState.settings.advanced.newItemsPlacement.section
 
+        // Items that still carry a launch placeholder title (`ItemPlaceholder`): a profile and the
+        // saved sections still apply to them, but they are neither placed as new nor remembered.
+        var provisionalKeys = Set<String>()
+        var skippedProvisionalNewItem = false
+
         var moves = [(item: MenuBarItem, key: String, section: MenuBarSection.Name, isNew: Bool)]()
         for item in candidates {
             guard let key = keys[item.windowID] else {
                 continue
+            }
+            let isProvisional = isProvisionalPlaceholder(item)
+            if isProvisional {
+                provisionalKeys.insert(key)
             }
             let isNew = storedKnown != nil && saved[key] == nil && !known.contains(key)
             var target: MenuBarSection.Name?
@@ -262,9 +271,13 @@ extension MenuBarItemManager {
             } else if trigger.restoresSavedSections, let section = saved[key] {
                 target = section
             } else if isNew {
-                // A widget the user just added starts where they can see it (D-24).
-                let isWidget = item.tag.namespace == .holzBar && WidgetDefinition.isAutosaveName(item.tag.title)
-                target = isWidget ? .visible : newItemsSection
+                if isProvisional {
+                    skippedProvisionalNewItem = true
+                } else {
+                    // A widget the user just added starts where they can see it (D-24).
+                    let isWidget = item.tag.namespace == .holzBar && WidgetDefinition.isAutosaveName(item.tag.title)
+                    target = isWidget ? .visible : newItemsSection
+                }
             }
             guard var target else {
                 continue
@@ -320,8 +333,15 @@ extension MenuBarItemManager {
             return
         }
 
-        // A new item whose move was not tried stays unknown, so a later pass places it.
-        let candidateKeys = Set(candidates.compactMap { keys[$0.windowID] }).subtracting(untriedNewKeys)
+        // A new item whose move was not tried stays unknown, so a later pass places it. So does
+        // an item with a launch placeholder title, until its title is final or its app has run
+        // for a minute.
+        if !provisionalKeys.isEmpty {
+            Self.restoreLogger.debug("Not remembering \(provisionalKeys.count, privacy: .public) items with a launch placeholder title")
+        }
+        let candidateKeys = Set(candidates.compactMap { keys[$0.windowID] })
+            .subtracting(untriedNewKeys)
+            .subtracting(provisionalKeys)
         if storedKnown == nil || !candidateKeys.isSubset(of: known) {
             known.formUnion(candidateKeys)
             Defaults.set(known.sorted(), forKey: .knownItemTags)
@@ -332,6 +352,30 @@ extension MenuBarItemManager {
             storeSections(wanted)
         }
         storeSections(placedSections)
+    }
+
+    /// How long the application of an item has run, for the rule of ``ItemPlaceholder``: since
+    /// the later of its launch and holzBar's own (an item that holzBar finds at its own start is
+    /// as young as holzBar), ignoring a missing date. With no date it is not young.
+    private func runningDuration(of item: MenuBarItem) -> Duration {
+        let launchDates = [
+            (item.sourceApplication ?? item.owningApplication)?.launchDate,
+            NSRunningApplication.current.launchDate,
+        ].compactMap(\.self)
+        guard let launchDate = launchDates.max() else {
+            return ItemPlaceholder.provisionalPeriod
+        }
+        return .seconds(max(0, Date.now.timeIntervalSince(launchDate)))
+    }
+
+    /// Whether the item still carries a launch placeholder title while its app is young
+    /// (`ItemPlaceholder.isProvisional`). Only items with a placeholder title look up their
+    /// application.
+    private func isProvisionalPlaceholder(_ item: MenuBarItem) -> Bool {
+        guard ItemIdentity.isPlaceholderTitle(item.tag.title) else {
+            return false
+        }
+        return ItemPlaceholder.isProvisional(title: item.tag.title, runningFor: runningDuration(of: item))
     }
 
     /// Whether a restore stops moving items because the user arranges them: an item is being
