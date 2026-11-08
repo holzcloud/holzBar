@@ -107,9 +107,12 @@ extension MenuBarItemManager {
     }
 
     /// The stored order under the keys they match today, or `nil` when none is stored yet. The
-    /// value can come from an imported settings file, so it is sanitized.
+    /// value can be written by any process of the user, so it is capped before its keys are
+    /// matched (several regular expressions each) and sanitized again after.
     private func storedOrder() -> [String]? {
-        Defaults.stringArray(forKey: .itemOrder).map { ItemOrder.sanitized($0.map(storedIdentityKey)) }
+        Defaults.stringArray(forKey: .itemOrder).map { raw in
+            ItemOrder.sanitized(ItemOrder.sanitized(raw).map(storedIdentityKey))
+        }
     }
 
     /// The identity keys that have a saved section (`ItemOrder.reappeared`).

@@ -710,9 +710,15 @@ nonisolated extension Defaults.Key {
                 result.ignored = (result.ignored + [replacementsKey]).sorted()
             }
         }
+        // A file never brings a stored order of more keys than `ItemOrder` keeps, or an empty,
+        // overlong or repeated key: the order is read on the main thread at every restore.
+        let orderKey = Self.itemOrder.rawValue
+        if let order = result.accepted[orderKey] as? [String] {
+            result.accepted[orderKey] = ItemOrder.sanitized(order)
+        }
         // A file never brings more profiles or entries than the limits of `LayoutProfileList`, a
-        // name that is empty or taken twice, or a section that does not exist: the list is
-        // decoded, validated and encoded again.
+        // name that is empty, white space or over its byte cap, or a section that does not exist:
+        // the list is decoded, validated and encoded again, and a repeated name gets a number.
         let profilesKey = Self.layoutProfiles.rawValue
         if let data = result.accepted[profilesKey] as? Data {
             if let normalized = LayoutProfileList.normalized(data) {

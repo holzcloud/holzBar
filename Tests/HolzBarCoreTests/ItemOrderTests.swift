@@ -221,6 +221,19 @@ struct ItemOrderTests {
         let wrong = Defaults.Key.validatedSettings(["ItemOrder": "a"], ownBundleIdentifier: "com.holzcloud.holzBar")
         #expect(wrong.accepted["ItemOrder"] == nil)
     }
+
+    @Test("An imported order is capped and sanitized")
+    func importedOrderIsSanitized() {
+        let huge = (0..<50_000).map { "ns:item\($0)" }
+        let result = Defaults.Key.validatedSettings(["ItemOrder": huge], ownBundleIdentifier: "com.holzcloud.holzBar")
+        let stored = result.accepted["ItemOrder"] as? [String]
+        #expect(stored?.count == ItemOrder.maximumKeys)
+        #expect(stored?.first == "ns:item0")
+        let long = String(repeating: "k", count: ItemOrder.maximumKeyLength + 1)
+        let messy = Defaults.Key.validatedSettings(["ItemOrder": ["a", "", "a", long, "b"]], ownBundleIdentifier: "com.holzcloud.holzBar")
+        #expect(messy.accepted["ItemOrder"] as? [String] == ["a", "b"])
+        #expect(messy.ignored.isEmpty)
+    }
 }
 
 /// A small deterministic generator, so a failing shuffle can be reproduced.
