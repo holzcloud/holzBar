@@ -20,10 +20,15 @@ nonisolated struct MenuBarItemTag: Hashable, CustomStringConvertible {
     /// by this tag can be moved.
     ///
     /// On macOS 27 a Control Center control pinned to the menu bar is placed by macOS
-    /// itself and cannot be moved either (``ControlCenterControl``).
+    /// itself and cannot be moved either (``ControlCenterControl``). Below macOS 27 the
+    /// tray icons of Windows apps (Wine, CrossOver) belong to a compatibility layer and
+    /// holzBar does not move them (``UngovernedItemOwners``).
     var isMovable: Bool {
-        if #available(macOS 27.0, *),
-           ControlCenterControl.isPinnedControl(namespace: namespace.description, title: title) {
+        if #available(macOS 27.0, *) {
+            if ControlCenterControl.isPinnedControl(namespace: namespace.description, title: title) {
+                return false
+            }
+        } else if UngovernedItemOwners.contains(namespace: namespace.description) {
             return false
         }
         return !MenuBarItemTag.immovableItems.contains(self)

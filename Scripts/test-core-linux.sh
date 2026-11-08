@@ -117,6 +117,7 @@ sources=(
   TimerBoard
   TimerFinishSound
   TimerInput
+  UngovernedItemOwners
   URLCommand
   URLPrompt
   WidgetDefinition
@@ -218,6 +219,7 @@ tests=(
   TimerBoardTests
   TimerFinishSoundTests
   TimerInputTests
+  UngovernedItemOwnersTests
   URLCommandTests
   URLPromptTests
   WidgetDefinitionTests

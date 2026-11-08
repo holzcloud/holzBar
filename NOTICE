@@ -37,6 +37,8 @@ one line per adapted file:
   - holzBar/Core/ControlCenterControl.swift is adapted from Thaw's
     packages/MenuBarModel/Sources/MenuBarModel/ChronoControlIdentity.swift
     (Copyright (C) 2026 Toni Förster).
+  - holzBar/Core/UngovernedItemOwners.swift adapts the agentUngovernedOwners list of Thaw's
+    packages/MenuBarModel/Sources/MenuBarModel/MenuBarItemTag.swift.
 
 holzBar links no third-party package; the adapted projects and their licenses are
 listed in the app under Settings, About, Acknowledgements.
