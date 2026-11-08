@@ -845,7 +845,7 @@ extension MenuBarItemManager {
             throw error
         }
         if let neighboursBefore {
-            checkNeighbours(after: item, before: neighboursBefore, origin: origin)
+            checkNeighbours(after: item, before: neighboursBefore, managed: managedWindowIDs(), origin: origin)
         }
         if origin == .user, isRehideWaitingForMoves {
             // The user's move ended the pause; the waiting items are rehidden after the
@@ -865,6 +865,19 @@ extension MenuBarItemManager {
         }
     }
 
+    /// The windows the neighbour check protects: the cached items of the active menu bar (no
+    /// system clones, no items that cannot be hidden) and holzBar's dividers. Any other window in
+    /// the window list is ignored.
+    private func managedWindowIDs() -> Set<UInt32> {
+        var windowIDs = Set(itemCache.managedItems.map(\.windowID))
+        for name in MenuBarSection.Name.allCases {
+            if let number = appState?.menuBarManager.controlItem(withName: name)?.window?.windowNumber, number > 0 {
+                windowIDs.insert(CGWindowID(number))
+            }
+        }
+        return windowIDs
+    }
+
     /// Compares the bar after a move with the one before it. When the move pushed other items out
     /// of their places, an automatic move outside a pass or in a restore schedules one repair
     /// (`MoveNeighbourCheck.schedulesRepair`); a move by the user, of a profile or the Layout pane
@@ -874,12 +887,14 @@ extension MenuBarItemManager {
     private func checkNeighbours(
         after item: MenuBarItem,
         before: [MoveNeighbourCheck.Entry],
+        managed: Set<UInt32>,
         origin: MoveOrigin
     ) {
         let disturbed = MoveNeighbourCheck.disturbed(
             before: before,
             after: neighbourSnapshot(),
-            moved: item.windowID
+            moved: item.windowID,
+            managed: managed
         )
         guard !disturbed.isEmpty else {
             return

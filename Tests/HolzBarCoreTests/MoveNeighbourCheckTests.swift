@@ -54,6 +54,18 @@ struct MoveNeighbourCheckTests {
         #expect(MoveNeighbourCheck.disturbed(before: tied, after: tied, moved: 3).isEmpty)
     }
 
+    @Test("A window outside the managed set never counts")
+    func unmanagedWindowsAreIgnored() {
+        // Window 7 is a system clone of the moved item 3: it follows the item across 1 and 2.
+        let before = entries([(7, -10), (1, 0), (2, 10), (3, 20)])
+        let after = entries([(1, 0), (2, 10), (3, 20), (7, 30)])
+        #expect(MoveNeighbourCheck.disturbed(before: before, after: after, moved: 3) == [7])
+        #expect(MoveNeighbourCheck.disturbed(before: before, after: after, moved: 3, managed: [1, 2, 3]).isEmpty)
+        // A managed neighbour that was pushed still counts.
+        let pushed = entries([(2, 0), (1, 10), (3, 20), (7, 30)])
+        #expect(MoveNeighbourCheck.disturbed(before: before, after: pushed, moved: 3, managed: [1, 2, 3]).count == 1)
+    }
+
     @Test("An empty bar disturbs nothing")
     func emptyLists() {
         #expect(MoveNeighbourCheck.disturbed(before: [], after: [], moved: 1).isEmpty)

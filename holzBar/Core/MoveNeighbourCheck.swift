@@ -29,7 +29,18 @@ nonisolated enum MoveNeighbourCheck {
     ///
     /// The items that kept their relative order are the longest increasing subsequence of the
     /// ranks (``ItemOrder/stableIndices(of:)``); the others are the ones that were pushed.
-    static func disturbed(before: [Entry], after: [Entry], moved: UInt32) -> [UInt32] {
+    ///
+    /// - Parameter managed: The windows the check protects: the managed items and the dividers.
+    ///   Any other window (a system clone, a capture indicator, an item of another display) is
+    ///   ignored, so its own shifts never count. `nil` compares every window.
+    static func disturbed(before: [Entry], after: [Entry], moved: UInt32, managed: Set<UInt32>? = nil) -> [UInt32] {
+        if let managed {
+            return disturbed(
+                before: before.filter { managed.contains($0.id) },
+                after: after.filter { managed.contains($0.id) },
+                moved: moved
+            )
+        }
         let afterIDs = Set(after.map(\.id))
         let beforeOrder = ordered(before.filter { $0.id != moved && afterIDs.contains($0.id) })
         let beforeIDs = Set(beforeOrder)
