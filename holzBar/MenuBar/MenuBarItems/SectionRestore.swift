@@ -313,9 +313,11 @@ extension MenuBarItemManager {
     }
 
     /// Restores the saved sections and order once, after an automatic move pushed other items
-    /// out of their places. Nothing happens while a repair is scheduled or running; a call while
+    /// out of their places. Nothing happens while a repair is scheduled or running. A call while
     /// another reconciliation runs becomes its pending restore (see
-    /// ``reconcileSections(wanted:trigger:items:controlItems:)``).
+    /// ``reconcileSections(wanted:trigger:items:controlItems:)``) and ends the scheduling at
+    /// once, so a later move may schedule again; the single pending slot keeps that to one
+    /// queued pass.
     ///
     /// The repair's own moves are automatic, so `MoveBackoff` bounds them (the same item at most
     /// 4 times in 60 s, 8 failures) and pauses repeated ones, and a move of a repair never
@@ -484,12 +486,14 @@ extension MenuBarItemManager {
             }
         }
 
-        // A reappeared item that was moved, was in its section already or is not on this read is
-        // done; only the ones whose move was not tried stay pending (keys that arrived while the
-        // moves ran are not in the snapshot, so they stay too).
+        // A reappeared item of this read that was moved, was in its section already or may not be
+        // moved is done; the ones whose move was not tried, and keys that are not in this read (a
+        // newer read added them while this pass waited), stay pending. The next read drops a
+        // pending key whose item is gone.
         let reappearedHere = reappearedKeys.intersection(candidates.compactMap { keys[$0.windowID] })
         if !reappearedKeys.isEmpty {
-            pendingReappearedKeys.subtract(reappearedKeys.subtracting(untriedReappearedKeys))
+            let onThisRead = reappearedKeys.intersection(keys.values)
+            pendingReappearedKeys.subtract(onThisRead.subtracting(untriedReappearedKeys))
             Self.restoreLogger.debug("Reappeared items: \(reappearedHere.count, privacy: .public)")
         }
 

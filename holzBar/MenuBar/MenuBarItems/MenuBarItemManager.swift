@@ -1486,6 +1486,9 @@ extension MenuBarItemManager {
         // Known items that came back since the previous read go back to their saved section and
         // place. The first read after launch only records the set: the launch restore handles it.
         let currentKeys = Set(identityKeysByWindow.values)
+        // A pending key that is not on the bar now cannot be restored; it is added again when
+        // the item comes back.
+        pendingReappearedKeys.formIntersection(currentKeys)
         if let previousIdentityKeys, !currentKeys.isSubset(of: previousIdentityKeys) {
             pendingReappearedKeys.formUnion(
                 ItemOrder.reappeared(previous: previousIdentityKeys, current: Array(currentKeys), saved: savedSectionKeys())
