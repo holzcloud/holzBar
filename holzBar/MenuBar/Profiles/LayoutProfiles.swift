@@ -188,12 +188,13 @@ final class LayoutProfiles {
                 }
             }
         }
-        let updated = profiles + [LayoutProfile(
+        let imported = LayoutProfile(
             name: name,
             itemSections: itemSections,
             applicationSections: applicationSections,
             knownApplications: shared.apps.map(\.id)
-        )]
+        )
+        let updated = profiles + [imported]
         guard LayoutProfileList.fitsLimits(updated) else {
             logger.warning("Not importing a shared layout profile: the profiles would exceed their limits")
             return
