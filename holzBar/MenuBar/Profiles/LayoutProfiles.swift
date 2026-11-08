@@ -82,10 +82,17 @@ final class LayoutProfiles {
         Defaults.set(currentProfileName, forKey: .currentLayoutProfile)
     }
 
-    /// Whether there are as many profiles as there can be: a new one cannot be saved or
-    /// imported, only one of the same name replaced.
+    /// Whether no profile can be added (`LayoutProfileList.maximumProfiles`): a new one cannot be
+    /// saved or imported, only one of the same name replaced. A list from an earlier version can
+    /// hold more; it keeps them all.
     var isAtProfileLimit: Bool {
         profiles.count >= LayoutProfileList.maximumProfiles
+    }
+
+    /// Whether the list holds more profiles than can be added to it, so deleting one is not
+    /// enough to add another.
+    var isOverProfileLimit: Bool {
+        profiles.count > LayoutProfileList.maximumProfiles
     }
 
     /// The arrangement of the items now, as a profile without a name or bindings.
@@ -171,7 +178,8 @@ final class LayoutProfiles {
         updated.removeAll { $0.name == name }
         updated.append(profile)
         // The next load keeps only what fits its limits; the pane says why a save was refused.
-        if let violation = LayoutProfileList.limitViolation(updated) {
+        // Adding a profile is limited; replacing one of the same name works at any count.
+        if let violation = LayoutProfileList.limitViolation(updated, adding: previous == nil) {
             logger.warning("Not saving a layout profile: the profiles would exceed their limits")
             return .refused(violation)
         }
@@ -212,7 +220,7 @@ final class LayoutProfiles {
             knownApplications: shared.apps.map(\.id)
         )
         let updated = profiles + [imported]
-        guard LayoutProfileList.fitsLimits(updated) else {
+        guard LayoutProfileList.fitsLimits(updated, adding: true) else {
             logger.warning("Not importing a shared layout profile: the profiles would exceed their limits")
             return
         }

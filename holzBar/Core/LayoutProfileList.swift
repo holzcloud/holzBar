@@ -22,8 +22,15 @@ nonisolated private struct LossyLayoutProfile: Decodable {
 /// user, so nothing in it is trusted. The limits keep a hostile or broken list from filling
 /// memory or making the Profiles pane unusable; profiles the app saves itself stay far below them.
 nonisolated enum LayoutProfileList {
-    /// The most profiles there can be.
+    /// The most profiles a list can reach by adding one (saving under a new name, importing a
+    /// shared profile). A list that already holds more (versions up to 1.0.3 had no limit) keeps
+    /// them all up to ``maximumStoredProfiles``; its profiles can still be replaced, renamed and
+    /// deleted. The Profiles pane names the number in its text; change both together.
     static let maximumProfiles = 100
+
+    /// The most profiles a stored list keeps when it is read: a safety cap against a hostile list,
+    /// far above ``maximumProfiles``, so no user's list loses a profile.
+    static let maximumStoredProfiles = 1000
 
     /// The most entries in each of a profile's maps and in its list of known applications.
     static let maximumEntriesPerProfile = 2000
@@ -61,7 +68,7 @@ nonisolated enum LayoutProfileList {
     /// ``maximumStoredNameBytes``, which no version of the app writes. A name an earlier profile
     /// already has gets the first number (" 2", " 3", …) that no stored name has, instead of
     /// dropping the profile. The first
-    /// ``maximumProfiles`` stay. Within a profile, a key that is empty or over
+    /// ``maximumStoredProfiles`` stay. Within a profile, a key that is empty or over
     /// ``maximumKeyLength`` bytes and a section outside 0 to 2 are dropped, the first
     /// ``maximumEntriesPerProfile`` entries by key stay, and a display or Space UUID that is empty
     /// or longer than ``maximumIdentifierLength`` becomes `nil`.
@@ -77,7 +84,7 @@ nonisolated enum LayoutProfileList {
         var seenNames = Set<String>()
         var profiles = [LayoutProfile]()
         for element in valid {
-            guard profiles.count < maximumProfiles else {
+            guard profiles.count < maximumStoredProfiles else {
                 break
             }
             var name = element.name
@@ -111,25 +118,32 @@ nonisolated enum LayoutProfileList {
         return data
     }
 
-    /// Whether a list the app is about to store loads again in full: at most ``maximumProfiles``
-    /// and at most ``maximumDataSize`` once encoded. A change that breaks this is refused, so the
-    /// next load never drops a profile the user saw.
-    static func fitsLimits(_ profiles: [LayoutProfile]) -> Bool {
-        limitViolation(profiles) == nil
+    /// Whether a list the app is about to store loads again in full and, when the change adds a
+    /// profile, stays within the limit for adding (``limitViolation(_:adding:)``). A change that
+    /// breaks this is refused, so the next load never drops a profile the user saw.
+    static func fitsLimits(_ profiles: [LayoutProfile], adding: Bool = false) -> Bool {
+        limitViolation(profiles, adding: adding) == nil
     }
 
-    /// A limit of the next load that a list breaks.
+    /// A limit that a list breaks.
     enum LimitViolation: Equatable, Sendable {
-        /// More than ``maximumProfiles``.
+        /// More than ``maximumProfiles`` after adding one, or more than
+        /// ``maximumStoredProfiles``.
         case tooMany
         /// Over ``maximumDataSize`` once encoded.
         case tooLarge
     }
 
-    /// The limit of the next load that a list breaks, or `nil` when it fits
-    /// (``fitsLimits(_:)``).
-    static func limitViolation(_ profiles: [LayoutProfile]) -> LimitViolation? {
-        if profiles.count > maximumProfiles {
+    /// The limit a list the app is about to store breaks, or `nil` when it fits
+    /// (``fitsLimits(_:adding:)``).
+    ///
+    /// - Parameters:
+    ///   - profiles: The list after the change.
+    ///   - adding: Whether the change adds a profile: it may then not hold more than
+    ///     ``maximumProfiles``. A change that replaces, renames or binds one only has to stay
+    ///     within what the next load keeps (``maximumStoredProfiles``).
+    static func limitViolation(_ profiles: [LayoutProfile], adding: Bool = false) -> LimitViolation? {
+        if profiles.count > (adding ? maximumProfiles : maximumStoredProfiles) {
             return .tooMany
         }
         return encoded(profiles) == nil ? .tooLarge : nil

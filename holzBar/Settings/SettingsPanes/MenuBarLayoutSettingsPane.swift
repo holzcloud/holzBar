@@ -321,6 +321,9 @@ private struct LayoutProfilesSection: View {
                 if profiles.profiles.isEmpty {
                     Text("Save the current layout as a profile, for example \u{201C}Work\u{201D} or \u{201C}Home\u{201D}.")
                         .foregroundStyle(.secondary)
+                } else if profiles.isOverProfileLimit {
+                    Text("New profiles can be saved or imported while there are fewer than 100. Delete profiles to make room.")
+                        .foregroundStyle(.secondary)
                 } else if profiles.isAtProfileLimit {
                     Text("You have the most profiles there can be. Delete one to save or import a new one.")
                         .foregroundStyle(.secondary)
@@ -364,7 +367,11 @@ private struct LayoutProfilesSection: View {
                 case .tooLarge?:
                     Text("The profiles would be too large to store. Delete one, then save again.")
                 default:
-                    Text("You have the most profiles there can be. Delete one to save or import a new one.")
+                    if profiles.isOverProfileLimit {
+                        Text("New profiles can be saved or imported while there are fewer than 100. Delete profiles to make room.")
+                    } else {
+                        Text("You have the most profiles there can be. Delete one to save or import a new one.")
+                    }
                 }
             }
             .alert("This file is not a holzBar profile.", isPresented: $isShowingImportError) {

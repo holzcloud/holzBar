@@ -68,13 +68,21 @@ struct LayoutProfileListTests {
 
     // MARK: Profiles
 
-    @Test("At most 100 profiles are kept, the first ones")
+    @Test("A list of more than 100 profiles loads in full")
+    func moreThanAddLimitLoads() throws {
+        let list = try profiles((0..<150).map { element("Profile \($0)") })
+        #expect(list.count == 150)
+        #expect(LayoutProfileList.maximumProfiles == 100)
+    }
+
+    @Test("At most 1000 profiles are kept, the first ones")
     func profileCap() throws {
-        let elements = (0..<150).map { element("Profile \($0)") }
+        let elements = (0..<1200).map { element("Profile \($0)", items: [:], apps: [:]) }
         let list = try profiles(elements)
-        #expect(list.count == LayoutProfileList.maximumProfiles)
+        #expect(LayoutProfileList.maximumStoredProfiles == 1000)
+        #expect(list.count == LayoutProfileList.maximumStoredProfiles)
         #expect(list.first?.name == "Profile 0")
-        #expect(list.last?.name == "Profile 99")
+        #expect(list.last?.name == "Profile 999")
     }
 
     @Test("A name an earlier profile has gets a number instead of being dropped")
@@ -159,13 +167,18 @@ struct LayoutProfileListTests {
         #expect(LayoutProfileList.existingName(matching: "   ", among: names) == nil)
     }
 
-    @Test("A limit that a list breaks is named")
+    @Test("A limit that a list breaks is named; 100 is the limit for adding only")
     func limitViolation() {
-        let full = (0..<LayoutProfileList.maximumProfiles).map {
-            LayoutProfile(name: "P\($0)", itemSections: [:], applicationSections: [:])
+        func list(_ count: Int) -> [LayoutProfile] {
+            (0..<count).map { LayoutProfile(name: "P\($0)", itemSections: [:], applicationSections: [:]) }
         }
-        #expect(LayoutProfileList.limitViolation(full) == nil)
-        #expect(LayoutProfileList.limitViolation(full + [LayoutProfile(name: "X", itemSections: [:], applicationSections: [:])]) == .tooMany)
+        #expect(LayoutProfileList.limitViolation(list(100), adding: true) == nil)
+        #expect(LayoutProfileList.limitViolation(list(101), adding: true) == .tooMany)
+        // Replacing or renaming in a list above 100 keeps working.
+        #expect(LayoutProfileList.limitViolation(list(150)) == nil)
+        #expect(LayoutProfileList.limitViolation(list(150), adding: true) == .tooMany)
+        #expect(LayoutProfileList.limitViolation(list(LayoutProfileList.maximumStoredProfiles)) == nil)
+        #expect(LayoutProfileList.limitViolation(list(LayoutProfileList.maximumStoredProfiles + 1)) == .tooMany)
         let key = String(repeating: "k", count: 500)
         let heavy = LayoutProfile(
             name: "Heavy",
@@ -173,16 +186,21 @@ struct LayoutProfileListTests {
             applicationSections: [:]
         )
         #expect(LayoutProfileList.limitViolation([heavy]) == .tooLarge)
+        #expect(LayoutProfileList.limitViolation([heavy], adding: true) == .tooLarge)
     }
 
-    @Test("A list the app stores fits the limits of the next load")
-    func fitsLimits() {
-        let full = (0..<LayoutProfileList.maximumProfiles).map {
+    @Test("A list the app stores loads again in full")
+    func fitsLimits() throws {
+        let many = (0..<150).map {
             LayoutProfile(name: "Profile \($0)", itemSections: ["a": 1], applicationSections: [:])
         }
         #expect(LayoutProfileList.fitsLimits([]))
-        #expect(LayoutProfileList.fitsLimits(full))
-        #expect(!LayoutProfileList.fitsLimits(full + [LayoutProfile(name: "One more", itemSections: [:], applicationSections: [:])]))
+        #expect(LayoutProfileList.fitsLimits(many))
+        #expect(!LayoutProfileList.fitsLimits(many, adding: true))
+        #expect(LayoutProfileList.fitsLimits(Array(many.prefix(99)), adding: true))
+        // What fits is what the next load keeps.
+        let data = try #require(LayoutProfileList.encoded(many))
+        #expect(LayoutProfileList.profiles(from: data) == many)
         // Over 4 MB once encoded.
         let key = String(repeating: "k", count: 500)
         let big = (0..<9000).map { "\($0)\(key)" }
@@ -299,14 +317,14 @@ struct LayoutProfileListTests {
 
     @Test("A settings file brings only capped profiles")
     func settingsFileProfiles() throws {
-        let input = try data((0..<150).map { element("Profile \($0)") })
+        let input = try data((0..<1200).map { element("Profile \($0)", items: [:], apps: [:]) })
         let accepted = Defaults.Key.validatedSettings(
             [Defaults.Key.layoutProfiles.rawValue: input],
             ownBundleIdentifier: "com.holzcloud.holzBar"
         )
         let stored = try #require(accepted.accepted[Defaults.Key.layoutProfiles.rawValue] as? Data)
         let list = try #require(LayoutProfileList.profiles(from: stored))
-        #expect(list.count == LayoutProfileList.maximumProfiles)
+        #expect(list.count == LayoutProfileList.maximumStoredProfiles)
         #expect(accepted.ignored.isEmpty)
     }
 

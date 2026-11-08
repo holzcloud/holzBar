@@ -127677,6 +127677,125 @@
           }
         }
       }
+    },
+    "New profiles can be saved or imported while there are fewer than 100. Delete profiles to make room." : {
+      "comment" : "Menu Bar Layout pane, Profiles section and alert: shown when the list holds more than 100 layout profiles (kept from an earlier version); existing ones can still be replaced.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nové profily lze ukládat nebo importovat, dokud jich je méně než 100. Smažte profily, abyste uvolnili místo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Profile lassen sich sichern oder importieren, solange es weniger als 100 sind. Lösche Profile, um Platz zu schaffen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes guardar o importar perfiles nuevos mientras haya menos de 100. Elimina perfiles para hacer sitio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous pouvez enregistrer ou importer de nouveaux profils tant qu’il y en a moins de 100. Supprimez des profils pour faire de la place."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Új profilokat addig menthet vagy importálhat, amíg 100-nál kevesebb van. Töröljön profilokat, hogy helyet csináljon."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profil baru dapat disimpan atau diimpor selama jumlahnya kurang dari 100. Hapus beberapa profil untuk memberi ruang."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puoi salvare o importare nuovi profili finché sono meno di 100. Elimina alcuni profili per fare spazio."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいプロファイルは、100 個未満のあいだ保存または読み込めます。空きを作るにはプロファイルを削除してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로파일이 100개 미만일 때만 새 프로파일을 저장하거나 가져올 수 있습니다. 공간을 만들려면 프로파일을 삭제하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieuwe profielen kun je bewaren of importeren zolang er minder dan 100 zijn. Verwijder profielen om ruimte te maken."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nowe profile można zachować lub zaimportować, dopóki jest ich mniej niż 100. Usuń profile, aby zrobić miejsce."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Novos perfis podem ser salvos ou importados enquanto houver menos de 100. Exclua perfis para liberar espaço."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Novs profils pon vegnir memorisads u importads uschè ditg ch’i dat main che 100. Stizza profils per far plazza."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Новые профили можно сохранять или импортировать, пока их меньше 100. Удалите профили, чтобы освободить место."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nya profiler kan sparas eller importeras så länge det finns färre än 100. Ta bort profiler för att få plats."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yeni profiller, sayısı 100'den az olduğu sürece kaydedilebilir veya içe aktarılabilir. Yer açmak için profil silin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Нові профілі можна зберігати або імпортувати, поки їх менше 100. Видаліть профілі, щоб звільнити місце."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置文件少于 100 个时才能存储或导入新的配置文件。请删除一些配置文件以腾出空间。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定檔少於 100 個時才能儲存或輸入新的設定檔。請刪除一些設定檔以騰出空間。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
