@@ -1487,6 +1487,12 @@ extension MenuBarItemManager {
         ItemIdentity.storedKey(stored, titleChangingOwners: titleChangingOwners)
     }
 
+    /// The keys a stored set of keys matches today, so that old keys of items that differ only
+    /// after the first line of their titles stay apart (`ItemIdentity.storedKeyMap`).
+    func storedIdentityKeys(_ stored: [String]) -> [String: String] {
+        ItemIdentity.storedKeyMap(stored, titleChangingOwners: titleChangingOwners)
+    }
+
     /// Learns which apps change their item titles from this and the previous read of the bar,
     /// and keys the items anew.
     private func updateIdentities(with items: [MenuBarItem]) {

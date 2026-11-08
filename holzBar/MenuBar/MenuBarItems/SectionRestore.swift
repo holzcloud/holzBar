@@ -397,7 +397,7 @@ extension MenuBarItemManager {
         )
 
         let storedKnown = Defaults.array(forKey: .knownItemTags) as? [String]
-        var known = Set((storedKnown ?? []).map(storedIdentityKey))
+        var known = Set(storedIdentityKeys(storedKnown ?? []).values)
         let saved = savedSections()
         let newItemsSection = appState.settings.advanced.newItemsPlacement.section
         // Known items that came back (`ItemOrder.reappeared`) go to their saved section for every

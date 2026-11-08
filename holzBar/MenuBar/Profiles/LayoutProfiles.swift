@@ -387,9 +387,14 @@ final class LayoutProfiles {
         }
         // Keys of earlier versions (`namespace:title`) match through the item identity.
         let itemManager = appState.itemManager
+        let keyMap = itemManager.storedIdentityKeys(Array(profile.itemSections.keys))
         var wanted = [String: Int]()
-        for (key, index) in profile.itemSections {
-            wanted[itemManager.storedIdentityKey(key)] = index
+        for (key, index) in profile.itemSections.sorted(by: { $0.key < $1.key }) {
+            let current = keyMap[key] ?? itemManager.storedIdentityKey(key)
+            // A key of this version wins over an old one that matches it.
+            if key == current || wanted[current] == nil {
+                wanted[current] = index
+            }
         }
         // The clock, the battery, Wi-Fi, Control Center and the sound control stay visible.
         if !Defaults.bool(forKey: .systemItemsMayHide) {

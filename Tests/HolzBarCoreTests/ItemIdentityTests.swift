@@ -141,6 +141,25 @@ struct ItemIdentityTests {
         #expect(learned.isEmpty)
     }
 
+    @Test("Stored multi-line keys that differ only after the first line stay apart")
+    func multiLineKeysStayApart() {
+        let values = ItemIdentity.storedValues(["ns:A\nB": 0, "ns:A\nC": 1], titleChangingOwners: [])
+        #expect(values == ["ns:A": 0, "ns:A:2": 1])
+        // The current keys of such items.
+        let items: [ItemIdentity.Item] = [(namespace: "ns", title: "A\nB"), (namespace: "ns", title: "A\nC")]
+        #expect(ItemIdentity.keys(for: items, titleChangingOwners: []) == ["ns:A", "ns:A:2"])
+        // The known items map the same way.
+        let map = ItemIdentity.storedKeyMap(["ns:A\nC", "ns:A\nB", "other:Mail 3"], titleChangingOwners: [])
+        #expect(map == ["ns:A\nB": "ns:A", "ns:A\nC": "ns:A:2", "other:Mail 3": "other:Mail #"])
+        // A number an occurrence key already holds is skipped.
+        let withOccurrence = ItemIdentity.storedKeyMap(["ns:A\nB", "ns:A\nB:2", "ns:A\nC"], titleChangingOwners: [])
+        #expect(withOccurrence == ["ns:A\nB": "ns:A", "ns:A\nB:2": "ns:A:2", "ns:A\nC": "ns:A:3"])
+        // Once a key of this version exists for the first line, the old keys are stale: no
+        // numbers are made up for them, and the current value wins.
+        let current = ItemIdentity.storedValues(["ns:A": 2, "ns:A\nB": 0, "ns:A\nC": 1], titleChangingOwners: [])
+        #expect(current == ["ns:A": 2])
+    }
+
     @Test("A stored multi-line key with an occurrence keeps its occurrence on the first line")
     func multiLineOccurrenceKeys() {
         #expect(ItemIdentity.storedKey("ns:A\nb:2", titleChangingOwners: []) == "ns:A:2")
