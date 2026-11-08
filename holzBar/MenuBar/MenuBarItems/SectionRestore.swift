@@ -337,7 +337,12 @@ extension MenuBarItemManager {
 
         let keys = identityKeys(for: items)
         // Live Activities kept visible are never moved back by a saved or new-items section.
-        let candidates = reconcilableItems(items, keepsLiveActivitiesVisible: keepsLiveActivitiesVisible)
+        // A profile or the Layout pane is the user's arrangement and may move a Wine tray icon.
+        let candidates = reconcilableItems(
+            items,
+            keepsLiveActivitiesVisible: keepsLiveActivitiesVisible,
+            arrangedByUser: wanted != nil
+        )
 
         let storedKnown = Defaults.array(forKey: .knownItemTags) as? [String]
         var known = Set((storedKnown ?? []).map(storedIdentityKey))
@@ -485,8 +490,14 @@ extension MenuBarItemManager {
     }
 
     /// The items a restore may move: movable, hideable, not a control item, a system clone or an
-    /// item of a UUID namespace, not a Live Activity that is kept visible, not temporarily shown.
-    private func reconcilableItems(_ items: [MenuBarItem], keepsLiveActivitiesVisible: Bool) -> [MenuBarItem] {
+    /// item of a UUID namespace, not a Live Activity that is kept visible, not temporarily shown,
+    /// and not a Windows app's tray icon (`UngovernedItemOwners`) unless the pass applies the
+    /// user's own arrangement.
+    private func reconcilableItems(
+        _ items: [MenuBarItem],
+        keepsLiveActivitiesVisible: Bool,
+        arrangedByUser: Bool
+    ) -> [MenuBarItem] {
         items.filter { item in
             item.isMovable &&
             item.canBeHidden &&
@@ -494,6 +505,7 @@ extension MenuBarItemManager {
             !item.isSystemClone &&
             !item.tag.namespace.isUUID &&
             !(keepsLiveActivitiesVisible && item.tag.isLiveActivity) &&
+            UngovernedItemOwners.allowsReconciling(isUngoverned: item.tag.isUngoverned, arrangedByUser: arrangedByUser) &&
             !isTemporarilyShown(item)
         }
     }
@@ -536,7 +548,7 @@ extension MenuBarItemManager {
 
         let keepsLiveActivitiesVisible = appState.settings.advanced.keepLiveActivitiesVisible
         var entriesBySection = [MenuBarSection.Name: [(key: String, item: MenuBarItem)]]()
-        for item in reconcilableItems(items, keepsLiveActivitiesVisible: keepsLiveActivitiesVisible)
+        for item in reconcilableItems(items, keepsLiveActivitiesVisible: keepsLiveActivitiesVisible, arrangedByUser: false)
             .sorted(by: { orderPosition(of: $0) < orderPosition(of: $1) }) {
             if let key = keys[item.windowID] {
                 entriesBySection[section(of: item, controlItems: controlItems), default: []].append((key, item))

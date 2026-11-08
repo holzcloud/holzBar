@@ -22,4 +22,12 @@ struct UngovernedItemOwnersTests {
     func onlyExplorerIsListed() {
         #expect(UngovernedItemOwners.processNames == ["explorer.exe"])
     }
+
+    @Test("An automatic pass leaves an ungoverned item alone, the user's arrangement moves it")
+    func reconcilingRule() {
+        #expect(!UngovernedItemOwners.allowsReconciling(isUngoverned: true, arrangedByUser: false))
+        #expect(UngovernedItemOwners.allowsReconciling(isUngoverned: true, arrangedByUser: true))
+        #expect(UngovernedItemOwners.allowsReconciling(isUngoverned: false, arrangedByUser: false))
+        #expect(UngovernedItemOwners.allowsReconciling(isUngoverned: false, arrangedByUser: true))
+    }
 }
