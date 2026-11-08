@@ -61,6 +61,15 @@ final class MenuBarItemManager {
     /// The identity key of each cached item, by window.
     @ObservationIgnored private var identityKeysByWindow = [CGWindowID: String]()
 
+    /// The identity keys of the previous plausible read, to tell which items came back. `nil`
+    /// until the first read after launch, which only records the set.
+    @ObservationIgnored private var previousIdentityKeys: Set<String>?
+
+    /// The known items that came back since the last reconciliation handled them (Focus, Sound,
+    /// an app that was quit and opened again): the next reconciliation of any trigger restores
+    /// their saved section and place (see `SectionRestore.swift`).
+    @ObservationIgnored var pendingReappearedKeys = Set<String>()
+
     /// Whether the sections are saved after the next item cache, because the user arranged
     /// items (see `SectionRestore.swift`).
     @ObservationIgnored var needsSectionSave = false
@@ -1402,6 +1411,16 @@ extension MenuBarItemManager {
         }
         previousIdentityItems = current
         identityKeysByWindow = identityKeys(for: items)
+
+        // Known items that came back since the previous read go back to their saved section and
+        // place. The first read after launch only records the set: the launch restore handles it.
+        let currentKeys = Set(identityKeysByWindow.values)
+        if let previousIdentityKeys, !currentKeys.isSubset(of: previousIdentityKeys) {
+            pendingReappearedKeys.formUnion(
+                ItemOrder.reappeared(previous: previousIdentityKeys, current: Array(currentKeys), saved: savedSectionKeys())
+            )
+        }
+        previousIdentityKeys = currentKeys
     }
 }
 

@@ -167,4 +167,13 @@ nonisolated enum ItemOrder {
         }
         return steps
     }
+
+    // MARK: Reappearing items
+
+    /// The keys on the bar now that were not on the bar in the previous read and have a saved
+    /// section: items that come and go (Focus, Sound, an app that was quit and opened again). The
+    /// first read after launch has no previous read, so the caller records it without asking.
+    static func reappeared(previous: Set<String>, current: [String], saved: Set<String>) -> Set<String> {
+        Set(current.filter { !previous.contains($0) && saved.contains($0) })
+    }
 }

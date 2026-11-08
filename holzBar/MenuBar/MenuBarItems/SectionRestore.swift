@@ -88,6 +88,11 @@ extension MenuBarItemManager {
         Defaults.stringArray(forKey: .itemOrder).map { ItemOrder.sanitized($0.map(storedIdentityKey)) }
     }
 
+    /// The identity keys that have a saved section (`ItemOrder.reappeared`).
+    func savedSectionKeys() -> Set<String> {
+        Set(storedSectionIndexes().keys)
+    }
+
     /// Saves the sections of the given items (by identity key), keeping the others.
     func storeSections(_ sections: [String: MenuBarSection.Name]) {
         guard !sections.isEmpty else {
@@ -310,6 +315,9 @@ extension MenuBarItemManager {
         var known = Set((storedKnown ?? []).map(storedIdentityKey))
         let saved = savedSections()
         let newItemsSection = appState.settings.advanced.newItemsPlacement.section
+        // Known items that came back (`ItemOrder.reappeared`) go to their saved section for every
+        // trigger. A profile does not use them.
+        let reappearedKeys = wanted == nil ? pendingReappearedKeys : []
 
         // Items that still carry a launch placeholder title (`ItemPlaceholder`): a profile and the
         // saved sections still apply to them, but they are neither placed as new nor remembered.
@@ -329,7 +337,7 @@ extension MenuBarItemManager {
             var target: MenuBarSection.Name?
             if let wanted {
                 target = wanted[key]
-            } else if trigger.restoresSavedSections, let section = saved[key] {
+            } else if trigger.restoresSavedSections || reappearedKeys.contains(key), let section = saved[key] {
                 target = section
             } else if isNew {
                 if isProvisional {
@@ -355,6 +363,8 @@ extension MenuBarItemManager {
         // New items whose move was not tried: the loop stopped before them, or automatic
         // moves were paused. A move that failed otherwise is not retried on every read.
         var untriedNewKeys = Set(moves.filter(\.isNew).map(\.key))
+        // Reappeared items whose move was not tried stay pending for the next read.
+        var untriedReappearedKeys = Set(moves.map(\.key)).intersection(reappearedKeys)
         var stoppedEarly = false
         for move in moves {
             if await yieldsToUserAfterInputPause(wanted: wanted, appState: appState) {
@@ -376,6 +386,7 @@ extension MenuBarItemManager {
                 )
                 try await self.move(item: move.item, to: destination)
                 untriedNewKeys.remove(move.key)
+                untriedReappearedKeys.remove(move.key)
                 if move.isNew {
                     placedSections[move.key] = move.section
                 }
@@ -389,8 +400,18 @@ extension MenuBarItemManager {
                 break
             } catch {
                 untriedNewKeys.remove(move.key)
+                untriedReappearedKeys.remove(move.key)
                 Self.restoreLogger.error("Error moving \(move.item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
             }
+        }
+
+        // A reappeared item that was moved, was in its section already or is not on this read is
+        // done; only the ones whose move was not tried stay pending (keys that arrived while the
+        // moves ran are not in the snapshot, so they stay too).
+        let reappearedHere = reappearedKeys.intersection(candidates.compactMap { keys[$0.windowID] })
+        if !reappearedKeys.isEmpty {
+            pendingReappearedKeys.subtract(reappearedKeys.subtracting(untriedReappearedKeys))
+            Self.restoreLogger.debug("Reappeared items: \(reappearedHere.count, privacy: .public)")
         }
 
         // Nothing is stored from a read that failed the divider check.
@@ -425,8 +446,10 @@ extension MenuBarItemManager {
 
         // The order inside the sections, after the section moves. A profile does not reorder, and
         // a pass that stopped because the user arranges the items does not start another.
-        if wanted == nil, !stoppedEarly, trigger.restoresSavedSections {
-            await restoreOrder(trigger: trigger, sections: nil, appState: appState)
+        // An item-list change reorders only the sections that hold a reappeared item.
+        if wanted == nil, !stoppedEarly, trigger.restoresSavedSections || !reappearedHere.isEmpty {
+            let sections = trigger.restoresSavedSections ? nil : Set(reappearedHere.compactMap { saved[$0] })
+            await restoreOrder(trigger: trigger, sections: sections, appState: appState)
         }
     }
 

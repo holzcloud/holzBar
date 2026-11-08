@@ -189,6 +189,25 @@ struct ItemOrderTests {
         }
     }
 
+    // MARK: Reappeared
+
+    @Test("A saved key that was not there in the previous read has reappeared")
+    func reappearedKey() {
+        #expect(ItemOrder.reappeared(previous: ["a", "b"], current: ["a", "b", "c"], saved: ["c"]) == ["c"])
+    }
+
+    @Test("A key that is new and not saved, or was there before, has not reappeared")
+    func notReappeared() {
+        #expect(ItemOrder.reappeared(previous: ["a"], current: ["a", "n"], saved: ["a"]).isEmpty)
+        #expect(ItemOrder.reappeared(previous: ["a", "b"], current: ["a", "b"], saved: ["a", "b"]).isEmpty)
+        #expect(ItemOrder.reappeared(previous: ["a", "b"], current: ["a"], saved: ["a", "b"]).isEmpty)
+    }
+
+    @Test("The function has no first-read rule of its own")
+    func reappearedWithoutPrevious() {
+        #expect(ItemOrder.reappeared(previous: [], current: ["c"], saved: ["c"]) == ["c"])
+    }
+
     // MARK: Settings
 
     @Test("ItemOrder is an importable string array")
