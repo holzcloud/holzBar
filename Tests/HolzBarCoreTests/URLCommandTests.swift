@@ -172,6 +172,43 @@ struct URLCommandTests {
         #expect(URLCommand.Action.settings.decision(zenMode: ZenMode()) == .perform)
     }
 
+    @Test("Zen mode refuses toggling the application menus")
+    func zenModeRefusesApplicationMenus() {
+        for zen in [ZenMode(isManual: true), ZenMode(isAutomatic: true), ZenMode(isManual: true, isAutomatic: true)] {
+            #expect(URLCommand.Action.toggleApplicationMenus.decision(zenMode: zen) == .refuse)
+        }
+        #expect(URLCommand.Action.toggleApplicationMenus.decision(zenMode: ZenMode()) == .perform)
+    }
+
+    @Test("The throttle lets 8 commands through in 2 seconds")
+    func throttleLimit() {
+        var throttle = URLCommand.Throttle()
+        let start = ContinuousClock.now
+        for index in 0..<URLCommand.Throttle.limit {
+            let allowed = throttle.allows(at: start.advanced(by: .milliseconds(index * 10)))
+            #expect(allowed)
+        }
+        let ninth = throttle.allows(at: start.advanced(by: .milliseconds(100)))
+        #expect(!ninth)
+        // Refused calls are not recorded: they cannot keep the window full.
+        for _ in 0..<10 {
+            let refused = throttle.allows(at: start.advanced(by: .milliseconds(1000)))
+            #expect(!refused)
+        }
+        let afterWindow = throttle.allows(at: start.advanced(by: .seconds(2)))
+        #expect(afterWindow)
+    }
+
+    @Test("Commands spread over more than 2 seconds are all allowed")
+    func throttleAllowsSlowCommands() {
+        var throttle = URLCommand.Throttle()
+        let start = ContinuousClock.now
+        for index in 0..<40 {
+            let allowed = throttle.allows(at: start.advanced(by: .milliseconds(index * 300)))
+            #expect(allowed)
+        }
+    }
+
     @Test("Another app may turn Zen mode on without asking")
     func zenModeTurnsOnWithoutAsking() {
         let states = [ZenMode(), ZenMode(isManual: true), ZenMode(isAutomatic: true), ZenMode(isManual: true, isAutomatic: true)]

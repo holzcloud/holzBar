@@ -20,7 +20,7 @@ import OSLog
 /// - `holzbar://auto-rehide/toggle` – turn auto-rehide on or off; a setting that lasts, so
 ///   holzBar asks first
 /// - `holzbar://application-menus/toggle` – hides or shows the application menus;
-///   nothing persistent
+///   nothing persistent, refused while Zen mode is on
 /// - `holzbar://zen/on`, `holzbar://zen/off`, `holzbar://zen/toggle` – Zen mode; turning
 ///   it on only hides, turning it off asks first, and while the screen is shared it stays on
 /// - `holzbar://profile/<name>` – apply a saved layout profile; rearranges items, so
@@ -34,8 +34,9 @@ import OSLog
 /// what needs the user's answer and what is refused. While Zen mode is on, no URL reveals
 /// hidden items or changes a setting. The questions show no text from the URL, at most
 /// one is open, and after the user declines one, holzBar asks nothing for a while
-/// (`URLPrompt`). Shortcuts actions (App Intents) run without the question, because the
-/// user built them.
+/// (`URLPrompt`). Commands that arrive faster than 8 in 2 seconds are ignored
+/// (`URLCommand.Throttle`). Shortcuts actions (App Intents) run without the question and
+/// without the limit, because the user built them.
 ///
 /// `ice-bar` still works as another name for `shelf`.
 ///
@@ -49,6 +50,9 @@ enum URLCommands {
 
     /// Lets one question be open at a time, and none for a while after a declined one.
     private static var promptGate = URLPrompt.Gate()
+
+    /// Ignores commands that arrive faster than the limit of `URLCommand.Throttle`.
+    private static var commandThrottle = URLCommand.Throttle()
 
     /// A question to the user, and what holzBar does when they agree.
     private struct Confirmation {
@@ -72,6 +76,11 @@ enum URLCommands {
     /// dictionary. Both go through the same decision, the same questions and the same Zen
     /// mode rules (T-13-M1).
     static func perform(_ command: URLCommand, appState: AppState) {
+        guard commandThrottle.allows(at: .now) else {
+            // Nothing from the command is logged, not even its name.
+            logger.notice("Ignored: too many commands")
+            return
+        }
         let manager = appState.menuBarManager
         // Only the command is logged, never the URL or its arguments (profile names).
         logger.notice("Performing \(command.name, privacy: .public)")
