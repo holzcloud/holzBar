@@ -309,6 +309,9 @@ private struct LayoutProfilesSection: View {
                 if profiles.profiles.isEmpty {
                     Text("Save the current layout as a profile, for example \u{201C}Work\u{201D} or \u{201C}Home\u{201D}.")
                         .foregroundStyle(.secondary)
+                } else if profiles.isAtProfileLimit {
+                    Text("You have the most profiles there can be. Delete one to save or import a new one.")
+                        .foregroundStyle(.secondary)
                 } else {
                     Text("Bind a profile to a display or a Space to apply it when you connect the display or switch to the Space.")
                         .foregroundStyle(.secondary)
@@ -317,6 +320,7 @@ private struct LayoutProfilesSection: View {
                 Button("Import Profile…") {
                     chooseProfileFile()
                 }
+                .disabled(profiles.isAtProfileLimit)
                 Button("Save Current Layout…") {
                     newProfileName = profiles.currentProfileName ?? ""
                     isNamingProfile = true

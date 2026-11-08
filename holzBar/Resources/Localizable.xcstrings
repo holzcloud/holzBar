@@ -127437,6 +127437,125 @@
           }
         }
       }
+    },
+    "You have the most profiles there can be. Delete one to save or import a new one." : {
+      "comment" : "Menu Bar Layout pane, Profiles section: shown when the list of layout profiles is full (100).",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Máte nejvyšší možný počet profilů. Smažte jeden, abyste mohli uložit nebo importovat nový."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du hast so viele Profile, wie möglich sind. Lösche eines, um ein neues zu sichern oder zu importieren."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tienes el número máximo de perfiles. Elimina uno para guardar o importar uno nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous avez atteint le nombre maximal de profils. Supprimez-en un pour en enregistrer ou en importer un nouveau."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elérte a profilok legnagyobb számát. Töröljön egyet, hogy újat menthessen vagy importálhasson."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anda sudah memiliki jumlah profil maksimum. Hapus satu untuk menyimpan atau mengimpor profil baru."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hai il numero massimo di profili. Eliminane uno per salvarne o importarne uno nuovo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロファイルは最大数に達しています。新しいプロファイルを保存または読み込むには、いずれかを削除してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로파일이 최대 개수에 도달했습니다. 새 프로파일을 저장하거나 가져오려면 하나를 삭제하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je hebt het maximale aantal profielen. Verwijder er een om een nieuw profiel te bewaren of te importeren."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masz maksymalną liczbę profili. Usuń jeden, aby zachować lub zaimportować nowy."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Você tem o número máximo de perfis. Exclua um para salvar ou importar um novo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ti has il dumber maximal da profils. Stizza in per memorisar u importar in nov."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вас максимальное число профилей. Удалите один, чтобы сохранить или импортировать новый."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du har så många profiler som det kan finnas. Ta bort en för att spara eller importera en ny."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En fazla profil sayısına ulaştınız. Yeni bir profil kaydetmek veya içe aktarmak için birini silin."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У вас максимальна кількість профілів. Видаліть один, щоб зберегти або імпортувати новий."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配置文件已达到上限。删除一个后才能存储或导入新的配置文件。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定檔已達上限。刪除一個後才能儲存或輸入新的設定檔。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

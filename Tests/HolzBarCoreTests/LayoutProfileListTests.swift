@@ -131,6 +131,25 @@ struct LayoutProfileListTests {
         #expect(LayoutProfileList.cleanedName(cleaned) == cleaned)
     }
 
+    @Test("A list the app stores fits the limits of the next load")
+    func fitsLimits() {
+        let full = (0..<LayoutProfileList.maximumProfiles).map {
+            LayoutProfile(name: "Profile \($0)", itemSections: ["a": 1], applicationSections: [:])
+        }
+        #expect(LayoutProfileList.fitsLimits([]))
+        #expect(LayoutProfileList.fitsLimits(full))
+        #expect(!LayoutProfileList.fitsLimits(full + [LayoutProfile(name: "One more", itemSections: [:], applicationSections: [:])]))
+        // Over 4 MB once encoded.
+        let key = String(repeating: "k", count: 500)
+        let big = (0..<9000).map { "\($0)\(key)" }
+        let heavy = LayoutProfile(
+            name: "Heavy",
+            itemSections: Dictionary(uniqueKeysWithValues: big.map { ($0, 1) }),
+            applicationSections: [:]
+        )
+        #expect(!LayoutProfileList.fitsLimits([heavy]))
+    }
+
     // MARK: Entries
 
     @Test("At most 2000 entries per map are kept, the first by key")

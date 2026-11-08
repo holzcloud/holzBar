@@ -72,10 +72,20 @@ final class LayoutProfiles {
 
     private func save() {
         profiles.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-        if let data = try? JSONEncoder().encode(profiles) {
+        // Encoded the way the next load reads it; the changes that add a profile are checked
+        // against the same limits first (`LayoutProfileList.fitsLimits`).
+        if let data = LayoutProfileList.encoded(profiles) {
             Defaults.set(data, forKey: .layoutProfiles)
+        } else {
+            logger.error("The layout profiles are over the size limit, so they were not saved")
         }
         Defaults.set(currentProfileName, forKey: .currentLayoutProfile)
+    }
+
+    /// Whether there are as many profiles as there can be: a new one cannot be saved or
+    /// imported, only one of the same name replaced.
+    var isAtProfileLimit: Bool {
+        profiles.count >= LayoutProfileList.maximumProfiles
     }
 
     /// The arrangement of the items now, as a profile without a name or bindings.
@@ -141,9 +151,16 @@ final class LayoutProfiles {
             displayUUID: previous?.displayUUID,
             spaceUUID: previous?.spaceUUID
         )
+        var updated = profiles
+        updated.removeAll { $0.name == name }
+        updated.append(profile)
+        // The next load keeps only what fits its limits; the pane says when the list is full.
+        guard LayoutProfileList.fitsLimits(updated) else {
+            logger.warning("Not saving a layout profile: the profiles would exceed their limits")
+            return
+        }
         registerUndo(named: String(localized: "Save Profile"))
-        profiles.removeAll { $0.name == name }
-        profiles.append(profile)
+        profiles = updated
         currentProfileName = name
         save()
         logger.notice("Saved layout profile \(name, privacy: .private)")
@@ -171,13 +188,18 @@ final class LayoutProfiles {
                 }
             }
         }
-        registerUndo(named: String(localized: "Import Profile"))
-        profiles.append(LayoutProfile(
+        let updated = profiles + [LayoutProfile(
             name: name,
             itemSections: itemSections,
             applicationSections: applicationSections,
             knownApplications: shared.apps.map(\.id)
-        ))
+        )]
+        guard LayoutProfileList.fitsLimits(updated) else {
+            logger.warning("Not importing a shared layout profile: the profiles would exceed their limits")
+            return
+        }
+        registerUndo(named: String(localized: "Import Profile"))
+        profiles = updated
         save()
         logger.notice("Imported a shared layout profile with \(shared.apps.count, privacy: .public) applications")
     }

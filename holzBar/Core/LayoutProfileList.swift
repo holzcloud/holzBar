@@ -107,6 +107,13 @@ nonisolated enum LayoutProfileList {
         return data
     }
 
+    /// Whether a list the app is about to store loads again in full: at most ``maximumProfiles``
+    /// and at most ``maximumDataSize`` once encoded. A change that breaks this is refused, so the
+    /// next load never drops a profile the user saw.
+    static func fitsLimits(_ profiles: [LayoutProfile]) -> Bool {
+        profiles.count <= maximumProfiles && encoded(profiles) != nil
+    }
+
     /// An imported list as it may be applied: the validated profiles, encoded again, so that
     /// unknown fields and profiles over the limits never reach the defaults. `nil` when the data
     /// is too large or is not a JSON array.
