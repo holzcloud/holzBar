@@ -34,6 +34,9 @@ struct MenuBarLayoutSettingsPane: View {
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }
                 ItemRuleNoticesSection()
+                if #available(macOS 27.0, *) {
+                    CommandDragNoticesSection()
+                }
                 LayoutDraftSection()
                 layoutBars
                 HolzBarSection {
@@ -228,6 +231,79 @@ private struct ItemRuleNoticesSection: View {
         let name = itemManager.itemCache.managedItems
             .first { itemManager.identityKey(for: $0) == notice.itemKey }?.displayName
         appState.navigationState.itemRuleTarget = ItemRuleTarget(key: notice.itemKey, name: name ?? notice.itemName)
+    }
+}
+
+// MARK: - CommandDragNoticesSection
+
+/// Tells the user what a Command-drag across the holzBar icon did, so a drop is never silent: an
+/// app's new section with Undo, or why a drop changed nothing. The notices stay until they are
+/// dismissed or the list is full, and are never stored.
+@available(macOS 27.0, *)
+private struct CommandDragNoticesSection: View {
+    @Environment(AppState.self) private var appState
+
+    var body: some View {
+        let notices = appState.commandDragSection27.notices
+        Group {
+            if !notices.isEmpty {
+                HolzBarSection {
+                    Text("Set by Command-Drag")
+                        .font(.headline)
+                } content: {
+                    ForEach(notices) { notice in
+                        row(for: notice)
+                    }
+                    Text("The section is per app: every item of the app changed with it.")
+                        .font(HolzBarTheme.Typography.caption)
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(10)
+                }
+            }
+        }
+        .onChange(of: notices) { old, new in
+            // A drop while Settings is open is announced once; a dismissal is not.
+            if let newest = new.first, !old.contains(newest) {
+                LayoutBarItemView.announce(sentence(for: newest))
+            }
+        }
+    }
+
+    /// "“Name” is now hidden.", or the reason a drop changed nothing; the nameless notice of an
+    /// item macOS keeps in place names no app.
+    private func sentence(for notice: CommandDragNotice) -> String {
+        let name = notice.itemName
+        switch notice.kind {
+        case .set(_, let section):
+            return section == .visible
+                ? String(localized: "\u{201C}\(name)\u{201D} is now visible.")
+                : String(localized: "\u{201C}\(name)\u{201D} is now hidden.")
+        case .kept(.rule):
+            return String(localized: "\u{201C}\(name)\u{201D} stays where it is: a rule controls it.")
+        case .kept(.pinned):
+            return String(localized: "\u{201C}\(name)\u{201D} stays where it is: macOS keeps it in place.")
+        case .kept(.system):
+            return String(localized: "macOS keeps its own items in place: the drop changed nothing.")
+        }
+    }
+
+    private func row(for notice: CommandDragNotice) -> some View {
+        HStack {
+            Text(sentence(for: notice))
+            Spacer()
+            if case .set = notice.kind {
+                Button("Undo") {
+                    appState.commandDragSection27.undo(notice)
+                }
+            }
+            Button("OK") {
+                appState.commandDragSection27.dismiss(notice)
+            }
+        }
+        .padding(10)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(sentence(for: notice))
     }
 }
 
