@@ -166,6 +166,9 @@ nonisolated extension Defaults {
         /// Whether a change in the Menu Bar Layout pane moves the item at once (off by default:
         /// the pane draws a draft, and Apply lays the bar out).
         case appliesLayoutChangesImmediately = "AppliesLayoutChangesImmediately"
+        /// Whether a Command-drag of an app's item across the holzBar icon sets the app's section
+        /// (macOS 27; on by default).
+        case commandDragSetsSection = "CommandDragSetsSection"
         /// What each display does with the hidden items, by display UUID (`DisplayBehaviors`).
         /// Stays on this Mac.
         case displayBehaviors = "DisplayBehaviors"
@@ -427,6 +430,7 @@ nonisolated extension Defaults.Key {
             .animatesShowHide,
             .clockOpensNotificationCenter,
             .appliesLayoutChangesImmediately,
+            .commandDragSetsSection,
             .showsNotchOverflowInShelf,
             .shelfFindsByTyping,
             .shelfAlwaysHiddenFoldOpen,

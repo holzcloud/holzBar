@@ -131,6 +131,35 @@ struct DiagnosticsReportTests {
         #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Last drop: \(longest)")
     }
 
+    @Test("The last command-drag is one line of fixed words, after the last drop, and none without one")
+    func lastCommandDrag() {
+        var input = sample
+        #expect(!DiagnosticsReport.make(input).contains("Last command-drag"))
+        input.lastCommandDrag = "waited 1200 ms, 1 read, set hidden, applied"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Last command-drag: waited 1200 ms, 1 read, set hidden, applied")
+        input.lastDrop = "macOS 27, shelf, hide, applied"
+        let lines = DiagnosticsReport.make(input).split(separator: "\n").map(String.init)
+        #expect(lines.suffix(2) == ["Last drop: macOS 27, shelf, hide, applied", "Last command-drag: waited 1200 ms, 1 read, set hidden, applied"])
+        let longest = CommandDragSection.summary(
+            waitedMilliseconds: 99_999, reads: 99, decision: .ignore(.notAnAppItem), outcome: .nothing
+        )
+        #expect(longest.count <= DiagnosticsReport.maximumLastCommandDragLength)
+        input.lastCommandDrag = longest
+        #expect(DiagnosticsReport.make(input).contains("Last command-drag: \(longest)"))
+    }
+
+    @Test("A last command-drag with a newline or a home path is sanitised and limited")
+    func lastCommandDragSanitised() {
+        var input = sample
+        input.lastCommandDrag = "waited 5 ms\n/Users/anna/Focus\nFake: line"
+        let report = DiagnosticsReport.make(input)
+        #expect(!report.contains("/Users/anna"))
+        #expect(report.split(separator: "\n").filter { $0.hasPrefix("Fake:") }.isEmpty)
+        input.lastCommandDrag = String(repeating: "a", count: 500)
+        let line = DiagnosticsReport.make(input).split(separator: "\n").last.map(String.init) ?? ""
+        #expect(line == "Last command-drag: " + String(repeating: "a", count: DiagnosticsReport.maximumLastCommandDragLength))
+    }
+
     @Test("The last Shelf click is one line of fixed words, and none before a click")
     func lastShelfClick() {
         var input = sample

@@ -44,6 +44,11 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// such as `macOS 27, shelf, hide, applied`. Empty before the first drop or while the module
     /// is off, so the report stays as it was.
     var lastDrop = ""
+    /// The last Command-drag that could set a section in fixed words and numbers
+    /// (``CommandDragSection/summary(waitedMilliseconds:reads:decision:outcome:)``), such as
+    /// `waited 1200 ms, 1 read, set hidden, applied`. Empty before the first one or while the
+    /// switch is off, so the report stays as it was. Never a name.
+    var lastCommandDrag = ""
     /// The last click on a Shelf tile in fixed words, such as `shown, clicked` or `failed, not
     /// shown and not reachable`. Empty before the first click or before macOS 27.
     var lastShelfClick = ""
@@ -68,6 +73,10 @@ nonisolated enum DiagnosticsReport {
     /// The longest text kept for the last drop, whose fixed words (the longest line is `macOS 27,
     /// outsideBar, refused, outside the bar, not applied`) are longer than other fields.
     static let maximumLastDropLength = 64
+
+    /// The longest text kept for the last command-drag (the longest line has five-digit waiting
+    /// time, two-digit reads and `ignored: not an app item`).
+    static let maximumLastCommandDragLength = 80
 
     /// The longest text kept for a field.
     static let maximumFieldLength = 40
@@ -96,6 +105,9 @@ nonisolated enum DiagnosticsReport {
         if !input.lastDrop.isEmpty {
             lines.append("Last drop: \(field(input.lastDrop, limit: maximumLastDropLength))")
         }
+        if !input.lastCommandDrag.isEmpty {
+            lines.append("Last command-drag: \(field(input.lastCommandDrag, limit: maximumLastCommandDragLength, punctuation: ":"))")
+        }
         if !input.lastShelfClick.isEmpty {
             lines.append("Last Shelf click: \(field(input.lastShelfClick, limit: maximumLastDropLength))")
         }
@@ -121,9 +133,11 @@ nonisolated enum DiagnosticsReport {
     /// The text of a field: only letters, digits and the punctuation of versions and model
     /// identifiers, shortened. Anything else, such as a path or a line break, is dropped.
     ///
-    /// - Parameter limit: The most characters kept.
-    static func field(_ text: String, limit: Int = maximumFieldLength) -> String {
-        let allowed = Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,-_")
+    /// - Parameters:
+    ///   - limit: The most characters kept.
+    ///   - punctuation: More characters to keep, for a field of fixed words that uses them.
+    static func field(_ text: String, limit: Int = maximumFieldLength, punctuation: String = "") -> String {
+        let allowed = Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,-_" + punctuation)
         let cleaned = String(text.filter { allowed.contains($0) }.prefix(limit))
         return cleaned.isEmpty ? "unknown" : cleaned
     }
