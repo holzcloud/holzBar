@@ -96,7 +96,9 @@ final class HIDEventManager {
             handleSmartRehide(with: event, appState: appState, screen: screen)
             // A Command-drag of an app's item across holzBar's icon sets its section (macOS 27).
             if event.modifierFlags.contains(.command), #available(macOS 27.0, *) {
-                appState.commandDragSection27.pressed(event)
+                // The module's own replayed presses are not a Command-drag of the user's.
+                let moduleIsBusy = runningKinds.contains(.menuBarDrag) && menuBarDragController.isBusyWithDrop
+                appState.commandDragSection27.pressed(event, moduleIsBusy: moduleIsBusy)
             }
         case .rightMouseDown:
             handleSecondaryContextMenu(appState: appState, screen: screen)

@@ -40,6 +40,7 @@ enum DiagnosticsCollector {
             nativeOverflow: nativeOverflowWord(appState),
             appleItems: appleItemsWord(appState),
             lastDrop: lastDropWords(appState),
+            lastCommandDrag: lastCommandDragWords(appState),
             lastShelfClick: lastShelfClickWords(),
             shelf: shelfWords(appState),
             accessoryBattery: accessoryBatteryWord(appState),
@@ -74,6 +75,16 @@ enum DiagnosticsCollector {
             return ""
         }
         return MenuBarDragController.lastDrop
+    }
+
+    /// The last Command-drag that could set a section, in the fixed words the feature wrote;
+    /// nothing while its switch is off or before macOS 27.
+    private static func lastCommandDragWords(_ appState: AppState) -> String {
+        guard #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27,
+              appState.settings.general.commandDragSetsSection else {
+            return ""
+        }
+        return CommandDragSection27.lastSummary
     }
 
     /// The Shelf's style and location in fixed words; nothing while the Shelf is off.

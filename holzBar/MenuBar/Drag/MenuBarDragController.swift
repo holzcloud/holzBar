@@ -66,6 +66,12 @@ final class MenuBarDragController {
     /// test reads the bar as the drop left it.
     private var isHandlingDrop = false
 
+    /// Whether a drop is being handled, so the Command-drag feature does not take the module's
+    /// replayed presses for the user's.
+    var isBusyWithDrop: Bool {
+        isHandlingDrop
+    }
+
     /// The longest callback of this run, written to the log when the tap stops.
     private var longestCallback = Duration.zero
 
