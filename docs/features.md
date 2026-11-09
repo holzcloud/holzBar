@@ -85,6 +85,12 @@
 </tr>
 </table>
 
+## New in 1.0.5
+
+1.0.5 beta 1 is out; see its [release notes](release-notes/v1.0.5-beta1.md).
+
+- **⌘ Command-drag across the holzBar icon** (macOS 27): hold ⌘ Command and drag an app's item across the holzBar icon. From the right of the icon to its left, the app is hidden; from the left to the right, it is shown. About a second after the drop, holzBar reads the bar again and writes the section of that app (all its items move together). A drop on the icon itself, a reorder on the same side and a ⌘ Command-click change nothing. Rule-controlled items, pinned Control Center controls and macOS's own numbered items (such as the Clock) are kept, and Menu Bar Layout says so. After a change a notice offers **Undo**. A switch in Menu Bar Layout (on by default) turns it off; the drag is then macOS's own reorder. Settings → About → Copy Diagnostics has a Last command-drag line. See the [macOS 27 notes](macos27.md#command-drag-across-the-holzbar-icon).
+
 ## New in 1.0.4
 
 1.0.4 is out; see its [release notes](release-notes/v1.0.4.md).
@@ -274,12 +280,13 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 - **Menu bar styles**: Single, Paired, the Apple-logo shape, outlines and gradients as on macOS 26; Sections is not offered. See [macOS 27 notes](macos27.md#menu-bar-styles)
 - **macOS 27's own overflow button**: while macOS shows its folded items expanded beside the notch, the holzBar Shelf does not list them a second time; in any doubt it lists them as before. See [macOS 27 notes](macos27.md#macos-27s-own-overflow-button)
 - **Drag in the menu bar**: with the optional module on, drag an item without ⌘ to move it as macOS allows, or drop it on the holzBar icon or on the open Shelf to hide its app. See [macOS 27 notes](macos27.md#drag-items-in-the-menu-bar)
+- **⌘ Command-drag across the holzBar icon**: drag an item with ⌘ Command across the holzBar icon and its app is hidden (to the left) or shown (to the right), with Undo in Menu Bar Layout. A reorder on the same side and a drop on the icon change no section, and rule-controlled, pinned and macOS's own items stay. A switch in Menu Bar Layout turns it off. See [macOS 27 notes](macos27.md#command-drag-across-the-holzbar-icon)
 - **Apple Items**: hide the clock, Control Center, Wi-Fi or the battery, and keep an Apple item one click away with a replacement icon of holzBar's own. See [macOS 27 notes](macos27.md#apple-items)
 - **A dot on holzBar's icon** while hidden items are concealed and an app uses the microphone (orange) or the camera (green), in place of Control Centre's indicator. On by default in Settings → General, with no permission; the icon appears for the dot even when the icon is set to **No icon**
 
 **Known limitations on macOS 27**
 
-- Menu Bar Layout sorts the items inside a section on macOS 27 with synthetic ⌘ Command-drags (see the [macOS 27 notes](macos27.md#reordering-items-on-the-bar)); profiles and rules only assign sections, and the holzBar Shelf does not sort there. Dragging an item yourself outside Menu Bar Layout (with ⌘, or without it while **Drag in the Menu Bar** is on) is macOS's own reorder, which holzBar does not record.
+- Menu Bar Layout sorts the items inside a section on macOS 27 with synthetic ⌘ Command-drags (see the [macOS 27 notes](macos27.md#reordering-items-on-the-bar)); profiles and rules only assign sections, and the holzBar Shelf does not sort there. Dragging an item yourself outside Menu Bar Layout (with ⌘, or without it while **Drag in the Menu Bar** is on) is macOS's own reorder, which holzBar does not record; only a ⌘ Command-drag that crosses the holzBar icon sets a section (see the bullet above).
 - Opening a system item (clock, battery, Wi-Fi) while hidden items are concealed adds ~150 ms.
 - **Control Centre's privacy indicator is hidden while items are hidden.** Its indicator for the camera, the microphone and screen recording is not shown while holzBar hides any item, including a system item you hid with Apple Items, and comes back while holzBar hides no item. holzBar's dot covers the microphone and the camera, not screen recording; the small green dot beside the clock still shows the camera. See [Permissions](privacy-and-permissions.md#permissions).
 - Coming from 0.0.5 or earlier, macOS asks for Accessibility once more. If holzBar is stuck on the permissions window, click **Reset and Grant Again**.
@@ -287,10 +294,6 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 ## Planned next
 
 **None of this is available yet.** Every release is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
-
-### Next: 1.0.5, ⌘ Command-drag across the holzBar icon on macOS 27
-
-On macOS 27 a ⌘ Command-drag of an item in the bar is macOS's own reorder, which holzBar does not record. Planned: dragging an app's item to the left or the right of the holzBar icon sets the section of that app, as on macOS 26. It gets its own switch in Settings, on by default.
 
 ### Then: 1.1.0, system monitor
 
