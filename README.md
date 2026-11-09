@@ -76,7 +76,7 @@ Where holzBar loses: it has no Developer ID signature, a slide of the bar's own 
 
 ## Install
 
-Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 1.0.0. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
+Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 1.0.4. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
 
 ```sh
 brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
@@ -93,16 +93,19 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's new
 
-### 1.0.1
+### 1.0.4
 
-Details: [release notes](docs/release-notes/v1.0.1.md) · [full list](docs/features.md#new-in-101)
+Details: [release notes](docs/release-notes/v1.0.4.md) · [full list](docs/features.md#new-in-104)
 
-- **What's New window**: a tab for every version since 1.0.0, newest first, with what is new, improved and fixed. It opens once after an update and from Settings → About → What's New….
-- **Show after an update**: a switch in the window and under Settings → General → Startup turns the automatic opening off.
-- **Inside the app**: the texts ship with holzBar in 20 languages and nothing is fetched.
+- **Order inside sections**: on macOS 26 and earlier, items keep their order inside each section and go back to their place when they reappear.
+- **Safer URL commands**: while Zen mode is on, `holzbar://application-menus/toggle` is ignored, and a burst of commands from another app is limited.
+- **Fixes**: no moves while the menu bar settles after a display change, slow-starting apps such as OneDrive are placed once they run, items with a live value in their title keep their place, and Wine or CrossOver tray icons are left alone.
 
 ### Earlier releases
 
+- **1.0.3** ([notes](docs/release-notes/v1.0.3.md)): apps already running at launch appear in the Shelf, no "Unable to display menu bar items" while pictures are taken, and a tile no longer shows another app's icon.
+- **1.0.2** ([notes](docs/release-notes/v1.0.2.md)): a more compact What's New window, a smaller permissions window, and a click on the holzBar icon no longer opens another item's menu, such as Wi-Fi.
+- **1.0.1** ([notes](docs/release-notes/v1.0.1.md), [details](docs/features.md#new-in-101)): the What's New window, a tab for every version, with a switch under Settings → General → Startup.
 - **1.0.0** ([notes](docs/release-notes/v1.0.0.md), [details](docs/features.md#new-in-100)):
   - Notch hub: eight optional modules (Now Playing, Calendar, Timers, Live activities, File drop, Display controls, Accessory alerts, Notifications), each off until you switch it on in Settings → Modules.
   - Menu bar and Shelf: a count badge on the icon, sorting in Menu Bar Layout and drop to hide on macOS 27, Apple Items in the Shelf, hidden items that stay listed, hub tabs in one row.

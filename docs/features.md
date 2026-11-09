@@ -87,7 +87,7 @@
 
 ## New in 1.0.4
 
-See the [release notes](release-notes/v1.0.4-beta1.md).
+1.0.4 is out; see its [release notes](release-notes/v1.0.4.md).
 
 - **Order inside a section** (macOS 14 to 26): holzBar saves the order of the items in each section next to the section itself (one list of item keys, kept on this Mac, in the settings export) and puts the items back in that order when they drift. An item that disappears and comes back, such as Focus, Sound or an app that is quit and opened again, returns to its section and place. A pass makes at most six moves, and macOS 27 is not affected (there Menu Bar Layout sorts).
 - **Display changes**: while the bar is still settling after a display change, a divider can be read to the right of the Clock. holzBar then moves nothing, saves nothing and puts no item into another section from that read, and tries a skipped restore once on the next sound read. A profile you apply still moves its items.
@@ -97,6 +97,14 @@ See the [release notes](release-notes/v1.0.4-beta1.md).
 - **Pinned Control Center controls** (Screenshot, Timer, Calculator) show as fixed in Menu Bar Layout on macOS 27.
 - **URL commands**: while Zen mode is on, `holzbar://application-menus/toggle` is ignored, and holzBar drops commands that arrive faster than 8 in 2 seconds. Nothing identifies the calling app; lasting changes still ask first.
 - **Layout profiles**: a list loads up to 1000 profiles and a new profile can be saved or imported while there are fewer than 100; a settings file over 8 MB is refused before it is read.
+
+## New in 1.0.3 and 1.0.2
+
+See the release notes of [1.0.3](release-notes/v1.0.3.md) and [1.0.2](release-notes/v1.0.2.md).
+
+- **Hidden apps** that were already running when holzBar started appear in the Shelf, not only after they are relaunched; the Shelf no longer shows "Unable to display menu bar items" while the item pictures are taken; a tile no longer shows another app's icon.
+- **holzBar icon**: a click no longer opens another item's menu, such as Wi-Fi, instead of the Shelf; a click on a tab of the Notch hub no longer opens the Shelf.
+- **What's New window**: a tab for every major version and a sub tab for every minor version, shown only when there is a choice, and a more compact window. The permissions window is smaller, so Quit and Continue stay on screen on small displays.
 
 ## New in 1.0.1
 
@@ -280,13 +288,17 @@ macOS 27 no longer draws menu bar items as separate windows — `MenuBarAgent` d
 
 **None of this is available yet.** Every release is published as numbered betas first. Plans can change; items marked *spike* are only built if a short test shows it works well and safely.
 
-### Next: 1.1.0, system monitor
+### Next: 1.0.5, ⌘ Command-drag across the holzBar icon on macOS 27
+
+On macOS 27 a ⌘ Command-drag of an item in the bar is macOS's own reorder, which holzBar does not record. Planned: dragging an app's item to the left or the right of the holzBar icon sets the section of that app, as on macOS 26. It gets its own switch in Settings, on by default.
+
+### Then: 1.1.0, system monitor
 
 The release after 1.0.0 is the system monitor: CPU, GPU, memory, network, disk and power readouts in the menu bar and in the hub (the system info widgets), connected devices with battery levels, and alerts when CPU, temperature or disk cross a limit. Each part is optional and off until you switch it on.
 
 ### After 1.1.0 (release not fixed yet)
 
-**Nothing here is in 1.0.0 or 1.1.0.**
+**Nothing here is in 1.0.5 or 1.1.0.**
 
 **Menu bar**
 - **Restore layout automatically** on macOS 27: a setting in Menu Bar Layout that puts items back in your saved order when macOS or an app moves them.
