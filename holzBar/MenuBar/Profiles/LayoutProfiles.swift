@@ -387,6 +387,14 @@ final class LayoutProfiles {
                     OwnBundle.removing(from: layout, bundleIdentifier: ownBundleIdentifier).mapValues(\.rawValue),
                     forKey: .macOS27Layout
                 )
+                // Every application the profile names or knew, and every one that has or had an
+                // entry, becomes known: one it makes visible is never placed again as new. The
+                // writer leaves holzBar's own bundle and widget keys out.
+                var known = Set(profile.knownApplications ?? [])
+                known.formUnion(profile.applicationSections.keys)
+                known.formUnion(stored.keys)
+                known.formUnion(layout.keys)
+                appState.concealer27.recordKnownApplications(known)
             }
             appState.concealer27.update()
             return Task {

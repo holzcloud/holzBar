@@ -132,9 +132,40 @@ final class Concealer27 {
     }
 
     /// Writes the layout, without holzBar's own bundle (see ``savedLayout``).
+    ///
+    /// Every application that has or had an entry becomes known, so one moved to Visible (its
+    /// entry removed) is never placed again as new.
     private func store(_ layout: [String: MacOS27Section]) {
+        recordKnownApplications(Set(savedLayout.keys).union(layout.keys))
         let guarded = OwnBundle.removing(from: layout, bundleIdentifier: Constants.bundleIdentifier)
         Defaults.set(guarded.mapValues(\.rawValue), forKey: .macOS27Layout)
+    }
+
+    /// Whether a key may be recorded as a known application: holzBar's own bundle never is (it
+    /// has no section), and a widget's autosave name is no application.
+    private func isApplicationKey(_ key: String) -> Bool {
+        !OwnBundle.matches(key, bundleIdentifier: Constants.bundleIdentifier) && !WidgetDefinition.isAutosaveName(key)
+    }
+
+    /// Adds applications to the ones holzBar knows on macOS 27 (`Defaults.Key.knownApplications27`),
+    /// the record that tells a new application from one the user has already placed.
+    ///
+    /// Every path that writes the layout records the applications it names (the layout writer,
+    /// a read of the bar, an applied profile), so an application with a layout history is never
+    /// taken for new. Before the first read has recorded the bar there is no list, and none is
+    /// started here: that read records what is there without placing it, and a list begun earlier
+    /// would make it place every application on the bar as new.
+    func recordKnownApplications(_ keys: some Sequence<String>) {
+        guard let stored = Defaults.array(forKey: .knownApplications27) as? [String] else {
+            return
+        }
+        let previous = Set(stored)
+        let applications = Set(keys.filter(isApplicationKey))
+        guard let known = SectionLayout27.knownAfterRead(bundleIDs: applications, known: previous) else {
+            return
+        }
+        Defaults.set(known.sorted(), forKey: .knownApplications27)
+        logger.debug("Recorded \(known.count - previous.count, privacy: .public) more known applications")
     }
 
     func performSetup(with appState: AppState) {
@@ -143,6 +174,8 @@ final class Concealer27 {
             logger.error("MenuBarClientCore assertions are unavailable, so items will not be hidden")
             return
         }
+        // Layouts saved by earlier versions hold applications that were never recorded as known.
+        recordKnownApplications(savedLayout.keys)
         runningBundleIDs = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
         // Reads only the bundle identifiers of the changed applications, keeps no reference to
         // them, takes no lock and never waits: the handler runs on the main thread.
@@ -918,31 +951,42 @@ final class Concealer27 {
     /// in the settings (jordanbaird/Ice#6, jordanbaird/Ice#767).
     ///
     /// An application missing from the saved layout is visible. holzBar remembers
-    /// every application it has seen on the bar, so only new ones are placed, and
-    /// the first run only records what is there.
+    /// every application it has seen on the bar or in the layout, so only new ones are
+    /// placed, and the first run only records what is there.
     func placeNewApplications(items: [MenuBarItem]) {
         guard let appState else {
             return
         }
         let bundleIDs = Set(items.compactMap { item -> String? in
             // A widget has no bundle to place (its key is ``MenuBarItem/layoutKey27``): a new
-            // one has no entry in the layout and is therefore visible.
-            guard item.canBeHidden, !item.isSystemClone, !item.isControlItem, !item.isWidget else {
+            // one has no entry in the layout and is therefore visible. holzBar's own bundle has
+            // no section either.
+            guard
+                item.canBeHidden,
+                !item.isSystemClone,
+                !item.isControlItem,
+                !item.isWidget,
+                let bundleID = item.sourceApplication?.bundleIdentifier,
+                isApplicationKey(bundleID)
+            else {
                 return nil
             }
-            return item.sourceApplication?.bundleIdentifier
+            return bundleID
         })
-        let stored = Defaults.array(forKey: .knownApplications27) as? [String]
-        let known = Set(stored ?? [])
-        let newBundleIDs = bundleIDs.subtracting(known).subtracting(savedLayout.keys)
-
-        guard stored == nil || !newBundleIDs.isEmpty else {
+        let saved = savedLayout
+        guard let stored = Defaults.array(forKey: .knownApplications27) as? [String] else {
+            // The first run records what is there, on the bar and in the layout, and places nothing.
+            let known = bundleIDs.union(saved.keys.filter(isApplicationKey))
+            Defaults.set(known.sorted(), forKey: .knownApplications27)
             return
         }
-        Defaults.set(known.union(bundleIDs).sorted(), forKey: .knownApplications27)
+        let newBundleIDs = SectionLayout27.newApplications(bundleIDs: bundleIDs, known: Set(stored), saved: saved)
+        // Every application read becomes known, also one with a layout entry, which is not new
+        // now but would be once it is moved to Visible.
+        recordKnownApplications(bundleIDs)
 
         guard
-            stored != nil,
+            !newBundleIDs.isEmpty,
             var name = appState.settings.advanced.newItemsPlacement.section,
             name != .visible
         else {
@@ -951,7 +995,7 @@ final class Concealer27 {
         if name == .alwaysHidden && !appState.settings.advanced.enableAlwaysHiddenSection {
             name = .hidden
         }
-        var layout = savedLayout
+        var layout = saved
         for bundleID in newBundleIDs {
             layout = SectionLayout27.settingSection(MacOS27Section(name), for: bundleID, in: layout)
             logger.notice("Placed new application \(bundleID, privacy: .private(mask: .hash)) in \(name.logString, privacy: .public)")

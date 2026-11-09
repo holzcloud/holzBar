@@ -144,6 +144,44 @@ struct ApplyingProfile27Tests {
     }
 }
 
+@Suite("Known applications on macOS 27")
+struct KnownApplications27Tests {
+    @Test("A read of known applications only writes nothing")
+    func readOfKnownWritesNothing() {
+        #expect(SectionLayout27.knownAfterRead(bundleIDs: ["com.a.app"], known: ["com.a.app", "com.b.app"]) == nil)
+        #expect(SectionLayout27.knownAfterRead(bundleIDs: [], known: []) == nil)
+    }
+
+    @Test("An app with a layout entry read for the first time is recorded, but is not new")
+    func appWithEntryIsRecordedNotNew() {
+        let saved: [String: MacOS27Section] = ["com.h.app": .hidden]
+        let known: Set<String> = ["com.a.app"]
+        let read: Set<String> = ["com.a.app", "com.h.app"]
+        #expect(SectionLayout27.knownAfterRead(bundleIDs: read, known: known) == ["com.a.app", "com.h.app"])
+        #expect(SectionLayout27.newApplications(bundleIDs: read, known: known, saved: saved).isEmpty)
+    }
+
+    @Test("Moved to Visible after it was recorded, the app is not new on the next read")
+    func visibleAfterRecordIsNotNew() {
+        let saved: [String: MacOS27Section] = ["com.h.app": .hidden]
+        let read: Set<String> = ["com.a.app", "com.h.app"]
+        let known = SectionLayout27.knownAfterRead(bundleIDs: read, known: ["com.a.app"]) ?? []
+        let afterVisible = SectionLayout27.settingSection(.visible, for: "com.h.app", in: saved)
+        #expect(afterVisible.isEmpty)
+        #expect(SectionLayout27.newApplications(bundleIDs: read, known: known, saved: afterVisible).isEmpty)
+    }
+
+    @Test("An app neither known nor in the layout is new")
+    func unknownAppIsNew() {
+        let result = SectionLayout27.newApplications(
+            bundleIDs: ["com.a.app", "com.n.app", "com.h.app"],
+            known: ["com.a.app"],
+            saved: ["com.h.app": .hidden]
+        )
+        #expect(result == ["com.n.app"])
+    }
+}
+
 @Suite("Seeding the macOS 27 layout from the bar")
 struct SeededLayout27Tests {
     // A bar as it stood before macOS 27: always-hidden items, the always-hidden divider,
@@ -269,5 +307,26 @@ struct OSUpgrade27Tests {
         let down = OSUpgrade27.plan(previousMajor: 27, currentMajor: 26, layoutIsEmpty: true, hasSavedSections: true)
         #expect(!down.reseedsLayout)
         #expect(down.recordsVersion)
+    }
+
+    @Test("An update from 27 to 28 keeps an empty layout empty")
+    func from27To28DoesNotReseed() {
+        let plan = OSUpgrade27.plan(previousMajor: 27, currentMajor: 28, layoutIsEmpty: true, hasSavedSections: true)
+        #expect(!plan.reseedsLayout)
+        #expect(plan.recordsVersion)
+    }
+
+    @Test("Going back from 28 to 27 keeps an empty layout empty")
+    func from28To27DoesNotReseed() {
+        let plan = OSUpgrade27.plan(previousMajor: 28, currentMajor: 27, layoutIsEmpty: true, hasSavedSections: true)
+        #expect(!plan.reseedsLayout)
+        #expect(plan.recordsVersion)
+    }
+
+    @Test("Only an update from before macOS 27, or from an unknown version, reseeds")
+    func onlyFromBefore27Reseeds() {
+        #expect(OSUpgrade27.plan(previousMajor: 26, currentMajor: 27, layoutIsEmpty: true, hasSavedSections: true).reseedsLayout)
+        #expect(OSUpgrade27.plan(previousMajor: 15, currentMajor: 28, layoutIsEmpty: true, hasSavedSections: true).reseedsLayout)
+        #expect(OSUpgrade27.plan(previousMajor: nil, currentMajor: 27, layoutIsEmpty: true, hasSavedSections: true).reseedsLayout)
     }
 }
