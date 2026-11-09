@@ -118,6 +118,10 @@ final class DisplayBehaviorController {
                 ?? manager.section(withName: .hidden)
             deepest?.show(origin: .displayBehavior)
         case .hideAll:
+            // The per-display behaviour is not used with the Shelf, so it never closes it.
+            guard !appState.settings.general.useShelf else {
+                return
+            }
             manager.section(withName: .hidden)?.hide()
         }
     }

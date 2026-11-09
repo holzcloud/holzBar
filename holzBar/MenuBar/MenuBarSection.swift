@@ -183,7 +183,9 @@ final class MenuBarSection {
         }
 
         if !bypassingLock, let lock = appState?.hiddenItemsLock, lock.requiresAuthentication {
-            lock.authenticate { [weak self] in
+            // The app the user was in gets the keyboard back, unless the Shelf takes keys.
+            let returningFocus = !(useShelf && menuBarManager.shelfPanel.acceptsKeyboard)
+            lock.authenticate(returningFocus: returningFocus) { [weak self] in
                 self?.show(bypassingLock: true, origin: origin, onShown: onShown)
             }
             return

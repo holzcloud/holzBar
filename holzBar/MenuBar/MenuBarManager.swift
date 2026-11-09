@@ -313,7 +313,9 @@ final class MenuBarManager {
         }
 
         if sections.contains(where: { $0.controlItem.state == .showSection }) {
-            guard let screen = NSScreen.main else {
+            // The display whose menu bar is active shows the application menus, not the
+            // display of the key window.
+            guard let screen = NSScreen.screenWithActiveMenuBar ?? NSScreen.main else {
                 return
             }
 

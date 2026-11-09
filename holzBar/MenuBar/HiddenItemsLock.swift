@@ -76,7 +76,12 @@ final class HiddenItemsLock {
 
     /// Runs `proceed` at once when no authentication is needed, or after the user answered.
     /// Nothing runs when the answer is no.
-    func authenticate(then proceed: @escaping @MainActor () -> Void) {
+    ///
+    /// - Parameter returningFocus: Whether the app the user was in gets the keyboard back
+    ///   after the answer (approved or not), so typing goes on without a click. holzBar comes
+    ///   to the front for the prompt; a reveal that takes no keys itself (the bar, the Shelf
+    ///   opened by the pointer) gives the focus back, a search or the palette keeps it.
+    func authenticate(returningFocus: Bool = false, then proceed: @escaping @MainActor () -> Void) {
         guard requiresAuthentication else {
             proceed()
             return
@@ -85,6 +90,13 @@ final class HiddenItemsLock {
             return
         }
         isAuthenticating = true
+        // The app the user was in, and whether holzBar had no Dock icon. Its name is never
+        // logged.
+        let current = NSRunningApplication.current
+        let previous = returningFocus
+            ? NSWorkspace.shared.frontmostApplication.flatMap { $0.processIdentifier == current.processIdentifier ? nil : $0 }
+            : nil
+        let hadNoDockIcon = NSApp.activationPolicy() == .accessory
         appState?.activate(for: .settings)
         Task {
             let context = LAContext()
@@ -96,12 +108,32 @@ final class HiddenItemsLock {
                 isApproved = (try? await context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason)) ?? false
             }
             isAuthenticating = false
+            // Before the reveal, so the reveal happens as it does without the lock.
+            if let previous {
+                giveFocusBack(to: previous, hadNoDockIcon: hadNoDockIcon)
+            }
             if isApproved {
                 gate.unlock(now: .now)
                 proceed()
             } else {
                 logger.notice("The hidden items stay hidden: not authenticated")
             }
+        }
+    }
+
+    /// Gives the keyboard back to the app the user was in before the prompt, unless Settings
+    /// is open, and takes away the Dock icon the prompt may have brought (pre27-L3).
+    private func giveFocusBack(to application: NSRunningApplication, hadNoDockIcon: Bool) {
+        guard
+            let appState,
+            !appState.navigationState.isSettingsPresented,
+            !application.isTerminated
+        else {
+            return
+        }
+        application.activate(from: NSRunningApplication.current)
+        if hadNoDockIcon {
+            appState.hideDockIconIfUnneeded()
         }
     }
 }
