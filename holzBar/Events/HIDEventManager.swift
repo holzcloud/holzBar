@@ -629,15 +629,18 @@ extension HIDEventManager {
     private func handleShowOnHover(appState: AppState, screen: NSScreen) {
         // Make sure the "ShowOnHover" feature is enabled.
         //
-        // `showOnHoverAllowed` is deliberately *not* checked here. It is cleared
-        // when the user clicks in the menu bar, so that hovering does not
-        // immediately undo a deliberate click, and it is restored only inside
-        // `MenuBarSection.hide()`. Checking it here disabled the hide-on-leave
-        // branch below as well — and that branch is what calls `hide()`. The flag
-        // therefore latched off the only mechanism that could clear it, leaving
-        // the holzBar Shelf on screen indefinitely: on whatever display it was opened
-        // on, while the user worked on another one. It is checked in the reveal
-        // branch instead, where it belongs.
+        // Hover hides only what hover showed (`RevealOwnership.hoverOwns`): a section
+        // shown by a click, a hotkey, the holzBar icon, the Shelf or any other way stays
+        // until the rehide strategy hides it, and a click on an item while hover owns the
+        // reveal makes it the user's (`handlePreventShowOnHover`).
+        //
+        // `showOnHoverAllowed` is deliberately *not* checked here and never gates the
+        // hide. It is cleared when the user clicks in the menu bar, so that hovering does
+        // not immediately undo a deliberate click, and it is restored only inside
+        // `MenuBarSection.hide()`. As the hide gate it latched off the only mechanism that
+        // could clear it, leaving the holzBar Shelf on screen indefinitely: on whatever
+        // display it was opened on, while the user worked on another one. It is checked in
+        // the reveal branch instead, where it belongs; ownership decides the hide.
         guard appState.settings.general.showOnHover else {
             return
         }
@@ -675,10 +678,11 @@ extension HIDEventManager {
                 guard isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) else {
                     return
                 }
-                hiddenSection.show()
+                hiddenSection.show(origin: .hover)
             }
         } else {
             guard
+                appState.menuBarManager.revealOwnership.hoverOwns,
                 !isMouseInsideMenuBar(appState: appState, screen: screen),
                 !isMouseInsideShelf(appState: appState)
             else {
@@ -695,8 +699,9 @@ extension HIDEventManager {
                     return
                 }
                 hoverSchedule.finish(generation)
-                // Make sure the mouse is still outside.
+                // Make sure hover still owns the reveal and the mouse is still outside.
                 guard
+                    appState.menuBarManager.revealOwnership.hoverOwns,
                     !isMouseInsideMenuBar(appState: appState, screen: screen),
                     !isMouseInsideShelf(appState: appState)
                 else {
@@ -746,6 +751,9 @@ extension HIDEventManager {
         // Mouse is inside the menu bar, outside an item or application
         // menu, so it must be inside an empty menu bar space.
         appState.menuBarManager.showOnHoverAllowed = false
+        // A click while hover owns the reveal makes it the user's: moving the pointer
+        // away no longer hides it.
+        appState.menuBarManager.revealOwnership.takeOver(by: .click)
     }
 
     // MARK: Handle Show On Scroll

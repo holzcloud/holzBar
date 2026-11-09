@@ -65,6 +65,12 @@ final class MenuBarManager {
     /// press, or the section shown or hidden another way, cancels it.
     @ObservationIgnored var temporaryShowTask: Task<Void, Never>?
 
+    /// Who showed the hidden sections and what that show expanded: what a trigger showed,
+    /// that trigger may hide again (show on hover hides only its own reveal, and the timed
+    /// rehide collapses what its show opened). ``MenuBarSection`` records every real show and
+    /// hide.
+    @ObservationIgnored var revealOwnership = RevealOwnership()
+
     /// The panel that contains the holzBar Shelf interface.
     let shelfPanel = HolzBarShelfPanel()
 

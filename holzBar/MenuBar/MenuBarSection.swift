@@ -153,16 +153,20 @@ final class MenuBarSection {
 
     /// Shows the section.
     ///
-    /// - Parameter bypassingLock: Whether the user's lock for the hidden items is not asked:
-    ///   for the safety rules and the items the user chose, which show by themselves.
-    func show(bypassingLock: Bool = false) {
+    /// - Parameters:
+    ///   - bypassingLock: Whether the user's lock for the hidden items is not asked:
+    ///     for the safety rules and the items the user chose, which show by themselves.
+    ///   - origin: What shows the section. Only what a trigger showed may that trigger hide
+    ///     again (see ``RevealOwnership``); a user's request while the section is already
+    ///     shown takes the reveal over.
+    func show(bypassingLock: Bool = false, origin: RevealOwnership.Origin = .other) {
         guard let menuBarManager else {
             return
         }
 
         if !bypassingLock, let lock = appState?.hiddenItemsLock, lock.requiresAuthentication {
             lock.authenticate { [weak self] in
-                self?.show(bypassingLock: true)
+                self?.show(bypassingLock: true, origin: origin)
             }
             return
         }
@@ -175,6 +179,11 @@ final class MenuBarSection {
         }
 
         guard isHidden else {
+            // Already shown: a user's request makes the reveal theirs, so an automatic
+            // trigger (show on hover) no longer hides it.
+            if !origin.isAutomatic {
+                menuBarManager.revealOwnership.takeOver(by: origin)
+            }
             return
         }
 
@@ -198,6 +207,9 @@ final class MenuBarSection {
             }
 
             if let screen = screenForShelf {
+                // The Shelf shows one section: the hidden one, or the always-hidden one.
+                let shelfSection: RevealOwnership.Section = name == .alwaysHidden ? .alwaysHidden : .hidden
+                let token = menuBarManager.revealOwnership.didShow(origin, expanded: [shelfSection])
                 Task {
                     let shown = switch name {
                     case .visible, .hidden:
@@ -209,6 +221,8 @@ final class MenuBarSection {
                     // rehide checks would keep running with nothing left to hide.
                     if shown {
                         startRehideChecks()
+                    } else if menuBarManager.revealOwnership.isCurrent(token) {
+                        menuBarManager.revealOwnership.didHide([shelfSection])
                     }
                 }
             }
@@ -226,10 +240,18 @@ final class MenuBarSection {
             for section in menuBarManager.sections where section.name != .alwaysHidden {
                 section.controlItem.state = .showSection
             }
+            menuBarManager.revealOwnership.didShow(origin, expanded: [.hidden])
         case .alwaysHidden:
+            // Showing the always-hidden section shows the hidden one too; the rehide
+            // collapses it again only when this show opened it.
+            let hiddenWasHidden = menuBarManager.section(withName: .hidden)?.isHidden ?? false
             for section in menuBarManager.sections {
                 section.controlItem.state = .showSection
             }
+            menuBarManager.revealOwnership.didShow(
+                origin,
+                expanded: hiddenWasHidden ? [.alwaysHidden, .hidden] : [.alwaysHidden]
+            )
         }
 
         startRehideChecks()
@@ -262,8 +284,10 @@ final class MenuBarSection {
             for section in menuBarManager.sections {
                 section.controlItem.state = .hideSection
             }
+            menuBarManager.revealOwnership.didHide(Set(RevealOwnership.Section.allCases))
         case .alwaysHidden:
             controlItem.state = .hideSection
+            menuBarManager.revealOwnership.didHide([.alwaysHidden])
         }
 
         stopRehideChecks()
@@ -272,9 +296,20 @@ final class MenuBarSection {
 
     /// Toggles the visibility of the section.
     ///
-    /// - Parameter isUserRequest: Whether the user asked for it directly (see ``hide(isUserRequest:)``).
-    func toggle(isUserRequest: Bool = false) {
-        if isHidden { show() } else { hide(isUserRequest: isUserRequest) }
+    /// - Parameters:
+    ///   - isUserRequest: Whether the user asked for it directly (see ``hide(isUserRequest:)``).
+    ///   - origin: What shows the section (see ``show(bypassingLock:origin:)``).
+    func toggle(isUserRequest: Bool = false, origin: RevealOwnership.Origin = .other) {
+        if isHidden { show(origin: origin) } else { hide(isUserRequest: isUserRequest) }
+    }
+
+    /// The section's name in ``RevealOwnership``.
+    private var ownershipSection: RevealOwnership.Section {
+        switch name {
+        case .visible: .visible
+        case .hidden: .hidden
+        case .alwaysHidden: .alwaysHidden
+        }
     }
 
     /// Lets the macOS 27 concealer follow the new state of the sections.
