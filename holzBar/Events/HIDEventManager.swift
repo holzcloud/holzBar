@@ -17,6 +17,11 @@ final class HIDEventManager {
     /// a menu bar item.
     private(set) var isDraggingMenuBarItem = false
 
+    /// The sections a Command-drag showed ("Show all sections on drag"): those whose control
+    /// item was hiding its section when the drag started. The drop hides them again or hands
+    /// them to the rehide (``RevealOwnership/afterDrop(revealed:autoRehide:collapsesAtDrop:)``).
+    @ObservationIgnored private var dragRevealedSections = Set<MenuBarSection.Name>()
+
     /// The shared app state.
     @ObservationIgnored private weak var appState: AppState?
 
@@ -296,9 +301,11 @@ final class HIDEventManager {
             commandDragIsArmed = false
             currentSettings?.commandDragArmed = false
         }
-        // Without the drag monitors a drag can never end, so it is not going on.
+        // Without the drag monitors a drag can never end, so it is not going on, and what
+        // it showed collapses: no section stays marked shown (D-14).
         if !runningKinds.contains(.mouseUp), isDraggingMenuBarItem {
             isDraggingMenuBarItem = false
+            collapseDragReveal()
         }
         if let systemItemClickBridge {
             if isEnabled, !isSystemItemClickBridgeRunning {
@@ -573,6 +580,61 @@ extension HIDEventManager {
             // The user arranged items on the bar: their sections are saved once the bar
             // shows the result (see `SectionRestore.swift`).
             appState?.itemManager.saveSectionsSoon()
+            endDragReveal()
+        }
+    }
+
+    // MARK: Handle Command-Drag Reveal
+
+    /// What a Command-drag showed, after the drop: on macOS 27, in the Shelf and with automatic
+    /// rehide off it collapses at once; otherwise the rehide strategy hides it, as any show
+    /// (D-07, D-13, D-14).
+    private func endDragReveal() {
+        guard let appState, !dragRevealedSections.isEmpty else {
+            dragRevealedSections = []
+            return
+        }
+        let general = appState.settings.general
+        let revealed = Set(dragRevealedSections.map(\.ownershipSection))
+        // The Shelf never shows the sections in the bar, so what the drag expanded there
+        // collapses at the drop as well.
+        let action = RevealOwnership.afterDrop(
+            revealed: revealed,
+            autoRehide: general.autoRehide,
+            collapsesAtDrop: MenuBarBackendKind.current == .accessibility27 || general.usesShelf
+        )
+        switch action {
+        case .nothing:
+            dragRevealedSections = []
+        case .collapse:
+            collapseDragReveal()
+        case .rehide(let sections):
+            let manager = appState.menuBarManager
+            dragRevealedSections = []
+            manager.revealOwnership.didShow(.drag, expanded: sections)
+            // The deepest section the drag showed collapses every section it expanded
+            // (`RevealOwnership.sectionsToHide(rehiding:)`).
+            let deepest = [MenuBarSection.Name.alwaysHidden, .hidden]
+                .filter { sections.contains($0.ownershipSection) }
+                .compactMap { manager.section(withName: $0) }
+                .first { $0.isEnabled }
+            deepest?.armRehide()
+        }
+    }
+
+    /// Hides exactly the sections the Command-drag showed, and on macOS 27 lets the concealer
+    /// follow once, so even a reveal another update made visible during the drag ends (D-14).
+    private func collapseDragReveal() {
+        let names = dragRevealedSections
+        dragRevealedSections = []
+        guard let appState, !names.isEmpty else {
+            return
+        }
+        for section in appState.menuBarManager.sections where names.contains(section.name) {
+            section.controlItem.state = .hideSection
+        }
+        if #available(macOS 27.0, *) {
+            appState.concealer27.update()
         }
     }
 
@@ -607,10 +669,23 @@ extension HIDEventManager {
 
         isDraggingMenuBarItem = true
 
-        if appState.settings.advanced.showAllSectionsOnUserDrag {
-            for section in appState.menuBarManager.sections {
-                section.controlItem.state = .showSection
-            }
+        // The drag shows every section only when nothing refuses a reveal now: the lock (no
+        // Touch ID prompt in the middle of a drag), Zen mode, manual or while the screen is
+        // shared, and a display set to Collapse. Otherwise it only arranges what is visible
+        // (D-07, D-14).
+        guard
+            appState.settings.advanced.showAllSectionsOnUserDrag,
+            !appState.hiddenItemsLock.requiresAuthentication,
+            appState.menuBarManager.allowsReveal(.commandDrag)
+        else {
+            return
+        }
+        // The control item states, not `isHidden`, whose Shelf branch reads the panel: these
+        // are the states this drag changes and the drop restores.
+        let sections = appState.menuBarManager.sections
+        dragRevealedSections = Set(sections.filter { $0.controlItem.state == .hideSection }.map(\.name))
+        for section in sections {
+            section.controlItem.state = .showSection
         }
     }
 

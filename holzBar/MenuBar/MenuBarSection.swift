@@ -32,6 +32,15 @@ final class MenuBarSection {
             }
         }
 
+        /// The section's name in ``RevealOwnership``.
+        var ownershipSection: RevealOwnership.Section {
+            switch self {
+            case .visible: .visible
+            case .hidden: .hidden
+            case .alwaysHidden: .alwaysHidden
+            }
+        }
+
         /// Localized string key representation.
         var localized: LocalizedStringKey {
             switch self {
@@ -308,11 +317,7 @@ final class MenuBarSection {
 
     /// The section's name in ``RevealOwnership``.
     private var ownershipSection: RevealOwnership.Section {
-        switch name {
-        case .visible: .visible
-        case .hidden: .hidden
-        case .alwaysHidden: .alwaysHidden
-        }
+        name.ownershipSection
     }
 
     /// Lets the macOS 27 concealer follow the new state of the sections.

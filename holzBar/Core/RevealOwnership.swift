@@ -123,6 +123,40 @@ nonisolated struct RevealOwnership: Equatable, Sendable {
         isCurrent(token) ? expanded : []
     }
 
+    /// What happens after a Command-drag in the menu bar is dropped.
+    enum DropAction: Equatable, Sendable {
+        /// The drag revealed nothing.
+        case nothing
+        /// Hide the sections the drag revealed at once.
+        case collapse(Set<Section>)
+        /// Hand the sections the drag revealed to the rehide strategy.
+        case rehide(Set<Section>)
+    }
+
+    /// What to do with the sections a Command-drag revealed ("Show all sections on drag")
+    /// once it is dropped.
+    ///
+    /// The drag only shows the sections so that items can be arranged across them. After the
+    /// drop they go to the normal rehide (Timed hides them after its interval, Smart and
+    /// Focused act as always); with automatic rehide off they collapse right at the drop
+    /// (D-07, D-13). On macOS 27 they always collapse at the drop, so no section stays marked
+    /// shown and the next concealment update does not reveal every hidden app (D-14).
+    ///
+    /// - Parameters:
+    ///   - revealed: The sections that were hidden when the drag started and that it showed.
+    ///   - autoRehide: Whether automatic rehide is on.
+    ///   - collapsesAtDrop: Whether the sections collapse at the drop whatever the rehide
+    ///     setting (macOS 27).
+    static func afterDrop(revealed: Set<Section>, autoRehide: Bool, collapsesAtDrop: Bool) -> DropAction {
+        guard !revealed.isEmpty else {
+            return .nothing
+        }
+        if collapsesAtDrop || !autoRehide {
+            return .collapse(revealed)
+        }
+        return .rehide(revealed)
+    }
+
     /// The sections a rehide of the given section collapses: every section the current reveal
     /// expanded when the section is one of them (showing the always-hidden section also opened
     /// the hidden one), else the section alone (it keeps its own rehide).

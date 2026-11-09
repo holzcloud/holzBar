@@ -35,6 +35,7 @@ struct DisplayBehaviorTests {
         #expect(!DisplayBehavior.collapse.allows(.hover))
         #expect(!DisplayBehavior.collapse.allows(.clickOnEmptyBar))
         #expect(!DisplayBehavior.collapse.allows(.scroll))
+        #expect(!DisplayBehavior.collapse.allows(.commandDrag))
         #expect(DisplayBehavior.collapse.allows(.holzBarIcon))
         #expect(DisplayBehavior.collapse.allows(.sectionHotkey))
     }

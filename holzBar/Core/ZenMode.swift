@@ -9,8 +9,9 @@ import Foundation
 ///
 /// While it is active, the gestures and rules that would reveal items on their own are
 /// refused: hovering, a click on empty menu bar space, scrolling, the reveal rules, URL
-/// commands from other apps and items that show when they change. What the user asks for
-/// directly still works: clicking holzBar's icon and the section hotkeys.
+/// commands from other apps, items that show when they change and a Command-drag in the bar
+/// (which then only arranges what is visible). What the user asks for directly still works:
+/// clicking holzBar's icon and the section hotkeys.
 ///
 /// The user turns it on and off (``isManual``); holzBar turns it on while the screen is
 /// mirrored or shared (``isAutomatic``). It is active while either is on, so the end of a
@@ -39,6 +40,9 @@ nonisolated struct ZenMode: Equatable, Sendable {
         case holzBarIcon
         /// The hotkey of a section.
         case sectionHotkey
+        /// A Command-drag in the menu bar with "Show all sections on drag": it reveals by
+        /// itself, as hover does.
+        case commandDrag
     }
 
     /// What another app asks for with a `holzbar://zen` URL.
@@ -71,7 +75,7 @@ nonisolated struct ZenMode: Equatable, Sendable {
         case .holzBarIcon, .sectionHotkey:
             // The user's own request.
             return true
-        case .hover, .clickOnEmptyBar, .scroll, .revealRule, .urlCommand, .changeReveal:
+        case .hover, .clickOnEmptyBar, .scroll, .revealRule, .urlCommand, .changeReveal, .commandDrag:
             return false
         }
     }

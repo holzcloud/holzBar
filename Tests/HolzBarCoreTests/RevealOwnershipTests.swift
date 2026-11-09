@@ -98,6 +98,81 @@ struct RevealOwnershipTests {
         #expect(Set(automatic + user).count == RevealOwnership.Origin.allCases.count)
     }
 
+    @Test("A drop with nothing revealed does nothing")
+    func dropWithNothingRevealed() {
+        for autoRehide in [false, true] {
+            for collapsesAtDrop in [false, true] {
+                let action = RevealOwnership.afterDrop(revealed: [], autoRehide: autoRehide, collapsesAtDrop: collapsesAtDrop)
+                #expect(action == .nothing)
+            }
+        }
+    }
+
+    @Test("On macOS 27 what the drag revealed collapses at the drop")
+    func dropCollapsesOn27() {
+        let revealed: Set<RevealOwnership.Section> = [.visible, .hidden, .alwaysHidden]
+        for autoRehide in [false, true] {
+            let action = RevealOwnership.afterDrop(revealed: revealed, autoRehide: autoRehide, collapsesAtDrop: true)
+            #expect(action == .collapse(revealed))
+        }
+    }
+
+    @Test("Without automatic rehide what the drag revealed collapses at the drop")
+    func dropCollapsesWithoutAutoRehide() {
+        let action = RevealOwnership.afterDrop(revealed: [.hidden], autoRehide: false, collapsesAtDrop: false)
+        #expect(action == .collapse([.hidden]))
+    }
+
+    @Test("With automatic rehide what the drag revealed goes to the rehide")
+    func dropHandsOverToTheRehide() {
+        let revealed: Set<RevealOwnership.Section> = [.visible, .hidden]
+        let action = RevealOwnership.afterDrop(revealed: revealed, autoRehide: true, collapsesAtDrop: false)
+        #expect(action == .rehide(revealed))
+    }
+
+    @Test("A peek token stays current until another origin shows or takes over")
+    func peekStaysCurrent() throws {
+        var ownership = RevealOwnership()
+        let peek = ownership.didShow(.peek, expanded: [.hidden])
+        #expect(ownership.isCurrent(peek))
+        #expect(ownership.mayHide(peek) == [.hidden])
+
+        ownership.takeOver(by: .click)
+        #expect(!ownership.isCurrent(peek))
+        #expect(ownership.mayHide(peek).isEmpty)
+
+        let second = ownership.didShow(.peek, expanded: [.hidden])
+        ownership.didShow(.hover, expanded: [.alwaysHidden])
+        #expect(!ownership.isCurrent(second))
+    }
+
+    @Test("A peek on a section already shown takes it over and keeps what it expanded")
+    func peekTakesOverAShownSection() throws {
+        var ownership = RevealOwnership()
+        _ = ownership.didShow(.hover, expanded: [.alwaysHidden, .hidden])
+        let takeover = ownership.takeOver(by: .peek)
+        let peek = try #require(takeover)
+        #expect(ownership.isCurrent(peek))
+        #expect(!ownership.hoverOwns)
+        #expect(ownership.mayHide(peek) == [.alwaysHidden, .hidden])
+    }
+
+    @Test("A change reveal hides nothing once the user took it over or another show happened")
+    func changeRevealBecomesStale() {
+        for userOrigin in [RevealOwnership.Origin.click, .hotkey] {
+            var ownership = RevealOwnership()
+            let change = ownership.didShow(.changeReveal, expanded: [.alwaysHidden, .hidden])
+            #expect(ownership.mayHide(change) == [.alwaysHidden, .hidden])
+            ownership.takeOver(by: userOrigin)
+            #expect(ownership.mayHide(change).isEmpty)
+        }
+        var ownership = RevealOwnership()
+        let change = ownership.didShow(.changeReveal, expanded: [.hidden])
+        ownership.didHide([.visible, .hidden, .alwaysHidden])
+        ownership.didShow(.hover, expanded: [.hidden])
+        #expect(ownership.mayHide(change).isEmpty)
+    }
+
     @Test("Every show starts a new token")
     func everyShowIsNew() {
         var ownership = RevealOwnership()
