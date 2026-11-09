@@ -468,7 +468,7 @@ extension HIDEventManager {
             }
 
             // On macOS 27 this also applies the concealment (`Concealer27.update()`).
-            targetSection.toggle()
+            targetSection.toggle(origin: .click)
             let milliseconds = Int((ProcessInfo.processInfo.systemUptime - clickTime) * 1000)
             logger.debug("Show on click: revealed \(milliseconds, privacy: .public) ms after the click")
         }

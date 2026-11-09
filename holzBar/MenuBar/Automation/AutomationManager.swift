@@ -1103,7 +1103,8 @@ final class AutomationManager {
     }
 
     /// Shows a section for the "temporarily shown item" interval, then hides it again, unless
-    /// Zen mode is on.
+    /// Zen mode is on. The hide happens only while the rule still owns the reveal: shown or
+    /// hidden another way meanwhile, the section is left alone.
     private func reveal(_ name: MenuBarSection.Name) {
         guard
             let appState,
@@ -1117,15 +1118,17 @@ final class AutomationManager {
             return
         }
         logger.notice("An automation rule shows hidden items")
-        section.show(bypassingLock: true)
-        appState.menuBarManager.showOnHoverAllowed = false
+        let menuBarManager = appState.menuBarManager
         let interval = appState.settings.advanced.tempShowInterval
-        Task {
-            try? await Task.sleep(for: .seconds(interval))
-            if !section.isHidden {
-                section.hide()
+        section.show(bypassingLock: true, origin: .rule) { token in
+            Task {
+                try? await Task.sleep(for: .seconds(interval))
+                if menuBarManager.revealOwnership.isCurrent(token), !section.isHidden {
+                    section.hide()
+                }
             }
         }
+        menuBarManager.showOnHoverAllowed = false
     }
 
     /// Whether holzBar keeps the Mac awake now.

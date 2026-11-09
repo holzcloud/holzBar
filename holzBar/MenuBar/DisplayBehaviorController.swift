@@ -116,7 +116,7 @@ final class DisplayBehaviorController {
             // Showing the deepest section that exists shows every section.
             let deepest = manager.section(withName: .alwaysHidden).flatMap { $0.isEnabled ? $0 : nil }
                 ?? manager.section(withName: .hidden)
-            deepest?.show()
+            deepest?.show(origin: .displayBehavior)
         case .hideAll:
             manager.section(withName: .hidden)?.hide()
         }

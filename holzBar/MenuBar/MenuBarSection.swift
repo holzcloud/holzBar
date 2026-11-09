@@ -168,30 +168,50 @@ final class MenuBarSection {
     ///   - origin: What shows the section. Only what a trigger showed may that trigger hide
     ///     again (see ``RevealOwnership``); a user's request while the section is already
     ///     shown takes the reveal over.
-    func show(bypassingLock: Bool = false, origin: RevealOwnership.Origin = .other) {
+    ///   - onShown: Called with the reveal's token once the section is really shown: at once,
+    ///     after Touch ID, or once the Shelf is on screen; and at once with the takeover's
+    ///     token when the section is already shown and the origin is the user's. Not called
+    ///     when nothing is shown (the lock refused, the section is off). A trigger that hides
+    ///     again later starts its timer here, so the timer also survives the lock (D-08).
+    func show(
+        bypassingLock: Bool = false,
+        origin: RevealOwnership.Origin = .other,
+        onShown: ((RevealOwnership.Token) -> Void)? = nil
+    ) {
         guard let menuBarManager else {
             return
         }
 
         if !bypassingLock, let lock = appState?.hiddenItemsLock, lock.requiresAuthentication {
             lock.authenticate { [weak self] in
-                self?.show(bypassingLock: true, origin: origin)
+                self?.show(bypassingLock: true, origin: origin, onShown: onShown)
             }
             return
         }
 
         // Shown another way, the hidden section no longer hides after a moment, also
-        // when it is already shown. Showing the always-hidden section, which an item
-        // change does briefly, leaves the hidden section's timer running.
-        if name != .alwaysHidden {
+        // when it is already shown; the peek's own show keeps its timer, also the one that
+        // waited for Touch ID (D-08). Showing the always-hidden section, which an item
+        // change does briefly, leaves the hidden section's timer running. A show other than
+        // a change reveal ends the change reveal's wait (D-09).
+        if name != .alwaysHidden, origin != .peek {
             menuBarManager.temporaryShowTask?.cancel()
+        }
+        if origin != .changeReveal {
+            menuBarManager.changeRevealTask?.cancel()
         }
 
         guard isHidden else {
             // Already shown: a user's request makes the reveal theirs, so an automatic
             // trigger (show on hover) no longer hides it.
             if !origin.isAutomatic {
-                menuBarManager.revealOwnership.takeOver(by: origin)
+                if let token = menuBarManager.revealOwnership.takeOver(by: origin) {
+                    onShown?(token)
+                } else if let onShown {
+                    // Shown without a record (a Command-drag in progress): the request owns
+                    // it from now on, with nothing it expanded.
+                    onShown(menuBarManager.revealOwnership.didShow(origin, expanded: []))
+                }
             }
             return
         }
@@ -230,6 +250,9 @@ final class MenuBarSection {
                     // rehide checks would keep running with nothing left to hide.
                     if shown {
                         armRehide()
+                        if menuBarManager.revealOwnership.isCurrent(token) {
+                            onShown?(token)
+                        }
                     } else if menuBarManager.revealOwnership.isCurrent(token) {
                         menuBarManager.revealOwnership.didHide([shelfSection])
                     }
@@ -244,12 +267,13 @@ final class MenuBarSection {
         // Make sure it's closed.
         menuBarManager.shelfPanel.close()
 
+        let token: RevealOwnership.Token
         switch name {
         case .visible, .hidden:
             for section in menuBarManager.sections where section.name != .alwaysHidden {
                 section.controlItem.state = .showSection
             }
-            menuBarManager.revealOwnership.didShow(origin, expanded: [.hidden])
+            token = menuBarManager.revealOwnership.didShow(origin, expanded: [.hidden])
         case .alwaysHidden:
             // Showing the always-hidden section shows the hidden one too; the rehide
             // collapses it again only when this show opened it.
@@ -257,7 +281,7 @@ final class MenuBarSection {
             for section in menuBarManager.sections {
                 section.controlItem.state = .showSection
             }
-            menuBarManager.revealOwnership.didShow(
+            token = menuBarManager.revealOwnership.didShow(
                 origin,
                 expanded: hiddenWasHidden ? [.alwaysHidden, .hidden] : [.alwaysHidden]
             )
@@ -265,6 +289,7 @@ final class MenuBarSection {
 
         armRehide()
         updateConcealment27()
+        onShown?(token)
     }
 
     /// Hides the section.
@@ -281,9 +306,10 @@ final class MenuBarSection {
         }
 
         // Hiding the always-hidden section alone can leave the hidden section shown, so
-        // its timer keeps running.
+        // its timers keep running.
         if name != .alwaysHidden {
             menuBarManager.temporaryShowTask?.cancel()
+            menuBarManager.changeRevealTask?.cancel()
         }
         menuBarManager.shelfPanel.close() // Make sure the holzBar Shelf is always closed.
         menuBarManager.showOnHoverAllowed = true
@@ -310,7 +336,7 @@ final class MenuBarSection {
     ///
     /// - Parameters:
     ///   - isUserRequest: Whether the user asked for it directly (see ``hide(isUserRequest:)``).
-    ///   - origin: What shows the section (see ``show(bypassingLock:origin:)``).
+    ///   - origin: What shows the section (see ``show(bypassingLock:origin:onShown:)``).
     func toggle(isUserRequest: Bool = false, origin: RevealOwnership.Origin = .other) {
         if isHidden { show(origin: origin) } else { hide(isUserRequest: isUserRequest) }
     }

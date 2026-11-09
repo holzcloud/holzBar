@@ -65,6 +65,14 @@ final class MenuBarManager {
     /// press, or the section shown or hidden another way, cancels it.
     @ObservationIgnored var temporaryShowTask: Task<Void, Never>?
 
+    /// Hides what "Show when it changes" showed after its 5 seconds (D-09). Another show
+    /// (other than a change reveal) or a hide cancels it; a new change reveal replaces it.
+    @ObservationIgnored var changeRevealTask: Task<Void, Never>?
+
+    /// The token of the last change reveal, so a change reveal of the always-hidden section on
+    /// top of one of the hidden section also hides what the first one showed.
+    @ObservationIgnored private var changeRevealToken: RevealOwnership.Token?
+
     /// Who showed the hidden sections and what that show expanded: what a trigger showed,
     /// that trigger may hide again (show on hover hides only its own reveal, and the timed
     /// rehide collapses what its show opened). ``MenuBarSection`` records every real show and
@@ -569,8 +577,9 @@ final class MenuBarManager {
     /// Shows a hidden item for 5 seconds because it changed (THAW-12, `ItemChangeWatcher`).
     ///
     /// On macOS 27 its application is shown for the moment; before, its section is shown
-    /// and hidden again unless the pointer is in the menu bar by then. Nothing happens in
-    /// Zen mode.
+    /// and what this showed is hidden again (D-09): not when the user showed or hid a section
+    /// meanwhile, the pointer is in the menu bar or a hidden item's menu is open. Nothing
+    /// happens in Zen mode.
     func revealBriefly(itemKey key: String) {
         guard
             let appState,
@@ -600,21 +609,56 @@ final class MenuBarManager {
         else {
             return
         }
-        section.show(bypassingLock: true)
-        Task { [weak self] in
-            try? await Task.sleep(for: .seconds(5))
-            guard let self, let appState = self.appState, !section.isHidden else {
+        // What an earlier change reveal still owns goes with this one (its token becomes
+        // stale with this show).
+        let inherited = changeRevealToken.map { revealOwnership.mayHide($0) } ?? []
+        changeRevealTask?.cancel()
+        changeRevealTask = nil
+        changeRevealToken = nil
+        section.show(bypassingLock: true, origin: .changeReveal) { [weak self] token in
+            guard let self else {
                 return
             }
-            let hidEventManager = appState.hidEventManager
-            if
-                let screen = hidEventManager.bestScreen(appState: appState),
-                hidEventManager.isMouseInsideMenuBar(appState: appState, screen: screen)
-            {
-                // The user is at the menu bar now.
-                return
+            changeRevealToken = token
+            changeRevealTask = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(5))
+                guard let self, !Task.isCancelled else {
+                    return
+                }
+                endChangeReveal(token, inherited: inherited)
             }
-            section.hide()
+        }
+    }
+
+    /// Hides what a change reveal showed, 5 seconds later: only while it still owns the reveal
+    /// (the user did not show or hide a section meanwhile), the pointer is not in the menu bar
+    /// and no hidden item's menu is open. Showing the always-hidden section also opened the
+    /// hidden one when it was hidden; both collapse then.
+    private func endChangeReveal(_ token: RevealOwnership.Token, inherited: Set<RevealOwnership.Section>) {
+        guard let appState, revealOwnership.isCurrent(token) else {
+            return
+        }
+        let sections = inherited.union(revealOwnership.mayHide(token))
+        guard !sections.isEmpty, let hidden = section(withName: .hidden) else {
+            return
+        }
+        let hidEventManager = appState.hidEventManager
+        if
+            let screen = hidEventManager.bestScreen(appState: appState),
+            hidEventManager.isMouseInsideMenuBar(appState: appState, screen: screen)
+        {
+            // The user is at the menu bar now.
+            return
+        }
+        guard !hidden.hasOpenItemMenu else {
+            // Never pull an item away under its open menu.
+            return
+        }
+        changeRevealToken = nil
+        if sections.contains(.hidden) {
+            hidden.hide()
+        } else {
+            section(withName: .alwaysHidden)?.hide()
         }
     }
 

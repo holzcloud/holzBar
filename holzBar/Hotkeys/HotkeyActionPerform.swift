@@ -42,7 +42,7 @@ extension HotkeyAction {
                 return
             }
             prepareShelfForKeyboard(opening: section, appState: appState)
-            section.toggle(isUserRequest: true)
+            section.toggle(isUserRequest: true, origin: .hotkey)
             // Prevent the section from automatically rehiding after mouse movement.
             if !section.isHidden {
                 appState.menuBarManager.showOnHoverAllowed = false
@@ -52,7 +52,7 @@ extension HotkeyAction {
                 return
             }
             prepareShelfForKeyboard(opening: section, appState: appState)
-            section.toggle(isUserRequest: true)
+            section.toggle(isUserRequest: true, origin: .hotkey)
             // Prevent the section from automatically rehiding after mouse movement.
             if !section.isHidden {
                 appState.menuBarManager.showOnHoverAllowed = false
@@ -60,21 +60,31 @@ extension HotkeyAction {
         case .showHiddenSectionTemporarily:
             // Shows the hidden section for the "Temporarily shown item delay", then
             // hides it again, whether or not auto-rehide is on. Another press starts the
-            // delay again.
+            // delay again. The delay starts in `onShown`, when the section is really
+            // shown, also after Touch ID (D-08), and the hide happens only while the peek
+            // still owns the reveal: shown or hidden another way meanwhile, the section is
+            // left alone.
             let menuBarManager = appState.menuBarManager
             guard let section = menuBarManager.section(withName: .hidden) else {
                 return
             }
             menuBarManager.temporaryShowTask?.cancel()
-            section.show()
-            menuBarManager.showOnHoverAllowed = false
             let interval = appState.settings.advanced.tempShowInterval
-            menuBarManager.temporaryShowTask = Task {
-                try? await Task.sleep(for: .seconds(interval))
-                if !Task.isCancelled, !section.isHidden {
+            section.show(origin: .peek) { token in
+                menuBarManager.temporaryShowTask?.cancel()
+                menuBarManager.temporaryShowTask = Task {
+                    try? await Task.sleep(for: .seconds(interval))
+                    guard
+                        !Task.isCancelled,
+                        menuBarManager.revealOwnership.isCurrent(token),
+                        !section.isHidden
+                    else {
+                        return
+                    }
                     section.hide()
                 }
             }
+            menuBarManager.showOnHoverAllowed = false
         case .searchMenuBarItems:
             appState.menuBarManager.searchPanel.toggle()
         case .enableShelf:
