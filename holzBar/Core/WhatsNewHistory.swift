@@ -24,6 +24,15 @@ import Foundation
 nonisolated enum WhatsNewHistory {
     /// The releases, newest first.
     static let releases: [WhatsNewRelease] = [
+        WhatsNewRelease(version: "1.0.5",
+            improved: [
+                WhatsNewItem(
+                    symbol: "hand.draw",
+                    title: "Command-drag sets the section",
+                    detail: "On macOS 27, a ⌘ Command-drag across the holzBar icon hides an app (to the left) or shows it (to the right), with Undo in Menu Bar Layout."
+                ),
+            ]
+        ),
         WhatsNewRelease(version: "1.0.4",
             improved: [
                 WhatsNewItem(

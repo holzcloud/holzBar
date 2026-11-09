@@ -128976,6 +128976,244 @@
           }
         }
       }
+    },
+    "Command-drag sets the section" : {
+      "comment" : "What's New item title: on macOS 27 a Command-drag across the holzBar icon sets an app's section",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přetažení s Command nastaví sekci"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-Ziehen legt den Bereich fest"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-arrastrar define la sección"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-glisser définit la section"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Command-húzás beállítja a szakaszt"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seret Command mengatur bagian"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-trascinamento imposta la sezione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command ドラッグでセクションを設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command 드래그로 구역 설정"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-slepen stelt de sectie in"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeciąganie z Command ustawia sekcję"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-arrastar define a seção"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-trair fixescha la secziun"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетаскивание с Command задаёт раздел"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-dragning anger avsnittet"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-sürükleme bölümü ayarlar"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетягування із Command задає розділ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command 拖移设定分区"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command 拖移設定區段"
+          }
+        }
+      }
+    },
+    "On macOS 27, a ⌘ Command-drag across the holzBar icon hides an app (to the left) or shows it (to the right), with Undo in Menu Bar Layout." : {
+      "comment" : "What's New item detail for the Command-drag section; Undo and Menu Bar Layout are existing catalog terms",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 přetažení s ⌘ Command přes ikonu holzBar skryje aplikaci (doleva) nebo ji zobrazí (doprava), se Zpět v Uspořádání řádku nabídek."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 blendet ein ⌘ Command-Ziehen über das holzBar-Symbol eine App aus (nach links) oder ein (nach rechts), mit Widerrufen im Menüleistenlayout."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, un ⌘ Command-arrastrar sobre el icono de holzBar oculta una app (hacia la izquierda) o la muestra (hacia la derecha), con Deshacer en la Disposición de la barra de menús."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, un ⌘ Command-glisser au-dessus de l’icône de holzBar masque une app (vers la gauche) ou l’affiche (vers la droite), avec Annuler dans Disposition de la barre des menus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt egy ⌘ Command-húzás a holzBar ikonon át elrejt egy appot (balra) vagy megjeleníti (jobbra), Visszavonással a Menüsor elrendezésében."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, seret ⌘ Command melintasi ikon holzBar menyembunyikan app (ke kiri) atau menampilkannya (ke kanan), dengan Urungkan di Tata Letak Bar Menu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, un ⌘ Command-trascinamento attraverso l’icona di holzBar nasconde un’app (verso sinistra) o la mostra (verso destra), con Annulla nel Layout della barra dei menu."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 では、⌘ Command ドラッグで holzBar アイコンをまたぐと、App が非表示（左へ）または表示（右へ）になり、メニューバーレイアウトで取り消せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 ⌘ Command 드래그로 holzBar 아이콘을 가로지르면 앱이 숨겨지거나(왼쪽) 표시되며(오른쪽), 메뉴 막대 레이아웃에서 실행 취소할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 verbergt een ⌘ Command-slepen over het holzBar-symbool een app (naar links) of toont die (naar rechts), met Ongedaan maken in Menubalkindeling."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 przeciągnięcie z ⌘ Command przez ikonę holzBar ukrywa aplikację (w lewo) lub ją pokazuje (w prawo), z opcją Cofnij w Układzie paska menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, um ⌘ Command-arrastar sobre o ícone do holzBar oculta um app (para a esquerda) ou o mostra (para a direita), com Desfazer no Layout da Barra de Menus."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 zuppenta in ⌘ Command-trair sur l’icona da holzBar in’app (a sanestra) u mussa ella (a dretga), cun Revocar en la Disposiziun da la trav da menu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 перетаскивание с ⌘ Command через значок holzBar скрывает приложение (влево) или показывает его (вправо); отменить можно в разделе «Раскладка строки меню»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 döljer en ⌘ Command-dragning över holzBar-symbolen en app (åt vänster) eller visar den (åt höger), med Ångra i Menyradslayout."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de holzBar simgesinin üzerinden yapılan ⌘ Command-sürükleme bir uygulamayı gizler (sola) veya gösterir (sağa); Geri Al, Menü Çubuğu Düzeni’nde bulunur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 перетягування із ⌘ Command через значок holzBar приховує застосунок (ліворуч) або показує його (праворуч), зі Скасувати в Розкладці смуги меню."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，按住 ⌘ Command 将项目拖过 holzBar 图标，可隐藏 App（向左）或显示 App（向右），并可在菜单栏布局中撤销。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，按住 ⌘ Command 將項目拖過 holzBar 圖示，可隱藏 App（向左）或顯示 App（向右），並可在選單列佈局中復原。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
