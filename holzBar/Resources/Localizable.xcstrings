@@ -127796,6 +127796,242 @@
           }
         }
       }
+    },
+    "Set the section with ⌘ Command-drag" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nastavit sekci přetažením s ⌘ Command"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereich per ⌘ Command-Ziehen festlegen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Definir la sección con ⌘ Command-arrastrar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Définir la section par ⌘ Command-glisser"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szakasz beállítása ⌘ Command-húzással"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atur bagian dengan seret ⌘ Command"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta la sezione con ⌘ Command-trascinamento"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command ドラッグでセクションを設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command 드래그로 구역 설정"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sectie instellen met ⌘ Command-slepen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawiaj sekcję przeciąganiem z ⌘ Command"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Definir a seção com ⌘ Command-arrastar"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fixar la secziun cun ⌘ Command-trair"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задавать раздел перетаскиванием с ⌘ Command"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ange avsnittet med ⌘ Command-dragning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bölümü ⌘ Command-sürükleme ile ayarla"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задавати розділ перетягуванням із ⌘ Command"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 ⌘ Command 拖移设定分区"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 ⌘ Command 拖移設定區段"
+          }
+        }
+      }
+    },
+    "macOS 27 only. Hold ⌘ Command and drag an item across the holzBar icon: to the left of it, its app is hidden; to the right of it, its app is visible. Off: the drag only reorders the bar." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pouze macOS 27. Podržte ⌘ Command a přetáhněte položku přes ikonu holzBar: vlevo od ní je její aplikace skrytá, vpravo viditelná. Vypnuto: přetažení pouze změní pořadí na liště."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur macOS 27. Halte ⌘ Command gedrückt und ziehe ein Element über das holzBar-Symbol: links davon wird seine App ausgeblendet, rechts davon ist sie sichtbar. Aus: Das Ziehen ordnet die Leiste nur neu an."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo macOS 27. Mantén pulsada ⌘ Command y arrastra un elemento al otro lado del icono de holzBar: a su izquierda, su app se oculta; a su derecha, está visible. Desactivado: arrastrar solo reordena la barra."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 uniquement. Maintenez ⌘ Command et faites glisser un élément de l'autre côté de l'icône de holzBar : à sa gauche, son app est masquée ; à sa droite, elle est visible. Désactivé : le glissement ne fait que réorganiser la barre."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Csak macOS 27 alatt. Tartsa lenyomva a ⌘ Command billentyűt, és húzzon egy elemet a holzBar ikon túloldalára: attól balra az alkalmazása rejtett, jobbra látható. Kikapcsolva: a húzás csak átrendezi a sávot."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hanya macOS 27. Tahan ⌘ Command dan seret item melewati ikon holzBar: di sebelah kirinya, app-nya disembunyikan; di sebelah kanannya, app-nya terlihat. Nonaktif: seretan hanya mengatur ulang urutan bar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo macOS 27. Tieni premuto ⌘ Command e trascina un elemento oltre l'icona di holzBar: a sinistra di essa la sua app viene nascosta, a destra è visibile. Disattivato: il trascinamento riordina soltanto la barra."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 のみ。⌘ Command を押しながら項目を holzBar アイコンの反対側へドラッグします。アイコンの左側ではその App が非表示に、右側では表示になります。オフ：ドラッグではバーの順序が変わるだけです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서만 사용할 수 있습니다. ⌘ Command를 누른 채 항목을 holzBar 아이콘 반대편으로 드래그하세요. 아이콘 왼쪽에서는 해당 앱이 숨겨지고, 오른쪽에서는 표시됩니다. 끄면 드래그는 막대의 순서만 바꿉니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alleen macOS 27. Houd ⌘ Command ingedrukt en sleep een onderdeel over het holzBar-symbool: links ervan wordt de app verborgen, rechts ervan is de app zichtbaar. Uit: slepen wijzigt alleen de volgorde in de balk."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tylko macOS 27. Przytrzymaj ⌘ Command i przeciągnij element przez ikonę holzBar: po jej lewej stronie jego aplikacja jest ukryta, po prawej widoczna. Wyłączone: przeciąganie tylko zmienia kolejność na pasku."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Somente macOS 27. Mantenha ⌘ Command pressionada e arraste um item para o outro lado do ícone do holzBar: à esquerda dele, o app do item fica oculto; à direita, fica visível. Desativado: arrastar apenas reordena a barra."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mo macOS 27. Tegna smatgà ⌘ Command e tira in element sur il simbol da holzBar: a sanestra dad el vegn sia app zuppentada, a dretga dad el è ella visibla. Dad: il trair sorta mo da nov la trav."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Только macOS 27. Удерживая ⌘ Command, перетащите элемент через значок holzBar: слева от него приложение скрыто, справа — видно. Выключено: перетаскивание только меняет порядок элементов в строке."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Endast macOS 27. Håll ned ⌘ Command och dra ett objekt över holzBar-ikonen: till vänster om den döljs objektets app, till höger om den är den synlig. Av: dragningen ändrar bara ordningen i raden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yalnızca macOS 27. ⌘ Command tuşunu basılı tutup bir öğeyi holzBar simgesinin diğer tarafına sürükleyin: simgenin solunda uygulaması gizlenir, sağında görünür. Kapalıyken: sürükleme yalnızca çubuğun sırasını değiştirir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лише macOS 27. Утримуючи ⌘ Command, перетягніть елемент через значок holzBar: ліворуч від нього програма прихована, праворуч — видима. Вимкнено: перетягування лише змінює порядок у смузі."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅限 macOS 27。按住 ⌘ Command，将项目拖过 holzBar 图标：拖到图标左侧，其 App 会被隐藏；拖到右侧，其 App 会显示。关闭时：拖移只会重新排列栏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "僅限 macOS 27。按住 ⌘ Command，將項目拖過 holzBar 圖像：拖到圖像左側，其 App 會被隱藏；拖到右側，其 App 會顯示。關閉時：拖移只會重新排列列。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
