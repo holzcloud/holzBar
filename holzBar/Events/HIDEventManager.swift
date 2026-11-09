@@ -703,7 +703,9 @@ extension HIDEventManager {
                 guard
                     appState.menuBarManager.revealOwnership.hoverOwns,
                     !isMouseInsideMenuBar(appState: appState, screen: screen),
-                    !isMouseInsideShelf(appState: appState)
+                    !isMouseInsideShelf(appState: appState),
+                    // Never while a hidden item's menu is open; the next move asks again.
+                    !hiddenSection.hasOpenItemMenu
                 else {
                     return
                 }

@@ -59,6 +59,7 @@ sources=(
   HubModuleLifecycle
   HubTabStrip
   InputMonitors
+  InterfaceWindowRule
   ItemCategory
   ItemClassifier
   ItemIdentity
@@ -105,6 +106,7 @@ sources=(
   RevealAnimationSchedule
   RevealAnimationStyle
   RevealGate
+  RevealOwnership
   RevealStepRunner
   ScriptGate
   ScriptLaunch
@@ -173,6 +175,7 @@ tests=(
   HubModuleLifecycleTests
   HubTabStripTests
   InputMonitorsTests
+  InterfaceWindowRuleTests
   ItemCategoryTests
   ItemClassifierTests
   ItemIdentityTests
@@ -215,6 +218,7 @@ tests=(
   RevealAnimationScheduleTests
   RevealAnimationStyleTests
   RevealGateTests
+  RevealOwnershipTests
   RevealStepRunnerTests
   ScriptGateTests
   ScriptLaunchTests
