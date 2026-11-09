@@ -85,6 +85,19 @@
 </tr>
 </table>
 
+## New in 1.0.4
+
+See the [release notes](release-notes/v1.0.4-beta1.md).
+
+- **Order inside a section** (macOS 14 to 26): holzBar saves the order of the items in each section next to the section itself (one list of item keys, kept on this Mac, in the settings export) and puts the items back in that order when they drift. An item that disappears and comes back, such as Focus, Sound or an app that is quit and opened again, returns to its section and place. A pass makes at most six moves, and macOS 27 is not affected (there Menu Bar Layout sorts).
+- **Display changes**: while the bar is still settling after a display change, a divider can be read to the right of the Clock. holzBar then moves nothing, saves nothing and puts no item into another section from that read, and tries a skipped restore once on the next sound read. A profile you apply still moves its items.
+- **Slow starters**: an item that still has the name macOS gives it while its app starts (`Item-1`) is neither placed nor remembered; holzBar looks again a few times after the app launches and places it once it has its name.
+- **Moves that disturb others**: after one of holzBar's own moves it compares the bar with what it was before. If neighbours changed section, it puts them back once (never in a loop); a move you make is only noted, without item names.
+- **Tray icons of Windows apps** (Wine, CrossOver) are left out of every automatic pass; you can still move them and open them from the holzBar Shelf.
+- **Pinned Control Center controls** (Screenshot, Timer, Calculator) show as fixed in Menu Bar Layout on macOS 27.
+- **URL commands**: while Zen mode is on, `holzbar://application-menus/toggle` is ignored, and holzBar drops commands that arrive faster than 8 in 2 seconds. Nothing identifies the calling app; lasting changes still ask first.
+- **Layout profiles**: a list loads up to 1000 profiles and a new profile can be saved or imported while there are fewer than 100; a settings file over 8 MB is refused before it is read.
+
 ## New in 1.0.1
 
 1.0.1 is out; see its [release notes](release-notes/v1.0.1.md).
