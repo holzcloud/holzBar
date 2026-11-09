@@ -29,6 +29,9 @@ nonisolated enum InputMonitors {
         /// Left mouse-down, dragged and up as an active tap: a plain drag of an app's menu bar
         /// item moves it (Drag in the Menu Bar, macOS 26 and later).
         case menuBarDrag
+        /// Modifier-key changes: tells when ⌘ Command goes down or up, so the mouse-down and
+        /// mouse-up monitors of a Command-drag run only while it can happen.
+        case modifierFlags
     }
 
     /// The settings that decide which monitors run.
@@ -50,6 +53,11 @@ nonisolated enum InputMonitors {
         /// (macOS 27). It needs one mouse-down and one mouse-up per click and no drag monitor,
         /// which would wake holzBar for every drag event in the system.
         var setsSectionOnCommandDrag = false
+        /// Whether ⌘ Command is held now. A Command-drag needs its mouse monitors only then.
+        var commandHeld = false
+        /// Whether a Command-press is armed and its mouse-up is still to come: the mouse-up monitor
+        /// stays until it is handled, also when ⌘ Command was released mid-drag.
+        var commandDragArmed = false
         /// Whether a custom menu bar appearance draws overlay panels, which fade while
         /// an item is dragged.
         var hasCustomAppearance = false
@@ -82,10 +90,15 @@ nonisolated enum InputMonitors {
         if settings.savesUserArrangement {
             kinds.insert(.mouseUp)
         }
-        // The press and the release of a Command-drag; the drag itself is not monitored.
+        // The press and the release of a Command-drag; the drag itself is not monitored. They run
+        // only while ⌘ Command is held and until an armed press has ended; the modifier-flags
+        // monitor alone watches for the key.
         if settings.setsSectionOnCommandDrag {
-            kinds.insert(.mouseDown)
-            kinds.insert(.mouseUp)
+            kinds.insert(.modifierFlags)
+            if settings.commandHeld || settings.commandDragArmed {
+                kinds.insert(.mouseDown)
+                kinds.insert(.mouseUp)
+            }
         }
         if settings.dragsWithoutCommand {
             kinds.insert(.menuBarDrag)

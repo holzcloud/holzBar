@@ -62,6 +62,13 @@ final class HIDEventManager {
     /// The input monitors that are running.
     @ObservationIgnored private var runningKinds = Set<InputMonitors.Kind>()
 
+    /// The settings the running monitors were last evaluated for, so a change of the ⌘ Command
+    /// state or of the armed press re-decides without reading every setting again.
+    @ObservationIgnored private var currentSettings: InputMonitors.Settings?
+
+    /// Whether a Command-press is armed, as the monitors were last told.
+    @ObservationIgnored private var commandDragIsArmed = false
+
     /// Whether the system item click bridge is running.
     @ObservationIgnored private var isSystemItemClickBridgeRunning = false
 
@@ -99,6 +106,7 @@ final class HIDEventManager {
                 // The module's own replayed presses are not a Command-drag of the user's.
                 let moduleIsBusy = runningKinds.contains(.menuBarDrag) && menuBarDragController.isBusyWithDrop
                 appState.commandDragSection27.pressed(event, moduleIsBusy: moduleIsBusy)
+                commandDragArmedStateMayHaveChanged()
             }
         case .rightMouseDown:
             handleSecondaryContextMenu(appState: appState, screen: screen)
@@ -119,6 +127,16 @@ final class HIDEventManager {
         handleMenuBarItemDragStop()
         handleArrangementEnd(with: event)
         appState?.commandDragReleased(event)
+        commandDragArmedStateMayHaveChanged()
+        return event
+    }
+
+    /// Monitor for modifier key changes, which runs only for a Command-drag. Its handler does
+    /// nothing but turn the Command-drag's two mouse monitors on or off.
+    @ObservationIgnored private(set) lazy var modifierFlagsMonitor = EventMonitor.universal(
+        for: .flagsChanged
+    ) { [weak self] event in
+        self?.commandKeyMayHaveChanged(isHeld: event.modifierFlags.contains(.command))
         return event
     }
 
@@ -184,6 +202,8 @@ final class HIDEventManager {
             return scrollWheelMonitor
         case .menuBarDrag:
             return menuBarDragController
+        case .modifierFlags:
+            return modifierFlagsMonitor
         }
     }
 
@@ -206,6 +226,9 @@ final class HIDEventManager {
             showAllSectionsOnUserDrag: advanced.showAllSectionsOnUserDrag,
             savesUserArrangement: MenuBarBackends.current.canMoveItems,
             setsSectionOnCommandDrag: MenuBarBackendKind.current == .accessibility27 && general.commandDragSetsSection,
+            // Read here, not from events: ⌘ may be held already when the switch turns on or holzBar starts.
+            commandHeld: NSEvent.modifierFlags.contains(.command),
+            commandDragArmed: commandDragIsArmed,
             hasCustomAppearance: appState.appearanceManager.needsOverlayPanels(for: appState.appearanceManager.configuration),
             dragsWithoutCommand: MenuBarDragController.isSupported && appState.modules.isEnabled(MenuBarDragController.moduleID),
             countsUsage: appState.usage.isEnabled
@@ -225,13 +248,38 @@ final class HIDEventManager {
     /// `InputMonitors.needed(for:)` contains its kind. The macOS 27 system item click
     /// tap is needed whenever the manager is enabled.
     private func updateMonitors() {
-        var wanted = Set<InputMonitors.Kind>()
-        var setsSectionOnCommandDrag = false
+        var settings = InputMonitors.Settings()
         if isEnabled, let appState {
-            let settings = inputMonitorSettings(appState: appState)
-            wanted = InputMonitors.needed(for: settings)
-            setsSectionOnCommandDrag = settings.setsSectionOnCommandDrag
+            settings = inputMonitorSettings(appState: appState)
         }
+        apply(settings)
+    }
+
+    /// The ⌘ Command key went down or up. Does nothing but re-decide the monitors.
+    private func commandKeyMayHaveChanged(isHeld: Bool) {
+        guard var settings = currentSettings, settings.commandHeld != isHeld else {
+            return
+        }
+        settings.commandHeld = isHeld
+        apply(settings)
+    }
+
+    /// A press may have been armed or ended: the mouse monitors stay until it is handled.
+    private func commandDragArmedStateMayHaveChanged() {
+        let isArmed = appState?.commandDragIsArmed ?? false
+        guard var settings = currentSettings, isArmed != commandDragIsArmed else {
+            return
+        }
+        commandDragIsArmed = isArmed
+        settings.commandDragArmed = isArmed
+        apply(settings)
+    }
+
+    /// Starts the monitors the settings need and stops the others.
+    private func apply(_ settings: InputMonitors.Settings) {
+        currentSettings = settings
+        let wanted = InputMonitors.needed(for: settings)
+        let setsSectionOnCommandDrag = settings.setsSectionOnCommandDrag
         for kind in InputMonitors.Kind.allCases {
             let isRunning = runningKinds.contains(kind)
             if wanted.contains(kind), !isRunning {
@@ -245,6 +293,8 @@ final class HIDEventManager {
         // A Command-drag does not go on while the monitors stop or its switch is off.
         if !setsSectionOnCommandDrag {
             appState?.cancelCommandDrag()
+            commandDragIsArmed = false
+            currentSettings?.commandDragArmed = false
         }
         // Without the drag monitors a drag can never end, so it is not going on.
         if !runningKinds.contains(.mouseUp), isDraggingMenuBarItem {

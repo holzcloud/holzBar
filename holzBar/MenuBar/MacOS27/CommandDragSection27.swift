@@ -12,7 +12,8 @@ import OSLog
 /// macOS 27 reorders the bar by itself during a Command-drag and holzBar draws no dividers, so the
 /// icon is the only boundary: an item dragged from its right to its left is hidden, one dragged
 /// from its left to its right is visible (`CommandDragSection` decides). holzBar does not watch the
-/// drag. The mouse-down monitor arms one press, the mouse-up monitor starts one settle task, which
+/// drag. The mouse-down monitor arms one press, the mouse-up monitor starts one settle task (both run
+/// only while ⌘ Command is held and until an armed press has ended), which
 /// waits for the bar to settle, reads it once through Accessibility (a second time at most when the
 /// item or the icon was missing) and writes the section through `Concealer27.setSection`. There is
 /// no timer, event tap or drag monitor, and the pointer is never moved.
@@ -31,6 +32,10 @@ final class CommandDragSection27 {
     /// What the drops told the user, newest first. Kept in memory only: never stored, exported,
     /// synced or logged.
     private(set) var notices = [CommandDragNotice]()
+
+    /// How many notices were added since holzBar started. It only grows, so a view can announce
+    /// every new drop, also one whose notice equals an earlier one.
+    private(set) var noticeCount = 0
 
     /// What a press is on, which decides how its release is treated.
     private enum Subject {
@@ -61,6 +66,11 @@ final class CommandDragSection27 {
 
     @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var armed: Press?
+
+    /// Whether a Command-press is armed and its release is still to come.
+    var hasArmedPress: Bool {
+        armed != nil
+    }
     /// One task per released drop, so a new press never cancels a drop that is settling.
     @ObservationIgnored private var settleTasks = [UUID: Task<Void, Never>]()
     @ObservationIgnored private let logger = Logger(category: "CommandDragSection27")
@@ -337,6 +347,7 @@ final class CommandDragSection27 {
 
     private func add(_ notice: CommandDragNotice) {
         notices = CommandDragNotices.adding(notice, to: notices)
+        noticeCount += 1
     }
 
     // MARK: - Notices

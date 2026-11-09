@@ -262,9 +262,10 @@ private struct CommandDragNoticesSection: View {
                 }
             }
         }
-        .onChange(of: notices) { old, new in
-            // A drop while Settings is open is announced once; a dismissal is not.
-            if let newest = new.first, !old.contains(newest) {
+        .onChange(of: appState.commandDragSection27.noticeCount) {
+            // Every drop that arrives while Settings is open is announced, also one equal to an
+            // earlier notice; notices that existed when the pane opened and dismissals are not.
+            if let newest = appState.commandDragSection27.notices.first {
                 LayoutBarItemView.announce(sentence(for: newest))
             }
         }

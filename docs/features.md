@@ -87,8 +87,6 @@
 
 ## New in 1.0.5
 
-1.0.5 beta 1 is out; see its [release notes](release-notes/v1.0.5-beta1.md).
-
 - **⌘ Command-drag across the holzBar icon** (macOS 27): hold ⌘ Command and drag an app's item across the holzBar icon. From the right of the icon to its left, the app is hidden; from the left to the right, it is shown. About a second after the drop, holzBar reads the bar again and writes the section of that app (all its items move together). A drop on the icon itself, a reorder on the same side and a ⌘ Command-click change nothing. Rule-controlled items, pinned Control Center controls and macOS's own numbered items (such as the Clock) are kept, and Menu Bar Layout says so. After a change a notice offers **Undo**. A switch in Menu Bar Layout (on by default) turns it off; the drag is then macOS's own reorder. Settings → About → Copy Diagnostics has a Last command-drag line. See the [macOS 27 notes](macos27.md#command-drag-across-the-holzbar-icon).
 
 ## New in 1.0.4

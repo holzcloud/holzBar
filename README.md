@@ -93,9 +93,9 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ## What's new
 
-### 1.0.5 beta 1
+### 1.0.5
 
-Details: [release notes](docs/release-notes/v1.0.5-beta1.md) · [full list](docs/features.md#new-in-105)
+Details: [full list](docs/features.md#new-in-105)
 
 - **Command-drag across the holzBar icon**: on macOS 27, dragging an item with ⌘ Command across the holzBar icon hides its app (to the left) or shows it (to the right), with Undo in Menu Bar Layout.
 

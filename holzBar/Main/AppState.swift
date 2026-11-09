@@ -153,6 +153,14 @@ final class AppState {
         (commandDragSection27Storage as? CommandDragSection27)?.released(event)
     }
 
+    /// Whether a Command-press is armed and waits for its release.
+    var commandDragIsArmed: Bool {
+        guard #available(macOS 27.0, *) else {
+            return false
+        }
+        return (commandDragSection27Storage as? CommandDragSection27)?.hasArmedPress ?? false
+    }
+
     /// Forgets an armed Command-drag and stops its settle task, when the monitors stop.
     func cancelCommandDrag() {
         guard #available(macOS 27.0, *) else {
