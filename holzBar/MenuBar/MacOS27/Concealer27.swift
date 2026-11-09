@@ -987,6 +987,11 @@ final class Concealer27 {
         setSection(.visible, for: key)
     }
 
+    /// The section of an application in the saved layout; visible when it has none.
+    func section(forKey key: String) -> MacOS27Section {
+        savedLayout[key] ?? .visible
+    }
+
     /// Moves an application to a section of the saved layout and applies it.
     func setSection(_ section: MacOS27Section, for bundleID: String) {
         setSections([bundleID: section])

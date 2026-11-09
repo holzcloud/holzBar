@@ -54,6 +54,7 @@ final class HIDEventManager {
             updateMonitors()
             if !isEnabled {
                 cancelHoverAction()
+                appState?.cancelCommandDrag()
             }
         }
     }
@@ -93,6 +94,10 @@ final class HIDEventManager {
         case .leftMouseDown:
             handleShowOnClick(appState: appState, screen: screen, clickTime: clickTime)
             handleSmartRehide(with: event, appState: appState, screen: screen)
+            // A Command-drag of an app's item across holzBar's icon sets its section (macOS 27).
+            if event.modifierFlags.contains(.command), #available(macOS 27.0, *) {
+                appState.commandDragSection27.pressed(event)
+            }
         case .rightMouseDown:
             handleSecondaryContextMenu(appState: appState, screen: screen)
         default:
@@ -111,6 +116,7 @@ final class HIDEventManager {
         }
         handleMenuBarItemDragStop()
         handleArrangementEnd(with: event)
+        appState?.commandDragReleased(event)
         return event
     }
 
@@ -197,6 +203,7 @@ final class HIDEventManager {
             usesShelf: usesShelfEverywhere,
             showAllSectionsOnUserDrag: advanced.showAllSectionsOnUserDrag,
             savesUserArrangement: MenuBarBackends.current.canMoveItems,
+            setsSectionOnCommandDrag: MenuBarBackendKind.current == .accessibility27 && general.commandDragSetsSection,
             hasCustomAppearance: appState.appearanceManager.needsOverlayPanels(for: appState.appearanceManager.configuration),
             dragsWithoutCommand: MenuBarDragController.isSupported && appState.modules.isEnabled(MenuBarDragController.moduleID),
             countsUsage: appState.usage.isEnabled
@@ -217,8 +224,11 @@ final class HIDEventManager {
     /// tap is needed whenever the manager is enabled.
     private func updateMonitors() {
         var wanted = Set<InputMonitors.Kind>()
+        var setsSectionOnCommandDrag = false
         if isEnabled, let appState {
-            wanted = InputMonitors.needed(for: inputMonitorSettings(appState: appState))
+            let settings = inputMonitorSettings(appState: appState)
+            wanted = InputMonitors.needed(for: settings)
+            setsSectionOnCommandDrag = settings.setsSectionOnCommandDrag
         }
         for kind in InputMonitors.Kind.allCases {
             let isRunning = runningKinds.contains(kind)
@@ -229,6 +239,10 @@ final class HIDEventManager {
                 monitor(for: kind).stop()
                 runningKinds.remove(kind)
             }
+        }
+        // A Command-drag does not go on while the monitors stop or its switch is off.
+        if !setsSectionOnCommandDrag {
+            appState?.cancelCommandDrag()
         }
         // Without the drag monitors a drag can never end, so it is not going on.
         if !runningKinds.contains(.mouseUp), isDraggingMenuBarItem {

@@ -484,8 +484,8 @@ final class MenuBarDragController {
     }
 
     /// The bar of a display made of the items whose centre lies on it, or `nil` without a screen
-    /// of that display.
-    private static func bar(
+    /// of that display. Internal so the Command-drag feature builds its bars the same way.
+    static func bar(
         from items: [MenuBarItem],
         on displayID: CGDirectDisplayID,
         generation: MenuBarDrop.Generation
@@ -504,7 +504,7 @@ final class MenuBarDragController {
         )
     }
 
-    private static func dropItem(for item: MenuBarItem) -> MenuBarDrop.Item {
+    static func dropItem(for item: MenuBarItem) -> MenuBarDrop.Item {
         let kind: MenuBarDrop.Item.Kind
         if item.tag == .visibleControlItem {
             kind = .holzBarIcon

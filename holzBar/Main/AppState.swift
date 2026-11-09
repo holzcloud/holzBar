@@ -130,6 +130,37 @@ final class AppState {
         return concealer
     }
 
+    /// Storage for ``commandDragSection27``, typed loosely so the property exists on every macOS.
+    @ObservationIgnored private var commandDragSection27Storage: AnyObject?
+
+    /// Sets an application's section from a Command-drag across holzBar's icon on macOS 27.
+    @available(macOS 27.0, *)
+    var commandDragSection27: CommandDragSection27 {
+        if let section = commandDragSection27Storage as? CommandDragSection27 {
+            return section
+        }
+        let section = CommandDragSection27(appState: self)
+        commandDragSection27Storage = section
+        return section
+    }
+
+    /// Passes a mouse release on to a Command-drag that is armed. Nothing is created for it: a
+    /// Command-drag exists only once a press was armed.
+    func commandDragReleased(_ event: NSEvent) {
+        guard #available(macOS 27.0, *) else {
+            return
+        }
+        (commandDragSection27Storage as? CommandDragSection27)?.released(event)
+    }
+
+    /// Forgets an armed Command-drag and stops its settle task, when the monitors stop.
+    func cancelCommandDrag() {
+        guard #available(macOS 27.0, *) else {
+            return
+        }
+        (commandDragSection27Storage as? CommandDragSection27)?.cancel()
+    }
+
     /// Storage for ``captureActivityMonitor27``, typed loosely so the property exists on every macOS.
     @ObservationIgnored private var captureActivityMonitor27Storage: AnyObject?
 
