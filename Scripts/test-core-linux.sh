@@ -38,6 +38,7 @@ sources=(
   CalendarEvent
   CalendarSelection
   ClockClickPolicy
+  CommandDragSection
   ControlCenterControl
   Defaults
   DesignTokens
@@ -152,6 +153,7 @@ tests=(
   BuiltInItemTests
   CalendarSelectionTests
   ClockClickPolicyTests
+  CommandDragSectionTests
   ControlCenterControlTests
   DesignTokensTests
   DiagnosticsReportTests
