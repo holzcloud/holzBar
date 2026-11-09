@@ -46,6 +46,8 @@ nonisolated enum CommandDragSection {
         case otherDisplay = "other display"
         /// A later press replaced this gesture (applied by the app layer).
         case superseded = "superseded"
+        /// The saved layout changed between the press and the drop (applied by the app layer).
+        case layoutChanged = "layout changed"
     }
 
     /// What a drop means.

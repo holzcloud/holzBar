@@ -510,7 +510,7 @@ struct CommandDragSectionTests {
     func summaryCharacters() {
         let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789 ,:")
         let reasons: [CommandDragSection.Reason] = [
-            .noMovement, .notAnAppItem, .noIcon, .itemGone, .onIcon, .crossedNothing, .noKey, .otherDisplay, .superseded,
+            .noMovement, .notAnAppItem, .noIcon, .itemGone, .onIcon, .crossedNothing, .noKey, .otherDisplay, .superseded, .layoutChanged,
         ]
         var decisions: [CommandDragSection.Decision] = reasons.map { .ignore($0) }
         decisions += [.set(.visible), .set(.hidden), .set(.alwaysHidden)]
@@ -527,7 +527,7 @@ struct CommandDragSectionTests {
 
     @Test("Every reason appears in the summary of its ignore")
     func summaryNamesTheReason() {
-        for reason in [CommandDragSection.Reason.noMovement, .notAnAppItem, .noIcon, .itemGone, .onIcon, .crossedNothing, .noKey, .otherDisplay, .superseded] {
+        for reason in [CommandDragSection.Reason.noMovement, .notAnAppItem, .noIcon, .itemGone, .onIcon, .crossedNothing, .noKey, .otherDisplay, .superseded, .layoutChanged] {
             let line = CommandDragSection.summary(waitedMilliseconds: 5, reads: 1, decision: .ignore(reason), outcome: .nothing)
             #expect(line.contains(reason.rawValue))
         }

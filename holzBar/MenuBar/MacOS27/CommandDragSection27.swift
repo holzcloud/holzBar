@@ -20,10 +20,6 @@ import OSLog
 @MainActor
 @Observable
 final class CommandDragSection27 {
-    /// How long the bar needs after a Command-drag to settle before it is read (the value measured
-    /// for `ItemReorderer27`; tuned from the diagnostics line in the beta test).
-    static let settleDelay = Duration.milliseconds(1200)
-
     /// How long the one retry waits when the first read lacked the dragged item or the icon.
     static let retryDelay = Duration.milliseconds(600)
 
@@ -56,13 +52,17 @@ final class CommandDragSection27 {
         let name: String
         /// The bar as the item cache held it at the press; `nil` for a press on another display.
         let bar: MenuBarDrop.Bar?
+        /// The application's section in the saved layout at the press (`nil` without a key): the
+        /// drop's `from`, and the layout the drop applies to.
+        let section: MenuBarDrop.Section?
         let point: CGPoint
         let displayID: CGDirectDisplayID
     }
 
     @ObservationIgnored private weak var appState: AppState?
     @ObservationIgnored private var armed: Press?
-    @ObservationIgnored private var settleTask: Task<Void, Never>?
+    /// One task per released drop, so a new press never cancels a drop that is settling.
+    @ObservationIgnored private var settleTasks = [UUID: Task<Void, Never>]()
     @ObservationIgnored private let logger = Logger(category: "CommandDragSection27")
 
     init(appState: AppState?) {
@@ -103,7 +103,7 @@ final class CommandDragSection27 {
         guard let press = press(at: point, activeDisplayID: activeDisplayID, appState: appState) else {
             return
         }
-        supersedeGesture()
+        // A press still armed is replaced; a drop already released keeps settling on its own task.
         armed = press
     }
 
@@ -114,7 +114,7 @@ final class CommandDragSection27 {
             guard Self.isInBarStrip(point, excluding: activeDisplayID) else {
                 return nil
             }
-            return Press(subject: .skipped(.otherDisplay), key: nil, name: "", bar: nil, point: point, displayID: activeDisplayID)
+            return Press(subject: .skipped(.otherDisplay), key: nil, name: "", bar: nil, section: nil, point: point, displayID: activeDisplayID)
         }
         let managed = appState.itemManager.itemCache.managedItems
         guard let bar = Self.bar(from: managed, on: activeDisplayID, concealed: appState.concealer27.concealedPIDs) else {
@@ -129,7 +129,7 @@ final class CommandDragSection27 {
             else {
                 return nil
             }
-            return Press(subject: .fixed(frame: frame, lock: .system), key: nil, name: "", bar: bar, point: point, displayID: activeDisplayID)
+            return Press(subject: .fixed(frame: frame, lock: .system), key: nil, name: "", bar: bar, section: nil, point: point, displayID: activeDisplayID)
         }
         guard let item = managed.first(where: { $0.windowID == hit.id }) else {
             return nil
@@ -137,7 +137,8 @@ final class CommandDragSection27 {
         let key = item.layoutKey27
         let name = item.sourceApplication?.localizedName ?? item.displayName
         func makePress(_ subject: Subject) -> Press {
-            Press(subject: subject, key: key, name: name, bar: bar, point: point, displayID: activeDisplayID)
+            let section = key.map { Self.dropSection(appState.concealer27.section(forKey: $0)) }
+            return Press(subject: subject, key: key, name: name, bar: bar, section: section, point: point, displayID: activeDisplayID)
         }
         // holzBar's own items (the icon, the dividers, widgets) are never an application's.
         switch hit.kind {
@@ -170,31 +171,20 @@ final class CommandDragSection27 {
         guard let release = event.cgEvent?.location ?? MouseHelpers.locationCoreGraphics else {
             return
         }
-        settleTask?.cancel()
-        settleTask = Task { [weak self] in
+        let id = UUID()
+        settleTasks[id] = Task { [weak self] in
             await self?.settle(press, release: release)
+            self?.settleTasks[id] = nil
         }
     }
 
-    /// Forgets the armed press and stops the settle task, when the monitors stop.
+    /// Forgets the armed press and stops the settle tasks, when the monitors stop.
     func cancel() {
         armed = nil
-        settleTask?.cancel()
-        settleTask = nil
-    }
-
-    /// A new press replaces a gesture still armed or settling.
-    private func supersedeGesture() {
-        guard armed != nil || settleTask != nil else {
-            return
+        for task in settleTasks.values {
+            task.cancel()
         }
-        cancel()
-        record(CommandDragSection.summary(
-            waitedMilliseconds: 0,
-            reads: 0,
-            decision: .ignore(.superseded),
-            outcome: .nothing
-        ))
+        settleTasks.removeAll()
     }
 
     // MARK: - Settling
@@ -227,12 +217,25 @@ final class CommandDragSection27 {
             return
         }
         let waited = Self.milliseconds(of: ContinuousClock.now - started)
-        let (decision, lock) = decision(for: press, release: release, settled: settled, isMoved: isMoved)
-        let current = press.key.map { Self.dropSection(appState.concealer27.section(forKey: $0)) } ?? .visible
+        let (read, lock) = decision(for: press, release: release, settled: settled, isMoved: isMoved)
+        var decision = read
+        let current = press.section ?? .visible
+        // The drop applies only to the layout it was made on.
+        if case .set = decision, let key = press.key, let section = press.section,
+           Self.dropSection(appState.concealer27.section(forKey: key)) != section {
+            decision = .ignore(.layoutChanged)
+        }
         let outcome = CommandDragSection.outcome(for: decision, current: current, lock: lock)
         apply(outcome, decision: decision, current: current, press: press, appState: appState)
-        record(CommandDragSection.summary(waitedMilliseconds: waited, reads: reads, decision: decision, outcome: outcome))
-        settleTask = nil
+        // The line is for tuning the wait: only a drop that decided (set, or refused after a
+        // read) replaces the last one.
+        var isDecided = reads > 0
+        if case .set = decision {
+            isDecided = true
+        }
+        if isDecided {
+            record(CommandDragSection.summary(waitedMilliseconds: waited, reads: reads, decision: decision, outcome: outcome))
+        }
     }
 
     /// What the release means, and the lock that keeps the application's section as it is.
@@ -249,6 +252,9 @@ final class CommandDragSection27 {
         case .skipped(let reason):
             return (.ignore(reason), nil)
         case .fixed(let frame, let lock):
+            guard Bridging.getActiveMenuBarDisplayID() == press.displayID else {
+                return (.ignore(.otherDisplay), nil)
+            }
             guard let bar = press.bar else {
                 return (.ignore(.noIcon), nil)
             }
@@ -273,7 +279,7 @@ final class CommandDragSection27 {
     /// the task was cancelled meanwhile.
     private func waitForBarToSettle() async -> Bool {
         do {
-            try await Task.sleep(for: Self.settleDelay)
+            try await Task.sleep(for: ItemReorderer27.settleDelay)
             guard let appState else {
                 return false
             }
