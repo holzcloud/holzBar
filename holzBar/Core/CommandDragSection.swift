@@ -191,8 +191,76 @@ nonisolated enum CommandDragSection {
         return .apply(from: current, to: target)
     }
 
+    /// One line about a command-drag from a fixed vocabulary of words and numbers: how long it
+    /// waited for the bar to settle, how many reads it took, the decision and what became of it.
+    /// It never contains a name or a position.
+    static func summary(waitedMilliseconds: Int, reads: Int, decision: Decision, outcome: Outcome) -> String {
+        let waited = "waited \(max(0, waitedMilliseconds)) ms"
+        let count = max(0, reads)
+        let readWord = "\(count) \(count == 1 ? "read" : "reads")"
+        let result: String
+        switch decision {
+        case .ignore(let reason):
+            result = "ignored: \(reason.rawValue)"
+        case .set(let section):
+            let target: String = switch section {
+            case .visible: "visible"
+            case .hidden: "hidden"
+            case .alwaysHidden: "always hidden"
+            }
+            let what: String = switch outcome {
+            case .apply: "applied"
+            case .keep(let lock): "kept: \(lock.rawValue)"
+            case .nothing: "no change"
+            }
+            result = "set \(target), \(what)"
+        }
+        return [waited, readWord, result].joined(separator: ", ")
+    }
+
     /// The counted holzBar icon of a bar: the anchor of every decision.
     private static func icon(in bar: MenuBarDrop.Bar) -> MenuBarDrop.Item? {
         bar.items.first { $0.kind == .holzBarIcon && $0.counts }
+    }
+}
+
+/// What a command-drag told the user in Menu Bar Layout.
+nonisolated struct CommandDragNotice: Equatable, Identifiable, Sendable {
+    nonisolated enum Kind: Equatable, Sendable {
+        /// The application's section was set; Undo puts `from` back.
+        case set(from: MenuBarDrop.Section, to: MenuBarDrop.Section)
+        /// The section stayed because it is not free.
+        case kept(CommandDragSection.Lock)
+    }
+
+    /// The notice's key for an item macOS keeps in place, which has no layout key and no name.
+    static let systemKey = "CommandDragSystemItem"
+
+    /// The application's layout key: one notice per application.
+    let id: String
+    /// The application's name, cleaned; empty for the nameless system notice.
+    let itemName: String
+    let kind: Kind
+
+    /// The notice of an application, its name made safe to show; the key stands in for an empty name.
+    static func make(key: String, name: String, kind: Kind) -> CommandDragNotice {
+        CommandDragNotice(id: key, itemName: ItemRuleNotices.cleanedName(name, fallback: key), kind: kind)
+    }
+
+    /// The notice of a numbered system item macOS keeps in place: it has no name.
+    static func system() -> CommandDragNotice {
+        CommandDragNotice(id: systemKey, itemName: "", kind: .kept(.system))
+    }
+}
+
+/// The list of command-drag notices.
+nonisolated enum CommandDragNotices {
+    /// The most notices that are kept.
+    static let limit = 10
+
+    /// The notices with `notice` first. An application has one notice: an earlier one for the
+    /// same key is replaced, so Undo always undoes the latest drop. At most `limit` are kept.
+    static func adding(_ notice: CommandDragNotice, to notices: [CommandDragNotice], limit: Int = CommandDragNotices.limit) -> [CommandDragNotice] {
+        Array(([notice] + notices.filter { $0.id != notice.id }).prefix(limit))
     }
 }

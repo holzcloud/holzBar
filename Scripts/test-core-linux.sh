@@ -58,6 +58,7 @@ sources=(
   HubActivityBoard
   HubModuleLifecycle
   HubTabStrip
+  InputMonitors
   ItemCategory
   ItemClassifier
   ItemIdentity
@@ -171,6 +172,7 @@ tests=(
   HubActivityBoardTests
   HubModuleLifecycleTests
   HubTabStripTests
+  InputMonitorsTests
   ItemCategoryTests
   ItemClassifierTests
   ItemIdentityTests

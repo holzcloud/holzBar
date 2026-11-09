@@ -437,4 +437,105 @@ struct CommandDragSectionTests {
         let narrow = Fixture.bar([Fixture.leftA, Fixture.icon, Fixture.rightA], widths: [Fixture.icon: 4])
         #expect(decideFixed(dragged: Fixture.rightA, release: 420, in: narrow) == .ignore(.noIcon))
     }
+
+    // MARK: Notices
+
+    private func notice(_ key: String, name: String = "App") -> CommandDragNotice {
+        CommandDragNotice.make(key: key, name: name, kind: .set(from: .visible, to: .hidden))
+    }
+
+    @Test("A notice for an app already listed replaces it and moves to the front")
+    func noticeReplacesPerApp() {
+        let first = notice("a", name: "First")
+        let second = notice("b")
+        let replaced = CommandDragNotice.make(key: "a", name: "First", kind: .set(from: .hidden, to: .visible))
+        let list = CommandDragNotices.adding(replaced, to: CommandDragNotices.adding(second, to: [first]))
+        #expect(list.map(\.id) == ["a", "b"])
+        #expect(list.first?.kind == .set(from: .hidden, to: .visible))
+    }
+
+    @Test("The notice list keeps at most 10, newest first")
+    func noticeLimit() {
+        var list: [CommandDragNotice] = []
+        for index in 0..<14 {
+            list = CommandDragNotices.adding(notice("key\(index)"), to: list)
+        }
+        #expect(list.count == 10)
+        #expect(list.first?.id == "key13")
+        #expect(list.last?.id == "key4")
+        #expect(CommandDragNotices.limit == 10)
+        #expect(CommandDragNotices.adding(notice("x"), to: list, limit: 3).count == 3)
+    }
+
+    @Test("A notice cleans the app's name and falls back to the key")
+    func noticeCleansTheName() {
+        #expect(notice("k", name: "Fo\u{0}o\n\u{202E}Bar").itemName == "FooBar")
+        #expect(notice("com.example.app", name: "  \n ").itemName == "com.example.app")
+        #expect(notice("k", name: String(repeating: "a", count: 100)).itemName.count == ItemRuleNotices.maximumNameLength)
+    }
+
+    @Test("The system notice has its constant key and no name")
+    func systemNotice() {
+        let system = CommandDragNotice.system()
+        #expect(system.id == CommandDragNotice.systemKey)
+        #expect(system.itemName.isEmpty)
+        #expect(system.kind == .kept(.system))
+        let list = CommandDragNotices.adding(system, to: CommandDragNotices.adding(CommandDragNotice.system(), to: []))
+        #expect(list.count == 1)
+    }
+
+    // MARK: Summary
+
+    @Test("The summary is built from fixed words and numbers")
+    func summaryExamples() {
+        #expect(
+            CommandDragSection.summary(waitedMilliseconds: 1200, reads: 1, decision: .set(.hidden), outcome: .apply(from: .visible, to: .hidden))
+                == "waited 1200 ms, 1 read, set hidden, applied"
+        )
+        #expect(
+            CommandDragSection.summary(waitedMilliseconds: 0, reads: 0, decision: .ignore(.noMovement), outcome: .nothing)
+                == "waited 0 ms, 0 reads, ignored: no movement"
+        )
+        #expect(
+            CommandDragSection.summary(waitedMilliseconds: 1200, reads: 1, decision: .set(.hidden), outcome: .keep(.rule))
+                == "waited 1200 ms, 1 read, set hidden, kept: rule"
+        )
+        #expect(
+            CommandDragSection.summary(waitedMilliseconds: 1800, reads: 2, decision: .set(.visible), outcome: .nothing)
+                == "waited 1800 ms, 2 reads, set visible, no change"
+        )
+    }
+
+    @Test("The summary holds only lowercase letters, digits, spaces, commas and colons")
+    func summaryCharacters() {
+        let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz0123456789 ,:")
+        let reasons: [CommandDragSection.Reason] = [
+            .noMovement, .notAnAppItem, .noIcon, .itemGone, .onIcon, .crossedNothing, .noKey, .otherDisplay, .superseded,
+        ]
+        var decisions: [CommandDragSection.Decision] = reasons.map { .ignore($0) }
+        decisions += [.set(.visible), .set(.hidden), .set(.alwaysHidden)]
+        let outcomes: [CommandDragSection.Outcome] = [
+            .nothing, .apply(from: .visible, to: .hidden), .keep(.rule), .keep(.pinned), .keep(.system),
+        ]
+        for decision in decisions {
+            for outcome in outcomes {
+                let line = CommandDragSection.summary(waitedMilliseconds: 1234, reads: 3, decision: decision, outcome: outcome)
+                #expect(line.unicodeScalars.allSatisfy { allowed.contains($0) })
+            }
+        }
+    }
+
+    @Test("Every reason appears in the summary of its ignore")
+    func summaryNamesTheReason() {
+        for reason in [CommandDragSection.Reason.noMovement, .notAnAppItem, .noIcon, .itemGone, .onIcon, .crossedNothing, .noKey, .otherDisplay, .superseded] {
+            let line = CommandDragSection.summary(waitedMilliseconds: 5, reads: 1, decision: .ignore(reason), outcome: .nothing)
+            #expect(line.contains(reason.rawValue))
+        }
+    }
+
+    @Test("A negative number never reaches the summary")
+    func summaryClampsNumbers() {
+        let line = CommandDragSection.summary(waitedMilliseconds: -5, reads: -1, decision: .ignore(.superseded), outcome: .nothing)
+        #expect(line == "waited 0 ms, 0 reads, ignored: superseded")
+    }
 }

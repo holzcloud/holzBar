@@ -106,6 +106,35 @@ struct InputMonitorsTests {
         #expect(InputMonitors.needed(for: settings).contains(.menuBarDrag))
     }
 
+    @Test("A Command-drag that sets the section needs only the mouse-down and the mouse-up")
+    func commandDragNeedsMouseDownAndUp() {
+        let kinds = InputMonitors.needed(for: InputMonitors.Settings(setsSectionOnCommandDrag: true))
+        #expect(kinds == [.mouseDown, .mouseUp])
+        #expect(!kinds.contains(.mouseDragged))
+    }
+
+    @Test("The Command-drag flag never removes a monitor another setting needs")
+    func commandDragKeepsTheOtherKinds() {
+        var settings = Self.defaults
+        let without = InputMonitors.needed(for: settings)
+        settings.showOnHover = true
+        settings.dragsWithoutCommand = true
+        settings.savesUserArrangement = true
+        let base = InputMonitors.needed(for: settings)
+        settings.setsSectionOnCommandDrag = true
+        #expect(InputMonitors.needed(for: settings) == base.union([.mouseDown, .mouseUp]))
+        #expect(InputMonitors.needed(for: settings).isSuperset(of: without))
+        var defaults = Self.defaults
+        defaults.setsSectionOnCommandDrag = true
+        #expect(InputMonitors.needed(for: defaults) == without.union([.mouseDown, .mouseUp]))
+    }
+
+    @Test("The default settings need no monitor")
+    func defaultSettingsNeedNoMonitor() {
+        #expect(InputMonitors.needed(for: InputMonitors.Settings()).isEmpty)
+        #expect(!InputMonitors.Settings().setsSectionOnCommandDrag)
+    }
+
     @Test("The space click monitor runs only where a click can change the space")
     func spaceClickMonitorRunsOnlyWhereNeeded() {
         #expect(!InputMonitors.needsSpaceClickMonitor(isFullscreenSpace: false, screenCount: 1))
