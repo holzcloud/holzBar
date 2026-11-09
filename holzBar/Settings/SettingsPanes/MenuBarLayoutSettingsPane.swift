@@ -244,6 +244,18 @@ private struct LayoutProfilesSection: View {
     @State private var renamedName = ""
     @State private var importedProfile: SharedProfile?
     @State private var isShowingImportError = false
+    @State private var refusedSave: LayoutProfileList.LimitViolation?
+
+    /// Whether the alert about a refused save is shown.
+    private var isShowingRefusedSave: Binding<Bool> {
+        Binding {
+            refusedSave != nil
+        } set: { isPresented in
+            if !isPresented {
+                refusedSave = nil
+            }
+        }
+    }
 
     /// Whether the import sheet is shown.
     private var isImporting: Binding<Bool> {
@@ -309,6 +321,12 @@ private struct LayoutProfilesSection: View {
                 if profiles.profiles.isEmpty {
                     Text("Save the current layout as a profile, for example \u{201C}Work\u{201D} or \u{201C}Home\u{201D}.")
                         .foregroundStyle(.secondary)
+                } else if profiles.isOverProfileLimit {
+                    Text("New profiles can be saved or imported while there are fewer than 100. Delete profiles to make room.")
+                        .foregroundStyle(.secondary)
+                } else if profiles.isAtProfileLimit {
+                    Text("You have the most profiles there can be. Delete one to save or import a new one.")
+                        .foregroundStyle(.secondary)
                 } else {
                     Text("Bind a profile to a display or a Space to apply it when you connect the display or switch to the Space.")
                         .foregroundStyle(.secondary)
@@ -317,6 +335,7 @@ private struct LayoutProfilesSection: View {
                 Button("Import Profile…") {
                     chooseProfileFile()
                 }
+                .disabled(profiles.isAtProfileLimit)
                 Button("Save Current Layout…") {
                     newProfileName = profiles.currentProfileName ?? ""
                     isNamingProfile = true
@@ -325,7 +344,12 @@ private struct LayoutProfilesSection: View {
             .alert("Save Layout as Profile", isPresented: $isNamingProfile) {
                 TextField("Name", text: $newProfileName)
                 Button("Save") {
-                    profiles.saveCurrentLayout(as: newProfileName)
+                    if case .refused(let violation) = profiles.saveCurrentLayout(as: newProfileName) {
+                        // After the naming alert has gone, so the second alert is not lost.
+                        Task {
+                            refusedSave = violation
+                        }
+                    }
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
@@ -334,6 +358,20 @@ private struct LayoutProfilesSection: View {
             .sheet(isPresented: isImporting) {
                 if let importedProfile {
                     ImportProfileSheet(shared: importedProfile, profiles: profiles)
+                }
+            }
+            .alert("Save Layout as Profile", isPresented: isShowingRefusedSave) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                switch refusedSave {
+                case .tooLarge?:
+                    Text("The profiles would be too large to store. Delete one, then save again.")
+                default:
+                    if profiles.isOverProfileLimit {
+                        Text("New profiles can be saved or imported while there are fewer than 100. Delete profiles to make room.")
+                    } else {
+                        Text("You have the most profiles there can be. Delete one to save or import a new one.")
+                    }
                 }
             }
             .alert("This file is not a holzBar profile.", isPresented: $isShowingImportError) {

@@ -738,6 +738,11 @@ final class MenuBarItemEventPoster {
 
     /// Moves a menu bar item to the given destination.
     ///
+    /// A move counts as done only when the item stands at its target: after the events were
+    /// posted the position is checked, and an item that is still away from its target is a failed
+    /// attempt, retried within the attempt budget, and reported as ``EventError/cannotComplete``
+    /// when the budget is spent.
+    ///
     /// - Parameters:
     ///   - item: The menu bar item to move.
     ///   - destination: The destination to move the item to.
@@ -785,8 +790,13 @@ final class MenuBarItemEventPoster {
                     return
                 }
                 try await postMoveEvents(item: item, destination: destination)
-                logger.debug("Attempt \(n, privacy: .public) succeeded, finished with move")
-                return
+                // Posted events are not a finished move: only an item at its target is.
+                if try await itemHasCorrectPosition(item: item, for: destination) {
+                    logger.debug("Attempt \(n, privacy: .public) succeeded, finished with move")
+                    return
+                }
+                logger.debug("Attempt \(n, privacy: .public) left the item away from its target")
+                throw EventError.cannotComplete
             } catch {
                 logger.debug("Attempt \(n, privacy: .public) failed: \(error, privacy: .private)")
                 if budget.allowsRetry(afterFailedAttempt: n, barrierTimedOut: Self.isBarrierTimeout(error)) {

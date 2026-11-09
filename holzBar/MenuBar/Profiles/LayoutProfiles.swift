@@ -7,38 +7,6 @@ import AppKit
 import Observation
 import OSLog
 
-/// A saved arrangement of menu bar items into sections.
-struct LayoutProfile: Codable, Hashable, Identifiable {
-    /// The profile's name, which also identifies it.
-    var name: String
-
-    /// The section of each item, keyed by the item's tag (macOS 26 and earlier).
-    var itemSections: [String: Int]
-
-    /// The section of each application, keyed by bundle identifier (macOS 27).
-    var applicationSections: [String: Int]
-
-    /// The applications holzBar knew when the profile was saved on macOS 27, keyed by bundle
-    /// identifier. Visible applications are missing from `applicationSections`, so a known
-    /// one missing there is visible. Optional, so profiles saved before macOS 27, or before
-    /// this was recorded, decode unchanged.
-    var knownApplications: [String]?
-
-    /// The UUID of the display whose connection applies the profile. Optional, so
-    /// profiles saved before bindings existed decode unchanged.
-    var displayUUID: String?
-
-    /// The UUID of the Space whose activation applies the profile.
-    var spaceUUID: String?
-
-    var id: String { name }
-
-    /// Whether the profile is bound to a display or a Space.
-    var isBound: Bool {
-        displayUUID != nil || spaceUUID != nil
-    }
-}
-
 /// Saves and applies layout profiles, such as "Work" and "Home"
 /// (jordanbaird/Ice#26).
 ///
@@ -91,9 +59,11 @@ final class LayoutProfiles {
     }
 
     private func load() {
+        // Capped and validated, names kept as stored: the defaults can be written by any process
+        // of the user, and hotkeys, hooks and Shortcuts refer to the stored names.
         if
             let data = Defaults.data(forKey: .layoutProfiles),
-            let decoded = try? JSONDecoder().decode([LayoutProfile].self, from: data)
+            let decoded = LayoutProfileList.profiles(from: data)
         {
             profiles = decoded.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         }
@@ -102,10 +72,27 @@ final class LayoutProfiles {
 
     private func save() {
         profiles.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-        if let data = try? JSONEncoder().encode(profiles) {
+        // Encoded the way the next load reads it; the changes that add a profile are checked
+        // against the same limits first (`LayoutProfileList.fitsLimits`).
+        if let data = LayoutProfileList.encoded(profiles) {
             Defaults.set(data, forKey: .layoutProfiles)
+        } else {
+            logger.error("The layout profiles are over the size limit, so they were not saved")
         }
         Defaults.set(currentProfileName, forKey: .currentLayoutProfile)
+    }
+
+    /// Whether no profile can be added (`LayoutProfileList.maximumProfiles`): a new one cannot be
+    /// saved or imported, only one of the same name replaced. A list from an earlier version can
+    /// hold more; it keeps them all.
+    var isAtProfileLimit: Bool {
+        profiles.count >= LayoutProfileList.maximumProfiles
+    }
+
+    /// Whether the list holds more profiles than can be added to it, so deleting one is not
+    /// enough to add another.
+    var isOverProfileLimit: Bool {
+        profiles.count > LayoutProfileList.maximumProfiles
     }
 
     /// The arrangement of the items now, as a profile without a name or bindings.
@@ -149,15 +136,32 @@ final class LayoutProfiles {
         )
     }
 
+    /// What saving the current layout did.
+    enum SaveResult: Equatable {
+        /// The profile was saved.
+        case saved
+        /// Nothing was saved: the name was empty, or there is no app state.
+        case notSaved
+        /// The list would break a limit of the next load (`LayoutProfileList`), so nothing was
+        /// saved.
+        case refused(LayoutProfileList.LimitViolation)
+    }
+
     /// Saves the current layout under the given name, replacing a profile of
     /// the same name.
-    func saveCurrentLayout(as name: String) {
+    ///
+    /// A typed name that is the stored name of a profile, exactly or once cleaned, replaces that
+    /// profile and keeps its stored name (`LayoutProfileList.savedName(forTyped:among:)`), so
+    /// re-saving a profile from an earlier version keeps its hotkey, hooks and Shortcuts. A new
+    /// name is cleaned.
+    @discardableResult
+    func saveCurrentLayout(as typedName: String) -> SaveResult {
         guard appState != nil else {
-            return
+            return .notSaved
         }
-        let name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let name = LayoutProfileList.savedName(forTyped: typedName, among: profiles.map(\.name))
         guard !name.isEmpty else {
-            return
+            return .notSaved
         }
         let layout = currentLayout()
         // A profile saved again under its name keeps its bindings.
@@ -170,12 +174,21 @@ final class LayoutProfiles {
             displayUUID: previous?.displayUUID,
             spaceUUID: previous?.spaceUUID
         )
+        var updated = profiles
+        updated.removeAll { $0.name == name }
+        updated.append(profile)
+        // The next load keeps only what fits its limits; the pane says why a save was refused.
+        // Adding a profile is limited; replacing one of the same name works at any count.
+        if let violation = LayoutProfileList.limitViolation(updated, adding: previous == nil) {
+            logger.warning("Not saving a layout profile: the profiles would exceed their limits")
+            return .refused(violation)
+        }
         registerUndo(named: String(localized: "Save Profile"))
-        profiles.removeAll { $0.name == name }
-        profiles.append(profile)
+        profiles = updated
         currentProfileName = name
         save()
         logger.notice("Saved layout profile \(name, privacy: .private)")
+        return .saved
     }
 
     /// Adds a profile that someone shared. It does not move any item: the user applies it like
@@ -200,13 +213,19 @@ final class LayoutProfiles {
                 }
             }
         }
-        registerUndo(named: String(localized: "Import Profile"))
-        profiles.append(LayoutProfile(
+        let imported = LayoutProfile(
             name: name,
             itemSections: itemSections,
             applicationSections: applicationSections,
             knownApplications: shared.apps.map(\.id)
-        ))
+        )
+        let updated = profiles + [imported]
+        guard LayoutProfileList.fitsLimits(updated, adding: true) else {
+            logger.warning("Not importing a shared layout profile: the profiles would exceed their limits")
+            return
+        }
+        registerUndo(named: String(localized: "Import Profile"))
+        profiles = updated
         save()
         logger.notice("Imported a shared layout profile with \(shared.apps.count, privacy: .public) applications")
     }
@@ -376,9 +395,14 @@ final class LayoutProfiles {
         }
         // Keys of earlier versions (`namespace:title`) match through the item identity.
         let itemManager = appState.itemManager
+        let keyMap = itemManager.storedIdentityKeys(Array(profile.itemSections.keys))
         var wanted = [String: Int]()
-        for (key, index) in profile.itemSections {
-            wanted[itemManager.storedIdentityKey(key)] = index
+        for (key, index) in profile.itemSections.sorted(by: { $0.key < $1.key }) {
+            let current = keyMap[key] ?? itemManager.storedIdentityKey(key)
+            // A key of this version wins over an old one that matches it.
+            if key == current || wanted[current] == nil {
+                wanted[current] = index
+            }
         }
         // The clock, the battery, Wi-Fi, Control Center and the sound control stay visible.
         if !Defaults.bool(forKey: .systemItemsMayHide) {
@@ -397,18 +421,29 @@ final class LayoutProfiles {
 
     /// Renames a profile; its hotkey moves with it. A name that another profile has is
     /// refused.
-    func rename(_ profile: LayoutProfile, to newName: String) {
-        let newName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+    ///
+    /// The profile's own name, exactly or once cleaned, is no change, so confirming the pre-filled
+    /// name of a profile from an earlier version keeps it as stored. A name that refers to another
+    /// profile in the same way is refused, and so is a rename the next load would not keep.
+    func rename(_ profile: LayoutProfile, to typedName: String) {
+        let newName = LayoutProfileList.cleanedName(typedName)
+        let otherNames = profiles.map(\.name).filter { $0 != profile.name }
         guard
             !newName.isEmpty,
-            newName != profile.name,
-            !profiles.contains(where: { $0.name == newName }),
+            LayoutProfileList.existingName(matching: typedName, among: [profile.name]) == nil,
+            LayoutProfileList.existingName(matching: typedName, among: otherNames) == nil,
             let index = profiles.firstIndex(where: { $0.name == profile.name })
         else {
             return
         }
+        var updated = profiles
+        updated[index].name = newName
+        guard LayoutProfileList.fitsLimits(updated) else {
+            logger.warning("Not renaming a layout profile: the profiles would exceed their limits")
+            return
+        }
         registerUndo(named: String(localized: "Rename Profile"))
-        profiles[index].name = newName
+        profiles = updated
         if currentProfileName == profile.name {
             currentProfileName = newName
         }

@@ -23,7 +23,8 @@ extension MenuBarItemManager {
     nonisolated enum SectionRestoreTrigger: String {
         /// holzBar has set up.
         case launch
-        /// An application has launched (and its one re-check 2 s later).
+        /// An application has launched (and its re-checks: 2 s later, then the bounded ones while
+        /// an item still has a launch placeholder title).
         case applicationLaunch
         /// The bar has settled after a display change, wake or unlock.
         case settle
@@ -31,29 +32,101 @@ extension MenuBarItemManager {
         case profile
         /// The item list changed: only new items are placed.
         case itemListChange
+        /// A move by holzBar pushed other items out of place; restores the saved sections and
+        /// order.
+        case moveRepair
+        /// The first plausible read after a restore was skipped, or a profile was applied, on a
+        /// read with a divider right of the Clock; restores the saved sections and order once.
+        case retryAfterBadRead
 
         /// Whether items go back to their saved sections, not only new ones to theirs.
         var restoresSavedSections: Bool {
             self != .itemListChange
         }
+
+        /// The kind of pass, for the neighbour check after each move.
+        var pass: MoveNeighbourCheck.Pass {
+            switch self {
+            case .profile: .arrangement
+            case .moveRepair: .repair
+            case .launch, .applicationLaunch, .settle, .itemListChange, .retryAfterBadRead: .restore
+            }
+        }
+    }
+
+    /// The pass of the reconciliation the current task runs, `nil` outside one. Bound to the
+    /// task, so a move a task started outside the pass makes meanwhile (rehiding, the dividers) is
+    /// not taken for one of the pass.
+    ///
+    /// Like every task-local value it is inherited by a `Task {}` created inside the pass: the
+    /// repair from `scheduleMoveRepair()`, the re-checks from `startProvisionalRechecks()` and a
+    /// cache task started meanwhile all see `.restore`, which schedules repairs as `nil` does. A
+    /// task created inside an `.arrangement` or `.repair` pass that moves items later must run
+    /// with `ReconciliationPass.$current.withValue(nil)`, or its moves would schedule no repair.
+    nonisolated enum ReconciliationPass {
+        @TaskLocal static var current: MoveNeighbourCheck.Pass?
     }
 
     // MARK: Saving
 
     /// Saves the section of every cached item under its identity key. Sections of items that
-    /// are not on the bar now (their apps are not running) are kept.
+    /// are not on the bar now (their apps are not running) are kept. An item that still carries a
+    /// launch placeholder title (`ItemPlaceholder`) is not saved: its key is not its own yet.
     func saveSections() {
         guard backend.canMoveItems else {
             return
         }
         var stored = storedSectionIndexes()
         for section in MenuBarSection.Name.allCases {
-            for item in itemCache[section] where !item.isControlItem && !item.tag.namespace.isUUID {
+            for item in itemCache[section]
+            where !item.isControlItem && !item.tag.namespace.isUUID && !isProvisionalPlaceholder(item) {
                 stored[identityKey(for: item)] = section.profileIndex
             }
         }
         Defaults.set(stored, forKey: .itemSections)
         Self.restoreLogger.debug("Saved the sections of \(stored.count, privacy: .public) items")
+        saveOrder(of: itemCache.managedItems)
+    }
+
+    /// Saves the order of the given items, left to right, merged with the stored order, so an
+    /// item that is not on the bar now keeps its place (`ItemOrder`). Control items, items of a UUID
+    /// namespace, temporarily shown items and items with a launch placeholder title are not part
+    /// of the order. It runs at the moments the sections are saved, and once to seed the order of
+    /// an existing install.
+    private func saveOrder(of items: [MenuBarItem], keys: [CGWindowID: String]? = nil) {
+        let ordered = items
+            .filter {
+                !$0.isControlItem && !$0.tag.namespace.isUUID && !isTemporarilyShown($0) && !isProvisionalPlaceholder($0)
+            }
+            .sorted { orderPosition(of: $0) < orderPosition(of: $1) }
+        guard !ordered.isEmpty else {
+            return
+        }
+        let merged = ItemOrder.merge(
+            saved: storedOrder() ?? [],
+            current: ordered.map { keys?[$0.windowID] ?? identityKey(for: $0) }
+        )
+        Defaults.set(merged, forKey: .itemOrder)
+        Self.restoreLogger.debug("Saved the order of \(merged.count, privacy: .public) items")
+    }
+
+    /// The horizontal position of an item on the bar now.
+    private func orderPosition(of item: MenuBarItem) -> CGFloat {
+        (Bridging.getWindowBounds(for: item.windowID) ?? item.bounds).minX
+    }
+
+    /// The stored order under the keys they match today, or `nil` when none is stored yet. The
+    /// value can be written by any process of the user, so it is capped before its keys are
+    /// matched (several regular expressions each) and sanitized again after.
+    private func storedOrder() -> [String]? {
+        Defaults.stringArray(forKey: .itemOrder).map { raw in
+            ItemOrder.sanitized(ItemOrder.sanitized(raw).map(storedIdentityKey))
+        }
+    }
+
+    /// The identity keys that have a saved section (`ItemOrder.reappeared`).
+    func savedSectionKeys() -> Set<String> {
+        Set(storedSectionIndexes().keys)
     }
 
     /// Saves the sections of the given items (by identity key), keeping the others.
@@ -106,11 +179,19 @@ extension MenuBarItemManager {
     // MARK: Restoring
 
     /// Restores an application's items a moment after it launched, and checks once more 2 s
-    /// later (a single bounded re-check; the app may add its items late).
+    /// later (the app may add its items late). While items with a launch placeholder title
+    /// remain (`ItemPlaceholder`), at most four more reads follow, 5 s, 15 s, 30 s and 12 s
+    /// later, each only if such an item is still on the bar, so the last one falls after the
+    /// 60 s period in which such an item counts as provisional.
+    ///
+    /// The re-checks are triggered by the launch and bounded (at most four extra reads within
+    /// about 66 s), not polling: no event exists for a title change of a status item window. A
+    /// later launch replaces the schedule: it cancels the waiting, never a pass that runs (see
+    /// ``runLaunchPass(readsRegardless:)``).
     func applicationDidLaunch() {
         applicationLaunchRestoreTask?.cancel()
         applicationLaunchRestoreTask = Task { [weak self] in
-            for delay in [Duration.milliseconds(1500), .seconds(2)] {
+            for delay in ItemPlaceholder.launchRecheckDelays {
                 do {
                     try await Task.sleep(for: delay)
                 } catch {
@@ -119,9 +200,55 @@ extension MenuBarItemManager {
                 guard let self else {
                     return
                 }
-                await cacheItemsIfNeeded()
-                await reconcileSections(trigger: .applicationLaunch)
+                await runLaunchPass(readsRegardless: false)
             }
+            await self?.recheckProvisionalItems()
+        }
+    }
+
+    /// One read and reconciliation of the launch schedule, in a task of its own: cancelling the
+    /// schedule (a later launch) then stops only its waiting. A pass cut off in the middle of a
+    /// move would count as a failed automatic move and could mark a new item as known before it
+    /// was placed.
+    private func runLaunchPass(readsRegardless: Bool) async {
+        await Task { [weak self] in
+            guard let self else {
+                return
+            }
+            if readsRegardless {
+                await cacheItemsRegardless()
+            } else {
+                await cacheItemsIfNeeded()
+            }
+            await reconcileSections(trigger: .applicationLaunch)
+        }.value
+    }
+
+    /// The bounded re-checks for items with a launch placeholder title: for each of
+    /// `ItemPlaceholder.provisionalRecheckDelays`, stops as soon as no cached item is
+    /// provisional, otherwise waits, reads the bar anew (a title change does not change the
+    /// window list, so the read is never skipped) and reconciles.
+    private func recheckProvisionalItems() async {
+        for delay in ItemPlaceholder.provisionalRecheckDelays {
+            guard itemCache.managedItems.contains(where: isProvisionalPlaceholder) else {
+                return
+            }
+            do {
+                try await Task.sleep(for: delay)
+            } catch {
+                return
+            }
+            await runLaunchPass(readsRegardless: true)
+        }
+    }
+
+    /// Starts the provisional re-checks alone, after holzBar's own launch restore skipped an item
+    /// with a launch placeholder title (holzBar started together with a slow app, at login). They
+    /// run through ``applicationLaunchRestoreTask``, so a later app launch replaces them.
+    private func startProvisionalRechecks() {
+        applicationLaunchRestoreTask?.cancel()
+        applicationLaunchRestoreTask = Task { [weak self] in
+            await self?.recheckProvisionalItems()
         }
     }
 
@@ -134,6 +261,13 @@ extension MenuBarItemManager {
     /// and a running restore stops once the user drags an item or such a save is pending;
     /// a call during another reconciliation runs once that one ends. The moves are
     /// automatic, so `MoveBackoff` can pause them.
+    ///
+    /// A read with a divider right of the Clock (`DividerPlausibility`) is not believed: a
+    /// restore, a launch or a settle moves nothing and places no new item from it. A profile
+    /// applied on such a read runs its moves and stores its own sections, which do not depend on
+    /// the read, but nothing from the read: no placed new items, no known items. Either way the
+    /// next plausible read restores the saved sections once (`retryAfterBadRead`), which finishes
+    /// the skipped restore or the profile.
     ///
     /// - Parameters:
     ///   - wanted: The section of each identity key, when a profile is applied.
@@ -171,18 +305,44 @@ extension MenuBarItemManager {
         }
 
         isReconcilingSections = true
-        await performReconciliation(
-            wanted: wanted,
-            trigger: trigger,
-            items: givenItems,
-            controlItems: givenControlItems,
-            appState: appState
-        )
+        await ReconciliationPass.$current.withValue(trigger.pass) {
+            await performReconciliation(
+                wanted: wanted,
+                trigger: trigger,
+                items: givenItems,
+                controlItems: givenControlItems,
+                appState: appState
+            )
+        }
         isReconcilingSections = false
 
         if let pending = pendingReconciliation {
             pendingReconciliation = nil
             await reconcileSections(wanted: pending.wanted, trigger: pending.trigger)
+        }
+    }
+
+    /// Restores the saved sections and order once, after an automatic move pushed other items
+    /// out of their places. Nothing happens while a repair is scheduled or running. A call while
+    /// another reconciliation runs becomes its pending restore (see
+    /// ``reconcileSections(wanted:trigger:items:controlItems:)``) and ends the scheduling at
+    /// once, so a later move may schedule again; the single pending slot keeps that to one
+    /// queued pass.
+    ///
+    /// The repair's own moves are automatic, so `MoveBackoff` bounds them (the same item at most
+    /// 4 times in 60 s, 8 failures) and pauses repeated ones, and a move of a repair never
+    /// schedules another repair.
+    func scheduleMoveRepair() {
+        guard !isMoveRepairScheduled else {
+            return
+        }
+        isMoveRepairScheduled = true
+        Task { [weak self] in
+            guard let self else {
+                return
+            }
+            await reconcileSections(trigger: .moveRepair)
+            isMoveRepairScheduled = false
         }
     }
 
@@ -208,6 +368,26 @@ extension MenuBarItemManager {
             controlItems = pair
         }
 
+        // A divider read right of the Clock is a bad read (`DividerPlausibility`). A restore from
+        // it would move items into Hidden, so it moves nothing and places no new item; the next
+        // read and the next settle, launch or app launch reach this point again. A profile the
+        // user applies still runs its moves and stores its sections, but nothing from the bad read.
+        let isPlausibleRead = dividersArePlausible(items: items, controlItems: controlItems)
+        if !isPlausibleRead {
+            // The next plausible read restores the saved sections once (`retryAfterBadRead`): the
+            // skipped restore, or the rest of a profile whose moves were planned on this read.
+            if wanted != nil || trigger.restoresSavedSections {
+                restoreSkippedForBadRead = true
+            }
+            if wanted == nil {
+                Self.restoreLogger.notice(
+                    "Not reconciling sections (\(trigger.rawValue, privacy: .public)): a divider reads right of the Clock"
+                )
+                return
+            }
+            Self.restoreLogger.notice("Applying a profile on a read with a divider right of the Clock: storing only its sections")
+        }
+
         let keepsLiveActivitiesVisible = appState.settings.advanced.keepLiveActivitiesVisible
         if keepsLiveActivitiesVisible {
             await keepLiveActivitiesVisible(items, controlItems: controlItems, wanted: wanted, appState: appState)
@@ -215,36 +395,51 @@ extension MenuBarItemManager {
 
         let keys = identityKeys(for: items)
         // Live Activities kept visible are never moved back by a saved or new-items section.
-        let candidates = items.filter { item in
-            item.isMovable &&
-            item.canBeHidden &&
-            !item.isControlItem &&
-            !item.isSystemClone &&
-            !item.tag.namespace.isUUID &&
-            !(keepsLiveActivitiesVisible && item.tag.isLiveActivity) &&
-            !isTemporarilyShown(item)
-        }
+        // A profile or the Layout pane is the user's arrangement and may move a Wine tray icon.
+        let candidates = reconcilableItems(
+            items,
+            keepsLiveActivitiesVisible: keepsLiveActivitiesVisible,
+            arrangedByUser: wanted != nil
+        )
 
         let storedKnown = Defaults.array(forKey: .knownItemTags) as? [String]
-        var known = Set((storedKnown ?? []).map(storedIdentityKey))
+        var known = Set(storedIdentityKeys(storedKnown ?? []).values)
         let saved = savedSections()
         let newItemsSection = appState.settings.advanced.newItemsPlacement.section
+        // Known items that came back (`ItemOrder.reappeared`) go to their saved section for every
+        // trigger. A profile does not use them.
+        let reappearedKeys = wanted == nil ? pendingReappearedKeys : []
+
+        // Items that still carry a launch placeholder title (`ItemPlaceholder`): a profile still
+        // applies to them, but a saved section does not (an `Item-N` key saved by an earlier
+        // version holds the section macOS gave the item at launch), and they are neither placed
+        // as new nor remembered.
+        var provisionalKeys = Set<String>()
+        var skippedProvisionalNewItem = false
 
         var moves = [(item: MenuBarItem, key: String, section: MenuBarSection.Name, isNew: Bool)]()
         for item in candidates {
             guard let key = keys[item.windowID] else {
                 continue
             }
+            let isProvisional = isProvisionalPlaceholder(item)
+            if isProvisional {
+                provisionalKeys.insert(key)
+            }
             let isNew = storedKnown != nil && saved[key] == nil && !known.contains(key)
             var target: MenuBarSection.Name?
             if let wanted {
                 target = wanted[key]
-            } else if trigger.restoresSavedSections, let section = saved[key] {
+            } else if !isProvisional, trigger.restoresSavedSections || reappearedKeys.contains(key), let section = saved[key] {
                 target = section
             } else if isNew {
-                // A widget the user just added starts where they can see it (D-24).
-                let isWidget = item.tag.namespace == .holzBar && WidgetDefinition.isAutosaveName(item.tag.title)
-                target = isWidget ? .visible : newItemsSection
+                if isProvisional {
+                    skippedProvisionalNewItem = true
+                } else {
+                    // A widget the user just added starts where they can see it (D-24).
+                    let isWidget = item.tag.namespace == .holzBar && WidgetDefinition.isAutosaveName(item.tag.title)
+                    target = isWidget ? .visible : newItemsSection
+                }
             }
             guard var target else {
                 continue
@@ -261,9 +456,13 @@ extension MenuBarItemManager {
         // New items whose move was not tried: the loop stopped before them, or automatic
         // moves were paused. A move that failed otherwise is not retried on every read.
         var untriedNewKeys = Set(moves.filter(\.isNew).map(\.key))
+        // Reappeared items whose move was not tried stay pending for the next read.
+        var untriedReappearedKeys = Set(moves.map(\.key)).intersection(reappearedKeys)
+        var stoppedEarly = false
         for move in moves {
             if await yieldsToUserAfterInputPause(wanted: wanted, appState: appState) {
                 Self.restoreLogger.debug("The user arranges the items, so not moving the remaining items into their sections")
+                stoppedEarly = true
                 break
             }
             let destination: MoveDestination = switch move.section {
@@ -280,33 +479,256 @@ extension MenuBarItemManager {
                 )
                 try await self.move(item: move.item, to: destination)
                 untriedNewKeys.remove(move.key)
+                untriedReappearedKeys.remove(move.key)
                 if move.isNew {
                     placedSections[move.key] = move.section
                 }
             } catch EventError.automaticMovesPaused {
                 Self.restoreLogger.warning("Automatic moves are paused, so not moving the remaining items into their sections")
+                stoppedEarly = true
                 break
             } catch EventError.userInputNotPaused {
                 Self.restoreLogger.notice("The user did not pause input, so not moving the remaining items into their sections")
+                stoppedEarly = true
+                break
+            } catch where Task.isCancelled {
+                // A cancelled pass did not try the move: the item stays new or pending.
+                Self.restoreLogger.notice("The pass was cancelled, so not moving the remaining items into their sections")
+                stoppedEarly = true
                 break
             } catch {
                 untriedNewKeys.remove(move.key)
+                untriedReappearedKeys.remove(move.key)
                 Self.restoreLogger.error("Error moving \(move.item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
             }
         }
 
-        // A new item whose move was not tried stays unknown, so a later pass places it.
-        let candidateKeys = Set(candidates.compactMap { keys[$0.windowID] }).subtracting(untriedNewKeys)
+        // A reappeared item of this read that was moved, was in its section already or may not be
+        // moved is done; the ones whose move was not tried, and keys that are not in this read (a
+        // newer read added them while this pass waited), stay pending. The next read drops a
+        // pending key whose item is gone.
+        let reappearedHere = reappearedKeys.intersection(candidates.compactMap { keys[$0.windowID] })
+        if !reappearedKeys.isEmpty {
+            let onThisRead = reappearedKeys.intersection(keys.values)
+            pendingReappearedKeys.subtract(onThisRead.subtracting(untriedReappearedKeys))
+            Self.restoreLogger.debug("Reappeared items: \(reappearedHere.count, privacy: .public)")
+        }
+
+        // A profile's sections do not come from the read, so they are stored on any read: the next
+        // restore then keeps the profile instead of undoing it.
+        if let wanted {
+            storeSections(wanted)
+        }
+
+        // Nothing that comes from the read is stored from one that failed the divider check.
+        guard isPlausibleRead else {
+            return
+        }
+        // A restore on a plausible read does what a retry after a bad read would.
+        if wanted == nil, trigger.restoresSavedSections {
+            restoreSkippedForBadRead = false
+        }
+
+        // A new item whose move was not tried stays unknown, so a later pass places it. So does
+        // an item with a launch placeholder title, until its title is final or its app has run
+        // for a minute.
+        if !provisionalKeys.isEmpty {
+            Self.restoreLogger.debug("Not remembering \(provisionalKeys.count, privacy: .public) items with a launch placeholder title")
+        }
+        let candidateKeys = Set(candidates.compactMap { keys[$0.windowID] })
+            .subtracting(untriedNewKeys)
+            .subtracting(provisionalKeys)
         if storedKnown == nil || !candidateKeys.isSubset(of: known) {
             known.formUnion(candidateKeys)
             Defaults.set(known.sorted(), forKey: .knownItemTags)
         }
 
-        // A profile's sections, and where new items were placed, are the sections to restore.
-        if let wanted {
-            storeSections(wanted)
-        }
+        // Where new items were placed is a section to restore too.
         storeSections(placedSections)
+        dropStalePlaceholderSections(items: items, keys: keys)
+
+        // Only the launch restore starts the re-checks, so a re-check never starts another.
+        if trigger == .launch && skippedProvisionalNewItem {
+            startProvisionalRechecks()
+        }
+
+        // The order inside the sections, after the section moves. A profile does not reorder, and
+        // a pass that stopped because the user arranges the items does not start another.
+        // An item-list change reorders only the sections that hold a reappeared item.
+        if wanted == nil, !stoppedEarly, trigger.restoresSavedSections || !reappearedHere.isEmpty {
+            let sections = trigger.restoresSavedSections ? nil : Set(reappearedHere.compactMap { saved[$0] })
+            await restoreOrder(trigger: trigger, sections: sections, appState: appState)
+        }
+    }
+
+    /// Drops saved sections of launch placeholders (`namespace:Item-N`) that versions up to 1.0.3
+    /// saved, once their app is on the bar with its final items
+    /// (`ItemPlaceholder.stalePlaceholderKeys`). Only counts are logged.
+    private func dropStalePlaceholderSections(items: [MenuBarItem], keys: [CGWindowID: String]) {
+        guard var stored = Defaults.dictionary(forKey: .itemSections) as? [String: Int] else {
+            return
+        }
+        let current = items.compactMap { item -> ItemPlaceholder.CurrentItem? in
+            guard !item.isControlItem, let key = keys[item.windowID] else {
+                return nil
+            }
+            return ItemPlaceholder.CurrentItem(
+                namespace: item.tag.namespace.description,
+                key: key,
+                isProvisional: isProvisionalPlaceholder(item)
+            )
+        }
+        let stale = ItemPlaceholder.stalePlaceholderKeys(stored: stored.keys, current: current)
+        guard !stale.isEmpty else {
+            return
+        }
+        for key in stale {
+            stored.removeValue(forKey: key)
+        }
+        Defaults.set(stored, forKey: .itemSections)
+        Self.restoreLogger.info("Dropped the saved sections of \(stale.count, privacy: .public) launch placeholders")
+    }
+
+    /// The items a restore may move: movable, hideable, not a control item, a system clone or an
+    /// item of a UUID namespace, not a Live Activity that is kept visible, not temporarily shown,
+    /// and not a Windows app's tray icon (`UngovernedItemOwners`) unless the pass applies the
+    /// user's own arrangement.
+    private func reconcilableItems(
+        _ items: [MenuBarItem],
+        keepsLiveActivitiesVisible: Bool,
+        arrangedByUser: Bool
+    ) -> [MenuBarItem] {
+        items.filter { item in
+            item.isMovable &&
+            item.canBeHidden &&
+            !item.isControlItem &&
+            !item.isSystemClone &&
+            !item.tag.namespace.isUUID &&
+            !(keepsLiveActivitiesVisible && item.tag.isLiveActivity) &&
+            UngovernedItemOwners.allowsReconciling(isUngoverned: item.tag.isUngoverned, arrangedByUser: arrangedByUser) &&
+            !isTemporarilyShown(item)
+        }
+    }
+
+    /// The order pass: puts the items of each section back into the saved order (`ItemOrder`)
+    /// with as few moves as possible, at most `ItemOrder.maximumMovesPerPass` in all.
+    ///
+    /// With no stored order, holzBar's own launch restore seeds it from the bar as it is then
+    /// (an existing install has sections but no order) and moves nothing; any other trigger does
+    /// nothing. The bar is read anew because the section moves changed the positions, and a read
+    /// with a divider right of the Clock is not believed. The moves are automatic, so
+    /// `MoveBackoff` bounds them, and each waits for the user to pause input.
+    ///
+    /// - Parameters:
+    ///   - trigger: What asks for the reconciliation.
+    ///   - sections: The only sections to reorder, or `nil` for all.
+    ///   - appState: The app state.
+    private func restoreOrder(trigger: SectionRestoreTrigger, sections: Set<MenuBarSection.Name>?, appState: AppState) async {
+        let stored = storedOrder()
+        guard stored != nil || trigger == .launch else {
+            return
+        }
+        var items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
+        guard let controlItems = ControlItemPair(items: &items) else {
+            Self.restoreLogger.warning("Missing control item for hidden section, not ordering items")
+            return
+        }
+        guard dividersArePlausible(items: items, controlItems: controlItems) else {
+            Self.restoreLogger.notice("Not ordering items (\(trigger.rawValue, privacy: .public)): a divider reads right of the Clock")
+            return
+        }
+        let keys = identityKeys(for: items)
+        guard let stored else {
+            guard !appState.isDraggingMenuBarItem, !needsSectionSave else {
+                return
+            }
+            saveOrder(of: items, keys: keys)
+            return
+        }
+
+        let keepsLiveActivitiesVisible = appState.settings.advanced.keepLiveActivitiesVisible
+        var entriesBySection = [MenuBarSection.Name: [(key: String, item: MenuBarItem)]]()
+        for item in reconcilableItems(items, keepsLiveActivitiesVisible: keepsLiveActivitiesVisible, arrangedByUser: false)
+            .sorted(by: { orderPosition(of: $0) < orderPosition(of: $1) }) {
+            if let key = keys[item.windowID] {
+                entriesBySection[section(of: item, controlItems: controlItems), default: []].append((key, item))
+            }
+        }
+
+        var planned = [(item: MenuBarItem, destination: MoveDestination)]()
+        for name in MenuBarSection.Name.allCases where sections?.contains(name) ?? true {
+            guard let entries = entriesBySection[name] else {
+                continue
+            }
+            let itemsByKey = Dictionary(entries.map { ($0.key, $0.item) }) { first, _ in first }
+            for step in ItemOrder.plan(current: entries.map(\.key), wanted: stored) {
+                guard let item = itemsByKey[step.key] else {
+                    continue
+                }
+                switch step.anchor {
+                case .after(let anchorKey):
+                    if let anchor = itemsByKey[anchorKey] {
+                        planned.append((item, .rightOfItem(anchor)))
+                    }
+                case .before(let anchorKey):
+                    if let anchor = itemsByKey[anchorKey] {
+                        planned.append((item, .leftOfItem(anchor)))
+                    }
+                }
+            }
+        }
+        guard !planned.isEmpty else {
+            return
+        }
+        Self.restoreLogger.info(
+            "Ordering items: \(planned.count, privacy: .public) moves planned (\(trigger.rawValue, privacy: .public))"
+        )
+
+        for move in planned.prefix(ItemOrder.maximumMovesPerPass) {
+            if await yieldsToUserAfterInputPause(wanted: nil, appState: appState) {
+                Self.restoreLogger.debug("The user arranges the items, so not ordering the remaining items")
+                return
+            }
+            do {
+                Self.restoreLogger.info("Ordering \(move.item.logString, privacy: .private(mask: .hash)) (\(trigger.rawValue, privacy: .public))")
+                try await self.move(item: move.item, to: move.destination)
+            } catch EventError.automaticMovesPaused {
+                Self.restoreLogger.warning("Automatic moves are paused, so not ordering the remaining items")
+                return
+            } catch EventError.userInputNotPaused {
+                Self.restoreLogger.notice("The user did not pause input, so not ordering the remaining items")
+                return
+            } catch where Task.isCancelled {
+                Self.restoreLogger.notice("The pass was cancelled, so not ordering the remaining items")
+                return
+            } catch {
+                Self.restoreLogger.error("Error ordering \(move.item.logString, privacy: .private(mask: .hash)): \(error, privacy: .private)")
+            }
+        }
+    }
+
+    /// How long the application of an item has run, for the rule of ``ItemPlaceholder``: since
+    /// the later of its launch and holzBar's own (an item that holzBar finds at its own start is
+    /// as young as holzBar), ignoring a missing date. With no date it is not young.
+    private func runningDuration(of item: MenuBarItem) -> Duration {
+        let launchDates = [
+            (item.sourceApplication ?? item.owningApplication)?.launchDate,
+            NSRunningApplication.current.launchDate,
+        ].compactMap(\.self)
+        guard let launchDate = launchDates.max() else {
+            return ItemPlaceholder.provisionalPeriod
+        }
+        return .seconds(max(0, Date.now.timeIntervalSince(launchDate)))
+    }
+
+    /// Whether the item still carries a launch placeholder title while its app is young
+    /// (`ItemPlaceholder.isProvisional`). Only items with a placeholder title look up their
+    /// application.
+    private func isProvisionalPlaceholder(_ item: MenuBarItem) -> Bool {
+        guard ItemIdentity.isPlaceholderTitle(item.tag.title) else {
+            return false
+        }
+        return ItemPlaceholder.isProvisional(title: item.tag.title, runningFor: runningDuration(of: item))
     }
 
     /// Whether a restore stops moving items because the user arranges them: an item is being

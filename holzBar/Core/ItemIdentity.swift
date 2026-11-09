@@ -19,7 +19,9 @@ import Foundation
 ///
 /// Keys stored by earlier versions (`namespace:title`) still match through
 /// ``storedKey(_:titleChangingOwners:)``. The canonical form of a title is adapted from
-/// Thaw's `canonicalMetricTitle` (GPL-3.0, see NOTICE).
+/// Thaw's `canonicalMetricTitle` and `canonicalFirstLineTitle`, and the rule that a launch
+/// placeholder is not a title change from Thaw's `FreshVolatileTitleLearner` (GPL-3.0, see
+/// NOTICE).
 nonisolated enum ItemIdentity {
     /// One item, as read from the bar: its namespace and its title.
     typealias Item = (namespace: String, title: String)
@@ -31,7 +33,25 @@ nonisolated enum ItemIdentity {
     /// `Item-0` or `com.apple.menuextra.clock` (a letter followed by letters, digits, dots,
     /// hyphens and underscores only), are kept as they are: their digits tell the items of
     /// one app apart and never change.
+    ///
+    /// Two more rules come before these:
+    /// - A title of several lines is known by its first line (when that is not empty after
+    ///   trimming), so "OneDrive - Personal" keeps one key whatever its status line says.
+    /// - A Control Center control pinned to the menu bar on macOS 27 loses the instance UUID
+    ///   macOS mints each time it places the control (``ControlCenterControl``); its
+    ///   identifier is kept as it is.
     static func canonicalTitle(_ title: String) -> String {
+        var title = title
+        if title.contains(where: \.isNewline),
+           let firstLine = title.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline).first {
+            let trimmed = firstLine.trimmingCharacters(in: .whitespaces)
+            if !trimmed.isEmpty {
+                title = trimmed
+            }
+        }
+        if ControlCenterControl.isPinnedControlTitle(title) {
+            return ControlCenterControl.stableIdentity(forTitle: title)
+        }
         if isIdentifier(title) {
             return title
         }
@@ -48,6 +68,16 @@ nonisolated enum ItemIdentity {
     /// and the canonical titles of those items differ. Namespaces in `excluding` (holzBar's
     /// own) and UUID namespaces (system items whose namespace changes on every launch) are
     /// never learned.
+    ///
+    /// A namespace is not learned either when a title that differs between the reads, in
+    /// either direction, is a placeholder (``isPlaceholderTitle(_:)``): a change between
+    /// `Item-N` and a real title is the app finishing its launch, not an app whose titles
+    /// change (Thaw's `FreshVolatileTitleLearner`).
+    ///
+    /// The callers pass holzBar's own namespace in `excluding` and must keep doing so:
+    /// holzBar's items are tagged by their autosave names, which are identifiers and never
+    /// live titles, so learning them would key them by position and break the keys of
+    /// profiles and rules.
     static func learnTitleChangingOwners(previous: [Item], current: [Item], excluding: Set<String>) -> Set<String> {
         let previousTitles = canonicalTitlesByNamespace(previous)
         let currentTitles = canonicalTitlesByNamespace(current)
@@ -59,7 +89,8 @@ nonisolated enum ItemIdentity {
                 let previousTitles = previousTitles[namespace],
                 !titles.isEmpty,
                 previousTitles.count == titles.count,
-                previousTitles.sorted() != titles.sorted()
+                previousTitles.sorted() != titles.sorted(),
+                !changesPlaceholder(from: previousTitles, to: titles)
             else {
                 continue
             }
@@ -115,11 +146,19 @@ nonisolated enum ItemIdentity {
         if title.wholeMatch(of: /[2-9]|[1-9]\d+/) != nil {
             return stored
         }
+        // A key of the version before the first-line rule for a later item with a multi-line
+        // title: `namespace:<canonical lines>:<occurrence>`, the lines without digits. The
+        // occurrence goes onto the key of the first line, which is the item's key today; without
+        // it, both items of the app would match the first one's key.
+        if let match = multiLineOccurrence(of: title) {
+            return "\(baseKey(namespace: namespace, canonicalTitle: canonicalTitle(match.lines))):\(match.occurrence)"
+        }
         // A key of this version: a canonical title (no digits, or an identifier) with an
         // optional `:<occurrence>`.
         if let match = title.wholeMatch(of: /(.*):(\d+)/) {
             let base = String(match.1)
-            if canonicalTitle(base) == base, !base.contains(where: \.isNumber) || isIdentifier(base) {
+            if canonicalTitle(base) == base,
+               !base.contains(where: \.isNumber) || isIdentifier(base) || ControlCenterControl.isPinnedControlTitle(base) {
                 return stored
             }
         }
@@ -133,9 +172,10 @@ nonisolated enum ItemIdentity {
     /// the current one), the value stored under exactly that key wins, else the one whose
     /// stored key sorts first, so the choice is the same on every launch.
     static func storedValues<Value>(_ stored: [String: Value], titleChangingOwners: Set<String>) -> [String: Value] {
+        let keyMap = storedKeyMap(Array(stored.keys), titleChangingOwners: titleChangingOwners)
         var values = [String: Value]()
         for (storedKey, value) in stored.sorted(by: { $0.key < $1.key }) {
-            let key = Self.storedKey(storedKey, titleChangingOwners: titleChangingOwners)
+            let key = keyMap[storedKey] ?? Self.storedKey(storedKey, titleChangingOwners: titleChangingOwners)
             if storedKey == key || values[key] == nil {
                 values[key] = value
             }
@@ -143,7 +183,96 @@ nonisolated enum ItemIdentity {
         return values
     }
 
+    /// The key each stored key matches today (``storedKey(_:titleChangingOwners:)``), for a whole
+    /// stored set at once.
+    ///
+    /// Before the first-line rule, two items of one app whose titles differed only after the first
+    /// line ("A\nB", "A\nC") were stored under different keys without an occurrence number. Today
+    /// both have the first line's key and are told apart by position (`ns:A`, `ns:A:2`). So that
+    /// both keep their values, such keys of one first line are numbered in sorted order, the first
+    /// keeping the plain key and the others taking the next numbers no other stored key holds. The
+    /// position on the bar is not stored, so the order is the best guess there is. Once a key of
+    /// this version exists for the first line, the old keys are stale and nothing is numbered.
+    static func storedKeyMap(_ stored: [String], titleChangingOwners: Set<String>) -> [String: String] {
+        var result = [String: String]()
+        var legacyGroups = [String: [String]]()
+        for key in Set(stored) {
+            let target = storedKey(key, titleChangingOwners: titleChangingOwners)
+            if isUnnumberedMultiLineKey(key, matching: target) {
+                legacyGroups[target, default: []].append(key)
+            } else {
+                result[key] = target
+            }
+        }
+        let currentKeys = Set(result.filter { $0.key == $0.value }.keys)
+        var used = Set(result.values)
+        for (target, keys) in legacyGroups.sorted(by: { $0.key < $1.key }) {
+            let ordered = keys.sorted()
+            guard !currentKeys.contains(target) else {
+                for key in ordered {
+                    result[key] = target
+                }
+                continue
+            }
+            for (index, key) in ordered.enumerated() {
+                if index == 0 {
+                    result[key] = target
+                    used.insert(target)
+                    continue
+                }
+                var number = 2
+                while used.contains("\(target):\(number)") {
+                    number += 1
+                }
+                result[key] = "\(target):\(number)"
+                used.insert("\(target):\(number)")
+            }
+        }
+        return result
+    }
+
+    /// Whether the title is the generic one macOS gives a status item that has no autosave
+    /// name or whose app has not finished launching: `Item-` followed by digits.
+    static func isPlaceholderTitle(_ title: String) -> Bool {
+        title.wholeMatch(of: /Item-[0-9]+/) != nil
+    }
+
     // MARK: Private
+
+    /// Whether a title that is in one of the two reads and not in the other (counted with
+    /// repeats) is a placeholder.
+    private static func changesPlaceholder(from previous: [String], to current: [String]) -> Bool {
+        var counts = [String: Int]()
+        for title in previous {
+            counts[title, default: 0] += 1
+        }
+        for title in current {
+            counts[title, default: 0] -= 1
+        }
+        return counts.contains { $0.value != 0 && isPlaceholderTitle($0.key) }
+    }
+
+    /// Whether a stored key is one of an earlier version for a multi-line title without an
+    /// occurrence number, which today matches the first line's key `target`.
+    private static func isUnnumberedMultiLineKey(_ stored: String, matching target: String) -> Bool {
+        guard let separator = stored.firstIndex(of: ":"), stored != target, !target.contains(where: \.isNewline) else {
+            return false
+        }
+        let title = String(stored[stored.index(after: separator)...])
+        return title.contains(where: \.isNewline) && multiLineOccurrence(of: title) == nil
+    }
+
+    /// The lines and the occurrence of a stored title of the version before the first-line rule
+    /// for a later item with a multi-line title (`<canonical lines>:<occurrence>`, the lines
+    /// without digits, the occurrence 2 or more), or `nil`.
+    private static func multiLineOccurrence(of title: String) -> (lines: String, occurrence: Substring)? {
+        guard let match = title.wholeMatch(of: /(.*):([2-9]|[1-9]\d+)/.dotMatchesNewlines()),
+              match.1.contains(where: \.isNewline),
+              !match.1.contains(where: \.isNumber) else {
+            return nil
+        }
+        return (String(match.1), match.2)
+    }
 
     /// Whether the title is an identifier rather than text: a letter followed by letters,
     /// digits, dots, hyphens and underscores only.

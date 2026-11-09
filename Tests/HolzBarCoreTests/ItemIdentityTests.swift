@@ -108,4 +108,165 @@ struct ItemIdentityTests {
         let stale = ItemIdentity.storedValues(["a:Mon # Oct": 1, "a:Mail 3": 2], titleChangingOwners: ["a"])
         #expect(stale == ["a:#1": 2])
     }
+
+    // MARK: First-line titles
+
+    @Test("The identity of a multi-line title is its first line")
+    func firstLineIsTheIdentity() {
+        #expect(ItemIdentity.canonicalTitle("OneDrive - Personal\nSynced") == "OneDrive - Personal")
+        #expect(ItemIdentity.canonicalTitle("OneDrive - Personal\nSyncing 3 files") == "OneDrive - Personal")
+        #expect(ItemIdentity.canonicalTitle("OneDrive - Personal\r\nSynced") == "OneDrive - Personal")
+        #expect(ItemIdentity.canonicalTitle("  OneDrive - Personal \nSynced") == "OneDrive - Personal")
+        // The first line follows the number rule like any title.
+        #expect(ItemIdentity.canonicalTitle("Mail 3\nUnread") == "Mail #")
+        // A first line that is empty after trimming leaves the whole title to the existing rules.
+        #expect(ItemIdentity.canonicalTitle("\nSynced 3") == "\nSynced #")
+        #expect(ItemIdentity.canonicalTitle("  \nSynced") == "  \nSynced")
+        // A single line is unchanged.
+        #expect(ItemIdentity.canonicalTitle("OneDrive - Personal") == "OneDrive - Personal")
+    }
+
+    @Test("A multi-line title keeps one key and earlier stored keys still match")
+    func firstLineKeysMatchStoredKeys() {
+        let synced: [ItemIdentity.Item] = [(namespace: "ns", title: "OneDrive - Personal\nSynced")]
+        let syncing: [ItemIdentity.Item] = [(namespace: "ns", title: "OneDrive - Personal\nSyncing 3 files")]
+        let key = ItemIdentity.keys(for: synced, titleChangingOwners: [])
+        #expect(key == ["ns:OneDrive - Personal"])
+        #expect(ItemIdentity.keys(for: syncing, titleChangingOwners: []) == key)
+        // A key of an earlier version holds the raw title with its second line.
+        #expect(ItemIdentity.storedKey("ns:OneDrive - Personal\nSynced", titleChangingOwners: []) == "ns:OneDrive - Personal")
+        #expect(ItemIdentity.storedKey("ns:OneDrive - Personal", titleChangingOwners: []) == "ns:OneDrive - Personal")
+        // Such an app is not learned as title-changing.
+        let learned = ItemIdentity.learnTitleChangingOwners(previous: synced, current: syncing, excluding: [])
+        #expect(learned.isEmpty)
+    }
+
+    @Test("Stored multi-line keys that differ only after the first line stay apart")
+    func multiLineKeysStayApart() {
+        let values = ItemIdentity.storedValues(["ns:A\nB": 0, "ns:A\nC": 1], titleChangingOwners: [])
+        #expect(values == ["ns:A": 0, "ns:A:2": 1])
+        // The current keys of such items.
+        let items: [ItemIdentity.Item] = [(namespace: "ns", title: "A\nB"), (namespace: "ns", title: "A\nC")]
+        #expect(ItemIdentity.keys(for: items, titleChangingOwners: []) == ["ns:A", "ns:A:2"])
+        // The known items map the same way.
+        let map = ItemIdentity.storedKeyMap(["ns:A\nC", "ns:A\nB", "other:Mail 3"], titleChangingOwners: [])
+        #expect(map == ["ns:A\nB": "ns:A", "ns:A\nC": "ns:A:2", "other:Mail 3": "other:Mail #"])
+        // A number an occurrence key already holds is skipped.
+        let withOccurrence = ItemIdentity.storedKeyMap(["ns:A\nB", "ns:A\nB:2", "ns:A\nC"], titleChangingOwners: [])
+        #expect(withOccurrence == ["ns:A\nB": "ns:A", "ns:A\nB:2": "ns:A:2", "ns:A\nC": "ns:A:3"])
+        // Once a key of this version exists for the first line, the old keys are stale: no
+        // numbers are made up for them, and the current value wins.
+        let current = ItemIdentity.storedValues(["ns:A": 2, "ns:A\nB": 0, "ns:A\nC": 1], titleChangingOwners: [])
+        #expect(current == ["ns:A": 2])
+    }
+
+    @Test("A stored multi-line key with an occurrence keeps its occurrence on the first line")
+    func multiLineOccurrenceKeys() {
+        #expect(ItemIdentity.storedKey("ns:A\nb:2", titleChangingOwners: []) == "ns:A:2")
+        #expect(ItemIdentity.storedKey("ns:Status\nA:12", titleChangingOwners: []) == "ns:Status:12")
+        // The current keys of the same two items.
+        let items: [ItemIdentity.Item] = [(namespace: "ns", title: "Status\nA"), (namespace: "ns", title: "Status\nA")]
+        #expect(ItemIdentity.keys(for: items, titleChangingOwners: []) == ["ns:Status", "ns:Status:2"])
+        // Both stored sections survive the update apart.
+        let values = ItemIdentity.storedValues(["ns:Status\nA": 1, "ns:Status\nA:2": 2], titleChangingOwners: [])
+        #expect(values == ["ns:Status": 1, "ns:Status:2": 2])
+        // A raw title of an earlier version that ends in a number is not an occurrence.
+        #expect(ItemIdentity.storedKey("ns:Line1\nTime 10:12", titleChangingOwners: []) == "ns:Line1")
+        #expect(ItemIdentity.storedKey("ns:Sync\nUp 3:2", titleChangingOwners: []) == "ns:Sync")
+    }
+
+    // MARK: Pinned Control Center controls
+
+    private static let agent = "com.apple.MenuBarAgent"
+    private static let screenshot = ":com.apple.screenshot.launcher:com.apple.controls.screenshot:com.apple.controls.screenshot.capture-custom"
+    private static let uuidA = "6F9619FF-8B86-D011-B42D-00C04FC964FF"
+    private static let uuidB = "0E984725-C51C-4BF4-9960-E1C80E27ABA0"
+
+    @Test("A pinned control keeps one title whatever UUID macOS gives it")
+    func pinnedControlIgnoresItsUUID() {
+        let withA = ItemIdentity.canonicalTitle("\(Self.screenshot):\(Self.uuidA)")
+        let withB = ItemIdentity.canonicalTitle("\(Self.screenshot):\(Self.uuidB)")
+        #expect(withA == withB)
+        #expect(withA == ItemIdentity.canonicalTitle(Self.screenshot))
+        #expect(withA == Self.screenshot)
+        // A digit inside the control's own name is not replaced.
+        let timer = ":com.apple.timer2.launcher:com.apple.controls.timer2:com.apple.controls.timer2.start"
+        #expect(ItemIdentity.canonicalTitle("\(timer):\(Self.uuidA)") == timer)
+    }
+
+    @Test("Two pinned controls of one kind get an occurrence number that survives storage")
+    func pinnedControlKeysSurviveStorage() {
+        let timer = ":com.apple.timer2.launcher:com.apple.controls.timer2:com.apple.controls.timer2.start"
+        for control in [Self.screenshot, timer] {
+            let items: [ItemIdentity.Item] = [
+                (namespace: Self.agent, title: "\(control):\(Self.uuidA)"),
+                (namespace: Self.agent, title: "\(control):\(Self.uuidB)"),
+            ]
+            let base = "\(Self.agent):\(control)"
+            let keys = ItemIdentity.keys(for: items, titleChangingOwners: [])
+            #expect(keys == [base, "\(base):2"])
+            for key in keys {
+                #expect(ItemIdentity.storedKey(key, titleChangingOwners: []) == key)
+            }
+            // A key stored with the instance UUID matches the current key.
+            #expect(ItemIdentity.storedKey("\(base):\(Self.uuidA)", titleChangingOwners: []) == base)
+        }
+    }
+
+    // MARK: Launch placeholders
+
+    @Test("Item-N is a placeholder title")
+    func placeholderTitles() {
+        #expect(ItemIdentity.isPlaceholderTitle("Item-0"))
+        #expect(ItemIdentity.isPlaceholderTitle("Item-12"))
+        #expect(!ItemIdentity.isPlaceholderTitle("Item-"))
+        #expect(!ItemIdentity.isPlaceholderTitle("item-0"))
+        #expect(!ItemIdentity.isPlaceholderTitle("Item-0a"))
+        #expect(!ItemIdentity.isPlaceholderTitle("OneDrive"))
+        #expect(!ItemIdentity.isPlaceholderTitle(""))
+    }
+
+    @Test("A change to or from a placeholder is not a title-changing app")
+    func placeholderChangeIsNotLearned() {
+        func learned(_ previous: String, _ current: String) -> Set<String> {
+            ItemIdentity.learnTitleChangingOwners(
+                previous: [(namespace: "a", title: previous)],
+                current: [(namespace: "a", title: current)],
+                excluding: []
+            )
+        }
+        #expect(learned("Item-0", "OneDrive").isEmpty)
+        #expect(learned("OneDrive", "Item-0").isEmpty)
+        #expect(learned("Item-1", "Item-0").isEmpty)
+        // Real title changes are still learned.
+        #expect(learned("Mon 3 Oct", "Tue 4 Oct").isEmpty == false)
+        #expect(learned("One", "Two") == ["a"])
+    }
+
+    @Test("A placeholder change of one app does not hide the change of another")
+    func placeholderRuleIsPerNamespace() {
+        let previous: [ItemIdentity.Item] = [
+            (namespace: "a", title: "Item-0"),
+            (namespace: "b", title: "One"),
+        ]
+        let current: [ItemIdentity.Item] = [
+            (namespace: "a", title: "OneDrive"),
+            (namespace: "b", title: "Two"),
+        ]
+        #expect(ItemIdentity.learnTitleChangingOwners(previous: previous, current: current, excluding: []) == ["b"])
+    }
+
+    // MARK: holzBar's own items
+
+    @Test("holzBar's own items are never learned, they are keyed by autosave name")
+    func ownItemsAreNeverLearned() {
+        // holzBar tags its items by their autosave names, which are identifiers and never live
+        // titles. Learning them would key them by position and break profile and rule keys.
+        let own = "com.holzcloud.holzBar"
+        let previous: [ItemIdentity.Item] = [(namespace: own, title: "Always"), (namespace: own, title: "Hidden")]
+        let current: [ItemIdentity.Item] = [(namespace: own, title: "Visible"), (namespace: own, title: "Other")]
+        #expect(ItemIdentity.learnTitleChangingOwners(previous: previous, current: current, excluding: [own]).isEmpty)
+        // The exclusion is what protects them: without it the same reads would be learned.
+        #expect(ItemIdentity.learnTitleChangingOwners(previous: previous, current: current, excluding: []) == [own])
+    }
 }

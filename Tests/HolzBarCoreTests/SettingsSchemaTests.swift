@@ -629,4 +629,12 @@ struct SettingsSchemaTests {
         )
         #expect(fork.accepted["MacOS27Layout"] as? [String: Int] == ["com.holzcloud.holzBar": 1])
     }
+
+    @Test("A settings file over 8 MB is refused before it is read")
+    func settingsFileSizeLimit() {
+        #expect(SettingsSchema.maximumImportSize == 8 * 1024 * 1024)
+        #expect(SettingsSchema.acceptsImport(ofSize: 0))
+        #expect(SettingsSchema.acceptsImport(ofSize: 8 * 1024 * 1024))
+        #expect(!SettingsSchema.acceptsImport(ofSize: 8 * 1024 * 1024 + 1))
+    }
 }

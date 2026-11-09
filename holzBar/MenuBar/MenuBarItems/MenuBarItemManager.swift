@@ -40,6 +40,23 @@ final class MenuBarItemManager {
     /// The end of the pause of automatic moves that was last logged, so it is logged once.
     @ObservationIgnored private var loggedPauseEnd: ContinuousClock.Instant?
 
+    /// Whether the last read had a divider right of the Clock (`DividerPlausibility`), so the
+    /// notice is logged once per such stretch and not for every read.
+    @ObservationIgnored private var loggedImplausibleDividers = false
+
+    /// Whether the item cache comes from a read with a divider right of the Clock: it was empty,
+    /// or had stood for the bar too long, so it was filled for the UI, but its sections are not
+    /// believed (no snapshot, no rule decision).
+    @ObservationIgnored private(set) var isCacheFromImplausibleRead = false
+
+    /// Whether a restore was skipped, or a profile applied, on a read with a divider right of the
+    /// Clock: the next plausible read runs one restore (`retryAfterBadRead`) and clears it.
+    @ObservationIgnored var restoreSkippedForBadRead = false
+
+    /// When the current stretch of reads with a divider right of the Clock began, `nil` after a
+    /// plausible read.
+    @ObservationIgnored private var implausibleReadsSince: ContinuousClock.Instant?
+
     /// Whether temporarily shown items wait to be rehidden until automatic moves may run
     /// again (on the next settle or user move) instead of retrying every 3 seconds.
     @ObservationIgnored private var isRehideWaitingForMoves = false
@@ -57,12 +74,25 @@ final class MenuBarItemManager {
     /// The identity key of each cached item, by window.
     @ObservationIgnored private var identityKeysByWindow = [CGWindowID: String]()
 
+    /// The identity keys of the previous plausible read, to tell which items came back. `nil`
+    /// until the first read after launch, which only records the set.
+    @ObservationIgnored private var previousIdentityKeys: Set<String>?
+
+    /// The known items that came back since the last reconciliation handled them (Focus, Sound,
+    /// an app that was quit and opened again): the next reconciliation of any trigger restores
+    /// their saved section and place (see `SectionRestore.swift`).
+    @ObservationIgnored var pendingReappearedKeys = Set<String>()
+
     /// Whether the sections are saved after the next item cache, because the user arranged
     /// items (see `SectionRestore.swift`).
     @ObservationIgnored var needsSectionSave = false
 
     /// Whether the sections are being reconciled.
     @ObservationIgnored var isReconcilingSections = false
+
+    /// Whether a repair after a move that pushed other items is scheduled or running (see
+    /// `scheduleMoveRepair()` in `SectionRestore.swift`).
+    @ObservationIgnored var isMoveRepairScheduled = false
 
     /// A reconciliation asked for while one was running; it runs once that one ends.
     @ObservationIgnored var pendingReconciliation: (wanted: [String: MenuBarSection.Name]?, trigger: SectionRestoreTrigger)?
@@ -493,6 +523,21 @@ extension MenuBarItemManager {
         logger.debug("Updated menu bar item cache")
     }
 
+    /// Whether a read of the bar can be believed: neither divider ends right of the Clock
+    /// (`DividerPlausibility`). A read without a Clock in `items` counts as plausible. `items` is
+    /// the list without the control items, as left by `ControlItemPair.init(items:)`.
+    func dividersArePlausible(items: [MenuBarItem], controlItems: ControlItemPair) -> Bool {
+        func span(of item: MenuBarItem) -> DividerPlausibility.Span {
+            let bounds = Bridging.getWindowBounds(for: item.windowID) ?? item.bounds
+            return DividerPlausibility.Span(minX: bounds.minX, maxX: bounds.maxX)
+        }
+        return DividerPlausibility.isPlausible(
+            hidden: span(of: controlItems.hidden),
+            alwaysHidden: controlItems.alwaysHidden.map { span(of: $0) },
+            clock: items.first(matching: .clock).map { span(of: $0) }
+        )
+    }
+
     /// Caches the current menu bar items, regardless of whether the
     /// items have changed since the previous cache.
     ///
@@ -501,8 +546,9 @@ extension MenuBarItemManager {
     /// arranging them into valid positions if needed.
     ///
     /// - Returns: Whether the bar was read. It is not while the Mac is not in use or within a
-    ///   second of a move, or when a newer read replaced this one; the cache is then as old as
-    ///   before the call.
+    ///   second of a move, when a newer read replaced this one, or when a divider read right of
+    ///   the Clock (`DividerPlausibility`); the cache is then as old as before the call, or comes
+    ///   from that bad read for the UI only (``isCacheFromImplausibleRead``).
     @discardableResult
     func cacheItemsRegardless(_ currentItemWindowIDs: [CGWindowID]? = nil) async -> Bool {
         let readsBefore = itemReadCount
@@ -578,6 +624,43 @@ extension MenuBarItemManager {
                 return
             }
 
+            // A divider read right of the Clock is a bad read (macOS 14 to 26, right after a display
+            // change, wake or unlock). Nothing is moved, learned or saved from it, and the cache
+            // keeps the previous read, which snapshots and profiles take their sections from. Only
+            // an empty cache (the first read), or one that stood for the bar for
+            // `DividerPlausibility.staleCacheLimit`, is filled from it, for the UI, and marked so
+            // that no snapshot is taken from it. Such a read does not count as a read of the bar.
+            // The cleared window list makes the next event or the 60 s fallback read the bar again.
+            if backend.canMoveItems {
+                if dividersArePlausible(items: items, controlItems: controlItems) {
+                    loggedImplausibleDividers = false
+                    implausibleReadsSince = nil
+                } else {
+                    // Not a read of the bar for the callers (automation rules, the settle check):
+                    // nothing may be decided on it.
+                    itemReadCount -= 1
+                    if !loggedImplausibleDividers {
+                        loggedImplausibleDividers = true
+                        logger.notice(
+                            "A divider reads right of the Clock, so nothing is moved or saved until the next read"
+                        )
+                    }
+                    let now = ContinuousClock.now
+                    let since = implausibleReadsSince ?? now
+                    implausibleReadsSince = since
+                    if DividerPlausibility.cachesBadRead(
+                        cacheIsEmpty: itemCache.managedItems.isEmpty,
+                        cacheIsFromBadRead: isCacheFromImplausibleRead,
+                        badReadsFor: since.duration(to: now)
+                    ) {
+                        await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
+                        isCacheFromImplausibleRead = true
+                    }
+                    await cacheActor.clearCachedItemWindowIDs()
+                    return
+                }
+            }
+
             // Where items cannot be moved, the dividers stay where macOS placed them.
             if backend.canMoveItems {
                 await enforceControlItemOrder(controlItems: controlItems)
@@ -590,6 +673,7 @@ extension MenuBarItemManager {
                 updateIdentities(with: items)
             }
             await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
+            isCacheFromImplausibleRead = false
 
             guard !Task.isCancelled else {
                 await cacheActor.clearCachedItemWindowIDs()
@@ -602,9 +686,13 @@ extension MenuBarItemManager {
                     needsSectionSave = false
                     saveSections()
                 }
+                // A restore that a bad read skipped runs once on this plausible read; otherwise
+                // only new and reappeared items are placed.
+                let trigger: SectionRestoreTrigger = restoreSkippedForBadRead ? .retryAfterBadRead : .itemListChange
+                restoreSkippedForBadRead = false
                 // Moving runs outside the cache task, which it would otherwise hold up.
                 Task {
-                    await self.reconcileSections(trigger: .itemListChange, items: items, controlItems: controlItems)
+                    await self.reconcileSections(trigger: trigger, items: items, controlItems: controlItems)
                 }
             }
         }
@@ -777,6 +865,7 @@ extension MenuBarItemManager {
         case .automatic:
             try checkAutomaticMove(of: item, appState: appState)
         }
+        let neighboursBefore = backend.canMoveItems ? neighbourSnapshot() : nil
         do {
             try await backend.move(item: item, to: destination, appState: appState)
         } catch EventError.userInputNotPaused {
@@ -784,16 +873,72 @@ extension MenuBarItemManager {
             // back-off.
             throw EventError.userInputNotPaused
         } catch {
-            if origin == .automatic, moveBackoff.recordFailure(at: .now) {
+            // A cancelled task stops waiting and fails the move; the bar did not refuse it, so
+            // it is not a failure for the back-off.
+            if origin == .automatic, !Task.isCancelled, moveBackoff.recordFailure(at: .now) {
                 logPausedMoves()
             }
             throw error
+        }
+        if let neighboursBefore {
+            checkNeighbours(after: item, before: neighboursBefore, managed: managedWindowIDs(), origin: origin)
         }
         if origin == .user, isRehideWaitingForMoves {
             // The user's move ended the pause; the waiting items are rehidden after the
             // usual interval (not at once: this may be an item the user is opening).
             isRehideWaitingForMoves = false
             runRehideTimer()
+        }
+    }
+
+    /// The windows of the items and dividers of the bar with their left edges, for the check
+    /// that a move left the other items in their places. Windows without bounds are left out.
+    private func neighbourSnapshot() -> [MoveNeighbourCheck.Entry] {
+        Bridging.getMenuBarWindowList(option: [.activeSpace, .itemsOnly]).compactMap { windowID in
+            Bridging.getWindowBounds(for: windowID).map {
+                MoveNeighbourCheck.Entry(id: windowID, minX: Double($0.minX))
+            }
+        }
+    }
+
+    /// The windows the neighbour check protects: the cached items of the active menu bar (no
+    /// system clones, no items that cannot be hidden) and holzBar's dividers. Any other window in
+    /// the window list is ignored.
+    private func managedWindowIDs() -> Set<UInt32> {
+        var windowIDs = Set(itemCache.managedItems.map(\.windowID))
+        for name in MenuBarSection.Name.allCases {
+            if let number = appState?.menuBarManager.controlItem(withName: name)?.window?.windowNumber, number > 0 {
+                windowIDs.insert(CGWindowID(number))
+            }
+        }
+        return windowIDs
+    }
+
+    /// Compares the bar after a move with the one before it. When the move pushed other items out
+    /// of their places, an automatic move outside a pass or in a restore schedules one repair
+    /// (`MoveNeighbourCheck.schedulesRepair`); a move by the user, of a profile or the Layout pane
+    /// (the user's arrangement is what gets saved) and of a repair is only logged. The pass is the
+    /// one of the move's own task (``ReconciliationPass``), so a move of another task is never
+    /// taken for one of a running pass. Only counts and the origin are logged, never item names.
+    private func checkNeighbours(
+        after item: MenuBarItem,
+        before: [MoveNeighbourCheck.Entry],
+        managed: Set<UInt32>,
+        origin: MoveOrigin
+    ) {
+        let disturbed = MoveNeighbourCheck.disturbed(
+            before: before,
+            after: neighbourSnapshot(),
+            moved: item.windowID,
+            managed: managed
+        )
+        guard !disturbed.isEmpty else {
+            return
+        }
+        let originName = origin == .user ? "user" : "automatic"
+        logger.notice("A move disturbed \(disturbed.count, privacy: .public) other items (\(originName, privacy: .public) move)")
+        if MoveNeighbourCheck.schedulesRepair(automatic: origin == .automatic, pass: ReconciliationPass.current) {
+            scheduleMoveRepair()
         }
     }
 
@@ -1342,6 +1487,12 @@ extension MenuBarItemManager {
         ItemIdentity.storedKey(stored, titleChangingOwners: titleChangingOwners)
     }
 
+    /// The keys a stored set of keys matches today, so that old keys of items that differ only
+    /// after the first line of their titles stay apart (`ItemIdentity.storedKeyMap`).
+    func storedIdentityKeys(_ stored: [String]) -> [String: String] {
+        ItemIdentity.storedKeyMap(stored, titleChangingOwners: titleChangingOwners)
+    }
+
     /// Learns which apps change their item titles from this and the previous read of the bar,
     /// and keys the items anew.
     private func updateIdentities(with items: [MenuBarItem]) {
@@ -1363,6 +1514,19 @@ extension MenuBarItemManager {
         }
         previousIdentityItems = current
         identityKeysByWindow = identityKeys(for: items)
+
+        // Known items that came back since the previous read go back to their saved section and
+        // place. The first read after launch only records the set: the launch restore handles it.
+        let currentKeys = Set(identityKeysByWindow.values)
+        // A pending key that is not on the bar now cannot be restored; it is added again when
+        // the item comes back.
+        pendingReappearedKeys.formIntersection(currentKeys)
+        if let previousIdentityKeys, !currentKeys.isSubset(of: previousIdentityKeys) {
+            pendingReappearedKeys.formUnion(
+                ItemOrder.reappeared(previous: previousIdentityKeys, current: Array(currentKeys), saved: savedSectionKeys())
+            )
+        }
+        previousIdentityKeys = currentKeys
     }
 }
 

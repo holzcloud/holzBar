@@ -275,6 +275,10 @@ nonisolated extension Defaults {
         /// The section of each item before macOS 27, keyed by its identity (`ItemIdentity`):
         /// 0 visible, 1 hidden, 2 always hidden.
         case itemSections = "ItemSections"
+        /// The order of the items before macOS 27, left to right across the bar, as identity keys
+        /// (`ItemOrder`), saved with the sections. A new key: no migration, and it is exported
+        /// and imported like ``itemSections``.
+        case itemOrder = "ItemOrder"
         /// The namespaces whose item titles change beyond their numbers (`ItemIdentity`).
         case titleChangingItemOwners = "TitleChangingItemOwners"
 
@@ -527,6 +531,7 @@ nonisolated extension Defaults.Key {
             .notchHubLastTab:
             .string
         case .knownItemTags,
+            .itemOrder,
             .knownApplications27,
             .hiddenSystemItems27,
             .titleChangingItemOwners,
@@ -703,6 +708,24 @@ nonisolated extension Defaults.Key {
             } else {
                 result.accepted.removeValue(forKey: replacementsKey)
                 result.ignored = (result.ignored + [replacementsKey]).sorted()
+            }
+        }
+        // A file never brings a stored order of more keys than `ItemOrder` keeps, or an empty,
+        // overlong or repeated key: the order is read on the main thread at every restore.
+        let orderKey = Self.itemOrder.rawValue
+        if let order = result.accepted[orderKey] as? [String] {
+            result.accepted[orderKey] = ItemOrder.sanitized(order)
+        }
+        // A file never brings more profiles or entries than the limits of `LayoutProfileList`, a
+        // name that is empty, white space or over its byte cap, or a section that does not exist:
+        // the list is decoded, validated and encoded again, and a repeated name gets a number.
+        let profilesKey = Self.layoutProfiles.rawValue
+        if let data = result.accepted[profilesKey] as? Data {
+            if let normalized = LayoutProfileList.normalized(data) {
+                result.accepted[profilesKey] = normalized
+            } else {
+                result.accepted.removeValue(forKey: profilesKey)
+                result.ignored = (result.ignored + [profilesKey]).sorted()
             }
         }
         // A file never conceals holzBar itself: an entry for holzBar's own bundle in the macOS 27

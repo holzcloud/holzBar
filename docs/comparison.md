@@ -83,6 +83,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Refuses hotkeys macOS cannot register, and says why; asks before taking another hotkey's combination | ❌ | — | — | ✅ |
 | Input never stalls when an app hangs | ❌ | ✅ | — | ✅ |
 | Items keep their section when an app changes its title | ❌ | ✅ | — | ✅ |
+| Items keep their order within a section and go back to their place when they reappear (macOS 26 and earlier) | ❌ | ✅ | — | ✅ |
 | Pauses while the screen is locked, settles after wake | ❌ | ✅ | — | ✅ |
 | Look on every desktop, follows the icons, steps aside in fullscreen | ❌ | ✅ | — | ✅ |
 | No screen-recording indicator when showing or hiding (macOS 27) | — | ✅ | — | ✅ |

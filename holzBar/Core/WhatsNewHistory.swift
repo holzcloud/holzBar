@@ -24,6 +24,29 @@ import Foundation
 nonisolated enum WhatsNewHistory {
     /// The releases, newest first.
     static let releases: [WhatsNewRelease] = [
+        WhatsNewRelease(version: "1.0.4",
+            improved: [
+                WhatsNewItem(
+                    symbol: "arrow.left.arrow.right",
+                    title: "Order inside sections",
+                    detail: "On macOS 26 and earlier, items keep their order inside each section and go back to their place when they reappear."
+                ),
+                WhatsNewItem(
+                    symbol: "link",
+                    title: "Safer URL commands",
+                    detail: "While Zen mode is on, the command that toggles application menus is ignored, and a burst of commands from another app is limited."
+                ),
+            ],
+            fixed: [
+                WhatsNewFix(text: "holzBar no longer moves items or records your layout while the menu bar is still settling after a display change."),
+                WhatsNewFix(text: "Apps that start slowly, such as OneDrive, are placed once they have started."),
+                WhatsNewFix(text: "Items with a second line or a live value in their title keep their place."),
+                WhatsNewFix(text: "If one of holzBar's own moves pushes the items next to it out of place, holzBar puts them back."),
+                WhatsNewFix(text: "Control Center controls pinned to the menu bar show as fixed in Menu Bar Layout on macOS 27."),
+                WhatsNewFix(text: "Tray icons of Windows apps run with Wine or CrossOver are no longer moved by holzBar on its own."),
+                WhatsNewFix(text: "An imported settings file can no longer bring an unlimited number of layout profiles."),
+            ]
+        ),
         WhatsNewRelease(version: "1.0.3",
             fixed: [
                 WhatsNewFix(text: "Hidden apps that were already running when holzBar started now appear in the Shelf."),

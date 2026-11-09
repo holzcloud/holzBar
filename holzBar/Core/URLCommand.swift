@@ -42,7 +42,9 @@ nonisolated struct URLCommand: Equatable, Sendable {
         /// - Showing and hiding change nothing lasting and run at once. Zen mode refuses
         ///   `show` and `toggle` of a hidden section where they are performed.
         /// - The search and Settings change nothing lasting either, but list or reveal the
-        ///   hidden items, so Zen mode refuses them.
+        ///   hidden items, so Zen mode refuses them. So are the application menus: toggling
+        ///   them changes nothing lasting, but shows the Dock icon and the menus, which Zen
+        ///   mode keeps quiet.
         /// - Applying a profile rearranges the menu bar, the Shelf and auto-rehide
         ///   toggles change settings that last, and turning an automation rule on or off
         ///   changes what holzBar does by itself: holzBar
@@ -52,9 +54,9 @@ nonisolated struct URLCommand: Equatable, Sendable {
         ///   part, ``ZenMode/isAutomatic``), which only the user ends.
         func decision(zenMode: ZenMode) -> Decision {
             switch self {
-            case .toggle, .show, .hide, .toggleApplicationMenus, .unknown:
+            case .toggle, .show, .hide, .unknown:
                 return .perform
-            case .search, .settings:
+            case .search, .settings, .toggleApplicationMenus:
                 return zenMode.isActive ? .refuse : .perform
             case .toggleShelf, .toggleAutoRehide, .applyProfile, .automationRule:
                 return zenMode.isActive ? .refuse : .ask
@@ -76,6 +78,34 @@ nonisolated struct URLCommand: Equatable, Sendable {
         case ask
         /// Ignores it.
         case refuse
+    }
+
+    /// Limits how many commands from other apps holzBar performs.
+    ///
+    /// Any app, script or web page can send commands, as often as it likes (URLs and Apple
+    /// events of the AppleScript dictionary). A burst must not run a stream of reveals or
+    /// questions, so at most ``limit`` commands run within any ``window``; the others are
+    /// ignored. A refused command is not recorded, so a flood cannot keep the window full
+    /// for longer than it lasts.
+    nonisolated struct Throttle: Sendable {
+        /// The most commands performed within ``window``.
+        static let limit = 8
+
+        /// The length of the sliding window.
+        static let window: Duration = .seconds(2)
+
+        /// When the commands inside the window were performed.
+        private var performed: [ContinuousClock.Instant] = []
+
+        /// Decides whether a command arriving `now` may run, and records it when it may.
+        mutating func allows(at now: ContinuousClock.Instant) -> Bool {
+            performed.removeAll { now >= $0.advanced(by: Self.window) }
+            guard performed.count < Self.limit else {
+                return false
+            }
+            performed.append(now)
+            return true
+        }
     }
 
     /// The command, lower-cased.
