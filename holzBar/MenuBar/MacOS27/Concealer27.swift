@@ -228,7 +228,41 @@ final class Concealer27 {
                 self?.update()
             }
         )
+        // With the always-hidden section switched off nothing reveals it, so its applications
+        // move to Hidden once, where the Shelf and holzBar's icon reach them. Switching the
+        // section on again moves nothing back.
+        let advanced = appState.settings.advanced
+        observers.append(
+            ObservationLoop.observe { advanced.enableAlwaysHiddenSection } onChange: { [weak self] isEnabled in
+                guard let self, !isEnabled, foldAlwaysHiddenIntoHidden() else {
+                    return
+                }
+                update()
+            }
+        )
+        // A layout saved while the section was on, also one a settings import brought (an import
+        // relaunches holzBar), is folded the same way.
+        if !advanced.enableAlwaysHiddenSection {
+            foldAlwaysHiddenIntoHidden()
+        }
         update()
+    }
+
+    /// Moves every always-hidden application of the saved layout to Hidden, writing the layout
+    /// only when that changes it.
+    ///
+    /// - Returns: Whether the layout changed.
+    @discardableResult
+    private func foldAlwaysHiddenIntoHidden() -> Bool {
+        let layout = savedLayout
+        let folded = SectionLayout27.foldingAlwaysHidden(layout)
+        guard folded != layout else {
+            return false
+        }
+        let moved = layout.values.count { $0 == .alwaysHidden }
+        store(folded)
+        logger.notice("The always-hidden section is off, moved \(moved, privacy: .public) applications to Hidden")
+        return true
     }
 
     deinit {

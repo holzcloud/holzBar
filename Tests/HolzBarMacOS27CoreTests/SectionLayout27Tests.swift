@@ -46,6 +46,24 @@ struct SectionLayout27Tests {
         #expect(result.isEmpty)
     }
 
+    @Test("Two changed items of one app in Hidden and Always-Hidden give Hidden")
+    func editorSplitHiddenAndAlwaysHidden() {
+        let result = SectionLayout27.appSections(items: [
+            (bundleID: "com.s.app", section: .alwaysHidden),
+            (bundleID: "com.s.app", section: .hidden),
+        ])
+        #expect(result == ["com.s.app": .hidden])
+    }
+
+    @Test("Two changed items of one app in Visible and Hidden give Visible")
+    func editorSplitVisibleAndHidden() {
+        let result = SectionLayout27.appSections(items: [
+            (bundleID: "com.s.app", section: .hidden),
+            (bundleID: "com.s.app", section: .visible),
+        ])
+        #expect(result == ["com.s.app": .visible])
+    }
+
     @Test("Bundles are collected by section")
     func bundlesBySection() {
         let layout: [String: MacOS27Section] = ["a": .visible, "b": .hidden, "c": .alwaysHidden]
@@ -179,6 +197,40 @@ struct KnownApplications27Tests {
             saved: ["com.h.app": .hidden]
         )
         #expect(result == ["com.n.app"])
+    }
+}
+
+@Suite("Folding Always-Hidden into Hidden on macOS 27")
+struct FoldingAlwaysHidden27Tests {
+    @Test("Every always-hidden entry becomes hidden; the others stay")
+    func foldsAlwaysHidden() {
+        let widget = "holzBar.Widget.0A1B2C3D"
+        let layout: [String: MacOS27Section] = [
+            "com.a.app": .alwaysHidden,
+            "com.b.app": .hidden,
+            "com.c.app": .alwaysHidden,
+            widget: .alwaysHidden,
+        ]
+        #expect(SectionLayout27.foldingAlwaysHidden(layout) == [
+            "com.a.app": .hidden,
+            "com.b.app": .hidden,
+            "com.c.app": .hidden,
+            widget: .hidden,
+        ])
+    }
+
+    @Test("A layout without always-hidden entries stays as it is")
+    func leavesOthersAlone() {
+        let layout: [String: MacOS27Section] = ["com.b.app": .hidden, "com.v.app": .visible]
+        #expect(SectionLayout27.foldingAlwaysHidden(layout) == layout)
+        #expect(SectionLayout27.foldingAlwaysHidden([:]).isEmpty)
+    }
+
+    @Test("Folding twice is folding once")
+    func idempotent() {
+        let layout: [String: MacOS27Section] = ["com.a.app": .alwaysHidden, "com.b.app": .hidden]
+        let once = SectionLayout27.foldingAlwaysHidden(layout)
+        #expect(SectionLayout27.foldingAlwaysHidden(once) == once)
     }
 }
 

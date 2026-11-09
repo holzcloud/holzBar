@@ -56,6 +56,15 @@ nonisolated extension SectionLayout27 {
         bundleIDs.isSubset(of: known) ? nil : known.union(bundleIDs)
     }
 
+    /// The layout with every always-hidden entry moved to Hidden.
+    ///
+    /// With the always-hidden section switched off nothing reveals it, so its applications go to
+    /// Hidden, where the Shelf and holzBar's icon reach them. The fold is not undone when the
+    /// section is switched on again.
+    static func foldingAlwaysHidden(_ layout: [String: MacOS27Section]) -> [String: MacOS27Section] {
+        layout.mapValues { $0 == .alwaysHidden ? .hidden : $0 }
+    }
+
     /// The applications a read sees for the first time: neither known nor in the saved layout.
     /// Only these are placed in the section chosen for new items.
     static func newApplications(

@@ -215,14 +215,12 @@ final class LayoutEditor {
         outcome.applied = sectionChanges.count
         if #available(macOS 27.0, *) {
             // The sections of the applications are written once and applied once; then each
-            // section is sorted on the bar, where the backend can.
-            var applications = [String: MacOS27Section]()
-            for (key, section) in sectionChanges {
-                if let application = itemsByKey[key]?.layoutKey27 {
-                    applications[application] = MacOS27Section(section.name)
-                }
+            // section is sorted on the bar, where the backend can. An application whose items
+            // were moved to different sections takes the most visible one, as seeding does.
+            let changedItems = sectionChanges.compactMap { key, section -> (bundleID: String, section: MacOS27Section)? in
+                itemsByKey[key]?.layoutKey27.map { ($0, MacOS27Section(section.name)) }
             }
-            appState.concealer27.setSections(applications)
+            appState.concealer27.setSections(SectionLayout27.appSections(items: changedItems))
             appState.automation.itemsWereArrangedByHand()
             if pending.ordersWithinSection {
                 await sortSections(of: pending, controlled: controlled, outcome: &outcome, appState: appState)

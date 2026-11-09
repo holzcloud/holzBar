@@ -375,7 +375,7 @@ final class LayoutProfiles {
                 // dropped from what it names and from the result, never concealed.
                 let ownBundleIdentifier = Constants.bundleIdentifier
                 let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
-                let layout = SectionLayout27.applyingProfile(
+                var layout = SectionLayout27.applyingProfile(
                     OwnBundle.removing(
                         from: profile.applicationSections.compactMapValues(MacOS27Section.init(rawValue:)),
                         bundleIdentifier: ownBundleIdentifier
@@ -383,6 +383,11 @@ final class LayoutProfiles {
                     knownApplications: profile.knownApplications.map(Set.init),
                     to: stored.compactMapValues(MacOS27Section.init(rawValue:))
                 )
+                // A profile or snapshot from a Mac with the always-hidden section on: with the
+                // section off here, nothing would reveal those applications, so they go to Hidden.
+                if !appState.settings.advanced.enableAlwaysHiddenSection {
+                    layout = SectionLayout27.foldingAlwaysHidden(layout)
+                }
                 Defaults.set(
                     OwnBundle.removing(from: layout, bundleIdentifier: ownBundleIdentifier).mapValues(\.rawValue),
                     forKey: .macOS27Layout
