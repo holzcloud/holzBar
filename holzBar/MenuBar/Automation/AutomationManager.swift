@@ -987,8 +987,9 @@ final class AutomationManager {
         defer {
             isMovingItems = false
         }
-        await appState.profiles.applyLayout(of: LayoutProfile(
-            name: "",
+        // The change knows only the rule's applications, so every other saved one keeps its
+        // section on macOS 27.
+        await appState.profiles.applyLayout(of: LayoutProfile.partialChange(
             itemSections: changes,
             applicationSections: applicationSections
         ))?.value
@@ -1266,11 +1267,9 @@ final class AutomationManager {
         result.itemSections = ItemVisibility.removingControlled(from: profile.itemSections) {
             controlled.contains(itemManager.storedIdentityKey($0))
         }
-        let layoutKeys = layoutKeys(forItemKeys: controlled)
-        result.applicationSections = ItemVisibility.removingControlled(from: profile.applicationSections) {
-            layoutKeys.contains($0)
-        }
-        return result
+        // The controlled applications leave the known ones too: a known application missing from
+        // the sections would become visible on macOS 27.
+        return result.removingApplications(layoutKeys(forItemKeys: controlled))
     }
 
     /// The macOS 27 layout keys of the items with the given identity keys, which are the

@@ -102,7 +102,48 @@ struct ApplyingProfile27Tests {
         )
         #expect(result == ["ru.keepcoder.Telegram": .hidden])
     }
+
+    @Test("A rule that makes one app visible leaves every other saved app where it was")
+    func ruleMakingAppVisibleKeepsOthers() {
+        let result = SectionLayout27.applyingProfile(
+            ["com.a.app": .visible],
+            knownApplications: ["com.a.app"],
+            to: ["com.a.app": .hidden, "com.b.app": .hidden]
+        )
+        #expect(result == ["com.b.app": .hidden])
+    }
+
+    @Test("A rule that hides one app adds it and keeps every other saved app")
+    func ruleHidingAppKeepsOthers() {
+        let result = SectionLayout27.applyingProfile(
+            ["com.v.app": .hidden],
+            knownApplications: ["com.v.app"],
+            to: ["com.b.app": .hidden, "com.c.app": .alwaysHidden]
+        )
+        #expect(result == ["com.b.app": .hidden, "com.c.app": .alwaysHidden, "com.v.app": .hidden])
+    }
+
+    @Test("A profile that leaves a rule-controlled app out of its sections and known apps keeps it hidden")
+    func profileWithoutControlledAppKeepsIt() {
+        let saved: [String: MacOS27Section] = ["com.r.app": .hidden, "com.b.app": .hidden]
+        // The profile knew R as visible; R is left out of both because a rule controls it.
+        let result = SectionLayout27.applyingProfile(["com.b.app": .hidden], knownApplications: ["com.b.app"], to: saved)
+        #expect(result == ["com.r.app": .hidden, "com.b.app": .hidden])
+    }
+
+    @Test("A profile that still knows a rule-controlled app makes it visible")
+    func profileKnowingControlledAppDropsIt() {
+        // Why the known applications must be filtered as well as the sections.
+        let saved: [String: MacOS27Section] = ["com.r.app": .hidden, "com.b.app": .hidden]
+        let result = SectionLayout27.applyingProfile(
+            ["com.b.app": .hidden],
+            knownApplications: ["com.b.app", "com.r.app"],
+            to: saved
+        )
+        #expect(result == ["com.b.app": .hidden])
+    }
 }
+
 @Suite("Seeding the macOS 27 layout from the bar")
 struct SeededLayout27Tests {
     // A bar as it stood before macOS 27: always-hidden items, the always-hidden divider,

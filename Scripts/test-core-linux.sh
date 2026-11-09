@@ -182,6 +182,7 @@ tests=(
   ItemTimerTests
   LayoutDraftTests
   LayoutProfileListTests
+  LayoutProfileTests
   LayoutSnapshotTests
   LegacyRevealRulesTests
   MenuBarDragDeciderTests
