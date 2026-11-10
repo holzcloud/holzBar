@@ -7,24 +7,48 @@ import Testing
 struct SyntheticWindowID27Tests {
     @Test("The same item always gets the same identifier")
     func stable() {
-        let first = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", index: 0)
-        let second = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", index: 0)
+        let first = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", occurrence: 0)
+        let second = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", occurrence: 0)
         #expect(first == second)
     }
 
-    @Test("Different items get different identifiers")
+    @Test("Items of one app that share an identifier get different identifiers")
     func distinct() {
-        let first = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", index: 0)
-        let second = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", index: 1)
+        let occurrences = SyntheticWindowID27.occurrences(identifiers: ["Item#", "Item#"])
+        #expect(occurrences == [0, 1])
+        let first = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", occurrence: occurrences[0])
+        let second = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", occurrence: occurrences[1])
         #expect(first != second)
     }
 
     @Test("Synthetic identifiers are recognisable and real ones are not")
     func recognisable() {
-        let synthetic = SyntheticWindowID27.make(bundleID: "ru.keepcoder.Telegram", identifier: "Item-0", index: 0)
+        let synthetic = SyntheticWindowID27.make(bundleID: "ru.keepcoder.Telegram", identifier: "Item-0", occurrence: 0)
         #expect(SyntheticWindowID27.isSynthetic(synthetic))
+        #expect(SyntheticWindowID27.isSynthetic(SyntheticWindowID27.make(bundleID: "com.apple.MenuBarAgent", identifier: "", occurrence: 7)))
         #expect(!SyntheticWindowID27.isSynthetic(24))
         #expect(!SyntheticWindowID27.isSynthetic(100_000))
+    }
+
+    @Test("The occurrence counts each identifier on its own")
+    func occurrencesPerIdentifier() {
+        #expect(SyntheticWindowID27.occurrences(identifiers: ["a", "b", "a", "", "a"]) == [0, 0, 1, 0, 2])
+        #expect(SyntheticWindowID27.occurrences(identifiers: ["", ""]) == [0, 1])
+        #expect(SyntheticWindowID27.occurrences(identifiers: []).isEmpty)
+    }
+
+    @Test("A system item keeps its identifier when an item before it comes or goes")
+    func independentOfPosition() {
+        // The children of MenuBarAgent without and with one more item in front, as when the
+        // overflow button or another system item appears (27-L2).
+        let without = ["com.apple.menuextra.wifi", "com.apple.menuextra.clock"]
+        let with = ["com.apple.menuextra.battery"] + without
+        let clockWithout = SyntheticWindowID27.occurrences(identifiers: without)[1]
+        let clockWith = SyntheticWindowID27.occurrences(identifiers: with)[2]
+        #expect(
+            SyntheticWindowID27.make(bundleID: "com.apple.MenuBarAgent", identifier: "com.apple.menuextra.clock", occurrence: clockWithout)
+                == SyntheticWindowID27.make(bundleID: "com.apple.MenuBarAgent", identifier: "com.apple.menuextra.clock", occurrence: clockWith)
+        )
     }
 }
 
