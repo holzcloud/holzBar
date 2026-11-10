@@ -1123,16 +1123,8 @@ final class AutomationManager {
         section.show(bypassingLock: true, origin: .rule) { token in
             Task {
                 try? await Task.sleep(for: .seconds(interval))
-                guard menuBarManager.revealOwnership.isCurrent(token), !section.isHidden else {
-                    return
-                }
-                // A rule on top of a change reveal also hides what that one showed
-                // (`RevealOwnership.didShow`); hiding the hidden section hides every section.
-                if menuBarManager.revealOwnership.mayHide(token).contains(.hidden) {
-                    menuBarManager.section(withName: .hidden)?.hide()
-                } else {
-                    section.hide()
-                }
+                // Also what a change reveal under it showed, and never under an open menu.
+                menuBarManager.endTimedReveal(token, of: section)
             }
         }
         menuBarManager.showOnHoverAllowed = false

@@ -319,6 +319,7 @@ final class MenuBarSection {
         if name != .alwaysHidden {
             menuBarManager.temporaryShowTask?.cancel()
             menuBarManager.changeRevealTask?.cancel()
+            menuBarManager.cancelHideRetry()
         }
         menuBarManager.shelfPanel.close() // Make sure the holzBar Shelf is always closed.
         menuBarManager.showOnHoverAllowed = true

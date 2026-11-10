@@ -63,7 +63,7 @@ extension HotkeyAction {
             // delay again. The delay starts in `onShown`, when the section is really
             // shown, also after Touch ID (D-08), and the hide happens only while the peek
             // still owns the reveal: shown or hidden another way meanwhile, the section is
-            // left alone.
+            // left alone. With a hidden item's menu open it waits for the menu to close.
             let menuBarManager = appState.menuBarManager
             guard let section = menuBarManager.section(withName: .hidden) else {
                 return
@@ -74,14 +74,10 @@ extension HotkeyAction {
                 menuBarManager.temporaryShowTask?.cancel()
                 menuBarManager.temporaryShowTask = Task {
                     try? await Task.sleep(for: .seconds(interval))
-                    guard
-                        !Task.isCancelled,
-                        menuBarManager.revealOwnership.isCurrent(token),
-                        !section.isHidden
-                    else {
+                    guard !Task.isCancelled else {
                         return
                     }
-                    section.hide()
+                    menuBarManager.endTimedReveal(token, of: section)
                 }
             }
             menuBarManager.showOnHoverAllowed = false

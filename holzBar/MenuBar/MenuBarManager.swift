@@ -74,6 +74,13 @@ final class MenuBarManager {
     /// top of one of the hidden section also hides what the first one showed.
     @ObservationIgnored private var changeRevealToken: RevealOwnership.Token?
 
+    /// Waits for the next pointer move after an automatic hide was refused (the pointer at the
+    /// bar, a hidden item's menu open); runs only while such a hide waits.
+    @ObservationIgnored private var hideRetryMonitor: EventMonitor?
+
+    /// Asks a refused hide again a second after the pointer moved.
+    @ObservationIgnored private var hideRetryTask: Task<Void, Never>?
+
     /// Who showed the hidden sections and what that show expanded: what a trigger showed,
     /// that trigger may hide again (show on hover hides only its own reveal, and the timed
     /// rehide collapses what its show opened). ``MenuBarSection`` records every real show and
@@ -657,15 +664,15 @@ final class MenuBarManager {
             return
         }
         let hidEventManager = appState.hidEventManager
-        if
-            let screen = hidEventManager.bestScreen(appState: appState),
-            hidEventManager.isMouseInsideMenuBar(appState: appState, screen: screen)
-        {
-            // The user is at the menu bar now.
-            return
-        }
-        guard !hidden.hasOpenItemMenu else {
-            // Never pull an item away under its open menu.
+        let isPointerInMenuBar = hidEventManager.bestScreen(appState: appState).map {
+            hidEventManager.isMouseInsideMenuBar(appState: appState, screen: $0)
+        } ?? false
+        // Not while the user is at the menu bar, and never pull an item away under its open
+        // menu: ask again after the next pointer move, while the reveal is still this one's.
+        guard !isPointerInMenuBar, !hidden.hasOpenItemMenu else {
+            retryHideAfterNextPointerMove(token) { [weak self] token in
+                self?.endChangeReveal(token, inherited: inherited)
+            }
             return
         }
         changeRevealToken = nil
@@ -674,6 +681,74 @@ final class MenuBarManager {
         } else {
             section(withName: .alwaysHidden)?.hide()
         }
+    }
+
+    /// Hides what a timed reveal (the peek, an automation rule) showed once its time is up,
+    /// while it still owns the reveal. With a hidden item's menu open it asks again after the
+    /// next pointer move (D-04, D-05). A reveal that also took over another automatic reveal
+    /// hides what that one showed too (`RevealOwnership.didShow`); hiding the hidden section
+    /// hides every section.
+    func endTimedReveal(_ token: RevealOwnership.Token, of section: MenuBarSection) {
+        guard revealOwnership.isCurrent(token), !section.isHidden else {
+            return
+        }
+        guard !section.hasOpenItemMenu else {
+            retryHideAfterNextPointerMove(token) { [weak self] token in
+                self?.endTimedReveal(token, of: section)
+            }
+            return
+        }
+        if revealOwnership.mayHide(token).contains(.hidden), let hidden = self.section(withName: .hidden) {
+            hidden.hide()
+        } else {
+            section.hide()
+        }
+    }
+
+    /// Asks a refused automatic hide again one second after the pointer next moves, while the
+    /// token still owns the reveal: no pointer move, no check, and never a timer loop. A new
+    /// retry replaces the one waiting; hiding the sections ends it.
+    func retryHideAfterNextPointerMove(
+        _ token: RevealOwnership.Token,
+        _ attempt: @escaping @MainActor (RevealOwnership.Token) -> Void
+    ) {
+        cancelHideRetry()
+        let monitor = EventMonitor.universal(for: .mouseMoved) { [weak self] event in
+            self?.pointerMovedAfterRefusedHide(token, attempt)
+            return event
+        }
+        hideRetryMonitor = monitor
+        monitor.start()
+    }
+
+    /// The first pointer move after a refused hide: stops listening and asks again a second
+    /// later.
+    private func pointerMovedAfterRefusedHide(
+        _ token: RevealOwnership.Token,
+        _ attempt: @escaping @MainActor (RevealOwnership.Token) -> Void
+    ) {
+        hideRetryMonitor?.stop()
+        hideRetryMonitor = nil
+        hideRetryTask?.cancel()
+        hideRetryTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(1))
+            guard let self, !Task.isCancelled else {
+                return
+            }
+            hideRetryTask = nil
+            guard revealOwnership.isCurrent(token) else {
+                return
+            }
+            attempt(token)
+        }
+    }
+
+    /// Ends a refused hide's wait for the next pointer move.
+    func cancelHideRetry() {
+        hideRetryMonitor?.stop()
+        hideRetryMonitor = nil
+        hideRetryTask?.cancel()
+        hideRetryTask = nil
     }
 
     /// Returns the menu bar section with the given name.
