@@ -61,6 +61,7 @@ sources=(
   InputMonitors
   InterfaceWindowRule
   ItemCategory
+  ItemChangeCadence
   ItemClassifier
   ItemIdentity
   ItemOpenOrigin
@@ -177,6 +178,7 @@ tests=(
   InputMonitorsTests
   InterfaceWindowRuleTests
   ItemCategoryTests
+  ItemChangeCadenceTests
   ItemClassifierTests
   ItemIdentityTests
   ItemOrderTests

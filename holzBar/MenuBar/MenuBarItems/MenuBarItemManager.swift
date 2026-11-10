@@ -115,8 +115,19 @@ final class MenuBarItemManager {
     /// Reads the item list again 1 s after the last event that may have changed it.
     @ObservationIgnored private let itemListDebouncer = Debouncer(delay: .seconds(1))
 
-    /// When the first event that still waits for ``itemListDebouncer`` came.
-    @ObservationIgnored private var itemListChangePendingSince: ContinuousClock.Instant?
+    /// When the events that may have changed the item list force a read (D-18).
+    @ObservationIgnored private var itemChangeCadence = ItemChangeCadence()
+
+    /// How many reads of the item list the events forced. For diagnostics.
+    var forcedItemReads: Int {
+        itemChangeCadence.forcedReads
+    }
+
+    /// How many bursts of events had a forced read held back because their app forced one
+    /// lately. For diagnostics.
+    var heldBackItemReads: Int {
+        itemChangeCadence.heldBack
+    }
 
     /// Reads the item list again 1.5 s after the last application activation, where the
     /// backend asks for it.
@@ -142,7 +153,9 @@ final class MenuBarItemManager {
         // an item that appears without any of these; it replaced a 5 s timer that read
         // the window list (on macOS 27, every process through Accessibility) at idle.
         // The events are debounced by 1 s, as the Combine pipeline was, but wait 5 s at
-        // most; the fallback reads at once, so events that never pause cannot hold it up.
+        // most, and an item owner that keeps changing its elements forces a read at most
+        // every 30 s (ItemChangeCadence); the fallback reads at once, so events that never
+        // pause cannot hold it up.
         runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.new]) { [weak self] _, _ in
             Task { @MainActor in
                 // A launched application needs a moment to add its items.
@@ -157,11 +170,12 @@ final class MenuBarItemManager {
         observerTasks = notifications.map { center, name in
             Task { [weak self] in
                 for await notification in center.notifications(named: name) {
+                    var pid: pid_t?
                     if name == .menuBarItemsMayHaveChanged27 {
-                        let pid = notification.userInfo?["pid"] as? pid_t
+                        pid = notification.userInfo?["pid"] as? pid_t
                         self?.logItemChangeNotification(pid: pid)
                     }
-                    self?.itemListMayHaveChanged()
+                    self?.itemListMayHaveChanged(pid: pid)
                 }
             }
         }
@@ -228,33 +242,33 @@ final class MenuBarItemManager {
     }
 
     /// Reads the item list again once the events that may have changed it pause for 1 s,
-    /// or 5 s after the first of them while they keep coming (on macOS 27, an item owner
-    /// whose elements change every moment).
+    /// or 5 s after the first of them while they keep coming; an item owner whose elements
+    /// change every moment (on macOS 27) forces such a read at most every 30 s
+    /// (``ItemChangeCadence``).
     ///
     /// Nothing is read while the screen is locked, the Mac sleeps or the session is away;
     /// the list is read once the bar has settled afterwards.
-    private func itemListMayHaveChanged() {
+    ///
+    /// - Parameter pid: The item owner whose elements changed, `nil` for other events.
+    private func itemListMayHaveChanged(pid: pid_t? = nil) {
         if appState?.systemActivityMonitor.isPaused == true {
             return
         }
-        let now = ContinuousClock.now
-        let pendingSince = itemListChangePendingSince ?? now
-        if pendingSince.duration(to: now) >= .seconds(5) {
-            itemListChangePendingSince = nil
+        switch itemChangeCadence.noteEvent(pid: pid, at: ProcessInfo.processInfo.systemUptime) {
+        case .readNow:
             itemListDebouncer.cancel()
             Task {
                 await cacheItemsIfNeeded()
             }
-            return
-        }
-        itemListChangePendingSince = pendingSince
-        itemListDebouncer.schedule { [weak self] in
-            guard let self else {
-                return
-            }
-            itemListChangePendingSince = nil
-            Task {
-                await self.cacheItemsIfNeeded()
+        case .waitForQuiet:
+            itemListDebouncer.schedule { [weak self] in
+                guard let self else {
+                    return
+                }
+                itemChangeCadence.didRead()
+                Task {
+                    await self.cacheItemsIfNeeded()
+                }
             }
         }
     }
