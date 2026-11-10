@@ -118,6 +118,10 @@ final class MenuBarItemManager {
     /// When the events that may have changed the item list force a read (D-18).
     @ObservationIgnored private var itemChangeCadence = ItemChangeCadence()
 
+    /// How many times a read found the holzBar icon left of the hidden divider and moved it
+    /// back (``ControlItemOrder``). For diagnostics.
+    @ObservationIgnored private(set) var iconPutBack = 0
+
     /// How many reads of the item list the events forced. For diagnostics.
     var forcedItemReads: Int {
         itemChangeCadence.forcedReads
@@ -682,7 +686,10 @@ extension MenuBarItemManager {
 
             // Where items cannot be moved, the dividers stay where macOS placed them.
             if backend.canMoveItems {
-                await enforceControlItemOrder(controlItems: controlItems)
+                await enforceControlItemOrder(
+                    controlItems: controlItems,
+                    icon: items.first { $0.tag == .visibleControlItem }
+                )
                 guard !Task.isCancelled else {
                     await cacheActor.clearCachedItemWindowIDs()
                     return
@@ -1452,24 +1459,46 @@ extension MenuBarItemManager {
 // MARK: - Control Item Order
 
 extension MenuBarItemManager {
-    /// Enforces the order of the given control items, ensuring that the
-    /// control item for the always-hidden section is positioned to the
-    /// left of control item for the hidden section.
-    private func enforceControlItemOrder(controlItems: ControlItemPair) async {
+    /// Puts holzBar's own items back in their order (``ControlItemOrder``): the holzBar icon
+    /// right of the hidden section's divider, where a Command-drag may have dropped it (D-10,
+    /// D-15), and the always-hidden section's divider left of it.
+    ///
+    /// Each move is automatic, so it waits while the system settles and `MoveBackoff` bounds it
+    /// like every other; nothing is shown to the user. Before macOS 27 only (`canMoveItems`).
+    ///
+    /// - Parameters:
+    ///   - controlItems: The dividers of this read.
+    ///   - icon: The holzBar icon of this read, or `nil` when it is not in the bar.
+    private func enforceControlItemOrder(controlItems: ControlItemPair, icon: MenuBarItem?) async {
         let hidden = controlItems.hidden
-
-        guard
-            let alwaysHidden = controlItems.alwaysHidden,
-            hidden.bounds.maxX <= alwaysHidden.bounds.minX
-        else {
-            return
-        }
-
-        do {
-            logger.debug("Control items have incorrect order")
-            try await move(item: alwaysHidden, to: .leftOfItem(hidden))
-        } catch {
-            logger.error("Error enforcing control item order: \(error, privacy: .private)")
+        let corrections = ControlItemOrder.corrections(
+            icon: icon?.bounds,
+            hidden: hidden.bounds,
+            alwaysHidden: controlItems.alwaysHidden?.bounds
+        )
+        for correction in corrections {
+            do {
+                switch correction {
+                case .iconRightOfHidden:
+                    guard let icon else {
+                        continue
+                    }
+                    logger.notice("The holzBar icon is left of the hidden divider, moving it back")
+                    try await move(item: icon, to: .rightOfItem(hidden))
+                    iconPutBack += 1
+                    // This read still has the icon in the hidden section; the next event or the
+                    // fallback reads the bar again instead of skipping an unchanged window list.
+                    await cacheActor.clearCachedItemWindowIDs()
+                case .alwaysHiddenLeftOfHidden:
+                    guard let alwaysHidden = controlItems.alwaysHidden else {
+                        continue
+                    }
+                    logger.debug("Control items have incorrect order")
+                    try await move(item: alwaysHidden, to: .leftOfItem(hidden))
+                }
+            } catch {
+                logger.error("Error enforcing control item order: \(error, privacy: .private)")
+            }
         }
     }
 }

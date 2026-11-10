@@ -40,6 +40,7 @@ sources=(
   ClockClickPolicy
   CommandDragSection
   ControlCenterControl
+  ControlItemOrder
   Defaults
   DesignTokens
   DiagnosticsReport
@@ -159,6 +160,7 @@ tests=(
   ClockClickPolicyTests
   CommandDragSectionTests
   ControlCenterControlTests
+  ControlItemOrderTests
   DesignTokensTests
   DiagnosticsReportTests
   DisplayBehaviorTests
