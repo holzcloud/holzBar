@@ -54,6 +54,10 @@ final class Concealer27 {
     /// concealment again. For diagnostics.
     @ObservationIgnored private(set) var agentRestarts = 0
 
+    /// How many times a read found new applications while concealing and the allowlist was
+    /// worked out again for them, though they went to the visible section. For diagnostics.
+    @ObservationIgnored private(set) var lateAllowlistRefreshes = 0
+
     /// When the last concealment change landed on the bar, which is when the bar last started
     /// moving.
     @ObservationIgnored private var lastChangeAt = ContinuousClock.now
@@ -1131,11 +1135,20 @@ final class Concealer27 {
         // now but would be once it is moved to Visible.
         recordKnownApplications(bundleIDs)
 
+        guard !newBundleIDs.isEmpty else {
+            return
+        }
         guard
-            !newBundleIDs.isEmpty,
             var name = appState.settings.advanced.newItemsPlacement.section,
             name != .visible
         else {
+            // The live allowlist was built before the new application ran, so its item is
+            // concealed from birth while anything is hidden (D-11). One update allows it.
+            if isConcealing {
+                lateAllowlistRefreshes += 1
+                logger.debug("New applications read while concealing, refreshing the allowlist (\(self.lateAllowlistRefreshes, privacy: .public) so far)")
+                update()
+            }
             return
         }
         if name == .alwaysHidden && !appState.settings.advanced.enableAlwaysHiddenSection {
