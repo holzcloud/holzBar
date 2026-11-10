@@ -35,16 +35,25 @@ extension HIDEventManager {
             return false
         }
 
-        // holzBar icon must be vertically visible. Otherwise, we can infer
-        // that the menu bar is hidden and the mouse is not inside. Where the icon's
-        // window says nothing about the menu bar (macOS 27), the visible frame check
+        // Where item windows move up with the bar (before macOS 27), a window above the
+        // display means the bar is hidden there. The icon decides on its own display, then the
+        // hidden divider, then the system's state (`MenuBarAnchor`, pre27-M7). Where the
+        // icon's window says nothing about the menu bar (macOS 27), the visible frame check
         // below remains.
         if MenuBarBackends.current.iconWindowShowsMenuBar {
-            guard
-                let holzBarIcon = appState.menuBarManager.controlItem(withName: .visible),
-                let holzBarIconFrame = holzBarIcon.frame,
-                holzBarIconFrame.maxY <= screen.frame.maxY
-            else {
+            let menuBarManager = appState.menuBarManager
+            // An icon taken out of the bar keeps the last frame it had; it says nothing now.
+            let icon = menuBarManager.controlItem(withName: .visible)
+            let result = MenuBarAnchor.evaluate(
+                iconFrame: icon?.isAddedToMenuBar == true ? icon?.frame : nil,
+                dividerFrame: menuBarManager.controlItem(withName: .hidden)?.frame,
+                screenFrame: screen.frame,
+                systemHidesBar: menuBarManager.isMenuBarHiddenBySystem,
+                isFullscreen: SpaceInfo.currentSpace(for: screen.displayID)?.isFullscreen
+                    ?? appState.activeSpace.isFullscreen
+            )
+            lastMenuBarAnchor = result.anchor
+            guard result.barIsShown else {
                 return false
             }
         }

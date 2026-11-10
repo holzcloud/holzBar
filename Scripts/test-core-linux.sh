@@ -76,6 +76,7 @@ sources=(
   LayoutSnapshot
   LegacyRevealRules
   LiveActivity
+  MenuBarAnchor
   MenuBarBackendKind
   MenuBarDragDecider
   MenuBarIconChoice
@@ -192,6 +193,7 @@ tests=(
   LayoutProfileTests
   LayoutSnapshotTests
   LegacyRevealRulesTests
+  MenuBarAnchorTests
   MenuBarDragDeciderTests
   MenuBarIconChoiceTests
   MenuBarDropTests

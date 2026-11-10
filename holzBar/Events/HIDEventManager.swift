@@ -38,6 +38,11 @@ final class HIDEventManager {
     /// mouse moves do not read the window list each (see `MenuBarHitTesting.swift`).
     @ObservationIgnored var windowsAboveMenuBar: (readAt: TimeInterval, windows: [MenuBarOcclusion.Window])?
 
+    /// What the last menu bar hit test before macOS 27 took the bar's state from
+    /// (``MenuBarAnchor``), for Copy Diagnostics. Set by the hit test only (see
+    /// `MenuBarHitTesting.swift`); it runs on pointer moves, so no observer is woken.
+    @ObservationIgnored var lastMenuBarAnchor: MenuBarAnchor.Kind = .icon
+
     /// The last empty menu bar spot hovered on each display (see `ItemClicker27`).
     @ObservationIgnored private var lastEmptyMenuBarPoints = [CGDirectDisplayID: CGPoint]()
 
