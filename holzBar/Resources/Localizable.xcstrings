@@ -129569,125 +129569,6 @@
         }
       }
     },
-    "On macOS 27, an automation rule that moves one app no longer makes your other hidden apps visible, and applying a profile keeps the apps a rule hides hidden." : {
-      "comment" : "What's New, 1.0.5, fixed.",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "V macOS 27 už pravidlo automatizace, které přesouvá jednu aplikaci, nezviditelní vaše ostatní skryté aplikace a použití profilu ponechá skryté aplikace, které skrývá pravidlo."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unter macOS 27 macht eine Automatisierungsregel, die eine App verschiebt, deine anderen ausgeblendeten Apps nicht mehr sichtbar, und das Anwenden eines Profils lässt die Apps ausgeblendet, die eine Regel ausblendet."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En macOS 27, una regla de automatización que mueve una app ya no hace visibles tus otras apps ocultas, y aplicar un perfil mantiene ocultas las apps que oculta una regla."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sous macOS 27, une règle d’automatisation qui déplace une app ne rend plus visibles vos autres apps masquées, et l’application d’un profil laisse masquées les apps qu’une règle masque."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27 alatt egy appot áthelyező automatizálási szabály már nem teszi láthatóvá a többi rejtett appot, és egy profil alkalmazása rejtve hagyja azokat az appokat, amelyeket egy szabály elrejt."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Di macOS 27, aturan otomatisasi yang memindahkan satu app tidak lagi membuat app tersembunyi lainnya terlihat, dan menerapkan profil membuat app yang disembunyikan aturan tetap tersembunyi."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Su macOS 27, una regola di automazione che sposta un’app non rende più visibili le altre app nascoste, e applicare un profilo lascia nascoste le app che una regola nasconde."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27 で、1 つの App を移動するオートメーションルールがほかの非表示の App を表示してしまうことがなくなり、プロファイルを適用してもルールが非表示にする App は非表示のままになります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27에서 앱 하나를 옮기는 자동화 규칙이 더 이상 다른 숨겨진 앱을 표시하지 않으며, 프로파일을 적용해도 규칙이 숨기는 앱은 숨겨진 상태로 유지됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Op macOS 27 maakt een automatiseringsregel die één app verplaatst je andere verborgen apps niet meer zichtbaar, en het toepassen van een profiel houdt de apps die een regel verbergt verborgen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "W macOS 27 reguła automatyzacji, która przenosi jedną aplikację, nie odsłania już innych ukrytych aplikacji, a zastosowanie profilu pozostawia ukryte aplikacje, które ukrywa reguła."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No macOS 27, uma regra de automação que move um app não torna mais visíveis os seus outros apps ocultos, e aplicar um perfil mantém ocultos os apps que uma regra oculta."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin macOS 27 na fa ina regla d’automatisaziun che spustescha ina app betg pli visiblas tias autras apps zuppadas, ed applitgar in profil lascha zuppadas las apps ch’ina regla zuppenta."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "В macOS 27 правило автоматизации, перемещающее одно приложение, больше не делает видимыми другие скрытые приложения, а применение профиля оставляет скрытыми приложения, которые скрывает правило."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "På macOS 27 gör en automationsregel som flyttar en app inte längre dina andra dolda appar synliga, och när du använder en profil förblir apparna som en regel döljer dolda."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27’de bir uygulamayı taşıyan otomasyon kuralı artık diğer gizli uygulamalarınızı görünür yapmıyor ve bir profil uygulamak, bir kuralın gizlediği uygulamaları gizli tutuyor."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У macOS 27 правило автоматизації, що переміщує один застосунок, більше не робить видимими інші приховані застосунки, а застосування профілю залишає прихованими застосунки, які приховує правило."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 macOS 27 上，移动一个 App 的自动化规则不再让你的其他隐藏 App 变为可见，应用配置文件时，规则隐藏的 App 也会保持隐藏。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 macOS 27 上，移動一個 App 的自動化規則不再讓你的其他隱藏 App 變為可見，套用設定檔時，規則隱藏的 App 也會保持隱藏。"
-          }
-        }
-      }
-    },
     "On macOS 27, an app you made visible is no longer hidden again as a new item." : {
       "comment" : "What's New, 1.0.5, fixed.",
       "localizations" : {
@@ -129803,601 +129684,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在 macOS 27 上，你設為可見的 App 不再被當作新項目重新隱藏。"
-          }
-        }
-      }
-    },
-    "On macOS 27, turning off the always-hidden section moves its apps to Hidden, where the Shelf and the holzBar icon reach them." : {
-      "comment" : "What's New, 1.0.5, fixed. Hidden is the name of the hidden section.",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "V macOS 27 vypnutí sekce vždy skrytých přesune její aplikace do sekce Skryté, kde se k nim dostanete přes Shelf a ikonu holzBar."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unter macOS 27 verschiebt das Ausschalten des Bereichs «Immer ausgeblendet» seine Apps nach «Ausgeblendet», wo das Shelf und das holzBar-Symbol sie erreichen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En macOS 27, desactivar la sección siempre oculta mueve sus apps a Oculto, donde el Shelf y el icono de holzBar las alcanzan."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sous macOS 27, désactiver la section « Toujours masqué » déplace ses apps vers Masqué, où le Shelf et l’icône de holzBar les atteignent."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27 alatt a mindig rejtett szakasz kikapcsolása az appjait a Rejtett szakaszba helyezi, ahol a Shelf és a holzBar ikon eléri őket."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Di macOS 27, mematikan bagian selalu tersembunyi memindahkan app-nya ke Tersembunyi, tempat Shelf dan ikon holzBar menjangkaunya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Su macOS 27, disattivare la sezione «Sempre nascosto» sposta le sue app in Nascosto, dove lo Shelf e l’icona di holzBar le raggiungono."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27 で、常に非表示セクションをオフにすると、その App は非表示に移動し、Shelf と holzBar アイコンから使えるようになります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27에서 “항상 숨김” 섹션을 끄면 그 앱들이 숨김으로 이동하며, Shelf와 holzBar 아이콘에서 열 수 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Op macOS 27 verplaatst het uitschakelen van de altijd verborgen sectie de apps ervan naar Verborgen, waar de Shelf en het holzBar-symbool ze bereiken."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "W macOS 27 wyłączenie sekcji zawsze ukrytych przenosi jej aplikacje do sekcji Ukryte, gdzie sięgają do nich Shelf i ikona holzBar."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No macOS 27, desativar a seção sempre oculta move os apps dela para Oculto, onde o Shelf e o ícone do holzBar os alcançam."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin macOS 27 spustescha la deactivaziun da la secziun «Adina zuppà» sias apps en Zuppà, nua ch’il Shelf e l’icona da holzBar las cuntanschan."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "В macOS 27 при выключении раздела «Всегда скрыто» его приложения переходят в раздел «Скрыто», где их можно открыть из Shelf и значка holzBar."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "På macOS 27 flyttar en avstängd sektion Alltid dolda sina appar till Dold, där Shelf och holzBar-symbolen når dem."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27’de her zaman gizli bölümü kapatmak, uygulamalarını Gizli bölümüne taşır; Shelf ve holzBar simgesi onlara oradan ulaşır."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У macOS 27 вимкнення розділу «Завжди приховано» переносить його застосунки до розділу «Приховано», де до них можна дістатися з Shelf і значка holzBar."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 macOS 27 上，关闭“始终隐藏”分区会将其中的 App 移到“隐藏”，可通过 Shelf 和 holzBar 图标访问。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 macOS 27 上，關閉一律隱藏區段會將其中的 App 移到「已隱藏」，可透過 Shelf 和 holzBar 圖示存取。"
-          }
-        }
-      }
-    },
-    "A section you opened with a click, a hotkey or the Shelf no longer hides when the pointer leaves the menu bar, and nothing hides while an item's menu is open." : {
-      "comment" : "What's New, 1.0.5, fixed.",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sekce otevřená kliknutím, klávesovou zkratkou nebo přes Shelf se už neskryje, když ukazatel opustí řádek nabídek, a nic se neskryje, dokud je otevřená nabídka položky."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ein Bereich, den du per Klick, Tastenkürzel oder Shelf geöffnet hast, wird nicht mehr ausgeblendet, wenn der Zeiger die Menüleiste verlässt, und nichts wird ausgeblendet, solange das Menü eines Elements offen ist."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Una sección que abriste con un clic, un atajo de teclado o el Shelf ya no se oculta cuando el puntero sale de la barra de menús, y nada se oculta mientras el menú de un elemento está abierto."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Une section ouverte par un clic, un raccourci clavier ou le Shelf ne se masque plus quand le pointeur quitte la barre des menus, et rien ne se masque tant que le menu d’un élément est ouvert."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Egy kattintással, billentyűparanccsal vagy a Shelffel megnyitott szakasz már nem rejtődik el, amikor a mutató elhagyja a menüsort, és semmi sem rejtődik el, amíg egy elem menüje nyitva van."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bagian yang Anda buka dengan klik, pintasan keyboard, atau Shelf tidak lagi tersembunyi saat penunjuk meninggalkan bar menu, dan tidak ada yang tersembunyi selama menu item terbuka."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Una sezione aperta con un clic, un’abbreviazione da tastiera o lo Shelf non si nasconde più quando il puntatore lascia la barra dei menu, e nulla si nasconde finché il menu di un elemento è aperto."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "クリック、ショートカットキー、または Shelf で開いたセクションは、ポインタがメニューバーから離れても非表示にならなくなり、項目のメニューが開いている間は何も非表示になりません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "클릭, 단축키 또는 Shelf로 연 섹션은 포인터가 메뉴 막대를 벗어나도 더 이상 숨겨지지 않으며, 항목의 메뉴가 열려 있는 동안에는 아무것도 숨겨지지 않습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Een sectie die je met een klik, een sneltoets of de Shelf hebt geopend, verdwijnt niet meer wanneer de aanwijzer de menubalk verlaat, en niets wordt verborgen zolang het menu van een onderdeel open is."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sekcja otwarta kliknięciem, skrótem klawiszowym lub przez Shelf nie ukrywa się już, gdy wskaźnik opuszcza pasek menu, i nic się nie ukrywa, dopóki menu elementu jest otwarte."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uma seção que você abriu com um clique, um atalho de teclado ou o Shelf não se oculta mais quando o ponteiro sai da barra de menus, e nada se oculta enquanto o menu de um item está aberto."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ina secziun che ti has avert cun in clic, ina cumbinaziun da tastas u il Shelf na sa zuppenta betg pli cura ch’il punctader banduna la trav da menu, e nagut na sa zuppenta durant ch’il menu d’in element è avert."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Раздел, открытый щелчком, горячей клавишей или через Shelf, больше не скрывается, когда указатель покидает строку меню, и ничего не скрывается, пока открыто меню элемента."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En sektion som du öppnat med ett klick, ett kortkommando eller Shelf döljs inte längre när pekaren lämnar menyraden, och inget döljs medan ett objekts meny är öppen."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tıklama, klavye kısayolu veya Shelf ile açtığınız bir bölüm, işaretçi menü çubuğundan ayrıldığında artık gizlenmiyor ve bir öğenin menüsü açıkken hiçbir şey gizlenmiyor."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Розділ, відкритий клацанням, гарячою клавішею або через Shelf, більше не приховується, коли вказівник залишає смугу меню, і ніщо не приховується, поки відкрите меню елемента."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "通过点按、快捷键或 Shelf 打开的分区，在指针离开菜单栏时不再隐藏；项目的菜单打开时，任何内容都不会隐藏。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "透過點按、快速鍵或 Shelf 打開的區段，在指標離開選單列時不再隱藏；項目的選單打開時，任何內容都不會隱藏。"
-          }
-        }
-      }
-    },
-    "Automatic rehide waits while an item's menu is open or the pointer is on the Shelf, and also closes the hidden section that showing the always-hidden one opened." : {
-      "comment" : "What's New, 1.0.5, fixed.",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatické opětovné skrytí čeká, dokud je otevřená nabídka položky nebo je ukazatel na Shelf, a zavře také sekci skrytých, kterou otevřelo zobrazení sekce vždy skrytých."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das automatische Wiederausblenden wartet, solange das Menü eines Elements offen ist oder der Zeiger auf dem Shelf liegt, und schliesst auch den ausgeblendeten Bereich, den das Einblenden des Bereichs «Immer ausgeblendet» geöffnet hat."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Volver a ocultar automáticamente espera mientras el menú de un elemento está abierto o el puntero está sobre el Shelf, y también cierra la sección oculta que abrió mostrar la sección siempre oculta."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le masquage automatique attend tant que le menu d’un élément est ouvert ou que le pointeur est sur le Shelf, et ferme aussi la section masquée qu’avait ouverte l’affichage de la section « Toujours masqué »."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Az automatikus újrarejtés vár, amíg egy elem menüje nyitva van, vagy a mutató a Shelfen van, és bezárja azt a rejtett szakaszt is, amelyet a mindig rejtett szakasz megjelenítése nyitott meg."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sembunyikan kembali otomatis menunggu selama menu item terbuka atau penunjuk berada di Shelf, dan juga menutup bagian tersembunyi yang terbuka saat bagian selalu tersembunyi ditampilkan."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il nuovo occultamento automatico attende finché il menu di un elemento è aperto o il puntatore è sullo Shelf, e chiude anche la sezione nascosta aperta mostrando quella «Sempre nascosto»."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動的に再び非表示にする機能は、項目のメニューが開いている間やポインタが Shelf 上にある間は待機し、常に非表示セクションを表示したときに開いた非表示セクションも閉じます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "자동으로 다시 숨기기는 항목의 메뉴가 열려 있거나 포인터가 Shelf 위에 있는 동안 기다리며, “항상 숨김” 섹션을 표시할 때 열린 숨김 섹션도 닫습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatisch weer verbergen wacht zolang het menu van een onderdeel open is of de aanwijzer op de Shelf staat, en sluit ook de verborgen sectie die het tonen van de altijd verborgen sectie opende."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatyczne ponowne ukrywanie czeka, gdy menu elementu jest otwarte lub wskaźnik jest na Shelf, i zamyka też sekcję ukrytych otwartą przez pokazanie sekcji zawsze ukrytych."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ocultar novamente de forma automática aguarda enquanto o menu de um item está aberto ou o ponteiro está sobre o Shelf, e também fecha a seção oculta que exibir a seção sempre oculta abriu."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il zuppentar puspè automatic spetga durant ch’il menu d’in element è avert u ch’il punctader è sin il Shelf, e serra er la secziun zuppada ch’il mussar da la secziun «Adina zuppà» ha avert."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Автоматическое повторное скрытие ждёт, пока открыто меню элемента или указатель находится на Shelf, а также закрывает раздел «Скрыто», открытый при показе раздела «Всегда скрыто»."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dölj automatiskt igen väntar medan ett objekts meny är öppen eller pekaren är på Shelf, och stänger även sektionen Dolda som visningen av sektionen Alltid dolda öppnade."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Otomatik yeniden gizleme, bir öğenin menüsü açıkken veya işaretçi Shelf üzerindeyken bekler ve her zaman gizli bölümü göstermenin açtığı gizli bölümü de kapatır."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Автоматичне повторне приховування чекає, поки відкрите меню елемента або вказівник на Shelf, а також закриває розділ «Приховано», відкритий під час показу розділу «Завжди приховано»."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自动重新隐藏会在项目的菜单打开或指针位于 Shelf 上时等待，并且也会关闭因显示“始终隐藏”分区而打开的隐藏分区。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動重新隱藏會在項目的選單打開或指標位於 Shelf 上時等待，並且也會關閉因顯示一律隱藏區段而打開的已隱藏區段。"
-          }
-        }
-      }
-    },
-    "A ⌘ Command-drag no longer shows hidden items while the Touch ID lock, Zen mode or Collapse is on, and hides them again after the drop." : {
-      "comment" : "What's New, 1.0.5, fixed. Collapse is the name of a per-display setting.",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Přetažení s ⌘ Command už nezobrazí skryté položky, dokud je zapnutý zámek Touch ID, režim Zen nebo Sbalit, a po upuštění je znovu skryje."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ein ⌘ Command-Ziehen blendet keine ausgeblendeten Elemente mehr ein, solange die Touch ID-Sperre, der Zen-Modus oder Einklappen aktiv ist, und blendet sie nach dem Loslassen wieder aus."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un ⌘ Command-arrastrar ya no muestra elementos ocultos mientras el bloqueo con Touch ID, el modo Zen o Plegar están activos, y los vuelve a ocultar después de soltar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un ⌘ Command-glisser n’affiche plus les éléments masqués tant que le verrou Touch ID, le mode Zen ou Replier est actif, et les masque à nouveau après le dépôt."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Egy ⌘ Command-húzás már nem jeleníti meg a rejtett elemeket, amíg a Touch ID-zár, a Zen mód vagy az Összecsukás be van kapcsolva, és az elengedés után újra elrejti őket."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seret ⌘ Command tidak lagi menampilkan item tersembunyi selama kunci Touch ID, Mode Zen, atau Ciutkan aktif, dan menyembunyikannya kembali setelah dilepas."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un ⌘ Command-trascinamento non mostra più gli elementi nascosti mentre il blocco Touch ID, la modalità Zen o Comprimi sono attivi, e li nasconde di nuovo dopo il rilascio."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch ID ロック、Zen モード、または折りたたむがオンの間は、⌘ Command ドラッグで非表示の項目が表示されなくなり、ドロップ後は再び非表示になります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touch ID 잠금, 젠 모드 또는 접기가 켜져 있는 동안 ⌘ Command 드래그가 더 이상 숨겨진 항목을 표시하지 않으며, 놓은 후에는 다시 숨깁니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Een ⌘ Command-slepen toont geen verborgen onderdelen meer zolang de Touch ID-vergrendeling, de Zenmodus of Vouw samen aan staat, en verbergt ze weer na het neerzetten."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przeciągnięcie z ⌘ Command nie pokazuje już ukrytych elementów, gdy włączona jest blokada Touch ID, Tryb Zen lub Zwiń, i ponownie je ukrywa po upuszczeniu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Um ⌘ Command-arrastar não mostra mais itens ocultos enquanto o bloqueio com Touch ID, o Modo Zen ou Recolher estão ativos, e os oculta novamente depois de soltar."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In ⌘ Command-trair na mussa betg pli elements zuppads durant che la serradira Touch ID, il modus Zen u Plajar è activ, e als zuppenta puspè suenter il relasch."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перетаскивание с ⌘ Command больше не показывает скрытые элементы, пока включены блокировка Touch ID, режим «Дзен» или «Свернуть», и снова скрывает их после отпускания."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En ⌘ Command-dragning visar inte längre dolda objekt medan Touch ID-låset, Zen-läge eller Fäll ihop är på, och döljer dem igen efter släppet."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⌘ Command-sürükleme, Touch ID kilidi, Zen modu veya Daralt açıkken artık gizli öğeleri göstermiyor ve bıraktıktan sonra onları yeniden gizliyor."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перетягування із ⌘ Command більше не показує приховані елементи, поки ввімкнено блокування Touch ID, режим «Дзен» або «Згорнути», і знову приховує їх після відпускання."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "当 Touch ID 锁定、禅模式或折叠开启时，按住 ⌘ Command 拖移不再显示隐藏的项目，并会在放下后重新隐藏它们。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "當 Touch ID 鎖定、Zen 模式或收合開啟時，按住 ⌘ Command 拖移不再顯示隱藏的項目，並會在放開後重新隱藏它們。"
-          }
-        }
-      }
-    },
-    "The peek hotkey hides again after Touch ID, and an item shown because it changed stays while its menu is open or after you opened its section." : {
-      "comment" : "What's New, 1.0.5, fixed. The peek hotkey is the hotkey that shows the hidden section for a moment.",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Klávesová zkratka, která na chvíli zobrazí sekci skrytých, ji po Touch ID znovu skryje, a položka zobrazená kvůli změně zůstane, dokud je její nabídka otevřená nebo když otevřete její sekci."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das Tastenkürzel zum kurzen Einblenden blendet nach Touch ID wieder aus, und ein Element, das wegen einer Änderung eingeblendet wurde, bleibt, solange sein Menü offen ist oder nachdem du seinen Bereich geöffnet hast."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El atajo de teclado que muestra la sección oculta un momento la vuelve a ocultar después de Touch ID, y un elemento mostrado porque cambió se queda mientras su menú está abierto o después de que abriste su sección."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le raccourci clavier qui affiche la section masquée un instant la masque à nouveau après Touch ID, et un élément affiché parce qu’il a changé reste tant que son menu est ouvert ou après que vous avez ouvert sa section."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A rejtett szakaszt egy pillanatra megjelenítő billentyűparancs Touch ID után újra elrejti azt, a változás miatt megjelenített elem pedig látható marad, amíg a menüje nyitva van, vagy miután megnyitotta a szakaszát."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pintasan keyboard yang menampilkan bagian tersembunyi sebentar menyembunyikannya kembali setelah Touch ID, dan item yang ditampilkan karena berubah tetap terlihat selama menunya terbuka atau setelah Anda membuka bagiannya."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L’abbreviazione da tastiera che mostra per un attimo la sezione nascosta la nasconde di nuovo dopo Touch ID, e un elemento mostrato perché è cambiato resta finché il suo menu è aperto o dopo che hai aperto la sua sezione."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "非表示セクションを少しの間表示するショートカットキーは Touch ID の後も再び非表示にし、変化したために表示された項目は、そのメニューが開いている間やそのセクションを開いた後は表示されたままになります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "“숨김” 섹션을 잠시 표시하는 단축키는 Touch ID 후에도 다시 숨기며, 변경되어 표시된 항목은 메뉴가 열려 있는 동안이나 해당 섹션을 연 후에는 그대로 표시됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De sneltoets die de verborgen sectie even toont, verbergt haar weer na Touch ID, en een onderdeel dat werd getoond omdat het veranderde, blijft zolang het menu ervan open is of nadat je de sectie ervan hebt geopend."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skrót klawiszowy, który na chwilę pokazuje sekcję ukrytych, ukrywa ją ponownie po Touch ID, a element pokazany z powodu zmiany pozostaje, dopóki jego menu jest otwarte lub po otwarciu jego sekcji."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O atalho de teclado que exibe a seção oculta por um momento volta a ocultá-la depois do Touch ID, e um item exibido porque mudou permanece enquanto o menu dele está aberto ou depois que você abriu a seção dele."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La cumbinaziun da tastas che mussa per in mument la secziun zuppada la zuppenta puspè suenter Touch ID, ed in element mussà perquai ch’el è sa midà resta durant che ses menu è avert u suenter che ti has avert sia secziun."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Горячая клавиша, которая ненадолго показывает раздел «Скрыто», снова скрывает его после Touch ID, а элемент, показанный из-за изменения, остаётся, пока открыто его меню или после того, как вы открыли его раздел."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kortkommandot som visar sektionen Dolda en kort stund döljer den igen efter Touch ID, och ett objekt som visas för att det ändrats stannar kvar medan dess meny är öppen eller efter att du öppnat dess sektion."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gizli bölümü kısaca gösteren klavye kısayolu Touch ID’den sonra onu yeniden gizler ve değiştiği için gösterilen bir öğe, menüsü açıkken veya bölümünü açtıktan sonra görünür kalır."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Гаряча клавіша, що ненадовго показує розділ «Приховано», знову приховує його після Touch ID, а елемент, показаний через зміну, залишається, поки відкрите його меню або після того, як ви відкрили його розділ."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "短暂显示“隐藏”分区的快捷键在 Touch ID 之后会再次隐藏，因变化而显示的项目在其菜单打开时或你打开其分区后会保持显示。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "暫時顯示已隱藏區段的快速鍵在 Touch ID 之後會再次隱藏，因變更而顯示的項目在其選單打開時或你打開其區段後會保持顯示。"
           }
         }
       }
@@ -130521,125 +129807,6 @@
         }
       }
     },
-    "On macOS 27, hiding comes back after MenuBarAgent restarts, helper apps and apps that start slowly appear sooner, busy apps such as Slack cost less energy, and items folded beside the notch come back on a wider display at once." : {
-      "comment" : "What's New, 1.0.5, fixed. MenuBarAgent is the name of a macOS process; keep it as is.",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "V macOS 27 se skrývání obnoví po restartu MenuBarAgent, pomocné a pomalu se spouštějící aplikace se zobrazí dříve, vytížené aplikace jako Slack spotřebují méně energie a položky sbalené vedle výřezu se na širším displeji hned vrátí."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unter macOS 27 funktioniert das Ausblenden nach einem Neustart von MenuBarAgent wieder, Hilfs-Apps und langsam startende Apps erscheinen früher, viel beschäftigte Apps wie Slack kosten weniger Energie, und neben der Notch eingeklappte Elemente kehren auf einem breiteren Display sofort zurück."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En macOS 27, la ocultación vuelve tras reiniciarse MenuBarAgent, las apps auxiliares y las que tardan en iniciarse aparecen antes, las apps muy activas como Slack gastan menos energía, y los elementos plegados junto al notch vuelven al instante en una pantalla más ancha."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sous macOS 27, le masquage revient après un redémarrage de MenuBarAgent, les apps d’assistance et les apps lentes à démarrer apparaissent plus tôt, les apps très actives comme Slack consomment moins d’énergie, et les éléments repliés à côté de l’encoche reviennent aussitôt sur un écran plus large."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27 alatt a MenuBarAgent újraindulása után visszaáll az elrejtés, a segédappok és a lassan induló appok hamarabb megjelennek, az olyan elfoglalt appok, mint a Slack, kevesebb energiát fogyasztanak, a notch mellett összecsukott elemek pedig egy szélesebb kijelzőn azonnal visszatérnek."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Di macOS 27, penyembunyian kembali setelah MenuBarAgent dimulai ulang, app pembantu dan app yang lambat dimulai muncul lebih cepat, app sibuk seperti Slack lebih hemat energi, dan item yang diciutkan di samping notch langsung kembali di layar yang lebih lebar."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Su macOS 27, l’occultamento torna dopo il riavvio di MenuBarAgent, le app di supporto e quelle lente ad avviarsi compaiono prima, le app molto attive come Slack consumano meno energia, e gli elementi compressi accanto al notch tornano subito su uno schermo più largo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27 で、MenuBarAgent の再起動後も非表示が元に戻り、ヘルパー App や起動の遅い App がより早く表示され、Slack のように忙しい App の消費エネルギーが減り、ノッチの横でたたまれた項目はより広いディスプレイですぐに戻ります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27에서 MenuBarAgent가 다시 시작된 후에도 숨기기가 복원되고, 도우미 앱과 느리게 시작되는 앱이 더 빨리 나타나며, Slack 같은 바쁜 앱의 에너지 사용이 줄고, 노치 옆에 접힌 항목은 더 넓은 디스플레이에서 즉시 돌아옵니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Op macOS 27 komt het verbergen terug nadat MenuBarAgent opnieuw start, verschijnen hulpapps en apps die traag starten eerder, kosten drukke apps zoals Slack minder energie en komen onderdelen die naast de notch zijn samengevouwen meteen terug op een breder scherm."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "W macOS 27 ukrywanie wraca po ponownym uruchomieniu MenuBarAgent, aplikacje pomocnicze i wolno uruchamiane pojawiają się wcześniej, zajęte aplikacje, takie jak Slack, zużywają mniej energii, a elementy zwinięte przy notchu od razu wracają na szerszym ekranie."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No macOS 27, a ocultação volta depois que o MenuBarAgent reinicia, apps auxiliares e apps que iniciam devagar aparecem antes, apps muito ativos como o Slack gastam menos energia, e itens recolhidos ao lado do notch voltam na hora em uma tela mais larga."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin macOS 27 turna il zuppentar suenter ch’il MenuBarAgent è vegnì reaviat, apps d’agid ed apps che startan plaun cumparan pli baud, apps fitg activas sco Slack consumeschan main energia, ed elements plajads sper la notch turnan immediatamain sin in display pli lad."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "В macOS 27 скрытие восстанавливается после перезапуска MenuBarAgent, вспомогательные и медленно запускающиеся приложения появляются раньше, загруженные приложения вроде Slack тратят меньше энергии, а элементы, свёрнутые у выреза, сразу возвращаются на более широком дисплее."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "På macOS 27 kommer döljandet tillbaka efter att MenuBarAgent startat om, hjälpappar och appar som startar långsamt visas tidigare, upptagna appar som Slack drar mindre energi, och objekt som fällts ihop bredvid notchen kommer genast tillbaka på en bredare skärm."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27’de MenuBarAgent yeniden başladıktan sonra gizleme geri gelir, yardımcı uygulamalar ve yavaş başlayan uygulamalar daha erken görünür, Slack gibi yoğun uygulamalar daha az enerji harcar ve notch yanında daraltılan öğeler daha geniş bir ekranda hemen geri gelir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У macOS 27 приховування відновлюється після перезапуску MenuBarAgent, допоміжні застосунки й застосунки, що повільно запускаються, з’являються раніше, завантажені застосунки на кшталт Slack витрачають менше енергії, а елементи, згорнуті біля вирізу, одразу повертаються на ширшому дисплеї."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 macOS 27 上，MenuBarAgent 重新启动后隐藏会恢复，辅助 App 和启动缓慢的 App 会更早出现，Slack 等繁忙的 App 耗电更少，刘海旁折叠的项目会在更宽的显示器上立即恢复。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 macOS 27 上，MenuBarAgent 重新啟動後隱藏會恢復，輔助 App 和啟動緩慢的 App 會更早出現，Slack 等忙碌的 App 耗電更少，瀏海旁收合的項目會在更寬的顯示器上立即恢復。"
-          }
-        }
-      }
-    },
     "After you unlock the hidden items with Touch ID, the app you were using keeps the keyboard focus." : {
       "comment" : "What's New, 1.0.5, fixed.",
       "localizations" : {
@@ -130755,6 +129922,1077 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "使用 Touch ID 解鎖隱藏的項目後，你正在使用的 App 會保留鍵盤焦點。"
+          }
+        }
+      }
+    },
+    "On macOS 27, an automation rule changes only its own apps, and a profile keeps the apps a rule hides hidden." : {
+      "comment" : "What's New, 1.0.5, fixed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 pravidlo automatizace mění jen své vlastní aplikace a profil ponechá skryté aplikace, které skrývá pravidlo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 ändert eine Automatisierungsregel nur ihre eigenen Apps, und ein Profil lässt die Apps ausgeblendet, die eine Regel ausblendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, una regla de automatización solo cambia sus propias apps, y un perfil mantiene ocultas las apps que oculta una regla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, une règle d’automatisation ne modifie que ses propres apps, et un profil laisse masquées les apps qu’une règle masque."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt egy automatizálási szabály csak a saját appjait módosítja, és egy profil rejtve hagyja azokat az appokat, amelyeket egy szabály elrejt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, aturan otomatisasi hanya mengubah app miliknya sendiri, dan profil membuat app yang disembunyikan aturan tetap tersembunyi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, una regola di automazione modifica solo le proprie app, e un profilo lascia nascoste le app che una regola nasconde."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、オートメーションルールは自分の App だけを変更し、プロファイルはルールが非表示にする App を非表示のままにします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 자동화 규칙은 자신의 앱만 변경하며, 프로파일은 규칙이 숨기는 앱을 숨겨진 상태로 유지합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 wijzigt een automatiseringsregel alleen haar eigen apps, en een profiel houdt de apps die een regel verbergt verborgen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 reguła automatyzacji zmienia tylko własne aplikacje, a profil pozostawia ukryte aplikacje, które ukrywa reguła."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, uma regra de automação altera apenas os próprios apps, e um perfil mantém ocultos os apps que uma regra oculta."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 mida ina regla d’automatisaziun mo sias atgnas apps, ed in profil lascha zuppadas las apps ch’ina regla zuppenta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 правило автоматизации меняет только свои приложения, а профиль оставляет скрытыми приложения, которые скрывает правило."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 ändrar en automationsregel bara sina egna appar, och en profil håller apparna som en regel döljer dolda."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de bir otomasyon kuralı yalnızca kendi uygulamalarını değiştirir ve bir profil, bir kuralın gizlediği uygulamaları gizli tutar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 правило автоматизації змінює лише свої застосунки, а профіль залишає прихованими застосунки, які приховує правило."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，自动化规则只更改它自己的 App，配置文件会让规则隐藏的 App 保持隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，自動化規則只更改它自己的 App，設定檔會讓規則隱藏的 App 保持隱藏。"
+          }
+        }
+      }
+    },
+    "On macOS 27, turning off the always-hidden section moves its apps to Hidden." : {
+      "comment" : "What's New, 1.0.5, fixed. Hidden is the name of the hidden section.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 vypnutí sekce vždy skrytých přesune její aplikace do sekce Skryté."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 verschiebt das Ausschalten des Bereichs «Immer ausgeblendet» seine Apps nach «Ausgeblendet»."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, desactivar la sección siempre oculta mueve sus apps a Oculto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, désactiver la section « Toujours masqué » déplace ses apps vers Masqué."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt a mindig rejtett szakasz kikapcsolása az appjait a Rejtett szakaszba helyezi."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, mematikan bagian selalu tersembunyi memindahkan app-nya ke Tersembunyi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, disattivare la sezione «Sempre nascosto» sposta le sue app in Nascosto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、常に非表示セクションをオフにすると、その App は非表示に移動します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 “항상 숨김” 섹션을 끄면 그 앱들이 숨김으로 이동합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 verplaatst het uitschakelen van de altijd verborgen sectie de apps ervan naar Verborgen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 wyłączenie sekcji zawsze ukrytych przenosi jej aplikacje do sekcji Ukryte."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, desativar a seção sempre oculta move os apps dela para Oculto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 spustescha la deactivaziun da la secziun «Adina zuppà» sias apps en Zuppà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 при выключении раздела «Всегда скрыто» его приложения переходят в раздел «Скрыто»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 flyttas apparna i sektionen Alltid dolda till Dold när du stänger av den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de her zaman gizli bölümü kapatmak, uygulamalarını Gizli bölümüne taşır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 вимкнення розділу «Завжди приховано» переносить його застосунки до розділу «Приховано»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，关闭“始终隐藏”分区会将其中的 App 移到“隐藏”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，關閉一律隱藏區段會將其中的 App 移到「已隱藏」。"
+          }
+        }
+      }
+    },
+    "Show on hover hides only what hover showed, and never while an item's menu is open." : {
+      "comment" : "What's New, 1.0.5, fixed. Show on hover is the name of a setting.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobrazit při najetí skryje jen to, co najetí zobrazilo, a nikdy, dokud je otevřená nabídka položky."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Per Zeiger einblenden» blendet nur aus, was es eingeblendet hat, und nie, solange das Menü eines Elements offen ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar al pasar el puntero solo oculta lo que mostró, y nunca mientras el menú de un elemento está abierto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher au survol ne masque que ce que le survol a affiché, et jamais tant que le menu d’un élément est ouvert."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Megjelenítés rámutatásra csak azt rejti el, amit a rámutatás megjelenített, és soha, amíg egy elem menüje nyitva van."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilkan saat kursor diarahkan hanya menyembunyikan apa yang ditampilkannya, dan tidak pernah selama menu item terbuka."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra al passaggio del puntatore nasconde solo ciò che ha mostrato, e mai finché il menu di un elemento è aperto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「ホバーで表示」は、ホバーで表示したものだけを非表示にし、項目のメニューが開いている間は非表示にしません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“마우스를 올리면 표시”는 마우스를 올려 표시한 것만 숨기며, 항목의 메뉴가 열려 있는 동안에는 숨기지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon bij aanwijzen verbergt alleen wat aanwijzen toonde, en nooit zolang het menu van een onderdeel open is."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokaż po najechaniu ukrywa tylko to, co pokazało najechanie, i nigdy, gdy menu elementu jest otwarte."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibir ao passar o ponteiro oculta apenas o que ele exibiu, e nunca enquanto o menu de um item está aberto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Mussar cun il cursur» zuppenta mo quai ch’il cursur ha mussà, e mai durant ch’il menu d’in element è avert."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Показывать при наведении» скрывает только то, что показало наведение, и никогда — пока открыто меню элемента."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa vid hovring döljer bara det som hovringen visade, och aldrig medan ett objekts meny är öppen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Üzerine gelince göster yalnızca üzerine gelmenin gösterdiklerini gizler, bir öğenin menüsü açıkken ise hiç gizlemez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Показувати під час наведення» приховує лише те, що показало наведення, і ніколи — поки відкрите меню елемента."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“悬停时显示”只隐藏悬停显示的内容，并且在项目的菜单打开时绝不隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「滑鼠移入時顯示」只隱藏滑鼠移入所顯示的內容，並且在項目的選單打開時絕不隱藏。"
+          }
+        }
+      }
+    },
+    "Automatic rehide waits while a menu is open or the pointer is on the Shelf, and hides everything its show opened." : {
+      "comment" : "What's New, 1.0.5, fixed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatické opětovné skrytí čeká, dokud je otevřená nabídka nebo je ukazatel na Shelf, a skryje vše, co zobrazení otevřelo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das automatische Wiederausblenden wartet, solange ein Menü offen ist oder der Zeiger auf dem Shelf liegt, und blendet alles aus, was das Einblenden geöffnet hat."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver a ocultar automáticamente espera mientras un menú está abierto o el puntero está sobre el Shelf, y oculta todo lo que se abrió al mostrar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le masquage automatique attend tant qu’un menu est ouvert ou que le pointeur est sur le Shelf, et masque tout ce que l’affichage a ouvert."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az automatikus újrarejtés vár, amíg egy menü nyitva van, vagy a mutató a Shelfen van, és elrejt mindent, amit a megjelenítés megnyitott."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sembunyikan kembali otomatis menunggu selama menu terbuka atau penunjuk berada di Shelf, dan menyembunyikan semua yang dibuka saat ditampilkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il nuovo occultamento automatico attende finché un menu è aperto o il puntatore è sullo Shelf, e nasconde tutto ciò che la comparsa ha aperto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動的に再び非表示にする機能は、メニューが開いている間やポインタが Shelf 上にある間は待機し、表示したときに開いたものをすべて非表示にします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동으로 다시 숨기기는 메뉴가 열려 있거나 포인터가 Shelf 위에 있는 동안 기다리며, 표시할 때 열린 것을 모두 숨깁니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch weer verbergen wacht zolang een menu open is of de aanwijzer op de Shelf staat, en verbergt alles wat het tonen opende."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatyczne ponowne ukrywanie czeka, gdy menu jest otwarte lub wskaźnik jest na Shelf, i ukrywa wszystko, co otworzyło pokazanie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar novamente de forma automática aguarda enquanto um menu está aberto ou o ponteiro está sobre o Shelf, e oculta tudo o que a exibição abriu."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il zuppentar puspè automatic spetga durant ch’in menu è avert u ch’il punctader è sin il Shelf, e zuppenta tut quai ch’il mussar ha avert."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматическое повторное скрытие ждёт, пока открыто меню или указатель находится на Shelf, и скрывает всё, что открыл показ."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dölj automatiskt igen väntar medan en meny är öppen eller pekaren är på Shelf, och döljer allt som visningen öppnade."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatik yeniden gizleme, bir menü açıkken veya işaretçi Shelf üzerindeyken bekler ve göstermenin açtığı her şeyi gizler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматичне повторне приховування чекає, поки відкрите меню або вказівник на Shelf, і приховує все, що відкрив показ."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动重新隐藏会在菜单打开或指针位于 Shelf 上时等待，并隐藏显示时打开的所有内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動重新隱藏會在選單打開或指標位於 Shelf 上時等待，並隱藏顯示時打開的所有內容。"
+          }
+        }
+      }
+    },
+    "A ⌘ Command-drag respects the Touch ID lock, Zen mode and Collapse, and hides what it showed after the drop." : {
+      "comment" : "What's New, 1.0.5, fixed. Collapse is the name of a per-display setting.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přetažení s ⌘ Command respektuje zámek Touch ID, režim Zen a Sbalit a po upuštění skryje, co zobrazilo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein ⌘ Command-Ziehen beachtet die Touch ID-Sperre, den Zen-Modus und Einklappen und blendet nach dem Loslassen wieder aus, was es eingeblendet hat."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un ⌘ Command-arrastrar respeta el bloqueo con Touch ID, el modo Zen y Plegar, y oculta lo que mostró después de soltar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un ⌘ Command-glisser respecte le verrou Touch ID, le mode Zen et Replier, et masque ce qu’il a affiché après le dépôt."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy ⌘ Command-húzás figyelembe veszi a Touch ID-zárat, a Zen módot és az Összecsukást, és az elengedés után elrejti, amit megjelenített."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seret ⌘ Command mematuhi kunci Touch ID, Mode Zen, dan Ciutkan, serta menyembunyikan apa yang ditampilkannya setelah dilepas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un ⌘ Command-trascinamento rispetta il blocco Touch ID, la modalità Zen e Comprimi, e dopo il rilascio nasconde ciò che ha mostrato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command ドラッグは Touch ID ロック、Zen モード、折りたたむを尊重し、ドロップ後は表示したものを非表示にします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command 드래그는 Touch ID 잠금, 젠 모드 및 접기를 따르며, 놓은 후에는 표시한 것을 숨깁니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een ⌘ Command-slepen respecteert de Touch ID-vergrendeling, de Zenmodus en Vouw samen, en verbergt na het neerzetten wat het toonde."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeciągnięcie z ⌘ Command uwzględnia blokadę Touch ID, Tryb Zen i Zwiń, a po upuszczeniu ukrywa to, co pokazało."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um ⌘ Command-arrastar respeita o bloqueio com Touch ID, o Modo Zen e Recolher, e oculta o que exibiu depois de soltar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In ⌘ Command-trair resguarda la serradira Touch ID, il modus Zen e Plajar, e zuppenta suenter il relasch quai ch’el ha mussà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетаскивание с ⌘ Command учитывает блокировку Touch ID, режим «Дзен» и «Свернуть» и после отпускания скрывает то, что показало."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En ⌘ Command-dragning respekterar Touch ID-låset, Zen-läge och Fäll ihop, och döljer det den visade efter släppet."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command-sürükleme Touch ID kilidine, Zen moduna ve Daralt’a uyar ve bıraktıktan sonra gösterdiklerini gizler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетягування із ⌘ Command враховує блокування Touch ID, режим «Дзен» і «Згорнути» та після відпускання приховує те, що показало."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按住 ⌘ Command 拖移会遵从 Touch ID 锁定、禅模式和折叠，并在放下后隐藏它显示的内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按住 ⌘ Command 拖移會遵從 Touch ID 鎖定、Zen 模式和收合，並在放開後隱藏它顯示的內容。"
+          }
+        }
+      }
+    },
+    "The peek and changed items hide again after Touch ID, but not while their menu is open or after you showed the section." : {
+      "comment" : "What's New, 1.0.5, fixed. The peek is what the hotkey that shows the hidden section for a moment shows; changed items are items shown because they changed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To, co klávesová zkratka na chvíli zobrazí, a položky zobrazené kvůli změně se po Touch ID znovu skryjí, ale ne, dokud je jejich nabídka otevřená, ani když jste sekci zobrazili."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das kurze Einblenden per Tastenkürzel und wegen einer Änderung eingeblendete Elemente blenden nach Touch ID wieder aus, aber nicht, solange ihr Menü offen ist oder nachdem du den Bereich eingeblendet hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo que muestra un momento el atajo de teclado y los elementos mostrados porque cambiaron se vuelven a ocultar después de Touch ID, pero no mientras su menú está abierto ni después de que mostraste la sección."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’affichage d’un instant par raccourci clavier et les éléments affichés parce qu’ils ont changé se masquent à nouveau après Touch ID, mais pas tant que leur menu est ouvert ni après que vous avez affiché la section."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A billentyűparanccsal egy pillanatra megjelenített elemek és a változás miatt megjelenített elemek Touch ID után újra elrejtőznek, de nem, amíg a menüjük nyitva van, vagy miután megjelenítette a szakaszt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yang ditampilkan sebentar oleh pintasan keyboard dan item yang ditampilkan karena berubah tersembunyi kembali setelah Touch ID, tetapi tidak selama menunya terbuka atau setelah Anda menampilkan bagiannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La comparsa per un attimo con l’abbreviazione da tastiera e gli elementi mostrati perché sono cambiati si nascondono di nuovo dopo Touch ID, ma non finché il loro menu è aperto o dopo che hai mostrato la sezione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ショートカットキーで少しの間表示したものと、変化したために表示された項目は、Touch ID の後に再び非表示になりますが、メニューが開いている間やセクションを表示した後は非表示になりません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "단축키로 잠시 표시한 것과 변경되어 표시된 항목은 Touch ID 후에 다시 숨겨지지만, 메뉴가 열려 있는 동안이나 섹션을 표시한 후에는 숨겨지지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wat de sneltoets even toont en onderdelen die werden getoond omdat ze veranderden, verbergen zich weer na Touch ID, maar niet zolang hun menu open is of nadat je de sectie hebt getoond."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To, co skrót klawiszowy pokazuje na chwilę, oraz elementy pokazane z powodu zmiany ukrywają się ponownie po Touch ID, ale nie, gdy ich menu jest otwarte, ani po pokazaniu sekcji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O que o atalho de teclado exibe por um momento e os itens exibidos porque mudaram voltam a se ocultar depois do Touch ID, mas não enquanto o menu deles está aberto nem depois que você exibiu a seção."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il mussar per in mument cun la cumbinaziun da tastas ed ils elements mussads perquai ch’els èn sa midads sa zuppentan puspè suenter Touch ID, ma betg durant che lur menu è avert u suenter che ti has mussà la secziun."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "То, что горячая клавиша ненадолго показывает, и элементы, показанные из-за изменения, снова скрываются после Touch ID, но не пока открыто их меню и не после того, как вы показали раздел."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Det som kortkommandot visar en kort stund och objekt som visas för att de ändrats döljs igen efter Touch ID, men inte medan deras meny är öppen eller efter att du visat sektionen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klavye kısayolunun kısaca gösterdikleri ve değiştiği için gösterilen öğeler Touch ID’den sonra yeniden gizlenir, ancak menüleri açıkken veya bölümü gösterdikten sonra gizlenmez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Те, що гаряча клавіша ненадовго показує, і елементи, показані через зміну, знову приховуються після Touch ID, але не поки відкрите їхнє меню і не після того, як ви показали розділ."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过快捷键短暂显示的内容和因变化而显示的项目在 Touch ID 之后会再次隐藏，但在其菜单打开时或你显示该分区后不会隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過快速鍵暫時顯示的內容和因變更而顯示的項目在 Touch ID 之後會再次隱藏，但在其選單打開時或你顯示該區段後不會隱藏。"
+          }
+        }
+      }
+    },
+    "On macOS 27, hiding comes back after MenuBarAgent restarts, and helper apps and slow apps appear sooner." : {
+      "comment" : "What's New, 1.0.5, fixed. MenuBarAgent is the name of a macOS process; keep it as is.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 se skrývání obnoví po restartu MenuBarAgent a pomocné a pomalé aplikace se zobrazí dříve."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 funktioniert das Ausblenden nach einem Neustart von MenuBarAgent wieder, und Hilfs-Apps und langsame Apps erscheinen früher."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, la ocultación vuelve tras reiniciarse MenuBarAgent, y las apps auxiliares y las apps lentas aparecen antes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, le masquage revient après un redémarrage de MenuBarAgent, et les apps d’assistance et les apps lentes apparaissent plus tôt."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt a MenuBarAgent újraindulása után visszaáll az elrejtés, és a segédappok és a lassú appok hamarabb megjelennek."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, penyembunyian kembali setelah MenuBarAgent dimulai ulang, dan app pembantu serta app yang lambat muncul lebih cepat."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, l’occultamento torna dopo il riavvio di MenuBarAgent, e le app di supporto e le app lente compaiono prima."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、MenuBarAgent の再起動後も非表示が元に戻り、ヘルパー App や遅い App がより早く表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 MenuBarAgent가 다시 시작된 후에도 숨기기가 복원되며, 도우미 앱과 느린 앱이 더 빨리 나타납니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 komt het verbergen terug nadat MenuBarAgent opnieuw start, en verschijnen hulpapps en trage apps eerder."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 ukrywanie wraca po ponownym uruchomieniu MenuBarAgent, a aplikacje pomocnicze i wolne aplikacje pojawiają się wcześniej."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, a ocultação volta depois que o MenuBarAgent reinicia, e apps auxiliares e apps lentos aparecem antes."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 turna il zuppentar suenter ch’il MenuBarAgent è vegnì reaviat, ed apps d’agid ed apps plaunas cumparan pli baud."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 скрытие восстанавливается после перезапуска MenuBarAgent, а вспомогательные и медленные приложения появляются раньше."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 kommer döljandet tillbaka efter att MenuBarAgent startat om, och hjälpappar och långsamma appar visas tidigare."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de MenuBarAgent yeniden başladıktan sonra gizleme geri gelir ve yardımcı uygulamalar ile yavaş uygulamalar daha erken görünür."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 приховування відновлюється після перезапуску MenuBarAgent, а допоміжні й повільні застосунки з’являються раніше."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，MenuBarAgent 重新启动后隐藏会恢复，辅助 App 和缓慢的 App 会更早出现。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，MenuBarAgent 重新啟動後隱藏會恢復，輔助 App 和緩慢的 App 會更早出現。"
+          }
+        }
+      }
+    },
+    "On macOS 27, busy apps such as Slack cost less energy." : {
+      "comment" : "What's New, 1.0.5, fixed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 spotřebují vytížené aplikace jako Slack méně energie."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 kosten viel beschäftigte Apps wie Slack weniger Energie."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, las apps muy activas como Slack gastan menos energía."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, les apps très actives comme Slack consomment moins d’énergie."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt az olyan elfoglalt appok, mint a Slack, kevesebb energiát fogyasztanak."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, app sibuk seperti Slack lebih hemat energi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, le app molto attive come Slack consumano meno energia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、Slack のように忙しい App の消費エネルギーが減りました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 Slack 같은 바쁜 앱의 에너지 사용이 줄었습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 kosten drukke apps zoals Slack minder energie."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 zajęte aplikacje, takie jak Slack, zużywają mniej energii."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, apps muito ativos como o Slack gastam menos energia."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 consumeschan apps fitg activas sco Slack main energia."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 загруженные приложения вроде Slack тратят меньше энергии."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 drar upptagna appar som Slack mindre energi."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de Slack gibi yoğun uygulamalar daha az enerji harcar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 завантажені застосунки на кшталт Slack витрачають менше енергії."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，Slack 等繁忙的 App 耗电更少。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，Slack 等忙碌的 App 耗電更少。"
+          }
+        }
+      }
+    },
+    "On macOS 27, items folded beside the notch come back at once on a wider display." : {
+      "comment" : "What's New, 1.0.5, fixed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 se položky sbalené vedle výřezu na širším displeji hned vrátí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 kehren neben der Notch eingeklappte Elemente auf einem breiteren Display sofort zurück."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, los elementos plegados junto al notch vuelven al instante en una pantalla más ancha."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, les éléments repliés à côté de l’encoche reviennent aussitôt sur un écran plus large."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt a notch mellett összecsukott elemek egy szélesebb kijelzőn azonnal visszatérnek."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, item yang diciutkan di samping notch langsung kembali di layar yang lebih lebar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, gli elementi compressi accanto al notch tornano subito su uno schermo più largo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、ノッチの横でたたまれた項目は、より広いディスプレイですぐに戻ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 노치 옆에 접힌 항목은 더 넓은 디스플레이에서 즉시 돌아옵니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 komen onderdelen die naast de notch zijn samengevouwen meteen terug op een breder scherm."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 elementy zwinięte przy notchu od razu wracają na szerszym ekranie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, itens recolhidos ao lado do notch voltam na hora em uma tela mais larga."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 turnan elements plajads sper la notch immediatamain sin in display pli lad."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 элементы, свёрнутые у выреза, сразу возвращаются на более широком дисплее."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 kommer objekt som fällts ihop bredvid notchen genast tillbaka på en bredare skärm."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de notch yanında daraltılan öğeler daha geniş bir ekranda hemen geri gelir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 елементи, згорнуті біля вирізу, одразу повертаються на ширшому дисплеї."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，刘海旁折叠的项目会在更宽的显示器上立即恢复。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，瀏海旁收合的項目會在更寬的顯示器上立即恢復。"
           }
         }
       }
