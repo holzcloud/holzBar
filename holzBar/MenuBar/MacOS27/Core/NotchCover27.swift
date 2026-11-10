@@ -104,12 +104,29 @@ nonisolated enum NotchCover27 {
         case relayout
     }
 
+    /// Whether the bar of a display shows items folded behind the overflow button.
+    ///
+    /// The button has to sit on that display, as for the folded-item memory: the frames are
+    /// global, and on displays stacked above each other an item of one bar could otherwise
+    /// overlap the button of the other in its horizontal span.
+    static func showsFoldedItems(itemFrames: [CGRect], chevronFrame: CGRect?, displayBounds: CGRect) -> Bool {
+        guard let chevronFrame, displayBounds.intersects(chevronFrame) else {
+            return false
+        }
+        return itemFrames.contains { frame in
+            displayBounds.intersects(frame) && OverflowDetection27.isInOverflow(itemFrame: frame, chevronFrame: chevronFrame)
+        }
+    }
+
     /// What the active menu bar moving from one display to another asks for.
     ///
     /// The apps concealed for a notch belong to that display's bar, so on another display
     /// they are worked out again. Otherwise, when the bar moved to a roomier display (one
     /// without a notch, or a wider one) while the last read showed items folded behind the
-    /// overflow button and holzBar conceals, the bar is laid out again.
+    /// overflow button, the read of the new display still shows items folded, and holzBar
+    /// conceals, the bar is laid out again. The relayout releases the concealment for a moment,
+    /// so the hidden items are drawn: a roomier bar that already shows everything is left
+    /// alone, so an ordinary switch between apps on two displays never flashes them.
     ///
     /// - Parameters:
     ///   - previousID: The display of the active bar at the last read, if any.
@@ -119,6 +136,7 @@ nonisolated enum NotchCover27 {
     ///   - hasNotch: Whether the current display has a notch.
     ///   - notchConcealedEmpty: Whether no app is concealed for the notch.
     ///   - hadFoldedItems: Whether the last read showed items folded behind the overflow button.
+    ///   - hasFoldedItemsNow: Whether the read of the current display shows items folded there.
     ///   - isConcealing: Whether holzBar conceals any app.
     static func displayChange(
         previousID: CGDirectDisplayID?,
@@ -128,6 +146,7 @@ nonisolated enum NotchCover27 {
         hasNotch: Bool,
         notchConcealedEmpty: Bool,
         hadFoldedItems: Bool,
+        hasFoldedItemsNow: Bool,
         isConcealing: Bool
     ) -> DisplayChange {
         guard let previousID, previousID != currentID else {
@@ -137,7 +156,7 @@ nonisolated enum NotchCover27 {
             return .recompute
         }
         let isRoomier = !hasNotch || currentWidth > previousWidth
-        if hadFoldedItems, isRoomier, isConcealing {
+        if hadFoldedItems, hasFoldedItemsNow, isRoomier, isConcealing {
             return .relayout
         }
         return .none

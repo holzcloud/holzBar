@@ -725,8 +725,9 @@ final class Concealer27 {
     /// Runs after each settled read. While the icon lies under the notch of the active
     /// display, the nearest visible application right of it is concealed (one per read, until
     /// the icon is clear; Thaw #1195, #1153). When the active bar moves to a display without a
-    /// notch or a wider one while the last read showed folded items, concealment is released
-    /// and applied again once, so the folded items come back (Thaw #1106).
+    /// notch or a wider one while the last read showed folded items, and the read there still
+    /// shows items folded, concealment is released and applied again once, so the folded items
+    /// come back (Thaw #1106).
     private func checkNotchCover() async {
         guard let screen = NSScreen.screenWithActiveMenuBar else {
             return
@@ -739,9 +740,11 @@ final class Concealer27 {
         let previous = lastActiveDisplay
         lastActiveDisplay = (displayID, displayBounds.width, screen.hasNotch)
         let hadFoldedItems = lastReadHadFoldedItems
-        lastReadHadFoldedItems = items.contains { item in
-            displayBounds.intersects(item.bounds) && OverflowDetection27.isInOverflow(itemFrame: item.bounds, chevronFrame: chevronFrame)
-        }
+        lastReadHadFoldedItems = NotchCover27.showsFoldedItems(
+            itemFrames: items.map(\.bounds),
+            chevronFrame: chevronFrame,
+            displayBounds: displayBounds
+        )
         let change = NotchCover27.displayChange(
             previousID: previous?.id,
             currentID: displayID,
@@ -750,6 +753,7 @@ final class Concealer27 {
             hasNotch: screen.hasNotch,
             notchConcealedEmpty: notchConcealed.isEmpty,
             hadFoldedItems: hadFoldedItems,
+            hasFoldedItemsNow: lastReadHadFoldedItems,
             isConcealing: isConcealing
         )
         switch change {

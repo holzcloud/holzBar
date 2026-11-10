@@ -63,6 +63,7 @@ struct NotchCover27Tests {
         hasNotch: Bool = false,
         notchConcealedEmpty: Bool = true,
         hadFoldedItems: Bool = true,
+        hasFoldedItemsNow: Bool = true,
         isConcealing: Bool = true
     ) -> NotchCover27.DisplayChange {
         NotchCover27.displayChange(
@@ -73,6 +74,7 @@ struct NotchCover27Tests {
             hasNotch: hasNotch,
             notchConcealedEmpty: notchConcealedEmpty,
             hadFoldedItems: hadFoldedItems,
+            hasFoldedItemsNow: hasFoldedItemsNow,
             isConcealing: isConcealing
         )
     }
@@ -106,6 +108,35 @@ struct NotchCover27Tests {
         #expect(change(currentWidth: 1512, hasNotch: true) == .none)
         #expect(change(currentWidth: 1200, hasNotch: true) == .none)
         #expect(change(isConcealing: false) == .none)
+    }
+
+    @Test("Moving to a roomier display whose read shows no fold does not relayout")
+    func roomierWithoutFoldStays() {
+        // The old display's bar was crowded, the new one shows everything: an ordinary switch
+        // between apps on two displays never releases the concealment.
+        #expect(change(hasFoldedItemsNow: false) == .none)
+        #expect(change(hasNotch: true, hasFoldedItemsNow: false) == .none)
+        #expect(change(currentWidth: 1200, hasFoldedItemsNow: false) == .none)
+        // The apps concealed for the notch are still worked out again.
+        #expect(change(notchConcealedEmpty: false, hasFoldedItemsNow: false) == .recompute)
+    }
+
+    @Test("Folded items count only on the display that holds the overflow button")
+    func foldedItemsOnTheDisplay() {
+        let display = CGRect(x: 0, y: 0, width: 1512, height: 982)
+        let chevron = CGRect(x: 900, y: 0, width: 30, height: 24)
+        let folded = CGRect(x: 905, y: 0, width: 22, height: 24)
+        let drawn = CGRect(x: 1000, y: 0, width: 22, height: 24)
+        #expect(NotchCover27.showsFoldedItems(itemFrames: [drawn, folded], chevronFrame: chevron, displayBounds: display))
+        #expect(!NotchCover27.showsFoldedItems(itemFrames: [drawn], chevronFrame: chevron, displayBounds: display))
+        #expect(!NotchCover27.showsFoldedItems(itemFrames: [folded], chevronFrame: nil, displayBounds: display))
+        // A display stacked above: an item of its bar shares the button's horizontal span, but
+        // the button sits on the other display, so nothing is folded there.
+        let above = CGRect(x: 0, y: -1440, width: 2560, height: 1440)
+        let itemAbove = CGRect(x: 905, y: -1440, width: 22, height: 24)
+        #expect(!NotchCover27.showsFoldedItems(itemFrames: [itemAbove], chevronFrame: chevron, displayBounds: above))
+        // An item of the other display never counts for this one.
+        #expect(!NotchCover27.showsFoldedItems(itemFrames: [itemAbove], chevronFrame: chevron, displayBounds: display))
     }
 }
 
