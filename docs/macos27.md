@@ -72,6 +72,14 @@ An optional module in Settings → Modules, on macOS 27, off until you switch it
 
 holzBar stores only which system items you hid and your replacements' symbols and item keys, on this Mac, and has no network access. Settings → About → Copy Diagnostics says whether the module is on and how many items it hides and replaces, without any name.
 
+## Apps that launch while items are hidden
+
+holzBar hides whole applications through an assertion that names, by bundle identifier, the apps that stay visible. Since 1.0.5 an app that launches while items are hidden and is to stay visible (a new app when new items go to Visible or where macOS puts them, or a helper app inside another app, such as a login item) is added to it at once, so its item appears within about a second. An app that is slow to answer Accessibility right after it starts is asked again at every read for its first 30 seconds instead of being skipped for minutes. When an app such as Slack or an Electron app changes its items often, holzBar reads every app for it at most once every 30 seconds. If `MenuBarAgent` restarts, holzBar applies the hiding again with fresh assertions.
+
+Items of processes without a bundle identifier, such as some script-based apps, cannot be named in the assertion: while holzBar hides any app, they stay hidden and are not listed in the holzBar Shelf. They come back while holzBar hides nothing.
+
+Settings → About → Copy Diagnostics has a Hiding line with the reveal state and counts of these events (agent restarts, late refreshes, young retries, forced and held-back reads, notch rechecks), never an app name.
+
 ## Updating from macOS 26
 
 holzBar remembers the macOS version it last ran on. When macOS was updated, it turns the sections it saved for each item before macOS 27 into the macOS 27 layout (one section per application) at the next launch, so what was hidden stays hidden; an installation that was updated earlier and hides nothing is repaired the same way. A layout you arranged on macOS 27 is never replaced. The sections come from holzBar's own saved settings, not from the order of the bar, which macOS 27 may already have rearranged. No permission and no network.
