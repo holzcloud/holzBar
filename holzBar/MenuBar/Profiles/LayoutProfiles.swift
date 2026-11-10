@@ -375,7 +375,7 @@ final class LayoutProfiles {
                 // dropped from what it names and from the result, never concealed.
                 let ownBundleIdentifier = Constants.bundleIdentifier
                 let stored = Defaults.dictionary(forKey: .macOS27Layout) as? [String: Int] ?? [:]
-                let layout = SectionLayout27.applyingProfile(
+                var layout = SectionLayout27.applyingProfile(
                     OwnBundle.removing(
                         from: profile.applicationSections.compactMapValues(MacOS27Section.init(rawValue:)),
                         bundleIdentifier: ownBundleIdentifier
@@ -383,10 +383,23 @@ final class LayoutProfiles {
                     knownApplications: profile.knownApplications.map(Set.init),
                     to: stored.compactMapValues(MacOS27Section.init(rawValue:))
                 )
+                // A profile or snapshot from a Mac with the always-hidden section on: with the
+                // section off here, nothing would reveal those applications, so they go to Hidden.
+                if !appState.settings.advanced.enableAlwaysHiddenSection {
+                    layout = SectionLayout27.foldingAlwaysHidden(layout)
+                }
                 Defaults.set(
                     OwnBundle.removing(from: layout, bundleIdentifier: ownBundleIdentifier).mapValues(\.rawValue),
                     forKey: .macOS27Layout
                 )
+                // Every application the profile names or knew, and every one that has or had an
+                // entry, becomes known: one it makes visible is never placed again as new. The
+                // writer leaves holzBar's own bundle and widget keys out.
+                var known = Set(profile.knownApplications ?? [])
+                known.formUnion(profile.applicationSections.keys)
+                known.formUnion(stored.keys)
+                known.formUnion(layout.keys)
+                appState.concealer27.recordKnownApplications(known)
             }
             appState.concealer27.update()
             return Task {

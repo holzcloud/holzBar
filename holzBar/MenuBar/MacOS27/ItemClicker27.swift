@@ -55,7 +55,9 @@ enum ItemClicker27 {
         }
 
         let ownerPID = item.ownerPID
-        let baseline = Set(windowOwners().map { $0.number })
+        // Every window at a menu's level that is on screen before the click, of any height, is
+        // no menu the click opened.
+        let baseline = Set(menuLevelWindows().map(\.windowID).map(Int.init))
         var drawn: MenuBarItem?
         if shown {
             drawn = await MenuBarItemProvider27.items().first { $0.windowID == item.windowID && $0.isOnScreen }
@@ -80,12 +82,19 @@ enum ItemClicker27 {
         }
 
         // A click returns at once, and a press blocks only while a menu is open. Keep the
-        // application shown until the menu or panel that opened is gone.
+        // application shown until the menu or panel that opened is gone, watched on the panel
+        // watch schedule (4 times a second for 10 s, then once a second, for up to 10 minutes).
         try? await Task.sleep(for: .milliseconds(400))
-        var waited = 0
-        while waited < 240, ItemClick27.interfaceIsOpen(windowOwners: windowOwners(), ownerPID: ownerPID, baseline: baseline) {
-            try? await Task.sleep(for: .milliseconds(250))
-            waited += 1
+        let watchStart = ContinuousClock.now
+        while
+            ItemClick27.interfaceIsOpen(windowOwners: openMenus(ownerPID: ownerPID), ownerPID: ownerPID, baseline: baseline),
+            let interval = ItemClick27.panelWatchInterval(elapsed: ContinuousClock.now - watchStart)
+        {
+            do {
+                try await Task.sleep(for: interval)
+            } catch {
+                break
+            }
         }
         // "Hide opened items again after" counts from here, when the menu has closed
         // (THAW-13). One bounded wait; opening the item again meanwhile shows it once more,
@@ -120,11 +129,34 @@ enum ItemClicker27 {
         }
     }
 
-    /// The menus on screen, with their owners: only menus keep an item shown
-    /// (`InterfaceWindowRule`), never another window of its app (Thaw #1158).
-    private static func windowOwners() -> [(number: Int, ownerPID: Int32)] {
-        WindowInfo.createWindows(option: .onScreen)
-            .filter { InterfaceWindowRule.menuLayers.contains($0.layer) }
+    /// The windows on screen at the levels of menus, of any height and owner.
+    private static func menuLevelWindows() -> [WindowInfo] {
+        WindowInfo.createWindows(option: .onScreen).filter { InterfaceWindowRule.menuLayers.contains($0.layer) }
+    }
+
+    /// The open menus of the given application on screen, with their owners: only menus keep an
+    /// item shown, never another window of its app (Thaw #1158).
+    ///
+    /// The rule is the one the hides of the sections use (`InterfaceWindowRule.isOpenMenu`): a
+    /// pop-up menu counts, a window at the status bar's level only when it is taller than the
+    /// bar (a popover or a panel; every status item's own window sits at that level), and an
+    /// application menu never. Otherwise the item's own window, drawn after the click, or a
+    /// menu bar window of the activated application kept the item shown for the whole watch.
+    private static func openMenus(ownerPID: Int32) -> [(number: Int, ownerPID: Int32)] {
+        // The tallest menu bar of every display, the notch included.
+        let barHeight = NSScreen.screens.reduce(NSStatusBar.system.thickness) { height, screen in
+            max(height, screen.frame.maxY - screen.visibleFrame.maxY, screen.safeAreaInsets.top)
+        }
+        return menuLevelWindows()
+            .filter { window in
+                InterfaceWindowRule.isOpenMenu(
+                    layer: window.layer,
+                    height: window.bounds.height,
+                    ownerPID: window.ownerPID,
+                    shownOwners: [ownerPID],
+                    barHeight: barHeight
+                )
+            }
             .map { window in
                 (number: Int(window.windowID), ownerPID: window.ownerPID)
             }

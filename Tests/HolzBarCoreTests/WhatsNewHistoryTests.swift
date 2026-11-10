@@ -28,7 +28,15 @@ struct WhatsNewHistoryTests {
     @Test("The history starts at 1.0.0 and the newest entry is the newest release")
     func historyBounds() {
         #expect(Self.releases.last?.version == "1.0.0")
-        #expect(Self.releases.first?.version == "1.0.4")
+        #expect(Self.releases.first?.version == "1.0.5")
+    }
+
+    @Test("1.0.5 lists the hiding fixes as grouped lines next to its improvement")
+    func release105ListsTheHidingFixes() throws {
+        let release = try #require(Self.releases.first { $0.version == "1.0.5" })
+        #expect(release.improved.count == 1)
+        #expect(release.fixed.count >= 8, "1.0.5 should list the grouped hiding fixes")
+        #expect(release.fixed.count <= 12, "the hiding fixes should stay grouped into about ten lines")
     }
 
     @Test("Every release has content and every text is a plain one-line literal")
@@ -59,9 +67,9 @@ struct WhatsNewHistoryTests {
     func versionsSuitThePolicy() {
         let versions = Self.releases.map(\.version)
         #expect(versions.allSatisfy { AppVersion($0)?.isPrerelease == false })
-        let tabs = WhatsNewPolicy.tabs(knownVersions: versions, current: "1.0.4-beta1")
+        let tabs = WhatsNewPolicy.tabs(knownVersions: versions, current: "1.0.5-beta1")
         #expect(tabs.versions == versions)
-        #expect(tabs.installed == "1.0.4")
+        #expect(tabs.installed == "1.0.5")
     }
 
     // MARK: String Catalog

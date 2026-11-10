@@ -131,6 +131,105 @@ struct DiagnosticsReportTests {
         #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Last drop: \(longest)")
     }
 
+    @Test("The last command-drag is one line of fixed words, after the last drop, and none without one")
+    func lastCommandDrag() {
+        var input = sample
+        #expect(!DiagnosticsReport.make(input).contains("Last command-drag"))
+        input.lastCommandDrag = "waited 1200 ms, 1 read, set hidden, applied"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Last command-drag: waited 1200 ms, 1 read, set hidden, applied")
+        input.lastDrop = "macOS 27, shelf, hide, applied"
+        let lines = DiagnosticsReport.make(input).split(separator: "\n").map(String.init)
+        #expect(lines.suffix(2) == ["Last drop: macOS 27, shelf, hide, applied", "Last command-drag: waited 1200 ms, 1 read, set hidden, applied"])
+        let longest = CommandDragSection.summary(
+            waitedMilliseconds: 99_999, reads: 99, decision: .ignore(.notAnAppItem), outcome: .nothing
+        )
+        #expect(longest.count <= DiagnosticsReport.maximumLastCommandDragLength)
+        input.lastCommandDrag = longest
+        #expect(DiagnosticsReport.make(input).contains("Last command-drag: \(longest)"))
+    }
+
+    @Test("A last command-drag with a newline or a home path is sanitised and limited")
+    func lastCommandDragSanitised() {
+        var input = sample
+        input.lastCommandDrag = "waited 5 ms\n/Users/anna/Focus\nFake: line"
+        let report = DiagnosticsReport.make(input)
+        #expect(!report.contains("/Users/anna"))
+        #expect(report.split(separator: "\n").filter { $0.hasPrefix("Fake:") }.isEmpty)
+        input.lastCommandDrag = String(repeating: "a", count: 500)
+        let line = DiagnosticsReport.make(input).split(separator: "\n").last.map(String.init) ?? ""
+        #expect(line == "Last command-drag: " + String(repeating: "a", count: DiagnosticsReport.maximumLastCommandDragLength))
+    }
+
+    @Test("The Hiding line follows the last command-drag, or takes its place, and is absent while empty")
+    func hiding() {
+        var input = sample
+        #expect(!DiagnosticsReport.make(input).contains("Hiding"))
+        input.hiding = "anchor icon, icon put back 0"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Hiding: anchor icon, icon put back 0")
+        input.lastDrop = "macOS 27, shelf, hide, applied"
+        #expect(DiagnosticsReport.make(input).split(separator: "\n").last == "Hiding: anchor icon, icon put back 0")
+        input.lastCommandDrag = "waited 1200 ms, 1 read, set hidden, applied"
+        input.lastShelfClick = "shown, clicked"
+        let lines = DiagnosticsReport.make(input).split(separator: "\n").map(String.init)
+        let index = lines.firstIndex { $0.hasPrefix("Last command-drag: ") }
+        #expect(index.map { lines[$0 + 1] } == "Hiding: anchor icon, icon put back 0")
+        #expect(lines.last == "Last Shelf click: shown, clicked")
+    }
+
+    @Test("The Hiding line is sanitised and limited")
+    func hidingSanitised() {
+        var input = sample
+        input.hiding = "reveal all hidden\n/Users/anna/Focus\nFake: line"
+        let report = DiagnosticsReport.make(input)
+        #expect(!report.contains("/Users/anna"))
+        #expect(report.split(separator: "\n").filter { $0.hasPrefix("Fake:") }.isEmpty)
+        input.hiding = String(repeating: "a", count: 500)
+        let line = DiagnosticsReport.make(input).split(separator: "\n").last.map(String.init) ?? ""
+        #expect(line == "Hiding: " + String(repeating: "a", count: DiagnosticsReport.maximumHidingLength))
+    }
+
+    @Test("The macOS 27 hiding summary")
+    func hidingSummary27() {
+        let summary = DiagnosticsReport.hidingSummary27(
+            reveal: "all hidden", agentRestarts: 0, lateAllowlist: 2, youngRetries: 1,
+            forcedReads: 14, heldBack: 11, notchRechecks: 3
+        )
+        #expect(summary == "reveal all hidden, agent restarts 0, late allowlist 2, young retries 1, forced reads 14, held back 11, notch rechecks 3")
+        let longest = DiagnosticsReport.hidingSummary27(
+            reveal: "hidden revealed", agentRestarts: Int.max, lateAllowlist: Int.max, youngRetries: Int.max,
+            forcedReads: Int.max, heldBack: Int.max, notchRechecks: Int.max
+        )
+        let capped = DiagnosticsReport.hidingSummary27(
+            reveal: "hidden revealed", agentRestarts: 99_999, lateAllowlist: 99_999, youngRetries: 99_999,
+            forcedReads: 99_999, heldBack: 99_999, notchRechecks: 99_999
+        )
+        // Every count stops at five digits, so the line is never cut.
+        #expect(longest == capped)
+        #expect(capped.count <= DiagnosticsReport.maximumHidingLength)
+    }
+
+    @Test("The hiding summary before macOS 27")
+    func hidingSummaryBefore27() {
+        #expect(DiagnosticsReport.hidingSummaryBefore27(anchor: "icon", iconPutBack: 0) == "anchor icon, icon put back 0")
+        #expect(DiagnosticsReport.hidingSummaryBefore27(anchor: "divider", iconPutBack: 2) == "anchor divider, icon put back 2")
+    }
+
+    @Test("A hiding summary holds lowercase letters, digits, spaces and commas only")
+    func hidingSummaryCharacters() {
+        let allowed = Set("abcdefghijklmnopqrstuvwxyz0123456789 ,")
+        let summaries = [
+            DiagnosticsReport.hidingSummary27(
+                reveal: "All\nHidden/../\u{7}", agentRestarts: -1, lateAllowlist: 2, youngRetries: 3,
+                forcedReads: 4, heldBack: 5, notchRechecks: 6
+            ),
+            DiagnosticsReport.hidingSummaryBefore27(anchor: "Icon\r\n\t:x", iconPutBack: -3),
+        ]
+        for summary in summaries {
+            #expect(summary.allSatisfy { allowed.contains($0) })
+        }
+        #expect(summaries[1] == "anchor iconx, icon put back 0")
+    }
+
     @Test("The last Shelf click is one line of fixed words, and none before a click")
     func lastShelfClick() {
         var input = sample

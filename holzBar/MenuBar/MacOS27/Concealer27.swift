@@ -37,6 +37,27 @@ final class Concealer27 {
     /// puts concealment back.
     @ObservationIgnored private var suspensionOwner = 0
 
+    /// Releases of ``suspendReleased(for:)`` queued and not yet done; see ``isReleasePending``.
+    @ObservationIgnored private var pendingReleases = 0
+
+    /// Whether a release for a bridged click is still on its way. Updates wait for it like
+    /// for a running suspension: one queued behind the release would conceal again before the
+    /// click is replayed, and MenuBarAgent ignores a click on a concealed bar.
+    private var isReleasePending: Bool {
+        pendingReleases > 0
+    }
+
+    /// Notes MenuBarAgent's process, to tell when it restarted (``MenuBarAgentWatch27``).
+    @ObservationIgnored private var agentWatch = MenuBarAgentWatch27()
+
+    /// How many times MenuBarAgent restarted while holzBar ran, each answered by applying the
+    /// concealment again. For diagnostics.
+    @ObservationIgnored private(set) var agentRestarts = 0
+
+    /// How many times a read found new applications while concealing and the allowlist was
+    /// worked out again for them, though they went to the visible section. For diagnostics.
+    @ObservationIgnored private(set) var lateAllowlistRefreshes = 0
+
     /// When the last concealment change landed on the bar, which is when the bar last started
     /// moving.
     @ObservationIgnored private var lastChangeAt = ContinuousClock.now
@@ -132,9 +153,40 @@ final class Concealer27 {
     }
 
     /// Writes the layout, without holzBar's own bundle (see ``savedLayout``).
+    ///
+    /// Every application that has or had an entry becomes known, so one moved to Visible (its
+    /// entry removed) is never placed again as new.
     private func store(_ layout: [String: MacOS27Section]) {
+        recordKnownApplications(Set(savedLayout.keys).union(layout.keys))
         let guarded = OwnBundle.removing(from: layout, bundleIdentifier: Constants.bundleIdentifier)
         Defaults.set(guarded.mapValues(\.rawValue), forKey: .macOS27Layout)
+    }
+
+    /// Whether a key may be recorded as a known application: holzBar's own bundle never is (it
+    /// has no section), and a widget's autosave name is no application.
+    private func isApplicationKey(_ key: String) -> Bool {
+        !OwnBundle.matches(key, bundleIdentifier: Constants.bundleIdentifier) && !WidgetDefinition.isAutosaveName(key)
+    }
+
+    /// Adds applications to the ones holzBar knows on macOS 27 (`Defaults.Key.knownApplications27`),
+    /// the record that tells a new application from one the user has already placed.
+    ///
+    /// Every path that writes the layout records the applications it names (the layout writer,
+    /// a read of the bar, an applied profile), so an application with a layout history is never
+    /// taken for new. Before the first read has recorded the bar there is no list, and none is
+    /// started here: that read records what is there without placing it, and a list begun earlier
+    /// would make it place every application on the bar as new.
+    func recordKnownApplications(_ keys: some Sequence<String>) {
+        guard let stored = Defaults.array(forKey: .knownApplications27) as? [String] else {
+            return
+        }
+        let previous = Set(stored)
+        let applications = Set(keys.filter(isApplicationKey))
+        guard let known = SectionLayout27.knownAfterRead(bundleIDs: applications, known: previous) else {
+            return
+        }
+        Defaults.set(known.sorted(), forKey: .knownApplications27)
+        logger.debug("Recorded \(known.count - previous.count, privacy: .public) more known applications")
     }
 
     func performSetup(with appState: AppState) {
@@ -143,7 +195,10 @@ final class Concealer27 {
             logger.error("MenuBarClientCore assertions are unavailable, so items will not be hidden")
             return
         }
+        // Layouts saved by earlier versions hold applications that were never recorded as known.
+        recordKnownApplications(savedLayout.keys)
         runningBundleIDs = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
+        _ = agentWatch.note(pid: Self.menuBarAgentPID(among: NSWorkspace.shared.runningApplications))
         // Reads only the bundle identifiers of the changed applications, keeps no reference to
         // them, takes no lock and never waits: the handler runs on the main thread.
         runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.old, .new]) { [weak self] _, change in
@@ -195,7 +250,59 @@ final class Concealer27 {
                 self?.update()
             }
         )
+        // With the always-hidden section switched off nothing reveals it, so its applications
+        // move to Hidden once, where the Shelf and holzBar's icon reach them. Switching the
+        // section on again moves nothing back.
+        let advanced = appState.settings.advanced
+        observers.append(
+            ObservationLoop.observe { advanced.enableAlwaysHiddenSection } onChange: { [weak self] isEnabled in
+                guard let self, !isEnabled, foldAlwaysHiddenIntoHidden() else {
+                    return
+                }
+                update()
+            }
+        )
+        // A reveal is meant for the Shelf or for the bar, chosen when it is shown. Switching
+        // the Shelf on or off hides the hidden section once, so a section shown in one mode is
+        // never carried into the other (D-11).
+        let general = appState.settings.general
+        observers.append(
+            ObservationLoop.observe { general.useShelf } onChange: { [weak self] _ in
+                guard let self, let appState = self.appState else {
+                    return
+                }
+                // The hidden section first, as before; then the always-hidden one, which the
+                // Shelf may show on its own and which the hidden section's hide does not close
+                // once the Shelf is off.
+                for name: MenuBarSection.Name in [.hidden, .alwaysHidden] {
+                    appState.menuBarManager.section(withName: name)?.hide(isUserRequest: true)
+                }
+                update()
+            }
+        )
+        // A layout saved while the section was on, also one a settings import brought (an import
+        // relaunches holzBar), is folded the same way.
+        if !advanced.enableAlwaysHiddenSection {
+            foldAlwaysHiddenIntoHidden()
+        }
         update()
+    }
+
+    /// Moves every always-hidden application of the saved layout to Hidden, writing the layout
+    /// only when that changes it.
+    ///
+    /// - Returns: Whether the layout changed.
+    @discardableResult
+    private func foldAlwaysHiddenIntoHidden() -> Bool {
+        let layout = savedLayout
+        let folded = SectionLayout27.foldingAlwaysHidden(layout)
+        guard folded != layout else {
+            return false
+        }
+        let moved = layout.values.count { $0 == .alwaysHidden }
+        store(folded)
+        logger.notice("The always-hidden section is off, moved \(moved, privacy: .public) applications to Hidden")
+        return true
     }
 
     deinit {
@@ -212,6 +319,11 @@ final class Concealer27 {
     /// allowlist has to land before a launching agent creates its status item.
     private func runningApplicationsDidChange() {
         let applications = NSWorkspace.shared.runningApplications
+        // Before the bundle set is compared: a quit and relaunch of MenuBarAgent can arrive as
+        // one change that leaves the set as it was.
+        if agentWatch.note(pid: Self.menuBarAgentPID(among: applications)) {
+            menuBarAgentDidRestart()
+        }
         let running = Set(applications.compactMap(\.bundleIdentifier))
         guard running != runningBundleIDs else {
             return
@@ -220,13 +332,7 @@ final class Concealer27 {
             guard let bundleID = application.bundleIdentifier else {
                 return nil
             }
-            let policy: AgentLaunches27.Policy = switch application.activationPolicy {
-            case .regular: .regular
-            case .accessory: .accessory
-            case .prohibited: .prohibited
-            @unknown default: .accessory
-            }
-            return (bundleID, application.bundleURL?.path(percentEncoded: false), policy)
+            return (bundleID, application.bundleURL?.path(percentEncoded: false), AgentLaunches27.Policy(application.activationPolicy))
         }
         let layout = savedLayout
         let stored = Defaults.array(forKey: .knownApplications27) as? [String] ?? []
@@ -244,6 +350,29 @@ final class Concealer27 {
         }
         logger.debug("Applications that may own items launched or quit (\(reaction.graces.count, privacy: .public) in concealed sections)")
         applicationsDidChange(graces: reaction.graces)
+    }
+
+    /// MenuBarAgent's process identifier among the running applications, `nil` when it is not running.
+    private static func menuBarAgentPID(among applications: [NSRunningApplication]) -> pid_t? {
+        applications.first { $0.bundleIdentifier == MenuBarItemProvider27.menuBarAgentBundleID }?.processIdentifier
+    }
+
+    /// Applies the concealment again after MenuBarAgent restarted.
+    ///
+    /// The assertions are taken to have died with the old MenuBarAgent, and an apply reuses a
+    /// live token whose target is unchanged, so the stale tokens are dropped first (releasing a
+    /// dead one fails softly), queued like a suspension's release but without one, and the
+    /// update that follows takes fresh assertions. Happens once per restart.
+    private func menuBarAgentDidRestart() {
+        agentRestarts += 1
+        logger.notice("MenuBarAgent restarted (\(self.agentRestarts, privacy: .public) so far), applying concealment again")
+        let previous = applyTask
+        applyTask = Task { [weak self, controller] in
+            await previous?.value
+            controller.releaseAll()
+            self?.lastChangeAt = .now
+        }
+        update()
     }
 
     /// Answers applications that may own items launching or quitting, with exactly one update.
@@ -315,6 +444,10 @@ final class Concealer27 {
             return false
         }
         if let suspendedUntil, ContinuousClock.now < suspendedUntil {
+            return true
+        }
+        // The release for a bridged click goes first; the suspension that follows it updates.
+        if isReleasePending {
             return true
         }
         let applications = NSWorkspace.shared.runningApplications
@@ -389,8 +522,9 @@ final class Concealer27 {
         return true
     }
 
-    /// The processes whose concealed items were looked for once already.
-    private var probedPIDs = Set<pid_t>()
+    /// The processes whose concealed items were looked for once already. Processes that quit
+    /// are forgotten at the next look, so a reused identifier is looked at again.
+    @ObservationIgnored private var probedPIDs = Set<pid_t>()
 
     /// Shows the concealed applications that no read has ever listed an item of, for one read.
     ///
@@ -399,13 +533,15 @@ final class Concealer27 {
     /// the Shelf until they were relaunched. Shown for a moment, they report their items; once
     /// read, the last answer stands while they are concealed again. Each process is tried once.
     private func readUnreadConcealed() async {
+        let applications = NSWorkspace.shared.runningApplications
+        probedPIDs.formIntersection(applications.map(\.processIdentifier))
         let unread = MenuBarItemProvider27.unreadConcealedPIDs().subtracting(probedPIDs)
         guard !unread.isEmpty, let appState else {
             return
         }
         probedPIDs.formUnion(unread)
         let bundleIDs = Set(
-            NSWorkspace.shared.runningApplications
+            applications
                 .filter { unread.contains($0.processIdentifier) }
                 .compactMap(\.bundleIdentifier)
         )
@@ -560,14 +696,43 @@ final class Concealer27 {
         appState.menuBarManager.controlItem(withName: .visible)?.reinsert()
     }
 
+    /// How many times an application's activation moved the active menu bar to another display
+    /// and the notch cover was worked out at once. For diagnostics.
+    @ObservationIgnored private(set) var notchRechecks = 0
+
+    /// Works the notch cover out at once when the active menu bar moved to another display.
+    ///
+    /// Called after the item read that follows an application's activation (the menu bar
+    /// moves with the active application). The notch cover and the relayout for a roomier
+    /// display were otherwise worked out only after the next concealment change, which could
+    /// be minutes later. Does nothing unless the display differs from the one of the last
+    /// settled read: no timer, nothing at rest (D-11).
+    func activeMenuBarMayHaveMoved() {
+        guard
+            let appState,
+            !appState.systemActivityMonitor.isPaused,
+            let lastActiveDisplay,
+            let displayID = Bridging.getActiveMenuBarDisplayID(),
+            displayID != lastActiveDisplay.id
+        else {
+            return
+        }
+        notchRechecks += 1
+        logger.debug("The active menu bar moved to another display, checking the notch cover")
+        Task { [weak self] in
+            await self?.checkNotchCover()
+        }
+    }
+
     /// Keeps holzBar's icon out from under the notch, and lets MenuBarAgent lay the bar out
     /// again when it moves to a wider display with items folded.
     ///
     /// Runs after each settled read. While the icon lies under the notch of the active
     /// display, the nearest visible application right of it is concealed (one per read, until
     /// the icon is clear; Thaw #1195, #1153). When the active bar moves to a display without a
-    /// notch or a wider one while the last read showed folded items, concealment is released
-    /// and applied again once, so the folded items come back (Thaw #1106).
+    /// notch or a wider one while the last read showed folded items, and the read there still
+    /// shows items folded, concealment is released and applied again once, so the folded items
+    /// come back (Thaw #1106).
     private func checkNotchCover() async {
         guard let screen = NSScreen.screenWithActiveMenuBar else {
             return
@@ -580,21 +745,33 @@ final class Concealer27 {
         let previous = lastActiveDisplay
         lastActiveDisplay = (displayID, displayBounds.width, screen.hasNotch)
         let hadFoldedItems = lastReadHadFoldedItems
-        lastReadHadFoldedItems = items.contains { item in
-            displayBounds.intersects(item.bounds) && OverflowDetection27.isInOverflow(itemFrame: item.bounds, chevronFrame: chevronFrame)
-        }
-        if let previous, previous.id != displayID {
-            if !notchConcealed.isEmpty {
-                notchConcealed.removeAll()
-                update()
-                return
-            }
-            let isRoomier = !screen.hasNotch || displayBounds.width > previous.width
-            if hadFoldedItems, isRoomier, isConcealing {
-                logger.notice("The bar moved to a roomier display with items folded, laying it out again")
-                suspend(for: Self.settleAfterChange)
-                return
-            }
+        lastReadHadFoldedItems = NotchCover27.showsFoldedItems(
+            itemFrames: items.map(\.bounds),
+            chevronFrame: chevronFrame,
+            displayBounds: displayBounds
+        )
+        let change = NotchCover27.displayChange(
+            previousID: previous?.id,
+            currentID: displayID,
+            previousWidth: previous?.width ?? 0,
+            currentWidth: displayBounds.width,
+            hasNotch: screen.hasNotch,
+            notchConcealedEmpty: notchConcealed.isEmpty,
+            hadFoldedItems: hadFoldedItems,
+            hasFoldedItemsNow: lastReadHadFoldedItems,
+            isConcealing: isConcealing
+        )
+        switch change {
+        case .none:
+            break
+        case .recompute:
+            notchConcealed.removeAll()
+            update()
+            return
+        case .relayout:
+            logger.notice("The bar moved to a roomier display with items folded, laying it out again")
+            suspend(for: Self.settleAfterChange)
+            return
         }
 
         guard
@@ -767,6 +944,9 @@ final class Concealer27 {
         isConcealing = false
         concealedPIDs.removeAll()
         stateGeneration += 1
+        // Until the release is done no update may queue behind it, also once the deadline above
+        // has passed while the release waited for the change before it.
+        pendingReleases += 1
         let previous = applyTask
         let release = Task { [controller] in
             await previous?.value
@@ -774,10 +954,16 @@ final class Concealer27 {
         }
         applyTask = release
         await release.value
+        pendingReleases -= 1
         lastChangeAt = .now
         // The duration counts from the release, which can queue behind a change before it. A
         // suspension begun meanwhile, or an early end, owns the deadline now.
         guard suspensionOwner == owner else {
+            // An early end asked for an update while the release was pending; no suspension
+            // is left to make it.
+            if suspendedUntil == nil, !isReleasePending {
+                update()
+            }
             return
         }
         let deadline = suspensionDeadline(for: duration)
@@ -918,40 +1104,60 @@ final class Concealer27 {
     /// in the settings (jordanbaird/Ice#6, jordanbaird/Ice#767).
     ///
     /// An application missing from the saved layout is visible. holzBar remembers
-    /// every application it has seen on the bar, so only new ones are placed, and
-    /// the first run only records what is there.
+    /// every application it has seen on the bar or in the layout, so only new ones are
+    /// placed, and the first run only records what is there.
     func placeNewApplications(items: [MenuBarItem]) {
         guard let appState else {
             return
         }
         let bundleIDs = Set(items.compactMap { item -> String? in
             // A widget has no bundle to place (its key is ``MenuBarItem/layoutKey27``): a new
-            // one has no entry in the layout and is therefore visible.
-            guard item.canBeHidden, !item.isSystemClone, !item.isControlItem, !item.isWidget else {
+            // one has no entry in the layout and is therefore visible. holzBar's own bundle has
+            // no section either.
+            guard
+                item.canBeHidden,
+                !item.isSystemClone,
+                !item.isControlItem,
+                !item.isWidget,
+                let bundleID = item.sourceApplication?.bundleIdentifier,
+                isApplicationKey(bundleID)
+            else {
                 return nil
             }
-            return item.sourceApplication?.bundleIdentifier
+            return bundleID
         })
-        let stored = Defaults.array(forKey: .knownApplications27) as? [String]
-        let known = Set(stored ?? [])
-        let newBundleIDs = bundleIDs.subtracting(known).subtracting(savedLayout.keys)
-
-        guard stored == nil || !newBundleIDs.isEmpty else {
+        let saved = savedLayout
+        guard let stored = Defaults.array(forKey: .knownApplications27) as? [String] else {
+            // The first run records what is there, on the bar and in the layout, and places nothing.
+            let known = bundleIDs.union(saved.keys.filter(isApplicationKey))
+            Defaults.set(known.sorted(), forKey: .knownApplications27)
             return
         }
-        Defaults.set(known.union(bundleIDs).sorted(), forKey: .knownApplications27)
+        let newBundleIDs = SectionLayout27.newApplications(bundleIDs: bundleIDs, known: Set(stored), saved: saved)
+        // Every application read becomes known, also one with a layout entry, which is not new
+        // now but would be once it is moved to Visible.
+        recordKnownApplications(bundleIDs)
 
+        guard !newBundleIDs.isEmpty else {
+            return
+        }
         guard
-            stored != nil,
             var name = appState.settings.advanced.newItemsPlacement.section,
             name != .visible
         else {
+            // The live allowlist was built before the new application ran, so its item is
+            // concealed from birth while anything is hidden (D-11). One update allows it.
+            if isConcealing {
+                lateAllowlistRefreshes += 1
+                logger.debug("New applications read while concealing, refreshing the allowlist (\(self.lateAllowlistRefreshes, privacy: .public) so far)")
+                update()
+            }
             return
         }
         if name == .alwaysHidden && !appState.settings.advanced.enableAlwaysHiddenSection {
             name = .hidden
         }
-        var layout = savedLayout
+        var layout = saved
         for bundleID in newBundleIDs {
             layout = SectionLayout27.settingSection(MacOS27Section(name), for: bundleID, in: layout)
             logger.notice("Placed new application \(bundleID, privacy: .private(mask: .hash)) in \(name.logString, privacy: .public)")
@@ -985,6 +1191,11 @@ final class Concealer27 {
             return
         }
         setSection(.visible, for: key)
+    }
+
+    /// The section of an application in the saved layout; visible when it has none.
+    func section(forKey key: String) -> MacOS27Section {
+        savedLayout[key] ?? .visible
     }
 
     /// Moves an application to a section of the saved layout and applies it.
@@ -1106,27 +1317,27 @@ final class Concealer27 {
 
     // MARK: Private
 
-    /// What the concealment follows: everything while Menu Bar Layout is open, nothing but the
-    /// always shown items while the holzBar Shelf shows the rest, otherwise the sections' state.
+    /// What the concealment follows: everything while Menu Bar Layout is open, otherwise the
+    /// sections' states on the bar (``RevealState27/decide(layoutPaneOpen:hiddenShownOnBar:alwaysHiddenShownOnBar:alwaysHiddenEnabled:)``).
     /// ``ItemReorderer27`` runs only while this is ``RevealState27/allRevealed``.
+    ///
+    /// While the holzBar Shelf shows the hidden items, their control items hide the sections, so
+    /// the bar stays concealed wherever the pointer is. Neither the Shelf setting nor
+    /// `MenuBarSection.isHidden` is read here: both depend on the display under the pointer.
+    /// Reads only observable state, so ``reveals(_:)`` can be observed.
     func revealState(_ appState: AppState) -> RevealState27 {
         let navigation = appState.navigationState
-        if navigation.isSettingsPresented, navigation.settingsNavigationIdentifier == .menuBarLayout {
-            // Everything is drawn while the layout window is open, so every item can be photographed.
-            return .allRevealed
-        }
-        if appState.settings.general.usesShelf {
-            // The holzBar Shelf shows hidden items in its own panel, so the bar stays concealed.
-            return .allHidden
-        }
+        // Everything is drawn while the layout window is open, so every item can be photographed.
+        let layoutPaneOpen = navigation.isSettingsPresented && navigation.settingsNavigationIdentifier == .menuBarLayout
         let manager = appState.menuBarManager
-        if let alwaysHidden = manager.section(withName: .alwaysHidden), alwaysHidden.isEnabled, !alwaysHidden.isHidden {
-            return .allRevealed
-        }
-        if let hidden = manager.section(withName: .hidden), !hidden.isHidden {
-            return .hiddenRevealed
-        }
-        return .allHidden
+        let hidden = manager.section(withName: .hidden)
+        let alwaysHidden = manager.section(withName: .alwaysHidden)
+        return RevealState27.decide(
+            layoutPaneOpen: layoutPaneOpen,
+            hiddenShownOnBar: hidden?.controlItem.state == .showSection,
+            alwaysHiddenShownOnBar: alwaysHidden?.controlItem.state == .showSection,
+            alwaysHiddenEnabled: alwaysHidden?.isEnabled ?? false
+        )
     }
 }
 

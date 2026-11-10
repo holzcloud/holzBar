@@ -7,24 +7,48 @@ import Testing
 struct SyntheticWindowID27Tests {
     @Test("The same item always gets the same identifier")
     func stable() {
-        let first = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", index: 0)
-        let second = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", index: 0)
+        let first = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", occurrence: 0)
+        let second = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", occurrence: 0)
         #expect(first == second)
     }
 
-    @Test("Different items get different identifiers")
+    @Test("Items of one app that share an identifier get different identifiers")
     func distinct() {
-        let first = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", index: 0)
-        let second = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", index: 1)
+        let occurrences = SyntheticWindowID27.occurrences(identifiers: ["Item#", "Item#"])
+        #expect(occurrences == [0, 1])
+        let first = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", occurrence: occurrences[0])
+        let second = SyntheticWindowID27.make(bundleID: "eu.exelban.Stats", identifier: "Item#", occurrence: occurrences[1])
         #expect(first != second)
     }
 
     @Test("Synthetic identifiers are recognisable and real ones are not")
     func recognisable() {
-        let synthetic = SyntheticWindowID27.make(bundleID: "ru.keepcoder.Telegram", identifier: "Item-0", index: 0)
+        let synthetic = SyntheticWindowID27.make(bundleID: "ru.keepcoder.Telegram", identifier: "Item-0", occurrence: 0)
         #expect(SyntheticWindowID27.isSynthetic(synthetic))
+        #expect(SyntheticWindowID27.isSynthetic(SyntheticWindowID27.make(bundleID: "com.apple.MenuBarAgent", identifier: "", occurrence: 7)))
         #expect(!SyntheticWindowID27.isSynthetic(24))
         #expect(!SyntheticWindowID27.isSynthetic(100_000))
+    }
+
+    @Test("The occurrence counts each identifier on its own")
+    func occurrencesPerIdentifier() {
+        #expect(SyntheticWindowID27.occurrences(identifiers: ["a", "b", "a", "", "a"]) == [0, 0, 1, 0, 2])
+        #expect(SyntheticWindowID27.occurrences(identifiers: ["", ""]) == [0, 1])
+        #expect(SyntheticWindowID27.occurrences(identifiers: []).isEmpty)
+    }
+
+    @Test("A system item keeps its identifier when an item before it comes or goes")
+    func independentOfPosition() {
+        // The children of MenuBarAgent without and with one more item in front, as when the
+        // overflow button or another system item appears (27-L2).
+        let without = ["com.apple.menuextra.wifi", "com.apple.menuextra.clock"]
+        let with = ["com.apple.menuextra.battery"] + without
+        let clockWithout = SyntheticWindowID27.occurrences(identifiers: without)[1]
+        let clockWith = SyntheticWindowID27.occurrences(identifiers: with)[2]
+        #expect(
+            SyntheticWindowID27.make(bundleID: "com.apple.MenuBarAgent", identifier: "com.apple.menuextra.clock", occurrence: clockWithout)
+                == SyntheticWindowID27.make(bundleID: "com.apple.MenuBarAgent", identifier: "com.apple.menuextra.clock", occurrence: clockWith)
+        )
     }
 }
 
@@ -264,6 +288,57 @@ struct AccessibilityScanSchedule27Tests {
         schedule.retain(running: [11])
         schedule.record(pid: 10, timedOut: true, now: 0)
         #expect(schedule.timeout(for: 10, now: 1) == nil)
+    }
+
+    @Test("A young process that may own an item is retried at the normal timeout")
+    func youngProcessIsNotPaused() {
+        var schedule = AccessibilityScanSchedule27()
+        schedule.record(pid: 10, timedOut: true, now: 0, isYoung: true)
+        #expect(schedule.timeout(for: 10, now: 0) == AccessibilityScanSchedule27.normalTimeout)
+        #expect(schedule.youngRetries == 1)
+        schedule.record(pid: 10, timedOut: true, now: 2, isYoung: true)
+        #expect(schedule.timeout(for: 10, now: 2) == AccessibilityScanSchedule27.normalTimeout)
+        #expect(schedule.youngRetries == 2)
+        // An answer is no retry.
+        schedule.record(pid: 10, timedOut: false, now: 4, isYoung: true)
+        #expect(schedule.youngRetries == 2)
+    }
+
+    @Test("An old process keeps today's pause of 60 s, then 120 s")
+    func oldProcessKeepsThePause() {
+        var schedule = AccessibilityScanSchedule27()
+        schedule.record(pid: 10, timedOut: true, now: 0, isYoung: false)
+        #expect(schedule.timeout(for: 10, now: 59) == nil)
+        #expect(schedule.timeout(for: 10, now: 60) == AccessibilityScanSchedule27.retryTimeout)
+        schedule.record(pid: 10, timedOut: true, now: 60, isYoung: false)
+        #expect(schedule.timeout(for: 10, now: 179) == nil)
+        #expect(schedule.timeout(for: 10, now: 180) == AccessibilityScanSchedule27.retryTimeout)
+        #expect(schedule.youngRetries == 0)
+    }
+
+    @Test("A process that grows old after young timeouts is paused from its first old timeout")
+    func youngThenOld() {
+        var schedule = AccessibilityScanSchedule27()
+        schedule.record(pid: 10, timedOut: true, now: 0, isYoung: true)
+        schedule.record(pid: 10, timedOut: true, now: 31, isYoung: false)
+        #expect(schedule.timeout(for: 10, now: 90) == nil)
+        #expect(schedule.timeout(for: 10, now: 91) == AccessibilityScanSchedule27.retryTimeout)
+    }
+
+    @Test("A young process that reports items becomes an item owner")
+    func youngProcessBecomesItemOwner() {
+        var schedule = AccessibilityScanSchedule27()
+        schedule.record(pid: 10, timedOut: true, now: 0, isYoung: true)
+        schedule.recordItems(pid: 10)
+        schedule.record(pid: 10, timedOut: true, now: 60, isYoung: false)
+        #expect(schedule.timeout(for: 10, now: 61) == AccessibilityScanSchedule27.normalTimeout)
+        // An item owner that times out is no young retry either.
+        #expect(schedule.youngRetries == 1)
+    }
+
+    @Test("A young process counts as young for 30 s")
+    func youngAge() {
+        #expect(AccessibilityScanSchedule27.youngAge == 30)
     }
 
     @Test("Exited processes are forgotten, so a reused identifier starts fresh")

@@ -126,6 +126,14 @@ final class GeneralSettings {
         }
     }
 
+    /// A Boolean value that indicates whether a Command-drag of an app's item across the holzBar
+    /// icon sets the app's section (macOS 27). Off, the drag stays macOS's own reorder.
+    var commandDragSetsSection = true {
+        didSet {
+            Defaults.set(commandDragSetsSection, forKey: .commandDragSetsSection)
+        }
+    }
+
     /// A Boolean value that indicates whether the search offers category chips. While it is off
     /// nothing is classified and no application bundle is read.
     var smartCategories = true {
@@ -332,6 +340,7 @@ final class GeneralSettings {
         }
         Defaults.ifPresent(key: .clockOpensNotificationCenter, assign: &clockOpensNotificationCenter)
         Defaults.ifPresent(key: .appliesLayoutChangesImmediately, assign: &appliesLayoutChangesImmediately)
+        Defaults.ifPresent(key: .commandDragSetsSection, assign: &commandDragSetsSection)
         Defaults.ifPresent(key: .showsNotchOverflowInShelf, assign: &showsNotchOverflowInShelf)
         Defaults.ifPresent(key: .smartCategories, assign: &smartCategories)
         Defaults.ifPresent(key: .shelfFindsByTyping, assign: &shelfFindsByTyping)

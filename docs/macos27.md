@@ -46,9 +46,21 @@ macOS 27 draws the bar through `MenuBarAgent`, which animates the bar by itself 
 
 From 0.0.8. An optional module in Settings → Modules, on macOS 26 and 27, off until you switch it on. While it is on, holzBar holds back a plain click on an app's menu bar item: moving it sideways turns it into the ⌘ Command-drag macOS performs, and releasing it opens the item's menu as a normal click (so the menu opens on release).
 
-macOS 27 draws no holzBar dividers, so sections are reached through two drop targets: drop an item on the holzBar icon, or on the open Shelf, and its app moves to Hidden, as in Menu Bar Layout; drag an item of a hidden app elsewhere while the hidden items show and its app becomes visible again. A drag that goes straight down from the bar onto the open Shelf stays a drag (the item's menu does not open), and the Shelf draws an accent outline while an item is over it. Settings → About → Copy Diagnostics has a Last drop line that names, in plain words and without any app name, where the last drop landed and what holzBar did with it, and a Last Shelf click line that names, in plain words and without any app name, how a click on a Shelf tile reached its item and whether the item took it. Every other drop is macOS's own reorder, which holzBar does not record; to put items in order use Menu Bar Layout.
+macOS 27 draws no holzBar dividers, so sections are reached through two drop targets: drop an item on the holzBar icon, or on the open Shelf, and its app moves to Hidden, as in Menu Bar Layout; drag an item of a hidden app elsewhere while the hidden items show and its app becomes visible again. A drag that goes straight down from the bar onto the open Shelf stays a drag (the item's menu does not open), and the Shelf draws an accent outline while an item is over it. Settings → About → Copy Diagnostics has a Last drop line that names, in plain words and without any app name, where the last drop landed and what holzBar did with it, and a Last Shelf click line that names, in plain words and without any app name, how a click on a Shelf tile reached its item and whether the item took it. Every other drop of this module is macOS's own reorder, which holzBar does not record; to put items in order use Menu Bar Layout. A ⌘ Command-drag you make yourself is covered by the next section.
 
 Apple's own items, holzBar's items, ⌘, ⌃ and ⌥ clicks and double-clicks are left alone, and the module does nothing on a full-screen Space or while macOS hides the menu bar. holzBar watches only the left mouse button, only while the module is on, and needs no permission beyond Accessibility.
+
+## Command-drag across the holzBar icon
+
+From 1.0.5, on macOS 27. A switch in Settings → Menu Bar Layout, on by default, lets a ⌘ Command-drag of an app's item set that app's section. macOS 27 draws no dividers, so the holzBar icon is the only anchor: the section changes only when the dragged item crosses the icon. Dragged from the right of the icon to its left, the app is hidden; dragged from the left to its right, it is visible. A reorder on the same side leaves the app alone, because on macOS 27 the order on the bar no longer means sections. An app in Always hidden stays there when it is dragged left, and becomes visible when it is dragged right.
+
+A drop exactly on the icon does nothing from this feature; macOS decides, and the Drag in the Menu Bar module keeps its own drop on the icon (see above). holzBar's own sorting drags, the module's drags, a ⌘ Command-click without a drag, a drag with Control or Option, and a drag that starts on another display's bar are never read as a section change.
+
+The section is per app on macOS 27, so an app with several items changes as a whole, and the notice in Menu Bar Layout names it once. The notice offers **Undo**, which puts the app back only if its section is still the one the drag set. Rule-controlled items, pinned Control Center controls and macOS's own numbered system items, such as the Clock, are not changed by the drop; the notice says why. The notices stay in memory and are gone when holzBar quits.
+
+holzBar notes the ⌘ Command press on an item and its release, waits about 1.2 seconds for macOS to settle the bar, reads the bar once through Accessibility (once more after about 0.6 seconds if it is still moving) and writes the section from where the item came to rest. Nothing runs between drags: no timer, no polling, and the monitors exist only while the switch is on on macOS 27. It moves no pointer, needs no permission beyond the Accessibility holzBar already has and never touches the network. With the switch off, a ⌘ Command-drag stays macOS's own reorder.
+
+Settings → About → Copy Diagnostics has a Last command-drag line in plain words and numbers, without any app name: how long holzBar waited, how many reads it took and what it decided, such as `waited 1210 ms, 1 read, set hidden, applied`, a kept reason, or `ignored: no movement`.
 
 ## Apple items
 
@@ -59,6 +71,14 @@ An optional module in Settings → Modules, on macOS 27, off until you switch it
 **Replacement items.** macOS 27 hides whole applications, and several of Apple's items can belong to one Apple application, so hiding one of them can hide the others too. A replacement item is an icon of holzBar's own, with a symbol you choose, that opens one Apple item when you click it: hide the application's items in Menu Bar Layout and keep the ones you want one click away. You can add up to six, from the Apple items on the bar; the four system items above are not offered, because they are hidden as described above. A click opens the item the way item hotkeys and groups do: with "Open hidden items in the menu bar" off, a hidden Apple item is pressed through Accessibility without being shown, otherwise its application is shown for a moment.
 
 holzBar stores only which system items you hid and your replacements' symbols and item keys, on this Mac, and has no network access. Settings → About → Copy Diagnostics says whether the module is on and how many items it hides and replaces, without any name.
+
+## Apps that launch while items are hidden
+
+holzBar hides whole applications through an assertion that names, by bundle identifier, the apps that stay visible. Since 1.0.5 an app that launches while items are hidden and is to stay visible (a new app when new items go to Visible or where macOS puts them, or a helper app inside another app, such as a login item) is added to it at once, so its item appears within about a second. An app that is slow to answer Accessibility right after it starts is asked again at every read for its first 30 seconds instead of being skipped for minutes. When an app such as Slack or an Electron app changes its items often, holzBar reads every app for it at most once every 30 seconds. If `MenuBarAgent` restarts, holzBar applies the hiding again with fresh assertions.
+
+Items of processes without a bundle identifier, such as some script-based apps, cannot be named in the assertion: while holzBar hides any app, they stay hidden and are not listed in the holzBar Shelf. They come back while holzBar hides nothing.
+
+Settings → About → Copy Diagnostics has a Hiding line with the reveal state and counts of these events (agent restarts, late refreshes, young retries, forced and held-back reads, notch rechecks), never an app name.
 
 ## Updating from macOS 26
 

@@ -46,6 +46,24 @@ struct SectionLayout27Tests {
         #expect(result.isEmpty)
     }
 
+    @Test("Two changed items of one app in Hidden and Always-Hidden give Hidden")
+    func editorSplitHiddenAndAlwaysHidden() {
+        let result = SectionLayout27.appSections(items: [
+            (bundleID: "com.s.app", section: .alwaysHidden),
+            (bundleID: "com.s.app", section: .hidden),
+        ])
+        #expect(result == ["com.s.app": .hidden])
+    }
+
+    @Test("Two changed items of one app in Visible and Hidden give Visible")
+    func editorSplitVisibleAndHidden() {
+        let result = SectionLayout27.appSections(items: [
+            (bundleID: "com.s.app", section: .hidden),
+            (bundleID: "com.s.app", section: .visible),
+        ])
+        #expect(result == ["com.s.app": .visible])
+    }
+
     @Test("Bundles are collected by section")
     func bundlesBySection() {
         let layout: [String: MacOS27Section] = ["a": .visible, "b": .hidden, "c": .alwaysHidden]
@@ -102,7 +120,120 @@ struct ApplyingProfile27Tests {
         )
         #expect(result == ["ru.keepcoder.Telegram": .hidden])
     }
+
+    @Test("A rule that makes one app visible leaves every other saved app where it was")
+    func ruleMakingAppVisibleKeepsOthers() {
+        let result = SectionLayout27.applyingProfile(
+            ["com.a.app": .visible],
+            knownApplications: ["com.a.app"],
+            to: ["com.a.app": .hidden, "com.b.app": .hidden]
+        )
+        #expect(result == ["com.b.app": .hidden])
+    }
+
+    @Test("A rule that hides one app adds it and keeps every other saved app")
+    func ruleHidingAppKeepsOthers() {
+        let result = SectionLayout27.applyingProfile(
+            ["com.v.app": .hidden],
+            knownApplications: ["com.v.app"],
+            to: ["com.b.app": .hidden, "com.c.app": .alwaysHidden]
+        )
+        #expect(result == ["com.b.app": .hidden, "com.c.app": .alwaysHidden, "com.v.app": .hidden])
+    }
+
+    @Test("A profile that leaves a rule-controlled app out of its sections and known apps keeps it hidden")
+    func profileWithoutControlledAppKeepsIt() {
+        let saved: [String: MacOS27Section] = ["com.r.app": .hidden, "com.b.app": .hidden]
+        // The profile knew R as visible; R is left out of both because a rule controls it.
+        let result = SectionLayout27.applyingProfile(["com.b.app": .hidden], knownApplications: ["com.b.app"], to: saved)
+        #expect(result == ["com.r.app": .hidden, "com.b.app": .hidden])
+    }
+
+    @Test("A profile that still knows a rule-controlled app makes it visible")
+    func profileKnowingControlledAppDropsIt() {
+        // Why the known applications must be filtered as well as the sections.
+        let saved: [String: MacOS27Section] = ["com.r.app": .hidden, "com.b.app": .hidden]
+        let result = SectionLayout27.applyingProfile(
+            ["com.b.app": .hidden],
+            knownApplications: ["com.b.app", "com.r.app"],
+            to: saved
+        )
+        #expect(result == ["com.b.app": .hidden])
+    }
 }
+
+@Suite("Known applications on macOS 27")
+struct KnownApplications27Tests {
+    @Test("A read of known applications only writes nothing")
+    func readOfKnownWritesNothing() {
+        #expect(SectionLayout27.knownAfterRead(bundleIDs: ["com.a.app"], known: ["com.a.app", "com.b.app"]) == nil)
+        #expect(SectionLayout27.knownAfterRead(bundleIDs: [], known: []) == nil)
+    }
+
+    @Test("An app with a layout entry read for the first time is recorded, but is not new")
+    func appWithEntryIsRecordedNotNew() {
+        let saved: [String: MacOS27Section] = ["com.h.app": .hidden]
+        let known: Set<String> = ["com.a.app"]
+        let read: Set<String> = ["com.a.app", "com.h.app"]
+        #expect(SectionLayout27.knownAfterRead(bundleIDs: read, known: known) == ["com.a.app", "com.h.app"])
+        #expect(SectionLayout27.newApplications(bundleIDs: read, known: known, saved: saved).isEmpty)
+    }
+
+    @Test("Moved to Visible after it was recorded, the app is not new on the next read")
+    func visibleAfterRecordIsNotNew() {
+        let saved: [String: MacOS27Section] = ["com.h.app": .hidden]
+        let read: Set<String> = ["com.a.app", "com.h.app"]
+        let known = SectionLayout27.knownAfterRead(bundleIDs: read, known: ["com.a.app"]) ?? []
+        let afterVisible = SectionLayout27.settingSection(.visible, for: "com.h.app", in: saved)
+        #expect(afterVisible.isEmpty)
+        #expect(SectionLayout27.newApplications(bundleIDs: read, known: known, saved: afterVisible).isEmpty)
+    }
+
+    @Test("An app neither known nor in the layout is new")
+    func unknownAppIsNew() {
+        let result = SectionLayout27.newApplications(
+            bundleIDs: ["com.a.app", "com.n.app", "com.h.app"],
+            known: ["com.a.app"],
+            saved: ["com.h.app": .hidden]
+        )
+        #expect(result == ["com.n.app"])
+    }
+}
+
+@Suite("Folding Always-Hidden into Hidden on macOS 27")
+struct FoldingAlwaysHidden27Tests {
+    @Test("Every always-hidden entry becomes hidden; the others stay")
+    func foldsAlwaysHidden() {
+        let widget = "holzBar.Widget.0A1B2C3D"
+        let layout: [String: MacOS27Section] = [
+            "com.a.app": .alwaysHidden,
+            "com.b.app": .hidden,
+            "com.c.app": .alwaysHidden,
+            widget: .alwaysHidden,
+        ]
+        #expect(SectionLayout27.foldingAlwaysHidden(layout) == [
+            "com.a.app": .hidden,
+            "com.b.app": .hidden,
+            "com.c.app": .hidden,
+            widget: .hidden,
+        ])
+    }
+
+    @Test("A layout without always-hidden entries stays as it is")
+    func leavesOthersAlone() {
+        let layout: [String: MacOS27Section] = ["com.b.app": .hidden, "com.v.app": .visible]
+        #expect(SectionLayout27.foldingAlwaysHidden(layout) == layout)
+        #expect(SectionLayout27.foldingAlwaysHidden([:]).isEmpty)
+    }
+
+    @Test("Folding twice is folding once")
+    func idempotent() {
+        let layout: [String: MacOS27Section] = ["com.a.app": .alwaysHidden, "com.b.app": .hidden]
+        let once = SectionLayout27.foldingAlwaysHidden(layout)
+        #expect(SectionLayout27.foldingAlwaysHidden(once) == once)
+    }
+}
+
 @Suite("Seeding the macOS 27 layout from the bar")
 struct SeededLayout27Tests {
     // A bar as it stood before macOS 27: always-hidden items, the always-hidden divider,
@@ -228,5 +359,26 @@ struct OSUpgrade27Tests {
         let down = OSUpgrade27.plan(previousMajor: 27, currentMajor: 26, layoutIsEmpty: true, hasSavedSections: true)
         #expect(!down.reseedsLayout)
         #expect(down.recordsVersion)
+    }
+
+    @Test("An update from 27 to 28 keeps an empty layout empty")
+    func from27To28DoesNotReseed() {
+        let plan = OSUpgrade27.plan(previousMajor: 27, currentMajor: 28, layoutIsEmpty: true, hasSavedSections: true)
+        #expect(!plan.reseedsLayout)
+        #expect(plan.recordsVersion)
+    }
+
+    @Test("Going back from 28 to 27 keeps an empty layout empty")
+    func from28To27DoesNotReseed() {
+        let plan = OSUpgrade27.plan(previousMajor: 28, currentMajor: 27, layoutIsEmpty: true, hasSavedSections: true)
+        #expect(!plan.reseedsLayout)
+        #expect(plan.recordsVersion)
+    }
+
+    @Test("Only an update from before macOS 27, or from an unknown version, reseeds")
+    func onlyFromBefore27Reseeds() {
+        #expect(OSUpgrade27.plan(previousMajor: 26, currentMajor: 27, layoutIsEmpty: true, hasSavedSections: true).reseedsLayout)
+        #expect(OSUpgrade27.plan(previousMajor: 15, currentMajor: 28, layoutIsEmpty: true, hasSavedSections: true).reseedsLayout)
+        #expect(OSUpgrade27.plan(previousMajor: nil, currentMajor: 27, layoutIsEmpty: true, hasSavedSections: true).reseedsLayout)
     }
 }

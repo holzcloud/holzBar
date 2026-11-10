@@ -66,6 +66,12 @@ final class MenuBarDragController {
     /// test reads the bar as the drop left it.
     private var isHandlingDrop = false
 
+    /// Whether a drop is being handled, so the Command-drag feature does not take the module's
+    /// replayed presses for the user's.
+    var isBusyWithDrop: Bool {
+        isHandlingDrop
+    }
+
     /// The longest callback of this run, written to the log when the tap stops.
     private var longestCallback = Duration.zero
 
@@ -82,7 +88,7 @@ final class MenuBarDragController {
 
     // MARK: - Start and stop
 
-    /// Creates the tap and enables it.
+    /// Creates the tap and enables it, or enables the tap `stop()` kept.
     func start() {
         if let tap {
             tap.enable()
@@ -104,17 +110,26 @@ final class MenuBarDragController {
         tap.enable()
     }
 
-    /// Releases the tap. A press held at that moment is dropped and its release then passes on its
-    /// own; a drop being handled finishes, because holzBar's own move stops and restarts the
-    /// monitors in its middle.
+    /// Disables the tap but keeps it, so `start()` enables it again without creating it anew.
+    /// A press held at that moment is dropped and its release then passes on its own; a drop
+    /// being handled finishes, because holzBar's own move stops and restarts the monitors in its
+    /// middle. holzBar stops the monitors around each of its own moves, so the tap is no longer
+    /// destroyed and created again for every one (pre27-L5, D-12); a disabled tap receives no
+    /// event.
     func stop() {
         tap?.disable()
-        tap = nil
         decider.reset()
         endGesture()
         let longest = Self.microseconds(of: longestCallback)
         logger.debug("The longest tap callback of this run took \(longest, privacy: .public) µs")
         longestCallback = .zero
+    }
+
+    /// Stops the tap and frees it, for when the module is switched off: off means no cost, so
+    /// no disabled tap stays behind (pre27-L5).
+    func release() {
+        stop()
+        tap = nil
     }
 
     /// Creates the tap's port again if it is missing or invalid.
@@ -484,8 +499,8 @@ final class MenuBarDragController {
     }
 
     /// The bar of a display made of the items whose centre lies on it, or `nil` without a screen
-    /// of that display.
-    private static func bar(
+    /// of that display. Internal so the Command-drag feature builds its bars the same way.
+    static func bar(
         from items: [MenuBarItem],
         on displayID: CGDirectDisplayID,
         generation: MenuBarDrop.Generation
@@ -504,7 +519,7 @@ final class MenuBarDragController {
         )
     }
 
-    private static func dropItem(for item: MenuBarItem) -> MenuBarDrop.Item {
+    static func dropItem(for item: MenuBarItem) -> MenuBarDrop.Item {
         let kind: MenuBarDrop.Item.Kind
         if item.tag == .visibleControlItem {
             kind = .holzBarIcon

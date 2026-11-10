@@ -17,6 +17,11 @@ final class HIDEventManager {
     /// a menu bar item.
     private(set) var isDraggingMenuBarItem = false
 
+    /// The sections a Command-drag showed ("Show all sections on drag"): those whose control
+    /// item was hiding its section when the drag started. The drop hides them again or hands
+    /// them to the rehide (``RevealOwnership/afterDrop(revealed:autoRehide:collapsesAtDrop:)``).
+    @ObservationIgnored private var dragRevealedSections = Set<MenuBarSection.Name>()
+
     /// The shared app state.
     @ObservationIgnored private weak var appState: AppState?
 
@@ -32,6 +37,11 @@ final class HIDEventManager {
     /// The windows above the menu bar's level from the last read, reused for a moment so
     /// mouse moves do not read the window list each (see `MenuBarHitTesting.swift`).
     @ObservationIgnored var windowsAboveMenuBar: (readAt: TimeInterval, windows: [MenuBarOcclusion.Window])?
+
+    /// What the last menu bar hit test before macOS 27 took the bar's state from
+    /// (``MenuBarAnchor``), for Copy Diagnostics. Set by the hit test only (see
+    /// `MenuBarHitTesting.swift`); it runs on pointer moves, so no observer is woken.
+    @ObservationIgnored var lastMenuBarAnchor: MenuBarAnchor.Kind = .icon
 
     /// The last empty menu bar spot hovered on each display (see `ItemClicker27`).
     @ObservationIgnored private var lastEmptyMenuBarPoints = [CGDirectDisplayID: CGPoint]()
@@ -54,12 +64,20 @@ final class HIDEventManager {
             updateMonitors()
             if !isEnabled {
                 cancelHoverAction()
+                appState?.cancelCommandDrag()
             }
         }
     }
 
     /// The input monitors that are running.
     @ObservationIgnored private var runningKinds = Set<InputMonitors.Kind>()
+
+    /// The settings the running monitors were last evaluated for, so a change of the ⌘ Command
+    /// state or of the armed press re-decides without reading every setting again.
+    @ObservationIgnored private var currentSettings: InputMonitors.Settings?
+
+    /// Whether a Command-press is armed, as the monitors were last told.
+    @ObservationIgnored private var commandDragIsArmed = false
 
     /// Whether the system item click bridge is running.
     @ObservationIgnored private var isSystemItemClickBridgeRunning = false
@@ -93,6 +111,13 @@ final class HIDEventManager {
         case .leftMouseDown:
             handleShowOnClick(appState: appState, screen: screen, clickTime: clickTime)
             handleSmartRehide(with: event, appState: appState, screen: screen)
+            // A Command-drag of an app's item across holzBar's icon sets its section (macOS 27).
+            if event.modifierFlags.contains(.command), #available(macOS 27.0, *) {
+                // The module's own replayed presses are not a Command-drag of the user's.
+                let moduleIsBusy = runningKinds.contains(.menuBarDrag) && menuBarDragController.isBusyWithDrop
+                appState.commandDragSection27.pressed(event, moduleIsBusy: moduleIsBusy)
+                commandDragArmedStateMayHaveChanged()
+            }
         case .rightMouseDown:
             handleSecondaryContextMenu(appState: appState, screen: screen)
         default:
@@ -111,6 +136,17 @@ final class HIDEventManager {
         }
         handleMenuBarItemDragStop()
         handleArrangementEnd(with: event)
+        appState?.commandDragReleased(event)
+        commandDragArmedStateMayHaveChanged()
+        return event
+    }
+
+    /// Monitor for modifier key changes, which runs only for a Command-drag. Its handler does
+    /// nothing but turn the Command-drag's two mouse monitors on or off.
+    @ObservationIgnored private(set) lazy var modifierFlagsMonitor = EventMonitor.universal(
+        for: .flagsChanged
+    ) { [weak self] event in
+        self?.commandKeyMayHaveChanged(isHeld: event.modifierFlags.contains(.command))
         return event
     }
 
@@ -151,6 +187,10 @@ final class HIDEventManager {
     /// holds nothing until it is started.
     @ObservationIgnored private lazy var menuBarDragController = MenuBarDragController(appState: appState)
 
+    /// Whether the Drag in the Menu Bar tap was stopped and is kept, disabled, for its next
+    /// start. Checked instead of the controller, so a module that was never on never creates it.
+    @ObservationIgnored private var keepsMenuBarDragTap = false
+
     /// Logger for the event manager.
     @ObservationIgnored private let logger = Logger(category: "HIDEventManager")
 
@@ -176,6 +216,8 @@ final class HIDEventManager {
             return scrollWheelMonitor
         case .menuBarDrag:
             return menuBarDragController
+        case .modifierFlags:
+            return modifierFlagsMonitor
         }
     }
 
@@ -197,6 +239,10 @@ final class HIDEventManager {
             usesShelf: usesShelfEverywhere,
             showAllSectionsOnUserDrag: advanced.showAllSectionsOnUserDrag,
             savesUserArrangement: MenuBarBackends.current.canMoveItems,
+            setsSectionOnCommandDrag: MenuBarBackendKind.current == .accessibility27 && general.commandDragSetsSection,
+            // Read here, not from events: ⌘ may be held already when the switch turns on or holzBar starts.
+            commandHeld: NSEvent.modifierFlags.contains(.command),
+            commandDragArmed: commandDragIsArmed,
             hasCustomAppearance: appState.appearanceManager.needsOverlayPanels(for: appState.appearanceManager.configuration),
             dragsWithoutCommand: MenuBarDragController.isSupported && appState.modules.isEnabled(MenuBarDragController.moduleID),
             countsUsage: appState.usage.isEnabled
@@ -216,10 +262,38 @@ final class HIDEventManager {
     /// `InputMonitors.needed(for:)` contains its kind. The macOS 27 system item click
     /// tap is needed whenever the manager is enabled.
     private func updateMonitors() {
-        var wanted = Set<InputMonitors.Kind>()
+        var settings = InputMonitors.Settings()
         if isEnabled, let appState {
-            wanted = InputMonitors.needed(for: inputMonitorSettings(appState: appState))
+            settings = inputMonitorSettings(appState: appState)
         }
+        apply(settings)
+    }
+
+    /// The ⌘ Command key went down or up. Does nothing but re-decide the monitors.
+    private func commandKeyMayHaveChanged(isHeld: Bool) {
+        guard var settings = currentSettings, settings.commandHeld != isHeld else {
+            return
+        }
+        settings.commandHeld = isHeld
+        apply(settings)
+    }
+
+    /// A press may have been armed or ended: the mouse monitors stay until it is handled.
+    private func commandDragArmedStateMayHaveChanged() {
+        let isArmed = appState?.commandDragIsArmed ?? false
+        guard var settings = currentSettings, isArmed != commandDragIsArmed else {
+            return
+        }
+        commandDragIsArmed = isArmed
+        settings.commandDragArmed = isArmed
+        apply(settings)
+    }
+
+    /// Starts the monitors the settings need and stops the others.
+    private func apply(_ settings: InputMonitors.Settings) {
+        currentSettings = settings
+        let wanted = InputMonitors.needed(for: settings)
+        let setsSectionOnCommandDrag = settings.setsSectionOnCommandDrag
         for kind in InputMonitors.Kind.allCases {
             let isRunning = runningKinds.contains(kind)
             if wanted.contains(kind), !isRunning {
@@ -228,11 +302,32 @@ final class HIDEventManager {
             } else if !wanted.contains(kind), isRunning {
                 monitor(for: kind).stop()
                 runningKinds.remove(kind)
+                if kind == .menuBarDrag {
+                    keepsMenuBarDragTap = true
+                }
             }
         }
-        // Without the drag monitors a drag can never end, so it is not going on.
+        // The Drag in the Menu Bar tap is only disabled while the manager is (`stopAll()`
+        // around holzBar's own moves), so it is not created anew for every move, and freed
+        // once it is not wanted while the manager runs: the module was switched off, also
+        // while the manager was disabled, so off still means no cost (pre27-L5).
+        if wanted.contains(.menuBarDrag) {
+            keepsMenuBarDragTap = false
+        } else if isEnabled, keepsMenuBarDragTap {
+            menuBarDragController.release()
+            keepsMenuBarDragTap = false
+        }
+        // A Command-drag does not go on while the monitors stop or its switch is off.
+        if !setsSectionOnCommandDrag {
+            appState?.cancelCommandDrag()
+            commandDragIsArmed = false
+            currentSettings?.commandDragArmed = false
+        }
+        // Without the drag monitors a drag can never end, so it is not going on, and what
+        // it showed collapses: no section stays marked shown (D-14).
         if !runningKinds.contains(.mouseUp), isDraggingMenuBarItem {
             isDraggingMenuBarItem = false
+            collapseDragReveal()
         }
         if let systemItemClickBridge {
             if isEnabled, !isSystemItemClickBridgeRunning {
@@ -395,7 +490,7 @@ extension HIDEventManager {
             }
 
             // On macOS 27 this also applies the concealment (`Concealer27.update()`).
-            targetSection.toggle()
+            targetSection.toggle(origin: .click)
             let milliseconds = Int((ProcessInfo.processInfo.systemUptime - clickTime) * 1000)
             logger.debug("Show on click: revealed \(milliseconds, privacy: .public) ms after the click")
         }
@@ -507,6 +602,66 @@ extension HIDEventManager {
             // The user arranged items on the bar: their sections are saved once the bar
             // shows the result (see `SectionRestore.swift`).
             appState?.itemManager.saveSectionsSoon()
+            endDragReveal()
+        }
+    }
+
+    // MARK: Handle Command-Drag Reveal
+
+    /// What a Command-drag showed, after the drop: on macOS 27, in the Shelf and with automatic
+    /// rehide off it collapses at once; otherwise the rehide strategy hides it, as any show
+    /// (D-07, D-13, D-14).
+    private func endDragReveal() {
+        guard let appState, !dragRevealedSections.isEmpty else {
+            dragRevealedSections = []
+            return
+        }
+        let general = appState.settings.general
+        let revealed = Set(dragRevealedSections.map(\.ownershipSection))
+        // The Shelf never shows the sections in the bar, so what the drag expanded there
+        // collapses at the drop as well.
+        let action = RevealOwnership.afterDrop(
+            revealed: revealed,
+            autoRehide: general.autoRehide,
+            collapsesAtDrop: MenuBarBackendKind.current == .accessibility27 || general.usesShelf
+        )
+        switch action {
+        case .nothing:
+            dragRevealedSections = []
+        case .collapse:
+            collapseDragReveal()
+        case .rehide(let sections):
+            let manager = appState.menuBarManager
+            dragRevealedSections = []
+            manager.revealOwnership.didShow(.drag, expanded: sections)
+            // The deepest section the drag showed collapses every section it expanded
+            // (`RevealOwnership.sectionsToHide(rehiding:)`).
+            let deepest = [MenuBarSection.Name.alwaysHidden, .hidden]
+                .filter { sections.contains($0.ownershipSection) }
+                .compactMap { manager.section(withName: $0) }
+                .first { $0.isEnabled }
+            deepest?.armRehide()
+        }
+    }
+
+    /// Hides exactly the sections the Command-drag showed, and on macOS 27 lets the concealer
+    /// follow once, so even a reveal another update made visible during the drag ends (D-14).
+    private func collapseDragReveal() {
+        let names = dragRevealedSections
+        dragRevealedSections = []
+        guard let appState, !names.isEmpty else {
+            return
+        }
+        let manager = appState.menuBarManager
+        for section in manager.sections where names.contains(section.name) {
+            section.controlItem.state = .hideSection
+        }
+        // What `MenuBarSection.hide()` does besides: the click that started the drag turned
+        // show on hover off, and only a hide turns it on again; no reveal is left recorded.
+        manager.showOnHoverAllowed = true
+        manager.revealOwnership.didHide(Set(names.map(\.ownershipSection)))
+        if #available(macOS 27.0, *) {
+            appState.concealer27.update()
         }
     }
 
@@ -541,10 +696,28 @@ extension HIDEventManager {
 
         isDraggingMenuBarItem = true
 
-        if appState.settings.advanced.showAllSectionsOnUserDrag {
-            for section in appState.menuBarManager.sections {
-                section.controlItem.state = .showSection
-            }
+        // The drag shows every section only when nothing refuses a reveal now: the lock (no
+        // Touch ID prompt in the middle of a drag), Zen mode, manual or while the screen is
+        // shared, and a display set to Collapse. Otherwise it only arranges what is visible
+        // (D-07, D-14).
+        guard
+            appState.settings.advanced.showAllSectionsOnUserDrag,
+            !appState.hiddenItemsLock.requiresAuthentication,
+            appState.menuBarManager.allowsReveal(.commandDrag)
+        else {
+            return
+        }
+        // The control item states, not `isHidden`, whose Shelf branch reads the panel: these
+        // are the states this drag changes and the drop restores.
+        let sections = appState.menuBarManager.sections
+        dragRevealedSections = Set(sections.filter { $0.controlItem.state == .hideSection }.map(\.name))
+        if dragRevealedSections.contains(.hidden) {
+            // A reveal from all hidden: the windows on screen now are no item's open menu
+            // when the rehide asks after the drop.
+            appState.menuBarManager.noteRevealStarted()
+        }
+        for section in sections {
+            section.controlItem.state = .showSection
         }
     }
 
@@ -563,15 +736,18 @@ extension HIDEventManager {
     private func handleShowOnHover(appState: AppState, screen: NSScreen) {
         // Make sure the "ShowOnHover" feature is enabled.
         //
-        // `showOnHoverAllowed` is deliberately *not* checked here. It is cleared
-        // when the user clicks in the menu bar, so that hovering does not
-        // immediately undo a deliberate click, and it is restored only inside
-        // `MenuBarSection.hide()`. Checking it here disabled the hide-on-leave
-        // branch below as well — and that branch is what calls `hide()`. The flag
-        // therefore latched off the only mechanism that could clear it, leaving
-        // the holzBar Shelf on screen indefinitely: on whatever display it was opened
-        // on, while the user worked on another one. It is checked in the reveal
-        // branch instead, where it belongs.
+        // Hover hides only what hover showed (`RevealOwnership.hoverOwns`): a section
+        // shown by a click, a hotkey, the holzBar icon, the Shelf or any other way stays
+        // until the rehide strategy hides it, and a click on an item while hover owns the
+        // reveal makes it the user's (`handlePreventShowOnHover`).
+        //
+        // `showOnHoverAllowed` is deliberately *not* checked here and never gates the
+        // hide. It is cleared when the user clicks in the menu bar, so that hovering does
+        // not immediately undo a deliberate click, and it is restored only inside
+        // `MenuBarSection.hide()`. As the hide gate it latched off the only mechanism that
+        // could clear it, leaving the holzBar Shelf on screen indefinitely: on whatever
+        // display it was opened on, while the user worked on another one. It is checked in
+        // the reveal branch instead, where it belongs; ownership decides the hide.
         guard appState.settings.general.showOnHover else {
             return
         }
@@ -609,10 +785,11 @@ extension HIDEventManager {
                 guard isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) else {
                     return
                 }
-                hiddenSection.show()
+                hiddenSection.show(origin: .hover)
             }
         } else {
             guard
+                appState.menuBarManager.revealOwnership.hoverOwns,
                 !isMouseInsideMenuBar(appState: appState, screen: screen),
                 !isMouseInsideShelf(appState: appState)
             else {
@@ -629,10 +806,13 @@ extension HIDEventManager {
                     return
                 }
                 hoverSchedule.finish(generation)
-                // Make sure the mouse is still outside.
+                // Make sure hover still owns the reveal and the mouse is still outside.
                 guard
+                    appState.menuBarManager.revealOwnership.hoverOwns,
                     !isMouseInsideMenuBar(appState: appState, screen: screen),
-                    !isMouseInsideShelf(appState: appState)
+                    !isMouseInsideShelf(appState: appState),
+                    // Never while a hidden item's menu is open; the next move asks again.
+                    !hiddenSection.hasOpenItemMenu
                 else {
                     return
                 }
@@ -680,6 +860,9 @@ extension HIDEventManager {
         // Mouse is inside the menu bar, outside an item or application
         // menu, so it must be inside an empty menu bar space.
         appState.menuBarManager.showOnHoverAllowed = false
+        // A click while hover owns the reveal makes it the user's: moving the pointer
+        // away no longer hides it. A peek, a rule or a change reveal keeps its own hide.
+        appState.menuBarManager.revealOwnership.takeOverFromHover(by: .click)
     }
 
     // MARK: Handle Show On Scroll

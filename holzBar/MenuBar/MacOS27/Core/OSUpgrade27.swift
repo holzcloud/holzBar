@@ -42,7 +42,14 @@ nonisolated enum OSUpgrade27 {
         // The sections of the old generation become the layout of the new one, unless the user
         // has arranged a layout of their own. This also repairs an installation that was
         // upgraded earlier and was left with an empty layout (it hides nothing).
-        if currentMajor >= 27, layoutIsEmpty, hasSavedSections, previousMajor != currentMajor {
+        //
+        // Only an update from before macOS 27, or from a version that was never recorded, does
+        // this: from 27 on the layout is the record, and an empty one is the user's, so an update
+        // from 27 to 28 must not bring back the stale sections of before 27. A dual boot that
+        // goes 27, 26, 27 with a deliberately empty layout still reseeds on the way back to 27;
+        // telling that apart would need another stored flag, which is not worth it.
+        let isFromBefore27 = previousMajor.map { $0 < 27 } ?? true
+        if currentMajor >= 27, layoutIsEmpty, hasSavedSections, previousMajor != currentMajor, isFromBefore27 {
             plan.reseedsLayout = true
         }
         return plan

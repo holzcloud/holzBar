@@ -807,7 +807,9 @@ final class AutomationManager {
 
     /// The rules of the kind "show it only while …" that are on, with what they say now.
     private func itemFollows(facts: AutomationFacts) -> [(itemKey: String, holds: Bool?, hiding: Int)] {
-        rules.compactMap { ItemVisibility.follow(of: $0, facts: facts) }
+        // With the always-hidden section off, a rule hides into Hidden, as the layout is folded.
+        let alwaysHiddenEnabled = appState?.settings.advanced.enableAlwaysHiddenSection ?? true
+        return rules.compactMap { ItemVisibility.follow(of: $0, facts: facts, alwaysHiddenEnabled: alwaysHiddenEnabled) }
     }
 
     /// The section of each item in the item cache, by identity key.
@@ -973,13 +975,17 @@ final class AutomationManager {
         let changes = moves.compactMapValues(\.moveTo)
         // On macOS 27 the layout is keyed by application, and a widget by its autosave name. The
         // key comes from the item itself (`layoutKey27`); the part of the rule's key before the
-        // colon is only the fallback, and holzBar's own bundle never becomes a key.
-        var applicationSections = [String: Int]()
-        for (key, section) in changes {
-            if let layoutKey = layoutKeys(forItemKeys: [key]).first {
-                applicationSections[layoutKey] = section
+        // colon is only the fallback, and holzBar's own bundle never becomes a key. An application
+        // whose items the rules move to different sections takes the most visible one, as Menu
+        // Bar Layout does, so the result never depends on the order of a dictionary.
+        let changedItems = changes.compactMap { key, section -> (bundleID: String, section: MacOS27Section)? in
+            guard let layoutKey = layoutKeys(forItemKeys: [key]).first,
+                  let section = MacOS27Section(rawValue: section) else {
+                return nil
             }
+            return (layoutKey, section)
         }
+        let applicationSections = SectionLayout27.appSections(items: changedItems).mapValues(\.rawValue)
         logger.notice("An automation rule moves \(changes.count, privacy: .public) items")
         // Until the move has settled and the bar was read, the cache may show the old sections,
         // and an item there must not be taken for one the user moved by hand.
@@ -987,8 +993,9 @@ final class AutomationManager {
         defer {
             isMovingItems = false
         }
-        await appState.profiles.applyLayout(of: LayoutProfile(
-            name: "",
+        // The change knows only the rule's applications, so every other saved one keeps its
+        // section on macOS 27.
+        await appState.profiles.applyLayout(of: LayoutProfile.partialChange(
             itemSections: changes,
             applicationSections: applicationSections
         ))?.value
@@ -1102,7 +1109,8 @@ final class AutomationManager {
     }
 
     /// Shows a section for the "temporarily shown item" interval, then hides it again, unless
-    /// Zen mode is on.
+    /// Zen mode is on. The hide happens only while the rule still owns the reveal: shown or
+    /// hidden another way meanwhile, the section is left alone.
     private func reveal(_ name: MenuBarSection.Name) {
         guard
             let appState,
@@ -1116,15 +1124,16 @@ final class AutomationManager {
             return
         }
         logger.notice("An automation rule shows hidden items")
-        section.show(bypassingLock: true)
-        appState.menuBarManager.showOnHoverAllowed = false
+        let menuBarManager = appState.menuBarManager
         let interval = appState.settings.advanced.tempShowInterval
-        Task {
-            try? await Task.sleep(for: .seconds(interval))
-            if !section.isHidden {
-                section.hide()
+        section.show(bypassingLock: true, origin: .rule) { token in
+            Task {
+                try? await Task.sleep(for: .seconds(interval))
+                // Also what a change reveal under it showed, and never under an open menu.
+                menuBarManager.endTimedReveal(token, of: section)
             }
         }
+        menuBarManager.showOnHoverAllowed = false
     }
 
     /// Whether holzBar keeps the Mac awake now.
@@ -1266,11 +1275,9 @@ final class AutomationManager {
         result.itemSections = ItemVisibility.removingControlled(from: profile.itemSections) {
             controlled.contains(itemManager.storedIdentityKey($0))
         }
-        let layoutKeys = layoutKeys(forItemKeys: controlled)
-        result.applicationSections = ItemVisibility.removingControlled(from: profile.applicationSections) {
-            layoutKeys.contains($0)
-        }
-        return result
+        // The controlled applications leave the known ones too: a known application missing from
+        // the sections would become visible on macOS 27.
+        return result.removingApplications(layoutKeys(forItemKeys: controlled))
     }
 
     /// The macOS 27 layout keys of the items with the given identity keys, which are the

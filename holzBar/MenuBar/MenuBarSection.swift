@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+import OSLog
 import SwiftUI
 
 /// A representation of a section in a menu bar.
@@ -29,6 +30,15 @@ final class MenuBarSection {
             case .visible: "visible section"
             case .hidden: "hidden section"
             case .alwaysHidden: "always-hidden section"
+            }
+        }
+
+        /// The section's name in ``RevealOwnership``.
+        var ownershipSection: RevealOwnership.Section {
+            switch self {
+            case .visible: .visible
+            case .hidden: .hidden
+            case .alwaysHidden: .alwaysHidden
             }
         }
 
@@ -153,28 +163,60 @@ final class MenuBarSection {
 
     /// Shows the section.
     ///
-    /// - Parameter bypassingLock: Whether the user's lock for the hidden items is not asked:
-    ///   for the safety rules and the items the user chose, which show by themselves.
-    func show(bypassingLock: Bool = false) {
+    /// - Parameters:
+    ///   - bypassingLock: Whether the user's lock for the hidden items is not asked:
+    ///     for the safety rules and the items the user chose, which show by themselves.
+    ///   - origin: What shows the section. Only what a trigger showed may that trigger hide
+    ///     again (see ``RevealOwnership``); a user's request while the section is already
+    ///     shown takes the reveal over.
+    ///   - onShown: Called with the reveal's token once the section is really shown: at once,
+    ///     after Touch ID, or once the Shelf is on screen; and at once with the takeover's
+    ///     token when the section is already shown and the origin is the user's. Not called
+    ///     when nothing is shown (the lock refused, the section is off). A trigger that hides
+    ///     again later starts its timer here, so the timer also survives the lock (D-08).
+    func show(
+        bypassingLock: Bool = false,
+        origin: RevealOwnership.Origin = .other,
+        onShown: ((RevealOwnership.Token) -> Void)? = nil
+    ) {
         guard let menuBarManager else {
             return
         }
 
         if !bypassingLock, let lock = appState?.hiddenItemsLock, lock.requiresAuthentication {
-            lock.authenticate { [weak self] in
-                self?.show(bypassingLock: true)
+            // The app the user was in gets the keyboard back, unless the Shelf takes keys.
+            let returningFocus = !(useShelf && menuBarManager.shelfPanel.acceptsKeyboard)
+            lock.authenticate(returningFocus: returningFocus) { [weak self] in
+                self?.show(bypassingLock: true, origin: origin, onShown: onShown)
             }
             return
         }
 
         // Shown another way, the hidden section no longer hides after a moment, also
-        // when it is already shown. Showing the always-hidden section, which an item
-        // change does briefly, leaves the hidden section's timer running.
-        if name != .alwaysHidden {
+        // when it is already shown; the peek's own show keeps its timer, also the one that
+        // waited for Touch ID (D-08). Showing the always-hidden section, which an item
+        // change does briefly, leaves the hidden section's timer running. A show by the user
+        // ends the change reveal's wait (D-09); an automatic one (a rule, the display's
+        // behaviour) leaves it, and hides what it showed itself (`RevealOwnership.didShow`).
+        if name != .alwaysHidden, origin != .peek {
             menuBarManager.temporaryShowTask?.cancel()
+        }
+        if !origin.isAutomatic {
+            menuBarManager.changeRevealTask?.cancel()
         }
 
         guard isHidden else {
+            // Already shown: a user's request makes the reveal theirs, so an automatic
+            // trigger (show on hover) no longer hides it.
+            if !origin.isAutomatic {
+                if let token = menuBarManager.revealOwnership.takeOver(by: origin) {
+                    onShown?(token)
+                } else if let onShown {
+                    // Shown without a record (a Command-drag in progress): the request owns
+                    // it from now on, with nothing it expanded.
+                    onShown(menuBarManager.revealOwnership.didShow(origin, expanded: []))
+                }
+            }
             return
         }
 
@@ -198,6 +240,10 @@ final class MenuBarSection {
             }
 
             if let screen = screenForShelf {
+                // The Shelf shows one section: the hidden one, or the always-hidden one.
+                let shelfSection: RevealOwnership.Section = name == .alwaysHidden ? .alwaysHidden : .hidden
+                menuBarManager.noteRevealStarted()
+                let token = menuBarManager.revealOwnership.didShow(origin, expanded: [shelfSection])
                 Task {
                     let shown = switch name {
                     case .visible, .hidden:
@@ -208,7 +254,12 @@ final class MenuBarSection {
                     // A show cut short by a close leaves the section hidden, and its
                     // rehide checks would keep running with nothing left to hide.
                     if shown {
-                        startRehideChecks()
+                        armRehide()
+                        if menuBarManager.revealOwnership.isCurrent(token) {
+                            onShown?(token)
+                        }
+                    } else if menuBarManager.revealOwnership.isCurrent(token) {
+                        menuBarManager.revealOwnership.didHide([shelfSection])
                     }
                 }
             }
@@ -221,19 +272,33 @@ final class MenuBarSection {
         // Make sure it's closed.
         menuBarManager.shelfPanel.close()
 
+        let token: RevealOwnership.Token
         switch name {
         case .visible, .hidden:
+            menuBarManager.noteRevealStarted()
             for section in menuBarManager.sections where section.name != .alwaysHidden {
                 section.controlItem.state = .showSection
             }
+            token = menuBarManager.revealOwnership.didShow(origin, expanded: [.hidden])
         case .alwaysHidden:
+            // Showing the always-hidden section shows the hidden one too; the rehide
+            // collapses it again only when this show opened it.
+            let hiddenWasHidden = menuBarManager.section(withName: .hidden)?.isHidden ?? false
+            if hiddenWasHidden {
+                menuBarManager.noteRevealStarted()
+            }
             for section in menuBarManager.sections {
                 section.controlItem.state = .showSection
             }
+            token = menuBarManager.revealOwnership.didShow(
+                origin,
+                expanded: hiddenWasHidden ? [.alwaysHidden, .hidden] : [.alwaysHidden]
+            )
         }
 
-        startRehideChecks()
+        armRehide()
         updateConcealment27()
+        onShown?(token)
     }
 
     /// Hides the section.
@@ -250,9 +315,11 @@ final class MenuBarSection {
         }
 
         // Hiding the always-hidden section alone can leave the hidden section shown, so
-        // its timer keeps running.
+        // its timers keep running.
         if name != .alwaysHidden {
             menuBarManager.temporaryShowTask?.cancel()
+            menuBarManager.changeRevealTask?.cancel()
+            menuBarManager.cancelHideRetry()
         }
         menuBarManager.shelfPanel.close() // Make sure the holzBar Shelf is always closed.
         menuBarManager.showOnHoverAllowed = true
@@ -261,20 +328,32 @@ final class MenuBarSection {
         case _ where useShelf, .visible, .hidden:
             for section in menuBarManager.sections {
                 section.controlItem.state = .hideSection
+                // Every section is hidden now, so no other section's rehide keeps running
+                // (the always-hidden one's, when its rehide hid the hidden section).
+                section.stopRehideChecks()
             }
+            menuBarManager.revealOwnership.didHide(Set(RevealOwnership.Section.allCases))
         case .alwaysHidden:
             controlItem.state = .hideSection
+            menuBarManager.revealOwnership.didHide([.alwaysHidden])
         }
 
         stopRehideChecks()
+        // The always-hidden section's show also opened the hidden one, and this hide leaves it
+        // shown: it gets the rehide this section's checks gave it (D-06).
+        if name == .alwaysHidden, !useShelf, menuBarManager.revealOwnership.expanded.contains(.hidden) {
+            menuBarManager.section(withName: .hidden)?.armRehide()
+        }
         updateConcealment27()
     }
 
     /// Toggles the visibility of the section.
     ///
-    /// - Parameter isUserRequest: Whether the user asked for it directly (see ``hide(isUserRequest:)``).
-    func toggle(isUserRequest: Bool = false) {
-        if isHidden { show() } else { hide(isUserRequest: isUserRequest) }
+    /// - Parameters:
+    ///   - isUserRequest: Whether the user asked for it directly (see ``hide(isUserRequest:)``).
+    ///   - origin: What shows the section (see ``show(bypassingLock:origin:onShown:)``).
+    func toggle(isUserRequest: Bool = false, origin: RevealOwnership.Origin = .other) {
+        if isHidden { show(origin: origin) } else { hide(isUserRequest: isUserRequest) }
     }
 
     /// Lets the macOS 27 concealer follow the new state of the sections.
@@ -284,9 +363,74 @@ final class MenuBarSection {
         }
     }
 
-    /// Starts running checks to determine when to rehide the section.
-    private func startRehideChecks() {
+    /// Whether a menu, popover or panel of an app with an item in the hidden or always-hidden
+    /// section is open, so that no hide pulls the item away under it.
+    ///
+    /// Reads the window list once: ask only when a hide is about to happen, never per pointer
+    /// move. holzBar's own windows (the Shelf, the Notch hub) and the items' own windows in the
+    /// bar never count, nor does a window that was on screen when the sections were shown; a
+    /// window keeps the hide waiting for ``OpenMenuWait/longestWait`` at most, so no lasting
+    /// panel of an app keeps a section open for good (``MenuBarManager/openMenuWait``).
+    var hasOpenItemMenu: Bool {
+        guard
+            let menuBarManager,
+            let itemCache = appState?.itemManager.itemCache
+        else {
+            return false
+        }
+        let shownItems = itemCache[.hidden] + itemCache[.alwaysHidden]
+        var shownOwners = Set(shownItems.map { $0.sourcePID ?? $0.ownerPID })
+        shownOwners.remove(ProcessInfo.processInfo.processIdentifier)
+        guard !shownOwners.isEmpty else {
+            return false
+        }
+        let allItems = itemCache.managedItems
+        let itemWindows = Set(allItems.map(\.windowID))
+        // The tallest menu bar: of every display, and of every item's own window in it.
+        let barHeight = max(
+            NSScreen.screens.reduce(NSStatusBar.system.thickness) { height, screen in
+                max(height, screen.frame.maxY - screen.visibleFrame.maxY)
+            },
+            allItems.reduce(0) { max($0, $1.bounds.height) }
+        )
+        let openMenus = WindowInfo.createWindows(option: .onScreen).filter { window in
+            !itemWindows.contains(window.windowID) && InterfaceWindowRule.isOpenMenu(
+                layer: window.layer,
+                height: window.bounds.height,
+                ownerPID: window.ownerPID,
+                shownOwners: shownOwners,
+                barHeight: barHeight
+            )
+        }
+        let decision = menuBarManager.openMenuWait.check(
+            openMenus: Set(openMenus.map(\.windowID)),
+            now: ProcessInfo.processInfo.systemUptime
+        )
+        if !decision.newlyGivenUp.isEmpty {
+            Self.logger.notice(
+                "\(decision.newlyGivenUp.count, privacy: .public) window(s) kept a hide waiting too long and no longer count as an open menu"
+            )
+        }
+        return decision.waits
+    }
+
+    /// Logger for the menu bar sections.
+    private static let logger = Logger(category: "MenuBarSection")
+
+    /// Whether the pointer is on the open holzBar Shelf.
+    private var isPointerOnOpenShelf: Bool {
+        guard let appState, appState.menuBarManager.shelfPanel.isVisible else {
+            // The hit test alone also matches the frame of a closed panel.
+            return false
+        }
+        return appState.hidEventManager.isMouseInsideShelf(appState: appState)
+    }
+
+    /// Starts running checks to determine when to rehide the section (the timed rehide
+    /// strategy): one interval after the pointer last moved below the menu bar.
+    func armRehide() {
         rehideTimer?.invalidate()
+        rehideTimer = nil
         rehideMonitor?.stop()
 
         guard
@@ -306,25 +450,27 @@ final class MenuBarSection {
             }
             if NSEvent.mouseLocation.y < screen.visibleFrame.maxY {
                 if rehideTimer == nil {
-                    rehideTimer = .scheduledTimer(
+                    let timer = Timer.scheduledTimer(
                         withTimeInterval: appState.settings.general.rehideInterval,
                         repeats: false
-                    ) { [weak self] _ in
+                    ) { [weak self] timer in
                         guard let self else {
                             return
                         }
+                        let timerID = ObjectIdentifier(timer)
                         // Timers call their block on the main run loop, outside the main actor.
                         Task { @MainActor in
-                            guard let screen = NSScreen.screenWithMouse ?? NSScreen.main else {
+                            // A timer replaced or stopped meanwhile has nothing left to do.
+                            guard let current = self.rehideTimer, ObjectIdentifier(current) == timerID else {
                                 return
                             }
-                            if NSEvent.mouseLocation.y < screen.visibleFrame.maxY {
-                                self.hide()
-                            } else {
-                                self.startRehideChecks()
-                            }
+                            // The next pointer move below the bar starts a full interval
+                            // again, also after a refused hide (no polling).
+                            self.rehideTimer = nil
+                            self.rehideNow()
                         }
                     }
+                    rehideTimer = timer
                 }
             } else {
                 rehideTimer?.invalidate()
@@ -334,6 +480,35 @@ final class MenuBarSection {
         }
 
         rehideMonitor?.start()
+    }
+
+    /// The timed rehide: hides what the section's show expanded, unless the pointer is in
+    /// the menu bar or on the open Shelf, or a menu of a hidden item's app is open; then it
+    /// waits for the next pointer move below the bar.
+    private func rehideNow() {
+        guard let menuBarManager else {
+            return
+        }
+        guard !isHidden else {
+            stopRehideChecks()
+            return
+        }
+        guard
+            let screen = NSScreen.screenWithMouse ?? NSScreen.main,
+            NSEvent.mouseLocation.y < screen.visibleFrame.maxY,
+            !isPointerOnOpenShelf,
+            !hasOpenItemMenu
+        else {
+            return
+        }
+        // Showing the always-hidden section also opened the hidden one when it was hidden:
+        // collapse both. A hidden section the user had shown before keeps its own rehide.
+        let sections = menuBarManager.revealOwnership.sectionsToHide(rehiding: name.ownershipSection)
+        if sections.contains(.hidden), let hidden = menuBarManager.section(withName: .hidden) {
+            hidden.hide()
+        } else {
+            hide()
+        }
     }
 
     /// Stops running checks to determine when to rehide the section.

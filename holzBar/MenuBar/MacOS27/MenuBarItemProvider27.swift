@@ -15,6 +15,18 @@ nonisolated extension Notification.Name {
     static let menuBarItemsAreaDidChange27 = Notification.Name("com.holzcloud.holzBar.MenuBarItemsAreaDidChange27")
 }
 
+nonisolated extension AgentLaunches27.Policy {
+    /// The policy of a running application.
+    init(_ policy: NSApplication.ActivationPolicy) {
+        self = switch policy {
+        case .regular: .regular
+        case .accessory: .accessory
+        case .prohibited: .prohibited
+        @unknown default: .accessory
+        }
+    }
+}
+
 /// Reads menu bar items through Accessibility on macOS 27.
 ///
 /// macOS 27 draws status items inside MenuBarAgent instead of giving each one a
@@ -45,7 +57,12 @@ nonisolated enum MenuBarItemProvider27 {
         let pid: pid_t
         let identifier: String
         let title: String?
+        /// The Accessibility child index, which names an item without an identifier
+        /// (`Item-<index>`, a stored key: see `tag(for:)`).
         let index: Int
+        /// The item's occurrence among its owner's items with the same title, which its
+        /// synthetic window identifier hashes instead of the child index (27-L2, D-17).
+        let occurrence: Int
         let frame: CGRect
     }
 
@@ -220,6 +237,12 @@ nonisolated enum MenuBarItemProvider27 {
     ///
     /// A concealed process may report no items, so one that was concealed before its first read
     /// (holzBar relaunched while it ran) has nothing to fall back on and drops out of the list.
+    /// How many timeouts of young processes that may own an item were asked again at the next
+    /// read instead of being paused (``AccessibilityScanSchedule27/youngAge``). For diagnostics.
+    static var youngRetries: Int {
+        withState { $0.scanSchedule.youngRetries }
+    }
+
     static func unreadConcealedPIDs() -> Set<pid_t> {
         withState { state in
             state.concealedPIDs.filter { state.lastRawByPID[$0]?.isEmpty ?? true }
@@ -287,6 +310,22 @@ nonisolated enum MenuBarItemProvider27 {
 
     // MARK: Reading
 
+    /// Whether an application launched less than ``AccessibilityScanSchedule27/youngAge`` ago
+    /// and may own an item (``AgentLaunches27/mayOwnItem(bundlePath:policy:)``). An application
+    /// without a launch date is not young, as before.
+    private static func isYoung(_ app: NSRunningApplication) -> Bool {
+        guard
+            let launchDate = app.launchDate,
+            Date.now.timeIntervalSince(launchDate) < AccessibilityScanSchedule27.youngAge
+        else {
+            return false
+        }
+        return AgentLaunches27.mayOwnItem(
+            bundlePath: app.bundleURL?.path(percentEncoded: false),
+            policy: AgentLaunches27.Policy(app.activationPolicy)
+        )
+    }
+
     private static func readItems(
         runningApplications: [NSRunningApplication],
         retryIfMenuBarMoves: Bool = true
@@ -341,7 +380,11 @@ nonisolated enum MenuBarItemProvider27 {
             var barValue: CFTypeRef?
             let result = AXUIElementCopyAttributeValue(application, kAXExtrasMenuBarAttribute as CFString, &barValue)
             if pid != ownPID {
-                scanSchedule.record(pid: pid, timedOut: result == .cannotComplete, now: now)
+                let timedOut = result == .cannotComplete
+                // Only a timeout asks whether the process is young; the path test is not run
+                // for every process at every read.
+                let isYoung = timedOut && Self.isYoung(app)
+                scanSchedule.record(pid: pid, timedOut: timedOut, now: now, isYoung: isYoung)
             }
             guard
                 result == .success,
@@ -387,6 +430,7 @@ nonisolated enum MenuBarItemProvider27 {
             if pid != ownPID, !children.isEmpty {
                 scanSchedule.recordItems(pid: pid)
             }
+            var ownerItems = [(element: AXUIElement, identifier: String, index: Int)]()
             for (index, child) in children.enumerated() {
                 if bundleID == menuBarAgentBundleID, string(child, kAXRoleAttribute) == kAXButtonRole {
                     // The system overflow control ("<<" / ">>").
@@ -398,18 +442,28 @@ nonisolated enum MenuBarItemProvider27 {
                 let element = bundleID == menuBarAgentBundleID
                     ? (elements(child, kAXChildrenAttribute)?.first ?? child)
                     : child
+                ownerItems.append((element, string(element, kAXIdentifierAttribute) ?? "", index))
+            }
+            // Counted over the owner's items without the overflow button, by the title the
+            // synthetic window identifier is made from (`tag(for:)`: the identifier, or
+            // `Item-<index>` without one), so the button coming or going moves no system item.
+            let occurrences = SyntheticWindowID27.occurrences(
+                identifiers: ownerItems.map { $0.identifier.isEmpty ? "Item-\($0.index)" : $0.identifier }
+            )
+            for (child, occurrence) in zip(ownerItems, occurrences) {
                 // Items whose frames are on another display stay in the list, marked as not
                 // drawn, so a concealed item keeps its section (see `ItemDrawing27`).
-                guard let frame = frame(of: element) else {
+                guard let frame = frame(of: child.element) else {
                     continue
                 }
                 rawItems.append(RawItem(
-                    element: element,
+                    element: child.element,
                     bundleID: bundleID,
                     pid: pid,
-                    identifier: string(element, kAXIdentifierAttribute) ?? "",
-                    title: string(element, kAXDescriptionAttribute) ?? string(element, kAXTitleAttribute),
-                    index: index,
+                    identifier: child.identifier,
+                    title: string(child.element, kAXDescriptionAttribute) ?? string(child.element, kAXTitleAttribute),
+                    index: child.index,
+                    occurrence: occurrence,
                     frame: frame
                 ))
             }
@@ -473,7 +527,7 @@ nonisolated enum MenuBarItemProvider27 {
             guard let tag = tag(for: raw, ownPID: ownPID) else {
                 continue
             }
-            let windowID = SyntheticWindowID27.make(bundleID: raw.bundleID, identifier: tag.title, index: raw.index)
+            let windowID = SyntheticWindowID27.make(bundleID: raw.bundleID, identifier: tag.title, occurrence: raw.occurrence)
             newEntries[windowID] = Entry(element: raw.element, bundleID: raw.bundleID, identifier: raw.identifier, frame: raw.frame)
             items.append(MenuBarItem(
                 tag: tag,
@@ -558,6 +612,10 @@ nonisolated enum MenuBarItemProvider27 {
             }
             return nil
         }
+        // The title of an item without an identifier stays `Item-<index>`, although the index
+        // can move: it is a stored key of hotkeys, groups, rules and replacement items, and
+        // changing it would orphan every one of them, which is worse than the rare re-order it
+        // would fix (D-17). Its synthetic window identifier follows the index for that reason.
         let title = raw.identifier.isEmpty ? "Item-\(raw.index)" : raw.identifier
         return MenuBarItemTag(namespace: .string(raw.bundleID), title: title)
     }

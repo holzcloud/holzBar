@@ -168,6 +168,19 @@ struct SettingsSchemaTests {
         #expect(refused.ignored == ["WhatsNewShowsAfterUpdate"])
     }
 
+    @Test("The Command-drag switch travels with a settings file, as a Boolean only")
+    func commandDragSwitchTravels() {
+        #expect(Defaults.Key.commandDragSetsSection.rawValue == "CommandDragSetsSection")
+        #expect(Defaults.Key.commandDragSetsSection.settingsKind == .bool)
+        #expect(!Defaults.Key.localOnlyKeys.contains(.commandDragSetsSection))
+        #expect(Defaults.Key.importableKinds["CommandDragSetsSection"] == .bool)
+        let accepted = Defaults.Key.validatedSettings(["CommandDragSetsSection": false], ownBundleIdentifier: ownBundle)
+        #expect(accepted.accepted.keys.sorted() == ["CommandDragSetsSection"])
+        let refused = Defaults.Key.validatedSettings(["CommandDragSetsSection": "yes"], ownBundleIdentifier: ownBundle)
+        #expect(refused.accepted.isEmpty)
+        #expect(refused.ignored == ["CommandDragSetsSection"])
+    }
+
     @Test("The all-day setting travels and the hidden calendars do not")
     func calendarSettings() {
         #expect(Defaults.Key.importableKinds["CalendarShowsAllDay"] == .bool)

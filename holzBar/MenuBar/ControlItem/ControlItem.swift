@@ -908,7 +908,7 @@ final class ControlItem {
                     let section = menuBarManager.section(withName: .alwaysHidden),
                     section.isEnabled
                 {
-                    section.toggle(isUserRequest: true)
+                    section.toggle(isUserRequest: true, origin: .click)
                     return
                 }
 
@@ -916,7 +916,7 @@ final class ControlItem {
                     let section = menuBarManager.section(withName: sectionName),
                     section.isEnabled
                 {
-                    section.toggle(isUserRequest: true)
+                    section.toggle(isUserRequest: true, origin: .click)
                 }
             }
         case .rightMouseUp:

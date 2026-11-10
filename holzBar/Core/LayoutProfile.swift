@@ -37,4 +37,30 @@ nonisolated struct LayoutProfile: Codable, Hashable, Identifiable, Sendable {
     var isBound: Bool {
         displayUUID != nil || spaceUUID != nil
     }
+
+    /// A change that moves only the given items and applications, such as an automation rule's.
+    ///
+    /// It knows exactly the applications it moves. On macOS 27 a profile that knows no
+    /// applications but has sections replaces the whole layout, so a partial change without
+    /// this record would make every other hidden application visible.
+    static func partialChange(itemSections: [String: Int], applicationSections: [String: Int]) -> LayoutProfile {
+        LayoutProfile(
+            name: "",
+            itemSections: itemSections,
+            applicationSections: applicationSections,
+            knownApplications: applicationSections.keys.sorted()
+        )
+    }
+
+    /// The profile without the given applications, in its sections and in the applications it
+    /// knew.
+    ///
+    /// A profile must not claim to know an application it leaves out, such as one an automation
+    /// rule controls: on macOS 27 a known application missing from the sections becomes visible.
+    func removingApplications(_ keys: Set<String>) -> LayoutProfile {
+        var result = self
+        result.applicationSections = applicationSections.filter { !keys.contains($0.key) }
+        result.knownApplications = knownApplications?.filter { !keys.contains($0) }
+        return result
+    }
 }

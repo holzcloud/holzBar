@@ -207,3 +207,42 @@ struct PanelMemory27Tests {
         #expect(memory.panel == nil)
     }
 }
+
+@Suite("Panel watch")
+struct PanelWatch27Tests {
+    @Test("The first 10 seconds are watched 4 times a second")
+    func fastAtFirst() {
+        #expect(ItemClick27.panelWatchInterval(elapsed: .zero) == .milliseconds(250))
+        #expect(ItemClick27.panelWatchInterval(elapsed: .milliseconds(9900)) == .milliseconds(250))
+    }
+
+    @Test("After 10 seconds the panel is watched once a second")
+    func slowAfterTenSeconds() {
+        #expect(ItemClick27.panelWatchInterval(elapsed: .seconds(10)) == .seconds(1))
+        #expect(ItemClick27.panelWatchInterval(elapsed: .seconds(9 * 60 + 59)) == .seconds(1))
+    }
+
+    @Test("A panel still open after 10 minutes is no longer watched")
+    func givesUpAfterTenMinutes() {
+        #expect(ItemClick27.panelWatchInterval(elapsed: .seconds(600)) == nil)
+        #expect(ItemClick27.panelWatchInterval(elapsed: .seconds(3600)) == nil)
+    }
+
+    @Test("No check comes sooner than 250 ms after the one before")
+    func neverFasterThanFourHertz() {
+        var elapsed = Duration.zero
+        var checks = 0
+        while let interval = ItemClick27.panelWatchInterval(elapsed: elapsed) {
+            #expect(interval >= .milliseconds(250))
+            elapsed += interval
+            checks += 1
+        }
+        // 40 checks in the first 10 s, then one a second until 10 minutes.
+        #expect(checks == 40 + 590)
+    }
+
+    @Test("A negative elapsed time counts as the start")
+    func negativeElapsed() {
+        #expect(ItemClick27.panelWatchInterval(elapsed: .milliseconds(-5)) == .milliseconds(250))
+    }
+}

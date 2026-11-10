@@ -24,6 +24,29 @@ import Foundation
 nonisolated enum WhatsNewHistory {
     /// The releases, newest first.
     static let releases: [WhatsNewRelease] = [
+        WhatsNewRelease(version: "1.0.5",
+            improved: [
+                WhatsNewItem(
+                    symbol: "hand.draw",
+                    title: "Command-drag sets the section",
+                    detail: "On macOS 27, a ⌘ Command-drag across the holzBar icon hides an app (to the left) or shows it (to the right), with Undo in Menu Bar Layout."
+                ),
+            ],
+            fixed: [
+                WhatsNewFix(text: "On macOS 27, an automation rule changes only its own apps, and a profile keeps the apps a rule hides hidden."),
+                WhatsNewFix(text: "On macOS 27, an app you made visible is no longer hidden again as a new item."),
+                WhatsNewFix(text: "On macOS 27, turning off the always-hidden section moves its apps to Hidden."),
+                WhatsNewFix(text: "Show on hover hides only what hover showed, and never while an item's menu is open."),
+                WhatsNewFix(text: "Automatic rehide waits while a menu is open or the pointer is on the Shelf, and hides everything its show opened."),
+                WhatsNewFix(text: "A ⌘ Command-drag respects the Touch ID lock, Zen mode and Collapse, and hides what it showed after the drop."),
+                WhatsNewFix(text: "The peek and changed items hide again after Touch ID, but not while their menu is open or after you showed the section."),
+                WhatsNewFix(text: "A holzBar icon dragged into the hidden section moves back out of it on its own."),
+                WhatsNewFix(text: "On macOS 27, hiding comes back after MenuBarAgent restarts, and helper apps and slow apps appear sooner."),
+                WhatsNewFix(text: "On macOS 27, busy apps such as Slack cost less energy."),
+                WhatsNewFix(text: "On macOS 27, items folded beside the notch come back at once on a wider display."),
+                WhatsNewFix(text: "After you unlock the hidden items with Touch ID, the app you were using keeps the keyboard focus."),
+            ]
+        ),
         WhatsNewRelease(version: "1.0.4",
             improved: [
                 WhatsNewItem(

@@ -116,8 +116,12 @@ final class DisplayBehaviorController {
             // Showing the deepest section that exists shows every section.
             let deepest = manager.section(withName: .alwaysHidden).flatMap { $0.isEnabled ? $0 : nil }
                 ?? manager.section(withName: .hidden)
-            deepest?.show()
+            deepest?.show(origin: .displayBehavior)
         case .hideAll:
+            // The per-display behaviour is not used with the Shelf, so it never closes it.
+            guard !appState.settings.general.useShelf else {
+                return
+            }
             manager.section(withName: .hidden)?.hide()
         }
     }

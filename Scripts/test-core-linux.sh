@@ -38,7 +38,9 @@ sources=(
   CalendarEvent
   CalendarSelection
   ClockClickPolicy
+  CommandDragSection
   ControlCenterControl
+  ControlItemOrder
   Defaults
   DesignTokens
   DiagnosticsReport
@@ -57,7 +59,10 @@ sources=(
   HubActivityBoard
   HubModuleLifecycle
   HubTabStrip
+  InputMonitors
+  InterfaceWindowRule
   ItemCategory
+  ItemChangeCadence
   ItemClassifier
   ItemIdentity
   ItemOpenOrigin
@@ -71,6 +76,7 @@ sources=(
   LayoutSnapshot
   LegacyRevealRules
   LiveActivity
+  MenuBarAnchor
   MenuBarBackendKind
   MenuBarDragDecider
   MenuBarIconChoice
@@ -93,6 +99,7 @@ sources=(
   NowPlayingRemoteLaunch
   NowPlayingRemoteMessage
   NowPlayingTrack
+  OpenMenuWait
   OutputVolumePlan
   OwnBundle
   PinnedSystemItems
@@ -103,6 +110,7 @@ sources=(
   RevealAnimationSchedule
   RevealAnimationStyle
   RevealGate
+  RevealOwnership
   RevealStepRunner
   ScriptGate
   ScriptLaunch
@@ -152,7 +160,9 @@ tests=(
   BuiltInItemTests
   CalendarSelectionTests
   ClockClickPolicyTests
+  CommandDragSectionTests
   ControlCenterControlTests
+  ControlItemOrderTests
   DesignTokensTests
   DiagnosticsReportTests
   DisplayBehaviorTests
@@ -169,7 +179,10 @@ tests=(
   HubActivityBoardTests
   HubModuleLifecycleTests
   HubTabStripTests
+  InputMonitorsTests
+  InterfaceWindowRuleTests
   ItemCategoryTests
+  ItemChangeCadenceTests
   ItemClassifierTests
   ItemIdentityTests
   ItemOrderTests
@@ -178,8 +191,10 @@ tests=(
   ItemTimerTests
   LayoutDraftTests
   LayoutProfileListTests
+  LayoutProfileTests
   LayoutSnapshotTests
   LegacyRevealRulesTests
+  MenuBarAnchorTests
   MenuBarDragDeciderTests
   MenuBarIconChoiceTests
   MenuBarDropTests
@@ -200,6 +215,7 @@ tests=(
   NowPlayingPlayersTests
   NowPlayingRemoteLaunchTests
   NowPlayingRemoteMessageTests
+  OpenMenuWaitTests
   OutputVolumePlanTests
   OwnBundleTests
   PinnedSystemItemsTests
@@ -210,6 +226,7 @@ tests=(
   RevealAnimationScheduleTests
   RevealAnimationStyleTests
   RevealGateTests
+  RevealOwnershipTests
   RevealStepRunnerTests
   ScriptGateTests
   ScriptLaunchTests

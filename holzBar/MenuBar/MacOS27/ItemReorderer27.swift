@@ -23,8 +23,9 @@ import OSLog
 enum ItemReorderer27 {
     private static let logger = Logger(category: "ItemReorderer27")
 
-    /// How long the bar needs after a drag to settle before it is read again (measured).
-    private static let settleDelay = Duration.milliseconds(1200)
+    /// How long the bar needs after a drag to settle before it is read again (measured); the
+    /// Command-drag of `CommandDragSection27` waits as long.
+    static let settleDelay = Duration.milliseconds(1200)
     /// The dragged events between press and release.
     private static let dragSteps = 30
 

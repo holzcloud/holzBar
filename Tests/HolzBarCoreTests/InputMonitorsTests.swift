@@ -106,6 +106,58 @@ struct InputMonitorsTests {
         #expect(InputMonitors.needed(for: settings).contains(.menuBarDrag))
     }
 
+    @Test("A Command-drag that sets the section watches only the modifier keys until Command is held")
+    func commandDragWatchesOnlyTheModifierKeys() {
+        let idle = InputMonitors.needed(for: InputMonitors.Settings(setsSectionOnCommandDrag: true))
+        #expect(idle == [.modifierFlags])
+        let held = InputMonitors.needed(for: InputMonitors.Settings(setsSectionOnCommandDrag: true, commandHeld: true))
+        #expect(held == [.modifierFlags, .mouseDown, .mouseUp])
+        #expect(!held.contains(.mouseDragged))
+    }
+
+    @Test("An armed press keeps the mouse monitors after Command was released")
+    func armedPressKeepsTheMouseMonitors() {
+        let armed = InputMonitors.needed(
+            for: InputMonitors.Settings(setsSectionOnCommandDrag: true, commandHeld: false, commandDragArmed: true)
+        )
+        #expect(armed == [.modifierFlags, .mouseDown, .mouseUp])
+        // Once the press is handled and Command is up, they stop again.
+        let done = InputMonitors.needed(for: InputMonitors.Settings(setsSectionOnCommandDrag: true))
+        #expect(done == [.modifierFlags])
+    }
+
+    @Test("Command held or armed without the switch needs nothing")
+    func commandWithoutTheSwitchNeedsNothing() {
+        let settings = InputMonitors.Settings(commandHeld: true, commandDragArmed: true)
+        #expect(InputMonitors.needed(for: settings).isEmpty)
+    }
+
+    @Test("The Command-drag flag never removes a monitor another setting needs")
+    func commandDragKeepsTheOtherKinds() {
+        var settings = Self.defaults
+        let without = InputMonitors.needed(for: settings)
+        settings.showOnHover = true
+        settings.dragsWithoutCommand = true
+        settings.savesUserArrangement = true
+        let base = InputMonitors.needed(for: settings)
+        settings.setsSectionOnCommandDrag = true
+        // Command not held: only the modifier-flags monitor is added.
+        #expect(InputMonitors.needed(for: settings) == base.union([.modifierFlags]))
+        settings.commandHeld = true
+        #expect(InputMonitors.needed(for: settings) == base.union([.modifierFlags, .mouseDown, .mouseUp]))
+        #expect(InputMonitors.needed(for: settings).isSuperset(of: without))
+        var defaults = Self.defaults
+        defaults.setsSectionOnCommandDrag = true
+        defaults.commandHeld = true
+        #expect(InputMonitors.needed(for: defaults) == without.union([.modifierFlags, .mouseDown, .mouseUp]))
+    }
+
+    @Test("The default settings need no monitor")
+    func defaultSettingsNeedNoMonitor() {
+        #expect(InputMonitors.needed(for: InputMonitors.Settings()).isEmpty)
+        #expect(!InputMonitors.Settings().setsSectionOnCommandDrag)
+    }
+
     @Test("The space click monitor runs only where a click can change the space")
     func spaceClickMonitorRunsOnlyWhereNeeded() {
         #expect(!InputMonitors.needsSpaceClickMonitor(isFullscreenSpace: false, screenCount: 1))

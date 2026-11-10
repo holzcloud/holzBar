@@ -40,6 +40,8 @@ enum DiagnosticsCollector {
             nativeOverflow: nativeOverflowWord(appState),
             appleItems: appleItemsWord(appState),
             lastDrop: lastDropWords(appState),
+            lastCommandDrag: lastCommandDragWords(appState),
+            hiding: hidingWords(appState),
             lastShelfClick: lastShelfClickWords(),
             shelf: shelfWords(appState),
             accessoryBattery: accessoryBatteryWord(appState),
@@ -74,6 +76,45 @@ enum DiagnosticsCollector {
             return ""
         }
         return MenuBarDragController.lastDrop
+    }
+
+    /// The last Command-drag that could set a section, in the fixed words the feature wrote;
+    /// nothing while its switch is off or before macOS 27.
+    private static func lastCommandDragWords(_ appState: AppState) -> String {
+        guard #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27,
+              appState.settings.general.commandDragSetsSection else {
+            return ""
+        }
+        return CommandDragSection27.lastSummary
+    }
+
+    /// What the hiding fixes of 1.0.5 did, in fixed words and counts: on macOS 27 the reveal
+    /// state and the counters of the concealment, the item reads and the Accessibility scan;
+    /// before macOS 27 the anchor of the last menu bar hit test and the icons put back. It
+    /// reads counters only, never an item or an app.
+    private static func hidingWords(_ appState: AppState) -> String {
+        let itemManager = appState.itemManager
+        if #available(macOS 27.0, *), MenuBarBackendKind.current == .accessibility27 {
+            let concealer = appState.concealer27
+            let reveal = switch concealer.revealState(appState) {
+            case .allHidden: "all hidden"
+            case .hiddenRevealed: "hidden revealed"
+            case .allRevealed: "all revealed"
+            }
+            return DiagnosticsReport.hidingSummary27(
+                reveal: reveal,
+                agentRestarts: concealer.agentRestarts,
+                lateAllowlist: concealer.lateAllowlistRefreshes,
+                youngRetries: MenuBarItemProvider27.youngRetries,
+                forcedReads: itemManager.forcedItemReads,
+                heldBack: itemManager.heldBackItemReads,
+                notchRechecks: concealer.notchRechecks
+            )
+        }
+        return DiagnosticsReport.hidingSummaryBefore27(
+            anchor: appState.hidEventManager.lastMenuBarAnchor.rawValue,
+            iconPutBack: itemManager.iconPutBack
+        )
     }
 
     /// The Shelf's style and location in fixed words; nothing while the Shelf is off.

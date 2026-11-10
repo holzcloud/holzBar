@@ -61,14 +61,19 @@ nonisolated extension ItemVisibility {
     /// What a rule says about its item now: the item's identity key, whether the conditions
     /// hold (`nil` when the facts do not tell), and the index of the section that hides the
     /// item (1 hidden, 2 always hidden). `nil` when the rule is off or of another kind.
+    ///
+    /// With the always-hidden section off, a rule that hides into it hides into Hidden, the
+    /// same fold the layout gets: the item can only end up there, and a target of 2 would make
+    /// every pass take the item for one the move did not reach.
     static func follow(
         of rule: AutomationRule,
-        facts: AutomationFacts
+        facts: AutomationFacts,
+        alwaysHiddenEnabled: Bool = true
     ) -> (itemKey: String, holds: Bool?, hiding: Int)? {
         guard rule.isEnabled, case .showItemOnlyWhile(let key, let hiding) = rule.action else {
             return nil
         }
-        return (key, rule.evaluation(in: facts), hiding == .alwaysHidden ? 2 : 1)
+        return (key, rule.evaluation(in: facts), hiding == .alwaysHidden && alwaysHiddenEnabled ? 2 : 1)
     }
 
     /// Decides what happens to one item that follows a rule.

@@ -127796,6 +127796,3206 @@
           }
         }
       }
+    },
+    "Set the section with ⌘ Command-drag" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nastavit sekci přetažením s ⌘ Command"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereich per ⌘ Command-Ziehen festlegen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Definir la sección con ⌘ Command-arrastrar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Définir la section par ⌘ Command-glisser"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Szakasz beállítása ⌘ Command-húzással"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atur bagian dengan seret ⌘ Command"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Imposta la sezione con ⌘ Command-trascinamento"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command ドラッグでセクションを設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command 드래그로 구역 설정"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sectie instellen met ⌘ Command-slepen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawiaj sekcję przeciąganiem z ⌘ Command"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Definir a seção com ⌘ Command-arrastar"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fixar la secziun cun ⌘ Command-trair"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задавать раздел перетаскиванием с ⌘ Command"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ange avsnittet med ⌘ Command-dragning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bölümü ⌘ Command-sürükleme ile ayarla"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задавати розділ перетягуванням із ⌘ Command"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 ⌘ Command 拖移设定分区"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "用 ⌘ Command 拖移設定區段"
+          }
+        }
+      }
+    },
+    "macOS 27 only. Hold ⌘ Command and drag an item across the holzBar icon: to the left of it, its app is hidden; to the right of it, its app is visible. Off: the drag only reorders the bar." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pouze macOS 27. Podržte ⌘ Command a přetáhněte položku přes ikonu holzBar: vlevo od ní je její aplikace skrytá, vpravo viditelná. Vypnuto: přetažení pouze změní pořadí na liště."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur macOS 27. Halte ⌘ Command gedrückt und ziehe ein Element über das holzBar-Symbol: links davon wird seine App ausgeblendet, rechts davon ist sie sichtbar. Aus: Das Ziehen ordnet die Leiste nur neu an."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo macOS 27. Mantén pulsada ⌘ Command y arrastra un elemento al otro lado del icono de holzBar: a su izquierda, su app se oculta; a su derecha, está visible. Desactivado: arrastrar solo reordena la barra."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 uniquement. Maintenez ⌘ Command et faites glisser un élément de l'autre côté de l'icône de holzBar : à sa gauche, son app est masquée ; à sa droite, elle est visible. Désactivé : le glissement ne fait que réorganiser la barre."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Csak macOS 27 alatt. Tartsa lenyomva a ⌘ Command billentyűt, és húzzon egy elemet a holzBar ikon túloldalára: attól balra az alkalmazása rejtett, jobbra látható. Kikapcsolva: a húzás csak átrendezi a sávot."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hanya macOS 27. Tahan ⌘ Command dan seret item melewati ikon holzBar: di sebelah kirinya, app-nya disembunyikan; di sebelah kanannya, app-nya terlihat. Nonaktif: seretan hanya mengatur ulang urutan bar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Solo macOS 27. Tieni premuto ⌘ Command e trascina un elemento oltre l'icona di holzBar: a sinistra di essa la sua app viene nascosta, a destra è visibile. Disattivato: il trascinamento riordina soltanto la barra."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 のみ。⌘ Command を押しながら項目を holzBar アイコンの反対側へドラッグします。アイコンの左側ではその App が非表示に、右側では表示になります。オフ：ドラッグではバーの順序が変わるだけです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서만 사용할 수 있습니다. ⌘ Command를 누른 채 항목을 holzBar 아이콘 반대편으로 드래그하세요. 아이콘 왼쪽에서는 해당 앱이 숨겨지고, 오른쪽에서는 표시됩니다. 끄면 드래그는 막대의 순서만 바꿉니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alleen macOS 27. Houd ⌘ Command ingedrukt en sleep een onderdeel over het holzBar-symbool: links ervan wordt de app verborgen, rechts ervan is de app zichtbaar. Uit: slepen wijzigt alleen de volgorde in de balk."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tylko macOS 27. Przytrzymaj ⌘ Command i przeciągnij element przez ikonę holzBar: po jej lewej stronie jego aplikacja jest ukryta, po prawej widoczna. Wyłączone: przeciąganie tylko zmienia kolejność na pasku."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Somente macOS 27. Mantenha ⌘ Command pressionada e arraste um item para o outro lado do ícone do holzBar: à esquerda dele, o app do item fica oculto; à direita, fica visível. Desativado: arrastar apenas reordena a barra."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mo macOS 27. Tegna smatgà ⌘ Command e tira in element sur il simbol da holzBar: a sanestra dad el vegn sia app zuppentada, a dretga dad el è ella visibla. Dad: il trair sorta mo da nov la trav."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Только macOS 27. Удерживая ⌘ Command, перетащите элемент через значок holzBar: слева от него приложение скрыто, справа — видно. Выключено: перетаскивание только меняет порядок элементов в строке."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Endast macOS 27. Håll ned ⌘ Command och dra ett objekt över holzBar-ikonen: till vänster om den döljs objektets app, till höger om den är den synlig. Av: dragningen ändrar bara ordningen i raden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yalnızca macOS 27. ⌘ Command tuşunu basılı tutup bir öğeyi holzBar simgesinin diğer tarafına sürükleyin: simgenin solunda uygulaması gizlenir, sağında görünür. Kapalıyken: sürükleme yalnızca çubuğun sırasını değiştirir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Лише macOS 27. Утримуючи ⌘ Command, перетягніть елемент через значок holzBar: ліворуч від нього програма прихована, праворуч — видима. Вимкнено: перетягування лише змінює порядок у смузі."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仅限 macOS 27。按住 ⌘ Command，将项目拖过 holzBar 图标：拖到图标左侧，其 App 会被隐藏；拖到右侧，其 App 会显示。关闭时：拖移只会重新排列栏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "僅限 macOS 27。按住 ⌘ Command，將項目拖過 holzBar 圖像：拖到圖像左側，其 App 會被隱藏；拖到右側，其 App 會顯示。關閉時：拖移只會重新排列列。"
+          }
+        }
+      }
+    },
+    "Set by Command-Drag" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nastaveno přetažením s Command"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per Command-Ziehen festgelegt"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Definido con Command-arrastrar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Défini par Command-glisser"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-húzással beállítva"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diatur dengan seret Command"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostato con Command-trascinamento"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command ドラッグで設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command 드래그로 설정됨"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingesteld met Command-slepen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ustawione przeciąganiem z Command"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Definido com Command-arrastar"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fixà cun Command-trair"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задано перетаскиванием с Command"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angivet med Command-dragning"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-sürükleme ile ayarlandı"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Задано перетягуванням із Command"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由 Command 拖移设定"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由 Command 拖移設定"
+          }
+        }
+      }
+    },
+    "Undo" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zpět"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widerrufen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deshacer"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuler"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visszavonás"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Urungkan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulla"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取り消す"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실행 취소"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ongedaan maken"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cofnij"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desfazer"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revocar"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отменить"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ångra"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geri Al"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Скасувати"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "撤销"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "復原"
+          }
+        }
+      }
+    },
+    "“%@” is now hidden." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ je nyní skryté."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ ist jetzt ausgeblendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” ahora está oculto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » est maintenant masqué."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” mostantól rejtett."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” sekarang disembunyikan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” ora è nascosto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」を非表示にしました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”이(가) 이제 숨겨졌습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” is nu verborgen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” jest teraz ukryte."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” agora está oculto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” è ussa zuppà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» теперь скрыто."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”%@” är nu dold."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” artık gizli."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» тепер приховано."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”现已隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」現已隱藏。"
+          }
+        }
+      }
+    },
+    "“%@” is now visible." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ je nyní viditelné."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ ist jetzt sichtbar."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” ahora está visible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » est maintenant visible."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” mostantól látható."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” sekarang terlihat."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” ora è visibile."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」を表示にしました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”이(가) 이제 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” is nu zichtbaar."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” jest teraz widoczne."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” agora está visível."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” è ussa visibel."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» теперь видно."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”%@” är nu synlig."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” artık görünür."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» тепер видно."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”现已显示。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」現已顯示。"
+          }
+        }
+      }
+    },
+    "“%@” stays where it is: a rule controls it." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ zůstává, kde je: řídí ho pravidlo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ bleibt, wo es ist: Eine Regel steuert es."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” se queda donde está: lo controla una regla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » reste en place : une règle le contrôle."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” marad, ahol van: egy szabály vezérli."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” tetap di tempatnya: sebuah aturan mengendalikannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” resta dov'è: lo controlla una regola."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」は元の場所のままです。ルールで管理されています。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”은(는) 그대로 있습니다. 규칙이 제어합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” blijft waar het is: een regel bepaalt dit."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” zostaje na miejscu: kontroluje go reguła."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” fica onde está: uma regra o controla."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” resta nua ch'el è: ina regla al controlla."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» остаётся на месте: им управляет правило."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”%@” stannar där det är: en regel styr det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” olduğu yerde kalır: bir kural denetler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» залишається на місці: ним керує правило."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”保持原位：由规则控制。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」保持原位：由規則控制。"
+          }
+        }
+      }
+    },
+    "“%@” stays where it is: macOS keeps it in place." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ zůstává, kde je: macOS ho drží na místě."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@“ bleibt, wo es ist: macOS hält es an seinem Platz."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” se queda donde está: macOS lo mantiene en su sitio."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "« %@ » reste en place : macOS le maintient à sa place."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” marad, ahol van: a macOS a helyén tartja."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” tetap di tempatnya: macOS menjaganya di tempat."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” resta dov'è: macOS lo mantiene al suo posto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」は元の場所のままです。macOS が位置を固定しています。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”은(는) 그대로 있습니다. macOS가 제자리에 고정합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” blijft waar het is: macOS houdt het op zijn plaats."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "„%@” zostaje na miejscu: macOS utrzymuje go w miejscu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” fica onde está: o macOS o mantém no lugar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” resta nua ch'el è: macOS al tegna en plaza."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» остаётся на месте: macOS не даёт его перемещать."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "”%@” stannar där det är: macOS håller det på plats."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@” olduğu yerde kalır: macOS onu yerinde tutar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«%@» залишається на місці: macOS утримує його на місці."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“%@”保持原位：macOS 会将其固定在原处。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「%@」保持原位：macOS 會將其固定在原處。"
+          }
+        }
+      }
+    },
+    "macOS keeps its own items in place: the drop changed nothing." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS drží své vlastní položky na místě: puštění nic nezměnilo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS hält seine eigenen Elemente an ihrem Platz: Das Ablegen hat nichts geändert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS mantiene sus propios elementos en su sitio: soltar no cambió nada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS garde ses propres éléments en place : le dépôt n'a rien changé."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A macOS a saját elemeit a helyükön tartja: az elengedés nem változtatott semmit."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS menjaga itemnya sendiri tetap di tempat: penjatuhan tidak mengubah apa pun."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS mantiene al loro posto i propri elementi: il rilascio non ha cambiato nulla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS は自身の項目を所定の位置に固定しています。ドロップしても何も変わりませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS는 자체 항목을 제자리에 고정합니다. 드롭해도 아무것도 바뀌지 않았습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS houdt zijn eigen onderdelen op hun plaats: het loslaten veranderde niets."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS utrzymuje własne elementy w miejscu: upuszczenie nic nie zmieniło."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O macOS mantém os próprios itens no lugar: soltar não mudou nada."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS tegna ses atgnas elements en plaza: il lascher crudar n'ha midà nagut."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS держит свои элементы на месте: перетаскивание ничего не изменило."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS håller sina egna objekt på plats: släppet ändrade ingenting."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS kendi öğelerini yerinde tutar: bırakma hiçbir şeyi değiştirmedi."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS утримує власні елементи на місці: перетягування нічого не змінило."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 会将自己的项目固定在原处：这次拖放没有任何改变。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 會將自己的項目固定在原處：這次拖放沒有任何改變。"
+          }
+        }
+      }
+    },
+    "The section is per app: every item of the app changed with it." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekce platí pro aplikaci: změnily se všechny její položky."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Bereich gilt pro App: Alle Elemente der App haben sich mit geändert."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sección es por app: han cambiado todos los elementos de la app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La section s'applique par app : tous les éléments de l'app ont changé avec elle."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A szakasz alkalmazásonként érvényes: az alkalmazás minden eleme megváltozott vele."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bagian berlaku per app: semua item app ikut berubah."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sezione vale per app: sono cambiati tutti gli elementi dell'app."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "セクションは App ごとに設定されます。その App のすべての項目が一緒に変わりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "구역은 앱별로 설정됩니다. 해당 앱의 모든 항목이 함께 바뀌었습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De sectie geldt per app: alle onderdelen van de app zijn mee veranderd."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sekcja dotyczy aplikacji: zmieniły się wszystkie jej elementy."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A seção é por app: todos os itens do app mudaram com ela."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La secziun vala per app: tut ils elements da l'app èn sa midads cun ella."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Раздел задаётся для приложения: изменились все его элементы."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avsnittet gäller per app: alla appens objekt ändrades med det."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bölüm uygulama başınadır: uygulamanın tüm öğeleri onunla birlikte değişti."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Розділ задається для програми: змінилися всі її елементи."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分区按 App 设定：该 App 的所有项目都随之改变。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "區段按 App 設定：該 App 的所有項目都隨之改變。"
+          }
+        }
+      }
+    },
+    "Command-drag sets the section" : {
+      "comment" : "What's New item title: on macOS 27 a Command-drag across the holzBar icon sets an app's section",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přetažení s Command nastaví sekci"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-Ziehen legt den Bereich fest"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-arrastrar define la sección"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-glisser définit la section"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Command-húzás beállítja a szakaszt"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seret Command mengatur bagian"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-trascinamento imposta la sezione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command ドラッグでセクションを設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command 드래그로 구역 설정"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-slepen stelt de sectie in"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeciąganie z Command ustawia sekcję"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-arrastar define a seção"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-trair fixescha la secziun"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетаскивание с Command задаёт раздел"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-dragning anger avsnittet"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command-sürükleme bölümü ayarlar"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетягування із Command задає розділ"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command 拖移设定分区"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Command 拖移設定區段"
+          }
+        }
+      }
+    },
+    "On macOS 27, a ⌘ Command-drag across the holzBar icon hides an app (to the left) or shows it (to the right), with Undo in Menu Bar Layout." : {
+      "comment" : "What's New item detail for the Command-drag section; Undo and Menu Bar Layout are existing catalog terms",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 přetažení s ⌘ Command přes ikonu holzBar skryje aplikaci (doleva) nebo ji zobrazí (doprava), se Zpět v Uspořádání řádku nabídek."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 blendet ein ⌘ Command-Ziehen über das holzBar-Symbol eine App aus (nach links) oder ein (nach rechts), mit Widerrufen im Menüleistenlayout."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, un ⌘ Command-arrastrar sobre el icono de holzBar oculta una app (hacia la izquierda) o la muestra (hacia la derecha), con Deshacer en la Disposición de la barra de menús."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, un ⌘ Command-glisser au-dessus de l’icône de holzBar masque une app (vers la gauche) ou l’affiche (vers la droite), avec Annuler dans Disposition de la barre des menus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt egy ⌘ Command-húzás a holzBar ikonon át elrejt egy appot (balra) vagy megjeleníti (jobbra), Visszavonással a Menüsor elrendezésében."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, seret ⌘ Command melintasi ikon holzBar menyembunyikan app (ke kiri) atau menampilkannya (ke kanan), dengan Urungkan di Tata Letak Bar Menu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, un ⌘ Command-trascinamento attraverso l’icona di holzBar nasconde un’app (verso sinistra) o la mostra (verso destra), con Annulla nel Layout della barra dei menu."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 では、⌘ Command ドラッグで holzBar アイコンをまたぐと、App が非表示（左へ）または表示（右へ）になり、メニューバーレイアウトで取り消せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 ⌘ Command 드래그로 holzBar 아이콘을 가로지르면 앱이 숨겨지거나(왼쪽) 표시되며(오른쪽), 메뉴 막대 레이아웃에서 실행 취소할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 verbergt een ⌘ Command-slepen over het holzBar-symbool een app (naar links) of toont die (naar rechts), met Ongedaan maken in Menubalkindeling."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 przeciągnięcie z ⌘ Command przez ikonę holzBar ukrywa aplikację (w lewo) lub ją pokazuje (w prawo), z opcją Cofnij w Układzie paska menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, um ⌘ Command-arrastar sobre o ícone do holzBar oculta um app (para a esquerda) ou o mostra (para a direita), com Desfazer no Layout da Barra de Menus."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 zuppenta in ⌘ Command-trair sur l’icona da holzBar in’app (a sanestra) u mussa ella (a dretga), cun Revocar en la Disposiziun da la trav da menu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 перетаскивание с ⌘ Command через значок holzBar скрывает приложение (влево) или показывает его (вправо); отменить можно в разделе «Раскладка строки меню»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 döljer en ⌘ Command-dragning över holzBar-symbolen en app (åt vänster) eller visar den (åt höger), med Ångra i Menyradslayout."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de holzBar simgesinin üzerinden yapılan ⌘ Command-sürükleme bir uygulamayı gizler (sola) veya gösterir (sağa); Geri Al, Menü Çubuğu Düzeni’nde bulunur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 перетягування із ⌘ Command через значок holzBar приховує застосунок (ліворуч) або показує його (праворуч), зі Скасувати в Розкладці смуги меню."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，按住 ⌘ Command 将项目拖过 holzBar 图标，可隐藏 App（向左）或显示 App（向右），并可在菜单栏布局中撤销。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，按住 ⌘ Command 將項目拖過 holzBar 圖示，可隱藏 App（向左）或顯示 App（向右），並可在選單列佈局中復原。"
+          }
+        }
+      }
+    },
+    "The menu bar item spacing could not be saved." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rozestup položek řádku nabídek se nepodařilo uložit."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Abstand der Menüleistenelemente konnte nicht gespeichert werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo guardar el espaciado de los elementos de la barra de menús."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’espacement des éléments de la barre des menus n’a pas pu être enregistré."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A menüsor-elemek közének mérete nem menthető."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jarak item bar menu tidak dapat disimpan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è stato possibile salvare la spaziatura degli elementi della barra dei menu."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "メニューバー項目の間隔を保存できませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "메뉴 막대 항목 간격을 저장할 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De ruimte tussen menubalkonderdelen kon niet worden bewaard."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nie udało się zachować odstępu elementów paska menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível salvar o espaçamento dos itens da barra de menus."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La distanza tranter ils elements da la trav da menu n’ha betg pudì vegnir memorisada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось сохранить интервал между элементами строки меню."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avståndet mellan menyradsobjekt kunde inte sparas."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menü çubuğu öğe aralığı kaydedilemedi."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не вдалося зберегти інтервал між елементами смуги меню."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法存储菜单栏项目间距。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無法儲存選單列項目間距。"
+          }
+        }
+      }
+    },
+    "These apps did not quit in time and were not restarted:" : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tyto aplikace se neukončily včas a nebyly znovu spuštěny:"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Apps wurden nicht rechtzeitig beendet und nicht neu gestartet:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estas apps no se cerraron a tiempo y no se reiniciaron:"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces apps n’ont pas quitté à temps et n’ont pas été redémarrées :"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ezek az appok nem léptek ki időben, és nem indultak újra:"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App ini tidak keluar tepat waktu dan tidak dimulai ulang:"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Queste app non si sono chiuse in tempo e non sono state riavviate:"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "次のアプリは時間内に終了しなかったため、再起動されませんでした:"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음 앱이 제시간에 종료되지 않아 다시 시작되지 않았습니다:"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze apps zijn niet op tijd gestopt en niet opnieuw gestart:"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Te aplikacje nie zakończyły działania na czas i nie zostały uruchomione ponownie:"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estes apps não foram encerrados a tempo e não foram reiniciados:"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questas apps n’èn betg vegnidas terminadas a temp e n’èn betg vegnidas reaviadas:"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Эти приложения не завершились вовремя и не были перезапущены:"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De här apparna avslutades inte i tid och startades inte om:"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu uygulamalar zamanında kapanmadı ve yeniden başlatılmadı:"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ці програми не завершилися вчасно й не були перезапущені:"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以下 App 未能及时退出，因此未重新启动："
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以下 App 未能及時結束，因此未重新啟動："
+          }
+        }
+      }
+    },
+    "You may need to log out for the changes to take effect." : {
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aby se změny projevily, možná se budete muset odhlásit."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Möglicherweise musst du dich abmelden, damit die Änderungen wirksam werden."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puede que tengas que cerrar sesión para que los cambios surtan efecto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous devrez peut-être fermer votre session pour que les modifications prennent effet."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lehet, hogy ki kell jelentkeznie, hogy a módosítások érvénybe lépjenek."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anda mungkin perlu keluar agar perubahan diterapkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Potrebbe essere necessario uscire dalla sessione perché le modifiche abbiano effetto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "変更を反映するには、ログアウトが必要な場合があります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "변경 사항을 적용하려면 로그아웃해야 할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mogelijk moet je afmelden voordat de wijzigingen van kracht worden."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aby zmiany zaczęły obowiązywać, może być konieczne wylogowanie się."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Talvez seja necessário encerrar a sessão para que as alterações tenham efeito."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eventualmain stos ti ta deconnectar, per che las midadas daventian effectivas."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Возможно, потребуется выйти из системы, чтобы изменения вступили в силу."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du kan behöva logga ut för att ändringarna ska börja gälla."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Değişikliklerin geçerli olması için oturumu kapatmanız gerekebilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Можливо, доведеться вийти з системи, щоб зміни набули чинності."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你可能需要退出登录才能使更改生效。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你可能需要登出才能讓變更生效。"
+          }
+        }
+      }
+    },
+    "On macOS 27, an app you made visible is no longer hidden again as a new item." : {
+      "comment" : "What's New, 1.0.5, fixed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 se aplikace, kterou jste zviditelnili, už znovu neskryje jako nová položka."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 wird eine App, die du sichtbar gemacht hast, nicht mehr als neues Element wieder ausgeblendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, una app que hiciste visible ya no se vuelve a ocultar como un elemento nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, une app que vous avez rendue visible n’est plus masquée à nouveau comme un nouvel élément."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt a láthatóvá tett app már nem rejtődik el újra új elemként."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, app yang Anda buat terlihat tidak lagi disembunyikan kembali sebagai item baru."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, un’app che hai reso visibile non viene più nascosta di nuovo come nuovo elemento."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、表示にした App が新しい項目として再び非表示になることがなくなりました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 표시하도록 설정한 앱이 더 이상 새 항목으로 간주되어 다시 숨겨지지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 wordt een app die je zichtbaar hebt gemaakt niet meer opnieuw verborgen als nieuw onderdeel."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 aplikacja, którą uczyniono widoczną, nie jest już ponownie ukrywana jako nowy element."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, um app que você tornou visível não é mais ocultado de novo como um item novo."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 na vegn ina app che ti has fatg visibla betg pli zuppentada puspè sco nov element."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 приложение, которое вы сделали видимым, больше не скрывается снова как новый элемент."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 döljs en app som du har gjort synlig inte längre igen som ett nytt objekt."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de görünür yaptığınız bir uygulama artık yeni bir öğe olarak yeniden gizlenmiyor."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 застосунок, який ви зробили видимим, більше не приховується знову як новий елемент."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，你设为可见的 App 不再被当作新项目重新隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，你設為可見的 App 不再被當作新項目重新隱藏。"
+          }
+        }
+      }
+    },
+    "A holzBar icon dragged into the hidden section moves back out of it on its own." : {
+      "comment" : "What's New, 1.0.5, fixed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikona holzBar přetažená do sekce skrytých se z ní sama vrátí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein holzBar-Symbol, das in den ausgeblendeten Bereich gezogen wurde, kehrt von selbst wieder heraus."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un icono de holzBar arrastrado a la sección oculta vuelve a salir de ella por sí solo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une icône de holzBar glissée dans la section masquée en ressort d’elle-même."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A rejtett szakaszba húzott holzBar ikon magától visszakerül onnan."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikon holzBar yang diseret ke bagian tersembunyi keluar lagi dengan sendirinya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un’icona di holzBar trascinata nella sezione nascosta ne esce di nuovo da sola."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示セクションにドラッグした holzBar アイコンは、自動的にそこから戻ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "숨김 섹션으로 드래그한 holzBar 아이콘이 저절로 그 밖으로 돌아옵니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een holzBar-symbool dat naar de verborgen sectie is gesleept, gaat er vanzelf weer uit."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ikona holzBar przeciągnięta do sekcji ukrytych sama z niej wraca."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um ícone do holzBar arrastado para a seção oculta sai dela de novo sozinho."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In’icona da holzBar tratga en la secziun zuppada sorta da sasez puspè ord quella."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Значок holzBar, перетащенный в скрытый раздел, сам возвращается из него."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En holzBar-symbol som dras in i den dolda sektionen flyttar sig själv ut ur den igen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizli bölüme sürüklenen holzBar simgesi kendiliğinden oradan geri çıkar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Значок holzBar, перетягнутий у прихований розділ, сам повертається з нього."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拖入隐藏分区的 holzBar 图标会自动移出该分区。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拖入隱藏區段的 holzBar 圖示會自動移出該區段。"
+          }
+        }
+      }
+    },
+    "After you unlock the hidden items with Touch ID, the app you were using keeps the keyboard focus." : {
+      "comment" : "What's New, 1.0.5, fixed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po odemknutí skrytých položek pomocí Touch ID si aplikace, kterou jste používali, ponechá fokus klávesnice."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nachdem du die ausgeblendeten Elemente mit Touch ID entsperrt hast, behält die App, die du gerade benutzt hast, den Tastaturfokus."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Después de desbloquear los elementos ocultos con Touch ID, la app que estabas usando conserva el foco del teclado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Après le déverrouillage des éléments masqués avec Touch ID, l’app que vous utilisiez garde le focus du clavier."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miután Touch ID-val feloldotta a rejtett elemeket, az addig használt app megtartja a billentyűzetfókuszt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setelah Anda membuka kunci item tersembunyi dengan Touch ID, app yang sedang Anda gunakan tetap memegang fokus keyboard."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dopo aver sbloccato gli elementi nascosti con Touch ID, l’app che stavi usando mantiene il focus della tastiera."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch ID で非表示の項目のロックを解除した後も、使用していた App がキーボードフォーカスを保ちます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touch ID로 숨겨진 항목의 잠금을 해제한 후에도 사용하던 앱이 키보드 포커스를 유지합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nadat je de verborgen onderdelen met Touch ID hebt ontgrendeld, houdt de app die je gebruikte de toetsenbordfocus."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Po odblokowaniu ukrytych elementów za pomocą Touch ID aplikacja, której używano, zachowuje fokus klawiatury."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depois que você desbloqueia os itens ocultos com o Touch ID, o app que você estava usando mantém o foco do teclado."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suenter che ti has deblocà ils elements zuppads cun Touch ID, salva l’app che ti has duvrà il focus da la tastatura."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "После разблокировки скрытых элементов с помощью Touch ID приложение, которым вы пользовались, сохраняет фокус клавиатуры."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "När du har låst upp de dolda objekten med Touch ID behåller appen du använde tangentbordsfokus."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizli öğelerin kilidini Touch ID ile açtıktan sonra kullandığınız uygulama klavye odağını korur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Після розблокування прихованих елементів за допомогою Touch ID застосунок, яким ви користувалися, зберігає фокус клавіатури."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 Touch ID 解锁隐藏的项目后，你正在使用的 App 会保留键盘焦点。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 Touch ID 解鎖隱藏的項目後，你正在使用的 App 會保留鍵盤焦點。"
+          }
+        }
+      }
+    },
+    "On macOS 27, an automation rule changes only its own apps, and a profile keeps the apps a rule hides hidden." : {
+      "comment" : "What's New, 1.0.5, fixed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 pravidlo automatizace mění jen své vlastní aplikace a profil ponechá skryté aplikace, které skrývá pravidlo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 ändert eine Automatisierungsregel nur ihre eigenen Apps, und ein Profil lässt die Apps ausgeblendet, die eine Regel ausblendet."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, una regla de automatización solo cambia sus propias apps, y un perfil mantiene ocultas las apps que oculta una regla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, une règle d’automatisation ne modifie que ses propres apps, et un profil laisse masquées les apps qu’une règle masque."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt egy automatizálási szabály csak a saját appjait módosítja, és egy profil rejtve hagyja azokat az appokat, amelyeket egy szabály elrejt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, aturan otomatisasi hanya mengubah app miliknya sendiri, dan profil membuat app yang disembunyikan aturan tetap tersembunyi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, una regola di automazione modifica solo le proprie app, e un profilo lascia nascoste le app che una regola nasconde."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、オートメーションルールは自分の App だけを変更し、プロファイルはルールが非表示にする App を非表示のままにします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 자동화 규칙은 자신의 앱만 변경하며, 프로파일은 규칙이 숨기는 앱을 숨겨진 상태로 유지합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 wijzigt een automatiseringsregel alleen haar eigen apps, en een profiel houdt de apps die een regel verbergt verborgen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 reguła automatyzacji zmienia tylko własne aplikacje, a profil pozostawia ukryte aplikacje, które ukrywa reguła."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, uma regra de automação altera apenas os próprios apps, e um perfil mantém ocultos os apps que uma regra oculta."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 mida ina regla d’automatisaziun mo sias atgnas apps, ed in profil lascha zuppadas las apps ch’ina regla zuppenta."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 правило автоматизации меняет только свои приложения, а профиль оставляет скрытыми приложения, которые скрывает правило."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 ändrar en automationsregel bara sina egna appar, och en profil håller apparna som en regel döljer dolda."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de bir otomasyon kuralı yalnızca kendi uygulamalarını değiştirir ve bir profil, bir kuralın gizlediği uygulamaları gizli tutar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 правило автоматизації змінює лише свої застосунки, а профіль залишає прихованими застосунки, які приховує правило."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，自动化规则只更改它自己的 App，配置文件会让规则隐藏的 App 保持隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，自動化規則只更改它自己的 App，設定檔會讓規則隱藏的 App 保持隱藏。"
+          }
+        }
+      }
+    },
+    "On macOS 27, turning off the always-hidden section moves its apps to Hidden." : {
+      "comment" : "What's New, 1.0.5, fixed. Hidden is the name of the hidden section.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 vypnutí sekce vždy skrytých přesune její aplikace do sekce Skryté."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 verschiebt das Ausschalten des Bereichs «Immer ausgeblendet» seine Apps nach «Ausgeblendet»."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, desactivar la sección siempre oculta mueve sus apps a Oculto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, désactiver la section « Toujours masqué » déplace ses apps vers Masqué."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt a mindig rejtett szakasz kikapcsolása az appjait a Rejtett szakaszba helyezi."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, mematikan bagian selalu tersembunyi memindahkan app-nya ke Tersembunyi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, disattivare la sezione «Sempre nascosto» sposta le sue app in Nascosto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、常に非表示セクションをオフにすると、その App は非表示に移動します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 “항상 숨김” 섹션을 끄면 그 앱들이 숨김으로 이동합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 verplaatst het uitschakelen van de altijd verborgen sectie de apps ervan naar Verborgen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 wyłączenie sekcji zawsze ukrytych przenosi jej aplikacje do sekcji Ukryte."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, desativar a seção sempre oculta move os apps dela para Oculto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 spustescha la deactivaziun da la secziun «Adina zuppà» sias apps en Zuppà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 при выключении раздела «Всегда скрыто» его приложения переходят в раздел «Скрыто»."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 flyttas apparna i sektionen Alltid dolda till Dold när du stänger av den."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de her zaman gizli bölümü kapatmak, uygulamalarını Gizli bölümüne taşır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 вимкнення розділу «Завжди приховано» переносить його застосунки до розділу «Приховано»."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，关闭“始终隐藏”分区会将其中的 App 移到“隐藏”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，關閉一律隱藏區段會將其中的 App 移到「已隱藏」。"
+          }
+        }
+      }
+    },
+    "Show on hover hides only what hover showed, and never while an item's menu is open." : {
+      "comment" : "What's New, 1.0.5, fixed. Show on hover is the name of a setting.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobrazit při najetí skryje jen to, co najetí zobrazilo, a nikdy, dokud je otevřená nabídka položky."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Per Zeiger einblenden» blendet nur aus, was es eingeblendet hat, und nie, solange das Menü eines Elements offen ist."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar al pasar el puntero solo oculta lo que mostró, y nunca mientras el menú de un elemento está abierto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher au survol ne masque que ce que le survol a affiché, et jamais tant que le menu d’un élément est ouvert."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Megjelenítés rámutatásra csak azt rejti el, amit a rámutatás megjelenített, és soha, amíg egy elem menüje nyitva van."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilkan saat kursor diarahkan hanya menyembunyikan apa yang ditampilkannya, dan tidak pernah selama menu item terbuka."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra al passaggio del puntatore nasconde solo ciò che ha mostrato, e mai finché il menu di un elemento è aperto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「ホバーで表示」は、ホバーで表示したものだけを非表示にし、項目のメニューが開いている間は非表示にしません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“마우스를 올리면 표시”는 마우스를 올려 표시한 것만 숨기며, 항목의 메뉴가 열려 있는 동안에는 숨기지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon bij aanwijzen verbergt alleen wat aanwijzen toonde, en nooit zolang het menu van een onderdeel open is."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokaż po najechaniu ukrywa tylko to, co pokazało najechanie, i nigdy, gdy menu elementu jest otwarte."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibir ao passar o ponteiro oculta apenas o que ele exibiu, e nunca enquanto o menu de um item está aberto."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Mussar cun il cursur» zuppenta mo quai ch’il cursur ha mussà, e mai durant ch’il menu d’in element è avert."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Показывать при наведении» скрывает только то, что показало наведение, и никогда — пока открыто меню элемента."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa vid hovring döljer bara det som hovringen visade, och aldrig medan ett objekts meny är öppen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Üzerine gelince göster yalnızca üzerine gelmenin gösterdiklerini gizler, bir öğenin menüsü açıkken ise hiç gizlemez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Показувати під час наведення» приховує лише те, що показало наведення, і ніколи — поки відкрите меню елемента."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“悬停时显示”只隐藏悬停显示的内容，并且在项目的菜单打开时绝不隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「滑鼠移入時顯示」只隱藏滑鼠移入所顯示的內容，並且在項目的選單打開時絕不隱藏。"
+          }
+        }
+      }
+    },
+    "Automatic rehide waits while a menu is open or the pointer is on the Shelf, and hides everything its show opened." : {
+      "comment" : "What's New, 1.0.5, fixed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatické opětovné skrytí čeká, dokud je otevřená nabídka nebo je ukazatel na Shelf, a skryje vše, co zobrazení otevřelo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das automatische Wiederausblenden wartet, solange ein Menü offen ist oder der Zeiger auf dem Shelf liegt, und blendet alles aus, was das Einblenden geöffnet hat."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volver a ocultar automáticamente espera mientras un menú está abierto o el puntero está sobre el Shelf, y oculta todo lo que se abrió al mostrar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le masquage automatique attend tant qu’un menu est ouvert ou que le pointeur est sur le Shelf, et masque tout ce que l’affichage a ouvert."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Az automatikus újrarejtés vár, amíg egy menü nyitva van, vagy a mutató a Shelfen van, és elrejt mindent, amit a megjelenítés megnyitott."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sembunyikan kembali otomatis menunggu selama menu terbuka atau penunjuk berada di Shelf, dan menyembunyikan semua yang dibuka saat ditampilkan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il nuovo occultamento automatico attende finché un menu è aperto o il puntatore è sullo Shelf, e nasconde tutto ciò che la comparsa ha aperto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動的に再び非表示にする機能は、メニューが開いている間やポインタが Shelf 上にある間は待機し、表示したときに開いたものをすべて非表示にします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동으로 다시 숨기기는 메뉴가 열려 있거나 포인터가 Shelf 위에 있는 동안 기다리며, 표시할 때 열린 것을 모두 숨깁니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch weer verbergen wacht zolang een menu open is of de aanwijzer op de Shelf staat, en verbergt alles wat het tonen opende."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatyczne ponowne ukrywanie czeka, gdy menu jest otwarte lub wskaźnik jest na Shelf, i ukrywa wszystko, co otworzyło pokazanie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar novamente de forma automática aguarda enquanto um menu está aberto ou o ponteiro está sobre o Shelf, e oculta tudo o que a exibição abriu."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il zuppentar puspè automatic spetga durant ch’in menu è avert u ch’il punctader è sin il Shelf, e zuppenta tut quai ch’il mussar ha avert."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматическое повторное скрытие ждёт, пока открыто меню или указатель находится на Shelf, и скрывает всё, что открыл показ."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dölj automatiskt igen väntar medan en meny är öppen eller pekaren är på Shelf, och döljer allt som visningen öppnade."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Otomatik yeniden gizleme, bir menü açıkken veya işaretçi Shelf üzerindeyken bekler ve göstermenin açtığı her şeyi gizler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Автоматичне повторне приховування чекає, поки відкрите меню або вказівник на Shelf, і приховує все, що відкрив показ."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自动重新隐藏会在菜单打开或指针位于 Shelf 上时等待，并隐藏显示时打开的所有内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自動重新隱藏會在選單打開或指標位於 Shelf 上時等待，並隱藏顯示時打開的所有內容。"
+          }
+        }
+      }
+    },
+    "A ⌘ Command-drag respects the Touch ID lock, Zen mode and Collapse, and hides what it showed after the drop." : {
+      "comment" : "What's New, 1.0.5, fixed. Collapse is the name of a per-display setting.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přetažení s ⌘ Command respektuje zámek Touch ID, režim Zen a Sbalit a po upuštění skryje, co zobrazilo."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ein ⌘ Command-Ziehen beachtet die Touch ID-Sperre, den Zen-Modus und Einklappen und blendet nach dem Loslassen wieder aus, was es eingeblendet hat."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un ⌘ Command-arrastrar respeta el bloqueo con Touch ID, el modo Zen y Plegar, y oculta lo que mostró después de soltar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un ⌘ Command-glisser respecte le verrou Touch ID, le mode Zen et Replier, et masque ce qu’il a affiché après le dépôt."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Egy ⌘ Command-húzás figyelembe veszi a Touch ID-zárat, a Zen módot és az Összecsukást, és az elengedés után elrejti, amit megjelenített."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seret ⌘ Command mematuhi kunci Touch ID, Mode Zen, dan Ciutkan, serta menyembunyikan apa yang ditampilkannya setelah dilepas."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un ⌘ Command-trascinamento rispetta il blocco Touch ID, la modalità Zen e Comprimi, e dopo il rilascio nasconde ciò che ha mostrato."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command ドラッグは Touch ID ロック、Zen モード、折りたたむを尊重し、ドロップ後は表示したものを非表示にします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command 드래그는 Touch ID 잠금, 젠 모드 및 접기를 따르며, 놓은 후에는 표시한 것을 숨깁니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een ⌘ Command-slepen respecteert de Touch ID-vergrendeling, de Zenmodus en Vouw samen, en verbergt na het neerzetten wat het toonde."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeciągnięcie z ⌘ Command uwzględnia blokadę Touch ID, Tryb Zen i Zwiń, a po upuszczeniu ukrywa to, co pokazało."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um ⌘ Command-arrastar respeita o bloqueio com Touch ID, o Modo Zen e Recolher, e oculta o que exibiu depois de soltar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In ⌘ Command-trair resguarda la serradira Touch ID, il modus Zen e Plajar, e zuppenta suenter il relasch quai ch’el ha mussà."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетаскивание с ⌘ Command учитывает блокировку Touch ID, режим «Дзен» и «Свернуть» и после отпускания скрывает то, что показало."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En ⌘ Command-dragning respekterar Touch ID-låset, Zen-läge och Fäll ihop, och döljer det den visade efter släppet."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "⌘ Command-sürükleme Touch ID kilidine, Zen moduna ve Daralt’a uyar ve bıraktıktan sonra gösterdiklerini gizler."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетягування із ⌘ Command враховує блокування Touch ID, режим «Дзен» і «Згорнути» та після відпускання приховує те, що показало."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按住 ⌘ Command 拖移会遵从 Touch ID 锁定、禅模式和折叠，并在放下后隐藏它显示的内容。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按住 ⌘ Command 拖移會遵從 Touch ID 鎖定、Zen 模式和收合，並在放開後隱藏它顯示的內容。"
+          }
+        }
+      }
+    },
+    "The peek and changed items hide again after Touch ID, but not while their menu is open or after you showed the section." : {
+      "comment" : "What's New, 1.0.5, fixed. The peek is what the hotkey that shows the hidden section for a moment shows; changed items are items shown because they changed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To, co klávesová zkratka na chvíli zobrazí, a položky zobrazené kvůli změně se po Touch ID znovu skryjí, ale ne, dokud je jejich nabídka otevřená, ani když jste sekci zobrazili."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das kurze Einblenden per Tastenkürzel und wegen einer Änderung eingeblendete Elemente blenden nach Touch ID wieder aus, aber nicht, solange ihr Menü offen ist oder nachdem du den Bereich eingeblendet hast."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lo que muestra un momento el atajo de teclado y los elementos mostrados porque cambiaron se vuelven a ocultar después de Touch ID, pero no mientras su menú está abierto ni después de que mostraste la sección."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’affichage d’un instant par raccourci clavier et les éléments affichés parce qu’ils ont changé se masquent à nouveau après Touch ID, mais pas tant que leur menu est ouvert ni après que vous avez affiché la section."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A billentyűparanccsal egy pillanatra megjelenített elemek és a változás miatt megjelenített elemek Touch ID után újra elrejtőznek, de nem, amíg a menüjük nyitva van, vagy miután megjelenítette a szakaszt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yang ditampilkan sebentar oleh pintasan keyboard dan item yang ditampilkan karena berubah tersembunyi kembali setelah Touch ID, tetapi tidak selama menunya terbuka atau setelah Anda menampilkan bagiannya."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La comparsa per un attimo con l’abbreviazione da tastiera e gli elementi mostrati perché sono cambiati si nascondono di nuovo dopo Touch ID, ma non finché il loro menu è aperto o dopo che hai mostrato la sezione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ショートカットキーで少しの間表示したものと、変化したために表示された項目は、Touch ID の後に再び非表示になりますが、メニューが開いている間やセクションを表示した後は非表示になりません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "단축키로 잠시 표시한 것과 변경되어 표시된 항목은 Touch ID 후에 다시 숨겨지지만, 메뉴가 열려 있는 동안이나 섹션을 표시한 후에는 숨겨지지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wat de sneltoets even toont en onderdelen die werden getoond omdat ze veranderden, verbergen zich weer na Touch ID, maar niet zolang hun menu open is of nadat je de sectie hebt getoond."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To, co skrót klawiszowy pokazuje na chwilę, oraz elementy pokazane z powodu zmiany ukrywają się ponownie po Touch ID, ale nie, gdy ich menu jest otwarte, ani po pokazaniu sekcji."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O que o atalho de teclado exibe por um momento e os itens exibidos porque mudaram voltam a se ocultar depois do Touch ID, mas não enquanto o menu deles está aberto nem depois que você exibiu a seção."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il mussar per in mument cun la cumbinaziun da tastas ed ils elements mussads perquai ch’els èn sa midads sa zuppentan puspè suenter Touch ID, ma betg durant che lur menu è avert u suenter che ti has mussà la secziun."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "То, что горячая клавиша ненадолго показывает, и элементы, показанные из-за изменения, снова скрываются после Touch ID, но не пока открыто их меню и не после того, как вы показали раздел."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Det som kortkommandot visar en kort stund och objekt som visas för att de ändrats döljs igen efter Touch ID, men inte medan deras meny är öppen eller efter att du visat sektionen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klavye kısayolunun kısaca gösterdikleri ve değiştiği için gösterilen öğeler Touch ID’den sonra yeniden gizlenir, ancak menüleri açıkken veya bölümü gösterdikten sonra gizlenmez."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Те, що гаряча клавіша ненадовго показує, і елементи, показані через зміну, знову приховуються після Touch ID, але не поки відкрите їхнє меню і не після того, як ви показали розділ."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通过快捷键短暂显示的内容和因变化而显示的项目在 Touch ID 之后会再次隐藏，但在其菜单打开时或你显示该分区后不会隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "透過快速鍵暫時顯示的內容和因變更而顯示的項目在 Touch ID 之後會再次隱藏，但在其選單打開時或你顯示該區段後不會隱藏。"
+          }
+        }
+      }
+    },
+    "On macOS 27, hiding comes back after MenuBarAgent restarts, and helper apps and slow apps appear sooner." : {
+      "comment" : "What's New, 1.0.5, fixed. MenuBarAgent is the name of a macOS process; keep it as is.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 se skrývání obnoví po restartu MenuBarAgent a pomocné a pomalé aplikace se zobrazí dříve."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 funktioniert das Ausblenden nach einem Neustart von MenuBarAgent wieder, und Hilfs-Apps und langsame Apps erscheinen früher."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, la ocultación vuelve tras reiniciarse MenuBarAgent, y las apps auxiliares y las apps lentas aparecen antes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, le masquage revient après un redémarrage de MenuBarAgent, et les apps d’assistance et les apps lentes apparaissent plus tôt."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt a MenuBarAgent újraindulása után visszaáll az elrejtés, és a segédappok és a lassú appok hamarabb megjelennek."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, penyembunyian kembali setelah MenuBarAgent dimulai ulang, dan app pembantu serta app yang lambat muncul lebih cepat."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, l’occultamento torna dopo il riavvio di MenuBarAgent, e le app di supporto e le app lente compaiono prima."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、MenuBarAgent の再起動後も非表示が元に戻り、ヘルパー App や遅い App がより早く表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 MenuBarAgent가 다시 시작된 후에도 숨기기가 복원되며, 도우미 앱과 느린 앱이 더 빨리 나타납니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 komt het verbergen terug nadat MenuBarAgent opnieuw start, en verschijnen hulpapps en trage apps eerder."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 ukrywanie wraca po ponownym uruchomieniu MenuBarAgent, a aplikacje pomocnicze i wolne aplikacje pojawiają się wcześniej."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, a ocultação volta depois que o MenuBarAgent reinicia, e apps auxiliares e apps lentos aparecem antes."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 turna il zuppentar suenter ch’il MenuBarAgent è vegnì reaviat, ed apps d’agid ed apps plaunas cumparan pli baud."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 скрытие восстанавливается после перезапуска MenuBarAgent, а вспомогательные и медленные приложения появляются раньше."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 kommer döljandet tillbaka efter att MenuBarAgent startat om, och hjälpappar och långsamma appar visas tidigare."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de MenuBarAgent yeniden başladıktan sonra gizleme geri gelir ve yardımcı uygulamalar ile yavaş uygulamalar daha erken görünür."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 приховування відновлюється після перезапуску MenuBarAgent, а допоміжні й повільні застосунки з’являються раніше."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，MenuBarAgent 重新启动后隐藏会恢复，辅助 App 和缓慢的 App 会更早出现。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，MenuBarAgent 重新啟動後隱藏會恢復，輔助 App 和緩慢的 App 會更早出現。"
+          }
+        }
+      }
+    },
+    "On macOS 27, busy apps such as Slack cost less energy." : {
+      "comment" : "What's New, 1.0.5, fixed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 spotřebují vytížené aplikace jako Slack méně energie."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 kosten viel beschäftigte Apps wie Slack weniger Energie."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, las apps muy activas como Slack gastan menos energía."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, les apps très actives comme Slack consomment moins d’énergie."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt az olyan elfoglalt appok, mint a Slack, kevesebb energiát fogyasztanak."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, app sibuk seperti Slack lebih hemat energi."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, le app molto attive come Slack consumano meno energia."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、Slack のように忙しい App の消費エネルギーが減りました。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 Slack 같은 바쁜 앱의 에너지 사용이 줄었습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 kosten drukke apps zoals Slack minder energie."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 zajęte aplikacje, takie jak Slack, zużywają mniej energii."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, apps muito ativos como o Slack gastam menos energia."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 consumeschan apps fitg activas sco Slack main energia."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 загруженные приложения вроде Slack тратят меньше энергии."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 drar upptagna appar som Slack mindre energi."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de Slack gibi yoğun uygulamalar daha az enerji harcar."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 завантажені застосунки на кшталт Slack витрачають менше енергії."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，Slack 等繁忙的 App 耗电更少。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，Slack 等忙碌的 App 耗電更少。"
+          }
+        }
+      }
+    },
+    "On macOS 27, items folded beside the notch come back at once on a wider display." : {
+      "comment" : "What's New, 1.0.5, fixed.",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "V macOS 27 se položky sbalené vedle výřezu na širším displeji hned vrátí."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unter macOS 27 kehren neben der Notch eingeklappte Elemente auf einem breiteren Display sofort zurück."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En macOS 27, los elementos plegados junto al notch vuelven al instante en una pantalla más ancha."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous macOS 27, les éléments repliés à côté de l’encoche reviennent aussitôt sur un écran plus large."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 alatt a notch mellett összecsukott elemek egy szélesebb kijelzőn azonnal visszatérnek."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Di macOS 27, item yang diciutkan di samping notch langsung kembali di layar yang lebih lebar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Su macOS 27, gli elementi compressi accanto al notch tornano subito su uno schermo più largo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27 で、ノッチの横でたたまれた項目は、より広いディスプレイですぐに戻ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27에서 노치 옆에 접힌 항목은 더 넓은 디스플레이에서 즉시 돌아옵니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op macOS 27 komen onderdelen die naast de notch zijn samengevouwen meteen terug op een breder scherm."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "W macOS 27 elementy zwinięte przy notchu od razu wracają na szerszym ekranie."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No macOS 27, itens recolhidos ao lado do notch voltam na hora em uma tela mais larga."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin macOS 27 turnan elements plajads sper la notch immediatamain sin in display pli lad."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "В macOS 27 элементы, свёрнутые у выреза, сразу возвращаются на более широком дисплее."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "På macOS 27 kommer objekt som fällts ihop bredvid notchen genast tillbaka på en bredare skärm."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "macOS 27’de notch yanında daraltılan öğeler daha geniş bir ekranda hemen geri gelir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "У macOS 27 елементи, згорнуті біля вирізу, одразу повертаються на ширшому дисплеї."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，刘海旁折叠的项目会在更宽的显示器上立即恢复。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 macOS 27 上，瀏海旁收合的項目會在更寬的顯示器上立即恢復。"
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

@@ -44,6 +44,16 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// such as `macOS 27, shelf, hide, applied`. Empty before the first drop or while the module
     /// is off, so the report stays as it was.
     var lastDrop = ""
+    /// The last Command-drag that could set a section in fixed words and numbers
+    /// (``CommandDragSection/summary(waitedMilliseconds:reads:decision:outcome:)``), such as
+    /// `waited 1200 ms, 1 read, set hidden, applied`. Empty before the first one or while the
+    /// switch is off, so the report stays as it was. Never a name.
+    var lastCommandDrag = ""
+    /// What the hiding fixes of 1.0.5 did, in fixed words and counts
+    /// (``DiagnosticsReport/hidingSummary27(reveal:agentRestarts:lateAllowlist:youngRetries:forcedReads:heldBack:notchRechecks:)``
+    /// or ``DiagnosticsReport/hidingSummaryBefore27(anchor:iconPutBack:)``), such as `anchor
+    /// icon, icon put back 0`. Empty keeps the report as it was. Never a name.
+    var hiding = ""
     /// The last click on a Shelf tile in fixed words, such as `shown, clicked` or `failed, not
     /// shown and not reachable`. Empty before the first click or before macOS 27.
     var lastShelfClick = ""
@@ -68,6 +78,14 @@ nonisolated enum DiagnosticsReport {
     /// The longest text kept for the last drop, whose fixed words (the longest line is `macOS 27,
     /// outsideBar, refused, outside the bar, not applied`) are longer than other fields.
     static let maximumLastDropLength = 64
+
+    /// The longest text kept for the last command-drag (the longest line has five-digit waiting
+    /// time, two-digit reads and `ignored: not an app item`).
+    static let maximumLastCommandDragLength = 80
+
+    /// The longest text kept for the Hiding line (the longest reveal word and six counts, each
+    /// capped at five digits, fit with their words).
+    static let maximumHidingLength = 160
 
     /// The longest text kept for a field.
     static let maximumFieldLength = 40
@@ -96,6 +114,12 @@ nonisolated enum DiagnosticsReport {
         if !input.lastDrop.isEmpty {
             lines.append("Last drop: \(field(input.lastDrop, limit: maximumLastDropLength))")
         }
+        if !input.lastCommandDrag.isEmpty {
+            lines.append("Last command-drag: \(field(input.lastCommandDrag, limit: maximumLastCommandDragLength, punctuation: ":"))")
+        }
+        if !input.hiding.isEmpty {
+            lines.append("Hiding: \(field(input.hiding, limit: maximumHidingLength))")
+        }
         if !input.lastShelfClick.isEmpty {
             lines.append("Last Shelf click: \(field(input.lastShelfClick, limit: maximumLastDropLength))")
         }
@@ -111,6 +135,53 @@ nonisolated enum DiagnosticsReport {
         return lines.joined(separator: "\n")
     }
 
+    /// The Hiding line on macOS 27: the reveal state the concealment follows and how often the
+    /// fixes of 1.0.5 acted (MenuBarAgent restarts, allowlist refreshes for apps read late, young
+    /// apps asked again, reads forced and held back by busy apps, notch rechecks).
+    ///
+    /// - Parameter reveal: One of the fixed words `all hidden`, `hidden revealed`, `all revealed`.
+    static func hidingSummary27(
+        reveal: String,
+        agentRestarts: Int,
+        lateAllowlist: Int,
+        youngRetries: Int,
+        forcedReads: Int,
+        heldBack: Int,
+        notchRechecks: Int
+    ) -> String {
+        [
+            "reveal \(word(reveal))",
+            "agent restarts \(count(agentRestarts))",
+            "late allowlist \(count(lateAllowlist))",
+            "young retries \(count(youngRetries))",
+            "forced reads \(count(forcedReads))",
+            "held back \(count(heldBack))",
+            "notch rechecks \(count(notchRechecks))",
+        ].joined(separator: ", ")
+    }
+
+    /// The Hiding line before macOS 27: what the last menu bar hit test took the bar's state
+    /// from and how often a read put the holzBar icon back right of the hidden divider.
+    ///
+    /// - Parameter anchor: One of the fixed words `icon`, `divider`, `none`.
+    static func hidingSummaryBefore27(anchor: String, iconPutBack: Int) -> String {
+        "anchor \(word(anchor)), icon put back \(count(iconPutBack))"
+    }
+
+    /// A fixed word of a summary: lowercase letters and spaces only.
+    private static func word(_ text: String) -> String {
+        let allowed = Set("abcdefghijklmnopqrstuvwxyz ")
+        return String(text.lowercased().filter { allowed.contains($0) })
+    }
+
+    /// The highest count a summary shows; a higher one shows as this, so the line always fits.
+    static let maximumSummaryCount = 99_999
+
+    /// A count of a summary, never negative and at most ``maximumSummaryCount``.
+    private static func count(_ value: Int) -> String {
+        String(min(max(0, value), maximumSummaryCount))
+    }
+
     /// The longest text kept for a click of the trace (the longest line has a dozen extents).
     static let maximumClickLength = 400
 
@@ -121,9 +192,11 @@ nonisolated enum DiagnosticsReport {
     /// The text of a field: only letters, digits and the punctuation of versions and model
     /// identifiers, shortened. Anything else, such as a path or a line break, is dropped.
     ///
-    /// - Parameter limit: The most characters kept.
-    static func field(_ text: String, limit: Int = maximumFieldLength) -> String {
-        let allowed = Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,-_")
+    /// - Parameters:
+    ///   - limit: The most characters kept.
+    ///   - punctuation: More characters to keep, for a field of fixed words that uses them.
+    static func field(_ text: String, limit: Int = maximumFieldLength, punctuation: String = "") -> String {
+        let allowed = Set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 .,-_" + punctuation)
         let cleaned = String(text.filter { allowed.contains($0) }.prefix(limit))
         return cleaned.isEmpty ? "unknown" : cleaned
     }

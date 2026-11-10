@@ -132,12 +132,66 @@ struct AgentLaunches27Tests {
 
     @Test("Some top-level instance makes an identifier standalone")
     func someInstanceMakesStandalone() {
-        let nested: Instance = ("com.example.agent", "/Applications/Host.app/Contents/Library/LoginItems/Agent.app", .accessory)
+        let nested: Instance = ("com.example.agent", "/Applications/Host.app/Contents/Frameworks/Agent.app", .accessory)
         let topLevel: Instance = ("com.example.agent", "/Applications/Agent.app", .accessory)
         let reaction = AgentLaunches27.reaction(previous: [finder.bundleID], instances: [finder, nested, topLevel], known: [], concealedInLayout: [])
         #expect(reaction.updatesConcealment)
         let onlyNested = AgentLaunches27.reaction(previous: [finder.bundleID], instances: [finder, nested], known: [], concealedInLayout: [])
         #expect(!onlyNested.updatesConcealment)
+    }
+
+    @Test("Apps nested where helpers that draw items live may own an item")
+    func nestedItemOwnersMayOwnAnItem() {
+        let paths = [
+            "/Applications/Rectangle.app",
+            "/Applications/Foo.app/Contents/Library/LoginItems/FooHelper.app",
+            "/Applications/Foo.app/Contents/Library/Foo Agent.app",
+            "/Applications/Foo.app/Contents/Resources/Foo Status.app",
+            "/Applications/Foo.app/Contents/Helpers/X.app",
+            "/Applications/Foo.app/Contents/MacOS/X.app",
+            "/Applications/iStat Menus.app/Contents/Library/LoginItems/iStat Menus Status.app",
+            "/Applications/Foo.app/Contents/Library/LoginItems/FooHelper.app/Contents/MacOS/Inner.app",
+        ]
+        for path in paths {
+            #expect(AgentLaunches27.mayOwnItem(bundlePath: path, policy: .accessory), "\(path)")
+        }
+        #expect(AgentLaunches27.mayOwnItem(bundlePath: "/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app", policy: .regular))
+    }
+
+    @Test("Renderers, services and other bundles may not own an item")
+    func renderersMayNotOwnAnItem() {
+        let paths: [String?] = [
+            "/Applications/Slack.app/Contents/Frameworks/Slack Helper (Renderer).app",
+            "/Applications/Slack.app/Contents/Frameworks/Slack Helper.app",
+            "/Applications/Brave Browser.app/Contents/Frameworks/Brave Browser Framework.framework/"
+                + "Versions/1.0/Helpers/Brave Browser Helper (Renderer).app",
+            "/System/Library/Frameworks/WebKit.framework/Versions/A/XPCServices/com.apple.WebKit.GPU.xpc",
+            "/Applications/Foo.app/Contents/XPCServices/Helper.xpc/Contents/MacOS/Inner.app",
+            "/Applications/Foo.app/Contents/PlugIns/Widget.appex/Contents/Resources/Inner.app",
+            "/Applications/Foo.app/Contents/Library/XPCServices/Helper.app",
+            "/Applications/Foo.app/Contents/Resources/Plugin.framework/Resources/Inner.app",
+            "/Applications/Foo.app/Contents/SharedSupport/Updater.app",
+            "/Applications/Foo.app/Contents/Library/LoginItems/Agent.bundle",
+            "/System/Library/CoreServices/RemoteManagement/ScreensharingAgent.bundle",
+            nil,
+        ]
+        for path in paths {
+            #expect(!AgentLaunches27.mayOwnItem(bundlePath: path, policy: .accessory), "\(path ?? "nil")")
+        }
+    }
+
+    @Test("An unknown login item helper that launches updates; a renderer still does not")
+    func loginItemHelperLaunchUpdates() {
+        let helper: Instance = ("com.example.foo.helper", "/Applications/Foo.app/Contents/Library/LoginItems/FooHelper.app", .accessory)
+        let renderer: Instance = ("com.tinyspeck.slackmacgap.helper.renderer", "/Applications/Slack.app/Contents/Frameworks/Slack Helper (Renderer).app", .accessory)
+        let helperLaunch = AgentLaunches27.reaction(previous: [finder.bundleID], instances: [finder, helper], known: [], concealedInLayout: [])
+        #expect(helperLaunch.updatesConcealment)
+        #expect(helperLaunch.graces.isEmpty)
+        let rendererLaunch = AgentLaunches27.reaction(previous: [finder.bundleID], instances: [finder, renderer], known: [], concealedInLayout: [])
+        #expect(!rendererLaunch.updatesConcealment)
+        // An unknown helper that quits never had an item holzBar placed.
+        let helperQuit = AgentLaunches27.reaction(previous: [finder.bundleID, helper.bundleID], instances: [finder], known: [], concealedInLayout: [])
+        #expect(!helperQuit.updatesConcealment)
     }
 
     @Test("The snapshot is the set of running identifiers")

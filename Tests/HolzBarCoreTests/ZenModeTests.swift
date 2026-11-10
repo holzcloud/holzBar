@@ -16,12 +16,20 @@ struct ZenModeTests {
     func onLocksTheGestures() {
         let zen = ZenMode(isManual: true)
         #expect(zen.isActive)
-        let refused: [ZenMode.Trigger] = [.hover, .clickOnEmptyBar, .scroll, .revealRule, .urlCommand, .changeReveal]
+        let refused: [ZenMode.Trigger] = [.hover, .clickOnEmptyBar, .scroll, .revealRule, .urlCommand, .changeReveal, .commandDrag]
         for trigger in refused {
             #expect(!zen.allows(trigger))
         }
         #expect(zen.allows(.holzBarIcon))
         #expect(zen.allows(.sectionHotkey))
+    }
+
+    @Test("A Command-drag reveals only while Zen mode is off, manual or automatic")
+    func commandDragFollowsZenMode() {
+        #expect(ZenMode().allows(.commandDrag))
+        #expect(!ZenMode(isManual: true).allows(.commandDrag))
+        #expect(!ZenMode(isAutomatic: true).allows(.commandDrag))
+        #expect(!ZenMode(isManual: true, isAutomatic: true).allows(.commandDrag))
     }
 
     @Test("Manual and automatic add up")

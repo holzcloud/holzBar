@@ -377,6 +377,25 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         return false
     }
 
+    /// Waits until the given panel window leaves the screen, checking it on the schedule of
+    /// `ItemClick27.panelWatchInterval(elapsed:)`: 4 times a second for the first 10 s, then
+    /// once a second, for at most 10 minutes. Polled: nothing announces another process's
+    /// window; a cancelled task stops watching at once, and so does a watch that `isCurrent`
+    /// no longer owns.
+    private static func watchPanelUntilGone(window: Int, isCurrent: () -> Bool) async {
+        let start = ContinuousClock.now
+        while let interval = ItemClick27.panelWatchInterval(elapsed: ContinuousClock.now - start) {
+            do {
+                try await Task.sleep(for: interval)
+            } catch {
+                return
+            }
+            if !isCurrent() || !ItemClick27.panelIsOnScreen(window: window, windows: windowsForPanelCheck()) {
+                return
+            }
+        }
+    }
+
     /// Presses an Accessibility element off the main thread, which the call can block.
     private static func press(_ element: AXUIElement) async {
         await withCheckedContinuation { continuation in
@@ -413,8 +432,14 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
 
     // MARK: Opened from the holzBar Shelf
 
-    /// The hidden system items that a click on a Shelf tile is opening now.
+    /// The hidden system items that a click on a Shelf tile is opening now, until its panel was
+    /// found or not.
     private static var itemsOpenedFromShelf = Set<String>()
+
+    /// The latest click from the Shelf on each hidden system item whose panel is still watched.
+    /// A new click on the same tile ends the watch of the earlier one, so a close the watch
+    /// missed never swallows the clicks on that tile for the rest of the 10 minutes.
+    private static var shelfClickGenerations = [String: Int]()
 
     /// Opens a system item the user hid, from its tile in the holzBar Shelf.
     ///
@@ -432,8 +457,11 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         guard itemsOpenedFromShelf.insert(key).inserted else {
             return
         }
+        var isOpening = true
         defer {
-            itemsOpenedFromShelf.remove(key)
+            if isOpening {
+                itemsOpenedFromShelf.remove(key)
+            }
         }
         let identifier = item.accessibilityIdentifier
         let concealer = appState.concealer27
@@ -445,6 +473,15 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         let shown = await concealer.showTemporarily(bundleID: key)
         defer {
             concealer.endTemporaryShow(bundleID: key)
+        }
+        // This click takes the watch over from an earlier one on the same tile, once its own show
+        // holds the item, so the item is never put away in between.
+        let generation = (shelfClickGenerations[key] ?? 0) &+ 1
+        shelfClickGenerations[key] = generation
+        defer {
+            if shelfClickGenerations[key] == generation {
+                shelfClickGenerations[key] = nil
+            }
         }
         if shown {
             // A shown item is drawn 0.4 to 0.6 s after the change that allows it lands (measured).
@@ -468,13 +505,14 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             return
         }
 
-        // Keep the item shown until its panel is gone; a bounded wait in rounds of one second.
-        if let opened = await waitForOpenedPanel(item: identifier, baseline: baseline, polls: 8) {
-            var gone = false
-            var rounds = 0
-            while !gone, rounds < 60 {
-                gone = await waitForPanelToGo(window: opened.window, polls: 20)
-                rounds += 1
+        // Keep the item shown until its panel is gone, watched on the panel watch schedule. The
+        // opening is over: another click on the tile may start now and ends this watch.
+        let opened = await waitForOpenedPanel(item: identifier, baseline: baseline, polls: 8)
+        itemsOpenedFromShelf.remove(key)
+        isOpening = false
+        if let opened {
+            await watchPanelUntilGone(window: opened.window) {
+                shelfClickGenerations[key] == generation
             }
         } else {
             try? await Task.sleep(for: .milliseconds(1500))

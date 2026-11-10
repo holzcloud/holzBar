@@ -115,8 +115,23 @@ final class MenuBarItemManager {
     /// Reads the item list again 1 s after the last event that may have changed it.
     @ObservationIgnored private let itemListDebouncer = Debouncer(delay: .seconds(1))
 
-    /// When the first event that still waits for ``itemListDebouncer`` came.
-    @ObservationIgnored private var itemListChangePendingSince: ContinuousClock.Instant?
+    /// When the events that may have changed the item list force a read (D-18).
+    @ObservationIgnored private var itemChangeCadence = ItemChangeCadence()
+
+    /// How many times a read found the holzBar icon left of the hidden divider and moved it
+    /// back (``ControlItemOrder``). For diagnostics.
+    @ObservationIgnored private(set) var iconPutBack = 0
+
+    /// How many reads of the item list the events forced. For diagnostics.
+    var forcedItemReads: Int {
+        itemChangeCadence.forcedReads
+    }
+
+    /// How many bursts of events had a forced read held back because their app forced one
+    /// lately. For diagnostics.
+    var heldBackItemReads: Int {
+        itemChangeCadence.heldBack
+    }
 
     /// Reads the item list again 1.5 s after the last application activation, where the
     /// backend asks for it.
@@ -142,12 +157,17 @@ final class MenuBarItemManager {
         // an item that appears without any of these; it replaced a 5 s timer that read
         // the window list (on macOS 27, every process through Accessibility) at idle.
         // The events are debounced by 1 s, as the Combine pipeline was, but wait 5 s at
-        // most; the fallback reads at once, so events that never pause cannot hold it up.
-        runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.new]) { [weak self] _, _ in
+        // most, and an item owner that keeps changing its elements forces a read at most
+        // every 30 s (ItemChangeCadence); the fallback reads at once, so events that never
+        // pause cannot hold it up.
+        runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.old, .new]) { [weak self] _, change in
+            // Reads only properties of the changed applications, which NSRunningApplication
+            // returns atomically, and keeps no reference to them.
+            let source = Self.itemChangeSource(launchedOrQuit: (change.newValue ?? []) + (change.oldValue ?? []))
             Task { @MainActor in
                 // A launched application needs a moment to add its items.
                 try? await Task.sleep(for: .milliseconds(250))
-                self?.itemListMayHaveChanged()
+                self?.itemListMayHaveChanged(source: source)
             }
         }
         let notifications: [(NotificationCenter, Notification.Name)] = [
@@ -157,11 +177,12 @@ final class MenuBarItemManager {
         observerTasks = notifications.map { center, name in
             Task { [weak self] in
                 for await notification in center.notifications(named: name) {
+                    var pid: pid_t?
                     if name == .menuBarItemsMayHaveChanged27 {
-                        let pid = notification.userInfo?["pid"] as? pid_t
+                        pid = notification.userInfo?["pid"] as? pid_t
                         self?.logItemChangeNotification(pid: pid)
                     }
-                    self?.itemListMayHaveChanged()
+                    self?.itemListMayHaveChanged(source: pid.map(ItemChangeCadence.Source.app) ?? .system)
                 }
             }
         }
@@ -215,6 +236,11 @@ final class MenuBarItemManager {
                         }
                         Task {
                             await self.cacheItemsIfNeeded()
+                            // On another display the notch cover and the relayout for a roomier
+                            // bar are worked out at once, not at the next concealment change.
+                            if #available(macOS 27.0, *) {
+                                self.appState?.concealer27.activeMenuBarMayHaveMoved()
+                            }
                         }
                     }
                 }
@@ -223,35 +249,58 @@ final class MenuBarItemManager {
     }
 
     /// Reads the item list again once the events that may have changed it pause for 1 s,
-    /// or 5 s after the first of them while they keep coming (on macOS 27, an item owner
-    /// whose elements change every moment).
+    /// or 5 s after the first of them while they keep coming; an item owner whose elements
+    /// change every moment (on macOS 27) forces such a read at most every 30 s
+    /// (``ItemChangeCadence``).
     ///
     /// Nothing is read while the screen is locked, the Mac sleeps or the session is away;
     /// the list is read once the bar has settled afterwards.
-    private func itemListMayHaveChanged() {
+    ///
+    /// - Parameter source: The item owner whose elements changed, or the kind of other event.
+    private func itemListMayHaveChanged(source: ItemChangeCadence.Source) {
         if appState?.systemActivityMonitor.isPaused == true {
             return
         }
-        let now = ContinuousClock.now
-        let pendingSince = itemListChangePendingSince ?? now
-        if pendingSince.duration(to: now) >= .seconds(5) {
-            itemListChangePendingSince = nil
+        switch itemChangeCadence.noteEvent(source, at: ProcessInfo.processInfo.systemUptime) {
+        case .readNow:
             itemListDebouncer.cancel()
             Task {
                 await cacheItemsIfNeeded()
             }
-            return
-        }
-        itemListChangePendingSince = pendingSince
-        itemListDebouncer.schedule { [weak self] in
-            guard let self else {
-                return
+        case .waitForQuiet:
+            itemListDebouncer.schedule { [weak self] in
+                guard let self else {
+                    return
+                }
+                itemChangeCadence.didRead()
+                Task {
+                    await self.cacheItemsIfNeeded()
+                }
             }
-            itemListChangePendingSince = nil
-            Task {
-                await self.cacheItemsIfNeeded()
-            }
         }
+    }
+
+    /// What a launch or quit of the given processes is to the item list's cadence.
+    ///
+    /// On macOS 27 a process that cannot own an item itself (``AgentLaunches27/mayOwnItem(bundlePath:policy:)``:
+    /// a browser's or an Electron app's renderer and service helpers, which come and go with its
+    /// tabs and windows) is a helper: it never forces the read that a busy app's own events may
+    /// not (D-18). Everything else, a process without a bundle included, and every change before
+    /// macOS 27, where a read costs little, keeps the 5 s rule.
+    nonisolated private static func itemChangeSource(launchedOrQuit applications: [NSRunningApplication]) -> ItemChangeCadence.Source {
+        guard #available(macOS 27.0, *), !applications.isEmpty else {
+            return .system
+        }
+        let mayChangeItems = applications.contains { application in
+            guard let bundleURL = application.bundleURL else {
+                return true
+            }
+            return AgentLaunches27.mayOwnItem(
+                bundlePath: bundleURL.path(percentEncoded: false),
+                policy: AgentLaunches27.Policy(application.activationPolicy)
+            )
+        }
+        return mayChangeItems ? .system : .helper
     }
 
     /// Logs that an Accessibility notification of an item owner asks for a refresh.
@@ -663,7 +712,10 @@ extension MenuBarItemManager {
 
             // Where items cannot be moved, the dividers stay where macOS placed them.
             if backend.canMoveItems {
-                await enforceControlItemOrder(controlItems: controlItems)
+                await enforceControlItemOrder(
+                    controlItems: controlItems,
+                    icon: items.first { $0.tag == .visibleControlItem }
+                )
                 guard !Task.isCancelled else {
                     await cacheActor.clearCachedItemWindowIDs()
                     return
@@ -1433,24 +1485,46 @@ extension MenuBarItemManager {
 // MARK: - Control Item Order
 
 extension MenuBarItemManager {
-    /// Enforces the order of the given control items, ensuring that the
-    /// control item for the always-hidden section is positioned to the
-    /// left of control item for the hidden section.
-    private func enforceControlItemOrder(controlItems: ControlItemPair) async {
+    /// Puts holzBar's own items back in their order (``ControlItemOrder``): the holzBar icon
+    /// right of the hidden section's divider, where a Command-drag may have dropped it (D-10,
+    /// D-15), and the always-hidden section's divider left of it.
+    ///
+    /// Each move is automatic, so it waits while the system settles and `MoveBackoff` bounds it
+    /// like every other; nothing is shown to the user. Before macOS 27 only (`canMoveItems`).
+    ///
+    /// - Parameters:
+    ///   - controlItems: The dividers of this read.
+    ///   - icon: The holzBar icon of this read, or `nil` when it is not in the bar.
+    private func enforceControlItemOrder(controlItems: ControlItemPair, icon: MenuBarItem?) async {
         let hidden = controlItems.hidden
-
-        guard
-            let alwaysHidden = controlItems.alwaysHidden,
-            hidden.bounds.maxX <= alwaysHidden.bounds.minX
-        else {
-            return
-        }
-
-        do {
-            logger.debug("Control items have incorrect order")
-            try await move(item: alwaysHidden, to: .leftOfItem(hidden))
-        } catch {
-            logger.error("Error enforcing control item order: \(error, privacy: .private)")
+        let corrections = ControlItemOrder.corrections(
+            icon: icon?.bounds,
+            hidden: hidden.bounds,
+            alwaysHidden: controlItems.alwaysHidden?.bounds
+        )
+        for correction in corrections {
+            do {
+                switch correction {
+                case .iconRightOfHidden:
+                    guard let icon else {
+                        continue
+                    }
+                    logger.notice("The holzBar icon is left of the hidden divider, moving it back")
+                    try await move(item: icon, to: .rightOfItem(hidden))
+                    iconPutBack += 1
+                    // This read still has the icon in the hidden section; the next event or the
+                    // fallback reads the bar again instead of skipping an unchanged window list.
+                    await cacheActor.clearCachedItemWindowIDs()
+                case .alwaysHiddenLeftOfHidden:
+                    guard let alwaysHidden = controlItems.alwaysHidden else {
+                        continue
+                    }
+                    logger.debug("Control items have incorrect order")
+                    try await move(item: alwaysHidden, to: .leftOfItem(hidden))
+                }
+            } catch {
+                logger.error("Error enforcing control item order: \(error, privacy: .private)")
+            }
         }
     }
 }

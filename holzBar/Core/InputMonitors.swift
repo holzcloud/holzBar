@@ -14,10 +14,11 @@ nonisolated enum InputMonitors {
     /// A kind of input event holzBar can monitor.
     nonisolated enum Kind: Hashable, CaseIterable {
         /// Left and right mouse-down: show on click, smart rehide, the secondary
-        /// context menu, and the click that pauses show on hover.
+        /// context menu, the click that pauses show on hover, and the press of a Command-drag
+        /// that sets an app's section.
         case mouseDown
         /// Left mouse-up: ends a Command-drag of a menu bar item, which also records the
-        /// sections the user arranged.
+        /// sections the user arranged, or sets an app's section on macOS 27.
         case mouseUp
         /// Left mouse-dragged: starts a Command-drag of a menu bar item.
         case mouseDragged
@@ -28,6 +29,9 @@ nonisolated enum InputMonitors {
         /// Left mouse-down, dragged and up as an active tap: a plain drag of an app's menu bar
         /// item moves it (Drag in the Menu Bar, macOS 26 and later).
         case menuBarDrag
+        /// Modifier-key changes: tells when ⌘ Command goes down or up, so the mouse-down and
+        /// mouse-up monitors of a Command-drag run only while it can happen.
+        case modifierFlags
     }
 
     /// The settings that decide which monitors run.
@@ -45,6 +49,15 @@ nonisolated enum InputMonitors {
         /// Whether holzBar saves and restores the section of each item (before macOS 27),
         /// so the end of a Command-drag on the bar must be noticed.
         var savesUserArrangement = false
+        /// Whether a Command-drag of an app's item across the holzBar icon sets the app's section
+        /// (macOS 27). It needs one mouse-down and one mouse-up per click and no drag monitor,
+        /// which would wake holzBar for every drag event in the system.
+        var setsSectionOnCommandDrag = false
+        /// Whether ⌘ Command is held now. A Command-drag needs its mouse monitors only then.
+        var commandHeld = false
+        /// Whether a Command-press is armed and its mouse-up is still to come: the mouse-up monitor
+        /// stays until it is handled, also when ⌘ Command was released mid-drag.
+        var commandDragArmed = false
         /// Whether a custom menu bar appearance draws overlay panels, which fade while
         /// an item is dragged.
         var hasCustomAppearance = false
@@ -76,6 +89,16 @@ nonisolated enum InputMonitors {
         // Only the mouse-up, one event per click: a Command-drag on the bar ends with it.
         if settings.savesUserArrangement {
             kinds.insert(.mouseUp)
+        }
+        // The press and the release of a Command-drag; the drag itself is not monitored. They run
+        // only while ⌘ Command is held and until an armed press has ended; the modifier-flags
+        // monitor alone watches for the key.
+        if settings.setsSectionOnCommandDrag {
+            kinds.insert(.modifierFlags)
+            if settings.commandHeld || settings.commandDragArmed {
+                kinds.insert(.mouseDown)
+                kinds.insert(.mouseUp)
+            }
         }
         if settings.dragsWithoutCommand {
             kinds.insert(.menuBarDrag)

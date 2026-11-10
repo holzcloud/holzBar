@@ -45,4 +45,33 @@ nonisolated extension SectionLayout27 {
         }
         return updated
     }
+
+    /// The applications holzBar knows after a read of the bar, or `nil` when the read found
+    /// none it did not know (nothing to write).
+    ///
+    /// Every application read is recorded, also one that already has a layout entry and is
+    /// therefore not new: moved to Visible later, its entry is gone, and only this record keeps
+    /// a later read from taking it for new and placing it again.
+    static func knownAfterRead(bundleIDs: Set<String>, known: Set<String>) -> Set<String>? {
+        bundleIDs.isSubset(of: known) ? nil : known.union(bundleIDs)
+    }
+
+    /// The layout with every always-hidden entry moved to Hidden.
+    ///
+    /// With the always-hidden section switched off nothing reveals it, so its applications go to
+    /// Hidden, where the Shelf and holzBar's icon reach them. The fold is not undone when the
+    /// section is switched on again.
+    static func foldingAlwaysHidden(_ layout: [String: MacOS27Section]) -> [String: MacOS27Section] {
+        layout.mapValues { $0 == .alwaysHidden ? .hidden : $0 }
+    }
+
+    /// The applications a read sees for the first time: neither known nor in the saved layout.
+    /// Only these are placed in the section chosen for new items.
+    static func newApplications(
+        bundleIDs: Set<String>,
+        known: Set<String>,
+        saved: [String: MacOS27Section]
+    ) -> Set<String> {
+        bundleIDs.subtracting(known).subtracting(saved.keys)
+    }
 }

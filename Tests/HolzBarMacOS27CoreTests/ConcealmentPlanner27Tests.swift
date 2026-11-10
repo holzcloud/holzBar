@@ -58,4 +58,77 @@ struct ConcealmentPlanner27Tests {
         #expect(!ConcealmentPlanner27.allowedSystemItems(concealing: concealed).contains(2))
         #expect(ConcealmentPlanner27.allowedSystemItems(concealing: []).count == 128)
     }
+
+    /// One combination of the inputs of ``RevealState27/decide``.
+    struct RevealCase: CustomTestStringConvertible, Sendable {
+        let layoutPaneOpen: Bool
+        let hiddenShownOnBar: Bool
+        let alwaysHiddenShownOnBar: Bool
+        let alwaysHiddenEnabled: Bool
+        let expected: RevealState27
+
+        var testDescription: String {
+            "pane \(layoutPaneOpen) hidden \(hiddenShownOnBar) always \(alwaysHiddenShownOnBar) enabled \(alwaysHiddenEnabled)"
+        }
+    }
+
+    /// Every combination of the four inputs, with the state each one must give.
+    static let revealCases: [RevealCase] = [false, true].flatMap { pane in
+        [false, true].flatMap { hidden in
+            [false, true].flatMap { always in
+                [false, true].map { enabled in
+                    let expected: RevealState27 = if pane {
+                        .allRevealed
+                    } else if always && enabled {
+                        .allRevealed
+                    } else if hidden {
+                        .hiddenRevealed
+                    } else {
+                        .allHidden
+                    }
+                    return RevealCase(
+                        layoutPaneOpen: pane,
+                        hiddenShownOnBar: hidden,
+                        alwaysHiddenShownOnBar: always,
+                        alwaysHiddenEnabled: enabled,
+                        expected: expected
+                    )
+                }
+            }
+        }
+    }
+
+    @Test("The reveal state follows the sections' states on the bar", arguments: revealCases)
+    func revealStateDecides(_ revealCase: RevealCase) {
+        let state = RevealState27.decide(
+            layoutPaneOpen: revealCase.layoutPaneOpen,
+            hiddenShownOnBar: revealCase.hiddenShownOnBar,
+            alwaysHiddenShownOnBar: revealCase.alwaysHiddenShownOnBar,
+            alwaysHiddenEnabled: revealCase.alwaysHiddenEnabled
+        )
+        #expect(state == revealCase.expected)
+    }
+
+    @Test("The table covers all 16 combinations")
+    func revealCasesCoverEveryCombination() {
+        #expect(Self.revealCases.count == 16)
+        let distinct = Set(Self.revealCases.map { [$0.layoutPaneOpen, $0.hiddenShownOnBar, $0.alwaysHiddenShownOnBar, $0.alwaysHiddenEnabled] })
+        #expect(distinct.count == 16)
+    }
+
+    @Test("Menu Bar Layout reveals everything, whatever the sections say")
+    func layoutPaneRevealsEverything() {
+        #expect(RevealState27.decide(layoutPaneOpen: true, hiddenShownOnBar: false, alwaysHiddenShownOnBar: false, alwaysHiddenEnabled: false) == .allRevealed)
+    }
+
+    @Test("While the Shelf shows the items their control items hide the sections, so the bar stays concealed")
+    func shelfKeepsTheBarConcealed() {
+        #expect(RevealState27.decide(layoutPaneOpen: false, hiddenShownOnBar: false, alwaysHiddenShownOnBar: false, alwaysHiddenEnabled: true) == .allHidden)
+    }
+
+    @Test("An always-hidden section shown but switched off falls through to the hidden rule")
+    func disabledAlwaysHiddenFallsThrough() {
+        #expect(RevealState27.decide(layoutPaneOpen: false, hiddenShownOnBar: true, alwaysHiddenShownOnBar: true, alwaysHiddenEnabled: false) == .hiddenRevealed)
+        #expect(RevealState27.decide(layoutPaneOpen: false, hiddenShownOnBar: false, alwaysHiddenShownOnBar: true, alwaysHiddenEnabled: false) == .allHidden)
+    }
 }
