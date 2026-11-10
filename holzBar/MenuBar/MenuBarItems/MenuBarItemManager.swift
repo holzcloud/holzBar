@@ -160,11 +160,14 @@ final class MenuBarItemManager {
         // most, and an item owner that keeps changing its elements forces a read at most
         // every 30 s (ItemChangeCadence); the fallback reads at once, so events that never
         // pause cannot hold it up.
-        runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.new]) { [weak self] _, _ in
+        runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.old, .new]) { [weak self] _, change in
+            // Reads only properties of the changed applications, which NSRunningApplication
+            // returns atomically, and keeps no reference to them.
+            let source = Self.itemChangeSource(launchedOrQuit: (change.newValue ?? []) + (change.oldValue ?? []))
             Task { @MainActor in
                 // A launched application needs a moment to add its items.
                 try? await Task.sleep(for: .milliseconds(250))
-                self?.itemListMayHaveChanged()
+                self?.itemListMayHaveChanged(source: source)
             }
         }
         let notifications: [(NotificationCenter, Notification.Name)] = [
@@ -179,7 +182,7 @@ final class MenuBarItemManager {
                         pid = notification.userInfo?["pid"] as? pid_t
                         self?.logItemChangeNotification(pid: pid)
                     }
-                    self?.itemListMayHaveChanged(pid: pid)
+                    self?.itemListMayHaveChanged(source: pid.map(ItemChangeCadence.Source.app) ?? .system)
                 }
             }
         }
@@ -253,12 +256,12 @@ final class MenuBarItemManager {
     /// Nothing is read while the screen is locked, the Mac sleeps or the session is away;
     /// the list is read once the bar has settled afterwards.
     ///
-    /// - Parameter pid: The item owner whose elements changed, `nil` for other events.
-    private func itemListMayHaveChanged(pid: pid_t? = nil) {
+    /// - Parameter source: The item owner whose elements changed, or the kind of other event.
+    private func itemListMayHaveChanged(source: ItemChangeCadence.Source) {
         if appState?.systemActivityMonitor.isPaused == true {
             return
         }
-        switch itemChangeCadence.noteEvent(pid: pid, at: ProcessInfo.processInfo.systemUptime) {
+        switch itemChangeCadence.noteEvent(source, at: ProcessInfo.processInfo.systemUptime) {
         case .readNow:
             itemListDebouncer.cancel()
             Task {
@@ -275,6 +278,29 @@ final class MenuBarItemManager {
                 }
             }
         }
+    }
+
+    /// What a launch or quit of the given processes is to the item list's cadence.
+    ///
+    /// On macOS 27 a process that cannot own an item itself (``AgentLaunches27/mayOwnItem(bundlePath:policy:)``:
+    /// a browser's or an Electron app's renderer and service helpers, which come and go with its
+    /// tabs and windows) is a helper: it never forces the read that a busy app's own events may
+    /// not (D-18). Everything else, a process without a bundle included, and every change before
+    /// macOS 27, where a read costs little, keeps the 5 s rule.
+    nonisolated private static func itemChangeSource(launchedOrQuit applications: [NSRunningApplication]) -> ItemChangeCadence.Source {
+        guard #available(macOS 27.0, *), !applications.isEmpty else {
+            return .system
+        }
+        let mayChangeItems = applications.contains { application in
+            guard let bundleURL = application.bundleURL else {
+                return true
+            }
+            return AgentLaunches27.mayOwnItem(
+                bundlePath: bundleURL.path(percentEncoded: false),
+                policy: AgentLaunches27.Policy(application.activationPolicy)
+            )
+        }
+        return mayChangeItems ? .system : .helper
     }
 
     /// Logs that an Accessibility notification of an item owner asks for a refresh.

@@ -76,6 +76,44 @@ struct ItemChangeCadenceTests {
         #expect(cadence.heldBack == 0)
     }
 
+    @Test("A busy app plus helper launches every 3 s forces no more than every 30 s")
+    func helpersDoNotBypassTheGap() {
+        var cadence = ItemChangeCadence()
+        var forced = [TimeInterval]()
+        var time = 0.0
+        while time <= 70 {
+            if cadence.noteEvent(.app(7), at: time) == .readNow {
+                forced.append(time)
+            }
+            if time.truncatingRemainder(dividingBy: 3) == 0, cadence.noteEvent(.helper, at: time) == .readNow {
+                forced.append(time)
+            }
+            time += 0.5
+        }
+        #expect(forced == [5, 35, 65])
+        #expect(cadence.forcedReads == 3)
+        // Helper events alone, before the app is held back, keep the 5 s rule.
+        var alone = ItemChangeCadence()
+        #expect(alone.noteEvent(.helper, at: 0) == .waitForQuiet)
+        #expect(alone.noteEvent(.helper, at: 5) == .readNow)
+    }
+
+    @Test("A launch that may add an item forces at the 5 s rule while a busy app is held back")
+    func systemEventsStillForce() {
+        var cadence = ItemChangeCadence()
+        _ = Self.forcedTimes(&cadence, pid: 7, from: 0, through: 5)
+        // The busy app goes on and is held back from 10.5 on.
+        _ = Self.forcedTimes(&cadence, pid: 7, from: 5.5, through: 11)
+        #expect(cadence.noteEvent(.helper, at: 11.2) == .waitForQuiet)
+        #expect(cadence.noteEvent(.system, at: 11.4) == .readNow)
+        #expect(cadence.noteEvent(pid: nil, at: 11.6) == .waitForQuiet)
+        // An app that has not forced lately is not held back by the busy one either: once its
+        // event is in the burst, a helper may force as well when no app of the burst is in its gap.
+        var other = ItemChangeCadence()
+        _ = other.noteEvent(.app(9), at: 0)
+        #expect(other.noteEvent(.helper, at: 5) == .readNow)
+    }
+
     @Test("A debounced read ends the burst")
     func didReadEndsTheBurst() {
         var cadence = ItemChangeCadence()
