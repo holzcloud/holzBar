@@ -74,9 +74,9 @@ nonisolated enum AgentLaunches27 {
     /// The folders of an application bundle where a helper app that draws the application's
     /// menu bar item lives, lowercased: a login item (`Contents/Library/LoginItems`, such as
     /// iStat Menus' status agent), other agents in `Contents/Library`, and status helpers in
-    /// `Contents/Resources`, `Contents/Helpers` or `Contents/MacOS`.
+    /// `Contents/Resources`, `Contents/Helpers` or `Contents/MacOS`. A folder counts with every
+    /// folder in it, so `contents/library/` covers the login items as well.
     static let itemOwnerFolders = [
-        "contents/library/loginitems/",
         "contents/library/",
         "contents/resources/",
         "contents/helpers/",
