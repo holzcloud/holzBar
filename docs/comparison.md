@@ -16,6 +16,7 @@ What the original [Ice](https://github.com/jordanbaird/Ice) 0.11.12 and the othe
 | Groups and spacers | ❌ | ✅ | — | ✅ |
 | Folders with their own icon and colour; item images of your choice | ❌ | ✅ | — | ✅ |
 | Choose where new items appear | ❌ | — | — | ✅ |
+| Hide or show an app by ⌘ Command-dragging its item across the icon | ✅ <sub>up to macOS 26</sub> | — | — | ✅ <sub>macOS 14 – 27</sub> |
 | Move items in the menu bar by dragging, without ⌘ Command | ❌ | — | — | ✅ <sub>macOS 26 and 27</sub> |
 | Bar only on some displays, notch overflow | ❌ | — | — | ✅ |
 | Floating bar for hidden items, at the icon, the screen edge or the pointer | ❌ <sub>the bar hangs below the menu bar</sub> | — | ✅ <sub>Bartender Bar, at the cursor</sub> | ✅ |
@@ -133,7 +134,7 @@ An honest comparison with every menu bar manager and menu bar toolkit we found t
 
 | | holzBar | Bartender 7 | Ice | Thaw | SaneBar | Tuck | Barbee | Hidden Bar | Dozer | Vanilla | iBar | Glow | Brow | Lounge | Vorssaint | Dimble | Fire from Ice | JustHide | Ice 2 | ice-rust | ExtraBar |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| Maintenance | active (1.0.4) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) | active (beta channel, pushed 31 Oct) <sup>16</sup> | active (pushed 31 Oct) <sup>16</sup> | active (pushed 1 Nov) <sup>16</sup> | active (pushed 29 Oct) <sup>16</sup> | active (pushed 23 Oct) <sup>16</sup> | ❓ |
+| Maintenance | active (1.0.5) | active (7.0.5) | stalled (0.11.12, Oct 2025) | active (3.0 beta, 7 Oct) | **sunset 30 Jun 2026** (last 2.1.91, 9 Sep) | active (1.2.0, 6 Oct) | active (5.0, 10 Sep) | active (1.11.1, 18 Sep) | none since 2022 | 2.2, date ❓ | active (2.1.1, 14 Sep) | active (3.2.0, 2 Oct) | active (version ❓) | active (1.3.1, 4 Oct) | active (3.4.1, 8 Oct) | active (beta channel, pushed 31 Oct) <sup>16</sup> | active (pushed 31 Oct) <sup>16</sup> | active (pushed 1 Nov) <sup>16</sup> | active (pushed 29 Oct) <sup>16</sup> | active (pushed 23 Oct) <sup>16</sup> | ❓ |
 | Price | free | paid, one-time <sup>1</sup> | free | free | free | free; Pro $14.99 | free + in-app (lifetime $12.99) | free | free | free; Pro $10 | free + $2.99/yr | $19.99 once | free; Pro $49/yr (AI only) | $3.99/yr | free | free | free | free | free | free | paid: €14.99/yr, lifetime €39.99 <sup>17</sup> |
 | Open source | ✅ GPL-3.0 | ❌ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ MIT | ❌ | ❌ | ✅ MIT | ✅ MPL-2.0 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ GPL-3.0+ | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ✅ GPL-3.0 | ❓ |
 | macOS 26 / 27 | ✅ / ✅ | ❌ / ✅ <sup>2</sup> | dev builds / ❌ | ✅ / ✅ <sup>3</sup> | ✅ / ❌ | ✅ / ✅ <sup>4</sup> | ❓ / ❓ <sup>5</sup> | ✅ / partly <sup>6</sup> | ❓ / ❓ | ✅ / ❓ | ✅ / ❓ | ✅ / ✅ <sup>13</sup> | ❓ / vendor claim | ✅ / vendor claim | ✅ / ✅ | ❌ / ✅ (macOS 27 only) | ✅ / ❓ | ❌ / ✅ (macOS 27 only) | ✅ / ❓ | ✅ / ✅ | ✅ / ❓ (macOS 12.4 or later) |

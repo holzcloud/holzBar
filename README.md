@@ -76,7 +76,7 @@ Where holzBar loses: it has no Developer ID signature, a slide of the bar's own 
 
 ## Install
 
-Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 1.0.4. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
+Two Homebrew channels from the same tap. **Stable** (`holzbar`) is the newest plain release, currently 1.0.5. **Beta** (`holzbar@beta`) is the newest alpha, beta or plain release, whichever is newest.
 
 ```sh
 brew tap holzcloud/holzbar https://github.com/holzcloud/holzBar
@@ -95,7 +95,7 @@ If macOS says holzBar "can't be opened", run `xattr -dr com.apple.quarantine /Ap
 
 ### 1.0.5
 
-Details: [full list](docs/features.md#new-in-105)
+Details: [release notes](docs/release-notes/v1.0.5.md) · [full list](docs/features.md#new-in-105)
 
 - **Command-drag across the holzBar icon**: on macOS 27, dragging an item with ⌘ Command across the holzBar icon hides its app (to the left) or shows it (to the right), with Undo in Menu Bar Layout.
 - **Fixes**: rules no longer reveal hidden apps on macOS 27, rehiding waits for open menus, the ⌘ Command-drag respects the Touch ID lock and Zen mode, and the holzBar icon can no longer get lost in the hidden section.

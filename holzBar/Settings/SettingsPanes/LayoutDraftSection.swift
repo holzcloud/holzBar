@@ -33,10 +33,7 @@ struct LayoutDraftSection: View {
             }
             if MenuBarBackendKind.current == .accessibility27 {
                 Toggle(isOn: general.commandDragSetsSection) {
-                    HStack(spacing: HolzBarTheme.Spacing.sm) {
-                        Text("Set the section with ⌘ Command-drag")
-                        PreviewBadge()
-                    }
+                    Text("Set the section with ⌘ Command-drag")
                 }
                 .annotation("macOS 27 only. Hold ⌘ Command and drag an item across the holzBar icon: to the left of it, its app is hidden; to the right of it, its app is visible. Off: the drag only reorders the bar.")
             }
