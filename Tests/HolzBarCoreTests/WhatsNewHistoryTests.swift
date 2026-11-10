@@ -31,6 +31,14 @@ struct WhatsNewHistoryTests {
         #expect(Self.releases.first?.version == "1.0.5")
     }
 
+    @Test("1.0.5 lists the hiding fixes as grouped lines next to its improvement")
+    func release105ListsTheHidingFixes() throws {
+        let release = try #require(Self.releases.first { $0.version == "1.0.5" })
+        #expect(release.improved.count == 1)
+        #expect(release.fixed.count >= 8, "1.0.5 should list the grouped hiding fixes")
+        #expect(release.fixed.count <= 12, "the hiding fixes should stay grouped into about ten lines")
+    }
+
     @Test("Every release has content and every text is a plain one-line literal")
     func structureOfEntries() {
         for release in Self.releases {

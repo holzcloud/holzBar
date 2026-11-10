@@ -31,6 +31,18 @@ nonisolated enum WhatsNewHistory {
                     title: "Command-drag sets the section",
                     detail: "On macOS 27, a ⌘ Command-drag across the holzBar icon hides an app (to the left) or shows it (to the right), with Undo in Menu Bar Layout."
                 ),
+            ],
+            fixed: [
+                WhatsNewFix(text: "On macOS 27, an automation rule that moves one app no longer makes your other hidden apps visible, and applying a profile keeps the apps a rule hides hidden."),
+                WhatsNewFix(text: "On macOS 27, an app you made visible is no longer hidden again as a new item."),
+                WhatsNewFix(text: "On macOS 27, turning off the always-hidden section moves its apps to Hidden, where the Shelf and the holzBar icon reach them."),
+                WhatsNewFix(text: "A section you opened with a click, a hotkey or the Shelf no longer hides when the pointer leaves the menu bar, and nothing hides while an item's menu is open."),
+                WhatsNewFix(text: "Automatic rehide waits while an item's menu is open or the pointer is on the Shelf, and also closes the hidden section that showing the always-hidden one opened."),
+                WhatsNewFix(text: "A ⌘ Command-drag no longer shows hidden items while the Touch ID lock, Zen mode or Collapse is on, and hides them again after the drop."),
+                WhatsNewFix(text: "The peek hotkey hides again after Touch ID, and an item shown because it changed stays while its menu is open or after you opened its section."),
+                WhatsNewFix(text: "A holzBar icon dragged into the hidden section moves back out of it on its own."),
+                WhatsNewFix(text: "On macOS 27, hiding comes back after MenuBarAgent restarts, helper apps and apps that start slowly appear sooner, busy apps such as Slack cost less energy, and items folded beside the notch come back on a wider display at once."),
+                WhatsNewFix(text: "After you unlock the hidden items with Touch ID, the app you were using keeps the keyboard focus."),
             ]
         ),
         WhatsNewRelease(version: "1.0.4",
