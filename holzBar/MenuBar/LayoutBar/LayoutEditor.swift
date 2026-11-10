@@ -216,7 +216,9 @@ final class LayoutEditor {
         if #available(macOS 27.0, *) {
             // The sections of the applications are written once and applied once; then each
             // section is sorted on the bar, where the backend can. An application whose items
-            // were moved to different sections takes the most visible one, as seeding does.
+            // were moved to different sections takes the most visible of those, as seeding does.
+            // Only the moved items count: macOS 27 hides whole applications, so moving one item
+            // of an application moves its other items with it.
             let changedItems = sectionChanges.compactMap { key, section -> (bundleID: String, section: MacOS27Section)? in
                 itemsByKey[key]?.layoutKey27.map { ($0, MacOS27Section(section.name)) }
             }
