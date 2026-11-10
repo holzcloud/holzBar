@@ -182,6 +182,10 @@ final class HIDEventManager {
     /// holds nothing until it is started.
     @ObservationIgnored private lazy var menuBarDragController = MenuBarDragController(appState: appState)
 
+    /// Whether the Drag in the Menu Bar tap was stopped and is kept, disabled, for its next
+    /// start. Checked instead of the controller, so a module that was never on never creates it.
+    @ObservationIgnored private var keepsMenuBarDragTap = false
+
     /// Logger for the event manager.
     @ObservationIgnored private let logger = Logger(category: "HIDEventManager")
 
@@ -293,7 +297,20 @@ final class HIDEventManager {
             } else if !wanted.contains(kind), isRunning {
                 monitor(for: kind).stop()
                 runningKinds.remove(kind)
+                if kind == .menuBarDrag {
+                    keepsMenuBarDragTap = true
+                }
             }
+        }
+        // The Drag in the Menu Bar tap is only disabled while the manager is (`stopAll()`
+        // around holzBar's own moves), so it is not created anew for every move, and freed
+        // once it is not wanted while the manager runs: the module was switched off, also
+        // while the manager was disabled, so off still means no cost (pre27-L5).
+        if wanted.contains(.menuBarDrag) {
+            keepsMenuBarDragTap = false
+        } else if isEnabled, keepsMenuBarDragTap {
+            menuBarDragController.release()
+            keepsMenuBarDragTap = false
         }
         // A Command-drag does not go on while the monitors stop or its switch is off.
         if !setsSectionOnCommandDrag {

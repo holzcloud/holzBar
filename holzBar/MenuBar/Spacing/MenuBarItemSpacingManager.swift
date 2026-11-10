@@ -12,7 +12,7 @@ final class MenuBarItemSpacingManager {
     /// An error thrown when the spacing preferences could not be saved.
     private struct SaveError: LocalizedError {
         var errorDescription: String? {
-            "The menu bar item spacing could not be saved."
+            String(localized: "The menu bar item spacing could not be saved.")
         }
     }
 
@@ -20,14 +20,14 @@ final class MenuBarItemSpacingManager {
     private struct GroupedRelaunchError: LocalizedError {
         let failedApps: [String]
 
+        /// The localized sentence, then the apps' names, one a line, outside the localized text.
         var errorDescription: String? {
-            let seconds = SpacingRelaunch.quitTimeout.components.seconds
-            return "The following applications did not quit within \(seconds) seconds and were not restarted:\n"
-                + failedApps.joined(separator: "\n")
+            String(localized: "These apps did not quit in time and were not restarted:")
+                + "\n" + failedApps.joined(separator: "\n")
         }
 
         var recoverySuggestion: String? {
-            "You may need to log out for the changes to take effect."
+            String(localized: "You may need to log out for the changes to take effect.")
         }
     }
 

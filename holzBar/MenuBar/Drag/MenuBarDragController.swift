@@ -88,7 +88,7 @@ final class MenuBarDragController {
 
     // MARK: - Start and stop
 
-    /// Creates the tap and enables it.
+    /// Creates the tap and enables it, or enables the tap `stop()` kept.
     func start() {
         if let tap {
             tap.enable()
@@ -110,17 +110,26 @@ final class MenuBarDragController {
         tap.enable()
     }
 
-    /// Releases the tap. A press held at that moment is dropped and its release then passes on its
-    /// own; a drop being handled finishes, because holzBar's own move stops and restarts the
-    /// monitors in its middle.
+    /// Disables the tap but keeps it, so `start()` enables it again without creating it anew.
+    /// A press held at that moment is dropped and its release then passes on its own; a drop
+    /// being handled finishes, because holzBar's own move stops and restarts the monitors in its
+    /// middle. holzBar stops the monitors around each of its own moves, so the tap is no longer
+    /// destroyed and created again for every one (pre27-L5, D-12); a disabled tap receives no
+    /// event.
     func stop() {
         tap?.disable()
-        tap = nil
         decider.reset()
         endGesture()
         let longest = Self.microseconds(of: longestCallback)
         logger.debug("The longest tap callback of this run took \(longest, privacy: .public) µs")
         longestCallback = .zero
+    }
+
+    /// Stops the tap and frees it, for when the module is switched off: off means no cost, so
+    /// no disabled tap stays behind (pre27-L5).
+    func release() {
+        stop()
+        tap = nil
     }
 
     /// Creates the tap's port again if it is missing or invalid.
