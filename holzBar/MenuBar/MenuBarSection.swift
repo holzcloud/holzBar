@@ -356,11 +356,6 @@ final class MenuBarSection {
         if isHidden { show(origin: origin) } else { hide(isUserRequest: isUserRequest) }
     }
 
-    /// The section's name in ``RevealOwnership``.
-    private var ownershipSection: RevealOwnership.Section {
-        name.ownershipSection
-    }
-
     /// Lets the macOS 27 concealer follow the new state of the sections.
     private func updateConcealment27() {
         if #available(macOS 27.0, *) {
@@ -508,7 +503,7 @@ final class MenuBarSection {
         }
         // Showing the always-hidden section also opened the hidden one when it was hidden:
         // collapse both. A hidden section the user had shown before keeps its own rehide.
-        let sections = menuBarManager.revealOwnership.sectionsToHide(rehiding: ownershipSection)
+        let sections = menuBarManager.revealOwnership.sectionsToHide(rehiding: name.ownershipSection)
         if sections.contains(.hidden), let hidden = menuBarManager.section(withName: .hidden) {
             hidden.hide()
         } else {

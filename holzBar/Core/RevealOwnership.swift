@@ -32,8 +32,6 @@ nonisolated struct RevealOwnership: Equatable, Sendable {
         case click
         /// A section hotkey.
         case hotkey
-        /// The holzBar Shelf.
-        case shelf
         /// "Show the hidden section for a moment".
         case peek
         /// "Show when it changes".
@@ -53,7 +51,7 @@ nonisolated struct RevealOwnership: Equatable, Sendable {
             switch self {
             case .hover, .changeReveal, .drag, .rule, .displayBehavior:
                 true
-            case .click, .hotkey, .shelf, .peek, .other:
+            case .click, .hotkey, .peek, .other:
                 false
             }
         }

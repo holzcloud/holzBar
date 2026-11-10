@@ -111,7 +111,7 @@ struct RevealOwnershipTests {
     @Test("Only reveals holzBar made by itself are automatic")
     func automaticOrigins() {
         let automatic: [RevealOwnership.Origin] = [.hover, .changeReveal, .drag, .rule, .displayBehavior]
-        let user: [RevealOwnership.Origin] = [.click, .hotkey, .shelf, .peek, .other]
+        let user: [RevealOwnership.Origin] = [.click, .hotkey, .peek, .other]
         for origin in automatic {
             #expect(origin.isAutomatic)
         }
