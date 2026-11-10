@@ -31,6 +31,29 @@ struct RevealOwnershipTests {
         #expect(click.origin == .click)
     }
 
+    @Test("A click in the bar takes over only a hover reveal")
+    func clickTakesOverOnlyHover() throws {
+        var ownership = RevealOwnership()
+        let hover = ownership.didShow(.hover, expanded: [.hidden])
+        let takeover = ownership.takeOverFromHover(by: .click)
+        let click = try #require(takeover)
+        #expect(!ownership.isCurrent(hover))
+        #expect(ownership.isCurrent(click))
+        #expect(ownership.mayHide(click) == [.hidden])
+
+        for origin in [RevealOwnership.Origin.peek, .rule, .changeReveal, .hotkey, .displayBehavior] {
+            var ownership = RevealOwnership()
+            let token = ownership.didShow(origin, expanded: [.hidden])
+            #expect(ownership.takeOverFromHover(by: .click) == nil)
+            #expect(ownership.isCurrent(token))
+            #expect(ownership.mayHide(token) == [.hidden])
+        }
+
+        var empty = RevealOwnership()
+        #expect(empty.takeOverFromHover(by: .click) == nil)
+        #expect(empty.current == nil)
+    }
+
     @Test("Taking over with nothing shown does nothing")
     func takeOverWithNothingShown() {
         var ownership = RevealOwnership()

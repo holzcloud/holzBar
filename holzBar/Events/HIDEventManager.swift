@@ -851,8 +851,8 @@ extension HIDEventManager {
         // menu, so it must be inside an empty menu bar space.
         appState.menuBarManager.showOnHoverAllowed = false
         // A click while hover owns the reveal makes it the user's: moving the pointer
-        // away no longer hides it.
-        appState.menuBarManager.revealOwnership.takeOver(by: .click)
+        // away no longer hides it. A peek, a rule or a change reveal keeps its own hide.
+        appState.menuBarManager.revealOwnership.takeOverFromHover(by: .click)
     }
 
     // MARK: Handle Show On Scroll

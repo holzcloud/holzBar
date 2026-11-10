@@ -103,6 +103,18 @@ nonisolated struct RevealOwnership: Equatable, Sendable {
         return token
     }
 
+    /// Makes a reveal that show on hover owns the given origin's (a click in the menu bar), so
+    /// moving the pointer away no longer hides it. Any other reveal keeps its owner: a click
+    /// that opens a hidden item's menu during a peek, a rule's reveal or a change reveal must
+    /// not stop their own hide. Returns `nil` when hover does not own the reveal.
+    @discardableResult
+    mutating func takeOverFromHover(by origin: Origin) -> Token? {
+        guard hoverOwns else {
+            return nil
+        }
+        return takeOver(by: origin)
+    }
+
     /// Records that the given sections were hidden. When nothing of the reveal is left
     /// expanded, the reveal ends.
     mutating func didHide(_ sections: Set<Section>) {
