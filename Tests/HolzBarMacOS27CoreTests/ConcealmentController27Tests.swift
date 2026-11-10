@@ -197,4 +197,53 @@ struct ConcealmentController27Tests {
         #expect(backend.concealed == ["hidden.app", "always.app"])
         #expect(backend.liveTokens.first?.allowedNumbers == Array(SystemItems27.allowed))
     }
+    @Test("After releaseAll the same target activates a fresh assertion, not the stale one")
+    func releaseAllThenSameTargetActivatesAgain() async throws {
+        let backend = FakeConcealmentBackend(universe: running)
+        let controller = ConcealmentController27(backend: backend)
+        try await controller.apply(target: allHidden, running: running)
+        #expect(backend.activationCount == 1)
+        // Unchanged target: the live assertion is reused.
+        try await controller.apply(target: allHidden, running: running)
+        #expect(backend.activationCount == 1)
+        controller.releaseAll()
+        #expect(!controller.isActive)
+        try await controller.apply(target: allHidden, running: running)
+        #expect(backend.activationCount == 2)
+        #expect(backend.concealed == ["hidden.app", "always.app"])
+    }
+}
+
+@Suite("MenuBarAgentWatch27")
+struct MenuBarAgentWatch27Tests {
+    /// Feeds the process identifiers to a new watch, in order, and returns its answers.
+    private func restarts(_ pids: [Int32?]) -> [Bool] {
+        var watch = MenuBarAgentWatch27()
+        return pids.map { watch.note(pid: $0) }
+    }
+
+    @Test("The first PID seen is no restart, nor is the same PID again")
+    func firstAndSamePID() {
+        #expect(restarts([100, 100]) == [false, false])
+    }
+
+    @Test("Another live PID is a restart, once")
+    func changedPID() {
+        #expect(restarts([100, 200, 200]) == [false, true, false])
+    }
+
+    @Test("Going away is no restart; coming back after it was seen is one")
+    func goneAndBack() {
+        #expect(restarts([100, nil, nil, 300, 300]) == [false, false, false, true, false])
+    }
+
+    @Test("Coming back with the same PID after a gap still counts")
+    func backWithTheSamePID() {
+        #expect(restarts([100, nil, 100]) == [false, false, true])
+    }
+
+    @Test("Nothing fires before any PID was seen")
+    func neverSeen() {
+        #expect(restarts([nil, nil, 100, 100]) == [false, false, false, false])
+    }
 }

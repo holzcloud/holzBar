@@ -22,6 +22,40 @@ protocol ConcealmentBackend27: AnyObject {
     func invalidate(_ token: ConcealmentToken27)
 }
 
+/// Tells when MenuBarAgent, the process that holds the assessment-mode assertions, was
+/// restarted.
+///
+/// The assertions are assumed to die with the MenuBarAgent that took them, and the backend
+/// reports no invalidation: holzBar would keep its tokens and, while the target stays the same,
+/// never activate new ones, so hidden items would stay visible. A restart shows only as a change
+/// of MenuBarAgent's process identifier. Acting on that change alone keeps the watch from ever
+/// firing in normal use: it fires when the identifier changes to another live one, or comes back
+/// after MenuBarAgent was gone, and never before any identifier was seen.
+nonisolated struct MenuBarAgentWatch27 {
+    /// MenuBarAgent's process identifier at the last note; `nil` while it is not running.
+    private var current: Int32?
+
+    /// Whether any process identifier was seen yet.
+    private var hasSeenAgent = false
+
+    init() {}
+
+    /// Notes MenuBarAgent's process identifier, `nil` when it is not running.
+    ///
+    /// - Returns: Whether MenuBarAgent was restarted since the last note.
+    mutating func note(pid: Int32?) -> Bool {
+        defer { current = pid }
+        guard let pid else {
+            return false
+        }
+        guard hasSeenAgent else {
+            hasSeenAgent = true
+            return false
+        }
+        return current != pid
+    }
+}
+
 /// Keeps the live assertions in step with a target.
 ///
 /// Every transition activates the new assertions before releasing the old

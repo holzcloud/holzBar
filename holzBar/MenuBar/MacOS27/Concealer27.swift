@@ -37,6 +37,23 @@ final class Concealer27 {
     /// puts concealment back.
     @ObservationIgnored private var suspensionOwner = 0
 
+    /// Releases of ``suspendReleased(for:)`` queued and not yet done; see ``isReleasePending``.
+    @ObservationIgnored private var pendingReleases = 0
+
+    /// Whether a release for a bridged click is still on its way. Updates wait for it like
+    /// for a running suspension: one queued behind the release would conceal again before the
+    /// click is replayed, and MenuBarAgent ignores a click on a concealed bar.
+    private var isReleasePending: Bool {
+        pendingReleases > 0
+    }
+
+    /// Notes MenuBarAgent's process, to tell when it restarted (``MenuBarAgentWatch27``).
+    @ObservationIgnored private var agentWatch = MenuBarAgentWatch27()
+
+    /// How many times MenuBarAgent restarted while holzBar ran, each answered by applying the
+    /// concealment again. For diagnostics.
+    @ObservationIgnored private(set) var agentRestarts = 0
+
     /// When the last concealment change landed on the bar, which is when the bar last started
     /// moving.
     @ObservationIgnored private var lastChangeAt = ContinuousClock.now
@@ -177,6 +194,7 @@ final class Concealer27 {
         // Layouts saved by earlier versions hold applications that were never recorded as known.
         recordKnownApplications(savedLayout.keys)
         runningBundleIDs = Set(NSWorkspace.shared.runningApplications.compactMap(\.bundleIdentifier))
+        _ = agentWatch.note(pid: Self.menuBarAgentPID(among: NSWorkspace.shared.runningApplications))
         // Reads only the bundle identifiers of the changed applications, keeps no reference to
         // them, takes no lock and never waits: the handler runs on the main thread.
         runningApplicationsObservation = NSWorkspace.shared.observe(\.runningApplications, options: [.old, .new]) { [weak self] _, change in
@@ -292,6 +310,11 @@ final class Concealer27 {
     /// allowlist has to land before a launching agent creates its status item.
     private func runningApplicationsDidChange() {
         let applications = NSWorkspace.shared.runningApplications
+        // Before the bundle set is compared: a quit and relaunch of MenuBarAgent can arrive as
+        // one change that leaves the set as it was.
+        if agentWatch.note(pid: Self.menuBarAgentPID(among: applications)) {
+            menuBarAgentDidRestart()
+        }
         let running = Set(applications.compactMap(\.bundleIdentifier))
         guard running != runningBundleIDs else {
             return
@@ -324,6 +347,29 @@ final class Concealer27 {
         }
         logger.debug("Applications that may own items launched or quit (\(reaction.graces.count, privacy: .public) in concealed sections)")
         applicationsDidChange(graces: reaction.graces)
+    }
+
+    /// MenuBarAgent's process identifier among the running applications, `nil` when it is not running.
+    private static func menuBarAgentPID(among applications: [NSRunningApplication]) -> pid_t? {
+        applications.first { $0.bundleIdentifier == MenuBarItemProvider27.menuBarAgentBundleID }?.processIdentifier
+    }
+
+    /// Applies the concealment again after MenuBarAgent restarted.
+    ///
+    /// The assertions are taken to have died with the old MenuBarAgent, and an apply reuses a
+    /// live token whose target is unchanged, so the stale tokens are dropped first (releasing a
+    /// dead one fails softly), queued like a suspension's release but without one, and the
+    /// update that follows takes fresh assertions. Happens once per restart.
+    private func menuBarAgentDidRestart() {
+        agentRestarts += 1
+        logger.notice("MenuBarAgent restarted (\(self.agentRestarts, privacy: .public) so far), applying concealment again")
+        let previous = applyTask
+        applyTask = Task { [weak self, controller] in
+            await previous?.value
+            controller.releaseAll()
+            self?.lastChangeAt = .now
+        }
+        update()
     }
 
     /// Answers applications that may own items launching or quitting, with exactly one update.
@@ -395,6 +441,10 @@ final class Concealer27 {
             return false
         }
         if let suspendedUntil, ContinuousClock.now < suspendedUntil {
+            return true
+        }
+        // The release for a bridged click goes first; the suspension that follows it updates.
+        if isReleasePending {
             return true
         }
         let applications = NSWorkspace.shared.runningApplications
@@ -469,8 +519,9 @@ final class Concealer27 {
         return true
     }
 
-    /// The processes whose concealed items were looked for once already.
-    private var probedPIDs = Set<pid_t>()
+    /// The processes whose concealed items were looked for once already. Processes that quit
+    /// are forgotten at the next look, so a reused identifier is looked at again.
+    @ObservationIgnored private var probedPIDs = Set<pid_t>()
 
     /// Shows the concealed applications that no read has ever listed an item of, for one read.
     ///
@@ -479,13 +530,15 @@ final class Concealer27 {
     /// the Shelf until they were relaunched. Shown for a moment, they report their items; once
     /// read, the last answer stands while they are concealed again. Each process is tried once.
     private func readUnreadConcealed() async {
+        let applications = NSWorkspace.shared.runningApplications
+        probedPIDs.formIntersection(applications.map(\.processIdentifier))
         let unread = MenuBarItemProvider27.unreadConcealedPIDs().subtracting(probedPIDs)
         guard !unread.isEmpty, let appState else {
             return
         }
         probedPIDs.formUnion(unread)
         let bundleIDs = Set(
-            NSWorkspace.shared.runningApplications
+            applications
                 .filter { unread.contains($0.processIdentifier) }
                 .compactMap(\.bundleIdentifier)
         )
@@ -847,6 +900,9 @@ final class Concealer27 {
         isConcealing = false
         concealedPIDs.removeAll()
         stateGeneration += 1
+        // Until the release is done no update may queue behind it, also once the deadline above
+        // has passed while the release waited for the change before it.
+        pendingReleases += 1
         let previous = applyTask
         let release = Task { [controller] in
             await previous?.value
@@ -854,10 +910,16 @@ final class Concealer27 {
         }
         applyTask = release
         await release.value
+        pendingReleases -= 1
         lastChangeAt = .now
         // The duration counts from the release, which can queue behind a change before it. A
         // suspension begun meanwhile, or an early end, owns the deadline now.
         guard suspensionOwner == owner else {
+            // An early end asked for an update while the release was pending; no suspension
+            // is left to make it.
+            if suspendedUntil == nil, !isReleasePending {
+                update()
+            }
             return
         }
         let deadline = suspensionDeadline(for: duration)
