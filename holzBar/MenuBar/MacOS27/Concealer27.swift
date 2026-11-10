@@ -271,7 +271,12 @@ final class Concealer27 {
                 guard let self, let appState = self.appState else {
                     return
                 }
-                appState.menuBarManager.section(withName: .hidden)?.hide(isUserRequest: true)
+                // The hidden section first, as before; then the always-hidden one, which the
+                // Shelf may show on its own and which the hidden section's hide does not close
+                // once the Shelf is off.
+                for name: MenuBarSection.Name in [.hidden, .alwaysHidden] {
+                    appState.menuBarManager.section(withName: name)?.hide(isUserRequest: true)
+                }
                 update()
             }
         )
