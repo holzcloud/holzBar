@@ -975,13 +975,17 @@ final class AutomationManager {
         let changes = moves.compactMapValues(\.moveTo)
         // On macOS 27 the layout is keyed by application, and a widget by its autosave name. The
         // key comes from the item itself (`layoutKey27`); the part of the rule's key before the
-        // colon is only the fallback, and holzBar's own bundle never becomes a key.
-        var applicationSections = [String: Int]()
-        for (key, section) in changes {
-            if let layoutKey = layoutKeys(forItemKeys: [key]).first {
-                applicationSections[layoutKey] = section
+        // colon is only the fallback, and holzBar's own bundle never becomes a key. An application
+        // whose items the rules move to different sections takes the most visible one, as Menu
+        // Bar Layout does, so the result never depends on the order of a dictionary.
+        let changedItems = changes.compactMap { key, section -> (bundleID: String, section: MacOS27Section)? in
+            guard let layoutKey = layoutKeys(forItemKeys: [key]).first,
+                  let section = MacOS27Section(rawValue: section) else {
+                return nil
             }
+            return (layoutKey, section)
         }
+        let applicationSections = SectionLayout27.appSections(items: changedItems).mapValues(\.rawValue)
         logger.notice("An automation rule moves \(changes.count, privacy: .public) items")
         // Until the move has settled and the bar was read, the cache may show the old sections,
         // and an item there must not be taken for one the user moved by hand.
