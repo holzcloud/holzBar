@@ -80,12 +80,19 @@ enum ItemClicker27 {
         }
 
         // A click returns at once, and a press blocks only while a menu is open. Keep the
-        // application shown until the menu or panel that opened is gone.
+        // application shown until the menu or panel that opened is gone, watched on the panel
+        // watch schedule (4 times a second for 10 s, then once a second, for up to 10 minutes).
         try? await Task.sleep(for: .milliseconds(400))
-        var waited = 0
-        while waited < 240, ItemClick27.interfaceIsOpen(windowOwners: windowOwners(), ownerPID: ownerPID, baseline: baseline) {
-            try? await Task.sleep(for: .milliseconds(250))
-            waited += 1
+        let watchStart = ContinuousClock.now
+        while
+            ItemClick27.interfaceIsOpen(windowOwners: windowOwners(), ownerPID: ownerPID, baseline: baseline),
+            let interval = ItemClick27.panelWatchInterval(elapsed: ContinuousClock.now - watchStart)
+        {
+            do {
+                try await Task.sleep(for: interval)
+            } catch {
+                break
+            }
         }
         // "Hide opened items again after" counts from here, when the menu has closed
         // (THAW-13). One bounded wait; opening the item again meanwhile shows it once more,

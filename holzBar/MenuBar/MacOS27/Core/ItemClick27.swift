@@ -189,4 +189,32 @@ nonisolated enum ItemClick27 {
     static func interfaceIsOpen(windowOwners: [(number: Int, ownerPID: Int32)], ownerPID: Int32, baseline: Set<Int>) -> Bool {
         windowOwners.contains { $0.ownerPID == ownerPID && !baseline.contains($0.number) }
     }
+
+    /// How long to wait before the next check whether a menu or panel opened from the holzBar
+    /// Shelf is still on screen, or `nil` once it is no longer watched.
+    ///
+    /// Each check copies the window list, and nothing announces that another process's window
+    /// went, so the item that opened it stays shown while it is watched. The first seconds are
+    /// watched 4 times a second, so a menu closed at once hides its item again promptly; after
+    /// that once a second is enough. A menu or panel read for long is watched for up to
+    /// 10 minutes, so its item is no longer taken away under it after a minute (D-12, 27-L6:
+    /// before, the panel of a system item was checked 20 times a second for up to 60 s).
+    static func panelWatchInterval(elapsed: Duration) -> Duration? {
+        if elapsed >= panelWatchLimit {
+            return nil
+        }
+        return elapsed < panelWatchFastPeriod ? panelWatchFastInterval : panelWatchSlowInterval
+    }
+
+    /// How long an open menu or panel is watched at the fast interval.
+    private static let panelWatchFastPeriod: Duration = .seconds(10)
+
+    /// The interval of the first seconds: 4 checks a second.
+    private static let panelWatchFastInterval: Duration = .milliseconds(250)
+
+    /// The interval after the first seconds: 1 check a second.
+    private static let panelWatchSlowInterval: Duration = .seconds(1)
+
+    /// How long an open menu or panel is watched at most; after it, it counts as closed.
+    private static let panelWatchLimit: Duration = .seconds(600)
 }

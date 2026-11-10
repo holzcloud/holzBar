@@ -377,6 +377,24 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
         return false
     }
 
+    /// Waits until the given panel window leaves the screen, checking it on the schedule of
+    /// `ItemClick27.panelWatchInterval(elapsed:)`: 4 times a second for the first 10 s, then
+    /// once a second, for at most 10 minutes. Polled: nothing announces another process's
+    /// window; a cancelled task stops watching at once.
+    private static func watchPanelUntilGone(window: Int) async {
+        let start = ContinuousClock.now
+        while let interval = ItemClick27.panelWatchInterval(elapsed: ContinuousClock.now - start) {
+            do {
+                try await Task.sleep(for: interval)
+            } catch {
+                return
+            }
+            if !ItemClick27.panelIsOnScreen(window: window, windows: windowsForPanelCheck()) {
+                return
+            }
+        }
+    }
+
     /// Presses an Accessibility element off the main thread, which the call can block.
     private static func press(_ element: AXUIElement) async {
         await withCheckedContinuation { continuation in
@@ -468,14 +486,9 @@ final class SystemItemClickBridge27: SystemItemClickBridge {
             return
         }
 
-        // Keep the item shown until its panel is gone; a bounded wait in rounds of one second.
+        // Keep the item shown until its panel is gone, watched on the panel watch schedule.
         if let opened = await waitForOpenedPanel(item: identifier, baseline: baseline, polls: 8) {
-            var gone = false
-            var rounds = 0
-            while !gone, rounds < 60 {
-                gone = await waitForPanelToGo(window: opened.window, polls: 20)
-                rounds += 1
-            }
+            await watchPanelUntilGone(window: opened.window)
         } else {
             try? await Task.sleep(for: .milliseconds(1500))
         }
