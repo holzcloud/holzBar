@@ -693,6 +693,34 @@ final class Concealer27 {
         appState.menuBarManager.controlItem(withName: .visible)?.reinsert()
     }
 
+    /// How many times an application's activation moved the active menu bar to another display
+    /// and the notch cover was worked out at once. For diagnostics.
+    @ObservationIgnored private(set) var notchRechecks = 0
+
+    /// Works the notch cover out at once when the active menu bar moved to another display.
+    ///
+    /// Called after the item read that follows an application's activation (the menu bar
+    /// moves with the active application). The notch cover and the relayout for a roomier
+    /// display were otherwise worked out only after the next concealment change, which could
+    /// be minutes later. Does nothing unless the display differs from the one of the last
+    /// settled read: no timer, nothing at rest (D-11).
+    func activeMenuBarMayHaveMoved() {
+        guard
+            let appState,
+            !appState.systemActivityMonitor.isPaused,
+            let lastActiveDisplay,
+            let displayID = Bridging.getActiveMenuBarDisplayID(),
+            displayID != lastActiveDisplay.id
+        else {
+            return
+        }
+        notchRechecks += 1
+        logger.debug("The active menu bar moved to another display, checking the notch cover")
+        Task { [weak self] in
+            await self?.checkNotchCover()
+        }
+    }
+
     /// Keeps holzBar's icon out from under the notch, and lets MenuBarAgent lay the bar out
     /// again when it moves to a wider display with items folded.
     ///
@@ -716,18 +744,27 @@ final class Concealer27 {
         lastReadHadFoldedItems = items.contains { item in
             displayBounds.intersects(item.bounds) && OverflowDetection27.isInOverflow(itemFrame: item.bounds, chevronFrame: chevronFrame)
         }
-        if let previous, previous.id != displayID {
-            if !notchConcealed.isEmpty {
-                notchConcealed.removeAll()
-                update()
-                return
-            }
-            let isRoomier = !screen.hasNotch || displayBounds.width > previous.width
-            if hadFoldedItems, isRoomier, isConcealing {
-                logger.notice("The bar moved to a roomier display with items folded, laying it out again")
-                suspend(for: Self.settleAfterChange)
-                return
-            }
+        let change = NotchCover27.displayChange(
+            previousID: previous?.id,
+            currentID: displayID,
+            previousWidth: previous?.width ?? 0,
+            currentWidth: displayBounds.width,
+            hasNotch: screen.hasNotch,
+            notchConcealedEmpty: notchConcealed.isEmpty,
+            hadFoldedItems: hadFoldedItems,
+            isConcealing: isConcealing
+        )
+        switch change {
+        case .none:
+            break
+        case .recompute:
+            notchConcealed.removeAll()
+            update()
+            return
+        case .relayout:
+            logger.notice("The bar moved to a roomier display with items folded, laying it out again")
+            suspend(for: Self.settleAfterChange)
+            return
         }
 
         guard

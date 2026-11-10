@@ -215,6 +215,11 @@ final class MenuBarItemManager {
                         }
                         Task {
                             await self.cacheItemsIfNeeded()
+                            // On another display the notch cover and the relayout for a roomier
+                            // bar are worked out at once, not at the next concealment change.
+                            if #available(macOS 27.0, *) {
+                                self.appState?.concealer27.activeMenuBarMayHaveMoved()
+                            }
                         }
                     }
                 }

@@ -52,6 +52,61 @@ struct NotchCover27Tests {
         #expect(!NotchCover27.sectionsMayFreeRoom(before: ["x"], after: ["x"]))
         #expect(!NotchCover27.sectionsMayFreeRoom(before: ["x"], after: []))
     }
+
+    /// The display change with the defaults of a move from a notched 1512-point display to a
+    /// wider external one, with folded items, while concealing; each test changes one input.
+    private func change(
+        previousID: CGDirectDisplayID? = 1,
+        currentID: CGDirectDisplayID = 2,
+        previousWidth: CGFloat = 1512,
+        currentWidth: CGFloat = 2560,
+        hasNotch: Bool = false,
+        notchConcealedEmpty: Bool = true,
+        hadFoldedItems: Bool = true,
+        isConcealing: Bool = true
+    ) -> NotchCover27.DisplayChange {
+        NotchCover27.displayChange(
+            previousID: previousID,
+            currentID: currentID,
+            previousWidth: previousWidth,
+            currentWidth: currentWidth,
+            hasNotch: hasNotch,
+            notchConcealedEmpty: notchConcealedEmpty,
+            hadFoldedItems: hadFoldedItems,
+            isConcealing: isConcealing
+        )
+    }
+
+    @Test("The same display, or none before, changes nothing")
+    func sameOrNoPreviousDisplay() {
+        #expect(change(currentID: 1) == .none)
+        #expect(change(currentID: 1, notchConcealedEmpty: false) == .none)
+        #expect(change(previousID: nil) == .none)
+        #expect(change(previousID: nil, notchConcealedEmpty: false) == .none)
+    }
+
+    @Test("Another display with apps concealed for the notch works them out again")
+    func notchConcealedRecomputes() {
+        #expect(change(notchConcealedEmpty: false) == .recompute)
+        // Whatever else holds.
+        #expect(change(hasNotch: true, notchConcealedEmpty: false, hadFoldedItems: false, isConcealing: false) == .recompute)
+    }
+
+    @Test("A roomier display with folded items while concealing lays the bar out again")
+    func roomierRelayouts() {
+        // No notch.
+        #expect(change(currentWidth: 1200) == .relayout)
+        // A notch, but wider.
+        #expect(change(hasNotch: true) == .relayout)
+    }
+
+    @Test("No folded items, not roomier or not concealing changes nothing")
+    func otherwiseNothing() {
+        #expect(change(hadFoldedItems: false) == .none)
+        #expect(change(currentWidth: 1512, hasNotch: true) == .none)
+        #expect(change(currentWidth: 1200, hasNotch: true) == .none)
+        #expect(change(isConcealing: false) == .none)
+    }
 }
 
 @Suite("LaunchGrace27")

@@ -92,4 +92,54 @@ nonisolated enum NotchCover27 {
     static func sectionsMayFreeRoom(before: Set<String>, after: Set<String>) -> Bool {
         !after.isSubset(of: before)
     }
+
+    /// What a move of the active menu bar to another display asks for.
+    enum DisplayChange: Equatable {
+        /// Nothing: the bar did not move, or nothing depends on the display it moved to.
+        case none
+        /// The apps concealed for the old display's notch are worked out again.
+        case recompute
+        /// The concealment is released and applied again once, so macOS lays the roomier bar
+        /// out anew and the folded items come back (Thaw #1106).
+        case relayout
+    }
+
+    /// What the active menu bar moving from one display to another asks for.
+    ///
+    /// The apps concealed for a notch belong to that display's bar, so on another display
+    /// they are worked out again. Otherwise, when the bar moved to a roomier display (one
+    /// without a notch, or a wider one) while the last read showed items folded behind the
+    /// overflow button and holzBar conceals, the bar is laid out again.
+    ///
+    /// - Parameters:
+    ///   - previousID: The display of the active bar at the last read, if any.
+    ///   - currentID: The display of the active bar now.
+    ///   - previousWidth: The width of the previous display.
+    ///   - currentWidth: The width of the current display.
+    ///   - hasNotch: Whether the current display has a notch.
+    ///   - notchConcealedEmpty: Whether no app is concealed for the notch.
+    ///   - hadFoldedItems: Whether the last read showed items folded behind the overflow button.
+    ///   - isConcealing: Whether holzBar conceals any app.
+    static func displayChange(
+        previousID: CGDirectDisplayID?,
+        currentID: CGDirectDisplayID,
+        previousWidth: CGFloat,
+        currentWidth: CGFloat,
+        hasNotch: Bool,
+        notchConcealedEmpty: Bool,
+        hadFoldedItems: Bool,
+        isConcealing: Bool
+    ) -> DisplayChange {
+        guard let previousID, previousID != currentID else {
+            return .none
+        }
+        if !notchConcealedEmpty {
+            return .recompute
+        }
+        let isRoomier = !hasNotch || currentWidth > previousWidth
+        if hadFoldedItems, isRoomier, isConcealing {
+            return .relayout
+        }
+        return .none
+    }
 }
