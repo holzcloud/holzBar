@@ -79,6 +79,17 @@ final class MenuBarManager {
     /// hide.
     @ObservationIgnored var revealOwnership = RevealOwnership()
 
+    /// Which windows keep an automatic hide waiting as an open item menu: only windows that
+    /// appeared after the reveal, and each for a limited time (see ``OpenMenuWait``).
+    @ObservationIgnored var openMenuWait = OpenMenuWait()
+
+    /// Notes that hidden sections are being shown from all hidden: the windows on screen now
+    /// never count as an item's open menu during this reveal. One read of the window list's
+    /// identifiers per reveal, never per pointer move.
+    func noteRevealStarted() {
+        openMenuWait.revealStarted(windowsOnScreen: Set(Bridging.getWindowList(option: .onScreen)))
+    }
+
     /// The panel that contains the holzBar Shelf interface.
     let shelfPanel = HolzBarShelfPanel()
 

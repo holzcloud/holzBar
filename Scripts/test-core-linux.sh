@@ -99,6 +99,7 @@ sources=(
   NowPlayingRemoteLaunch
   NowPlayingRemoteMessage
   NowPlayingTrack
+  OpenMenuWait
   OutputVolumePlan
   OwnBundle
   PinnedSystemItems
@@ -214,6 +215,7 @@ tests=(
   NowPlayingPlayersTests
   NowPlayingRemoteLaunchTests
   NowPlayingRemoteMessageTests
+  OpenMenuWaitTests
   OutputVolumePlanTests
   OwnBundleTests
   PinnedSystemItemsTests

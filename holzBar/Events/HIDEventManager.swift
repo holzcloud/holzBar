@@ -706,6 +706,11 @@ extension HIDEventManager {
         // are the states this drag changes and the drop restores.
         let sections = appState.menuBarManager.sections
         dragRevealedSections = Set(sections.filter { $0.controlItem.state == .hideSection }.map(\.name))
+        if dragRevealedSections.contains(.hidden) {
+            // A reveal from all hidden: the windows on screen now are no item's open menu
+            // when the rehide asks after the drop.
+            appState.menuBarManager.noteRevealStarted()
+        }
         for section in sections {
             section.controlItem.state = .showSection
         }

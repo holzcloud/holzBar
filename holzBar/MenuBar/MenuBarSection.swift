@@ -3,6 +3,7 @@
 //  holzBar
 //
 
+import OSLog
 import SwiftUI
 
 /// A representation of a section in a menu bar.
@@ -240,6 +241,7 @@ final class MenuBarSection {
             if let screen = screenForShelf {
                 // The Shelf shows one section: the hidden one, or the always-hidden one.
                 let shelfSection: RevealOwnership.Section = name == .alwaysHidden ? .alwaysHidden : .hidden
+                menuBarManager.noteRevealStarted()
                 let token = menuBarManager.revealOwnership.didShow(origin, expanded: [shelfSection])
                 Task {
                     let shown = switch name {
@@ -272,6 +274,7 @@ final class MenuBarSection {
         let token: RevealOwnership.Token
         switch name {
         case .visible, .hidden:
+            menuBarManager.noteRevealStarted()
             for section in menuBarManager.sections where section.name != .alwaysHidden {
                 section.controlItem.state = .showSection
             }
@@ -280,6 +283,9 @@ final class MenuBarSection {
             // Showing the always-hidden section shows the hidden one too; the rehide
             // collapses it again only when this show opened it.
             let hiddenWasHidden = menuBarManager.section(withName: .hidden)?.isHidden ?? false
+            if hiddenWasHidden {
+                menuBarManager.noteRevealStarted()
+            }
             for section in menuBarManager.sections {
                 section.controlItem.state = .showSection
             }
@@ -360,9 +366,14 @@ final class MenuBarSection {
     ///
     /// Reads the window list once: ask only when a hide is about to happen, never per pointer
     /// move. holzBar's own windows (the Shelf, the Notch hub) and the items' own windows in the
-    /// bar never count.
+    /// bar never count, nor does a window that was on screen when the sections were shown; a
+    /// window keeps the hide waiting for ``OpenMenuWait/longestWait`` at most, so no lasting
+    /// panel of an app keeps a section open for good (``MenuBarManager/openMenuWait``).
     var hasOpenItemMenu: Bool {
-        guard let itemCache = appState?.itemManager.itemCache else {
+        guard
+            let menuBarManager,
+            let itemCache = appState?.itemManager.itemCache
+        else {
             return false
         }
         let shownItems = itemCache[.hidden] + itemCache[.alwaysHidden]
@@ -380,7 +391,7 @@ final class MenuBarSection {
             },
             allItems.reduce(0) { max($0, $1.bounds.height) }
         )
-        return WindowInfo.createWindows(option: .onScreen).contains { window in
+        let openMenus = WindowInfo.createWindows(option: .onScreen).filter { window in
             !itemWindows.contains(window.windowID) && InterfaceWindowRule.isOpenMenu(
                 layer: window.layer,
                 height: window.bounds.height,
@@ -389,7 +400,20 @@ final class MenuBarSection {
                 barHeight: barHeight
             )
         }
+        let decision = menuBarManager.openMenuWait.check(
+            openMenus: Set(openMenus.map(\.windowID)),
+            now: ProcessInfo.processInfo.systemUptime
+        )
+        if !decision.newlyGivenUp.isEmpty {
+            Self.logger.notice(
+                "\(decision.newlyGivenUp.count, privacy: .public) window(s) kept a hide waiting too long and no longer count as an open menu"
+            )
+        }
+        return decision.waits
     }
+
+    /// Logger for the menu bar sections.
+    private static let logger = Logger(category: "MenuBarSection")
 
     /// Whether the pointer is on the open holzBar Shelf.
     private var isPointerOnOpenShelf: Bool {
