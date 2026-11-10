@@ -404,6 +404,32 @@ struct AutomationEngineTests {
         #expect(ItemVisibility.follow(of: hidden, facts: AutomationFacts(networkKinds: [.vpn]))?.hiding == 1)
     }
 
+    @Test("With the always-hidden section off, a rule hides into Hidden and settles there")
+    func alwaysHiddenRuleFoldsWhenSectionIsOff() throws {
+        let rule = rule(
+            "VPN item",
+            [.network(.vpn)],
+            action: .showItemOnlyWhile(itemKey: "com.example.vpn:VPN", hiding: .alwaysHidden)
+        )
+        let facts = AutomationFacts(networkKinds: [.wifi])
+        #expect(ItemVisibility.follow(of: rule, facts: facts, alwaysHiddenEnabled: true)?.hiding == 2)
+        let folded = try #require(ItemVisibility.follow(of: rule, facts: facts, alwaysHiddenEnabled: false))
+        #expect(folded.hiding == 1 && folded.holds == false)
+        // The item sits in Hidden, where the folded layout puts it: no move, not on the first look
+        // and not after holzBar had put it in always-hidden while the section was on.
+        let first = ItemVisibility.decide(holds: false, hiding: folded.hiding, actual: 1, memory: ItemRuleMemory())
+        #expect(first.moveTo == nil && first.revert == nil)
+        var memory = ItemRuleMemory()
+        memory.applied = .init(section: 2, isHiding: true)
+        let after = ItemVisibility.decide(holds: false, hiding: folded.hiding, actual: 1, memory: memory)
+        #expect(after.moveTo == nil && after.revert == nil)
+        // A visible item is moved to Hidden, and deciding again there yields no move.
+        let move = ItemVisibility.decide(holds: false, hiding: folded.hiding, actual: 0, memory: ItemRuleMemory())
+        #expect(move.moveTo == 1)
+        let again = ItemVisibility.decide(holds: false, hiding: folded.hiding, actual: 1, memory: move.memory)
+        #expect(again.moveTo == nil && again.revert == nil)
+    }
+
     @Test("An item has one rule, and only the rules that are on control it")
     func itemRules() throws {
         let first = rule("A", [battery], action: .showItemOnlyWhile(itemKey: "a:A", hiding: .hidden))

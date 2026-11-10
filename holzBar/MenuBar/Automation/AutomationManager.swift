@@ -807,7 +807,9 @@ final class AutomationManager {
 
     /// The rules of the kind "show it only while …" that are on, with what they say now.
     private func itemFollows(facts: AutomationFacts) -> [(itemKey: String, holds: Bool?, hiding: Int)] {
-        rules.compactMap { ItemVisibility.follow(of: $0, facts: facts) }
+        // With the always-hidden section off, a rule hides into Hidden, as the layout is folded.
+        let alwaysHiddenEnabled = appState?.settings.advanced.enableAlwaysHiddenSection ?? true
+        return rules.compactMap { ItemVisibility.follow(of: $0, facts: facts, alwaysHiddenEnabled: alwaysHiddenEnabled) }
     }
 
     /// The section of each item in the item cache, by identity key.
