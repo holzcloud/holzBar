@@ -338,7 +338,7 @@ final class CommandDragSection27 {
             }
             if lock == .system {
                 // A numbered system item has no section and no name.
-                add(.system())
+                add(.systemItem())
             } else if let key = press.key, target != current {
                 add(CommandDragNotice.make(key: key, name: press.name, kind: .kept(lock)))
             }

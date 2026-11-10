@@ -476,11 +476,11 @@ struct CommandDragSectionTests {
 
     @Test("The system notice has its constant key and no name")
     func systemNotice() {
-        let system = CommandDragNotice.system()
+        let system = CommandDragNotice.systemItem()
         #expect(system.id == CommandDragNotice.systemKey)
         #expect(system.itemName.isEmpty)
         #expect(system.kind == .kept(.system))
-        let list = CommandDragNotices.adding(system, to: CommandDragNotices.adding(CommandDragNotice.system(), to: []))
+        let list = CommandDragNotices.adding(system, to: CommandDragNotices.adding(CommandDragNotice.systemItem(), to: []))
         #expect(list.count == 1)
     }
 

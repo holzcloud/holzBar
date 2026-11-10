@@ -250,7 +250,7 @@ nonisolated struct CommandDragNotice: Equatable, Identifiable, Sendable {
     }
 
     /// The notice of a numbered system item macOS keeps in place: it has no name.
-    static func system() -> CommandDragNotice {
+    static func systemItem() -> CommandDragNotice {
         CommandDragNotice(id: systemKey, itemName: "", kind: .kept(.system))
     }
 }
