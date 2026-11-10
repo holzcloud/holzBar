@@ -12,6 +12,39 @@ nonisolated enum RevealState27: Equatable {
     case allRevealed
 }
 
+nonisolated extension RevealState27 {
+    /// The state the concealment follows, from the sections' own states.
+    ///
+    /// Whether a reveal goes to the holzBar Shelf or to the bar is chosen once, when a section
+    /// is shown (`MenuBarSection.show`): a reveal on the bar sets the section's control item to
+    /// show it, a reveal in the Shelf leaves it hiding. Asking at update time whether the Shelf
+    /// is used read the pointer's display, so the bar flipped between concealed and revealed as
+    /// the pointer crossed displays with the Shelf limited to some of them (D-11).
+    ///
+    /// - Parameters:
+    ///   - layoutPaneOpen: Whether Menu Bar Layout is open, which draws every item.
+    ///   - hiddenShownOnBar: Whether the hidden section's control item shows it on the bar.
+    ///   - alwaysHiddenShownOnBar: Whether the always-hidden section's control item shows it.
+    ///   - alwaysHiddenEnabled: Whether the always-hidden section is on.
+    static func decide(
+        layoutPaneOpen: Bool,
+        hiddenShownOnBar: Bool,
+        alwaysHiddenShownOnBar: Bool,
+        alwaysHiddenEnabled: Bool
+    ) -> RevealState27 {
+        if layoutPaneOpen {
+            return .allRevealed
+        }
+        if alwaysHiddenEnabled, alwaysHiddenShownOnBar {
+            return .allRevealed
+        }
+        if hiddenShownOnBar {
+            return .hiddenRevealed
+        }
+        return .allHidden
+    }
+}
+
 /// Turns a layout and a reveal state into assessment-mode assertions.
 ///
 /// Measured on macOS 27.0: live assertions combine as a union of their

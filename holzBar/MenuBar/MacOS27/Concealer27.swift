@@ -240,6 +240,19 @@ final class Concealer27 {
                 update()
             }
         )
+        // A reveal is meant for the Shelf or for the bar, chosen when it is shown. Switching
+        // the Shelf on or off hides the hidden section once, so a section shown in one mode is
+        // never carried into the other (D-11).
+        let general = appState.settings.general
+        observers.append(
+            ObservationLoop.observe { general.useShelf } onChange: { [weak self] _ in
+                guard let self, let appState = self.appState else {
+                    return
+                }
+                appState.menuBarManager.section(withName: .hidden)?.hide(isUserRequest: true)
+                update()
+            }
+        )
         // A layout saved while the section was on, also one a settings import brought (an import
         // relaunches holzBar), is folded the same way.
         if !advanced.enableAlwaysHiddenSection {
@@ -1189,27 +1202,27 @@ final class Concealer27 {
 
     // MARK: Private
 
-    /// What the concealment follows: everything while Menu Bar Layout is open, nothing but the
-    /// always shown items while the holzBar Shelf shows the rest, otherwise the sections' state.
+    /// What the concealment follows: everything while Menu Bar Layout is open, otherwise the
+    /// sections' states on the bar (``RevealState27/decide(layoutPaneOpen:hiddenShownOnBar:alwaysHiddenShownOnBar:alwaysHiddenEnabled:)``).
     /// ``ItemReorderer27`` runs only while this is ``RevealState27/allRevealed``.
+    ///
+    /// While the holzBar Shelf shows the hidden items, their control items hide the sections, so
+    /// the bar stays concealed wherever the pointer is. Neither the Shelf setting nor
+    /// `MenuBarSection.isHidden` is read here: both depend on the display under the pointer.
+    /// Reads only observable state, so ``reveals(_:)`` can be observed.
     func revealState(_ appState: AppState) -> RevealState27 {
         let navigation = appState.navigationState
-        if navigation.isSettingsPresented, navigation.settingsNavigationIdentifier == .menuBarLayout {
-            // Everything is drawn while the layout window is open, so every item can be photographed.
-            return .allRevealed
-        }
-        if appState.settings.general.usesShelf {
-            // The holzBar Shelf shows hidden items in its own panel, so the bar stays concealed.
-            return .allHidden
-        }
+        // Everything is drawn while the layout window is open, so every item can be photographed.
+        let layoutPaneOpen = navigation.isSettingsPresented && navigation.settingsNavigationIdentifier == .menuBarLayout
         let manager = appState.menuBarManager
-        if let alwaysHidden = manager.section(withName: .alwaysHidden), alwaysHidden.isEnabled, !alwaysHidden.isHidden {
-            return .allRevealed
-        }
-        if let hidden = manager.section(withName: .hidden), !hidden.isHidden {
-            return .hiddenRevealed
-        }
-        return .allHidden
+        let hidden = manager.section(withName: .hidden)
+        let alwaysHidden = manager.section(withName: .alwaysHidden)
+        return RevealState27.decide(
+            layoutPaneOpen: layoutPaneOpen,
+            hiddenShownOnBar: hidden?.controlItem.state == .showSection,
+            alwaysHiddenShownOnBar: alwaysHidden?.controlItem.state == .showSection,
+            alwaysHiddenEnabled: alwaysHidden?.isEnabled ?? false
+        )
     }
 }
 
