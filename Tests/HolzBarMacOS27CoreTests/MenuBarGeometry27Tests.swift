@@ -266,6 +266,57 @@ struct AccessibilityScanSchedule27Tests {
         #expect(schedule.timeout(for: 10, now: 1) == nil)
     }
 
+    @Test("A young process that may own an item is retried at the normal timeout")
+    func youngProcessIsNotPaused() {
+        var schedule = AccessibilityScanSchedule27()
+        schedule.record(pid: 10, timedOut: true, now: 0, isYoung: true)
+        #expect(schedule.timeout(for: 10, now: 0) == AccessibilityScanSchedule27.normalTimeout)
+        #expect(schedule.youngRetries == 1)
+        schedule.record(pid: 10, timedOut: true, now: 2, isYoung: true)
+        #expect(schedule.timeout(for: 10, now: 2) == AccessibilityScanSchedule27.normalTimeout)
+        #expect(schedule.youngRetries == 2)
+        // An answer is no retry.
+        schedule.record(pid: 10, timedOut: false, now: 4, isYoung: true)
+        #expect(schedule.youngRetries == 2)
+    }
+
+    @Test("An old process keeps today's pause of 60 s, then 120 s")
+    func oldProcessKeepsThePause() {
+        var schedule = AccessibilityScanSchedule27()
+        schedule.record(pid: 10, timedOut: true, now: 0, isYoung: false)
+        #expect(schedule.timeout(for: 10, now: 59) == nil)
+        #expect(schedule.timeout(for: 10, now: 60) == AccessibilityScanSchedule27.retryTimeout)
+        schedule.record(pid: 10, timedOut: true, now: 60, isYoung: false)
+        #expect(schedule.timeout(for: 10, now: 179) == nil)
+        #expect(schedule.timeout(for: 10, now: 180) == AccessibilityScanSchedule27.retryTimeout)
+        #expect(schedule.youngRetries == 0)
+    }
+
+    @Test("A process that grows old after young timeouts is paused from its first old timeout")
+    func youngThenOld() {
+        var schedule = AccessibilityScanSchedule27()
+        schedule.record(pid: 10, timedOut: true, now: 0, isYoung: true)
+        schedule.record(pid: 10, timedOut: true, now: 31, isYoung: false)
+        #expect(schedule.timeout(for: 10, now: 90) == nil)
+        #expect(schedule.timeout(for: 10, now: 91) == AccessibilityScanSchedule27.retryTimeout)
+    }
+
+    @Test("A young process that reports items becomes an item owner")
+    func youngProcessBecomesItemOwner() {
+        var schedule = AccessibilityScanSchedule27()
+        schedule.record(pid: 10, timedOut: true, now: 0, isYoung: true)
+        schedule.recordItems(pid: 10)
+        schedule.record(pid: 10, timedOut: true, now: 60, isYoung: false)
+        #expect(schedule.timeout(for: 10, now: 61) == AccessibilityScanSchedule27.normalTimeout)
+        // An item owner that times out is no young retry either.
+        #expect(schedule.youngRetries == 1)
+    }
+
+    @Test("A young process counts as young for 30 s")
+    func youngAge() {
+        #expect(AccessibilityScanSchedule27.youngAge == 30)
+    }
+
     @Test("Exited processes are forgotten, so a reused identifier starts fresh")
     func forgetting() {
         var schedule = AccessibilityScanSchedule27()

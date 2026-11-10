@@ -327,13 +327,7 @@ final class Concealer27 {
             guard let bundleID = application.bundleIdentifier else {
                 return nil
             }
-            let policy: AgentLaunches27.Policy = switch application.activationPolicy {
-            case .regular: .regular
-            case .accessory: .accessory
-            case .prohibited: .prohibited
-            @unknown default: .accessory
-            }
-            return (bundleID, application.bundleURL?.path(percentEncoded: false), policy)
+            return (bundleID, application.bundleURL?.path(percentEncoded: false), AgentLaunches27.Policy(application.activationPolicy))
         }
         let layout = savedLayout
         let stored = Defaults.array(forKey: .knownApplications27) as? [String] ?? []

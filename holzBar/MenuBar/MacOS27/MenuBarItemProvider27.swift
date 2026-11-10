@@ -15,6 +15,18 @@ nonisolated extension Notification.Name {
     static let menuBarItemsAreaDidChange27 = Notification.Name("com.holzcloud.holzBar.MenuBarItemsAreaDidChange27")
 }
 
+nonisolated extension AgentLaunches27.Policy {
+    /// The policy of a running application.
+    init(_ policy: NSApplication.ActivationPolicy) {
+        self = switch policy {
+        case .regular: .regular
+        case .accessory: .accessory
+        case .prohibited: .prohibited
+        @unknown default: .accessory
+        }
+    }
+}
+
 /// Reads menu bar items through Accessibility on macOS 27.
 ///
 /// macOS 27 draws status items inside MenuBarAgent instead of giving each one a
@@ -220,6 +232,12 @@ nonisolated enum MenuBarItemProvider27 {
     ///
     /// A concealed process may report no items, so one that was concealed before its first read
     /// (holzBar relaunched while it ran) has nothing to fall back on and drops out of the list.
+    /// How many timeouts of young processes that may own an item were asked again at the next
+    /// read instead of being paused (``AccessibilityScanSchedule27/youngAge``). For diagnostics.
+    static var youngRetries: Int {
+        withState { $0.scanSchedule.youngRetries }
+    }
+
     static func unreadConcealedPIDs() -> Set<pid_t> {
         withState { state in
             state.concealedPIDs.filter { state.lastRawByPID[$0]?.isEmpty ?? true }
@@ -287,6 +305,22 @@ nonisolated enum MenuBarItemProvider27 {
 
     // MARK: Reading
 
+    /// Whether an application launched less than ``AccessibilityScanSchedule27/youngAge`` ago
+    /// and may own an item (``AgentLaunches27/mayOwnItem(bundlePath:policy:)``). An application
+    /// without a launch date is not young, as before.
+    private static func isYoung(_ app: NSRunningApplication) -> Bool {
+        guard
+            let launchDate = app.launchDate,
+            Date.now.timeIntervalSince(launchDate) < AccessibilityScanSchedule27.youngAge
+        else {
+            return false
+        }
+        return AgentLaunches27.mayOwnItem(
+            bundlePath: app.bundleURL?.path(percentEncoded: false),
+            policy: AgentLaunches27.Policy(app.activationPolicy)
+        )
+    }
+
     private static func readItems(
         runningApplications: [NSRunningApplication],
         retryIfMenuBarMoves: Bool = true
@@ -341,7 +375,11 @@ nonisolated enum MenuBarItemProvider27 {
             var barValue: CFTypeRef?
             let result = AXUIElementCopyAttributeValue(application, kAXExtrasMenuBarAttribute as CFString, &barValue)
             if pid != ownPID {
-                scanSchedule.record(pid: pid, timedOut: result == .cannotComplete, now: now)
+                let timedOut = result == .cannotComplete
+                // Only a timeout asks whether the process is young; the path test is not run
+                // for every process at every read.
+                let isYoung = timedOut && Self.isYoung(app)
+                scanSchedule.record(pid: pid, timedOut: timedOut, now: now, isYoung: isYoung)
             }
             guard
                 result == .success,
