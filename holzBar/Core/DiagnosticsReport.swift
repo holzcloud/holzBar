@@ -83,7 +83,8 @@ nonisolated enum DiagnosticsReport {
     /// time, two-digit reads and `ignored: not an app item`).
     static let maximumLastCommandDragLength = 80
 
-    /// The longest text kept for the Hiding line (seven five-digit counts with their words fit).
+    /// The longest text kept for the Hiding line (the longest reveal word and six counts, each
+    /// capped at five digits, fit with their words).
     static let maximumHidingLength = 160
 
     /// The longest text kept for a field.
@@ -173,9 +174,12 @@ nonisolated enum DiagnosticsReport {
         return String(text.lowercased().filter { allowed.contains($0) })
     }
 
-    /// A count of a summary, never negative.
+    /// The highest count a summary shows; a higher one shows as this, so the line always fits.
+    static let maximumSummaryCount = 99_999
+
+    /// A count of a summary, never negative and at most ``maximumSummaryCount``.
     private static func count(_ value: Int) -> String {
-        String(max(0, value))
+        String(min(max(0, value), maximumSummaryCount))
     }
 
     /// The longest text kept for a click of the trace (the longest line has a dozen extents).

@@ -199,12 +199,13 @@ struct DiagnosticsReportTests {
             reveal: "hidden revealed", agentRestarts: Int.max, lateAllowlist: Int.max, youngRetries: Int.max,
             forcedReads: Int.max, heldBack: Int.max, notchRechecks: Int.max
         )
-        #expect(longest.count > DiagnosticsReport.maximumHidingLength)
-        let usual = DiagnosticsReport.hidingSummary27(
+        let capped = DiagnosticsReport.hidingSummary27(
             reveal: "hidden revealed", agentRestarts: 99_999, lateAllowlist: 99_999, youngRetries: 99_999,
             forcedReads: 99_999, heldBack: 99_999, notchRechecks: 99_999
         )
-        #expect(usual.count <= DiagnosticsReport.maximumHidingLength)
+        // Every count stops at five digits, so the line is never cut.
+        #expect(longest == capped)
+        #expect(capped.count <= DiagnosticsReport.maximumHidingLength)
     }
 
     @Test("The hiding summary before macOS 27")
