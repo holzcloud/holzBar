@@ -652,9 +652,14 @@ extension HIDEventManager {
         guard let appState, !names.isEmpty else {
             return
         }
-        for section in appState.menuBarManager.sections where names.contains(section.name) {
+        let manager = appState.menuBarManager
+        for section in manager.sections where names.contains(section.name) {
             section.controlItem.state = .hideSection
         }
+        // What `MenuBarSection.hide()` does besides: the click that started the drag turned
+        // show on hover off, and only a hide turns it on again; no reveal is left recorded.
+        manager.showOnHoverAllowed = true
+        manager.revealOwnership.didHide(Set(names.map(\.ownershipSection)))
         if #available(macOS 27.0, *) {
             appState.concealer27.update()
         }
