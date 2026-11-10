@@ -65,8 +65,9 @@ final class MenuBarManager {
     /// press, or the section shown or hidden another way, cancels it.
     @ObservationIgnored var temporaryShowTask: Task<Void, Never>?
 
-    /// Hides what "Show when it changes" showed after its 5 seconds (D-09). Another show
-    /// (other than a change reveal) or a hide cancels it; a new change reveal replaces it.
+    /// Hides what "Show when it changes" showed after its 5 seconds (D-09). A show by the user
+    /// or a hide cancels it; a new change reveal replaces it. An automatic show on top of it
+    /// (a rule, the display's behaviour) takes what it showed over and hides it with its own.
     @ObservationIgnored var changeRevealTask: Task<Void, Never>?
 
     /// The token of the last change reveal, so a change reveal of the always-hidden section on

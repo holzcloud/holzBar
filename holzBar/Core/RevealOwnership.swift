@@ -80,12 +80,19 @@ nonisolated struct RevealOwnership: Equatable, Sendable {
     }
 
     /// Records a show that expanded the given sections, and returns its token.
+    ///
+    /// An automatic show on top of another automatic reveal takes over what that one expanded
+    /// too, so the latest one hides both: an automation rule that shows the always-hidden
+    /// section during a change reveal of the hidden one also hides the hidden one (the change
+    /// reveal's token is stale then). On top of a user's reveal it records only its own
+    /// sections, so it never hides what the user showed.
     @discardableResult
     mutating func didShow(_ origin: Origin, expanded sections: Set<Section>) -> Token {
+        let kept: Set<Section> = origin.isAutomatic && current?.origin.isAutomatic == true ? expanded : []
         generation += 1
         let token = Token(generation: generation, origin: origin)
         current = token
-        expanded = sections
+        expanded = sections.union(kept)
         return token
     }
 

@@ -195,12 +195,13 @@ final class MenuBarSection {
         // Shown another way, the hidden section no longer hides after a moment, also
         // when it is already shown; the peek's own show keeps its timer, also the one that
         // waited for Touch ID (D-08). Showing the always-hidden section, which an item
-        // change does briefly, leaves the hidden section's timer running. A show other than
-        // a change reveal ends the change reveal's wait (D-09).
+        // change does briefly, leaves the hidden section's timer running. A show by the user
+        // ends the change reveal's wait (D-09); an automatic one (a rule, the display's
+        // behaviour) leaves it, and hides what it showed itself (`RevealOwnership.didShow`).
         if name != .alwaysHidden, origin != .peek {
             menuBarManager.temporaryShowTask?.cancel()
         }
-        if origin != .changeReveal {
+        if !origin.isAutomatic {
             menuBarManager.changeRevealTask?.cancel()
         }
 

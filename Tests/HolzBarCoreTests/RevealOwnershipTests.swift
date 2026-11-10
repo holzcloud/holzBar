@@ -196,6 +196,30 @@ struct RevealOwnershipTests {
         #expect(ownership.mayHide(change).isEmpty)
     }
 
+    @Test("An automatic show on top of an automatic reveal also hides what that one showed")
+    func automaticShowOnAutomaticRevealMerges() {
+        var ownership = RevealOwnership()
+        let change = ownership.didShow(.changeReveal, expanded: [.hidden])
+        let rule = ownership.didShow(.rule, expanded: [.alwaysHidden])
+        #expect(!ownership.isCurrent(change))
+        #expect(ownership.mayHide(rule) == [.alwaysHidden, .hidden])
+        #expect(ownership.sectionsToHide(rehiding: .alwaysHidden) == [.alwaysHidden, .hidden])
+    }
+
+    @Test("An automatic show on top of a user's reveal records only its own sections")
+    func automaticShowOnUserRevealKeepsItsOwn() {
+        for user in [RevealOwnership.Origin.click, .hotkey, .peek, .other] {
+            var ownership = RevealOwnership()
+            _ = ownership.didShow(user, expanded: [.hidden])
+            let rule = ownership.didShow(.rule, expanded: [.alwaysHidden])
+            #expect(ownership.mayHide(rule) == [.alwaysHidden])
+        }
+        var ownership = RevealOwnership()
+        _ = ownership.didShow(.changeReveal, expanded: [.hidden])
+        let hotkey = ownership.didShow(.hotkey, expanded: [.alwaysHidden])
+        #expect(ownership.mayHide(hotkey) == [.alwaysHidden])
+    }
+
     @Test("Every show starts a new token")
     func everyShowIsNew() {
         var ownership = RevealOwnership()
