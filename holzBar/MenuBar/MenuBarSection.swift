@@ -337,6 +337,11 @@ final class MenuBarSection {
         }
 
         stopRehideChecks()
+        // The always-hidden section's show also opened the hidden one, and this hide leaves it
+        // shown: it gets the rehide this section's checks gave it (D-06).
+        if name == .alwaysHidden, !useShelf, menuBarManager.revealOwnership.expanded.contains(.hidden) {
+            menuBarManager.section(withName: .hidden)?.armRehide()
+        }
         updateConcealment27()
     }
 
