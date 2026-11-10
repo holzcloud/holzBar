@@ -49,6 +49,11 @@ nonisolated struct DiagnosticsInput: Equatable, Sendable {
     /// `waited 1200 ms, 1 read, set hidden, applied`. Empty before the first one or while the
     /// switch is off, so the report stays as it was. Never a name.
     var lastCommandDrag = ""
+    /// What the hiding fixes of 1.0.5 did, in fixed words and counts
+    /// (``DiagnosticsReport/hidingSummary27(reveal:agentRestarts:lateAllowlist:youngRetries:forcedReads:heldBack:notchRechecks:)``
+    /// or ``DiagnosticsReport/hidingSummaryBefore27(anchor:iconPutBack:)``), such as `anchor
+    /// icon, icon put back 0`. Empty keeps the report as it was. Never a name.
+    var hiding = ""
     /// The last click on a Shelf tile in fixed words, such as `shown, clicked` or `failed, not
     /// shown and not reachable`. Empty before the first click or before macOS 27.
     var lastShelfClick = ""
@@ -77,6 +82,9 @@ nonisolated enum DiagnosticsReport {
     /// The longest text kept for the last command-drag (the longest line has five-digit waiting
     /// time, two-digit reads and `ignored: not an app item`).
     static let maximumLastCommandDragLength = 80
+
+    /// The longest text kept for the Hiding line (seven five-digit counts with their words fit).
+    static let maximumHidingLength = 160
 
     /// The longest text kept for a field.
     static let maximumFieldLength = 40
@@ -108,6 +116,9 @@ nonisolated enum DiagnosticsReport {
         if !input.lastCommandDrag.isEmpty {
             lines.append("Last command-drag: \(field(input.lastCommandDrag, limit: maximumLastCommandDragLength, punctuation: ":"))")
         }
+        if !input.hiding.isEmpty {
+            lines.append("Hiding: \(field(input.hiding, limit: maximumHidingLength))")
+        }
         if !input.lastShelfClick.isEmpty {
             lines.append("Last Shelf click: \(field(input.lastShelfClick, limit: maximumLastDropLength))")
         }
@@ -121,6 +132,50 @@ nonisolated enum DiagnosticsReport {
             lines.append("Click \(index + 1): \(field(click, limit: maximumClickLength))")
         }
         return lines.joined(separator: "\n")
+    }
+
+    /// The Hiding line on macOS 27: the reveal state the concealment follows and how often the
+    /// fixes of 1.0.5 acted (MenuBarAgent restarts, allowlist refreshes for apps read late, young
+    /// apps asked again, reads forced and held back by busy apps, notch rechecks).
+    ///
+    /// - Parameter reveal: One of the fixed words `all hidden`, `hidden revealed`, `all revealed`.
+    static func hidingSummary27(
+        reveal: String,
+        agentRestarts: Int,
+        lateAllowlist: Int,
+        youngRetries: Int,
+        forcedReads: Int,
+        heldBack: Int,
+        notchRechecks: Int
+    ) -> String {
+        [
+            "reveal \(word(reveal))",
+            "agent restarts \(count(agentRestarts))",
+            "late allowlist \(count(lateAllowlist))",
+            "young retries \(count(youngRetries))",
+            "forced reads \(count(forcedReads))",
+            "held back \(count(heldBack))",
+            "notch rechecks \(count(notchRechecks))",
+        ].joined(separator: ", ")
+    }
+
+    /// The Hiding line before macOS 27: what the last menu bar hit test took the bar's state
+    /// from and how often a read put the holzBar icon back right of the hidden divider.
+    ///
+    /// - Parameter anchor: One of the fixed words `icon`, `divider`, `none`.
+    static func hidingSummaryBefore27(anchor: String, iconPutBack: Int) -> String {
+        "anchor \(word(anchor)), icon put back \(count(iconPutBack))"
+    }
+
+    /// A fixed word of a summary: lowercase letters and spaces only.
+    private static func word(_ text: String) -> String {
+        let allowed = Set("abcdefghijklmnopqrstuvwxyz ")
+        return String(text.lowercased().filter { allowed.contains($0) })
+    }
+
+    /// A count of a summary, never negative.
+    private static func count(_ value: Int) -> String {
+        String(max(0, value))
     }
 
     /// The longest text kept for a click of the trace (the longest line has a dozen extents).
