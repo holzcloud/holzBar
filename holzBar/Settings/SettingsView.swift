@@ -10,49 +10,17 @@ struct SettingsView: View {
     @Bindable var navigationState: AppNavigationState
     @Environment(\.appearsActive) private var appearsActive
     @Environment(\.sidebarRowSize) private var sidebarRowSize
+    @Environment(\.colorScheme) private var colorScheme
     @FocusState private var isSearchFocused: Bool
 
-    private let sidebarPadding: CGFloat = 3
-
-    private var sidebarWidth: CGFloat {
-        if #available(macOS 26.0, *) {
-            switch sidebarRowSize {
-            case .small: 200
-            case .medium: 220
-            case .large: 240
-            @unknown default: 220
-            }
-        } else {
-            switch sidebarRowSize {
-            case .small: 190
-            case .medium: 215
-            case .large: 230
-            @unknown default: 215
-            }
-        }
-    }
-
-    private var sidebarItemHeight: CGFloat {
+    /// The sidebar measures for the system's sidebar icon size (D-08).
+    private var metrics: HolzBarTheme.SettingsSidebar.Metrics {
         switch sidebarRowSize {
-        case .small: 26
-        case .medium: 32
-        case .large: 34
-        @unknown default: 32
+        case .small: HolzBarTheme.SettingsSidebar.small
+        case .medium: HolzBarTheme.SettingsSidebar.medium
+        case .large: HolzBarTheme.SettingsSidebar.large
+        @unknown default: HolzBarTheme.SettingsSidebar.medium
         }
-    }
-
-    private var sidebarFontSize: CGFloat {
-        switch sidebarRowSize {
-        case .small: 13
-        case .medium: 15
-        case .large: 16
-        @unknown default: 15
-        }
-    }
-
-    /// The size of the sidebar title and of the logo next to it.
-    private var titleSize: CGFloat {
-        sidebarFontSize * 2.67
     }
 
     private var sidebarTextStyle: some ShapeStyle {
@@ -85,7 +53,9 @@ struct SettingsView: View {
         }
     }
 
-    /// The search field, pinned above the sidebar list.
+    // MARK: Sidebar
+
+    /// The search field, pinned above the scrolling rows.
     private var sidebarColumn: some View {
         VStack(spacing: 0) {
             SettingsSearchField(
@@ -94,71 +64,105 @@ struct SettingsView: View {
             )
             .padding(.horizontal, HolzBarTheme.SettingsSidebar.rowPadding)
             .padding(.bottom, HolzBarTheme.SettingsSidebar.searchFieldBottomGap)
-            sidebar
+            sidebarRows
         }
-    }
-
-    @ViewBuilder
-    private var sidebar: some View {
-        List(selection: $navigationState.settingsNavigationIdentifier) {
-            Section {
-                ForEach(SettingsNavigationIdentifier.menuBarGroup) { identifier in
-                    sidebarItem(for: identifier)
-                }
-                sidebarGap
-                ForEach(SettingsNavigationIdentifier.modulesGroup) { identifier in
-                    sidebarItem(for: identifier)
-                }
-                sidebarGap
-                ForEach(SettingsNavigationIdentifier.appGroup) { identifier in
-                    sidebarItem(for: identifier)
-                }
-            } header: {
-                HStack(spacing: sidebarFontSize * 0.6) {
-                    Image(.appLogo)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: titleSize, height: titleSize)
-                        .accessibilityHidden(true)
-                    Text("holzBar")
-                        .font(HolzBarTheme.Typography.sidebar(size: titleSize, weight: .medium))
-                        .foregroundStyle(sidebarTextStyle)
-                }
-                .padding(.leading, sidebarPadding)
-                .padding(.bottom, sidebarFontSize)
-            }
-            .collapsible(false)
-        }
-        .scrollDisabled(true)
         .toolbar(removing: .sidebarToggle)
         .toolbar {
             sidebarToolbarSpacer
         }
-        .navigationSplitViewColumnWidth(min: sidebarWidth, ideal: sidebarWidth, max: sidebarWidth)
+        .navigationSplitViewColumnWidth(min: metrics.width, ideal: metrics.width, max: metrics.width)
     }
 
-    /// A quiet gap between the groups, without a header.
+    /// The panes in three groups: the menu bar, Modules alone between two gaps, and holzBar. The
+    /// rows scroll instead of clipping at the large sidebar size.
+    private var sidebarRows: some View {
+        ScrollView(.vertical) {
+            VStack(alignment: .leading, spacing: HolzBarTheme.SettingsSidebar.rowGap) {
+                groupLabel(Text("Menu Bar"))
+                ForEach(SettingsNavigationIdentifier.menuBarGroup) { identifier in
+                    sidebarRow(for: identifier)
+                }
+                sidebarGap
+                ForEach(SettingsNavigationIdentifier.modulesGroup) { identifier in
+                    sidebarRow(for: identifier)
+                }
+                sidebarGap
+                groupLabel(Text("holzBar"))
+                ForEach(SettingsNavigationIdentifier.appGroup) { identifier in
+                    sidebarRow(for: identifier)
+                }
+            }
+            .padding(.horizontal, HolzBarTheme.SettingsSidebar.rowPadding)
+            .padding(.bottom, HolzBarTheme.SettingsSidebar.rowPadding)
+        }
+        .onMoveCommand { direction in
+            switch direction {
+            case .up: selectNeighbour(offset: -1)
+            case .down: selectNeighbour(offset: 1)
+            default: break
+            }
+        }
+    }
+
+    private func groupLabel(_ title: Text) -> some View {
+        title
+            .font(HolzBarTheme.Typography.caption.weight(.semibold))
+            .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+            .padding(.leading, HolzBarTheme.SettingsSidebar.rowPadding)
+            .padding(.top, HolzBarTheme.SettingsSidebar.moduleGap)
+            .padding(.bottom, HolzBarTheme.Spacing.xxs)
+            .accessibilityAddTraits(.isHeader)
+    }
+
+    /// A quiet gap between the groups.
     private var sidebarGap: some View {
         Color.clear
-            .frame(height: sidebarFontSize * 0.6)
-            .listRowSeparator(.hidden)
-            .selectionDisabled()
+            .frame(height: HolzBarTheme.SettingsSidebar.moduleGap)
             .accessibilityHidden(true)
     }
 
-    @ViewBuilder
-    private func sidebarItem(for identifier: SettingsNavigationIdentifier) -> some View {
-        Label {
-            Text(identifier.localized)
-                .font(HolzBarTheme.Typography.sidebar(size: sidebarFontSize))
-                .foregroundStyle(sidebarTextStyle)
-        } icon: {
-            identifier.iconResource.view
-                .foregroundStyle(sidebarTextStyle)
-                .padding(sidebarPadding)
+    private func sidebarRow(for identifier: SettingsNavigationIdentifier) -> some View {
+        // While a query is set the results replace the pane, so no row shows as selected.
+        let isSelected = !navigationState.settingsSearch.isSearching
+            && navigationState.settingsNavigationIdentifier == identifier
+        return Button {
+            navigationState.settingsNavigationIdentifier = identifier
+        } label: {
+            HStack(spacing: HolzBarTheme.SettingsSidebar.symbolTextGap) {
+                identifier.iconResource.view
+                    .foregroundStyle(HolzBarTheme.Palette.accent)
+                    .frame(width: metrics.symbolSize, height: metrics.symbolSize)
+                    .accessibilityHidden(true)
+                Text(identifier.localized)
+                    .font(HolzBarTheme.Typography.sidebar(size: metrics.textSize))
+                    .foregroundStyle(sidebarTextStyle)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, HolzBarTheme.SettingsSidebar.rowPadding)
+            .frame(maxWidth: .infinity, minHeight: metrics.rowHeight, maxHeight: metrics.rowHeight, alignment: .leading)
+            .background(
+                HolzBarTheme.Palette.accent.opacity(isSelected ? selectedFillOpacity : 0),
+                in: HolzBarTheme.shape(HolzBarTheme.SettingsSidebar.rowRadius)
+            )
+            .contentShape(Rectangle())
         }
-        .frame(height: sidebarItemHeight)
-        .tag(identifier)
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
+    private var selectedFillOpacity: Double {
+        colorScheme == .dark
+            ? HolzBarTheme.SettingsKit.accentFillDark
+            : HolzBarTheme.SettingsKit.accentFillLight
+    }
+
+    /// Moves the selection to the previous or next pane (up and down arrow keys).
+    private func selectNeighbour(offset: Int) {
+        let all = SettingsNavigationIdentifier.allCases
+        guard let index = all.firstIndex(of: navigationState.settingsNavigationIdentifier) else { return }
+        let target = index + offset
+        guard all.indices.contains(target) else { return }
+        navigationState.settingsNavigationIdentifier = all[target]
     }
 
     @ToolbarContentBuilder
@@ -172,15 +176,17 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: Detail
+
     @ViewBuilder
     private var detailView: some View {
         if #available(macOS 26.0, *) {
             detailContent
                 .scrollEdgeEffectStyle(.hard, for: .top)
-                .background(HolzBarGround())
+                .background(HolzBarGround(showsGlows: false))
         } else {
             detailContent
-                .background(HolzBarGround())
+                .background(HolzBarGround(showsGlows: false))
         }
     }
 
@@ -197,16 +203,22 @@ struct SettingsView: View {
     @ViewBuilder
     private var settingsPane: some View {
         switch navigationState.settingsNavigationIdentifier {
-        case .general:
-            GeneralSettingsPane(settings: appState.settings.general)
         case .menuBarLayout:
             MenuBarLayoutSettingsPane(itemManager: appState.itemManager)
+        case .showingAndHiding:
+            ShowingAndHidingSettingsPane()
+        case .shelf:
+            HolzBarShelfSettingsPane()
+        case .profilesAndHistory:
+            ProfilesAndHistorySettingsPane()
         case .menuBarAppearance:
             MenuBarAppearanceSettingsPane(appearanceManager: appState.appearanceManager)
         case .automation:
             AutomationSettingsPane(manager: appState.automation)
         case .modules:
             ModulesSettingsPane()
+        case .general:
+            GeneralSettingsPane(settings: appState.settings.general)
         case .hotkeys:
             HotkeysSettingsPane(settings: appState.settings.hotkeys)
         case .advanced:

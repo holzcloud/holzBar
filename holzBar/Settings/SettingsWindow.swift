@@ -17,7 +17,12 @@ struct SettingsWindow: Scene {
                 .onWindowChange { window in
                     model.observe(window, navigationState: appState.navigationState)
                 }
-                .frame(minWidth: 760, maxWidth: 1150, minHeight: 540, maxHeight: 750)
+                .frame(
+                    minWidth: HolzBarTheme.SettingsSidebar.minimumWindowWidth,
+                    maxWidth: 1150,
+                    minHeight: HolzBarTheme.SettingsSidebar.minimumWindowHeight,
+                    maxHeight: 750
+                )
         }
         .commandsRemoved()
         .windowResizability(.contentSize)

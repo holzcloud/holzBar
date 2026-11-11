@@ -18,7 +18,11 @@ final class AppNavigationState {
     var isSearchPresented = false
     /// Whether the panel of a menu bar item group is shown.
     var isItemGroupPanelPresented = false
-    var settingsNavigationIdentifier: SettingsNavigationIdentifier = .general
+    /// The pane the Settings window shows. Choosing a pane in any way ends a running search, so a
+    /// jump to a pane is never hidden behind results.
+    var settingsNavigationIdentifier: SettingsNavigationIdentifier = .general {
+        didSet { settingsSearch.clear() }
+    }
     /// The Settings search. It lives as long as the app, so a jump can open a disclosure or a
     /// module before the pane that holds it exists.
     let settingsSearch = SettingsSearchModel()
