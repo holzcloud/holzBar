@@ -29,35 +29,91 @@ struct MenuBarLayoutSettingsPane: View {
             cannotArrange
         } else {
             SettingsPaneHost(.layout) {
-                if #available(macOS 27.0, *) {
-                    StuckOverflowWarning(concealer: appState.concealer27)
-                }
-                ItemRuleNoticesSection()
-                if #available(macOS 27.0, *) {
-                    CommandDragNoticesSection()
-                }
+                topRow
                 menuBarGroup
                 LayoutDraftSection()
-                HolzBarSection {
-                    HStack {
-                        Text("Let holzBar propose which items to hide, from what it knows of the apps. You decide, and you can undo it.")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Button("Tidy Up…") {
-                            appState.navigationState.isTidyUpPresented = true
-                        }
-                    }
-                    .padding(10)
-                }
+                noticesGroup
+                UsageSuggestionsSection(usage: appState.usage)
                 SearchSettingsSection(general: appState.settings.general, opens: appState.searchOpens)
                 if !ScreenRecordingAccess.isGranted(appState) {
-                    // Without Screen Recording the items show their apps' icons; the hint
+                    // Without Screen Recording the items show their apps' icons; the group
                     // offers their real pictures.
-                    HolzBarSection {
-                        ScreenRecordingHint(feature: .layoutPane, appState: appState)
+                    picturesGroup
+                }
+            }
+            .onChange(of: appState.automation.itemRuleNotices) { old, new in
+                // A put-back while Settings is open is announced once; a dismissal is not.
+                if let newest = new.first, !old.contains(newest) {
+                    LayoutBarItemView.announce(ItemRuleNoticeRows.sentence(for: newest))
+                }
+            }
+            .onChange(of: commandDragNoticeCount) {
+                // Every drop that arrives while Settings is open is announced, also one equal to
+                // an earlier notice; notices that existed when the pane opened and dismissals
+                // are not.
+                if #available(macOS 27.0, *), let newest = appState.commandDragSection27.notices.first {
+                    LayoutBarItemView.announce(CommandDragNoticeRows.sentence(for: newest))
+                }
+            }
+        }
+    }
+
+    /// The row above the groups: Tidy Up… (Phase 90 puts Bars | List and the filter before it and
+    /// Undo after it). The id lets a search hit scroll to it.
+    private var topRow: some View {
+        HStack(spacing: HolzBarTheme.SettingsKit.accessoryGap) {
+            Spacer(minLength: 0)
+            Button("Tidy Up…", systemImage: "wand.and.stars") {
+                appState.navigationState.isTidyUpPresented = true
+            }
+            if let info = SettingsEntry.layoutTidyUp.info {
+                SettingsInfoButton(Text(info))
+            }
+        }
+        .id(SettingsEntry.layoutTidyUp.id)
+    }
+
+    private var commandDragNoticeCount: Int {
+        if #available(macOS 27.0, *) {
+            return appState.commandDragSection27.noticeCount
+        }
+        return 0
+    }
+
+    private var hasNotices: Bool {
+        if !appState.automation.itemRuleNotices.isEmpty {
+            return true
+        }
+        if #available(macOS 27.0, *) {
+            return !appState.commandDragSection27.notices.isEmpty || appState.concealer27.isOverflowStuck
+        }
+        return false
+    }
+
+    /// What was put back by a rule, what a Command-drag did and the folded-away warning; the
+    /// group exists only while there is something to report.
+    @ViewBuilder
+    private var noticesGroup: some View {
+        if hasNotices {
+            SettingsGroup(SettingsCatalog.LayoutPane.notices) {
+                ItemRuleNoticeRows()
+                if #available(macOS 27.0, *) {
+                    CommandDragNoticeRows()
+                    StuckOverflowWarning(concealer: appState.concealer27)
+                }
+            }
+        }
+    }
+
+    private var picturesGroup: some View {
+        SettingsGroup(SettingsCatalog.LayoutPane.pictures) {
+            SettingsStateLine(.warning, Text("Screen Recording is not allowed: the bars show app icons instead of pictures."))
+            SettingsButtonRow(.layoutPictures) {
+                Button("Allow Screen Recording…") {
+                    Task {
+                        await ScreenRecordingAccess.request(for: .layoutPane, appState: appState)
                     }
                 }
-                UsageSuggestionsSection(usage: appState.usage)
             }
         }
     }
@@ -158,76 +214,42 @@ private struct StuckOverflowWarning: View {
 
     var body: some View {
         if concealer.isOverflowStuck {
-            HolzBarSection {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Some items are folded away on the built-in display.")
-                        .font(.headline)
-                    Text("macOS stopped laying them out when holzBar freed the space beside the notch, and left no control to reach them. Quitting and reopening the application whose item is missing brings it back.")
-                        .font(HolzBarTheme.Typography.callout.weight(.medium))
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .padding(15)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            SettingsStateLine(.warning, Text("Some items are folded away on the built-in display.")) {
+                SettingsInfoButton(Text("macOS stopped laying them out when holzBar freed the space beside the notch, and left no control to reach them. Quitting and reopening the application whose item is missing brings it back."))
             }
         }
     }
 }
 
-// MARK: - ItemRuleNoticesSection
+// MARK: - ItemRuleNoticeRows
 
 /// Tells the user which items a rule put back after a move by hand, so a put-back is never
 /// silent. The notices stay until they are dismissed or the rule goes.
-private struct ItemRuleNoticesSection: View {
+private struct ItemRuleNoticeRows: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
-        let notices = appState.automation.itemRuleNotices
-        Group {
-            if !notices.isEmpty {
-                HolzBarSection {
-                    Text("Put Back by a Rule")
-                        .font(.headline)
-                } content: {
-                    ForEach(notices) { notice in
-                        row(for: notice)
-                    }
-                    Text("Its rule decides where the item is. A move by hand lasts only while the rule shows the item.")
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(10)
+        ForEach(appState.automation.itemRuleNotices) { notice in
+            SettingsButtonRow(
+                Text(verbatim: Self.sentence(for: notice)),
+                info: Text("Its rule decides where the item is. A move by hand lasts only while the rule shows the item.")
+            ) {
+                Button("Edit Rule…") {
+                    edit(notice)
+                }
+                Button("OK") {
+                    appState.automation.dismissItemRuleNotice(forKey: notice.itemKey)
                 }
             }
-        }
-        .onChange(of: notices) { old, new in
-            // A put-back while Settings is open is announced once; a dismissal is not.
-            if let newest = new.first, !old.contains(newest) {
-                LayoutBarItemView.announce(sentence(for: newest))
-            }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(Self.sentence(for: notice))
         }
     }
 
     /// "“Name” was put back in Hidden."
-    private func sentence(for notice: ItemRuleNotice) -> String {
+    static func sentence(for notice: ItemRuleNotice) -> String {
         let section = MenuBarSection.Name(profileIndex: notice.putBackIn)?.displayString ?? ""
         return String(localized: "\u{201C}\(notice.itemName)\u{201D} was put back in \(section).")
-    }
-
-    private func row(for notice: ItemRuleNotice) -> some View {
-        HStack {
-            Text(sentence(for: notice))
-            Spacer()
-            Button("Edit Rule…") {
-                edit(notice)
-            }
-            Button("OK") {
-                appState.automation.dismissItemRuleNotice(forKey: notice.itemKey)
-            }
-        }
-        .padding(10)
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(sentence(for: notice))
     }
 
     /// Opens the rule of the item in the sheet of this pane. The item's own name is used when
@@ -240,46 +262,44 @@ private struct ItemRuleNoticesSection: View {
     }
 }
 
-// MARK: - CommandDragNoticesSection
+// MARK: - CommandDragNoticeRows
 
 /// Tells the user what a Command-drag across the holzBar icon did, so a drop is never silent: an
 /// app's new section with Undo, or why a drop changed nothing. The notices stay until they are
 /// dismissed or the list is full, and are never stored.
 @available(macOS 27.0, *)
-private struct CommandDragNoticesSection: View {
+private struct CommandDragNoticeRows: View {
     @Environment(AppState.self) private var appState
 
     var body: some View {
-        let notices = appState.commandDragSection27.notices
-        Group {
-            if !notices.isEmpty {
-                HolzBarSection {
-                    Text("Set by Command-Drag")
-                        .font(.headline)
-                } content: {
-                    ForEach(notices) { notice in
-                        row(for: notice)
+        ForEach(appState.commandDragSection27.notices) { notice in
+            SettingsButtonRow(Text(verbatim: Self.sentence(for: notice)), info: info(for: notice)) {
+                if case .set = notice.kind {
+                    Button("Undo") {
+                        appState.commandDragSection27.undo(notice)
                     }
-                    Text("The section is per app: every item of the app changed with it.")
-                        .font(HolzBarTheme.Typography.caption)
-                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(10)
+                }
+                Button("OK") {
+                    appState.commandDragSection27.dismiss(notice)
                 }
             }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(Self.sentence(for: notice))
         }
-        .onChange(of: appState.commandDragSection27.noticeCount) {
-            // Every drop that arrives while Settings is open is announced, also one equal to an
-            // earlier notice; notices that existed when the pane opened and dismissals are not.
-            if let newest = appState.commandDragSection27.notices.first {
-                LayoutBarItemView.announce(sentence(for: newest))
-            }
+    }
+
+    /// The explanation fits a drop that set a section; for one that changed nothing it would be
+    /// wrong.
+    private func info(for notice: CommandDragNotice) -> Text? {
+        if case .set = notice.kind {
+            return Text("The section is per app: every item of the app changed with it.")
         }
+        return nil
     }
 
     /// "“Name” is now hidden.", or the reason a drop changed nothing; the nameless notice of an
     /// item macOS keeps in place names no app.
-    private func sentence(for notice: CommandDragNotice) -> String {
+    static func sentence(for notice: CommandDragNotice) -> String {
         let name = notice.itemName
         switch notice.kind {
         case .set(_, let section):
@@ -293,23 +313,5 @@ private struct CommandDragNoticesSection: View {
         case .kept(.system):
             return String(localized: "macOS keeps its own items in place: the drop changed nothing.")
         }
-    }
-
-    private func row(for notice: CommandDragNotice) -> some View {
-        HStack {
-            Text(sentence(for: notice))
-            Spacer()
-            if case .set = notice.kind {
-                Button("Undo") {
-                    appState.commandDragSection27.undo(notice)
-                }
-            }
-            Button("OK") {
-                appState.commandDragSection27.dismiss(notice)
-            }
-        }
-        .padding(10)
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(sentence(for: notice))
     }
 }

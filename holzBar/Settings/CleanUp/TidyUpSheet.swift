@@ -22,7 +22,7 @@ struct TidyUpSheet: View {
             Text("Tidy Up")
                 .font(HolzBarTheme.Typography.title)
                 .accessibilityAddTraits(.isHeader)
-            Text("holzBar looked at the apps in your menu bar on this Mac. Nothing leaves your Mac and nothing is recorded. It proposes to hide what works in the background; the clock, the battery and apps with messages stay. Uncheck what should stay visible.")
+            Text("holzBar looked at the apps in your menu bar on this Mac. Nothing leaves your Mac and nothing is recorded. It proposes to hide only visible items that work in the background, never the clock, the battery, Wi-Fi, Control Center, sound, an item that shows a changing value or a social or business app. Switch off what should stay visible.")
                 .font(HolzBarTheme.Typography.callout)
                 .foregroundStyle(HolzBarTheme.Palette.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -32,21 +32,21 @@ struct TidyUpSheet: View {
                     .frame(maxWidth: .infinity, minHeight: 120)
             } else {
                 List(entries) { entry in
-                    Toggle(isOn: isHidden(entry.id)) {
-                        HStack(spacing: HolzBarTheme.Spacing.sm) {
-                            if let icon = entry.icon {
-                                Image(nsImage: icon)
-                                    .resizable()
-                                    .frame(width: 20, height: 20)
-                                    .accessibilityHidden(true)
-                            }
-                            VStack(alignment: .leading, spacing: 0) {
-                                Text(verbatim: entry.name)
-                                Text(entry.reasonText)
-                                    .font(HolzBarTheme.Typography.caption)
-                                    .foregroundStyle(HolzBarTheme.Palette.textTertiary)
-                            }
+                    HStack(spacing: HolzBarTheme.Spacing.sm) {
+                        if let icon = entry.icon {
+                            Image(nsImage: icon)
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .accessibilityHidden(true)
                         }
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(verbatim: entry.name)
+                            Text(entry.reasonText)
+                                .font(HolzBarTheme.Typography.caption)
+                                .foregroundStyle(HolzBarTheme.Palette.textTertiary)
+                        }
+                        Spacer(minLength: 0)
+                        SettingsSwitch(isOn: isHidden(entry.id), label: Text(verbatim: entry.name))
                     }
                 }
                 .frame(height: 240)
