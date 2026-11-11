@@ -61,7 +61,6 @@ struct MenuBarLayoutSettingsPane: View {
                 UsageSuggestionsSection(usage: appState.usage)
                 LayoutProfilesSection(profiles: appState.profiles)
                 ItemGroupsSection(groups: appState.itemGroups, itemManager: itemManager)
-                SpacersSection(spacers: appState.spacers)
                 LayoutHistorySection(snapshots: appState.snapshots)
             }
         }
@@ -698,30 +697,6 @@ private struct ItemGroupsSection: View {
                     groups.addGroup(named: newGroupName)
                 }
                 Button("Cancel", role: .cancel) { }
-            }
-        }
-    }
-}
-
-// MARK: - SpacersSection
-
-/// Adds empty items that make space between others (jordanbaird/Ice#91).
-private struct SpacersSection: View {
-    @Bindable var spacers: MenuBarSpacers
-
-    var body: some View {
-        HolzBarSection("Spacers") {
-            Stepper(value: $spacers.count, in: 0...MenuBarSpacers.maximumCount) {
-                Text("Spacers: \(spacers.count)")
-            }
-            .annotation("Empty items that add space between others. ⌘ Command-drag them where you want them, or arrange them below.")
-            if spacers.count >= 1 {
-                LabeledContent {
-                    Slider(value: $spacers.width, in: 4...60, step: 2)
-                        .frame(maxWidth: 200)
-                } label: {
-                    Text("Width: \(Int(spacers.width)) pt")
-                }
             }
         }
     }
