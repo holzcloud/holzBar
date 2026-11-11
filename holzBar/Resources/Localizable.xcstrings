@@ -5193,124 +5193,6 @@
         }
       }
     },
-    "Drag an item in the holzBar Shelf to put it in order, into another section or up onto the menu bar to show it there. Where macOS puts the items of a section in order itself, an item can only change its section." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Přetažením položky v holzBar Shelf ji uspořádáte, přesunete do jiné sekce nebo nahoru na řádek nabídek, aby se zobrazila tam. Kde macOS řadí položky sekce samo, může položka změnit jen sekci."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ziehe ein Element im holzBar Shelf, um es einzuordnen, in einen anderen Bereich zu legen oder nach oben auf die Menüleiste zu ziehen und es dort anzuzeigen. Wo macOS die Elemente eines Bereichs selbst anordnet, kann ein Element nur den Bereich wechseln."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Arrastra un elemento del holzBar Shelf para ordenarlo, moverlo a otra sección o subirlo a la barra de menús para mostrarlo allí. Cuando macOS ordena por sí mismo los elementos de una sección, un elemento solo puede cambiar de sección."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Faites glisser un élément dans le holzBar Shelf pour le classer, le placer dans une autre section ou le déposer en haut sur la barre des menus pour l'y afficher. Là où macOS classe lui-même les éléments d'une section, un élément ne peut que changer de section."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Húzzon egy elemet a holzBar Shelfben, hogy rendezze, másik szakaszba tegye, vagy fel a menüsorra, hogy ott jelenjen meg. Ahol a macOS maga rendezi egy szakasz elemeit, az elem csak szakaszt válthat."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seret item di holzBar Shelf untuk mengurutkannya, memindahkannya ke bagian lain, atau ke bar menu agar tampil di sana. Jika macOS sendiri yang mengurutkan item suatu bagian, item hanya dapat berpindah bagian."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trascina un elemento nel holzBar Shelf per riordinarlo, spostarlo in un'altra sezione o portarlo in alto sulla barra dei menu per mostrarlo lì. Dove macOS ordina da solo gli elementi di una sezione, un elemento può solo cambiare sezione."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf の項目をドラッグして、並べ替えたり、別のセクションに移したり、メニューバーまで持ち上げてそこに表示したりできます。macOS がセクション内の項目を自動で並べる場合、項目はセクションの変更のみ可能です。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf에서 항목을 드래그하면 순서를 바꾸거나, 다른 섹션으로 옮기거나, 메뉴 막대 위로 올려 그곳에 표시할 수 있습니다. macOS가 섹션 안의 항목 순서를 직접 정하는 경우에는 항목의 섹션만 바꿀 수 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sleep een onderdeel in de holzBar Shelf om het te ordenen, naar een andere sectie of omhoog naar de menubalk om het daar te tonen. Waar macOS de onderdelen van een sectie zelf ordent, kan een onderdeel alleen van sectie wisselen."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Przeciągnij element w holzBar Shelf, aby uporządkować go, przenieść do innej sekcji lub w górę na pasek menu, aby tam się wyświetlał. Gdy macOS sam porządkuje elementy sekcji, element może zmienić tylko sekcję."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Arraste um item do holzBar Shelf para colocá-lo em ordem, movê-lo para outra seção ou levá-lo até a barra de menus para exibi-lo ali. Quando o macOS ordena por conta própria os itens de uma seção, um item só pode mudar de seção."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tira in element en il holzBar Shelf per al metter en ordinaziun, en ina autra secziun u si sin la trav da menus per al mussar là. Nua che macOS ordinescha sez ils elements d'ina secziun, po in element mo midar la secziun."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перетащите элемент в holzBar Shelf, чтобы изменить порядок, перенести его в другой раздел или поместить на строку меню и показать там. Если macOS сама определяет порядок элементов раздела, элемент можно только перенести в другой раздел."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dra ett objekt i holzBar Shelf för att ordna det, flytta det till en annan sektion eller upp till menyraden för att visa det där. Där macOS själv ordnar en sektions objekt kan ett objekt bara byta sektion."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bir öğeyi sıralamak, başka bir bölüme taşımak veya menü çubuğunda göstermek için holzBar Shelf içinde sürükleyin. macOS’in bir bölümün öğelerini kendisinin sıraladığı yerde bir öğe yalnızca bölüm değiştirebilir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Перетягніть елемент у holzBar Shelf, щоб змінити порядок, перенести його в інший розділ або на смугу меню, щоб показати його там. Якщо macOS сама визначає порядок елементів розділу, елемент можна лише перенести в інший розділ."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 holzBar Shelf 中拖移项目，可以调整顺序、移到其他分区，或拖到菜单栏上以在那里显示。如果 macOS 自行排列分区内的项目，则项目只能更换分区。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "將項目拖移到 holzBar Shelf 中可調整順序、移到另一個區段，或向上拖到選單列以在那裡顯示。若 macOS 自行排列某個區段的項目，則項目只能更換區段。"
-          }
-        }
-      }
-    },
     "Drop files here" : {
       "localizations" : {
         "cs" : {
@@ -52191,124 +52073,6 @@
         }
       }
     },
-    "On macOS 27, items that macOS shows in its own expanded overflow are not listed a second time." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "V macOS 27 se položky, které macOS ukazuje ve vlastním rozbaleném přetečení, neuvádějí podruhé."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unter macOS 27 werden Elemente, die macOS in seinem eigenen aufgeklappten Überlauf zeigt, nicht ein zweites Mal aufgeführt."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En macOS 27, los elementos que macOS muestra en su propio desbordamiento desplegado no se listan una segunda vez."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sur macOS 27, les éléments que macOS affiche dans son propre débordement déployé ne sont pas listés une seconde fois."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27 alatt a macOS saját kibontott túlcsordulásában látható elemek nem szerepelnek még egyszer."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Di macOS 27, item yang terlihat di luapan yang dibentangkan milik macOS tidak diulang."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Su macOS 27, gli elementi che macOS mostra nel proprio overflow espanso non vengono elencati una seconda volta."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27 では、macOS が独自の展開したオーバーフローに表示している項目は、重ねて一覧に表示されません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27에서는 macOS가 자체적으로 펼친 오버플로에 표시하는 항목이 한 번 더 나열되지 않습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Op macOS 27 worden onderdelen die macOS in zijn eigen uitgeklapte overloop toont, niet een tweede keer getoond."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "W macOS 27 elementy, które macOS pokazuje we własnym rozwiniętym przepełnieniu, nie są wymienione drugi raz."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No macOS 27, os itens que o macOS exibe no próprio estouro expandido não são listados uma segunda vez."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sin macOS 27 na vegnan ils elements che macOS mussa en ses agen overflow avert betg mussads ina segunda giada."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "На macOS 27 элементы, которые система показывает в собственной развёрнутой области переполнения, повторно не перечисляются."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "På macOS 27 tas inte objekt som syns i macOS egen utfällda överflödesvy med en gång till."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "macOS 27’de, macOS’in kendi genişletilmiş taşmasında görünen öğeler bir daha listelenmez."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "У macOS 27 елементи, які система показує у власній розгорнутій області переповнення, повторно не перелічуються."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 macOS 27 上，macOS 在其自身展开的溢出区域中显示的项目不会再重复列出。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在 macOS 27 上，macOS 在自己展開的溢位區域中顯示的項目，不會再列出第二次。"
-          }
-        }
-      }
-    },
     "On macOS 27, while holzBar hides menu bar items, Control Centre does not show its indicator for the camera, the microphone or screen recording. It comes back while holzBar hides no item. holzBar can mark its own icon instead, for the microphone and the camera but not for screen recording. The small green dot beside the clock still appears while the camera is on." : {
       "localizations" : {
         "cs" : {
@@ -67531,124 +67295,6 @@
         }
       }
     },
-    "Show applications that are not running" : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zobrazovat aplikace, které neběží"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nicht laufende Apps zeigen"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostrar aplicaciones que no se están ejecutando"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher les applications qui ne sont pas ouvertes"
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nem futó alkalmazások megjelenítése"
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tampilkan app yang tidak berjalan"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra le app non in esecuzione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "実行中でないアプリケーションを表示"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "실행 중이 아닌 앱 표시"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toon apps die niet actief zijn"
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pokazuj aplikacje, które nie są uruchomione"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exibir aplicativos que não estão em execução"
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mussar las applicaziuns che na currran betg"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Показывать приложения, которые не запущены"
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visa appar som inte körs"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Çalışmayan uygulamaları göster"
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Показувати програми, які не запущено"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "显示未运行的 App"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "顯示尚未執行的 App"
-          }
-        }
-      }
-    },
     "Show Hidden Section" : {
       "localizations" : {
         "cs" : {
@@ -68943,124 +68589,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "顯示為符號"
-          }
-        }
-      }
-    },
-    "Show hidden menu bar items in a separate bar below the menu bar." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zobrazit skryté položky řádku nabídek v samostatném řádku pod řádkem nabídek."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ausgeblendete Elemente in einer eigenen Leiste unter der Menüleiste zeigen."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Muestra los elementos ocultos de la barra de menús en una barra aparte debajo de la barra de menús."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher les éléments masqués dans une barre séparée sous la barre des menus."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A rejtett menüsor-elemek megjelenítése külön sávban a menüsor alatt."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tampilkan item bar menu yang tersembunyi di bar terpisah di bawah bar menu."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mostra gli elementi nascosti in una barra separata sotto la barra dei menu."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "非表示のメニューバー項目を、メニューバーの下の別のバーに表示します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "숨겨진 메뉴 막대 항목을 메뉴 막대 아래의 별도 막대에 표시합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toon verborgen menubalkonderdelen in een aparte balk onder de menubalk."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pokazuj ukryte elementy paska menu na osobnym pasku pod paskiem menu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exibe os itens ocultos da barra de menus em uma barra separada abaixo da barra de menus."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mussar ils elements zuppads en ina atgna trav sut la trav da menu."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Показывает скрытые элементы строки меню в отдельной панели под строкой меню."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visa de dolda menyradsobjekten i ett separat fält under menyraden."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gizli menü çubuğu öğelerini menü çubuğunun altında ayrı bir çubukta gösterir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Показує приховані елементи смуги меню в окремій панелі під смугою меню."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在菜单栏下方的单独栏中显示隐藏的菜单栏项目。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在選單列下方的獨立列中顯示隱藏的選單列項目。"
           }
         }
       }
@@ -74375,242 +73903,6 @@
         }
       }
     },
-    "The holzBar Shelf is centered below the holzBar icon." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf je vystředěný pod ikonou holzBar."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das holzBar Shelf erscheint mittig unter dem holzBar-Symbol."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El holzBar Shelf se centra debajo del icono de holzBar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le holzBar Shelf est centré sous l'icône de holzBar."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A holzBar Shelf a holzBar ikon alatt középre igazítva jelenik meg."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf muncul di tengah di bawah ikon holzBar."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf è centrato sotto l'icona di holzBar."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf は holzBar アイコンの下の中央に表示されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf는 holzBar 아이콘 아래 가운데에 표시됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De holzBar Shelf staat gecentreerd onder het holzBar-symbool."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf jest wyśrodkowany pod ikoną holzBar."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O holzBar Shelf é centralizado abaixo do ícone do holzBar."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il holzBar Shelf cumpara al center sut il simbol da holzBar."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf располагается по центру под значком holzBar."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf visas centrerad under holzBar-ikonen."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf, holzBar simgesinin altında ortalanmış olarak görünür."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf розташовується по центру під значком holzBar."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf 居中显示在 holzBar 图标下方。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf 會置中顯示在 holzBar 圖像下方。"
-          }
-        }
-      }
-    },
-    "The holzBar Shelf is centered below the mouse pointer." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf je vystředěný pod ukazatelem myši."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das holzBar Shelf erscheint mittig unter dem Mauszeiger."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El holzBar Shelf se centra debajo del puntero del ratón."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le holzBar Shelf est centré sous le pointeur."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A holzBar Shelf az egérmutató alatt középre igazítva jelenik meg."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf muncul di tengah di bawah penunjuk mouse."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf è centrato sotto il puntatore."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf はマウスポインタの下の中央に表示されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf는 마우스 포인터 아래 가운데에 표시됩니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De holzBar Shelf staat gecentreerd onder de muisaanwijzer."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf jest wyśrodkowany pod wskaźnikiem myszy."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O holzBar Shelf é centralizado abaixo do ponteiro do mouse."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il holzBar Shelf cumpara al center sut il cursur."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf располагается по центру под указателем мыши."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf visas centrerad under muspekaren."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf, fare işaretçisinin altında ortalanmış olarak görünür."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf розташовується по центру під вказівником миші."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf 居中显示在鼠标指针下方。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf 會置中顯示在滑鼠指標下方。"
-          }
-        }
-      }
-    },
     "The holzBar Shelf shows pictures of your menu bar items, which macOS lets an app take only with Screen Recording." : {
       "localizations" : {
         "cs" : {
@@ -74725,124 +74017,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "holzBar Shelf 會顯示選單列項目的圖片，而 macOS 只允許取得「螢幕錄影」權限的 App 擷取這些圖片。"
-          }
-        }
-      }
-    },
-    "The holzBar Shelf's location changes based on context." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Poloha holzBar Shelf se mění podle kontextu."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Position des holzBar Shelf hängt von der Situation ab."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La ubicación del holzBar Shelf cambia según el contexto."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L'emplacement du holzBar Shelf dépend du contexte."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A holzBar Shelf helye a környezet szerint változik."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Posisi holzBar Shelf bergantung pada konteks."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La posizione di holzBar Shelf dipende dal contesto."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf の表示位置は状況に応じて変わります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf의 위치는 상황에 따라 바뀝니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De plek van de holzBar Shelf verandert afhankelijk van de context."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Położenie holzBar Shelf zmienia się w zależności od kontekstu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A posição do holzBar Shelf muda de acordo com o contexto."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La posiziun dal holzBar Shelf dependa da la situaziun."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Положение holzBar Shelf меняется в зависимости от ситуации."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelfs plats beror på sammanhanget."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf’in yeri bağlama göre değişir."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Розташування holzBar Shelf змінюється залежно від ситуації."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf 的位置会根据情境而变化。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf 的位置會依情境而改變。"
           }
         }
       }
@@ -84991,124 +84165,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "可見"
-          }
-        }
-      }
-    },
-    "Visible items that the notch hides, for example behind a long application menu, also appear in the holzBar Shelf." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Viditelné položky, které výřez skrývá, například za dlouhou nabídkou aplikace, se zobrazí i v holzBar Shelf."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sichtbare Elemente, die von der Notch verdeckt werden, etwa hinter einem langen App-Menü, erscheinen ebenfalls im holzBar Shelf."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los elementos visibles que el notch oculta, por ejemplo tras un menú de aplicación largo, también aparecen en el holzBar Shelf."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les éléments visibles que l'encoche cache, par exemple derrière un long menu d'app, apparaissent aussi dans le holzBar Shelf."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A notch által takart látható elemek, például egy hosszú alkalmazásmenü mögött, a holzBar Shelfben is megjelennek."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Item terlihat yang tertutup notch, misalnya di balik menu app yang panjang, juga muncul di holzBar Shelf."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli elementi visibili nascosti dal notch, per esempio dietro un lungo menu di un'app, compaiono anche in holzBar Shelf."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ノッチに隠れる表示中の項目（たとえば長いアプリケーションメニューの後ろにあるもの）も、holzBar Shelf に表示されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "노치에 가려진 표시 항목(예: 긴 앱 메뉴 뒤에 있는 항목)도 holzBar Shelf에 나타납니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zichtbare onderdelen die de notch verbergt, bijvoorbeeld achter een lang appmenu, verschijnen ook in de holzBar Shelf."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widoczne elementy, które notch zasłania, na przykład za długim menu aplikacji, pojawiają się też w holzBar Shelf."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os itens visíveis que o notch oculta, por exemplo atrás de um menu de aplicativo longo, também aparecem no holzBar Shelf."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elements visibels che la notch cuvra, per exempel davos in lung menu d'app, cumparan era en il holzBar Shelf."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Видимые элементы, которые скрывает вырез (например, за длинным меню приложения), тоже появляются в holzBar Shelf."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Synliga objekt som notchen döljer, till exempel bakom en lång appmeny, visas även i holzBar Shelf."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Notch’un kapattığı görünür öğeler, örneğin uzun bir uygulama menüsünün arkasındakiler, holzBar Shelf içinde de görünür."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Видимі елементи, які ховає виріз (наприклад, за довгим меню програми), також зʼявляються в holzBar Shelf."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "被刘海遮住的可见项目（例如位于较长的 App 菜单后面的项目）也会显示在 holzBar Shelf 中。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "被瀏海遮住的可見項目（例如在很長的 App 選單後面）也會顯示在 holzBar Shelf 中。"
           }
         }
       }
@@ -106001,242 +105057,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "浮動"
-          }
-        }
-      }
-    },
-    "The holzBar Shelf hangs directly below the menu bar." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf visí přímo pod řádkem nabídek."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das holzBar Shelf hängt direkt unter der Menüleiste."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El holzBar Shelf cuelga justo debajo de la barra de menús."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le holzBar Shelf est accroché juste sous la barre des menus."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A holzBar Shelf közvetlenül a menüsor alatt lóg."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf menggantung tepat di bawah bar menu."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il holzBar Shelf è appeso subito sotto la barra dei menu."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf はメニューバーのすぐ下に付いて表示されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf는 메뉴 막대 바로 아래에 붙어 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De holzBar Shelf hangt direct onder de menubalk."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf wisi bezpośrednio pod paskiem menu."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O holzBar Shelf fica pendurado logo abaixo da barra de menus."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il holzBar Shelf pende directamain sut la trav da menus."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf висит прямо под строкой меню."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf hänger direkt under menyraden."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf doğrudan menü çubuğunun altında asılı durur."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf висить просто під смугою меню."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf 紧贴在菜单栏正下方。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf 直接懸掛在選單列下方。"
-          }
-        }
-      }
-    },
-    "The holzBar Shelf floats a little below the menu bar, as a bar of its own." : {
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf se vznáší kousek pod řádkem nabídek jako samostatný řádek."
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Das holzBar Shelf schwebt etwas unter der Menüleiste, als eigene Leiste."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El holzBar Shelf flota un poco por debajo de la barra de menús, como una barra independiente."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le holzBar Shelf flotte un peu sous la barre des menus, comme une barre à part."
-          }
-        },
-        "hu" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A holzBar Shelf kissé a menüsor alatt lebeg, önálló sávként."
-          }
-        },
-        "id" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf melayang sedikit di bawah bar menu sebagai bar tersendiri."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il holzBar Shelf fluttua un po’ sotto la barra dei menu, come barra a sé."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf はメニューバーの少し下に、独立したバーとして浮かんで表示されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf는 독립된 막대로서 메뉴 막대보다 약간 아래에 떠 있습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De holzBar Shelf zweeft een stukje onder de menubalk, als een eigen balk."
-          }
-        },
-        "pl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf unosi się nieco pod paskiem menu jako osobny pasek."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O holzBar Shelf flutua um pouco abaixo da barra de menus, como uma barra independente."
-          }
-        },
-        "rm" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Il holzBar Shelf fluttescha in pau sut la trav da menus, sco trav separada."
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf парит чуть ниже строки меню как отдельная панель."
-          }
-        },
-        "sv" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf svävar en bit under menyraden som ett eget fält."
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf menü çubuğunun biraz altında ayrı bir çubuk olarak süzülür."
-          }
-        },
-        "uk" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf ширяє трохи нижче смуги меню як окрема панель."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf 作为独立的栏，浮动在菜单栏下方一点的位置。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "holzBar Shelf 浮在選單列下方一點點，成為獨立的一列。"
           }
         }
       }
@@ -133155,6 +131975,1910 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "在此版本的 macOS 上，選單列項目會立即變化，因此樣式適用於 holzBar Shelf：「平滑」會將其滑出，「淡出」會將其淡入。開啟「減少動態效果」時不會有任何動畫。"
+          }
+        }
+      }
+    },
+    "Look" : {
+      "comment" : "holzBar Shelf pane, ShelfCatalog.swift:13",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vzhled"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aussehen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aspecto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apparence"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Megjelenés"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aspetto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外観"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "외관"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uiterlijk"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wygląd"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aparência"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aspect"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Внешний вид"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utseende"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Görünüm"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вигляд"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外观"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外觀"
+          }
+        }
+      }
+    },
+    "More options" : {
+      "comment" : "holzBar Shelf pane, ShelfCatalog.swift:15",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Další volby"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weitere Optionen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más opciones"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autres options"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "További beállítások"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opsi lainnya"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altre opzioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "その他のオプション"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "추가 옵션"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meer opties"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Więcej opcji"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mais opções"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dapli opziuns"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Дополнительные параметры"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fler alternativ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diğer seçenekler"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Додаткові параметри"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多选项"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更多選項"
+          }
+        }
+      }
+    },
+    "Shows hidden menu bar items in a separate bar under the menu bar." : {
+      "comment" : "holzBar Shelf pane, ShelfCatalog.swift:40",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobrazí skryté položky řádku nabídek v samostatném řádku pod řádkem nabídek."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt ausgeblendete Elemente der Menüleiste in einer eigenen Leiste unter der Menüleiste."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra los elementos ocultos de la barra de menús en una barra aparte debajo de la barra de menús."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche les éléments masqués de la barre des menus dans une barre séparée sous la barre des menus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A rejtett menüsor-elemeket külön sávban jeleníti meg a menüsor alatt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menampilkan item bar menu yang tersembunyi di bar terpisah di bawah bar menu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra gli elementi nascosti della barra dei menu in una barra separata sotto la barra dei menu."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示のメニューバー項目を、メニューバーの下の別のバーに表示します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "숨겨진 메뉴 막대 항목을 메뉴 막대 아래의 별도 막대에 표시합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toont verborgen menubalkonderdelen in een aparte balk onder de menubalk."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokazuje ukryte elementy paska menu na osobnym pasku pod paskiem menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibe os itens ocultos da barra de menus em uma barra separada abaixo da barra de menus."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussa ils elements zuppads da la trav da menu en ina atgna trav sut la trav da menu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывает скрытые элементы строки меню в отдельной панели под строкой меню."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visar dolda menyradsobjekt i ett separat fält under menyraden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gizli menü çubuğu öğelerini menü çubuğunun altında ayrı bir çubukta gösterir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показує приховані елементи смуги меню в окремій панелі під смугою меню."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在菜单栏下方的单独栏中显示隐藏的菜单栏项目。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在選單列下方的獨立列中顯示隱藏的選單列項目。"
+          }
+        }
+      }
+    },
+    "Attached hangs directly under the menu bar; Floating floats a little apart, as a bar of its own." : {
+      "comment" : "holzBar Shelf pane, ShelfCatalog.swift:48",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Připojený visí přímo pod řádkem nabídek; Plovoucí se vznáší kousek stranou jako samostatný řádek."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Angeheftet hängt direkt unter der Menüleiste; Schwebend schwebt etwas abseits als eigene Leiste."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acoplado cuelga justo debajo de la barra de menús; Flotante flota un poco separado, como una barra propia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attaché est accroché juste sous la barre des menus ; Flottant flotte un peu à l’écart, comme une barre à part."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Rögzített közvetlenül a menüsor alatt lóg; a Lebegő kissé távolabb lebeg, önálló sávként."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Menempel menggantung tepat di bawah bar menu; Mengambang melayang agak terpisah, sebagai bar tersendiri."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agganciato è appeso subito sotto la barra dei menu; Fluttuante resta un po’ distante, come barra a sé."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「固定」はメニューバーのすぐ下に付き、「フローティング」は少し離れて独立したバーとして浮かびます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "고정은 메뉴 막대 바로 아래에 붙고, 떠 있음은 조금 떨어져 별도의 막대로 떠 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vastgemaakt hangt direct onder de menubalk; Zwevend zweeft wat verder weg, als een eigen balk."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przyczepiony wisi bezpośrednio pod paskiem menu; Pływający unosi się nieco dalej, jako osobny pasek."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fixado fica logo abaixo da barra de menus; Flutuante flutua um pouco afastado, como uma barra própria."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fixà pende directamain sut la trav da menu; Flotant flotta in pau davent, sco atgna trav."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Прикреплённая» висит прямо под строкой меню; «Плавающая» парит чуть поодаль как отдельная панель."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fäst hänger direkt under menyraden; Flytande svävar en bit ifrån som ett eget fält."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bağlı, doğrudan menü çubuğunun altında asılı durur; Yüzen, biraz uzakta kendi çubuğu olarak süzülür."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "«Прикріплена» висить просто під смугою меню; «Плаваюча» ширяє трохи осторонь як окрема панель."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "“贴附”紧贴在菜单栏正下方；“浮动”则稍微分开，作为独立的栏浮动。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「貼附」直接懸掛在選單列下方；「浮動」則稍微分開，作為獨立的列浮動。"
+          }
+        }
+      }
+    },
+    "Use holzBar Shelf on" : {
+      "comment" : "holzBar Shelf pane, ShelfCatalog.swift:63",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Použít holzBar Shelf na"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf verwenden auf"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usar el holzBar Shelf en"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser le holzBar Shelf sur"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar Shelf használata itt"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gunakan holzBar Shelf di"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa holzBar Shelf su"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf を使用する場所"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf 사용 위치"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf gebruiken op"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Używaj holzBar Shelf na"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usar o holzBar Shelf em"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duvrar il holzBar Shelf sin"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Использовать holzBar Shelf на"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Använd holzBar Shelf på"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf’i şurada kullan"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Використовувати holzBar Shelf на"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 holzBar Shelf 的显示器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用 holzBar Shelf 的顯示器"
+          }
+        }
+      }
+    },
+    "Visible items the notch hides, for example behind a long app menu, also appear in the holzBar Shelf. On macOS 27, items in macOS's own overflow are left out." : {
+      "comment" : "holzBar Shelf pane, ShelfCatalog.swift:72",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Viditelné položky, které výřez skrývá, například za dlouhou nabídkou aplikace, se zobrazí i v holzBar Shelf. V macOS 27 se položky z vlastního přetečení macOS vynechají."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sichtbare Elemente, die von der Notch verdeckt werden, etwa hinter einem langen App-Menü, erscheinen auch im holzBar Shelf. Unter macOS 27 bleiben Elemente aus dem eigenen Überlauf von macOS außen vor."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos visibles que el notch oculta, por ejemplo tras un menú de app largo, también aparecen en el holzBar Shelf. En macOS 27 se omiten los elementos del propio desbordamiento de macOS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments visibles que l’encoche cache, par exemple derrière un long menu d’app, apparaissent aussi dans le holzBar Shelf. Sur macOS 27, les éléments du débordement propre à macOS sont exclus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A notch által takart látható elemek, például egy hosszú alkalmazásmenü mögött, a holzBar Shelfben is megjelennek. macOS 27 alatt a macOS saját túlcsordulásában lévő elemek kimaradnak."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item terlihat yang tertutup notch, misalnya di balik menu app yang panjang, juga muncul di holzBar Shelf. Di macOS 27, item di luapan milik macOS sendiri tidak disertakan."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi visibili nascosti dal notch, per esempio dietro un lungo menu di un’app, compaiono anche in holzBar Shelf. Su macOS 27 gli elementi dell’overflow di macOS vengono esclusi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ノッチに隠れる表示中の項目（たとえば長いアプリのメニューの後ろにあるもの）も holzBar Shelf に表示されます。macOS 27 では、macOS 独自のオーバーフロー内の項目は除外されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "노치에 가려진 표시 항목(예: 긴 앱 메뉴 뒤에 있는 항목)도 holzBar Shelf에 나타납니다. macOS 27에서는 macOS 자체 오버플로에 있는 항목이 제외됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zichtbare onderdelen die de notch verbergt, bijvoorbeeld achter een lang appmenu, verschijnen ook in de holzBar Shelf. Op macOS 27 blijven onderdelen uit de eigen overloop van macOS buiten beschouwing."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widoczne elementy, które notch zasłania, na przykład za długim menu aplikacji, pojawiają się też w holzBar Shelf. W macOS 27 elementy z własnego przepełnienia macOS są pomijane."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os itens visíveis que o notch oculta, por exemplo atrás de um menu de app longo, também aparecem no holzBar Shelf. No macOS 27, os itens do estouro próprio do macOS ficam de fora."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elements visibels che la notch cuvra, per exempel davos in lung menu d'app, cumparan era en il holzBar Shelf. Sin macOS 27 vegnan ils elements da l'agen overflow da macOS laschads davent."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видимые элементы, которые скрывает вырез (например, за длинным меню приложения), тоже появляются в holzBar Shelf. В macOS 27 элементы из собственной области переполнения системы не включаются."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synliga objekt som notchen döljer, till exempel bakom en lång appmeny, visas även i holzBar Shelf. På macOS 27 utelämnas objekt i macOS egen överflödesvy."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notch’un kapattığı görünür öğeler, örneğin uzun bir uygulama menüsünün arkasındakiler, holzBar Shelf içinde de görünür. macOS 27’de macOS’in kendi taşmasındaki öğeler dışarıda bırakılır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Видимі елементи, які ховає виріз (наприклад, за довгим меню програми), також з’являються в holzBar Shelf. У macOS 27 елементи з власної області переповнення системи не включаються."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "被刘海遮住的可见项目（例如位于较长的 App 菜单后面的项目）也会显示在 holzBar Shelf 中。在 macOS 27 上，macOS 自身溢出区域中的项目不会包含在内。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "被瀏海遮住的可見項目（例如在很長的 App 選單後面）也會顯示在 holzBar Shelf 中。在 macOS 27 上，macOS 自己溢位區域中的項目不會包含在內。"
+          }
+        }
+      }
+    },
+    "Dynamic, under the mouse pointer, under the holzBar icon or at the right edge of the screen." : {
+      "comment" : "holzBar Shelf pane, ShelfCatalog.swift:80",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamicky pod ukazatelem myši, pod ikonou holzBar nebo na pravém okraji obrazovky."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamisch, unter dem Mauszeiger, unter dem holzBar-Symbol oder am rechten Bildschirmrand."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dinámico, bajo el puntero del ratón, bajo el icono de holzBar o en el borde derecho de la pantalla."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamique, sous le pointeur, sous l’icône holzBar ou au bord droit de l’écran."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dinamikus, az egérmutató alatt, a holzBar ikon alatt vagy a képernyő jobb szélén."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dinamis, di bawah penunjuk mouse, di bawah ikon holzBar, atau di tepi kanan layar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dinamica, sotto il puntatore, sotto l’icona di holzBar o al bordo destro dello schermo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "動的、マウスポインタの下、holzBar アイコンの下、または画面の右端。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "동적, 마우스 포인터 아래, holzBar 아이콘 아래 또는 화면 오른쪽 가장자리."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamisch, onder de muisaanwijzer, onder het holzBar-symbool of aan de rechterrand van het scherm."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamicznie, pod wskaźnikiem myszy, pod ikoną holzBar lub przy prawej krawędzi ekranu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dinâmico, abaixo do ponteiro do mouse, abaixo do ícone do holzBar ou na borda direita da tela."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dinamic, sut il cursur, sut il simbol da holzBar u a la vart dretga da l'visur."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Динамически, под указателем мыши, под значком holzBar или у правого края экрана."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dynamiskt, under muspekaren, under holzBar-ikonen eller vid skärmens högra kant."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dinamik, fare işaretçisinin altında, holzBar simgesinin altında veya ekranın sağ kenarında."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Динамічно, під вказівником миші, під значком holzBar або біля правого краю екрана."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "动态、鼠标指针下方、holzBar 图标下方或屏幕右边缘。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "動態、滑鼠指標下方、holzBar 圖示下方或螢幕右邊緣。"
+          }
+        }
+      }
+    },
+    "Show apps that are not running" : {
+      "comment" : "holzBar Shelf pane, ShelfCatalog.swift:106",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zobrazovat aplikace, které neběží"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht laufende Apps zeigen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar apps que no se están ejecutando"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher les apps qui ne sont pas ouvertes"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nem futó alkalmazások megjelenítése"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tampilkan app yang tidak berjalan"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra le app non in esecuzione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "実行中でないアプリを表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "실행 중이 아닌 앱 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toon apps die niet actief zijn"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pokazuj aplikacje, które nie są uruchomione"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibir apps que não estão em execução"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mussar las apps che na currran betg"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показывать приложения, которые не запущены"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visa appar som inte körs"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Çalışmayan uygulamaları göster"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Показувати програми, які не запущено"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "显示未运行的 App"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "顯示尚未執行的 App"
+          }
+        }
+      }
+    },
+    "Drag an item in the holzBar Shelf to another place, into another section or up onto the menu bar. Where macOS orders a section itself, only the section can change." : {
+      "comment" : "holzBar Shelf pane, ShelfCatalog.swift:116",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Přetažením položky v holzBar Shelf ji přesunete na jiné místo, do jiné sekce nebo nahoru na řádek nabídek. Kde macOS řadí položky sekce samo, lze změnit jen sekci."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ziehe ein Element im holzBar Shelf an eine andere Stelle, in einen anderen Bereich oder nach oben auf die Menüleiste. Wo macOS die Elemente eines Bereichs selbst anordnet, lässt sich nur der Bereich ändern."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arrastra un elemento del holzBar Shelf a otro lugar, a otra sección o hacia arriba a la barra de menús. Cuando macOS ordena por sí mismo una sección, solo se puede cambiar la sección."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faites glisser un élément dans le holzBar Shelf vers un autre endroit, une autre section ou vers le haut, sur la barre des menus. Là où macOS classe lui-même une section, seule la section peut changer."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Húzzon egy elemet a holzBar Shelfben másik helyre, másik szakaszba vagy fel a menüsorra. Ahol a macOS maga rendezi egy szakasz elemeit, csak a szakasz változtatható."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seret item di holzBar Shelf ke tempat lain, ke bagian lain, atau ke atas bar menu. Jika macOS sendiri yang mengurutkan suatu bagian, hanya bagiannya yang dapat diubah."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trascina un elemento nel holzBar Shelf in un altro punto, in un’altra sezione o in alto sulla barra dei menu. Dove macOS ordina da solo una sezione, si può cambiare solo la sezione."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf の項目をドラッグして、別の位置や別のセクションに移したり、メニューバーまで持ち上げたりできます。macOS がセクション内を自動で並べる場合は、セクションのみ変更できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf에서 항목을 드래그하면 다른 위치나 다른 섹션으로 옮기거나 메뉴 막대 위로 올릴 수 있습니다. macOS가 섹션 안의 순서를 직접 정하는 경우에는 섹션만 바꿀 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep een onderdeel in de holzBar Shelf naar een andere plek, een andere sectie of omhoog naar de menubalk. Waar macOS een sectie zelf ordent, kan alleen de sectie wisselen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przeciągnij element w holzBar Shelf w inne miejsce, do innej sekcji lub w górę na pasek menu. Gdy macOS sam porządkuje sekcję, można zmienić tylko sekcję."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Arraste um item do holzBar Shelf para outro lugar, para outra seção ou para cima, até a barra de menus. Quando o macOS ordena uma seção por conta própria, só a seção pode mudar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tira in element en il holzBar Shelf en in auter lieu, en ina autra secziun u si sin la trav da menus. Nua che macOS ordinescha sez ina secziun, po be la secziun vegnir midada."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетащите элемент в holzBar Shelf на другое место, в другой раздел или вверх, на строку меню. Если macOS сама определяет порядок раздела, можно изменить только раздел."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dra ett objekt i holzBar Shelf till en annan plats, en annan sektion eller upp till menyraden. Där macOS själv ordnar en sektion kan bara sektionen ändras."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bir öğeyi holzBar Shelf içinde başka bir yere, başka bir bölüme veya menü çubuğuna sürükleyin. macOS’in bir bölümü kendisinin sıraladığı yerde yalnızca bölüm değiştirilebilir."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Перетягніть елемент у holzBar Shelf на інше місце, в інший розділ або вгору на смугу меню. Якщо macOS сама визначає порядок розділу, можна змінити лише розділ."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在 holzBar Shelf 中拖移项目，可以移到其他位置、其他分区，或向上拖到菜单栏。如果 macOS 自行排列分区，则只能更换分区。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將項目拖移到 holzBar Shelf 中的其他位置、其他區段，或向上拖到選單列。若 macOS 自行排列某個區段，則只能更換區段。"
+          }
+        }
+      }
+    },
+    "Off: hidden menu bar items appear in the menu bar itself. Turn it on to show them in a separate bar under the menu bar." : {
+      "comment" : "holzBar Shelf pane, HolzBarShelfSettingsPane.swift:21",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vypnuto: skryté položky řádku nabídek se zobrazují přímo v řádku nabídek. Zapnutím je zobrazíte v samostatném řádku pod řádkem nabídek."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus: Ausgeblendete Elemente der Menüleiste erscheinen in der Menüleiste selbst. Schalte es ein, um sie in einer eigenen Leiste unter der Menüleiste zu zeigen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desactivado: los elementos ocultos de la barra de menús aparecen en la propia barra de menús. Actívalo para mostrarlos en una barra aparte debajo de la barra de menús."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactivé : les éléments masqués de la barre des menus apparaissent dans la barre des menus elle-même. Activez-le pour les afficher dans une barre séparée sous la barre des menus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kikapcsolva: a rejtett menüsor-elemek magában a menüsorban jelennek meg. Kapcsolja be, hogy külön sávban jelenjenek meg a menüsor alatt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mati: item bar menu yang tersembunyi muncul di bar menu itu sendiri. Nyalakan untuk menampilkannya di bar terpisah di bawah bar menu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivato: gli elementi nascosti della barra dei menu compaiono nella barra dei menu stessa. Attivalo per mostrarli in una barra separata sotto la barra dei menu."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オフ：非表示のメニューバー項目はメニューバー自体に表示されます。オンにすると、メニューバーの下の別のバーに表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "끔: 숨겨진 메뉴 막대 항목이 메뉴 막대 자체에 나타납니다. 켜면 메뉴 막대 아래의 별도 막대에 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uit: verborgen menubalkonderdelen verschijnen in de menubalk zelf. Zet het aan om ze in een aparte balk onder de menubalk te tonen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wyłączone: ukryte elementy paska menu pojawiają się na samym pasku menu. Włącz, aby pokazywać je na osobnym pasku pod paskiem menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desativado: os itens ocultos da barra de menus aparecem na própria barra de menus. Ative para exibi-los em uma barra separada abaixo da barra de menus."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deactivà: ils elements zuppads da la trav da menu cumparan en la trav da menu sezza. Activescha per als mussar en ina atgna trav sut la trav da menu."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Выкл.: скрытые элементы строки меню появляются в самой строке меню. Включите, чтобы показывать их в отдельной панели под строкой меню."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Av: dolda menyradsobjekt visas i själva menyraden. Slå på för att visa dem i ett separat fält under menyraden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kapalı: gizli menü çubuğu öğeleri menü çubuğunun kendisinde görünür. Menü çubuğunun altında ayrı bir çubukta göstermek için açın."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вимкнено: приховані елементи смуги меню з’являються в самій смузі меню. Увімкніть, щоб показувати їх в окремій панелі під смугою меню."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭：隐藏的菜单栏项目显示在菜单栏本身。打开后，它们会显示在菜单栏下方的单独栏中。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關閉：隱藏的選單列項目會顯示在選單列本身。開啟後，它們會顯示在選單列下方的獨立列中。"
+          }
+        }
+      }
+    },
+    "The holzBar Shelf hangs directly under the menu bar." : {
+      "comment" : "holzBar Shelf pane, HolzBarShelfSettingsPane.swift:68",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf visí přímo pod řádkem nabídek."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das holzBar Shelf hängt direkt unter der Menüleiste."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El holzBar Shelf cuelga justo debajo de la barra de menús."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le holzBar Shelf est accroché juste sous la barre des menus."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar Shelf közvetlenül a menüsor alatt lóg."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf menggantung tepat di bawah bar menu."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf è appeso subito sotto la barra dei menu."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf はメニューバーのすぐ下に付いて表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf는 메뉴 막대 바로 아래에 붙어 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De holzBar Shelf hangt direct onder de menubalk."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf wisi bezpośrednio pod paskiem menu."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar Shelf fica pendurado logo abaixo da barra de menus."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf pende directamain sut la trav da menus."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf висит прямо под строкой меню."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf hänger direkt under menyraden."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf doğrudan menü çubuğunun altında asılı durur."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf висить просто під смугою меню."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf 紧贴在菜单栏正下方。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf 直接懸掛在選單列下方。"
+          }
+        }
+      }
+    },
+    "The holzBar Shelf floats a little under the menu bar, as a bar of its own." : {
+      "comment" : "holzBar Shelf pane, HolzBarShelfSettingsPane.swift:70",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf se vznáší kousek pod řádkem nabídek jako samostatný řádek."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das holzBar Shelf schwebt ein Stück unter der Menüleiste als eigene Leiste."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El holzBar Shelf flota un poco debajo de la barra de menús, como una barra propia."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le holzBar Shelf flotte un peu sous la barre des menus, comme une barre à part."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar Shelf kissé a menüsor alatt lebeg, önálló sávként."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf melayang sedikit di bawah bar menu, sebagai bar tersendiri."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf fluttua un po’ sotto la barra dei menu, come barra a sé."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf はメニューバーの少し下に、独立したバーとして浮かんで表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf는 메뉴 막대 조금 아래에 별도의 막대로 떠 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De holzBar Shelf zweeft een stukje onder de menubalk, als een eigen balk."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf unosi się nieco pod paskiem menu jako osobny pasek."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar Shelf flutua um pouco abaixo da barra de menus, como uma barra própria."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf flotta in pau sut la trav da menus, sco atgna trav."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf парит чуть ниже строки меню как отдельная панель."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf svävar en bit under menyraden som ett eget fält."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf, menü çubuğunun biraz altında kendi çubuğu olarak süzülür."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf ширяє трохи під смугою меню як окрема панель."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf 浮动在菜单栏下方一点，作为独立的栏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf 浮動在選單列下方一點，作為獨立的列。"
+          }
+        }
+      }
+    },
+    "needs Always Hidden" : {
+      "comment" : "holzBar Shelf pane, HolzBarShelfSettingsPane.swift:114",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vyžaduje Vždy skryté"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "braucht Immer ausgeblendet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "requiere Siempre oculto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nécessite Toujours masqué"
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mindig rejtett szükséges hozzá"
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "perlu Selalu tersembunyi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "richiede Sempre nascosto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「常に非表示」が必要"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항상 숨김이 필요함"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vereist Altijd verborgen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wymaga Zawsze ukryte"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "requer Sempre oculto"
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dovra Adina zuppà"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "нужен раздел «Всегда скрыто»"
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "kräver Alltid dold"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Her zaman gizli gerekir"
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "потрібен розділ «Завжди приховано»"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要“始终隐藏”"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要「一律隱藏」"
+          }
+        }
+      }
+    },
+    "The holzBar Shelf opens under the pointer when it rests on an empty area of the menu bar, otherwise under the holzBar icon." : {
+      "comment" : "holzBar Shelf pane, HolzBarShelfSettingsPane.swift:130",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf se otevře pod ukazatelem, když ten spočívá na prázdné části řádku nabídek, jinak pod ikonou holzBar."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das holzBar Shelf öffnet sich unter dem Zeiger, wenn dieser auf einer leeren Fläche der Menüleiste ruht, sonst unter dem holzBar-Symbol."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El holzBar Shelf se abre bajo el puntero cuando este reposa sobre un área vacía de la barra de menús; si no, bajo el icono de holzBar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le holzBar Shelf s’ouvre sous le pointeur quand celui-ci repose sur une zone vide de la barre des menus, sinon sous l’icône holzBar."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar Shelf az egérmutató alatt nyílik meg, ha az a menüsor egy üres részén áll, egyébként a holzBar ikon alatt."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf terbuka di bawah penunjuk saat penunjuk berada di area kosong bar menu, selain itu di bawah ikon holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf si apre sotto il puntatore quando questo si trova su un’area vuota della barra dei menu, altrimenti sotto l’icona di holzBar."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf は、ポインタがメニューバーの空いた部分にあるときはポインタの下に、それ以外は holzBar アイコンの下に開きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf는 포인터가 메뉴 막대의 빈 영역에 있으면 포인터 아래에, 그렇지 않으면 holzBar 아이콘 아래에 열립니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De holzBar Shelf opent onder de aanwijzer wanneer die op een leeg deel van de menubalk staat, anders onder het holzBar-symbool."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf otwiera się pod wskaźnikiem, gdy ten spoczywa na pustym obszarze paska menu, w przeciwnym razie pod ikoną holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar Shelf abre abaixo do ponteiro quando ele está sobre uma área vazia da barra de menus; caso contrário, abaixo do ícone do holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf s'avra sut il cursur cur che quel sa fermescha sin ina part vida da la trav da menus, uschiglio sut il simbol da holzBar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf открывается под указателем, когда тот находится на пустом месте строки меню, иначе под значком holzBar."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf öppnas under pekaren när den vilar på en tom yta i menyraden, annars under holzBar-ikonen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf, işaretçi menü çubuğunun boş bir alanında durduğunda işaretçinin altında, aksi halde holzBar simgesinin altında açılır."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf відкривається під вказівником, коли той спочиває на порожній ділянці смуги меню, інакше — під значком holzBar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "当指针停在菜单栏的空白区域时，holzBar Shelf 在指针下方打开，否则在 holzBar 图标下方打开。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "當指標停在選單列的空白區域時，holzBar Shelf 會在指標下方開啟，否則在 holzBar 圖示下方開啟。"
+          }
+        }
+      }
+    },
+    "The holzBar Shelf is centered under the mouse pointer." : {
+      "comment" : "holzBar Shelf pane, HolzBarShelfSettingsPane.swift:132",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf je vystředěný pod ukazatelem myši."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das holzBar Shelf erscheint mittig unter dem Mauszeiger."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El holzBar Shelf se centra debajo del puntero del ratón."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le holzBar Shelf est centré sous le pointeur."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar Shelf az egérmutató alatt középre igazítva jelenik meg."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf muncul di tengah di bawah penunjuk mouse."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf è centrato sotto il puntatore."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf はマウスポインタの下の中央に表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf는 마우스 포인터 아래 가운데에 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De holzBar Shelf staat gecentreerd onder de muisaanwijzer."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf jest wyśrodkowany pod wskaźnikiem myszy."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar Shelf é centralizado abaixo do ponteiro do mouse."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf cumpara al center sut il cursur."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf располагается по центру под указателем мыши."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf visas centrerad under muspekaren."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf, fare işaretçisinin altında ortalanmış olarak görünür."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf розташовується по центру під вказівником миші."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf 居中显示在鼠标指针下方。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf 會置中顯示在滑鼠指標下方。"
+          }
+        }
+      }
+    },
+    "The holzBar Shelf is centered under the holzBar icon." : {
+      "comment" : "holzBar Shelf pane, HolzBarShelfSettingsPane.swift:134",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf je vystředěný pod ikonou holzBar."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das holzBar Shelf erscheint mittig unter dem holzBar-Symbol."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El holzBar Shelf se centra debajo del icono de holzBar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le holzBar Shelf est centré sous l'icône de holzBar."
+          }
+        },
+        "hu" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A holzBar Shelf a holzBar ikon alatt középre igazítva jelenik meg."
+          }
+        },
+        "id" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf muncul di tengah di bawah ikon holzBar."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf è centrato sotto l'icona di holzBar."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf は holzBar アイコンの下の中央に表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf는 holzBar 아이콘 아래 가운데에 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De holzBar Shelf staat gecentreerd onder het holzBar-symbool."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf jest wyśrodkowany pod ikoną holzBar."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O holzBar Shelf é centralizado abaixo do ícone do holzBar."
+          }
+        },
+        "rm" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il holzBar Shelf cumpara al center sut il simbol da holzBar."
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf располагается по центру под значком holzBar."
+          }
+        },
+        "sv" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf visas centrerad under holzBar-ikonen."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf, holzBar simgesinin altında ortalanmış olarak görünür."
+          }
+        },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf розташовується по центру під значком holzBar."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf 居中显示在 holzBar 图标下方。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "holzBar Shelf 會置中顯示在 holzBar 圖像下方。"
           }
         }
       }
