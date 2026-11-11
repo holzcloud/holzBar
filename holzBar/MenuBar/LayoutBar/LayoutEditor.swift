@@ -165,6 +165,38 @@ final class LayoutEditor {
         didChange()
     }
 
+    /// The choice the pop-up New items go to shows: the section the drawing waits to apply while
+    /// it holds one, otherwise the stored setting, which may be where macOS puts them.
+    var newItemsPlacement: NewItemsPlacement {
+        if let draft, draft.newItems != draft.baselineNewItems {
+            return Self.placement(for: draft.newItems)
+        }
+        return appState?.settings.advanced.newItemsPlacement ?? .systemDefault
+    }
+
+    /// Sets where new items go, from the pop-up. A section goes through `setNewItemsSection(_:)`,
+    /// so it waits for Apply like every other change of the drawing. Where macOS puts them has no
+    /// section for a drawing to hold: it is written at once, and a section waiting in the drawing
+    /// is dropped first, so a later Apply cannot overwrite it.
+    func setNewItemsPlacement(_ placement: NewItemsPlacement) {
+        guard !isApplying else {
+            return
+        }
+        if let section = placement.section {
+            setNewItemsSection(section)
+            return
+        }
+        guard let appState else {
+            return
+        }
+        if let baseline = draft?.baselineNewItems {
+            draft?.setNewItems(baseline)
+        }
+        appState.settings.advanced.newItemsPlacement = .systemDefault
+        // The drawing follows the new landing section and goes when nothing else differs.
+        cacheDidChange()
+    }
+
     /// Makes the rows show the bar again.
     func discard() {
         guard !isApplying else {

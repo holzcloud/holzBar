@@ -65,29 +65,14 @@ struct LayoutDraftSection: View {
     }
 }
 
-/// The tile "New items" in the section where items holzBar has never seen land, with the choice
-/// of another section.
+/// The tile New items in the bar where items holzBar has never seen land; the pop-up New items go
+/// to chooses the section.
 struct NewItemsTile: View {
-    @Environment(AppState.self) private var appState
-
     var body: some View {
-        let editor = appState.layoutEditor
-        VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
-            HolzBarPicker(selection: Binding(
-                get: { editor.newItemsSection },
-                set: { editor.setNewItemsSection($0) }
-            )) {
-                ForEach(editor.availableSections, id: \.self) { section in
-                    Text(section.localized).tag(section)
-                }
-            } label: {
-                Label("New items", systemImage: "sparkles")
-            }
-            Text("Items holzBar has not seen before land in this section.")
-                .font(HolzBarTheme.Typography.caption)
-                .foregroundStyle(HolzBarTheme.Palette.textSecondary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .padding(HolzBarTheme.Spacing.md)
+        Label("New items", systemImage: "sparkles")
+            .font(HolzBarTheme.Typography.callout)
+            .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+            .padding(HolzBarTheme.Spacing.md)
+            .accessibilityElement(children: .combine)
     }
 }

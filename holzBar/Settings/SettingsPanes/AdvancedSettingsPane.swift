@@ -19,14 +19,12 @@ struct AdvancedSettingsPane: View {
             // Settings that do nothing on macOS 27 are not shown there (jordanbaird/Ice#1001):
             // there are no dividers to style, no drags on the bar, no item moves and no
             // hiding of application menus. Their stored values are kept.
-            HolzBarSection("Menu Bar Sections") {
-                enableAlwaysHiddenSection
-                if !isMacOS27 {
+            // The always-hidden switch and where new items go live in the Layout pane. What is
+            // left of this group has no row on macOS 27.
+            if !isMacOS27 {
+                HolzBarSection("Menu Bar Sections") {
                     showAllSectionsOnUserDrag
                     sectionDividerStyle
-                }
-                newItemsPlacement
-                if !isMacOS27 {
                     keepLiveActivitiesVisible
                 }
             }
@@ -74,31 +72,11 @@ struct AdvancedSettingsPane: View {
     }
 
     @ViewBuilder
-    private var enableAlwaysHiddenSection: some View {
-        Toggle(
-            "Enable the always-hidden section",
-            isOn: $settings.enableAlwaysHiddenSection
-        )
-    }
-
-    @ViewBuilder
     private var showAllSectionsOnUserDrag: some View {
         Toggle(
             "Show all sections when ⌘ Command + dragging menu bar items",
             isOn: $settings.showAllSectionsOnUserDrag
         )
-    }
-
-    @ViewBuilder
-    private var newItemsPlacement: some View {
-        HolzBarPicker("Place new menu bar items in", selection: $settings.newItemsPlacement) {
-            ForEach(NewItemsPlacement.allCases) { placement in
-                if placement != .alwaysHidden || settings.enableAlwaysHiddenSection {
-                    Text(placement.localized).tag(placement)
-                }
-            }
-        }
-        .annotation("Applies to items holzBar has not seen before. Items that are already arranged stay where they are.")
     }
 
     @ViewBuilder

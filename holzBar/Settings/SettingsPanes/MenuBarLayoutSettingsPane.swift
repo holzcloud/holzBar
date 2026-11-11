@@ -29,7 +29,6 @@ struct MenuBarLayoutSettingsPane: View {
             cannotArrange
         } else {
             SettingsPaneHost(.layout) {
-                header
                 if #available(macOS 27.0, *) {
                     StuckOverflowWarning(concealer: appState.concealer27)
                 }
@@ -37,7 +36,7 @@ struct MenuBarLayoutSettingsPane: View {
                 if #available(macOS 27.0, *) {
                     CommandDragNoticesSection()
                 }
-                layoutBars
+                menuBarGroup
                 LayoutDraftSection()
                 HolzBarSection {
                     HStack {
@@ -63,42 +62,53 @@ struct MenuBarLayoutSettingsPane: View {
         }
     }
 
-    @ViewBuilder
-    private var header: some View {
-        HolzBarSection {
-            VStack(spacing: 3) {
-                Text("Drag to arrange your menu bar items into different sections.")
-                    .font(.title3.bold())
-                Group {
-                    if #available(macOS 27.0, *) {
-                        HStack(spacing: HolzBarTheme.Spacing.sm) {
-                            Text("Items can be sorted by dragging them within a section.")
-                        }
-                    } else {
-                        Text("Items can also be arranged by ⌘ Command + dragging them in the menu bar.")
-                    }
+    private var menuBarGroup: some View {
+        SettingsGroup(SettingsCatalog.LayoutPane.menuBar, footnote: barsFootnote) {
+            if !hasItems {
+                SettingsStateLine(.info, Text("Loading menu bar items…")) {
+                    ProgressView()
+                        .controlSize(.small)
                 }
-                .font(HolzBarTheme.Typography.callout.weight(.medium))
-                .foregroundStyle(.secondary)
             }
-            .padding(15)
+            layoutBar(for: .visible)
+            layoutBar(for: .hidden)
+            SettingsToggleRow(
+                .layoutAlwaysHidden,
+                isOn: Bindable(appState.settings.advanced).enableAlwaysHiddenSection,
+                small: Text("third section")
+            )
+            layoutBar(for: .alwaysHidden)
+            SettingsPickerRow(.layoutNewItems, selection: newItemsBinding) {
+                Text(NewItemsPlacement.visible.localized).tag(NewItemsPlacement.visible)
+                Text(NewItemsPlacement.hidden.localized).tag(NewItemsPlacement.hidden)
+                if appState.settings.advanced.enableAlwaysHiddenSection {
+                    Text(NewItemsPlacement.alwaysHidden.localized).tag(NewItemsPlacement.alwaysHidden)
+                }
+                Text(NewItemsPlacement.systemDefault.localized).tag(NewItemsPlacement.systemDefault)
+            }
+            .disabled(appState.layoutEditor.isApplying)
+            if #available(macOS 27.0, *) {
+                SettingsNoteLine(Text("Items can be sorted by dragging them within a section."))
+            }
         }
     }
 
-    @ViewBuilder
-    private var layoutBars: some View {
-        VStack(spacing: 20) {
-            ForEach(MenuBarSection.Name.allCases, id: \.self) { section in
-                layoutBar(for: section)
-            }
-        }
-        .opacity(hasItems ? 1 : 0.75)
-        .blur(radius: hasItems ? 0 : 5)
-        .allowsHitTesting(hasItems)
-        .overlay {
-            if !hasItems {
-                loadingMenuBarItems
-            }
+    /// What the pop-up New items go to shows and how it writes (D-40): a section waits for Apply
+    /// in draft mode, where macOS puts them is written at once.
+    private var newItemsBinding: Binding<NewItemsPlacement> {
+        Binding(
+            get: { appState.layoutEditor.newItemsPlacement },
+            set: { appState.layoutEditor.setNewItemsPlacement($0) }
+        )
+    }
+
+    private var barsFootnote: Text {
+        if #available(macOS 27.0, *) {
+            Text("Drag an item into its section.")
+        } else {
+            Text("Drag an item into its section.")
+                + Text(verbatim: " ")
+                + Text("You can also ⌘ Command-drag an item in the menu bar: to the left of the holzBar icon, it is hidden.")
         }
     }
 
@@ -112,26 +122,24 @@ struct MenuBarLayoutSettingsPane: View {
     }
 
     @ViewBuilder
-    private var loadingMenuBarItems: some View {
-        VStack {
-            Text("Loading menu bar items…")
-            ProgressView()
-        }
-        .font(.title)
-    }
-
-    @ViewBuilder
     private func layoutBar(for name: MenuBarSection.Name) -> some View {
         if
             let section = appState.menuBarManager.section(withName: name),
             section.isEnabled
         {
-            HolzBarSection(name.localized) {
-                LayoutBar(imageCache: appState.imageCache, section: name)
-                if appState.layoutEditor.newItemsSection == name {
-                    NewItemsTile()
+            SettingsBlockRow {
+                VStack(alignment: .leading, spacing: HolzBarTheme.Spacing.xs) {
+                    Text(name.localized)
+                        .font(HolzBarTheme.Typography.callout.weight(.semibold))
+                        .foregroundStyle(HolzBarTheme.Palette.textSecondary)
+                        .accessibilityAddTraits(.isHeader)
+                    LayoutBar(imageCache: appState.imageCache, section: name)
+                    if appState.layoutEditor.newItemsSection == name {
+                        NewItemsTile()
+                    }
                 }
             }
+            .settingsDependent(on: hasItems)
         }
     }
 }
