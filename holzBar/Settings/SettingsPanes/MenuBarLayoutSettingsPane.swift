@@ -28,7 +28,7 @@ struct MenuBarLayoutSettingsPane: View {
         if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             cannotArrange
         } else {
-            HolzBarForm(spacing: 20) {
+            SettingsPaneHost(.layout) {
                 header
                 if #available(macOS 27.0, *) {
                     StuckOverflowWarning(concealer: appState.concealer27)
@@ -37,8 +37,8 @@ struct MenuBarLayoutSettingsPane: View {
                 if #available(macOS 27.0, *) {
                     CommandDragNoticesSection()
                 }
-                LayoutDraftSection()
                 layoutBars
+                LayoutDraftSection()
                 HolzBarSection {
                     HStack {
                         Text("Let holzBar propose which items to hide, from what it knows of the apps. You decide, and you can undo it.")
@@ -104,9 +104,11 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var cannotArrange: some View {
-        Text("holzBar cannot arrange menu bar items in automatically hidden menu bars.")
-            .font(.title3)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        SettingsPaneHost(.layout) {
+            SettingsGroup {
+                SettingsStateLine(.info, Text("holzBar cannot arrange menu bar items in automatically hidden menu bars."))
+            }
+        }
     }
 
     @ViewBuilder
