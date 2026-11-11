@@ -20,7 +20,9 @@ struct ProfilesAndHistorySettingsPane: View {
                 }
             } else {
                 ProfilesSection(profiles: appState.profiles)
+                ItemGroupsSection(groups: appState.itemGroups, itemManager: appState.itemManager)
                 SpacersSection(spacers: appState.spacers)
+                LayoutHistorySection(snapshots: appState.snapshots)
             }
         }
     }
