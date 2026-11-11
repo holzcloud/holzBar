@@ -61,7 +61,10 @@ struct HotkeyRecorder<Label: View>: View {
             leadingSegment
             trailingSegment
         }
-        .frame(width: 132, height: 24)
+        .frame(
+            width: HolzBarTheme.SettingsKit.hotkeyRecorderWidth,
+            height: HolzBarTheme.SettingsKit.hotkeyRecorderHeight
+        )
     }
 
     @ViewBuilder
@@ -121,7 +124,9 @@ struct HotkeyRecorder<Label: View>: View {
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text(verbatim: keyCombination.displayValue))
         } else {
-            Text("Record Hotkey")
+            // Empty: the quiet "Record" of the settings kit (D-18).
+            Text("Record")
+                .foregroundStyle(HolzBarTheme.Palette.textTertiary)
         }
     }
 
